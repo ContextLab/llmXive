@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T21:28:51.148742Z'
-current_stage: specified
+current_stage: flesh_out_complete
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-460-investigating-the-impact-of-network-cent
-last_run_id: 6ce16e94-3224-4ec2-9b53-ea8a5610bfa7
+last_run_id: e64906ba-1d1f-4110-8d60-3b9cf2a97643
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-460-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent
 title: Investigating the Impact of Network Centrality on Resting-State Functional
   Connectivity in Autism Spectrum Disorder
-updated_at: '2026-08-08T23:20:00.975440Z'
+updated_at: '2026-08-23T00:48:16.917557Z'

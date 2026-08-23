@@ -1,3 +1,3 @@
 """
-Data directory initialization.
+Data directory storage for raw, processed, results, config, and citations.
 """

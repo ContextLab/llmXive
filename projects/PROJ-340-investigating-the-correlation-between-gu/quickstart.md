@@ -1,76 +1,90 @@
-# Quickstart Guide: Gut Microbiome & Sleep Architecture Pipeline
+# Quick Start Guide: Gut Microbiome & Sleep Architecture Pipeline
 
-This guide describes how to run the full analysis pipeline for the project
-**PROJ-340-investigating-the-correlation-between-gu**.
+This guide provides the commands to execute the full analysis pipeline.
 
-## Prerequisites
+## Environment Setup
 
-- Python 3.9+
-- `pip` and `venv`
-- Required dependencies installed (see `requirements.txt`)
-
-## Installation
-
-1. Clone the repository.
-2. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. Install dependencies:
+1. **Install Dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Configuration
+2. **Configure Data Sources**:
+ Edit `data/config/real_data_sources.yaml` to point to your real dataset.
+ ```yaml
+ # data/config/real_data_sources.yaml
+ sources:
+ - name: "Primary_Cohort"
+ type: "csv"
+ url: ""
+ checksum: "sha256:..."
+ ```
+ *Note: The pipeline will **fail** if this file is missing or the URL is invalid. Do not use synthetic data for final results.*
 
-Ensure `data/config/required_variables.yaml` exists and contains the necessary
-predictor and outcome variable names.
+## Execution Steps
 
-## Running the Pipeline
+### Step 1: Data Ingestion & Validation
+Load the data, validate required variables, and detect outliers.
 
-### 1. Generate Synthetic Data (For Testing)
-
-To run the integration test T110 (Synthetic Data Pipeline):
-
+**Option A: Real Data (Production)**
 ```bash
-python code/run_synthetic_pipeline.py
+python code/ingest.py
+```
+*Output*: `data/processed/filtered_data.parquet`, `data/results/outlier_report.json`
+
+**Option B: Synthetic Data (Testing Only)**
+```bash
+python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv
+python code/main.py --input data/raw/synthetic_data.csv --output data/results/
 ```
 
-This script:
-- Generates synthetic metagenomic and sleep data.
-- Validates the data against the schema.
-- Detects and filters outliers.
-- Runs correlation analysis.
-- Performs diagnostics (VIF, power, sensitivity).
-- Writes all required artifacts to `data/`.
-
-### 2. Run Real Data Pipeline (When Data Available)
+### Step 2: Main Analysis Pipeline
+Execute the full correlation analysis, diagnostics, and report generation.
 
 ```bash
-python code/run_real_data_pipeline.py
+python code/main.py
 ```
+*This command performs:*
+1. Ingestion (if input not provided via CLI)
+2. Method Selection (ZINB vs Pearson/Spearman)
+3. Correlation Analysis with FDR correction
+4. Sensitivity & Power Analysis
+5. Report Generation
 
-*Note: This will fail if no real data source is configured or available.*
-
-## Verification
-
-After running `run_synthetic_pipeline.py`, verify the following outputs exist:
-
-- `data/raw/synthetic_data.csv`
-- `data/results/outlier_report.json`
-- `data/processed/filtered_data.parquet`
+*Outputs*:
 - `data/results/correlation_matrix.json`
 - `data/results/sensitivity_analysis.csv`
+- `data/results/power_analysis_report.json`
+- `data/results/report_draft.md`
 - `data/results/timing_evidence.json`
 
-## CI/CD
+### Step 3: Verification
+Validate the integrity of the run.
 
-The pipeline is configured to run in GitHub Actions (`.github/workflows/analysis.yml`).
-The CI job executes the synthetic pipeline to verify correctness within the 6-hour limit.
+```bash
+python scripts/verify_integrity.py
+python scripts/final_validation.py
+```
 
 ## Troubleshooting
 
-- **Missing Variables**: Ensure `data/config/required_variables.yaml` is populated.
-- **Import Errors**: Check that all dependencies are installed.
-- **Circular Imports**: Ensure `main.py` and `run_stress_test.py` do not import each other at the module level.
+- **Error: "No required variables loaded"**
+ - Check `data/config/required_variables.yaml`. Ensure your input CSV columns match the required predictors and outcomes exactly.
+
+- **Error: "Real data fetch failed"**
+ - Verify `data/config/real_data_sources.yaml`. The pipeline does not support synthetic fallbacks in production.
+
+- **Error: "Pipeline execution exceeded 6-hour limit"**
+ - This is a hard timeout. If the dataset is too large, consider reducing the sample size or optimizing the correlation method selection.
+
+## Output Artifacts
+
+| Artifact | Description |
+|----------|-------------|
+| `data/processed/filtered_data.parquet` | Cleaned dataset with outliers removed |
+| `data/results/outlier_report.json` | Details of excluded data points |
+| `data/results/correlation_matrix.json` | Final correlation results with p-values |
+| `data/results/sensitivity_analysis.csv` | Stability of results across p-value thresholds |
+| `data/results/power_analysis_report.json` | Statistical power assessment |
+| `data/results/report_draft.md` | Human-readable interpretation |
+| `data/results/timing_evidence.json` | Execution timing metrics |

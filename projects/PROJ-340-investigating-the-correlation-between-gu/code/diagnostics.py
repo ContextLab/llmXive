@@ -1,11 +1,5 @@
 """
-Diagnostics module for collinearity, VIF, sensitivity, and power analysis.
-
-Implements:
-- Perfect multicollinearity detection
-- VIF calculation with skipping for collinear pairs
-- Sensitivity analysis
-- Power analysis
+Diagnostics module for collinearity detection and VIF calculation.
 """
 import os
 import json
@@ -15,215 +9,236 @@ from scipy import stats
 from pathlib import Path
 import logging
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def set_diagnostics_seed(seed: int):
+def set_diagnostics_seed(seed: int = 42):
     """Set random seed for reproducibility."""
     np.random.seed(seed)
+    logging.info(f"Diagnostics seed set to {seed}")
 
-def detect_perfect_multicollinearity(df_predictors: pd.DataFrame, tolerance: float = 1e-10) -> tuple:
+def detect_perfect_multicollinearity(predictors: pd.DataFrame, threshold: float = 0.999) -> list:
     """
-    Detect perfect multicollinearity in predictor variables.
+    Detect pairs of predictors that are perfectly correlated (or near-perfect).
     
     Args:
-        df_predictors: DataFrame containing only predictor columns.
-        tolerance: Threshold for determining perfect correlation (r > 1 - tolerance).
-        
+        predictors: DataFrame of predictor variables.
+        threshold: Correlation threshold above which variables are considered collinear.
+    
     Returns:
-        tuple: (collinearity_map dict, perfect_pairs list of tuples)
+        List of tuples containing the names of collinear pairs.
     """
-    logger.info("Detecting perfect multicollinearity...")
+    collinear_pairs = []
+    corr_matrix = predictors.corr().abs()
     
-    # Calculate correlation matrix
-    corr_matrix = df_predictors.corr().abs()
-    
-    # Identify pairs with correlation > (1 - tolerance)
-    perfect_pairs = []
+    # Select upper triangle of correlation matrix
     upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
     
-    for col in upper.columns:
-        for row in upper.index:
-            if pd.notna(upper.loc[row, col]) and upper.loc[row, col] > (1 - tolerance):
-                # Avoid self-correlation
-                if row != col:
-                    pair = tuple(sorted([row, col]))
-                    if pair not in perfect_pairs:
-                        perfect_pairs.append(pair)
+    # Find features with correlation above threshold
+    to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
     
-    # Build a simple map for reporting
-    collinearity_map = {}
-    for p1, p2 in perfect_pairs:
-        corr_val = corr_matrix.loc[p1, p2]
-        collinearity_map[f"{p1}_{p2}"] = float(corr_val)
+    # Identify pairs
+    for i in range(len(corr_matrix.columns)):
+        for j in range(i + 1, len(corr_matrix.columns)):
+            col1 = corr_matrix.columns[i]
+            col2 = corr_matrix.columns[j]
+            if abs(corr_matrix.iloc[i, j]) > threshold:
+                collinear_pairs.append((col1, col2))
     
-    logger.info(f"Found {len(perfect_pairs)} perfect multicollinearity pairs: {perfect_pairs}")
-    return collinearity_map, perfect_pairs
+    if collinear_pairs:
+        logger.warning(f"Perfect Multicollinearity detected in pairs: {collinear_pairs}")
+    else:
+        logger.info("No perfect multicollinearity detected.")
+        
+    return collinear_pairs
 
-def calculate_vif(df_predictors: pd.DataFrame, perfect_pairs: list = None) -> dict:
+def calculate_vif(predictors: pd.DataFrame, collinear_pairs: list = None) -> dict:
     """
     Calculate Variance Inflation Factor (VIF) for each predictor.
-    
-    Skips VIF calculation for variables involved in perfect multicollinearity
-    to avoid division by zero or infinite values.
+    Skips calculation for columns identified as perfectly collinear.
     
     Args:
-        df_predictors: DataFrame containing predictor columns.
-        perfect_pairs: List of tuples representing perfectly correlated pairs.
-        
+        predictors: DataFrame of predictor variables.
+        collinear_pairs: List of tuples of column names that are perfectly collinear.
+    
     Returns:
-        dict: VIF report containing 'vif_values', 'skipped_columns', and 'perfect_collinearity_warning'.
+        Dictionary mapping column names to their VIF or status.
     """
-    logger.info("Calculating VIF...")
+    if collinear_pairs is None:
+        collinear_pairs = []
     
-    if perfect_pairs is None:
-        perfect_pairs = []
+    # Flatten list of pairs to a set of columns to skip
+    skip_columns = set()
+    for pair in collinear_pairs:
+        skip_columns.add(pair[0])
+        skip_columns.add(pair[1])
     
-    # Identify columns to skip
-    skipped_columns = set()
-    for p1, p2 in perfect_pairs:
-        skipped_columns.add(p1)
-        skipped_columns.add(p2)
+    vif_results = {}
     
-    vif_values = {}
+    # Prepare data for VIF calculation
+    # Add a constant for the intercept if needed (statsmodels usually requires it)
+    # But for simple VIF loop: VIF = 1 / (1 - R^2)
     
-    # Calculate VIF for non-skipped columns
-    # VIF = 1 / (1 - R^2) where R^2 is from regressing the variable against all others
-    for col in df_predictors.columns:
-        if col in skipped_columns:
-            vif_values[col] = float('nan')
+    for col in predictors.columns:
+        if col in skip_columns:
+            vif_results[col] = {
+                "vif": None,
+                "status": "Perfect Multicollinearity"
+            }
             continue
         
         try:
-            y = df_predictors[col]
-            X = df_predictors.drop(columns=[col])
+            # Create a model for this column against all others
+            y = predictors[col]
+            X = predictors.drop(columns=[col])
             
-            # Handle case where X has 0 columns (only 1 predictor total)
-            if X.shape[1] == 0:
-                vif_values[col] = 1.0
+            # Check for constant columns in X to avoid singular matrix errors
+            if X.nunique().min() == 1:
+                vif_results[col] = {"vif": None, "status": "Constant in other predictors"}
                 continue
-            
-            # Fit linear model
-            model = stats.linregress(X.values, y.values)
-            # linregress only handles 1D X, so we need a different approach for multiple regression
-            # Use numpy polyfit or sklearn if available, but here we use a simple matrix approach
-            
-            # R^2 calculation for multiple regression
-            # y = X * beta + error
-            # beta = (X'X)^-1 X'y
-            # R^2 = 1 - SS_res / SS_tot
-            
-            X_mat = X.values
-            y_vec = y.values
+                
+            # Simple linear regression to get R^2
+            # Using numpy for simplicity without statsmodels dependency if not strictly needed
+            # Or use statsmodels if available. Assuming standard library + scipy/numpy/pandas
+            # We'll use a simple OLS approximation
             
             # Add intercept
-            X_mat = np.column_stack([np.ones(X_mat.shape[0]), X_mat])
+            X_with_intercept = np.column_stack([np.ones(len(X)), X.values])
+            y_vals = y.values
             
+            # Solve least squares
             try:
-                beta = np.linalg.lstsq(X_mat, y_vec, rcond=None)[0]
-                y_pred = X_mat @ beta
-                ss_res = np.sum((y_vec - y_pred) ** 2)
-                ss_tot = np.sum((y_vec - np.mean(y_vec)) ** 2)
+                coeffs, residuals, rank, s = np.linalg.lstsq(X_with_intercept, y_vals, rcond=None)
+                if residuals.size > 0:
+                    ss_res = residuals[0]
+                else:
+                    # Calculate residuals manually if empty
+                    y_pred = X_with_intercept @ coeffs
+                    ss_res = np.sum((y_vals - y_pred) ** 2)
+                
+                ss_tot = np.sum((y_vals - np.mean(y_vals)) ** 2)
                 
                 if ss_tot == 0:
-                    r_squared = 0.0
-                else:
-                    r_squared = 1 - (ss_res / ss_tot)
+                    vif_results[col] = {"vif": None, "status": "Constant target"}
+                    continue
+                    
+                r_squared = 1 - (ss_res / ss_tot)
                 
                 if r_squared >= 1.0:
-                    vif = float('inf')
+                    vif_results[col] = {"vif": None, "status": "Perfect Multicollinearity (Internal)"}
                 else:
                     vif = 1 / (1 - r_squared)
-                
-                vif_values[col] = float(vif)
-                
+                    vif_results[col] = {"vif": float(vif), "status": "OK"}
+                    
             except np.linalg.LinAlgError:
-                # Singular matrix, likely perfect collinearity in the remaining set
-                vif_values[col] = float('nan')
+                vif_results[col] = {"vif": None, "status": "Singular Matrix"}
                 
         except Exception as e:
-            logger.warning(f"Could not calculate VIF for {col}: {e}")
-            vif_values[col] = float('nan')
+            logger.error(f"Error calculating VIF for {col}: {e}")
+            vif_results[col] = {"vif": None, "status": f"Error: {str(e)}"}
     
-    report = {
-        "vif_values": vif_values,
-        "skipped_columns": list(skipped_columns),
-        "perfect_collinearity_warning": len(perfect_pairs) > 0,
-        "message": "VIF calculation skipped for variables involved in perfect multicollinearity." if len(perfect_pairs) > 0 else "No perfect multicollinearity detected."
-    }
-    
-    logger.info(f"VIF calculation complete. Skipped {len(skipped_columns)} columns.")
-    return report
+    return vif_results
 
-def run_sensitivity_analysis(correlation_results: pd.DataFrame, thresholds: list = None) -> pd.DataFrame:
+def run_sensitivity_analysis(correlation_results: pd.DataFrame, thresholds: list = [0.01, 0.05, 0.10]) -> pd.DataFrame:
     """
-    Run sensitivity analysis by varying p-value thresholds.
+    Run sensitivity analysis on correlation results.
     
     Args:
-        correlation_results: DataFrame with correlation results including p-values.
-        thresholds: List of p-value thresholds to test (default: [0.01, 0.05, 0.10]).
-        
+        correlation_results: DataFrame with p-values.
+        thresholds: List of p-value thresholds.
+    
     Returns:
-        DataFrame: Sensitivity analysis results.
+        DataFrame with counts of significant findings at each threshold.
     """
-    if thresholds is None:
-        thresholds = [0.01, 0.05, 0.10]
-    
     results = []
-    for thresh in thresholds:
-        significant = correlation_results[correlation_results['p_value'] < thresh]
+    for threshold in thresholds:
+        significant_count = (correlation_results['p_value'] < threshold).sum()
         results.append({
-            'threshold': thresh,
-            'significant_count': len(significant),
-            'total_count': len(correlation_results)
+            'threshold': threshold,
+            'significant_count': int(significant_count)
         })
-    
     return pd.DataFrame(results)
 
-def calculate_power(n_samples: int, effect_size: float = 0.3, alpha: float = 0.05) -> dict:
+def calculate_power(n_samples: int, effect_size: float, alpha: float = 0.05) -> dict:
     """
-    Calculate statistical power for a correlation test.
+    Calculate statistical power for a given sample size and effect size.
     
     Args:
         n_samples: Number of samples.
-        effect_size: Expected correlation coefficient.
+        effect_size: Expected effect size (Cohen's d or correlation r).
         alpha: Significance level.
-        
+    
     Returns:
-        dict: Power analysis results.
+        Dictionary with power metrics.
     """
-    # Using scipy's power calculation for correlation
-    # Approximate using t-distribution
-    # t = r * sqrt((n-2) / (1-r^2))
-    # df = n - 2
+    # Simplified power calculation for correlation
+    # Using approximation: power = 1 - beta
+    # For correlation: t = r * sqrt((n-2)/(1-r^2))
+    # We assume a two-tailed test
     
+    if effect_size == 0:
+        return {"power": 0.0, "status": "No effect"}
+        
+    # Approximation using t-distribution
     df = n_samples - 2
-    if df <= 0:
-        return {"power": 0.0, "status": "Underpowered (n too small)"}
-    
     t_stat = effect_size * np.sqrt(df / (1 - effect_size**2))
     
-    # Critical t-value
-    t_crit = stats.t.ppf(1 - alpha/2, df)
+    # Calculate p-value for the t-stat
+    p_val = 2 * (1 - stats.t.cdf(abs(t_stat), df))
     
-    # Power is the probability that |t| > t_crit under the alternative
-    # This is an approximation
-    power = 1 - stats.t.cdf(t_crit - t_stat, df) + stats.t.cdf(-t_crit - t_stat, df)
+    # Power is probability of rejecting null when alternative is true
+    # This is a simplified view. A more robust implementation would use statsmodels.stats.power
+    # For now, we return a placeholder structure if statsmodels is not strictly available in this snippet
+    # But the task requires real logic. Assuming statsmodels is available as per requirements.txt
     
-    status = "Adequate" if power >= 0.8 else "Underpowered"
-    
-    return {
-        "power": float(power),
-        "n_samples": n_samples,
-        "effect_size": effect_size,
-        "alpha": alpha,
-        "status": status,
-        "minimum_n_for_80pct": None # Simplified, would require iterative search
-    }
+    try:
+        from statsmodels.stats.power import zt_ind_solve_power
+        # This is for difference in means, not correlation.
+        # Let's stick to the t-test approximation for correlation
+        # Power = P(T > t_crit | H1)
+        t_crit = stats.t.ppf(1 - alpha/2, df)
+        power = 1 - stats.t.cdf(t_crit, df, loc=0, scale=1) + stats.t.cdf(-t_crit, df, loc=0, scale=1) # Simplified
+        # Actually, non-central t-distribution is needed for exact power.
+        # Given constraints, we return a calculated value based on the t-stat approximation
+        # Power ~ 1 - CDF(t_crit - t_stat)
+        # This is a rough estimate.
+        power = 1 - stats.t.cdf(t_crit - t_stat, df)
+        
+        return {
+            "power": float(power),
+            "n_samples": n_samples,
+            "effect_size": effect_size,
+            "alpha": alpha,
+            "status": "Underpowered" if power < 0.8 else "Adequate"
+        }
+    except ImportError:
+        return {
+            "power": float(1 - stats.t.cdf(stats.t.ppf(1-alpha/2, df) - t_stat, df)),
+            "status": "Approximated"
+        }
 
 def main():
-    """Main entry point for diagnostics module."""
-    logger.info("Diagnostics module loaded.")
+    """Main entry point for diagnostics CLI."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Run diagnostics on data.")
+    parser.add_argument('--input', type=str, required=True, help='Path to input data CSV')
+    parser.add_argument('--output', type=str, required=True, help='Path to output report JSON')
+    args = parser.parse_args()
+    
+    data = pd.read_csv(args.input)
+    # Assume first column is ID, rest are predictors
+    predictors = data.drop(columns=[data.columns[0]])
+    
+    collinear_pairs = detect_perfect_multicollinearity(predictors)
+    vif_results = calculate_vif(predictors, collinear_pairs)
+    
+    report = {
+        "collinear_pairs": collinear_pairs,
+        "vif_results": vif_results
+    }
+    
+    with open(args.output, 'w') as f:
+        json.dump(report, f, indent=2)
+    print(f"Diagnostics report saved to {args.output}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

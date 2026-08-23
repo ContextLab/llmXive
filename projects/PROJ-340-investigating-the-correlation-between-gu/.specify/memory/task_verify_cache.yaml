@@ -4,20 +4,13 @@ T001a:
   r: "No evidence of a `code/` directory or an `__init__.py` file is present in the\
     \ provided artifacts; the implementer\u2019s claim is not backed by any tangible\
     \ files. The required directory and initialization file must be created and shown."
-T004a:
+T002b:
   c: false
-  h: 0ce1a30fb709057bb330bc4b5b914bd227efbb3d8828db88649c8c231ef6e304
-  r: The required `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml`
-    file is missing, and the runtime configuration file `data/config/research_design.yaml`
-    that should contain the list of taxa does not exist. Without these artifacts the
-    predictor schema is not defined and the required taxa list is not provided.
-T004b:
-  c: false
-  h: 0ce1a30fb709057bb330bc4b5b914bd227efbb3d8828db88649c8c231ef6e304
-  r: "The required files `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml`\
-    \ and `data/config/research_design.yaml` are missing from the repository, so no\
-    \ schema or runtime metric list is present. Without these artifacts the task\u2019\
-    s requirement is not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file containing the required entries nor a `.python-version`
+    file with `3.11` was presented, and no `git status` output was provided to confirm
+    that the listed files are ignored. The implementer must supply these files and
+    verification output.
 T021:
   c: false
   h: 4efe343b45daf5599db8dc008d7e2d5e86a7f660bbadafa55896000372b51757
@@ -26,6 +19,22 @@ T021:
     \ the mandatory compositionality flag file. Moreover, `data/metadata/compositionality_flag.json`\
     \ is missing, so the function cannot satisfy the requirement to read it and apply\
     \ the fallback logic when T022a fails. The task therefore remains unfinished."
+T107:
+  c: false
+  h: 908a2a4f4cc0d0cd1ee58ada53baf3f8d7f539d9d95a85fa0d75f5213a49f5cd
+  r: "The repository contains `code/generate_synthetic_data.py`, but the script is\
+    \ truncated and does not show a command\u2011line flag to inject a missing variable,\
+    \ nor does it demonstrate using a fixed\u2011seed `numpy.random.Generator` and\
+    \ writing the result to `data/raw/synthetic_test_data.csv`. Moreover, the required\
+    \ output file `data/raw/synthetic_test_data.csv` is absent. The task\u2019s core\
+    \ deliverable (a generated CSV with the specified properties) is missing."
+T110:
+  c: false
+  h: fad36958c375c097c728865876708cb0ebad0f17699043b0a8d4488e23bccf5a
+  r: The required output artifacts (`data/processed/filtered_data.parquet`, `data/results/correlation_results.csv`,
+    and `data/results/power_analysis_report.json`) are not present on disk, so the
+    integration test has not been verified as successful. The pipeline execution evidence
+    is therefore insufficient.
 T112:
   c: false
   h: 8bc048c007ef975a6ec13fc131327a50465708d6e8e9c517e0ff08c5b29894eb
@@ -33,3 +42,25 @@ T112:
     \ so there is no evidence that the pipeline was run on the three datasets or that\
     \ method selection was logged as specified. The task\u2019s core deliverable is\
     \ absent."
+T113:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test code, dataset, or execution logs were provided to demonstrate that a\
+    \ perfectly correlated taxa pair was injected, that the system emitted a \u201C\
+    Perfect Multicollinearity\u201D flag, and that VIF calculation was skipped. The\
+    \ required integration\u2011test artifact is missing, so the task is not satisfied."
+T130:
+  c: false
+  h: 9ce46878830be12d3a164ae9b6dd1918a6bdb48027c9948b4af03963e78b5cc2
+  r: "The `scripts/verify_integrity.py` file exists but is truncated and does not\
+    \ show a complete implementation, and the required output `data/results/integrity_verification_report.json`\
+    \ is missing. No evidence is provided that the script runs successfully (exit\
+    \ code\u202F0) or generates the report, so the task\u2019s deliverable is not\
+    \ satisfied."
+T131:
+  c: false
+  h: 7236d97f668cfb0713d5b83b8e0629b9fad7145bace003d1d9764e9603bde237
+  r: The `scripts/final_validation.py` file exists, but the required input files `data/metadata/method_selection_log.json`
+    and `data/results/causal_scan_report.json` are absent, and the expected output
+    `data/results/final_validation_report.json` was not generated. Without these files
+    the script cannot be verified to perform the required validation.

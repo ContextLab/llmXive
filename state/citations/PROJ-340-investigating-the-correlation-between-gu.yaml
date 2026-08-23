@@ -65,3 +65,36 @@
   verification_status: pending
   verified_against_url: https://microsetta.ucsd.edu
   verified_at: '2026-08-20T07:08:00.681604Z'
+- artifact_hash: fdf29b3d95983f037203237e50b503c75e9fe847d8453577245515069eb4d18d
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/dataset.csv
+  verification_status: mismatch
+  verified_against_url: https://example.com/dataset.csv
+  verified_at: '2026-08-23T00:31:45.309030Z'
+- artifact_hash: 6da3625c32d5e9cd80f8a36b38af27c5eeab230798c2a1837385a44ae063cc14
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/.../data.csv
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/.../data.csv
+  verified_at: '2026-08-23T00:31:46.667716Z'
+- artifact_hash: 036875b8cf6982db1a73eac0c082d31a45d26f28b3da58ec7010d271df41cf58
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_requirements.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/datasets/gut_sleep_2024.csv
+  verification_status: mismatch
+  verified_against_url: https://example.com/datasets/gut_sleep_2024.csv
+  verified_at: '2026-08-23T00:31:51.150777Z'

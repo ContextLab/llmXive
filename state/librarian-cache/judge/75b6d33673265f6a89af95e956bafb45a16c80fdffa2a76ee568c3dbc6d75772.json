@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1704.07635",
+  "judged_at": "2026-08-23T00:47:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the impact of network centrality on resting-state functional connectivity in autism spectrum disorder neuroscience",
+  "rationale": "This paper satisfies criterion (a) and (b) because it investigates the fundamental properties of resting-state functional connectivity (rs-fMRI) networks and the validity of node definitions (ROIs) used to measure them, which is the essential methodological foundation for any study analyzing network centrality in this domain. Although it does not mention Autism Spectrum Disorder or centrality metrics specifically, it addresses the core mechanism (rs-fMRI network construction) and the specific da",
+  "relevant": true
+}

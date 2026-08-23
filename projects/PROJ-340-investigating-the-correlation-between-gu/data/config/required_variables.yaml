@@ -1,16 +1,9 @@
-# Required Variables Configuration
-# This file defines the schema of variables required for the analysis.
-# It is the Single Source of Truth for variable lists used in validation.
-
 required_predictors:
-  - Taxa_A
-  - Taxa_B
-  - Taxa_C
-  - Taxa_D
-  - Taxa_E
-
+  - taxon_abundance
+  - firmicutes_bacteroidetes_ratio
+  - alpha_diversity
 required_outcomes:
-  - Sleep_Duration
-  - SWS duration
-  - REM_duration
-  - Wake_after_sleep_onset
+  - sws_duration
+  - rem_duration
+  - sleep_efficiency
+  - wake_after_sleep_onset

@@ -21,79 +21,72 @@ sdist/
 var/
 wheels/
 *.egg-info/
+.installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Virtual Environments
+.venv/
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
 
-# IDEs
+# IDEs and Editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 .project
+.pydevproject
 .settings/
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Environment variables
+.env
 
-# pyenv
-.python-version
+# Data files (Raw and Processed)
+# Raw data is often large and should not be committed unless explicitly authorized
+data/raw/*.csv
+data/raw/*.tsv
+data/raw/*.json
+data/raw/*.parquet
+data/raw/*.gz
 
-# mypy
-.mypy_cache/
+# Processed data (generated artifacts)
+data/processed/*.parquet
+data/processed/*.csv
+data/processed/*.json
 
-# virtualenvs
-venv/
-.venv/
+# Results and Reports
+data/results/*.json
+data/results/*.csv
+data/results/*.md
+data/results/*.png
+data/results/*.pdf
 
-# Data directories (generated)
-data/raw/
-data/processed/
-data/results/
-data/config/
-data/metadata/
-data/citations/
+# Metadata and State (can be large or sensitive)
+data/metadata/*.json
+state/
 
 # Logs
 *.log
 logs/
 
-# OS files
-.DS_Store
-Thumbs.db
+# Jupyter Notebook
+.ipynb_checkpoints
 
-# Project specific
-state/
+# pytest
 .pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
 .mypy_cache/
-.ruff_cache/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

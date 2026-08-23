@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T20:20:12.103276Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-220-predicting-amine-reactivity-using-graph-
-last_run_id: 279fb476-9377-47e7-b27d-2ced99485600
+last_run_id: d7e5ab35-aef3-407c-b3db-3b6f89ddf1b9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-220-predicting-amine-reactivity-using-graph-/specs/001-predicting-amine-reactivity-using-graph
 title: Predicting Amine Reactivity Using Graph Neural Networks and Public Databases
-updated_at: '2026-08-16T06:18:22.220879Z'
+updated_at: '2026-08-23T00:50:31.652928Z'

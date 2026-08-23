@@ -1,35 +1,47 @@
+"""
+Script to initialize the project data directory structure.
+Creates required directories and __init__.py files for data organization.
+"""
 import os
 from pathlib import Path
 
 def setup_data_directories():
     """
-    Creates the required directory structure for the project's data artifacts.
+    Creates the standard data directory structure for the project.
+    Directories created:
+      - data/raw/
+      - data/processed/
+      - data/results/
+      - data/config/
+      - data/citations/
     
-    This function implements task T001c by ensuring the existence of:
-    - data/raw: For raw, unprocessed data downloads
-    - data/processed: For cleaned, transformed data ready for analysis
-    - data/results: For final analysis outputs, reports, and metrics
-    - data/config: For configuration files and schema definitions
-    - data/metadata: For metadata about datasets and processing steps
-    - data/citations: For verified citation records
+    Also ensures __init__.py files exist in each directory for Python package recognition.
     """
-    base_dir = Path("data")
-    subdirs = [
+    base_dir = Path(__file__).resolve().parent.parent
+    data_root = base_dir / "data"
+    
+    subdirectories = [
         "raw",
         "processed",
         "results",
         "config",
-        "metadata",
         "citations"
     ]
     
-    for subdir in subdirs:
-        target_path = base_dir / subdir
-        target_path.mkdir(parents=True, exist_ok=True)
-        print(f"Ensured directory: {target_path}")
+    print(f"Setting up data directories under: {data_root}")
     
-    return True
+    for subdir_name in subdirectories:
+        dir_path = data_root / subdir_name
+        dir_path.mkdir(parents=True, exist_ok=True)
+        
+        init_file = dir_path / "__init__.py"
+        if not init_file.exists():
+            init_file.write_text(f'"""\n{subdir_name.capitalize()} data storage.\n"""\n')
+            print(f"Created: {dir_path} (with __init__.py)")
+        else:
+            print(f"Exists: {dir_path}")
+    
+    print("Data directory structure setup complete.")
 
 if __name__ == "__main__":
     setup_data_directories()
-    print("Data directory structure created successfully.")

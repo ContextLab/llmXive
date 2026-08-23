@@ -1,3 +1,3 @@
 """
-Citations directory.
+Citation and verification data storage.
 """
