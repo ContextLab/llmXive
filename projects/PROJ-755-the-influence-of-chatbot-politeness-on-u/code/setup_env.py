@@ -1,61 +1,61 @@
 """
-Script to initialize environment configuration for the llmXive pipeline.
+Environment setup script for the llmXive pipeline.
 
-This script:
-1. Creates a .env.template file in the code/ directory
-2. Ensures a .env file exists in the project root
-3. Validates that required environment variables can be loaded
+Initializes the .env file if missing and validates required environment variables.
 """
 import sys
 from pathlib import Path
 from utils.env_config import (
-    create_env_template,
-    ensure_env_file_exists,
+    EnvConfigError,
+    load_env_config,
     get_hf_token,
     validate_env_config,
-    EnvConfigError
+    ensure_env_file_exists
 )
 
 
 def main():
     """Main entry point for environment setup."""
-    print("Initializing environment configuration...")
+    print("Setting up environment configuration...")
     
-    # Step 1: Create template
     try:
-        template_path = create_env_template()
-        print(f"✓ Created template at: {template_path}")
-    except Exception as e:
-        print(f"✗ Failed to create template: {e}", file=sys.stderr)
-        return 1
-    
-    # Step 2: Ensure .env exists
-    try:
+        # Ensure .env file exists (creates from template if missing)
         env_path = ensure_env_file_exists()
-        print(f"✓ Ensured .env file exists at: {env_path}")
-    except Exception as e:
-        print(f"✗ Failed to create .env: {e}", file=sys.stderr)
-        return 1
-    
-    # Step 3: Validate (check if HF_TOKEN is set, warn if not)
-    try:
-        # We don't require HF_TOKEN for the setup itself, just warn
-        token = get_hf_token(required=False)
-        if token:
-            print("✓ HF_TOKEN is configured")
-        else:
-            print("⚠ HF_TOKEN is not configured. "
-                 "Download will fail until you set it in .env or export HF_TOKEN.")
+        print(f"Environment file ensured at: {env_path}")
+        
+        # Load configuration
+        load_env_config()
+        
+        # Validate required variables
+        # Currently only HF_TOKEN is required for dataset downloads
+        required = ["HF_TOKEN"]
+        
+        # We validate but allow missing if we are just setting up
+        # The actual error will be raised when the dataset loader runs
+        try:
+            validate_env_config(required)
+            print("✓ All required environment variables are set.")
+        except EnvConfigError as e:
+            print(f"⚠ Warning: {e}")
+            print("  Please update your .env file with the missing values.")
+            print("  See .env.example for instructions.")
+            
+        # If HF_TOKEN is present, verify it's not the placeholder
+        token = get_hf_token()
+        if token and token == "YOUR_HF_TOKEN_HERE":
+            print("⚠ Warning: HF_TOKEN is still set to the placeholder value.")
+            print("  Please replace it with your actual token from huggingface.co.")
+            return 1
+            
+        print("Environment setup complete.")
+        return 0
+        
     except EnvConfigError as e:
-        print(f"✗ Environment validation failed: {e}", file=sys.stderr)
+        print(f"Error during environment setup: {e}")
         return 1
-    
-    print("\nEnvironment setup complete.")
-    print("Next steps:")
-    print("  1. Edit .env to add your HF_TOKEN")
-    print("  2. Run the pipeline scripts")
-    
-    return 0
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return 1
 
 
 if __name__ == "__main__":

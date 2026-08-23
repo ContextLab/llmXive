@@ -1,155 +1,129 @@
 # Implementation Plan: Predicting the Yield Strength of High‑Entropy Alloys
 
-**Branch**: `feature/hea-yield-prediction` | **Date**: 2026‑08‑11 | **Spec**: [link to spec.md]  
-**Input**: Feature specification from `/specs/feature/hea-yield-prediction/spec.md`
+**Branch**: `feature/predict-hea-yield-strength` | **Date**: 2026‑08‑23 | **Spec**: [spec.md](../specs/feature/predict-hea-yield-strength/spec.md)  
+**Input**: Feature specification from `/specs/feature/predict-hea-yield-strength/spec.md`
 
 ## Summary
-Develop an end‑to‑end CPU‑first pipeline that (1) downloads a curated, open‑source HEA yield‑strength dataset (OpenML ID 4539), (2) validates records against JSON schemas, (3) computes composition‑based descriptors with literature‑backed justification, (4) trains a Random Forest regressor using a fixed 80/20 train‑test split and 5‑fold CV on the training portion, (5) evaluates on the held‑out test set, (6) computes permutation importance with exactly **1 000 permutations** per feature **on the held‑out test set** and assesses significance via a two‑tailed t‑test (normality check included) with Bonferroni correction, (7) records reproducibility metadata (seeds, hyperparameters, software versions, timestamps, checksums, and traceability IDs), (8) generates a markdown `report.md` that includes dataset statistics, model performance, importance rankings, VIF analysis, and the reproducibility manifest, and (9) enforces linting and formatting checks. All functional requirements (FR‑001 – FR‑013) and success criteria (SC‑001 – SC‑008) are explicitly addressed.
+Develop an end‑to‑end CPU‑first pipeline that (1) downloads the curated HEA yield‑strength dataset, (2) validates and deduplicates the data, (3) computes deterministic composition‑based descriptors, (4) splits a **[deferred]** held‑out test set before any cross‑validation, (5) trains a Random Forest regressor with **5‑fold cross‑validation**, (6) evaluates on the held‑out test set reporting R², Pearson r and associated p‑value, (7) computes permutation importance with exactly **1000 permutations** per feature, (8) assesses importance significance via a non‑parametric permutation test (α = 0.05) with Bonferroni correction, (9) generates a reproducibility **manifest.json** recording required provenance fields and validates it against a dedicated schema, (10) produces a comprehensive `report.md` with all mandated sections, (11) validates every intermediate artifact against its JSON schema contract, (12) checks that all success criteria are met, (13) runs linting (`ruff` ≤ 5 warnings) and formatting (`black --check`), and (14) generates a `README.md` with usage instructions and ensures inline code comments throughout the codebase. All functional requirements (FR‑001 – FR‑015) and success criteria (SC‑001 – SC‑008) are explicitly addressed.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit‑learn==1.5.*`, `scipy==1.13.*`, `joblib==1.4.*`, `jsonschema==4.22.*`, `matplotlib==3.9.*`, `seaborn==0.13.*`, `ruff==0.6.*`, `black==24.4.*`  
-- **Storage**: Files under `data/` (raw, processed) and `output/` (models, reports, runtime logs)  
-- **Testing**: `pytest==8.2.*` with contract‑validation tests  
-- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ~7 GB RAM, ~14 GB disk)  
-- **Performance Goals**: End‑to‑end wall‑clock ≤ 2 h on an 8‑core CPU (SC‑004)  
-- **Constraints**: Fixed permutation count = 1 000 (FR‑012); no adaptive counts.
+- **Primary Dependencies**: `pandas==2.2.*`, `numpy==2.0.*`, `scikit‑learn==1.5.*`, `scipy==1.14.*`, `matplotlib==3.9.*`, `jsonschema==4.23.*`, `ruff==0.6.*`, `black==24.*`  
+- **Storage**: File‑based CSV/JSON under `data/` and `output/`  
+- **Testing**: `pytest==8.*` with contract validation via `jsonschema`  
+- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ≈ 7 GB RAM) – CPU‑first; no GPU required.  
+- **Performance Goals**: End‑to‑end runtime ≤ 7200 s on an 8‑core CPU; ≤ 5 ruff warnings.  
+- **Constraints**: Fixed permutation count = 1000 (FR‑012); no adaptive counts.
 
 ## Constitution Check
-| Principle | Reference | How the plan satisfies it |
-|-----------|-----------|---------------------------|
-| I. Reproducibility | Core Principle I | All random seeds are pinned; `requirements.txt` pins exact library versions; dataset fetched from the canonical OpenML URL on every run; `manifest.json` records timestamps, software versions, and checksums. |
-| II. Verified Accuracy | Core Principle II | External citations (e.g., Zhang et al., 2015) are verified; title‑token overlap ≥ 0.7. |
-| III. Data Hygiene | Core Principle III | Raw dataset checksum recorded; every transformation writes a new file with documented checksum; no PII. |
-| IV. Single Source of Truth | Core Principle IV | Every figure/table in `report.md` includes a deterministic identifier (`ID: <sha256>`) linking back to a single data row and the exact code block; these mappings are stored in `manifest.json` (`traceability` map). |
-| V. Versioning Discipline | Core Principle V | Content hashes recorded in `manifest.json`; any artifact change updates the project state timestamp. |
-| VI. Deterministic Descriptor Engineering | Domain‑specific Principle VI | Descriptor functions live in `src/descriptors/` and use a single elemental property table (`data/elemental_properties.csv`). |
-| VII. Statistical Rigor and Uncertainty Quantification | Domain‑specific Principle VII | 5‑fold CV, bootstrap CI (≥ 1 000 resamples, deferred), permutation importance with 1 000 permutations, Bonferroni correction, VIF calculation, full logging of seeds. |
+| Principle | Satisfied? | Note |
+|-----------|------------|------|
+| I. Reproducibility | ✅ | All seeds, versions, and checksums recorded in `manifest.json`. |
+| II. Verified Accuracy | ✅ | All citations are drawn from verified URLs listed in the “Verified datasets” block. |
+| III. Data Hygiene | ✅ | Raw data checksummed; transformations write new files with documented derivation. |
+| IV. Single Source of Truth | ✅ | `data/processed/hea_processed.parquet` is designated as the SSoT for all downstream analyses. |
+| V. Versioning Discipline | ✅ | All artifacts hashed; `state/projects/...yaml` updated automatically by CI. |
+| VI. Deterministic Descriptor Engineering | ✅ | Descriptor functions live in `code/descriptors.py` and are version‑controlled. |
+| VII. Statistical Rigor and Uncertainty Quantification | ✅ | 5‑fold CV, bootstrap CIs (≥ 1000 resamples), permutation importance with exact 1000 permutations, and full seed logging. |
 
 ## Project Structure
 ```
-src/
-├── pipeline/
-│   ├── __init__.py
-│   ├── data.py            # download, checksum, validation (FR‑001, FR‑013, FR‑009)
-│   ├── descriptors.py     # deterministic descriptor computation (FR‑002, VI)
-│   ├── model.py           # RF training, CV, prediction (FR‑003, VII)
-│   ├── importance.py      # permutation importance + t‑test + Bonferroni (FR‑005, FR‑006, FR‑012)
-│   ├── report.py          # markdown generation with traceability IDs (FR‑008, IV)
-│   └── manifest.py        # manifest creation (FR‑007, I)
-├── contracts/
-│   ├── dataset.schema.yaml
-│   ├── elemental_properties.schema.yaml
-│   ├── hea_composition.schema.yaml
-│   ├── descriptor.schema.yaml
-│   ├── importance.schema.yaml
-│   ├── performance.schema.yaml
-│   ├── runtime.schema.yaml
-│   └── manifest.schema.yaml
-tests/
-├── contract/
-│   └── test_schemas.py    # validates all artifacts against contracts (FR‑013)
-└── integration/
-    └── test_end_to_end.py # runs full pipeline, checks SC‑001‑SC‑008
-data/
-├── raw/
-│   └── hea_yield_strength.jsonl   # downloaded via OpenML ID 4539
-├── processed/
-│   └── descriptors.parquet
-└── elemental_properties.csv
-output/
-├── model/
-│   └── random_forest.joblib
-├── report/
-│   └── report.md
-├── manifest/
-│   └── manifest.json
-├── metrics/
-│   ├── performance.json
-│   ├── importance.json
-│   └── runtime.json
-└── stability/
-    └── top5_rankings.json
-scripts/
-└── run_pipeline.py
-requirements.txt
-README.md
+specs/feature/predict-hea-yield-strength/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── dataset.schema.yaml
+    ├── descriptor.schema.yaml
+    ├── elemental_properties.schema.yaml
+    ├── hea_composition.schema.yaml
+    ├── hea_schema.schema.yaml
+    ├── importance.schema.yaml
+    ├── metrics.schema.yaml
+    ├── metrics_schema.schema.yaml
+    ├── model_metrics.schema.yaml
+    ├── model_output.schema.yaml
+    ├── output.schema.yaml
+    ├── performance.schema.yaml
+    ├── processed_data.schema.yaml
+    ├── runtime.schema.yaml
+    └── manifest.schema.yaml   ← **new contract**
 ```
 
-## Phase Mapping (FR/SC → Plan Steps)
+## Complexity Tracking
+No constitution violations remain; the data model now defines entities required by the contract schemas (FR‑007).
 
-| Phase | Tasks | FR/SC Covered |
-|-------|-------|---------------|
-| **Phase 0 – Research & Data Acquisition** | Verify dataset availability (OpenML ID 4539), download, checksum, schema validation against `dataset.schema.yaml`, `elemental_properties.schema.yaml`, and `hea_composition.schema.yaml`; enforce FR‑009 abort on missing fields or duplicate rows (deduplicate). | FR‑001, FR‑013, FR‑009, SC‑005 |
-| **Phase 1 – Descriptor Engineering** | Compute deterministic descriptors (mixing entropy, atomic size mismatch, electronegativity variance, VEC, melting‑temperature variance) using the single elemental property table; validate output against `descriptor.schema.yaml`. Literature justification (Zhang et al., 2015) provided. | FR‑002, VI, SC‑006 |
-| **Phase 2 – Model Training** | Fixed **[deferred] train / [deferred] test** split (random_state = seed). Perform 5‑fold CV **only on the training portion**; train Random Forest (`n_estimators=500`, `max_depth=None`); record seeds, hyper‑parameters; store model artifact. | FR‑003, VII, SC‑001, SC‑002 |
-| **Phase 3 – Evaluation** | Evaluate on the **held‑out test set**: compute R², Pearson r, two‑tailed p‑value; bootstrap 1 000 resamples for 95 % CI; perform a concrete power analysis (Cohen f² = 1.5, N≈1200 → > 80 % power). | FR‑004, SC‑001, SC‑002, SC‑003 |
-| **Phase 4 – Permutation Importance** | Compute importance with exactly **1 000 permutations** per feature **on the held‑out test set**; obtain empirical mean/std; assess significance with a **two‑tailed t‑test** (normality checked via Shapiro‑Wilk; if violated, flag limitation); apply Bonferroni correction; output conforms to `importance.schema.yaml`. | FR‑005, FR‑006, FR‑012, SC‑003 |
-| **Phase 5 – Reporting & Manifest** | Generate `report.md` (includes dataset stats, model performance, VIF analysis, importance rankings with traceability IDs); create `manifest.json` (records seeds, hyper‑parameters, software versions, timestamps, SHA‑256 checksums, and `traceability` map linking each figure/table to source row & code hash); validate all derived artifacts (`descriptors.parquet`, `performance.json`, `importance.json`, `runtime.json`) against their contracts. | FR‑007, FR‑008, FR‑011, SC‑004, SC‑006, SC‑007, SC‑008 |
-| **Phase 6 – Quality Assurance** | Lint (`ruff` ≤ 5 warnings, output saved to `logs/ruff.log`), format (`black --check`); validate `runtime.json` against `runtime.schema.yaml` (enum check). | FR‑011, SC‑008, contract compliance |
+## Phase‑wise Implementation Plan
 
-## Compute Feasibility
-- **CPU‑first**: All steps use scikit‑learn, NumPy, and joblib; they run comfortably on the free GitHub Actions runner.  
-- **Memory**: Descriptor table (~1 200 × ~30 features) < 200 MB. Random Forest with 500 trees < 1 GB.  
-- **Runtime Budget**: Estimated brief time for descriptor computation, 30 min for RF training + CV, 45 min for permutation importance (parallelized across 8 cores), 5 min for reporting, 5 min for validation → total ≈ on the order of an hour, satisfying SC‑004.
+| Phase | Description | FR/SC addressed | Output / Contract |
+|-------|-------------|----------------|-------------------|
+| **1. Data Acquisition** | Download dataset from Zenodo, verify SHA‑256, store under `data/raw/`. | FR‑001, FR‑013, SC‑005 | `data/raw/hea_yield_strength.csv` validated against `dataset.schema.yaml` |
+| **2. Validation & Deduplication** | Validate each row against `dataset.schema.yaml`; abort on missing fields (FR‑009). Remove duplicate rows, **log the number removed** (FR‑014). Abort if any element not in `elemental_properties.schema.yaml` (FR‑015). | FR‑009, FR‑014, FR‑015, SC‑005 | Log file `output/deduplication.log`; validated CSV written to `data/processed/hea_clean.csv` |
+| **3. Descriptor Calculation** | Compute deterministic descriptors using `code/descriptors.py` (VI). Validate against `descriptor.schema.yaml`. Compute VIFs; if any VIF > 10, **drop the highest‑VIF feature**, retrain a secondary model, and report both. | FR‑002, VI, SC‑006 (stability reporting) | `data/processed/hea_descriptors.parquet` validated against `descriptor.schema.yaml` |
+| **4. Train‑Test Split** | Randomly reserve **[deferred]** of clean data as held‑out test set **before** any CV (Methodology‑d900b98b). Remaining portion used for 5‑fold CV (k=5). | FR‑003, SC‑001, SC‑002 | Split files `data/processed/train.parquet`, `data/processed/test.parquet` |
+| **5. Model Training** | Fit Random Forest (n_estimators=500, max_depth=None) on CV training folds. Store hyperparameters. | FR‑003, FR‑010, SC‑004 | `output/model.pkl` |
+| **6. Performance Evaluation** | Predict on held‑out test set; compute R², Pearson r, two‑tailed p‑value. **Assert R² ≥ 0.6 (SC‑001) and |r| ≥ 0.5 (SC‑002)**. | FR‑004, SC‑001, SC‑002 | `output/metrics.json` validated against `metrics.schema.yaml` |
+| **7. Permutation Importance** | Perform a substantial number of permutations per feature on the test set. (FR‑005, FR‑012). Compute mean/std and raw p‑values; apply **Bonferroni correction** (SC‑003). **Assert all corrected p < 0.05** for flagged features. | FR‑005, FR‑006, SC‑003 | `output/importance.json` validated against `importance.schema.yaml` |
+| **8. Bootstrap Uncertainty** | Bootstrap R² and Pearson r (≥ 1000 resamples) to obtain 95 % CIs (VII). | VII | Added to `output/metrics.json` |
+| **9. Manifest Generation** | Populate `manifest.json` with **pipeline_version, run_timestamp, random_seeds (data_split, model, bootstrap), software_versions, data_checksums, artifact_checksums, git_commit**. Validate against the new `manifest.schema.yaml`. **Abort if any required field is missing**. | FR‑007, SC‑007 | `output/manifest.json` (validated against `manifest.schema.yaml`) |
+| **10. Report Generation** | Assemble `report.md` containing dataset statistics, VIF summary, model performance, importance tables (with corrected p‑values), bootstrap CIs, **top‑5 feature stability across three independent runs (≤ 1 rank difference, SC‑006)**, and mandatory disclaimer. | FR‑008, SC‑006, SC‑008 | `output/report.md` |
+| **11. README & Code Comments** | Generate `README.md` with usage instructions, dependency list, and execution steps. Ensure all source files contain inline comments; enforce via a custom `ruff` rule check. | FR‑011 | `README.md`, lint passes |
+| **12. Lint & Formatting** | Run `ruff` (≤ 5 warnings) and `black --check` (0 errors). Fail pipeline if thresholds exceeded (SC‑008). | SC‑008 | Lint log `output/lint_report.txt` |
+| **13. Runtime Check** | Record wall‑clock time; **assert total ≤ 7200 s** (SC‑004). | SC‑004 | `output/pipeline_runtime.json` validated against `runtime.schema.yaml` |
+| **14. Contract Validation** | After each artifact creation, run `jsonschema.validate` against **all contracts** in `contracts/` (including the new `manifest.schema.yaml`). Abort on validation failure. | FR‑013, SC‑005 | Validation logs `output/contract_validation.log` |
+| **15. Stability Analysis** | Repeat the full pipeline **three times** with different seeds, collect top‑5 feature rankings, compute rank differences, and write `output/stability_rankings.json`. | SC‑006 | `output/stability_rankings.json` validated against `performance.schema.yaml` |
+| **16. Traceability Matrix** | Document mapping of every FR and SC to the above phases (see matrix below). | All FR/SC | Included in this plan document. |
 
-## Risks & Mitigations
-| Risk | Mitigation |
-|------|------------|
-| Dataset not open | Primary source is OpenML ID 4539, which is programmatically downloadable without credentials. |
-| Permutation importance runtime | Parallelize across features (`n_jobs=-1`); if runtime exceeds 2 h, sample 5 000 rows (random seed fixed) and note the limitation. |
-| Multiple‑comparison inflation | Use Bonferroni correction on t‑test p‑values; report both raw and corrected values. |
-| Collinearity | Compute VIF for each descriptor; if VIF > 5, flag and optionally drop the descriptor (documented in report). |
-| Power justification | Provide concrete Cohen’s f² calculation and reference to Cohen (1988). |
-| Normality assumption for t‑test | Perform Shapiro‑Wilk test; if violated, report p‑values as approximate and discuss limitation. |
+### Traceability Matrix
 
-## Traceability Enforcement (Principle IV)
-Each figure/table in `report.md` will contain a caption of the form `ID: <sha256>` where the hash is computed from the concatenation of the source data row (as JSON) and the exact code block that produced the statistic. `manifest.json` includes a `traceability` map:
+| FR / SC | Mapped Phase |
+|---------|--------------|
+| FR‑001 | Phase 1 |
+| FR‑002 | Phase 3 |
+| FR‑003 | Phase 4 |
+| FR‑004 | Phase 6 |
+| FR‑005 | Phase 7 |
+| FR‑006 | Phase 7 |
+| FR‑007 | Phase 9 |
+| FR‑008 | Phase 10 |
+| FR‑009 | Phase 2 |
+| FR‑010 | Phase 12 |
+| FR‑011 | Phase 11 |
+| FR‑012 | Phase 7 (assertion) |
+| FR‑013 | Phase 14 |
+| FR‑014 | Phase 2 |
+| FR‑015 | Phase 2 |
+| SC‑001 | Phase 6 (post‑eval check) |
+| SC‑002 | Phase 6 (post‑eval check) |
+| SC‑003 | Phase 7 (Bonferroni) |
+| SC‑004 | Phase 13 |
+| SC‑005 | Phase 2 & Phase 14 |
+| SC‑006 | Phase 15 |
+| SC‑007 | Phase 9 |
+| SC‑008 | Phase 12 & Phase 14 |
 
-```json
-{
-  "figure_1": {"source_row_id": "HEA_042", "code_hash": "a1b2c3..."},
-  "table_3": {"source_row_id": "HEA_017", "code_hash": "d4e5f6..."}
-}
-```
+## Contract Validation Table
+| Phase | Artifact(s) Produced | JSON Schema(s) Validated |
+|-------|----------------------|---------------------------|
+| 1 | `data/raw/hea_yield_strength.csv` | `dataset.schema.yaml` |
+| 2 | `data/processed/hea_clean.csv` | `dataset.schema.yaml` (post‑validation) |
+| 3 | `data/processed/hea_descriptors.parquet` | `descriptor.schema.yaml` |
+| 4 | `data/processed/train.parquet`, `data/processed/test.parquet` | `hea_composition.schema.yaml` (structure of split files) |
+| 5 | `output/model.pkl` | *No schema* (binary artifact) |
+| 6 | `output/metrics.json` | `metrics.schema.yaml`, `performance.schema.yaml` |
+| 7 | `output/importance.json` | `importance.schema.yaml` |
+| 8 | (augmented `output/metrics.json`) | `metrics.schema.yaml` (updated) |
+| 9 | `output/manifest.json` | **`manifest.schema.yaml`** (new) |
+| 10 | `output/report.md` | *No JSON schema* (human‑readable) |
+| 11 | `README.md` | *No schema* |
+| 12 | `output/lint_report.txt` | *No schema* |
+| 13 | `output/pipeline_runtime.json` | `runtime.schema.yaml` |
+| 14 | `output/contract_validation.log` | *No schema* (log) |
+| 15 | `output/stability_rankings.json` | `performance.schema.yaml` |
+| 16 | Traceability matrix (in this plan) | *No schema* |
 
-This satisfies Principle IV by providing a single source of truth for every reported number.
-
---- 
-
-## projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/research.md
-# Research: Predicting the Yield Strength of High‑Entropy Alloys
-
-## Overview
-This document records the research decisions that shape the implementation plan. All cited resources are drawn from the verified dataset list provided by the project owner.
-
-## Dataset Strategy
-
-| Role | Source | Loader | Verification |
-|------|--------|--------|--------------|
-| **Primary Yield‑Strength Dataset** | OpenML dataset ID `4539` (“HEA_Composition_Yield”) – an openly accessible collection of experimentally measured yield strengths for a large set of single‑phase HEAs. | `openml.datasets.get_dataset(4539)` | Verified reachable via OpenML API (checksum recorded). |
-| **Elemental Property Table** | `https://huggingface.co/datasets/materials/elemental_properties/resolve/main/elemental_properties.csv` | `datasets.load_dataset("materials/elemental_properties")` | Verified reachable CSV (checksum recorded). |
-| **Verification Datasets (for sanity checks)** | *None required* | – | – |
-
-> **Note**: The previously mentioned curated dataset (‑020‑00374‑5) is not publicly downloadable and therefore is **not** used in the pipeline; the OpenML dataset fulfills all FR‑001 requirements.
-
-## Methodology Rationale
-
-| Step | Chosen Method | CPU/GPU | Reasoning |
-|------|---------------|---------|-----------|
-| **Descriptor Calculation** | Vectorized NumPy/Pandas functions (atomic radius variance, electronegativity variance, mixing entropy, VEC, melting‑temperature variance). These descriptors are standard in HEA literature (e.g., Zhang *et al.*, *Acta Materialia* 2015, DOI:10.1016/j.actamat.2015.04.028). | CPU | Deterministic, low‑memory, fully reproducible. |
-| **Model** | Random Forest Regressor (`n_estimators=500`, `max_depth=None`). | CPU | Handles non‑linear interactions, robust to collinearity, fast training on modest data. |
-| **Cross‑Validation & Data Split** | Fixed **[deferred] train / [deferred] test** split (random_state = seed) performed **before** any cross‑validation. 5‑fold CV is performed **only on the training portion**. | CPU | Guarantees that the test set is completely disjoint from CV folds, preventing leakage. |
-| **Performance Evaluation** | Compute R², Pearson r, and two‑tailed p‑value on the held‑out test set; bootstrap 1 000 resamples for 95 % confidence intervals. | CPU | Provides unbiased performance estimate and uncertainty quantification. |
-| **Power Analysis** | Effect size f² = R²/(1‑R²) = 1.5 (large). Using α = 0.05, N ≈ 1 200 yields > 80 % power to detect R² ≥ 0.6 (Cohen, *Statistical Power Analysis for the Behavioral Sciences*, 2nd ed., 1988). | CPU | Justifies that the dataset size is sufficient for the target performance. |
-| **Permutation Importance** | `sklearn.inspection.permutation_importance` with **exactly 1 000 permutations** per feature **evaluated on the held‑out test set**; significance assessed with a **two‑tailed t‑test** (normality checked via Shapiro‑Wilk; if violated, limitation noted); Bonferroni correction for multiple comparisons. | CPU | Meets FR‑012, satisfies FR‑006, and provides rigorous significance testing. |
-| **Statistical Rigor** | VIF calculated for each descriptor; VIF > 5 flagged in the report. All significance claims are associational; no causal inference is made. | CPU | Addresses Principle VII and ensures transparent reporting. |
-| **Reproducibility** | All random seeds, hyper‑parameters, software versions, and timestamps are recorded in `manifest.json`. Inline code comments and a comprehensive `README.md` are provided (FR‑011). | CPU | Satisfies Constitution Principle I and FR‑011. |
-
-## Decision / Rationale Summary
-- **CPU‑first** for all steps; no GPU needed.  
-- **OpenML fallback** ensures data availability on CI runners.  
-- Fixed permutation count respects FR‑012.  
-- All FR/SC IDs are explicitly mapped to plan phases (see `plan.md`).  
-
---- 
+## Additional Notes
+- **SSoT Designation**: `data/processed/hea_processed.parquet` is the single source of truth for all downstream steps and is recorded in the manifest.
+- **Fixed Permutation Count Enforcement**: The permutation routine is hard‑coded to `n_permutations=1000`; a unit test asserts this constant.
+- **External Validation**: After the primary evaluation, the model is applied to the Open Materials Database HEA subset and results are logged (not a success‑criterion but an additional robustness check).

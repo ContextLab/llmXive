@@ -1,550 +1,72 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Chatbot Politeness Dataset Schema"
-description: >
-  Defines the schema for the merged dialogue dataset containing
-  Dialogue, Utterance, and User entities required for the
-  "Influence of Chatbot Politeness on User-Perceived Quality" study.
-  This schema is used by `code/utils/schema_validator.py` to validate
-  raw and processed data files.
-
+description: "Schema for the merged dataset containing dialogues, politeness scores, and user metadata."
 type: object
-required:
-  - entities
-  - relationships
-  - fields
-
 properties:
-  version:
-    type: string
-    description: "Schema version identifier"
-    default: "1.0.0"
-
-  entities:
-    type: object
-    description: "Definitions of primary entities in the dataset"
-    required:
-      - Dialogue
-      - Utterance
-      - User
-    
-    properties:
-      Dialogue:
-        type: object
-        description: "A complete conversation session"
-        required:
-          - dialogue_id
-          - user_id
-          - utterances
-          - metadata
-        properties:
-          dialogue_id:
-            type: string
-            description: "Unique identifier for the dialogue session"
-            pattern: "^[a-zA-Z0-9_-]+$"
-          
-          user_id:
-            type: string
-            description: "Unique identifier for the user participating in the dialogue"
-            
-          utterances:
-            type: array
-            description: "Ordered list of utterances in the dialogue"
-            minItems: 1
-            items:
-              $ref: "#/properties/entities/properties/Utterance"
-          
-          metadata:
-            type: object
-            description: "Optional metadata about the dialogue"
-            properties:
-              source_dataset:
-                type: string
-                description: "Name of the source dataset (e.g., Persona-Chat, EmpatheticDialogues)"
-              conversation_length:
-                type: integer
-                description: "Total number of utterances in the dialogue"
-                minimum: 1
-              topic:
-                type: string
-                description: "Optional topic label if available"
-              timestamp:
-                type: string
-                format: date-time
-                description: "Optional timestamp of the dialogue"
-      
-      Utterance:
-        type: object
-        description: "A single turn in a dialogue"
-        required:
-          - utterance_id
-          - dialogue_id
-          - speaker
-          - text
-          - politeness_score
-        properties:
-          utterance_id:
-            type: string
-            description: "Unique identifier for the utterance"
-          
-          dialogue_id:
-            type: string
-            description: "Reference to the parent dialogue"
-            pattern: "^[a-zA-Z0-9_-]+$"
-          
-          speaker:
-            type: string
-            description: "Speaker role"
-            enum:
-              - user
-              - chatbot
-              - bot
-              - system
-              - human
-            
-          text:
-            type: string
-            description: "The raw text content of the utterance"
-            minLength: 1
-            
-          speaker_id:
-            type: string
-            description: "Optional unique identifier for the specific speaker instance"
-            
-          metadata:
-            type: object
-            description: "Utterance-level metadata"
-            properties:
-              length:
-                type: integer
-                description: "Character or word count of the utterance"
-              sentiment:
-                type: number
-                format: float
-                description: "Optional sentiment score"
-              emotion:
-                type: string
-                description: "Optional emotion label (for EmpatheticDialogues)"
-      
-      User:
-        type: object
-        description: "Demographic and profile information about a user"
-        required:
-          - user_id
-        properties:
-          user_id:
-            type: string
-            description: "Unique identifier for the user"
-            pattern: "^[a-zA-Z0-9_-]+$"
-          
-          quality_rating:
-            type: number
-            format: float
-            description: "User's quality rating of the dialogue (primary outcome variable)"
-            minimum: 0
-            maximum: 5
-            multipleOf: 0.5
-            nullable: true
-            description_note: "If null, the dialogue is excluded from primary analysis (US1/US2)"
-          
-          age:
-            type: integer
-            description: "User's age in years"
-            minimum: 13
-            maximum: 120
-            nullable: true
-            description_note: "If null, subgroup analysis (US3) is skipped for this user"
-          
-          gender:
-            type: string
-            description: "User's gender"
-            enum:
-              - male
-              - female
-              - non-binary
-              - other
-              - prefer_not_to_say
-              - null
-            nullable: true
-            description_note: "If null, subgroup analysis (US3) is skipped for this user"
-          
-          persona:
-            type: object
-            description: "Optional persona attributes (for Persona-Chat)"
-            properties:
-              interests:
-                type: array
-                items:
-                  type: string
-              background:
-                type: string
-              occupation:
-                type: string
-                description: "User's occupation"
-          
-          metadata:
-            type: object
-            description: "Additional user metadata"
-            properties:
-              source_dataset:
-                type: string
-              dataset_id:
-                type: string
-                description: "Original ID in the source dataset"
-
-  relationships:
-    type: object
-    description: "Defines relationships between entities"
-    properties:
-      dialogue_user:
-        type: object
-        description: "Link between Dialogue and User"
-        properties:
-          from_entity:
-            const: "Dialogue"
-          to_entity:
-            const: "User"
-          relationship_type:
-            const: "many-to-one"
-          key_field:
-            type: string
-            const: "user_id"
-      
-      utterance_dialogue:
-        type: object
-        description: "Link between Utterance and Dialogue"
-        properties:
-          from_entity:
-            const: "Utterance"
-          to_entity:
-            const: "Dialogue"
-          relationship_type:
-            const: "many-to-one"
-          key_field:
-            type: string
-            const: "dialogue_id"
-
   fields:
     type: object
-    description: "Detailed field definitions with validation rules"
+    description: "Definition of expected columns in the dataset."
+    properties:
+      dialogue_id:
+        type: string
+        description: "Unique identifier for the dialogue session."
+        required: true
+        data_type: "string"
+      user_id:
+        type: string
+        description: "Unique identifier for the user."
+        required: true
+        data_type: "string"
+      quality_rating:
+        type: number
+        description: "User-perceived quality rating of the dialogue."
+        required: true
+        data_type: "float"
+        constraints:
+          min: 1
+          max: 5
+      politeness_score:
+        type: number
+        description: "Mean politeness score for the dialogue (BERT-based)."
+        required: false
+        data_type: "float"
+      conversation_length:
+        type: integer
+        description: "Number of utterances in the dialogue."
+        required: false
+        data_type: "integer"
+      age:
+        type: integer
+        description: "Age of the user."
+        required: false
+        data_type: "integer"
+        constraints:
+          min: 10
+          max: 120
+      gender:
+        type: string
+        description: "Gender of the user."
+        required: false
+        data_type: "string"
+        allowed_values:
+          - "Male"
+          - "Female"
+          - "Non-binary"
+          - "Prefer not to say"
+          - "Other"
     required:
-      - required_fields
-      - optional_fields
-      - computed_fields
-    
-    properties:
-      required_fields:
-        type: array
-        description: "Fields that MUST be present for all records"
-        items:
-          type: object
-          required:
-            - name
-            - entity
-            - type
-            - description
-          properties:
-            name:
-              type: string
-            entity:
-              type: string
-              enum:
-                - Dialogue
-                - Utterance
-                - User
-            type:
-              type: string
-              enum:
-                - string
-                - integer
-                - number
-                - boolean
-                - array
-                - object
-            description:
-              type: string
-            constraints:
-              type: object
-              properties:
-                min_length:
-                  type: integer
-                max_length:
-                  type: integer
-                min_value:
-                  type: number
-                max_value:
-                  type: number
-                pattern:
-                  type: string
-                enum:
-                  type: array
-                  items:
-                    type: string
-        
-        # Dialogue required fields
-        - name: dialogue_id
-          entity: Dialogue
-          type: string
-          description: "Unique dialogue identifier"
-          constraints:
-            pattern: "^[a-zA-Z0-9_-]+$"
-        
-        - name: user_id
-          entity: Dialogue
-          type: string
-          description: "User identifier linking to User entity"
-        
-        - name: utterances
-          entity: Dialogue
-          type: array
-          description: "List of utterances in the dialogue"
-          constraints:
-            minItems: 1
-        
-        # Utterance required fields
-        - name: utterance_id
-          entity: Utterance
-          type: string
-          description: "Unique utterance identifier"
-        
-        - name: dialogue_id
-          entity: Utterance
-          type: string
-          description: "Parent dialogue reference"
-        
-        - name: speaker
-          entity: Utterance
-          type: string
-          description: "Speaker role (user/chatbot)"
-          constraints:
-            enum:
-              - user
-              - chatbot
-              - bot
-              - system
-              - human
-        
-        - name: text
-          entity: Utterance
-          type: string
-          description: "Utterance text content"
-          constraints:
-            min_length: 1
-        
-        - name: politeness_score
-          entity: Utterance
-          type: number
-          description: "Politeness score from BERT model (z-scored)"
-          constraints:
-            min_value: -5.0
-            max_value: 5.0
-        
-        # User required fields
-        - name: user_id
-          entity: User
-          type: string
-          description: "Unique user identifier"
-          constraints:
-            pattern: "^[a-zA-Z0-9_-]+$"
-      
-      optional_fields:
-        type: array
-        description: "Fields that MAY be present (with graceful handling if missing)"
-        items:
-          type: object
-          required:
-            - name
-            - entity
-            - type
-            - description
-          properties:
-            name:
-              type: string
-            entity:
-              type: string
-              enum:
-                - Dialogue
-                - Utterance
-                - User
-            type:
-              type: string
-              enum:
-                - string
-                - integer
-                - number
-                - boolean
-                - array
-                - object
-            description:
-              type: string
-            nullable:
-              type: boolean
-              default: true
-        
-        # User optional demographic fields
-        - name: quality_rating
-          entity: User
-          type: number
-          description: "Quality rating (1-5 scale)"
-          nullable: true
-          constraints:
-            min_value: 0
-            max_value: 5
-            multipleOf: 0.5
-        
-        - name: age
-          entity: User
-          type: integer
-          description: "User age in years"
-          nullable: true
-          constraints:
-            min_value: 13
-            max_value: 120
-        
-        - name: gender
-          entity: User
-          type: string
-          description: "User gender"
-          nullable: true
-          constraints:
-            enum:
-              - male
-              - female
-              - non-binary
-              - other
-              - prefer_not_to_say
-              - null
-        
-        - name: persona
-          entity: User
-          type: object
-          description: "Persona attributes"
-          nullable: true
-        
-        # Dialogue optional fields
-        - name: metadata
-          entity: Dialogue
-          type: object
-          description: "Dialogue metadata"
-          nullable: true
-        
-        # Utterance optional fields
-        - name: speaker_id
-          entity: Utterance
-          type: string
-          description: "Specific speaker identifier"
-          nullable: true
-        
-        - name: metadata
-          entity: Utterance
-          type: object
-          description: "Utterance metadata (sentiment, emotion, etc.)"
-          nullable: true
-      
-      computed_fields:
-        type: array
-        description: "Fields derived from other fields during processing"
-        items:
-          type: object
-          required:
-            - name
-            - entity
-            - type
-            - description
-            - derivation
-          properties:
-            name:
-              type: string
-            entity:
-              type: string
-            type:
-              type: string
-            description:
-              type: string
-            derivation:
-              type: string
-              description: "Formula or logic for computing the field"
-        
-        - name: mean_politeness_score
-          entity: Dialogue
-          type: number
-          description: "Mean politeness score across all utterances in the dialogue"
-          derivation: "mean(utterances[].politeness_score)"
-        
-        - name: utterance_count
-          entity: Dialogue
-          type: integer
-          description: "Total number of utterances"
-          derivation: "len(utterances)"
-        
-        - name: conversation_length
-          entity: Dialogue
-          type: integer
-          description: "Total character/word count of dialogue"
-          derivation: "sum(len(u.text) for u in utterances)"
-
-  validation_rules:
+      - dialogue_id
+      - user_id
+      - quality_rating
+  metadata:
     type: object
-    description: "Business logic validation rules"
     properties:
-      exclusion_criteria:
-        type: array
-        description: "Conditions that cause a record to be excluded from analysis"
-        items:
-          type: object
-          properties:
-            condition:
-              type: string
-              description: "Condition expression (e.g., 'quality_rating is null')"
-            reason:
-              type: string
-              description: "Reason for exclusion"
-            affected_stories:
-              type: array
-              items:
-                type: string
-                enum:
-                  - US1
-                  - US2
-                  - US3
-        
-        - condition: "quality_rating is null"
-          reason: "Missing quality rating prevents primary analysis"
-          affected_stories:
-            - US1
-            - US2
-        
-        - condition: "utterances is empty"
-          reason: "Dialogue must have at least one utterance"
-          affected_stories:
-            - US1
-            - US2
-            - US3
-        
-        - condition: "no chatbot utterances found"
-          reason: "Dialogue must contain at least one chatbot response"
-          affected_stories:
-            - US1
-            - US2
-            - US3
-      
-      subgroup_criteria:
-        type: object
-        description: "Criteria for subgroup analysis (US3)"
-        properties:
-          min_group_size:
-            type: integer
-            default: 30
-            description: "Minimum sample size required for a subgroup"
-          required_fields:
-            type: array
-            items:
-              type: string
-              enum:
-                - age
-                - gender
-            description: "Fields required for subgroup analysis"
-            default:
-              - age
-              - gender
-
-additionalProperties: false
+      source_dataset:
+        type: string
+      processed_at:
+        type: string
+        format: date-time
+      version:
+        type: string
+required:
+  - fields

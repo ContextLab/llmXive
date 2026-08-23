@@ -269,3 +269,102 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T00:15:07Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: calculate bottleneck resolution ratio and branching entropy for nodes
+  claim_id: c_f50d6a3c
+  context: 'T014 [P] [US1] Implement code/data/compute_features.py: Calculate bottleneck_resolution_ratio
+    (improves/replaces edges / total outgoing) and branching_entropy (Shannon entropy
+    of downstream method types); handle nodes with 0 outgoing edges gracefully'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_bottleneck_resolution_ratio_and_branching_entropy
+  kind: entity_fact
+  raw_text: Calculate bottleneck_resolution_ratio (improves/replaces edges / total
+    outgoing) and branching_entropy (Shannon entropy of downstream method types)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T21:34:36Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: map nodes using exact DOI match then Levenshtein fuzzy match with ratio
+    0.85
+  claim_id: c_9293ddf6
+  context: 'T015 [P] [US1] Implement code/data/merge_retractions.py: Map nodes to
+    retraction databases using exact DOI match first, then Levenshtein fuzzy match
+    (ratio >= 0.85) for title/author; implement duplicate resolution (earliest date,
+    then alphabetical journal)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Map nodes to retraction databases using exact DOI match first, then Levenshtein
+    fuzzy match (ratio >= 0.85) for title/author
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T21:34:55Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: create binary retraction status column mapping 1 to 1 and 0 or 2 to 0
+  claim_id: c_9c3a5f16
+  context: T016b [US1] Implement label conversion logic in code/data/merge_retractions.py
+    to create a binary retraction_status_binary column (1=1, 0=0 or 2) for modeling,
+    ensuring the original retraction_status (0,1,2) is preserved in the CSV
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a binary retraction_status_binary column (1=1, 0=0 or 2) for modeling
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T21:35:21Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: train 3-class multinomial logistic regression using bottleneck resolution
+    ratio and branching entropy
+  claim_id: c_7b196c87
+  context: 'T024 [US2] Implement code/models/train_topological.py: Train Multinomial
+    (3-class) Logistic Regression using only bottleneck_resolution_ratio and branching_entropy
+    to predict the full retraction_status (0=Robust, 1=Fragile, 2=Retraction-Only).
+    DO NOT collapse or ignore class 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Multinomial (3-class) Logistic Regression using only bottleneck_resolution_ratio
+    and branching_entropy to predict the full retraction_status (0=Robust, 1=Fragile,
+    2=Retraction-Only)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T21:35:46Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: flag instability if VIF greater than 5 or MI greater than 0.1
+  claim_id: c_11aeb68a
+  context: 'T032 [US3] Implement code/analysis/sensitivity_analysis.py: Run threshold
+    sweep over the specific set {0.3, 0.5, 0.7} (as per FR-008 and SC-002); calculate
+    and report FPR/FNR for each; calculate VIF and MI for predictors; flag instability
+    if VIF > 5 or MI > 0.1.'
+  evidence:
+    entailment_evidence: Flag instability if VIF greater than 5 or MI greater than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Flag_instability_if_VIF_greater_than_5_or_MI_greater_than_0.
+  kind: magnitude
+  raw_text: Flag instability if VIF > 5 or MI > 0.1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-23T21:36:16Z'

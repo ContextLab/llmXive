@@ -1,13 +1,13 @@
 status: none
-intent: download high entropy alloy experimental yield strength dataset from Materials
-  Project python package dataset
+intent: OpenML HEA_Composition_Yield dataset download python package and materials
+  elemental_properties
 required_fields:
-- sample_id
-- element_symbol
-- element_fraction
-- yield_strength_MPa
-- testing_temperature_K
-- processing_method
-cache_key: a3360495170afc0a9abe510f6e5ca1acf629c9f91f419196dc0864f1d7443d99
-searched_at: '2026-08-11T09:35:09.303310+00:00'
+- alloy_id
+- element_symbols
+- element_fractions
+- yield_strength
+- measurement_temperature
+- phase
+cache_key: 4446367b45727319e4349adbd26889d8f508da45ec1cc277ecd523172cf755a7
+searched_at: '2026-08-23T21:38:00.219169+00:00'
 retry_count: 1

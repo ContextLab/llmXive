@@ -19,13 +19,11 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # Virtual Environments
 venv/
 ENV/
 env/
-.venv/
 
 # IDEs
 .idea/
@@ -34,44 +32,41 @@ env/
 *.swo
 *~
 
-# Jupyter Notebooks
+# Jupyter Notebook
 .ipynb_checkpoints
 
-# Model Caches (Transformers/HuggingFace)
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific data directories
+# Exclude raw data but keep .gitkeep for directory structure
+data/raw/*
+!data/raw/.gitkeep
+
+# Exclude processed data
+data/processed/*
+!data/processed/.gitkeep
+
+# Model caches (Hugging Face)
 .cache/
-models--*/
-transformers_cache/
-huggingface_hub_cache/
+~/.cache/huggingface/
+huggingface_hub/
 
 # Logs
 *.log
 logs/
 
-# Data Exclusions (Keep .gitkeep files)
-# Exclude all files in data/raw except .gitkeep
-data/raw/*
-!data/raw/.gitkeep
+# Environment variables
+.env
+.env.local
 
-# Exclude all files in data/processed
-data/processed/*
-!data/processed/.gitkeep
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
 
-# Exclude data/interim if it exists
-data/interim/*
-!data/interim/.gitkeep
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.bak
-*.swp
+# R artifacts (if applicable)
+.Rhistory
+.RData
+.Rproj.user/

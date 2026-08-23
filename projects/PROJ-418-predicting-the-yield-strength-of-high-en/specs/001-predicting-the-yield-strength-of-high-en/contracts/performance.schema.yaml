@@ -27,11 +27,11 @@ properties:
       type: number
     minItems: 2
     maxItems: 2
-    description: "Bootstrap 95% CI for R²."
+    description: "Bootstrap confidence interval (CI) for R² using a standard confidence level."
   r_ci:
     type: array
     items:
       type: number
     minItems: 2
     maxItems: 2
-    description: "Bootstrap 95% CI for Pearson r."
+    description: "Bootstrap confidence interval (at a conventional confidence level) for Pearson r."

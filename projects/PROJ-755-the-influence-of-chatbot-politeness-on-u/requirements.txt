@@ -1,24 +1,13 @@
-# Python 3.11 Project Dependencies for llmXive: Chatbot Politeness Analysis
-# Core Data & ML
-transformers>=4.35.0
-datasets>=2.14.0
-pandas>=2.1.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-pyyaml>=6.0.1
-tqdm>=4.66.0
-
-# Statistical Modeling
-statsmodels>=0.14.0
-rpy2>=3.5.0
-textstat>=0.7.0
-evalue>=0.1.0
-
-# Utilities & IO
-python-dotenv>=1.0.0
-pyarrow>=14.0.0  # For parquet support
-
-# Testing & Quality (Optional but recommended for pipeline)
-pytest>=7.4.0
-ruff>=0.1.0
-black>=23.0.0
+transformers
+datasets
+statsmodels
+pandas
+scikit-learn
+numpy
+pyyaml
+tqdm
+rpy2
+textstat
+evalue
+pyarrow
+python-dotenv

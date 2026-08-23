@@ -81,9 +81,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `code/data/extract_intern_atlas.py`: Load graph, filter nodes by year (2010-2018), **import and call `abort_if_llm_inferred()` from `code/utils/graph_utils.py`** to enforce human-annotated edge types; if LLM-inferred types found, **ABORT immediately**. Handle missing edge types.
+- [X] T013 [P] [US1] Implement `code/data/extract_intern_atlas.py`: Load graph, filter nodes by year (2010-2018), **import and call `abort_if_llm_inferred()` from `code/utils/graph_utils.py`** to enforce human-annotated edge types; if LLM-inferred types found, **ABORT immediately**. Handle missing edge types.
 - [ ] T014 [P] [US1] Implement `code/data/compute_features.py`: Calculate `bottleneck_resolution_ratio` (improves/replaces edges / total outgoing) and `branching_entropy` (Shannon entropy of downstream method types); handle nodes with 0 outgoing edges gracefully
-- [X] T015 [P] [US1] Implement `code/data/merge_retractions.py`: Map nodes to retraction databases using exact DOI match first, then Levenshtein fuzzy match (ratio >= 0.85) for title/author; implement duplicate resolution (earliest date, then alphabetical journal)
+- [X] T015 [P] [US1] Implement `code/data/merge_retractions.py`: Map nodes to retraction databases using exact DOI match first, then Levenshtein fuzzy match (ratio >= 0.85) for title/author [UNRESOLVED-CLAIM: c_9293ddf6 — status=not_enough_info]; implement duplicate resolution (earliest date, then alphabetical journal)
 - [ ] T016 [US1] Implement label mapping logic in `code/data/merge_retractions.py` to assign label `1` (Fragile), `2` (Retraction-Only), or `0` (Robust) based on retraction reason (FR-004); **Output must preserve all three states in `data/processed/features_2010_2018.csv`**. **Write test cases to `tests/unit/test_label_mapping.py`** with the following specific functions and assertions:
  - `test_label_mapping_methodological_error_returns_1`: Input reason="methodological error", Expected output=1.
  - `test_label_mapping_fraud_returns_2`: Input reason="fraud", Expected output=2.
@@ -93,12 +93,12 @@
  - `test_binary_conversion_preserves_0_1`: Input status=0 -> Binary=0; Input status=1 -> Binary=1.
  - `test_binary_conversion_maps_2_to_0`: Input status=2 -> Binary=0.
  - **NOTE**: This task depends on T016 completion (sequential).
-- [~] T017 [US1] Implement main pipeline orchestrator in `code/data/run_extraction.py` to chain extraction, feature computation, and merging. **CRITICAL**: This function MUST call T013-T016 logic, check for the existence of ground truth labels; if missing, it MUST ABORT with the exact message: "No ground truth labels found for the specified time window; analysis cannot proceed." Output `data/processed/features_2010_2018.csv`. **NOTE**: This task is sequential and depends on T013-T016 completion.
-- [~] T017b [US1] Validate contracts: Run schema validation on `data/processed/features_2010_2018.csv` against `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/dataset.schema.yaml`; **Abort if validation fails**.
+- [ ] T017 [US1] Implement main pipeline orchestrator in `code/data/run_extraction.py` to chain extraction, feature computation, and merging. **CRITICAL**: This function MUST call T013-T016 logic, check for the existence of ground truth labels; if missing, it MUST ABORT with the exact message: "No ground truth labels found for the specified time window; analysis cannot proceed." Output `data/processed/features_2010_2018.csv`. **NOTE**: This task is sequential and depends on T013-T016 completion.
+- [ ] T017b [US1] Validate contracts: Run schema validation on `data/processed/features_2010_2018.csv` against `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/dataset.schema.yaml`; **Abort if validation fails**.
 
 ### Execution for User Story 1 (Sequential - After Implementation)
 
-- [ ] T018 [US1] Execute unit tests in `tests/unit/test_feature_extraction.py`
+- [X] T018 [US1] Execute unit tests in `tests/unit/test_feature_extraction.py`
 - [ ] T019 [US1] Execute unit tests in `tests/unit/test_graph_utils.py`
 - [ ] T020 [US1] Execute integration tests in `tests/integration/test_pipeline.py`
 - [ ] T020b [US1] Execute unit tests in `tests/unit/test_label_mapping.py`

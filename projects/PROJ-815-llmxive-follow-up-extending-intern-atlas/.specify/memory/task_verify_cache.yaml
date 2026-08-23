@@ -7,12 +7,11 @@ T001:
     \ considered complete until the full project structure is created and verified."
 T002:
   c: false
-  h: 4908d2a664828161e83d2bb59df5942a78a50d5b65e0ff9063bafc40512671ef
-  r: "The required file `projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/requirements.txt`\
-    \ is missing, and the existing `requirements.txt` includes extra packages not\
-    \ specified in the task. The task\u2019s requirement to create the project\u2011\
-    specific requirements file with only the listed base dependencies is therefore\
-    \ not met."
+  h: 421c904c3fe11ac338b2103869e24d55914e41c65c844454393f1297950f7290
+  r: The required file `projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/requirements.txt`
+    does not exist, and the existing `requirements.txt` uses version ranges instead
+    of exact pins from `pip freeze`. The task demands a deterministic, pinned requirements
+    file at the specified project path.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -38,10 +37,26 @@ T013:
     s core functionality is therefore missing."
 T016:
   c: false
-  h: 22f18990d0280f386904e2cd3436080ef8efa08a05c2e2ba6b3ae461f42e999d
+  h: 20ab6f6bc2bdcfee41866e18e28f4f50be2790717895af6494d0de10c6cfe16f
   r: "The repository lacks the required `data/processed/features_2010_2018.csv` file,\
-    \ so the three\u2011state label output cannot be verified. Moreover, the shown\
-    \ portion of `code/data/merge_retractions.py` does not contain the `map_retraction_status`\
-    \ or `convert_to_binary` implementations that the tests import, indicating the\
-    \ label\u2011mapping logic is not actually present. These missing artifacts prevent\
-    \ the task from being considered complete."
+    \ and the shown portion of `code/data/merge_retractions.py` does not contain the\
+    \ `map_retraction_status` or `convert_to_binary` implementations. Additionally,\
+    \ the test file `tests/unit/test_label_mapping.py` is truncated, missing the full\
+    \ set of assertions. These missing/unfinished artifacts mean the label\u2011mapping\
+    \ logic and its verification are not fully delivered."
+T017:
+  c: false
+  h: 2e2effd951f4c12cde3b19573f4700bb0019c768312336e43b23437ab04ff0e3
+  r: "The `run_extraction.py` file is present but the visible portion does not show\
+    \ the orchestrator logic that calls T013\u2011T016, checks for ground\u2011truth\
+    \ labels, and aborts with the exact required message. Moreover, the required output\
+    \ file `data/processed/features_2010_2018.csv` is absent. The next implementer\
+    \ must add the missing pipeline function, ensure it invokes the prior tasks, implements\
+    \ the exact abort message, and generates the specified CSV."
+T017b:
+  c: false
+  h: 0cb3d4fed4df324f82264c34fdd9cff6392c4369d9b881883cd125a4c82e953a
+  r: The required artifacts (`data/processed/features_2010_2018.csv` and the schema
+    file `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/dataset.schema.yaml`)
+    are missing, so no schema validation could have been performed. The task is therefore
+    not satisfied.

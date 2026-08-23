@@ -1,28 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "HEA Yield‑Strength Dataset"
-type: array
-items:
-  type: object
-  required:
-    - alloy_id
-    - composition
-    - yield_strength
-  additionalProperties: false
-  properties:
-    alloy_id:
-      type: string
-      description: "Unique identifier for the alloy."
-    composition:
-      type: object
-      description: "Mapping from element symbol to fractional amount (sums to 1)."
-      patternProperties:
-        "^[A-Z][a-z]?$":
-          type: number
-          minimum: 0
-          maximum: 1
-      additionalProperties: false
-      minProperties: 1
-    yield_strength:
+title: "HEA Yield‑Strength Dataset Schema"
+type: object
+required:
+  - alloy_id
+  - composition
+  - yield_strength
+properties:
+  alloy_id:
+    type: string
+    description: "Unique identifier for the alloy."
+  composition:
+    type: object
+    description: "Mapping from element symbol (e.g., \"Al\") to atomic fraction (float)."
+    additionalProperties:
       type: number
-      description: "Experimentally measured yield strength (MPa)."
       minimum: 0
+      maximum: 1
+  yield_strength:
+    type: number
+    description: "Experimentally measured yield strength in MPa."
+  source_checksum:
+    type: string
+    description: "SHA‑256 checksum of the raw CSV row for reproducibility."
+additionalProperties: false
+example:
+  alloy_id: "HEA_001"
+  composition:
+    Al: 0.2
+    Co: 0.3
+    Cr: 0.2
+    Fe: 0.2
+    Ni: 0.1
+  yield_strength: elevated (e.g., on the order of several hundred MPa)
+  source_checksum: "3a7f5e2c9d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a"

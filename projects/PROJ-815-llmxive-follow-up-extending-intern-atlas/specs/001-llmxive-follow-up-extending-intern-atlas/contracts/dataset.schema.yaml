@@ -1,130 +1,77 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: InternAtlas Dataset Schema
-description: Schema for the processed feature dataset used in the llmXive follow-up study.
+title: Intern-Atlas Extended Dataset Schema
+description: Schema for the processed features dataset derived from Intern-Atlas graph and retraction databases.
 type: object
 required:
-  - metadata
-  - schema_definition
-  - data_sample
+  - node_id
+  - publication_year
+  - field_of_study
+  - citation_count
+  - bottleneck_resolution_ratio
+  - branching_entropy
+  - retraction_status
+  - retraction_status_binary
+  - edge_type_distribution
 properties:
-  metadata:
+  node_id:
+    type: string
+    description: Unique identifier for the method node (e.g., DOI or internal ID).
+  publication_year:
+    type: integer
+    minimum: 2010
+    maximum: 2018
+    description: Year the method was published.
+  field_of_study:
+    type: string
+    description: Domain or sub-domain of the research.
+  publication_venue:
+    type: string
+    description: Journal or conference name.
+  citation_count:
+    type: integer
+    minimum: 0
+    description: Total number of citations at the time of data extraction.
+  bottleneck_resolution_ratio:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Ratio of (improves + replaces) edges to total outgoing edges.
+  branching_entropy:
+    type: number
+    minimum: 0.0
+    description: Shannon entropy of downstream method types.
+  edge_type_distribution:
     type: object
+    description: Count of outgoing edges by type.
     properties:
-      source:
-        type: string
-        description: Source of the data (e.g., 'Intern-Atlas')
-        const: "Intern-Atlas"
-      extraction_window:
-        type: object
-        properties:
-          start_year:
-            type: integer
-            const: 2010
-          end_year:
-            type: integer
-            const: 2018
-        required:
-          - start_year
-          - end_year
-      edge_filtering:
-        type: object
-        properties:
-          allowed_types:
-            type: array
-            items:
-              type: string
-            const: ["improves", "replaces", "extends"]
-          llm_inferred_excluded:
-            type: boolean
-            const: true
-        required:
-          - allowed_types
-          - llm_inferred_excluded
-      label_mapping_version:
-        type: string
-        const: "1.0"
+      improves:
+        type: integer
+      replaces:
+        type: integer
+      extends:
+        type: integer
+      unknown:
+        type: integer
     required:
-      - source
-      - extraction_window
-      - edge_filtering
-      - label_mapping_version
-
-  schema_definition:
-    type: object
-    description: Definition of columns in the dataset
-    properties:
-      node_id:
-        type: string
-        description: Unique identifier for the method node
-      title:
-        type: string
-        description: Title of the method
-      publication_year:
-        type: integer
-        minimum: 2010
-        maximum: 2018
-      field_of_study:
-        type: string
-        description: Domain of the research
-      publication_venue:
-        type: string
-        description: Journal or conference name
-      citation_count:
-        type: integer
-        minimum: 0
-      bottleneck_resolution_ratio:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Ratio of improves/replaces edges to total outgoing edges
-      branching_entropy:
-        type: number
-        minimum: 0.0
-        description: Shannon entropy of downstream method types
-      retraction_status:
-        type: integer
-        enum: [0, 1, 2]
-        description: |
-          0: Robust (No retraction)
-          1: Fragile (Methodological error, irreproducibility)
-          2: Retraction-Only (Fraud, ethical issues)
-      retraction_status_binary:
-        type: integer
-        enum: [0, 1]
-        description: |
-          0: Robust or Retraction-Only
-          1: Fragile
-      retraction_reason:
-        type: string
-        nullable: true
-        description: Specific reason for retraction if applicable
-
-  data_sample:
-    type: array
-    description: Example rows to validate schema structure
-    items:
-      type: object
-      properties:
-        node_id: { type: string }
-        title: { type: string }
-        publication_year: { type: integer }
-        field_of_study: { type: string }
-        publication_venue: { type: string }
-        citation_count: { type: integer }
-        bottleneck_resolution_ratio: { type: number }
-        branching_entropy: { type: number }
-        retraction_status: { type: integer }
-        retraction_status_binary: { type: integer }
-        retraction_reason: { type: ["string", "null"] }
-      required:
-        - node_id
-        - title
-        - publication_year
-        - field_of_study
-        - publication_venue
-        - citation_count
-        - bottleneck_resolution_ratio
-        - branching_entropy
-        - retraction_status
-        - retraction_status_binary
+      - improves
+      - replaces
+      - extends
+      - unknown
+  retraction_status:
+    type: integer
+    enum: [0, 1, 2]
+    description: >
+      0 = Robust (no retraction),
+      1 = Fragile (methodological error/irreproducibility),
+      2 = Retraction-Only (fraud/other).
+  retraction_status_binary:
+    type: integer
+    enum: [0, 1]
+    description: >
+      Binary label for modeling:
+      1 = Fragile (original status 1),
+      0 = Robust or Retraction-Only (original status 0 or 2).
+  is_human_annotated:
+    type: boolean
+    description: True if all incoming edge types are human-annotated (no LLM inference).
 additionalProperties: false

@@ -1,2 +1,2 @@
-# This file ensures the data/processed directory is tracked by git
-# Processed data files will be generated here during execution
+# This file ensures the directory exists but is ignored by git
+# See .gitignore for exclusion rules

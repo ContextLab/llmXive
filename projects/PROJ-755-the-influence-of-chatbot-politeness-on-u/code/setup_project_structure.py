@@ -1,56 +1,72 @@
+"""
+Script to initialize the project directory structure for the llmXive pipeline.
+Creates required directories and placeholder files (.gitkeep) to ensure
+they are tracked by git.
+"""
 import os
 import sys
 from pathlib import Path
 
 def create_structure():
-    """
-    Creates the project directory structure and necessary placeholder files
-    as per the implementation plan.
+    """Create the standard project directory structure."""
+    root = Path(__file__).resolve().parent.parent
     
-    Structure:
-    - data/raw/ (with .gitkeep)
-    - data/processed/ (with .gitkeep)
-    - code/
-    - tests/
-    - docs/
-    """
-    root = Path(__file__).parent.parent
-    
+    # Define directories to create
     directories = [
         "data/raw",
         "data/processed",
         "code",
         "code/utils",
-        "tests",
         "tests/unit",
-        "tests/integration",
         "tests/contract",
-        "docs"
+        "tests/integration",
+        "docs",
+        "specs",
+        "contracts",
+        ".github/workflows"
     ]
-    
-    for dir_path in directories:
-        full_path = root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path.relative_to(root)}")
-    
-    # Create .gitkeep files in data directories to ensure they are tracked
-    # even when empty
-    data_raw_keep = root / "data" / "raw" / ".gitkeep"
-    data_processed_keep = root / "data" / "processed" / ".gitkeep"
-    
-    for keep_file in [data_raw_keep, data_processed_keep]:
-        if not keep_file.exists():
-            keep_file.touch()
-            print(f"Created placeholder: {keep_file.relative_to(root)}")
-    
-    # Create README placeholders
-    docs_readme = root / "docs" / "README.md"
-    if not docs_readme.exists():
-        docs_readme.write_text("# Documentation\n\nDocumentation for the project goes here.\n")
-        print(f"Created placeholder: {docs_readme.relative_to(root)}")
-    
-    print("\nProject structure created successfully.")
+
+    created = []
+    for dir_name in directories:
+        dir_path = root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path))
+            # Create .gitkeep in data directories to ensure they are tracked
+            if dir_name.startswith("data/"):
+                keep_file = dir_path / ".gitkeep"
+                keep_file.touch()
+                created.append(str(keep_file))
+        else:
+            # Ensure .gitkeep exists even if dir already existed
+            if dir_name.startswith("data/"):
+                keep_file = dir_path / ".gitkeep"
+                if not keep_file.exists():
+                    keep_file.touch()
+                    created.append(str(keep_file))
+
+    if created:
+        print("Created directories and placeholders:")
+        for p in created:
+            print(f"  - {p}")
+    else:
+        print("All required directories already exist.")
+
     return True
 
+def main():
+    """Entry point for the script."""
+    try:
+        success = create_structure()
+        if success:
+            print("\nProject structure initialization complete.")
+            sys.exit(0)
+        else:
+            print("\nProject structure initialization failed.")
+            sys.exit(1)
+    except Exception as e:
+        print(f"\nError during initialization: {e}")
+        sys.exit(1)
+
 if __name__ == "__main__":
-    create_structure()
+    main()

@@ -1,2 +1,2 @@
-# This file ensures the data/raw directory is tracked by git
-# Raw data files will be downloaded here during execution
+# This file ensures the directory exists but is ignored by git
+# See .gitignore for exclusion rules

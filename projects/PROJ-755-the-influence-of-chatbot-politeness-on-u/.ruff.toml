@@ -1,33 +1,54 @@
-# Explicit configuration for Ruff Linter
-# This file can be used as an alternative to [tool.ruff] in pyproject.toml
+# Ruff configuration for llmXive project
+# Linter rules and formatting settings
 
-line-length = 88
-target-version = "py311"
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+ignore = []
 
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific files/directories
 exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
     ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
     ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
     "data",
     "__pycache__",
 ]
 
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "N",  # pep8-naming
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-]
+# Same as `--line-length`
+line-length = 88
+
+# Allow unused variables (e.g., `_`)
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+known-first-party = ["utils"]
+force-sort-within-sections = false
+case-sensitive = false
+lines-after-imports = 2
 
 [lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow asserts in tests
-
-[format]
-indent-style = "space"
-quote-style = "double"
-line-ending = "auto"
+# Ignore specific rules in test files if needed
+"tests/*" = ["S101"]

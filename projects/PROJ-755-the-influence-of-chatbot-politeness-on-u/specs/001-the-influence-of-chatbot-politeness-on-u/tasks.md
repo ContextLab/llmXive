@@ -65,7 +65,7 @@
 - [ ] T009 [P] Create `contracts/output.schema.yaml` defining CLMM results structure
 - [ ] T010 [P] Setup environment configuration management (`.env` template for HF_TOKEN if needed)
 - [ ] T011 [P] [US1] Implement `code/utils/schema_validator.py` to validate dataset schemas against `contracts/dataset.schema.yaml`
-- [~] T012 [P] [US1/US3] **VERIFICATION GATE**: Validate presence of `quality_rating`, `user_id`, `age`, and `gender` fields in the merged dataset.
+- [ ] T012 [P] [US1/US3] **VERIFICATION GATE**: Validate presence of `quality_rating`, `user_id`, `age`, and `gender` fields in the merged dataset.
  - *Logic*:
  1. Check `quality_rating` and `user_id`: If missing, **halt pipeline** and log critical error (US-1/US-2 blocked).
  2. Check `age` and `gender`: If missing, **do not halt**. Generate `data/raw/validation_report.json` with `status: partial` and `missing_fields: ['age', 'gender']`. Proceed to US-1 and US-2.
@@ -99,11 +99,11 @@
  3. If either primary dataset lacks `quality_rating`, attempt to fetch **HCI_P2** as a fallback source.
  4. If all sources lack `quality_rating`, abort with critical error.
  - *Deliverable*: Raw data stored in `data/raw/` with checksums.
-- [~] T016 [US1] Implement merging logic to combine all three datasets into a unified DataFrame, preserving `user_id`, `dialogue_id`, `quality_rating`, `age`, `gender`.
-- [~] T017 [US1] Implement filtering logic to exclude dialogues missing `quality_rating` or chatbot utterances (log counts).
-- [~] T018 [US1] Implement batched inference using `jfiedler/politeness-bert` (CPU-only, `torch.no_grad()`, max_memory management) to score utterances.
+- [ ] T016 [US1] Implement merging logic to combine all three datasets into a unified DataFrame, preserving `user_id`, `dialogue_id`, `quality_rating`, `age`, `gender`.
+- [ ] T017 [US1] Implement filtering logic to exclude dialogues missing `quality_rating` or chatbot utterances (log counts).
+- [ ] T018 [US1] Implement batched inference using `jfiedler/politeness-bert` (CPU-only, `torch.no_grad()`, max_memory management) to score utterances.
  - *Error Handling*: Implement try-except for `ModelLoadingError` and `MemoryError`, log specific error codes, and fallback to `batch_size=1`.
-- [~] T019 [US1] Implement aggregation logic to compute `mean_politeness_score` per dialogue and z-score standardization.
+- [ ] T019 [US1] Implement aggregation logic to compute `mean_politeness_score` per dialogue and z-score standardization.
 - [ ] T020 [US1] Save processed data to `data/processed/scored_dialogues.parquet` and raw logs to `data/raw/exclusions.log`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -147,7 +147,7 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T030 [P] [US3] Unit test for lexicon-based scoring logic in `tests/unit/test_lexicon_scoring.py`
-- [ ] T031 [P] [US3] Integration test for subgroup filtering logic (n ≥ 30) in `tests/integration/test_subgroup.py`
+- [X] T031 [P] [US3] Integration test for subgroup filtering logic (n ≥ 30) in `tests/integration/test_subgroup.py`
 
 ### Implementation for User Story 3
 
