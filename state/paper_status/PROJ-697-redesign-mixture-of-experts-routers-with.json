@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-08-23T22:53:38.951975+00:00"
+    "audited_at": "2026-08-23T23:21:26.711819+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-697-redesign-mixture-of-experts-routers-with",
-  "updated_at": "2026-08-23T22:53:38.951987+00:00"
+  "updated_at": "2026-08-23T23:21:26.711831+00:00"
 }
