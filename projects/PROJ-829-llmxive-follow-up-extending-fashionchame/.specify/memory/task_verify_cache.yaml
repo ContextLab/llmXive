@@ -1,0 +1,20 @@
+T020:
+  c: false
+  h: d93c5cee250e4cf91e41b685378828e25f2edfbbe369febb9eb5e2c2e5f3fe3b
+  r: "The required output file `data/processed/fidelity_report.json` does not exist,\
+    \ and the provided `reporter.py` (truncated) shows no code that writes such a\
+    \ JSON report. Consequently the task\u2019s core deliverable is missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided that demonstrate edge\u2011case\
+    \ handling for classes with fewer than 10 samples, nor any logic that skips statistical\
+    \ tests and emits warnings. The required implementation artifact is missing, so\
+    \ the task is not satisfied."
+T035:
+  c: false
+  h: f9ba55b9150d6dd45ae5185be0f2560ac8e88c5ef0258ed5f03e6d724fae0ebc
+  r: "The repository contains a partially\u2011implemented `code/src/stats/sensitivity.py`\
+    \ (the file is truncated and never writes the required CSV), and the expected\
+    \ output file `data/processed/sensitivity_analysis.csv` does not exist. Consequently\
+    \ the task\u2019s required artifact is missing."

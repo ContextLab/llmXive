@@ -1,0 +1,23 @@
+# Adapter configuration for TextCrossAttentionAdapter
+# Used by benchmark_runner.py (T037)
+
+adapter:
+  type: "text_cross_attention"
+  clip_model: "clip-ViT-B-32"
+  hidden_dim: 512
+  num_heads: 8
+  dropout: 0.1
+
+text_encoder:
+  model_name: "clip-ViT-B-32"
+  freeze: true
+  max_length: 77
+
+training:
+  lr: 1e-4
+  batch_size: 32
+  epochs: 10
+
+paths:
+  checkpoint_path: "code/models/text_adapter_checkpoint.pth"
+  config_path: "code/config/adapter_config.yaml"

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T21:14:23.953694Z'
-current_stage: analyzed
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-829-llmxive-follow-up-extending-fashionchame
-last_run_id: ab33f778-72e5-4921-9192-23c2f950cf63
+last_run_id: 23e89d12-467a-4863-ad24-c1b7c9aa0085
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame
 title: 'llmXive follow-up: extending "FashionChameleon: Towards Real-Time and Interactive
   Human-Garment Vide"'
-updated_at: '2026-08-23T04:09:12.395361Z'
+updated_at: '2026-08-23T11:15:49.237584Z'

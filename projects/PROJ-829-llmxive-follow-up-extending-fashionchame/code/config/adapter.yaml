@@ -1,0 +1,7 @@
+# Adapter Configuration
+model_type: "text_cross_attention"
+hidden_size: 768
+num_heads: 12
+dropout: 0.1
+# Placeholder for real model paths
+pretrained_weights: null

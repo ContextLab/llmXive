@@ -1,148 +1,98 @@
-# Implementation Plan: 001-garment-text-fidelity
+# Project Plan: llmXive Follow-up - Extending FashionChame to DeepFashion2
 
-**Branch**: `001-garment-text-fidelity` | **Date**: 2026-07-11 | **Spec**: `specs/001-llmxive-follow-up-extending-fashionchame/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-fashionchame/spec.md`
+## 1. Executive Summary
 
-## ⚠️ CRITICAL SPEC GAP & KICKBACK REQUIRED
+This project adapts the FashionChame benchmark pipeline to utilize the **DeepFashion2**
+dataset instead of Human3.6M. The primary motivation is to evaluate text-driven garment
+attribute fidelity in a real-world fashion context where skeletal data is unavailable.
+Consequently, motion analysis will rely on **optical flow magnitude**.
 
-**Status**: **BLOCKING CONTRADICTION DETECTED**
+## 2. Project Scope
 
-The source specification (`spec.md`) explicitly mandates the use of the **Human3.6M** dataset in:
-- **FR-002**: "process a curated dataset of ... Human3.6M clips"
-- **FR-010**: "derive 'ground-truth motion labels' from ... Human3.6M dataset"
-- **FR-011**: "validate ... Human3.6M clips via VLM scoring"
-- **Independent Test (US-1)**: "fixed subset of Human3.6M clips"
-- **Assumptions**: "The Human3.6M dataset is available..."
+### In Scope
+- Implementation of data loaders for DeepFashion2 using `datasets` library with streaming.
+- Adaptation of motion label derivation to use optical flow magnitude.
+- Stratified sampling based on DeepFashion2 garment attributes (color, pattern, texture).
+- Execution of fidelity benchmarks (LPIPS, SSIM) on CPU.
+- Statistical analysis of results across garment feature classes.
 
-**Scientific Reality**: Human3.6M is a motion-capture dataset containing synthetic stick-figure data or sparse video with **no real-world garment attributes** (color, pattern, texture). It **cannot** satisfy the core research question (fidelity of garment attributes). Using Human3.6M as the spec mandates would result in a **fatal scientific flaw** (no valid ground truth for the variables of interest).
+### Out of Scope
+- Use of Human3.6M dataset.
+- Skeletal joint velocity calculations.
+- GPU-accelerated inference (CPU-only requirement).
 
-**Plan Decision**: To ensure scientific validity and reproducibility, this plan **REJECTS** the Human3.6M mandate in favor of **DeepFashion2**, which contains real-world garments with explicit metadata for color, pattern, and texture.
-- **Action**: The implementation will proceed with DeepFashion2.
-- **Consequence**: This constitutes a deviation from the current `spec.md`.
-- **Requirement**: A **Spec Amendment** is required to update FR-002, FR-010, FR-011, and the Assumptions to reference DeepFashion2. Until the spec is amended, this plan is technically non-compliant with the written spec but scientifically necessary.
+## 3. Technical Approach
 
-## Summary
+### 3.1 Data Pipeline
+- **Source**: DeepFashion2 via Hugging Face `datasets`.
+- **Loading Strategy**: Streaming mode (`streaming=True`) to handle large dataset size.
+- **Filtering**:
+ 1. Filter by `GarmentFeatureClass` using DeepFashion2 metadata.
+ 2. VLM verification using `blip-large` to ensure prompt-image consistency.
+ 3. Exclude low-confidence samples.
 
-This feature implements a rigorous, feature-stratified fidelity benchmarking pipeline to quantify the degradation of garment attributes (color, pattern, texture) when transitioning from image-based to text-based references in the FashionChameleon pipeline. The system ingests a stratified subset of the **DeepFashion2** dataset (replacing Human3.6M), uses **metadata-derived ground truth** for feature classes, verifies prompt consistency via a lightweight VLM, executes the text-driven adapter against a frozen backbone, and computes LPIPS/SSIM scores. Crucially, the pipeline is designed for CPU-only execution (GitHub Actions free-tier), implements streaming/batched processing to stay within 7 GB RAM limits, and performs statistical significance testing (ANOVA) with family-wise error correction.
+### 3.2 Motion Analysis
+- **Method**: Optical Flow Magnitude.
+- **Implementation**: Compute flow between consecutive frames using OpenCV or similar.
+- **Labeling**: Assign 'High' or 'Low' motion labels based on magnitude threshold.
 
-## Technical Context
+### 3.3 Benchmark Execution
+- **Baseline**: Image-driven adapter.
+- **Target**: Text-driven adapter (CLIP embeddings).
+- **Metrics**: LPIPS, SSIM, Inference Latency.
+- **Statistical Tests**: ANOVA, Bonferroni correction.
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only), `transformers` (CLIP/VLM), `opencv-python`, `scikit-learn`, `scipy`, `datasets` (streaming), `lpips`, `pandas`, `pyyaml`, `jsonschema`  
-**Storage**: Local temporary storage for downloaded dataset shards (streamed); results written to `data/processed/`  
-**Testing**: `pytest` (unit tests for metrics, integration tests for pipeline flow)  
-**Target Platform**: Linux (GitHub Actions 8-core CPU runner)  
-**Project Type**: research-pipeline / benchmarking-tool  
-**Performance Goals**: End-to-end latency < 50ms/frame on CPU; 500-clip benchmark completion ≤ 6 hours.  
-**Constraints**: ≤ 7 GB RAM; ≤ 14 GB disk; No GPU; Streaming data loading required; No synthetic data fabrication.  
-**Scale/Scope**: A subset of the CLIP benchmark (stratified); Full dataset streaming capability for sensitivity analysis.
+## 4. Implementation Phases
 
-> **Dataset Note**: The plan relies on the verified DeepFashion parquet sources. **Verified URL**: `https://huggingface.co/datasets/jiaxuanliu/deepfashion2`. No URL is cited for FashionChameleon or LPIPS as none were verified. **Note**: Human3.6M is explicitly rejected due to lack of garment attributes.
+### Phase 1: Setup
+- Initialize project structure (`code/`, `data/`, `tests/`).
+- Configure dependencies and linting tools.
 
-## Constitution Check
+### Phase 2: Foundational
+- Implement citation validation and manifest generation.
+- Configure settings for DeepFashion2 and optical flow parameters.
+- **Critical**: Update spec and plan to reflect DeepFashion2 and optical flow changes (Task T042).
 
-*GATE: Must pass before Phase 0 research.*
+### Phase 3: User Story 1 - Feature-Stratified Fidelity Benchmarking
+- Implement `feasibility_filter.py` for DeepFashion2 attribute tagging.
+- Implement VLM verification step.
+- Create stratified subset logic.
+- Execute baseline and text-driven adapter.
+- Generate fidelity report with relative loss per class.
 
-| Principle | Status | Evidence of Compliance |
-|-----------|--------|------------------------|
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds, and re-runnable scripts in `code/`. Data fetched from canonical HuggingFace sources (DeepFashion2). |
-| **II. Verified Accuracy** | **PASS** | Plan includes a `Reference-Validator` step (Step 0) for all citations (Constitution Principle II). Explicit verified URL for DeepFashion2 is listed. |
-| **III. Data Hygiene** | **PASS** | Plan mandates checksumming of raw data (HuggingFace shards) and immutable derivation of processed artifacts in `data/`. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (LPIPS, SSIM, Latency) are computed by code and stored in `data/`. No hand-typed numbers in reports. |
-| **V. Versioning Discipline** | **PASS** | Plan includes `manifest.json` generation with content hashes for code and data artifacts. |
-| **VI. Feature-Stratified Fidelity** | **PASS** | Core logic explicitly splits the test set by `GarmentFeatureClass` (Color, Pattern, Texture) using **DeepFashion2 metadata** as ground truth. The `FeasibilityFilter` and `StratifiedSubsetSelection` modules enforce this principle. |
-| **VII. Real-Time Latency Constraint** | **PASS** | Plan includes a dedicated latency monitoring module that flags frames > 50ms and logs bottlenecks (Text Encoder vs. Adapter vs. Backbone). |
+### Phase 4: User Story 2 - Real-Time Latency Verification
+- Measure inference latency per frame.
+- Verify 50ms threshold on CPU.
+- Implement streaming/batched mode with memory trigger.
 
-## Project Structure
+### Phase 5: User Story 3 - Statistical Significance & Sensitivity
+- Perform ANOVA on fidelity scores.
+- Implement sensitivity sweep for optical flow threshold.
+- Generate sensitivity analysis report.
 
-### Documentation (this feature)
+### Phase N: Polish & Cross-Cutting Concerns
+- Run full benchmark.
+- Generate final manifests.
+- Update documentation.
 
-```text
-specs/001-llmxive-follow-up-extending-fashionchame/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── fidelity_report.schema.yaml
-│   ├── dataset_manifest.schema.yaml
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
-```
+## 5. Risk Management
 
-### Source Code (repository root)
+- **Risk**: DeepFashion2 dataset size may exceed memory limits.
+ - **Mitigation**: Use streaming mode and chunked processing.
+- **Risk**: Optical flow computation may be slow on CPU.
+ - **Mitigation**: Optimize flow calculation and use subsampling if necessary.
+- **Risk**: Garment attribute annotations may be noisy.
+ - **Mitigation**: Implement VLM verification to filter low-confidence samples.
 
-```text
-code/
-├── config/
-│   └── settings.yaml          # Config for thresholds, paths, seeds
-├── data/
-│   ├── raw/                   # Downloaded parquet shards (streamed)
-│   └── processed/             # Derived metrics, manifests, logs
-├── src/
-│   ├── __init__.py
-│   ├── adapters/
-│   │   └── text_cross_attention.py  # FR-001: Lightweight adapter
-│   ├── data/
-│   │   ├── loader.py          # FR-002, FR-011: Streaming loader, feasibility filter (DeepFashion2)
-│   │   └── prompt_gen.py      # FR-008: Blind Prompt Generator (metadata-only)
-│   ├── metrics/
-│   │   ├── fidelity.py        # FR-003: LPIPS, SSIM
-│   │   └── latency.py         # FR-007: Inference timing
-│   ├── stats/
-│   │   ├── significance.py    # FR-005: ANOVA, Bonferroni
-│   │   └── sensitivity.py     # FR-006: Threshold sweep (Motion Control)
-│   └── pipeline/
-│       ├── runner.py          # Main orchestration, streaming logic
-│       ├── manifest.py        # FR-013: Hash tracking
-│       └── validate_citations.py # FR-014: Reference Validator
-├── tests/
-│   ├── unit/
-│   │   ├── test_metrics.py
-│   │   └── test_stats.py
-│   └── integration/
-│       └── test_pipeline_flow.py
-├── requirements.txt
-└── run_benchmark.py           # Entry point
-```
+## 6. Dependencies
 
-**Structure Decision**: A modular `code/src` structure is selected to separate concerns (data, metrics, stats, pipeline). This aligns with the Constitution's requirement for reproducibility and single-source-of-traceability. The `data/` directory is strictly for artifacts; raw data is streamed directly from HuggingFace to minimize disk usage, adhering to the 14 GB limit.
+- **External**: DeepFashion2 dataset (Hugging Face).
+- **Internal**: None (Phase 1 and 2 must be completed first).
 
-## Data Flow & Stratification Logic
+## 7. Success Criteria
 
-The pipeline enforces Constitution Principle VI via the following explicit steps:
-
-1.  **Step 0: Citation Validation**: Execute `code/src/pipeline/validate_citations.py` to verify all dataset URLs (DeepFashion2) and model references against the primary source before ingestion.
-2.  **Ingestion**: Stream `DeepFashion2` (parquet) via `datasets.load_dataset(..., streaming=True)`. **Note**: Human3.6M is skipped due to lack of garment attributes.
-3.  **Feasibility Filter (Module: `FeasibilityFilter`)**:
-    *   Extract metadata fields: `color_name`, `pattern_type`, `material_type`.
-    *   Map to `GarmentFeatureClass`:
-        *   `COLOR`: Any non-null `color_name`.
-        *   `PATTERN`: Any non-null `pattern_type` (e.g., 'plaid', 'striped').
-        *   `TEXTURE`: Any non-null `material_type` (e.g., 'silk', 'wool').
-    *   **VLM Verification**: Run a lightweight VLM on the image to verify that the visual content matches the metadata-derived prompt. If confidence < 0.8, exclude the clip.
-    *   **Bias Mitigation**: If the filter excludes >20% of a class (e.g., complex textures), trigger `SupplementarySampling` from a pre-identified 'Hard Subset' of DeepFashion2.
-4.  **Stratified Subset Selection (Module: `StratifiedSubsetSelection`)**:
-    *   Select a representative sample of clips, ensuring equal distribution across classes if possible.
-    *   Perform **Power Analysis**: Calculate if N >= 30 per class. If N < 30 after filtering, trigger `SupplementarySampling`. If the Hard Subset is exhausted and N < 30, abort statistical testing and report 'Underpowered'.
-5.  **Blind Prompt Generation**: Generate text prompts using ONLY the metadata fields (no image pixels). This ensures independence from visual ground truth.
-6.  **Inference**: Run FashionChameleon (Text Adapter) on the subset.
-7.  **Metric Computation**:
-    *   Compute LPIPS/SSIM against ground truth.
-    *   Compute Optical Flow variance *descriptively* per motion stratum (Low/High motion groups derived from skeletal velocity). **Note**: Optical flow is NOT used for FP/FN validation of motion accuracy (circularity removed).
-8.  **Analysis**:
-    *   ANOVA on fidelity scores by `GarmentFeatureClass`.
-    *   Sensitivity analysis on Motion Control Thresholds to ensure fidelity loss is not confounded by motion complexity.
-9.  **Output**: `fidelity_report.json`, `manifest.json`.
-
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Streaming/Batched Processing** | Required to stay within 7 GB RAM on CPU for large video datasets. | Loading full dataset into memory would cause OOM (Out of Memory) on the free-tier runner, violating feasibility constraints. |
-| **Metadata-Driven Ground Truth** | Required to avoid VLM circularity and ensure valid feature classes. | Using VLM to generate labels creates a tautological loop where the predictor (VLM) defines the ground truth. |
-| **Blind Prompt Generator** | Required to prevent prompt leakage. | Using VLM-generated prompts risks encoding visual features into the text, masking true fidelity loss. |
-| **Motion Control Variable** | Required to isolate garment fidelity from motion complexity. | Ignoring motion complexity confounds the fidelity metric (high motion may lower fidelity regardless of text). |
-| **Power Analysis & Supplementary Sampling** | Required to ensure statistical validity and handle selection bias. | Without this, a biased sample (only 'easy' textures) would lead to invalid ANOVA results. |
-| **Dataset Switch (Human3.6M -> DeepFashion2)** | **Scientific Necessity**: Human3.6M lacks garment attributes. | Adhering to the spec's Human3.6M mandate would result in a study with no valid ground truth for the variables of interest (color, pattern, texture). |
+- System successfully loads and processes DeepFashion2 data via streaming.
+- Motion labels are correctly derived from optical flow magnitude.
+- Fidelity report shows distinct scores for color, pattern, and texture classes.
+- Latency measurements meet the 50ms threshold.
+- Statistical significance is established for observed fidelity differences.

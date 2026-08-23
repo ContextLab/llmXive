@@ -1,0 +1,13 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a** — No evidence was provided that a `code/` directory exists at the repository root; the artifact list is empty, so the required directory cannot be confirmed. The implementer must create and commit a non‑empty `code/` folder.
+- **T001b** — No evidence was provided showing that the `data/raw/` and `data/processed/` directories actually exist in the repository; without a file‑system listing or screenshots, we cannot confirm the required directories were created.
+- **T001c** — There is no provided evidence that the directories `tests/unit/` and `tests/integration/` actually exist in the repository; the artifact list is empty, so the required directories have not been demonstrated.
+- **T003** — No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or similar) or scripts were provided to demonstrate that ruff linting and black formatting have been set up. Without these artifacts, we cannot verify that the linting/formatting tools are actually configured. The implementer must add the appropriate configuration files and ensure they are non‑empty.
+- **T042** — The provided excerpt shows the spec content with the required replacements, but there is no actual `spec.md` or `plan.md` file presented, nor any evidence of a commit. Without the concrete files (especially the updated `plan.md`), we cannot confirm the task is truly completed.
+- **T020** — The required output file `data/processed/fidelity_report.json` does not exist, and the provided `reporter.py` (truncated) shows no code that writes such a JSON report. Consequently the task’s core deliverable is missing.
+- **T022** — No code, tests, or documentation were provided that demonstrate edge‑case handling for classes with fewer than 10 samples, nor any logic that skips statistical tests and emits warnings. The required implementation artifact is missing, so the task is not satisfied.
+- **T035** — The repository contains a partially‑implemented `code/src/stats/sensitivity.py` (the file is truncated and never writes the required CSV), and the expected output file `data/processed/sensitivity_analysis.csv` does not exist. Consequently the task’s required artifact is missing.
+- **T037** — declared artifact(s) missing/empty/invalid: data/processed/fidelity_report.json

@@ -1,0 +1,42 @@
+# Project settings for llmXive FashionChameleon benchmark
+# Updated for DeepFashion2 dataset (T042)
+
+dataset:
+  name: "DeepFashion2"
+  split: "train"
+  streaming: true
+  streaming_chunk_size: 100
+  parquet_files:
+    - "parquet/train-00000-of-00001.parquet"
+
+memory:
+  trigger_gb: 6.5
+  cleanup_interval: 50
+
+latency:
+  threshold_ms: 50
+  moving_average_window: 10
+
+fidelity:
+  lpips_net: "alex"
+  ssim_win_size: 11
+
+benchmark:
+  subset_size: 100
+  confidence_threshold: 0.8
+  motion_thresholds: [0.01, 0.05, 0.1]
+
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  models: "code/models"
+  outputs: "data/processed"
+
+logging:
+  level: "INFO"
+  file: "logs/benchmark.log"
+
+seeds:
+  default: 42
+  data_split: 1234
+  model_init: 5678
