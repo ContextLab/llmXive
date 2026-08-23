@@ -20,7 +20,7 @@ This feature implements a statistical analysis pipeline to investigate the corre
 **Testing**: `pytest` with `pytest-cov` for code coverage; unit tests for data matching logic.  
 **Target Platform**: Linux (GitHub Actions Free Tier: CPU, ~7GB RAM).  
 **Project Type**: Data Analysis / Statistical Research Pipeline.  
-**Performance Goals**: Process the merged dataset (estimated ~1.5GB for 2014-2018 ERA5 subset) within 4 hours on CPU; model convergence within 30 minutes.  
+**Performance Goals**: Process the merged dataset (estimated on the order of several gigabytes for the 2014‑2018 ERA5 subset.) within 4 hours on CPU; model convergence within 30 minutes.  
 **Constraints**: Must run on CPU-only environment; ERA5 data must be streamed/fetched in chunks to fit memory; no PII allowed in logs.  
 **Scale/Scope**: ~k moral decisions (Moral Machine), A subset of ERA5 data (2014-2018).
 
