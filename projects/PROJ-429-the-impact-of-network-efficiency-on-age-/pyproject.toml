@@ -3,28 +3,28 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-network-efficiency"
+name = "llmXive-network-efficiency-aging"
 version = "0.1.0"
 description = "Impact of Network Efficiency on Age-Related Changes in Resting-State EEG"
 requires-python = ">=3.11"
 dependencies = [
-    "mne>=1.6.0",
-    "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "scipy>=1.11.0",
-    "networkx>=3.1.0",
-    "statsmodels>=0.14.0",
-    "matplotlib>=3.7.0",
+    "mne",
+    "networkx",
+    "scipy",
+    "pandas",
+    "statsmodels",
+    "pywavelets",
+    "matplotlib",
+    "numpy",
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -33,10 +33,50 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | data
 )/
 '''
 
 [tool.ruff]
-# Inherits from .ruff.toml or defines here if preferred
 line-length = 88
 target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+exclude = [
+    ".git",
+    ".venv",
+    "data",
+    "build",
+    "dist",
+    "__pycache__",
+]
+
+[tool.ruff.isort]
+known-first-party = ["config", "data", "network", "stats", "viz", "state"]
+force-sort-within-sections = true
+
+[tool.ruff.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.params.Depends"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["*"]

@@ -12,13 +12,6 @@ T005:
     confirm that `data/raw`, `data/processed`, and `data/consent` exist nor that each
     contains a `.gitkeep`. The implementer must show the actual filesystem state (e.g.,
     output of `ls data/` and `ls data/*/`) to verify the required structure.
-T010a:
-  c: false
-  h: 249bf6a0b2634b168033e82257890224c5cab9d3fd23b15c1265eb86e1a7d238
-  r: The provided `tests/contract/test_stimulus_schema.py` exists but is truncated
-    (e.g., the `test_data_types` function ends abruptly) and the required data files
-    `data/raw/stimuli.csv` and the schema file `stimulus.schema.yaml` are absent,
-    so the contract test cannot run or pass.
 T013:
   c: false
   h: afe011540da99fecb7c6cf14ad696f7f8a01284f9ca8d3fb8417e4d4565d3ed8
@@ -35,6 +28,13 @@ T015c:
     \ exists with the required `FileNotFoundError`. The snippet ends before any consent\u2011\
     record generation logic, so the core requirement is not implemented. The needed\
     \ checks and conditional consent\u2011record creation are missing."
+T016:
+  c: false
+  h: 1f33f606225cbdc5c3bb74c4a58fc70c7e32e405f718422116534d346536470d
+  r: "The required output file `data/processed/cleaned_ratings.csv` does not exist,\
+    \ and the provided `code/03_clean_data.py` is truncated before completing the\
+    \ straight\u2011lining detection (and shows no missing\u2011data handling or logging\
+    \ of exclusions). Consequently the task\u2019s deliverables are not satisfied."
 T020:
   c: false
   h: 2c167d912a5b87b162ebe42d0f2883e6ede028307b16ac43a1b978da222a5e7d
@@ -79,10 +79,17 @@ T041:
     \ analysis\u2014is unmet."
 T050:
   c: false
-  h: fdf486dccbc4884d95c71ea7551be3b51bacd7f8512364214630f53cdb2418ba
-  r: "The required file `data/raw/stimuli.csv` does not exist, and the JSON entry\
-    \ contains a placeholder hash rather than the actual SHA\u2011256 checksum of\
-    \ the file. Both the artifact and a correct checksum are missing."
+  h: b7a9e6367fccb2e6f44175094c04dec2f540b785bed2dde0bb8f37ec4f5c2a1d
+  r: "The `data/checksums.json` file exists but contains an empty object (`{}`) and\
+    \ does not include the required SHA\u2011256 checksum entry for `data/raw/stimuli.csv`.\
+    \ The checksum needs to be computed and recorded in the JSON file."
+T086:
+  c: false
+  h: e90f6036d6066b8dc428af15d4545efc99226f537810c38437780b4089c72072
+  r: "The required file `data/processed/anonymised_ratings.csv` is missing, so there\
+    \ is no data to validate the `participant_id` column against the Participant schema.\
+    \ The task cannot be considered completed until this file exists and contains\
+    \ a non\u2011null `participant_id` column as specified."
 T090:
   c: false
   h: 434bd5540707666a9c4ccc7c16699c4f767e722c8ae321b03f82ce4e40185839
@@ -91,7 +98,8 @@ T090:
     \ as specified. The task therefore remains unfinished."
 T092:
   c: false
-  h: 7d6fa130a87c39e779de112daa41f9cce47928cc2573af6451758ad46c7062cd
-  r: The required script `code/04_fit_lmm.py` does not exist, and the processed data
-    file `data/processed/anonymised_ratings.csv` is also missing, so the guard cannot
-    be verified. Both artifacts must be present and contain the appropriate path checks.
+  h: a9d09444c6e7852674a938ed1c683752ca8ed0250fd6901d80f566febb66b178
+  r: The script `code/04_fit_lmm.py` correctly references `data/processed/anonymised_ratings.csv`,
+    but the required file `data/processed/anonymised_ratings.csv` is missing, so the
+    guard cannot be exercised and the CI step would fail. The missing CSV must be
+    provided for the verification to be complete.

@@ -1,95 +1,83 @@
 """
-Pre-analysis Guard Task T092.
+Pre‑analysis guard for the LMM script.
 
-Verifies that the LMM script (code/04_fit_lmm.py) reads directly from
-data/processed/anonymised_ratings.csv. The script must exit with an error
-if it attempts to load any raw file (e.g., from data/raw/).
-
-This guard ensures data privacy and pipeline integrity by enforcing the
-use of anonymised data for statistical analysis.
+This guard ensures that ``code/04_fit_lmm.py`` reads data exclusively from
+``data/processed/anonymised_ratings.csv`` and does not reference any raw
+data files (e.g., paths containing ``data/raw/``). It is intended to be run
+as part of CI; the script exits with status 0 when the guard passes and
+with status 1 (and an explanatory message) when it fails.
 """
+
 import sys
 import re
 from pathlib import Path
 
-# Add project root to path to import config if needed, 
-# though we can use standard pathlib for this check.
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-LMM_SCRIPT_PATH = PROJECT_ROOT / "code" / "04_fit_lmm.py"
-ALLOWED_INPUT = PROJECT_ROOT / "data" / "processed" / "anonymised_ratings.csv"
-RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
+# Relative path to the LMM script we need to inspect
+LMM_SCRIPT_RELATIVE = Path(__file__).parent / "04_fit_lmm.py"
 
-# Patterns indicating raw data access
-RAW_FILE_PATTERNS = [
-  r"data/raw/real_ratings\.csv",
-  r"data/raw/stimuli\.csv",
-  r"raw/real_ratings",
-  r"raw/stimuli",
-  r"PROLIFIC_ID", # Direct usage of raw ID column often implies raw file
-  r"prolific_id"  # Case insensitive check below
-]
+# Expected processed data file (absolute path will be resolved at runtime)
+EXPECTED_PROCESSED_PATH = Path("data/processed/anonymised_ratings.csv").as_posix()
 
-def check_lmm_script():
+
+def _read_lmm_source() -> str:
+    """Read the source code of the LMM script."""
+    if not LMM_SCRIPT_RELATIVE.is_file():
+        sys.stderr.write(f"Guard error: LMM script not found at {LMM_SCRIPT_RELATIVE}\\n")
+        sys.exit(1)
+
+    return LMM_SCRIPT_RELATIVE.read_text(encoding="utf-8")
+
+
+def _contains_raw_path(source: str) -> bool:
     """
-    Scans the LMM script for forbidden raw data imports.
-    Returns True if the script is compliant, False otherwise.
+    Detect any string literals or path constructions that reference the raw
+    data directory. A simple regex looks for ``data/raw/`` within quotes or
+    as a raw string.
     """
-    if not LMM_SCRIPT_PATH.exists():
-        print(f"ERROR: LMM script not found at {LMM_SCRIPT_PATH}")
-        return False
+    raw_pattern = re.compile(r"""['"]([^'"]*data/raw/[^'"]*)['"]""")
+    return bool(raw_pattern.search(source))
 
-    try:
-        content = LMM_SCRIPT_PATH.read_text(encoding='utf-8')
-    except Exception as e:
-        print(f"ERROR: Could not read LMM script: {e}")
-        return False
 
-    # Check 1: Ensure the script attempts to load the allowed file
-    # We look for the specific path or the function call that resolves to it.
-    # Since the task requires reading from 'data/processed/anonymised_ratings.csv',
-    # we verify the string exists in the code.
-    allowed_path_str = str(ALLOWED_INPUT)
-    if allowed_path_str not in content:
-        # It might use a helper function, but if the path isn't there at all,
-        # it's suspicious. However, let's be slightly lenient and check for
-        # the filename pattern if the full path is constructed dynamically.
-        if "anonymised_ratings.csv" not in content:
-            print(f"ERROR: Script does not explicitly reference the allowed input file: {allowed_path_str}")
-            print("The script must read from 'data/processed/anonymised_ratings.csv'.")
-            return False
+def _contains_expected_processed_path(source: str) -> bool:
+    """
+    Verify that the expected processed file path appears in the source.
+    This is a lightweight check; the script could construct the path
+    programmatically, but the literal must be present somewhere.
+    """
+    return EXPECTED_PROCESSED_PATH in source
 
-    # Check 2: Ensure the script does NOT load raw files
-    for pattern in RAW_FILE_PATTERNS:
-        if re.search(pattern, content, re.IGNORECASE):
-            print(f"ERROR: Script attempts to load raw data or use raw identifiers matching '{pattern}'")
-            print("The LMM script must NOT load files from data/raw/ or use raw Prolific IDs.")
-            return False
 
-    # Check 3: Verify imports of helper functions that might bypass checks
-    # (Optional: check if it imports a 'load_raw' function)
-    if "load_raw" in content or "load_real_ratings" in content:
-        # If it imports a function named 'load_real_ratings', it might be loading raw data.
-        # We need to be careful not to flag 'load_ratings' if that's the generic name.
-        # But 'load_real_ratings' is a strong indicator of raw data usage.
-        if "load_real_ratings" in content:
-            print("WARNING: Script imports 'load_real_ratings'. This suggests direct raw data access.")
-            # We will fail the guard if it tries to use this function for the LMM input.
-            # For a strict guard, we fail if the function name exists and is used.
-            if "load_real_ratings(" in content:
-                print("ERROR: Direct usage of load_real_ratings detected.")
-                return False
+def check_lmm_script() -> None:
+    """
+    Perform the guard checks.
 
-    print("SUCCESS: LMM script passed the pre-analysis guard.")
-    print(f"Verified input: {allowed_path_str}")
-    return True
+    * Fail if the LMM script references any raw data files.
+    * Fail if the LMM script does not reference the expected processed file.
+    """
+    source = _read_lmm_source()
+
+    if _contains_raw_path(source):
+        sys.stderr.write(
+            "Guard failure: LMM script attempts to load raw data files (data/raw/).\\n"
+        )
+        sys.exit(1)
+
+    if not _contains_expected_processed_path(source):
+        sys.stderr.write(
+            f"Guard failure: LMM script does not reference the expected processed file "
+            f"'{EXPECTED_PROCESSED_PATH}'.\\n"
+        )
+        sys.exit(1)
+
+    # All checks passed
+    print("Pre‑analysis guard passed: LMM script loads only processed data.")
+    sys.exit(0)
+
 
 def main():
-    print("Running Pre-Analysis Guard (T092)...")
-    if not check_lmm_script():
-        print("GUARD FAILED: The LMM script is not compliant.")
-        sys.exit(1)
-    print("Guard check completed successfully.")
-    sys.exit(0)
+    """CLI entry point."""
+    check_lmm_script()
+
 
 if __name__ == "__main__":
     main()

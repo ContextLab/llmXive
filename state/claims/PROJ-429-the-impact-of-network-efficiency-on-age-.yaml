@@ -603,3 +603,355 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T12:50:29Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Bandpass filter low-to-mid frequency bands follows DOI:10.1038/nmeth.1234
+  claim_id: c_88d70c2b
+  context: Implement code/data/preprocess.py for MNE-Python pipeline (The research
+    question addresses the characterization of neural dynamics within a physiologically
+    relevant bandpass range. The method employs a bandpass filter spanning low to
+    mid-frequency bands to isolate target signals, following established protocols
+    (DOI:10.1038/nmeth.1234).
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The method employs a bandpass filter spanning low to mid-frequency bands
+    to isolate target signals, following established protocols (DOI:10.1038/nmeth.1234).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:14:41Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Flag epochs with SNR less than 10dB
+  claim_id: c_689a1932
+  context: 1. Calculate Signal-to-Noise Ratio (SNR) per epoch. 2. Flag epochs with
+    SNR < 10dB. 3. Reject epochs with >50% artifacts.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_epochs_with_SNR_less_than_10dB
+  kind: magnitude
+  raw_text: Flag epochs with SNR < 10dB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:15:02Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Reject epochs with more than 50% artifacts
+  claim_id: c_a6f0441a
+  context: 2. Flag epochs with SNR < 10dB. 3. Reject epochs with >50% artifacts.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reject_epochs_with_more_than_50%25_artifacts
+  kind: magnitude
+  raw_text: Reject epochs with >50% artifacts.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:15:22Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Memory usage below 6GB during ICA and filtering
+  claim_id: c_9fded70d
+  context: Implement chunked streaming in code/data/preprocess.py to process epochs
+    in batches, ensuring memory usage stays below 6GB during ICA and filtering.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_below_6GB_during_ICA_and_filtering
+  kind: entity_fact
+  raw_text: Ensure memory usage stays below 6GB during ICA and filtering.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:15:41Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: max_deviation less than 1e-6 for efficiency check
+  claim_id: c_579fdd1a
+  context: 'Deliverable: data/results/efficiency_check.json with {formula_verified:
+    bool, max_deviation: float}. Tolerance: max_deviation must be < 1e-6.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Max_deviation_less_than_1e-6_for_efficiency_check
+  kind: magnitude
+  raw_text: max_deviation must be < 1e-6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:16:02Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: variation less than 0.05 considered stable
+  claim_id: c_1861df4f
+  context: 'Schema: threshold, metric_name, std_dev, is_stable (true if variation
+    < 0.05).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variation_less_than_0.05_considered_stable
+  kind: magnitude
+  raw_text: variation < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:16:19Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: verify minimum power greater than or equal to 0.80
+  claim_id: c_c64c95c6
+  context: "Implement power analysis (SC-002) to verify minimum power \u2265 0.80\
+    \ (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))\
+    \ for the target effect size r=0.3"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_minimum_power_greater_than_or_equal_to_0.80
+  kind: magnitude
+  raw_text: "verify minimum power \u2265 0.80"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:16:43Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: insufficient sample size N less than 85
+  claim_id: c_44309f1b
+  context: If power_analysis.json shows is_sufficient == false AND the cause is insufficient
+    sample size (N < 85), log warning Study underpowered for cognitive analysis
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Insufficient_sample_size_N_less_than_85
+  kind: magnitude
+  raw_text: insufficient sample size (N < 85)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:17:36Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: N less than 15 for Older group
+  claim_id: c_ab6d4caa
+  context: if N < 15 for Older group, append 'Low Power for Older Group' to the array.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q734398
+        url: https://www.wikidata.org/wiki/Q734398
+        value: '1996'
+      quote: 'P1954: 909385'
+      source_id: Q23860912
+      url: https://www.wikidata.org/wiki/Q23860912
+      value: '909385'
+    filled: true
+  kind: magnitude
+  raw_text: N < 15 for Older group
+  resolved_value: '909385'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-23T18:17:46Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: execution less than 6 hours on free-tier CI
+  claim_id: c_2cd61ea7
+  context: T039 Performance optimization (ensure execution < 6h on free-tier CI)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execution_less_than_6_hours_on_free-tier_CI
+  kind: magnitude
+  raw_text: execution < 6h on free-tier CI
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:18:02Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Memory usage stays below 6GB during ICA and filtering
+  claim_id: c_eb1c0e4a
+  context: T043 [P] Implement chunked streaming in code/data/preprocess.py to process
+    epochs in batches, ensuring memory usage stays below 6GB during ICA and filtering.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_stays_below_6GB_during_ICA_and_filtering
+  kind: entity_fact
+  raw_text: Implement chunked streaming in code/preprocess.py to process epochs in
+    batches, ensuring memory usage stays below 6GB during ICA and filtering.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:19:18Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis stability threshold is variation less than 0.05
+  claim_id: c_58ca1ec4
+  context: 'Schema: threshold, metric_name, std_dev, is_stable (true if variation
+    < 0.05).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_stability_threshold_is_variation_less_t
+  kind: magnitude
+  raw_text: Sensitivity analysis stability is defined as variation < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:19:43Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Formula verification tolerance max_deviation less than 1e-6
+  claim_id: c_c97afed9
+  context: 'Deliverable: data/results/efficiency_check.json with {"formula_verified":
+    bool, "max_deviation": float}. Tolerance: max_deviation must be < 1e-6.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Formula_verification_tolerance_max_deviation_less_than_1e-6
+  kind: magnitude
+  raw_text: Sensitivity analysis tolerance for formula verification requires max_deviation
+    < 1e-6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:20:11Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Epochs with Signal-to-Noise Ratio less than 10dB are flagged
+  claim_id: c_68c6c51b
+  context: Flag epochs with SNR < 10dB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Epochs_with_Signal-to-Noise_Ratio_less_than_10dB_are_flagged
+  kind: magnitude
+  raw_text: Epochs with SNR < 10dB are flagged.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:20:46Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Reject epochs with more than 50% artifacts
+  claim_id: c_162c0e3c
+  context: Reject epochs with >50% artifacts.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reject_epochs_with_more_than_50%25_artifacts
+  kind: magnitude
+  raw_text: Reject epochs with >50% artifacts.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:20:47Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Filter dataset for age greater than or equal to 18
+  claim_id: c_5bc0823a
+  context: 'Age Check: Filter for age >= 18.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_dataset_for_age_greater_than_or_equal_to_18
+  kind: magnitude
+  raw_text: Filter for age >= 18.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:20:55Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Minimum statistical power must be 0.80 or greater
+  claim_id: c_000e9c8b
+  context: "Implement power analysis (SC-002) to verify minimum power \u2265 0.80\
+    \ ... for the target effect size r=0.3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum power must be >= 0.80 for the target effect size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:21:00Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: bandpass filter low-to-mid frequency bands established protocols DOI:10.1038/nmeth.1234
+  claim_id: c_058eea87
+  context: Implement code/data/preprocess.py for MNE-Python pipeline (The research
+    question addresses the characterization of neural dynamics within a physiologically
+    relevant bandpass range. The method employs a bandpass filter spanning low to
+    mid-frequency bands to isolate target signals, following established protocols
+    (DOI:10.1038/nmeth.1234)., ICA, 10s epochs as per code/config.py and docs/decisions/epoch_length.md).
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The method employs a bandpass filter spanning low to mid-frequency bands
+    to isolate target signals, following established protocols (DOI:10.1038/nmeth.1234).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:22:31Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 3
+  canonical: spec.md v1.1 mandates 10s epochs
+  claim_id: c_e53e0c6d
+  context: '## Spec Reference: Explicitly references spec.md v1.1 which already mandates
+    10s epochs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly references spec.md v1.1 which already mandates 10s epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T18:22:31Z'

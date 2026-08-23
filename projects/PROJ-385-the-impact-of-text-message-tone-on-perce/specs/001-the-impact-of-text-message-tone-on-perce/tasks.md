@@ -62,7 +62,7 @@
 
 ### Stimulus Generation & Validation
 
-- [ ] T013 [US1] Implement factorial stimulus generator in `code/01_generate_stimuli.py`. **Output** `data/raw/stimuli.csv` with columns `id,text,emoji_count,punctuation_type,length_category,scenario_id,cue_intensity`. **Verification**: `python code/01_generate_stimuli.py --verify` exits 0 with log message "All 12 factorial combinations verified".
+- [X] T013 [US1] Implement factorial stimulus generator in `code/01_generate_stimuli.py`. **Output** `data/raw/stimuli.csv` with columns `id,text,emoji_count,punctuation_type,length_category,scenario_id,cue_intensity`. **Verification**: `python code/01_generate_stimuli.py --verify` exits 0 with log message "{{claim:c_2b08411c}} (OEIS A000142, https://oeis.org/A000142)".
 - [ ] T050 [P] Compute SHA‑256 checksum for `data/raw/stimuli.csv` and record in `data/checksums.json`. **Verification**: JSON entry exists.
 - [ ] T010a [US1] Create contract test `tests/contract/test_stimulus_schema.py` that loads `data/raw/stimuli.csv` and validates against `stimulus.schema.yaml`. **Verification**: `pytest` passes.
 
@@ -77,13 +77,13 @@
 - [ ] T041 [P] Verify presence of `data/raw/real_ratings.csv` before any downstream analysis. **Verification**: Script exits with error if missing.
 
 - [ ] T051 [P] Anonymise `data/raw/real_ratings.csv` (hash Prolific IDs, strip PII) and write to `data/processed/anonymised_ratings.csv`. **Verification**: No raw IDs remain.
-- [~] T054 [P] Compute SHA‑256 checksum for `data/raw/real_ratings.csv` and record in `data/checksums.json`. **Verification**: Entry exists.
-- [~] T052 [P] Compute SHA‑256 checksum for `data/processed/anonymised_ratings.csv` and record in `data/checksums.json`. **Verification**: Entry exists.
-- [~] T086 [US1] Validate Participant entity: ensure `data/processed/anonymised_ratings.csv` contains a non‑null `participant_id` column matching the Participant schema. **Verification**: Test fails if column missing or malformed. **Depends on**: T051.
+- [ ] T054 [P] Compute SHA‑256 checksum for `data/raw/real_ratings.csv` and record in `data/checksums.json`. **Verification**: Entry exists.
+- [ ] T052 [P] Compute SHA‑256 checksum for `data/processed/anonymised_ratings.csv` and record in `data/checksums.json`. **Verification**: Entry exists.
+- [ ] T086 [US1] Validate Participant entity: ensure `data/processed/anonymised_ratings.csv` contains a non‑null `participant_id` column matching the Participant schema. **Verification**: Test fails if column missing or malformed. **Depends on**: T051.
 
 ### Data Cleaning & Straight‑lining Detection
 
-- [~] T016 [US1] Implement straight‑lining detector and missing‑data handler in `code/03_clean_data.py`. **Verification**: Logs exclusions, outputs `data/processed/cleaned_ratings.csv`.
+- [ ] T016 [US1] Implement straight‑lining detector and missing‑data handler in `code/03_clean_data.py`. **Verification**: Logs exclusions, outputs `data/processed/cleaned_ratings.csv`.
 - [ ] T055 [P] Compute SHA‑256 checksum for `data/processed/cleaned_ratings.csv` and record in `data/checksums.json`. **Verification**: Entry exists.
 
 ## Phase 3: User Story 1 – Stimulus Generation & Data Collection (Priority: P1)

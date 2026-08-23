@@ -1,8 +1,19 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Stimulus Schema
-description: Schema for text message stimuli in the tone research project
-
 type: object
+properties:
+  id:
+    type: integer
+  text:
+    type: string
+  emoji_count:
+    type: integer
+  punctuation_type:
+    type: string
+  length_category:
+    type: string
+  scenario_id:
+    type: integer
+  cue_intensity:
+    type: number
 required:
   - id
   - text
@@ -11,49 +22,3 @@ required:
   - length_category
   - scenario_id
   - cue_intensity
-
-properties:
-  id:
-    type: string
-    description: Unique identifier for the stimulus (e.g., STI_0001)
-    pattern: "^STI_[0-9]{4}$"
-  
-  text:
-    type: string
-    description: The actual text message content
-    minLength: 1
-  
-  emoji_count:
-    type: integer
-    description: Number of emojis in the message
-    minimum: 0
-  
-  punctuation_type:
-    type: string
-    description: Type of punctuation intensity used
-    enum:
-      - None
-      - Minimal
-      - Low
-      - Medium
-      - High
-  
-  length_category:
-    type: string
-    description: Categorization of message length
-    enum:
-      - Short
-      - Medium
-      - Long
-  
-  scenario_id:
-    type: string
-    description: Composite identifier for the factorial combination
-    pattern: "^[A-Za-z]+_[A-Za-z]+_[A-Za-z]+_[0-9]+$"
-  
-  cue_intensity:
-    type: number
-    description: Normalized cue intensity score (0.0 to 1.0)
-    minimum: 0.0
-    maximum: 1.0
-additionalProperties: false

@@ -6,81 +6,63 @@ from config import ensure_dirs
 
 def create_directories():
     """
-    Create the project directory structure as per plan.md.
-    Returns a list of created directory paths.
+    Creates the project directory structure as defined in plan.md.
+    Directories: code/, data/, state/, tests/, docs/, contracts/, figures/
     """
     base_dirs = [
         "code",
-        "data",
         "data/raw",
         "data/processed",
-        "data/processed/connectivity_matrices",
-        "data/quality",
         "data/results",
+        "data/quality",
         "data/config",
         "state",
-        "tests",
         "tests/unit",
         "tests/integration",
         "tests/benchmark",
-        "docs",
         "docs/decisions",
-        "specs",
-        "contracts"
+        "contracts",
+        "figures"
     ]
-
-    created = []
-    for d in base_dirs:
-        path = Path(d)
+    
+    # Ensure base code and data dirs exist first
+    ensure_dirs()
+    
+    for dir_path in base_dirs:
+        path = Path(dir_path)
         path.mkdir(parents=True, exist_ok=True)
-        created.append(str(path))
-    
-    return created
+        print(f"Created directory: {path}")
 
-def create_manifest(created_dirs):
+def create_manifest():
     """
-    Create a manifest file recording the directory structure and creation timestamp.
-    This serves as the evidence required for T001 verification.
+    Creates an initial manifest.json recording the creation of the structure.
     """
-    manifest_path = Path("state") / "project_structure_manifest.json"
-    
     manifest = {
+        "project": "PROJ-429-the-impact-of-network-efficiency-on-age-",
+        "task": "T001",
         "created_at": datetime.utcnow().isoformat(),
-        "root": str(Path(".").resolve()),
-        "directories": sorted(created_dirs),
-        "description": "Project structure created per plan.md for PROJ-429"
+        "structure_version": "1.0",
+        "directories": [
+            "code", "data/raw", "data/processed", "data/results", 
+            "data/quality", "data/config", "state", "tests/unit", 
+            "tests/integration", "tests/benchmark", "docs/decisions", 
+            "contracts", "figures"
+        ]
     }
-
+    
+    manifest_path = Path("data/quality/structure_manifest.json")
     with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
-    
-    return manifest_path
+    print(f"Created manifest: {manifest_path}")
 
 def main():
     """
-    Entry point to create the project structure.
+    Entry point for T001: Create project structure.
     """
-    print("Initializing project structure for PROJ-429...")
-    
-    # Ensure base config directories exist first
-    ensure_dirs()
-    
-    # Create the rest of the structure
-    created = create_directories()
-    manifest_path = create_manifest(created)
-    
-    print(f"Created {len(created)} directories.")
-    print(f"Manifest written to: {manifest_path}")
-    
-    # Verify existence
-    missing = [d for d in created if not Path(d).exists()]
-    if missing:
-        print(f"ERROR: Failed to create: {missing}")
-        return 1
-    
-    print("Project structure verification: PASSED")
-    return 0
+    print("Starting T001: Creating project structure...")
+    create_directories()
+    create_manifest()
+    print("T001 Complete.")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

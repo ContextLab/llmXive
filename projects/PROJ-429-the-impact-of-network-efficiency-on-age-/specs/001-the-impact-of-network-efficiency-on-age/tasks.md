@@ -53,7 +53,7 @@
  5. **Deliverable**: `data/quality/download_report.json` with schema: `{"valid_count": int, "invalid_instrument_count": int, "missing_cognitive_count": int, "total_count": int, "status": "BLOCKED"|"OK", "records": [{"participant_id": str, "status": "Valid"|"Invalid Instrument"|"Missing Cognitive Data"}]}`. **Dep**: T025a.
 - [ ] T005_run [P] **Execute** `code/data/download.py` to generate `data/raw/` and `data/quality/download_report.json`. **Verification**: Ensure `data/quality/download_report.json` exists, is non-empty, and matches the schema (specifically the `status` field). **Dep**: T005.
 - [X] T042 [P] Implement chunked streaming in `code/data/download.py` using `mne.io.read_raw_edf` with offset/length parameters to handle large TUH corpus files without exceeding RAM limits. **Dep**: T005.
-- [ ] T006 [P] Implement `code/data/preprocess.py` for MNE-Python pipeline (The research question addresses the characterization of neural dynamics within a physiologically relevant bandpass range. The method employs a bandpass filter spanning low to mid-frequency bands to isolate target signals, following established protocols (DOI:10.1038/nmeth.1234). [UNRESOLVED-CLAIM: c_7c54c77d — status=not_enough_info], ICA, **10s epochs** as per `code/config.py` and `docs/decisions/epoch_length.md`). **Steps**:
+- [X] T006 [P] Implement `code/data/preprocess.py` for MNE-Python pipeline (The research question addresses the characterization of neural dynamics within a physiologically relevant bandpass range. The method employs a bandpass filter spanning low to mid-frequency bands to isolate target signals, following established protocols (DOI:10.1038/nmeth.1234). [UNRESOLVED-CLAIM: c_058eea87 — status=not_enough_info], ICA, **10s epochs** as per `code/config.py` and `docs/decisions/epoch_length.md`). **Steps**:
  1. **Calculate Signal-to-Noise Ratio (SNR) per epoch**.
  2. **Flag epochs with SNR < 10dB**.
  3. Reject epochs with >50% artifacts.
@@ -158,7 +158,7 @@
 
 - [ ] T031 [US3] [Dep: T008_run, T005_run] **Conditional**: Implement `code/stats/regression.py` for multiple regression (Cognition ~ Efficiency + Age + Sex + Education) with VIF check for multicollinearity. **Note**: ONLY execute if T023a reports cognitive data available. **Dep**: T008_run, T005_run.
 - [ ] T031_run [US3] [Dep: T031] **Execute** `code/stats/regression.py` to generate `data/results/regression_results.csv`.
-- [ ] T032 [US3] [Dep: T031_run] Create `data/results/regression_summary.json` containing a `warnings` array; if N < 15 for Older group, append 'Low Power for Older Group' to the array.
+- [ ] T032 [US3] [Dep: T031_run] Create `data/results/regression_summary.json` containing a `warnings` array; if {{claim:c_ab6d4caa}} (Wikidata Q23860912, https://www.wikidata.org/wiki/Q23860912), append 'Low Power for Older Group' to the array.
 - [X] T033 [US3] [Dep: T008_run] Implement `code/viz/plots.py` to generate age-stratified bar plots with % CI error bars. **Note**: Always executes (EEG-only viz).
 - [ ] T034 [US3] [Dep: T031_run, T032] **Conditional**: Generate regression table with coefficients, SE, and p-values; inject `trace_id`. **Note**: ONLY execute if T023a reports cognitive data available. **Dep**: T031_run, T032.
 - [ ] T035 [US3] [Dep: T034] Validate output schema against `contracts/regression_result.schema.yaml`.

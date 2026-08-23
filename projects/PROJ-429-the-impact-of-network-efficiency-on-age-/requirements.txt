@@ -1,18 +1,11 @@
-# Core Data & Signal Processing
-mne>=1.6.0
+mne>=1.5.0
 numpy>=1.24.0
 pandas>=2.0.0
-scipy>=1.11.0
-
-# Network Analysis
-networkx>=3.1.0
-
-# Statistics
+scipy>=1.10.0
+networkx>=3.0.0
 statsmodels>=0.14.0
-
-# Visualization
 matplotlib>=3.7.0
-
-# Development & Tooling (Added for T003)
-ruff>=0.1.0
-black>=23.0.0
+pyyaml>=6.0
+scikit-learn>=1.2.0
+requests>=2.28.0
+pywavelets>=1.4.0
