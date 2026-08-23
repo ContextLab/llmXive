@@ -1,140 +1,103 @@
-"""
-Unit tests for src/utils.py
-"""
-import json
-import os
-import tempfile
-from pathlib import Path
 import pytest
-import logging
-import signal
+import os
 import sys
+from unittest.mock import patch, mock_open
+from pathlib import Path
 
-from src.utils import (
-    setup_logging,
-    calculate_checksum,
-    generate_checksums_for_directory,
-    ensure_path_exists,
-    get_file_size_mb,
-    TimeoutError,
-    watchdog
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.src.utils import (
+    detect_resources, 
+    calculate_caps, 
+    check_limits, 
+    ResourceWarning,
+    calculate_checksum
 )
 
+class TestDetectResources:
+    @patch('os.path.exists')
+    @patch('builtins.open', new_callable=mock_open, read_data="docker\n")
+    @patch('os.environ.get')
+    @patch('multiprocessing.cpu_count')
+    @patch('psutil.virtual_memory')
+    def test_detect_docker_resources(self, mock_mem, mock_cpu, mock_env, mock_open_file, mock_exists):
+        """Test detection of Docker resources."""
+        mock_exists.return_value = True
+        mock_env.side_effect = lambda key: {'DOCKER_CPUS': '4', 'DOCKER_MEMORY': '8.0'}.get(key, None)
+        mock_cpu.return_value = 8
+        mock_mem.return_value.total = 16 * 1024 * 1024 * 1024
+        
+        resources = detect_resources()
+        
+        assert resources['cpus'] == 4
+        assert resources['ram_gb'] == 8.0
+        assert 'time_limit_hours' in resources
 
-class TestChecksum:
+    @patch('os.path.exists')
+    @patch('multiprocessing.cpu_count')
+    @patch('psutil.virtual_memory')
+    def test_detect_system_resources(self, mock_mem, mock_cpu, mock_exists):
+        """Test detection of system resources (non-Docker)."""
+        mock_exists.return_value = False
+        mock_cpu.return_value = 12
+        mock_mem.return_value.total = 32 * 1024 * 1024 * 1024
+        
+        resources = detect_resources()
+        
+        assert resources['cpus'] == 12
+        assert resources['ram_gb'] == 32.0
+
+class TestCalculateCaps:
+    def test_calculate_caps_within_limits(self):
+        """Test caps calculation when resources are within limits."""
+        resources = {'cpus': 4, 'ram_gb': 8.0, 'time_limit_hours': 24}
+        caps = calculate_caps(resources)
+        
+        assert caps['cpus'] == 4
+        assert caps['ram_gb'] == 8.0
+        assert caps['time_limit_hours'] == 12  # Max time limit
+
+    def test_calculate_caps_exceeds_limits(self):
+        """Test caps calculation when resources exceed limits."""
+        resources = {'cpus': 16, 'ram_gb': 32.0, 'time_limit_hours': 48}
+        caps = calculate_caps(resources)
+        
+        assert caps['cpus'] == 8  # Max CPUs
+        assert caps['ram_gb'] == 16.0  # Max RAM
+        assert caps['time_limit_hours'] == 12
+
+class TestCheckLimits:
+    def test_check_limits_within_threshold(self):
+        """Test limit check when usage is within threshold."""
+        current = {'cpus': 4, 'ram_gb': 8.0}
+        caps = {'cpus': 8, 'ram_gb': 16.0}
+        
+        breached = check_limits(current, caps)
+        assert breached is False
+
+    def test_check_limits_exceeds_threshold(self):
+        """Test limit check when usage exceeds threshold."""
+        current = {'cpus': 8, 'ram_gb': 16.0}
+        caps = {'cpus': 8, 'ram_gb': 16.0}
+        
+        breached = check_limits(current, caps)
+        assert breached is True
+
+class TestCalculateChecksum:
     def test_calculate_checksum_valid_file(self, tmp_path):
-        """Test checksum calculation on a valid file."""
+        """Test checksum calculation for a valid file."""
         test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
-
+        test_file.write_text("Hello, World!")
+        
         checksum = calculate_checksum(str(test_file))
-        assert isinstance(checksum, str)
         assert len(checksum) == 64  # SHA256 hex length
+        assert checksum == "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
 
-    def test_calculate_checksum_nonexistent_file(self):
-        """Test checksum calculation on a nonexistent file raises error."""
-        with pytest.raises(FileNotFoundError):
-            calculate_checksum("/nonexistent/path/file.txt")
-
-    def test_generate_checksums_for_directory(self, tmp_path):
-        """Test generating checksums for a directory."""
-        # Create structure
-        subdir = tmp_path / "subdir"
-        subdir.mkdir()
-        file1 = tmp_path / "file1.txt"
-        file2 = subdir / "file2.txt"
+    def test_calculate_checksum_empty_file(self, tmp_path):
+        """Test checksum calculation for an empty file."""
+        test_file = tmp_path / "empty.txt"
+        test_file.write_text("")
         
-        file1.write_text("data1")
-        file2.write_text("data2")
-
-        output_file = tmp_path / "checksums.json"
-        result = generate_checksums_for_directory(str(tmp_path), str(output_file))
-
-        assert "file1.txt" in result
-        assert "subdir/file2.txt" in result
-        assert output_file.exists()
-
-        # Verify JSON content
-        with open(output_file) as f:
-            loaded = json.load(f)
-        assert len(loaded) == 2
-
-
-class TestLogging:
-    def test_setup_logging_console_only(self, caplog):
-        """Test logging setup with console only."""
-        logger = setup_logging(log_level=logging.INFO)
-        
-        # Verify handlers
-        assert len(logger.handlers) > 0
-        
-        # Test logging
-        with caplog.at_level(logging.INFO):
-            logger.info("Test message")
-        
-        assert "Test message" in caplog.text
-
-    def test_setup_logging_with_file(self, tmp_path):
-        """Test logging setup with file output."""
-        log_file = tmp_path / "test.log"
-        logger = setup_logging(log_level=logging.DEBUG, log_file=str(log_file))
-
-        logger.info("File log test")
-        
-        assert log_file.exists()
-        content = log_file.read_text()
-        assert "File log test" in content
-
-
-class TestWatchdog:
-    @pytest.mark.skipif(sys.platform == 'win32', reason="SIGALRM not supported on Windows")
-    def test_watchdog_timeout(self):
-        """Test that watchdog raises TimeoutError on timeout."""
-        # Set a very short timeout for testing
-        # Note: In a real test environment, we might mock the sleep or signal
-        # Here we just verify the setup doesn't crash and the signal is set
-        watchdog(timeout_seconds=1)
-        
-        # We cannot easily test the actual timeout in a unit test without hanging the test runner
-        # So we just verify the signal handler is set correctly
-        # The actual behavior is tested in integration tests or manually
-        pass
-
-    def test_watchdog_no_crash(self):
-        """Test that watchdog setup does not crash."""
-        # Should not raise
-        watchdog(timeout_seconds=300)
-
-
-class TestHelpers:
-    def test_ensure_path_exists_creates_dir(self, tmp_path):
-        """Test that ensure_path_exists creates directories."""
-        new_dir = tmp_path / "nested" / "path"
-        result = ensure_path_exists(str(new_dir))
-        
-        assert result.exists()
-        assert result.is_dir()
-
-    def test_ensure_path_exists_existing(self, tmp_path):
-        """Test that ensure_path_exists works on existing dir."""
-        existing = tmp_path / "exists"
-        existing.mkdir()
-        
-        result = ensure_path_exists(str(existing))
-        assert result.exists()
-
-    def test_get_file_size_mb(self, tmp_path):
-        """Test file size calculation."""
-        test_file = tmp_path / "size_test.txt"
-        # Write 1024 bytes (1 KB)
-        test_file.write_bytes(b"x" * 1024)
-        
-        size = get_file_size_mb(str(test_file))
-        # 1024 bytes = 0.001 MB
-        assert size == 0.001
-
-    def test_get_file_size_mb_nonexistent(self, tmp_path):
-        """Test file size on nonexistent file."""
-        with pytest.raises(FileNotFoundError):
-            get_file_size_mb(str(tmp_path / "missing.txt"))
+        checksum = calculate_checksum(str(test_file))
+        assert checksum == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"

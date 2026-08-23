@@ -1,3 +1,4 @@
+description: Schema for raw and processed gene expression datasets
 type: object
 required:
   - sample_id
@@ -10,13 +11,13 @@ properties:
     description: Unique identifier for the sample
   tumor_type:
     type: string
-    description: Cancer type classification (e.g., BRCA, LUAD)
+    description: Cancer type (e.g., BRCA, LUAD)
   response_label:
     type: string
-    description: Clinical response outcome (e.g., 'Responder', 'NonResponder')
+    description: Binary response label (e.g., 'Responder', 'NonResponder')
   expression_vector:
     type: array
-    description: Normalized gene expression values (VST or similar)
+    description: Normalized expression values for all genes
     items:
       type: number
       format: float

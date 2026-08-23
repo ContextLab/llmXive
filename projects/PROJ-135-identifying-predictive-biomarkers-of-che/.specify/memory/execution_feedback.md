@@ -10,14 +10,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/data_acquisition.py", line 15, in <module>
     from src.config import get_project_root, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/__init__.py", line 5, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/__init__.py", line 4, in <module>
     from .utils import (
 ImportError: cannot import name 'calculate_checksum' from 'src.utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/utils.py)
 - python src/preprocessing.py -> rc=1
     Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/preprocessing.py", line 18, in <module>
     from src.config import get_project_root, ensure_directories
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/__init__.py", line 5, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/__init__.py", line 4, in <module>
     from .utils import (
 ImportError: cannot import name 'calculate_checksum' from 'src.utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/utils.py)
 - python code/src/differential_expression.py -> rc=1

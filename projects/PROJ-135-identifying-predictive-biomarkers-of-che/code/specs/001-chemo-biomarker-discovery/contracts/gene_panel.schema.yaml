@@ -1,23 +1,23 @@
-# Schema for the final selected gene panel
-# Defines the structure of biomarkers identified through meta-analysis
-fields:
-  - name: gene_symbol
+# Schema for the final selected biomarker gene panel
+# Fields: gene_symbol (string), meta_p_value (float), log2FC_mean (float), selected (boolean)
+type: object
+required:
+  - gene_symbol
+  - meta_p_value
+  - log2FC_mean
+  - selected
+properties:
+  gene_symbol:
     type: string
     description: HGNC approved gene symbol
-    required: true
-  - name: meta_p_value
-    type: float
-    description: Combined p-value from Stouffer's meta-analysis
-    required: true
-  - name: log2FC_mean
-    type: float
-    description: Mean log2 fold change across tumor types
-    required: true
-  - name: selected
+  meta_p_value:
+    type: number
+    format: float
+    description: Combined p-value from Stouffer's meta-analysis across tumor types
+  log2FC_mean:
+    type: number
+    format: float
+    description: Mean log2 fold change across significant tumor types
+  selected:
     type: boolean
-    description: Whether this gene was included in the final panel (True/False)
-    required: true
-metadata:
-  version: "1.0"
-  source: llmXive pipeline T006
-  format: YAML
+    description: Whether this gene was included in the final predictive panel

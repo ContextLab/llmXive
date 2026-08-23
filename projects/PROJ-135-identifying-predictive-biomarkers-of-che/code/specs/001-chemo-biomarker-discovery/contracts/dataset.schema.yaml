@@ -1,24 +1,24 @@
-# Schema for processed dataset samples
-# Defines the structure of individual sample records in the discovery/training sets
-fields:
-  - name: sample_id
+# Schema for raw and processed dataset samples
+# Fields: sample_id (string), tumor_type (string), response_label (string), expression_vector (array of floats)
+type: object
+required:
+  - sample_id
+  - tumor_type
+  - response_label
+  - expression_vector
+properties:
+  sample_id:
     type: string
     description: Unique identifier for the sample (e.g., TCGA barcode or GEO sample ID)
-    required: true
-  - name: tumor_type
+  tumor_type:
     type: string
     description: Cancer type classification (e.g., BRCA, LUAD)
-    required: true
-  - name: response_label
+  response_label:
     type: string
-    description: Chemotherapy response status (e.g., 'Responder', 'NonResponder')
-    required: true
-  - name: expression_vector
+    description: Chemotherapy response status (e.g., 'Responder', 'NonResponder', 'ProgressiveDisease')
+  expression_vector:
     type: array
-    item_type: float
-    description: Normalized expression values for the gene panel, ordered by gene symbol
-    required: true
-metadata:
-  version: "1.0"
-  source: llmXive pipeline T006
-  format: YAML
+    items:
+      type: number
+      format: float
+    description: Normalized gene expression values (e.g., VST or log2CPM) ordered by a fixed gene panel

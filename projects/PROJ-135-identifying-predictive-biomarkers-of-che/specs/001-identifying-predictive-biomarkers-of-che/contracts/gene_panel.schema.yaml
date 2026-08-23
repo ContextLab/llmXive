@@ -1,3 +1,4 @@
+description: Schema for the final selected gene biomarker panel
 type: object
 required:
   - gene_symbol
@@ -18,4 +19,4 @@ properties:
     description: Mean log2 fold change across tumor types
   selected:
     type: boolean
-    description: Whether the gene is included in the final panel
+    description: Whether the gene was included in the final panel

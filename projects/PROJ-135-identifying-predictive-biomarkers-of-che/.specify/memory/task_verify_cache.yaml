@@ -1,3 +1,23 @@
+T006a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer only restated the project\u2019s user stories and requirements;\
+    \ no schema definition file (e.g., JSON/YAML schema, table layout, or field specifications)\
+    \ was supplied. Consequently, the required \u201CDefine Schema Content\u201D artifact\
+    \ is missing."
+T006b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a feature specification and user stories; no schema\
+    \ files (e.g., JSON/YAML/SQL schema definitions) are present on disk. The required\
+    \ artifact\u2014actual schema files describing data structures for the biomarker\
+    \ discovery pipeline\u2014is missing, so the task is not satisfied."
+T006c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No checksum script, output files, or documentation were provided; the only artifacts\
+    \ shown relate to a biomarker discovery pipeline, not to the \u201CCompute Checksums\u201D\
+    \ task, so the required artifact is missing."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,6 +55,13 @@ T024c:
     \ file, meta\u2011analysis results, or summary documentation) to demonstrate that\
     \ the gene panel has been generated, ranked, and documented as required. Consequently,\
     \ the task\u2019s deliverable is missing."
+T024d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or result files were presented that perform the \u201CCalculate\
+    \ Meta-Analysis Bonferroni\u201D step (e.g., a script computing Bonferroni\u2011\
+    adjusted meta\u2011analysis p\u2011values or a resulting table of adjusted values).\
+    \ The required artifact is missing, so the task is not satisfied."
 T029:
   c: false
   h: 8c2472bd7f4de8cf2a5522c9079975e30f994f0220524f2ec19cae1efe1ff0cc
@@ -44,3 +71,10 @@ T029:
     schema. Additionally, the test file is truncated, indicating it may be incomplete.
     The missing schema file must be added (and the test completed) for the requirement
     to be satisfied.
+T039b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, scripts, data files, or result outputs (e.g., `data/raw/`, `data/processed/`,
+    `results/meta_analysis/`, or `results/summary.md`) were supplied, so the required
+    pipelines, DE analysis, and model training artifacts are missing. The claim cannot
+    be verified without these concrete artifacts.

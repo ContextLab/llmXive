@@ -9,33 +9,7 @@ from src.config import get_project_root
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_CONTENTS = {
-    "dataset.schema.yaml": {
-        "sample_id": {"type": "string", "description": "Unique identifier for the biological sample"},
-        "tumor_type": {"type": "string", "description": "Type of tumor (e.g., BRCA, LUAD)"},
-        "response_label": {"type": "string", "description": "Chemotherapy response label (e.g., CR, PR, SD, PD)"},
-        "expression_vector": {
-            "type": "array",
-            "description": "Array of float values representing gene expression levels",
-            "items": {"type": "float"}
-        }
-    },
-    "model_output.schema.yaml": {
-        "cancer_type": {"type": "string", "description": "The cancer type for which this model was trained"},
-        "alpha": {"type": "float", "description": "Elastic net mixing parameter"},
-        "lambda": {"type": "float", "description": "Regularization strength parameter"},
-        "coefficients": {"type": "object", "description": "Mapping of gene symbols to their model coefficients"},
-        "cross_val_auc": {"type": "float", "description": "Area Under the Curve from nested cross-validation"}
-    },
-    "meta_analysis.schema.yaml": {
-        "gene_symbol": {"type": "string", "description": "Official HGNC gene symbol"},
-        "meta_p_value": {"type": "float", "description": "P-value from meta-analysis (e.g., Stouffer's method)"},
-        "log2FC_mean": {"type": "float", "description": "Mean log2 fold change across tumor types"},
-        "selected": {"type": "boolean", "description": "Whether this gene was selected for the final panel"}
-    }
-}
-
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path: str) -> str:
     """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -43,62 +17,119 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def write_schemas() -> Dict[str, Path]:
-    """Write schema files to the contracts directory."""
-    project_root = get_project_root()
-    contracts_dir = project_root / "specs" / "001-chemo-biomarker-discovery" / "contracts"
+def write_schemas() -> None:
+    """Write schema definitions to the contracts directory."""
+    root = get_project_root()
+    contracts_dir = root / "specs" / "001-chemo-biomarker-discovery" / "contracts"
     contracts_dir.mkdir(parents=True, exist_ok=True)
 
-    written_files = {}
-    for filename, content in SCHEMA_CONTENTS.items():
+    schemas = {
+        "dataset.schema.yaml": """type: object
+required:
+  - sample_id
+  - tumor_type
+  - response_label
+  - expression_vector
+properties:
+  sample_id:
+    type: string
+  tumor_type:
+    type: string
+  response_label:
+    type: string
+  expression_vector:
+    type: array
+    items:
+type: number
+""",
+        "model_output.schema.yaml": """type: object
+required:
+  - cancer_type
+  - alpha
+  - lambda
+  - coefficients
+  - cross_val_auc
+properties:
+  cancer_type:
+    type: string
+  alpha:
+    type: number
+  lambda:
+    type: number
+  coefficients:
+    type: object
+  cross_val_auc:
+    type: number
+""",
+        "gene_panel.schema.yaml": """type: object
+required:
+  - gene_symbol
+  - meta_p_value
+  - log2FC_mean
+  - selected
+properties:
+  gene_symbol:
+    type: string
+  meta_p_value:
+    type: number
+  log2FC_mean:
+    type: number
+  selected:
+    type: boolean
+""",
+        "aggregate_significance_resolved.schema.yaml": """type: object
+required:
+  - gene_symbol
+  - tumor_type
+  - p_value
+properties:
+  gene_symbol:
+    type: string
+  tumor_type:
+    type: string
+  p_value:
+    type: number
+"""
+    }
+
+    for filename, content in schemas.items():
         file_path = contracts_dir / filename
         with open(file_path, "w") as f:
-            yaml.dump(content, f, default_flow_style=False, sort_keys=False)
-        written_files[filename] = file_path
-        logger.info(f"Written schema: {file_path}")
-    
-    return written_files
+            f.write(content)
+        logger.info(f"Wrote schema: {file_path}")
 
-def update_state_with_schema_checksums(schema_files: Dict[str, Path]) -> None:
-    """Compute checksums for schema files and update the project state file."""
-    project_root = get_project_root()
-    state_dir = project_root / "state" / "projects"
-    state_dir.mkdir(parents=True, exist_ok=True)
+def update_state_with_schema_checksums() -> None:
+    """Compute checksums and update state file."""
+    root = get_project_root()
+    contracts_dir = root / "specs" / "001-chemo-biomarker-discovery" / "contracts"
+    state_file = root / "state" / "projects" / "PROJ-135-identifying-predictive-biomarkers-of-che.yaml"
     
-    state_file = state_dir / "PROJ-135-identifying-predictive-biomarkers-of-che.yaml"
-    
-    current_hashes = {}
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+
+    checksums = {}
+    if contracts_dir.exists():
+        for schema_file in contracts_dir.glob("*.yaml"):
+            checksums[schema_file.name] = compute_sha256(str(schema_file))
+
+    # Load existing state or create new
+    state_data = {}
     if state_file.exists():
-        try:
-            with open(state_file, "r") as f:
-                current_state = yaml.safe_load(f) or {}
-                current_hashes = current_state.get("artifact_hashes", {})
-        except Exception as e:
-            logger.warning(f"Could not read existing state file: {e}")
-    
-    for filename, file_path in schema_files.items():
-        checksum = compute_sha256(file_path)
-        current_hashes[filename] = checksum
-        logger.info(f"Computed checksum for {filename}: {checksum}")
-    
-    new_state = {
-        "artifact_hashes": current_hashes
-    }
-    
-    with open(state_file, "w") as f:
-        yaml.dump(new_state, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"Updated state file: {state_file}")
+        with open(state_file, "r") as f:
+            state_data = yaml.safe_load(f) or {}
 
-def main():
-    """Main entry point for schema generation and checksumming."""
+    state_data["artifact_hashes"] = state_data.get("artifact_hashes", {})
+    state_data["artifact_hashes"]["schemas"] = checksums
+
+    with open(state_file, "w") as f:
+        yaml.dump(state_data, f, default_flow_style=False)
+
+    logger.info(f"Updated state file with schema checksums: {state_file}")
+
+def main() -> None:
+    """Entry point for schema management."""
     logging.basicConfig(level=logging.INFO)
-    logger.info("Starting schema generation and checksum computation...")
-    
-    schema_files = write_schemas()
-    update_state_with_schema_checksums(schema_files)
-    
-    logger.info("Schema generation and checksum update completed successfully.")
+    write_schemas()
+    update_state_with_schema_checksums()
 
 if __name__ == "__main__":
     main()

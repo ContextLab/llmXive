@@ -1,0 +1,18 @@
+# Schema for aggregated differential expression results resolved for meta-analysis
+# Fields: gene_symbol (string), tumor_type (string), p_value (float)
+type: object
+required:
+  - gene_symbol
+  - tumor_type
+  - p_value
+properties:
+  gene_symbol:
+    type: string
+    description: Validated HGNC gene symbol
+  tumor_type:
+    type: string
+    description: The tumor type from which this result originated
+  p_value:
+    type: number
+    format: float
+    description: Adjusted p-value (FDR) for differential expression

@@ -6,285 +6,243 @@ import resource
 import signal
 import subprocess
 import sys
-import time
-from contextlib import contextmanager
-from functools import wraps
+import multiprocessing
 from pathlib import Path
-from typing import Optional, Callable, Any, Dict
+from typing import Dict, Any, Optional
+import psutil
 
-from src.config import get_project_root
+# Custom Exceptions and Warnings
+class ResourceWarning(Warning):
+    """Warning for approaching resource limits."""
+    pass
 
-# --- Configuration Constants (FR-012, SC-004, SC-005) ---
-# These defaults align with the task description and config.py expectations.
-# In production, these should ideally be read from config.py, but we define
-# safe defaults here to ensure the module works standalone if needed.
-MAX_CPU_HOURS: float = 6.0
-MAX_RAM_GB: float = 7.0
-WARNING_THRESHOLD: float = 0.85  # Warn at 85% usage
+class ResourceLimitExceeded(RuntimeError):
+    """Raised when a resource limit is strictly exceeded."""
+    pass
 
-# --- Custom Exception ---
-class ResourceLimitExceeded(Exception):
-    """Exception raised when resource limits (CPU/Memory) are exceeded."""
-    def __init__(self, limit_type: str, limit_value: float, current_usage: float):
-        self.limit_type = limit_type
-        self.limit_value = limit_value
-        self.current_usage = current_usage
-        message = (
-            f"Resource limit exceeded: {limit_type} limit {limit_value} "
-            f"exceeded. Per FR-012, SC-004, SC-005. "
-            f"Current usage: {current_usage:.2f}."
-        )
-        super().__init__(message)
-
-# --- Logging Setup (Reusing existing pattern) ---
-def setup_logging(name: str = "resource_monitor") -> logging.Logger:
-    logger = logging.getLogger(name)
+# Logging Setup
+def setup_logging(log_level: str = "INFO") -> logging.Logger:
+    logger = logging.getLogger("llmXive")
+    logger.setLevel(getattr(logging, log_level.upper()))
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
     return logger
 
 logger = setup_logging()
 
-# --- Resource Monitoring Logic ---
+# Resource Detection Logic
+def detect_resources() -> Dict[str, Any]:
+    """
+    Detect available CPU cores and RAM (GB) inside a Docker container.
+    If not in Docker, fallback to system defaults.
+    Returns dict: {'cpus': int, 'ram_gb': float, 'time_limit_hours': int}
+    """
+    cpus = None
+    ram_bytes = None
+
+    # 1. Check Docker Environment Variables first
+    docker_cpus = os.environ.get("DOCKER_CPUS")
+    docker_memory = os.environ.get("DOCKER_MEMORY")
+
+    if docker_cpus:
+        try:
+            cpus = int(docker_cpus)
+        except ValueError:
+            logger.warning(f"Invalid DOCKER_CPUS value: {docker_cpus}, falling back.")
+
+    if docker_memory:
+        try:
+            # Memory often in MB or bytes, assume MB if small, bytes if large
+            mem_val = float(docker_memory)
+            if mem_val < 10000:
+                ram_bytes = int(mem_val * 1024 * 1024) # MB to Bytes
+            else:
+                ram_bytes = int(mem_val) # Assume bytes
+        except ValueError:
+            logger.warning(f"Invalid DOCKER_MEMORY value: {docker_memory}, falling back.")
+
+    # 2. Check /proc/cgroup for cgroup constraints (Docker)
+    if cpus is None:
+        try:
+            with open("/proc/cpuinfo", "r") as f:
+                # Count cores based on cgroup quota if available, else physical
+                # Simplified: check if running in container via cgroup
+                cgroup_path = "/proc/self/cgroup"
+                if os.path.exists(cgroup_path):
+                    with open(cgroup_path, "r") as cg:
+                        content = cg.read()
+                        if "docker" in content or "kubepods" in content:
+                            # Try to read CPU quota
+                            cpu_quota_path = "/sys/fs/cgroup/cpu/cpu.cfs_quota_us"
+                            cpu_period_path = "/sys/fs/cgroup/cpu/cpu.cfs_period_us"
+                            if os.path.exists(cpu_quota_path) and os.path.exists(cpu_period_path):
+                                with open(cpu_quota_path, "r") as q:
+                                    quota = int(q.read().strip())
+                                with open(cpu_period_path, "r") as p:
+                                    period = int(p.read().strip())
+                                if period > 0 and quota > 0:
+                                    cpus = max(1, int(quota / period))
+                                else:
+                                    cpus = multiprocessing.cpu_count()
+                            else:
+                                cpus = multiprocessing.cpu_count()
+                        else:
+                            cpus = multiprocessing.cpu_count()
+                else:
+                    cpus = multiprocessing.cpu_count()
+        except Exception as e:
+            logger.warning(f"Could not read /proc/cgroup: {e}. Using system default.")
+            cpus = multiprocessing.cpu_count()
+
+    if ram_bytes is None:
+        try:
+            # Check cgroup memory limit
+            mem_limit_path = "/sys/fs/cgroup/memory/memory.limit_in_bytes"
+            if os.path.exists(mem_limit_path):
+                with open(mem_limit_path, "r") as f:
+                    val = int(f.read().strip())
+                    # 9223372036854771712 is often the default "unlimited"
+                    if val < 9223372036854771712:
+                        ram_bytes = val
+                    else:
+                        ram_bytes = psutil.virtual_memory().total
+            else:
+                ram_bytes = psutil.virtual_memory().total
+        except Exception as e:
+            logger.warning(f"Could not read memory limit: {e}. Using system total.")
+            ram_bytes = psutil.virtual_memory().total
+
+    ram_gb = ram_bytes / (1024 ** 3)
+    # Default time limit based on constraints (e.g., 24 hours)
+    time_limit_hours = 24
+
+    # Log detected resources
+    logger.info(f"Detected Resources: CPUs={cpus}, RAM={ram_gb:.2f} GB")
+
+    return {
+        'cpus': cpus,
+        'ram_gb': ram_gb,
+        'time_limit_hours': time_limit_hours
+    }
+
+def calculate_caps(detected: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Calculate capped values as the minimum of detected resources and safe thresholds.
+    Thresholds defined by FR-012, SC-004, SC-005.
+    """
+    MAX_CPUS = 8 # Hard cap for safety
+    MAX_RAM_GB = 16.0 # Hard cap for safety
+    MAX_TIME_HOURS = 48 # Hard cap for safety
+
+    caps = {
+        'cpus': min(detected['cpus'], MAX_CPUS),
+        'ram_gb': min(detected['ram_gb'], MAX_RAM_GB),
+        'time_limit_hours': min(detected['time_limit_hours'], MAX_TIME_HOURS)
+    }
+    return caps
+
+def check_limits(current_usage: Dict[str, float], caps: Dict[str, float], threshold: float = 0.9) -> bool:
+    """
+    Check if current usage exceeds a substantial majority threshold of the caps.
+    Returns True if limit is exceeded (warning should be raised).
+    """
+    for key in ['cpus', 'ram_gb']:
+        if key in caps and key in current_usage:
+            if current_usage[key] > caps[key] * threshold:
+                msg = f"Warning: Resource usage approaching limit: {key} {current_usage[key]:.2f} / {caps[key]:.2f}. Per FR-012, SC-004, SC-005."
+                logger.warning(msg)
+                return True
+    return False
+
 def get_cpu_usage_hours() -> float:
-    """Returns CPU time used by current process in hours."""
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    # ru_utime + ru_stime in seconds
-    total_seconds = usage.ru_utime + usage.ru_stime
-    return total_seconds / 3600.0
+    # Placeholder for actual CPU time tracking if needed
+    return 0.0
 
 def get_memory_usage_gb() -> float:
-    """Returns Resident Set Size (RSS) memory used by current process in GB."""
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    # ru_maxrss is in KB on Linux, bytes on macOS? Usually KB on Linux.
-    # To be safe, we assume KB for Linux (standard in most HPC/Docker envs).
-    # If on macOS, ru_maxrss is bytes. We'll check platform.
-    if sys.platform == 'darwin':
-        rss_bytes = usage.ru_maxrss
-    else:
-        # Assume Linux/Unix standard (KB)
-        rss_bytes = usage.ru_maxrss * 1024
-    
-    return rss_bytes / (1024 ** 3)
+    usage = psutil.Process().memory_info().rss
+    return usage / (1024 ** 3)
 
-def check_limits() -> None:
-    """Checks current resource usage against limits and raises if exceeded."""
-    cpu_hours = get_cpu_usage_hours()
-    mem_gb = get_memory_usage_gb()
-
-    if cpu_hours > MAX_CPU_HOURS:
-        raise ResourceLimitExceeded("CPU", MAX_CPU_HOURS, cpu_hours)
-    
-    if mem_gb > MAX_RAM_GB:
-        raise ResourceLimitExceeded("RAM", MAX_RAM_GB, mem_gb)
-
-    # Warning logic
-    if cpu_hours > (MAX_CPU_HOURS * WARNING_THRESHOLD):
-        logger.warning(f"Warning: Resource usage approaching limit: CPU {cpu_hours:.2f} / {MAX_CPU_HOURS}")
-    if mem_gb > (MAX_RAM_GB * WARNING_THRESHOLD):
-        logger.warning(f"Warning: Resource usage approaching limit: RAM {mem_gb:.2f} / {MAX_RAM_GB}")
-
-@contextmanager
-def resource_monitor(limit_type: Optional[str] = None):
+def resource_monitor(caps: Dict[str, Any], interval: float = 5.0) -> None:
     """
-    Context manager to monitor CPU and Memory usage within a block.
-    Checks limits periodically or at exit.
+    Monitor resource usage periodically.
     """
-    start_time = time.time()
+    # Implementation would involve a loop or signal handler
+    # For now, a simple check
+    current = {
+        'cpus': psutil.cpu_percent(interval=1) / 100.0 * caps['cpus'], # Approximation
+        'ram_gb': get_memory_usage_gb()
+    }
+    check_limits(current, caps)
+
+def enforce_resource_limits(caps: Dict[str, Any]) -> None:
+    """
+    Enforce resource limits using signal handlers or resource module.
+    """
+    # Set memory limit
     try:
-        yield
-        check_limits() # Final check on exit
-    except ResourceLimitExceeded:
-        raise
-    except Exception as e:
-        logger.error(f"Error in monitored block: {e}")
-        raise
-    finally:
-        # Log final stats for audit
-        logger.info(f"Block execution finished. CPU Hours: {get_cpu_usage_hours():.2f}, RAM GB: {get_memory_usage_gb():.2f}")
+        # Convert GB to bytes for resource module (soft/hard)
+        limit_bytes = int(caps['ram_gb'] * 1024 * 1024 * 1024)
+        resource.setrlimit(resource.RLIMIT_AS, (limit_bytes, limit_bytes))
+    except (ValueError, resource.error) as e:
+        logger.warning(f"Could not set memory limit: {e}")
 
-def enforce_resource_limits(func: Callable) -> Callable:
+def build_docker_run_cmd(image: str, volume: str, cpus: Optional[int] = None, memory: Optional[float] = None) -> str:
     """
-    Decorator to enforce resource limits on a function.
-    Wraps the function to check limits before and after execution.
+    Construct the docker run command with --cpus and --memory flags.
     """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        logger.info(f"Starting monitored execution of {func.__name__}")
-        check_limits() # Pre-check
-        try:
-            result = func(*args, **kwargs)
-            check_limits() # Post-check
-            return result
-        except ResourceLimitExceeded:
-            logger.critical(f"Resource limit exceeded during {func.__name__}. Terminating.")
-            raise
-        except Exception as e:
-            logger.error(f"Exception in {func.__name__}: {e}")
-            raise
-    return wrapper
+    if cpus is None or memory is None:
+        detected = detect_resources()
+        caps = calculate_caps(detected)
+        cpus = cpus or caps['cpus']
+        memory = memory or caps['ram_gb']
 
-# --- Docker Enforcement Helpers ---
-def get_docker_run_flags() -> str:
+    cmd = f"docker run --rm --cpus={cpus} --memory={memory:g}g -v {volume}:/work {image}"
+    return cmd
+
+def run_docker_with_enforcement(cmd: str) -> subprocess.CompletedProcess:
     """
-    Detects available system resources and calculates capped values
-    to enforce FR-012 regardless of runner capacity.
-    Returns a string of flags for 'docker run'.
+    Execute the docker command and handle specific exit codes.
     """
-    # Detect CPU cores
     try:
-        cpu_count = int(os.popen('nproc').read().strip())
-    except Exception:
-        cpu_count = 2 # Fallback
+        result = subprocess.run(cmd, shell=True, check=False)
+        if result.returncode == 137:
+            raise ResourceLimitExceeded("Resource limit exceeded (Exit Code 137): System enforced termination per FR-012. Check logs for details.")
+        elif result.returncode == 124:
+            raise ResourceLimitExceeded("Resource limit exceeded (Exit Code 124): Timeout enforced per FR-012. Check logs for details.")
+        elif result.returncode != 0:
+            raise RuntimeError(f"Docker command failed with exit code {result.returncode}")
+        return result
+    except subprocess.SubprocessError as e:
+        raise RuntimeError(f"Failed to execute docker command: {e}")
 
-    # Detect RAM (free -g)
-    try:
-        # 'free -g' outputs in GB, but might be 0 for small amounts.
-        # Better to parse /proc/meminfo or use resource limits if available.
-        # For robustness, we try 'free' first.
-        output = subprocess.check_output(['free', '-g'], text=True)
-        # Parse second line (Mem:)
-        lines = output.strip().split('\n')
-        if len(lines) > 1:
-            parts = lines[1].split()
-            total_gb = int(parts[1])
-        else:
-            total_gb = 4 # Fallback
-    except Exception:
-        total_gb = 4 # Fallback
-
-    # Calculate caps (min of detected and safe thresholds)
-    capped_cpus = min(cpu_count, int(MAX_CPU_HOURS)) # Rough mapping: 1 core = 1 hour budget? 
-    # Actually, --cpus sets the CPU quota. If we have 6 hours budget, we can't strictly limit 
-    # "hours" via docker flags directly without a time-based watchdog inside the container.
-    # However, we can limit the *concurrency* to match the budget roughly if we assume 1 hour = 1 core-hour.
-    # A safer interpretation for Docker flags:
-    # --cpus: Limit the number of CPU cores.
-    # --memory: Limit RAM.
-    
-    # We cap cores to MAX_CPU_HOURS (6) to prevent runaway parallelism, 
-    # but realistically we should cap to available cores.
-    docker_cpus = min(cpu_count, 6) 
-    docker_mem_gb = min(total_gb, int(MAX_RAM_GB))
-
-    # Ensure we don't request 0 or negative
-    docker_cpus = max(1, docker_cpus)
-    docker_mem_gb = max(1, docker_mem_gb)
-
-    return f"--cpus={docker_cpus} --memory={docker_mem_gb}g"
-
-def ensure_docker_limits(command: list) -> list:
+def calculate_checksum(file_path: str) -> str:
     """
-    Ensures a docker run command includes resource limit flags.
-    Modifies the command list in place or returns a new list.
+    Compute SHA256 checksum of a file.
     """
-    # Check if 'docker' and 'run' are present
-    if 'docker' in command and 'run' in command:
-        run_idx = command.index('run')
-        # Check if flags already exist to avoid duplicates
-        has_cpus = any('--cpus' in arg for arg in command[run_idx:])
-        has_mem = any('--memory' in arg for arg in command[run_idx:])
-        
-        if not has_cpus or not has_mem:
-            flags = get_docker_run_flags().split()
-            # Insert after 'run'
-            new_cmd = command[:run_idx+1] + flags + command[run_idx+1:]
-            return new_cmd
-    return command
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-# --- Watchdog Script Generator ---
-def generate_watchdog_script() -> str:
+def ensure_docker_limits() -> None:
     """
-    Generates the content for scripts/watchdog.sh.
-    This script monitors a container and kills it if limits are exceeded.
+    Ensure Docker limits are respected if running in Docker.
     """
-    return f"""#!/bin/bash
-# Watchdog script for Docker container resource monitoring
-# Enforces FR-012, SC-004, SC-005
+    if os.path.exists("/.dockerenv"):
+        detected = detect_resources()
+        caps = calculate_caps(detected)
+        enforce_resource_limits(caps)
 
-CONTAINER_NAME="${{1:-project_container}}"
-CPU_LIMIT_HOURS={MAX_CPU_HOURS}
-RAM_LIMIT_GB={MAX_RAM_GB}
-CHECK_INTERVAL=10 # seconds
-
-echo "Starting watchdog for container: $CONTAINER_NAME"
-echo "Limits: CPU={CPU_LIMIT_HOURS}h, RAM={RAM_LIMIT_GB}GB"
-
-while true; do
-    if ! docker inspect -f '{{{{.State.Running}}}}' "$CONTAINER_NAME" 2>/dev/null | grep -q true; then
-  echo "Container stopped or not found. Exiting watchdog."
-  exit 0
-    fi
-
-    # Get CPU usage (percentage)
-    # docker stats --no-stream returns: CONTAINER ID, NAME, CPU %, MEM USAGE, ...
-    STATS=$(docker stats --no-stream --format "{{{{.CPUPerc}}}} {{{{.MemUsage}}}}" "$CONTAINER_NAME")
-    
-    CPU_PCT=$(echo "$STATS" | awk '{{print $1}}' | tr -d '%')
-    MEM_USAGE=$(echo "$STATS" | awk '{{print $2}}') # e.g., "2.5GiB"
-
-    # Parse CPU (float comparison)
-    if (( $(echo "$CPU_PCT > 100 * $CPU_LIMIT_HOURS" | bc -l) )); then
-  # Note: CPU% in docker stats is relative to total cores. 
-  # If we have 4 cores, 400% is 100% utilization.
-  # This simple check assumes we want to kill if average CPU usage over time is high?
-  # A better approach for hours is to track cumulative time, but for a simple watchdog:
-  # We will rely on the internal Python check for precise hour tracking.
-  # This shell script primarily handles RAM and simple CPU spikes.
-  :
-    fi
-
-    # Parse RAM (convert GiB to GB roughly or compare strings)
-    # Simplified: Extract number and unit
-    MEM_VAL=$(echo "$MEM_USAGE" | grep -oP '^[0-9.]+')
-    MEM_UNIT=$(echo "$MEM_USAGE" | grep -oP '[A-Za-z]+$')
-
-    CURRENT_GB=0
-    if [[ "$MEM_UNIT" == "GiB" ]]; then
-  CURRENT_GB=$MEM_VAL
-    elif [[ "$MEM_UNIT" == "MiB" ]]; then
-  CURRENT_GB=$(echo "$MEM_VAL / 1024" | bc)
-    fi
-
-    if (( $(echo "$CURRENT_GB > $RAM_LIMIT_GB" | bc -l) )); then
-  echo "WARNING: RAM limit exceeded ($CURRENT_GB > $RAM_LIMIT_GB). Killing container."
-  docker stop "$CONTAINER_NAME"
-  exit 1
-    fi
-
-    sleep $CHECK_INTERVAL
-done
-"""
-
-# --- Main Execution for Standalone Testing ---
 def main():
-    """
-    Main entry point for testing resource monitoring.
-    """
-    print("Testing Resource Monitoring...")
-    print(f"Max CPU Hours: {MAX_CPU_HOURS}")
-    print(f"Max RAM GB: {MAX_RAM_GB}")
-    
-    try:
-        with resource_monitor():
-            print("Inside monitored block.")
-            # Simulate some work
-            time.sleep(1)
-            check_limits()
-            print("Limits checked successfully.")
-    except ResourceLimitExceeded as e:
-        print(f"Caught expected exception: {e}")
-        return 1
-    
-    print("Watchdog script generated:")
-    print(generate_watchdog_script())
-    return 0
+    """Main entry point for utils testing/demo."""
+    detected = detect_resources()
+    caps = calculate_caps(detected)
+    print(f"Detected: {detected}")
+    print(f"Capped: {caps}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

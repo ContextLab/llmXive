@@ -1,3 +1,4 @@
+description: Schema for trained model outputs and metadata
 type: object
 required:
   - cancer_type
@@ -16,14 +17,14 @@ properties:
   lambda:
     type: number
     format: float
-    description: Elastic net regularization parameter
+    description: Regularization strength
   coefficients:
     type: object
-    description: Mapping of gene symbols to their model coefficients
+    description: Mapping of gene symbol to coefficient value
     additionalProperties:
       type: number
       format: float
   cross_val_auc:
     type: number
     format: float
-    description: Area Under Curve from cross-validation
+    description: Cross-validated ROC AUC score

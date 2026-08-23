@@ -4,17 +4,17 @@
   "reason": "2 run-book script(s) missing (plan/impl path mismatch): python src/meta_analysis.py; python src/loo_controller.py; 3 command(s) failed: python src/data_acquisition.py --mode real --subset-size (rc=1); python src/preprocessing.py (rc=1); python code/src/differential_expression.py (rc=1)",
   "artifacts": [],
   "failures": [
-    "python src/data_acquisition.py --mode real --subset-size -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/data_acquisition.py\", line 15, in <module>\n    from src.config import get_project_root, ensure_directories\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/__init__.py\", line 5, in <module>\n    from .utils import (\nImportError: cannot import name 'calculate_checksum' from 'src.utils' (/home/runner/work/llmXive/llmXive/projects/P",
-    "python src/preprocessing.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/preprocessing.py\", line 18, in <module>\n    from src.config import get_project_root, ensure_directories\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/__init__.py\", line 5, in <module>\n    from .utils import (\nImportError: cannot import name 'calculate_checksum' from 'src.utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-b",
+    "python src/data_acquisition.py --mode real --subset-size -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/data_acquisition.py\", line 15, in <module>\n    from src.config import get_project_root, ensure_directories\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/__init__.py\", line 4, in <module>\n    from .utils import (\nImportError: cannot import name 'calculate_checksum' from 'src.utils' (/home/runner/work/llmXive/llmXive/projects/P",
+    "python src/preprocessing.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/preprocessing.py\", line 18, in <module>\n    from src.config import get_project_root, ensure_directories\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/__init__.py\", line 4, in <module>\n    from .utils import (\nImportError: cannot import name 'calculate_checksum' from 'src.utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-b",
     "python code/src/differential_expression.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/src/differential_expression.py\", line 13, in <module>\n    import rpy2.robjects as ro\nModuleNotFoundError: No module named 'rpy2'",
     "python src/meta_analysis.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/meta_analysis.py': [Errno 2] No such file or directory",
     "python src/loo_controller.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-135-identifying-predictive-biomarkers-of-che/src/loo_controller.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-22T22:08:58Z"
+  "updated_at": "2026-08-23T07:21:31Z"
 }

@@ -1,27 +1,31 @@
-# Schema for predictive model outputs
-# Defines the structure of model artifacts saved after training and validation
-fields:
-  - name: cancer_type
+# Schema for trained model artifacts and metrics
+# Fields: cancer_type (string), alpha (float), lambda (float), coefficients (object), cross_val_auc (float)
+type: object
+required:
+  - cancer_type
+  - alpha
+  - lambda
+  - coefficients
+  - cross_val_auc
+properties:
+  cancer_type:
     type: string
-    description: The specific tumor type this model was trained on
-    required: true
-  - name: alpha
-    type: float
-    description: Elastic net mixing parameter (0=Lasso, 1=Ridge)
-    required: true
-  - name: lambda
-    type: float
-    description: Elastic net regularization strength (lambda.min or lambda.1se)
-    required: true
-  - name: coefficients
+    description: The tumor type this model was trained on
+  alpha:
+    type: number
+    format: float
+    description: Elastic net mixing parameter (1 for Lasso, 0 for Ridge)
+  lambda:
+    type: number
+    format: float
+    description: Regularization strength parameter
+  coefficients:
     type: object
-    description: Map of gene_symbol -> coefficient value
-    required: true
-  - name: cross_val_auc
-    type: float
-    description: Mean AUC from nested cross-validation
-    required: true
-metadata:
-  version: "1.0"
-  source: llmXive pipeline T006
-  format: YAML
+    description: Mapping of gene symbol to coefficient value
+    additionalProperties:
+      type: number
+      format: float
+  cross_val_auc:
+    type: number
+    format: float
+    description: Area Under the ROC Curve from cross-validation
