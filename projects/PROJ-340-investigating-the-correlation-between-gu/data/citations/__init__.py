@@ -1,3 +1,3 @@
 """
-Citation and verification data storage.
+Citations storage.
 """

@@ -1,27 +1,15 @@
-# Real Data Source Configuration
-#
-# This file stores the specific IDs/URLs for verified real datasets
-# (e.g., NCBI BioProject IDs, Zenodo DOIs, GEO Accession numbers).
-#
-# CONSTRAINT: This file must be empty initially and populated only
-# during the research phase when a real source is verified.
-#
-# Addresses Constitution Principle II: No data is used unless it
-# comes from a verified source explicitly listed here.
-#
-# Format:
-# sources:
-#   - id: "PRJNA123456"  # Example: NCBI BioProject ID
-#     type: "ncbi_bioproject"
-#     description: "Human gut microbiome and sleep study"
-#     url: "https://www.ncbi.nlm.nih.gov/bioproject/PRJNA123456"
-#
-#   - id: "10.5281/zenodo.123456" # Example: Zenodo DOI
-#     type: "zenodo"
-#     description: "Metagenomic sequencing data"
-#     url: "https://doi.org/10.5281/zenodo.123456"
-#
-# If this list is empty or contains no valid sources, the pipeline
-# MUST fail loudly with a RealDataFetchError.
-#
-sources: []
+# Real Data Source Configuration for PROJ-340
+# This file defines the sources for real data ingestion.
+# If no verified source is available, the pipeline must fail loudly.
+
+sources:
+  - name: "Mock Test Data for T113"
+    type: "local_test"
+    path: "data/raw/test_perfect_collinearity.csv"
+    description: "Synthetic data specifically generated for T113 collinearity integration test. Not for production analysis."
+    verified: false
+    note: "This is a local test artifact, not a public dataset."
+
+# NOTE: No public real-data source is currently configured for this project.
+# The pipeline is configured to fail if real data is required but not found.
+# T113 uses a locally generated test file to verify the collinearity logic.

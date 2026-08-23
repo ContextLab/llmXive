@@ -1,9 +1,41 @@
+# Required Variables Configuration
+# This file defines the schema of variables required for the analysis.
+# It is the Single Source of Truth for variable lists used in validation.
+#
+# Derived from: specs/001-gut-microbiome-sleep-architecture/data-model.md
+#
+# Predictors (Independent Variables): Gut Microbiome Taxa Abundances
+# Outcomes (Dependent Variables): Sleep Architecture Metrics
+#
+# NOTE: These variables are extracted statically from the research design.
+# They must be present in the input dataset for the pipeline to proceed.
+# Missing any of these will trigger a hard halt in code/ingest.py.
+
 required_predictors:
-  - taxon_abundance
-  - firmicutes_bacteroidetes_ratio
-  - alpha_diversity
+  - Bacteroides
+  - Firmicutes
+  - Prevotella
+  - Actinobacteria
+  - Proteobacteria
+  - Faecalibacterium
+  - Roseburia
+  - Bifidobacterium
+  - Lactobacillus
+  - Ruminococcus
+  - Akkermansia
+  - Blautia
+  - Coprococcus
+  - Eubacterium
+  - Subdoligranulum
+
 required_outcomes:
-  - sws_duration
-  - rem_duration
-  - sleep_efficiency
+  - total_sleep_duration
+  - SWS_duration
+  - REM_duration
   - wake_after_sleep_onset
+  - sleep_efficiency
+  - sleep_latency
+  - REM_latency
+  - NREM_stage_1_duration
+  - NREM_stage_2_duration
+  - NREM_stage_3_duration

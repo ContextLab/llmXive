@@ -1,26 +1,26 @@
 """
-Script to initialize the project data directory structure.
-Creates required directories and __init__.py files for data organization.
+Setup script to create the required data directory structure.
 """
 import os
 from pathlib import Path
 
 def setup_data_directories():
     """
-    Creates the standard data directory structure for the project.
-    Directories created:
-      - data/raw/
-      - data/processed/
-      - data/results/
-      - data/config/
-      - data/citations/
+    Creates the required directory structure for the project data.
     
-    Also ensures __init__.py files exist in each directory for Python package recognition.
+    Creates:
+    - data/raw/
+    - data/processed/
+    - data/results/
+    - data/config/
+    - data/citations/
+    
+    And ensures data/config/__init__.py exists.
     """
     base_dir = Path(__file__).resolve().parent.parent
-    data_root = base_dir / "data"
+    data_dir = base_dir / "data"
     
-    subdirectories = [
+    subdirs = [
         "raw",
         "processed",
         "results",
@@ -28,20 +28,26 @@ def setup_data_directories():
         "citations"
     ]
     
-    print(f"Setting up data directories under: {data_root}")
-    
-    for subdir_name in subdirectories:
-        dir_path = data_root / subdir_name
+    for subdir in subdirs:
+        dir_path = data_dir / subdir
         dir_path.mkdir(parents=True, exist_ok=True)
-        
-        init_file = dir_path / "__init__.py"
-        if not init_file.exists():
-            init_file.write_text(f'"""\n{subdir_name.capitalize()} data storage.\n"""\n')
-            print(f"Created: {dir_path} (with __init__.py)")
-        else:
-            print(f"Exists: {dir_path}")
+        print(f"Created directory: {dir_path}")
     
-    print("Data directory structure setup complete.")
+    # Ensure __init__.py exists in data/config
+    config_init = data_dir / "config" / "__init__.py"
+    if not config_init.exists():
+        config_init.write_text('"""\\nConfiguration files storage.\\n"""\\n')
+        print(f"Created file: {config_init}")
+    else:
+        print(f"File already exists: {config_init}")
+    
+    # Create __init__.py in data root if missing
+    data_init = data_dir / "__init__.py"
+    if not data_init.exists():
+        data_init.write_text('"""\\nProject data storage.\\n"""\\n')
+        print(f"Created file: {data_init}")
+    
+    return data_dir
 
 if __name__ == "__main__":
     setup_data_directories()

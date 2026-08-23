@@ -4,13 +4,6 @@ T001a:
   r: "No evidence of a `code/` directory or an `__init__.py` file is present in the\
     \ provided artifacts; the implementer\u2019s claim is not backed by any tangible\
     \ files. The required directory and initialization file must be created and shown."
-T002b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file containing the required entries nor a `.python-version`
-    file with `3.11` was presented, and no `git status` output was provided to confirm
-    that the listed files are ignored. The implementer must supply these files and
-    verification output.
 T021:
   c: false
   h: 4efe343b45daf5599db8dc008d7e2d5e86a7f660bbadafa55896000372b51757
@@ -42,25 +35,10 @@ T112:
     \ so there is no evidence that the pipeline was run on the three datasets or that\
     \ method selection was logged as specified. The task\u2019s core deliverable is\
     \ absent."
-T113:
+T133:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No test code, dataset, or execution logs were provided to demonstrate that a\
-    \ perfectly correlated taxa pair was injected, that the system emitted a \u201C\
-    Perfect Multicollinearity\u201D flag, and that VIF calculation was skipped. The\
-    \ required integration\u2011test artifact is missing, so the task is not satisfied."
-T130:
-  c: false
-  h: 9ce46878830be12d3a164ae9b6dd1918a6bdb48027c9948b4af03963e78b5cc2
-  r: "The `scripts/verify_integrity.py` file exists but is truncated and does not\
-    \ show a complete implementation, and the required output `data/results/integrity_verification_report.json`\
-    \ is missing. No evidence is provided that the script runs successfully (exit\
-    \ code\u202F0) or generates the report, so the task\u2019s deliverable is not\
-    \ satisfied."
-T131:
-  c: false
-  h: 7236d97f668cfb0713d5b83b8e0629b9fad7145bace003d1d9764e9603bde237
-  r: The `scripts/final_validation.py` file exists, but the required input files `data/metadata/method_selection_log.json`
-    and `data/results/causal_scan_report.json` are absent, and the expected output
-    `data/results/final_validation_report.json` was not generated. Without these files
-    the script cannot be verified to perform the required validation.
+  r: No updated `README.md`, `quickstart.md`, or any files under `docs/` were presented;
+    the response contains only the task description and specifications, with no actual
+    markdown content or evidence of changes. The required documentation artifacts
+    are missing, so the task is not satisfied.

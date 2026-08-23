@@ -65,8 +65,8 @@
   verification_status: pending
   verified_against_url: https://microsetta.ucsd.edu
   verified_at: '2026-08-20T07:08:00.681604Z'
-- artifact_hash: fdf29b3d95983f037203237e50b503c75e9fe847d8453577245515069eb4d18d
-  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/README.md
+- artifact_hash: 82558b3d9a17acdf0ca44c939f38497fdb81d0ac9ff3383164036dffc66ec34b
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/REAL_DATA_REQUIREMENTS.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
@@ -75,26 +75,92 @@
   value: https://example.com/dataset.csv
   verification_status: mismatch
   verified_against_url: https://example.com/dataset.csv
-  verified_at: '2026-08-23T00:31:45.309030Z'
-- artifact_hash: 6da3625c32d5e9cd80f8a36b38af27c5eeab230798c2a1837385a44ae063cc14
+  verified_at: '2026-08-23T00:19:04.698786Z'
+- artifact_hash: 9f9b89f2fefd3ed86b614e32206557d517680c75d8d9e9e6f352479d1294343a
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/USAGE_EXAMPLES.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/data.csv
+  verification_status: mismatch
+  verified_against_url: https://example.com/data.csv
+  verified_at: '2026-08-23T00:19:06.417295Z'
+- artifact_hash: 92c16fa63329208daa9d8a0a10c69a34d210b9a8cb59e9d05de796c9d3df7849
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/verified_dataset.csv
+  verification_status: mismatch
+  verified_against_url: https://example.com/verified_dataset.csv
+  verified_at: '2026-08-23T00:27:38.056474Z'
+- artifact_hash: 11fbcdad6b033602facc85a871480feda76ed9589fd64b23980e16fc875b9e40
   artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://raw.githubusercontent.com/.../data.csv
+  value: https://zenodo.org/record/123456/files/microbiome_sleep_data.csv
   verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/.../data.csv
-  verified_at: '2026-08-23T00:31:46.667716Z'
-- artifact_hash: 036875b8cf6982db1a73eac0c082d31a45d26f28b3da58ec7010d271df41cf58
-  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_requirements.md
+  verified_against_url: https://zenodo.org/records/123456/files/microbiome_sleep_data.csv
+  verified_at: '2026-08-23T00:27:39.648065Z'
+- artifact_hash: aabb74faee9a701ab4f2f5c698b192a0315ee713a5e72f34416d959e65d53017
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/data_source_requirements.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://example.com/datasets/gut_sleep_2024.csv
+  value: https://example.com/datasets/microbiome_sleep.csv
   verification_status: mismatch
-  verified_against_url: https://example.com/datasets/gut_sleep_2024.csv
-  verified_at: '2026-08-23T00:31:51.150777Z'
+  verified_against_url: https://example.com/datasets/microbiome_sleep.csv
+  verified_at: '2026-08-23T00:27:41.781123Z'
+- artifact_hash: d9ad345517ad12e72f06e237f4fcbc7b2564cc18a10691348aa789312954c6a3
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: api - SRA - NCBI
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/sra/api/`
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/sra/api/
+  verified_at: '2026-08-23T01:03:53.713087Z'
+- artifact_hash: d9ad345517ad12e72f06e237f4fcbc7b2564cc18a10691348aa789312954c6a3
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.ebi.ac.uk/ena/browser/api/xml/`
+  verification_status: mismatch
+  verified_against_url: https://www.ebi.ac.uk/ena/browser/api/xml/
+  verified_at: '2026-08-23T01:03:53.713087Z'
+- artifact_hash: d9ad345517ad12e72f06e237f4fcbc7b2564cc18a10691348aa789312954c6a3
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: records
+  kind: url
+  value: https://zenodo.org/api/records`
+  verification_status: pending
+  verified_against_url: https://zenodo.org/api/records
+  verified_at: '2026-08-23T01:03:53.713087Z'
+- artifact_hash: d9ad345517ad12e72f06e237f4fcbc7b2564cc18a10691348aa789312954c6a3
+  artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: taxdump.tar.gz
+  kind: url
+  value: https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz`
+  verification_status: pending
+  verified_against_url: https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
+  verified_at: '2026-08-23T01:03:53.713087Z'

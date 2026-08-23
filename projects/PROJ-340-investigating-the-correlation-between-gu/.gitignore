@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,69 +20,28 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
+# Virtual Environment
 .venv/
 venv/
 ENV/
 env/
 
-# IDEs and Editors
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
-.project
-.pydevproject
-.settings/
 
-# Environment variables
+# Environment Variables
 .env
 
-# Data files (Raw and Processed)
-# Raw data is often large and should not be committed unless explicitly authorized
+# Data (as per task T002b)
 data/raw/*.csv
-data/raw/*.tsv
-data/raw/*.json
-data/raw/*.parquet
-data/raw/*.gz
-
-# Processed data (generated artifacts)
 data/processed/*.parquet
-data/processed/*.csv
-data/processed/*.json
-
-# Results and Reports
-data/results/*.json
-data/results/*.csv
-data/results/*.md
-data/results/*.png
-data/results/*.pdf
-
-# Metadata and State (can be large or sensitive)
-data/metadata/*.json
-state/
 
 # Logs
 *.log
-logs/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pytest
-.pytest_cache/
-.coverage
-htmlcov/
-
-# mypy
-.mypy_cache/
-
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db

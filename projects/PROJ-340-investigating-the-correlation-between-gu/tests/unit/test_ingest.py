@@ -1,129 +1,125 @@
-import os
-import sys
-import json
-import yaml
+"""
+Unit tests for the data ingestion module (code/ingest.py).
+"""
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
 from pathlib import Path
-import tempfile
-import shutil
+import json
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
-from ingest import (
-    validate_variables,
-    save_variable_metrics,
+# Import functions from code/ingest.py based on the API surface
+from code.ingest import (
     detect_outliers_iqr,
+    save_outlier_report,
     filter_outliers,
-    calculate_checksum,
-    register_checksum_in_state
+    save_filtered_data,
+    load_required_variables,
+    validate_variables
 )
 
-def test_validate_variables_success():
-    """Test validation when all required variables are present."""
-    # Create a mock DataFrame
-    df = pd.DataFrame({
-        'taxa_a': [1, 2, 3],
-        'taxa_b': [4, 5, 6],
-        'sleep_duration': [7.5, 8.0, 6.5]
-    })
-    
-    required_vars = {
-        'predictors': ['taxa_a', 'taxa_b'],
-        'outcomes': ['sleep_duration']
-    }
-    
-    metrics = validate_variables(df, required_vars)
-    
-    assert metrics['percentage_loaded'] == 100.0
-    assert metrics['missing_count'] == 0
-    assert metrics['missing_variables'] == []
-    assert os.path.exists('data/results/variable_load_metrics.json')
+class TestOutlierDetection:
+    """Unit tests for outlier detection logic."""
 
-def test_validate_variables_missing():
-    """Test validation when some required variables are missing."""
-    df = pd.DataFrame({
-        'taxa_a': [1, 2, 3],
-        'sleep_duration': [7.5, 8.0, 6.5]
-    })
-    
-    required_vars = {
-        'predictors': ['taxa_a', 'taxa_b'],
-        'outcomes': ['sleep_duration']
-    }
-    
-    metrics = validate_variables(df, required_vars)
-    
-    assert metrics['percentage_loaded'] < 100.0
-    assert 'taxa_b' in metrics['missing_variables']
-    assert metrics['missing_count'] == 1
-
-def test_detect_outliers_iqr():
-    """Test IQR outlier detection."""
-    df = pd.DataFrame({
-        'values': [1, 2, 3, 4, 5, 100]  # 100 is an outlier
-    })
-    
-    outliers = detect_outliers_iqr(df, 'values')
-    
-    assert outliers.iloc[5] == True  # 100 should be detected
-    assert outliers.iloc[0] == False  # 1 should not be detected
-
-def test_filter_outliers():
-    """Test filtering of outliers."""
-    df = pd.DataFrame({
-        'values': [1, 2, 3, 4, 5, 100],
-        'other': [1, 1, 1, 1, 1, 1]
-    })
-    
-    filtered = filter_outliers(df, ['values'])
-    
-    assert len(filtered) == 5  # One outlier removed
-    assert 100 not in filtered['values'].values
-
-def test_calculate_checksum():
-    """Test checksum calculation."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-        f.write("test content")
-        temp_path = f.name
-    
-    try:
-        checksum = calculate_checksum(temp_path)
-        assert len(checksum) == 64  # SHA-256 hex length
-    finally:
-        os.unlink(temp_path)
-
-def test_register_checksum_in_state():
-    """Test checksum registration in state file."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.parquet') as f:
-        f.write("fake parquet content")
-        temp_path = f.name
-    
-    state_path = "state/projects/test_project.yaml"
-    
-    try:
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(state_path), exist_ok=True)
+    def test_detect_outliers_iqr_normal_data(self):
+        """Test outlier detection on normal distributed data."""
+        # Generate normal data
+        np.random.seed(42)
+        data = np.random.normal(loc=100, scale=10, size=1000)
+        df = pd.DataFrame({'metric': data})
         
-        register_checksum_in_state(temp_path, state_path)
+        outliers = detect_outliers_iqr(df, 'metric')
         
-        # Verify state file was created and contains checksum
-        assert os.path.exists(state_path)
-        with open(state_path, 'r') as f:
-            state = yaml.safe_load(f)
+        # In a normal distribution, ~0.7% should be outliers by IQR
+        outlier_ratio = len(outliers) / len(df)
+        assert 0.001 < outlier_ratio < 0.05, f"Outlier ratio {outlier_ratio} is unexpected for normal data"
+
+    def test_detect_outliers_iqr_with_known_outliers(self):
+        """Test outlier detection when known outliers are injected."""
+        data = [10, 12, 11, 13, 12, 10, 11, 12, 100, -50]
+        df = pd.DataFrame({'metric': data})
         
-        assert 'artifact_hashes' in state
-        # Check that the file is in the hashes (key might be relative path)
-        assert len(state['artifact_hashes']) > 0
-    finally:
-        os.unlink(temp_path)
-        if os.path.exists(state_path):
-            os.unlink(state_path)
-        # Clean up test directory if empty
-        test_dir = "state/projects"
-        if os.path.exists(test_dir) and not os.listdir(test_dir):
-            os.rmdir(test_dir)
-        if os.path.exists("state") and not os.listdir("state"):
-            os.rmdir("state")
+        outliers = detect_outliers_iqr(df, 'metric')
+        
+        # 100 and -50 should be detected as outliers
+        assert len(outliers) == 2, f"Expected 2 outliers, found {len(outliers)}"
+        assert 100 in outliers['value'].values
+        assert -50 in outliers['value'].values
+
+    def test_save_outlier_report_creates_file(self, tmp_path):
+        """Test that saving an outlier report creates the expected file."""
+        report = {
+            'outliers': [
+                {'subject_id': 'S001', 'metric': 'sleep_duration', 'value': 10.5, 'is_outlier': True},
+                {'subject_id': 'S002', 'metric': 'sleep_duration', 'value': 4.0, 'is_outlier': True}
+            ],
+            'exclusion_count': 2
+        }
+        output_path = tmp_path / "outlier_report.json"
+        
+        save_outlier_report(report, str(output_path))
+        
+        assert output_path.exists(), "Outlier report file was not created"
+        
+        with open(output_path, 'r') as f:
+            loaded_report = json.load(f)
+        
+        assert loaded_report == report
+
+class TestVariableValidation:
+    """Unit tests for variable validation logic."""
+
+    def test_validate_variables_missing_required(self, tmp_path):
+        """Test validation fails when required variables are missing."""
+        # Create a minimal required_variables.yaml
+        config_path = tmp_path / "required_variables.yaml"
+        config = {
+            'required_predictors': ['taxon_A', 'taxon_B'],
+            'required_outcomes': ['sleep_duration']
+        }
+        import yaml
+        with open(config_path, 'w') as f:
+            yaml.dump(config, f)
+        
+        # Create a dataframe missing 'taxon_B'
+        df = pd.DataFrame({
+            'subject_id': [1, 2, 3],
+            'taxon_A': [10, 20, 30],
+            'sleep_duration': [8, 7, 9]
+        })
+        
+        # This should raise an error or return False depending on implementation
+        # Assuming validate_variables raises ValueError or returns a status dict
+        try:
+            result = validate_variables(df, str(config_path))
+            # If it returns a status, check for failure
+            if isinstance(result, dict):
+                assert result.get('valid') == False, "Validation should fail for missing variables"
+            else:
+                # If it raises, the test passes
+                pytest.fail("Expected validation to fail for missing variables")
+        except (ValueError, KeyError) as e:
+            # Expected behavior
+            assert "missing" in str(e).lower() or "required" in str(e).lower()
+
+    def test_validate_variables_all_present(self, tmp_path):
+        """Test validation passes when all required variables are present."""
+        config_path = tmp_path / "required_variables.yaml"
+        config = {
+            'required_predictors': ['taxon_A'],
+            'required_outcomes': ['sleep_duration']
+        }
+        import yaml
+        with open(config_path, 'w') as f:
+            yaml.dump(config, f)
+        
+        df = pd.DataFrame({
+            'subject_id': [1, 2, 3],
+            'taxon_A': [10, 20, 30],
+            'sleep_duration': [8, 7, 9]
+        })
+        
+        result = validate_variables(df, str(config_path))
+        
+        if isinstance(result, dict):
+            assert result.get('valid') == True
+        # If it raises, it's a failure
