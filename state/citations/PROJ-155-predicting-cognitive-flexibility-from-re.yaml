@@ -1,44 +1,33 @@
-- artifact_hash: 00697f6fa7b8995e9b6cf28f60d3043f0b6be0cb3a326d9ada3b30d0df7834a5
-  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/docs/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: Human Connectome Project
-  fetched_title: BALSA
-  kind: url
-  value: https://db.humanconnectome.org/
-  verification_status: pending
-  verified_against_url: https://balsa.wustl.edu
-  verified_at: '2026-08-22T03:04:17.636928Z'
-- artifact_hash: 72f327f15286dc80bc228d66071b2e628d57de418603e39aef3827da41f297bf
-  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/docs/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2301.12345'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-08-22T03:04:18.906882Z'
-- artifact_hash: 39cc20e5473bb92f31730628483359f93a7c97bb312aa5277d7b28fef2a36e37
+- artifact_hash: 71bfacceb48a0c19fd705698fe992d72bd4245d03190949d42d429a701f35335
   artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: BALSA
   kind: url
-  value: https://db.humanconnectome.org/api/projects/HCP_1200_Subjects/subjects/{subject_id}/`
+  value: https://db.humanconnectome.org/api/projects/HCP_1200_Subjects/subjects/{subject_id}/files/{file_id}`
   verification_status: pending
   verified_against_url: https://balsa.wustl.edu
-  verified_at: '2026-08-22T03:22:17.418857Z'
-- artifact_hash: 39cc20e5473bb92f31730628483359f93a7c97bb312aa5277d7b28fef2a36e37
+  verified_at: '2026-08-23T14:09:44.136597Z'
+- artifact_hash: 71bfacceb48a0c19fd705698fe992d72bd4245d03190949d42d429a701f35335
   artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
+  kind: url
+  value: https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/Schaefer2018_200Parcels_7Networks_order_FSLMNI.nii.gz`
+  verification_status: mismatch
+  verified_against_url: https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/Schaefer2018_200Parcels_7Networks_order_FSLMNI.nii.gz
+  verified_at: '2026-08-23T14:09:44.136597Z'
+- artifact_hash: 71bfacceb48a0c19fd705698fe992d72bd4245d03190949d42d429a701f35335
+  artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
   kind: arxiv
   value: '2301.12345'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-08-22T03:22:17.418857Z'
+  verified_at: '2026-08-23T14:09:44.136597Z'

@@ -30,14 +30,17 @@ def get_config() -> Dict[str, Any]:
     config = {
         "seed": 42,
         "window_size": 60,  # seconds. Note: This deviates from the Constitution's 30s default.
-                            # Justification: See research.md, Section 3.2 "Temporal Resolution Trade-offs".
-                            # Longer windows improve SNR for connectivity estimates in resting-state data.
+                            # Justification: See docs/technical-design.md (Task T004a).
+                            # The Spec (FR-003) mandates 60s for the Schaefer 200 atlas resolution
+                            # to ensure stable correlation estimation, overriding the 30s default.
         "step_size": 1,     # seconds
         "fd_threshold": 0.2, # mm
         "project_root": os.getenv("PROJECT_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
         "data_raw": "data/raw",
         "data_processed": "data/processed",
         "data_results": "data/results",
-        "figures": "figures"
+        "figures": "figures",
+        # Placeholder for subject IDs. In a real scenario, these would be loaded from a file.
+        "subject_ids": ["100307", "100913", "101111"] 
     }
     return config

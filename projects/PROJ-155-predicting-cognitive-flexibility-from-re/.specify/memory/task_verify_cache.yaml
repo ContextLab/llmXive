@@ -1,17 +1,34 @@
-T001:
+T012:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `data/`, `docs/`, `tests/`)
-    is provided; the implementer did not supply any artifact showing that the project
-    structure was created.
-T015:
+  h: 5ff37a63a49bb18573666d0e6818b467748855820d44457f484e49af5374f418
+  r: "The provided `code/data/download.py` is truncated and lacks the core download\
+    \ logic, command\u2011line `--verify` handling, and generation of the required\
+    \ `data/reports/data_gap_report.md` (which is missing). Consequently no raw NIfTI\
+    \ or CSV files are produced, and the fallback/report requirement is not satisfied."
+T015a:
   c: false
-  h: bd93c6f416dfc051d70e86f3aa7704ed19282ff6a1959bed02700285f60a9ab7
-  r: "The required `data/processed/exclusion_log.csv` file does not exist, and the\
-    \ provided `code/utils/motion.py` snippet shows only utility functions (e.g.,\
-    \ `calculate_mean_fd`) with no implementation of the motion\u2011filtering logic\
-    \ or logging of excluded subjects. Consequently, the task\u2019s deliverable and\
-    \ core functionality are missing."
+  h: ef797b9a6db98b2c8247645a6a44072d2897c47b0515c03d30bbb3603f52edaf
+  r: "The required output file `data/results/success_rate.json` does not exist, and\
+    \ the provided `code/utils/success_rate.py` is truncated (the `save_success_rate`\
+    \ function is incomplete), giving no proof that the script can write the JSON\
+    \ with the `pro_processed` key. The task\u2019s core deliverable is therefore\
+    \ missing."
+T016:
+  c: true
+  h: 614869c0e85d8f2d1891ec4d77cd6f4adda1dd7f89586a4d7c170b93e451adf9
+  r: "The `code/utils/validate_exclusions.py` script is present and implements the\
+    \ required check, raising a `ValueError` when the row count differs from the number\
+    \ of unique `Subject_ID`s. It also handles the case where the CSV is missing by\
+    \ treating it as a valid (zero\u2011exclusion) situation, so running the script\
+    \ will exit without error, satisfying the verification step."
+T017:
+  c: false
+  h: 350c225258e331417cf54ec0ba4420c547c9d29a724d81f3a060b26f78bd4948
+  r: The required `data/processed/exclusion_log.csv` does not exist, and the provided
+    `code/data/merge.py` lacks any logic for the `--filter` option, dropping subjects
+    with missing behavioral scores, or writing rows with `Exclusion_Reason = "Missing_Behavioral_Score"`
+    to the CSV. The script is also truncated and contains a syntax error, indicating
+    the task was not fully implemented.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

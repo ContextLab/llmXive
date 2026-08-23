@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-The system MUST successfully download the HCP 1200-subject release (resting-state fMRI and behavioral data), apply the HCP minimal preprocessing outputs, and parcellate the data using the Schaefer atlas with a high-resolution parcellation scheme (Schaefer et al.,) to generate a clean, analysis-ready dataset.
+The system MUST successfully download the HCP release (resting-state fMRI and behavioral data), apply the HCP minimal preprocessing outputs, and parcellate the data using the Schaefer atlas with a high-resolution parcellation scheme (Schaefer et al.,) to generate a clean, analysis-ready dataset.
 
 **Why this priority**: Without a valid, preprocessed dataset containing both the neural predictors (RSFC) and the behavioral outcome (NIH Toolbox scores), no analysis can occur. This is the foundational data layer for the entire research question.
 
@@ -67,7 +67,7 @@ The system MUST perform a regression analysis of cognitive flexibility scores on
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST download the HCP 1200-subject resting-state fMRI and behavioral data from the specified source and verify file integrity before processing. (See US-1)
+- **FR-001**: The system MUST download the HCP resting-state fMRI and behavioral data from the specified source and verify file integrity before processing. (See US-1)
 - **FR-002**: The system MUST apply the Schaefer atlas to parcellate the preprocessed fMRI time-series for every subject. (See US-1)
 - **FR-003**: The system MUST compute sliding-window Pearson correlation matrices (window=60s, step=1s) and calculate the standard deviation and Shannon entropy for every edge. (See US-2)
 - **FR-004**: The system MUST collapse edge-wise variability metrics into a single subject-level predictor variable for the regression analysis. (See US-2)
@@ -89,7 +89,7 @@ The system MUST perform a regression analysis of cognitive flexibility scores on
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
 
-- **SC-001**: The proportion of subjects successfully processed (passing motion and data quality checks) is measured against the total number of subjects in the HCP 1200 release subset used. (See US-1)
+- **SC-001**: The proportion of subjects successfully processed (passing motion and data quality checks) is measured against the total number of subjects in the HCP release subset used. (See US-1)
 - **SC-003**: The empirical p-value derived from the 10,000 permutations is measured against the significance threshold (or FDR-adjusted q ≤ 0.05 for post-hoc tests) to determine hypothesis support. (See US-3)
 - **SC-004**: The correlation coefficient (r) between RSFC variability and flexibility scores is measured against the null hypothesis of no association (r=0) to assess effect direction and magnitude. (See US-3)
 
@@ -98,7 +98,7 @@ The system MUST perform a regression analysis of cognitive flexibility scores on
 - The HCP 1200 release provides resting-state fMRI data that has already undergone minimal preprocessing (motion correction, ICA-FIX denoising) as required by the methodology sketch.
 - The NIH Toolbox Dimensional Change Card Sort scores are available in the HCP behavioral data files for the majority of the subjects.
 - The sliding-window correlation approach with a sufficiently long window is sufficient to reliably estimate correlation matrices for a substantial number of regions., avoiding the "noise floor" artifact associated with shorter windows.
-- The Schaefer 200-region atlas is compatible with the HCP MNI space used in the preprocessed data.
+- The Schaefer multi-region atlas is compatible with the HCP MNI space used in the preprocessed data.
 - The analysis will be observational; therefore, findings will be framed as associational rather than causal, consistent with the lack of random assignment in the HCP dataset.
 - The GitHub Actions free-tier runner (standard CPU allocation, ~7 GB RAM) is sufficient to process the data and run the permutation test within 6 hours, provided the data is processed in batches or optimized for CPU usage.
 - The memory usage of the pipeline will not exceed a predefined threshold (peak RSS of the Python process)..

@@ -1,36 +1,53 @@
+"""
+Path management utilities for the project.
+"""
 import os
 from code.config import get_config
 
 def get_project_root() -> str:
-    """Get the project root directory."""
-    # Assuming the project root is the parent of the 'code' directory
-    # or we can use an environment variable or config.
-    # For now, we assume the standard structure relative to this file.
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.dirname(current_dir)
+    """
+    Returns the absolute path to the project root.
+    
+    Returns:
+        str: Absolute path to the project root.
+    """
+    return get_config()['project_root']
 
 def get_raw_path() -> str:
-    """Get the path to the raw data directory."""
-    project_root = get_project_root()
-    raw_path = os.path.join(project_root, "data", "raw")
-    os.makedirs(raw_path, exist_ok=True)
-    return raw_path
+    """
+    Returns the path to the raw data directory.
+    
+    Returns:
+        str: Absolute path to the raw data directory.
+    """
+    root = get_project_root()
+    return os.path.join(root, get_config()['data_raw'])
 
 def get_processed_path() -> str:
-    """Get the path to the processed data directory."""
-    project_root = get_project_root()
-    processed_path = os.path.join(project_root, "data", "processed")
-    os.makedirs(processed_path, exist_ok=True)
-    return processed_path
+    """
+    Returns the path to the processed data directory.
+    
+    Returns:
+        str: Absolute path to the processed data directory.
+    """
+    root = get_project_root()
+    return os.path.join(root, get_config()['data_processed'])
 
 def get_results_path() -> str:
-    """Get the path to the results directory."""
-    project_root = get_project_root()
-    results_path = os.path.join(project_root, "data", "results")
-    os.makedirs(results_path, exist_ok=True)
-    return results_path
+    """
+    Returns the path to the results directory.
+    
+    Returns:
+        str: Absolute path to the results directory.
+    """
+    root = get_project_root()
+    return os.path.join(root, get_config()['data_results'])
 
-def ensure_dir(dir_path: str) -> str:
-    """Ensure a directory exists, creating it if necessary."""
+def ensure_dir(dir_path: str) -> None:
+    """
+    Ensures that the specified directory exists, creating it if necessary.
+    
+    Args:
+        dir_path: Path to the directory.
+    """
     os.makedirs(dir_path, exist_ok=True)
-    return dir_path

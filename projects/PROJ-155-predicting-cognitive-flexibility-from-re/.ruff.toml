@@ -1,80 +1,20 @@
 # Ruff configuration for llmXive project
-# Configured per T003: Configure linting (ruff) using .ruff.toml
+target-version = "py311"
+select = ["E", "F", "W", "I"]
 
-[lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "ARG", "SIM"]
-ignore = [
-  "E501",  # Line too long (handled by formatter/pre-commit if added later)
-  "B008",  # Do not perform function call in argument defaults (common in data pipelines)
-  "SIM105", # Use `contextlib.suppress` instead of try-except-pass (optional stylistic choice)
-]
+# Ignore specific rules if needed (none currently)
+# ignore = []
 
-# Allow autofix for all enabled rules (if 'fix' command is used)
-fixable = ["ALL"]
-unfixable = []
+# Line length consistent with project standards
+line-length = 88
 
-# Exclude standard directories
+# Exclude generated or third-party code
 exclude = [
-  ".bzr",
-  ".direnv",
-  ".eggs",
-  ".git",
-  ".git-rewrite",
-  ".hg",
-  ".mypy_cache",
-  ".nox",
-  ".pants.d",
-  ".pytype",
-  ".ruff_cache",
-  ".svn",
-  ".tox",
-  ".venv",
-  "__pypackages__",
-  "_build",
-  "buck-out",
-  "build",
-  "dist",
-  "node_modules",
-  "venv",
-  "data/", # Exclude generated data directories
-  "docs/", # Exclude documentation
+    ".git",
+    "__pycache__",
+    ".ruff_cache",
+    "data/*",
+    "docs/*",
+    "build/*",
+    "dist/*",
 ]
-
-# Per-file ignores
-per-file-ignores = {}
-
-# Same as default
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[lint.isort]
-known-first-party = ["code", "tests"]
-force-single-line = false
-force-sort-within-sections = false
-lines-after-imports = 2
-no-lines-before = ["future", "standard-library"]
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
-
-[lint.pydocstyle]
-convention = "numpy"
-
-[format]
-# Use double quotes for strings
-quote-style = "double"
-# Indent with spaces
-indent-style = "space"
-# Respect magic trailing commas
-skip-magic-trailing-comma = false
-# Use Unix newlines
-line-ending = "lf"
-
-[lint.flake8-quotes]
-docstring-quotes = "double"
-inline-quotes = "double"
-multiline-quotes = "double"
-
-[lint.flake8-unused-arguments]
-ignore-variadic-names = true
-
-[lint.mccabe]
-max-complexity = 12

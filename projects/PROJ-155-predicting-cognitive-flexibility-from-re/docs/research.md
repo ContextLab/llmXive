@@ -1,71 +1,95 @@
 # Research Documentation
 
-## Research Question
+## Predicting Cognitive Flexibility from Resting-State Functional Connectivity Variability
 
-**What is the impact of computational constraints on model performance?**
+### Overview
 
-This project investigates the relationship between dynamic functional connectivity variability in resting-state fMRI and cognitive flexibility, while explicitly accounting for computational constraints in the analysis pipeline.
+This research project investigates the relationship between dynamic functional connectivity patterns in the brain and cognitive flexibility, measured using the NIH Toolbox Dimensional Change Card Sort task.
 
-## Methodology
+### Research Question
 
-### Data Source
+Does variability in resting-state functional connectivity (RSFC) predict individual differences in cognitive flexibility?
 
-- **Dataset**: HCP 1200 Subjects Release
-- **Modality**: Resting-state fMRI (rs-fMRI)
-- **Behavioral Measure**: NIH Toolbox Dimensional Change Card Sort (DCCS) Score (proxy for Cognitive Flexibility)
-- **Access**: Programmatic download via HCP Connectome API
+### Hypothesis
 
-### Preprocessing Pipeline
+Higher variability in RSFC patterns (measured as edge-wise standard deviation and Shannon entropy of sliding-window correlations) is positively associated with better cognitive flexibility scores.
 
-1. **Motion Correction**:
- - Mean Framewise Displacement (FD) calculated from motion parameters.
- - Subjects with Mean FD > 0.2mm are excluded (per FR-003).
- - Exclusions logged in `data/processed/exclusion_log.csv`.
+### Methodology
 
-2. **Parcellation**:
- - **Atlas**: Schaefer 200-region atlas.
- - **Window Size**: 60 seconds (mandated by FR-003 for stable correlation estimation at this resolution).
- - **Step Size**: 1 second.
+#### Data Source
+- **Population**: HCP 1200 Subjects Release
+- **Imaging**: Resting-state fMRI (multi-band EPI)
+- **Behavioral**: NIH Toolbox Dimensional Change Card Sort (DCCS) scores
+- **Covariates**: Age, Sex, Head Motion (Mean FD), Total Scan Time
 
-3. **Noise Filtering**:
- - Signal-to-Noise Ratio (SNR) filtering applied.
- - Motion-Noise Orthogonalization performed.
+#### Preprocessing Pipeline
+1. Download raw NIfTI and behavioral data from HCP
+2. Apply minimal preprocessing (fMRIPrep outputs)
+3. Parcellate using Schaefer 200 Parcels (7 Networks) atlas [UNRESOLVED-CLAIM: c_79e20ab6 — status=not_enough_info]
+4. Calculate Mean Framewise Displacement (FD) for motion assessment
+5. Exclude subjects with Mean FD > 0.2mm [UNRESOLVED-CLAIM: c_94a0082a — status=not_enough_info]
 
-### Feature Engineering
+#### Feature Extraction
+1. **Sliding-Window Correlation**:
+ - Window size: 60 seconds [UNRESOLVED-CLAIM: c_553bd5fa — status=not_enough_info] (mandated by FR-003 for Schaefer 200 stability)
+ - Step size: 1 second [UNRESOLVED-CLAIM: c_4fcfb24a — status=not_enough_info]
+ - Method: Pearson correlation
+2. **Edge-wise Metrics**:
+ - Standard deviation of correlations across windows
+ - Shannon entropy of correlation distributions
+3. **Subject-level Aggregation**:
+ - Mean edge standard deviation as primary `Variability_Metric`
+ - Mean entropy as secondary metric
 
-**Dynamic Connectivity Metrics**:
-1. **Sliding-Window Correlation**: Pearson correlation computed within 60s windows.
-2. **Edge-wise Standard Deviation**: Variability of each connection over time.
-3. **Shannon Entropy**: Complexity of the connectivity distribution.
-4. **Variability Metric**: Aggregated as the mean of edge-wise standard deviations.
+#### Statistical Analysis
+1. **Linear Regression**:
+ - Dependent variable: Flexibility Score (DCCS)
+ - Independent variable: Variability_Metric
+ - Covariates: Age, Sex, Mean FD, Total Scan Time
+2. **Permutation Testing**:
+ - 10,000 iterations for stable null distribution [UNRESOLVED-CLAIM: c_94bb7fc1 — status=not_enough_info]
+ - Phase-shuffled surrogates for validation
+3. **Multiple Comparison Correction**:
+ - Benjamini-Hochberg FDR (q ≤ 0.05) for network-specific analyses [UNRESOLVED-CLAIM: c_80a5388d — status=not_enough_info]
 
-### Statistical Analysis
+### Technical Design Decisions
 
-**Regression Model**:
-- **Dependent Variable**: Flexibility Score (DCCS).
-- **Independent Variable**: Variability Metric.
-- **Covariates**: Age, Sex, Mean FD, Total Scan Time.
-- **Model**: Linear Regression.
+#### Window Size Selection (60s vs 30s)
+- **Default**: Constitution Principle VII suggests 30s windows
+- **Decision**: 60s windows mandated by FR-003
+- **Rationale**: Schaefer 200 atlas requires longer windows for stable correlation estimation; 30s windows produce unreliable estimates for this resolution
 
-**Significance Testing**:
-- **Permutation Test**: 10,000 iterations to generate null distribution.
-- **Null Model Validation**: Phase-shuffled surrogates (FR-008) and AR-based surrogates.
-- **FDR Correction**: Applied for post-hoc network-specific analyses (q ≤ 0.05).
+#### Null Model Selection
+- **Requirement**: FR-008 mandates phase-shuffling
+- **Rationale**: Phase-shuffling preserves temporal autocorrelation while destroying phase relationships, providing a more appropriate null for dynamic connectivity than AR-surrogates
 
-## Constraints & Assumptions
+### Expected Outcomes
 
-- **Hardware**: CPU-only execution (max 7GB RAM, 2 cores).
-- **Data Integrity**: No synthetic data generation; pipeline fails loudly if real data is inaccessible.
-- **Window Size**: 60s window used instead of the typical 30s to ensure stability with the Schaefer 200 atlas, as justified in the project specification.
+1. Identification of significant association between RSFC variability and cognitive flexibility
+2. Quantification of effect size (Beta coefficient)
+3. Validation of metric significance against phase-shuffled surrogates
+4. Network-specific patterns (if post-hoc analyses are performed)
 
-## Expected Outputs
+### Success Criteria
 
-1. **`data/processed/final_results.csv`**: Subject-level data with regression predictions and residuals.
-2. **`data/results/regression_summary.json`**: Global model statistics (Beta, SE, P-Value, Success Rate).
-3. **`data/results/variability_vs_flexibility.png`**: Visualization of the regression relationship.
+- **SC-001**: Processing success rate > 80% after exclusions
+- **SC-002**: Metric significance (p < 0.05) against null model
+- **SC-003**: Permutation test with 10,000 iterations for stable p-value estimation
 
-## References
+### Limitations
 
-- Smith et al. (2023). *arXiv:2301.12345*. (Context for computational constraints).
-- Human Connectome Project (HCP) Documentation.
-- Schaefer, A. et al. (2018). *Local-Global Parcellation of the Human Cerebral Cortex*.
+- Computational constraints (7GB RAM, 6h processing time)
+- Dependence on HCP data access and API availability
+- Assumption of linear relationships in regression model
+- Potential confounding effects of head motion despite exclusion criteria
+
+### References
+
+- Schaefer, A., et al. (2018). Local-Global Parcellation of the Human Cerebral Cortex. *Cerebral Cortex*.
+- HCP Consortium. (2013). The Human Connectome Project: A data acquisition perspective. *NeuroImage*.
+- Smith, S. M., et al. (2013). Resting-state fMRI in the Human Connectome Project. *NeuroImage*.
+
+### Version History
+
+- v1.0: Initial research documentation
+- v1.1: Added technical design decisions and success criteria

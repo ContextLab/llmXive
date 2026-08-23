@@ -1,123 +1,103 @@
-# Quick Start Guide
+# Quickstart Guide
 
-This guide provides instructions for setting up and running the **Predicting Cognitive Flexibility from Resting-State Functional Connectivity Variability** pipeline.
+## Project: Predicting Cognitive Flexibility from Resting-State Functional Connectivity Variability
+
+This guide provides the minimum steps to set up and run the project pipeline.
 
 ## Prerequisites
 
 - Python 3.11 or higher
-- pip (Python package installer)
-- HCP Connectome API Token (see [Data Access](#data-access))
+- pip package manager
+- Access to HCP 1200 Subjects data (requires API token)
 
 ## Installation
 
-1. **Clone the repository**:
+1. Clone the repository:
  ```bash
  git clone <repository-url>
  cd <project-directory>
  ```
 
-2. **Create a virtual environment** (recommended):
+2. Create a virtual environment (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
+## Project Structure
+
+The project is organized as follows:
+```
+.
+├── code/ # Source code modules
+├── data/ # Data storage (raw, processed, results)
+├── docs/ # Documentation
+├── tests/ # Test suite
+├── requirements.txt # Python dependencies
+└── README.md # Project overview
+```
+
 ## Configuration
 
-### HCP API Token
+Before running the pipeline, set up your environment:
 
-To access the HCP data, you must obtain an API token from the [Human Connectome Project](https://db.humanconnectome.org/).
-
-1. Log in to the HCP database.
-2. Go to **Account Settings** > **API Access**.
-3. Generate a token and export it as an environment variable:
+1. Set your HCP API token:
  ```bash
  export HCP_API_TOKEN="your_token_here"
  ```
- *Note: On Windows, use `set HCP_API_TOKEN=your_token_here`.*
 
-### Project Configuration
-
-The project uses a central configuration file located at `code/config.py`. Key parameters include:
-- **Window size**: 60 seconds (as per FR-003)
-- **Step size**: 1 second
-- **FD Threshold**: 0.2mm
-- **Random Seed**: 42
+2. Verify configuration:
+ ```bash
+ python code/config.py --verify
+ ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the main entry point `code/main.py`.
-
-### Full Pipeline Execution
-
-To run the entire pipeline (Data Ingestion → Preprocessing → Feature Extraction → Analysis):
-
+Execute the full pipeline:
 ```bash
-python -m code.main
+python code/main.py
 ```
 
-This will:
-1. Download HCP data (if not present).
-2. Preprocess fMRI data and apply the Schaefer atlas.
-3. Merge with behavioral data (NIH Toolbox DCCS scores).
-4. Filter subjects based on motion (Mean FD > 0.2).
-5. Compute dynamic connectivity metrics (sliding window correlations, edge SD, entropy).
-6. Run statistical analysis (regression, permutation tests).
-7. Generate final results and visualizations.
+Or run individual stages:
+```bash
+# Data download
+python code/data/download.py
 
-### Running Specific Stages
+# Preprocessing
+python code/data/preprocess.py
 
-You can run individual stages by invoking specific modules directly:
+# Feature extraction
+python code/features/connectivity.py
 
-- **Data Download**:
- ```bash
- python -m code.data.download
- ```
-- **Preprocessing**:
- ```bash
- python -m code.data.preprocess
- ```
-- **Connectivity Metrics**:
- ```bash
- python -m code.features.connectivity
- ```
-- **Regression Analysis**:
- ```bash
- python -m code.analysis.regression
- ```
-
-## Output Files
-
-All outputs are generated in the `data/` directory:
-
-- **Raw Data**: `data/raw/` (Downloaded NIfTI and CSV files)
-- **Processed Data**:
- - `data/processed/exclusion_log.csv`: Log of excluded subjects.
- - `data/processed/metrics.csv`: Subject-level variability metrics.
- - `data/processed/final_results.csv`: Final merged results with regression coefficients.
-- **Results**:
- - `data/results/regression_summary.json`: Aggregated statistical results.
- - `data/results/variability_vs_flexibility.png`: Regression plot.
+# Analysis
+python code/analysis/regression.py
+```
 
 ## Verification
 
-To verify the pipeline execution:
+Verify the project structure:
+```bash
+python code/setup_structure.py
+```
 
-1. Check `data/processed/final_results.csv` for the presence of required columns:
- `Subject_ID`, `Variability_Metric`, `Flexibility_Score`, `Age`, `Sex`, `Mean_FD`, `Total_Scan_Time`, `Predicted_Score`, `Residual`, `Beta_Variability`, `SE_Variability`, `P_Value`.
-2. Ensure `data/results/regression_summary.json` contains the `pro_processed` success rate metric.
-3. Run the test suite:
- ```bash
- pytest tests/
- ```
+Run tests:
+```bash
+pytest tests/ -v
+```
 
 ## Troubleshooting
 
-- **Data Access Errors**: Ensure `HCP_API_TOKEN` is set correctly and you have permission to access the HCP_1200_Subjects project.
-- **Memory Errors**: The pipeline is optimized for <7GB RAM. If errors persist, check `code/features/batch_processor.py` for batch size adjustments.
-- **Missing Dependencies**: Re-run `pip install -r requirements.txt` to ensure all packages are installed.
+- **Missing dependencies**: Ensure all packages in `requirements.txt` are installed.
+- **API errors**: Verify your `HCP_API_TOKEN` is set correctly.
+- **Memory issues**: Use batch processing with `--batch` flag for large datasets.
+
+## Next Steps
+
+- Read `docs/research.md` for detailed methodology
+- Review `docs/technical-design.md` for implementation details
+- Check `tests/` for unit and integration tests

@@ -1,211 +1,278 @@
-import numpy as np
+"""
+Unit tests for null-model validation (phase-shuffled surrogates).
+
+This module verifies the correctness of the phase-shuffling implementation
+used to generate surrogate null models for validating dynamic connectivity metrics.
+"""
+
 import pytest
-import os
-import sys
+import numpy as np
+from scipy.fft import fft, ifft
+from code.features.null_model import (
+    phase_shuffle,
+    generate_phase_shuffled_surrogates,
+    compute_surrogate_variability,
+    validate_metric_significance
+)
+from code.config import set_seed
 
-# Add project root to path for imports if running as script
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from code.features.null_model import phase_shuffle_time_series, generate_null_distribution
-from code.config import get_config
+class TestPhaseShuffle:
+    """Tests for the phase_shuffle function."""
 
-class TestNullModelValidation:
-    """
-    Unit tests for null-model validation (phase-shuffled surrogates).
-    
-    This test suite verifies that:
-    1. The phase-shuffling algorithm preserves the power spectrum (amplitude distribution)
-       while destroying temporal autocorrelation structure.
-    2. The generated null distribution is centered around zero (or expected mean) for
-       shuffled data.
-    3. Real data variability is significantly higher than the null distribution
-       (p < 0.05) when applied to data with known structure.
-    """
+    def test_preserves_amplitude_spectrum(self):
+        """Verify that phase shuffling preserves the amplitude spectrum."""
+        set_seed(42)
+        # Create a deterministic signal
+        t = np.linspace(0, 10, 1000)
+        signal = np.sin(2 * np.pi * 1 * t) + 0.5 * np.sin(2 * np.pi * 3 * t)
+        
+        # Get original amplitude spectrum
+        original_fft = np.abs(fft(signal))
+        
+        # Phase shuffle
+        shuffled = phase_shuffle(signal)
+        shuffled_fft = np.abs(fft(shuffled))
+        
+        # Amplitudes should be identical (within floating point precision)
+        np.testing.assert_array_almost_equal(original_fft, shuffled_fft, decimal=10)
 
-    @pytest.fixture
-    def synthetic_time_series(self):
-        """
-        Generate a synthetic time series with known autocorrelation structure.
-        We use an AR(1) process which has high temporal autocorrelation.
-        """
-        np.random.seed(42)
-        n_points = 1000
-        phi = 0.9  # High autocorrelation
-        noise = np.random.normal(0, 1, n_points)
-        ts = np.zeros(n_points)
-        for i in range(1, n_points):
-            ts[i] = phi * ts[i-1] + noise[i]
-        return ts
+    def test_changes_phase_spectrum(self):
+        """Verify that phase shuffling actually changes the phase."""
+        set_seed(42)
+        signal = np.random.randn(500)
+        
+        original_phase = np.angle(fft(signal))
+        shuffled = phase_shuffle(signal)
+        shuffled_phase = np.angle(fft(shuffled))
+        
+        # Phase should be different (unless by extreme chance)
+        # We check that the difference is not all zeros
+        phase_diff = np.abs(original_phase - shuffled_phase)
+        assert not np.allclose(phase_diff, 0), "Phase shuffling did not change the phase"
 
-    @pytest.fixture
-    def synthetic_connectivity_matrix(self, synthetic_time_series):
-        """
-        Create a synthetic connectivity matrix from the time series.
-        For simplicity, we use a single ROI time series and create a dummy
-        connectivity metric based on its variance/variability.
-        """
-        # In a real scenario, this would be a matrix of correlations between ROIs.
-        # Here we simulate a vector of edge-wise standard deviations derived from
-        # sliding windows of the time series.
-        window_size = 60
-        step = 1
-        n_windows = len(synthetic_time_series) - window_size + 1
-        edge_sds = []
+    def test_preserves_mean_and_variance(self):
+        """Verify that phase shuffling preserves mean and variance."""
+        set_seed(42)
+        signal = np.random.randn(1000)
         
-        for i in range(0, n_windows, step):
-            window_data = synthetic_time_series[i:i+window_size]
-            # Simulate edge-wise SD (in reality, this is SD of correlations)
-            edge_sds.append(np.std(window_data))
+        shuffled = phase_shuffle(signal)
         
-        return np.array(edge_sds)
+        np.testing.assert_almost_equal(np.mean(signal), np.mean(shuffled), decimal=10)
+        np.testing.assert_almost_equal(np.var(signal), np.var(shuffled), decimal=10)
 
-    def test_phase_shuffle_preserves_amplitude_distribution(self, synthetic_time_series):
-        """
-        Test that phase-shuffling preserves the amplitude distribution (power spectrum).
-        The mean and std of the shuffled series should be statistically indistinguishable
-        from the original series.
-        """
-        shuffled = phase_shuffle_time_series(synthetic_time_series)
+    def test_output_shape_matches_input(self):
+        """Verify output shape matches input shape."""
+        set_seed(42)
+        signal = np.random.randn(500)
         
-        # Check lengths
-        assert len(shuffled) == len(synthetic_time_series), "Length mismatch after shuffling"
+        shuffled = phase_shuffle(signal)
         
-        # Check mean and std are preserved (within floating point tolerance)
-        assert np.isclose(np.mean(shuffled), np.mean(synthetic_time_series), rtol=1e-10), \
-            "Mean not preserved by phase shuffling"
-        assert np.isclose(np.std(shuffled), np.std(synthetic_time_series), rtol=1e-10), \
-            "Std not preserved by phase shuffling"
-        
-        # Check that the power spectrum is preserved (by comparing FFT magnitudes)
-        fft_original = np.fft.fft(synthetic_time_series)
-        fft_shuffled = np.fft.fft(shuffled)
-        
-        # Magnitudes should be identical
-        assert np.allclose(np.abs(fft_original), np.abs(fft_shuffled)), \
-            "Power spectrum (amplitude) not preserved"
+        assert shuffled.shape == signal.shape
 
-    def test_phase_shuffle_destroys_autocorrelation(self, synthetic_time_series):
-        """
-        Test that phase-shuffling destroys temporal autocorrelation.
-        The autocorrelation at lag 1 should be significantly lower in the shuffled data.
-        """
-        shuffled = phase_shuffle_time_series(synthetic_time_series)
+    def test_deterministic_with_seed(self):
+        """Verify deterministic output when seed is set."""
+        set_seed(42)
+        signal = np.random.randn(500)
         
-        # Calculate autocorrelation at lag 1 for original
-        original_autocorr = np.corrcoef(synthetic_time_series[:-1], synthetic_time_series[1:])[0, 1]
+        shuffled1 = phase_shuffle(signal)
         
-        # Calculate autocorrelation at lag 1 for shuffled
-        shuffled_autocorr = np.corrcoef(shuffled[:-1], shuffled[1:])[0, 1]
+        set_seed(42)
+        shuffled2 = phase_shuffle(signal)
         
-        # The shuffled data should have much lower autocorrelation (close to 0)
-        assert abs(shuffled_autocorr) < 0.1, \
-            f"Autocorrelation at lag 1 is too high ({shuffled_autocorr}) for shuffled data"
-        
-        # The original should have high autocorrelation
-        assert abs(original_autocorr) > 0.5, \
-            f"Original time series does not have expected high autocorrelation ({original_autocorr})"
+        np.testing.assert_array_equal(shuffled1, shuffled2)
 
-    def test_null_distribution_center(self, synthetic_connectivity_matrix):
-        """
-        Test that the null distribution of variability metrics (from shuffled data)
-        is centered around a value consistent with random noise.
-        """
+    def test_2d_array_handling(self):
+        """Test phase shuffling on 2D arrays (time x features)."""
+        set_seed(42)
+        # 2D array: 500 timepoints x 200 features
+        signal_2d = np.random.randn(500, 200)
+        
+        shuffled_2d = phase_shuffle(signal_2d)
+        
+        assert shuffled_2d.shape == signal_2d.shape
+        # Check that each feature column was shuffled independently
+        for i in range(signal_2d.shape[1]):
+            original_fft = np.abs(fft(signal_2d[:, i]))
+            shuffled_fft = np.abs(fft(shuffled_2d[:, i]))
+            np.testing.assert_array_almost_equal(original_fft, shuffled_fft, decimal=10)
+
+class TestGeneratePhaseShuffledSurrogates:
+    """Tests for generating multiple phase-shuffled surrogates."""
+
+    def test_generates_correct_number(self):
+        """Verify correct number of surrogates generated."""
+        set_seed(42)
+        signal = np.random.randn(500)
         n_surrogates = 100
-        null_values = []
         
-        for _ in range(n_surrogates):
-            # Shuffle the underlying time series
-            shuffled_ts = phase_shuffle_time_series(synthetic_connectivity_matrix)
-            # In this simplified test, we treat the shuffled matrix as the "variability"
-            # In reality, we would re-compute the connectivity metric from the shuffled time series.
-            # Here we just check that the distribution of shuffled values is centered.
-            null_values.append(np.mean(shuffled_ts))
+        surrogates = generate_phase_shuffled_surrogates(signal, n_surrogates)
         
-        null_values = np.array(null_values)
-        
-        # The null distribution should be centered around the mean of the original data
-        # (since shuffling preserves mean)
-        assert np.isclose(np.mean(null_values), np.mean(synthetic_connectivity_matrix), rtol=1e-5), \
-            "Null distribution mean does not match original mean"
+        assert len(surrogates) == n_surrogates
 
-    def test_significance_validation(self, synthetic_connectivity_matrix):
-        """
-        Test the full significance validation pipeline.
-        We expect the original data (with structure) to have a significantly
-        different variability metric than the null distribution.
-        """
-        # In this test, we simulate a scenario where the original data has
-        # a specific variability metric that is different from the null.
-        # We use the mean of the connectivity matrix as our "metric" for simplicity.
-        
-        original_metric = np.mean(synthetic_connectivity_matrix)
-        
-        # Generate null distribution
-        config = get_config()
-        n_surrogates = 1000
-        null_metrics = []
-        
-        for _ in range(n_surrogates):
-            shuffled_ts = phase_shuffle_time_series(synthetic_connectivity_matrix)
-            null_metrics.append(np.mean(shuffled_ts))
-        
-        null_metrics = np.array(null_metrics)
-        
-        # Calculate p-value (one-sided: is original > null?)
-        # Since we are just testing the mechanism, we check if the p-value calculation works.
-        p_value = (np.sum(null_metrics >= original_metric) + 1) / (n_surrogates + 1)
-        
-        # The p-value should be a valid probability
-        assert 0 <= p_value <= 1, "P-value is not in valid range [0, 1]"
-        
-        # In this specific synthetic case, since we preserved the mean,
-        # the p-value should be around 0.5. The important thing is that the
-        # mechanism runs without error.
-        assert np.isclose(p_value, 0.5, atol=0.1), \
-            f"P-value ({p_value}) is not close to expected 0.5 for mean-preserving shuffle"
-
-    def test_generate_null_distribution_function(self, synthetic_time_series):
-        """
-        Test the generate_null_distribution function with a realistic setup.
-        """
-        # Create a simple metric function for testing
-        def metric_func(ts):
-            return np.std(ts)
-        
-        # Generate null distribution
+    def test_all_surrogates_valid(self):
+        """Verify all generated surrogates are valid signals."""
+        set_seed(42)
+        signal = np.random.randn(500)
         n_surrogates = 50
-        null_dist, original_val = generate_null_distribution(
-            synthetic_time_series, 
-            metric_func, 
-            n_surrogates=n_surrogates
-        )
         
-        assert len(null_dist) == n_surrogates, "Null distribution length mismatch"
-        assert isinstance(original_val, (int, float)), "Original value is not numeric"
+        surrogates = generate_phase_shuffled_surrogates(signal, n_surrogates)
         
-        # Check that the null distribution is a numpy array of floats
-        assert isinstance(null_dist, np.ndarray), "Null distribution is not a numpy array"
-        assert null_dist.dtype in [np.float64, np.float32], "Null distribution has wrong dtype"
+        for surrogate in surrogates:
+            assert isinstance(surrogate, np.ndarray)
+            assert surrogate.shape == signal.shape
+            assert not np.any(np.isnan(surrogate))
+            assert not np.any(np.isinf(surrogate))
 
-    def test_phase_shuffle_edge_cases(self):
-        """
-        Test edge cases for phase shuffling.
-        """
-        # Empty array
+    def test_surrogates_are_different(self):
+        """Verify that different surrogates are not identical."""
+        set_seed(42)
+        signal = np.random.randn(500)
+        n_surrogates = 10
+        
+        surrogates = generate_phase_shuffled_surrogates(signal, n_surrogates)
+        
+        # Check pairwise differences
+        for i in range(n_surrogates):
+            for j in range(i + 1, n_surrogates):
+                assert not np.array_equal(surrogates[i], surrogates[j]), \
+                    f"Surrogates {i} and {j} are identical"
+
+class TestComputeSurrogateVariability:
+    """Tests for computing variability metrics from surrogates."""
+
+    def test_returns_mean_and_std(self):
+        """Verify function returns mean and std of surrogate metrics."""
+        set_seed(42)
+        # Create simple surrogate metrics (just values)
+        surrogate_metrics = np.random.randn(100)
+        
+        mean_val, std_val = compute_surrogate_variability(surrogate_metrics)
+        
+        np.testing.assert_almost_equal(mean_val, np.mean(surrogate_metrics))
+        np.testing.assert_almost_equal(std_val, np.std(surrogate_metrics))
+
+    def test_handles_small_sample(self):
+        """Test with small number of surrogates."""
+        set_seed(42)
+        surrogate_metrics = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        
+        mean_val, std_val = compute_surrogate_variability(surrogate_metrics)
+        
+        assert mean_val == 3.0
+        assert std_val == np.std(surrogate_metrics)
+
+class TestValidateMetricSignificance:
+    """Tests for validating metric significance against null model."""
+
+    def test_p_value_calculation(self):
+        """Verify p-value is calculated correctly."""
+        set_seed(42)
+        # Create surrogate distribution centered at 0
+        surrogate_metrics = np.random.randn(1000) * 0.1
+        observed_metric = 0.5  # Far from the surrogate mean
+        
+        p_value = validate_metric_significance(observed_metric, surrogate_metrics)
+        
+        # P-value should be very small for such an extreme value
+        assert p_value < 0.01
+
+    def test_p_value_when_observed_is_low(self):
+        """Verify p-value calculation when observed is within distribution."""
+        set_seed(42)
+        surrogate_metrics = np.random.randn(1000)
+        observed_metric = 0.0  # Near the mean of the surrogate distribution
+        
+        p_value = validate_metric_significance(observed_metric, surrogate_metrics)
+        
+        # P-value should be large (not significant)
+        assert p_value > 0.1
+
+    def test_p_value_bounds(self):
+        """Verify p-value is always between 0 and 1."""
+        set_seed(42)
+        surrogate_metrics = np.random.randn(1000)
+        
+        for observed in [-10, -1, 0, 1, 10]:
+            p_value = validate_metric_significance(observed, surrogate_metrics)
+            assert 0.0 <= p_value <= 1.0
+
+    def test_two_tailed_test(self):
+        """Verify two-tailed p-value calculation."""
+        set_seed(42)
+        surrogate_metrics = np.random.randn(1000)
+        observed_positive = np.mean(surrogate_metrics) + 3 * np.std(surrogate_metrics)
+        observed_negative = np.mean(surrogate_metrics) - 3 * np.std(surrogate_metrics)
+        
+        p_positive = validate_metric_significance(observed_positive, surrogate_metrics)
+        p_negative = validate_metric_significance(observed_negative, surrogate_metrics)
+        
+        # Both should be small (significant)
+        assert p_positive < 0.01
+        assert p_negative < 0.01
+
+    def test_with_empty_surrogates(self):
+        """Test behavior with empty surrogate list (should raise error)."""
         with pytest.raises(ValueError):
-            phase_shuffle_time_series(np.array([]))
+            validate_metric_significance(0.5, np.array([]))
+
+class TestIntegration:
+    """Integration tests combining multiple null model functions."""
+
+    def test_full_pipeline(self):
+        """Test the full null model validation pipeline."""
+        set_seed(42)
         
-        # Single element
-        single = np.array([1.0])
-        shuffled_single = phase_shuffle_time_series(single)
-        assert np.isclose(shuffled_single[0], 1.0), "Single element not preserved"
+        # Simulate a time series (e.g., connectivity time series)
+        n_timepoints = 1000
+        signal = np.random.randn(n_timepoints)
         
-        # Two elements
-        two = np.array([1.0, 2.0])
-        shuffled_two = phase_shuffle_time_series(two)
-        # Mean and std should be preserved
-        assert np.isclose(np.mean(shuffled_two), np.mean(two)), "Mean not preserved for 2 elements"
-        assert np.isclose(np.std(shuffled_two), np.std(two)), "Std not preserved for 2 elements"
+        # Generate surrogates
+        n_surrogates = 100
+        surrogates = generate_phase_shuffled_surrogates(signal, n_surrogates)
+        
+        # Compute a simple metric for each (e.g., variance)
+        observed_metric = np.var(signal)
+        surrogate_metrics = [np.var(s) for s in surrogates]
+        surrogate_metrics = np.array(surrogate_metrics)
+        
+        # Validate significance
+        p_value = validate_metric_significance(observed_metric, surrogate_metrics)
+        
+        # P-value should be valid
+        assert 0.0 <= p_value <= 1.0
+
+    def test_with_realistic_connectivity_pattern(self):
+        """Test with a signal that has realistic connectivity patterns."""
+        set_seed(42)
+        
+        # Create a signal with some autocorrelation (like fMRI time series)
+        n_timepoints = 1000
+        noise = np.random.randn(n_timepoints)
+        signal = np.zeros(n_timepoints)
+        for i in range(n_timepoints):
+            if i == 0:
+                signal[i] = noise[i]
+            else:
+                signal[i] = 0.5 * signal[i-1] + 0.5 * noise[i]  # AR(1) process
+        
+        # Generate surrogates
+        n_surrogates = 50
+        surrogates = generate_phase_shuffled_surrogates(signal, n_surrogates)
+        
+        # Compute autocorrelation as the metric
+        def autocorr(x):
+            result = np.correlate(x - np.mean(x), x - np.mean(x), mode='full')
+            return result[result.size // 2] / (len(x) * np.var(x))
+        
+        observed_metric = autocorr(signal)
+        surrogate_metrics = np.array([autocorr(s) for s in surrogates])
+        
+        # Validate
+        p_value = validate_metric_significance(observed_metric, surrogate_metrics)
+        
+        # The original signal should have higher autocorrelation than shuffled
+        assert p_value < 0.05, "Autocorrelation should be significantly higher in original"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
