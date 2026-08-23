@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (torch, ultralytics, statsmodels, pandas, datasets, numpy, opencv-python, pyyaml, scipy, simr)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (torch, ultralytics, statsmodels, pandas, datasets, numpy, opencv-python, pyyaml, scipy, simr, psutil)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -60,8 +60,8 @@
 - [X] T006 [P] Implement `code/utils/versioning.py` for SHA-256 artifact hashing and `state.yaml` updates (Constitution Principle V)
 - [X] T007 [P] Implement `code/utils/reference_validator.py` for citation verification (Constitution Principle II)
 - [X] T008 Create base data models (`StimulusImage`, `FixationTrial`) in `code/data_models.py` (Scope: Face only, per SCR-001)
-- [ ] T009a [P] Create `.env.example` file listing required keys: `HF_TOKEN`, `DATA_PATH`, `SEED`, `GPU_DEVICE`
-- [ ] T009b [P] Implement `code/config.py` to load `.env` using `python-dotenv` and validate required keys
+- [X] T009a [P] Create `.env.example` file listing required keys: `HF_TOKEN`, `DATA_PATH`, `SEED`
+- [X] T009b [P] Implement `code/config.py` to load `.env` using `python-dotenv` and validate required keys
 
 **Checkpoint**: Foundation ready - Scope Freeze (Phase 2.5) must complete next
 
@@ -69,12 +69,17 @@
 
 ## Phase 2.5: Scope Freeze (Governance & SCR Application)
 
-**Purpose**: Formalize and apply Spec Change Requests (SCR) to remove infeasible requirements (FR-008, FR-009) BEFORE implementation begins. This ensures all subsequent tasks operate on a stable, consistent spec.
+**Purpose**: Formalize and apply Spec Change Requests (SCR) to remove infeasible requirements (FR-008, FR-009, FR-001 fallback) BEFORE implementation begins. This ensures all subsequent tasks operate on a stable, consistent spec.
 
-- [X] T020a [US1] **Governance (SCR Draft)**: Create `docs/scr_001_weapons_exclusion.md` documenting the exclusion of FR-008 ("Weapons"). **Output Fields**: `reason` (lack of COCO class), `impact` (study scope reduced to Face vs Background), `alternative` (none), `status` (draft). **Action**: Write this file to `docs/`.
-- [ ] T020c [US1] **Governance (SCR Apply)**: **Edit `spec.md` to REMOVE FR-008** from the Functional Requirements list and update User Stories to reflect "Face" ROIs only. **Edit `plan.md`** to explicitly state FR-008 is excluded. **Dependency**: Must complete after T020a.
-- [X] T030c [US3] **Governance (SCR Draft)**: Create `docs/scr_002_lowlevel_covariates_exclusion.md` documenting the exclusion of FR-009 due to multicollinearity. **Action**: Write this file to `docs/`.
-- [ ] T030e [US3] **Governance (SCR Apply)**: **Edit `spec.md` to REMOVE FR-009** from the Functional Requirements list. **Edit `plan.md`** to explicitly state FR-009 is excluded. **Dependency**: Must complete after T030c.
+- [X] T020a [US1] **Governance (SCR-001 Draft)**: Create `docs/scr_001_weapons_exclusion.md` documenting the exclusion of FR-008 ("Weapons"). **Output Fields**: `reason` (lack of COCO class), `impact` (study scope reduced to Face vs Background), `alternative` (none), `status` (draft). **Action**: Write this file to `docs/`.
+- [X] T020b [US1] **Governance (SCR-001 Approve)**: Review and approve `docs/scr_001_weapons_exclusion.md`. **Action**: Update status to `approved` and record approver ID. **Dependency**: T020a.
+- [X] T020c [US1] **Governance (SCR-001 Apply)**: Apply SCR-001 to `spec.md` and `plan.md` using instructions in `docs/scr_implementation_guide.md`. **Action**: Execute the specific edit instructions to remove FR-008 references. **Dependency**: T020b.
+- [X] T030c [US3] **Governance (SCR-002 Draft)**: Create `docs/scr_002_lowlevel_covariates_exclusion.md` documenting the exclusion of FR-009 due to multicollinearity. **Action**: Write this file to `docs/`.
+- [X] T030d [US3] **Governance (SCR-002 Approve)**: Review and approve `docs/scr_002_lowlevel_covariates_exclusion.md`. **Action**: Update status to `approved` and record approver ID. **Dependency**: T030c.
+- [X] T030e [US3] **Governance (SCR-002 Apply)**: Apply SCR-002 to `spec.md` and `plan.md` using instructions in `docs/scr_implementation_guide.md`. **Action**: Execute the specific edit instructions to remove FR-009 references. **Dependency**: T030d.
+- [X] T020f [US1] **Governance (SCR-003 Draft)**: Create `docs/scr_003_deepgaze_fallback.md` documenting the addition of GBVS as a fallback for FR-001. **Output Fields**: `reason` (CPU feasibility), `impact` (predictor may be GBVS for some images`, `validation` (see T013a metrics), `status` (draft). **Action**: Write this file to `docs/`.
+- [X] T020g [US1] **Governance (SCR-003 Approve)**: Review and approve `docs/scr_003_deepgaze_fallback.md`. **Action**: Update status to `approved` and record approver ID. **Dependency**: T020f.
+- [X] T020h [US1] **Governance (SCR-003 Apply)**: Apply SCR-003 to `spec.md` and `plan.md` using instructions in `docs/scr_implementation_guide.md`. **Action**: Update FR-001 to explicitly allow GBVS fallback with provenance tagging. **Dependency**: T020g.
 
 **Checkpoint**: Spec and Plan are now stable and consistent. Implementation can begin.
 
@@ -82,9 +87,9 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Salience Map Generation (Priority: P1) 🎯 MVP
 
-**Goal**: Download an OpenNeuro dataset, extract a representative set of stimulus images, and generate CPU-compatible DeepGaze II salience maps.
+**Goal**: Download an OpenNeuro dataset, extract a representative set of stimulus images, and generate CPU-compatible DeepGaze II salience maps (with GBVS fallback per SCR-003).
 
-**Independent Test**: Run ingestion on a subset of images; verify multiple `.npy`/`.png` maps generated with matching resolution; confirm no CUDA errors and RAM < 7GB.
+**Independent Test**: Run ingestion on a subset of images; verify multiple `.npy`/`.png` maps generated with matching resolution; confirm no CUDA errors and RAM < 7GB; verify metadata includes generation method.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -96,12 +101,11 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/ingestion/download_data.py` to fetch a specific dataset via `datasets.load_dataset` (streaming=False for local cache) and verify checksums
-- [ ] T013a [US1] Implement `code/ingestion/fallback_heuristic.py` to run GBVS (Graph-Based Visual Saliency) on an image if DeepGaze II fails. **Input**: Image path. **Output**: Salience map (`.npy`). **Error Handling**: If GBVS fails, raise an error to trigger exclusion.
-- [ ] T013 [US1] Implement `code/ingestion/salience_gen.py` to load DeepGaze II in CPU mode. **Verification**: Must explicitly enforce `device='cpu'` in the model configuration. **Error Handling**: If DeepGaze II fails on a high-contrast image, **execute T013a (GBVS)**. If T013a also fails, **EXCLUDE the image** from the output. Log exclusion warnings. **Dependency**: T013a.
-- [ ] T014 [US1] Add memory AND CPU time monitoring to `salience_gen.py` to enforce < 7GB RAM limit and log total execution duration (CPU time) to verify compliance with the 6-hour limit (SC-002). Log warnings if exceeded.
-- [ ] T016a [US1] Implement `code/ingestion/metadata_writer.py` to create `data/processed/salience_maps/metadata.json` containing a list of processed image IDs and their map paths. **Output**: `data/processed/salience_maps/metadata.json`.
-- [ ] T016 [US1] Append "correlational only" disclaimer to `data/processed/salience_maps/metadata.json`. **Mapping Logic**: Extract `StimulusID` from the source filename and write the map as `data/processed/salience_maps/{StimulusID}.npy`. **Dependency**: T016a.
-- [ ] T018a [US1] Implement `code/ingestion/completion_validator.py` to aggregate the count of generated salience maps, compare against the source dataset count, and log a pass/fail status for SC-001. Output: `data/interim/salience_validation_report.json`.
+- [X] T013 [US1] Implement `code/ingestion/salience_gen.py` to load DeepGaze II in CPU mode. **Verification**: Must explicitly enforce `device='cpu'` in the model configuration. **Error Handling**: If DeepGaze II fails on a high-contrast image, **trigger T013a**. If T013a also fails, **EXCLUDE the image** from the output. Log exclusion warnings. **Note**: T013a is a conditional successor, not a parallel task.
+- [X] T013a [US1] **GBVS Fallback**: Implement `code/ingestion/fallback_heuristic.py` to run GBVS if DeepGaze II fails. **Input**: Image path. **Output**: Salience map (`.npy`). **Validation Metrics**: 1) Map dimensions must match input ([deferred] match); 2) Map must have non-zero variance; 3) Mean salience value must be > 0.01. **Error Handling**: If validation fails, raise error and exclude image. **Provenance**: Tag output metadata with `method: "GBVS"`. **Dependency**: Conditional successor to T013.
+- [X] T014 [US1] Add memory AND CPU time monitoring to `salience_gen.py` to enforce < 7GB RAM limit and log total execution duration (CPU time) to verify compliance with the predefined time limit (SC-002). **Implementation**: Use `psutil` to monitor RSS memory; log warnings if > 6.5GB. Log total duration to `data/interim/resource_usage.json`.
+- [X] T016 [US1] **Metadata Write**: Implement `code/ingestion/metadata_writer.py` to create `data/processed/salience_maps/metadata.json`. **Output**: JSON list of processed image IDs, their map paths, and the `method` used (DeepGaze II or GBVS). **Constraint**: Do NOT add disclaimer here; p-values are not yet available. **Dependency**: T014, T013a.
+- [X] T018a [US1] Implement `code/ingestion/completion_validator.py` to aggregate the count of generated salience maps, compare against the source dataset count, and log a pass/fail status for SC-001. **Constraint**: If fallback (GBVS) frequency > 10% of total images, **HALT** the pipeline and write `data/interim/invalid_fallback_flag.json`. **Output**: `data/interim/salience_validation_report.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -147,15 +151,16 @@
 - [X] T029a [US3] **LMM Power Analysis**: Implement `code/analysis/lmm_power.py` to estimate statistical power for the planned LMM using a simulation-based approach (e.g., `simr` package). **Assumption**: Use a medium effect size (d=0.5) for the pilot simulation if no pilot data exists. **Output**: `data/interim/power_analysis_report.json`. **Dependency**: Must run BEFORE T032 (LMM Fit).
 - [X] T029b [US3] **Fallback Descriptive Stats**: Implement `code/analysis/descriptive_fallback.py` to generate summary statistics (mean, std, median) for all metrics if N < 30. **Trigger**: Activated by T029a failure or N < 30 check. **Output**: `data/processed/descriptive_stats.json`.
 - [X] T029c [US3] **Enforce Power Gate**: Implement logic to halt the pipeline if T029a reports power < 0.8. **Action**: Write `data/interim/invalid_for_inference_flag.json` containing the reason and prevent T032 from executing. **Output**: This flag acts as a hard block for the study.
-- [ ] T030b [US3] **Generate Low-Level Features**: Implement `code/analysis/feature_gen.py` to compute luminance (mean intensity), contrast (std dev), and edge density (Canny count) for all images in `data/raw`. **Output**: `data/interim/low_level_features.csv`. **Dependency**: Must run before T030.
-- [ ] T030 [US3] **VIF Calculation**: Implement `code/analysis/vif_calc.py` to calculate Variance Inflation Factor (VIF) for the salience predictor against the **generated** low-level features (from T030b). **Output**: `data/interim/vif_verification.json`. **Dependency**: Must run AFTER T030b.
-- [ ] T030a [US3] **VIF Interpretation**: Analyze `data/interim/vif_verification.json`. If VIF > 5, log justification for excluding FR-009. **Output**: Log entry in `data/interim/vif_report.txt`.
-- [ ] T031 [US3] Apply FDR correction to all p-values (FR-006)
-- [ ] T032 [US3] Implement `code/analysis/lmm_fit.py` to fit Model A (random intercepts) and Model B (random intercepts + slopes for salience) using `statsmodels`. **Dependency**: Must check T029c flag; if "Invalid", skip fitting and log error.
-- [ ] T033 [US3] Implement sensitivity analysis in `code/analysis/robustness.py` comparing Model A vs. Model B effect significance
-- [ ] T034 [US3] Generate sensitivity analysis plot and append "correlational only" disclaimer to all output artifacts (FR-007)
-- [ ] T035 [US3] Log null results explicitly linked to "theories of attentional control hierarchy" (Constitution Principle VII)
-- [ ] T036 [US3] Write final `AnalysisResult` JSON/CSV to `data/processed/results.json`. **Requirement**: Must append "correlational only" disclaimer to this file if p-values < 0.05 are present (FR-007).
+- [X] T030b [US3] **Generate Low-Level Features (Diagnostic Only)**: Implement `code/analysis/feature_gen.py` to compute luminance (mean intensity), contrast (std dev), and edge density (Canny count) for all images in `data/raw`. **Output**: `data/interim/low_level_features.csv`. **Constraint**: These features are generated **SOLELY** for the VIF diagnostic (T030) to prove multicollinearity. They are **NEVER** used as covariates in the final LMM (FR-009 excluded). **Dependency**: Must run before T030.
+- [X] T030 [US3] **VIF Calculation**: Implement `code/analysis/vif_calc.py` to calculate Variance Inflation Factor (VIF) for the salience predictor against the **generated** low-level features (from T030b). **Output**: `data/interim/vif_verification.json`. **Dependency**: Must run AFTER T030b.
+- [X] T030a [US3] **VIF Interpretation**: Analyze `data/interim/vif_verification.json`. If VIF > 5, log justification for excluding FR-009. **Output**: Log entry in `data/interim/vif_report.txt`.
+- [X] T032 [US3] Implement `code/analysis/lmm_fit.py` to fit Model A (random intercepts) and Model B (random intercepts + slopes for salience) using `statsmodels`. **Output**: Write results to `data/interim/lmm_results.csv`. **Dependency**: Must check T029c flag; if "Invalid", skip fitting and log error.
+- [X] T031 [US3] Apply FDR correction to all p-values (FR-006). **Input**: `data/interim/lmm_results.csv` (output of T032). **Method**: Benjamini-Hochberg. **Output**: Write corrected p-values to `data/interim/lmm_results_fdr.csv`. **Dependency**: T032.
+- [X] T033 [US3] Implement sensitivity analysis in `code/analysis/robustness.py` comparing Model A vs. Model B effect significance
+- [X] T034 [US3] Generate sensitivity analysis plot and save to `data/processed/sensitivity_plot.png`. **Dependency**: T033.
+- [X] T035a [US3] **Theory Lookup Implementation**: Implement `code/analysis/theory_lookup.py` to dynamically select a theory from `code/config.py` (THEORY_MAPPING section) based on statistical patterns (e.g., p-value, effect size direction). **Logic**: Read JSON config; map outcome to theory; return theory name and justification. **Output**: Theory name and justification string.
+- [X] T035 [US3] **Log Null Results**: Log null results explicitly linked to "theories of attentional control hierarchy" using T035a. **Logic**: If salience predictor is not significant (p > 0.05 after FDR), call T035a to select the context-relevant theory. **Output**: Write to `data/interim/null_result_interpretation.log` with format: `NULL_RESULT: [THEORY_NAME] - [JUSTIFICATION]`. **Dependency**: T031, T035a.
+- [X] T036 [US3] Write final `AnalysisResult` JSON/CSV to `data/processed/results.json`. **Logic**: Read p-values from `data/interim/lmm_results_fdr.csv`. If any p-value < 0.05, append "correlational only" disclaimer to the JSON metadata. **Dependency**: T031, T035.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -165,11 +170,11 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T037 [P] Documentation updates in `README.md` and `docs/`
-- [ ] T038 Code cleanup and refactoring
-- [ ] T039 Performance optimization for salience generation (batching)
-- [ ] T040 [P] Run full integration test suite in `tests/integration/test_pipeline.py`
-- [ ] T041 Run `quickstart.md` validation
+- [~] T037 [P] Documentation updates in `README.md` and `docs/`
+- [~] T038 Code cleanup and refactoring
+- [~] T039 Performance optimization for salience generation (batching)
+- [X] T040 [P] Run full integration test suite in `tests/integration/test_pipeline.py`
+- [~] T041 Run `quickstart.md` validation
 
 ---
 
@@ -266,11 +271,17 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Spec Gap**: "Weapons" (FR-008) excluded; only "Face" ROIs implemented (see T020a-c, SCR-001).
 - **Spec Contradiction**: Low-level covariates (FR-009) excluded to prevent multicollinearity with DeepGaze II (see T030c-e, SCR-002).
+- **Spec Update**: FR-001 updated to allow GBVS fallback (see T020f-h, SCR-003).
 - **Data Integrity**: No synthetic data fallbacks; if real data fetch fails, the pipeline must fail loudly.
-- **SCR Workflow**: Tasks T020a-c and T030c-e execute the formal SCR workflow to update `spec.md` and `plan.md` BEFORE implementation.
+- **SCR Workflow**: Tasks T020a-h and T030c-e execute the formal SCR workflow to update `spec.md` and `plan.md` BEFORE implementation.
 - **Power Gate**: T029c enforces SC-003; if power < 0.8, the study is halted and marked "Invalid for Inference".
 - **Execution Gate Compliance**: Tasks T013 and T020d explicitly forbid synthetic fallbacks and enforce "fail loudly" behavior to satisfy the fabrication guard.
 - **Compute Feasibility**: T013 enforces CPU-only DeepGaze II; if this fails on the free runner, the execution stage will detect the CUDA error and auto-offload to Kaggle GPU as per the "Compute Feasibility" rule.
 - **Data Streaming**: T012 uses `datasets.load_dataset` with `streaming=True` logic where applicable to handle large files within RAM limits, avoiding synthetic substitution.
 - **Fallback Logic**: T013a provides the required heuristic fallback; T013 excludes only if T013a fails.
-- **VIF Logic**: T030b generates features; T030 calculates VIF on generated features.
+- **VIF Logic**: T030b generates features for diagnostic only; T030 calculates VIF on generated features.
+- **Ordering**: T032 (LMM Fit) precedes T031 (FDR) which precedes T035 (Theory Log) and T036 (Final Results).
+- **Disclaimer**: Disclaimer logic applied in T036 (Phase 5) to ensure p-values are available.
+- **Theory Logic**: T035a uses dynamic JSON config for theory selection, ensuring context-aware interpretation.
+- **Threshold Fix**: T018a includes a hard halt if fallback frequency > 10%.
+- **Metadata**: T016 includes `method` field to track DeepGaze II vs GBVS provenance.

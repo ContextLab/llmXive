@@ -33,18 +33,18 @@
   verification_status: pending
   verified_against_url: https://github.com/ultralytics/ultralytics
   verified_at: '2026-08-22T12:32:36.595452Z'
-- artifact_hash: 220073bd49b12c97d11925bd594563cec5f86018cebf9fff2c55b2c3ff6c819d
+- artifact_hash: 4cca5786d44c46f0c735834434b4ffd7979b84e55d2b40dd94bda67bac780970
   artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/scr_001_weapons_exclusion.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: COCO - Common Objects in Context
   kind: url
-  value: https://cocodataset.org/
+  value: https://cocodataset.org/#format-data
   verification_status: pending
-  verified_against_url: https://cocodataset.org/
-  verified_at: '2026-08-22T17:38:04.542218Z'
-- artifact_hash: 220073bd49b12c97d11925bd594563cec5f86018cebf9fff2c55b2c3ff6c819d
+  verified_against_url: https://cocodataset.org/#format-data
+  verified_at: '2026-08-23T04:36:06.383810Z'
+- artifact_hash: 4cca5786d44c46f0c735834434b4ffd7979b84e55d2b40dd94bda67bac780970
   artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/scr_001_weapons_exclusion.md
   cite_id: c-002
   cited_authors: []
@@ -54,4 +54,26 @@
   value: https://docs.ultralytics.com/
   verification_status: pending
   verified_against_url: https://docs.ultralytics.com/
-  verified_at: '2026-08-22T17:38:04.542218Z'
+  verified_at: '2026-08-23T04:36:06.383810Z'
+- artifact_hash: b284b51903f604d98fba3682c327577ae36148c320fd55756205e35f2301a418
+  artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/scr_002_lowlevel_covariates_exclusion.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Multicollinearity - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Multicollinearity
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Multicollinearity
+  verified_at: '2026-08-23T04:36:09.955112Z'
+- artifact_hash: b284b51903f604d98fba3682c327577ae36148c320fd55756205e35f2301a418
+  artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/scr_002_lowlevel_covariates_exclusion.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.sciencedirect.com/science/article/pii/S105381191630038X
+  verification_status: pending
+  verified_against_url: https://www.sciencedirect.com/science/article/pii/S105381191630038X
+  verified_at: '2026-08-23T04:36:09.955112Z'

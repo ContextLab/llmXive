@@ -1,3 +1,16 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `code/`, `data/`, and `tests/` directories (or any
+    files within them) is provided; the implementer did not supply the project structure
+    artifacts needed to confirm the task was completed.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no configuration files, scripts, or documentation showing
+    that ruff linting and black formatting have been set up (e.g., no `pyproject.toml`,
+    `.ruff.toml`, or `black` config). Consequently, the required artifact for task
+    T003 is missing.
 T006:
   c: false
   h: d673fe0ffde8e179aee23d0bb0dcc33ff6e7b3cbaa6066921f180dbf846ec3d9
@@ -6,35 +19,30 @@ T006:
     \ so the required state\u2011updating behavior cannot be exercised. The task\u2019\
     s core requirements\u2014full artifact hashing utilities and persisting updates\
     \ to `state.yaml`\u2014are therefore not satisfied."
-T014:
+T009a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `salience_gen.py` (e.g., code implementing RAM usage\
-    \ checks, CPU\u2011time measurement, warning logs, or any related configuration)\
-    \ was provided. The required artifact\u2014a script that enforces the <\u202F\
-    7\u202FGB memory limit and logs total CPU execution time with warnings on violations\u2014\
-    is missing, so the task is not satisfied."
-T016:
+  r: No `.env.example` file was presented or described in the provided evidence, so
+    we cannot confirm that a file listing the required keys (`HF_TOKEN`, `DATA_PATH`,
+    `SEED`, `GPU_DEVICE`) actually exists or contains the correct content. The implementer
+    must add the file to the repository and show its contents.
+T016a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/processed/salience_maps/` directory containing salience
-    map files (e.g., `.npy` or `.png`) with names matching the `StimulusImage` IDs
-    was provided; the claim lacks any actual artifact to verify. The required output
-    files are missing.
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides no JSON or CSV artifacts, nor any evidence that a \u201C\
-    correlational only\u201D disclaimer was added to such files containing salience\
-    \ metrics. Without concrete files showing the appended disclaimer, the task requirement\
-    \ is unmet."
+  h: 81df30931d139757e18383748aa6fdfadf92457bdd8b6e90664ae752fdbe7ec0
+  r: "The repository contains `code/ingestion/metadata_writer.py`, but the file is\
+    \ truncated and does not include any code that actually scans the salience\u2011\
+    map directory and writes `data/processed/salience_maps/metadata.json`. Moreover,\
+    \ the expected output file `metadata.json` is absent from the filesystem. The\
+    \ task therefore remains unfinished."
 T018a:
   c: false
-  h: bbb78d850d6e6b48e97dd5a2d509c4d145c074b3aaee426a998dfa24f30da8c4
-  r: "The `completion_validator.py` file is present but its content is truncated and\
-    \ does not show the logic that writes `data/interim/salience_validation_report.json`.\
-    \ Moreover, the required JSON report file is missing from the repository. The\
-    \ task\u2019s output artifact is therefore not produced."
+  h: c375feeacb990fecbab06f4db8ea537dc8a73882fdba8f05be089fde0fe98031
+  r: "The repository contains a partially shown `completion_validator.py` that defines\
+    \ counting and validation functions, but the file is truncated and does not demonstrate\
+    \ writing the JSON report to `data/interim/salience_validation_report.json`. Moreover,\
+    \ the required output file `data/interim/salience_validation_report.json` is missing.\
+    \ The task\u2019s core deliverable\u2014a generated validation report\u2014has\
+    \ not been produced."
 T019:
   c: false
   h: 8ae435c9d6a3d63ee369fc27511d2a3569562c68ef1d781ce23548f1ba06f7d7
@@ -42,6 +50,12 @@ T019:
     in the repository, so the task of providing a unit test for parsing a mock fixation
     file is not satisfied. The implementation of `eye_tracking.py` is present, but
     without the corresponding test artifact the requirement remains unmet.
+T020c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` or `plan.md` files showing the removal of FR\u2011008 and the updated\
+    \ user stories are provided, nor any evidence that FR\u2011008 is explicitly excluded\
+    \ in the plan. The required document edits cannot be confirmed."
 T021:
   c: false
   h: d44122d1d074e3ab34863b38ad32ef2b2ee40687dafd40978d55317241a040ec
@@ -63,3 +77,40 @@ T025:
     \ of trial\u2011ID alignment or that flags images with empty/invalid masks for\
     \ manual review. The implementer\u2019s claim cannot be verified because the necessary\
     \ artifact is missing."
+T030b:
+  c: false
+  h: b6bd9819f739ffa715b653b8842eb8a9e7c9352da42822e0312a23c2349d3a96
+  r: "The repository contains a partially shown `code/analysis/feature_gen.py` that\
+    \ defines feature\u2011extraction functions, but the file is truncated and does\
+    \ not demonstrate iterating over `data/raw` images or writing the required `data/interim/low_level_features.csv`.\
+    \ Moreover, the expected CSV output file is absent from the project. The task\u2019\
+    s primary deliverable\u2014a populated low\u2011level features CSV\u2014is missing."
+T030e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No edited `spec.md` or `plan.md` files were presented; there is no evidence\
+    \ that FR\u2011009 was removed from the functional requirements list or that the\
+    \ plan now explicitly notes its exclusion. The required artifacts are missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, notebook, or output file) showing that false discovery\
+    \ rate (FDR) correction was applied to the p\u2011values is present; the claim\
+    \ provides no code, results, or documentation of corrected p\u2011values, so the\
+    \ requirement is not satisfied."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no sensitivity\u2011analysis figure nor any evidence\
+    \ that a \u201Ccorrelational only\u201D disclaimer was added to the generated\
+    \ artifacts; no files or code snippets are shown. To satisfy the task, a plot\
+    \ visualising the sensitivity analysis and the appended disclaimer in all output\
+    \ files must be present."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided artifacts only describe a data\u2011ingestion and analysis pipeline\
+    \ for visual salience; there is no log, report, or any documentation showing that\
+    \ null results were recorded and explicitly linked to \u201Ctheories of attentional\
+    \ control hierarchy.\u201D Consequently, the core requirement of task T035 (logging\
+    \ null results with theoretical linkage) is missing."

@@ -1,14 +1,58 @@
 """
 Configuration management for the Visual Salience project.
 Defines paths, random seeds, and hyperparameters.
+Loads environment variables using python-dotenv and validates required keys.
 """
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 import yaml
 
+# Attempt to import dotenv; if missing, raise a clear error as per strict requirements
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    raise ImportError(
+        "python-dotenv is required. Please ensure it is listed in requirements.txt and installed."
+    )
+
 # Project Root
 _ROOT = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file in the project root
+# This must happen before any config logic that relies on env vars
+_env_file = _ROOT / ".env"
+if _env_file.exists():
+    load_dotenv(_env_file)
+else:
+    # Log a warning if .env is missing, but do not fail immediately as
+    # defaults might be set in the environment or code
+    import logging
+    logging.warning(f".env file not found at {_env_file}. Ensure required keys are set in the environment.")
+
+# --- Validation Logic ---
+REQUIRED_ENV_KEYS = ["HF_TOKEN", "DATA_PATH", "SEED", "GPU_DEVICE"]
+
+def _validate_env_vars() -> None:
+    """
+    Validates that all required environment variables are set and non-empty.
+    Raises a RuntimeError if any are missing.
+    """
+    missing_keys = []
+    for key in REQUIRED_ENV_KEYS:
+        val = os.getenv(key)
+        if not val or val.strip() == "":
+            missing_keys.append(key)
+    
+    if missing_keys:
+        raise RuntimeError(
+            f"Missing required environment variables: {', '.join(missing_keys)}. "
+            f"Please ensure these are set in your .env file or system environment. "
+            f"Refer to .env.example for the required structure."
+        )
+
+# Perform validation immediately upon module load
+_validate_env_vars()
 
 # --- Paths ---
 class Paths:
@@ -39,15 +83,16 @@ class Paths:
 
 # --- Hyperparameters ---
 class Hyperparams:
-    # Random Seeds
-    SEED: int = 42
-    TORCH_SEED: int = 42
-    NUMPY_SEED: int = 42
+    # Random Seeds - Loaded from ENV with fallback to default if not strictly required by validation
+    # Note: SEED is validated as required, so os.getenv("SEED") will not be None/Empty
+    SEED: int = int(os.getenv("SEED", 42))
+    TORCH_SEED: int = SEED
+    NUMPY_SEED: int = SEED
 
     # Salience Generation (DeepGaze II)
     SALIENCE_MODEL_NAME: str = "deepgaze2"
     SALIENCE_BATCH_SIZE: int = 16
-    SALIENCE_DEVICE: str = "cpu"  # Enforced CPU per SC-002 constraints
+    SALIENCE_DEVICE: str = os.getenv("GPU_DEVICE", "cpu")  # Uses GPU_DEVICE env var
     SALIENCE_MAX_MEMORY_GB: float = 6.0  # Safety margin under 7GB limit
 
     # Segmentation (YOLOv8)
@@ -81,6 +126,7 @@ Hyperparams.SEGMENTATION_TARGET_CLASSES = ["face"]
 def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Load configuration from a YAML file if provided, otherwise return defaults.
+    Environment variables take precedence if set in the YAML or used for defaults.
     """
     if config_path is None:
         config_path = str(_ROOT / "config.yaml")

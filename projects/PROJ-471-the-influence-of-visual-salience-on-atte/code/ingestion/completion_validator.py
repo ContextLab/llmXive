@@ -94,7 +94,30 @@ def main() -> int:
         paths = get_paths()
 
         # Define paths based on config
-        source_dir = paths.raw_data / "stimuli" # Assuming raw stimuli are here
+        # Note: The raw data structure depends on the specific dataset downloaded in T012.
+        # We assume the stimuli are in a 'stimuli' subfolder of raw_data, or directly in raw_data.
+        # We will check both if the specific path is not found.
+        source_dir_candidates = [
+            paths.raw_data / "stimuli",
+            paths.raw_data
+        ]
+        
+        source_dir = None
+        source_count = 0
+        
+        for candidate in source_dir_candidates:
+            if candidate.exists():
+                count = count_source_images(candidate)
+                if count > 0:
+                    source_dir = candidate
+                    source_count = count
+                    break
+        
+        if source_dir is None:
+            logger.warning("No source images found in expected directories.")
+            source_dir = paths.raw_data / "stimuli" # Default for report even if empty
+            source_count = 0
+
         output_dir = paths.processed_data / "salience_maps"
         report_path = paths.interim_data / "salience_validation_report.json"
 
@@ -102,8 +125,7 @@ def main() -> int:
         logger.info(f"Source directory: {source_dir}")
         logger.info(f"Output directory: {output_dir}")
 
-        # Count images
-        source_count = count_source_images(source_dir)
+        # Count generated maps
         generated_count = count_generated_maps(output_dir)
 
         # Validate

@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to test the hypothesis that low-level visual salience (predicted by DeepGaze II) drives attentional bias (fixation dwell time) in moral judgment scenarios. The system ingests the "Moral Foundations Eye-Tracking Dataset" (OpenNeuro ds003123), generates pixel-wise salience maps using a CPU-optimized DeepGaze II model, extracts fixation metrics for the "Face" semantic region via YOLOv8, and fits linear mixed-effects models (LMM) with FDR correction.
+This project implements a computational pipeline to test the hypothesis that low-level visual salience (predicted by DeepGaze II) drives attentional bias (fixation dwell time) in moral judgment scenarios. The system ingests the "Moral Foundations Eye-Tracking Dataset" (OpenNeuro), generates pixel-wise salience maps using a CPU-optimized DeepGaze II model, extracts fixation metrics for the "Face" semantic region via YOLOv8, and fits linear mixed-effects models (LMM) with FDR correction.
 
 **Critical Note on FR-008 (Weapons)**: The spec requires generating masks for "weapons" (FR-008). However, standard COCO-trained models (YOLOv8, Detectron2) do not include a "weapon" class. The plan **excludes "weapons" from the analysis** and restricts the study to "Face vs. Background" ROIs. This constitutes a **Spec Gap**; the study will proceed with the valid "Face" construct only, and the "weapon" requirement is flagged for a formal Spec Change Request (SCR).
 
@@ -24,7 +24,7 @@ This project implements a computational pipeline to test the hypothesis that low
 
 **Scale/Scope**: 
 - **Stimuli**: moral-scenario images.
-- **Participants**: Expected N: (based on typical eye-tracking studies). **Minimum N:**. If the dataset contains fewer than 30 unique participants, the study is flagged as "Invalid for LMM inference" and defaults to descriptive statistics only.
+- **Participants**: Expected N: (based on typical eye-tracking studies). **Minimum N:**. If the dataset contains an insufficient number of unique participants, the study is flagged as "Invalid for LMM inference" and defaults to descriptive statistics only.
 - **Trials**: A number of trials per participant (one per stimulus).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.

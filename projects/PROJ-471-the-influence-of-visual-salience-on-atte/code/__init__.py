@@ -1,2 +1,4 @@
-# llmXive Project: The Influence of Visual Salience on Attentional Bias
-# This package contains the core implementation modules.
+"""
+llmXive Project: The Influence of Visual Salience on Attentional Bias in Moral Judgements
+Code package initialization.
+"""

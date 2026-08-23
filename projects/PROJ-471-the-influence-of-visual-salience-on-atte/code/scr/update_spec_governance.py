@@ -1,10 +1,3 @@
-"""
-Governance (SCR) Implementation: Update spec.md to reflect the exclusion of FR-008 (Weapons).
-
-This module implements Task T020c by:
-1. Removing FR-008 from the Functional Requirements list in spec.md.
-2. Updating User Story 2 (US-2) to reflect the exclusion of "weapons" and focus solely on "Face" ROIs.
-"""
 import os
 import sys
 import logging
@@ -12,148 +5,164 @@ import re
 from pathlib import Path
 from typing import List, Tuple
 
-# Add project root to path to allow imports from sibling modules if needed
-# Assuming this script is run from the project root or code/scr/
-# We rely on the standard project structure where 'code' is at the root relative to this script if run from code/
-# But since we are writing a file, we just need to handle the text manipulation.
+from utils.logging import get_logger
 
-from utils.logging import get_logger, setup_logging
-from utils.versioning import register_artifact
-
-# Setup logging
 logger = get_logger(__name__)
 
-def remove_fr_008(content: str) -> str:
+def load_file(path: Path) -> str:
+    """Load file contents."""
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    return path.read_text(encoding="utf-8")
+
+def save_file(path: Path, content: str) -> None:
+    """Save content to file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    logger.info(f"Saved file: {path}")
+
+def remove_fr_008_from_spec(content: str) -> str:
     """
-    Removes the FR-008 entry from the Functional Requirements section.
+    Remove FR-008 (Weapons) from Functional Requirements in spec.md.
+    Also updates the list to ensure consistency.
+    """
+    # Pattern to match FR-008 line and potentially the list item
+    # Looking for lines like: "- **FR-008**: ..." or "- [ ] FR-008 ..."
+    pattern = r"-+\s*\[?[xX ]?\]?\s*FR-008.*?(?=\n-|\Z)"
     
-    Assumes FR-008 is formatted as a list item starting with 'FR-008' or similar.
-    We look for the specific pattern of the weapons exclusion requirement.
-    """
+    # More robust: Find the section "Functional Requirements" and remove the specific item
+    # We look for the line starting with FR-008
     lines = content.split('\n')
     new_lines = []
-    skip_next = False
-    in_func_reqs = False
+    in_requirements = False
+    found_fr008 = False
 
-    # Pattern to identify the start of the Functional Requirements section (optional, for context)
-    # We look for lines that define FR-008 specifically.
-    
-    for i, line in enumerate(lines):
-        # Check if we are entering the Functional Requirements section (heuristic)
-        if '## Functional Requirements' in line or 'Functional Requirements' in line:
-            in_func_reqs = True
+    for line in lines:
+        stripped = line.strip()
         
-        # Heuristic to detect FR-008 line. Usually starts with FR-008 or - FR-008
-        if re.match(r'^\s*[-*]?\s*FR-008\b', line, re.IGNORECASE):
-            logger.info(f"Removing FR-008 line: {line.strip()}")
-            skip_next = True
+        # Detect start of Functional Requirements section
+        if "Functional Requirements" in line or "FR-" in line and "##" in line:
+            in_requirements = True
+            new_lines.append(line)
             continue
-        
-        # If we are skipping, we might need to skip the next line if it's a continuation or description
-        # Typically in these docs, the requirement is one line or a block.
-        # Let's assume it's a single line item for now, but if the next line is indented and part of the description, skip it too.
-        if skip_next:
-            if line.strip() == "" or not line.startswith(' ' * 4) and not line.startswith('\t'):
-                # If the next line is not a continuation (not indented) or is a new top-level item, stop skipping
-                skip_next = False
-            else:
-                # It's a continuation, skip it
-                logger.info(f"Removing FR-008 continuation: {line.strip()}")
-                continue
-        
+
+        # If we are in requirements and find FR-008
+        if in_requirements and "FR-008" in line:
+            logger.info(f"Removing FR-008 line: {line.strip()}")
+            found_fr008 = True
+            continue  # Skip this line
+
+        # If we hit a new major section (##), stop looking for FR-008 in this block
+        if in_requirements and line.startswith("##") and "Functional Requirements" not in line:
+            in_requirements = False
+
         new_lines.append(line)
 
+    if not found_fr008:
+        logger.warning("FR-008 was not found in the spec content.")
+    
     return '\n'.join(new_lines)
 
 def update_user_story_2(content: str) -> str:
     """
-    Updates User Story 2 to reflect the exclusion of 'weapons' and focus on 'Face' ROIs.
-    
-    Specifically looks for references to "weapons" in the context of US-2 or the eye-tracking 
-    analysis section and updates them to reflect the SCR decision.
+    Update User Story 2 to reflect "Face" ROIs only and mention SCR-001 exclusion.
     """
+    # Update the description of US2 to explicitly mention Face only and weapons exclusion
+    old_us2_desc = "extract fixation metrics for \"Face\" ROIs (excluding \"weapons\" due to SCR-001)"
+    new_us2_desc = "extract fixation metrics for \"Face\" ROIs only (Weapons excluded per SCR-001)"
+    
+    if old_us2_desc in content:
+        content = content.replace(old_us2_desc, new_us2_desc)
+        logger.info("Updated User Story 2 description.")
+    else:
+        # Fallback: try to find the section and update the context
+        # Look for the US2 header and ensure the text mentions Face only
+        lines = content.split('\n')
+        new_lines = []
+        in_us2 = False
+        
+        for line in lines:
+            if "## User Story 2" in line or "US2" in line and "Attention" in line:
+                in_us2 = True
+                new_lines.append(line)
+                continue
+            
+            if in_us2 and "Weapons" in line and "excluded" not in line.lower():
+                # Add a note about exclusion if not already present
+                if "SCR-001" not in line:
+                    line = line + " (Weapons excluded per SCR-001)"
+            
+            if in_us2 and line.startswith("##") and "User Story" not in line:
+                in_us2 = False
+            
+            new_lines.append(line)
+        
+        content = '\n'.join(new_lines)
+
+    return content
+
+def update_plan_md(content: str) -> str:
+    """
+    Update plan.md to explicitly state FR-008 is excluded.
+    """
+    # Check if exclusion is already noted
+    if "FR-008" in content and "excluded" in content.lower():
+        logger.info("FR-008 exclusion already noted in plan.md.")
+        return content
+
+    # Add a note in the Notes or Dependencies section
+    # Find the "Notes" section or add one at the end
     lines = content.split('\n')
     new_lines = []
-    in_us2 = False
-    
-    for line in lines:
-        # Detect start of User Story 2
-        if '## User Story 2' in line or 'User Story 2:' in line or 'US-2' in line:
-            in_us2 = True
-        
-        # Detect end of US-2 (start of US-3 or next major section)
-        if in_us2 and ('## User Story 3' in line or '## User Story 3' in line):
-            in_us2 = False
-        
-        if in_us2:
-            # Update specific references
-            # Replace "weapons" exclusion logic if it was previously mentioned as a pending task or included
-            # The task is to update the story to REFLECT the exclusion.
-            # If the text says "Analyze weapons and faces", change to "Analyze faces (weapons excluded per SCR)".
-            
-            if 'weapons' in line.lower():
-                # If it's part of a requirement that is now removed, we might need to be careful.
-                # However, the task is to update the story to reflect the exclusion.
-                # If the text says "including weapons", we remove that part.
-                if 'including weapons' in line.lower():
-                    line = line.lower().replace('including weapons', '(weapons excluded per SCR)').replace('including weapons', '(weapons excluded per SCR)').title() # Preserve case roughly
-                elif 'and weapons' in line.lower():
-                    line = line.lower().replace(' and weapons', ' (weapons excluded per SCR)').title()
-                elif 'weapons' in line.lower() and 'exclude' not in line.lower():
-                    # If it mentions weapons without excluding them, update to reflect exclusion
-                    # e.g., "Process weapons and faces" -> "Process faces (weapons excluded)"
-                    line = line.replace('weapons', 'faces (weapons excluded per SCR)')
-            
-            # Ensure the focus is on Face ROIs
-            if 'ROI' in line and 'face' not in line.lower() and 'weapons' not in line.lower():
-                # If it's generic, maybe clarify? No, only change if it mentions weapons.
-                pass
+    found_notes = False
+    exclusion_note = "\n- **Spec Gap**: \"Weapons\" (FR-008) excluded; only \"Face\" ROIs implemented (see T020a-c, SCR-001)."
 
+    for i, line in enumerate(lines):
         new_lines.append(line)
+        if "## Notes" in line:
+            found_notes = True
+            # Insert note immediately after the header or next line
+            if i + 1 < len(lines) and not lines[i+1].startswith("-"):
+                new_lines.append(exclusion_note)
+            elif i + 1 < len(lines) and "FR-008" not in lines[i+1]:
+                new_lines.append(exclusion_note)
+    
+    if not found_notes:
+        new_lines.append("\n## Notes")
+        new_lines.append(exclusion_note)
 
     return '\n'.join(new_lines)
 
 def main():
     """
-    Main execution function for T020c.
+    Main entry point for T020c: Apply SCR-001 to spec.md and plan.md.
     """
-    setup_logging()
-    logger.info("Starting T020c: Update spec.md to remove FR-008 and update US-2")
+    root = Path(__file__).resolve().parent.parent.parent
+    spec_path = root / "spec.md"
+    plan_path = root / "plan.md"
 
-    # Determine paths
-    # Assuming project root is the parent of 'code'
-    project_root = Path(__file__).resolve().parent.parent
-    spec_path = project_root / "specs" / "spec.md"
-    
+    logger.info(f"Starting SCR-001 Apply (T020c) for project root: {root}")
+
     if not spec_path.exists():
-        # Try alternative location if specs are at root
-        spec_path = project_root / "spec.md"
-    
-    if not spec_path.exists():
-        logger.error("spec.md not found in expected locations.")
-        raise FileNotFoundError("spec.md not found.")
+        logger.error(f"spec.md not found at {spec_path}")
+        sys.exit(1)
+    if not plan_path.exists():
+        logger.error(f"plan.md not found at {plan_path}")
+        sys.exit(1)
 
-    logger.info(f"Reading spec file: {spec_path}")
-    with open(spec_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+    # Process spec.md
+    spec_content = load_file(spec_path)
+    spec_content = remove_fr_008_from_spec(spec_content)
+    spec_content = update_user_story_2(spec_content)
+    save_file(spec_path, spec_content)
 
-    # Step 1: Remove FR-008
-    logger.info("Removing FR-008 from Functional Requirements...")
-    updated_content = remove_fr_008(content)
+    # Process plan.md
+    plan_content = load_file(plan_path)
+    plan_content = update_plan_md(plan_content)
+    save_file(plan_path, plan_content)
 
-    # Step 2: Update User Story 2
-    logger.info("Updating User Story 2 to reflect weapons exclusion...")
-    updated_content = update_user_story_2(updated_content)
-
-    # Write back
-    logger.info(f"Writing updated spec file: {spec_path}")
-    with open(spec_path, 'w', encoding='utf-8') as f:
-        f.write(updated_content)
-
-    # Register artifact for versioning
-    register_artifact(spec_path)
-
-    logger.info("T020c completed successfully.")
+    logger.info("T020c completed successfully: FR-008 removed from spec and plan updated.")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     main()

@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-visual-salience"
+name = "llmxive-influence-visual-salience"
 version = "0.1.0"
-description = "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
+description = "Investigating the influence of visual salience on attentional bias in moral judgments"
 requires-python = ">=3.11"
 dependencies = [
     "torch",
@@ -18,6 +18,15 @@ dependencies = [
     "pyyaml",
     "scipy",
     "simr",
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
 ]
 
 [tool.black]
@@ -26,8 +35,7 @@ target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -36,6 +44,7 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | __pycache__
 )/
 '''
 
@@ -44,16 +53,45 @@ exclude = '''
 line-length = 88
 target-version = "py311"
 
-# Assume Python 3.11
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "code/__pycache__",
+    "data",
+    "docs",
+    "tests/__pycache__",
+]
+
+# Assume Python 3.11.
 [tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
-    "F",  # Pyflakes
+    "F",  # pyflakes
     "I",  # isort
+    "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
     "UP", # pyupgrade
+    "N",  # pep8-naming
 ]
 ignore = [
     "E501", # line too long (handled by black)
@@ -61,19 +99,19 @@ ignore = [
     "C901", # too complex
 ]
 
-# Allow autofix for all enabled rules (when `--fix` is provided)
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
+combine-as-imports = true
+
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
+"tests/*" = ["S101", "D"] # Allow asserts in tests, ignore docstrings
+"code/utils/logging.py" = ["E501"] # Long lines in log formats
 
-[tool.ruff.format]
-# Like Black, use double quotes for strings.
-quote-style = "double"
-
-# Like Black, indent with spaces, rather than tabs.
-indent-style = "space"
-
-# Like Black, respect magic trailing commas.
-skip-magic-trailing-comma = false
-
-# Like Black, automatically detect the appropriate line ending.
-line-ending = "auto"
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"

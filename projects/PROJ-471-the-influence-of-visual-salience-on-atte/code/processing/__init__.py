@@ -1,1 +1,3 @@
-# Processing module: Eye-tracking parsing, segmentation, and alignment.
+"""
+Processing module initialization.
+"""

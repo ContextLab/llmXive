@@ -1,86 +1,96 @@
+"""
+Unit tests for T016: add_disclaimer.py
+
+Tests verify that the disclaimer is correctly appended to the metadata JSON.
+"""
 import json
-import csv
 import os
 import tempfile
 from pathlib import Path
 import pytest
+from unittest.mock import patch, MagicMock
 
-from ingestion.add_disclaimer import process_json_file, process_csv_file, DISCLAIMER_TEXT
+# Import the function to test
+from ingestion.add_disclaimer import process_json_file, DISCLAIMER_TEXT
 
-@pytest.fixture
-def temp_dir():
-    with tempfile.TemporaryDirectory() as tmp:
-        yield Path(tmp)
+class TestAddDisclaimer:
+    def test_process_json_file_adds_disclaimer(self, tmp_path):
+        """Test that process_json_file adds the disclaimer to an existing file."""
+        # Setup
+        test_file = tmp_path / "metadata.json"
+        initial_data = {
+            "items": [{"id": "img_001", "path": "img_001.npy"}],
+            "count": 1
+        }
+        
+        with open(test_file, 'w', encoding='utf-8') as f:
+            json.dump(initial_data, f)
+        
+        # Act
+        result = process_json_file(test_file)
+        
+        # Assert
+        assert result is True
+        assert test_file.exists()
+        
+        with open(test_file, 'r', encoding='utf-8') as f:
+            updated_data = json.load(f)
+        
+        assert "disclaimer" in updated_data
+        assert updated_data["disclaimer"] == DISCLAIMER_TEXT
+        assert "disclaimer_date" in updated_data
+        assert "naming_convention" in updated_data
+        assert updated_data["naming_convention"] == "{StimulusID}.npy"
+        
+        # Ensure original data is preserved
+        assert "items" in updated_data
+        assert len(updated_data["items"]) == 1
 
-def test_process_json_file_dict(temp_dir):
-    file_path = temp_dir / "test.json"
-    data = {"id": 1, "value": 0.5}
-    with open(file_path, 'w') as f:
-        json.dump(data, f)
-    
-    process_json_file(file_path)
-    
-    with open(file_path, 'r') as f:
-        result = json.load(f)
-    
-    assert '_disclaimer' in result
-    assert result['_disclaimer'] == DISCLAIMER_TEXT
-    assert result['id'] == 1
+    def test_process_json_file_handles_corrupt_json(self, tmp_path, caplog):
+        """Test that corrupt JSON returns False and logs an error."""
+        test_file = tmp_path / "bad.json"
+        test_file.write_text("not valid json {")
+        
+        result = process_json_file(test_file)
+        
+        assert result is False
+        assert "Failed to decode JSON" in caplog.text
 
-def test_process_json_file_list(temp_dir):
-    file_path = temp_dir / "test_list.json"
-    data = [{"id": 1, "value": 0.5}, {"id": 2, "value": 0.8}]
-    with open(file_path, 'w') as f:
-        json.dump(data, f)
-    
-    process_json_file(file_path)
-    
-    with open(file_path, 'r') as f:
-        result = json.load(f)
-    
-    assert isinstance(result, list)
-    assert len(result) == 2
-    for item in result:
-        assert '_disclaimer' in item
-        assert item['_disclaimer'] == DISCLAIMER_TEXT
+    def test_process_json_file_handles_missing_file(self, tmp_path, caplog):
+        """Test that missing file returns False and logs an error."""
+        test_file = tmp_path / "nonexistent.json"
+        
+        result = process_json_file(test_file)
+        
+        assert result is False
+        assert "File not found" in caplog.text
 
-def test_process_csv_file(temp_dir):
-    file_path = temp_dir / "test.csv"
-    data = [
-        {"id": "1", "value": "0.5"},
-        {"id": "2", "value": "0.8"}
-    ]
-    with open(file_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["id", "value"])
-        writer.writeheader()
-        writer.writerows(data)
-    
-    process_csv_file(file_path)
-    
-    with open(file_path, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-    
-    assert len(rows) == 2
-    for row in rows:
-        assert '_disclaimer' in row
-        assert row['_disclaimer'] == DISCLAIMER_TEXT
-        assert row['id'] in ['1', '2']
-
-def test_process_json_file_empty_list(temp_dir):
-    file_path = temp_dir / "empty.json"
-    with open(file_path, 'w') as f:
-        json.dump([], f)
-    
-    # Should not raise, just log warning and return
-    process_json_file(file_path)
-    
-    with open(file_path, 'r') as f:
-        result = json.load(f)
-    
-    assert result == []
-
-def test_process_nonexistent_file(temp_dir):
-    file_path = temp_dir / "nonexistent.json"
-    with pytest.raises(FileNotFoundError):
-        process_csv_file(file_path)
+    def test_process_json_file_preserves_structure(self, tmp_path):
+        """Test that complex nested structures are preserved."""
+        test_file = tmp_path / "complex.json"
+        initial_data = {
+            "metadata": {
+                "version": "1.0",
+                "source": "OpenNeuro"
+            },
+            "items": [
+                {"id": "A", "path": "A.npy"},
+                {"id": "B", "path": "B.npy"}
+            ],
+            "stats": {"total": 2}
+        }
+        
+        with open(test_file, 'w', encoding='utf-8') as f:
+            json.dump(initial_data, f)
+        
+        result = process_json_file(test_file)
+        
+        assert result is True
+        
+        with open(test_file, 'r', encoding='utf-8') as f:
+            updated_data = json.load(f)
+        
+        assert updated_data["metadata"]["version"] == "1.0"
+        assert len(updated_data["items"]) == 2
+        assert updated_data["stats"]["total"] == 2
+        assert updated_data["disclaimer"] == DISCLAIMER_TEXT

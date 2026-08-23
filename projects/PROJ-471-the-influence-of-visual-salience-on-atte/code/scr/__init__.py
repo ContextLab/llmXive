@@ -1,1 +1,2 @@
-# SCR (Scientific Change Request) governance module.
+# SCR (Spec Change Request) governance utilities
+pass

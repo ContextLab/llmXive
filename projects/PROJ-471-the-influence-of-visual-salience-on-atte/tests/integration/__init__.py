@@ -1,1 +1,3 @@
-# Integration tests for pipeline stages.
+"""
+Integration tests initialization.
+"""
