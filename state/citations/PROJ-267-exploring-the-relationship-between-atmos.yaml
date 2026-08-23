@@ -20,18 +20,18 @@
   verification_status: unreachable
   verified_against_url: https://www.ncei.noaa.gov/access/services/data/v1?dataset=atmospheric-rivers
   verified_at: '2026-08-22T14:46:13.471178Z'
-- artifact_hash: 5e5f94b1bacde0ea267ea30349736b8f070686d4ab58a6363e5ab553ff1b4369
+- artifact_hash: 955888bbf08af6391b4c19e5a16515187e3eed1902e843905406a49ed0a408cd
   artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: CMR Search
+  fetched_title: CMR Preview
   kind: url
-  value: https://cmr.earthdata.nasa.gov/search`
+  value: https://cmr.earthdata.nasa.gov/search/concepts/C1214836294-POCLOUD`
   verification_status: pending
-  verified_against_url: https://cmr.earthdata.nasa.gov/search
-  verified_at: '2026-08-22T15:19:34.471420Z'
-- artifact_hash: 5e5f94b1bacde0ea267ea30349736b8f070686d4ab58a6363e5ab553ff1b4369
+  verified_against_url: https://cmr.earthdata.nasa.gov/search/concepts/C1214836294-POCLOUD
+  verified_at: '2026-08-23T00:01:03.589810Z'
+- artifact_hash: 955888bbf08af6391b4c19e5a16515187e3eed1902e843905406a49ed0a408cd
   artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://coastwatch.pfeg.noaa.gov/erddap/tabledap/ar_catalog.html`
   verification_status: pending
   verified_against_url: https://coastwatch.pfeg.noaa.gov/erddap/tabledap/ar_catalog.html
-  verified_at: '2026-08-22T15:19:34.471420Z'
+  verified_at: '2026-08-23T00:01:03.589810Z'

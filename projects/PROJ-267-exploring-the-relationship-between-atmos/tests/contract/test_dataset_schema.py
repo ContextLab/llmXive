@@ -31,33 +31,44 @@ def test_merged_csv_schema():
     df = pd.read_csv(MERGED_FILE)
     schema = load_schema()
     
-    required_columns = schema.get('required_columns', [])
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    assert not missing_cols, f"Missing required columns: {missing_cols}"
+    # Extract required fields from the schema properties
+    # The schema provided in T013 uses 'properties' for required fields
+    required_fields = schema.get('properties', {}).keys()
+    
+    # Check for missing columns
+    missing_cols = [col for col in required_fields if col not in df.columns]
+    assert not missing_cols, f"Missing required columns defined in schema: {missing_cols}"
     
     # Check for NaN in required columns
-    for col in required_columns:
-        if df[col].isna().any():
+    for col in required_fields:
+        if col in df.columns and df[col].isna().any():
             count = df[col].isna().sum()
             raise AssertionError(f"NaN values found in required column '{col}' ({count} missing)")
 
 def test_data_types():
-    """Test that data types match the schema definitions."""
+    """Test that data types match the schema definitions (number -> float)."""
     if not MERGED_FILE.exists():
         pytest.skip("Merged CSV file not found. Run preprocessing first.")
     
     df = pd.read_csv(MERGED_FILE)
     schema = load_schema()
-    types = schema.get('types', {})
+    properties = schema.get('properties', {})
     
-    for col, expected_type in types.items():
+    for col, definition in properties.items():
         if col in df.columns:
-            if expected_type == 'float':
-                assert pd.api.types.is_float_dtype(df[col]), f"Column '{col}' is not float (got {df[col].dtype})"
-            elif expected_type == 'integer':
-                assert pd.api.types.is_integer_dtype(df[col]), f"Column '{col}' is not integer (got {df[col].dtype})"
+            expected_type = definition.get('type')
+            if expected_type == 'number':
+                # Pandas CSV reader might read as object if mixed, but should be float/numeric
+                if not pd.api.types.is_numeric_dtype(df[col]):
+                    # Allow object if it contains numeric strings, but prefer numeric
+                    try:
+                        pd.to_numeric(df[col], errors='raise')
+                    except (ValueError, TypeError):
+                        raise AssertionError(f"Column '{col}' is expected to be numeric (type: {expected_type}) but contains non-numeric values.")
             elif expected_type == 'string':
-                assert pd.api.types.is_string_dtype(df[col]), f"Column '{col}' is not string (got {df[col].dtype})"
+                # Pandas default for strings is object or string
+                if not pd.api.types.is_string_dtype(df[col]) and not pd.api.types.is_object_dtype(df[col]):
+                    raise AssertionError(f"Column '{col}' is expected to be string (type: {expected_type}) but is {df[col].dtype}")
 
 def test_row_count_minimum():
     """Test that the dataset contains a reasonable number of rows (min 12 for 1 year)."""

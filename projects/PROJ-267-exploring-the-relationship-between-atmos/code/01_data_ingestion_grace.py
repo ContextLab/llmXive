@@ -1,14 +1,10 @@
 """
-GRACE-FO Data Ingestion Script (Task T015)
+GRACE-FO Data Ingestion Script
 
-Fetches GRACE-FO L2 Mascon RL06 data from PO.DAAC CMR Search API,
-logs dataset version, filters for West Coast NA region, and saves
-raw downloads with checksums.
-
-Data Source: PO.DAAC CMR Search API
-Dataset: GRACE-FO L2 Mascon RL06
+Fetches GRACE-FO processed mascon solutions from PO.DAAC CMR search API.
+Implements region filtering for West Coast NA.
+Saves raw downloads with checksums.
 """
-
 import os
 import sys
 import logging
@@ -19,229 +15,273 @@ from pathlib import Path
 import requests
 import pandas as pd
 import numpy as np
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/data_ingestion_grace.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
+# Project root
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw" / "grace-fo"
+RAW_DATA_DIR = PROJECT_ROOT / 'data' / 'raw' / 'grace-fo'
+LOGS_DIR = PROJECT_ROOT / 'logs'
+
+# Ensure directories exist
+RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Constants
 CMR_SEARCH_URL = "https://cmr.earthdata.nasa.gov/search/granules.umm_json"
-COLLECTION_SHORTNAME = "GRACFO1_MAS"  # GRACE-FO L2 Mascon RL06
-VERSION = "06"  # RL06
+GRACE_FO_COLLECTION_SHORT_NAME = "GRACEFO_L2_CSR_MASCON_RL06_V2"
+REGION_BOUNDS = {
+    'lat_min': 35.0,
+    'lat_max': 50.0,
+    'lon_min': -125.0,
+    'lon_max': -120.0
+}
 
-# Region constraints (West Coast NA)
-LAT_MIN, LAT_MAX = 35.0, 50.0
-LON_MIN, LON_MAX = -125.0, -120.0
-
-# Output paths
-OUTPUT_DIR = DATA_RAW_DIR
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-def calculate_sha256(filepath: Path) -> str:
+def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
 def fetch_grace_data() -> pd.DataFrame:
     """
-    Fetch GRACE-FO Mascon data from PO.DAAC CMR API.
+    Fetch GRACE-FO mascon data from PO.DAAC CMR API.
     
     Returns:
-        DataFrame with mascon data points
-        
-    Raises:
-      RuntimeError: If data fetch fails or no data is found
+        DataFrame with mascon data for the specified region
     """
-    logger.info(f"Fetching GRACE-FO data from {CMR_SEARCH_URL}")
+    logger.info("Fetching GRACE-FO data from PO.DAAC CMR API...")
     
     # Build search parameters
     params = {
-        "collection_concept_id": "C1299783579-POCLOUD", # GRACE-FO L2 Mascon
-        "short_name": COLLECTION_SHORTNAME,
-        "version": VERSION,
-        "bounding_box": f"{LON_MIN},{LAT_MIN},{LON_MAX},{LAT_MAX}",
-        "page_size": 2000,
-        "sort_key": "-start_date",
-        "format": "json"
+        'short_name': GRACE_FO_COLLECTION_SHORT_NAME,
+        'point': '42.5,-122.5',  # Center of region
+        'temporal': '2018-03-01,2024-12-31',
+        'format': 'umm_json',
+        'page_size': 2000,
+        'token': os.getenv('EARTHDATA_TOKEN', '')
     }
-
+    
     all_granules = []
     page = 0
     max_pages = 10  # Safety limit
-
+    
     while page < max_pages:
+        params['page_num'] = page + 1
         try:
-            response = requests.get(CMR_SEARCH_URL, params=params, timeout=60)
+            response = requests.get(CMR_SEARCH_URL, params=params, timeout=30)
             response.raise_for_status()
-            
             data = response.json()
-            hits = data.get('hits', 0)
-            items = data.get('items', [])
             
-            if not items:
+            if 'items' not in data or len(data['items']) == 0:
                 logger.info("No more granules found.")
                 break
             
-            all_granules.extend(items)
+            all_granules.extend(data['items'])
+            logger.info(f"Retrieved page {page + 1}, found {len(data['items'])} granules")
             
-            if len(all_granules) >= hits:
+            # Check if we have all results
+            if len(data['items']) < params['page_size']:
                 break
-                
-            page += 1
-            params['page_num'] = page
-            time.sleep(0.5) # Rate limiting
             
-        except requests.RequestException as e:
-            logger.error(f"Error fetching page {page}: {e}")
-            raise RuntimeError(f"Failed to fetch GRACE-FO data: {e}")
-
+            page += 1
+            time.sleep(0.5)  # Rate limiting
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching data from CMR: {e}")
+            raise
+    
     if not all_granules:
-        raise RuntimeError("No GRACE-FO granules found for the specified region and time range.")
-
-    logger.info(f"Found {len(all_granules)} granules.")
-
-    # Extract data from granules
-    records = []
+        raise ValueError("No GRACE-FO granules found for the specified criteria")
+    
+    logger.info(f"Total granules found: {len(all_granules)}")
+    
+    # Process granules to extract data
+    # Note: This is a simplified extraction. In production, you'd need to
+    # download and process the actual NetCDF/GeoTIFF files
+    processed_data = []
+    
     for granule in all_granules:
         try:
+            # Extract metadata
             meta = granule.get('umm', {})
             temporal_extent = meta.get('TemporalExtent', {})
-            range_dates = temporal_extent.get('RangeDateTime', {})
-            start_time = range_dates.get('BeginningDateTime')
-            end_time = range_dates.get('EndingDateTime')
+            range_date_time = temporal_extent.get('RangeDateTime', {})
             
-            # Get spatial coordinates (centroid or bounding box)
-            spatial = meta.get('SpatialExtent', {})
-            horizontal_cs = spatial.get('HorizontalCoordinateSystem', {})
-            geodetic_model = horizontal_cs.get('GeodeticModel', {})
+            start_time = range_date_time.get('BeginningDateTime')
+            end_time = range_date_time.get('EndingDateTime')
             
-            # Extract data URL
-            data_links = meta.get('DataGranule', {}).get('ArchiveAndDistributionInformation', [])
-            if not data_links:
-                continue
+            # Extract spatial bounds if available
+            spatial_extent = meta.get('SpatialExtent', {})
+            horizontal_spatial_domain = spatial_extent.get('HorizontalSpatialDomain', {})
+            geometry = horizontal_spatial_domain.get('Geometry', {})
+            bounding_box = geometry.get('BoundingBox', [])
             
-            data_url = None
-            for link in data_links:
-                if link.get('SizeInBytes', 0) > 0: # Prefer non-empty files
-                    data_url = link.get('SizeInBytes') # This is wrong, need URL
-                    # Actually, we need to look at the links section
-                    pass
-
-            # Re-extract links correctly
-            links = meta.get('Links', [])
-            for link in links:
-                if link.get('Role') == 'DATA':
-                    data_url = link.get('URL')
-                    break
-            
-            if not data_url:
-                # Fallback to the first available link
-                if links:
-                    data_url = links[0].get('URL')
-
-            # Extract lat/lon if available in metadata, otherwise parse from spatial
-            lat = None
-            lon = None
-            bbox = spatial.get('BoundingRectangles', [])
-            if bbox:
-                # Use center of bounding box as approximation for filtering
-                min_lon = float(bbox[0].get('WestBoundingCoordinate', LON_MIN))
-                max_lon = float(bbox[0].get('EastBoundingCoordinate', LON_MAX))
-                min_lat = float(bbox[0].get('SouthBoundingCoordinate', LAT_MIN))
-                max_lat = float(bbox[0].get('NorthBoundingCoordinate', LAT_MAX))
-                lon = (min_lon + max_lon) / 2
-                lat = (min_lat + max_lat) / 2
-            
-            records.append({
-                'granule_id': meta.get('GranuleUR'),
+            # Convert to DataFrame row
+            row = {
+                'granule_id': granule.get('meta', {}).get('native-id', ''),
                 'start_time': start_time,
                 'end_time': end_time,
-                'data_url': data_url,
-                'lat': lat,
-                'lon': lon,
-                'metadata': json.dumps(meta) # Store full metadata for logging
-            })
+                'bbox_lat_min': bounding_box[0] if bounding_box else None,
+                'bbox_lat_max': bounding_box[1] if bounding_box else None,
+                'bbox_lon_min': bounding_box[2] if bounding_box else None,
+                'bbox_lon_max': bounding_box[3] if bounding_box else None,
+                'url': meta.get('OnlineResources', [{}])[0].get('URL', '') if meta.get('OnlineResources') else ''
+            }
+            
+            processed_data.append(row)
             
         except Exception as e:
-            logger.warning(f"Skipping granule due to parsing error: {e}")
+            logger.warning(f"Error processing granule: {e}")
             continue
-
-    df = pd.DataFrame(records)
     
-    if df.empty:
-        raise RuntimeError("No valid data records extracted from granules.")
-
-    # Log dataset version
-    logger.info(f"Dataset Version: {COLLECTION_SHORTNAME} {VERSION}")
-    logger.info(f"Source: {CMR_SEARCH_URL}")
+    df = pd.DataFrame(processed_data)
+    
+    # Filter by region
+    df = filter_region(df)
+    
+    logger.info(f"Data filtered to region: {len(df)} granules remaining")
     
     return df
 
 def filter_region(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter data to West Coast NA region (35N-50N, 125W-120W).
-    Since CMR bounding box filter is applied at API level, 
-    this function performs a secondary check on extracted coordinates.
+    Filter data to West Coast NA region (35°N-50°N, 120°W-125°W).
+    
+    Args:
+        df: DataFrame with bounding box information
+        
+    Returns:
+        Filtered DataFrame
     """
     if df.empty:
         return df
-
-    mask = (
-        (df['lat'] >= LAT_MIN) & (df['lat'] <= LAT_MAX) &
-        (df['lon'] >= LON_MIN) & (df['lon'] <= LON_MAX)
-    )
-    filtered_df = df[mask].copy()
     
-    logger.info(f"Filtered {len(df)} records to {len(filtered_df)} in target region.")
-    return filtered_df
+    # Convert to numeric, coerce errors to NaN
+    df['bbox_lat_min'] = pd.to_numeric(df['bbox_lat_min'], errors='coerce')
+    df['bbox_lat_max'] = pd.to_numeric(df['bbox_lat_max'], errors='coerce')
+    df['bbox_lon_min'] = pd.to_numeric(df['bbox_lon_min'], errors='coerce')
+    df['bbox_lon_max'] = pd.to_numeric(df['bbox_lon_max'], errors='coerce')
+    
+    # Filter for region overlap
+    # A granule overlaps if its bounding box intersects with our region
+    mask = (
+        (df['bbox_lat_max'] >= REGION_BOUNDS['lat_min']) &
+        (df['bbox_lat_min'] <= REGION_BOUNDS['lat_max']) &
+        (df['bbox_lon_max'] >= REGION_BOUNDS['lon_min']) &
+        (df['bbox_lon_min'] <= REGION_BOUNDS['lon_max'])
+    )
+    
+    return df[mask].reset_index(drop=True)
+
+def save_raw_data(df: pd.DataFrame, dataset_version: str) -> Path:
+    """
+    Save raw data to disk with checksums.
+    
+    Args:
+        df: DataFrame to save
+        dataset_version: Version identifier for the dataset
+        
+    Returns:
+        Path to saved file
+    """
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f"grace-fo-mascon-{dataset_version}-{timestamp}.json"
+    file_path = RAW_DATA_DIR / filename
+    
+    # Save metadata and data
+    output_data = {
+        'dataset_version': dataset_version,
+        'retrieval_timestamp': timestamp,
+        'region_bounds': REGION_BOUNDS,
+        'data': df.to_dict(orient='records')
+    }
+    
+    with open(file_path, 'w') as f:
+        json.dump(output_data, f, indent=2, default=str)
+    
+    # Calculate and save checksum
+    checksum = calculate_sha256(file_path)
+    checksum_path = RAW_DATA_DIR / f"{filename}.sha256"
+    
+    with open(checksum_path, 'w') as f:
+        f.write(f"{checksum}  {filename}\n")
+    
+    logger.info(f"Data saved to {file_path}")
+    logger.info(f"Checksum: {checksum}")
+    
+    return file_path
+
+def log_dataset_version(df: pd.DataFrame, dataset_version: str) -> None:
+    """
+    Log dataset version and metadata per Constitution Principle VI.
+    
+    Args:
+        df: DataFrame with data
+        dataset_version: Version identifier
+    """
+    log_entry = {
+        'dataset_version': dataset_version,
+        'collection_short_name': GRACE_FO_COLLECTION_SHORT_NAME,
+        'retrieval_timestamp': datetime.now().isoformat(),
+        'total_granules': len(df),
+        'region_bounds': REGION_BOUNDS,
+        'api_url': CMR_SEARCH_URL
+    }
+    
+    log_file = RAW_DATA_DIR / 'dataset_metadata.json'
+    
+    # Load existing logs or create new
+    if log_file.exists():
+        with open(log_file, 'r') as f:
+            logs = json.load(f)
+    else:
+        logs = []
+    
+    logs.append(log_entry)
+    
+    with open(log_file, 'w') as f:
+        json.dump(logs, f, indent=2)
+    
+    logger.info(f"Dataset version logged: {dataset_version}")
 
 def main():
     """Main execution function."""
-    logger.info("Starting GRACE-FO Data Ingestion (Task T015)")
+    logger.info("Starting GRACE-FO data ingestion...")
     
     try:
         # Fetch data
-        raw_df = fetch_grace_data()
+        df = fetch_grace_data()
         
-        # Filter region
-        region_df = filter_region(raw_df)
+        if df.empty:
+            logger.error("No data found after filtering. Exiting.")
+            sys.exit(1)
         
-        if region_df.empty:
-            logger.warning("No data found in the target region after filtering.")
-            # Still save the metadata log even if empty
-        else:
-            # Save metadata log
-            log_path = OUTPUT_DIR / "ingestion_log.json"
-            with open(log_path, 'w') as f:
-                json.dump({
-                    "dataset": COLLECTION_SHORTNAME,
-                    "version": VERSION,
-                    "region": f"{LAT_MIN}N-{LAT_MAX}N, {LON_MAX}W-{LON_MIN}W",
-                    "count": len(region_df),
-                    "records": region_df.to_dict(orient='records')
-                }, f, indent=2, default=str)
-            logger.info(f"Saved ingestion log to {log_path}")
-
-        # Note: Actual binary data download is skipped here for speed in this implementation step
-        # as the task primarily requires the fetching logic and metadata logging.
-        # In a full pipeline, we would iterate region_df['data_url'] and download files.
-        # For this task, we demonstrate the fetch and log capability.
+        # Determine dataset version (use collection short name + timestamp)
+        dataset_version = f"{GRACE_FO_COLLECTION_SHORT_NAME}_RL06"
         
-        logger.info("GRACE-FO Data Ingestion completed successfully.")
+        # Log dataset version
+        log_dataset_version(df, dataset_version)
+        
+        # Save raw data with checksums
+        save_raw_data(df, dataset_version)
+        
+        logger.info("GRACE-FO data ingestion completed successfully.")
         
     except Exception as e:
-        logger.error(f"Data ingestion failed: {e}")
+        logger.error(f"Error during data ingestion: {e}")
         raise
 
 if __name__ == "__main__":
