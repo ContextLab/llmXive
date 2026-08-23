@@ -1,227 +1,214 @@
 """
-Unit tests for src/models/vae_loader.py.
-Tests Task T016: CPU fallback logic validation.
-"""
+Unit tests for the VAE Loader module (CPU fallback logic).
 
+This module tests the CPU-only loading constraints, memory feasibility checks,
+and fallback protocols defined in `code/models/vae_loader.py`.
+"""
 import json
 import os
-import sys
 import tempfile
 from pathlib import Path
+import pytest
+import torch
 from unittest.mock import patch, MagicMock, PropertyMock
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+# Import the module under test
+# Note: The import path assumes this test is run from the project root
+# or that `code` is in the PYTHONPATH. The task specifies the file is at
+# projects/PROJ-810-.../code/models/vae_loader.py
+# We will import relative to the 'code' directory structure.
+import sys
+from pathlib import Path
 
-import pytest
+# Ensure the code directory is in the path for imports
+current_dir = Path(__file__).resolve().parent
+project_root = current_dir.parent.parent
+code_dir = project_root / "code"
 
-# We mock torch/transformers to avoid heavy dependencies during unit tests
-# The actual logic of CPU fallback is tested via the mocked return values.
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-@pytest.fixture
-def mock_torch_cpu_false():
-    """Mock torch where CUDA is not available."""
-    mock = MagicMock()
-    mock.__version__ = "2.0.0"
-    mock.cuda.is_available.return_value = False
-    mock.no_grad = MagicMock()
-    # Mock device context
-    mock.device = MagicMock()
-    mock.device.return_value = MagicMock()
-    return mock
+from models.vae_loader import (
+    check_model_availability,
+    check_cpu_feasibility,
+    trigger_model_substitution_protocol,
+    load_vae_cpu,
+    run_model_availability_check,
+    MODEL_NAME,
+    MEMORY_THRESHOLD_GB
+)
 
-@pytest.fixture
-def mock_torch_cpu_true():
-    """Mock torch where CUDA is available but we force CPU."""
-    mock = MagicMock()
-    mock.__version__ = "2.0.0"
-    mock.cuda.is_available.return_value = True
-    mock.no_grad = MagicMock()
-    mock.device = MagicMock()
-    mock.device.return_value = MagicMock()
-    return mock
 
-@pytest.fixture
-def mock_transformers():
-    mock_config = MagicMock()
-    mock_config.architectures = ["Qwen2VLForConditionalGeneration"]
-    mock_config.model_type = "qwen2_vl"
-    
-    mock_model = MagicMock()
-    mock_model.from_pretrained.return_value = MagicMock()
-    mock_model.to.return_value = mock_model  # Chainable to()
-    
-    return {
-        "AutoConfig": MagicMock(from_pretrained=MagicMock(return_value=mock_config)),
-        "AutoModel": mock_model,
-        "Qwen2VLForConditionalGeneration": mock_model
-    }
+class TestModelAvailability:
+    """Tests for check_model_availability function."""
 
-def test_load_vae_cpu_when_cuda_unavailable(mock_torch_cpu_false, mock_transformers):
-    """Test that load_vae_cpu works correctly when CUDA is not available."""
-    with patch.dict(sys.modules, {
-        "torch": mock_torch_cpu_false,
-        "transformers": mock_transformers
-    }):
-        from models.vae_loader import load_vae_cpu
+    @patch('models.vae_loader.AutoConfig')
+    def test_model_accessible(self, mock_auto_config):
+        """Test that a reachable model returns True."""
+        mock_config = MagicMock()
+        mock_auto_config.from_pretrained.return_value = mock_config
         
-        result = load_vae_cpu("some/model/id")
+        is_available, message = check_model_availability()
         
-        assert result is not None
-        assert "model" in result
-        assert result["device"] == "cpu"
-        # Verify to('cpu') was called
-        result["model"].to.assert_called_with("cpu")
+        assert is_available is True
+        assert "Model configuration accessible" in message
+        mock_auto_config.from_pretrained.assert_called_once_with(
+            MODEL_NAME, 
+            trust_remote_code=True
+        )
 
-def test_load_vae_cpu_forces_cpu_when_cuda_available(mock_torch_cpu_true, mock_transformers):
-    """Test that load_vae_cpu forces CPU even when CUDA is available."""
-    with patch.dict(sys.modules, {
-        "torch": mock_torch_cpu_true,
-        "transformers": mock_transformers
-    }):
-        from models.vae_loader import load_vae_cpu
+    @patch('models.vae_loader.AutoConfig')
+    def test_model_access_failed(self, mock_auto_config):
+        """Test that a failed download returns False."""
+        mock_auto_config.from_pretrained.side_effect = Exception("Connection timeout")
         
-        result = load_vae_cpu("some/model/id")
+        is_available, message = check_model_availability()
         
-        assert result is not None
-        assert result["device"] == "cpu"
-        # Verify to('cpu') was called despite CUDA availability
-        result["model"].to.assert_called_with("cpu")
+        assert is_available is False
+        assert "Model access failed" in message
 
-def test_load_vae_cpu_no_grad_context(mock_torch_cpu_false, mock_transformers):
-    """Test that load_vae_cpu uses torch.no_grad() context."""
-    with patch.dict(sys.modules, {
-        "torch": mock_torch_cpu_false,
-        "transformers": mock_transformers
-    }):
-        from models.vae_loader import load_vae_cpu
-        
-        # Mock no_grad as a context manager
-        mock_torch_cpu_false.no_grad.return_value.__enter__ = MagicMock(return_value=None)
-        mock_torch_cpu_false.no_grad.return_value.__exit__ = MagicMock(return_value=False)
-        
-        result = load_vae_cpu("some/model/id")
-        
-        assert result is not None
-        # Verify no_grad was used
-        mock_torch_cpu_false.no_grad.assert_called()
 
-def test_load_vae_cpu_memory_error_handling(mock_torch_cpu_false, mock_transformers):
-    """Test that load_vae_cpu handles memory errors appropriately."""
-    mock_model = MagicMock()
-    mock_model.from_pretrained.side_effect = RuntimeError("CUDA out of memory")
-    
-    mock_transformers["AutoModel"] = mock_model
-    
-    with patch.dict(sys.modules, {
-        "torch": mock_torch_cpu_false,
-        "transformers": mock_transformers
-    }):
-        from models.vae_loader import load_vae_cpu
-        
-        # Should raise an error if it can't load even on CPU
-        with pytest.raises(RuntimeError, match="CUDA out of memory"):
-            load_vae_cpu("some/model/id")
+class TestCpuFeasibility:
+    """Tests for check_cpu_feasibility function."""
 
-def test_check_cpu_feasibility_success(mock_torch_cpu_false, mock_transformers):
-    """Test check_cpu_feasibility returns True when CPU is viable."""
-    with patch.dict(sys.modules, {
-        "torch": mock_torch_cpu_false,
-        "transformers": mock_transformers
-    }):
-        from models.vae_loader import check_cpu_feasibility
+    def test_model_within_memory_limits(self):
+        """Test that a small model passes the memory check."""
+        # The function uses a hardcoded estimate of 0.8B params -> ~3GB
+        # which is < 7GB threshold.
+        is_feasible, estimated_gb, message = check_cpu_feasibility()
         
-        result = check_cpu_feasibility("some/model/id")
-        
-        assert result["feasible"] is True
-        assert result["device"] == "cpu"
+        assert is_feasible is True
+        assert estimated_gb > 0
+        assert "within CPU memory limits" in message
+        assert estimated_gb <= MEMORY_THRESHOLD_GB
 
-def test_check_cpu_feasibility_failure(mock_torch_cpu_false, mock_transformers):
-    """Test check_cpu_feasibility returns False when model is too large."""
-    mock_config = MagicMock()
-    mock_config.from_pretrained.side_effect = RuntimeError("Model too large for CPU memory")
-    
-    mock_transformers["AutoConfig"] = MagicMock(from_pretrained=MagicMock(side_effect=mock_config.from_pretrained.side_effect))
-    
-    with patch.dict(sys.modules, {
-        "torch": mock_torch_cpu_false,
-        "transformers": mock_transformers
-    }):
-        from models.vae_loader import check_cpu_feasibility
-        
-        result = check_cpu_feasibility("huge/model/id")
-        
-        assert result["feasible"] is False
-        assert "too large" in result["reason"].lower() or "error" in result["reason"].lower()
+    def test_memory_threshold_constant(self):
+        """Verify the memory threshold is set correctly."""
+        assert MEMORY_THRESHOLD_GB == 7.0
 
-def test_trigger_model_substitution_protocol(mock_torch_cpu_false, mock_transformers):
-    """Test that model substitution protocol selects a smaller candidate."""
-    call_count = 0
-    
-    def mock_check(model_id):
-        nonlocal call_count
-        call_count += 1
-        if "tiny" in model_id:
-            return {"feasible": True, "device": "cpu"}
-        return {"feasible": False, "reason": "Memory error"}
-    
-    with patch.dict(sys.modules, {
-        "torch": mock_torch_cpu_false,
-        "transformers": mock_transformers
-    }):
-        from models import vae_loader
-        vae_loader.check_cpu_feasibility = mock_check
-        
-        fallback = vae_loader.trigger_model_substitution_protocol()
-        
-        assert fallback is not None
-        assert "tiny" in fallback
 
-def test_trigger_model_substitution_protocol_no_fallback(mock_torch_cpu_false, mock_transformers):
-    """Test that model substitution returns None if no candidates work."""
-    def mock_check(model_id):
-        return {"feasible": False, "reason": "Memory error"}
-    
-    with patch.dict(sys.modules, {
-        "torch": mock_torch_cpu_false,
-        "transformers": mock_transformers
-    }):
-        from models import vae_loader
-        vae_loader.check_cpu_feasibility = mock_check
-        
-        fallback = vae_loader.trigger_model_substitution_protocol()
-        
-        assert fallback is None
+class TestFallbackProtocol:
+    """Tests for trigger_model_substitution_protocol function."""
 
-def test_run_model_availability_check_output(mock_torch_cpu_false, mock_transformers):
-    """Test that run_model_availability_check writes the correct JSON file."""
-    def mock_check(model_id):
-        return {"model_id": model_id, "exists": True, "cpu_feasible": True}
-    
-    with patch.dict(sys.modules, {
-        "torch": mock_torch_cpu_false,
-        "transformers": mock_transformers
-    }):
-        from models import vae_loader
-        vae_loader.check_model_availability = mock_check
+    def test_fallback_structure(self):
+        """Test that the fallback protocol returns the correct structure."""
+        reason = "Memory exceeded"
+        result = trigger_model_substitution_protocol(reason)
         
-        # Ensure output dir exists
-        output_dir = Path("data/results")
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_file = output_dir / "model_availability.json"
+        assert result["status"] == "FALLBACK_TRIGGERED"
+        assert result["reason"] == reason
+        assert "action" in result
+        assert "Reduce sample size" in result["action"] or "switch to smaller model" in result["action"]
+
+    def test_fallback_reason_persistence(self):
+        """Test that the specific reason is preserved."""
+        custom_reason = "Specific error: OOM on CPU"
+        result = trigger_model_substitution_protocol(custom_reason)
         
-        # Run the function
-        result = vae_loader.run_model_availability_check()
+        assert result["reason"] == custom_reason
+
+
+class TestRunAvailabilityCheck:
+    """Tests for the full availability check suite."""
+
+    @patch('models.vae_loader.check_model_availability')
+    @patch('models.vae_loader.check_cpu_feasibility')
+    def test_full_pass_scenario(self, mock_feas, mock_avail):
+        """Test the scenario where both checks pass."""
+        mock_avail.return_value = (True, "Model OK")
+        mock_feas.return_value = (True, 3.0, "Memory OK")
         
-        # Verify file exists
-        assert output_file.exists()
+        result = run_model_availability_check()
         
-        # Verify content
-        with open(output_file, 'r') as f:
-            data = json.load(f)
+        assert result["status"] == "PASS"
+        assert result["availability"] is True
+        assert result["cpu_feasibility"] is True
+        assert "fallback" not in result
+
+    @patch('models.vae_loader.check_model_availability')
+    @patch('models.vae_loader.check_cpu_feasibility')
+    def test_full_fail_feasibility_scenario(self, mock_feas, mock_avail):
+        """Test the scenario where model is available but memory fails."""
+        mock_avail.return_value = (True, "Model OK")
+        mock_feas.return_value = (False, 8.0, "Memory Too High")
         
-        assert data["status"] == "PASS"
-        assert data["fallback_model_id"] == vae_loader.TARGET_MODEL_ID
+        result = run_model_availability_check()
         
-        # Cleanup
-        output_file.unlink()
+        assert result["status"] == "FAIL"
+        assert result["availability"] is True
+        assert result["cpu_feasibility"] is False
+        assert "fallback" in result
+        assert result["fallback"]["status"] == "FALLBACK_TRIGGERED"
+
+    @patch('models.vae_loader.check_model_availability')
+    @patch('models.vae_loader.check_cpu_feasibility')
+    def test_full_fail_availability_scenario(self, mock_feas, mock_avail):
+        """Test the scenario where model is not available."""
+        mock_avail.return_value = (False, "Network Error")
+        mock_feas.return_value = (True, 3.0, "Memory OK")
+        
+        result = run_model_availability_check()
+        
+        assert result["status"] == "FAIL"
+        assert result["availability"] is False
+        # Feasibility might still be calculated or not, but status is FAIL
+        assert result["availability_message"] == "Network Error"
+
+
+class TestLoadVaeCpu:
+    """Tests for load_vae_cpu function."""
+
+    @patch('models.vae_loader.AutoModel')
+    @patch('models.vae_loader.torch.cuda.is_available')
+    def test_load_forces_cpu_device_map(self, mock_cuda, mock_auto_model):
+        """Test that the model is loaded with device_map='cpu'."""
+        mock_cuda.return_value = False
+        
+        mock_model = MagicMock()
+        mock_model.device.type = 'cpu'
+        mock_model.eval.return_value = mock_model
+        mock_auto_model.from_pretrained.return_value = mock_model
+        
+        model = load_vae_cpu()
+        
+        # Verify from_pretrained was called with device_map="cpu"
+        call_args = mock_auto_model.from_pretrained.call_args
+        assert call_args.kwargs.get("device_map") == "cpu"
+        assert call_args.kwargs.get("torch_dtype") == torch.float32
+        assert call_args.kwargs.get("trust_remote_code") is True
+        
+        # Verify eval was called
+        mock_model.eval.assert_called_once()
+
+    @patch('models.vae_loader.AutoModel')
+    @patch('models.vae_loader.torch.cuda.is_available')
+    def test_load_handles_existing_gpu_model(self, mock_cuda, mock_auto_model):
+        """Test that if model ends up on GPU (hypothetically), it is moved to CPU."""
+        mock_cuda.return_value = True # GPU available but we ignore
+        
+        mock_model = MagicMock()
+        # Simulate model initially on GPU
+        type(mock_model).device = PropertyMock(return_value=MagicMock(type='cuda'))
+        mock_model.to.return_value = mock_model
+        mock_model.eval.return_value = mock_model
+        mock_auto_model.from_pretrained.return_value = mock_model
+        
+        model = load_vae_cpu()
+        
+        # Verify .to('cpu') was called
+        mock_model.to.assert_called_with('cpu')
+        mock_model.eval.assert_called_once()
+
+    @patch('models.vae_loader.AutoModel')
+    def test_load_raises_on_failure(self, mock_auto_model):
+        """Test that RuntimeError is raised if loading fails."""
+        mock_auto_model.from_pretrained.side_effect = Exception("Download failed")
+        
+        with pytest.raises(RuntimeError) as exc_info:
+            load_vae_cpu()
+        
+        assert "Failed to load VAE model on CPU" in str(exc_info.value)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -1,11 +1,40 @@
-# Data directories
+# Data directories (raw, interim, results logs)
 data/raw/
 data/interim/
 data/results/*.log
 
-# Python cache
+# Python bytecode
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.eggs/
+*.egg-info/
+*.egg
 
-# Environment variables
+# Environment and secrets
 .env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build and distribution
+build/
+dist/
+*.egg-info/
+
+# Logs and temporary files
+*.log
+*.tmp
+.cache/

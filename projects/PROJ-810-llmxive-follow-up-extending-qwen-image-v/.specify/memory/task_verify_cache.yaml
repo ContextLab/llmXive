@@ -24,14 +24,6 @@ T008:
     \ logic (incorrect column renaming and a `NotImplementedError` fallback) rather\
     \ than a concrete implementation for extracting the ground\u2011truth labels.\
     \ Both the artifact and the functional code are missing/unfinished."
-T008b:
-  c: false
-  h: b3b3186effbd65889cb4f27b79f764e0483f8484e7f47644e50e88de1439f095
-  r: "The provided `preprocess.py` is truncated, contains placeholder logic and a\
-    \ `NotImplementedError` for ground\u2011truth extraction, so it does not fully\
-    \ implement the heuristic label derivation. Moreover, the required output file\
-    \ `data/interim/heuristic_labels.csv` is absent. Both the script and the CSV artifact\
-    \ need to be completed for the task to be satisfied."
 T016:
   c: false
   h: 4497345501dc3444c706a82e82929da3299029a5a1ac7a68f9ebccb20947d622
