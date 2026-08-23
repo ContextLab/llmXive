@@ -28655,7 +28655,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-08-23T02:33:55.332080+00:00",
+  "generated_at": "2026-08-23T02:57:35.975603+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -159298,126 +159298,6 @@
   "recent_activity": [
     {
       "agent": "implementer",
-      "duration_s": 3.018618,
-      "ended_at": "2026-08-23T02:33:40.759666Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-23T02:33:37.741048Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.826444,
-      "ended_at": "2026-08-23T02:33:37.671180Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-23T02:33:35.844736Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.471059,
-      "ended_at": "2026-08-23T02:33:35.796706Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-23T02:33:32.325647Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.623566,
-      "ended_at": "2026-08-23T02:33:32.273886Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-23T02:33:30.650320Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.492332,
-      "ended_at": "2026-08-23T02:33:30.586304Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-23T02:33:28.093972Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.017189,
-      "ended_at": "2026-08-23T02:33:28.028081Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-23T02:33:26.010892Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.603877,
-      "ended_at": "2026-08-23T02:33:25.941508Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-23T02:33:22.337631Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 1.915511,
-      "ended_at": "2026-08-23T02:33:22.290322Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-23T02:33:20.374811Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.844732,
-      "ended_at": "2026-08-23T02:33:20.325859Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-23T02:33:17.481127Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 7.082121,
-      "ended_at": "2026-08-23T02:33:17.339269Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-23T02:33:10.257148Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 1358.439046,
       "ended_at": "2026-08-23T02:23:29.075003Z",
       "failure_reason": "",
@@ -165295,6 +165175,126 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-08-22T19:11:03.651908Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.630661,
+      "ended_at": "2026-08-22T19:11:03.582285Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-22T19:11:02.951624Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.653802,
+      "ended_at": "2026-08-22T19:11:02.881925Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-22T19:11:02.228123Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.6578,
+      "ended_at": "2026-08-22T19:11:02.158194Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-22T19:11:01.500394Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.861373,
+      "ended_at": "2026-08-22T19:11:01.429068Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-22T19:11:00.567695Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.291917,
+      "ended_at": "2026-08-22T19:11:00.490913Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-22T19:10:57.198996Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 119.323546,
+      "ended_at": "2026-08-22T19:10:55.986240Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-297-assessing-statistical-significance-of-ob",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-22T19:08:56.662694Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 73.350602,
+      "ended_at": "2026-08-22T19:08:56.659425Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-297-assessing-statistical-significance-of-ob",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-22T19:07:43.308823Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 220.665092,
+      "ended_at": "2026-08-22T19:08:31.674623Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-914-llmxive-follow-up-extending-macaron-a2ui",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-22T19:04:51.009531Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 41.168492,
+      "ended_at": "2026-08-22T19:07:43.305560Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-297-assessing-statistical-significance-of-ob",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-22T19:07:02.137068Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 35.494376,
+      "ended_at": "2026-08-22T19:07:02.133825Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-297-assessing-statistical-significance-of-ob",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-22T19:06:26.639449Z"
     }
   ],
   "reviewed_preprints": [
