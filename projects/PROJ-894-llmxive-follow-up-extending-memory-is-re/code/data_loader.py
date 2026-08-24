@@ -1,5 +1,12 @@
 """
-Data Loader module for fetching and processing LoCoMo benchmark data.
+Data loading and processing utilities for the llmXive memory optimization project.
+
+This module handles:
+1. Fetching the LoCoMo benchmark dataset from HuggingFace
+2. Extracting knowledge triples from context text
+3. Building memory graphs from triples
+4. Injecting noise into graphs (edge replacement)
+5. Saving/loading graph data
 """
 
 import os
@@ -9,85 +16,113 @@ import hashlib
 import random
 import csv
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple, Iterator
 
-try:
-    from datasets import load_dataset
-    DATASETS_AVAILABLE = True
-except ImportError:
-    DATASETS_AVAILABLE = False
-    logger = logging.getLogger(__name__)
-    logger.warning("datasets library not available. Some functionality will be disabled.")
+import networkx as nx
+import numpy as np
+from datasets import load_dataset
+import spacy
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-RAW_DATA_PATH = Path("data/raw/locomo.jsonl")
-INTERMEDIATE_PATH = Path("data/intermediate/graphs_raw.json")
-PROCESSED_PATH = Path("data/processed/graphs")
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).parent.parent
+
+# Output directories
+RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
+INTERMEDIATE_DIR = PROJECT_ROOT / "data" / "intermediate"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+GRAPHS_DIR = PROCESSED_DIR / "graphs"
+
+# Ensure output directories exist
+RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+INTERMEDIATE_DIR.mkdir(parents=True, exist_ok=True)
+PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
 
 def ensure_output_dirs():
-    """Create output directories if they don't exist."""
-    RAW_DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-    INTERMEDIATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    PROCESSED_PATH.mkdir(parents=True, exist_ok=True)
+    """Ensure all required output directories exist."""
+    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    INTERMEDIATE_DIR.mkdir(parents=True, exist_ok=True)
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
 
 def fetch_locomo_dataset(subset: str = "test") -> List[Dict[str, Any]]:
     """
     Fetch the LoCoMo benchmark dataset from HuggingFace.
-
-    Args:
-        subset: The subset to fetch (e.g., 'test').
-
-    Returns:
-        List of task dictionaries.
-
-    Raises:
-        ValueError: If the dataset cannot be fetched or has incorrect schema.
-    """
-    if not DATASETS_AVAILABLE:
-        raise ImportError("datasets library is required to fetch LoCoMo dataset")
-
-    logger.info(f"Fetching LoCoMo dataset (subset: {subset})...")
     
-    try:
-        # Use the canonical dataset name
-        dataset = load_dataset("locomo/locomo-benchmark", split=subset, trust_remote_code=True)
-    except Exception as e:
-        # Fallback to a known working dataset if the original fails
-        logger.warning(f"Failed to fetch 'locomo/locomo-benchmark': {e}")
-        logger.info("Trying alternative source: 'mlabonne/locomo'")
-        try:
-            dataset = load_dataset("mlabonne/locomo", split=subset, trust_remote_code=False)
-        except Exception as e2:
-            logger.error(f"Alternative source also failed: {e2}")
-            raise ValueError(f"Dataset fetch failed for both sources: {e} and {e2}") from e2
-
-    # Convert to list of dicts
-    tasks = dataset.to_list()
-
-    # Verify schema
-    required_columns = ['question', 'context', 'answer']
-    if tasks:
-        missing_cols = [col for col in required_columns if col not in tasks[0]]
-        if missing_cols:
-            raise ValueError(f"Dataset schema mismatch: missing columns {missing_cols}")
-
-    logger.info(f"Fetched {len(tasks)} tasks from LoCoMo dataset.")
-    return tasks
-
-def save_raw_data(tasks: List[Dict[str, Any]], output_path: Path = RAW_DATA_PATH):
-    """
-    Save raw tasks to a JSONL file.
-
     Args:
-        tasks: List of task dictionaries.
-        output_path: Path to the output file.
+        subset: Dataset split to fetch (default: "test")
+    
+    Returns:
+        List of task dictionaries with keys: question, context, answer
+    
+    Raises:
+        ValueError: If dataset cannot be fetched or schema is invalid
     """
     ensure_output_dirs()
+    
+    # Try multiple known dataset IDs for LoCoMo
+    dataset_ids = [
+        "locomo/locomo-benchmark",  # Primary source
+        "mlabonne/locomo",           # Alternative mirror
+    ]
+    
+    last_error = None
+    
+    for dataset_id in dataset_ids:
+        try:
+            logger.info(f"Attempting to fetch dataset: {dataset_id}")
+            
+            # Load dataset with streaming to handle large sizes
+            ds = load_dataset(dataset_id, split=subset, trust_remote_code=True)
+            
+            # Convert to list
+            tasks = list(ds)
+            
+            if not tasks:
+                logger.warning(f"Dataset {dataset_id} returned empty list")
+                continue
+            
+            # Validate schema
+            required_cols = {"question", "context", "answer"}
+            actual_cols = set(tasks[0].keys())
+            
+            if not required_cols.issubset(actual_cols):
+                missing = required_cols - actual_cols
+                logger.warning(f"Dataset {dataset_id} missing columns: {missing}")
+                continue
+            
+            logger.info(f"Successfully fetched {len(tasks)} tasks from {dataset_id}")
+            
+            # Save raw data
+            output_path = RAW_DATA_DIR / "locomo.jsonl"
+            with open(output_path, 'w', encoding='utf-8') as f:
+                for task in tasks:
+                    f.write(json.dumps(task) + '\n')
+            
+            logger.info(f"Saved raw data to {output_path}")
+            return tasks
+            
+        except Exception as e:
+            last_error = e
+            logger.warning(f"Failed to fetch {dataset_id}: {e}")
+            continue
+    
+    # If we get here, all attempts failed
+    error_msg = f"Dataset fetch failed for all sources. Last error: {last_error}"
+    logger.error(error_msg)
+    raise ValueError(error_msg)
+
+def save_raw_data(tasks: List[Dict[str, Any]], output_path: Optional[Path] = None):
+    """Save raw dataset tasks to a JSONL file."""
+    if output_path is None:
+        output_path = RAW_DATA_DIR / "locomo.jsonl"
     
     with open(output_path, 'w', encoding='utf-8') as f:
         for task in tasks:
@@ -95,265 +130,380 @@ def save_raw_data(tasks: List[Dict[str, Any]], output_path: Path = RAW_DATA_PATH
     
     logger.info(f"Saved {len(tasks)} tasks to {output_path}")
 
-def load_raw_data(input_path: Path = RAW_DATA_PATH) -> List[Dict[str, Any]]:
+def extract_traces_from_context(context: str) -> List[Tuple[str, str, str]]:
     """
-    Load raw tasks from a JSONL file.
-
+    Extract subject-verb-object triples from context text using spaCy.
+    
     Args:
-        input_path: Path to the input file.
-
-    Returns:
-        List of task dictionaries.
-    """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Raw data file not found: {input_path}")
-
-    tasks = []
-    with open(input_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip():
-                tasks.append(json.loads(line))
+        context: Input text to parse
     
-    logger.info(f"Loaded {len(tasks)} tasks from {input_path}")
-    return tasks
-
-def extract_traces_from_context(context: str) -> List[Dict[str, str]]:
+    Returns:
+        List of (subject, verb, object) triples
     """
-    Extract subject-verb-object triples from context text.
+    if not context or not context.strip():
+        return []
+    
+    try:
+        # Load spaCy model (en_core_web_sm must be installed)
+        nlp = spacy.load("en_core_web_sm")
+        doc = nlp(context)
+        
+        triples = []
+        
+        # Extract triples based on dependency parsing
+        for token in doc:
+            # Look for subject-object relationships
+            if token.dep_ in ("nsubj", "nsubjpass"):
+                subject = token.text
+                # Find the head verb
+                head = token.head
+                verb = head.text
+                # Find object (dobj, pobj, etc.)
+                for child in head.children:
+                    if child.dep_ in ("dobj", "pobj", "attr"):
+                        obj = child.text
+                        triples.append((subject, verb, obj))
+                        break
+        
+        # Also try to extract from named entities
+        # This is a simplified approach; real implementation would be more sophisticated
+        if not triples:
+            # Fallback: simple pattern matching
+            words = context.split()
+            for i in range(len(words) - 2):
+                # Look for noun-verb-noun patterns
+                triples.append((words[i], words[i+1], words[i+2]))
+        
+        return triples
+        
+    except OSError:
+        logger.error("spaCy model 'en_core_web_sm' not found. Run: python -m spacy download en_core_web_sm")
+        raise
+    except Exception as e:
+        logger.error(f"Error extracting triples: {e}")
+        return []
 
+def build_memory_graph(triples: List[Tuple[str, str, str]]) -> Dict[str, Any]:
+    """
+    Build a memory graph from a list of triples.
+    
     Args:
-        context: The context text.
-
+        triples: List of (subject, verb, object) tuples
+    
     Returns:
-        List of triple dictionaries.
+        Graph dictionary with 'nodes' and 'edges' keys
     """
-    # Simplified extraction (real implementation would use spaCy)
-    # This is a placeholder for the actual NER/dependency parsing logic
-    triples = []
+    nodes = set()
+    edges = []
     
-    # Example: split by sentences and extract simple patterns
-    sentences = context.split('.')
-    for sent in sentences:
-        words = sent.strip().split()
-        if len(words) >= 3:
-            triples.append({
-                'subject': words[0],
-                'verb': words[1] if len(words) > 1 else '',
-                'object': ' '.join(words[2:]) if len(words) > 2 else ''
-            })
-    
-    return triples
-
-def build_memory_graph(tasks: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Build a memory graph from tasks.
-
-    Args:
-        tasks: List of task dictionaries.
-
-    Returns:
-        Dictionary mapping task_id to graph data.
-    """
-    graphs = {}
-    
-    for task in tasks:
-        task_id = task.get('task_id', f"task_{len(graphs)}")
-        context = task.get('context', '')
+    for subj, verb, obj in triples:
+        nodes.add(subj)
+        nodes.add(obj)
         
-        # Extract triples
-        triples = extract_traces_from_context(context)
-        
-        # Build graph
-        edges = []
-        for i, triple in enumerate(triples):
-            source = f"{triple['subject']}_{i}"
-            target = f"{triple['object']}_{i}"
-            edges.append({
-                'source': source,
-                'target': target,
-                'relation_string': triple['verb']
-            })
-        
-        graphs[task_id] = {
-            'edges': edges,
-            'nodes': list(set([e['source'] for e in edges] + [e['target'] for e in edges]))
-        }
+        edges.append({
+            "source": subj,
+            "target": obj,
+            "relation": verb
+        })
     
-    return graphs
+    return {
+        "nodes": list(nodes),
+        "edges": edges
+    }
 
-def save_graphs(graphs: Dict[str, Any], output_path: Path = INTERMEDIATE_PATH):
+def save_graphs(graphs: Dict[str, Dict[str, Any]], output_path: Optional[Path] = None):
     """
     Save graphs to a JSON file.
-
+    
     Args:
-        graphs: Dictionary of task_id to graph data.
-        output_path: Path to the output file.
+        graphs: Dictionary mapping task_id to graph dict
+        output_path: Output file path (default: data/intermediate/graphs_raw.json)
     """
-    ensure_output_dirs()
+    if output_path is None:
+        output_path = INTERMEDIATE_DIR / "graphs_raw.json"
     
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(graphs, f, indent=2)
     
-    logger.info(f"Saved graphs for {len(graphs)} tasks to {output_path}")
+    logger.info(f"Saved {len(graphs)} graphs to {output_path}")
 
-def load_graphs(input_path: Path = INTERMEDIATE_PATH) -> Dict[str, Any]:
+def load_graphs(input_path: Optional[Path] = None) -> Dict[str, Dict[str, Any]]:
     """
     Load graphs from a JSON file.
-
+    
     Args:
-        input_path: Path to the input file.
-
+        input_path: Input file path (default: data/intermediate/graphs_raw.json)
+    
     Returns:
-        Dictionary of task_id to graph data.
+        Dictionary mapping task_id to graph dict
     """
+    if input_path is None:
+        input_path = INTERMEDIATE_DIR / "graphs_raw.json"
+    
     if not input_path.exists():
         raise FileNotFoundError(f"Graph file not found: {input_path}")
     
     with open(input_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def inject_noise(graph: Dict[str, Any], ratio: float = 0.1, seed: int = 42) -> Dict[str, Any]:
+def inject_noise(graph: Dict[str, Any], ratio: float, seed: int) -> Dict[str, Any]:
     """
     Inject noise into a graph by replacing edges.
-
+    
+    This function replaces a proportion of existing edges with random edges,
+    maintaining the total edge count. It does NOT add edges.
+    
     Args:
-        graph: The graph data dictionary.
-        ratio: The ratio of edges to replace.
-        seed: Random seed for reproducibility.
-
+        graph: Input graph dict with 'nodes' and 'edges'
+        ratio: Proportion of edges to replace (0.0 to 1.0)
+        seed: Random seed for reproducibility
+    
     Returns:
-        Noisy graph data dictionary.
+        Noisy graph dict with same structure
     """
     random.seed(seed)
+    np.random.seed(seed)
     
-    edges = graph.get('edges', [])
-    if not edges:
-        return graph
+    nodes = graph["nodes"]
+    edges = graph["edges"]
     
-    num_to_replace = int(len(edges) * ratio)
-    indices_to_replace = random.sample(range(len(edges)), min(num_to_replace, len(edges)))
+    if not edges or len(nodes) < 2:
+        # Degenerate case: no edges or not enough nodes
+        return {
+            "nodes": nodes,
+            "edges": []
+        }
     
-    noisy_edges = edges.copy()
-    all_nodes = graph.get('nodes', [])
+    num_edges = len(edges)
+    num_to_replace = int(num_edges * ratio)
     
-    for idx in indices_to_replace:
-        # Create a random edge
-        if len(all_nodes) >= 2:
-            source = random.choice(all_nodes)
-            target = random.choice([n for n in all_nodes if n != source])
-            noisy_edges[idx] = {
-                'source': source,
-                'target': target,
-                'relation_string': 'noise'
+    # Create a set of existing edge tuples for quick lookup
+    existing_edges = {(e["source"], e["target"]) for e in edges}
+    
+    # Select edges to replace
+    replace_indices = random.sample(range(num_edges), num_to_replace)
+    
+    # Create new edges
+    new_edges = edges.copy()
+    
+    for idx in replace_indices:
+        old_edge = new_edges[idx]
+        
+        # Select random source and target (excluding self-loops and existing edges)
+        max_attempts = 100
+        for _ in range(max_attempts):
+            new_source = random.choice(nodes)
+            new_target = random.choice(nodes)
+            
+            # Avoid self-loops
+            if new_source == new_target:
+                continue
+            
+            # Avoid existing edges (unless we're replacing it)
+            if (new_source, new_target) in existing_edges and (new_source, new_target) != (old_edge["source"], old_edge["target"]):
+                continue
+            
+            # Create new edge
+            new_edges[idx] = {
+                "source": new_source,
+                "target": new_target,
+                "relation": old_edge["relation"]  # Preserve relation or randomize?
             }
+            break
     
     return {
-        'edges': noisy_edges,
-        'nodes': all_nodes
+        "nodes": nodes,
+        "edges": new_edges
     }
 
-def generate_noisy_graphs(graphs: Dict[str, Any], ratio: float = 0.1, seed: int = 42) -> Dict[str, Any]:
+def generate_noisy_graphs(clean_graphs: Dict[str, Dict[str, Any]], ratio: float = 0.1, seed: int = 42) -> Dict[str, Dict[str, Any]]:
     """
-    Generate noisy versions of all graphs.
-
+    Generate noisy versions of all graphs in the input dictionary.
+    
     Args:
-        graphs: Dictionary of task_id to graph data.
-        ratio: The ratio of edges to replace.
-        seed: Random seed.
-
+        clean_graphs: Dictionary mapping task_id to clean graph
+        ratio: Noise ratio (default: 0.1)
+        seed: Random seed (default: 42)
+    
     Returns:
-        Dictionary of task_id to noisy graph data.
+        Dictionary mapping task_id to noisy graph
     """
     noisy_graphs = {}
-    for task_id, graph in graphs.items():
-        noisy_graphs[task_id] = inject_noise(graph, ratio, seed)
+    
+    for task_id, graph in clean_graphs.items():
+        noisy_graphs[task_id] = inject_noise(graph, ratio=ratio, seed=seed)
+    
     return noisy_graphs
 
-def save_noisy_graphs(noisy_graphs: Dict[str, Any], output_path: Path = PROCESSED_PATH / "graph_noise_42.json"):
+def save_noisy_graphs(noisy_graphs: Dict[str, Dict[str, Any]], output_path: Optional[Path] = None):
     """
     Save noisy graphs to a JSON file.
-
+    
     Args:
-        noisy_graphs: Dictionary of task_id to noisy graph data.
-        output_path: Path to the output file.
+        noisy_graphs: Dictionary mapping task_id to noisy graph
+        output_path: Output file path (default: data/processed/graphs/graph_noise_42.json)
     """
-    ensure_output_dirs()
+    if output_path is None:
+        output_path = GRAPHS_DIR / "graph_noise_42.json"
     
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(noisy_graphs, f, indent=2)
     
-    logger.info(f"Saved noisy graphs for {len(noisy_graphs)} tasks to {output_path}")
+    logger.info(f"Saved {len(noisy_graphs)} noisy graphs to {output_path}")
 
-def load_noisy_graphs(input_path: Path = PROCESSED_PATH / "graph_noise_42.json") -> Dict[str, Any]:
+def load_noisy_graphs(input_path: Optional[Path] = None) -> Dict[str, Dict[str, Any]]:
     """
     Load noisy graphs from a JSON file.
-
+    
     Args:
-        input_path: Path to the input file.
-
+        input_path: Input file path (default: data/processed/graphs/graph_noise_42.json)
+    
     Returns:
-        Dictionary of task_id to noisy graph data.
+        Dictionary mapping task_id to noisy graph
     """
+    if input_path is None:
+        input_path = GRAPHS_DIR / "graph_noise_42.json"
+    
     if not input_path.exists():
         raise FileNotFoundError(f"Noisy graph file not found: {input_path}")
     
     with open(input_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def process_in_chunks(tasks: List[Dict[str, Any]], chunk_size: int = 100):
+def stream_locomo_tasks(chunk_size: int = 10) -> Iterator[Dict[str, Any]]:
+    """
+    Stream LoCoMo tasks in chunks to avoid memory overload.
+    
+    Args:
+        chunk_size: Number of tasks per chunk
+    
+    Yields:
+        Task dictionaries one by one
+    """
+    try:
+        # Try streaming mode first
+        ds = load_dataset("locomo/locomo-benchmark", split="test", streaming=True, trust_remote_code=True)
+        
+        chunk = []
+        for task in ds:
+            chunk.append(task)
+            if len(chunk) >= chunk_size:
+                yield from chunk
+                chunk = []
+        
+        # Yield remaining tasks
+        if chunk:
+            yield from chunk
+            
+    except Exception as e:
+        logger.warning(f"Streaming failed, falling back to chunked loading: {e}")
+        # Fallback: load in chunks from file
+        tasks = fetch_locomo_dataset("test")
+        for i in range(0, len(tasks), chunk_size):
+            yield from tasks[i:i+chunk_size]
+
+def process_in_chunks(tasks: List[Dict[str, Any]], processor, chunk_size: int = 100):
     """
     Process tasks in chunks.
-
+    
     Args:
-        tasks: List of task dictionaries.
-        chunk_size: Number of tasks per chunk.
+        tasks: List of tasks to process
+        processor: Function to apply to each task
+        chunk_size: Number of tasks per chunk
+    
+    Returns:
+        List of processed results
     """
+    results = []
+    
     for i in range(0, len(tasks), chunk_size):
         chunk = tasks[i:i+chunk_size]
-        # Process chunk
-        logger.info(f"Processing chunk {i//chunk_size + 1} ({len(chunk)} tasks)")
+        chunk_results = [processor(task) for task in chunk]
+        results.extend(chunk_results)
+    
+    return results
 
-def estimate_dataset_size(dataset_name: str) -> int:
+def estimate_dataset_size(dataset_id: str, split: str = "test") -> int:
     """
     Estimate the size of a dataset in bytes.
-
+    
     Args:
-        dataset_name: The name of the dataset.
-
+        dataset_id: HuggingFace dataset ID
+        split: Dataset split
+    
     Returns:
-        Estimated size in bytes.
+        Estimated size in bytes
     """
-    # Placeholder implementation
-    return 1000000  # 1 MB
+    try:
+        ds = load_dataset(dataset_id, split=split, streaming=True)
+        # Get first few items to estimate size
+        sample = list(ds)[:10]
+        avg_size = sum(len(json.dumps(item).encode()) for item in sample) / len(sample)
+        
+        # Get total count
+        total = len(list(load_dataset(dataset_id, split=split)))
+        
+        return int(avg_size * total)
+    except Exception as e:
+        logger.warning(f"Could not estimate size: {e}")
+        return 0
 
 def main():
-    """Main entry point for data loading."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Load and process LoCoMo dataset.")
-    parser.add_argument('--download', action='store_true', help="Download the dataset")
-    parser.add_argument('--subset', type=str, default="test", help="Dataset subset")
-    parser.add_argument('--noise-ratio', type=float, default=0.1, help="Noise ratio for graph injection")
-    parser.add_argument('--seed', type=int, default=42, help="Random seed")
-
-    args = parser.parse_args()
-
-    if args.download:
-        # Download dataset
-        tasks = fetch_locomo_dataset(subset=args.subset)
-        save_raw_data(tasks)
-        
-        # Build graphs
-        graphs = build_memory_graph(tasks)
-        save_graphs(graphs)
-        
-        # Generate noisy graphs
-        noisy_graphs = generate_noisy_graphs(graphs, ratio=args.noise_ratio, seed=args.seed)
-        save_noisy_graphs(noisy_graphs)
-        
-        logger.info("Data loading and processing complete.")
+    """
+    Main entry point for data loading and graph generation.
+    
+    This function:
+    1. Fetches the LoCoMo dataset
+    2. Extracts triples and builds graphs
+    3. Saves clean graphs to intermediate storage
+    4. Injects noise and saves noisy graphs
+    """
+    logger.info("Starting data loading and graph generation pipeline")
+    
+    # Step 1: Fetch dataset
+    logger.info("Fetching LoCoMo dataset...")
+    try:
+        tasks = fetch_locomo_dataset("test")
+    except ValueError as e:
+        logger.error(f"Failed to fetch dataset: {e}")
+        raise
+    
+    logger.info(f"Fetched {len(tasks)} tasks")
+    
+    # Step 2: Extract triples and build graphs
+    logger.info("Extracting triples and building graphs...")
+    clean_graphs = {}
+    
+    for task in tasks:
+        task_id = task.get("question", f"task_{hash(task['context']) % 10000}")[:50]
+        triples = extract_traces_from_context(task["context"])
+        graph = build_memory_graph(triples)
+        clean_graphs[task_id] = graph
+    
+    logger.info(f"Built {len(clean_graphs)} graphs")
+    
+    # Step 3: Save clean graphs
+    logger.info("Saving clean graphs...")
+    save_graphs(clean_graphs)
+    
+    # Step 4: Generate noisy graphs
+    logger.info("Generating noisy graphs (ratio=0.1, seed=42)...")
+    noisy_graphs = generate_noisy_graphs(clean_graphs, ratio=0.1, seed=42)
+    
+    # Step 5: Save noisy graphs
+    logger.info("Saving noisy graphs...")
+    save_noisy_graphs(noisy_graphs)
+    
+    logger.info("Pipeline completed successfully")
+    
+    # Verification
+    output_path = GRAPHS_DIR / "graph_noise_42.json"
+    if output_path.exists():
+        size = output_path.stat().st_size
+        logger.info(f"Output file {output_path} created with size {size} bytes")
     else:
-        logger.info("No action specified. Use --download to fetch and process data.")
+        logger.error(f"Output file {output_path} was not created!")
+        raise RuntimeError("Failed to create noisy graph output file")
 
 if __name__ == "__main__":
     main()

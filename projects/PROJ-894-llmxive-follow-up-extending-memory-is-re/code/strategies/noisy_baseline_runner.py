@@ -1,11 +1,14 @@
 """
 Noisy Baseline Execution Runner for T013b.
 
-Executes the 'Full' active reconstruction strategy on synthetic noisy graphs
-(generated in T011c) and logs results to data/processed/noisy_baseline_results.csv.
+Executes the 'full' active reconstruction strategy on the synthetic noisy graphs
+(data/processed/graphs/graph_noise_42.json) generated in T011c.
 
-This script explicitly handles degenerate graphs and timeout states as per T037/T006-1.
+Logs results to: data/processed/noisy_baseline_results.csv
+Columns: task_id, accuracy, nodes_visited, latency_ms, status
+Status Values: COMPLETED, TIMEOUT, DEGENERATE, UNRESOLVED
 """
+
 import os
 import sys
 import time
@@ -17,22 +20,15 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 # Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from runner import (
-    TimeoutError,
-    TimeoutHandler,
-    load_tasks,
-    load_graph,
-    run_batch,
-    save_results_to_csv,
-    process_in_chunks_streaming,
-    ensure_output_dirs
-)
 from strategies.full import run_full_strategy
+from data_loader import load_noisy_graphs, stream_locomo_tasks
 from graph_utils import validate_graph, get_graph_statistics
+from runner import TimeoutHandler, TimeoutError, ensure_output_dirs
+import signal
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -47,174 +43,200 @@ def normalize_answer(answer: str) -> str:
 
 def load_tasks(input_path: str) -> List[Dict[str, Any]]:
     """
-    Load tasks from the noisy graph input file.
-    The input file is expected to be a JSON file where keys are task_ids
-    and values are graph structures (edges) or task data associated with the graph.
+    Load tasks from the noisy graph dataset.
+    Since we are running on noisy graphs, we need to pair the task data
+    with the noisy graph structure.
     """
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    with open(input_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
+    # We use the streaming iterator to get tasks, but we need to load the noisy graphs
+    # The runner expects tasks to have 'question', 'context', 'answer', and 'task_id'
+    # The graph structure is loaded separately and passed to the strategy.
+    
     tasks = []
-    # The noisy graph file structure from T011c is expected to be:
-    # { "task_id_1": [edges...], "task_id_2": [edges...] }
-    # or potentially a list of dicts. We adapt to the most common structure.
-    if isinstance(data, dict):
-        for task_id, edges in data.items():
-            tasks.append({
-                "task_id": task_id,
-                "graph_edges": edges,
-                # We assume the question/answer context is embedded or we need to fetch it.
-                # For this runner, we focus on the graph traversal metrics.
-                # If the original task data is needed for accuracy, it should be merged here.
-                # Since T011c produces graphs, we assume the 'accuracy' metric is derived
-                # from a separate oracle or the task context is implicit in the graph structure.
-                # However, to be robust, we try to load context if available.
-                "context": None,
-                "question": None,
-                "answer": None
-            })
-    elif isinstance(data, list):
-        # Fallback if it's a list of task objects
-        for item in data:
-            tasks.append(item)
+    # Using the streaming iterator from T050 to avoid loading full dataset into memory
+    # We assume the raw data was already processed into graphs, so we just need the task metadata.
+    # However, T011a-1b produces graphs_raw.json. T011c produces graph_noise_42.json.
+    # We need to map task_id -> noisy_graph.
+    
+    # Let's load the noisy graphs first
+    noisy_graphs = load_noisy_graphs()
+    
+    if not noisy_graphs:
+        logger.error("No noisy graphs found. Ensure T011c has run successfully.")
+        return []
 
-    logger.info(f"Loaded {len(tasks)} tasks from {input_path}")
+    # We need to iterate over the original tasks to get the questions/answers
+    # The noisy graphs are keyed by task_id.
+    # We will use the streaming iterator to fetch task metadata (question, answer)
+    # and match it with the pre-loaded noisy graph.
+    
+    for task in stream_locomo_tasks(chunk_size=100):
+        task_id = task.get('task_id')
+        if not task_id:
+            logger.warning(f"Task missing task_id, skipping: {task}")
+            continue
+        
+        if task_id in noisy_graphs:
+            task['graph'] = noisy_graphs[task_id]
+            tasks.append(task)
+        else:
+            logger.warning(f"Noisy graph missing for task_id: {task_id}. Skipping.")
+    
     return tasks
 
-def evaluate_task(task: Dict[str, Any], strategy_func, timeout_seconds: int = 300) -> Dict[str, Any]:
+def evaluate_task(task: Dict[str, Any], strategy_name: str = "full") -> Dict[str, Any]:
     """
-    Execute a single task with the specified strategy and timeout handling.
+    Evaluate a single task using the specified strategy on its noisy graph.
+    
+    Returns a result dictionary with:
+    - task_id
+    - accuracy (0.0 or 1.0 based on answer match)
+    - nodes_visited (count)
+    - latency_ms (float)
+    - status (COMPLETED, TIMEOUT, DEGENERATE, UNRESOLVED)
     """
-    task_id = task.get("task_id", "unknown")
-    graph_edges = task.get("graph_edges", [])
-
-    # Initialize result with default failure state
+    task_id = task.get('task_id', 'unknown')
+    graph = task.get('graph')
+    question = task.get('question', '')
+    expected_answer = task.get('answer', '')
+    
     result = {
-        "task_id": task_id,
-        "accuracy": None,
-        "nodes_visited": 0,
-        "latency_ms": 0.0,
-        "status": "UNKNOWN"
+        'task_id': task_id,
+        'accuracy': None,
+        'nodes_visited': 0,
+        'latency_ms': 0.0,
+        'status': 'UNRESOLVED'
     }
 
-    if not graph_edges:
-        logger.warning(f"Task {task_id} has no graph edges. Marking as DEGENERATE.")
-        result["status"] = "DEGENERATE"
+    if not graph:
+        logger.error(f"Task {task_id} has no graph data.")
         return result
-
-    # Construct a graph from edges for the strategy
-    # We expect edges to be in a format compatible with graph_utils or networkx
-    # Assuming edges is a list of dicts: [{"source": "A", "target": "B", ...}]
-    # We need to convert this to a format the strategy can use.
-    # The strategy expects a networkx graph or similar structure.
-    # We'll construct the graph here to pass to the strategy.
-    import networkx as nx
-    G = nx.DiGraph()
-    for edge in graph_edges:
-        src = edge.get("source")
-        tgt = edge.get("target")
-        if src and tgt:
-            G.add_edge(src, tgt, **edge)
 
     # Validate graph
-    if not validate_graph(G):
-        logger.warning(f"Task {task_id} graph validation failed. Marking as DEGENERATE.")
-        result["status"] = "DEGENERATE"
+    is_valid, stats = validate_graph(graph)
+    if not is_valid:
+        logger.warning(f"Task {task_id} has invalid graph: {stats}")
+        result['status'] = 'DEGENERATE'
+        return result
+    
+    # Check for degenerate cases (single node, no edges)
+    num_nodes = stats.get('num_nodes', 0)
+    num_edges = stats.get('num_edges', 0)
+    if num_nodes <= 1 or num_edges == 0:
+        logger.info(f"Task {task_id} detected as degenerate (nodes={num_nodes}, edges={num_edges})")
+        result['status'] = 'DEGENERATE'
         return result
 
-    # Check for degenerate cases (single node, disconnected)
-    stats = get_graph_statistics(G)
-    if stats.get("node_count", 0) <= 1:
-        logger.warning(f"Task {task_id} graph has <= 1 node. Marking as DEGENERATE.")
-        result["status"] = "DEGENERATE"
-        return result
-
-    # Check connectivity if necessary (though Full strategy handles it)
-    if not nx.is_weakly_connected(G):
-        logger.info(f"Task {task_id} graph is disconnected. Strategy will handle component traversal.")
-
-    # Execute with timeout
     start_time = time.time()
     try:
-        # Use the TimeoutHandler context manager if available, or wrap
-        # The runner.py provides a TimeoutHandler class
-        with TimeoutHandler(seconds=timeout_seconds):
-            # Run the strategy
-            # The strategy function is expected to return a result dict
-            # We pass the graph G and any necessary task context
-            strategy_result = strategy_func(G, task)
+        # Run the full traversal strategy
+        # The strategy returns (success, nodes_visited, execution_time, reconstructed_answer)
+        success, nodes_visited, execution_time, reconstructed_answer = run_full_strategy(
+            graph, 
+            question, 
+            timeout=30  # Default timeout per task
+        )
+        
+        result['nodes_visited'] = nodes_visited
+        result['latency_ms'] = execution_time * 1000.0
+        
+        if success:
+            # Check accuracy
+            pred_norm = normalize_answer(reconstructed_answer)
+            expected_norm = normalize_answer(expected_answer)
             
-            elapsed = (time.time() - start_time) * 1000
+            if pred_norm == expected_norm:
+                result['accuracy'] = 1.0
+            else:
+                result['accuracy'] = 0.0
             
-            result["nodes_visited"] = strategy_result.get("nodes_visited", 0)
-            result["latency_ms"] = round(elapsed, 2)
-            result["accuracy"] = strategy_result.get("accuracy")
-            result["status"] = strategy_result.get("status", "COMPLETED")
-
-    except TimeoutError:
-        logger.error(f"Task {task_id} timed out after {timeout_seconds}s.")
-        result["status"] = "TIMEOUT"
-        result["latency_ms"] = round(timeout_seconds * 1000, 2)
+            result['status'] = 'COMPLETED'
+        else:
+            # If strategy returned False but didn't timeout, it might be unresolved
+            result['status'] = 'UNRESOLVED'
+            
+    except TimeoutError as e:
+        logger.warning(f"Task {task_id} timed out.")
+        result['status'] = 'TIMEOUT'
+        result['latency_ms'] = 30000.0 # Record timeout duration
     except Exception as e:
         logger.error(f"Task {task_id} failed with exception: {e}", exc_info=True)
-        result["status"] = "ERROR"
-        result["latency_ms"] = round((time.time() - start_time) * 1000, 2)
+        result['status'] = 'UNRESOLVED'
 
     return result
 
+def save_results_to_csv(results: List[Dict[str, Any]], output_path: str):
+    """Save results to CSV file."""
+    ensure_output_dirs(output_path)
+    
+    fieldnames = ['task_id', 'accuracy', 'nodes_visited', 'latency_ms', 'status']
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for res in results:
+            # Ensure all fields are present
+            row = {k: res.get(k, '') for k in fieldnames}
+            writer.writerow(row)
+    
+    logger.info(f"Results saved to {output_path}")
+
 def main():
-    parser = argparse.ArgumentParser(description="Noisy Baseline Execution Runner (T013b)")
-    parser.add_argument("--input", type=str, required=True, help="Path to noisy graphs JSON file")
-    parser.add_argument("--output", type=str, required=True, help="Path to output CSV file")
-    parser.add_argument("--timeout", type=int, default=300, help="Timeout per task in seconds")
-    parser.add_argument("--chunk-size", type=int, default=10, help="Number of tasks to process in a batch")
-    parser.add_argument("--streaming", action="store_true", help="Enable streaming mode for large datasets")
+    parser = argparse.ArgumentParser(description="Run noisy baseline execution.")
+    parser.add_argument(
+        "--input", 
+        type=str, 
+        default="data/processed/graphs/graph_noise_42.json",
+        help="Path to the noisy graph dataset (JSON)"
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default="data/processed/noisy_baseline_results.csv",
+        help="Path to the output CSV file"
+    )
+    parser.add_argument(
+        "--subset",
+        type=int,
+        default=None,
+        help="Optional: limit execution to first N tasks"
+    )
+    
     args = parser.parse_args()
-
-    # Ensure output directory exists
-    ensure_output_dirs(args.output)
-
+    
     logger.info(f"Starting Noisy Baseline Runner. Input: {args.input}, Output: {args.output}")
-
-    # Load tasks
+    
+    # Load tasks and graphs
     tasks = load_tasks(args.input)
+    
     if not tasks:
-        logger.warning("No tasks loaded. Exiting.")
-        return
-
+        logger.error("No tasks loaded. Exiting.")
+        sys.exit(1)
+    
+    logger.info(f"Loaded {len(tasks)} tasks.")
+    
+    if args.subset:
+        tasks = tasks[:args.subset]
+        logger.info(f"Limiting to {args.subset} tasks.")
+    
     results = []
-
-    if args.streaming:
-        # Process in chunks/streaming
-        logger.info("Running in streaming mode.")
-        # For streaming, we might need to adapt the input loader to yield tasks
-        # For now, we assume load_tasks returns a list or generator
-        # If it's a list, we can still iterate in chunks
-        batch_results = process_in_chunks_streaming(
-            tasks, 
-            args.chunk_size, 
-            lambda task_batch: [evaluate_task(t, run_full_strategy, args.timeout) for t in task_batch]
-        )
-        for batch in batch_results:
-            results.extend(batch)
-    else:
-        # Process all at once or in batches
-        logger.info("Running in batch mode.")
-        for i in range(0, len(tasks), args.chunk_size):
-            batch = tasks[i:i+args.chunk_size]
-            logger.info(f"Processing batch {i//args.chunk_size + 1} ({len(batch)} tasks)")
-            batch_results = [evaluate_task(task, run_full_strategy, args.timeout) for task in batch]
-            results.extend(batch_results)
-
+    for i, task in enumerate(tasks):
+        logger.info(f"Processing task {i+1}/{len(tasks)}: {task.get('task_id')}")
+        res = evaluate_task(task)
+        results.append(res)
+        
+        # Log summary for each task
+        logger.info(f"  -> Status: {res['status']}, Acc: {res['accuracy']}, Nodes: {res['nodes_visited']}")
+    
     # Save results
-    if results:
-        save_results_to_csv(results, args.output)
-        logger.info(f"Results saved to {args.output}")
-    else:
-        logger.warning("No results to save.")
+    save_results_to_csv(results, args.output)
+    
+    # Summary
+    completed = sum(1 for r in results if r['status'] == 'COMPLETED')
+    timeout = sum(1 for r in results if r['status'] == 'TIMEOUT')
+    degenerate = sum(1 for r in results if r['status'] == 'DEGENERATE')
+    unresolved = sum(1 for r in results if r['status'] == 'UNRESOLVED')
+    
+    logger.info(f"Execution complete. Total: {len(results)}, Completed: {completed}, Timeout: {timeout}, Degenerate: {degenerate}, Unresolved: {unresolved}")
 
 if __name__ == "__main__":
     main()
