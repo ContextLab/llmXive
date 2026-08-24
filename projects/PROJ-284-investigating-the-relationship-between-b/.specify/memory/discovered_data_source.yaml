@@ -1,11 +1,12 @@
 status: none
-intent: openneuro-py download HCP S1200 ds000117 dataset python package dataset
+intent: Human Connectome Project S1200 OpenNeuro ds000117 resting fMRI behavioral
+  python package dataset
 required_fields:
 - subject_id
+- resting_state_fmri_path
+- motor_task_performance_score
 - age
 - sex
-- motor_task_performance_score
-- resting_state_fmri_file_path
-cache_key: 44dedb16f92103dfddf58327067527a0d2a50aa872413393c7aa826252bc9da8
-searched_at: '2026-07-21T03:44:25.302820+00:00'
+cache_key: 2c6ce842418bf3fd0d18a4da5bd608cd0c65985ff737890c68d0433505cdcd57
+searched_at: '2026-08-24T08:06:05.870363+00:00'
 retry_count: 1

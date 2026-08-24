@@ -1,146 +1,209 @@
 """
 Fetch HCP behavioral/phenotypic data for the specified subjects.
 
-This script downloads the HCP 'Minimal Preprocessed' phenotypic data
-(CSV) for a given list of subject IDs and saves it to the project's
-data/raw directory. It relies on the HCP OpenAccess data structure
-(S3 bucket) and the `openneuro-py` or direct HTTP access patterns used
-by the project.
-
-Per the project constraints, this script does NOT generate synthetic data.
-If the real data cannot be fetched, it raises an exception.
+This script downloads the HCP "Minimal Preprocessed" phenotypic CSV
+from the official HCP S3 bucket (publicly accessible). It writes the
+full CSV to ``data/raw/hcp_phenotypic.csv`` and, when a list of subject
+IDs is supplied, creates a filtered version ``hcp_phenotypic_filtered.csv``.
+No synthetic data are generated; if the real download fails the script
+raises an exception so the failure is visible to the pipeline runner.
 """
 from __future__ import annotations
 
 import argparse
-import os
 import sys
-import time
 from pathlib import Path
+from typing import List, Optional
 
+import pandas as pd
 import requests
+
 from code.logging_config import get_logger
+from code.config import get_hcp_credentials
 
 logger = get_logger(__name__)
 
-# HCP OpenAccess S3 bucket base URL for phenotypic data
-# The phenotypic data is typically in the 'HCP_1200' or similar release folders.
-# We target the 'Phenotypic' folder in the S3 bucket.
+# ----------------------------------------------------------------------
+# Constants – HCP phenotypic data location
+# ----------------------------------------------------------------------
+# The phenotypic CSV is publicly hosted in the HCP 1200 release.
+# The URL points to the latest version of the file.  If HCP changes the
+# location the script will raise a clear error, prompting an update.
 HCP_S3_BASE = "https://db.humanconnectome.org/data/archive/projects/HCP_1200"
-# The phenotypic CSV file name pattern (often a single large CSV or per-subject)
-# For this implementation, we assume we are fetching the main phenotypic CSV
-# or specific subject rows if the API supports it.
-# The standard HCP phenotypic file is often named like 'HCP_1200_Phenotypic_v1.csv'
-# or similar. We will attempt to download the main phenotypic file and filter,
-# or download subject-specific files if available.
-# Given the constraint of "Real data only", we will attempt to fetch the
-# main phenotypic CSV which contains all subjects.
 PHENOTYPIC_FILE_NAME = "HCP_1200_Phenotypic_v1.csv"
 PHENOTYPIC_URL = f"{HCP_S3_BASE}/Phenotypic/{PHENOTYPIC_FILE_NAME}"
 
-def fetch_hcp_phenotypic_data(output_dir: Path, subjects: list[str] | None = None) -> Path:
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _download_file(url: str, dest: Path, auth: Optional[tuple] = None) -> None:
     """
-    Fetches HCP phenotypic data.
+    Stream‑download a file from ``url`` to ``dest`` using ``requests``.
+    Raises ``RuntimeError`` on any HTTP or network error.
 
-    Args:
-        output_dir: Directory to save the data.
-        subjects: Optional list of subject IDs to filter. If None, downloads all.
+    Parameters
+    ----------
+    url: str
+        The HTTP(S) URL to download.
+    dest: Path
+        Destination file path (parent directories are created automatically).
+    auth: tuple | None
+        Optional ``(username, password)`` for HTTP Basic Auth.
+    """
+    logger.log("download_start", url=url, destination=str(dest))
+    dest.parent.mkdir(parents=True, exist_ok=True)
 
-    Returns:
-        Path to the saved CSV file.
+    try:
+        with requests.get(url, stream=True, timeout=120, auth=auth) as r:
+            r.raise_for_status()
+            with open(dest, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+    except requests.RequestException as e:
+        logger.log("download_failed", url=url, error=str(e))
+        raise RuntimeError(f"Failed to download {url}: {e}") from e
+
+    logger.log("download_complete", path=str(dest), size_bytes=dest.stat().st_size)
+
+def _load_csv(path: Path) -> pd.DataFrame:
+    """
+    Load a CSV file with pandas, ensuring that the file is a valid CSV.
+    Raises ``RuntimeError`` if parsing fails.
+    """
+    logger.log("csv_load_start", path=str(path))
+    try:
+        df = pd.read_csv(path)
+    except Exception as e:
+        logger.log("csv_load_failed", path=str(path), error=str(e))
+        raise RuntimeError(f"Unable to parse CSV at {path}: {e}") from e
+    logger.log("csv_load_success", path=str(path), rows=len(df))
+    return df
+
+def _find_subject_column(df: pd.DataFrame) -> str:
+    """
+    Heuristically locate the column that contains HCP subject identifiers.
+    Returns the column name or raises ``ValueError`` if none is found.
+    """
+    candidates = [c for c in df.columns if "subj" in str(c).lower() or "subject" in str(c).lower()]
+    if not candidates:
+        raise ValueError("Could not locate a subject ID column in phenotypic data.")
+    # Prefer a column named exactly 'Subject' if it exists.
+    for c in candidates:
+        if c.lower() == "subject":
+            return c
+    return candidates[0]
+
+# ----------------------------------------------------------------------
+# Public API
+# ----------------------------------------------------------------------
+def fetch_hcp_phenotypic_data(
+    output_dir: Path,
+    subjects: Optional[List[str]] = None,
+) -> Path:
+    """
+    Download (or reuse) the HCP phenotypic CSV and optionally filter it.
+
+    Parameters
+    ----------
+    output_dir: Path
+        Directory where the CSV (and any filtered version) will be saved.
+    subjects: list[str] | None
+        If provided, ``subjects`` must be a list of 6‑digit HCP IDs.
+        The function will write a filtered CSV containing only those rows.
+
+    Returns
+    -------
+    Path
+        Path to the CSV file that contains the requested data
+        (filtered if ``subjects`` was supplied, otherwise the full file).
     """
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "hcp_phenotypic.csv"
+    full_path = output_dir / "hcp_phenotypic.csv"
 
-    if output_file.exists():
-        logger.log("file_exists", path=str(output_file))
-        # If we only need a subset, we might need to re-filter, but for this
-        # implementation we assume the full file is the source of truth.
-        # If the caller requested specific subjects, we filter the existing file.
-        if subjects:
-            import pandas as pd
-            df = pd.read_csv(output_file)
-            # HCP subject IDs are typically 12 digits. We assume the column is 'Subject' or similar.
-            # We'll try to find the subject column.
-            subject_col = None
-            for col in df.columns:
-                if "subject" in col.lower() or "subj" in col.lower():
-                    subject_col = col
-                    break
-            if not subject_col:
-                # Fallback: assume first column or raise
-                raise ValueError("Could not find subject ID column in phenotypic data.")
+    # ------------------------------------------------------------------
+    # 1. Download if the full file does not already exist.
+    # ------------------------------------------------------------------
+    if not full_path.is_file():
+        # Use HCP credentials if they are configured; otherwise attempt anonymous.
+        credentials = get_hcp_credentials()
+        auth = None
+        if credentials and credentials.get("access_key") and credentials.get("secret_key"):
+            auth = (credentials["access_key"], credentials["secret_key"])
+            logger.log("using_hcp_credentials")
+        _download_file(PHENOTYPIC_URL, full_path, auth=auth)
 
-            df_filtered = df[df[subject_col].astype(str).isin(subjects)]
-            filtered_file = output_dir / "hcp_phenotypic_filtered.csv"
-            df_filtered.to_csv(filtered_file, index=False)
-            logger.log("filtered_data_saved", path=str(filtered_file), count=len(df_filtered))
-            return filtered_file
-        return output_file
+    # ------------------------------------------------------------------
+    # 2. Load the CSV (validates that the download succeeded).
+    # ------------------------------------------------------------------
+    df = _load_csv(full_path)
 
-    logger.log("fetching_phenotypic_data", url=PHENOTYPIC_URL)
-    try:
-        response = requests.get(PHENOTYPIC_URL, timeout=60)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        logger.log("fetch_failed", error=str(e))
-        raise RuntimeError(f"Failed to fetch HCP phenotypic data from {PHENOTYPIC_URL}: {e}")
-
-    with open(output_file, "wb") as f:
-        f.write(response.content)
-
-    logger.log("data_saved", path=str(output_file))
-
-    # If subjects were requested, filter immediately
+    # ------------------------------------------------------------------
+    # 3. If a subject filter is requested, produce a filtered CSV.
+    # ------------------------------------------------------------------
     if subjects:
-        import pandas as pd
-        df = pd.read_csv(output_file)
-        subject_col = None
-        for col in df.columns:
-            if "subject" in col.lower() or "subj" in col.lower():
-                subject_col = col
-                break
-        if not subject_col:
-            raise ValueError("Could not find subject ID column in phenotypic data.")
+        subject_col = _find_subject_column(df)
+        # Ensure subject IDs are strings for reliable matching.
+        df[subject_col] = df[subject_col].astype(str)
+        filtered_df = df[df[subject_col].isin(subjects)].copy()
+        filtered_path = output_dir / "hcp_phenotypic_filtered.csv"
+        filtered_df.to_csv(filtered_path, index=False)
+        logger.log(
+            "filtered_csv_written",
+            path=str(filtered_path),
+            subject_count=len(filtered_df),
+            requested=len(subjects),
+        )
+        return filtered_path
 
-        df_filtered = df[df[subject_col].astype(str).isin(subjects)]
-        filtered_file = output_dir / "hcp_phenotypic_filtered.csv"
-        df_filtered.to_csv(filtered_file, index=False)
-        logger.log("filtered_data_saved", path=str(filtered_file), count=len(df_filtered))
-        return filtered_file
+    # ------------------------------------------------------------------
+    # 4. No filtering requested – return the full CSV path.
+    # ------------------------------------------------------------------
+    logger.log("full_csv_available", path=str(full_path), rows=len(df))
+    return full_path
 
-    return output_file
-
-def main():
-    parser = argparse.ArgumentParser(description="Fetch HCP behavioral/phenotypic data.")
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Fetch HCP behavioral/phenotypic data."
+    )
     parser.add_argument(
         "--subjects",
         type=str,
         nargs="+",
-        help="List of HCP subject IDs (e.g., 100307).",
-        default=None,
+        help="Space‑separated list of HCP subject IDs (e.g., 100307).",
     )
     parser.add_argument(
         "--output",
         type=Path,
         default=Path("data/raw"),
-        help="Output directory for downloaded data.",
+        help="Directory where the phenotypic CSV will be stored.",
     )
     args = parser.parse_args()
 
-    subjects = args.subjects
-    if subjects:
-        # Validate subject IDs (HCP IDs are typically 6-digit integers)
-        for sub in subjects:
-            if not sub.isdigit() or len(sub) != 6:
-                logger.log("invalid_subject_id", subject=sub)
-                print(f"Warning: Subject ID {sub} does not look like a standard HCP ID.")
+    # Normalise subject IDs (strip whitespace, ensure 6‑digit numeric strings)
+    subjects: Optional[List[str]] = None
+    if args.subjects:
+        subjects = []
+        for sub in args.subjects:
+            sub_clean = sub.strip()
+            if not sub_clean.isdigit() or len(sub_clean) != 6:
+                logger.log("invalid_subject_id", subject=sub_clean)
+                print(
+                    f"Warning: Subject ID {sub_clean} does not look like a standard HCP ID.",
+                    file=sys.stderr,
+                )
+            else:
+                subjects.append(sub_clean)
 
     try:
         result_path = fetch_hcp_phenotypic_data(args.output, subjects)
-        print(f"Successfully fetched HCP behavioral data to: {result_path}")
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+        print(f"Successfully fetched HCP phenotypic data to: {result_path}")
+    except Exception as exc:
+        logger.log("fetch_failed", error=str(exc))
+        print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

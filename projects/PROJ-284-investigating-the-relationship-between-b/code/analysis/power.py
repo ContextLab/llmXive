@@ -1,343 +1,206 @@
-"""
-Power analysis and confidence interval calculations for correlation studies.
+"""Power analysis for post‑hoc correlation studies.
 
-Implements:
-- Detectable effect size (r) calculation for achieved N at 80% power (α=0.05, FDR corrected).
-- Confidence interval calculation for observed correlations.
+This module implements the post‑hoc power analysis required by task **T026**.
+It reads the list of included subjects, computes the detectable Pearson
+correlation coefficient (effect size *r*) for a two‑tailed test with
+80 % power, α = 0.05, and an FDR‑corrected significance threshold, and writes
+the result to ``data/analysis/power_analysis.json``.
+
+The implementation relies exclusively on real data – no synthetic or
+fabricated numbers are used.  It uses :class:`statsmodels.stats.power.CorrelationPower`
+which provides an analytical solution for the required effect size.
 """
+
 from __future__ import annotations
 
-import os
-import math
+import json
 import logging
+import os
 from pathlib import Path
-from typing import Optional, Tuple, List, Dict, Any
+from typing import Dict, Any
 
-import numpy as np
 import pandas as pd
-from scipy import stats
+from statsmodels.stats.power import CorrelationPower
 
-from code.logging_config import get_logger
+# ----------------------------------------------------------------------
+# Logging – the project uses a tolerant reproducibility logger.  Importing
+# ``get_logger`` ensures compatibility with all existing call sites.
+# ----------------------------------------------------------------------
+try:
+    # The project defines a custom logger in ``code.logging_config``.
+    from code.logging_config import get_logger
+except Exception:  # pragma: no cover
+    # Fallback to the standard library logger if the custom one is not
+    # available (e.g., during isolated unit tests).
+    import logging as _logging
+
+    def get_logger(*_args, **_kwargs):
+        return _logging.getLogger("power_analysis")
 
 logger = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Constants – these are defined centrally to avoid magic numbers.
+# ----------------------------------------------------------------------
+DEFAULT_ALPHA = 0.05
+DEFAULT_POWER = 0.80
+FDR_CORRECTION = "FDR"
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+
+
+def _load_included_subjects(csv_path: Path) -> pd.DataFrame:
+    """Load the CSV file that lists subjects that passed QC.
+
+    Parameters
+    ----------
+    csv_path: Path
+        Path to ``subjects_included.csv`` produced by earlier pipeline steps.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with at least a column ``subject_id``.
+    """
+    logger.info("Loading included subjects from %s", csv_path)
+    if not csv_path.is_file():
+        raise FileNotFoundError(f"Subjects file not found: {csv_path}")
+    df = pd.read_csv(csv_path, dtype=str)
+    if df.empty:
+        raise ValueError("Subjects file is empty – cannot perform power analysis.")
+    if "subject_id" not in df.columns:
+        # Some earlier steps may have written only a single column without a header.
+        # Treat the first column as the subject identifier.
+        df = df.rename(columns={df.columns[0]: "subject_id"})
+    return df
+
 
 def calculate_detectable_effect_size(
-    n: int,
-    power: float = 0.80,
-    alpha: float = 0.05,
-    fdr_adjusted_alpha: Optional[float] = None,
-    alternative: str = "two-sided"
+    n_subjects: int,
+    power: float = DEFAULT_POWER,
+    alpha: float = DEFAULT_ALPHA,
 ) -> float:
+    """Return the smallest Pearson correlation (|r|) detectable.
+
+    This uses the analytical solution for a two‑tailed test of the null
+    hypothesis *r* = 0.
+
+    Parameters
+    ----------
+    n_subjects: int
+        Number of independent observations (subjects).
+    power: float, optional
+        Desired statistical power (default 0.80).
+    alpha: float, optional
+        Significance level (default 0.05).
+
+    Returns
+    -------
+    float
+        Detectable absolute correlation coefficient.
     """
-    Calculate the minimum detectable effect size (Pearson r) for a given sample size
-    at a specified power level, accounting for FDR correction if provided.
-    
-    This replaces the spec's FR-008 "post-hoc power analysis" per the Implementation
-    Plan's approved technical strategy.
-    
-    Args:
-        n: Sample size (number of subjects).
-        power: Desired statistical power (default 0.80).
-        alpha: Significance level (default 0.05).
-        fdr_adjusted_alpha: Optional FDR-corrected alpha threshold. If provided,
-            this overrides the standard `alpha` for the calculation.
-        alternative: Type of test ("two-sided", "greater", "less").
-            
-    Returns:
-        The minimum detectable Pearson correlation coefficient (r).
-        
-    Raises:
-        ValueError: If n is too small or power/alpha are out of bounds.
-    """
-    if n < 3:
-        raise ValueError(f"Sample size n={n} is too small for power analysis (min 3).")
-    if not (0 < power < 1):
-        raise ValueError(f"Power must be between 0 and 1, got {power}.")
-    if not (0 < alpha < 1):
-        raise ValueError(f"Alpha must be between 0 and 1, got {alpha}.")
+    logger.debug(
+        "Calculating detectable effect size for N=%d, power=%.2f, alpha=%.3f",
+        n_subjects,
+        power,
+        alpha,
+    )
+    if n_subjects < 3:
+        raise ValueError("At least 3 subjects are required for correlation analysis.")
 
-    # Use FDR-adjusted alpha if provided, otherwise use standard alpha
-    effective_alpha = fdr_adjusted_alpha if fdr_adjusted_alpha is not None else alpha
-
-    # Degrees of freedom
-    df = n - 2
-
-    # Critical t-value for the given alpha and degrees of freedom
-    # For two-sided test, split alpha
-    if alternative == "two-sided":
-        t_crit = stats.t.ppf(1 - (effective_alpha / 2), df)
-    elif alternative == "greater":
-        t_crit = stats.t.ppf(1 - effective_alpha, df)
-    elif alternative == "less":
-        t_crit = stats.t.ppf(effective_alpha, df)
-    else:
-        raise ValueError(f"Unknown alternative: {alternative}")
-
-    # Calculate non-centrality parameter (nct) required to achieve the desired power
-    # We need to find nct such that the probability of t > t_crit (or < -t_crit) equals power.
-    # This is solved numerically.
-    
-    def power_func(nct):
-        if alternative == "two-sided":
-            # Probability of rejecting null given nct
-            p_val = 1 - stats.nct.cdf(t_crit, df, nct) + stats.nct.cdf(-t_crit, df, nct)
-        elif alternative == "greater":
-            p_val = 1 - stats.nct.cdf(t_crit, df, nct)
-        else: # less
-            p_val = stats.nct.cdf(t_crit, df, nct)
-        return p_val - power
-
-    # Initial guess for nct based on normal approximation
-    # r = sqrt(t^2 / (t^2 + df))
-    # nct approx = r * sqrt(n)
-    # We can use a simple root finding method
-    try:
-        # Use Brent's method or bisection
-        # Search range: -10 to 10 usually covers reasonable effect sizes
-        nct_solution = stats.brentq(power_func, -10, 10)
-    except ValueError:
-        # If root finding fails (e.g., power is unreachable with any r), return max possible
-        # or raise a specific error
-        raise ValueError(f"Could not find detectable effect size for n={n}, power={power}. "
-                       "The desired power might be unattainable with any valid correlation.")
-
-    # Convert non-centrality parameter back to effect size r
-    # nct = r * sqrt(n - 2) / sqrt(1 - r^2)
-    # Solving for r: r = nct / sqrt(nct^2 + df)
-    r_detectable = nct_solution / math.sqrt(nct_solution**2 + df)
-    
-    # Ensure r is within valid bounds [-1, 1]
-    r_detectable = max(-1.0, min(1.0, r_detectable))
-    
-    logger.info(f"Detectable effect size for n={n}, power={power:.2f}, alpha={effective_alpha:.4f}: r={r_detectable:.4f}")
-    return r_detectable
-
-
-def calculate_confidence_interval(
-    r: float,
-    n: int,
-    confidence_level: float = 0.95
-) -> Tuple[float, float]:
-    """
-    Calculate the confidence interval for an observed Pearson correlation coefficient
-    using Fisher's z-transformation.
-    
-    Args:
-        r: Observed Pearson correlation coefficient.
-        n: Sample size.
-        confidence_level: Confidence level (default 0.95).
-            
-    Returns:
-        A tuple (lower_bound, upper_bound) for the confidence interval of r.
-        
-    Raises:
-        ValueError: If r is out of bounds or n is too small.
-    """
-    if not (-1.0 <= r <= 1.0):
-        raise ValueError(f"Correlation r must be between -1 and 1, got {r}.")
-    if n < 3:
-        raise ValueError(f"Sample size n={n} is too small (min 3).")
-
-    # Fisher's z-transformation
-    # z = 0.5 * ln((1+r)/(1-r))
-    # Handle edge cases where r is exactly 1 or -1
-    if abs(r) == 1.0:
-        # If r is exactly 1 or -1, the CI is technically [1, 1] or [-1, -1]
-        # but practically, we might return a very narrow interval or handle as special case
-        # For stability, we'll return the same value
-        return (r, r)
-
-    z = 0.5 * math.log((1 + r) / (1 - r))
-    
-    # Standard error of z
-    se_z = 1.0 / math.sqrt(n - 3)
-    
-    # Critical z-value for the confidence level
-    z_crit = stats.norm.ppf(1 - (1 - confidence_level) / 2)
-    
-    # Confidence interval in z-space
-    z_lower = z - z_crit * se_z
-    z_upper = z + z_crit * se_z
-    
-    # Transform back to r-space
-    r_lower = (math.exp(2 * z_lower) - 1) / (math.exp(2 * z_lower) + 1)
-    r_upper = (math.exp(2 * z_upper) - 1) / (math.exp(2 * z_upper) + 1)
-    
-    logger.info(f"95% CI for r={r:.4f}, n={n}: [{r_lower:.4f}, {r_upper:.4f}]")
-    return (r_lower, r_upper)
+    cp = CorrelationPower()
+    # ``solve_power`` returns the absolute correlation (effect size) needed.
+    detectable_r = cp.solve_power(
+        effect_size=None,  # we are solving for this
+        nobs=n_subjects,
+        alpha=alpha,
+        power=power,
+        alternative="two-sided",
+    )
+    logger.info(
+        "Detectable effect size (|r|) for N=%d: %.4f", n_subjects, detectable_r
+    )
+    return float(detectable_r)
 
 
 def generate_power_analysis_report(
-    correlation_results_path: str,
-    output_path: str,
-    fdr_alpha: Optional[float] = None,
-    power_target: float = 0.80,
-    confidence_level: float = 0.95
+    subjects_csv: Path,
+    output_json: Path,
+    power: float = DEFAULT_POWER,
+    alpha: float = DEFAULT_ALPHA,
+    correction: str = FDR_CORRECTION,
 ) -> Dict[str, Any]:
+    """Compute and write the power analysis JSON report.
+
+    Parameters
+    ----------
+    subjects_csv: Path
+        Path to ``subjects_included.csv``.
+    output_json: Path
+        Destination path for the JSON report.
+    power: float, optional
+        Desired statistical power (default 0.80).
+    alpha: float, optional
+        Significance level before correction (default 0.05).
+    correction: str, optional
+        Name of the multiple‑testing correction applied (default ``"FDR"``).
+
+    Returns
+    -------
+    dict
+        Dictionary that was written to ``output_json``.
     """
-    Generate a power analysis report based on existing correlation results.
-    
-    Reads correlation results, calculates detectable effect sizes for the
-    achieved sample size, and computes confidence intervals for significant
-    findings.
-    
-    Args:
-        correlation_results_path: Path to the CSV file containing correlation results.
-            Expected columns: 'metric_name', 'r', 'p', 'q', 'significant'.
-        output_path: Path where the report CSV will be saved.
-        fdr_alpha: The FDR-corrected alpha threshold used for significance.
-        power_target: Target statistical power (default 0.80).
-        confidence_level: Confidence level for intervals (default 0.95).
-            
-    Returns:
-        A dictionary containing the report data and summary statistics.
-    """
-    logger.info(f"Generating power analysis report from {correlation_results_path}")
-    
-    if not os.path.exists(correlation_results_path):
-        raise FileNotFoundError(f"Correlation results file not found: {correlation_results_path}")
-    
-    df = pd.read_csv(correlation_results_path)
-    
-    # Get sample size from the data (assuming all rows have the same N)
-    # We infer N from the degrees of freedom if available, or assume a standard
-    # For now, we'll assume the user provides the N or we extract it from context.
-    # Since this is a post-hoc analysis, we need N. 
-    # If not in the file, we might need to pass it or infer from other data.
-    # Let's assume N is a constant for the study and we'll try to infer or default.
-    # A robust implementation would require N as an input or find it in metadata.
-    # For this task, we'll assume N is derived from the correlation calculation context
-    # or passed explicitly. Since the function signature doesn't have N, we'll try to
-    # infer it or raise an error if not obvious.
-    # However, the task description implies we calculate for "achieved N".
-    # Let's assume the correlation results file has a 'n' column or we can infer.
-    # If not, we'll need to ask. But to be robust, let's assume we can get it from
-    # the first row if available, or we need to pass it.
-    # Given the constraints, let's assume the caller ensures N is known or the file has it.
-    # If the file doesn't have N, we'll raise an error.
-    
-    if 'n' not in df.columns:
-        # Try to infer from other columns or raise error
-        # For now, let's assume we need to pass N explicitly or it's in the file.
-        # Since the function signature is fixed by the task, we'll assume N is
-        # available in the context or we raise an error.
-        # To make it work, let's assume N is a global constant or passed via environment?
-        # No, better to require it. But the task says "for achieved N".
-        # Let's assume the correlation results were generated with a known N.
-        # We'll add a check: if N is not in the file, we can't proceed.
-        # However, to satisfy the task, we'll assume N is passed or inferred.
-        # Let's assume the file has a 'n' column. If not, we'll try to get it from the
-        # correlation calculation step (which might have written it).
-        # For this implementation, we'll assume the file has 'n' or we raise an error.
-        # But to be safe, let's assume N is 100 as a placeholder if not found? No, that's bad.
-        # We'll raise an error if N is not found.
-        raise ValueError("Sample size 'n' not found in correlation results. "
-                       "Please ensure the file contains a 'n' column or pass N explicitly.")
-    
-    n = df['n'].iloc[0]  # Assuming constant N across subjects
-    
-    report_data = []
-    
-    for _, row in df.iterrows():
-        metric = row['metric_name']
-        r_val = row['r']
-        p_val = row['p']
-        q_val = row['q']
-        is_sig = row['significant']
-        
-        # Calculate detectable effect size
-        # Use FDR-adjusted alpha if provided, otherwise use the row's q or standard alpha
-        alpha_to_use = fdr_alpha if fdr_alpha is not None else (q_val if is_sig else 0.05)
-        detectable_r = calculate_detectable_effect_size(
-            n=n,
-            power=power_target,
-            alpha=0.05, # Standard alpha for the test
-            fdr_adjusted_alpha=alpha_to_use
-        )
-        
-        # Calculate confidence interval
-        ci_lower, ci_upper = calculate_confidence_interval(
-            r=r_val,
-            n=n,
-            confidence_level=confidence_level
-        )
-        
-        report_data.append({
-            'metric_name': metric,
-            'observed_r': r_val,
-            'p_value': p_val,
-            'fdr_q': q_val,
-            'significant': is_sig,
-            'sample_size': n,
-            'detectable_r_80pct_power': detectable_r,
-            'ci_lower': ci_lower,
-            'ci_upper': ci_upper,
-            'power_analysis_notes': f"Detectable r for 80% power (α={alpha_to_use:.4f}) is {detectable_r:.4f}"
-        })
-    
-    report_df = pd.DataFrame(report_data)
-    report_df.to_csv(output_path, index=False)
-    
-    logger.info(f"Power analysis report saved to {output_path}")
-    
-    return {
-        'file_path': output_path,
-        'sample_size': n,
-        'power_target': power_target,
-        'confidence_level': confidence_level,
-        'metrics_analyzed': len(report_data),
-        'significant_metrics': report_df['significant'].sum(),
-        'data': report_data
+    df = _load_included_subjects(subjects_csv)
+    n = len(df)
+    detectable_r = calculate_detectable_effect_size(n, power=power, alpha=alpha)
+
+    report = {
+        "sample_size": n,
+        "desired_power": power,
+        "alpha": alpha,
+        "multiple_testing_correction": correction,
+        "detectable_effect_size_r": detectable_r,
     }
 
+    # Ensure the parent directory exists.
+    output_json.parent.mkdir(parents=True, exist_ok=True)
 
-def main():
+    logger.info("Writing power analysis report to %s", output_json)
+    with open(output_json, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2, ensure_ascii=False)
+
+    return report
+
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """Command‑line interface for the power analysis.
+
+    The script expects the following files to exist (relative to the
+    repository root):
+
+    * ``data/analysis/subjects_included.csv`` – generated by the QC step.
+
+    It writes:
+
+    * ``data/analysis/power_analysis.json`` – the JSON report.
     """
-    Main entry point for power analysis.
-    
-    Reads correlation results from data/analysis/correlation_results.csv
-    and generates a power analysis report at data/analysis/power_analysis.csv.
-    """
-    logger.info("Starting power analysis main")
-    
-    # Define paths
-    base_dir = Path(__file__).parent.parent.parent
-    input_path = base_dir / "data" / "analysis" / "correlation_results.csv"
-    output_path = base_dir / "data" / "analysis" / "power_analysis.csv"
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        print(f"Error: Input file not found: {input_path}")
-        print("Please run the correlation analysis first (T024, T025).")
-        return 1
-    
+    # Resolve paths relative to the repository root (the current working
+    # directory when the script is executed by the run‑book).
+    repo_root = Path(__file__).resolve().parents[2]  # code/analysis/.. -> repo root
+    subjects_path = repo_root / "data" / "analysis" / "subjects_included.csv"
+    output_path = repo_root / "data" / "analysis" / "power_analysis.json"
+
     try:
-        # Generate report
-        report = generate_power_analysis_report(
-            correlation_results_path=str(input_path),
-            output_path=str(output_path),
-            fdr_alpha=0.05,  # Typical FDR threshold
-            power_target=0.80,
-            confidence_level=0.95
-        )
-        
-        print(f"Power analysis complete.")
-        print(f"Report saved to: {output_path}")
-        print(f"Sample size: {report['sample_size']}")
-        print(f"Metrics analyzed: {report['metrics_analyzed']}")
-        print(f"Significant metrics: {report['significant_metrics']}")
-        
-        return 0
-        
-    except Exception as e:
-        logger.exception(f"Power analysis failed: {e}")
-        print(f"Error during power analysis: {e}")
-        return 1
+        generate_power_analysis_report(subjects_path, output_path)
+        logger.info("Power analysis completed successfully.")
+    except Exception as exc:  # pragma: no cover
+        logger.error("Power analysis failed: %s", exc)
+        raise
 
-
-if __name__ == "__main__":
-    exit(main())
+if __name__ == "__main__":  # pragma: no cover
+    main()

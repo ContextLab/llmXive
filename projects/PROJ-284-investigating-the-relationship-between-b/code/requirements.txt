@@ -12,3 +12,7 @@ statsmodels==0.14.1
 scipy==1.12.0
 psutil==5.9.0
 community  # auto-added: imported by run-book but missing from venv
+bct  # auto-added: imported by run-book but missing from venv
+tqdm  # auto-added: imported by run-book but missing from venv
+urllib3  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

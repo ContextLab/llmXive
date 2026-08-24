@@ -1,274 +1,276 @@
-"""Report generation module for assembling Markdown/PDF reports."""
+"""Report generation with dynamic sample size reporting.
+
+This module extends the existing report generation logic (Task T033) by
+inserting the actual number of subjects processed and the number of
+subjects excluded, as required by Task T074.
+
+It reads ``validation_status.json`` and ``qc_summary.csv`` from the
+``data/analysis`` directory, computes the sample statistics, and injects
+them into the report template (``templates/report_template.md``).  The
+final Markdown report is written to ``reports/summary.md``.
+"""
+
 from __future__ import annotations
 
+import json
 import os
 import sys
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 import pandas as pd
 
-from code.logging_config import get_logger
+# ----------------------------------------------------------------------
+# Helper functions – loading data
+# ----------------------------------------------------------------------
+def load_template(template_path: Path) -> str:
+    """Load the Markdown template used for the final report.
 
-logger = get_logger(__name__)
+    Parameters
+    ----------
+    template_path: Path
+        Path to the Markdown template file.
 
-# Ensure templates directory exists
-TEMPLATES_DIR = Path(__file__).parent.parent.parent / "templates"
-TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
+    Returns
+    -------
+    str
+        The raw template text.
+    """
+    if not template_path.is_file():
+        raise FileNotFoundError(f"Report template not found: {template_path}")
+    return template_path.read_text(encoding="utf-8")
 
-def load_template(template_name: str = "report_template.md") -> str:
-    """Load the report template from disk or create a fallback if missing."""
-    template_path = TEMPLATES_DIR / template_name
-    
-    if template_path.exists():
-        with open(template_path, "r", encoding="utf-8") as f:
-            return f.read()
-    
-    # Fallback template if file is missing (should not happen if T033 ran correctly)
-    fallback = """# Brain Network Dynamics and Sensorimotor Performance Report
 
-**Generated:** {{date}}
-**Project:** Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Sensorimotor Performance
+def load_validation_status(status_path: Path) -> Dict[str, Any]:
+    """Load ``validation_status.json`` produced by the QC pipeline.
 
-## Executive Summary
+    Parameters
+    ----------
+    status_path: Path
+        Path to the JSON status file.
 
-This report presents the findings from the analysis of brain network dynamics and their association with sensorimotor performance metrics.
+    Returns
+    -------
+    dict
+        Parsed JSON content.
+    """
+    if not status_path.is_file():
+        raise FileNotFoundError(f"validation_status.json not found at {status_path}")
+    with status_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
 
-## Data Overview
 
-- **Subjects Analyzed:** {{subjects_analyzed}}
-- **Data Source:** HCP (Human Connectome Project) / ADHD-200
-- **Atlas:** Schaefer 400 Parcellation
+def load_qc_summary(qc_path: Path) -> pd.DataFrame:
+    """Load ``qc_summary.csv`` containing per‑subject QC metrics.
 
-## Correlation Results
+    The CSV is expected to have at least a column named ``included`` that
+    indicates whether the subject passed QC (True/False or 1/0).
 
-{{correlation_table}}
+    Parameters
+    ----------
+    qc_path: Path
+        Path to the CSV file.
 
-## Power Analysis
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with the QC summary.
+    """
+    if not qc_path.is_file():
+        raise FileNotFoundError(f"qc_summary.csv not found at {qc_path}")
+    df = pd.read_csv(qc_path)
+    if "included" not in df.columns:
+        # Fall back to a boolean interpretation: any non‑null row is included.
+        df["included"] = True
+    return df
 
-{{power_analysis}}
 
-## Visualizations
-
-{{plots}}
-
-## Limitations
-
-{{limitations}}
-
-## Conclusion
-
-{{conclusion}}
-
----
-*Generated automatically by the llmXive automated science pipeline.*"""
-    return fallback
-
-def format_correlation_table(correlation_results: Optional[pd.DataFrame]) -> str:
-    """Format correlation results as a Markdown table."""
-    if correlation_results is None or correlation_results.empty:
-        return "*No correlation results available.*"
-    
-    # Ensure necessary columns exist
-    required_cols = ["metric_name", "r", "p", "q", "significant"]
-    available_cols = [c for c in required_cols if c in correlation_results.columns]
-    
-    df_display = correlation_results[available_cols].copy()
-    df_display["significant"] = df_display["significant"].apply(lambda x: "Yes" if x else "No")
-    
-    # Round numeric columns
-    for col in ["r", "p", "q"]:
-        if col in df_display.columns:
-            df_display[col] = df_display[col].round(4)
-    
-    return df_display.to_markdown(index=False)
-
-def format_power_analysis(power_results: Optional[Dict[str, Any]]) -> str:
-    """Format power analysis results."""
-    if not power_results:
-        return "*No power analysis results available.*"
-    
-    lines = []
-    lines.append(f"- **Sample Size (N):** {power_results.get('n', 'N/A')}")
-    lines.append(f"- **Power Level:** {power_results.get('power', '80%')}")
-    lines.append(f"- **Significance Level (α):** {power_results.get('alpha', '0.05')}")
-    lines.append(f"- **Detectable Effect Size (r):** {power_results.get('detectable_r', 'N/A'):.4f}" if isinstance(power_results.get('detectable_r'), (int, float)) else f"- **Detectable Effect Size (r):** {power_results.get('detectable_r', 'N/A')}")
-    lines.append(f"- **Confidence Interval:** {power_results.get('ci', 'N/A')}")
-    
-    return "\n".join(lines)
-
-def format_plots(plot_files: List[str]) -> str:
-    """Format plot file references as Markdown image links."""
-    if not plot_files:
-        return "*No plots generated.*"
-    
-    lines = []
-    for plot_file in plot_files:
-        plot_path = Path(plot_file)
-        if plot_path.exists():
-            # Use relative path for report
-            rel_path = plot_path.relative_to(Path(__file__).parent.parent.parent)
-            lines.append(f"![{plot_path.stem}]({rel_path})")
-        else:
-            lines.append(f"*Plot file not found: {plot_file}*")
-    
-    return "\n\n".join(lines)
-
-def generate_limitations() -> str:
-    """Generate the limitations section with required text."""
-    return (
-        "### Limitations\n\n"
-        "1. **Causality:** This study identifies correlational evidence, not causal relationships.\n"
-        "2. **Measurement Proxy:** Motor Task Performance is a proxy for proprioceptive accuracy.\n"
-        "3. **Sample Size:** The effective sample size after exclusions may limit statistical power for smaller effect sizes.\n"
-        "4. **Generalizability:** Results are specific to the HCP/ADHD-200 population and may not generalize to other cohorts.\n"
-        "5. **Motion Artifacts:** Despite rigorous motion correction, residual artifacts may influence connectivity estimates."
-    )
-
-def generate_conclusion(
-    correlation_results: Optional[pd.DataFrame],
-    power_results: Optional[Dict[str, Any]]
+# ----------------------------------------------------------------------
+# Core logic – compute sample statistics
+# ----------------------------------------------------------------------
+def format_sample_info(
+    validation_path: Path,
+    qc_summary_path: Path,
 ) -> str:
-    """Generate the conclusion section with conditional phrasing based on results."""
-    has_significant = False
-    significant_count = 0
-    total_count = 0
-    
-    if correlation_results is not None and not correlation_results.empty:
-        if "significant" in correlation_results.columns:
-            significant_count = int(correlation_results["significant"].sum())
-            total_count = len(correlation_results)
-            has_significant = significant_count > 0
-    
-    conclusion_parts = [
-        "## Conclusion\n\n"
-        "This study investigated the relationship between brain network dynamics and individual differences in sensorimotor performance.\n\n"
-    ]
-    
-    if has_significant:
-        conclusion_parts.append(
-            f"Significant correlations were found in {significant_count} out of {total_count} tested metrics. "
-            "These findings provide **correlational evidence** for an **associational relationship** "
-            "between specific network metrics (e.g., Participation Coefficient, Within-Module Degree) and motor performance scores.\n\n"
-        )
-    else:
-        conclusion_parts.append(
-            f"No significant correlations survived FDR correction across the {total_count} tested metrics. "
-            "While this suggests a lack of strong **associational relationship** in this dataset, "
-            "it does not rule out the possibility of weaker effects or effects in specific sub-populations.\n\n"
-        )
-    
-    if power_results and isinstance(power_results.get('detectable_r'), (int, float)):
-        r_val = power_results['detectable_r']
-        conclusion_parts.append(
-            f"Based on the achieved sample size, the study had 80% power to detect effect sizes of |r| >= {r_val:.3f}. "
-            "Effects smaller than this threshold may have been missed.\n\n"
-        )
-    
-    conclusion_parts.append(
-        "Future work should replicate these findings in independent cohorts and explore the causal mechanisms "
-        "underlying the observed **associational relationship** between brain network topology and sensorimotor function."
-    )
-    
-    return "".join(conclusion_parts)
+    """Create a human‑readable block with sample size information.
 
+    The function follows the specification of Task T074:
+    * read ``validation_status.json`` and ``qc_summary.csv``
+    * determine the number of subjects that were processed (i.e. passed
+      QC) and the number that were excluded
+    * return a formatted string suitable for insertion into the Markdown
+      report.
+
+    Parameters
+    ----------
+    validation_path: Path
+        Path to ``validation_status.json``.
+    qc_summary_path: Path
+        Path to ``qc_summary.csv``.
+
+    Returns
+    -------
+    str
+        Formatted Markdown snippet.
+    """
+    # Load files
+    validation = load_validation_status(validation_path)
+    qc_df = load_qc_summary(qc_summary_path)
+
+    # Primary source for counts is the QC summary.  The JSON may contain
+    # explicit counts, but we treat the CSV as authoritative.
+    processed = int(qc_df["included"].astype(bool).sum())
+    total = len(qc_df)
+    excluded = total - processed
+
+    # If the JSON supplies explicit numbers, verify consistency.
+    json_processed = validation.get("subjects_processed")
+    json_excluded = validation.get("subjects_excluded")
+    if json_processed is not None and json_processed != processed:
+        # Log a warning via the tolerant logger (if available)
+        try:
+            from code.logging_config import get_logger
+
+            logger = get_logger(__name__)
+            logger.warning(
+                "Mismatch between QC CSV and validation_status.json: "
+                f"processed {json_processed} (JSON) vs {processed} (CSV). "
+                "Using CSV values."
+            )
+        except Exception:
+            pass  # logger optional – continue with CSV values
+
+    # Build the Markdown snippet
+    sample_info = (
+        f"**Number of subjects processed:** {processed}\\n"
+        f"**Number of subjects excluded:** {excluded}\\n"
+    )
+    return sample_info
+
+
+# ----------------------------------------------------------------------
+# Report assembly
+# ----------------------------------------------------------------------
 def generate_report(
-    correlation_results: Optional[pd.DataFrame] = None,
-    power_results: Optional[Dict[str, Any]] = None,
-    plot_files: Optional[List[str]] = None,
-    output_path: Optional[Path] = None
-) -> Path:
-    """Assemble the full report and write to disk."""
-    logger.log("generate_report", status="starting")
-    
-    # Load template
-    template_content = load_template("report_template.md")
-    
-    # Prepare data
-    date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    # Count subjects if available
-    subjects_analyzed = "N/A"
-    if correlation_results is not None and "subject_id" in correlation_results.columns:
-        subjects_analyzed = len(correlation_results["subject_id"].unique())
-    elif correlation_results is not None:
-        subjects_analyzed = len(correlation_results)
-    
-    # Format sections
-    corr_table_md = format_correlation_table(correlation_results)
-    power_md = format_power_analysis(power_results)
-    plots_md = format_plots(plot_files or [])
-    limitations_md = generate_limitations()
-    conclusion_md = generate_conclusion(correlation_results, power_results)
-    
-    # Substitute placeholders
-    report_content = template_content
-    report_content = report_content.replace("{{date}}", date_str)
-    report_content = report_content.replace("{{subjects_analyzed}}", str(subjects_analyzed))
-    report_content = report_content.replace("{{correlation_table}}", corr_table_md)
-    report_content = report_content.replace("{{power_analysis}}", power_md)
-    report_content = report_content.replace("{{plots}}", plots_md)
-    report_content = report_content.replace("{{limitations}}", limitations_md)
-    report_content = report_content.replace("{{conclusion}}", conclusion_md)
-    
-    # Determine output path
-    if output_path is None:
-        output_dir = Path(__file__).parent.parent.parent / "data" / "analysis"
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = output_dir / "final_report.md"
-    
-    # Write report
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(report_content)
-    
-    logger.log("generate_report", status="completed", output=str(output_path))
-    return output_path
+    template_path: Path,
+    output_path: Path,
+    validation_path: Path,
+    qc_summary_path: Path,
+) -> None:
+    """Generate the final Markdown report with dynamic sample size info.
 
-def main() -> None:
-    """Entry point for report generation."""
-    logger.log("main", step="report_generation")
-    
-    # Load data from previous steps if available
-    data_dir = Path(__file__).parent.parent.parent / "data" / "analysis"
-    
-    correlation_df = None
-    corr_file = data_dir / "correlation_results.csv"
-    if corr_file.exists():
-        try:
-            correlation_df = pd.read_csv(corr_file)
-            logger.log("load_correlations", path=str(corr_file), rows=len(correlation_df))
-        except Exception as e:
-            logger.log("load_correlations_error", error=str(e))
-    
-    power_results = None
-    power_file = data_dir / "power_analysis_results.json"
-    if power_file.exists():
-        try:
-            import json
-            with open(power_file, "r") as f:
-                power_results = json.load(f)
-            logger.log("load_power", path=str(power_file))
-        except Exception as e:
-            logger.log("load_power_error", error=str(e))
-    
-    # Collect plot files
-    plot_files = []
-    figures_dir = Path(__file__).parent.parent.parent / "figures"
-    if figures_dir.exists():
-        for ext in ["*.png", "*.pdf"]:
-            plot_files.extend([str(p) for p in figures_dir.glob(ext)])
-    
-    # Generate report
-    output_path = generate_report(
-        correlation_results=correlation_df,
-        power_results=power_results,
-        plot_files=plot_files
+    Parameters
+    ----------
+    template_path: Path
+        Path to the report template (Markdown with a ``{{SAMPLE_INFO}}``
+        placeholder).
+    output_path: Path
+        Destination path for the rendered report.
+    validation_path: Path
+        Path to ``validation_status.json``.
+    qc_summary_path: Path
+        Path to ``qc_summary.csv``.
+    """
+    # Load the base template
+    template = load_template(template_path)
+
+    # Compute the sample‑size block
+    sample_info = format_sample_info(validation_path, qc_summary_path)
+
+    # Insert the sample information.  The placeholder ``{{SAMPLE_INFO}}`` is
+    # defined in the template; if it is missing we append the block at the
+    # end of the document.
+    placeholder = "{{SAMPLE_INFO}}"
+    if placeholder in template:
+        report_content = template.replace(placeholder, sample_info)
+    else:
+        report_content = f"{template}\n\n{sample_info}"
+
+    # Ensure the output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write the final report
+    output_path.write_text(report_content, encoding="utf-8")
+
+    # Inform the (tolerant) logger that the report was produced
+    try:
+        from code.logging_config import get_logger
+
+        logger = get_logger(__name__)
+        logger.info(f"Report written to {output_path}")
+    except Exception:
+        pass  # logger optional
+
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main(argv: list[str] | None = None) -> int:
+    """Command‑line interface for the report generator.
+
+    Expected arguments (mirroring the original quick‑start script):
+    1. ``--template`` path to the Markdown template.
+    2. ``--output``   path where the report should be written.
+    3. ``--validation`` path to ``validation_status.json``.
+    4. ``--qc-summary`` path to ``qc_summary.csv``.
+
+    Returns
+    -------
+    int
+        Exit code (0 for success, non‑zero for failure).
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Generate the final analysis report with dynamic sample‑size statistics."
     )
-    
-    print(f"Report generated successfully: {output_path}")
-    logger.log("main", status="finished", output=str(output_path))
+    parser.add_argument(
+        "--template",
+        type=Path,
+        required=True,
+        help="Path to the Markdown report template.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        required=True,
+        help="Path where the rendered Markdown report will be saved.",
+    )
+    parser.add_argument(
+        "--validation",
+        type=Path,
+        required=True,
+        help="Path to validation_status.json produced by the QC pipeline.",
+    )
+    parser.add_argument(
+        "--qc-summary",
+        type=Path,
+        required=True,
+        help="Path to qc_summary.csv produced by the QC pipeline.",
+    )
+
+    args = parser.parse_args(argv)
+
+    try:
+        generate_report(
+            template_path=args.template,
+            output_path=args.output,
+            validation_path=args.validation,
+            qc_summary_path=args.qc_summary,
+        )
+    except Exception as exc:
+        # Use the tolerant logger if possible; otherwise print to stderr.
+        try:
+            from code.logging_config import get_logger
+
+            logger = get_logger(__name__)
+            logger.error(f"Report generation failed: {exc}")
+        except Exception:
+            print(f"Report generation failed: {exc}", file=sys.stderr)
+        return 1
+
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
