@@ -11,10 +11,18 @@ T012:
   r: The required YAML file `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml`
     does not exist, so the project metadata and `artifact_hashes` map have not been
     created. The task therefore remains unfinished.
-T017c:
+T020:
   c: false
-  h: 1799351b9ed577467bceae6c9dc305bffa836be851ac5c51d5e919e33b104211
-  r: "The repository contains the merge script, but the required output file `data/processed/merged_monthly.csv`\
-    \ does not exist, and the referenced schema file `contracts/dataset.schema.yaml`\
-    \ is also missing. Without these artifacts the task\u2019s core requirements (producing\
-    \ a validated merged CSV) are not satisfied."
+  h: 1cbf416ebd7524e993f1bf904154c2df76ff09714a3eae5e8a36532455c9dace
+  r: "The provided `03_correlation_analysis.py` is truncated and does not show implementation\
+    \ of the required AR(1) pre\u2011whitening via `statsmodels.tsa.ar_model.AutoReg`,\
+    \ Newey\u2011West SEs, bootstrap confidence\u2011interval calculation, or creation\
+    \ of the `data/processed/correlation_results.csv` file (the file is missing).\
+    \ Consequently the essential outputs and several mandated methodological steps\
+    \ are absent."
+T040:
+  c: false
+  h: c77182a1996f0811d217a9bddadf2db92f146b420ca35239072ca9fbb002e539
+  r: The required `data/processed/merged_monthly.csv` dataset is absent, and the expected
+    `docs/runtime_profile.md` report containing the measured runtime and resource
+    usage does not exist. Without these artifacts the task cannot be verified as completed.

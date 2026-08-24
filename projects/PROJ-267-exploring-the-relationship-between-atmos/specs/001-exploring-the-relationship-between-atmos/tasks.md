@@ -55,7 +55,7 @@
 | Phase 4: Visualization | FR-006, FR-009, FR-007 | SC-003, SC-004 | Plots and reports |
 | Phase 5: Polish | All | All | Final validation |
 
-- [X] T006 Initialize Python project with dependencies in `projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt` (pandas, numpy, scipy, statsmodels, requests, matplotlib, seaborn, pyyaml)
+- [X] T006 Initialize Python project with dependencies in `projects/PROJ-267-exploring-the-relationship-between-atmos/code/requirements.txt` (pandas, numpy, scipy, statsmodels, requests, matplotlib, seaborn, pyyaml, psutil)
 - [X] T007 [P] Configure linting and formatting tools: create `.flake8` and `pyproject.toml` in `projects/PROJ-267-exploring-the-relationship-between-atmos/code/`
 - [X] T009 [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/quickstart.md` covering installation, run commands, data sources, and expected outputs per FR-007 documentation requirements.
 - [X] T009b [P] Create `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/methodology.md` with the initial methodology draft, including the 'Frame of Reference and Coordinate System' section placeholder. **Depends on T001-T005.**
@@ -146,12 +146,12 @@
 
 **Independent Test**: Verification that `data-model.md` and `docs/methodology.md` explicitly define the reference frame (satellite altitude potential vs. geoid) and document the covariant nature of the measurement.
 
-- [X] T032 [US1/US2] Update `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md` to explicitly define the "Gravity Anomaly" entity's frame of reference. **Requirement**: Must state that the anomaly represents the perturbation in the gravitational potential at the GRACE-FO satellite altitude (approx. low Earth orbit), not the geoid height at the Earth's surface. Must explicitly note that this is a coordinate-dependent quantity derived from spherical harmonic coefficients and that the analysis assumes a static, non-rotating frame for the duration of the monthly aggregation, acknowledging the coordinate artifact nature of "static" anomalies in a dynamic field. **Depends on T010 (Complete).**
+- [X] T032 [US1/US2] Update `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md` to explicitly define the "Gravity Anomaly" entity's frame of reference. **Requirement**: Must state that the anomaly represents the perturbation in the gravitational potential at the GRACE-FO satellite altitude (approx. low Earth orbit), not the geoid height at the Earth's surface. Must explicitly note that this is a coordinate-dependent quantity derived from spherical harmonic coefficients and that the analysis assumes a static, non-rotating frame for the duration of the monthly aggregation, acknowledging the coordinate artifact nature of "static" anomalies in a dynamic field. **Semantic Shift Note**: This task explicitly overrides the spec's "geoid height" definition to satisfy Constitution Principle VII and the "albert-einstein-simulated" review. **Depends on T010 (Complete).**
  **Content to be written to data-model.md:**
  ```markdown
  ## Gravity Anomaly
  - **date**: ISO 8601 date string (monthly)
- - **anomaly_value**: Float (Geoid height anomaly at satellite altitude in meters)
+ - **anomaly_value**: Float (Perturbation in gravitational potential at satellite altitude in meters)
  - **uncertainty**: Float (Standard deviation of the anomaly in meters)
  - **region**: String (Study region identifier)
 
@@ -170,19 +170,20 @@
 
 **Independent Test**: Can be fully tested by executing the data pipeline script and verifying the output contains a merged CSV with ≥ 90% of expected monthly rows and no NaN values in the primary columns
 
-**⚠️ DEPENDENCY**: T015 must complete before T016, T016 must complete before T017. **⚠️ HARD GATE**: Phase 1 (including T013, T014) and Phase 1.5 (T032) must complete before T017a/T017b can run. **⚠️ DEPENDENCY**: T017a/T017b depend on T013 (schema generation) and T032 (data model definition).
+**⚠️ DEPENDENCY**: T015 must complete before T017a/T017b. T017a/b must complete before T017c. **⚠️ HARD GATE**: Phase 1 (including T013, T014) and Phase 1.5 (T032) must complete before T017c. **⚠️ DEPENDENCY**: T017c depends on T013 (schema generation) and T032 (data model definition).
 
 ### Implementation for User Story 1
 
 - [X] T015 [US1] Create data fetching script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/01_data_ingestion_grace.py` that: (1) fetches GRACE-FO processed mascon solutions from ` (PO.DAAC CMR search API for GRACE-FO L2 Mascon RL06), (2) logs dataset version/release date per Constitution Principle VI, (3) implements region filtering for West Coast NA (northern latitude range, western longitudinal boundary), (4) saves raw downloads to `data/raw/grace-fo/` with checksums per Principle III.
-- [X] T016 [US1] Create data fetching script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/01_data_ingestion_noaa.py` that: (1) fetches NOAA CPC Atmospheric River Catalog data from `https://coastwatch.pfeg.noaa.gov/erddap/tabledap/ar_catalog.html` (NOAA ERDDAP endpoint), (2) logs dataset version/release date, (3) implements region filtering for West Coast NA, (4) saves raw downloads to `data/raw/noaa-ar/` with checksums.
-- [X] T008 [US1] Create citation verification script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/00_verify_citations.py` that validates both URL reachability AND citation validation (title-token-overlap ≥ 0.7 against primary source) per Constitution Principle II. **Algorithm**: Reads the URLs defined in the task descriptions of T015 and T016 (CMR and ERDDAP endpoints); perform HTTP HEAD request to verify accessibility; retrieve primary source metadata via that URL; compute title-token-overlap against the primary source's title field. Script must exit with error code if any citation fails. **This script runs in Phase 2** to ensure URLs are reachable and verified after they are defined. Note: Internal functions should be modularized (URL extraction from task text, HTTP requests, metadata retrieval, overlap calculation) to manage granularity. **Depends on T015 and T016 completion.**
-- [X] T017a [US1] Create GRACE-FO preprocessing script (Part 1) `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_grace_part1.py` that: (1) applies GRACE-FO degree-1 coefficient correction, (2) applies GRACE-FO C20 coefficient replacement. **Depends on T015 and T013.**
+- [X] T016 [US1] Create data fetching script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/01_data_ingestion_noaa.py` that: (1) fetches NOAA CPC Atmospheric River Catalog data from ` (NOAA ERDDAP endpoint), (2) logs dataset version/release date, (3) implements region filtering for West Coast NA, (4) saves raw downloads to `data/raw/noaa-ar/` with checksums.
+- [X] T008 [US1] Create citation verification script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/00_verify_citations.py` that validates both URL reachability AND citation validation (title-token-overlap ≥ 0.7 against primary source) per Constitution Principle II. **Algorithm**: Reads URLs from `projects/PROJ-267-exploring-the-relationship-between-atmos/config/urls.yaml` (generated by T015/T016 logic or manually populated); perform HTTP HEAD request to verify accessibility; retrieve primary source metadata via that URL; compute title-token-overlap against the primary source's title field. Script must exit with error code if any citation fails. **This script runs in Phase 2** to ensure URLs are reachable and verified after they are defined but before preprocessing. **Depends on T015 and T016 completion.**
+- [X] T017a [US1] Create GRACE-FO preprocessing script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_grace.py` that: (1) applies GRACE-FO degree-1 coefficient correction, (2) applies GRACE-FO C20 coefficient replacement, (3) applies **Gaussian smoothing** at a spatial scale appropriate for the study domain (300km), (4) implements monthly mean aggregation for GRACE-FO mascon values. **Depends on T015 and T013.**
  **Content to be written:**
  ```python
  import pandas as pd
  import numpy as np
  from scipy import signal
+ import scipy.ndimage as ndimage
 
  def apply_degree1_correction(df, degree1_coeffs):
  """Apply degree-1 correction to mascon data."""
@@ -194,11 +195,6 @@
  """Replace C20 coefficient with SLR-derived value."""
  # Implementation for C20 replacement
  return df
- ```
-- [X] T017b [US1] Create GRACE-FO preprocessing script (Part 2) `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_grace_part2.py` that: (1) applies **Gaussian smoothing** at a spatial scale appropriate for the study domain (300km), (2) implements monthly mean aggregation for GRACE-FO mascon values. **Depends on T017a.**
- **Content to be written:**
- ```python
- import scipy.ndimage as ndimage
 
  def apply_gaussian_smoothing(df, sigma=300):
  """Apply 300km Gaussian smoothing to mascon data."""
@@ -209,19 +205,15 @@
  """Aggregate daily/weekly data to monthly means."""
  return df.resample('M').mean()
  ```
-- [X] T017c [US1] Create NOAA aggregation script (Part 1) `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_noaa_part1.py` that: (1) implements monthly mean aggregation for AR Integrated Water Vapor Transport. **Depends on T016.**
+- [X] T017b [US1] Create NOAA aggregation script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_noaa.py` that: (1) implements monthly mean aggregation for AR Integrated Water Vapor Transport, (2) handles missing months by logging warnings and skipping per edge cases, (3) excludes months with zero AR events from correlation calculation. **Depends on T016.**
  **Content to be written:**
  ```python
  import pandas as pd
+ import logging
 
  def aggregate_ar_to_monthly(df):
  """Aggregate AR data to monthly means."""
  return df.resample('M').mean()
- ```
-- [X] T017d [US1] Create NOAA aggregation script (Part 2) `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_noaa_part2.py` that: (1) handles missing months by logging warnings and skipping per edge cases, (2) excludes months with zero AR events from correlation calculation. **Depends on T017c.**
- **Content to be written:**
- ```python
- import logging
 
  def handle_missing_months(df):
  """Handle missing months by logging warnings."""
@@ -232,38 +224,37 @@
  """Exclude months with zero AR events."""
  return df[df['intensity'] > 0]
  ```
-- [X] T017e [US1] Create merge script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_merge.py` that: (1) merges processed GRACE-FO and NOAA data on date. **Depends on T017b, T017d, and T013.**
+- [ ] T017c [US1] Create merge and validation script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_merge.py` that: (1) merges processed GRACE-FO and NOAA data on date, (2) validates output against `contracts/dataset.schema.yaml` (generated by T013), (3) saves merged CSV `projects/PROJ-267-exploring-the-relationship-between-atmos/data/processed/merged_monthly.csv`. **Depends on T017a, T017b, and T013.** <!-- ATOMIZE: requested -->
  **Content to be written:**
  ```python
  import pandas as pd
+ import json
+ import jsonschema
 
  def merge_datasets(grace_df, noaa_df):
  """Merge GRACE-FO and NOAA data."""
  merged = pd.merge(grace_df, noaa_df, on='date', how='inner')
  return merged
- ```
-- [X] T017f [US1] Create validation script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/02_preprocessing_validate.py` that: (1) validates output against `contracts/dataset.schema.yaml` (generated by T013) and saves merged CSV `projects/PROJ-267-exploring-the-relationship-between-atmos/data/processed/merged_monthly.csv`. **Depends on T017e.**
- **Content to be written:**
- ```python
- import json
- import pandas as pd
 
  def validate_and_save(df, schema_path, output_path):
  """Validate data against schema and save to CSV."""
- # Validate against schema
- # Save to CSV
+ with open(schema_path, 'r') as f:
+ schema = json.load(f)
+ jsonschema.validate(df.to_dict(orient='records'), schema)
  df.to_csv(output_path, index=False)
  ```
-- [X] T018 [US1] Create contract test `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/contract/test_dataset_schema.py` for merged CSV schema validation. **Depends on T013 completion and T017f data generation.**
+- [X] T018 [US1] Create contract test `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/contract/test_dataset_schema.py` for merged CSV schema validation. **Depends on T013 completion and T017c data generation.**
  **Content to be written:**
  ```python
  import pandas as pd
+ import json
  import jsonschema
 
  def test_merged_schema():
  df = pd.read_csv('data/processed/merged_monthly.csv')
- schema = json.load(open('contracts/dataset.schema.yaml'))
- # Validate
+ with open('contracts/dataset.schema.yaml', 'r') as f:
+ schema = json.load(f)
+ jsonschema.validate(df.to_dict(orient='records'), schema)
  ```
 - [X] T019 [US1] Create integration test `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/integration/test_data_pipeline.py` for data ingestion completeness verification.
 
@@ -277,17 +268,18 @@
 
 **Independent Test**: Can be tested by running the analysis module on a mock dataset and verifying the output includes correlation coefficients, p-values, corrected significance flags, bootstrap confidence intervals, and control region comparison results
 
-**⚠️ DEPENDENCY**: T017f must complete before T020 (requires merged_monthly.csv). **⚠️ DEPENDENCY**: T014 must complete before T023.
+**⚠️ DEPENDENCY**: T017c must complete before T020 (requires merged_monthly.csv). **⚠️ DEPENDENCY**: T014 must complete before T023.
 **⚠️ KNOWN SPEC CONTRADICTION**: Spec contains internal contradiction (SC-002 defines p < 0.05 as success criterion while Constitution Principle VII forbids pre-specified thresholds). Implementation follows power-justified approach (bootstrap CIs, no pre-specified effect size). Flagged for kickback to spec author.
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Create correlation and bootstrap analysis script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/03_correlation_analysis.py` that: (1) computes Pearson correlation between AR intensity and gravity anomalies, (2) implements lag window analysis (lags 0, 1, 2, 3 months), (3) **Design Choice**: implements autocorrelation correction using AR(1) pre-whitening (statsmodels.tsa.ar_model.AutoReg) and effective sample size calculation to control Type I errors as per plan.md 'Autocorrelation Correction (Methodology Update)' section, (4) implements bootstrap resampling (1000 iterations, seed=42) for 95% confidence intervals, (5) applies FDR correction using `statsmodels.stats.multitest.multipletests` for p-values, (6) **CRITICAL**: reports p < 0.05 as a 'significance flag (informational only)' for reporting purposes, NOT as a pre-specified success criteria or effect size threshold. NO branching logic based on p-value thresholds will be implemented. (7) creates Correlation Result output with region_type field (target/control). (8) calculates the signal-to-noise ratio by dividing the correlation coefficient by the 'uncertainty' field from `merged_monthly.csv` and reports this ratio as a continuous metric, explicitly NOT asserting a binary pass/fail or referencing a specific threshold (e.g., 3σ) as a success criterion. **Design Choice**: Newey-West standard errors used for robust inference per plan.md 'Autocorrelation Correction (Methodology Update)' section. **Depends on T017f and T014.**
+- [ ] T020 [US2] Create correlation and bootstrap analysis script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/03_correlation_analysis.py` that: (1) computes Pearson correlation between AR intensity and gravity anomalies, () implements lag window analysis (multiple short-term lags), (3) **Design Choice**: implements autocorrelation correction using AR(1) pre-whitening (statsmodels.tsa.ar_model.AutoReg) and effective sample size calculation to control Type I errors as per plan.md 'Autocorrelation Correction (Methodology Update)' section, (4) implements bootstrap resampling (1000 iterations, seed=42) for 95% confidence intervals, (5) applies FDR correction using `statsmodels.stats.multitest.multipletests` for p-values, (6) **CRITICAL**: reports p < 0.05 as a 'significance flag (informational only)' for reporting purposes, NOT as a pre-specified success criteria or effect size threshold. NO branching logic based on p-value thresholds will be implemented. **(Override Note)**: This task explicitly overrides SC-002's pre-specified threshold in favor of Constitution Principle VII, documenting the semantic conflict resolution. (7) creates Correlation Result output with region_type field (target/control) and saves to `data/processed/correlation_results.csv`. (8) calculates the signal-to-noise ratio by dividing the correlation coefficient by the 'uncertainty' field from `merged_monthly.csv` and reports this ratio as a continuous metric, explicitly NOT asserting a binary pass/fail or referencing a specific threshold (e.g., 3σ) as a success criterion. **Design Choice**: Newey-West standard errors used for robust inference per plan.md 'Autocorrelation Correction (Methodology Update)' section. **Depends on T017c and T014.**
  **Content to be written:**
  ```python
  import numpy as np
  from scipy.stats import pearsonr
  from statsmodels.stats.multitest import multipletests
+ from statsmodels.tsa.ar_model import AutoReg
 
  def bootstrap_ci(x, y, iterations=1000, seed=42):
  np.random.seed(seed)
@@ -302,12 +294,14 @@
  **Content to be written:**
  ```python
  import pandas as pd
+ import json
  import jsonschema
 
  def test_correlation_schema():
  df = pd.read_csv('data/processed/correlation_results.csv')
- schema = json.load(open('contracts/output.schema.yaml'))
- # Validate
+ with open('contracts/output.schema.yaml', 'r') as f:
+ schema = json.load(f)
+ jsonschema.validate(df.to_dict(orient='records'), schema)
  ```
 - [X] T024 [US2] Create integration test `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/integration/test_correlation_pipeline.py` for correlation analysis with mock dataset.
  **Content to be written:**
@@ -316,14 +310,14 @@
  # Mock data test
  pass
  ```
-- [X] T020b [P] Create performance profiling script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/03_profile_runtime.py` that: (1) profiles the runtime of T020 on a representative sample of the data, (2) outputs `docs/runtime_profile.md` with estimated runtime for the full dataset. **Depends on T020 completion. Output is required input for T040.**
+- [X] T020b [Sequential] Create performance profiling script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/03_profile_runtime.py` that: (1) profiles the runtime of T020 on a representative sample of the data, (2) outputs `docs/runtime_profile.md` with estimated runtime for the full dataset. **Depends on T020 completion. Output is required input for T040.**
  **Content to be written:**
  ```markdown
  # Runtime Profile
 
  ## Estimation
  - Sample size: N=1000
- - Estimated full runtime: 4.5 hours
+ - Estimated full runtime: hours
  - Memory usage: within a moderate range suitable for standard research environments.
  ```
 
@@ -369,12 +363,12 @@
  # Plotting logic
  plt.savefig('output/spatial_anomaly_map.png')
  ```
-- [X] T028 [US3] Create sensitivity analysis script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/09_sensitivity_report.py` that: (1) implements threshold sweep across a set of representative values as required by SC-003 (correcting the spec's malformed set), explicitly defining the set as a range of moderate values, (2) implements correlation coefficient stability reporting, (3) implements confidence interval overlap variation reporting, (4) **CRITICAL**: The content generation logic must explicitly frame all statistical findings as associational, avoiding causal language (causes, effect, impact, driven by, leads to, triggers) during the report construction process. (5) validates absence of causal keywords (causes, effect, impact, driven by, leads to, triggers) in all output reports per FR-007 using regex pattern matching as a **final safety check only**, ensuring the primary requirement is met by the generation logic itself. **Note**: The generation logic must avoid causal framing; regex is a secondary check. **Depends on T020.**
+- [X] T028 [US3] Create sensitivity analysis script `projects/PROJ-267-exploring-the-relationship-between-atmos/code/09_sensitivity_report.py` that: (1) implements threshold sweep across a set of representative values as required by SC-003, (2) implements correlation coefficient stability reporting, (3) implements confidence interval overlap variation reporting, (4) **CRITICAL**: The content generation logic must explicitly frame all statistical findings as associational, avoiding causal language (causes, effect, impact, driven by, leads to, triggers) during the report construction process. (5) validates absence of causal keywords (causes, effect, impact, driven by, leads to, triggers) in all output reports per FR-007 using regex pattern matching as a **final safety check only**, ensuring the primary requirement is met by the generation logic itself. **Note**: The generation logic must avoid causal framing; regex is a secondary check. **Depends on T020.**
  **Content to be written:**
  ```python
  import re
 
- def sensitivity_analysis(df, thresholds=[a range of moderate values]):
+ def sensitivity_analysis(df, thresholds=[0.4, 0.5, 0.6]):
  results = {}
  for t in thresholds:
  # Analysis logic
@@ -421,16 +415,23 @@
  ```
 - [X] T038 Run all contract tests to verify schema compliance.
 - [X] T039 Run all integration tests to verify pipeline end-to-end.
-- [X] T040 Measure aggregate pipeline runtime (full historical dataset from data/processed/merged_monthly.csv, GRACE-FO mission launch in the late s to latest available data point as of 2024-12-31) to verify ≤ 6 hours on 2 CPU cores and 7 GB RAM (SC-004) using Python time module with assertion that fails if exceeded. **Input: `docs/runtime_profile.md` from T020b.**
+- [ ] T040 Measure aggregate pipeline runtime (full historical dataset from data/processed/merged_monthly.csv, GRACE-FO mission launch since the early 2000s to 2024-12-31) to verify ≤ 6 hours on 2 CPU cores and 7 GB RAM (SC-004) using Python time module and `psutil` for resource monitoring. **Input: `docs/runtime_profile.md` from T020b.**
  **Content to be written:**
  ```python
  import time
+ import psutil
 
  def measure_runtime():
  start = time.time()
  # Run pipeline
+ process = psutil.Process()
+ cpu_usage = process.cpu_percent()
+ ram_usage = process.memory_info().rss
  end = time.time()
- assert end - start < 6 * 3600
+ duration = end - start
+ assert duration < 6 * 3600
+ # Report metrics
+ print(f"Duration: {duration}s, CPU: {cpu_usage}%, RAM: {ram_usage}B")
  ```
 - [X] T041 [P] Document checksums for all data files in `projects/PROJ-267-exploring-the-relationship-between-atmos/state/` per Principle III.
 - [X] T042 [P] Verify all dataset URLs are reachable and documented in `projects/PROJ-267-exploring-the-relationship-between-atmos/docs/methodology.md`. **Note: This is a final validation step, not a prerequisite for T008.**
@@ -445,7 +446,7 @@
 
 - **Setup (Phase 0)**: No dependencies - can start immediately
 - **Foundational (Phase 1)**: Depends on Setup completion - BLOCKS all user stories.
-- **Theoretical Frame (Phase 1.5)**: Depends on Phase 1 (T010, T009b) - BLOCKS Phase 2.
+- **Theoretical Frame (Phase 1.5)**: Depends on Phase 1 (T010, T009b) - BLOCKS Phase 2. **Execution Order**: T010 -> T032 and T009b -> T033 must complete before Phase 2 starts.
 - **User Stories (Phase 2-4)**: Sequential dependencies - MUST complete in order
  - **Phase 2 (US1)**: Must complete before Phase 3
  - **Phase 3 (US2)**: Must complete before Phase 4 (requires merged_monthly.csv from Phase 2)
@@ -493,9 +494,14 @@
 - **PLAN ROOT CAUSE**: Constitution Check shows PENDING VERIFICATION for dataset URLs. T008 added for explicit citation verification (moved to Phase 2). **Plan requires update.**
 - **REVISION NOTE**: Phase 1.5 added to address "albert-einstein-simulated" review regarding the definition of the gravitational anomaly frame of reference and the distinction between physical curvature and coordinate artifacts. Phase 1.5 now precedes Phase 2 to ensure data model correctness.
 - **REVISION NOTE**: T008 moved to Phase 2 to resolve circular dependency with URL definitions in T015/T016.
-- **REVISION NOTE**: T017 split into T017a-g to reduce granularity.
+- **REVISION NOTE**: T017 split into T017a-c to reduce granularity and improve executability.
 - **REVISION NOTE**: T020 and T021 merged into T020 to reduce context switching.
 - **REVISION NOTE**: T020b added for intermediate performance profiling.
 - **REVISION NOTE**: T009b added to create docs/methodology.md.
 - **REVISION NOTE**: T012, T010, T013, T014 marked as complete to unblock downstream tasks.
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [X] T045 Reconcile run-book vs implementation for `code/04_visualization.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/04_visualization.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T046 Reconcile run-book vs implementation for `code/05_sensitivity_report.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/05_sensitivity_report.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T047 Reconcile run-book vs implementation for `code/verify_completeness.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/verify_completeness.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

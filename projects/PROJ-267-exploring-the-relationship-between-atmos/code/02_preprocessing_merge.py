@@ -64,16 +64,28 @@ def merge_datasets(grace_df, noaa_df):
     )
     
     # Standardize column names for schema compliance
-    merged = merged.rename(columns={
-        'date': 'date',
-        'anomaly_value': 'gravity_anomaly',
-        'uncertainty': 'uncertainty',
-        'peak_intensity': 'ar_intensity'
-    })
+    # Map source columns to canonical schema names
+    column_mapping = {}
+    if 'anomaly_value' in merged.columns:
+        column_mapping['anomaly_value'] = 'gravity_anomaly'
+    if 'uncertainty' in merged.columns:
+        column_mapping['uncertainty'] = 'uncertainty'
+    if 'peak_intensity' in merged.columns:
+        column_mapping['peak_intensity'] = 'ar_intensity'
+    if 'ar_intensity' in merged.columns and 'peak_intensity' not in merged.columns:
+        column_mapping['ar_intensity'] = 'ar_intensity'
+    
+    merged = merged.rename(columns=column_mapping)
     
     # Select and order columns per schema
     schema_columns = ['date', 'ar_intensity', 'gravity_anomaly', 'uncertainty']
-    merged = merged[[col for col in schema_columns if col in merged.columns]]
+    available_columns = [col for col in schema_columns if col in merged.columns]
+    
+    if len(available_columns) < len(schema_columns):
+        missing = set(schema_columns) - set(available_columns)
+        raise ValueError(f"Merge result missing required schema columns: {missing}")
+        
+    merged = merged[available_columns]
     
     logger.info(f"Merged dataset: {len(merged)} rows")
     return merged

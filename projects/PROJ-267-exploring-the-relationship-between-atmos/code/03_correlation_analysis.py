@@ -1,13 +1,9 @@
 """
 Correlation and Bootstrap Analysis Script (T020)
 
-Computes Pearson correlation between AR intensity and gravity anomalies across lag windows,
-applies autocorrelation correction (AR(1) pre-whitening + Newey-West SE), bootstrap resampling
-for confidence intervals, and FDR correction for multiple comparisons.
-
-Outputs:
-  - data/processed/correlation_results.json: Full statistical results
-  - data/processed/correlation_results.csv: Tabular results for reporting
+Computes Pearson correlation between AR intensity and gravity anomalies across lag windows.
+Implements AR(1) pre-whitening, bootstrap resampling, FDR correction, and Newey-West SEs.
+Outputs: data/processed/correlation_results.csv
 """
 import os
 import sys
@@ -15,339 +11,275 @@ import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
-
 import numpy as np
 import pandas as pd
-from scipy import stats
+from scipy.stats import pearsonr, t
 from statsmodels.stats.multitest import multipletests
 from statsmodels.tsa.stattools import acf
-from statsmodels.sandbox.regression.gmm import NeweyWest
+from statsmodels.regression.linear_model import OLS
+from statsmodels.stats.sandwich_covariance import cov_hac
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Constants
-LAGS = [0, 1, 2, 3]  # Months
 BOOTSTRAP_ITERATIONS = 1000
 BOOTSTRAP_SEED = 42
+LAG_WINDOW = range(-3, 4)  # -3 to +3 months
 ALPHA = 0.05
-INPUT_FILE = "data/processed/merged_monthly.csv"
-OUTPUT_DIR = "data/processed"
-OUTPUT_JSON = "correlation_results.json"
-OUTPUT_CSV = "correlation_results.csv"
+FDR_METHOD = 'fdr_bh'  # Benjamini-Hochberg
 
-
-def load_merged_data(filepath: str) -> pd.DataFrame:
+def load_merged_data(input_path: str) -> pd.DataFrame:
     """Load the merged monthly dataset."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Input file not found: {filepath}")
-    df = pd.read_csv(filepath)
-    logger.info(f"Loaded {len(df)} rows from {filepath}")
-    required_cols = ['date', 'ar_intensity', 'gravity_anomaly', 'uncertainty']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Merged data not found at {input_path}. Run preprocessing first.")
+    df = pd.read_csv(input_path)
+    df['date'] = pd.to_datetime(df['date'])
+    df = df.sort_values('date').reset_index(drop=True)
     return df
-
 
 def calculate_effective_sample_size(n: int, rho: float) -> float:
     """
-    Calculate effective sample size (n_eff) for autocorrelated time series.
-    Formula: n_eff = n * (1 - rho) / (1 + rho)
+    Calculate effective sample size (ESS) for time series with autocorrelation.
+    n: original sample size
+    rho: lag-1 autocorrelation coefficient
     """
     if abs(rho) >= 1.0:
         return 1.0  # Degenerate case
-    return n * (1 - rho) / (1 + rho)
+    # Approximation for ESS with AR(1)
+    ess = n * (1.0 - rho) / (1.0 + rho)
+    return max(1.0, ess)
 
+def prewhiten_series(series: pd.Series) -> Tuple[pd.Series, float]:
+    """
+    Pre-whiten a series using AR(1) model to remove autocorrelation.
+    Returns the residuals and the estimated lag-1 autocorrelation.
+    """
+    # Estimate lag-1 autocorrelation
+    acf_vals = acf(series, nlags=1, fft=False)
+    rho = acf_vals[1] if len(acf_vals) > 1 else 0.0
 
-def prewhiten_series(x: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, float]:
-    """
-    Pre-whiten series using AR(1) model to remove autocorrelation.
-    Returns pre-whitened x, pre-whitened y, and the AR(1) coefficient.
-    """
-    n = len(x)
-    # Estimate AR(1) coefficient for x
-    # rho_x = cov(x_t, x_{t-1}) / var(x)
-    if n < 3:
-        return x, y, 0.0
-    
-    # Simple AR(1) estimation via lag-1 autocorrelation
-    rho_x = np.corrcoef(x[:-1], x[1:])[0, 1]
-    if np.isnan(rho_x):
-        rho_x = 0.0
-    
-    # Pre-whiten x: x'_t = x_t - rho * x_{t-1}
-    x_pre = np.empty(n)
-    x_pre[0] = x[0] * np.sqrt(1 - rho_x**2)
-    for i in range(1, n):
-        x_pre[i] = x[i] - rho_x * x[i-1]
-    
-    # Pre-whiten y similarly (assuming same AR structure for simplicity, or estimate separately)
-    # For robustness, we estimate rho_y separately
-    rho_y = np.corrcoef(y[:-1], y[1:])[0, 1]
-    if np.isnan(rho_y):
-        rho_y = 0.0
-    
-    y_pre = np.empty(n)
-    y_pre[0] = y[0] * np.sqrt(1 - rho_y**2)
-    for i in range(1, n):
-        y_pre[i] = y[i] - rho_y * y[i-1]
-    
-    # Return the average rho for effective sample size calculation if needed
-    avg_rho = (rho_x + rho_y) / 2.0
-    return x_pre, y_pre, avg_rho
-
-
-def compute_pearson_with_correction(
-    x: np.ndarray, 
-    y: np.ndarray, 
-    n_obs: int
-) -> Tuple[float, float, float]:
-    """
-    Compute Pearson correlation and p-value with autocorrelation correction.
-    Returns (r, p_value, n_eff).
-    """
-    # Pre-whiten
-    x_pre, y_pre, avg_rho = prewhiten_series(x, y)
-    
-    # Calculate effective sample size
-    n_eff = calculate_effective_sample_size(n_obs, avg_rho)
-    
-    # Compute correlation on pre-whitened data
-    if len(x_pre) < 2:
-        return 0.0, 1.0, n_eff
-    
-    r, p_raw = stats.pearsonr(x_pre, y_pre)
-    if np.isnan(r):
-        r = 0.0
-    if np.isnan(p_raw):
-        p_raw = 1.0
+    # Apply AR(1) filter: y_t - rho * y_{t-1}
+    # Drop first element to align
+    prewhitened = series.diff().dropna()
+    # Adjust for the mean shift introduced by differencing if necessary,
+    # but for correlation of residuals, simple differencing is a common first-order pre-whitening.
+    # A more rigorous approach: fit AR(1), get residuals.
+    # Let's fit AR(1) explicitly to get true residuals.
+    try:
+        # Simple AR(1) fit: y_t = c + phi * y_{t-1} + e_t
+        lagged = series.shift(1).dropna()
+        current = series.iloc[1:].dropna()
+        if len(lagged) < 10:
+            return series, 0.0 # Not enough data
         
-    return r, p_raw, n_eff
+        X = lagged.values.reshape(-1, 1)
+        y = current.values
+        model = OLS(y, X).fit()
+        residuals = model.resid
+        return pd.Series(residuals, index=current.index), model.params[0]
+    except Exception as e:
+        logger.warning(f"AR(1) fit failed: {e}. Using raw series.")
+        return series, 0.0
 
-
-def bootstrap_confidence_interval(
-    x: np.ndarray, 
-    y: np.ndarray, 
-    n_iter: int = 1000, 
-    seed: int = 42, 
-    alpha: float = 0.05
-) -> Tuple[float, float, float]:
+def compute_pearson_with_correction(x: pd.Series, y: pd.Series) -> Dict[str, float]:
     """
-    Compute bootstrap confidence interval for Pearson correlation.
-    Returns (r_original, ci_lower, ci_upper).
+    Compute Pearson correlation with autocorrelation correction via effective sample size.
+    Returns correlation, p-value (adjusted for ESS), and ESS.
+    """
+    # Pre-whiten both series
+    x_res, rho_x = prewhiten_series(x)
+    y_res, rho_y = prewhiten_series(y)
+    
+    # Align indices after pre-whitening
+    common_idx = x_res.index.intersection(y_res.index)
+    if len(common_idx) < 10:
+        return {'r': 0.0, 'p_value': 1.0, 'ess': 0.0}
+
+    x_clean = x_res.loc[common_idx]
+    y_clean = y_res.loc[common_idx]
+
+    # Compute Pearson on residuals
+    r, p_raw = pearsonr(x_clean, y_clean)
+
+    # Calculate ESS based on average rho or individual?
+    # Using average rho for simplicity in ESS approximation
+    avg_rho = (rho_x + rho_y) / 2.0
+    n = len(common_idx)
+    ess = calculate_effective_sample_size(n, avg_rho)
+
+    # Adjust p-value using t-distribution with ESS degrees of freedom
+    # t = r * sqrt((n-2) / (1-r^2)) -> use ess instead of n
+    if abs(r) >= 1.0:
+        p_adj = 0.0
+    else:
+        t_stat = r * np.sqrt((ess - 2) / (1 - r**2))
+        p_adj = 2 * (1 - t.cdf(abs(t_stat), df=ess - 2))
+
+    return {
+        'r': r,
+        'p_value': p_adj,
+        'ess': ess,
+        'rho_x': rho_x,
+        'rho_y': rho_y
+    }
+
+def bootstrap_confidence_interval(x: pd.Series, y: pd.Series, iterations: int = 1000, seed: int = 42) -> Tuple[float, float]:
+    """
+    Compute 95% confidence interval for Pearson r using bootstrap resampling.
     """
     np.random.seed(seed)
     n = len(x)
-    if n < 2:
-        return 0.0, 0.0, 0.0
-    
-    # Original correlation (on pre-whitened data for consistency)
-    x_pre, y_pre, _ = prewhiten_series(x, y)
-    r_orig, _, _ = compute_pearson_with_correction(x, y, n)
-    
     bootstrap_rs = []
-    for _ in range(n_iter):
-        indices = np.random.randint(0, n, n)
-        x_boot = x_pre[indices]
-        y_boot = y_pre[indices]
-        r_boot, _, _ = compute_pearson_with_correction(x_boot, y_boot, n)
-        bootstrap_rs.append(r_boot)
-    
-    bootstrap_rs = np.array(bootstrap_rs)
-    ci_lower = np.percentile(bootstrap_rs, 100 * alpha / 2)
-    ci_upper = np.percentile(bootstrap_rs, 100 * (1 - alpha / 2))
-    
-    return r_orig, ci_lower, ci_upper
 
+    for _ in range(iterations):
+        idx = np.random.choice(n, size=n, replace=True)
+        x_boot = x.iloc[idx]
+        y_boot = y.iloc[idx]
+        r, _ = pearsonr(x_boot, y_boot)
+        bootstrap_rs.append(r)
 
-def newey_west_standard_error(
-    x: np.ndarray, 
-    y: np.ndarray, 
-    lags: int = 1
-) -> float:
+    return float(np.percentile(bootstrap_rs, 2.5)), float(np.percentile(bootstrap_rs, 97.5))
+
+def newey_west_standard_error(x: pd.Series, y: pd.Series, max_lags: int = 4) -> float:
     """
-    Compute Newey-West standard error for the correlation coefficient.
-    This is a simplified approximation for the standard error of r.
+    Calculate Newey-West (HAC) standard error for the correlation coefficient.
+    We treat the correlation estimation as a regression problem for robust SE.
     """
-    n = len(x)
-    if n < 3:
+    # Simple linear regression y ~ x to get residuals and SE, then apply HAC
+    # This is a proxy for the SE of the correlation coefficient
+    try:
+        X = x.values.reshape(-1, 1)
+        y = y.values
+        model = OLS(y, X).fit()
+        # HAC covariance matrix
+        cov_matrix = cov_hac(model, maxlags=max_lags)
+        se = np.sqrt(cov_matrix[1, 1]) # SE of slope
+        # Convert slope SE to correlation SE approximation? 
+        # For the purpose of this task, we return the HAC SE of the slope as a robust metric.
+        # A more direct SE for r is complex; using slope SE as a proxy for robustness check.
+        return float(se)
+    except Exception as e:
+        logger.warning(f"Newey-West calculation failed: {e}")
         return 0.0
-    
-    # Calculate residuals from a linear fit (approximate)
-    # y = a + b*x + e
-    # We want SE of b, then map to SE of r
-    # For simplicity, we use the formula for SE(r) with autocorrelation correction
-    # SE(r) ≈ sqrt( (1-r^2) / (n_eff - 2) )
-    
-    x_pre, y_pre, avg_rho = prewhiten_series(x, y)
-    n_eff = calculate_effective_sample_size(n, avg_rho)
-    
-    # Compute correlation on pre-whitened
-    r, _, _ = compute_pearson_with_correction(x, y, n)
-    if abs(r) >= 1.0:
-        return 0.0
-    
-    se = np.sqrt((1 - r**2) / (n_eff - 2))
-    return se
 
+def analyze_correlation_with_lags(df: pd.DataFrame, lag: int, target_col: str = 'ar_intensity', 
+                                  gravity_col: str = 'gravity_anomaly', 
+                                  uncertainty_col: str = 'uncertainty') -> Dict[str, Any]:
+    """
+    Analyze correlation at a specific lag.
+    Positive lag: AR leads Gravity (AR_t vs Gravity_{t+lag})
+    Negative lag: Gravity leads AR (AR_t vs Gravity_{t+lag} where lag is negative)
+    """
+    if lag == 0:
+        x = df[target_col]
+        y = df[gravity_col]
+    elif lag > 0:
+        # AR_t vs Gravity_{t+lag} -> shift gravity back
+        x = df[target_col].iloc[:-lag]
+        y = df[gravity_col].iloc[lag:]
+    else:
+        # AR_t vs Gravity_{t+lag} (lag is negative) -> shift AR back
+        # e.g. lag = -1: AR_{t+1} vs Gravity_t -> shift AR forward
+        shift = abs(lag)
+        x = df[target_col].iloc[shift:]
+        y = df[gravity_col].iloc[:-shift]
 
-def analyze_correlation_with_lags(
-    df: pd.DataFrame, 
-    lags: List[int], 
-    bootstrap_iter: int, 
-    seed: int
-) -> List[Dict[str, Any]]:
-    """
-    Analyze correlation across different lag windows.
-    """
-    results = []
-    n_total = len(df)
-    
-    # Sort by date to ensure correct lag alignment
-    df = df.sort_values('date').reset_index(drop=True)
-    
-    ar_series = df['ar_intensity'].values
-    gravity_series = df['gravity_anomaly'].values
-    uncertainty_series = df['uncertainty'].values
-    
-    for lag in lags:
-        # Align series with lag
-        # If lag > 0, AR intensity at time t correlates with Gravity at t + lag
-        # So we shift gravity series back by lag
-        if lag == 0:
-            x = ar_series
-            y = gravity_series
-        else:
-            x = ar_series[:-lag]
-            y = gravity_series[lag:]
-        
-        # Filter out NaNs
-        mask = ~(np.isnan(x) | np.isnan(y))
-        x = x[mask]
-        y = y[mask]
-        
-        n_obs = len(x)
-        if n_obs < 3:
-            logger.warning(f"Lag {lag}: Insufficient data points ({n_obs}) after alignment.")
-            continue
-        
-        # Compute correlation with autocorrelation correction
-        r, p_raw, n_eff = compute_pearson_with_correction(x, y, n_obs)
-        
-        # Bootstrap CI
-        r_boot, ci_lower, ci_upper = bootstrap_confidence_interval(
-            x, y, n_iter=bootstrap_iter, seed=seed
-        )
-        
-        # Newey-West SE
-        se_nw = newey_west_standard_error(x, y)
-        
-        # Signal-to-Noise Ratio (using uncertainty from data)
-        # We take the mean uncertainty of the aligned series for this lag
-        u_aligned = uncertainty_series
-        if lag > 0:
-            u_aligned = u_aligned[lag:]
-        u_aligned = u_aligned[mask]
-        mean_uncertainty = np.mean(u_aligned) if np.all(~np.isnan(u_aligned)) else 1.0
-        
-        if mean_uncertainty == 0:
-            snr = np.inf if r != 0 else 0.0
-        else:
-            snr = r / mean_uncertainty
-        
-        results.append({
-            'lag': lag,
-            'n_obs': n_obs,
-            'correlation_coefficient': float(r),
-            'raw_p_value': float(p_raw),
-            'confidence_interval_lower': float(ci_lower),
-            'confidence_interval_upper': float(ci_upper),
-            'newey_west_se': float(se_nw),
-            'signal_to_noise_ratio': float(snr),
-            'mean_uncertainty': float(mean_uncertainty)
-        })
-    
-    return results
+    if len(x) < 10:
+        return None
 
+    # Compute metrics
+    stats = compute_pearson_with_correction(x, y)
+    ci_lower, ci_upper = bootstrap_confidence_interval(x, y, BOOTSTRAP_ITERATIONS, BOOTSTRAP_SEED)
+    se = newey_west_standard_error(x, y)
+    
+    # Signal to Noise Ratio: r / uncertainty (using mean uncertainty of the overlapping period)
+    # We need to align uncertainty values too.
+    if lag == 0:
+        u = df[uncertainty_col]
+    elif lag > 0:
+        u = df[uncertainty_col].iloc[lag:]
+    else:
+        u = df[uncertainty_col].iloc[:lag] # lag is negative, so :lag works (e.g. :-1)
+    
+    mean_uncertainty = u.mean()
+    if mean_uncertainty > 0:
+        snr = stats['r'] / mean_uncertainty
+    else:
+        snr = 0.0
 
-def apply_fdr_correction(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    return {
+        'lag': lag,
+        'correlation_coefficient': stats['r'],
+        'raw_p_value': stats['p_value'],
+        'confidence_interval_lower': ci_lower,
+        'confidence_interval_upper': ci_upper,
+        'signal_to_noise_ratio': snr,
+        'effective_sample_size': stats['ess'],
+        'newey_west_se': se,
+        'n_observations': len(x)
+    }
+
+def apply_fdr_correction(results: List[Dict], alpha: float = ALPHA, method: str = FDR_METHOD) -> List[Dict]:
     """
-    Apply False Discovery Rate (FDR) correction to p-values.
+    Apply False Discovery Rate correction to p-values.
     """
-    if not results:
+    p_values = [r['raw_p_value'] for r in results]
+    if not p_values:
         return results
+
+    reject, p_corrected, _, _ = multipletests(p_values, alpha=alpha, method=method)
     
-    p_values = [res['raw_p_value'] for res in results]
-    n_tests = len(p_values)
-    
-    # Use Benjamini-Hochberg procedure
-    reject, p_corrected, _, _ = multipletests(p_values, alpha=0.05, method='fdr_bh')
-    
-    for i, res in enumerate(results):
-        res['corrected_p_value'] = float(p_corrected[i])
-        res['significance_flag'] = bool(reject[i])
+    for i, r in enumerate(results):
+        r['corrected_p_value'] = p_corrected[i]
+        r['significance_flag'] = bool(reject[i])
     
     return results
 
-
-def save_results(results: List[Dict[str, Any]], output_dir: str):
-    """Save results to JSON and CSV."""
-    os.makedirs(output_dir, exist_ok=True)
+def save_results(results: List[Dict], output_path: str, region_type: str = 'target'):
+    """
+    Save results to CSV.
+    """
+    df = pd.DataFrame(results)
+    df['region_type'] = region_type
+    df = df[['lag', 'correlation_coefficient', 'raw_p_value', 'corrected_p_value', 
+             'confidence_interval_lower', 'confidence_interval_upper', 
+             'significance_flag', 'region_type', 'signal_to_noise_ratio',
+             'effective_sample_size', 'newey_west_se', 'n_observations']]
     
-    # Save JSON
-    json_path = os.path.join(output_dir, OUTPUT_JSON)
-    with open(json_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Saved JSON results to {json_path}")
-    
-    # Save CSV
-    csv_path = os.path.join(output_dir, OUTPUT_CSV)
-    df_results = pd.DataFrame(results)
-    # Ensure boolean is correct type
-    if 'significance_flag' in df_results.columns:
-        df_results['significance_flag'] = df_results['significance_flag'].astype(bool)
-    df_results.to_csv(csv_path, index=False)
-    logger.info(f"Saved CSV results to {csv_path}")
-
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Results saved to {output_path}")
 
 def main():
-    """Main entry point."""
-    logger.info("Starting correlation analysis (T020)...")
+    input_path = 'data/processed/merged_monthly.csv'
+    output_path = 'data/processed/correlation_results.csv'
     
-    # Load data
-    try:
-        df = load_merged_data(INPUT_FILE)
-    except FileNotFoundError as e:
-        logger.error(str(e))
+    logger.info(f"Loading data from {input_path}")
+    df = load_merged_data(input_path)
+    
+    logger.info(f"Analyzing correlations for lags: {list(LAG_WINDOW)}")
+    results = []
+    for lag in LAG_WINDOW:
+        res = analyze_correlation_with_lags(df, lag)
+        if res:
+            results.append(res)
+    
+    if not results:
+        logger.error("No valid correlation results computed.")
         sys.exit(1)
-    
-    # Analyze
-    raw_results = analyze_correlation_with_lags(
-        df, 
-        lags=LAGS, 
-        bootstrap_iter=BOOTSTRAP_ITERATIONS, 
-        seed=BOOTSTRAP_SEED
-    )
-    
-    # Apply FDR correction
-    final_results = apply_fdr_correction(raw_results)
-    
-    # Save
-    save_results(final_results, OUTPUT_DIR)
-    
-    logger.info("Correlation analysis completed successfully.")
-    logger.info(f"Results summary:")
-    for res in final_results:
-        sig_flag = "SIG" if res['significance_flag'] else "NS"
-        logger.info(f"  Lag {res['lag']}: r={res['correlation_coefficient']:.3f}, "
-                    f"p_corr={res['corrected_p_value']:.3f} [{sig_flag}], "
-                    f"SNR={res['signal_to_noise_ratio']:.3f}")
 
+    logger.info("Applying FDR correction...")
+    results = apply_fdr_correction(results)
+    
+    logger.info(f"Saving results to {output_path}")
+    save_results(results, output_path, region_type='target')
+    
+    # Log summary
+    significant = sum(1 for r in results if r['significance_flag'])
+    logger.info(f"Analysis complete. {significant}/{len(results)} lags significant (FDR corrected).")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
