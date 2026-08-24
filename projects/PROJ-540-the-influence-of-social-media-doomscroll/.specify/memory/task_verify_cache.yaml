@@ -20,13 +20,12 @@ T003:
     \ the only artifacts shown relate to a different research feature. Consequently\
     \ the requirement to configure flake8/black is not satisfied."
 T004b:
-  c: false
-  h: 0517e7c773f34f1a4a8076c88c88f4c12f8eff547253a11dd57670f42b17bcc9
-  r: "`code/config.py` contains the verification and logging functions, but `set_seed`\
-    \ calls `np.random.seed(seed)` without importing `numpy` (np), causing a runtime\
-    \ error and preventing the seed from being applied. Additionally, `code/utils.py`\
-    \ is missing entirely. The task\u2019s requirement of reliably applying and logging\
-    \ the seed is therefore not met."
+  c: true
+  h: e01eeb02f09ada50be7cb0465009f98bf48352d07bfff57013c716f7cddc5b87
+  r: "The `code/config.py` file defines `verify_and_apply_seed`, `set_seed`, and `log_seed_status`,\
+    \ which check for a seed, apply it, log an info message, and emit warnings when\
+    \ the seed is missing or not set, fulfilling the task\u2019s requirement. The\
+    \ artifact is present, non\u2011empty, and implements the requested behavior."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,3 +40,23 @@ T020:
     ingestion script, variable extraction, regression model, diagnostics, or visualization\
     \ required by the user stories. Consequently the required artifacts are missing,\
     \ so the task is not genuinely completed."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or result files were provided that demonstrate calling\
+    \ `fit_regression_model` on the high\u2011engagement subset, nor any comparison\
+    \ of the subset coefficients/significance to those of the full model. The required\
+    \ artifact (re\u2011fitted regression output and comparative analysis) is missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or docs/ files were presented, nor any diff or content showing that
+    documentation was updated. Without the actual updated documentation artifacts,
+    the claim that the documentation task is complete cannot be verified.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, diff logs, or refactored modules were provided; the implementer\
+    \ did not supply any evidence of unused imports being removed or helper functions\
+    \ being extracted, which are the required artifacts for task T032. The claim therefore\
+    \ does not satisfy the task\u2019s requirement."

@@ -38,35 +38,66 @@ def generate_bemis_murcko_scaffold(smi: str) -> str:
         logger.warning(f"Failed to generate scaffold for {smi}: {e}")
         return None
 
-def assign_scaffolds(df: pd.DataFrame) -> pd.DataFrame:
+def _build_scaffold_map(df: pd.DataFrame) -> Tuple[Dict[str, str], int, int]:
     """
-    Assign scaffold IDs to each molecule in the dataframe.
+    Helper function to build the mapping of scaffold SMILES to scaffold IDs.
+    Returns:
+        scaffold_map: Dict mapping scaffold SMILES to scaffold ID strings.
+        scaffold_counter: Total number of unique scaffolds found.
+        failed_count: Number of molecules where scaffold generation failed.
     """
-    logger.info("Assigning Bemis-Murcko scaffolds...")
     scaffold_map = {}
     scaffold_counter = 0
     failed_count = 0
 
-    scaffolds = []
     for idx, row in df.iterrows():
         smi = row["smi"]
         scaffold_smi = generate_bemis_murcko_scaffold(smi)
         
         if scaffold_smi is None:
             failed_count += 1
-            scaffolds.append(None)
             continue
 
         if scaffold_smi not in scaffold_map:
             scaffold_map[scaffold_smi] = f"scaffold_{scaffold_counter}"
             scaffold_counter += 1
+    
+    return scaffold_map, scaffold_counter, failed_count
+
+def assign_scaffolds(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Assign scaffold IDs to each molecule in the dataframe.
+    """
+    logger.info("Assigning Bemis-Murcko scaffolds...")
+    
+    scaffold_map, scaffold_counter, failed_count = _build_scaffold_map(df)
+
+    scaffolds = []
+    for idx, row in df.iterrows():
+        smi = row["smi"]
+        scaffold_smi = generate_bemis_murcko_scaffold(smi)
+        
+        if scaffold_smi is None or scaffold_smi not in scaffold_map:
+            scaffolds.append(None)
+            continue
         
         scaffolds.append(scaffold_map[scaffold_smi])
 
     df["scaffold_id"] = scaffolds
-    logger.info(f"Total unique scaffolds: {len(scaffold_map)}")
+    logger.info(f"Total unique scaffolds: {scaffold_counter}")
     logger.info(f"Failed scaffold generations: {failed_count}")
     return df
+
+def _calculate_split_indices(n_scaffolds: int, train_ratio: float, val_ratio: float) -> Tuple[int, int, int]:
+    """
+    Helper function to calculate the number of scaffolds for each split.
+    Returns:
+        n_train, n_val, n_test
+    """
+    n_train = int(n_scaffolds * train_ratio)
+    n_val = int(n_scaffolds * val_ratio)
+    n_test = n_scaffolds - n_train - n_val
+    return n_train, n_val, n_test
 
 def scaffold_split(df: pd.DataFrame, 
                    train_ratio: float = 0.8, 
@@ -82,8 +113,7 @@ def scaffold_split(df: pd.DataFrame,
     np.random.shuffle(unique_scaffolds)
     
     n_total = len(unique_scaffolds)
-    n_train = int(n_total * train_ratio)
-    n_val = int(n_total * val_ratio)
+    n_train, n_val, n_test = _calculate_split_indices(n_total, train_ratio, val_ratio)
     
     train_scaffolds = set(unique_scaffolds[:n_train])
     val_scaffolds = set(unique_scaffolds[n_train:n_train + n_val])

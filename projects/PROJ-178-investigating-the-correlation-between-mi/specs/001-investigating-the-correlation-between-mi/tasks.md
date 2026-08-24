@@ -160,7 +160,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T041 [P] Documentation updates in `paper/draft.md` (include findings and limitations)
-- [ ] T050 [P] Document the explicit removal of the Power-Law Hypothesis in `paper/draft.md` citing plan.md Decision Log, ensuring no references to "quarter-power scaling" or "Geoffrey West" remain.
+- [ ] T050 [P] Document the explicit removal of the Power-Law Hypothesis in `paper/draft.md` citing plan.md Decision Log, ensuring no references to "quarter-power scaling" or "Geoffrey West" remain. <!-- FAILED: unspecified -->
 - [ ] T042A [P] Refactor `code/analysis/preprocess.py` to reduce cyclomatic complexity of the burden calculation function to < 10
 - [ ] T042B [P] Remove unused imports from all scripts in `code/analysis/`
 - [ ] T043A [P] Profile `code/analysis/load_data.py` and implement chunking strategy to ensure peak RAM usage < 7GB

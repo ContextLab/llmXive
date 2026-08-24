@@ -1,11 +1,3 @@
-T024:
-  c: false
-  h: 79c9e48d98a3a875fe8819e1da45b8d15abc8b61891083461661fc5da0fe0d7e
-  r: "The `calculate_rank_ols` function in `code/analysis/model.py` is truncated and\
-    \ never writes results to `code/data/processed/rank_ols_results.csv`. Moreover,\
-    \ the required output CSV file does not exist, and the implementation does not\
-    \ explicitly use the depth\u2011stratified burden from T016. The task\u2019s core\
-    \ deliverable is therefore missing."
 T027:
   c: false
   h: eca5992662b913324ddd32d3e787ba2792ddc04cb8727401f97deff5019c542f
@@ -27,27 +19,6 @@ T041:
   r: No evidence of a `paper/draft.md` file was provided, nor any excerpt showing
     that findings and limitations were added. Without the actual documentation artifact,
     we cannot confirm the required updates were made.
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No new test files are present in `code/tests/`; the claim of \u201Cadditional\
-    \ unit tests for edge cases (zero burden, missing haplogroup)\u201D cannot be\
-    \ verified because the required artifacts are missing. The next implementer must\
-    \ add concrete test cases covering these scenarios to the repository."
-T045:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the `quickstart.md` validation run or any runtime logs is present;\
-    \ the required artifact (e.g., a log file or report showing total execution time\
-    \ \u2264\u202F6\u202Fhours on a 2\u2011CPU runner) is missing. The implementer\
-    \ has not provided any measurable output to verify the claim."
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any files under `paper/figures/` was provided; the claim does\
-    \ not include the required final figures (linear fit plot and threshold\u2011\
-    sensitivity plot). The implementer must add the actual figure files in the specified\
-    \ directory."
 T050:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

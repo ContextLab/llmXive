@@ -59,7 +59,7 @@ description: "Task list template for feature implementation"
 
 - [x] T002 [P] **Initialize Python project**: Write `code/requirements.txt` with pinned versions for `transformers`, `torch`, `scikit-learn`, `pandas`, `datasets`, `pytest`, `docker`, `psutil`, `lifelines`, `statsmodels`.
 
-- [x] T003 [D] **Project Configuration Files**: Create `.ruff.toml` and `pyproject.toml` in `code/`. **Logic**: 
+- [x] T003 [D] **Project Configuration Files**: Create `.ruff.toml` and `pyproject.toml` in `code/`. **Logic**:
  1. Create `.ruff.toml` with `line-length = 88`, `target-version = "py310"`, `select = ["E", "F", "W", "I"]`.
  2. Create `pyproject.toml` with `[tool.black]` section: `line-length = 88`, `target-version = ['py']`.
  3. Verify both files exist and contain valid TOML syntax.
@@ -110,7 +110,7 @@ description: "Task list template for feature implementation"
 
 - [ ] T013a-robustness [US3] [D] **Full Convergence Inference (k=1‑3)**: Same as T013a but operates on `data/processed/full_splits.json` for robustness analysis (mixed-effects). **Artifact**: `data/processed/convergence_results_core_full.csv`. **Dependencies**: T004d, T006, T000-model, T012a.
 - [ ] T013a-verify [D] **Verify Censored Logic**: Load `convergence_results_core.csv` and assert rows with `k=3` and `is_correct=False` have `censored=True` and `time_to_event=3`. Raise error if mismatch. **Artifact**: `data/processed/censored_verification.json`. **Dependencies**: T013a.
-- [ ] T013b [US1] [D] **Sensitivity Convergence (k=4)**: After T013a, run inference for k=4 on same inputs, update `first_correct_step` if still null, adjust `censored` accordingly, and write to `data/processed/convergence_results_sensitivity.csv`. **Dependencies**: T013a, T006, T000-model.
+- [ ] T013b [US1] [D] **Sensitivity Convergence (k=4)**: After T013a, run inference for k=4 on same inputs, update `first_correct_step` if still null, adjust `censored` accordingly, and write to `data/processed/convergence_results_sensitivity.csv`. **Dependencies**: T013a, T006, T000-model. <!-- FAILED: unspecified -->
 - [ ] T015a-strata [US1] [D] **Per‑Stratum Correlation**: Load `entropy_results.csv` and `convergence_results_core.csv`. Group by stratum (from `strata_log.json`). For each powered stratum, compute Spearman ρ and p‑value between `entropy` and `first_correct_step`. Save to `data/processed/stratum_pvalues.json`. **Dependencies**: T012a, T013a, T004c.
 - [ ] T015-correlation [US1] [D] **Spearman Correlation**: Merge `entropy_results.csv` with `convergence_results_core.csv` on `task_id`. Explicitly merge `time_to_event` from the convergence file. Compute Spearman ρ and p‑value between `entropy` and `first_correct_step`. Save to `data/processed/correlation_spearman.json`. **Dependencies**: T012a, T013a.
 - [ ] T015-survival [US1] [D] **Kaplan‑Meier & Cox PH**: Using merged data, prepare survival input (time=`time_to_event`, event=`~censored`). Fit `lifelines.KaplanMeierFitter` and `CoxPHFitter` with `entropy` as covariate. Save results to `data/processed/correlation_survival.json`. **Dependencies**: T012a, T013a.
@@ -121,7 +121,7 @@ description: "Task list template for feature implementation"
 - [ ] T036 [US1] [D] **Execute Convergence Inference**: Run `python code/src/inference.py --input data/processed/filtered_splits.json --output data/processed/convergence_results_core.csv --k_range 1 2 3`. Verify exit code 0. **Dependencies**: T013a.
 - [ ] T038-run-correlation [US1] [D] **Run Correlation Scripts**: Execute `python code/src/analysis.py --mode spearman --entropy data/processed/entropy_results.csv --convergence data/processed/convergence_results_core.csv`. Generates `correlation_spearman.json`, `correlation_survival.json`, `correlation_power.json`. **Dependencies**: T035, T036, T015-correlation, T015-survival, T015-power.
 - [ ] T038-merge-results [US1] [D] **Merge Correlation Artifacts**: Combine the three JSON files into `data/processed/correlation_results.json`. **Dependencies**: T038-run-correlation.
-- [ ] T037 [US1] [D] **Final Survival Summary**: Run any final post‑processing if needed; produce `data/processed/correlation_results_final.json`. **Dependencies**: T038-merge-results.
+- [ ] T037 [US1] [D] **Final Survival Summary**: Run any final post‑processing if needed; produce `data/processed/correlation_results_final.json`. **Dependencies**: T038-merge-results. <!-- FAILED: unspecified -->
 
 ---
 
@@ -134,11 +134,11 @@ description: "Task list template for feature implementation"
 
 ### Implementation
 
-- [ ] T019 [US2] [D] **Train Ordinal Logistic Regression Router**: Load `entropy_results.csv`, `convergence_results_core.csv`, and `baseline_pass1.json`. Derive target variable `optimal_k` = `first_correct_step` (or 3 if censored). Feature set = `entropy` + `baseline_pass1`. Perform **5‑fold cross‑validation** using an **Ordinal Logistic Regression** model (e.g., `statsmodels` or `mlogit`) to predict the ordinal target. Aggregate accuracy, F1, and confusion matrix. Save model to `data/processed/router_model.pkl` and metrics to `data/processed/router_metrics.json`. **Dependencies**: T012a, T013a, T004i.
+- [ ] T019 [US2] [D] **Train Ordinal Logistic Regression Router**: Load `entropy_results.csv`, `convergence_results_core.csv`, and `baseline_pass1.json`. Derive target variable `optimal_k` = `first_correct_step` (or 3 if censored). Feature set = `entropy` + `baseline_pass1`. Perform **5‑fold cross‑validation** using an **Ordinal Logistic Regression** model (e.g., `statsmodels` or `mlogit`) to predict the ordinal target. Aggregate accuracy, F1, and confusion matrix. Save model to `data/processed/router_model.pkl` and metrics to `data/processed/router_metrics.json`. **Dependencies**: T012a, T013a, T004i. <!-- FAILED: unspecified -->
 - [ ] T019c [US2] [D] **Explicit 5‑Fold CV Implementation**: Ensure the cross‑validation loop uses `sklearn.model_selection.StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` and respects the ordinal nature of the target. Verify that each fold’s metrics are logged to `data/processed/router_cv_folds.json`. **Dependencies**: T019.
-- [ ] T019b [US2] [D] **Generate Router Predictions**: Apply trained router to test set (filtered splits) to produce `router_results.csv` with `{task_id, predicted_k, actual_k, accuracy, is_censored}`. **Dependencies**: T019, T004f-filter-data.
-- [ ] T020 [US2] [D] **Router vs Random Baseline Evaluation**: Compare router accuracy against random baseline (`k=1` for all). Perform paired t‑test; store results in `router_accuracy_test.json`. **Dependencies**: T019b.
-- [ ] T020a [US2] [D] **Static k=2 Baseline Metrics**: Compute FLOPs and accuracy for always using `k=2` on the filtered test set. Save to `static_k2_baseline.json` (`{total_flops, accuracy}`). **Dependencies**: T013a.
+- [ ] T019b [US2] [D] **Generate Router Predictions**: Apply trained router to test set (filtered splits) to produce `router_results.csv` with `{task_id, predicted_k, actual_k, accuracy, is_censored}`. **Dependencies**: T019, T004f-filter-data. <!-- FAILED: unspecified -->
+- [ ] T020 [US2] [D] **Router vs Random Baseline Evaluation**: Compare router accuracy against random baseline (`k=1` for all). Perform paired t‑test; store results in `router_accuracy_test.json`. **Dependencies**: T019b. <!-- ATOMIZE: requested -->
+- [ ] T020a [US2] [D] **Static k=2 Baseline Metrics**: Compute FLOPs and accuracy for always using `k=2` on the filtered test set. Save to `static_k2_baseline.json` (`{total_flops, accuracy}`). **Dependencies**: T013a. <!-- FAILED: unspecified -->
 - [ ] T021b-test-static [US2] [D] **Non‑Inferiority Test vs Static k=2**: Using `router_results.csv`, `static_k2_baseline.json`, and `config.json` (delta=0.05), perform a Two One‑Sided Tests (TOST) procedure to verify that router accuracy is not worse than static k=2 by more than delta. Save to `flops_savings_test.json`. **Dependencies**: T020, T020a, T021c.
 - [ ] T021c [US2] [D] **Generate Config for Non‑Inferiority**: Extract `NON_INFERIORITY_DELTA` and `RANDOM_SEED` from `code/src/config.py` and write to `data/processed/config.json`. **Dependencies**: T000-config.
 - [ ] T021b-flops [US2] [D] **Calculate FLOPs Savings**: Using `router_results.csv` and `static_k2_baseline.json`, compute average FLOPs saved (via `calculate_flops`). Save to `flops_savings_calc.json`. **Dependencies**: T019b, T020a.
@@ -155,14 +155,14 @@ description: "Task list template for feature implementation"
 
 ### Implementation
 
-- [ ] T025a [US3] [D] **Per‑Stratum Correlation (powered only)**: Same as T015a-strata but explicitly skips underpowered strata. Output `stratum_pvalues_powered.json`. **Dependencies**: T012a, T013a, T004c.
+- [~] T025a [US3] [D] **Per‑Stratum Correlation (powered only)**: Same as T015a-strata but explicitly skips underpowered strata. Output `stratum_pvalues_powered.json`. **Dependencies**: T012a, T013a, T004c.
 - [ ] T025b-adjusted [US3] [D] **Holm‑Bonferroni on Powered Strata**: Apply correction to p‑values from `stratum_pvalues_powered.json`. Save to `adjusted_pvalues_powered.json`. **Dependencies**: T025a, T004c.
 - [ ] T025d-prepare [US3] [D] **Prepare Mixed‑Effects Data**: Merge `entropy_results.csv`, `convergence_results_core_full.csv` (from T013a-robustness), and `full_splits.json`. Include all strata (powered and underpowered). Save to `mixed_effects_data.csv`. **Dependencies**: T012a, T013a-robustness, T004d.
 - [ ] T025d-verify [US3] [D] **Verify Underpowered Strata Presence**: Load `mixed_effects_data.csv` and `strata_log.json`; assert that every stratum marked `underpowered` appears at least once. Write verification result to `mixed_effects_strata_check.json`. **Dependencies**: T025d-prepare, T004c.
 - [ ] T025d-fit [US3] [D] **Fit Hierarchical Mixed‑Effects Model**: Use `statsmodels` formula `entropy ~ convergence_step + (1|strata_name)`. Save results to `mixed_effects_results.json`. **Dependencies**: T025d-verify.
-- [ ] T025c [US3] [D] **Merge Convergence Results**: Concatenate `convergence_results_core.csv` and `convergence_results_sensitivity.csv` into `convergence_results_merged.csv`. **Dependencies**: T013a, T013b.
-- [ ] T026 [US3] [D] **Sensitivity Sweep**: Using `convergence_results_merged.csv`, compute Spearman ρ for thresholds k ∈ {2,3,4}. Compare against baseline (k={1,2,3}) and output `sensitivity_sweep.json`. **Dependencies**: T025c.
-- [ ] T025f [US3] [D] **Integrate Robustness Results**: Combine `adjusted_pvalues_powered.json` and `mixed_effects_results.json` into `robustness_summary.json`. **Dependencies**: T025b-adjusted, T025d-fit.
+- [~] T025c [US3] [D] **Merge Convergence Results**: Concatenate `convergence_results_core.csv` and `convergence_results_sensitivity.csv` into `convergence_results_merged.csv`. **Dependencies**: T013a, T013b.
+- [~] T026 [US3] [D] **Sensitivity Sweep**: Using `convergence_results_merged.csv`, compute Spearman ρ for thresholds k ∈ {2,3,4}. Compare against baseline (k={1,2,3}) and output `sensitivity_sweep.json`. **Dependencies**: T025c.
+- [~] T025f [US3] [D] **Integrate Robustness Results**: Combine `adjusted_pvalues_powered.json` and `mixed_effects_results.json` into `robustness_summary.json`. **Dependencies**: T025b-adjusted, T025d-fit. <!-- ATOMIZE: requested -->
 
 ---
 
@@ -170,7 +170,7 @@ description: "Task list template for feature implementation"
 
 - [x] T028 [P] **Finalize paper draft** (`paper/draft.md`) ensuring all statistics trace to files under `data/processed/`.
 - [x] T029 [P] **Run validation suite (CPU, N=50)** via `code/src/run_validation.py`. Produce `validation_report.json`. **Dependencies**: T005e.
-- [ ] T030 [P] **Update quickstart.md** with separate sections for “CPU Validation Mode (N=50)” and “Full GPU Analysis”. Verify both sections exist. **Dependencies**: T029.
+- [~] T030 [P] **Update quickstart.md** with separate sections for “CPU Validation Mode (N=50)” and “Full GPU Analysis”. Verify both sections exist. **Dependencies**: T029.
 - [x] T031 [P] **Create state YAML** (`state/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2.yaml`) with content hashes.
 - [x] T032 [P] **Run quickstart validation**; generate `quickstart_validation_report.json`. **Dependencies**: T030.
 - [x] T033 [P] **Run full GPU analysis**; capture metrics via `capture_metrics(mode='full_analysis')` and save to `sc005_metrics.json`. **Dependencies**: T012a, T013a, T026, T038-merge-results.
@@ -182,7 +182,7 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Ensure the heavy inference tasks (T012a, T013a) execute on Kaggle GPU as required by the compute feasibility constraint (7B model inference is infeasible on CPU).
 
-- [ ] T040 [P] **Create Kaggle Offload Script**: Write `code/run_gpu.sh` that:
+- [X] T040 [P] **Create Kaggle Offload Script**: Write `code/run_gpu.sh` that:
  1. Validates `HF_TOKEN` and `KAGGLE_KEY` environment variables.
  2. Submits the job to Kaggle using the `kaggle kernels push` command with the `code/` directory and a `kaggle.json` configuration.
  3. Includes a `requirements.txt` specific to the GPU environment (pinned versions).

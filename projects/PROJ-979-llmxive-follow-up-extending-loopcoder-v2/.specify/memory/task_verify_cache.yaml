@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or verification output is provided; the claim lacks any
-    artifact (e.g., a file tree listing, script output, or screenshots) showing that
-    the required folders (`data/raw`, `data/processed`, `code/src`, `code/tests`,
-    `code/notebooks`, etc.) actually exist. The implementer must supply concrete evidence
-    that the directories were created and verified.
 T004b:
   c: false
   h: f363d164737b93b780ac411bd090ed55cf39fbe7c6c9bcda0c068f0e0014797b
@@ -42,16 +34,26 @@ T008b:
     nor shown, and no content with the three required sections (Hypothesis, Pilot
     Results, Rationale) is provided. Without this document, the pilot comparison and
     baseline hypothesis are not documented.
-T013a:
+T019b:
   c: false
-  h: 2d8756d33512c4964a2c19ecd80533cbac51df510bd36614083e22a50ea43b15
-  r: "The repository contains `code/src/inference.py`, but the file only defines model\
-    \ loading, generation, and sandbox execution utilities; it does not implement\
-    \ the required sequential loop over inputs, fresh sampling for each k, stateful\
-    \ tracking, convergence/censoring logic, or direct writing to `data/processed/convergence_results_core.csv`.\
-    \ Moreover, the required output file `data/processed/convergence_results_core.csv`\
-    \ is absent. These missing components mean the task\u2019s core requirements are\
-    \ not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `router_results.csv` file or any other output was presented; the conversation
+    contains only the task description and no evidence of the router being applied
+    to the test set or of a CSV with the required columns (`task_id, predicted_k,
+    actual_k, accuracy, is_censored`). The required artifact is missing.
+T020a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `static_k2_baseline.json` file containing `{total_flops, accuracy}` was provided,\
+    \ nor any FLOPs or accuracy numbers for the always\u2011k=2 baseline on the filtered\
+    \ test set. Consequently the required artifact is missing."
+T021c:
+  c: false
+  h: cadd0159fee74a77fb89fa792014700be288ae367094adb94162c148b99cebb1
+  r: "The required output file `data/processed/config.json` does not exist, so the\
+    \ extracted values were never written. Consequently the task\u2019s core requirement\u2014\
+    producing a JSON file containing `NON_INFERIORITY_DELTA` and `RANDOM_SEED`\u2014\
+    is not satisfied."
 T025b:
   c: false
   h: 5c7426b85f582598146828b40fb1e8d92549a6aa510db07f9145f1cb5fb9853c
@@ -78,10 +80,17 @@ T026:
     \ or JSON output logic (the shown function is truncated, never writes the merged\
     \ CSV, and contains a typo). The task\u2019s core functionality and output artifacts\
     \ are therefore missing."
-T037:
+T035:
   c: false
-  h: d2008daf05acfed87c06e292986c2132e36f711c361a64a29fbb1052c8a996fd
-  r: The required input file `data/processed/correlation_results.json` does not exist,
-    and consequently the expected output `data/processed/correlation_results_final.json`
-    is also missing; there is no evidence that the survival analysis script was run
-    successfully or that it produced the artifact.
+  h: d6edfed47c2329d2ad03b70a6d9eaca7f3ad91eb8b5edc53f7f189a27b41133f
+  r: "The required input file `data/processed/filtered_splits.json` does not exist,\
+    \ and the expected output `data/processed/entropy_results.csv` is also missing;\
+    \ there is no evidence that the script was run, that it exited with code\u202F\
+    0, or that it produced the output file. The task therefore remains unfinished."
+T036:
+  c: false
+  h: 2255f2ec2fe6d126d1a4a64afb25461b3e0f9dc3c43647e67fb4e564ae7ccc18
+  r: "The required input `data/processed/filtered_splits.json` and the expected output\
+    \ `data/processed/convergence_results_core.csv` are both absent, and there is\
+    \ no evidence (e.g., logs, exit\u2011code capture) that the inference script was\
+    \ actually run successfully. The task therefore has not been fulfilled."

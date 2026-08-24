@@ -38,7 +38,7 @@
 - [X] T002 [P] Initialize Python 3.11 project with dependencies in `requirements.txt` (e.g., `pandas==2.0.3`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `requests==2.31.0`, `pyyaml==6.0.1`)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 - [X] T004 [P] Implement environment configuration management for dataset URLs and random seeds (`code/config.py`)
-- [ ] T004b [P] Implement random seed verification and logging in `code/config.py` (or `code/utils.py`) to ensure seeds are actively applied and logged at runtime, satisfying Constitution Principle I (Reproducibility). Log a warning if a seed is not set.
+- [X] T004b [P] Implement random seed verification and logging in `code/config.py` (or `code/utils.py`) to ensure seeds are actively applied and logged at runtime, satisfying Constitution Principle I (Reproducibility). Log a warning if a seed is not set.
 - [X] T005 [P] Setup error handling infrastructure for custom exceptions (`PowerLimitationError`, `MathematicalCouplingError`) in `code/exceptions.py`
 - [X] T006 [P] Create base data models/entities (`SurveyResponse`, `RegressionModel`) in `code/models.py`
 - [ ] T007 [P] Configure logging infrastructure to `outputs/analysis.log`
@@ -66,7 +66,7 @@
 - [X] T010 [US1] Implement data ingestion script `code/ingest.py` to download data from verified URL (e.g., GSS/Pew) and parse to `data/raw/`
 - [X] T011 [US1] Implement schema validation in `code/ingest.py` to ensure columns `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, `gender` exist
 - [X] T012 [US1] Implement listwise deletion in `code/clean.py` for missing predictor/outcome values. **MUST enforce Spec FR-002**: HALT with `PowerLimitationError` if resulting N < 30. If 30 <= N < 100, log 'Low Power' warning and proceed. (Note: The Plan suggests N < 130 for higher power, but the Spec requires N < 30; implement Spec logic and log the Plan's stricter guideline as a comment).
-- [ ] T013 [US1] Save cleaned dataset to `data/processed/analysis_data.csv`
+- [X] T013 [US1] Save cleaned dataset to `data/processed/analysis_data.csv`
 - [ ] T014 [US1] Add logging for row counts, missing value statistics, and power check results
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -117,11 +117,11 @@
  1. Calculate correlation between `social_media_engagement` and `news_exposure_freq`.
  2. **IF** correlation > 0.3, select the top 25th percentile of `social_media_engagement` from `data/processed/analysis_data.csv`.
  3. **IF** correlation <= 0.3, skip the check and log a warning (Per Spec FR-006).
-- [~] T026 [US3] Re-fit regression on the high-engagement subset defined in T025 by **calling** the `fit_regression_model` function created in T018 (do not duplicate code). Compare coefficients/significance with full model.
+- [ ] T026 [US3] Re-fit regression on the high-engagement subset defined in T025 by **calling** the `fit_regression_model` function created in T018 (do not duplicate code). Compare coefficients/significance with full model.
 - [ ] T027 [US3] Save robustness results to `outputs/robustness_results.json`
 - [X] T028 [US3] Implement scatter plot generation in `code/viz.py` with regression line and 95% CI (FR-005)
 - [ ] T029 [US3] Save plot to `outputs/plot.png`
-- [ ] T030 [US3] Generate `outputs/final_report.md` summarizing findings, limitations, and associational nature
+- [X] T030 [US3] Generate `outputs/final_report.md` summarizing findings, limitations, and associational nature
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -131,8 +131,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T031 [P] Documentation updates in `README.md` and `docs/`
-- [~] T032 [P] Code cleanup and refactoring: Remove unused imports, extract helper functions
+- [ ] T031 [P] Documentation updates in `README.md` and `docs/`
+- [ ] T032 [P] Code cleanup and refactoring: Remove unused imports, extract helper functions
 - [ ] T033 [P] Performance optimization: Vectorize pandas operations, use chunking for large files (ensure < 60s on 10k records)
 - [ ] T034 [P] Add specific unit tests for `code/config.py` (seed verification) and `code/robustness.py` (conditional logic) to ensure coverage of new logic.
 - [ ] T035 [P] Run `quickstart.md` validation

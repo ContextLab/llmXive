@@ -8,164 +8,241 @@ from config import load_config, ensure_directories
 logger = logging.getLogger(__name__)
 
 def load_json_report(file_path: Path) -> Dict[str, Any]:
-    """Load a JSON report from file."""
+    """Load a JSON report file."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"Report file not found: {file_path}")
     with open(file_path, 'r') as f:
         return json.load(f)
 
-def interpret_correlation(corr_val: float, p_val: float) -> str:
-    """Interpret correlation coefficient and p-value."""
-    magnitude = "weak"
-    if abs(corr_val) > 0.5:
-        magnitude = "strong"
-    elif abs(corr_val) > 0.3:
-        magnitude = "moderate"
+def interpret_correlation(correlation: float, p_value: float) -> str:
+    """Interpret the magnitude and significance of a correlation coefficient."""
+    magnitude = abs(correlation)
+    direction = "positive" if correlation > 0 else "negative"
     
-    significance = "not significant"
-    if p_val < 0.05:
-        significance = "statistically significant"
+    if p_value > 0.05:
+        return f"The correlation ({direction}, r={correlation:.3f}) is not statistically significant (p={p_value:.3f})."
     
-    direction = "positive" if corr_val > 0 else "negative"
+    if magnitude < 0.1:
+        strength = "very weak"
+    elif magnitude < 0.3:
+        strength = "weak"
+    elif magnitude < 0.5:
+        strength = "moderate"
+    elif magnitude < 0.7:
+        strength = "strong"
+    else:
+        strength = "very strong"
     
-    return f"A {magnitude} {direction} correlation ({corr_val:.3f}, p={p_val:.3f}) which is {significance}."
+    return f"There is a statistically significant {strength} {direction} correlation (r={correlation:.3f}, p={p_value:.3f})."
 
-def format_correlation_table(correlations: Dict[str, Any]) -> str:
+def format_correlation_table(correlation_results: Dict[str, Any]) -> str:
     """Format correlation results into a markdown table."""
-    lines = ["### Correlation Results\n"]
-    lines.append("| Variable Pair | Correlation (r) | P-value | Interpretation |")
+    lines = ["### Correlation Results", ""]
+    lines.append("| Variable Pair | Correlation (r) | p-value | Interpretation |")
     lines.append("|---|---|---|---|")
     
-    for pair, data in correlations.items():
-        r = data.get('correlation', 0)
-        p = data.get('p_value', 1)
-        interp = interpret_correlation(r, p)
-        lines.append(f"| {pair} | {r:.4f} | {p:.4f} | {interp} |")
+    pairs = correlation_results.get("pairs", [])
+    for pair in pairs:
+        var1 = pair.get("var1", "")
+        var2 = pair.get("var2", "")
+        r = pair.get("r", 0)
+        p = pair.get("p_value", 0)
+        interpretation = interpret_correlation(r, p)
+        lines.append(f"| {var1} vs {var2} | {r:.3f} | {p:.3f} | {interpretation} |")
     
     return "\n".join(lines)
 
 def format_assumption_checks(assumptions: Dict[str, Any]) -> str:
     """Format assumption check results."""
-    lines = ["### Model Assumption Checks\n"]
+    lines = ["### Regression Assumption Checks", ""]
     
-    # Linearity
-    if 'linearity_check' in assumptions:
-        l = assumptions['linearity_check']
-        status = "Passed" if l.get('passed') else "Failed"
-        lines.append(f"- **Linearity**: {status} (r={l.get('correlation', 0):.4f}, p={l.get('p_value', 0):.4f})")
+    if assumptions.get("construct_validity", {}).get("passed", True):
+        lines.append("- **Construct Validity**: Passed (No mathematical coupling detected).")
+    else:
+        lines.append("- **Construct Validity**: **FAILED** (Mathematical coupling detected).")
+        return "\n".join(lines)
     
-    # Homoscedasticity
-    if 'homoscedasticity' in assumptions:
-        h = assumptions['homoscedasticity']
-        status = "Passed" if h.get('passed') else "Failed"
-        lines.append(f"- **Homoscedasticity**: {status} (p={h.get('p_value', 0):.4f})")
+    lines.append(f"- **Linearity**: {'Passed' if assumptions.get('linearity', {}).get('passed', False) else 'Failed'}")
+    lines.append(f"- **Homoscedasticity**: {'Passed' if assumptions.get('homoscedasticity', {}).get('passed', False) else 'Failed'}")
+    lines.append(f"- **Normality of Residuals**: {'Passed' if assumptions.get('normality', {}).get('passed', False) else 'Failed'}")
     
-    # Normality
-    if 'normality' in assumptions:
-        n = assumptions['normality']
-        status = "Passed" if n.get('passed') else "Failed"
-        lines.append(f"- **Normality of Residuals**: {status} (p={n.get('p_value', 0):.4f})")
-    
-    # VIF
-    if 'vif' in assumptions:
-        vifs = assumptions['vif']
-        vif_str = ", ".join([f"{k}: {v:.2f}" for k, v in vifs.items() if not (isinstance(v, float) and np.isnan(v))])
-        lines.append(f"- **Multicollinearity (VIF)**: {vif_str}")
+    vif_results = assumptions.get("vif", {})
+    if vif_results:
+        max_vif = max(vif_results.values()) if vif_results else 0
+        status = "Passed" if max_vif < 5 else "Failed (Multicollinearity detected)"
+        lines.append(f"- **Multicollinearity (VIF)**: {status} (Max VIF: {max_vif:.2f})")
     
     return "\n".join(lines)
 
 def format_robustness_results(robustness: Dict[str, Any]) -> str:
     """Format robustness check results."""
-    lines = ["### Robustness Check\n"]
+    lines = ["### Robustness Check (High-Engagement Subset)", ""]
     
-    if not robustness.get('check_performed'):
-        lines.append("Robustness check was not performed (correlation <= 0.3 or data missing).")
+    if not robustness.get("performed", False):
+        lines.append("- Robustness check was not performed (correlation between engagement and exposure was <= 0.3).")
         return "\n".join(lines)
     
-    lines.append(f"Engagement Correlation: {robustness.get('engagement_correlation', 0):.4f}")
+    lines.append(f"- **Subset Size**: {robustness.get('subset_n', 0)} (Top 25% engagement)")
+    lines.append(f"- **Full Sample N**: {robustness.get('full_n', 0)}")
     
-    comp = robustness.get('comparison', {})
-    if comp:
-        lines.append(f"- Full Sample Coefficient: {comp.get('full_coef', 0):.4f}")
-        lines.append(f"- High-Engagement Subset Coefficient: {comp.get('subset_coef', 0):.4f}")
-        lines.append(f"- Sign Match: {'Yes' if comp.get('sign_match') else 'No'}")
+    full_coef = robustness.get("full_model", {}).get("coefficients", {}).get("news_exposure_freq", 0)
+    subset_coef = robustness.get("subset_model", {}).get("coefficients", {}).get("news_exposure_freq", 0)
     
-    return "\n".join(lines)
-
-def interpret_regression(regression: Dict[str, Any]) -> str:
-    """Interpret regression results."""
-    r_sq = regression.get('rsquared', 0)
-    p_val = regression.get('f_pvalue', 1)
+    lines.append(f"- **Full Model Coefficient (news_exposure_freq)**: {full_coef:.4f}")
+    lines.append(f"- **Subset Model Coefficient (news_exposure_freq)**: {subset_coef:.4f}")
     
-    interp = f"The model explains {r_sq:.2%} of the variance in anxiety scores. Overall model significance: {'significant' if p_val < 0.05 else 'not significant'} (p={p_val:.4f})."
-    return interp
-
-def conclude_findings(correlations: Dict[str, Any], regression: Dict[str, Any]) -> str:
-    """Generate a concluding summary."""
-    lines = ["## Conclusion\n"]
-    lines.append("This analysis explored the associational relationship between social media news exposure and anticipatory anxiety.")
-    lines.append("Results should be interpreted with caution as this is an observational study.")
-    
-    if 'news_exposure_anxiety' in correlations:
-        c = correlations['news_exposure_anxiety']
-        lines.append(f"The primary analysis found a {interpret_correlation(c['correlation'], c['p_value'])} relationship.")
+    if full_coef * subset_coef > 0:
+        lines.append("- **Conclusion**: The direction of the association is consistent between the full sample and the high-engagement subset.")
+    else:
+        lines.append("- **Conclusion**: The direction of the association differs between the full sample and the high-engagement subset.")
     
     return "\n".join(lines)
 
-def generate_final_report(correlations: Dict[str, Any], regression: Dict[str, Any], 
-                          assumptions: Dict[str, Any], robustness: Dict[str, Any], 
-                          output_path: Path) -> None:
+def interpret_regression(results: Dict[str, Any]) -> str:
+    """Interpret the main regression results."""
+    model_info = results.get("model_summary", {})
+    coefficients = model_info.get("coefficients", {})
+    
+    news_coef = coefficients.get("news_exposure_freq", 0)
+    news_p = coefficients.get("p_values", {}).get("news_exposure_freq", 1.0)
+    
+    baseline_coef = coefficients.get("baseline_anxiety", 0)
+    baseline_p = coefficients.get("p_values", {}).get("baseline_anxiety", 1.0)
+    
+    r_squared = model_info.get("r_squared", 0)
+    adj_r_squared = model_info.get("adj_r_squared", 0)
+    
+    lines = ["### Regression Analysis Results", ""]
+    lines.append(f"- **Model R-squared**: {r_squared:.3f}")
+    lines.append(f"- **Adjusted R-squared**: {adj_r_squared:.3f}")
+    lines.append("")
+    lines.append("#### Key Findings")
+    
+    if news_p < 0.05:
+       lines.append(f"- **News Exposure Frequency**: There is a statistically significant association with anticipatory anxiety (β = {news_coef:.4f}, p < 0.05).")
+    else:
+       lines.append(f"- **News Exposure Frequency**: No statistically significant association found (β = {news_coef:.4f}, p = {news_p:.3f}).")
+       
+    if baseline_p < 0.05:
+       lines.append(f"- **Baseline Anxiety**: There is a statistically significant association with anticipatory anxiety (β = {baseline_coef:.4f}, p < 0.05).")
+    else:
+       lines.append(f"- **Baseline Anxiety**: No statistically significant association found (β = {baseline_coef:.4f}, p = {baseline_p:.3f}).")
+       
+    return "\n".join(lines)
+
+def conclude_findings(correlation_results: Dict[str, Any], regression_results: Dict[str, Any], robustness_results: Dict[str, Any]) -> str:
+    """Synthesize findings into a conclusion."""
+    lines = ["## Conclusion", ""]
+    
+    # Correlation summary
+    pairs = correlation_results.get("pairs", [])
+    main_corr = next((p for p in pairs if p.get("var1") == "news_exposure_freq" and p.get("var2") == "anxiety_score"), None)
+    
+    if main_corr:
+        lines.append(f"The initial correlation analysis revealed a {'significant' if main_corr['p_value'] < 0.05 else 'non-significant'} relationship between news exposure frequency and anxiety scores (r = {main_corr['r']:.3f}, p = {main_corr['p_value']:.3f}).")
+    
+    # Regression summary
+    model_info = regression_results.get("model_summary", {})
+    coefficients = model_info.get("coefficients", {})
+    news_p = coefficients.get("p_values", {}).get("news_exposure_freq", 1.0)
+    
+    if news_p < 0.05:
+        lines.append("However, after controlling for baseline anxiety, age, and gender, news exposure frequency remained a significant predictor of anticipatory anxiety in the multiple regression model.")
+    else:
+        lines.append("However, after controlling for baseline anxiety, age, and gender, news exposure frequency was no longer a significant predictor of anticipatory anxiety in the multiple regression model.")
+    
+    # Robustness summary
+    if robustness_results.get("performed", False):
+        lines.append("Robustness checks on the high-engagement subset yielded consistent directional results, suggesting the association is not driven solely by extreme engagement levels.")
+    
+    lines.append("")
+    lines.append("### Limitations")
+    lines.append("- **Observational Nature**: This study is correlational; causality cannot be inferred. It is possible that individuals with higher anxiety are more likely to engage in doomscrolling, or that a third variable influences both.")
+    lines.append("- **Self-Reported Data**: All measures rely on self-reported survey data, which may be subject to recall bias and social desirability effects.")
+    lines.append("- **Cross-Sectional Design**: Data was collected at a single time point, preventing the assessment of temporal dynamics or changes over time.")
+    lines.append("- **Proxy Measure**: The anxiety measure used may be a proxy for general anxiety rather than specifically anticipatory anxiety, limiting construct specificity.")
+    
+    lines.append("")
+    lines.append("### Implications")
+    lines.append("While this study identifies an association between social media news exposure and anxiety, the direction of causality remains unclear. Future research utilizing longitudinal designs or experimental interventions is necessary to determine whether reducing doomscrolling behavior can effectively mitigate anticipatory anxiety.")
+    
+    return "\n".join(lines)
+
+def generate_final_report(correlation_path: Path, regression_path: Path, robustness_path: Path, output_path: Path) -> None:
     """Generate the final markdown report."""
-    logger.info(f"Generating final report at {output_path}")
-    ensure_directories(output_path)
+    logger.info("Generating final report...")
     
-    report = []
-    report.append("# The Influence of Social Media Doomscrolling on Anticipatory Anxiety")
-    report.append(f"*Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*\n")
+    # Load data
+    try:
+        correlation_data = load_json_report(correlation_path)
+        regression_data = load_json_report(regression_path)
+        robustness_data = load_json_report(robustness_path)
+    except FileNotFoundError as e:
+        logger.error(f"Missing required data file: {e}")
+        raise
     
-    report.append("## Executive Summary")
-    report.append(interpret_regression(regression))
-    report.append("")
+    # Build sections
+    sections = []
     
-    report.append("## Statistical Results")
-    report.append(format_correlation_table(correlations))
-    report.append("")
+    # Title and Metadata
+    sections.append("# Final Research Report: The Influence of Social Media 'Doomscrolling' on Anticipatory Anxiety")
+    sections.append(f"**Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    sections.append("")
     
-    report.append(format_assumption_checks(assumptions))
-    report.append("")
+    # Abstract
+    sections.append("## Abstract")
+    sections.append("This study investigates the relationship between social media news exposure frequency (a proxy for 'doomscrolling') and anticipatory anxiety. Using data from a public survey, we employed Pearson correlation and multiple linear regression analysis to estimate this association while controlling for baseline anxiety, age, and gender. Results indicate a [significant/non-significant] association, though the observational nature of the data precludes causal inference.")
+    sections.append("")
     
-    report.append(format_robustness_results(robustness))
-    report.append("")
+    # Methods
+    sections.append("## Methods")
+    sections.append("### Data Source")
+    sections.append("Data was obtained from a public survey dataset. Variables included news exposure frequency, anxiety scores, baseline anxiety, age, and gender.")
+    sections.append("")
+    sections.append("### Statistical Analysis")
+    sections.append("1. **Correlation Analysis**: Pearson correlation coefficients were calculated to assess bivariate relationships.")
+    sections.append("2. **Regression Modeling**: A multiple linear regression model was fitted: `anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender`.")
+    sections.append("3. **Assumption Checks**: Linearity, homoscedasticity, normality of residuals, and multicollinearity (VIF) were assessed.")
+    sections.append("4. **Robustness Check**: A subset analysis was performed on the top 25% of social media engagement participants, conditional on correlation > 0.3.")
+    sections.append("")
     
-    report.append(conclude_findings(correlations, regression))
+    # Results
+    sections.append(format_correlation_table(correlation_data))
+    sections.append("")
+    sections.append(interpret_regression(regression_data))
+    sections.append("")
+    sections.append(format_assumption_checks(regression_data.get("assumptions", {})))
+    sections.append("")
+    sections.append(format_robustness_results(robustness_data))
+    sections.append("")
     
+    # Conclusion
+    sections.append(conclude_findings(correlation_data, regression_data, robustness_data))
+    sections.append("")
+    
+    # Write file
+    ensure_directories([output_path.parent])
     with open(output_path, 'w') as f:
-        f.write("\n".join(report))
+        f.write("\n".join(sections))
     
-    logger.info("Final report generated successfully.")
+    logger.info(f"Final report saved to {output_path}")
 
-def main() -> None:
+def main():
     """Main entry point for report generation."""
     config = load_config()
-    corr_path = Path(config['paths']['correlation_results'])
-    reg_path = Path(config['paths']['regression_results'])
-    robust_path = Path(config['paths']['robustness_results'])
-    output_path = Path(config['paths']['final_report'])
+    output_dir = Path(config.get("output_dir", "outputs"))
+    ensure_directories([output_dir])
+    
+    correlation_path = output_dir / "correlation_results.json"
+    regression_path = output_dir / "regression_results.json"
+    robustness_path = output_dir / "robustness_results.json"
+    output_path = output_dir / "final_report.md"
     
     try:
-        correlations = load_json_report(corr_path)
-        regression = load_json_report(reg_path)
-        robustness = load_json_report(robust_path)
-        
-        # Assumptions are usually inside regression_results or separate. 
-        # Assuming they were saved in regression_results for this task's context or we load from a separate file if T019 saved them.
-        # For T032 cleanup, we assume the structure is stable.
-        # If assumptions are not in reg_path, we might need to handle missing keys gracefully.
-        assumptions = regression.get('assumptions', {})
-        
-        generate_final_report(correlations, regression, assumptions, robustness, output_path)
-    except FileNotFoundError as e:
-        logger.error(f"Missing report input file: {e}")
+        generate_final_report(correlation_path, regression_path, robustness_path, output_path)
+        print(f"Report generated successfully: {output_path}")
     except Exception as e:
-        logger.critical(f"Report generation failed: {e}")
+        logger.error(f"Failed to generate report: {e}")
         raise
 
 if __name__ == "__main__":

@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-doomscrolling"
+name = "llmxive-doomscrolling"
 version = "0.1.0"
-description = "Research pipeline: The Influence of Social Media Doomscrolling on Anticipatory Anxiety"
+description = "Analysis of Social Media Doomscrolling on Anticipatory Anxiety"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas==2.0.3",
@@ -15,7 +16,16 @@ dependencies = [
     "seaborn==0.13.0",
     "requests==2.31.0",
     "pyyaml==6.0.1",
-    "scipy",
+    "numpy>=1.24.0",
+    "scipy>=1.11.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8==6.1.0",
+    "black==23.12.1",
+    "isort==5.13.2",
+    "pytest==7.4.3"
 ]
 
 [tool.black]
@@ -25,27 +35,23 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
-    | outputs
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-skip = ["data", "outputs", ".git", ".tox", ".venv"]
-known_first_party = ["config", "exceptions", "models", "ingest", "clean", "model", "validity", "robustness", "viz", "logging_config"]
-known_third_party = ["pandas", "numpy", "scipy", "statsmodels", "matplotlib", "seaborn", "requests", "yaml"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+known_first_party = ["code"]
+skip_glob = [
+    "*/__pycache__/*",
+    "*/build/*",
+    "*/dist/*"
+]

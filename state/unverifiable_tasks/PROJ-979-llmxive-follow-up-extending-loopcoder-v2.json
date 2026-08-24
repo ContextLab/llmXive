@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-979-llmxive-follow-up-extending-loopcoder-v2",
+  "tasks": [
+    {
+      "task_key": "T013a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/filtered_splits.json, data/processed/convergence_results_core.csv",
+      "first_seen": "2026-08-24T15:43:21.411201+00:00",
+      "last_seen": "2026-08-24T15:43:21.411201+00:00"
+    },
+    {
+      "task_key": "T037",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/correlation_results_final.json",
+      "first_seen": "2026-08-24T15:43:25.290489+00:00",
+      "last_seen": "2026-08-24T15:43:25.290489+00:00"
+    },
+    {
+      "task_key": "T020",
+      "reject_count": 1,
+      "last_reason": "No `router_accuracy_test.json` file or any comparable output was presented; the response contains only the task description and context, without the required paired t\u2011test results. The essential artifact is missing, so the task is not satisfied.",
+      "first_seen": "2026-08-24T15:43:28.305841+00:00",
+      "last_seen": "2026-08-24T15:43:28.305841+00:00"
+    }
+  ],
+  "updated_at": "2026-08-24T15:43:28.305841+00:00"
+}

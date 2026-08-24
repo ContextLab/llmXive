@@ -1,17 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or file tree was provided showing the required `data/raw`,
-    `data/processed`, `code`, `tests`, and `docs` folders under `projects/PROJ-379-predicting-molecular-excitation-waveleng/`.
-    Without concrete evidence that these directories exist, the task requirement is
-    not satisfied.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `README.md` file or its contents are provided; without the file we cannot\
-    \ confirm that a Quickstart section with environment setup, data fetching, and\
-    \ end\u2011to\u2011end pipeline instructions exists. The required artifact is\
-    \ missing."
 T022:
   c: false
   h: ba6daf0bf9afd833e0adb6b3e2d7ffcef07f10952eb25cc6be62a9976a53f3af
@@ -27,3 +13,39 @@ T025:
     (e.g., a script that applies masking to the dataset and a report or logs confirming
     the mask was correctly applied and validated), the claim cannot be confirmed.
     The implementer must supply the masking implementation and evidence of its verification.
+T027:
+  c: false
+  h: 4d464c6ddd80d8d3a46eb8b0ae1b73314440f03e0a11d5e17e51457b474884f3
+  r: "The provided `code/analyze_results.py` is truncated, contains an undefined variable\
+    \ (`c`), never writes the aggregated dictionary to `data/processed/metrics.json`,\
+    \ and the required output file `data/processed/metrics.json` is missing from the\
+    \ repository. The task\u2019s required keys and output artifact are therefore\
+    \ not produced."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., validation logs, execution output, or a report) showing that\
+    \ `quickstart.md` was actually run and verified on a CPU\u2011only environment\
+    \ is present; the claim lacks any concrete evidence of end\u2011to\u2011end execution.\
+    \ The implementer must provide the execution results or logs confirming the validation\
+    \ succeeded."
+T029a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `README.md` file was presented, nor any excerpt showing a revised\
+    \ \u201CQuickstart\u201D section with step\u2011by\u2011step commands for running\
+    \ the full pipeline or guidance on interpreting the generated `metrics.json`.\
+    \ Without the actual README content, the requirement cannot be confirmed as satisfied.\
+    \ The implementer must add the updated README containing the requested instructions."
+T029b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No documentation file or new section in `docs/` was provided; there is no evidence
+    of a written description of the feature attribution visualization or guidance
+    on interpreting masked attribution results. The required artifact is missing.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any code changes, linting reports, or cleaned files in the `code/`
+    directory is provided; the implementer did not supply the required artifact showing
+    unused imports removed and linting errors fixed. The task therefore remains unfinished.

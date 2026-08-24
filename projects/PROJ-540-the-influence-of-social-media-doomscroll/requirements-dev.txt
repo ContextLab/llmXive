@@ -1,10 +1,4 @@
--r requirements.txt
-flake8==7.0.0
+flake8==6.1.0
 black==23.12.1
 isort==5.13.2
-pre-commit==3.6.0
-pytest==7.4.4
-mypy==1.8.0
-types-PyYAML
-types-requests
-types-setuptools
+pytest==7.4.3

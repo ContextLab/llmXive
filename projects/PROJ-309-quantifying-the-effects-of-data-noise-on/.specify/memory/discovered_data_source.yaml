@@ -1,13 +1,11 @@
 status: none
-intent: "OpenML Lorenz and R\xF6ssler attractor synthetic time series dataset python\
-  \ package"
+intent: "download clean chaotic Lorenz and R\xF6ssler attractor trajectories dataset\
+  \ python package dataset"
 required_fields:
 - time
 - x
 - y
 - z
-- attractor_name
-- parameters
-cache_key: 76ba1937b951da96537f078b4031a74fcf3b4dd5b65162877f8833d819633aee
-searched_at: '2026-07-16T12:59:19.190986+00:00'
+cache_key: fe462f6cdc5a0349101d792ac62d2498d30e7eedae5272363e4c3e6caf0879a1
+searched_at: '2026-08-24T15:32:37.933335+00:00'
 retry_count: 1

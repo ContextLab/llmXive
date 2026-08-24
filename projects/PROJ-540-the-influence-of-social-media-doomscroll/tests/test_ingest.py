@@ -1,30 +1,35 @@
-"""
-Unit test scaffolding for data ingestion module.
-Tests are marked as pending implementation.
-"""
 import pytest
-from pathlib import Path
 import pandas as pd
+from pathlib import Path
+import sys
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+
+from ingest import validate_schema
+from exceptions import DataValidationError
 
 class TestIngestion:
-    """Test class for ingestion functionality."""
-
     def test_schema_validation_raises_error_on_missing_column(self):
-        """Test that schema validation raises error on missing column."""
-        pytest.skip("Implementation pending")
-        # TODO: Implement test to verify DataValidationError is raised
-        # when required columns are missing from the dataset.
-        pass
+        """Test that validate_schema raises DataValidationError if a required column is missing."""
+        # Create a dataframe with missing required columns
+        df = pd.DataFrame({
+            'news_exposure_freq': [1, 2, 3],
+            'anxiety_score': [10, 20, 30]
+            # Missing 'baseline_anxiety', 'age', 'gender'
+        })
+        
+        with pytest.raises(DataValidationError):
+            validate_schema(df)
 
-    def test_download_dataset_success(self):
-        """Test successful download of dataset."""
-        pytest.skip("Implementation pending")
-        # TODO: Implement test to verify dataset is downloaded correctly
-        # and saved to the expected path.
-        pass
-
-    def test_parse_and_transform(self):
-        """Test parsing and transformation of dataset."""
-        pytest.skip("Implementation pending")
-        # TODO: Implement test to verify column renaming and type conversion.
-        pass
+    def test_schema_validation_passes_on_complete_columns(self):
+        """Test that validate_schema returns True if all required columns are present."""
+        df = pd.DataFrame({
+            'news_exposure_freq': [1, 2, 3],
+            'anxiety_score': [10, 20, 30],
+            'baseline_anxiety': [5, 15, 25],
+            'age': [20, 30, 40],
+            'gender': ['M', 'F', 'M']
+        })
+        
+        assert validate_schema(df) is True

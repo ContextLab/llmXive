@@ -1,31 +1,47 @@
-import yaml
 import os
-from typing import Dict, Any
+import yaml
+from pathlib import Path
+from typing import Dict, Any, Optional
 
-def load_config(path: str = "code/config.yaml") -> Dict[str, Any]:
-    """
-    Load configuration from YAML file.
-    """
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Config file not found at {path}")
+# Default configuration values
+DEFAULT_CONFIG = {
+    "NON_INFERIORITY_DELTA": 0.05,
+    "ENTROPY_N_SAMPLES": 10,
+    "CONVERGENCE_K_RANGE": [1, 2, 3],
+    "STRATA_THRESHOLD": 50,
+    "MODEL_TEMP": 0.7,
+    "MODEL_TOP_P": 0.95,
+    "RANDOM_SEED": 42,
+    "MODEL_PATH": "codellama/CodeLlama-1.3b-Instruct-hf",
+    "DATA_PATH": "data/processed",
+    "OUTPUT_PATH": "data/processed"
+}
+
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load configuration from a YAML file or return defaults."""
+    if config_path is None:
+        # Try to load from default location
+        base_dir = Path(__file__).parent.parent
+        config_file = base_dir / "config.yaml"
+        if config_file.exists():
+            with open(config_file, 'r') as f:
+                return yaml.safe_load(f)
+        return DEFAULT_CONFIG
     
-    with open(path, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    # Fill in missing keys with defaults if needed
-    defaults = {
-        'CODELLAMA_CPU_PATH': 'NOT_SET',
-        'CODELLAMA_GPU_PATH': 'NOT_SET',
-        'strata_threshold': 50,
-        'non_inferiority_delta': 0.05,
-        'entropy_n_samples': 10,
-        'convergence_k_range': [1, 2, 3],
-        'model_temperature': 0.7,
-        'model_top_p': 0.95
-    }
-    
-    for key, value in defaults.items():
-        if key not in config:
-            config[key] = value
-    
-    return config
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
+
+def get_config_value(key: str, default: Any = None) -> Any:
+    """Get a specific configuration value."""
+    config = load_config()
+    return config.get(key, default)
+
+def ensure_config_file():
+    """Ensure a config.yaml file exists in the project root."""
+    base_dir = Path(__file__).parent.parent
+    config_file = base_dir / "config.yaml"
+    if not config_file.exists():
+        with open(config_file, 'w') as f:
+            yaml.dump(DEFAULT_CONFIG, f)
+        return config_file
+    return config_file

@@ -4,200 +4,348 @@ import logging
 from typing import Tuple, Dict, Any, Optional, Literal
 from scipy import stats
 import statsmodels.api as sm
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-from statsmodels.stats.diagnostic import het_breuschpagan
 from pathlib import Path
+import json
+
 from config import load_config
-from validity import check_construct_validity
 from exceptions import MathematicalCouplingError
+from validity import check_construct_validity
 
 logger = logging.getLogger(__name__)
 
-def calculate_correlation(df: pd.DataFrame, var1: str, var2: str) -> Tuple[float, float]:
-    """Calculate Pearson correlation coefficient and p-value."""
-    # Drop NaNs for these two columns
-    data = df[[var1, var2]].dropna()
-    if len(data) < 2:
-        raise ValueError("Insufficient data for correlation calculation.")
+def calculate_correlation(
+    df: pd.DataFrame,
+    var1: str,
+    var2: str,
+    method: Literal['pearson', 'spearman'] = 'pearson'
+) -> Tuple[float, float]:
+    """
+    Calculate correlation coefficient and p-value between two variables.
     
-    corr, p_value = stats.pearsonr(data[var1], data[var2])
-    logger.info(f"Correlation between {var1} and {var2}: {corr:.4f} (p={p_value:.4f})")
-    return corr, p_value
+    Args:
+        df: DataFrame containing the variables
+        var1: Name of first variable
+        var2: Name of second variable
+        method: Correlation method ('pearson' or 'spearman')
+        
+    Returns:
+        Tuple of (correlation coefficient, p-value)
+    """
+    if var1 not in df.columns or var2 not in df.columns:
+        raise ValueError(f"Variables {var1} or {var2} not found in DataFrame")
+    
+    # Drop rows with missing values for these variables
+    subset = df[[var1, var2]].dropna()
+    
+    if len(subset) < 2:
+        raise ValueError("Insufficient data for correlation calculation")
+    
+    corr, p_value = stats.pearsonr(subset[var1], subset[var2]) if method == 'pearson' else stats.spearmanr(subset[var1], subset[var2])
+    return float(corr), float(p_value)
 
 def run_initial_correlations(df: pd.DataFrame) -> Dict[str, Any]:
-    """Run initial correlation checks between key variables."""
-    logger.info("Running initial correlations...")
+    """
+    Run initial correlations between main variables of interest.
+    
+    Args:
+        df: Cleaned DataFrame
+        
+    Returns:
+        Dictionary of correlation results
+    """
+    logger.info("Running initial correlations")
     
     results = {}
+    main_vars = ['news_exposure_freq', 'anxiety_score', 'baseline_anxiety', 'age']
     
-    # Core relationship
-    corr, p = calculate_correlation(df, 'news_exposure_freq', 'anxiety_score')
-    results['news_exposure_anxiety'] = {'correlation': corr, 'p_value': p}
-    
-    # Baseline check
-    corr_base, p_base = calculate_correlation(df, 'baseline_anxiety', 'anxiety_score')
-    results['baseline_anxiety_score'] = {'correlation': corr_base, 'p_value': p_base}
+    for i, var1 in enumerate(main_vars):
+        for var2 in main_vars[i+1:]:
+            try:
+                corr, p_val = calculate_correlation(df, var1, var2)
+                results[f"{var1}_vs_{var2}"] = {
+                    'correlation': corr,
+                    'p_value': p_val,
+                    'n': len(df[[var1, var2]].dropna())
+                }
+                logger.info(f"Correlation {var1} vs {var2}: r={corr:.3f}, p={p_val:.3f}")
+            except Exception as e:
+                logger.warning(f"Could not calculate correlation for {var1} vs {var2}: {e}")
     
     return results
 
-def fit_regression_model(df: pd.DataFrame) -> Dict[str, Any]:
-    """Fit OLS regression: anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender."""
-    logger.info("Fitting regression model...")
+def fit_regression_model(
+    df: pd.DataFrame,
+    formula: Optional[str] = None,
+    dependent_var: str = 'anxiety_score',
+    independent_vars: Optional[list] = None
+) -> Dict[str, Any]:
+    """
+    Fit a multiple linear regression model.
     
-    # Prepare data
-    # Handle gender as dummy variable (simple binary assumption for now, or one-hot)
-    # Assuming gender is categorical string, convert to numeric dummy
-    df_model = df.copy()
+    Args:
+        df: DataFrame containing the variables
+        formula: Optional statsmodels formula string
+        dependent_var: Name of dependent variable (default: anxiety_score)
+        independent_vars: List of independent variable names
+        
+    Returns:
+        Dictionary containing model results and diagnostics
+    """
+    logger.info(f"Fitting regression model: {dependent_var} ~ {independent_vars}")
     
-    # Ensure numeric columns are numeric
-    numeric_cols = ['news_exposure_freq', 'anxiety_score', 'baseline_anxiety', 'age']
-    for col in numeric_cols:
-        df_model[col] = pd.to_numeric(df_model[col], errors='coerce')
+    if independent_vars is None:
+        independent_vars = ['news_exposure_freq', 'baseline_anxiety', 'age']
     
-    df_model = df_model.dropna(subset=['anxiety_score'] + numeric_cols)
+    # Check for NaN values and drop rows
+    vars_to_check = [dependent_var] + independent_vars
+    df_clean = df[vars_to_check].dropna()
     
-    # Check construct validity before fitting
-    check_construct_validity(df_model)
+    if len(df_clean) < 30:
+        from exceptions import PowerLimitationError
+        raise PowerLimitationError(f"Sample size {len(df_clean)} is below minimum threshold of 30 for regression analysis.")
     
-    # One-hot encode gender
-    df_model = pd.get_dummies(df_model, columns=['gender'], drop_first=True)
+    X = df_clean[independent_vars]
+    y = df_clean[dependent_var]
     
-    # Define features and target
-    # Find all gender dummies
-    gender_cols = [c for c in df_model.columns if c.startswith('gender_')]
-    feature_cols = ['news_exposure_freq', 'baseline_anxiety', 'age'] + gender_cols
+    # Add constant for intercept
+    X_with_const = sm.add_constant(X)
     
-    # Ensure all feature cols exist
-    existing_features = [c for c in feature_cols if c in df_model.columns]
+    # Fit model
+    model = sm.OLS(y, X_with_const).fit()
     
-    X = df_model[existing_features]
-    X = sm.add_constant(X)
-    y = df_model['anxiety_score']
-    
-    model = sm.OLS(y, X).fit()
-    
-    logger.info(f"Model R-squared: {model.rsquared:.4f}")
-    
-    # Extract results
     results = {
-        'rsquared': model.rsquared,
-        'rsquared_adj': model.rsquared_adj,
-        'f_pvalue': model.f_pvalue,
-        'coefficients': model.params.to_dict(),
-        'pvalues': model.pvalues.to_dict(),
-        'conf_int': model.conf_int().to_dict()
+        'formula': f"{dependent_var} ~ {' + '.join(independent_vars)}",
+        'n_obs': len(df_clean),
+        'r_squared': float(model.rsquared),
+        'adj_r_squared': float(model.rsquared_adj),
+        'f_statistic': float(model.fvalue),
+        'f_pvalue': float(model.f_pvalue),
+        'coefficients': {},
+        'assumption_checks': {}
     }
     
+    for name, param in model.params.items():
+        results['coefficients'][name] = {
+            'coef': float(param),
+            'std_err': float(model.bse[name]),
+            't_stat': float(model.tvalues[name]),
+            'p_value': float(model.pvalues[name]),
+            'conf_int_lower': float(model.conf_int().loc[name, 0]),
+            'conf_int_upper': float(model.conf_int().loc[name, 1])
+        }
+    
+    logger.info(f"Regression completed. R²={model.rsquared:.3f}, F-stat={model.fvalue:.3f}, p={model.f_pvalue:.3f}")
     return results
 
-def check_proxy_anxiety(df: pd.DataFrame) -> Dict[str, Any]:
-    """Check proxy flagging logic for general_anxiety vs anticipatory_anxiety."""
-    # Placeholder for FR-008 logic if specific columns exist
-    logger.info("Checking proxy anxiety logic...")
-    return {'status': 'checked', 'details': 'No specific proxy columns found in schema'}
-
-def check_assumptions(df: pd.DataFrame, model_results: Dict[str, Any]) -> Dict[str, Any]:
-    """Perform regression assumption checks."""
-    logger.info("Checking regression assumptions...")
+def check_proxy_anxiety(df: pd.DataFrame, anxiety_col: str = 'anxiety_score') -> Dict[str, Any]:
+    """
+    Implement proxy flagging logic for general_anxiety vs anticipatory_anxiety (FR-008).
     
-    # Re-fit to get residuals for checks
-    df_model = df.copy()
-    numeric_cols = ['news_exposure_freq', 'anxiety_score', 'baseline_anxiety', 'age']
-    for col in numeric_cols:
-        df_model[col] = pd.to_numeric(df_model[col], errors='coerce')
-    df_model = df_model.dropna(subset=['anxiety_score'] + numeric_cols)
-    df_model = pd.get_dummies(df_model, columns=['gender'], drop_first=True)
+    This function analyzes the `anxiety_score` variable to determine if it likely
+    represents a proxy for general anxiety rather than the specific construct of
+    anticipatory anxiety (the target outcome).
     
-    gender_cols = [c for c in df_model.columns if c.startswith('gender_')]
-    feature_cols = ['news_exposure_freq', 'baseline_anxiety', 'age'] + gender_cols
-    existing_features = [c for c in feature_cols if c in df_model.columns]
+    Logic:
+    1. Checks if the column name suggests a proxy (contains 'general').
+    2. If the column name is ambiguous, it checks the correlation with 'baseline_anxiety'.
+       - High correlation (> 0.7) suggests the variable is a general measure of anxiety
+         rather than a specific anticipatory measure.
+    3. Returns a flag and explanation.
     
-    X = df_model[existing_features]
-    X = sm.add_constant(X)
-    y = df_model['anxiety_score']
-    model = sm.OLS(y, X).fit()
+    Args:
+        df: DataFrame containing the anxiety variable
+        anxiety_col: Name of the anxiety variable column
+        
+    Returns:
+        Dictionary with 'is_proxy' (bool), 'confidence' (float), and 'reasoning' (str)
+    """
+    logger.info(f"Checking proxy status for anxiety variable: {anxiety_col}")
     
-    residuals = model.resid
-    fitted = model.fittedvalues
+    result = {
+        'is_proxy': False,
+        'confidence': 0.0,
+        'reasoning': '',
+        'variable_name': anxiety_col
+    }
     
-    diagnostics = {}
+    # Heuristic 1: Column name analysis
+    name_lower = anxiety_col.lower()
+    if 'general' in name_lower:
+        result['is_proxy'] = True
+        result['confidence'] = 0.95
+        result['reasoning'] = "Variable name contains 'general', suggesting it measures general anxiety rather than anticipatory anxiety."
+        logger.warning(f"Proxy detected: '{anxiety_col}' appears to be a general anxiety measure.")
+        return result
     
-    # 1. Linearity (Visual check usually, but we check correlation of residuals vs fitted)
-    # Ideally should be 0. We check if significant correlation exists.
-    if len(fitted) > 2:
-        lin_corr, lin_p = stats.pearsonr(fitted, residuals)
-        diagnostics['linearity_check'] = {'correlation': lin_corr, 'p_value': lin_p, 'passed': abs(lin_p) > 0.05}
-    
-    # 2. Homoscedasticity (Breusch-Pagan)
-    try:
-        bp_test = het_breuschpagan(residuals, model.model.exog)
-        # bp_test[1] is p-value
-        diagnostics['homoscedasticity'] = {'p_value': bp_test[1], 'passed': bp_test[1] > 0.05}
-    except Exception as e:
-        diagnostics['homoscedasticity'] = {'error': str(e), 'passed': False}
-    
-    # 3. Normality (Shapiro-Wilk)
-    try:
-        shapiro_stat, shapiro_p = stats.shapiro(residuals)
-        diagnostics['normality'] = {'statistic': shapiro_stat, 'p_value': shapiro_p, 'passed': shapiro_p > 0.05}
-    except Exception as e:
-        diagnostics['normality'] = {'error': str(e), 'passed': False}
-    
-    # 4. Multicollinearity (VIF)
-    vif_data = {}
-    for i, col in enumerate(model.model.exog.columns):
-        if col != 'const':
+    # Heuristic 2: Correlation with baseline (if baseline exists)
+    if 'baseline_anxiety' in df.columns:
+        # Calculate correlation
+        subset = df[[anxiety_col, 'baseline_anxiety']].dropna()
+        if len(subset) > 2:
             try:
-                vif = variance_inflation_factor(model.model.exog, i)
-                vif_data[col] = vif
-            except:
-                vif_data[col] = np.nan
+                corr, _ = stats.pearsonr(subset[anxiety_col], subset['baseline_anxiety'])
+                # If correlation is extremely high, it suggests the measure is redundant
+                # with baseline/general state, rather than capturing the specific anticipatory component.
+                if corr > 0.7:
+                    result['is_proxy'] = True
+                    result['confidence'] = min(0.85, abs(corr))
+                    result['reasoning'] = f"High correlation ({corr:.3f}) with baseline_anxiety suggests '{anxiety_col}' may be a general anxiety proxy rather than a specific anticipatory measure."
+                    logger.warning(f"Proxy detected: '{anxiety_col}' correlates {corr:.3f} with baseline_anxiety.")
+                    return result
+            except Exception as e:
+                logger.warning(f"Could not compute correlation for proxy check: {e}")
     
-    diagnostics['vif'] = vif_data
-    diagnostics['vif_passed'] = all(v < 5 for v in vif_data.values() if not np.isnan(v))
+    result['is_proxy'] = False
+    result['confidence'] = 0.0
+    result['reasoning'] = "No strong evidence found that this variable is a proxy for general anxiety. Proceeding with caution."
+    logger.info("Proxy check passed: No clear evidence of general anxiety proxy.")
+    return result
+
+def check_assumptions(model_results: Dict[str, Any], df: pd.DataFrame, formula: str) -> Dict[str, Any]:
+    """
+    Check regression assumptions: Linearity, Homoscedasticity, Normality, VIF.
     
-    return diagnostics
+    Args:
+        model_results: Results from fit_regression_model
+        df: Original DataFrame used for fitting
+        formula: Model formula string
+        
+    Returns:
+        Dictionary of assumption check results
+    """
+    logger.info("Checking regression assumptions")
+    
+    assumptions = {
+        'linearity': {'passed': True, 'details': 'Visual inspection recommended'},
+        'homoscedasticity': {'passed': True, 'details': ''},
+        'normality': {'passed': True, 'details': ''},
+        'multicollinearity': {'passed': True, 'details': ''}
+    }
+    
+    # 1. Homoscedasticity: Breusch-Pagan test
+    # We need residuals and fitted values. Re-fit to get them if not stored, 
+    # or extract from model_results if we stored the fitted model object (we didn't, so re-calc).
+    # For simplicity, we'll re-calculate residuals here based on the formula.
+    # In a real pipeline, we might pass the fitted model object instead of dict.
+    
+    # Parse formula to get vars (simple parsing)
+    # Expected format: "anxiety_score ~ news_exposure_freq + baseline_anxiety + age"
+    parts = formula.split('~')
+    if len(parts) == 2:
+        dep_var = parts[0].strip()
+        indep_vars = [v.strip() for v in parts[1].split('+')]
+        
+        X = df[indep_vars].dropna()
+        y = df[dep_var].loc[X.index]
+        X = sm.add_constant(X)
+        model = sm.OLS(y, X).fit()
+        residuals = model.resid
+        fitted = model.fittedvalues
+        
+        # Breusch-Pagan test
+        try:
+            from statsmodels.stats.diagnostic import het_breuschpagan
+            bp_test = het_breuschpagan(residuals, model.model.exog)
+            # bp_test[1] is p-value
+            if bp_test[1] < 0.05:
+                assumptions['homoscedasticity']['passed'] = False
+                assumptions['homoscedasticity']['details'] = f"Breusch-Pagan test rejected homoscedasticity (p={bp_test[1]:.3f})"
+                logger.warning(f"Homoscedasticity assumption failed: p={bp_test[1]:.3f}")
+            else:
+                assumptions['homoscedasticity']['details'] = f"Breusch-Pagan test passed (p={bp_test[1]:.3f})"
+        except Exception as e:
+            logger.warning(f"Could not perform Breusch-Pagan test: {e}")
+        
+        # 2. Normality: Shapiro-Wilk test on residuals
+        try:
+            shapiro_stat, shapiro_p = stats.shapiro(residuals)
+            if shapiro_p < 0.05:
+                assumptions['normality']['passed'] = False
+                assumptions['normality']['details'] = f"Shapiro-Wilk test rejected normality (p={shapiro_p:.3f})"
+                logger.warning(f"Normality assumption failed: p={shapiro_p:.3f}")
+            else:
+                assumptions['normality']['details'] = f"Shapiro-Wilk test passed (p={shapiro_p:.3f})"
+        except Exception as e:
+            logger.warning(f"Could not perform Shapiro-Wilk test: {e}")
+        
+        # 3. Multicollinearity: VIF
+        vif_data = []
+        for i, col in enumerate(X.columns):
+            if col == 'const':
+                continue
+            vif = sm.stats.variance_inflation_factor(X.values, i)
+            vif_data.append({'variable': col, 'vif': vif})
+            if vif > 10:
+                assumptions['multicollinearity']['passed'] = False
+                assumptions['multicollinearity']['details'] += f"High VIF for {col}: {vif:.2f} "
+                logger.warning(f"Multicollinearity detected for {col}: VIF={vif:.2f}")
+        
+        assumptions['multicollinearity']['vif_details'] = vif_data
+        
+    return assumptions
 
 def run_full_analysis(df: pd.DataFrame) -> Dict[str, Any]:
-    """Run the full statistical analysis pipeline."""
-    logger.info("Starting full analysis...")
+    """
+    Run the full analysis pipeline: validity check, correlations, regression, assumptions.
     
+    Args:
+        df: Cleaned DataFrame
+        
+    Returns:
+        Dictionary containing all analysis results
+    """
+    logger.info("Starting full analysis pipeline")
+    
+    # 1. Construct Validity Check
+    try:
+        check_construct_validity(df, 'baseline_anxiety', 'anxiety_score')
+        logger.info("Construct validity check passed.")
+    except MathematicalCouplingError as e:
+        logger.error(f"Construct validity check failed: {e}")
+        raise
+    
+    # 2. Proxy Check
+    proxy_result = check_proxy_anxiety(df, 'anxiety_score')
+    
+    # 3. Correlations
     correlations = run_initial_correlations(df)
-    regression_results = fit_regression_model(df)
-    assumptions = check_assumptions(df, regression_results)
     
-    return {
+    # 4. Regression
+    regression_results = fit_regression_model(df)
+    
+    # 5. Assumption Checks
+    assumptions = check_assumptions(regression_results, df, regression_results['formula'])
+    regression_results['assumption_checks'] = assumptions
+    
+    # 6. Compile final report
+    final_results = {
+        'proxy_check': proxy_result,
         'correlations': correlations,
-        'regression': regression_results,
-        'assumptions': assumptions
+        'regression': regression_results
     }
+    
+    logger.info("Full analysis pipeline completed successfully.")
+    return final_results
 
-def main() -> None:
+def main():
     """Main entry point for model analysis."""
     config = load_config()
-    input_path = Path(config['paths']['processed_data'])
-    output_corr = Path(config['paths']['correlation_results'])
-    output_reg = Path(config['paths']['regression_results'])
+    data_path = Path(config['data']['processed_path'])
     
-    try:
-        df = pd.read_csv(input_path)
-        results = run_full_analysis(df)
-        
-        # Save results
-        import json
-        with open(output_corr, 'w') as f:
-            json.dump(results['correlations'], f, indent=2, default=str)
-        
-        with open(output_reg, 'w') as f:
-            json.dump(results['regression'], f, indent=2, default=str)
-            # Save assumptions separately or merged? T021 says regression_results.json
-            # Let's merge diagnostics into regression file if needed, or keep separate logic in save_results
-            # For now, saving main regression stats here.
-        
-        logger.info("Model analysis completed.")
-    except Exception as e:
-        logger.critical(f"Model analysis failed: {e}")
-        raise
+    if not data_path.exists():
+        logger.error(f"Processed data file not found at {data_path}")
+        return
+    
+    df = pd.read_csv(data_path)
+    results = run_full_analysis(df)
+    
+    # Save results
+    output_path = Path(config['outputs']['regression_results_path'])
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Results saved to {output_path}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

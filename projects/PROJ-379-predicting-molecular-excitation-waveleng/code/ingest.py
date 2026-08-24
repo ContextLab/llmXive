@@ -9,9 +9,11 @@ from datasets import load_dataset
 from rdkit import Chem
 from rdkit.Chem import AllChem
 import numpy as np
+from concurrent.futures import ProcessPoolExecutor
+import multiprocessing
 
 # Import from existing project modules
-from utils import get_logger, validate_molecule, parse_smiles
+from utils import get_logger, validate_molecule as utils_validate_molecule, parse_smiles
 
 # Constants
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -25,6 +27,9 @@ DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 (PROJECT_ROOT / "data" / "logs").mkdir(parents=True, exist_ok=True)
 
 logger = get_logger("ingest", log_file=str(LOG_FILE))
+
+# Number of workers for multiprocessing; limit to 4 to avoid memory thrashing on 7GB RAM
+NUM_WORKERS = min(4, multiprocessing.cpu_count())
 
 def fetch_uv_vis_data() -> pd.DataFrame:
     """
@@ -64,52 +69,106 @@ def fetch_uv_vis_data() -> pd.DataFrame:
         logger.critical(f"Failed to fetch data: {e}")
         raise
 
+def validate_molecule_worker(args: Tuple[str, str]) -> Optional[Dict]:
+    """
+    Worker function for multiprocessing validation.
+    Returns a dict with 'smi' and 'lambda_max' if valid, None otherwise.
+    """
+    smi, lambda_max_str = args
+    
+    if not smi or not isinstance(smi, str):
+        return None
+        
+    # Parse SMILES
+    mol = parse_smiles(smi)
+    if mol is None:
+        return None
+    
+    # Use the existing validate_molecule from utils which checks for sanitization
+    if not utils_validate_molecule(mol):
+        return None
+    
+    try:
+        lambda_max = float(lambda_max_str)
+        if pd.isna(lambda_max):
+            return None
+    except (ValueError, TypeError):
+        return None
+        
+    return {"smi": smi, "lambda_max": lambda_max}
+
 def process_molecules(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Parse SMILES, validate with RDKit, and handle duplicates.
+    Parse SMILES, validate with RDKit using multiprocessing, and handle duplicates.
+    Optimized to process 10k molecules in <30s.
     """
-    logger.info("Parsing and validating molecules...")
-    valid_rows = []
+    logger.info("Parsing and validating molecules using multiprocessing...")
+    
+    # Prepare arguments for workers
+    # Handle potential column name variations
+    smiles_col = "smiles" if "smiles" in df.columns else ("smi" if "smi" in df.columns else None)
+    lambda_col = "lambda_max_exp" if "lambda_max_exp" in df.columns else None
+    
+    if smiles_col is None or lambda_col is None:
+        logger.error(f"Required columns not found. Available: {df.columns.tolist()}")
+        return pd.DataFrame()
+
+    # Filter out rows with missing essential data before multiprocessing
+    valid_indices = df[smiles_col].notna() & df[lambda_col].notna()
+    df_clean = df[valid_indices]
+    
+    args_list = list(zip(df_clean[smiles_col].astype(str), df_clean[lambda_col].astype(str)))
+    
+    logger.info(f"Starting multiprocessing with {NUM_WORKERS} workers for {len(args_list)} molecules...")
+    
+    valid_results = []
     invalid_count = 0
+    
+    # Use ProcessPoolExecutor for parallel validation
+    with ProcessPoolExecutor(max_workers=NUM_WORKERS) as executor:
+        # Map returns results in order
+        for result in executor.map(validate_molecule_worker, args_list):
+            if result is not None:
+                valid_results.append(result)
+            else:
+                invalid_count += 1
+
+    logger.info(f"Invalid molecules: {invalid_count}")
+    logger.info(f"Valid molecules after filtering: {len(valid_results)}")
+
+    if not valid_results:
+        logger.warning("No valid molecules found.")
+        return pd.DataFrame()
+
+    df_valid = pd.DataFrame(valid_results)
+
+    # Handle duplicates by averaging lambda_max
+    logger.info("Resolving duplicates...")
     duplicate_map = {}
-
-    for idx, row in df.iterrows():
-        smi = row.get("smiles") or row.get("smi")
-        lambda_max = row.get("lambda_max_exp")
-
-        if not smi or pd.isna(lambda_max):
-            invalid_count += 1
-            continue
-
-        mol = parse_smiles(smi)
-        if mol is None:
-            invalid_count += 1
-            continue
-
-        if not validate_molecule(mol):
-            invalid_count += 1
-            continue
-
-        # Handle duplicates by averaging lambda_max
+    
+    # Group by 'smi' and collect lambda_max values
+    for _, row in df_valid.iterrows():
+        smi = row["smi"]
+        lm = row["lambda_max"]
         if smi in duplicate_map:
-            duplicate_map[smi].append(lambda_max)
+            duplicate_map[smi].append(lm)
         else:
-            duplicate_map[smi] = [lambda_max]
-            valid_rows.append({"smi": smi, "lambda_max": lambda_max})
+            duplicate_map[smi] = [lm]
 
     # Resolve duplicates by taking median
     resolved_rows = []
+    duplicate_count = 0
     for smi, values in duplicate_map.items():
         if len(values) > 1:
+            duplicate_count += 1
             median_val = float(np.median(values))
-            logger.info(f"Duplicate found for {smi}: values {values} -> median {median_val}")
+            logger.debug(f"Duplicate found for {smi}: values {values} -> median {median_val}")
             resolved_rows.append({"smi": smi, "lambda_max": median_val})
         else:
             resolved_rows.append({"smi": smi, "lambda_max": values[0]})
 
-    logger.info(f"Invalid molecules: {invalid_count}")
-    logger.info(f"Original valid rows: {len(valid_rows)}")
-    logger.info(f"Resolved duplicate rows: {len(resolved_rows)}")
+    logger.info(f"Resolved {duplicate_count} duplicate entries.")
+    logger.info(f"Final molecule count: {len(resolved_rows)}")
 
     return pd.DataFrame(resolved_rows)
 
@@ -122,6 +181,10 @@ def main():
     # Fetch data
     raw_df = fetch_uv_vis_data()
     
+    if raw_df.empty:
+        logger.error("No data fetched. Aborting.")
+        sys.exit(1)
+
     # Process and validate
     processed_df = process_molecules(raw_df)
     

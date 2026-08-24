@@ -142,7 +142,7 @@
  1. Apply redundancy masks from T023 to the final attribution weights in `code/explain.py`.
  2. Verify masking occurred by comparing masked vs. unmasked weights (ensure masked weights are zero).
  3. Save final masked attribution to `data/processed/attribution_results.json` (FR-007)
-- [ ] T026 [US3] Implement `code/sensitivity.py`:
+- [X] T026 [US3] Implement `code/sensitivity.py`:
  1. Sweep MAE decision cutoffs using specific nanometer thresholds: **20, 30, 40, 50, 60 nm** (derived from US3 acceptance scenarios).
  2. Verify that the sweep covers these exact thresholds.
  3. Report variation in error rates (FR-006)
@@ -159,10 +159,10 @@
 
 - [ ] T029a [P] Documentation: Update `README.md` "Quickstart" section with instructions for running the full pipeline and interpreting `metrics.json`
 - [ ] T029b [P] Documentation: Add a new section to `docs/` describing the feature attribution visualization and how to read the masked attribution results
-- [ ] T030a [P] Refactor: Extract validation logic in `code/ingest.py` into a separate function `validate_molecule(smiles)` to improve modularity
-- [ ] T030b [P] Refactor: Reduce cyclomatic complexity of `code/split.py` to <10 by extracting scaffold generation logic into a helper function
-- [ ] T031a [P] Performance: Optimize data loading in `code/ingest.py` by using multiprocessing to reduce loading time to <30s for 10k molecules
-- [ ] T031b [P] Performance: Optimize graph construction in `code/utils.py` by caching RDKit molecule objects to reduce overhead by [deferred]
+- [X] T030a [P] Refactor: Extract validation logic in `code/ingest.py` into a separate function `validate_molecule(smiles)` to improve modularity
+- [X] T030b [P] Refactor: Reduce cyclomatic complexity of `code/split.py` to <10 by extracting scaffold generation logic into a helper function
+- [X] T031a [P] Performance: Optimize data loading in `code/ingest.py` by using multiprocessing to reduce loading time to <30s for 10k molecules
+- [X] T031b [P] Performance: Optimize graph construction in `code/utils.py` by caching RDKit molecule objects to reduce overhead by [deferred]
 - [ ] T032 [P] Code cleanup: Remove unused imports and fix linting errors across `code/`
 
 ---

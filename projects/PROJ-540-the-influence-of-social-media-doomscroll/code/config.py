@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 import yaml
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +90,3 @@ def ensure_directories(*paths: Path) -> None:
         parent = p.parent if p.is_file() else p
         parent.mkdir(parents=True, exist_ok=True)
         logger.debug(f"Ensured directory exists: {parent}")
-
-# Import numpy here to avoid circular or top-level issues if not needed immediately
-import numpy as np

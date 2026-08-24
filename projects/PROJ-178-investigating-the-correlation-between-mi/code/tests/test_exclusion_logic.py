@@ -5,127 +5,110 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import tempfile
-import logging
+import shutil
 
-# Add code directory to path for imports
-code_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(code_dir))
+# Add parent to path for imports if running standalone
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from analysis.exclusion_logic import apply_exclusion_logic, write_exclusion_report
 
 class TestExclusionLogic:
-    """Test suite for T019 conditional exclusion logic."""
+    """
+    Tests for T019: Conditional exclusion logic.
+    """
 
-    @pytest.fixture
-    def sample_dataset_with_missing_age(self):
-        """Create a sample dataset with missing age values."""
-        data = {
-            'sample_id': ['S001', 'S002', 'S003', 'S004', 'S005'],
-            'age': [45.0, 62.0, np.nan, 78.0, 55.0],
-            'haplogroup': ['H1', 'T2', 'K1', 'Unknown', 'J1'],
-            'burden': [0.012, 0.015, 0.008, 0.020, 0.011],
-            'sex': ['M', 'F', 'M', 'F', 'M'],
-            'population': ['EUR', 'AFR', 'EAS', 'EUR', 'SAS']
-        }
-        return pd.DataFrame(data)
+    def setup_method(self):
+        """Create a temporary directory and mock dataset for testing."""
+        self.temp_dir = tempfile.mkdtemp()
+        # Create a mock dataset with various missing scenarios
+        self.mock_data = pd.DataFrame({
+            'sample_id': ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
+            'age': [25.0, np.nan, 40.0, 50.0, np.nan, 30.0], # S2, S5 missing age
+            'haplogroup': ['H1', 'J1', np.nan, 'U5', 'T2', ''], # S3 missing, S6 empty
+            'burden': [0.01, 0.02, 0.015, 0.025, 0.03, 0.012]
+        })
 
-    @pytest.fixture
-    def sample_dataset_with_failed_haplogroup(self):
-        """Create a sample dataset with failed haplogroup assignments."""
-        data = {
-            'sample_id': ['S001', 'S002', 'S003', 'S004', 'S005'],
-            'age': [45.0, 62.0, 78.0, 55.0, 33.0],
-            'haplogroup': ['H1', 'T2', None, 'Unknown', ''],
-            'burden': [0.012, 0.015, 0.008, 0.020, 0.011],
-            'sex': ['M', 'F', 'M', 'F', 'M'],
-            'population': ['EUR', 'AFR', 'EAS', 'EUR', 'SAS']
-        }
-        return pd.DataFrame(data)
+    def teardown_method(self):
+        """Clean up temporary directory."""
+        shutil.rmtree(self.temp_dir)
 
-    @pytest.fixture
-    def sample_dataset_complete(self):
-        """Create a complete sample dataset with no missing values."""
-        data = {
-            'sample_id': ['S001', 'S002', 'S003', 'S004', 'S005'],
-            'age': [45.0, 62.0, 78.0, 55.0, 33.0],
-            'haplogroup': ['H1', 'T2', 'K1', 'J1', 'U5'],
-            'burden': [0.012, 0.015, 0.008, 0.020, 0.011],
-            'sex': ['M', 'F', 'M', 'F', 'M'],
-            'population': ['EUR', 'AFR', 'EAS', 'EUR', 'SAS']
-        }
-        return pd.DataFrame(data)
+    def test_exclusion_missing_age_removal(self):
+        """
+        Verify that samples with missing age are removed from the full analysis set.
+        """
+        full_df, hg_df, stats = apply_exclusion_logic(self.mock_data)
+        
+        # S2 and S5 should be excluded
+        assert len(full_df) == 4, f"Expected 4 rows, got {len(full_df)}"
+        assert 'S2' not in full_df['sample_id'].values
+        assert 'S5' not in full_df['sample_id'].values
+        assert stats['excluded_missing_age'] == 2
+        assert stats['retained_for_full_analysis'] == 4
 
-    def test_exclude_missing_age_from_all(self, sample_dataset_with_missing_age):
-        """Test that samples with missing age are excluded from ALL analysis."""
-        df_age_clean, df_haplogroup_specific, report = apply_exclusion_logic(sample_dataset_with_missing_age)
+    def test_exclusion_missing_haplogroup_removal(self):
+        """
+        Verify that samples with missing haplogroup are removed from the HG analysis set,
+        but retained in the full analysis set (if age is present).
+        """
+        full_df, hg_df, stats = apply_exclusion_logic(self.mock_data)
         
-        # Check that sample S003 (missing age) is excluded
-        assert 'S003' not in df_age_clean['sample_id'].values
-        assert 'S003' not in df_haplogroup_specific['sample_id'].values
+        # Full set: S3 (missing HG) should be present
+        assert 'S3' in full_df['sample_id'].values
         
-        # Check counts
-        assert report['samples_with_missing_age'] == 1
-        assert report['samples_after_age_exclusion'] == 4
-        assert report['samples_after_haplogroup_exclusion'] == 4  # No haplogroup failures in this test
+        # HG set: S3 (missing HG) and S6 (empty HG) should be excluded
+        assert 'S3' not in hg_df['sample_id'].values
+        assert 'S6' not in hg_df['sample_id'].values
+        assert len(hg_df) == 3, f"Expected 3 rows in HG set, got {len(hg_df)}"
+        
+        # Check stats
+        # Total 6. Missing age 2. Missing HG (but valid age) 2 (S3, S6)
+        assert stats['excluded_missing_hg_count'] == 2
+        assert stats['retained_for_haplogroup_analysis'] == 3
 
-    def test_exclude_failed_haplogroup_only_from_specific(self, sample_dataset_with_failed_haplogroup):
-        """Test that samples with failed haplogroup are excluded from haplogroup-specific only."""
-        df_age_clean, df_haplogroup_specific, report = apply_exclusion_logic(sample_dataset_with_failed_haplogroup)
+    def test_write_exclusion_report(self):
+        """
+        Verify that the exclusion report file is created and contains expected content.
+        """
+        _, _, stats = apply_exclusion_logic(self.mock_data)
+        report_path = Path(self.temp_dir) / 'exclusion_report.txt'
         
-        # All samples with age should be in burden-only dataset
-        assert len(df_age_clean) == 5  # All have age
+        write_exclusion_report(stats, report_path)
         
-        # Samples with failed haplogroup (S003, S004, S005) should be excluded from haplogroup-specific
-        assert 'S003' not in df_haplogroup_specific['sample_id'].values
-        assert 'S004' not in df_haplogroup_specific['sample_id'].values
-        assert 'S005' not in df_haplogroup_specific['sample_id'].values
+        assert report_path.exists(), "Exclusion report file was not created."
         
-        # Valid haplogroup samples should remain
-        assert 'S001' in df_haplogroup_specific['sample_id'].values
-        assert 'S002' in df_haplogroup_specific['sample_id'].values
-        
-        # Check counts
-        assert report['samples_with_failed_haplogroup'] == 3
-        assert report['samples_after_haplogroup_exclusion'] == 2
-        assert report['samples_retained_for_burden_only'] == 3
+        content = report_path.read_text()
+        assert "EXCLUSION REPORT" in content
+        assert "Total Samples" in content
+        assert "Excluded (Missing Age)" in content
+        assert "Retained" in content
 
-    def test_complete_dataset_no_exclusions(self, sample_dataset_complete):
-        """Test that a complete dataset has no exclusions."""
-        df_age_clean, df_haplogroup_specific, report = apply_exclusion_logic(sample_dataset_complete)
+    def test_empty_dataframe(self):
+        """
+        Test behavior with an empty dataframe.
+        """
+        empty_df = pd.DataFrame(columns=['sample_id', 'age', 'haplogroup', 'burden'])
+        full_df, hg_df, stats = apply_exclusion_logic(empty_df)
         
-        assert len(df_age_clean) == 5
-        assert len(df_haplogroup_specific) == 5
-        assert report['samples_with_missing_age'] == 0
-        assert report['samples_with_failed_haplogroup'] == 0
+        assert len(full_df) == 0
+        assert len(hg_df) == 0
+        assert stats['total_samples_initial'] == 0
+        assert stats['excluded_missing_age'] == 0
 
-    def test_exclusion_report_format(self, sample_dataset_with_missing_age):
-        """Test that exclusion report contains required fields."""
-        _, _, report = apply_exclusion_logic(sample_dataset_with_missing_age)
+    def test_no_missing_values(self):
+        """
+        Test behavior when no values are missing.
+        """
+        clean_df = pd.DataFrame({
+            'sample_id': ['S1', 'S2'],
+            'age': [25.0, 30.0],
+            'haplogroup': ['H1', 'J1'],
+            'burden': [0.01, 0.02]
+        })
+        full_df, hg_df, stats = apply_exclusion_logic(clean_df)
         
-        required_fields = [
-            'initial_samples',
-            'samples_with_missing_age',
-            'samples_after_age_exclusion',
-            'samples_with_failed_haplogroup',
-            'samples_after_haplogroup_exclusion',
-            'samples_retained_for_burden_only',
-            'exclusion_reasons'
-        ]
-        
-        for field in required_fields:
-            assert field in report, f"Missing required field: {field}"
-
-    def test_write_exclusion_report(self, sample_dataset_with_missing_age, tmp_path):
-        """Test that exclusion report is written correctly to file."""
-        df_age_clean, df_haplogroup_specific, report = apply_exclusion_logic(sample_dataset_with_missing_age)
-        
-        output_path = tmp_path / "exclusion_report.txt"
-        write_exclusion_report(report, str(output_path))
-        
-        assert output_path.exists()
-        
-        content = output_path.read_text()
-        assert "EXCLUSION STATISTICS" in content
-        assert "EXCLUSION RULES APPLIED" in content
-        assert "missing age" in content.lower()
-        assert "failed haplogroup" in content.lower()
+        assert len(full_df) == 2
+        assert len(hg_df) == 2
+        assert stats['excluded_missing_age'] == 0
+        assert stats['excluded_missing_hg_count'] == 0
+        assert stats['retained_for_full_analysis'] == 2
+        assert stats['retained_for_haplogroup_analysis'] == 2

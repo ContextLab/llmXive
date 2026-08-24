@@ -20,15 +20,3 @@
   verification_status: mismatch
   verified_against_url: https://github.com/seppinho/haplogrep-cli
   verified_at: '2026-07-03T01:31:44.944487Z'
-- artifact_hash: 86815939a9ef991289d72f56c55d7fd9f16c05bac65855058c949cd9321f7cd7
-  artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2201.09350] Elementary proofs of several results on false discovery
-    rate'
-  kind: url
-  value: https://arxiv.org/abs/2201.09350
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2201.09350
-  verified_at: '2026-08-12T00:47:07.836064Z'

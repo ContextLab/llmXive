@@ -1,0 +1,94 @@
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: Multiple linear regression model R-squared is 0.485
+  claim_id: c_26e57bd2
+  context: 'Regression Analysis Results section listing Model R-squared: 0.485.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The multiple linear regression model had an R-squared of 0.485.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:28:20Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: Multiple linear regression model adjusted R-squared is 0.472
+  claim_id: c_6c9cedac
+  context: 'Regression Analysis Results section listing Adjusted R-squared: 0.472.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adjusted R-squared for the multiple linear regression model was 0.472.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:29:02Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: Maximum Variance Inflation Factor is 1.85
+  claim_id: c_cd7e40da
+  context: 'Regression Assumption Checks section stating Max VIF: 1.85.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum Variance Inflation Factor (VIF) for multicollinearity was
+    1.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:29:16Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: High-engagement subset size is 125
+  claim_id: c_f832b13d
+  context: 'Robustness Check section stating Subset Size: 125 (Top 25% engagement).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The high-engagement subset size was 125 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:29:39Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: Full sample size is 500
+  claim_id: c_8735fef8
+  context: 'Robustness Check section stating Full Sample N: 500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full sample size was 500 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:30:16Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: Regression coefficient for news exposure frequency in high-engagement
+    subset is 0.2103
+  claim_id: c_875fce68
+  context: 'Robustness Check section stating Subset Model Coefficient (news_exposure_freq):
+    0.2103.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression coefficient for news exposure frequency in the high-engagement
+    subset model was 0.2103.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:30:31Z'
