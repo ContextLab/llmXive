@@ -3,12 +3,12 @@
   "stage": "planned",
   "class": "transient",
   "fingerprint": "model_chain_failed",
-  "consecutive_count": 1,
+  "consecutive_count": 0,
   "first_seen": "2026-08-23T23:13:30.938723+00:00",
-  "last_seen": "2026-08-23T23:13:30.938723+00:00",
-  "retry_after": "2026-08-23T23:23:30.938723+00:00",
+  "last_seen": "2026-08-24T01:10:38.564732+00:00",
+  "retry_after": null,
   "last_error": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-3-27b-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | openai.gpt-oss-120b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectTimeout: HTTPSConnectionPool(host='chat.dartmouth.edu', port=443): Max retries exceeded with url: /api/v1/credits/balance (Caused by ConnectTimeoutError(<HTTPSConnection(host='chat.dartmouth.edu', port=443) at 0x7f406610ab10>, 'Connection to chat.dartmouth.edu timed out. (connect ti",
   "evidence": "every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.5-122b(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-3-27b-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "retry_scheduled"
+  "status": "cleared"
 }
