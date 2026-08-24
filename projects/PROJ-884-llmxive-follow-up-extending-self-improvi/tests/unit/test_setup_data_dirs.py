@@ -1,45 +1,65 @@
 """
-Unit tests for the data directory setup functionality.
+Unit tests for the setup_data_dirs module.
+Tests directory creation and writability verification.
 """
 import os
 import tempfile
-from pathlib import Path
 import pytest
-
+from pathlib import Path
 import sys
+
+# Add the code directory to the path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from setup_data_dirs import setup_data_directories
 
-
 class TestSetupDataDirectories:
-    """Tests for the setup_data_directories function."""
+    """Test cases for setup_data_directories function."""
 
     def test_creates_directory_structure(self, tmp_path):
-        """Test that the function creates the required directory structure."""
+        """Test that the function creates the required directory hierarchy."""
         directories = setup_data_directories(tmp_path)
         
+        # Check that we got 3 directories
         assert len(directories) == 3
         
-        data_dir = tmp_path / "data"
-        raw_dir = tmp_path / "data" / "raw"
-        processed_dir = tmp_path / "data" / "processed"
+        # Check directory names
+        dir_names = [d.name for d in directories]
+        assert "data" in dir_names
+        assert "raw" in dir_names
+        assert "processed" in dir_names
         
-        assert directories[0] == data_dir
-        assert directories[1] == raw_dir
-        assert directories[2] == processed_dir
+        # Check that directories actually exist
+        for dir_path in directories:
+            assert dir_path.exists()
+            assert dir_path.is_dir()
+
+    def test_creates_nested_structure(self, tmp_path):
+        """Test that nested directories are created correctly."""
+        directories = setup_data_directories(tmp_path)
         
-        assert data_dir.exists()
-        assert raw_dir.exists()
-        assert processed_dir.exists()
+        # Find the raw and processed directories
+        raw_dir = next(d for d in directories if d.name == "raw")
+        processed_dir = next(d for d in directories if d.name == "processed")
         
-        assert data_dir.is_dir()
-        assert raw_dir.is_dir()
-        assert processed_dir.is_dir()
+        # Verify they are subdirectories of data
+        assert raw_dir.parent.name == "data"
+        assert processed_dir.parent.name == "data"
+
+    def test_verifies_writability(self, tmp_path):
+        """Test that the function verifies writability of directories."""
+        # This should not raise an exception if directories are writable
+        directories = setup_data_directories(tmp_path)
+        
+        # Verify we can write a test file
+        test_file = directories[1] / "test_write.txt"  # raw directory
+        test_file.write_text("test content")
+        assert test_file.exists()
+        test_file.unlink()
 
     def test_handles_existing_directories(self, tmp_path):
-        """Test that the function works correctly when directories already exist."""
-        # Create directories beforehand
+        """Test that the function handles existing directories gracefully."""
+        # Create the directories first
         data_dir = tmp_path / "data"
         raw_dir = data_dir / "raw"
         processed_dir = data_dir / "processed"
@@ -48,55 +68,41 @@ class TestSetupDataDirectories:
         raw_dir.mkdir()
         processed_dir.mkdir()
         
-        # Should not raise an error
+        # Should not raise an exception
         directories = setup_data_directories(tmp_path)
         
         assert len(directories) == 3
         assert all(d.exists() for d in directories)
 
-    def test_verifies_writable(self, tmp_path):
-        """Test that the function verifies directories are writable."""
-        directories = setup_data_directories(tmp_path)
-        
-        # Verify we can write to each directory
-        for directory in directories:
-            test_file = directory / "test_write_file.txt"
-            try:
-                test_file.write_text("test")
-                assert test_file.exists()
-                test_file.unlink()
-            except Exception as e:
-                pytest.fail(f"Directory {directory} is not writable: {e}")
-
     def test_raises_on_unwritable_directory(self, tmp_path):
         """Test that the function raises an error for unwritable directories."""
-        # Create a read-only directory
-        readonly_dir = tmp_path / "readonly"
-        readonly_dir.mkdir()
-        readonly_dir.chmod(0o444)
+        # Create a read-only directory structure
+        data_dir = tmp_path / "data"
+        data_dir.mkdir(mode=0o555)  # Read and execute only
         
         try:
-            # This should fail because we can't write to readonly_dir
-            # Note: This test might pass on some systems where root can still write
-            # or if the test is run as root. It's best effort.
-            setup_data_directories(readonly_dir)
-        except OSError:
-            # Expected behavior
-            pass
+            # This should raise a RuntimeError
+            with pytest.raises(RuntimeError) as exc_info:
+                setup_data_directories(tmp_path)
+            
+            assert "not writable" in str(exc_info.value)
         finally:
             # Restore permissions for cleanup
-            readonly_dir.chmod(0o755)
+            data_dir.chmod(0o755)
 
     def test_returns_correct_paths(self, tmp_path):
-        """Test that the function returns the correct path objects."""
+        """Test that the function returns the correct Path objects."""
         directories = setup_data_directories(tmp_path)
         
-        expected_paths = [
-            tmp_path / "data",
-            tmp_path / "data" / "raw",
-            tmp_path / "data" / "processed"
-        ]
+        data_dir = directories[0]
+        raw_dir = directories[1]
+        processed_dir = directories[2]
         
-        for expected, actual in zip(expected_paths, directories):
-            assert actual == expected
-            assert isinstance(actual, Path)
+        assert data_dir == tmp_path / "data"
+        assert raw_dir == tmp_path / "data" / "raw"
+        assert processed_dir == tmp_path / "data" / "processed"
+        
+        # Verify they are Path objects
+        assert isinstance(data_dir, Path)
+        assert isinstance(raw_dir, Path)
+        assert isinstance(processed_dir, Path)

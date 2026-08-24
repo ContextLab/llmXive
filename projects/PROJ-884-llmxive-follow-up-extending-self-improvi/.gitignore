@@ -36,6 +36,8 @@ pip-delete-this-directory.txt
 htmlcov/
 .coverage
 .coverage.*
+cache/
+nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
@@ -54,15 +56,6 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.project
-.settings/
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
@@ -71,24 +64,31 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+.dmypy.json
+dmypy.json
 
-# macOS
+# Pyre type checker
+.pyre/
+
+# Data artifacts (processed data is generated, raw is tracked)
+data/processed/*
+!data/processed/.gitkeep
+
+# Logs
+*.log
+data/processed/*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
-.AppleDouble
-.LSOverride
-
-# Windows
 Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
 
 # Project specific
-data/raw/*.jsonl
-data/processed/*.json
-data/processed/*.csv
-data/processed/*.log
-data/processed/*.yaml
-figures/
-logs/
-*.log
+projects/
+MANIFEST.md

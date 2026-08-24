@@ -1,7 +1,6 @@
 """
-Setup script for creating a Python virtual environment and installing dependencies.
-This script handles the initialization of the venv and dependency installation
-for the llmXive research pipeline.
+Setup virtual environment for the project.
+This script creates a Python 3.11 virtual environment and installs dependencies.
 """
 import os
 import subprocess
@@ -9,17 +8,15 @@ import sys
 import shutil
 from pathlib import Path
 
-# Ensure we are in the project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-VENV_DIR = PROJECT_ROOT / "venv"
-REQUIREMENTS_FILE = PROJECT_ROOT / "requirements.txt"
-
 def find_python311():
-    """
-    Find a Python 3.11 executable.
-    Tries common versioned names and the generic python3.
-    """
-    candidates = ["python3.11", "python3", "python"]
+    """Find Python 3.11 interpreter."""
+    candidates = [
+        "python3.11",
+        "python3.11",
+        "/usr/bin/python3.11",
+        "/usr/local/bin/python3.11",
+    ]
+    
     for candidate in candidates:
         try:
             result = subprocess.run(
@@ -32,68 +29,121 @@ def find_python311():
                 return candidate
         except (subprocess.CalledProcessError, FileNotFoundError):
             continue
-    return None
-
-def create_virtual_environment():
-    """
-    Create a virtual environment in the specified directory.
-    """
-    if not VENV_DIR.exists():
-        print(f"Creating virtual environment at {VENV_DIR}...")
-        python_exe = find_python311()
-        if not python_exe:
-            raise RuntimeError(
-                "Could not find Python 3.11. Please install Python 3.11 "
-                "or set the PYTHON environment variable."
-            )
-        
-        subprocess.run(
-            [python_exe, "-m", "venv", str(VENV_DIR)],
+    
+    # Fallback to checking python3
+    try:
+        result = subprocess.run(
+            ["python3", "--version"],
+            capture_output=True,
+            text=True,
             check=True
         )
-        print("Virtual environment created successfully.")
-    else:
-        print(f"Virtual environment already exists at {VENV_DIR}.")
+        if "3.11" in result.stdout:
+            return "python3"
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+    
+    raise RuntimeError(
+        "Python 3.11 not found. Please install Python 3.11 and ensure it is in PATH."
+    )
 
-def install_dependencies():
-    """
-    Install dependencies from requirements.txt into the virtual environment.
-    """
-    if not REQUIREMENTS_FILE.exists():
-        print(f"Warning: {REQUIREMENTS_FILE} not found. Skipping dependency installation.")
-        return
-
-    print("Installing dependencies...")
-    pip_executable = VENV_DIR / "bin" / "pip"
-    if sys.platform == "win32":
-        pip_executable = VENV_DIR / "Scripts" / "pip"
-
-    subprocess.run(
-        [str(pip_executable), "install", "--upgrade", "pip"],
-        check=True
+def create_virtual_environment(project_path: Path, venv_name: str = "venv"):
+    """Create a virtual environment in the project directory."""
+    venv_path = project_path / venv_name
+    
+    if venv_path.exists():
+        print(f"Virtual environment already exists at {venv_path}. Removing...")
+        shutil.rmtree(venv_path)
+    
+    python_exe = find_python311()
+    print(f"Creating virtual environment with {python_exe}...")
+    
+    result = subprocess.run(
+        [python_exe, "-m", "venv", str(venv_path)],
+        capture_output=True,
+        text=True
     )
     
-    subprocess.run(
-        [str(pip_executable), "install", "-r", str(REQUIREMENTS_FILE)],
-        check=True
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Failed to create virtual environment: {result.stderr}"
+        )
+    
+    # Verify the venv was created
+    if not (venv_path / "bin" / "activate").exists():
+        raise RuntimeError(
+            f"Virtual environment created but activation script not found at {venv_path}/bin/activate"
+        )
+    
+    print(f"Virtual environment created successfully at {venv_path}")
+    return venv_path
+
+def install_dependencies(venv_path: Path, requirements_path: Path):
+    """Install dependencies from requirements.txt into the virtual environment."""
+    if not requirements_path.exists():
+        print(f"Warning: requirements.txt not found at {requirements_path}. Skipping dependency installation.")
+        return
+    
+    venv_python = venv_path / "bin" / "python"
+    venv_pip = venv_path / "bin" / "pip"
+    
+    # Upgrade pip first
+    print("Upgrading pip...")
+    result = subprocess.run(
+        [str(venv_python), "-m", "pip", "install", "--upgrade", "pip"],
+        capture_output=True,
+        text=True
     )
+    
+    if result.returncode != 0:
+        print(f"Warning: Failed to upgrade pip: {result.stderr}")
+    
+    # Install dependencies
+    print(f"Installing dependencies from {requirements_path}...")
+    result = subprocess.run(
+        [str(venv_pip), "install", "-r", str(requirements_path)],
+        capture_output=True,
+        text=True
+    )
+    
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Failed to install dependencies: {result.stderr}"
+        )
+    
     print("Dependencies installed successfully.")
 
 def main():
-    """
-    Main entry point for the setup script.
-    """
-    try:
-        create_virtual_environment()
-        install_dependencies()
-        print("Setup complete.")
-        print(f"Activate the environment with: source {VENV_DIR}/bin/activate")
-    except subprocess.CalledProcessError as e:
-        print(f"Error during setup: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        sys.exit(1)
+    """Main entry point for setting up the virtual environment."""
+    # Determine project path
+    # The task specifies: projects/PROJ-llmxive-follow-up-extending-self-improvi/
+    # We assume this is relative to the repo root
+    project_path = Path(__file__).parent.parent / "projects" / "PROJ-884-llmxive-follow-up-extending-self-improvi"
+    
+    # Create project directory if it doesn't exist
+    project_path.mkdir(parents=True, exist_ok=True)
+    
+    print(f"Setting up virtual environment in {project_path}")
+    
+    # Create virtual environment
+    venv_path = create_virtual_environment(project_path)
+    
+    # Install dependencies if requirements.txt exists
+    requirements_path = project_path.parent / "requirements.txt"
+    if requirements_path.exists():
+        install_dependencies(venv_path, requirements_path)
+    else:
+        # Try to find requirements.txt in the repo root
+        repo_root = project_path.parent.parent
+        requirements_path = repo_root / "requirements.txt"
+        if requirements_path.exists():
+            install_dependencies(venv_path, requirements_path)
+        else:
+            print("No requirements.txt found. Skipping dependency installation.")
+    
+    print("\nVirtual environment setup complete!")
+    print(f"To activate, run: source {venv_path}/bin/activate")
+    print(f"Then install any additional dependencies with: pip install -r requirements.txt")
 
 if __name__ == "__main__":
     main()

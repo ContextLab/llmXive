@@ -1,63 +1,113 @@
+"""
+Unit tests for the setup_structure module.
+Verifies that the code directory hierarchy is created and writable.
+"""
 import os
-import sys
-import shutil
 import pytest
+import tempfile
 from pathlib import Path
+import sys
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add the parent directory to the path to allow importing setup_structure
+# This assumes the test is run from the tests/unit directory or similar
+# and the code directory is at the repository root
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from setup_structure import setup_data_directories
+from code.setup_structure import setup_code_directories, CODE_ROOT, REQUIRED_DIRS
 
-class TestSetupStructure:
-    """Tests for the setup_structure module."""
+class TestSetupCodeDirectories:
+    """Tests for the setup_code_directories function."""
 
-    def test_directories_created(self, tmp_path, monkeypatch):
-        """Test that all required directories are created."""
-        # Change to tmp_path to avoid creating in actual project location during tests
-        monkeypatch.chdir(tmp_path)
+    def test_directories_created(self, tmp_path):
+        """Test that directories are created if they don't exist."""
+        # We need to mock the CODE_ROOT to use a temporary directory
+        # Since CODE_ROOT is a global, we'll test the logic by creating a temp structure
+        # and checking if the function would work with it.
         
-        # Mock the project root to be inside tmp_path
-        project_root = tmp_path / "projects" / "PROJ-884-llmxive-follow-up-extending-self-improvi"
-        
-        # We need to modify the function to use our temp path
-        # Since the function uses a hardcoded path, we'll test the logic differently
-        # by creating the directories manually and checking existence
-        
-        expected_dirs = [
-            "data/raw",
-            "data/processed",
-            "code/dataset",
-            "code/symbolic",
-            "code/bes",
-            "code/analysis",
-            "code/utils",
-            "tests/unit",
-            "tests/integration",
-        ]
-        
-        # Create directories using the actual function logic
-        full_project_root = tmp_path / "projects" / "PROJ-884-llmxive-follow-up-extending-self-improvi"
-        for rel_dir in expected_dirs:
-            dir_path = full_project_root / rel_dir
-            dir_path.mkdir(parents=True, exist_ok=True)
-        
-        # Verify all directories exist
-        for rel_dir in expected_dirs:
-            dir_path = full_project_root / rel_dir
-            assert dir_path.exists(), f"Directory {dir_path} was not created"
-            assert dir_path.is_dir(), f"{dir_path} is not a directory"
+        # Create a temporary directory structure to simulate the project
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            temp_code_root = Path(tmp_dir) / "code"
+            temp_code_root.mkdir()
+            
+            # Verify directories don't exist yet
+            for dir_name in REQUIRED_DIRS:
+                target = temp_code_root / dir_name
+                assert not target.exists(), f"Directory {target} should not exist initially"
+            
+            # Temporarily patch CODE_ROOT for this test
+            import code.setup_structure as setup_module
+            original_code_root = setup_module.CODE_ROOT
+            setup_module.CODE_ROOT = temp_code_root
+            
+            try:
+                created = setup_code_directories()
+                
+                # Verify all directories were created
+                for dir_name in REQUIRED_DIRS:
+                    target = temp_code_root / dir_name
+                    assert target.exists(), f"Directory {target} was not created"
+                    assert target.is_dir(), f"{target} is not a directory"
+                    assert os.access(target, os.W_OK), f"{target} is not writable"
+                    
+                # Verify the returned list contains the correct paths
+                assert len(created) == len(REQUIRED_DIRS)
+                for i, dir_name in enumerate(REQUIRED_DIRS):
+                    assert str(temp_code_root / dir_name) in created
+            finally:
+                # Restore original CODE_ROOT
+                setup_module.CODE_ROOT = original_code_root
 
-    def test_idempotent_creation(self, tmp_path, monkeypatch):
-        """Test that running the setup twice doesn't cause errors."""
-        monkeypatch.chdir(tmp_path)
-        
-        # Create directories once
-        project_root = tmp_path / "projects" / "PROJ-884-llmxive-follow-up-extending-self-improvi"
-        (project_root / "data" / "raw").mkdir(parents=True, exist_ok=True)
-        
-        # Try to create again - should not raise an error
-        (project_root / "data" / "raw").mkdir(parents=True, exist_ok=True)
-        
-        # Verify directory still exists
-        assert (project_root / "data" / "raw").exists()
+    def test_directories_exist_and_writable(self, tmp_path):
+        """Test that existing directories are verified as writable."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            temp_code_root = Path(tmp_dir) / "code"
+            temp_code_root.mkdir()
+            
+            # Create the required directories
+            for dir_name in REQUIRED_DIRS:
+                (temp_code_root / dir_name).mkdir()
+            
+            # Patch CODE_ROOT
+            import code.setup_structure as setup_module
+            original_code_root = setup_module.CODE_ROOT
+            setup_module.CODE_ROOT = temp_code_root
+            
+            try:
+                created = setup_code_directories()
+                
+                # Should still return all directories
+                assert len(created) == len(REQUIRED_DIRS)
+                
+                # Verify they are writable
+                for dir_name in REQUIRED_DIRS:
+                    target = temp_code_root / dir_name
+                    assert os.access(target, os.W_OK)
+            finally:
+                setup_module.CODE_ROOT = original_code_root
+
+    def test_non_writable_directory_raises_error(self, tmp_path):
+        """Test that a non-writable directory raises a RuntimeError."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            temp_code_root = Path(tmp_dir) / "code"
+            temp_code_root.mkdir()
+            
+            # Create one directory and make it read-only
+            test_dir = temp_code_root / REQUIRED_DIRS[0]
+            test_dir.mkdir()
+            test_dir.chmod(0o444)  # Read-only
+            
+            # Patch CODE_ROOT
+            import code.setup_structure as setup_module
+            original_code_root = setup_module.CODE_ROOT
+            setup_module.CODE_ROOT = temp_code_root
+            
+            try:
+                # This should raise a RuntimeError
+                with pytest.raises(RuntimeError) as exc_info:
+                    setup_code_directories()
+                
+                assert "not writable" in str(exc_info.value).lower()
+            finally:
+                # Restore permissions for cleanup
+                test_dir.chmod(0o755)
+                setup_module.CODE_ROOT = original_code_root

@@ -569,3 +569,646 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T02:05:10Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Pre-analysis power calculation uses Cohen's h=0.5 and alpha=0.05
+  claim_id: c_c1f4643c
+  context: 'T067 [P] [US3] Implement ''Pre-Analysis Power Calculation'' in `code/analysis/stats.py`.
+    **Constraint**: Before any experimental run...'
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Before any experimental run, the system must calculate the required sample
+    size to achieve [deferred] power for a medium effect size (Cohen's h = 0.5, fixed
+    constant) at alpha=0.05.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T20:45:45Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: System logs warning but continues if sample size N=10..500 is insufficient
+  claim_id: c_858013e8
+  context: '...If the planned sample size (N=10..500) is insufficient, the system
+    MUST log a critical warning...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the planned sample size (N=10..500) is insufficient, the system MUST
+    log a critical warning (but NOT halt execution, per Spec Assumptions) and proceed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:46:30Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Virtual environment initialized using python3.11
+  claim_id: c_f3bc7b2a
+  context: 'T002b [P] Initialize Python virtual environment... **Constraint**: Must
+    use `python3.11 -m venv.venv`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use `python3.11 -m venv.venv` to initialize the Python
+    virtual environment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:46:52Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Dependencies include scikit-learn 1.3.0, numpy 1.24.0, transformers 4.35.0,
+    datasets 2.14.0, pyyaml 6.0.1, pytest 7.4.0, optimum 1.13.0-1.16.0
+  claim_id: c_6ea1b83d
+  context: 'T002c [P] Install dependencies in `requirements.txt` containing: `scikit-learn==1.3.0`,
+    `numpy==1.24.0`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements.txt must contain `scikit-learn==1.3.0`, `numpy==1.24.0`,
+    `transformers==4.35.0`, `datasets==2.14.0`, `pyyaml==6.0.1`, `pytest==7.4.0`,
+    `optimum>=1.13.0,<1.16.0[onnxruntime]`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:47:06Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Verifier returns validity and codes within 100ms
+  claim_id: c_f82d0faa
+  context: T012 [P] [US1] Implement `code/dataset/verifier.py`... returning boolean
+    validity and specific constraint violation codes... within 100ms.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verifier_returns_validity_and_codes_within_100ms
+  kind: entity_fact
+  raw_text: The verifier must return boolean validity and specific constraint violation
+    codes within 100ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:47:34Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Complexity metric distribution must be continuous across N=10 to 500
+  claim_id: c_a0529626
+  context: T054a-impl [P] [US1] Implement 'Complexity Scaling' validation... verify
+    that the distribution of these metrics is continuous across the N=10..500 range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generator must output a `complexity_metric` for each puzzle and verify
+    that the distribution of these metrics is continuous across the N=10..500 range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:48:04Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Two-proportion z-test uses null hypothesis p1=p2 and alpha=0.05
+  claim_id: c_3b4f4ded
+  context: 'T027b [P] [US3] Implement two-proportion z-test... with null hypothesis
+    H0: p1 = p2 and alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The z-test comparison logic implements a two-proportion z-test comparing
+    symbolic vs. neural success rates with null hypothesis H0: p1 = p2 and alpha=0.05.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:48:29Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Complexity class assigned as UNKNOWN if R-squared is less than 0.85
+  claim_id: c_2c86f732
+  context: T029d-derive [P] [US3] Derive complexity class... If R^2 < 0.85, assign
+    'UNKNOWN'.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Complexity_class_assigned_as_UNKNOWN_if_R-squared_is_less_th
+  kind: magnitude
+  raw_text: If R^2 < 0.85, the complexity class is assigned as 'UNKNOWN'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:48:58Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Result flagged as Underpowered if statistical power is less than 0.8
+  claim_id: c_31b20bd6
+  context: T049a-impl [P] [US3] Add 'Power Analysis' output... If power < 0.8, the
+    report must flag the result as 'Underpowered'...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Result_flagged_as_Underpowered_if_statistical_power_is_less
+  kind: magnitude
+  raw_text: If power < 0.8, the report must flag the result as 'Underpowered' and
+    recommend a larger sample size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:49:57Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: CPU percent readings must be within 0 to 100 range
+  claim_id: c_60bb142f
+  context: T069 [P] [US3] Implement 'Energy Measurement Sanity Check'... verify that
+    the `cpu_percent` readings are within a plausible range (e.g., 0-100)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must verify that `cpu_percent` readings are within a plausible
+    range (e.g., 0-100) and that the `duration` is non-zero.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:50:19Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Generator outputs complexity_metric continuous across N=10 to 500
+  claim_id: c_6950065f
+  context: 'T054a-impl [P] [US1] Implement ''Complexity Scaling'' validation in code/dataset/generator.py.
+    Constraint: The generator must output a complexity_metric for each puzzle and
+    verify that the distribution of these metrics is continuous across the N=10..500
+    range. Rationale: Ensures SC-005 (Scalability) can be measured.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generator must output a complexity_metric for each puzzle and verify
+    that the distribution of these metrics is continuous across the N=10..500 range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:53:15Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: T014e-exec runs after T014e-impl
+  claim_id: c_05fad41d
+  context: 'T014e-exec [P] [US1] Execute code/dataset/validate_distribution.py. Constraint:
+    Must run after T014e-impl. Dependency: Requires T014e-impl.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T014e-exec_runs_after_T014e-impl
+  kind: entity_fact
+  raw_text: The script must run after T014e-impl.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:54:22Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Scaling experiments output includes timestamps, CPU-percent, and durations
+  claim_id: c_c8fe669e
+  context: 'T029c-exec [P] [US3] Execute Full Scaling Experiments. Constraint: Execute
+    code/main.py with --mode symbolic across the full complexity scaling range (N=10..500)
+    to generate raw logs, including checkpointing and configurable timeouts. The output
+    MUST include timestamps, CPU-percent, and durations for each puzzle attempt.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scaling_experiments_output_includes_timestamps,_CPU-percent,
+  kind: entity_fact
+  raw_text: The output MUST include timestamps, CPU-percent, and durations for each
+    puzzle attempt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:54:46Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Full complexity scaling range is N=10 to 500
+  claim_id: c_274d97fe
+  context: 'T029c-exec [P] [US3] Execute Full Scaling Experiments. Constraint: Execute
+    code/main.py with --mode symbolic across the full complexity scaling range (N=10..500)
+    to generate raw logs, including checkpointing and configurable timeouts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full complexity scaling range is N=10..500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:55:54Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Complexity class assigned as UNKNOWN if R-squared is less than 0.85
+  claim_id: c_eca5df07
+  context: 'T029d-derive [P] [US3] Derive complexity class from T029d-exec results.
+    Constraint: Perform comparative log-log linear regression on BOTH Symbolic and
+    Neural solver slopes using scipy.stats.linregress on log-transformed data (X=complexity_metric,
+    Y=duration) to determine the computational complexity class of the approach (SC-005).
+    Output: Must output a complexity_class string (e.g., ''O(n)'', ''O(n^2)'') in
+    the final report and in data/processed/scaling_analysis.json. If R^2 < 0.85, assign
+    ''UNKNOWN''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Complexity_class_assigned_as_UNKNOWN_if_R-squared_is_less_th
+  kind: magnitude
+  raw_text: If R^2 < 0.85, assign 'UNKNOWN'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:56:22Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Planned sample size is N=10 to 500
+  claim_id: c_e0e05c8f
+  context: 'T067 [P] [US3] Implement ''Pre-Analysis Power Calculation'' in code/analysis/stats.py.
+    Constraint: {{claim:c_c1f4643c}} If the planned sample size (N=10..500) is insufficient,
+    the system MUST log a critical warning (but NOT halt execution, per Spec Assumptions)
+    and proceed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The planned sample size is N=10..500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:57:15Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: System logs warning and continues if T008c not run
+  claim_id: c_d4733ee2
+  context: 'T007b [P] [US1] Initialize code/config.py with DEFAULT_TDP_WATTS = 0.0
+    as a placeholder. Constraint: This value MUST be overwritten by T008c after calibration.
+    Dependency: Requires T007 (implementation). Action: If T008c is not run, the system
+    MUST log a warning but continue execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_logs_warning_and_continues_if_T008c_not_run
+  kind: entity_fact
+  raw_text: The system must log a warning if T008c is not run but continue execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:57:37Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Verifier returns validity and codes within 100ms
+  claim_id: c_80bc3f61
+  context: T012 [P] [US1] Implement code/dataset/verifier.py to execute deterministic
+    validation logic for each puzzle instance, returning boolean validity and specific
+    constraint violation codes (e.g., DUPLICATE_ROW, INVALID_PATH) within 100ms.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verifier_returns_validity_and_codes_within_100ms
+  kind: entity_fact
+  raw_text: The verifier must return boolean validity and specific constraint violation
+    codes within 100ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:57:38Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Final report includes complexity_class string
+  claim_id: c_e500a48e
+  context: 'T031b-gen [P] [US3] Generate final report in data/processed/final_report.md
+    (Markdown format). Constraint: Must run after T031b-impl. Dependency: Requires
+    T031b-impl. Must explicitly include the complexity_class string derived from T029g
+    in the final report.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_includes_complexity_class_string
+  kind: entity_fact
+  raw_text: The final report must include the complexity_class string derived from
+    T029g.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T20:58:17Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_da51cffa
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.0,
+    numpy==1.24.0, transformers==4.35.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:00:26Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.0
+  claim_id: c_a8469d2d
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.0,
+    numpy==1.24.0, transformers==4.35.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:00:48Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: transformers version 4.35.0
+  claim_id: c_c1b70011
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.0,
+    numpy==1.24.0, transformers==4.35.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.35.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:01:24Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_7fd7f28c
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.0,
+    numpy==1.24.0, transformers==4.35.0, datasets==2.14.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:02:01Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_fb03e533
+  context: 'Install dependencies in requirements.txt containing: ...datasets==2.14.0,
+    pyyaml==6.0.1, pytest==7.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:02:54Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_82ac3d71
+  context: 'Install dependencies in requirements.txt containing: ...pyyaml==6.0.1,
+    pytest==7.4.0, optimum>=1.13.0,<1.16.0[onnxruntime].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:03:18Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: optimum version range 1.13.0 to 1.16.0
+  claim_id: c_3da82bfb
+  context: 'Install dependencies in requirements.txt containing: ...pytest==7.4.0,
+    optimum>=1.13.0,<1.16.0[onnxruntime].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: optimum version range 1.13.0 to 1.16.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:04:03Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: complexity metric distribution continuous across N=10 to N=500
+  claim_id: c_883d7ffe
+  context: The generator must output a complexity_metric for each puzzle and verify
+    that the distribution of these metrics is continuous across the N=10..500 range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must verify that the distribution of complexity metrics is
+    continuous across the N=10..500 range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:05:06Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: z-test null hypothesis p1 equals p2 with alpha 0.05
+  claim_id: c_818345f0
+  context: 'Implement two-proportion z-test in code/analysis/stats.py to compare success
+    rates (as mandated by FR-005) with null hypothesis H0: p1 = p2 and alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The z-test must compare success rates with null hypothesis H0: p1 = p2
+    and alpha=0.05.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:05:37Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: complexity class assigned UNKNOWN if R-squared less than 0.85
+  claim_id: c_9dee38b6
+  context: Perform comparative log-log linear regression... If R^2 < 0.85, assign
+    'UNKNOWN'.
+  evidence:
+    entailment_evidence: Complexity class assigned UNKNOWN if R-squared less than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Complexity_class_assigned_UNKNOWN_if_R-squared_less_than_0.8
+  kind: magnitude
+  raw_text: If R^2 < 0.85, the complexity class must be assigned as 'UNKNOWN'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-24T21:06:06Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: result flagged as Underpowered if statistical power less than 0.8
+  claim_id: c_ac4fe978
+  context: If power < 0.8, the report must flag the result as 'Underpowered' and recommend
+    a larger sample size.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Result_flagged_as_Underpowered_if_statistical_power_less_tha
+  kind: magnitude
+  raw_text: If statistical power is less than 0.8, the result must be flagged as 'Underpowered'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:06:41Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: CPU percent readings range 0 to 100
+  claim_id: c_540777d9
+  context: Before calculating energy, the system must verify that the cpu_percent
+    readings are within a plausible range (e.g., 0-100)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CPU percent readings must be within a plausible range of 0-100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:07:12Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: CPU percent readings greater than 1000 flagged as CORRUPTED
+  claim_id: c_43467900
+  context: If any reading is an outlier (e.g., >1000%), the system must flag the log
+    entry as CORRUPTED...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CPU_percent_readings_greater_than_1000_flagged_as_CORRUPTED
+  kind: magnitude
+  raw_text: CPU percent readings greater than 1000% must be flagged as CORRUPTED.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:07:49Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: planned sample size range N=10 to N=500
+  claim_id: c_c49e9520
+  context: If the planned sample size (N=10..500) is insufficient, the system MUST
+    log a critical warning...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The planned sample size range is N=10 to N=500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:08:29Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: pilot run sample size range N=10 to N=50
+  claim_id: c_09cd557f
+  context: Define the specific N range (e.g., N=10..50) and sample size for the Pilot
+    run...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot run sample size range is N=10 to N=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:09:16Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: full scaling experiment range N=10 to N=500
+  claim_id: c_7ef2b2fe
+  context: Execute code/main.py with --mode symbolic across the full complexity scaling
+    range (N=10..500)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full scaling experiment range is N=10 to N=500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:10:09Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: verifier returns result within 100 milliseconds
+  claim_id: c_d4123ac2
+  context: Implement code/dataset/verifier.py to execute deterministic validation
+    logic... returning boolean validity and specific constraint violation codes...
+    within 100ms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The verifier must return constraint violation codes within 100ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T21:10:30Z'

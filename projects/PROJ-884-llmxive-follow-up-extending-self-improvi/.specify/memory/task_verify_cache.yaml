@@ -1,9 +1,30 @@
-T001c:
+T000c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/` directory or its `unit` and `integration` subdirectories
-    is provided, nor any proof they exist and are writable. The required hierarchy
-    is missing.
+  r: "No `research.md` file is present or shown, and thus there is no documentation\
+    \ defining the dataset source, scaling method, or statistical framework as required.\
+    \ The implementer must provide a non\u2011empty `research.md` containing the specified\
+    \ details."
+T000d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data-model.md` file is present in the provided evidence, and thus the required\
+    \ document defining the Statistical Plan, Data Entities, and the explicit `complexity_metric`\
+    \ mapping for SC\u2011005 is missing. The implementer must supply a non\u2011\
+    empty `data-model.md` that meets the specified constraints."
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data/` directory, nor the required `data/raw` and `data/processed` subdirectories,\
+    \ are present in the provided artifacts, and there is no evidence (e.g., script\
+    \ output or logs) showing that they exist and are writable. The task\u2019s core\
+    \ requirement is therefore unmet."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/` directory with the required subfolders (`dataset`, `symbolic`,
+    `bes`, `analysis`, `utils`) is provided, nor any verification that they exist
+    and are writable. The implementer must create the hierarchy and demonstrate writability.
 T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -11,12 +32,6 @@ T002a:
     \ the claim lacks any artifact showing the repository structure or the ignore\
     \ rules for Python artifacts. The required files must be present and non\u2011\
     empty to satisfy task T002a."
-T002b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a Python virtual environment (e.g., a `venv/` directory, activation
-    scripts, or installed packages) is present in the specified `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/`
-    path. The required artifact is missing, so the task is not satisfied.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

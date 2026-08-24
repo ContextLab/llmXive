@@ -1,3 +1,3 @@
 """
-Dataset generation and validation module.
+Dataset generation and validation modules.
 """

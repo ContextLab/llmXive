@@ -1,3 +1,3 @@
 """
-Symbolic planning and parsing module.
+Symbolic planning and parsing modules.
 """

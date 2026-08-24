@@ -1,356 +1,443 @@
-"""
-Statistical analysis module for llmXive.
-Implements z-tests, power analysis, and machine-readable results writing.
-"""
 import math
 import sys
 import os
 import json
 from typing import Tuple, Optional, Dict, Any, List
 from dataclasses import dataclass, field, asdict
-import argparse
-from pathlib import Path
+import logging
 
-from code.utils.logger import log
+# Configure logging for the module
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 @dataclass
 class ZTestResult:
-    """Result of a two-proportion z-test."""
-    p1: float
-    p2: float
-    n1: int
-    n2: int
-    z_score: float
+    """Result container for two-proportion z-test."""
+    z_statistic: float
     p_value: float
-    confidence_interval_95: Tuple[float, float]
     is_significant: bool
-    alpha: float = 0.05
+    effect_size: float
+    sample_size_group1: int
+    sample_size_group2: int
+    success_rate_group1: float
+    success_rate_group2: float
 
 @dataclass
 class TOSTResult:
-    """Result of a TOST (equivalence) test."""
-    mean_diff: float
-    lower_bound: float
-    upper_bound: float
-    equivalence_margin: float
-    is_equivalent: bool
+    """Result container for Two One-Sided Tests (TOST) equivalence test."""
+    t_lower: float
+    t_upper: float
     p_value_lower: float
     p_value_upper: float
+    is_equivalent: bool
+    equivalence_margin: float
+    mean_diff: float
+    pooled_std: float
 
 @dataclass
 class PreRegistration:
-    """Pre-registration configuration for statistical tests."""
-    test_type: str  # 'equivalence', 'non-inferiority', 'superiority'
+    """Container for pre-registered statistical framework."""
+    framework: str  # 'equivalence', 'non-inferiority', 'superiority'
     alpha: float
+    effect_size_hypothesis: float
     power_target: float
-    effect_size_h0: float
-    alternative: str  # 'two-sided', 'greater', 'less'
-    timestamp: str = field(default_factory=lambda: "2024-01-01T00:00:00")
-    notes: str = ""
+    timestamp: str
 
-def calculate_effect_size(p1: float, p2: float, n1: int, n2: int) -> float:
-    """Calculate Cohen's h for two proportions."""
-    if n1 == 0 or n2 == 0:
-        return 0.0
-    phi1 = 2 * math.asin(math.sqrt(p1))
-    phi2 = 2 * math.asin(math.sqrt(p2))
+def calculate_effect_size(p1: float, p2: float) -> float:
+    """
+    Calculate Cohen's h (effect size for proportions).
+    h = 2 * (arcsin(sqrt(p1)) - arcsin(sqrt(p2)))
+    """
+    if not (0 <= p1 <= 1) or not (0 <= p2 <= 1):
+        raise ValueError("Proportions must be between 0 and 1.")
+    
+    # Avoid domain errors for arcsin by clamping to [0, 1]
+    p1_clamped = max(0.0, min(1.0, p1))
+    p2_clamped = max(0.0, min(1.0, p2))
+    
+    phi1 = 2.0 * math.asin(math.sqrt(p1_clamped))
+    phi2 = 2.0 * math.asin(math.sqrt(p2_clamped))
     return abs(phi1 - phi2)
 
 def calculate_power_z_test(p1: float, p2: float, n1: int, n2: int, alpha: float = 0.05) -> float:
     """
-    Estimate statistical power for a two-proportion z-test.
-    Uses the normal approximation.
+    Calculate statistical power for a two-proportion z-test.
+    
+    This is a simplified approximation using the normal distribution.
+    For more accurate results, one would typically use the `statsmodels.stats.power`
+    module or non-central t-distributions, but we implement a robust approximation here.
+    
+    Args:
+        p1: Proportion for group 1 (e.g., symbolic)
+        p2: Proportion for group 2 (e.g., neural)
+        n1: Sample size for group 1
+        n2: Sample size for group 2
+        alpha: Significance level (default 0.05)
+        
+    Returns:
+        Estimated power (0.0 to 1.0)
     """
-    if n1 == 0 or n2 == 0:
+    if n1 <= 0 or n2 <= 0:
         return 0.0
     
-    # Pooled proportion under H0
-    p_pool = (p1 * n1 + p2 * n2) / (n1 + n2)
-    if p_pool == 0 or p_pool == 1:
-        return 0.0
+    # Effect size (Cohen's h)
+    h = calculate_effect_size(p1, p2)
     
-    # Standard error under H0
-    se_null = math.sqrt(p_pool * (1 - p_pool) * (1/n1 + 1/n2))
+    if h == 0.0:
+        return alpha  # No effect, power equals alpha
     
-    # Standard error under H1
-    se_alt = math.sqrt(p1 * (1 - p1) / n1 + p2 * (1 - p2) / n2)
+    # Pooled proportion under null hypothesis (for standard error calculation)
+    # Note: For power calculation, we often use the alternative hypothesis proportions
+    # but a standard approximation uses the pooled proportion for the null.
+    # Here we use the standard error under the alternative for the Z-score calculation.
     
-    # Effect size
-    diff = abs(p1 - p2)
-    
-    if se_null == 0:
-        return 0.0
-    
-    # Z-score for critical value
-    z_alpha = 1.96 if alpha == 0.05 else 2.576 # Approx for 0.01
-    
-    # Power calculation (approximation)
-    z_power = (diff - z_alpha * se_null) / se_alt
-    
-    # CDF of standard normal for z_power
-    # Using error function approximation for CDF
-    power = 0.5 * (1 + math.erf(z_power / math.sqrt(2)))
-    return max(0.0, min(1.0, power))
-
-def two_proportion_z_test(x1: int, n1: int, x2: int, n2: int, alpha: float = 0.05) -> ZTestResult:
-    """
-    Perform a two-proportion z-test.
-    H0: p1 = p2
-    H1: p1 != p2
-    """
-    if n1 == 0 or n2 == 0:
-        raise ValueError("Sample sizes must be greater than 0")
-    
-    p1 = x1 / n1
-    p2 = x2 / n2
-    
-    # Pooled proportion
-    p_pool = (x1 + x2) / (n1 + n2)
-    
-    # Standard error
-    se = math.sqrt(p_pool * (1 - p_pool) * (1/n1 + 1/n2))
+    # Standard error of the difference under the alternative hypothesis
+    se = math.sqrt((p1 * (1 - p1) / n1) + (p2 * (1 - p2) / n2))
     
     if se == 0:
-        # No variance, cannot compute z
-        return ZTestResult(
-            p1=p1, p2=p2, n1=n1, n2=n2,
-            z_score=0.0, p_value=1.0,
-            confidence_interval_95=(0.0, 0.0),
-            is_significant=False, alpha=alpha
-        )
+        return 1.0 if h > 0 else alpha
     
-    # Z-score
-    z_score = (p1 - p2) / se
+    # Critical Z value for the given alpha (two-tailed)
+    # Using a standard normal approximation: Z_crit for alpha=0.05 is ~1.96
+    z_crit = 1.96 if alpha == 0.05 else 1.645 if alpha == 0.10 else 2.576
     
-    # Two-tailed p-value
-    p_value = 2 * (1 - 0.5 * (1 + math.erf(abs(z_score) / math.sqrt(2))))
+    # Calculate the Z-score of the effect size relative to the standard error
+    # This is effectively the non-centrality parameter
+    z_power = (abs(p1 - p2) / se) - z_crit
     
-    # Confidence interval for difference
-    se_diff = math.sqrt(p1 * (1 - p1) / n1 + p2 * (1 - p2) / n2)
-    z_crit = 1.96 # 95% CI
-    diff = p1 - p2
-    ci_lower = diff - z_crit * se_diff
-    ci_upper = diff + z_crit * se_diff
+    # Approximate power using the standard normal CDF (Phi)
+    # Power = 1 - Beta = Phi(z_power)
+    # We approximate Phi(x) using a standard approximation
+    def phi(x):
+        # Approximation of the standard normal cumulative distribution function
+        return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
     
-    is_significant = p_value < alpha
+    power = phi(z_power)
+    return max(0.0, min(1.0, power))
+
+def required_sample_size_for_power(effect_size: float, alpha: float = 0.05, power_target: float = 0.80) -> int:
+    """
+    Calculate the required sample size per group to achieve a target power.
+    
+    Formula for two-proportion z-test (equal sample sizes):
+    n = 2 * ((Z_alpha/2 + Z_beta) / effect_size)^2
+    
+    Args:
+        effect_size: Cohen's h (e.g., 0.5 for medium effect)
+        alpha: Significance level
+        power_target: Target power (e.g., 0.80)
+        
+    Returns:
+        Required sample size per group (integer)
+    """
+    # Critical Z values
+    z_alpha = 1.96 if alpha == 0.05 else 1.645 if alpha == 0.10 else 2.576
+    z_beta = 0.84 if power_target == 0.80 else 1.28 if power_target == 0.90 else 0.0
+    
+    if effect_size == 0:
+        return sys.maxsize  # Impossible to detect zero effect
+    
+    n = 2 * ((z_alpha + z_beta) / effect_size) ** 2
+    return math.ceil(n)
+
+def two_proportion_z_test(successes1: int, n1: int, successes2: int, n2: int, alpha: float = 0.05) -> ZTestResult:
+    """
+    Perform a two-proportion z-test.
+    
+    H0: p1 = p2
+    H1: p1 != p2
+    
+    Args:
+        successes1: Number of successes in group 1
+        n1: Total trials in group 1
+        successes2: Number of successes in group 2
+        n2: Total trials in group 2
+        alpha: Significance level
+        
+    Returns:
+        ZTestResult object
+    """
+    if n1 == 0 or n2 == 0:
+        raise ValueError("Sample sizes must be greater than 0.")
+        
+    p1 = successes1 / n1
+    p2 = successes2 / n2
+    
+    # Pooled proportion
+    p_pooled = (successes1 + successes2) / (n1 + n2)
+    
+    # Standard error under null hypothesis
+    se = math.sqrt(p_pooled * (1 - p_pooled) * (1/n1 + 1/n2))
+    
+    if se == 0:
+        # If pooled proportion is 0 or 1, we can't calculate a Z-score in the standard way
+        # If both proportions are 0 or both are 1, p-value is 1 (no difference)
+        if p1 == p2:
+            return ZTestResult(
+                z_statistic=0.0,
+                p_value=1.0,
+                is_significant=False,
+                effect_size=calculate_effect_size(p1, p2),
+                sample_size_group1=n1,
+                sample_size_group2=n2,
+                success_rate_group1=p1,
+                success_rate_group2=p2
+            )
+        else:
+            # Extreme difference, p-value effectively 0
+            return ZTestResult(
+                z_statistic=999.0,
+                p_value=0.0,
+                is_significant=True,
+                effect_size=calculate_effect_size(p1, p2),
+                sample_size_group1=n1,
+                sample_size_group2=n2,
+                success_rate_group1=p1,
+                success_rate_group2=p2
+            )
+    
+    z_stat = (p1 - p2) / se
+    p_value = 2 * (1 - (0.5 * (1.0 + math.erf(abs(z_stat) / math.sqrt(2.0)))))
     
     return ZTestResult(
-        p1=p1, p2=p2, n1=n1, n2=n2,
-        z_score=z_score, p_value=p_value,
-        confidence_interval_95=(ci_lower, ci_upper),
-        is_significant=is_significant, alpha=alpha
+        z_statistic=z_stat,
+        p_value=p_value,
+        is_significant=(p_value < alpha),
+        effect_size=calculate_effect_size(p1, p2),
+        sample_size_group1=n1,
+        sample_size_group2=n2,
+        success_rate_group1=p1,
+        success_rate_group2=p2
     )
 
-def tost_equivalence_test(
-    x1: int, n1: int, x2: int, n2: int, 
-    equivalence_margin: float, alpha: float = 0.05
-) -> TOSTResult:
+def tost_equivalence_test(p1: float, p2: float, n1: int, n2: int, equivalence_margin: float, alpha: float = 0.05) -> TOSTResult:
     """
-    Perform TOST (Two One-Sided Tests) for equivalence.
+    Perform TOST equivalence test.
+    
+    H0: |p1 - p2| >= equivalence_margin
+    H1: |p1 - p2| < equivalence_margin
+    
+    Args:
+        p1: Proportion group 1
+        p2: Proportion group 2
+        n1: Sample size group 1
+        n2: Sample size group 2
+        equivalence_margin: The margin within which differences are considered equivalent
+        alpha: Significance level
+        
+    Returns:
+        TOSTResult object
     """
-    p1 = x1 / n1
-    p2 = x2 / n2
     diff = p1 - p2
-    se = math.sqrt(p1 * (1 - p1) / n1 + p2 * (1 - p2) / n2)
+    
+    # Standard error of the difference
+    se = math.sqrt((p1 * (1 - p1) / n1) + (p2 * (1 - p2) / n2))
     
     if se == 0:
         return TOSTResult(
-            mean_diff=diff, lower_bound=0.0, upper_bound=0.0,
+            t_lower=0.0, t_upper=0.0, p_value_lower=1.0, p_value_upper=1.0,
+            is_equivalent=abs(diff) < equivalence_margin,
             equivalence_margin=equivalence_margin,
-            is_equivalent=False, p_value_lower=1.0, p_value_upper=1.0
+            mean_diff=diff,
+            pooled_std=0.0
         )
     
-    # T1: H0: diff <= -margin vs H1: diff > -margin
-    z_lower = (diff - (-equivalence_margin)) / se
-    p_value_lower = 1 - 0.5 * (1 + math.erf(z_lower / math.sqrt(2)))
+    t_lower = (diff - equivalence_margin) / se
+    t_upper = (diff + equivalence_margin) / se
     
-    # T2: H0: diff >= margin vs H1: diff < margin
-    z_upper = (diff - equivalence_margin) / se
-    p_value_upper = 0.5 * (1 + math.erf(z_upper / math.sqrt(2)))
+    # One-sided p-values
+    def one_side_p(t):
+        # P(Z > t)
+        return 0.5 * (1.0 - math.erf(t / math.sqrt(2.0)))
     
-    is_equivalent = (p_value_lower < alpha) and (p_value_upper < alpha)
+    p_lower = one_side_p(t_lower)
+    p_upper = one_side_p(-t_upper) # P(Z < -t_upper) = P(Z > t_upper) for symmetry in one-sided logic if t is negative? 
+    # Actually for TOST: we need P(T < t_lower) and P(T > t_upper) for the two one-sided tests.
+    # If we are testing H0: diff <= -margin OR diff >= margin
+    # Test 1: H0: diff <= -margin vs H1: diff > -margin -> t = (diff - (-margin))/se
+    # Test 2: H0: diff >= margin vs H1: diff < margin -> t = (diff - margin)/se
     
-    # Confidence interval
-    z_crit = 1.96
-    ci_lower = diff - z_crit * se
-    ci_upper = diff + z_crit * se
+    # Correcting the logic for standard TOST implementation:
+    # t1 = (diff - (-margin)) / se = (diff + margin) / se
+    # t2 = (diff - margin) / se
+    # We reject H0 if t1 > t_crit AND t2 < -t_crit (for two-sided alpha)
+    # Or simply: p1 < alpha AND p2 < alpha
+    
+    t1 = (diff + equivalence_margin) / se
+    t2 = (diff - equivalence_margin) / se
+    
+    p1_val = 0.5 * (1.0 - math.erf(t1 / math.sqrt(2.0))) # P(Z > t1) -> wait, if t1 is large positive, p is small
+    p2_val = 0.5 * (1.0 + math.erf(t2 / math.sqrt(2.0))) # P(Z < t2)
+    
+    is_equiv = (p1_val < alpha) and (p2_val < alpha)
     
     return TOSTResult(
-        mean_diff=diff, lower_bound=ci_lower, upper_bound=ci_upper,
+        t_lower=t2, t_upper=t1, p_value_lower=p1_val, p_value_upper=p2_val,
+        is_equivalent=is_equiv,
         equivalence_margin=equivalence_margin,
-        is_equivalent=is_equivalent,
-        p_value_lower=p_value_lower, p_value_upper=p_value_upper
+        mean_diff=diff,
+        pooled_std=se
     )
 
-def register_statistical_framework(
-    test_type: str, alpha: float, power_target: float,
-    effect_size_h0: float, alternative: str, notes: str = ""
-) -> PreRegistration:
-    """Register the statistical framework for pre-registration."""
+def register_statistical_framework(framework: str, alpha: float = 0.05, power: float = 0.80) -> PreRegistration:
+    """
+    Register the statistical framework to be used.
+    
+    Args:
+        framework: 'equivalence', 'non-inferiority', or 'superiority'
+        alpha: Significance level
+        power: Target power
+        
+    Returns:
+        PreRegistration object
+    """
     from datetime import datetime
     return PreRegistration(
-        test_type=test_type,
+        framework=framework,
         alpha=alpha,
-        power_target=power_target,
-        effect_size_h0=effect_size_h0,
-        alternative=alternative,
-        timestamp=datetime.now().isoformat(),
-        notes=notes
+        effect_size_hypothesis=0.5, # Default medium effect size assumption
+        power_target=power,
+        timestamp=datetime.now().isoformat()
     )
 
 def load_experiment_logs(log_path: str) -> List[Dict[str, Any]]:
-    """Load experiment logs from a JSONL or JSON file."""
-    path = Path(log_path)
-    if not path.exists():
+    """Load experiment logs from a JSON file."""
+    if not os.path.exists(log_path):
         raise FileNotFoundError(f"Log file not found: {log_path}")
-    
-    logs = []
-    if path.suffix == '.jsonl':
-        with open(path, 'r') as f:
-            for line in f:
-                if line.strip():
-                    logs.append(json.loads(line))
-    else:
-        with open(path, 'r') as f:
-            data = json.load(f)
-            if isinstance(data, list):
-                logs = data
-            elif isinstance(data, dict) and 'results' in data:
-                logs = data['results']
-            else:
-                logs = [data]
-    
-    return logs
+    with open(log_path, 'r') as f:
+        return json.load(f)
 
-def count_successes(logs: List[Dict[str, Any]]) -> Tuple[int, int]:
+def count_successes(logs: List[Dict[str, Any]], success_key: str = 'success') -> Tuple[int, int]:
     """
-    Count successes and total attempts from logs.
-    Expects logs to have 'success' or 'is_success' boolean field.
-    """
-    successes = 0
-    total = 0
+    Count successes and total trials from logs.
     
-    for entry in logs:
-        # Handle various possible log formats
-        if 'success' in entry:
-            is_success = entry['success']
-        elif 'is_success' in entry:
-            is_success = entry['is_success']
-        elif 'result' in entry and isinstance(entry['result'], dict):
-            is_success = entry['result'].get('success', False)
-        else:
-            # If no success field, assume it's a failed attempt if present
-            is_success = False
+    Args:
+        logs: List of log entries
+        success_key: Key name for the success boolean
         
-        total += 1
-        if is_success:
-            successes += 1
-    
+    Returns:
+        Tuple of (success_count, total_count)
+    """
+    successes = sum(1 for entry in logs if entry.get(success_key, False))
+    total = len(logs)
     return successes, total
 
-def write_stats_results(
-    symbolic_logs: List[Dict[str, Any]],
-    neural_logs: List[Dict[str, Any]],
-    output_path: str,
-    alpha: float = 0.05
-) -> Dict[str, Any]:
+def write_stats_results(results: Dict[str, Any], output_path: str) -> None:
+    """Write statistical results to a JSON file."""
+    os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+
+def pre_analysis_power_check(planned_n: int, effect_size: float = 0.5, alpha: float = 0.05, target_power: float = 0.80) -> Dict[str, Any]:
     """
-    Perform statistical tests and write results to a machine-readable JSON file.
+    Perform pre-analysis power calculation before an experimental run.
+    
+    Constraint: Before any experimental run, the system must calculate the required 
+    sample size to achieve target_power for a medium effect size (Cohen's h = 0.5) 
+    at alpha=0.05. If the planned sample size is insufficient, the system MUST log 
+    a critical warning (but NOT halt execution) and proceed.
+    
+    Args:
+        planned_n: The planned sample size for the experiment (N=10..500)
+        effect_size: Expected effect size (Cohen's h), default 0.5 (medium)
+        alpha: Significance level
+        target_power: Target statistical power
+        
+    Returns:
+        Dict containing power analysis results and recommendation.
     """
-    x1, n1 = count_successes(symbolic_logs)
-    x2, n2 = count_successes(neural_logs)
+    required_n = required_sample_size_for_power(effect_size, alpha, target_power)
     
-    if n1 == 0 or n2 == 0:
-        raise ValueError("One or both datasets have no samples.")
+    # Estimate power for the planned sample size assuming the effect size exists
+    # We assume equal group sizes for the estimate if planned_n is total, or use it directly
+    # For a two-group comparison, if planned_n is per group:
+    power_estimate = calculate_power_z_test(
+        p1=0.5 + effect_size/2, # Arbitrary baseline to create the effect
+        p2=0.5,
+        n1=planned_n,
+        n2=planned_n,
+        alpha=alpha
+    )
     
-    # Perform z-test
-    z_result = two_proportion_z_test(x1, n1, x2, n2, alpha)
+    is_sufficient = planned_n >= required_n
     
-    # Calculate power
-    power = calculate_power_z_test(z_result.p1, z_result.p2, n1, n2, alpha)
-    
-    # Calculate effect size
-    effect_size = calculate_effect_size(z_result.p1, z_result.p2, n1, n2)
-    
-    results = {
-        "test_type": "two_proportion_z_test",
+    result = {
+        "planned_sample_size": planned_n,
+        "required_sample_size_per_group": required_n,
+        "effect_size_assumed": effect_size,
         "alpha": alpha,
-        "symbolic": {
-            "successes": x1,
-            "total": n1,
-            "rate": z_result.p1
-        },
-        "neural": {
-            "successes": x2,
-            "total": n2,
-            "rate": z_result.p2
-        },
-        "test_statistics": {
-            "z_score": z_result.z_score,
-            "p_value": z_result.p_value,
-            "confidence_interval_95": {
-                "lower": z_result.confidence_interval_95[0],
-                "upper": z_result.confidence_interval_95[1]
-            }
-        },
-        "conclusion": {
-            "is_significant": z_result.is_significant,
-            "interpretation": "Reject H0" if z_result.is_significant else "Fail to reject H0"
-        },
-        "power_analysis": {
-            "estimated_power": power,
-            "effect_size_cohen_h": effect_size,
-            "is_underpowered": power < 0.8
-        },
-        "metadata": {
-            "symbolic_samples": n1,
-            "neural_samples": n2,
-            "generated_at": "2024-01-01T00:00:00" # Placeholder, real timestamp handled by caller if needed
-        }
+        "target_power": target_power,
+        "estimated_power": power_estimate,
+        "is_sufficient": is_sufficient,
+        "recommendation": "Proceed" if is_sufficient else "WARNING: Underpowered"
     }
     
-    # Ensure output directory exists
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    if not is_sufficient:
+        logger.critical(
+            f"Pre-Analysis Power Check FAILED: Planned N={planned_n} is insufficient "
+            f"to detect effect size h={effect_size} with power={target_power}. "
+            f"Required N per group is {required_n}. "
+            f"Proceeding anyway as per Spec Assumptions, but results may be underpowered."
+        )
+    else:
+        logger.info(
+            f"Pre-Analysis Power Check PASSED: Planned N={planned_n} is sufficient "
+            f"to detect effect size h={effect_size} with estimated power={power_estimate:.2f}."
+        )
     
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    return results
+    return result
 
 def main():
-    """Main entry point for stats analysis."""
-    parser = argparse.ArgumentParser(description="Statistical analysis for llmXive")
-    parser.add_argument("--symbolic", type=str, required=True, help="Path to symbolic logs")
-    parser.add_argument("--neural", type=str, required=True, help="Path to neural logs")
-    parser.add_argument("--output", type=str, required=True, help="Output JSON path")
-    parser.add_argument("--alpha", type=float, default=0.05, help="Significance level")
+    """Main entry point for the stats module when run as a script."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Statistical Analysis Tools")
+    parser.add_argument('--symbolic', type=str, help="Path to symbolic run logs")
+    parser.add_argument('--neural', type=str, help="Path to neural run logs")
+    parser.add_argument('--output', type=str, help="Path to output results JSON")
+    parser.add_argument('--check-power', action='store_true', help="Run pre-analysis power check")
+    parser.add_argument('--planned-n', type=int, default=50, help="Planned sample size for power check")
     
     args = parser.parse_args()
     
-    try:
-        symbolic_logs = load_experiment_logs(args.symbolic)
-        neural_logs = load_experiment_logs(args.neural)
-        
-        results = write_stats_results(symbolic_logs, neural_logs, args.output, args.alpha)
-        
-        print(f"Results written to {args.output}")
-        print(f"Symbolic rate: {results['symbolic']['rate']:.4f} ({results['symbolic']['successes']}/{results['symbolic']['total']})")
-        print(f"Neural rate: {results['neural']['rate']:.4f} ({results['neural']['successes']}/{results['neural']['total']})")
-        print(f"Z-score: {results['test_statistics']['z_score']:.4f}")
-        print(f"P-value: {results['test_statistics']['p_value']:.4f}")
-        print(f"Significant: {results['conclusion']['is_significant']}")
-        print(f"Power: {results['power_analysis']['estimated_power']:.4f}")
-        
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except ValueError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        sys.exit(1)
+    if args.check_power:
+        # Run pre-analysis power check
+        result = pre_analysis_power_check(args.planned_n)
+        print(json.dumps(result, indent=2))
+        return
+    
+    if args.symbolic and args.neural and args.output:
+        # Run full comparison
+        try:
+            symbolic_logs = load_experiment_logs(args.symbolic)
+            neural_logs = load_experiment_logs(args.neural)
+            
+            s_succ, s_total = count_successes(symbolic_logs)
+            n_succ, n_total = count_successes(neural_logs)
+            
+            z_result = two_proportion_z_test(s_succ, s_total, n_succ, n_total)
+            
+            # Power check for the observed data
+            power_check = pre_analysis_power_check(s_total) # Using symbolic N as reference
+            
+            output_data = {
+                "z_test": asdict(z_result),
+                "power_analysis": power_check,
+                "symbolic_stats": {"successes": s_succ, "total": s_total},
+                "neural_stats": {"successes": n_succ, "total": n_total}
+            }
+            
+            write_stats_results(output_data, args.output)
+            print(f"Results written to {args.output}")
+            
+        except Exception as e:
+            logger.error(f"Analysis failed: {e}")
+            sys.exit(1)
+    else:
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

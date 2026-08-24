@@ -1,3 +1,3 @@
 """
-Analysis and statistics module.
+Analysis modules for llmXive.
 """

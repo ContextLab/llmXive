@@ -1,3 +1,3 @@
 """
-Bidirectional Evolutionary Search module.
+Bidirectional Evolutionary Search modules.
 """
