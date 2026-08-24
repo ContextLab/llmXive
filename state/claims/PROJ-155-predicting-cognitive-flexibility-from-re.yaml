@@ -1757,3 +1757,226 @@
   source_type: external
   status: verified
   updated_at: '2026-08-23T13:44:25Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/docs/research.md
+  attempts: 1
+  canonical: HCP 1200 subjects have resting-state fMRI and behavioral data
+  claim_id: c_753e323f
+  context: Data Source section listing the HCP 1200 Subjects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Resting-state fMRI and behavioral data from the Human Connectome Project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:24:52Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/docs/research.md
+  attempts: 1
+  canonical: Schaefer atlas has 200 parcels and 7 networks
+  claim_id: c_c4b9c86d
+  context: Data Source section listing the Atlas used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Schaefer 200 Parcels (7 Networks).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:25:34Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 study excluded low-bit models, deep net training, and
+    large LLMs
+  claim_id: c_5ce269bd
+  context: 'Notes section: ''Smith et al. (2023) [arXiv:2301.12345] No low-bit models,
+    no deep net training, no large LLMs.'''
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T00:25:52Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Short-duration windows are statistically invalid for Schaefer 200 atlas
+    due to rank deficiency
+  claim_id: c_1b5a2b4f
+  context: 'T004a Content: Must include a section titled ''Window Length Justification''
+    containing the exact text: ''The default short-duration window is statistically
+    invalid for the Schaefer 200 atlas due to rank deficiency and insufficient time
+    points for stable correlation estimation. A 60s window is mandated by FR-003 to
+    ensure robust metric stability.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default short-duration window is statistically invalid for the Schaefer
+    200 atlas due to rank deficiency and insufficient time points for stable correlation
+    estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:26:51Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Generate 1000 phase-shuffled surrogate null models per subject using
+    FFT-based phase randomization
+  claim_id: c_c8d8e677
+  context: 'Implement `code/features/null_model.py` to generate phase-shuffled surrogate
+    null models and validate metric significance (p < 0.05). Method: Use `nitime.utils.phase_shuffle`
+    to generate 1000 surrogates per subject using FFT-based phase randomization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `nitime.utils.phase_shuffle` to generate 1000 surrogates per subject
+    using FFT-based phase randomization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:27:33Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: HCP 1200 Subjects release used as data source
+  claim_id: c_ba577afc
+  context: 'Data Source: HCP 1200 Subjects release (resting-state fMRI, behavioral
+    data).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study uses the HCP 1200 Subjects release containing resting-state
+    fMRI and behavioral data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:29:23Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Schaefer 200 atlas used for parcellation
+  claim_id: c_3c15cef3
+  context: 'Preprocessing: Minimal preprocessing (HCP pipeline), parcellation using
+    Schaefer 200 atlas.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parcellation was performed using the Schaefer 200 atlas.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:30:20Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Sliding-window correlation 60s window 1s step
+  claim_id: c_6d5ac555
+  context: 'Feature Extraction: Sliding-window correlation (window=60s, step=1s),
+    edge-wise SD, Shannon entropy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sliding-window correlation was computed with a 60-second window and 1-second
+    step.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:30:50Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Permutation testing 10000 iterations
+  claim_id: c_9c6ccc99
+  context: 'Statistical Analysis: Linear regression (Flexibility ~ Variability + Age
+    + Sex + FD + Scan Time), permutation testing (10k iterations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation testing was conducted with 10,000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:31:07Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: Phase-Shuffling Null Model 1000 surrogates
+  claim_id: c_03e9f611
+  context: 'Phase-Shuffling Null Model: Implemented | FFT-based phase randomization
+    (1000 surrogates).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Phase-Shuffling Null Model used 1,000 surrogates via FFT-based phase
+    randomization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:31:22Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: 1200 subjects provide high statistical power
+  claim_id: c_f2a55dff
+  context: 'Statistical Power: 1200 subjects provides high power; permutation testing
+    ensures robust p-values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study includes 1,200 subjects to provide high statistical power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:31:45Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: HCP 1200 Subjects Release used as data source
+  claim_id: c_adf0a575
+  context: Data Sources section listing HCP 1200 Subjects Release and NIH Toolbox
+    Cognitive Scores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses HCP 1200 Subjects Release data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:32:29Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/plan.md
+  attempts: 1
+  canonical: NIH Toolbox Cognitive Scores used as data source
+  claim_id: c_5a9e6279
+  context: Data Sources section listing HCP 1200 Subjects Release and NIH Toolbox
+    Cognitive Scores.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIH_Toolbox_Cognitive_Scores_used_as_data_source
+  kind: entity_fact
+  raw_text: The project uses NIH Toolbox Cognitive Scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T00:32:54Z'

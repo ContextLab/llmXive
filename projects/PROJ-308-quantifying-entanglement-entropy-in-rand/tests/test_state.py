@@ -1,168 +1,211 @@
 """
-Tests for state management and metadata logging (Task T011, T012).
+Tests for state management and checksum tracking.
 """
-import json
 import os
-import pytest
+import json
+import tempfile
 from pathlib import Path
-from datetime import datetime
+import pytest
 
-# Adjust imports based on project structure
-import sys
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
-
+# Import the functions we are testing
 from state_manager import (
     log_unresolved_realization,
-    log_unresolved_batch,
     get_unresolved_summary,
     clear_unresolved_log,
-    get_unresolved_by_delta,
-    get_unresolved_by_reason,
-    _load_metadata,
     _load_unresolved_log,
-    METADATA_FILE,
-    UNRESOLVED_LOG_FILE
+    _save_unresolved_log
 )
-from state_utils import ensure_state_structure, compute_file_checksum, load_project_state, save_project_state, register_artifact
+from state_utils import (
+    ensure_state_structure,
+    compute_file_checksum,
+    compute_directory_checksum,
+    load_project_state,
+    save_project_state,
+    register_artifact,
+    verify_artifact_integrity,
+    get_artifact_summary,
+    generate_state_report,
+    STATE_DIR,
+    PROJECTS_DIR,
+    STATE_FILE
+)
 
-@pytest.fixture(autouse=True)
-def reset_state():
-    """Reset state before each test to ensure isolation."""
-    clear_unresolved_log()
+@pytest.fixture
+def clean_state_dirs():
+    """Fixture to clean up state directories before and after tests."""
+    # Clean before
+    if STATE_DIR.exists():
+        import shutil
+        shutil.rmtree(STATE_DIR)
+
     yield
+
+    # Clean after
+    if STATE_DIR.exists():
+        import shutil
+        shutil.rmtree(STATE_DIR)
+
+def test_ensure_state_structure(clean_state_dirs):
+    """Test that the state directory structure is created."""
+    ensure_state_structure()
+    assert STATE_DIR.exists()
+    assert PROJECTS_DIR.exists()
+    assert (STATE_DIR / "artifacts").exists()
+
+def test_compute_file_checksum(clean_state_dirs):
+    """Test file checksum computation."""
+    ensure_state_structure()
+    test_file = STATE_DIR / "test_checksum.txt"
+    test_file.write_text("Hello, World!")
+
+    checksum1 = compute_file_checksum(test_file)
+    checksum2 = compute_file_checksum(test_file)
+
+    assert checksum1 == checksum2
+    assert len(checksum1) == 64  # SHA-256 hex digest
+
+def test_compute_directory_checksum(clean_state_dirs):
+    """Test directory checksum computation."""
+    ensure_state_structure()
+    test_dir = STATE_DIR / "test_dir"
+    test_dir.mkdir()
+    (test_dir / "file1.txt").write_text("Content 1")
+    (test_dir / "file2.txt").write_text("Content 2")
+
+    checksum1 = compute_directory_checksum(test_dir)
+    checksum2 = compute_directory_checksum(test_dir)
+
+    assert checksum1 == checksum2
+
+def test_load_project_state(clean_state_dirs):
+    """Test loading project state."""
+    ensure_state_structure()
+    state = load_project_state()
+
+    assert "project_id" in state
+    assert "version" in state
+    assert "artifacts" in state
+    assert "checksums" in state
+
+def test_save_and_load_project_state(clean_state_dirs):
+    """Test saving and loading project state."""
+    ensure_state_structure()
+    test_state = {
+        "project_id": "TEST-001",
+        "version": "1.0.0",
+        "artifacts": {"test.txt": {"checksum": "abc123"}}
+    }
+
+    save_project_state(test_state)
+    loaded_state = load_project_state()
+
+    assert loaded_state["project_id"] == "TEST-001"
+    assert loaded_state["version"] == "1.0.0"
+    assert "test.txt" in loaded_state["artifacts"]
+
+def test_register_artifact(clean_state_dirs):
+    """Test artifact registration."""
+    ensure_state_structure()
+    test_file = STATE_DIR / "artifacts" / "test_data.csv"
+    test_file.parent.mkdir(parents=True, exist_ok=True)
+    test_file.write_text("col1,col2\n1,2\n3,4")
+
+    register_artifact(
+        test_file,
+        "csv",
+        "Test data file",
+        {"rows": 2}
+    )
+
+    state = load_project_state()
+    rel_path = str(test_file.relative_to(Path(__file__).parent.parent))
+
+    assert rel_path in state["artifacts"]
+    assert state["artifacts"][rel_path]["type"] == "csv"
+    assert "checksum" in state["artifacts"][rel_path]
+
+def test_verify_artifact_integrity(clean_state_dirs):
+    """Test artifact integrity verification."""
+    ensure_state_structure()
+    test_file = STATE_DIR / "artifacts" / "verify_test.txt"
+    test_file.parent.mkdir(parents=True, exist_ok=True)
+    test_file.write_text("Integrity test")
+
+    register_artifact(test_file, "txt", "Integrity test file")
+    assert verify_artifact_integrity(test_file) is True
+
+    # Modify the file
+    test_file.write_text("Modified content")
+    assert verify_artifact_integrity(test_file) is False
+
+def test_get_artifact_summary(clean_state_dirs):
+    """Test getting artifact summary."""
+    ensure_state_structure()
+    test_file = STATE_DIR / "artifacts" / "summary_test.csv"
+    test_file.parent.mkdir(parents=True, exist_ok=True)
+    test_file.write_text("a,b\n1,2")
+
+    register_artifact(test_file, "csv", "Summary test file")
+
+    rel_path = str(test_file.relative_to(Path(__file__).parent.parent))
+    summary = get_artifact_summary(test_file)
+
+    assert summary is not None
+    assert summary["type"] == "csv"
+    assert summary["description"] == "Summary test file"
+
+def test_generate_state_report(clean_state_dirs):
+    """Test state report generation."""
+    ensure_state_structure()
+    test_file = STATE_DIR / "artifacts" / "report_test.txt"
+    test_file.parent.mkdir(parents=True, exist_ok=True)
+    test_file.write_text("Report test")
+
+    register_artifact(test_file, "txt", "Report test file")
+
+    report_path = STATE_DIR / "state_report.txt"
+    report = generate_state_report(report_path)
+
+    assert "Project State Report" in report
+    assert "Report test file" in report
+    assert report_path.exists()
+
+def test_unresolved_log_integration(clean_state_dirs):
+    """Test the unresolved realization logging workflow."""
+    # Log a single realization
+    log_unresolved_realization(
+        realization_id=1,
+        delta=0.5,
+        reason="Convergence failure",
+        details={"iterations": 100}
+    )
+
+    # Log another
+    log_unresolved_realization(
+        realization_id=2,
+        delta=0.5,
+        reason="Convergence failure",
+        details={"iterations": 150}
+    )
+
+    # Log a different reason
+    log_unresolved_realization(
+        realization_id=3,
+        delta=0.8,
+        reason="Memory overflow"
+    )
+
+    # Check summary
+    summary = get_unresolved_summary()
+    assert summary["total_unresolved"] == 3
+    assert summary["by_reason"]["Convergence failure"] == 2
+    assert summary["by_reason"]["Memory overflow"] == 1
+
+    # Check by delta
+    by_delta = [e for e in _load_unresolved_log() if e["delta"] == 0.5]
+    assert len(by_delta) == 2
+
+    # Clear log
     clear_unresolved_log()
-
-class TestUnresolvedLogging:
-    def test_unresolved_log(self, tmp_path, monkeypatch):
-        """
-        Test T011: Verify that unresolved realizations are logged to
-        data/raw/metadata.json and state/unresolved_realizations.json.
-        """
-        # Setup temp paths for testing
-        data_raw = tmp_path / "data" / "raw"
-        state_dir = tmp_path / "state"
-        data_raw.mkdir(parents=True)
-        state_dir.mkdir(parents=True)
-
-        # Monkeypatch the module constants
-        monkeypatch.setattr("state_manager.DATA_RAW_DIR", data_raw)
-        monkeypatch.setattr("state_manager.STATE_DIR", state_dir)
-        monkeypatch.setattr("state_manager.METADATA_FILE", data_raw / "metadata.json")
-        monkeypatch.setattr("state_manager.UNRESOLVED_LOG_FILE", state_dir / "unresolved_realizations.json")
-
-        # Log a single unresolved realization
-        delta = 0.2
-        rid = 42
-        reason = "TEBD convergence failure"
-        details = {"iterations": 50, "final_energy": -0.5}
-
-        log_unresolved_realization(delta, rid, reason, details)
-
-        # Verify metadata.json exists and contains summary
-        assert METADATA_FILE.exists(), "metadata.json was not created"
-        metadata = _load_metadata()
-
-        assert metadata["unresolved_summary"]["total_count"] == 1
-        assert str(delta) in metadata["unresolved_summary"]["by_delta"]
-        assert metadata["unresolved_summary"]["by_delta"][str(delta)] == 1
-        assert reason in metadata["unresolved_summary"]["by_reason"]
-        assert metadata["unresolved_summary"]["by_reason"][reason] == 1
-
-        # Verify unresolved_realizations.json exists and contains details
-        assert UNRESOLVED_LOG_FILE.exists(), "unresolved_realizations.json was not created"
-        log_entries = _load_unresolved_log()
-        assert len(log_entries) == 1
-        entry = log_entries[0]
-        assert entry["delta"] == delta
-        assert entry["realization_id"] == rid
-        assert entry["reason"] == reason
-        assert entry["details"] == details
-
-    def test_batch_logging(self, tmp_path, monkeypatch):
-        """Test batch logging of unresolved realizations."""
-        data_raw = tmp_path / "data" / "raw"
-        state_dir = tmp_path / "state"
-        data_raw.mkdir(parents=True)
-        state_dir.mkdir(parents=True)
-
-        monkeypatch.setattr("state_manager.DATA_RAW_DIR", data_raw)
-        monkeypatch.setattr("state_manager.STATE_DIR", state_dir)
-        monkeypatch.setattr("state_manager.METADATA_FILE", data_raw / "metadata.json")
-        monkeypatch.setattr("state_manager.UNRESOLVED_LOG_FILE", state_dir / "unresolved_realizations.json")
-
-        rids = [1, 2, 3]
-        log_unresolved_batch(0.5, rids, "Numerical overflow")
-
-        summary = get_unresolved_summary()
-        assert summary["total_count"] == 3
-        assert summary["by_delta"]["0.5000"] == 3
-        assert summary["by_reason"]["Numerical overflow"] == 3
-
-    def test_filtering(self, tmp_path, monkeypatch):
-        """Test filtering by delta and reason."""
-        data_raw = tmp_path / "data" / "raw"
-        state_dir = tmp_path / "state"
-        data_raw.mkdir(parents=True)
-        state_dir.mkdir(parents=True)
-
-        monkeypatch.setattr("state_manager.DATA_RAW_DIR", data_raw)
-        monkeypatch.setattr("state_manager.STATE_DIR", state_dir)
-        monkeypatch.setattr("state_manager.METADATA_FILE", data_raw / "metadata.json")
-        monkeypatch.setattr("state_manager.UNRESOLVED_LOG_FILE", state_dir / "unresolved_realizations.json")
-
-        log_unresolved_realization(0.2, 1, "Error A")
-        log_unresolved_realization(0.2, 2, "Error B")
-        log_unresolved_realization(0.5, 3, "Error A")
-
-        # Filter by delta
-        by_delta = get_unresolved_by_delta(0.2)
-        assert len(by_delta) == 2
-
-        # Filter by reason
-        by_reason = get_unresolved_by_reason("Error A")
-        assert len(by_reason) == 2
-
-class TestStateConfiguration:
-    def test_state_structure_creation(self, tmp_path, monkeypatch):
-        """Test T012: Ensure state directory structure is created."""
-        state_dir = tmp_path / "state"
-        monkeypatch.setattr("state_utils.STATE_DIR", state_dir)
-
-        # This should create the directory structure
-        ensure_state_structure()
-
-        assert state_dir.exists()
-        assert (state_dir / "projects").exists()
-
-    def test_checksums(self, tmp_path, monkeypatch):
-        """Test T012: Verify checksum computation and state saving."""
-        state_dir = tmp_path / "state"
-        projects_dir = state_dir / "projects"
-        projects_dir.mkdir(parents=True)
-
-        monkeypatch.setattr("state_utils.STATE_DIR", state_dir)
-        monkeypatch.setattr("state_utils.PROJECTS_DIR", projects_dir)
-
-        # Create a dummy artifact
-        artifact_path = projects_dir / "test_artifact.txt"
-        artifact_path.write_text("test content")
-
-        checksum = compute_file_checksum(artifact_path)
-        assert checksum is not None
-        assert len(checksum) == 64  # SHA256 hex length
-
-        # Save project state
-        project_state = {
-            "project_id": "PROJ-308-test",
-            "artifacts": {
-                "test_artifact.txt": checksum
-            }
-        }
-        save_project_state(project_state)
-
-        # Load and verify
-        loaded_state = load_project_state()
-        assert loaded_state["project_id"] == "PROJ-308-test"
-        assert "test_artifact.txt" in loaded_state["artifacts"]
-        assert loaded_state["artifacts"]["test_artifact.txt"] == checksum
+    summary_after = get_unresolved_summary()
+    assert summary_after["total_unresolved"] == 0

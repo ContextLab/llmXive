@@ -1,7 +1,9 @@
-title: AlloyRecord Schema
+$schema: http://json-schema.org/draft-07/schema#
+title: AlloyRecord
 description: |
-  Schema for a single alloy record derived from the glass-forming ability dataset.
-  Includes raw composition data, target variable, and computed thermodynamic features.
+  Schema for a single alloy record in the glass-forming region dataset.
+  Derived from the matsci/glass-forming-ability dataset and enriched with
+  thermodynamic features computed via mendeleev.
 type: object
 required:
   - composition
@@ -14,69 +16,68 @@ properties:
   composition:
     type: object
     description: |
-      Mapping of element symbols to their atomic fractions in the alloy.
+      Dictionary mapping element symbols to their atomic fraction in the alloy.
       Example: {"Fe": 0.6, "B": 0.3, "Si": 0.1}
-      Keys are element symbols (string), values are atomic fractions (float).
-      Sum of values should be approximately 1.0.
+      Keys are string element symbols (e.g., "Fe", "Cu").
+      Values are floats between 0 and 1, summing to approximately 1.0.
     additionalProperties:
       type: number
-      minimum: 0.0
-      maximum: 1.0
+      minimum: 0
+      maximum: 1
 
   critical_cooling_rate:
     type: number
     description: |
-      The critical cooling rate (CCR) in K/s required to form a glass.
-      Derived from the 'critical_cooling_rate' column in the source dataset.
-      Lower values indicate better glass formers.
-    minimum: 0.0
+      The critical cooling rate (K/s) required to form a glass.
+      Derived directly from the 'critical_cooling_rate' column in the source dataset.
+      Must be a positive number.
+    minimum: 0
 
   mixing_enthalpy:
     type: number
     description: |
-      The enthalpy of mixing (ΔH_mix) in kJ/mol.
-      Computed using the composition-weighted sum of binary pair enthalpies
-      from the Miedema model or similar (via mendeleev/external tables).
-      Negative values generally favor glass formation.
-    unit: kJ/mol
+      The mixing enthalpy (kJ/mol) of the alloy.
+      Computed from pairwise enthalpies of mixing and atomic fractions.
+      Unit: kJ/mol.
+    minimum: -1000
+    maximum: 1000
 
   atomic_size_mismatch:
     type: number
     description: |
-      The atomic size mismatch parameter (δ) in percent (%).
+      The atomic size mismatch parameter (delta), representing the variance in atomic radii.
       Computed as the standard deviation of atomic radii weighted by composition.
-      Higher values (>5-10%) generally favor glass formation by hindering crystallization.
-    unit: percent
+      Unit: dimensionless (often expressed as a percentage in literature, but stored as fraction here).
+    minimum: 0
+    maximum: 1
 
   electronegativity_variance:
     type: number
     description: |
-      The variance of electronegativity values in the alloy.
-      Computed as the composition-weighted variance of Pauling electronegativities.
-      Moderate values often correlate with stability.
-    unit: (Pauling scale)^2
+      The variance of electronegativity values across the alloy components.
+      Computed as the weighted variance of Pauling electronegativity values.
+      Unit: dimensionless (Pauling scale).
+    minimum: 0
+    maximum: 10
 
   source_label:
     type: string
     description: |
-      Label indicating the source or quality of the data point.
-      Derived from dataset metadata (e.g., 'experimental', 'high_throughput', 'review').
-      Used for filtering or stratification if necessary.
-    enum:
-      - experimental
-      - computational
-      - review
-      - unknown
+      The source label derived from the dataset metadata.
+      Indicates the origin of the specific data point (e.g., "matsci-glass-ability-v1").
+      Used for tracking data provenance.
+    minLength: 1
 
-examples:
-  - composition:
-      Fe: 0.55
-      B: 0.25
-      Si: 0.20
-    critical_cooling_rate: 10.5
-    mixing_enthalpy: -12.4
-    atomic_size_mismatch: 6.8
-    electronegativity_variance: 0.045
-    source_label: experimental
+  # Optional metadata fields for debugging and traceability
+  elements:
+    type: array
+    description: List of unique element symbols present in the alloy.
+    items:
+      type: string
+    minItems: 3
+    maxItems: 3
 
-additionalProperties: false
+  n_ternary:
+    type: boolean
+    description: True if the alloy is strictly ternary (3 elements).
+    default: true

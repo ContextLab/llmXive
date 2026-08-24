@@ -1,20 +1,16 @@
-# Ruff configuration for llmXive project
 target-version = "py311"
 select = ["E", "F", "W", "I"]
-
-# Ignore specific rules if needed (none currently)
-# ignore = []
-
-# Line length consistent with project standards
+ignore = []
 line-length = 88
+indent-width = 4
 
-# Exclude generated or third-party code
-exclude = [
-    ".git",
-    "__pycache__",
-    ".ruff_cache",
-    "data/*",
-    "docs/*",
-    "build/*",
-    "dist/*",
-]
+[per-file-ignores]
+# Allow longer lines in config files or specific test files if needed
+"tests/*" = ["E501"]
+"code/config.py" = ["E501"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

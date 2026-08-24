@@ -77,7 +77,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data alignment in `tests/test_data_alignment.py` (verifies InChIKey match)
+- [X] T010 [P] [US1] Contract test for data alignment in `tests/test_data_alignment.py` (verifies InChIKey match)
 - [X] T011 [P] [US1] Unit test for preprocessing artifacts in `tests/test_preprocessing.py` (verifies grid fidelity, smoothing, normalization)
 - [X] T012 [P] [US1] Unit test for error handling in `tests/test_data_errors.py` (verifies fast fail on corrupted data/missing properties)
 

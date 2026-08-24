@@ -1,46 +1,53 @@
 import os
 import random
 from typing import Dict, Any, Optional
+
 import numpy as np
+
+# Default configuration values
+DEFAULT_CONFIG = {
+    "seed": 42,
+    "window_length": 60,  # seconds (Mandated by FR-003 for Schaefer 200 stability)
+    "step_size": 1,       # seconds
+    "fd_threshold": 0.2,  # mm (Motion exclusion threshold)
+    "min_scans": 120,     # minimum number of time points
+    "batch_size": 50,     # subjects per batch for memory management
+    "n_surrogates": 1000, # number of phase-shuffled surrogates for null model
+    "n_permutations": 10000, # permutations for significance testing
+}
+
+_config: Dict[str, Any] = {}
 
 def set_seed(seed: int = 42) -> None:
     """
-    Sets the random seed for reproducibility across numpy, random, and torch (if available).
-    
-    Args:
-        seed: The random seed to set.
+    Set random seeds for reproducibility.
     """
     random.seed(seed)
     np.random.seed(seed)
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    global _config
+    _config['seed'] = seed
 
 def get_config() -> Dict[str, Any]:
     """
-    Returns the project configuration dictionary.
-    
-    Returns:
-        Dict: Configuration parameters including paths, seeds, and analysis parameters.
+    Get the current configuration dictionary.
+    Initializes with defaults if not yet set.
+    Supports override via environment variables.
     """
-    config = {
-        "seed": 42,
-        "window_size": 60,  # seconds. Note: This deviates from the Constitution's 30s default.
-                            # Justification: See docs/technical-design.md (Task T004a).
-                            # The Spec (FR-003) mandates 60s for the Schaefer 200 atlas resolution
-                            # to ensure stable correlation estimation, overriding the 30s default.
-        "step_size": 1,     # seconds
-        "fd_threshold": 0.2, # mm
-        "project_root": os.getenv("PROJECT_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-        "data_raw": "data/raw",
-        "data_processed": "data/processed",
-        "data_results": "data/results",
-        "figures": "figures",
-        # Placeholder for subject IDs. In a real scenario, these would be loaded from a file.
-        "subject_ids": ["100307", "100913", "101111"] 
-    }
-    return config
+    global _config
+    if not _config:
+        _config = DEFAULT_CONFIG.copy()
+        # Allow override from environment variables if needed
+        if 'WINDOW_LENGTH' in os.environ:
+            _config['window_length'] = int(os.environ['WINDOW_LENGTH'])
+        if 'STEP_SIZE' in os.environ:
+            _config['step_size'] = int(os.environ['STEP_SIZE'])
+        if 'FD_THRESHOLD' in os.environ:
+            _config['fd_threshold'] = float(os.environ['FD_THRESHOLD'])
+        if 'BATCH_SIZE' in os.environ:
+            _config['batch_size'] = int(os.environ['BATCH_SIZE'])
+        if 'N_SURROGATES' in os.environ:
+            _config['n_surrogates'] = int(os.environ['N_SURROGATES'])
+        if 'N_PERMUTATIONS' in os.environ:
+            _config['n_permutations'] = int(os.environ['N_PERMUTATIONS'])
+    return _config

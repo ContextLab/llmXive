@@ -29,12 +29,12 @@ T017:
     counts.
 T030:
   c: false
-  h: b6e2c4ea8ea75034670f2d357b103570120763768bf22a70316df9d008669971
-  r: The `code/evaluation/evaluate.py` file is present but its content is truncated
-    and does not contain the full implementation (e.g., loading `model_best.pt`, running
-    inference, saving metrics). Moreover, the required output file `results/evaluation_metrics.json`
-    is missing. Both the script and the generated results are absent, so the task
-    is not satisfied.
+  h: 7156581601a380d44d76e0b3790975ecd3fde580aababe50c0a5cadefc9753f2
+  r: "The provided `code/evaluation/evaluate.py` is truncated (ends with an incomplete\
+    \ `return` statement) and does not show the full inference loop or JSON\u2011\
+    writing logic. Moreover, the required output file `results/evaluation_metrics.json`\
+    \ is missing from the repository. Both the script implementation and the generated\
+    \ results artifact are absent, so the task is not satisfied."
 T034:
   c: false
   h: 3cc78b7daa46306be6bc89f7367d52b787506695ab9d9e04b5d8838c30110212

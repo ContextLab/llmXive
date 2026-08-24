@@ -1,84 +1,51 @@
-# Technical Design: Resting-State fMRI Variability Analysis
+# Technical Design Document
 
 ## Overview
 
-This document outlines the technical decisions and design rationales for the
-`llmXive` project focusing on predicting cognitive flexibility from resting-state
-functional connectivity (rsFC) variability.
+This document provides the technical justification for design decisions made in the
+llmXive automated science pipeline for predicting cognitive flexibility from
+resting-state functional connectivity variability.
+
+## Window Length Justification
+
+The default short-duration window is statistically invalid for the Schaefer 200 atlas due to rank deficiency and insufficient time points for stable correlation estimation. A 60s window is mandated by FR-003 to ensure robust metric stability.
+
+The Schaefer 200-parcel atlas requires a minimum number of time points to compute
+a stable correlation matrix. With a typical TR of 0.72s (HCP data), a 30s window
+yields approximately 42 time points. For 200 regions, this creates a 200x200
+correlation matrix where the effective degrees of freedom are insufficient for
+reliable estimation, leading to rank-deficient matrices and inflated variance in
+edge-wise metrics.
+
+FR-003 explicitly requires a 60s window to address this statistical limitation.
+A 60s window provides approximately 83 time points, which significantly improves
+the stability of correlation estimates and ensures that the computed variability
+metrics reflect true neural dynamics rather than estimation noise.
+
+This decision represents a justified deviation from the Constitution's Principle VII
+(which suggests shorter windows for dynamic analysis), as the statistical validity
+of the correlation estimates takes precedence over the theoretical benefit of
+higher temporal resolution in this specific context.
+
+## Artifact Schema Override
+
+The Plan's definition of `final_results.csv` containing `Variability_Component_1...N`
+is incorrect and superseded by the Spec's single `Variability_Metric` schema. The
+authoritative output contains a single `Variability_Metric` column (mean edge SD)
+as defined in the functional requirements.
+
+## Rejection of AR-Surrogates
+
+The Plan's suggestion to use AR-surrogates is rejected in favor of phase-shuffling
+as mandated by FR-008. Phase-shuffling preserves the power spectrum and autocorrelation
+structure of the original time series while destroying temporal dependencies that
+would create spurious dynamic connectivity patterns. This method is more appropriate
+for validating that observed variability exceeds what would be expected from linear
+stochastic processes.
 
 ## Configuration Parameters
 
-The primary configuration parameters are defined in `code/config.py`:
-- **Random Seed**: 42 (reproducibility)
-- **Sliding Window Duration**: 60 seconds
-- **Sliding Step**: 1 second
-- **FD Threshold**: 0.2 mm
-
-## Deviation from Constitution Principle VII: Window Duration Selection
-
-### Context
-
-Constitution Principle VII (Default Configuration) suggests a standard sliding
-window duration of 30 seconds for dynamic functional connectivity (dFC) analyses.
-However, this project explicitly deviates from that default, implementing a **60-second**
-window as mandated by Functional Requirement FR-003.
-
-### Justification for 60-Second Window
-
-The selection of a 60-second window over the default 30-second window is driven
-by the specific requirements of the **Schaefer 200 Parcellation** (Schaefer et al., 2018)
-and the stability requirements for correlation estimation in this context.
-
-1. **Stability of Correlation Estimates**:
- - Shorter windows (e.g., 30s) at typical TRs (e.g., 0.72s in HCP) yield approximately
- 42 timepoints per window. While this is the theoretical minimum for correlation
- estimation, it results in high variance and instability in the correlation coefficients,
- particularly for the weaker connections often found in the full 200-parcel network.
- - A 60-second window provides approximately 83 timepoints (at TR=0.72s), significantly
- improving the degrees of freedom and the statistical reliability of the Pearson
- correlation estimates.
-
-2. **Schaefer Atlas Resolution**:
- - The Schaefer 200 atlas divides the cortex into 200 regions of interest (ROIs). [UNRESOLVED-CLAIM: c_b57742fa — status=not_enough_info]
- - High-resolution atlases like this one often capture finer-grained functional
- distinctions, which may manifest as subtler connectivity patterns.
- - Simulations and empirical studies (e.g., *Shine et al., 2016*; *Hutchison et al., 2013*)
- indicate that for parcellations of this size and complexity, a minimum window length
- of 50-60 seconds is required to achieve a stable estimate of the connectivity matrix
- without excessive noise.
-
-3. **Functional Requirement FR-003**:
- - The project specification explicitly mandates: "The system shall use a sliding
- window of 60 seconds for dFC computation to ensure statistical stability with
- the Schaefer 200 atlas."
- - This requirement overrides the general Constitution default to ensure the
- scientific validity of the variability metrics (edge-wise SD and entropy)
- derived from the connectivity matrices.
-
-4. **Trade-off Analysis**:
- - **Temporal Resolution**: A 60s window reduces temporal resolution compared to 30s.
- However, the primary goal of this study is to estimate *variability* (standard deviation
- of edge weights) rather than rapid state transitions. The 60s window is sufficient
- to capture the relevant timescales of intrinsic neural fluctuations relevant to
- cognitive flexibility.
- - **Bias-Variance Trade-off**: While longer windows introduce a slight bias in detecting
- rapid state changes, they drastically reduce the variance of the correlation estimates.
- Given the high dimensionality of the 200x200 connectivity matrix, variance reduction
- is the critical factor for robust metric computation.
-
-### Conclusion
-
-The 60-second window duration is a scientifically grounded deviation from the default
-30-second configuration. It is necessary to satisfy FR-003 and ensure that the correlation
-matrices derived from the Schaefer 200 atlas are stable enough to compute meaningful
-variability metrics (SD and Entropy) for the prediction of cognitive flexibility.
-
-## References
-
-- Schaefer, A., et al. (2018). Local-Global Parcellation of the Human Cerebral Cortex
- from Intrinsic Functional Connectivity MRI. *Cerebral Cortex*, 28(9), 3095–3114.
-- Shine, J. M., et al. (2016). The dynamics of functional brain networks: Integrated
- network states during cognitive task performance. *Neuron*, 92(2), 544-554.
-- Hutchison, R. M., et al. (2013). Dynamic functional connectivity: promise, issues,
- and interpretations. *NeuroImage*, 80, 360-378.
-- Constitution Principle VII: Default Configuration for Sliding Window Analysis.
+- Window length: 60 seconds (FR-003)
+- Step size: 1 second
+- FD threshold: 0.2 mm (motion exclusion)
+- Seed: 42 (reproducibility)

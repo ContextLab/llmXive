@@ -1,3 +1,3 @@
 """
-Feature extraction and connectivity analysis modules.
+Feature extraction and connectivity metrics.
 """

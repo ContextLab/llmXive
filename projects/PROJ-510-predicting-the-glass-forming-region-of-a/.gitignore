@@ -4,9 +4,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
-venv/
-ENV/
 build/
 develop-eggs/
 dist/
@@ -23,13 +20,19 @@ wheels/
 .installed.cfg
 *.egg
 
+# Virtual environments
+env/
+venv/
+ENV/
+.env
+
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Data (Large files)
+# Data files (large)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
@@ -39,7 +42,19 @@ data/models/*
 
 # Logs
 *.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Secrets
+.env
+*.pem
+*.key

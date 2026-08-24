@@ -1,19 +1,12 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, W503
+extend-ignore = E203, E501, W503
 exclude =
     .git,
     __pycache__,
+    data,
     .venv,
-    venv,
-    build,
-    dist,
-    .eggs,
-    *.egg-info
+    venv
 per-file-ignores =
-    # Allow unused imports in __init__.py for exposing public API
-    */__init__.py: F401
-    # Allow unused arguments in test functions (pytest pattern)
-    tests/*.py: ARG001, ARG002
-# Ensure consistent formatting with Black
-max-complexity = 10
+    # Allow longer lines in test files for data assertions
+    tests/*: E501

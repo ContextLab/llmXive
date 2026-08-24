@@ -1,3 +1,24 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required project directories (`code/`, `data/`, `docs/`,\
+    \ `tests/`) is provided\u2014there is no `tree code/` output or any listing showing\
+    \ those folders exist. The implementer must supply a directory listing confirming\
+    \ the structure."
+T004b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `plan.md` file or its contents were provided, so we cannot confirm that the\
+    \ \u201CConstitution Check\u201D table now includes \u201CDEVIATION (Justified\
+    \ in technical-design.md)\u201D nor that the \u201CComplexity Tracking\u201D table\
+    \ marks \u201CAR Surrogate Null Model\u201D as \u201CREJECTED\u201D. The required\
+    \ artifact and its updated entries are missing."
+T004c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `plan.md` file or grep output was provided, and there is no evidence that
+    the garbled text in the Constitution Check table was replaced with the required
+    justification. The required artifact is missing, so the task is not satisfied.
 T012:
   c: false
   h: 5ff37a63a49bb18573666d0e6818b467748855820d44457f484e49af5374f418

@@ -1,159 +1,90 @@
-"""
-Logging utilities for the molecular properties prediction pipeline.
-
-This module provides centralized logging configuration and helper functions
-to ensure consistent logging across all data ingestion, preprocessing, and
-model training steps.
-"""
 import logging
 import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-# Configure a default logger for the project
-PROJECT_LOGGER_NAME = "llmXive.molecular_properties"
-
 def setup_logging(
+    log_level: int = logging.INFO,
     log_file: Optional[str] = None,
-    level: int = logging.INFO,
-    project_root: Optional[Path] = None
+    name: Optional[str] = None
 ) -> logging.Logger:
     """
-    Configure and return the project's main logger.
+    Setup logging configuration.
     
     Args:
-        log_file: Optional path to a log file. If None, logs only to stderr.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        project_root: Base directory for the project. Used to resolve relative log paths.
-    
+        log_level: Logging level (e.g., logging.INFO)
+        log_file: Optional path to log file
+        name: Logger name
+        
     Returns:
-        A configured logging.Logger instance.
+        Configured logger
     """
-    logger = logging.getLogger(PROJECT_LOGGER_NAME)
-    logger.setLevel(level)
+    logger = logging.getLogger(name)
+    logger.setLevel(log_level)
     
-    # Clear any existing handlers to avoid duplicates
+    # Avoid adding handlers multiple times
     if logger.handlers:
-        logger.handlers.clear()
+        return logger
     
-    # Formatter with timestamp, level, and message
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     
-    # Console handler (always present)
-    console_handler = logging.StreamHandler(sys.stderr)
-    console_handler.setLevel(level)
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     
-    # File handler (optional)
+    # File handler if specified
     if log_file:
-        log_path = Path(log_file)
-        if project_root and not log_path.is_absolute():
-            log_path = project_root / log_file
-        
-        # Ensure log directory exists
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        file_handler = logging.FileHandler(str(log_path))
-        file_handler.setLevel(level)
+        file_handler = logging.FileHandler(log_file)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
     
     return logger
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def get_logger(name: str) -> logging.Logger:
     """
-    Get a logger instance, optionally with a sub-namespace.
+    Get a logger with the given name.
     
     Args:
-        name: Optional sub-namespace (e.g., 'data.download', 'models.trainer').
-    
+        name: Logger name
+        
     Returns:
-        A logging.Logger instance.
+        Logger instance
     """
-    if name:
-        return logging.getLogger(f"{PROJECT_LOGGER_NAME}.{name}")
-    return logging.getLogger(PROJECT_LOGGER_NAME)
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        setup_logging(name=name)
+    return logger
 
-def log_data_ingestion_step(
-    logger: logging.Logger,
-    step_name: str,
-    input_count: Optional[int] = None,
-    output_count: Optional[int] = None,
-    discarded_count: Optional[int] = None,
-    mismatch_count: Optional[int] = None,
-    message: Optional[str] = None
-) -> None:
+def log_data_ingestion_step(step_name: str, count: Optional[int] = None, message: Optional[str] = None):
     """
-    Log a standardized data ingestion step with counts.
-    
-    This function ensures consistent logging format for data pipeline steps,
-    particularly useful for tracking dataset alignment, filtering, and
-    preprocessing operations.
+    Log a data ingestion step.
     
     Args:
-        logger: The logger instance to use.
-        step_name: Name of the step (e.g., 'align_datasets', 'filter_properties').
-        input_count: Number of records before the step.
-        output_count: Number of records after the step.
-        discarded_count: Number of records discarded (e.g., due to missing keys).
-        mismatch_count: Number of records with mismatched metadata.
-        message: Optional additional message.
+        step_name: Name of the step
+        count: Optional count (e.g., number of records processed)
+        message: Optional additional message
     """
-    log_parts = [f"Step: {step_name}"]
-    
-    if input_count is not None:
-        log_parts.append(f"Input: {input_count}")
-    
-    if output_count is not None:
-        log_parts.append(f"Output: {output_count}")
-    
-    if discarded_count is not None:
-        log_parts.append(f"Discarded: {discarded_count}")
-    
-    if mismatch_count is not None:
-        log_parts.append(f"Mismatches: {mismatch_count}")
-    
+    logger = get_logger("data.ingestion")
+    log_msg = f"Step: {step_name}"
+    if count is not None:
+        log_msg += f" | Count: {count}"
     if message:
-        log_parts.append(message)
-    
-    log_message = " | ".join(log_parts)
-    
-    # Determine log level based on discarded/mismatch counts
-    if discarded_count and discarded_count > 0:
-        logger.warning(log_message)
-    elif mismatch_count and mismatch_count > 0:
-        logger.warning(log_message)
-    else:
-        logger.info(log_message)
+        log_msg += f" | {message}"
+    logger.info(log_msg)
 
-def log_coverage_audit_result(
-    logger: logging.Logger,
-    property_name: str,
-    p_value: float,
-    threshold: float = 0.05
-) -> None:
+def log_coverage_audit_result(p_value: float, threshold: float = 0.05):
     """
-    Log the result of a coverage audit (KS-test) for a property.
+    Log the result of a coverage audit (KS-test).
     
     Args:
-        logger: The logger instance to use.
-        property_name: Name of the property being audited.
-        p_value: P-value from the statistical test.
-        threshold: Significance threshold (default 0.05).
+        p_value: P-value from the test
+        threshold: Significance threshold
     """
-    if p_value < threshold:
-        logger.warning(
-            f"Coverage Audit: Property '{property_name}' shows significant "
-            f"distribution shift (p={p_value:.4f} < {threshold}). "
-            "Selection bias detected."
-        )
-    else:
-        logger.info(
-            f"Coverage Audit: Property '{property_name}' distribution consistent "
-            f"(p={p_value:.4f} >= {threshold}). No significant bias detected."
-        )
+    logger = get_logger("data.audit")
+    status = "PASS" if p_value >= threshold else "WARNING (Selection Bias Detected)"
+    logger.info(f"Coverage Audit Result: {status} (p-value: {p_value:.4f}, threshold: {threshold})")

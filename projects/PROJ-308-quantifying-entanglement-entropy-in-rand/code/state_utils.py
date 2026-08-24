@@ -1,7 +1,8 @@
 """
-State Utilities for PROJ-308.
+State Utilities Module.
 
-Handles state directory structure, checksums, and artifact registration.
+Provides functions for managing project state, including directory structure,
+checksums, and artifact registration.
 """
 import os
 import json
@@ -10,183 +11,211 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 
+# Project root relative to this module
 PROJECT_ROOT = Path(__file__).parent.parent
 STATE_DIR = PROJECT_ROOT / "state"
 PROJECTS_DIR = STATE_DIR / "projects"
-STATE_FILE = PROJECTS_DIR / "PROJ-308-quantifying-entanglement-entropy-in-rand.yaml"
+ARTIFACTS_DIR = STATE_DIR / "artifacts"
+CHECKSUMS_FILE = PROJECTS_DIR / "checksums.json"
+STATE_FILE = PROJECTS_DIR / "state.json"
 
 def ensure_state_structure():
-    """
-    Ensure the state directory structure exists.
-    Creates: state/, state/projects/
-    """
+    """Create the required state directory structure if it doesn't exist."""
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
+    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 
 def compute_file_checksum(file_path: Path) -> str:
     """
-    Compute SHA256 checksum of a file.
+    Compute SHA-256 checksum of a file.
 
     Args:
         file_path: Path to the file.
 
     Returns:
-        Hex string of SHA256 hash.
+        Hex digest of the file's checksum.
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
+    sha256 = hashlib.sha256()
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
 def compute_directory_checksum(dir_path: Path) -> str:
     """
-    Compute a combined checksum for all files in a directory.
+    Compute a combined checksum of all files in a directory.
 
     Args:
         dir_path: Path to the directory.
 
     Returns:
-        Hex string of combined SHA256 hash.
+        Hex digest of the combined checksum.
     """
-    if not dir_path.exists():
-        raise FileNotFoundError(f"Directory not found: {dir_path}")
-
-    sha256_hash = hashlib.sha256()
-    # Sort files for deterministic ordering
-    files = sorted(dir_path.rglob("*"))
+    sha256 = hashlib.sha256()
+    # Sort files for deterministic order
+    files = sorted(dir_path.rglob('*'))
     for file_path in files:
         if file_path.is_file():
-            relative_path = file_path.relative_to(dir_path)
-            sha256_hash.update(relative_path.as_posix().encode())
-            with open(file_path, "rb") as f:
-                for chunk in iter(lambda: f.read(4096), b""):
-                    sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
+          # Include relative path in checksum to detect renames/moves
+          rel_path = file_path.relative_to(dir_path)
+          sha256.update(str(rel_path).encode('utf-8'))
+          with open(file_path, 'rb') as f:
+              for chunk in iter(lambda: f.read(8192), b''):
+                  sha256.update(chunk)
+    return sha256.hexdigest()
 
 def load_project_state() -> Dict[str, Any]:
     """
-    Load the project state file.
+    Load the current project state from disk.
 
     Returns:
-        Dict containing project state.
+        Dict representing the project state.
     """
+    ensure_state_structure()
     if not STATE_FILE.exists():
         return {
             "project_id": "PROJ-308-quantifying-entanglement-entropy-in-rand",
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat(),
+            "version": "0.1.0",
+            "created_at": datetime.now().isoformat(),
+            "last_updated": datetime.now().isoformat(),
+            "artifacts": {},
+            "checksums": {}
+        }
+    try:
+        with open(STATE_FILE, 'r') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {
+            "project_id": "PROJ-308-quantifying-entanglement-entropy-in-rand",
+            "version": "0.1.0",
+            "created_at": datetime.now().isoformat(),
+            "last_updated": datetime.now().isoformat(),
             "artifacts": {},
             "checksums": {}
         }
 
-    with open(STATE_FILE, 'r') as f:
-        return json.load(f)
-
 def save_project_state(state: Dict[str, Any]):
     """
-    Save the project state file.
+    Save the project state to disk.
 
     Args:
-        state: Dict containing project state.
+        state: Dict representing the project state.
     """
     ensure_state_structure()
-    state["updated_at"] = datetime.utcnow().isoformat()
+    state["last_updated"] = datetime.now().isoformat()
     with open(STATE_FILE, 'w') as f:
         json.dump(state, f, indent=2)
 
-def register_artifact(artifact_path: Path, artifact_name: str, artifact_type: str = "file"):
+def register_artifact(
+    artifact_path: Path,
+    artifact_type: str,
+    description: str,
+    metadata: Optional[Dict[str, Any]] = None
+):
     """
-    Register an artifact in the project state.
+    Register an artifact in the project state and compute its checksum.
 
     Args:
         artifact_path: Path to the artifact file.
-        artifact_name: Name to register the artifact under.
-        artifact_type: Type of artifact (file, directory, etc.).
+        artifact_type: Type of artifact (e.g., 'csv', 'png', 'txt').
+        description: Human-readable description.
+        metadata: Optional additional metadata.
     """
     if not artifact_path.exists():
         raise FileNotFoundError(f"Artifact not found: {artifact_path}")
 
     state = load_project_state()
+    rel_path = str(artifact_path.relative_to(PROJECT_ROOT))
+    checksum = compute_file_checksum(artifact_path)
 
-    if artifact_type == "file":
-        checksum = compute_file_checksum(artifact_path)
-    elif artifact_type == "directory":
-        checksum = compute_directory_checksum(artifact_path)
-    else:
-        raise ValueError(f"Unknown artifact type: {artifact_type}")
-
-    state["artifacts"][artifact_name] = {
-        "path": str(artifact_path.relative_to(PROJECT_ROOT)),
+    artifact_info = {
+        "path": rel_path,
         "type": artifact_type,
+        "description": description,
         "checksum": checksum,
-        "registered_at": datetime.utcnow().isoformat()
+        "size_bytes": artifact_path.stat().st_size,
+        "created_at": datetime.now().isoformat(),
+        "metadata": metadata or {}
     }
-    state["checksums"][artifact_name] = checksum
 
+    state["artifacts"][rel_path] = artifact_info
+    state["checksums"][rel_path] = checksum
     save_project_state(state)
 
-def verify_artifact_integrity(artifact_name: str) -> bool:
+def verify_artifact_integrity(artifact_path: Path) -> bool:
     """
-    Verify the integrity of a registered artifact.
+    Verify that an artifact's checksum matches the recorded one.
 
     Args:
-        artifact_name: Name of the artifact to verify.
+        artifact_path: Path to the artifact file.
 
     Returns:
-        True if integrity check passes, False otherwise.
+        True if checksum matches, False otherwise.
     """
-    state = load_project_state()
-    if artifact_name not in state["artifacts"]:
-        return False
-
-    artifact_info = state["artifacts"][artifact_name]
-    registered_checksum = artifact_info["checksum"]
-    artifact_path = PROJECT_ROOT / artifact_info["path"]
-
     if not artifact_path.exists():
         return False
 
-    if artifact_info["type"] == "file":
-        current_checksum = compute_file_checksum(artifact_path)
-    elif artifact_info["type"] == "directory":
-        current_checksum = compute_directory_checksum(artifact_path)
-    else:
+    state = load_project_state()
+    rel_path = str(artifact_path.relative_to(PROJECT_ROOT))
+
+    if rel_path not in state.get("checksums", {}):
         return False
 
-    return current_checksum == registered_checksum
+    current_checksum = compute_file_checksum(artifact_path)
+    recorded_checksum = state["checksums"][rel_path]
 
-def get_artifact_summary() -> Dict[str, Any]:
+    return current_checksum == recorded_checksum
+
+def get_artifact_summary(artifact_path: Path) -> Optional[Dict[str, Any]]:
     """
-    Get a summary of all registered artifacts.
+    Get summary information for a registered artifact.
+
+    Args:
+        artifact_path: Path to the artifact file.
 
     Returns:
-        Dict mapping artifact names to their info.
+        Dict with artifact info or None if not registered.
     """
     state = load_project_state()
-    return state.get("artifacts", {})
+    rel_path = str(artifact_path.relative_to(PROJECT_ROOT))
+    return state.get("artifacts", {}).get(rel_path)
 
-def generate_state_report() -> Dict[str, Any]:
+def generate_state_report(output_path: Optional[Path] = None) -> str:
     """
-    Generate a comprehensive state report.
+    Generate a text report of the current project state.
+
+    Args:
+        output_path: Optional path to write the report. If None, returns string.
 
     Returns:
-        Dict containing state report with artifacts, checksums, and unresolved summary.
+        Report as a string.
     """
-    from state_manager import get_unresolved_summary
-
     state = load_project_state()
-    unresolved_summary = get_unresolved_summary()
+    report_lines = [
+        f"Project State Report",
+        f"====================",
+        f"Project ID: {state.get('project_id', 'Unknown')}",
+        f"Version: {state.get('version', 'Unknown')}",
+        f"Created: {state.get('created_at', 'Unknown')}",
+        f"Last Updated: {state.get('last_updated', 'Unknown')}",
+        f"",
+        f"Registered Artifacts ({len(state.get('artifacts', {}))}):",
+        "-" * 40
+    ]
 
-    report = {
-        "project_id": state["project_id"],
-        "created_at": state.get("created_at"),
-        "updated_at": state.get("updated_at"),
-        "artifact_count": len(state.get("artifacts", {})),
-        "artifacts": state.get("artifacts", {}),
-        "unresolved_summary": unresolved_summary
-    }
+    for path, info in state.get("artifacts", {}).items():
+        report_lines.append(f"  - {path}")
+        report_lines.append(f"    Type: {info.get('type', 'Unknown')}")
+        report_lines.append(f"    Size: {info.get('size_bytes', 0)} bytes")
+        report_lines.append(f"    Checksum: {info.get('checksum', 'Unknown')[:16]}...")
+        report_lines.append(f"    Description: {info.get('description', 'N/A')}")
+        report_lines.append("")
+
+    report = "\n".join(report_lines)
+
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            f.write(report)
+
     return report

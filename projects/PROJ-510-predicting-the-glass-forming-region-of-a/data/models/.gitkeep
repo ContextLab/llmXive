@@ -1,2 +1,2 @@
-# This file ensures the data/models directory is tracked by git
-# but remains empty of actual model files (which are ignored by .gitignore)
+# This file ensures the data/models directory exists in git.
+# Actual model files should be ignored by the .gitignore in the parent directory.

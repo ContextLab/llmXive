@@ -175,6 +175,10 @@
     "classified_at": "2026-07-06T11:30:00Z",
     "verdict": false
   },
+  "PROJ-1020-llmxive-follow-up-extending-rynnworld-te::1.6.0": {
+    "classified_at": "2026-08-24T01:00:24Z",
+    "verdict": false
+  },
   "PROJ-1021-llmxive-follow-up-extending-alayaworld-l::1.6.0": {
     "classified_at": "2026-07-18T18:59:52Z",
     "verdict": false

@@ -1,154 +1,100 @@
-"""
-Project Structure Setup Module.
-
-This module ensures the creation of the required directory structure
-for the llmXive research pipeline as defined in plan.md.
-"""
 import os
 import sys
 import logging
 from typing import List
 
-# Configure logging for the setup process
+# Configure logging for the setup phase
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-
-def ensure_dir(directory_path: str) -> bool:
-    """
-    Ensure a directory exists, creating it if necessary.
-
-    Args:
-        directory_path: Absolute or relative path to the directory.
-
-    Returns:
-        True if the directory exists or was created successfully, False otherwise.
-    """
-    try:
-        if not os.path.exists(directory_path):
-            os.makedirs(directory_path, exist_ok=True)
-            logger.info(f"Created directory: {directory_path}")
-        else:
-            logger.debug(f"Directory already exists: {directory_path}")
-        return True
-    except PermissionError as e:
-        logger.error(f"Permission denied creating directory {directory_path}: {e}")
-        return False
-    except OSError as e:
-        logger.error(f"OS error creating directory {directory_path}: {e}")
-        return False
-
-
 def get_project_root() -> str:
     """
-    Determine the project root directory.
-
-    Assumes the script is run from the project root or a subdirectory.
-    Looks for the 'code' directory to anchor the root if running from within 'code'.
-
-    Returns:
-        Absolute path to the project root.
+    Returns the absolute path to the project root directory.
+    Assumes the script is run from the project root or code/ directory.
     """
-    current_dir = os.getcwd()
-    
-    # If we are inside 'code', go up one level
+    # If run from code/, go up one level. If run from root, stay.
+    current_dir = os.path.dirname(os.path.abspath(__file__))
     if os.path.basename(current_dir) == 'code':
         return os.path.dirname(current_dir)
-    
-    # Check if 'code' exists in current dir
-    if os.path.exists(os.path.join(current_dir, 'code')):
-        return current_dir
-    
-    # Fallback: assume current dir is root
-    logger.warning("Could not locate 'code' directory. Assuming current directory is root.")
     return current_dir
 
-
-def create_project_structure(root_path: str) -> bool:
+def ensure_dir(path: str) -> None:
     """
-    Create the standard project directory structure.
-
-    Creates:
-        - code/
-        - data/
-        - docs/
-        - tests/
-
-    Args:
-        root_path: The base path where the structure should be created.
-
-    Returns:
-        True if all directories were created/verified successfully.
+    Creates a directory if it does not exist.
     """
-    required_dirs = ['code', 'data', 'docs', 'tests']
-    success = True
+    if not os.path.exists(path):
+        os.makedirs(path)
+        logger.info(f"Created directory: {path}")
+    else:
+        logger.debug(f"Directory already exists: {path}")
 
-    for dir_name in required_dirs:
-        full_path = os.path.join(root_path, dir_name)
-        if not ensure_dir(full_path):
-            success = False
-            logger.error(f"Failed to create required directory: {dir_name}")
+def create_project_structure() -> List[str]:
+    """
+    Creates the standard project structure as defined in plan.md:
+    - code/
+    - data/
+    - docs/
+    - tests/
     
-    # Create subdirectories for better organization
-    subdirs = [
+    Returns a list of created/existing directory paths.
+    """
+    root = get_project_root()
+    logger.info(f"Project root identified at: {root}")
+    
+    directories = [
+        'code',
+        'data',
+        'docs',
+        'tests',
+        # Subdirectories for data organization
         os.path.join('data', 'raw'),
         os.path.join('data', 'processed'),
         os.path.join('data', 'results'),
+        os.path.join('data', 'reports'),
+        # Subdirectories for code organization
         os.path.join('code', 'data'),
-        os.path.join('code', 'utils'),
         os.path.join('code', 'features'),
         os.path.join('code', 'analysis'),
-        os.path.join('docs', 'specs')
+        os.path.join('code', 'utils'),
     ]
+    
+    created_paths = []
+    for dir_path in directories:
+        full_path = os.path.join(root, dir_path)
+        ensure_dir(full_path)
+        created_paths.append(full_path)
+    
+    return created_paths
 
-    for subdir in subdirs:
-        full_path = os.path.join(root_path, subdir)
-        if not ensure_dir(full_path):
-            success = False
-            logger.warning(f"Failed to create optional subdirectory: {subdir}")
-
-    return success
-
-
-def main() -> int:
+def main() -> None:
     """
-    Main entry point for the setup script.
-
-    Returns:
-        Exit code: 0 for success, 1 for failure.
+    Entry point for the setup script.
+    Creates the directory structure and prints verification info.
     """
     logger.info("Starting project structure setup...")
+    paths = create_project_structure()
     
+    logger.info("Project structure setup complete.")
+    logger.info(f"Created/Verified {len(paths)} directories:")
+    for p in paths:
+        logger.info(f"  - {p}")
+    
+    # Verification step: assert directories exist
     root = get_project_root()
-    logger.info(f"Project root detected at: {root}")
-
-    if create_project_structure(root):
-        logger.info("Project structure setup completed successfully.")
-        # Verification step
-        print("\nVerification: Running tree command logic...")
-        required = ['code', 'data', 'docs', 'tests']
-        all_exist = True
-        for d in required:
-            path = os.path.join(root, d)
-            exists = os.path.isdir(path)
-            status = "✓" if exists else "✗"
-            print(f"  {status} {d}/ : {exists}")
-            if not exists:
-                all_exist = False
-        
-        if all_exist:
-            print("\nAll required directories verified.")
-            return 0
-        else:
-            print("\nVerification FAILED: Some directories missing.")
-            return 1
+    required_dirs = ['code', 'data', 'docs', 'tests']
+    missing = []
+    for d in required_dirs:
+        if not os.path.isdir(os.path.join(root, d)):
+            missing.append(d)
+    
+    if missing:
+        logger.error(f"Verification failed: Missing directories: {missing}")
+        sys.exit(1)
     else:
-        logger.error("Project structure setup failed.")
-        return 1
+        logger.info("Verification passed: All required directories exist.")
 
-
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

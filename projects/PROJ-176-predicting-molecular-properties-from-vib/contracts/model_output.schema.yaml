@@ -1,79 +1,95 @@
-# Contract Schema: Model Output
-# Defines the expected structure of trained model checkpoints and inference outputs
-schema_version: "1.0"
-artifact_type: "model_checkpoint"
-source_tasks: ["T023", "T024", "T025", "T026"]
-
-file_format: "torchscript" or "pickle"
-location: "models/model_best.pt"
-
-architecture:
-  type: "1D-CNN"
-  blocks: 3
-  kernel_sizes: [9, 64, 64] # First block kernel=9, subsequent=64 (or as implemented)
-  filters: 64
-  heads:
-    - name: "dipole_moment"
-      output_dim: 3
-      loss_weight: 1.0
-    - name: "polarizability"
-      output_dim: 1
-      loss_weight: 1.0
-    - name: "homo_lumo_gap"
-      output_dim: 1
-      loss_weight: 1.0
-
-checkpoint_contents:
-  - name: "model_state_dict"
-    type: "dict"
-    description: "PyTorch state dictionary"
-  - name: "optimizer_state_dict"
-    type: "dict"
-    description: "Optimizer state (optional but recommended)"
-  - name: "epoch"
-    type: "int"
-    description: "Epoch number of best model"
-  - name: "val_loss"
-    type: "float"
-    description: "Validation loss at best epoch"
-  - name: "train_config"
-    type: "dict"
-    description: "Hyperparameters and training configuration"
-    required_keys:
-      - "learning_rate"
-      - "batch_size"
-      - "patience"
-      - "weight_decay"
-      - "seed"
-
-inference_output_schema:
-  file_format: "numpy.npz" or "json"
-  location: "results/predictions.npz"
-  required_arrays:
-    - name: "predicted_dipole"
-      shape: "(n_test, 3)"
-      dtype: "float32"
-    - name: "predicted_polarizability"
-      shape: "(n_test,)"
-      dtype: "float32"
-    - name: "predicted_gap"
-      shape: "(n_test,)"
-      dtype: "float32"
-    - name: "ground_truth_dipole"
-      shape: "(n_test, 3)"
-      dtype: "float32"
-    - name: "ground_truth_polarizability"
-      shape: "(n_test,)"
-      dtype: "float32"
-    - name: "ground_truth_gap"
-      shape: "(n_test,)"
-      dtype: "float32"
-    - name: "test_indices"
-      shape: "(n_test,)"
-      dtype: "int64"
-
-validation_rules:
-  - "Model must run on CPU without CUDA operations"
-  - "Output dimensions must match architecture definition"
-  - "No NaN/Inf in predictions"
-  - "Checkpoint must be loadable by PyTorch >= 2.0"
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Checkpoint and Output Schema
+description: >
+  Schema for the saved model checkpoint (model_best.pt) and its associated
+  inference outputs. This defines the structure of the model architecture
+  and the expected format of prediction results.
+type: object
+required:
+  - model_config
+  - training_config
+  - weights
+properties:
+  model_config:
+    type: object
+    description: Configuration of the 1D CNN architecture.
+    required:
+      - model_type
+      - input_dim
+      - output_dims
+      - kernel_sizes
+      - num_filters
+      - num_blocks
+    properties:
+      model_type:
+        type: string
+        const: MolecularPropertyCNN
+      input_dim:
+        type: integer
+        description: Input dimension (number of wavenumbers).
+      output_dims:
+        type: array
+        description: Output dimensions for each regression head.
+        items:
+          type: integer
+        enum:
+          - 1
+      kernel_sizes:
+        type: array
+        description: Kernel sizes for the three convolutional blocks.
+        items:
+          type: integer
+        const: [9, 64, 9] # Based on T025 spec: kernel sizes 9, 64, 9
+      num_filters:
+        type: integer
+        description: Number of filters per block.
+      num_blocks:
+        type: integer
+        const: 3
+      device:
+        type: string
+        description: Device used for training (CPU only enforced).
+        const: cpu
+  training_config:
+    type: object
+    description: Hyperparameters and settings used during training.
+    required:
+      - optimizer
+      - learning_rate
+      - patience
+      - loss_weights
+      - epochs_trained
+    properties:
+      optimizer:
+        type: string
+        const: Adam
+      learning_rate:
+        type: number
+        const: 0.001
+      patience:
+        type: integer
+        description: Patience for early stopping.
+        const: 10
+      loss_weights:
+        type: array
+        description: Weights for the weighted sum of losses from 3 heads.
+        items:
+          type: number
+        minItems: 3
+        maxItems: 3
+      epochs_trained:
+        type: integer
+        description: Number of epochs the model was trained for.
+      seed:
+        type: integer
+        description: Random seed used for reproducibility.
+  weights:
+    type: object
+    description: State dictionary of the model weights.
+    properties:
+      state_dict:
+        type: object
+        description: PyTorch state dictionary.
+      hash:
+        type: string
+        description: SHA-256 hash of the weights for integrity verification.

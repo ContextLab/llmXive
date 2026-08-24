@@ -1,4 +1,4 @@
-- artifact_hash: a280df2d1debb950038ffcf9b745bf7c8d64da568d311199c8244b3c1128e1d7
+- artifact_hash: 2375fe6945e5fb66270347b2b7b35281a5c6ae55a2f93678e444a3bb8c2707d9
   artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
   cite_id: c-001
   cited_authors: []
@@ -6,10 +6,10 @@
   fetched_title: null
   kind: url
   value: https://doi.org/10.1103/PhysRevLett.93.207204
-  verification_status: unreachable
+  verification_status: pending
   verified_against_url: https://link.aps.org/doi/10.1103/PhysRevLett.93.207204
-  verified_at: '2026-06-29T23:17:33.608920Z'
-- artifact_hash: a280df2d1debb950038ffcf9b745bf7c8d64da568d311199c8244b3c1128e1d7
+  verified_at: '2026-08-24T00:39:21.964027Z'
+- artifact_hash: 2375fe6945e5fb66270347b2b7b35281a5c6ae55a2f93678e444a3bb8c2707d9
   artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
   cite_id: c-002
   cited_authors: []
@@ -18,10 +18,10 @@
     and Dissipative Systems'
   kind: doi
   value: 10.1103/PhysRevLett.93.207204
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://doi.org/10.1103/physrevlett.93.207204
-  verified_at: '2026-06-29T23:17:33.608920Z'
-- artifact_hash: a379f6c89da37bdd235e1095c68ba95d4b704a5bf2e07c0da02ec4b7e1236127
+  verified_at: '2026-08-24T00:39:21.964027Z'
+- artifact_hash: d78fc8c42b65caf5c3236d7bfdc144adc9593e41a686f49713f3fb15f304f5b5
   artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -32,8 +32,8 @@
   value: https://arxiv.org/abs/1304.4292
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1304.4292
-  verified_at: '2026-08-18T18:29:10.126151Z'
-- artifact_hash: a379f6c89da37bdd235e1095c68ba95d4b704a5bf2e07c0da02ec4b7e1236127
+  verified_at: '2026-08-24T00:41:48.024590Z'
+- artifact_hash: d78fc8c42b65caf5c3236d7bfdc144adc9593e41a686f49713f3fb15f304f5b5
   artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -43,4 +43,4 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-08-18T18:29:10.126151Z'
+  verified_at: '2026-08-24T00:41:48.024590Z'

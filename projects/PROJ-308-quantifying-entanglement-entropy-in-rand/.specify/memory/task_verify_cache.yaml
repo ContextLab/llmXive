@@ -10,3 +10,17 @@ T013:
   r: No evidence was provided that `specs/PROJ-308-001-quantifying-entanglement/research.md`
     actually exists or is readable, nor any output from `test_research.py::test_file_exists`
     confirming the check. The required artifact and verification are missing.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was presented showing that `specs/PROJ-001-quantifying-entanglement/research.md`\
+    \ was edited to include the scaling ansatz and the Refael\u2011Moore citation,\
+    \ nor any output from `grep \"Refael-Moore\"` confirming its presence in `specs/PROJ-308-001-quantifying-entanglement/research.md`.\
+    \ The required files and content are missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `validator_output.log` (or any other evidence of the Reference\u2011Validator\
+    \ Agent having been run on the specified `research.md` file) was provided; without\
+    \ this log the claim that the citation was validated cannot be verified. The required\
+    \ artifact is missing."
