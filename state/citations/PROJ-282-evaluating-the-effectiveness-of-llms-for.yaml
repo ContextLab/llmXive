@@ -1,26 +1,3 @@
-- artifact_hash: 9578aa68443db194168fbf14fca45591b50bb60ed0e3e9111d4843759a82d6b8
-  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-modified.json.gz`
-  verification_status: pending
-  verified_against_url: https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-modified.json.gz
-  verified_at: '2026-08-17T21:36:27.081863Z'
-- artifact_hash: 9578aa68443db194168fbf14fca45591b50bb60ed0e3e9111d4843759a82d6b8
-  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2607.07974] A Multi-cluster Boundary Learning Method for Out-of-Scope
-    Intent Detection via MiniLM Embedding'
-  kind: url
-  value: https://arxiv.org/abs/2607.07974
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2607.07974
-  verified_at: '2026-08-17T21:36:27.081863Z'
 - artifact_hash: a87524948c60b5a9be26c0b0c025d5717089f0a471621ca7c6cb9299ee661ced
   artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/research.md
   cite_id: c-001
@@ -54,3 +31,58 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/jsvulndb/jsvulndb
   verified_at: '2026-08-21T21:38:23.742562Z'
+- artifact_hash: ab648fddd8598f117031b9e9ece043d25e3a5d79a396b0448e1b85f866e89b06
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/JSVulnDB/JSVulnDB/releases/download/v1.0/jsvulndb.zip`
+  verification_status: mismatch
+  verified_against_url: https://github.com/JSVulnDB/JSVulnDB/releases/download/v1.0/jsvulndb.zip
+  verified_at: '2026-08-24T05:13:33.453285Z'
+- artifact_hash: ab648fddd8598f117031b9e9ece043d25e3a5d79a396b0448e1b85f866e89b06
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/NISTJulietTestSuite/Juliet-Test-Suite.git`
+  verification_status: mismatch
+  verified_against_url: https://github.com/NISTJulietTestSuite/Juliet-Test-Suite
+  verified_at: '2026-08-24T05:13:33.453285Z'
+- artifact_hash: ab648fddd8598f117031b9e9ece043d25e3a5d79a396b0448e1b85f866e89b06
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/VulDeePecker/VulDeePecker/releases/download/v1.0/vuldeepecker_python.zip`
+  verification_status: mismatch
+  verified_against_url: https://github.com/VulDeePecker/VulDeePecker/releases/download/v1.0/vuldeepecker_python.zip
+  verified_at: '2026-08-24T05:13:33.453285Z'
+- artifact_hash: ab648fddd8598f117031b9e9ece043d25e3a5d79a396b0448e1b85f866e89b06
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-modified.json.gz`
+  verification_status: pending
+  verified_against_url: https://nvd.nist.gov/feeds/json/cve/1.1/nvdcve-1.1-modified.json.gz
+  verified_at: '2026-08-24T05:13:33.453285Z'
+- artifact_hash: ab648fddd8598f117031b9e9ece043d25e3a5d79a396b0448e1b85f866e89b06
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/OWASP/Benchmark/releases/download/v1.2/owasp-benchmark-v1.2.zip`
+  verification_status: mismatch
+  verified_against_url: https://github.com/OWASP/Benchmark/releases/download/v1.2/owasp-benchmark-v1.2.zip
+  verified_at: '2026-08-24T05:13:33.453285Z'
