@@ -2199,3 +2199,206 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-20T10:23:52Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: User Story 1 requires p-value < 0.05 and >15% success rate improvement
+  claim_id: c_bc2381bf
+  context: 'Independent Test: Run adaptive vs static policies on a set of novel objects
+    with randomized friction (low to moderate). Verify paired t-test p-value < 0.05
+    and success rate improvement >15% for high-friction cases.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 1 requires verifying a paired t-test
+    p-value < 0.05 and success rate improvement >15% for high-friction cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:30:08Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: User Story 1 goal is >15% improvement over static baseline
+  claim_id: c_dd3c070d
+  context: 'Goal: Implement the full adaptive policy loop that detects friction via
+    $k_{est}$ and adjusts rewards, verifying >15% improvement over static baseline
+    on novel high-friction objects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The goal of User Story 1 is to verify >15% improvement over static baseline
+    on novel high-friction objects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:30:36Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: User Story 3 test on GitHub Actions free-tier runner
+  claim_id: c_3e230b6a
+  context: 'Independent Test: Execute full pipeline on GitHub Actions free-tier runner
+    with limited CPU and memory resources. Measure wall-clock time and peak memory.
+    Verify no CUDA errors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 3 requires executing the full pipeline
+    on a GitHub Actions free-tier runner with limited CPU and memory resources.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:31:17Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: User Story 2 test verifies linear correlation between k_est and ground-truth
+    friction
+  claim_id: c_ffa715c6
+  context: 'Independent Test: Inject known friction values, record torque/velocity
+    derivatives, and verify linear correlation between $k_{est}$ and ground-truth
+    friction. Verify stability under noise (moving average) and stiction (epsilon
+    clamp).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 2 requires verifying linear correlation
+    between $k_{est}$ and ground-truth friction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:32:02Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 2
+  canonical: User Story 3 goal is 6h runtime and 7GB RAM on CPU-only
+  claim_id: c_1caf8dbd
+  context: 'Goal: Ensure the entire experiment (data gen, training, eval, analysis)
+    runs within 6 hours and 7GB RAM on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The goal of User Story 3 is to ensure the entire experiment runs within
+    6 hours and 7GB RAM on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:32:50Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: T005a uses moving average filter with window size 5
+  claim_id: c_52ead9cc
+  context: 'T005a [P] Implement `VirtualTactileEstimator` class... Requirement: Implement
+    a moving average filter (window size = 5) on the torque derivative signal before
+    computing the ratio.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation of T005a uses a moving average filter with a window
+    size of 5 on the torque derivative signal.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:33:18Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: T005a applies epsilon clamping of 1e-4
+  claim_id: c_a789551a
+  context: "T005a [P] Implement `VirtualTactileEstimator` class... Requirement: Implement\
+    \ stiction handling: apply a small epsilon ($\epsilon = 10^{-4}$) to the denominator\
+    \ to prevent division by zero, ensuring $k_{est}$ remains finite but high."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The implementation of T005a applies a small epsilon ($\epsilon = 10^{-4}$)\
+    \ to the denominator to prevent division by zero."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:33:59Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 2
+  canonical: T013c partitions into varying friction (0.1-0.7) and high friction (0.8-1.2)
+    subsets
+  claim_id: c_00b5f429
+  context: "T013c [US1] Partition generated object set into subsets... Explicitly\
+    \ partition the generated set into a 'varying friction' subset (friction in the\
+    \ low-to-moderate range) and a 'high friction' subset (0.8\u20131.2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T013c explicitly partitions the generated set into a 'varying friction'\
+    \ subset (friction in the low-to-moderate range 0.1-0.7) and a 'high friction'\
+    \ subset (0.8\u20131.2)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:34:17Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: T015d validates improvement_pct_varying >= 10% for 0.1-0.7 subset
+  claim_id: c_4621e2ba
+  context: "T015d [US1] Validate varying friction improvement against SC-002: Read\
+    \ `data/results/analysis_validation.json` and verify that `improvement_pct_varying`\
+    \ (success rate improvement for the 'varying friction' subset 0.1\u20130.7) is\
+    \ at least 10%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/T015d_validates_improvement_pct_varying_%3E=_10%25_for_0.1-0.7_s
+  kind: magnitude
+  raw_text: "T015d validates that `improvement_pct_varying` (success rate improvement\
+    \ for the 'varying friction' subset 0.1\u20130.7) is at least 10%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:35:06Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: T015c validates p_value < 0.05
+  claim_id: c_c873bd0f
+  context: 'T015c [US1] Validate statistical significance against **SC-005**: Read
+    `data/results/analysis_validation.json` and verify `p_value < 0.05`. **Fail the
+    CI pipeline if p-value >= 0.05**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T015c validates statistical significance by verifying `p_value < 0.05`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:35:42Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 2
+  canonical: T013a uses friction range 0.1-1.2
+  claim_id: c_e32c90a7
+  context: T013a [US1] Generate NovelObjectSet for zero-shot evaluation... Execute
+    `python code/generator.py --count --seed 42 --friction-min 0.1 --friction-max
+    1.2 --output data/generated/` to generate a dataset of sufficient size for the
+    study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T013a uses explicit numeric friction ranges of 0.1\u20131.2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T06:36:11Z'

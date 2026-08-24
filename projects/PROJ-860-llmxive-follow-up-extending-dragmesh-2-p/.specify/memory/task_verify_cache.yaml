@@ -1,19 +1,21 @@
-T001a:
+T005c:
+  c: false
+  h: 3d328d26dd8377421c23a7cf586fb408356c1f3d6c40f71af3a176d93e8a5514
+  r: "The `verify_manifest.py` script records the checksum under `artifact_hashes['data_raw_manifest']`\
+    \ instead of the required `artifact_hashes.data_raw`, and the state YAML file\
+    \ does not contain any entry for the manifest hash. Moreover, no manifest file\
+    \ is present to compute a SHA256, and the script\u2019s truncated portion does\
+    \ not show the required `FileNotFoundError` handling. The task\u2019s core requirement\u2014\
+    recording the manifest\u2019s SHA256 in the correct field after confirming the\
+    \ file exists\u2014is therefore unmet."
+T008c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code`, `tests`, `data/raw`, `data/generated`,
-    `data/results`, `state/projects`) being created is present; the response contains
-    only task description and specifications, without any artifact (e.g., directory
-    listing, screenshots, or file manifest) confirming the repository layout.
-T001c:
-  c: false
-  h: b6999dfad861f6fe5976b3d8d7d312eb1f0b9938f59a86e6963c2b1917243836
-  r: "The `checksum_config.py` script correctly implements the required logic, but\
-    \ the target files `requirements.txt` and `pytest.ini` do not exist, and the state\
-    \ YAML contains fabricated hash values for them. Without those files present (and\
-    \ real hashes computed), the task\u2019s pre\u2011check fails and the output is\
-    \ not genuine. The missing files must be added and the script re\u2011run to produce\
-    \ valid checksums."
+  r: "No execution logs, output files, or any other artifact showing that `validate_citations.py`\
+    \ was run against the DragMesh\u20112 and PICA baseline citations is present.\
+    \ Consequently there is no evidence that citations were validated or that the\
+    \ pipeline would halt on a failure. The required proof of execution and its result\
+    \ is missing."
 T024:
   c: false
   h: f3685779d0ac6aa46131840d3578e1ce36108930e3c0213bbb65e10b0a76f1e2

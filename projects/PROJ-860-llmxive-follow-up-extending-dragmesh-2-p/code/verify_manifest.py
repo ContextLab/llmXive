@@ -8,6 +8,9 @@ Implements Constitution Principle III: Data Integrity Verification.
 
 IMPORTANT: This script respects read-only constraints on data/raw.
 It does NOT write to data/raw/.checksums. It only writes to state/projects.
+
+Task T005e: Executes the verification logic implemented in T005b against
+the data fetched in T005d.
 """
 
 import os
@@ -44,10 +47,10 @@ EXPECTED_MANIFEST_HASH: Optional[str] = None  # Will be computed on first run
 def compute_file_sha256(file_path: Path) -> str:
     """
     Compute SHA256 hash of a file.
-    
+
     Args:
         file_path: Path to the file to hash
-        
+
     Returns:
         Hexadecimal SHA256 hash string
     """
@@ -68,20 +71,21 @@ def ensure_dirs() -> None:
 def update_state_file(manifest_hash: str) -> None:
     """
     Update the project state file with the manifest checksum.
-    
+
     Args:
         manifest_hash: SHA256 hash of the manifest file
     """
     state = load_state(STATE_FILE)
-    
+
     if 'artifact_hashes' not in state:
         state['artifact_hashes'] = {}
-    
+
+    # Record under data_raw_manifest to satisfy task requirement
     state['artifact_hashes']['data_raw_manifest'] = manifest_hash
     # Use a simple timestamp format without external dependencies
     from datetime import datetime, timezone
     state['updated_at'] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    
+
     save_state(STATE_FILE, state)
     logger.info(f"Updated state file {STATE_FILE} with manifest checksum")
 
@@ -89,65 +93,61 @@ def update_state_file(manifest_hash: str) -> None:
 def verify_manifest_integrity(expected_hash: Optional[str] = None) -> bool:
     """
     Verify the integrity of the DragMesh-2 manifest.
-    
+
+    This function executes the verification logic from T005b against the
+    data fetched in T005d.
+
     Args:
         expected_hash: Optional expected hash to compare against
-        
+
     Returns:
         True if verification passes (or if file is missing but logged), False otherwise
+
+    Raises:
+        FileNotFoundError: If the manifest is missing or empty (per task requirement)
+        ConnectionError: If the fetch fails (per T005b requirement)
     """
     ensure_dirs()
-    
+
     # Fetch the manifest (this will raise if fetch fails)
-    logger.info("Fetching DragMesh-2 manifest...")
+    # This calls the logic implemented in T005b/T005d
+    logger.info("Executing fetcher verification on fetched data (T005e)...")
     try:
         manifest_path = fetch_dragmesh_manifest()
+    except ConnectionError as ce:
+        logger.error(f"Fetch failed with ConnectionError: {ce}")
+        raise
+    except FileNotFoundError as fnf:
+        logger.error(f"Fetch failed with FileNotFoundError: {fnf}")
+        raise
     except Exception as e:
         logger.error(f"Failed to fetch manifest: {e}")
-        raise
-    
+        # Re-raise as FileNotFoundError to halt pipeline as per T005e requirement
+        raise FileNotFoundError(f"Manifest fetch failed: {e}") from e
+
+    # T005b Logic: Verify manifest exists
     if not manifest_path.exists():
-        logger.warning(f"Manifest file not found at {manifest_path}")
-        logger.warning("Recording MISSING_DATA status in state file.")
-        
-        # Record MISSING_DATA status
-        state = load_state(STATE_FILE)
-        if 'artifact_hashes' not in state:
-            state['artifact_hashes'] = {}
-        state['artifact_hashes']['data_raw_manifest'] = 'MISSING_DATA'
-        from datetime import datetime, timezone
-        state['updated_at'] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        save_state(STATE_FILE, state)
-        return False
-    
-    # Check if file is empty
+        logger.error(f"Manifest file not found at {manifest_path}")
+        raise FileNotFoundError(f"Manifest file not found at {manifest_path}")
+
+    # T005b Logic: Verify manifest is non-empty
     if manifest_path.stat().st_size == 0:
-        logger.warning(f"Manifest file at {manifest_path} is empty.")
-        logger.warning("Recording MISSING_DATA status in state file.")
-        
-        # Record MISSING_DATA status
-        state = load_state(STATE_FILE)
-        if 'artifact_hashes' not in state:
-            state['artifact_hashes'] = {}
-        state['artifact_hashes']['data_raw_manifest'] = 'MISSING_DATA'
-        from datetime import datetime, timezone
-        state['updated_at'] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        save_state(STATE_FILE, state)
-        return False
-    
+        logger.error(f"Manifest file at {manifest_path} is empty.")
+        raise FileNotFoundError(f"Manifest file at {manifest_path} is empty.")
+
     # Compute the checksum
     logger.info(f"Computing SHA256 for {manifest_path}...")
     manifest_hash = compute_file_sha256(manifest_path)
     logger.info(f"Manifest checksum: {manifest_hash}")
-    
+
     # Compare against expected hash if provided
     if expected_hash and manifest_hash != expected_hash:
         logger.error(f"Checksum mismatch! Expected: {expected_hash}, Got: {manifest_hash}")
         return False
-    
+
     # Update project state file
     update_state_file(manifest_hash)
-    
+
     logger.info("Manifest integrity verification complete.")
     return True
 
@@ -155,7 +155,7 @@ def verify_manifest_integrity(expected_hash: Optional[str] = None) -> bool:
 def main() -> int:
     """
     Main entry point for manifest verification.
-    
+
     Returns:
         Exit code (0 for success, 1 for failure)
     """
@@ -165,8 +165,14 @@ def main() -> int:
             logger.info("VERIFICATION SUCCESSFUL")
             return 0
         else:
-            logger.error("VERIFICATION FAILED: Checksum mismatch or missing data")
+            logger.error("VERIFICATION FAILED: Checksum mismatch")
             return 1
+    except FileNotFoundError as e:
+        logger.error(f"VERIFICATION FAILED: {e}")
+        return 1
+    except ConnectionError as e:
+        logger.error(f"VERIFICATION FAILED: {e}")
+        return 1
     except Exception as e:
         logger.error(f"VERIFICATION FAILED: {e}")
         return 1
