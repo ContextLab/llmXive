@@ -1,5 +1,2 @@
 artifact_hashes:
-  data_raw_bronze_parquet: placeholder_hash_to_be_replaced_by_real_download
-# Note: This file is created by the ingest.py script upon successful download.
-# The hash value above is a placeholder. The actual value will be written
-# by write_state_hash() after a successful download and verification.
+  data_raw_bronze: "77dcce1d1e00be41dff0294d1fae083258dcf6816f6c6940bc97626beae1d5cf"

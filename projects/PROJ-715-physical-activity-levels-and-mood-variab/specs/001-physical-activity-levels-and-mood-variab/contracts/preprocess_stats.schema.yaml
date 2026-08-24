@@ -1,0 +1,13 @@
+type: object
+required:
+  - excluded_days_count
+  - reason
+properties:
+  excluded_days_count:
+    type: integer
+    minimum: 0
+    description: Number of days excluded during preprocessing
+  reason:
+    type: string
+    description: Explanation for exclusion (e.g., "n_mood_ratings < 2 or count == 0")
+additionalProperties: false

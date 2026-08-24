@@ -7,3 +7,4 @@ numpy
 pyarrow
 jinja2
 weasyprint
+scipy  # auto-added: imported by run-book but missing from venv

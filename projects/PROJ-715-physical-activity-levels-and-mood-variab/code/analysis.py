@@ -7,384 +7,373 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
+import scipy.stats as stats
+from statsmodels.stats.diagnostic import het_breuschpagan
+import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from statsmodels.formula.api import mixedlm
+
 from config import get_path, set_random_seed, BOOTSTRAP_ITERATIONS, RANDOM_SEED
 
-# Set up logging
+# Configure logging
 logger = logging.getLogger(__name__)
 
 def load_daily_aggregates() -> pd.DataFrame:
     """Load the daily aggregates CSV file."""
     path = get_path('data/processed/daily_aggregates.csv')
     if not os.path.exists(path):
-        raise FileNotFoundError(f"Daily aggregates file not found at {path}. Run preprocessing first.")
+        raise FileNotFoundError(f"Daily aggregates file not found at {path}. Run preprocess.py first.")
     return pd.read_csv(path)
 
 def load_model_results() -> Dict[str, Any]:
-    """Load the model results JSON file."""
+    """Load model results from JSON file if it exists."""
     path = get_path('data/processed/model_results.json')
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Model results file not found at {path}. Run analysis first.")
-    with open(path, 'r') as f:
-        return json.load(f)
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            return json.load(f)
+    return {}
 
 def save_model_results(results: Dict[str, Any]) -> None:
-    """Save the model results to a JSON file."""
+    """Save model results to JSON file."""
     path = get_path('data/processed/model_results.json')
     with open(path, 'w') as f:
         json.dump(results, f, indent=2)
+    logger.info(f"Results saved to {path}")
 
-def validate_raw_mood_std() -> bool:
-    """Validate that mood_std column contains no negative values or NaNs."""
-    df = load_daily_aggregates()
+def validate_raw_mood_std(df: pd.DataFrame) -> bool:
+    """
+    Validate that the mood_std column contains no negative values or NaNs.
+    Returns True if valid, False otherwise.
+    """
     if 'mood_std' not in df.columns:
-        raise ValueError("mood_std column not found in daily_aggregates.csv")
-    
-    has_negative = (df['mood_std'] < 0).any()
-    has_nan = df['mood_std'].isna().any()
-    
-    if has_negative or has_nan:
-        logger.error(f"Validation failed: mood_std has negative={has_negative}, nan={has_nan}")
+        logger.error("Column 'mood_std' not found in dataframe.")
         return False
     
-    logger.info("mood_std validation passed")
+    if df['mood_std'].isna().any():
+        logger.error("mood_std contains NaN values.")
+        return False
+    
+    if (df['mood_std'] < 0).any():
+        logger.error("mood_std contains negative values.")
+        return False
+    
+    logger.info("mood_std validation passed.")
     return True
 
-def apply_log_transform(mood_std: pd.Series) -> pd.Series:
-    """Apply log transform to mood_std with offset to handle zero values."""
-    return np.log(mood_std + 0.01)
+def apply_log_transform(mood_std: np.ndarray) -> np.ndarray:
+    """
+    Apply log transform to mood_std with epsilon offset.
+    This is the SINGLE authorized mechanism for log transformation.
+    """
+    epsilon = 1e-8
+    return np.log(mood_std + epsilon)
 
-def fit_lmm_variability(df: pd.DataFrame) -> Any:
-    """Fit linear mixed-effects model for mood variability."""
-    # Apply log transform
+def fit_lmm_variability(df: pd.DataFrame) -> Optional[Any]:
+    """
+    Fit Linear Mixed Model with log-transformed mood_std as outcome.
+    Outcome: log(mood_std + epsilon)
+    Predictor: total_steps
+    Random effects: random intercepts for participant_id
+    """
+    if not validate_raw_mood_std(df):
+        return None
+    
+    # Prepare data
     df = df.copy()
-    df['log_mood_std'] = apply_log_transform(df['mood_std'])
+    df['log_mood_std'] = apply_log_transform(df['mood_std'].values)
     
-    # Prepare formula
-    formula = "log_mood_std ~ total_steps + sleep_duration + C(day_of_week) + baseline_affect"
+    # Handle missing values in predictor
+    df = df.dropna(subset=['total_steps', 'log_mood_std', 'participant_id'])
     
-    # Fit model
-    model = mixedlm(formula, df, groups=df["participant_id"])
-    result = model.fit()
+    if df.empty:
+        logger.error("No valid data remaining for LMM variability model.")
+        return None
     
-    return result
-
-def fit_lmm_mean(df: pd.DataFrame) -> Any:
-    """Fit linear mixed-effects model for mean mood."""
-    formula = "mean_mood ~ total_steps + sleep_duration + C(day_of_week) + baseline_affect"
+    # Formula: log_mood_std ~ total_steps + sleep_duration + C(day_of_week) + baseline_affect
+    # We need to handle potential NaNs in covariates
+    formula = "log_mood_std ~ total_steps"
     
-    model = mixedlm(formula, df, groups=df["participant_id"])
-    result = model.fit()
+    # Add covariates if they exist and are not all NaN
+    covariates = ['sleep_duration', 'baseline_affect']
+    for cov in covariates:
+        if cov in df.columns and df[cov].notna().any():
+            formula += f" + {cov}"
     
-    return result
-
-def extract_model_coefficients(result: Any) -> Dict[str, Dict[str, float]]:
-    """Extract fixed-effect coefficients from a mixed model result."""
-    fixed_effects = {}
-    params = result.params
-    std_errors = result.bse
-    conf_int = result.conf_int()
-    
-    for name, param in params.items():
-        if name != "Group Var":  # Skip random effect variance
-            fixed_effects[name] = {
-                "estimate": float(param),
-                "std_err": float(std_errors[name]),
-                "p_value": float(result.pvalues[name]),
-                "ci_lower": float(conf_int.loc[name, 0]),
-                "ci_upper": float(conf_int.loc[name, 1])
-            }
-    
-    return fixed_effects
-
-def run_model_diagnostics(result: Any) -> Dict[str, Any]:
-    """Run model diagnostics and return results."""
-    # Extract residuals
-    residuals = result.resid
-    
-    # Shapiro-Wilk test for normality
-    from scipy.stats import shapiro
-    shapiro_stat, shapiro_p = shapiro(residuals)
-    
-    # Breusch-Pagan test for heteroscedasticity
-    from statsmodels.stats.diagnostic import het_breuschpagan
-    bp_test = het_breuschpagan(residuals, result.model.exog)
-    
-    return {
-        "shapiro_wilk": {"statistic": float(shapiro_stat), "p_value": float(shapiro_p)},
-        "breusch_pagan": {
-            "statistic": float(bp_test[0]),
-            "p_value": float(bp_test[1]),
-            "lm_p_value": float(bp_test[3])
-        }
-    }
-
-def run_lopo_cv(df: pd.DataFrame) -> Tuple[float, float]:
-    """Run leave-one-participant-out cross-validation."""
-    participants = df['participant_id'].unique()
-    n_participants = len(participants)
-    rmse_values = []
-    sign_consistency_count = 0
-    
-    # Get original model coefficient sign
-    original_result = fit_lmm_variability(df)
-    original_coef = extract_model_coefficients(original_result)['total_steps']['estimate']
-    original_sign = np.sign(original_coef)
-    
-    for i, participant in enumerate(participants):
-        # Split data
-        train_df = df[df['participant_id'] != participant]
-        test_df = df[df['participant_id'] == participant]
-        
-        # Fit model on training data
-        try:
-            lopo_result = fit_lmm_variability(train_df)
-            lopo_coef = extract_model_coefficients(lopo_result)['total_steps']['estimate']
-            lopo_sign = np.sign(lopo_coef)
-            
-            if lopo_sign == original_sign:
-                sign_consistency_count += 1
-            
-            # Calculate RMSE on test set
-            predictions = lopo_result.predict(train_df)
-            # Note: This is a simplified RMSE calculation
-            # In practice, we'd need to map predictions back to test set
-            rmse_values.append(0.0)  # Placeholder
-        except Exception as e:
-            logger.warning(f"LOPO fold {i} failed: {e}")
-            continue
-    
-    avg_rmse = np.mean(rmse_values) if rmse_values else 0.0
-    sign_consistency_pct = (sign_consistency_count / n_participants * 100) if n_participants > 0 else 0.0
-    
-    return avg_rmse, sign_consistency_pct
-
-def run_sensitivity_weekdays(df: pd.DataFrame) -> bool:
-    """Run sensitivity analysis for weekdays only."""
-    weekdays_df = df[df['day_of_week'] < 5]  # 0-4 are Mon-Fri
-    
-    if len(weekdays_df) == 0:
-        logger.warning("No weekdays data available for sensitivity analysis")
-        return False
+    if 'day_of_week' in df.columns:
+        formula += " + C(day_of_week)"
     
     try:
-        model = fit_lmm_variability(weekdays_df)
-        coef = extract_model_coefficients(model)['total_steps']['estimate']
+        model = mixedlm(formula, df, groups=df["participant_id"])
+        result = model.fit()
         
-        # Compare sign with full model
-        full_model = fit_lmm_variability(df)
-        full_coef = extract_model_coefficients(full_model)['total_steps']['estimate']
+        if not result.converged:
+            logger.warning("LMM variability model did not converge.")
         
-        return np.sign(coef) == np.sign(full_coef)
+        return result
     except Exception as e:
-        logger.warning(f"Weekdays sensitivity analysis failed: {e}")
-        return False
+        logger.error(f"Failed to fit LMM variability model: {e}")
+        return None
 
-def run_sensitivity_active_minutes(df: pd.DataFrame) -> bool:
-    """Run sensitivity analysis using active minutes instead of steps."""
-    # Create active_minutes column (placeholder - in reality, this would be derived from raw data)
-    df_copy = df.copy()
-    df_copy['active_minutes'] = df_copy['total_steps'] * 0.5  # Simplified conversion
+def fit_lmm_mean(df: pd.DataFrame) -> Optional[Any]:
+    """
+    Fit Linear Mixed Model with mean_mood as outcome.
+    Outcome: mean_mood
+    Predictor: total_steps
+    Random effects: random intercepts for participant_id
+    """
+    # Prepare data
+    df = df.copy()
+    df = df.dropna(subset=['total_steps', 'mean_mood', 'participant_id'])
     
-    # Fit model with active_minutes
-    formula = "log_mood_std ~ active_minutes + sleep_duration + C(day_of_week) + baseline_affect"
-    model = mixedlm(formula, df_copy, groups=df_copy["participant_id"])
-    result = model.fit()
+    if df.empty:
+        logger.error("No valid data remaining for LMM mean model.")
+        return None
     
-    coef = result.params['active_minutes']
+    formula = "mean_mood ~ total_steps"
     
-    # Compare sign with original model
-    original_model = fit_lmm_variability(df)
-    original_coef = extract_model_coefficients(original_model)['total_steps']['estimate']
+    # Add covariates if they exist and are not all NaN
+    covariates = ['sleep_duration', 'baseline_affect']
+    for cov in covariates:
+        if cov in df.columns and df[cov].notna().any():
+            formula += f" + {cov}"
     
-    return np.sign(coef) == np.sign(original_coef)
-
-def run_sensitivity_single_rating_bootstrap(df: pd.DataFrame) -> Tuple[float, bool]:
-    """Run bootstrap sensitivity analysis for single-rating handling."""
-    set_random_seed(RANDOM_SEED)
+    if 'day_of_week' in df.columns:
+        formula += " + C(day_of_week)"
     
-    # Split data: exclude single-rating days vs impute with median
-    single_rating_mask = df.groupby('participant_id')['n_mood_ratings'].transform('min') == 1
-    exclude_df = df[~single_rating_mask]
-    impute_df = df.copy()
-    
-    # Impute single-rating days with participant median
-    for pid in impute_df['participant_id'].unique():
-        pid_mask = impute_df['participant_id'] == pid
-        median_mood = impute_df.loc[pid_mask, 'mean_mood'].median()
-        impute_df.loc[pid_mask & single_rating_mask, 'mean_mood'] = median_mood
-    
-    consistent_count = 0
-    
-    for i in range(BOOTSTRAP_ITERATIONS):
-        # Bootstrap sample
-        exclude_sample = exclude_df.sample(n=len(exclude_df), replace=True, random_state=i)
-        impute_sample = impute_df.sample(n=len(impute_df), replace=True, random_state=i+BOOTSTRAP_ITERATIONS)
+    try:
+        model = mixedlm(formula, df, groups=df["participant_id"])
+        result = model.fit()
         
-        try:
-            # Fit models
-            exclude_model = fit_lmm_variability(exclude_sample)
-            impute_model = fit_lmm_variability(impute_sample)
-            
-            exclude_coef = extract_model_coefficients(exclude_model)['total_steps']['estimate']
-            impute_coef = extract_model_coefficients(impute_model)['total_steps']['estimate']
-            
-            if np.sign(exclude_coef) == np.sign(impute_coef):
-                consistent_count += 1
-        except Exception as e:
-            logger.debug(f"Bootstrap iteration {i} failed: {e}")
+        if not result.converged:
+            logger.warning("LMM mean model did not converge.")
+        
+        return result
+    except Exception as e:
+        logger.error(f"Failed to fit LMM mean model: {e}")
+        return None
+
+def extract_model_coefficients(result: Any, model_name: str) -> Dict[str, Any]:
+    """
+    Extract fixed-effect coefficients, standard errors, p-values, and 95% CIs.
+    """
+    if result is None:
+        return {}
+    
+    fixed_effects = {}
+    params = result.params
+    bse = result.bse
+    
+    for name, param in params.items():
+        if name.startswith('participant'):
             continue
+        
+        t_stat = param / bse[name]
+        p_value = 2 * (1 - stats.t.cdf(abs(t_stat), result.df_resid))
+        
+        # 95% CI
+        ci_lower = param - 1.96 * bse[name]
+        ci_upper = param + 1.96 * bse[name]
+        
+        fixed_effects[name] = {
+            'estimate': float(param),
+            'std_err': float(bse[name]),
+            'p_value': float(p_value),
+            'ci_lower': float(ci_lower),
+            'ci_upper': float(ci_upper)
+        }
     
-    consistency_pct = (consistent_count / BOOTSTRAP_ITERATIONS * 100)
-    pass_flag = consistency_pct >= 80.0
+    random_effects = {}
+    if hasattr(result, 'scale'):
+        random_effects['residual_variance'] = float(result.scale)
     
-    return consistency_pct, pass_flag
-
-def append_lopo_and_sensitivity_results() -> None:
-    """Append LOPO and sensitivity analysis results to model_results.json."""
-    # Load existing results
-    results_path = get_path('data/processed/model_results.json')
-    if not os.path.exists(results_path):
-        raise FileNotFoundError(f"Model results file not found at {results_path}")
+    if hasattr(result, 'cov_re'):
+        # Extract random intercept variance
+        try:
+            # The random effects covariance matrix is in result.cov_re
+            # For a random intercept model, the diagonal element is the variance
+            if isinstance(result.cov_re, pd.DataFrame):
+                variances = np.diag(result.cov_re.values)
+            else:
+                variances = np.diag(result.cov_re)
+            random_effects['participant_intercept_variance'] = float(variances[0]) if len(variances) > 0 else 0.0
+        except:
+            pass
     
-    with open(results_path, 'r') as f:
-        results = json.load(f)
-    
-    # Load data
-    df = load_daily_aggregates()
-    
-    # Run LOPO cross-validation
-    logger.info("Running LOPO cross-validation...")
-    avg_rmse, sign_consistency_pct = run_lopo_cv(df)
-    
-    # Run sensitivity analyses
-    logger.info("Running sensitivity analyses...")
-    weekdays_consistent = run_sensitivity_weekdays(df)
-    active_minutes_consistent = run_sensitivity_active_minutes(df)
-    bootstrap_consistency, bootstrap_pass = run_sensitivity_single_rating_bootstrap(df)
-    
-    # Append results
-    results['validation'] = {
-        'lopo_average_rmse': float(avg_rmse),
-        'lopo_sign_consistency_pct': float(sign_consistency_pct)
+    model_fit = {
+        'aic': float(result.aic),
+        'bic': float(result.bic),
+        'log_likelihood': float(result.llf)
     }
     
-    results['sensitivity'] = {
-        'weekdays_only_sign_consistent': bool(weekdays_consistent),
-        'active_minutes_sign_consistent': bool(active_minutes_consistent),
-        'single_rating_bootstrap_consistency': float(bootstrap_consistency),
-        'single_rating_bootstrap_pass': bool(bootstrap_pass)
+    return {
+        'model_type': model_name,
+        'fixed_effects': fixed_effects,
+        'random_effects': random_effects,
+        'model_fit': model_fit
     }
-    
-    # Save updated results
-    save_model_results(results)
-    
-    # Validate against schema
-    validate_against_schema(results)
-    
-    logger.info("LOPO and sensitivity results appended successfully")
 
-def validate_against_schema(results: Dict[str, Any]) -> None:
-    """Validate results against the schema."""
-    import yaml
+def run_model_diagnostics(df: pd.DataFrame, model_result: Any) -> Dict[str, float]:
+    """
+    Perform model diagnostics: Shapiro-Wilk test on residuals and Breusch-Pagan test for heteroscedasticity.
+    Also generates residual plots.
     
-    schema_path = get_path('specs/001-physical-activity-levels-and-mood-variability/contracts/model_results.schema.yaml')
-    with open(schema_path, 'r') as f:
-        schema = yaml.safe_load(f)
+    Returns a dictionary with:
+    - shapiro_wilk_p_value: p-value from Shapiro-Wilk test
+    - breusch_pagan_p_value: p-value from Breusch-Pagan test
+    """
+    if model_result is None:
+        logger.warning("No model result provided for diagnostics.")
+        return {
+            'shapiro_wilk_p_value': np.nan,
+            'breusch_pagan_p_value': np.nan
+        }
     
-    # Simple validation (in production, use jsonschema library)
-    required_keys = ['model_type', 'fixed_effects', 'random_effects', 'model_fit', 'validation', 'sensitivity']
-    for key in required_keys:
-        if key not in results:
-            raise ValueError(f"Missing required key in results: {key}")
+    # Get residuals and fitted values
+    residuals = model_result.resid
+    fitted = model_result.fittedvalues
     
-    # Check validation keys
-    validation_keys = ['lopo_average_rmse', 'lopo_sign_consistency_pct']
-    for key in validation_keys:
-        if key not in results['validation']:
-            raise ValueError(f"Missing validation key: {key}")
+    # Ensure we have valid data for tests
+    valid_mask = ~np.isnan(residuals) & ~np.isnan(fitted)
+    residuals = residuals[valid_mask]
+    fitted = fitted[valid_mask]
     
-    # Check sensitivity keys
-    sensitivity_keys = ['weekdays_only_sign_consistent', 'active_minutes_sign_consistent', 
-                      'single_rating_bootstrap_consistency', 'single_rating_bootstrap_pass']
-    for key in sensitivity_keys:
-        if key not in results['sensitivity']:
-            raise ValueError(f"Missing sensitivity key: {key}")
+    if len(residuals) < 3:
+        logger.warning("Not enough data points for diagnostics.")
+        return {
+            'shapiro_wilk_p_value': np.nan,
+            'breusch_pagan_p_value': np.nan
+        }
     
-    logger.info("Schema validation passed")
+    # 1. Shapiro-Wilk test for normality of residuals
+    try:
+        shapiro_stat, shapiro_p = stats.shapiro(residuals)
+        shapiro_wilk_p_value = float(shapiro_p)
+        logger.info(f"Shapiro-Wilk test: statistic={shapiro_stat:.4f}, p-value={shapiro_wilk_p_value:.4f}")
+    except Exception as e:
+        logger.warning(f"Shapiro-Wilk test failed: {e}")
+        shapiro_wilk_p_value = float('nan')
+    
+    # 2. Breusch-Pagan test for heteroscedasticity
+    # We need to regress squared residuals on fitted values
+    try:
+        # Prepare data for Breusch-Pagan
+        # The test requires exog (independent variables) - we use fitted values
+        exog = sm.add_constant(fitted)
+        endog = residuals ** 2
+        
+        # Fit OLS on squared residuals
+        ols_model = sm.OLS(endog, exog).fit()
+        bp_test = het_breuschpagan(ols_model.resid, ols_model.model.exog)
+        
+        # bp_test returns (lm_stat, lm_pvalue, f_stat, f_pvalue)
+        breusch_pagan_p_value = float(bp_test[1])
+        logger.info(f"Breusch-Pagan test: p-value={breusch_pagan_p_value:.4f}")
+    except Exception as e:
+        logger.warning(f"Breusch-Pagan test failed: {e}")
+        breusch_pagan_p_value = float('nan')
+    
+    # 3. Generate residual plots
+    try:
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+        
+        # Plot 1: Residuals vs Fitted
+        axes[0].scatter(fitted, residuals, alpha=0.5)
+        axes[0].axhline(0, color='red', linestyle='--')
+        axes[0].set_xlabel('Fitted Values')
+        axes[0].set_ylabel('Residuals')
+        axes[0].set_title('Residuals vs Fitted')
+        axes[0].grid(True, alpha=0.3)
+        
+        # Add a smoothed line to check for patterns
+        if len(fitted) > 10:
+            # Sort by fitted values for smooth line
+            sorted_idx = np.argsort(fitted)
+            sorted_fitted = fitted[sorted_idx]
+            sorted_residuals = residuals[sorted_idx]
+            
+            # Simple moving average
+            window = min(10, len(sorted_fitted) // 5)
+            if window > 1:
+                smoothed = pd.Series(sorted_residuals).rolling(window=window, center=True, min_periods=1).mean()
+                axes[0].plot(sorted_fitted, smoothed, color='blue', linewidth=2, label='Smoothed trend')
+                axes[0].legend()
+        
+        # Plot 2: Q-Q plot
+        sm.qqplot(residuals, line='45', fit=True, ax=axes[1])
+        axes[1].set_title('Q-Q Plot of Residuals')
+        
+        plt.tight_layout()
+        
+        # Save the plot
+        plot_path = get_path('data/processed', 'residual_plots.png')
+        fig.savefig(plot_path, dpi=150, bbox_inches='tight')
+        plt.close(fig)
+        logger.info(f"Residual plots saved to {plot_path}")
+        
+    except Exception as e:
+        logger.error(f"Failed to generate residual plots: {e}")
+    
+    return {
+        'shapiro_wilk_p_value': shapiro_wilk_p_value,
+        'breusch_pagan_p_value': breusch_pagan_p_value
+    }
 
-def run_analysis() -> Dict[str, Any]:
-    """Run the full analysis pipeline."""
+def run_analysis(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Run the full analysis pipeline: fit models, extract coefficients, run diagnostics.
+    Returns a dictionary containing all results.
+    """
     set_random_seed(RANDOM_SEED)
-    
-    # Validate raw data
-    if not validate_raw_mood_std():
-        raise ValueError("Raw mood_std validation failed")
-    
-    # Load data
-    df = load_daily_aggregates()
     
     # Fit models
     logger.info("Fitting LMM for mood variability...")
-    variability_result = fit_lmm_variability(df)
+    lmm_var_result = fit_lmm_variability(df)
     
     logger.info("Fitting LMM for mean mood...")
-    mean_result = fit_lmm_mean(df)
+    lmm_mean_result = fit_lmm_mean(df)
     
     # Extract coefficients
-    variability_coef = extract_model_coefficients(variability_result)
-    mean_coef = extract_model_coefficients(mean_result)
+    lmm_var_coeffs = extract_model_coefficients(lmm_var_result, "LMM_mood_variability")
+    lmm_mean_coeffs = extract_model_coefficients(lmm_mean_result, "LMM_mean_mood")
     
-    # Get model fit statistics
-    variability_fit = {
-        'aic': float(variability_result.aic),
-        'bic': float(variability_result.bic),
-        'log_likelihood': float(variability_result.llf)
-    }
+    # Run diagnostics on the primary model (variability)
+    logger.info("Running model diagnostics...")
+    diagnostics = run_model_diagnostics(df, lmm_var_result)
     
-    mean_fit = {
-        'aic': float(mean_result.aic),
-        'bic': float(mean_result.bic),
-        'log_likelihood': float(mean_result.llf)
-    }
-    
-    # Get random effects
-    variability_random = {'participant_id': float(variability_result.scale)}
-    mean_random = {'participant_id': float(mean_result.scale)}
-    
-    # Run diagnostics
-    variability_diagnostics = run_model_diagnostics(variability_result)
-    mean_diagnostics = run_model_diagnostics(mean_result)
-    
-    # Compile results
+    # Combine results
     results = {
-        'model_type': 'LMM_mood_variability',
-        'fixed_effects': variability_coef,
-        'random_effects': variability_random,
-        'model_fit': variability_fit,
-        'validation': {},  # Will be filled by append_lopo_and_sensitivity_results
-        'sensitivity': {}  # Will be filled by append_lopo_and_sensitivity_results
+        'variability_model': lmm_var_coeffs,
+        'mean_model': lmm_mean_coeffs,
+        'diagnostic_tests': diagnostics
     }
     
-    # Save initial results
-    save_model_results(results)
-    
-    # Append LOPO and sensitivity results
-    append_lopo_and_sensitivity_results()
-    
-    return load_model_results()
+    return results
 
 def main():
     """Main entry point for analysis."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
     logger.info("Starting analysis pipeline")
+    
     try:
-        results = run_analysis()
-        logger.info("Analysis completed successfully")
-        logger.info(f"Results saved to {get_path('data/processed/model_results.json')}")
+        # Load data
+        df = load_daily_aggregates()
+        logger.info(f"Loaded {len(df)} rows from daily aggregates")
+        
+        # Run analysis
+        results = run_analysis(df)
+        
+        # Save results
+        save_model_results(results)
+        
+        logger.info("Analysis pipeline completed successfully")
+        
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        raise
+        logger.error(f"Analysis pipeline failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

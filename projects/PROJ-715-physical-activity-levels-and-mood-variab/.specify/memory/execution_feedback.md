@@ -1,68 +1,56 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
 
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
 
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- `python code/ingest.py`
+- code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…cate values... hard-code fake sample rows".     # So I must f…”
+- code/save_results.py: synthetic/fake INPUT data not authorized by the spec — “…sn't exist, as we cannot fake data.         # But wait, the…”
+
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/raw/bronze.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python code/ingest.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 3 declared deliverable(s) absent: data/processed/daily_aggregates.csv; data/processed/model_results.json; data/raw/bronze.parquet
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/ingest.py: synthetic/fake INPUT data not authorized by the spec — “…cate values... hard-code fake sample rows".     # So I must f…”; code/save_results.py: synthetic/fake INPUT data not authorized by the spec — “…sn't exist, as we cannot fake data.         # But wait, the…”; every produced artifact is gitignored (data/raw/bronze.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/ingest.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 3 declared deliverable(s) absent: data/processed/daily_aggregates.csv; data/processed/model_results.json; data/raw/bronze.parquet
 
 ## Failing / missing run-book commands
 
 - python code/ingest.py -> rc=1
-    2026-08-18 07:42:26,206 - INFO - Downloading https://osf.io/download/xxxx-xxxx/ to /home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/raw/bronze.csv
-2026-08-18 07:42:26,436 - ERROR - Download failed: 404 Client Error: Not Found for url: https://osf.io/download/xxxx-xxxx/
-2026-08-18 07:42:26,437 - ERROR - Failed to download or verify the dataset.
+    Conversion failed: 'utf-8' codec can't decode byte 0x8b in position 1: invalid start byte
+Failed to convert to parquet. Exiting.
 - python code/preprocess.py -> rc=1
-    2026-08-18 07:42:26,853 - INFO - Running preprocess.py main
-2026-08-18 07:42:26,853 - INFO - Starting preprocessing pipeline
-2026-08-18 07:42:26,853 - ERROR - Preprocessing failed: get_path() takes 1 positional argument but 3 were given
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/preprocess.py", line 215, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/preprocess.py", line 201, in main
-    result_df = preprocess()
-                ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/preprocess.py", line 172, in preprocess
-    df_raw = load_bronze_data()
-             ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/preprocess.py", line 27, in load_bronze_data
-    path = get_path('data', 'raw', 'bronze.parquet')
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: get_path() takes 1 positional argument but 3 were given
+    2026-08-24 11:16:44,841 - INFO - Starting preprocessing pipeline
+2026-08-24 11:16:44,841 - ERROR - Preprocessing failed: Bronze data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/raw/bronze.parquet. Run ingest.py first.
 - python code/analysis.py -> rc=1
-    2026-08-18 07:42:28,517 - INFO - Loading data...
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/analysis.py", line 334, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/analysis.py", line 302, in main
-    df = load_daily_aggregates()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/analysis.py", line 24, in load_daily_aggregates
-    raise FileNotFoundError(f"Daily aggregates file not found at {path}. Run preprocessing first.")
-FileNotFoundError: Daily aggregates file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/processed/daily_aggregates.csv. Run preprocessing first.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/analysis.py", line 12, in <module>
+    from config import get_path, set_random_seed, BOOTSTRAP_ITERATIONS, RANDOM_SEED
+ImportError: cannot import name 'RANDOM_SEED' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/config.py)
 - python code/report.py -> rc=1
-    WARNING:root:matplotlib not found. Some visualization features may be disabled.
-ERROR:__main__:Failed to generate report: get_path() takes 1 positional argument but 3 were given
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py", line 260, in main
-    report_path = generate_report()
-                  ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py", line 227, in generate_report
-    model_results = load_model_results()
-                    ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py", line 30, in load_model_results
-    results_path = get_path('data', 'processed', 'model_results.json')
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: get_path() takes 1 positional argument but 3 were given
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py", line 73, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py", line 70, in main
+    generate_report()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py", line 59, in generate_report
+    results = load_model_results()
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/code/report.py", line 16, in load_model_results
+    raise FileNotFoundError(f"Model results file not found at {path}. Run analysis first.")
+FileNotFoundError: Model results file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/processed/model_results.json. Run analysis first.
 
 ## Declared deliverables still missing
 
@@ -78,24 +66,33 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `get_path` — defined in `code/config.py`; called 16 way(s):
+### `get_path` — defined in `code/config.py`; called 25 way(s):
 
-- code/output_validator.py: output_path = get_path('data/processed', 'daily_aggregates.csv')
-- code/output_validator.py: schema_path = get_path('specs/001-physical-activity-mood-variability/contracts', 'daily_aggregates.schema.yaml')
-- code/output_validator.py: log_path = get_path('data/processed', 'validation_log.json')
-- code/report.py: results_path = get_path('data', 'processed', 'model_results.json')
-- code/report.py: data_path = get_path('data', 'processed', 'daily_aggregates.csv')
-- code/report.py: output_dir = get_path('data', 'processed')
-- code/ingest.py: raw_data_path = get_path("data/raw/bronze.csv")  # Assuming CSV format
+- code/output_validator.py: schema_path = get_path("specs/001-physical-activity-mood-variability/contracts", "daily_aggregates.schema.yaml")
+- code/output_validator.py: output_path = get_path("data/processed", "daily_aggregates.csv")
+- code/report.py: path = get_path('data', 'processed', 'model_results.json')
+- code/report.py: path = get_path('data', 'processed', 'daily_aggregates.csv')
+- code/report.py: output_path = get_path('data/processed', 'final_report.pdf')
+- code/ingest.py: state_path = get_path('state', 'projects', 'PROJ-715-physical-activity-levels-and-mood-variab.yaml')
+- code/ingest.py: raw_data_path = get_path("data/raw/bronze.csv")
 - code/ingest.py: parquet_path = get_path("data/raw/bronze.parquet")
 - code/preprocess.py: path = get_path('data', 'raw', 'bronze.parquet')
+- code/preprocess.py: path = get_path('data/raw/bronze.parquet')
+- code/preprocess.py: stats_path = get_path('data', 'processed', 'preprocess_stats.json')
 - code/preprocess.py: output_path = get_path('data', 'processed', 'daily_aggregates.csv')
+- code/preprocess.py: schema_path = get_path('specs', '001-physical-activity-levels-and-mood-variab', 'contracts', 'daily_aggregates.schema.yaml')
+- code/config.py: get_path('data', 'raw', 'file.csv') -> ProjectRoot/data/raw/file.csv
+- code/config.py: get_path('data/processed/file.csv') -> ProjectRoot/data/processed/file.csv
 - code/analysis.py: path = get_path('data/processed/daily_aggregates.csv')
-- code/analysis.py: output_path = get_path('data/processed/model_results.json')
+- code/analysis.py: path = get_path('data/processed/model_results.json')
+- code/analysis.py: results_path = get_path('data/processed/model_results.json')
+- code/analysis.py: schema_path = get_path('specs/001-physical-activity-levels-and-mood-variability/contracts/model_results.schema.yaml')
+- code/analysis.py: logger.info(f"Results saved to {get_path('data/processed/model_results.json')}")
 - code/save_daily_aggregates.py: input_path = get_path("data", "processed", "daily_aggregates.csv")
 - code/save_daily_aggregates.py: schema_path = get_path("specs", "001-physical-activity-mood-variability", "contracts", "daily_aggregates.schema.yaml")
 - code/save_results.py: schema_path = get_path("specs/001-physical-activity-levels-and-mood-variability/contracts/model_results.schema.yaml")
 - code/save_results.py: output_path = get_path("data/processed/model_results.json")
+- code/verify_raw_mood_std.py: input_path = get_path('data/processed', 'daily_aggregates.csv')
 
 Make `get_path` in `code/config.py` accept ALL of the above.
 
@@ -110,6 +107,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis.py` — IS a run-book command
     - `code/save_daily_aggregates.py` — NOT invoked by the run-book
     - `code/validate_quickstart.py` — NOT invoked by the run-book
+    - `code/verify_raw_mood_std.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/daily_aggregates.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/model_results.json` is declared but was NOT written. Scripts referencing it:
     - `code/report.py` — IS a run-book command
@@ -131,5 +129,10 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/processed/daily_aggregates.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/output_validator.py`, `code/report.py`, `code/preprocess.py`, `code/analysis.py`, `code/save_daily_aggregates.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/processed/daily_aggregates.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/output_validator.py`, `code/report.py`, `code/preprocess.py`, `code/analysis.py`, `code/save_daily_aggregates.py`, `code/validate_quickstart.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/report.py`, `code/preprocess.py`, `code/analysis.py`, `code/save_daily_aggregates.py`, `code/verify_raw_mood_std.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/processed/daily_aggregates.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/output_validator.py`, `code/report.py`, `code/preprocess.py`, `code/analysis.py`, `code/save_daily_aggregates.py`, `code/validate_quickstart.py`, `code/verify_raw_mood_std.py`.
+
+### `home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/processed/model_results.json`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/report.py`, `code/analysis.py`, `code/save_results.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-715-physical-activity-levels-and-mood-variab/data/processed/model_results.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/report.py`, `code/analysis.py`, `code/validate_quickstart.py`, `code/save_results.py`.

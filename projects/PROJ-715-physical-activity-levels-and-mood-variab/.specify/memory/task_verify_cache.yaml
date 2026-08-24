@@ -1,13 +1,27 @@
-T007:
+T011:
+  c: true
+  h: 50836a4fcc5f35d55d8225c894f4c917d7e7c34d8ce9b8f965cff72b580d151c
+  r: "The file `code/preprocess.py` exists and its `parse_step_logs()` function loads\
+    \ `data/raw/bronze.parquet` (if present), validates the required columns, treats\
+    \ missing `step_count` as\u202F0, aggregates by `participant_id` and date, and\
+    \ returns a DataFrame with `participant_id`, `date`, `total_steps` as specified."
+T023:
   c: false
-  h: 880e36c80423f8904e47eada5a0a3d53784ff7a61a27fdc7c64f73000237c38f
-  r: "The `state/projects/PROJ-715-physical-activity-levels-and-mood-variab.yaml`\
-    \ file is missing, and `code/ingest.py` does not actually use the OSF DOI from\
-    \ `config.py` nor perform a real SHA\u2011256 verification before writing the\
-    \ hash. The implementation is incomplete and does not satisfy the task requirements."
+  h: 9b3186c82ed51bd047d5f5472b15dab9db3053e4f04f01cb35f1d3baef2f3b95
+  r: "The repository lacks a `run_model_diagnostics()` implementation in `code/analysis.py`\
+    \ (the shown code does not contain such a function) and the required output file\
+    \ `data/processed/model_results.json` does not exist, so the diagnostic p\u2011\
+    values are neither computed nor persisted."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of a `quickstart.md` validation run (e.g., logs, pass/fail report,
     or updated documentation) is provided; the implementer did not supply any artifact
     demonstrating that the documentation was checked and confirmed accurate.
+T051:
+  c: true
+  h: 3304e947ac0485c01b4b53ccb9557dce03be1fe419d425ad0a1f092e2bfc1927
+  r: "The repository contains a non\u2011empty `code/validate_raw.py` that checks\
+    \ for the presence, non\u2011zero size, and SHA\u2011256 checksum of `data/raw/bronze.parquet`,\
+    \ raising a `RuntimeError` with clear messages when the file is missing or corrupted,\
+    \ satisfying the task\u2019s requirement."

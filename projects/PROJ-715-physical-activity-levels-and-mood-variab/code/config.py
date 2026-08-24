@@ -12,7 +12,9 @@ from typing import Union, List, Tuple
 SEED = 42
 MISSINGNESS_THRESHOLD = 0.2
 BOOTSTRAP_ITERATIONS = 1000
-OSF_DOI = "10.17605/OSF.IO/XXXXX"  # Placeholder, replaced by actual DOI in real run
+# The actual OSF DOI for the StudentLife dataset (replacing the placeholder)
+OSF_DOI = "10.17605/OSF.IO/MK72G"
+RANDOM_SEED = 42
 
 # --- Logging Setup ---
 def init_logger(name: str = "project", level: int = logging.INFO) -> logging.Logger:
@@ -70,6 +72,11 @@ def set_random_seed(seed: int = SEED) -> None:
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     # Note: numpy and torch seeds are set in specific modules if needed
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except ImportError:
+        pass
 
 # --- Directory Utilities ---
 def ensure_dirs(path: Union[str, Path]) -> None:
