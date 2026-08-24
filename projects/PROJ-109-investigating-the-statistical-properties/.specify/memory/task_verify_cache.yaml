@@ -1,7 +1,7 @@
 T015:
   c: false
-  h: 0bd9703c39d2d7cebc2d8294b9465b88a6abb2fb379a1ca16a5d16eff98d94dd
-  r: "The `preprocess.py` file imports `jsonschema` but never loads `halo.schema.yaml`\
-    \ nor calls `validate` on the filtered DataFrame; the code ends before any validation\
-    \ logic is added. Consequently, the required post\u2011filter validation against\
-    \ `code/contracts/halo.schema.yaml` is missing."
+  h: 5f5eaee7c3c6179ae3bf44f7ff6a7a0f90283a95554af192048e1c7dc8c52d82
+  r: The `preprocess.py` file defines `load_schema` but never calls `jsonschema.validate`
+    on the filtered DataFrame, and the code after the truncation does not show any
+    such validation step. Therefore the required schema validation after filtering
+    is missing.

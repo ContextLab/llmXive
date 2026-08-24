@@ -36,6 +36,15 @@ properties:
   concentration:
     type: number
     description: NFW concentration index
+  overdensity:
+    type: number
+    description: Local overdensity relative to critical density
+  particle_count:
+    type: integer
+    description: Number of particles (alias for num_particles in some contexts)
+  fit_status:
+    type: string
+    description: Status of the NFW fit (e.g., 'converged', 'failed')
 required:
   - halo_id
   - mass
@@ -43,3 +52,4 @@ required:
   - y
   - z
   - num_particles
+additionalProperties: true

@@ -5806,3 +5806,317 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T03:08:48Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: fetch crystal structures from OBELiX and Materials Project using static
+    MP-ID list
+  claim_id: c_cd5095b6
+  context: 'Phase 3: User Story 1 - Data Pipeline and Validation. Implementation for
+    User Story 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_crystal_structures_from_OBELiX_and_Materials_Project_u
+  kind: entity_fact
+  raw_text: Implement `download.py` to fetch crystal structures from OBELiX and Materials
+    Project using static MP-ID list in `code/download.py`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:56:48Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: check for required variables vacancy, interstitial, antisite, migration
+    barrier, and conductivity
+  claim_id: c_9df648a9
+  context: 'Phase 3: User Story 1 - Data Pipeline and Validation. Implementation for
+    User Story 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Check_for_required_variables_vacancy,_interstitial,_antisite
+  kind: entity_fact
+  raw_text: Implement `validate.py` to check for required variables (vacancy, interstitial,
+    antisite, migration barrier, conductivity) in `code/validate.py`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:57:16Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: filter structures where calculated BVS deviates greater than 10 percent
+    from ideal oxidation states
+  claim_id: c_2195641a
+  context: 'Phase 3: User Story 1. T019 task description.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_structures_where_calculated_BVS_deviates_greater_than
+  kind: magnitude
+  raw_text: Implement Bond-Valence Sum (BVS) validation in `code/validate.py` to filter
+    out structures where calculated BVS deviates >10% from ideal oxidation states
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:57:43Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: filter structures where Li-O distances fall outside an expected coordination
+    range
+  claim_id: c_581db9ca
+  context: 'Phase 3: User Story 1. T020 task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_structures_where_Li-O_distances_fall_outside_an_expec
+  kind: entity_fact
+  raw_text: Implement Li-O distance validation in `code/validate.py` to filter out
+    structures where Li-O distances fall outside an expected coordination range
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:58:16Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: determine supercell sufficiency based on atom count
+  claim_id: c_ec0a03af
+  context: 'Phase 4: User Story 2. T022a task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Determine_supercell_sufficiency_based_on_atom_count
+  kind: entity_fact
+  raw_text: Generate `data/processed/convergence_status.json` by analyzing raw structure
+    properties (atom count) to determine if a 2x2x2 supercell is sufficient or if
+    3x3x3 is needed
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:58:37Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: flag supercell as needs 3x3x3 if atom count exceeds 8 in 2x2x2
+  claim_id: c_a1332e50
+  context: 'Phase 4: User Story 2. T022a task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If atom_count > 8 in 2x2x2, flag as 'needs_3x3x3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:58:38Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: force convergence checks less than or equal to 0.05 eV per Angstrom
+  claim_id: c_f5754a77
+  context: 'Phase 4: User Story 2. T029 task description.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Force_convergence_checks_less_than_or_equal_to_0.05_eV_per_A
+  kind: magnitude
+  raw_text: "Implement NEB method for several representative defect configurations\
+    \ PER SYSTEM with a sufficient number of images, climbing image, and force convergence\
+    \ checks (\u22640.05 eV/\xC5)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:59:23Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: calculate defect concentration as 1 divided by supercell volume
+  claim_id: c_5624d756
+  context: 'Phase 4: User Story 2. T033 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement defect density quantification method in `code/dft_runner.py`
+    to explicitly calculate and log defect concentration (defects/supercell_volume
+    = 1 / supercell_volume) for every configuration
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:00:00Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: perform PCA for coupled variables vacancy interstitial and antisite
+  claim_id: c_c74f0d63
+  context: 'Phase 5: User Story 3. T043 task description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_PCA_for_coupled_variables_vacancy_interstitial_and_a
+  kind: entity_fact
+  raw_text: Perform PCA for coupled variables to handle thermodynamic coupling between
+    defect types (vacancy, interstitial, antisite)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:00:32Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: PCA components set to 2
+  claim_id: c_81115ec0
+  context: 'Phase 5: User Story 3. T043 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Components: 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:01:04Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: implement Benjamini-Hochberg multiple-comparison correction
+  claim_id: c_9cf9c87a
+  context: 'Phase 5: User Story 3. T038 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement multiple-comparison correction (Benjamini-Hochberg) for >1 hypothesis
+    test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:01:05Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: extract sigma0 bounds from M.S. Whittingham 2004 Lithium Batteries and
+    Cathode Materials
+  claim_id: c_1b9ca9de
+  context: 'Phase 5: User Story 3. T041c task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download, parse, and verify the M.S. Whittingham 2004 citation (M.S. Whittingham,
+    'Lithium Batteries and Cathode Materials', 2004) to extract sigma0 bounds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:01:25Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: M.S. Whittingham 2004 Lithium Batteries and Cathode Materials citation
+  claim_id: c_4e809131
+  context: Task T041c requires downloading and verifying the M.S. Whittingham 2004
+    citation to extract sigma0 bounds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: M.S. Whittingham, 'Lithium Batteries and Cathode Materials', 2004
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:05:57Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: 2x2x2 minimum supercell expansion mandated by spec
+  claim_id: c_94c94023
+  context: Task T002 confirms that spec.md Section 3.2 and FR-003 explicitly mandate
+    a 2x2x2 minimum supercell expansion.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/2x2x2_minimum_supercell_expansion_mandated_by_spec
+  kind: entity_fact
+  raw_text: 2x2x2 minimum supercell expansion
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:06:16Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: defect density formula defects per supercell volume equals 1 divided
+    by supercell volume
+  claim_id: c_111d4b84
+  context: Task T033 requires calculating defect concentration using the formula defects/supercell_volume
+    = 1 / supercell_volume.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: defects/supercell_volume = 1 / supercell_volume
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:06:43Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: NEB force convergence threshold of 0.05 eV per Angstrom
+  claim_id: c_ee388b4a
+  context: "Task T029 requires implementing NEB method with force convergence checks\
+    \ of \u22640.05 eV/\xC5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "force convergence checks (\u22640.05 eV/\xC5)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:06:44Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold of 5 for collinearity
+  claim_id: c_f4236747
+  context: Task T039 defines a threshold where VIF > 5 indicates collinearity between
+    defect types.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF > 5 indicates collinearity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:06:45Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Bond-Valence Sum deviation threshold of 10 percent from ideal oxidation
+    states
+  claim_id: c_4597b073
+  context: Task T019 mandates filtering structures where calculated BVS deviates >10%
+    from ideal oxidation states.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: BVS deviates >10% from ideal oxidation states
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:06:46Z'

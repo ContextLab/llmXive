@@ -1,11 +1,11 @@
 T001:
   c: false
-  h: c1bf7845c2767b1a5c78ecb8120ded5b6a7fa11cca1e478f74c2590e9d5806ee
-  r: The output file `data/processed/citation_status.json` is present and shows successful
-    verification, but the required fallback cache file `data/raw/citations_cache.json`
-    is missing, and the script only queries the Crossref API rather than the OBELiX
-    or Materials Project APIs mentioned in the task. Consequently the implementation
-    does not fully satisfy the specified fallback and API requirements.
+  h: e870fdbe6149a9406dc4a63eaceec580f88e60dc84ca420584493e3341ca9a60
+  r: The repository contains the `validate_citations.py` script, but the required
+    input file `data/raw/citations.json`, the output file `data/processed/citation_status.json`,
+    and the fallback cache `data/raw/citations_cache.json` are all missing, so the
+    verification process cannot be executed nor its results inspected. The task is
+    therefore not fulfilled.
 T007:
   c: false
   h: 8d6027cdd17fbb1e0e7b06f42be4d541659f0ac37dc351140eea61985748f7c5

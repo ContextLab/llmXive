@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project investigates the correlation between initial semantic uncertainty (entropy) of hidden states in iterative refinement models and their convergence trajectories on code generation tasks. The technical approach involves: (1) extracting semantic entropy via AST-based clustering of $N=10$ samples per input; (2) tracking convergence trajectories for $k \in \{1, 2, 3\}$ loops on HumanEval/MBPP; (3) performing survival analysis (Kaplan-Meier) to handle censored data; (4) simulating a dynamic router via ordinal logistic regression; and (5) conducting robustness checks (Holm-Bonferroni, sensitivity sweeps). The implementation runs on a GPU escape hatch (Kaggle) due to the 7B model requirements, adhering to the project's compute constraints.
+This project investigates the correlation between initial semantic uncertainty (entropy) of hidden states in iterative refinement models and their convergence trajectories on code generation tasks. The technical approach involves: (1) extracting semantic entropy via AST-based clustering of $N=10$ samples per input; (2) tracking convergence trajectories for $k \in \{1, 2, 3\}$ loops on HumanEval/MBPP; (3) performing survival analysis (Kaplan-Meier) to handle censored data; (4) simulating a dynamic router via ordinal logistic regression; and (5) conducting robustness checks (Holm-Bonferroni, sensitivity sweeps). The implementation runs on a GPU escape hatch (Kaggle) due to the large-scale model requirements., adhering to the project's compute constraints.
 
 ## Technical Context
 
@@ -83,7 +83,7 @@ code/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **GPU Offload** | 7B model inference ($N=10$ samples $\times$ $k=3$) exceeds CPU memory/time limits. | CPU-only inference of CodeLlama-7b is infeasible for the required sample size; synthetic stand-ins violate "Data Hygiene" and "Verified Accuracy". |
+| **GPU Offload** | 7B model inference ($N=10$ samples $\times$ $k=3$) exceeds CPU memory/time limits. | CPU-only inference of CodeLlama models is infeasible for the required sample size; synthetic stand-ins violate "Data Hygiene" and "Verified Accuracy". |
 | **Survival Analysis** | Non-convergence at $k_{max}$ creates censored data. | Simple correlation (Spearman) on imputed values introduces bias; Kaplan-Meier is required for unbiased estimation (FR-003). |
 | **AST Clustering** | Semantic equivalence requires code structure, not string match. | String-based clustering fails on semantically identical but syntactically different solutions (e.g., variable renaming). |
 | **Ordinal Logistic Regression** | Target variable (optimal $k$) is ordinal (1, 2, 3), not binary. | Standard Logistic Regression would ignore the ordinal nature of the target; Ordinal Logistic Regression preserves the ordering information. |

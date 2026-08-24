@@ -1,68 +1,116 @@
+"""
+Unit tests for the preprocessing module.
+"""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import tempfile
-import os
+import json
 
 # Import the function to test
-from code.data.preprocess import validate_schema, load_schema
+from code.data.preprocess import filter_halos_by_particles, load_schema, validate_schema
 
-def test_validate_schema_success():
-    """Test that a valid dataframe passes schema validation."""
-    # Create a mock dataframe matching the schema
-    df = pd.DataFrame({
-        'halo_id': [1, 2, 3],
-        'mass': [1e12, 1e13, 1e14],
-        'x': [0.0, 1.0, 2.0],
-        'y': [0.0, 1.0, 2.0],
-        'z': [0.0, 1.0, 2.0],
-        'vx': [0.0, 1.0, 2.0],
-        'vy': [0.0, 1.0, 2.0],
-        'vz': [0.0, 1.0, 2.0],
-        'num_particles': [500, 1000, 2000]
-    })
-    
-    # Schema is defined in code/contracts/halo.schema.yaml
-    # We pass the path explicitly or rely on the default
-    result = validate_schema(df, schema_path="code/contracts/halo.schema.yaml")
-    assert result is True
+class TestFilterHalosByParticles:
+    """Tests for filter_halos_by_particles function."""
 
-def test_validate_schema_missing_column():
-    """Test that a dataframe with missing required columns raises ValueError."""
-    df = pd.DataFrame({
-        'halo_id': [1, 2],
-        'mass': [1e12, 1e13]
-        # Missing x, y, z, num_particles etc.
-    })
-    
-    with pytest.raises(ValueError, match="Missing required columns"):
-        validate_schema(df, schema_path="code/contracts/halo.schema.yaml")
+    def test_filter_halos_300_particles(self):
+        """Test that halos with < 300 particles are removed."""
+        # Create a mock dataframe
+        data = {
+            'mass': [1e10, 1e11, 1e12, 1e13],
+            'particle_count': [100, 299, 300, 5000],
+            'position': [[0,0,0], [1,1,1], [2,2,2], [3,3,3]]
+        }
+        df = pd.DataFrame(data)
 
-def test_validate_schema_type_mismatch():
-    """Test that type mismatches are logged (warning) but don't necessarily crash, 
-    depending on strictness. The current implementation logs warnings."""
-    df = pd.DataFrame({
-        'halo_id': [1, 2],
-        'mass': ['not_a_number', 'also_not'], # Should be number
-        'x': [0.0, 1.0],
-        'y': [0.0, 1.0],
-        'z': [0.0, 1.0],
-        'vx': [0.0, 1.0],
-        'vy': [0.0, 1.0],
-        'vz': [0.0, 1.0],
-        'num_particles': [500, 1000]
-    })
-    
-    # The current implementation logs a warning but returns True.
-    # If the spec requires strict failure on type mismatch, we would expect an exception.
-    # Based on the implementation: "logger.warning ... return True"
-    result = validate_schema(df, schema_path="code/contracts/halo.schema.yaml")
-    assert result is True
+        # Apply filter
+        filtered_df = filter_halos_by_particles(df, min_particles=300)
 
-def test_load_schema_exists():
-    """Test that the schema file can be loaded."""
-    schema = load_schema("code/contracts/halo.schema.yaml")
-    assert 'required' in schema
-    assert 'properties' in schema
-    assert 'halo_id' in schema['properties']
+        # Assertions
+        assert len(filtered_df) == 2, f"Expected 2 rows, got {len(filtered_df)}"
+        assert filtered_df['particle_count'].min() >= 300, "Minimum particle count should be >= 300"
+        assert 300 in filtered_df['particle_count'].values, "Row with 300 particles should be kept"
+        assert 5000 in filtered_df['particle_count'].values, "Row with 5000 particles should be kept"
+
+    def test_filter_halos_all_removed(self):
+        """Test behavior when all halos are below threshold."""
+        data = {
+            'mass': [1e10, 1e11],
+            'particle_count': [100, 200],
+            'position': [[0,0,0], [1,1,1]]
+        }
+        df = pd.DataFrame(data)
+
+        filtered_df = filter_halos_by_particles(df, min_particles=300)
+
+        assert len(filtered_df) == 0, "Expected empty dataframe"
+
+    def test_filter_halos_none_removed(self):
+        """Test behavior when all halos are above threshold."""
+        data = {
+            'mass': [1e12, 1e13],
+            'particle_count': [301, 5000],
+            'position': [[0,0,0], [1,1,1]]
+        }
+        df = pd.DataFrame(data)
+
+        filtered_df = filter_halos_by_particles(df, min_particles=300)
+
+        assert len(filtered_df) == 2, "Expected 2 rows"
+        assert filtered_df['particle_count'].min() >= 300
+
+class TestSchemaValidation:
+    """Tests for schema loading and validation."""
+
+    def test_load_schema(self):
+        """Test loading a valid schema."""
+        # Create a temporary schema file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            schema = {
+                "type": "object",
+                "properties": {
+                    "particle_count": {"type": "integer"}
+                },
+                "required": ["particle_count"]
+            }
+            json.dump(schema, f)
+            temp_path = f.name
+
+        try:
+            loaded = load_schema(temp_path)
+            assert loaded is not None
+            assert "properties" in loaded
+        finally:
+            os.remove(temp_path)
+
+    def test_validate_schema_success(self):
+        """Test successful validation."""
+        schema = {
+            "type": "object",
+            "properties": {
+                "particle_count": {"type": "integer", "minimum": 0}
+            },
+            "required": ["particle_count"]
+        }
+        
+        df = pd.DataFrame({"particle_count": [300, 400]})
+        assert validate_schema(df, schema) is True
+
+    def test_validate_schema_failure(self):
+        """Test validation failure."""
+        schema = {
+            "type": "object",
+            "properties": {
+                "particle_count": {"type": "integer", "minimum": 0}
+            },
+            "required": ["particle_count"]
+        }
+        
+        # Create a row that violates the schema (if we could pass a dict that doesn't match)
+        # Since validate_schema takes a DF and converts to dict, we test the logic.
+        # Actually, jsonschema.validate raises on failure.
+        df = pd.DataFrame({"particle_count": ["string"]}) # Type mismatch
+        
+        with pytest.raises(Exception): # jsonschema.ValidationError
+            validate_schema(df, schema)

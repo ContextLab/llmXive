@@ -20,3 +20,15 @@
   verification_status: unreachable
   verified_against_url: https://materialsproject.org`
   verified_at: '2026-06-30T00:03:16.374354Z'
+- artifact_hash: 491234e633c2d29957d11593d0a048993496db607de71d457d434af92df11095
+  artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2006.12647] CIF2WAN: A Tool to Generate Input Files for Electronic
+    Structure Calculations with Wannier90'
+  kind: url
+  value: https://arxiv.org/abs/2006.12647
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2006.12647
+  verified_at: '2026-08-24T13:06:47.366312Z'
