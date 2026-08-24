@@ -44,6 +44,36 @@ T020:
     \ or the required clearing of state on submission or abandonment. Consequently,\
     \ the required client\u2011side state\u2011management implementation cannot be\
     \ verified."
+T022h:
+  c: false
+  h: 24a064868cc3b7036d0f7d7261e9dbe3ee51ae54b3e4ac07b6c50d5722a62f81
+  r: "The repository lacks `data/raw/submissions.csv` and `data/raw/duplicate_audit.csv`,\
+    \ and the provided `code/survey/app.py` excerpt shows no logic that reads `submissions.csv`,\
+    \ identifies duplicate `hashed_ip` rows, or writes them to `duplicate_audit.csv`.\
+    \ Consequently, the required post\u2011hoc duplicate detection feature is not\
+    \ implemented."
+T028d:
+  c: false
+  h: 4714a00e470bdbf559100bace7f3084bceb9efc7f229b2830dc070b1611d0ca9
+  r: "The required input file `data/raw/submissions.csv` and the output file `data/raw/duplicate_audit.csv`\
+    \ are both missing, so the duplicate\u2011detection script cannot have been executed\
+    \ and no audit results exist. The implementer must provide the submissions CSV\
+    \ and generate the duplicate audit CSV as specified."
+T043a:
+  c: true
+  h: a1f468c9441f9b2e453940c258973e8fc1641ef03c91d96635789f6e682a0b1d
+  r: "The repository contains the required `code/utils/generate_mock_data.py` script\
+    \ (5211\u202Fbytes) which defines the N=250 constant, uses the specified normal\
+    \ distribution parameters, and writes a CSV with all required fields to `data/raw/submissions.csv`.\
+    \ The script itself is the artifact the task demanded, and it is present and non\u2011\
+    empty."
+T043c:
+  c: false
+  h: be10186fa7f55d0ae116fee34e30642ef0b2b4ca3881deb4a029988cfcc5262d
+  r: "The provided `tests/benchmark/test_runtime.py` does not contain an explicit\
+    \ assertion checking that `data/raw/submissions.csv` is under 5\u202FMB, and the\
+    \ required `data/raw/submissions.csv` file is absent from the repository. Both\
+    \ the assertion and the target file are needed to satisfy the task."
 T045:
   c: true
   h: 36f739dfedef3b414a780411bcc13ea6ecf8ec7f55ea4a30cc2d538c6b15c560

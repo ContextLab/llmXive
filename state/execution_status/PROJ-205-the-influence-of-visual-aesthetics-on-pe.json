@@ -1,18 +1,18 @@
 {
   "project_id": "PROJ-205-the-influence-of-visual-aesthetics-on-pe",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python 03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json; 2 command(s) failed: python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json (rc=1); python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json (rc=1)",
+  "reason": "6 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/06_power_analysis.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"Return the path to the mock data CSV for benchmarking.\"\"\"\u2026\u201d; code/analysis/06_power_analysis.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u20260:         # Fallback to mock data ONLY if explicitly reque\u2026\u201d; code/analysis/06_power_analysis.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# We will check for mock data if real is missing, as p\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python 03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json; 2 command(s) failed: python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json (rc=1); python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json (rc=1); 2 declared deliverable(s) absent: data/processed/cleaned_data.csv; data/raw/submissions.csv",
   "artifacts": [],
   "failures": [
-    "python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/01_anova.py\", line 155, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/01_anova.py\", line 111, in main\n    df = load_wide_data(args.input)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects",
-    "python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/02_pairwise.py\", line 124, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/02_pairwise.py\", line 92, in main\n    parser = argparse.ArgumentParser(description='Run pairwise t-tests with effect sizes')\n             ^^^^^^^",
+    "python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json -> rc=1\n    Loading data from ../../data/raw/participants.csv...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/01_anova.py\", line 268, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/01_anova.py\", line 236, in main\n    df = load_wide_data(args.input)\n         ^^^^^^^^^^^^^^^^^^^^^^^",
+    "python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json -> rc=1\n    Loading data from ../../data/raw/participants.csv...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/02_pairwise.py\", line 187, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/02_pairwise.py\", line 166, in main\n    df = load_wide_data(args.input)\n         ^^^^^^^^^^^",
     "python 03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/03_mixed_effects.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-21T23:11:51Z"
+  "updated_at": "2026-08-23T23:56:03Z"
 }
