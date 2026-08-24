@@ -1,72 +1,63 @@
 """
-Tests for directory verification logic.
+Unit tests for directory verification logic (T008c).
 """
 import os
 import tempfile
 from pathlib import Path
 import pytest
+
+# Mock the config module to use a temporary directory
 import sys
+from unittest.mock import patch
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary project root with required directories."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        # Create required directories
+        (tmp_path / "data" / "raw").mkdir(parents=True)
+        (tmp_path / "data" / "processed").mkdir(parents=True)
+        yield tmp_path
 
-from data.verify_directories import verify_directories, get_project_root
-
-class TestVerifyDirectories:
-    def test_verify_directories_success(self, tmp_path):
-        """Test that verification passes when directories exist."""
-        # Create temporary directories to simulate project structure
-        data_raw = tmp_path / "data" / "raw"
-        data_processed = tmp_path / "data" / "processed"
+def test_verify_directories_success(temp_project_root):
+    """Test that verification passes when directories exist."""
+    with patch('code.data.verify_directories.get_project_root', return_value=temp_project_root):
+        from code.data.verify_directories import verify_directories
         
-        data_raw.mkdir(parents=True)
-        data_processed.mkdir(parents=True)
-        
-        # Change to tmp_path to simulate running from project root
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmp_path)
-            # This should not raise an AssertionError
-            result = verify_directories()
-            assert result is True
-        finally:
-            os.chdir(original_cwd)
+        result = verify_directories()
+        assert result is True
 
-    def test_verify_directories_missing_raw(self, tmp_path):
-        """Test that verification fails when data/raw is missing."""
-        data_processed = tmp_path / "data" / "processed"
-        data_processed.mkdir(parents=True)
+def test_verify_directories_missing_raw(temp_project_root):
+    """Test that verification fails when data/raw is missing."""
+    # Remove the raw directory
+    (temp_project_root / "data" / "raw").rmdir()
+    
+    with patch('code.data.verify_directories.get_project_root', return_value=temp_project_root):
+        from code.data.verify_directories import verify_directories
         
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmp_path)
-            with pytest.raises(AssertionError) as exc_info:
-                verify_directories()
-            assert "data/raw" in str(exc_info.value)
-        finally:
-            os.chdir(original_cwd)
+        result = verify_directories()
+        assert result is False
 
-    def test_verify_directories_missing_processed(self, tmp_path):
-        """Test that verification fails when data/processed is missing."""
-        data_raw = tmp_path / "data" / "raw"
-        data_raw.mkdir(parents=True)
+def test_verify_directories_missing_processed(temp_project_root):
+    """Test that verification fails when data/processed is missing."""
+    # Remove the processed directory
+    (temp_project_root / "data" / "processed").rmdir()
+    
+    with patch('code.data.verify_directories.get_project_root', return_value=temp_project_root):
+        from code.data.verify_directories import verify_directories
         
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmp_path)
-            with pytest.raises(AssertionError) as exc_info:
-                verify_directories()
-            assert "data/processed" in str(exc_info.value)
-        finally:
-            os.chdir(original_cwd)
+        result = verify_directories()
+        assert result is False
 
-    def test_verify_directories_missing_both(self, tmp_path):
-        """Test that verification fails when both directories are missing."""
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmp_path)
-            with pytest.raises(AssertionError) as exc_info:
-                verify_directories()
-            assert "data/raw" in str(exc_info.value)
-        finally:
-            os.chdir(original_cwd)
+def test_verify_directories_both_missing(temp_project_root):
+    """Test that verification fails when both directories are missing."""
+    # Remove both directories
+    (temp_project_root / "data" / "raw").rmdir()
+    (temp_project_root / "data" / "processed").rmdir()
+    
+    with patch('code.data.verify_directories.get_project_root', return_value=temp_project_root):
+        from code.data.verify_directories import verify_directories
+        
+        result = verify_directories()
+        assert result is False

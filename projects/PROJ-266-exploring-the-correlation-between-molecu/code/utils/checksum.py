@@ -1,11 +1,9 @@
 """
-Checksum Utility for Data Integrity Verification.
+Checksum Utility Module.
 
-This module computes SHA-256 checksums for files in the project's data directory
-and registers them in a centralized log file for governance tracking.
-
-Per Constitution Principle V, this script writes to a log file only.
-It does NOT write to state YAML files directly.
+This module computes SHA-256 checksums for data files and writes the results
+to a pending checksums file. It is used to ensure data integrity and track
+generated artifacts.
 """
 
 import hashlib
@@ -14,270 +12,141 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Dict, Any, List, Optional
 
-from utils.logging import get_logger, configure_root_logger
-from utils.config import get_project_root, get_data_path, get_state_path
+from utils.logging import get_logger
+from utils.config import get_project_root
 
-
-def get_logger_for_module() -> logging.Logger:
-    """Get a logger configured for this module."""
-    return get_logger("utils.checksum")
-
+logger = get_logger(__name__)
 
 def compute_file_checksum(file_path: Path) -> str:
     """
-    Compute the SHA-256 checksum of a file.
+    Compute SHA-256 checksum of a file.
 
     Args:
-        file_path: Path to the file to hash.
+        file_path: Path to the file.
 
     Returns:
-        Hexadecimal string of the SHA-256 hash.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        PermissionError: If the file cannot be read.
+        Hexadecimal checksum string.
     """
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(4096), b""):
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b''):
             sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-
-def load_state_file(log_path: Path) -> List[Dict[str, Any]]:
+def scan_data_files(data_dir: Path) -> List[Path]:
     """
-    Load existing checksum log entries from the log file.
+    Scan a directory for data files (CSV, JSON, etc.).
 
     Args:
-        log_path: Path to the checksums.log file.
+        data_dir: Path to the data directory.
 
     Returns:
-        List of existing log entries (parsed as dicts if valid, empty list otherwise).
+        List of file paths.
     """
-    if not log_path.exists():
-        return []
+    extensions = {'.csv', '.json', '.yaml', '.yml', '.parquet', '.txt', '.tsv'}
+    files = []
+    for ext in extensions:
+        files.extend(data_dir.rglob(f'*{ext}'))
+    return files
 
-    entries = []
-    try:
-        with open(log_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                # Simple parsing: expecting format "timestamp | filepath | checksum"
-                # We store raw lines for append-only safety, but return empty list
-                # if we can't parse, as we just append new ones.
-                # For this utility, we treat the log as append-only text.
-                pass
-    except Exception as e:
-        logger = get_logger_for_module()
-        logger.warning(f"Could not read existing checksum log: {e}")
-
-    return entries
-
-
-def save_state_file(log_path: Path, entry: str) -> None:
+def generate_checksum_record(file_path: Path, checksum: str) -> Dict[str, Any]:
     """
-    Append a new checksum entry to the log file.
+    Generate a checksum record for a file.
 
     Args:
-        log_path: Path to the checksums.log file.
-        entry: The formatted log line to append.
-    """
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(entry + "\n")
-
-
-def register_checksum(
-    file_path: Path,
-    log_path: Path,
-    logger: Optional[logging.Logger] = None
-) -> Dict[str, Any]:
-    """
-    Compute checksum for a file and register it in the log.
-
-    Args:
-        file_path: Path to the file to checksum.
-        log_path: Path to the checksums.log file.
-        logger: Logger instance to use.
+        file_path: Path to the file.
+        checksum: SHA-256 checksum.
 
     Returns:
-        Dictionary with 'file', 'checksum', 'timestamp', 'status'.
+        Dictionary with file metadata and checksum.
     """
-    if logger is None:
-        logger = get_logger_for_module()
+    stat = file_path.stat()
+    return {
+        'file_path': str(file_path),
+        'checksum': checksum,
+        'size_bytes': stat.st_size,
+        'modified_at': datetime.fromtimestamp(stat.st_mtime).isoformat(),
+        'created_at': datetime.fromtimestamp(stat.st_ctime).isoformat()
+    }
 
-    if not file_path.exists():
-        logger.error(f"File not found for checksum: {file_path}")
-        return {
-            "file": str(file_path),
-            "checksum": None,
-            "timestamp": datetime.utcnow().isoformat(),
-            "status": "failed",
-            "error": "File not found"
-        }
-
-    try:
-        checksum = compute_file_checksum(file_path)
-        timestamp = datetime.utcnow().isoformat()
-        entry = f"{timestamp} | {file_path.relative_to(get_project_root())} | {checksum}"
-
-        save_state_file(log_path, entry)
-        logger.info(f"Registered checksum for {file_path}: {checksum}")
-
-        return {
-            "file": str(file_path),
-            "checksum": checksum,
-            "timestamp": timestamp,
-            "status": "success"
-        }
-    except Exception as e:
-        logger.error(f"Failed to compute checksum for {file_path}: {e}")
-        return {
-            "file": str(file_path),
-            "checksum": None,
-            "timestamp": datetime.utcnow().isoformat(),
-            "status": "failed",
-            "error": str(e)
-        }
-
-
-def scan_and_register_data_files(
-    data_dir: Optional[Path] = None,
-    log_path: Optional[Path] = None,
-    recursive: bool = True,
-    extensions: Optional[List[str]] = None
-) -> List[Dict[str, Any]]:
+def write_checksums_to_pending(checksums: List[Dict[str, Any]], pending_path: Path) -> None:
     """
-    Scan the data directory for files and register their checksums.
+    Write checksums to a pending YAML file.
 
     Args:
-        data_dir: Path to the data directory. Defaults to project's data/ path.
-        log_path: Path to the checksums.log file. Defaults to project's state/checksums.log.
-        recursive: Whether to scan subdirectories.
-        extensions: Optional list of file extensions to include (e.g., ['.csv', '.parquet']).
-                   If None, all files are processed.
-
-    Returns:
-        List of registration result dictionaries.
+        checksums: List of checksum records.
+        pending_path: Path to the pending checksums file.
     """
-    if data_dir is None:
-        data_dir = get_data_path()
+    import yaml
 
-    if log_path is None:
-        log_path = get_state_path() / "checksums.log"
+    pending_path.parent.mkdir(parents=True, exist_ok=True)
+
+    record = {
+        'generated_at': datetime.now().isoformat(),
+        'checksums': checksums
+    }
+
+    with open(pending_path, 'w', encoding='utf-8') as f:
+        yaml.dump(record, f, default_flow_style=False, sort_keys=False)
+
+    logger.info(f"Wrote checksums to {pending_path}")
+
+def scan_and_register_data_files() -> None:
+    """
+    Scan data directories and register checksums to the pending file.
+    """
+    project_root = get_project_root()
+    data_dir = project_root / 'data'
+    pending_dir = project_root / 'state' / 'pending'
+    pending_path = pending_dir / 'checksums.yaml'
 
     if not data_dir.exists():
-        logger = get_logger_for_module()
-        logger.warning(f"Data directory does not exist: {data_dir}")
-        return []
+        logger.warning(f"Data directory {data_dir} does not exist. Skipping checksum generation.")
+        return
 
-    logger = get_logger_for_module()
-    logger.info(f"Scanning {data_dir} for files to checksum...")
+    files = scan_data_files(data_dir)
+    if not files:
+        logger.warning("No data files found to checksum.")
+        return
 
-    results = []
-    files_to_process = []
+    checksums = []
+    for file_path in files:
+        try:
+            checksum = compute_file_checksum(file_path)
+            record = generate_checksum_record(file_path, checksum)
+            checksums.append(record)
+            logger.debug(f"Checksum for {file_path}: {checksum}")
+        except Exception as e:
+            logger.error(f"Failed to compute checksum for {file_path}: {e}")
 
-    if recursive:
-        for root, _, files in os.walk(data_dir):
-            for file in files:
-                files_to_process.append(Path(root) / file)
+    if checksums:
+        write_checksums_to_pending(checksums, pending_path)
     else:
-        files_to_process = list(data_dir.iterdir())
+        logger.warning("No valid checksums generated.")
 
-    for file_path in files_to_process:
-        if file_path.is_file():
-            if extensions is None or file_path.suffix.lower() in extensions:
-                result = register_checksum(file_path, log_path, logger)
-                results.append(result)
-
-    logger.info(f"Processed {len(results)} files.")
-    return results
-
-
-def verify_checksum(
-    file_path: Path,
-    expected_checksum: str,
-    logger: Optional[logging.Logger] = None
-) -> bool:
+def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
     """
-    Verify a file's checksum against an expected value.
+    Verify the checksum of a file against an expected value.
 
     Args:
-        file_path: Path to the file to verify.
-        expected_checksum: The expected SHA-256 hex string.
-        logger: Logger instance to use.
+        file_path: Path to the file.
+        expected_checksum: Expected SHA-256 checksum.
 
     Returns:
         True if checksum matches, False otherwise.
     """
-    if logger is None:
-        logger = get_logger_for_module()
+    actual_checksum = compute_file_checksum(file_path)
+    return actual_checksum == expected_checksum
 
-    if not file_path.exists():
-        logger.error(f"File not found for verification: {file_path}")
-        return False
-
-    try:
-        actual_checksum = compute_file_checksum(file_path)
-        if actual_checksum == expected_checksum:
-            logger.info(f"Checksum verified for {file_path}")
-            return True
-        else:
-            logger.error(f"Checksum MISMATCH for {file_path}: expected {expected_checksum}, got {actual_checksum}")
-            return False
-    except Exception as e:
-        logger.error(f"Failed to verify checksum for {file_path}: {e}")
-        return False
-
-
-def main() -> int:
+def main():
     """
-    Main entry point for the checksum utility.
-
-    Scans the data directory and registers checksums for all files.
-    Writes results to state/checksums.log.
-
-    Returns:
-        0 on success, 1 on error.
+    Main entry point for checksum utility.
     """
-    configure_root_logger()
-    logger = get_logger_for_module()
-    logger.info("Starting checksum utility...")
+    logger.info("Running checksum utility.")
+    scan_and_register_data_files()
+    logger.info("Checksum utility completed.")
 
-    try:
-        data_dir = get_data_path()
-        log_path = get_state_path() / "checksums.log"
-
-        # Ensure directories exist
-        data_dir.mkdir(parents=True, exist_ok=True)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-
-        results = scan_and_register_data_files(
-            data_dir=data_dir,
-            log_path=log_path,
-            recursive=True
-        )
-
-        success_count = sum(1 for r in results if r["status"] == "success")
-        fail_count = sum(1 for r in results if r["status"] == "failed")
-
-        logger.info(f"Checksum scan complete. Success: {success_count}, Failed: {fail_count}")
-
-        if fail_count > 0:
-            logger.warning(f"{fail_count} files failed checksum registration.")
-            return 1
-
-        return 0
-
-    except Exception as e:
-        logger.exception(f"Fatal error in checksum utility: {e}")
-        return 1
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

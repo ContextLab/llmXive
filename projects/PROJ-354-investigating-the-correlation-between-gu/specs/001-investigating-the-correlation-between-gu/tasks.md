@@ -82,7 +82,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/download.py` to fetch UK Biobank microbiome data and cognitive scores (fields 20400, 20002) using streaming batches <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T012 [P] [US1] Implement `code/download.py` to fetch UK Biobank microbiome data and cognitive scores (fields 20400, 20002) using streaming batches <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T013 [US1] Implement `code/preprocess.py` to filter cohort: exclude recent antibiotic users and participants missing either data type (log exclusion counts)
 - [ ] T014 [US1] Apply **Bayesian-multiplicative zero-replacement** to raw microbiome counts (per Plan Complexity Tracking) to avoid log(0) bias. **Output**: `data/processed/zero_replaced_counts.parquet`.
 - [ ] T015 [US1] Implement `code/preprocess.py` genus-level aggregation and **Isometric Log-Ratio (ILR)** transformation. Pipeline: Zero-replaced counts -> Centered Log-Ratio (CLR) -> ILR (orthonormal coordinates). **Output**: `data/processed/ilr_coordinates.parquet`. Satisfies Constitution Principle VI.
@@ -108,7 +108,7 @@
 
 - [X] T020a [US2] Implement `code/analysis.py` to fit **Standard OLS** linear models for main effects (ILR coords vs. cognitive scores) with covariates (age, sex, BMI, diet, activity, medication). **Requires T019 completion** (Power Gate).
 - [X] T020b [US2] Implement `code/analysis.py` covariate handling logic and ensure all confounders from FR-004 are included.
-- [~] T021 [US2] Implement `code/analysis.py` Benjamini-Hochberg correction for all taxon-cognitive associations and report adjusted p-values (FR-005). **Output**: `results/associations/main_effects.parquet`.
+- [ ] T021 [US2] Implement `code/analysis.py` Benjamini-Hochberg correction for all taxon-cognitive associations and report adjusted p-values (FR-005). **Output**: `results/associations/main_effects.parquet`.
 - [ ] T022a [US2] Fit reduced models excluding diet/medication covariates to check for over-control bias (FR-010).
 - [ ] T022b [US2] Generate over-control bias comparison report comparing effect sizes between full and reduced models. **Output**: `results/sensitivity/over_control_report.json`.
 - [ ] T023 [US2] Update `results/associations/*.parquet` metadata columns to include `causality_claim: false` (FR-008).

@@ -6,245 +6,172 @@ import json
 import tempfile
 from unittest.mock import patch, MagicMock
 
-# Import the functions under test from the derivation module
+# Add the code directory to the path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from src.derivation.sample_complexity import (
     invert_variance_to_sample_complexity,
     derive_sample_complexity_bound,
     verify_inversion_logic,
-    save_derivation_output
+    save_derivation_output,
+    calculate_bound,
+    SampleComplexityResult
 )
 from src.derivation.variance_scaling import derive_variance_accumulation
 
 class TestInversionLogic:
-    """Tests for the inversion logic of variance to sample complexity."""
-
+    """Tests for the inversion logic (variance -> sample complexity)."""
+    
     def test_invert_variance_basic(self):
-        """Test basic inversion of variance expression to sample complexity."""
-        N = sympy.Symbol('N', positive=True, integer=True)
-        epsilon = sympy.Symbol('epsilon', positive=True)
+        """Test basic inversion of variance expression."""
+        variance_expr = derive_variance_accumulation()
+        result = invert_variance_to_sample_complexity(variance_expr, 0.01)
         
-        # Create a simple variance expression: N * epsilon^2
-        variance_expr = N * epsilon**2
-        
-        # Invert to get sample complexity
-        result = invert_variance_to_sample_complexity(variance_expr, N, epsilon)
-        
-        # The sample complexity should be related to N * epsilon^2
-        # For variance = N * epsilon^2, sample_complexity ~ 1 / (epsilon^2) * N
-        assert result is not None
+        # For N * sigma^2 = 0.01, if sigma^2 = 0.01, then N = 1
+        # The result should be a sympy expression
         assert isinstance(result, sympy.Expr)
-
-    def test_invert_variance_with_constants(self):
-        """Test inversion with constant factors."""
-        N = sympy.Symbol('N', positive=True, integer=True)
-        epsilon = sympy.Symbol('epsilon', positive=True)
-        c = sympy.Symbol('c', positive=True)
+    
+    def test_invert_variance_with_values(self):
+        """Test inversion with specific values."""
+        variance_expr = derive_variance_accumulation()
+        target_var = 0.25
+        result = invert_variance_to_sample_complexity(variance_expr, target_var)
         
-        variance_expr = c * N * epsilon**2
-        result = invert_variance_to_sample_complexity(variance_expr, N, epsilon)
-        
-        assert result is not None
-        assert isinstance(result, sympy.Expr)
-
-    def test_invert_variance_linear_case(self):
-        """Test inversion for linear variance scaling."""
-        N = sympy.Symbol('N', positive=True, integer=True)
-        epsilon = sympy.Symbol('epsilon', positive=True)
-        
-        # Linear variance: Var = N * sigma^2
-        variance_expr = N * epsilon**2
-        
-        result = invert_variance_to_sample_complexity(variance_expr, N, epsilon)
-        
+        # Should solve for N
         assert result is not None
 
 class TestDeriveSampleComplexityBound:
     """Tests for the sample complexity bound derivation."""
-
-    def test_derive_bound_returns_dict(self):
-        """Test that derive_sample_complexity_bound returns a dictionary."""
+    
+    def test_derive_sample_complexity_bound(self):
+        """Test the main derivation function."""
         result = derive_sample_complexity_bound()
         
-        assert isinstance(result, dict)
-        assert 'bound' in result
-        assert 'N' in result
-        assert 'epsilon' in result
-
-    def test_derive_bound_with_N_5(self):
-        """Test derivation with N=5."""
-        with patch('src.derivation.sample_complexity.derive_variance_accumulation') as mock_var:
-            # Mock the variance accumulation to return a simple expression
-            N = sympy.Symbol('N', positive=True, integer=True)
-            epsilon = sympy.Symbol('epsilon', positive=True)
-            mock_var.return_value = {'expression': N * epsilon**2, 'N': 5, 'epsilon': epsilon}
-            
-            result = derive_sample_complexity_bound()
-            
-            assert result is not None
-            assert isinstance(result, dict)
-
-    def test_derive_bound_with_N_50(self):
-        """Test derivation with N=50 (edge case)."""
-        with patch('src.derivation.sample_complexity.derive_variance_accumulation') as mock_var:
-            N = sympy.Symbol('N', positive=True, integer=True)
-            epsilon = sympy.Symbol('epsilon', positive=True)
-            mock_var.return_value = {'expression': N * epsilon**2, 'N': 50, 'epsilon': epsilon}
-            
-            result = derive_sample_complexity_bound()
-            
-            assert result is not None
-            assert isinstance(result, dict)
+        assert "variance_expression" in result
+        assert "is_valid" in result
+        assert "results" in result
+        assert len(result["results"]) > 0
+        
+        # Check that is_valid is True
+        assert result["is_valid"] is True
+    
+    def test_derive_sample_complexity_bound_structure(self):
+        """Test the structure of the derivation result."""
+        result = derive_sample_complexity_bound()
+        
+        for res in result["results"]:
+            assert "N" in res
+            assert "effective_N" in res
+            assert "epsilon" in res
+            assert "bound" in res
+            assert "degraded" in res
+            assert "formula" in res
+            assert "assumptions" in res
 
 class TestVerification:
-    """Tests for the verification of inversion logic."""
-
-    def test_verify_inversion_logic_basic(self):
-        """Test basic verification of inversion logic."""
-        N = sympy.Symbol('N', positive=True, integer=True)
-        epsilon = sympy.Symbol('epsilon', positive=True)
-        
-        variance_expr = N * epsilon**2
-        result = verify_inversion_logic(variance_expr, N, epsilon)
-        
-        assert result is not None
-        assert isinstance(result, dict)
-        assert 'verification_passed' in result
-
-    def test_verify_inversion_with_simplify(self):
-        """Test verification with sympy simplification."""
-        N = sympy.Symbol('N', positive=True, integer=True)
-        epsilon = sympy.Symbol('epsilon', positive=True)
-        
-        # Create a more complex expression that should simplify
-        variance_expr = (N * epsilon**2) / epsilon
-        
-        result = verify_inversion_logic(variance_expr, N, epsilon)
-        
-        assert result is not None
-
-    def test_verify_inversion_returns_true_for_valid_inversion(self):
-        """Test that verification returns True for a valid inversion."""
-        N = sympy.Symbol('N', positive=True, integer=True)
-        epsilon = sympy.Symbol('epsilon', positive=True)
-        
-        variance_expr = N * epsilon**2
-        result = verify_inversion_logic(variance_expr, N, epsilon)
-        
-        # The result should indicate successful verification
-        assert result['verification_passed'] is True
+    """Tests for the verification logic."""
+    
+    def test_verify_inversion_logic(self):
+        """Test the inversion logic verification."""
+        is_valid = verify_inversion_logic()
+        assert is_valid is True
 
 class TestSaveDerivationOutput:
-    """Tests for saving derivation output to file."""
-
-    def test_save_derivation_output_creates_file(self):
-        """Test that save_derivation_output creates a JSON file."""
+    """Tests for saving derivation output."""
+    
+    def test_save_derivation_output(self):
+        """Test saving derivation output to a file."""
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = os.path.join(tmpdir, "test_output.json")
             
-            result_data = {
-                'bound': 'N * epsilon^2',
-                'N': 10,
-                'epsilon': 0.1,
-                'assumptions': ['i.i.d. noise']
+            test_data = {
+                "test": "data",
+                "number": 42
             }
             
-            save_derivation_output(result_data, output_path)
+            save_derivation_output(test_data, output_path)
             
             assert os.path.exists(output_path)
             
             with open(output_path, 'r') as f:
                 loaded_data = json.load(f)
             
-            assert loaded_data == result_data
-
-    def test_save_derivation_output_with_sympy_expr(self):
-        """Test saving with sympy expression (converted to string)."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "test_output_sympy.json")
-            
-            N = sympy.Symbol('N', positive=True, integer=True)
-            epsilon = sympy.Symbol('epsilon', positive=True)
-            
-            result_data = {
-                'bound': str(N * epsilon**2),
-                'N': 20,
-                'epsilon': str(epsilon),
-                'expression': str(N * epsilon**2)
-            }
-            
-            save_derivation_output(result_data, output_path)
-            
-            assert os.path.exists(output_path)
-            
-            with open(output_path, 'r') as f:
-                loaded_data = json.load(f)
-            
-            assert loaded_data['bound'] == 'N*epsilon**2'
-
-    def test_save_derivation_output_creates_directory_if_missing(self):
-        """Test that save_derivation_output creates the directory if it doesn't exist."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "subdir", "test_output.json")
-            
-            result_data = {'test': 'data'}
-            
-            # Should not raise an error
-            save_derivation_output(result_data, output_path)
-            
-            assert os.path.exists(output_path)
+            assert loaded_data == test_data
 
 class TestIntegration:
     """Integration tests for the sample complexity module."""
-
-    def test_full_derivation_pipeline(self):
-        """Test the full pipeline from variance derivation to sample complexity."""
-        with patch('src.derivation.sample_complexity.derive_variance_accumulation') as mock_var:
-            N = sympy.Symbol('N', positive=True, integer=True)
-            epsilon = sympy.Symbol('epsilon', positive=True)
-            
-            # Mock the variance accumulation
-            mock_var.return_value = {
-                'expression': N * epsilon**2,
-                'N': 10,
-                'epsilon': epsilon
-            }
-            
-            # Run the derivation
-            result = derive_sample_complexity_bound()
-            
-            assert result is not None
-            assert 'bound' in result
-            assert result['N'] == 10
-
-    def test_inversion_matches_derivation(self):
-        """Test that the inversion logic is consistent with the derivation."""
-        N = sympy.Symbol('N', positive=True, integer=True)
-        epsilon = sympy.Symbol('epsilon', positive=True)
+    
+    def test_calculate_bound_basic(self):
+        """Test basic bound calculation."""
+        variance_expr = derive_variance_accumulation()
+        result = calculate_bound(variance_expr, N=5, epsilon=0.1)
         
-        variance_expr = N * epsilon**2
+        assert isinstance(result, SampleComplexityResult)
+        assert result.N == 5
+        assert result.epsilon == 0.1
+        assert result.degraded is False
+        assert result.effective_N == 5
+        # Expected bound: (5 * 0.1^2) / 0.1^2 = 5
+        assert abs(result.bound - 5.0) < 1e-6
+    
+    def test_calculate_bound_degraded(self):
+        """Test bound calculation with N > 50 (degraded mode)."""
+        variance_expr = derive_variance_accumulation()
+        result = calculate_bound(variance_expr, N=60, epsilon=0.1)
         
-        # Invert
-        sample_complexity = invert_variance_to_sample_complexity(variance_expr, N, epsilon)
+        assert isinstance(result, SampleComplexityResult)
+        assert result.N == 60
+        assert result.degraded is True
+        assert result.effective_N == 50
+        # Effective N is 50, so bound = (50 * 0.1^2) / 0.1^2 = 50
+        assert abs(result.bound - 50.0) < 1e-6
+    
+    def test_calculate_bound_various_epsilon(self):
+        """Test bound calculation with various epsilon values."""
+        variance_expr = derive_variance_accumulation()
         
-        # Verify
-        verification = verify_inversion_logic(variance_expr, N, epsilon)
+        for epsilon in [0.1, 0.2, 0.5]:
+            result = calculate_bound(variance_expr, N=10, epsilon=epsilon)
+            assert result.N == 10
+            assert result.epsilon == epsilon
+            assert result.degraded is False
+            # Bound should be N * sigma^2 / epsilon^2 = 10 * epsilon^2 / epsilon^2 = 10
+            assert abs(result.bound - 10.0) < 1e-6
+    
+    def test_calculate_bound_edge_case_zero_epsilon(self):
+        """Test that zero epsilon raises an error."""
+        variance_expr = derive_variance_accumulation()
         
-        assert verification['verification_passed'] is True
-
-    def test_derivation_with_different_N_values(self):
-        """Test derivation with multiple N values."""
-        for n_val in [5, 10, 20, 50]:
-            with patch('src.derivation.sample_complexity.derive_variance_accumulation') as mock_var:
-                N = sympy.Symbol('N', positive=True, integer=True)
-                epsilon = sympy.Symbol('epsilon', positive=True)
-                
-                mock_var.return_value = {
-                    'expression': N * epsilon**2,
-                    'N': n_val,
-                    'epsilon': epsilon
-                }
-                
-                result = derive_sample_complexity_bound()
-                
-                assert result is not None
-                assert result['N'] == n_val
+        with pytest.raises(ValueError, match="Epsilon cannot be zero"):
+            calculate_bound(variance_expr, N=5, epsilon=0.0)
+    
+    def test_sample_complexity_result_defaults(self):
+        """Test default values for SampleComplexityResult."""
+        result = SampleComplexityResult(
+            bound=10.0,
+            N=5,
+            epsilon=0.1
+        )
+        
+        assert result.degraded is False
+        assert result.effective_N is None
+        assert result.formula == ""
+        assert result.assumptions is not None
+        assert "i.i.d. noise" in result.assumptions
+    
+    def test_sample_complexity_result_with_degraded(self):
+        """Test SampleComplexityResult with degraded mode."""
+        result = SampleComplexityResult(
+            bound=50.0,
+            N=60,
+            epsilon=0.1,
+            degraded=True,
+            effective_N=50,
+            formula="M >= 50",
+            assumptions=["test assumption"]
+        )
+        
+        assert result.degraded is True
+        assert result.effective_N == 50
+        assert result.formula == "M >= 50"
+        assert result.assumptions == ["test assumption"]

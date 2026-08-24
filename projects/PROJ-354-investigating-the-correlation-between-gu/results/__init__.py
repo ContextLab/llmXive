@@ -1,4 +1,3 @@
 """
-Results directory placeholder.
-Contains analysis outputs, plots, and reports.
+Results directory for analysis outputs, plots, and reports.
 """

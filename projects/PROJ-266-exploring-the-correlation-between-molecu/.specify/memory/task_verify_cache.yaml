@@ -1,26 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `specs/001-molecular-flexibility-permeability/research.md` file
-    was provided, nor any excerpt showing the required headers and placeholder text.
-    Without the actual artifact, we cannot confirm the task was fulfilled. The implementer
-    must add the file with the exact sections listed.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `code/`, `tests/`, or `data/` directories (or any\
-    \ files within them) was provided; without a directory listing or actual files,\
-    \ we cannot confirm that the project structure was created as specified. The implementer\
-    \ must supply the filesystem layout showing these three top\u2011level folders\
-    \ (and ideally non\u2011empty placeholder files) to satisfy the task."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml,\
-    \ setup.cfg) or setup scripts are present in the provided evidence, so the requirement\
-    \ to configure flake8/black is not satisfied. The implementer must add the appropriate\
-    \ configuration files and any integration steps (e.g., pre\u2011commit hooks)\
-    \ to complete the task."
 T006:
   c: false
   h: 9914aae3ece5fb48343f57249c7f1395fe8fe5d86fea31a1482bcaab2398bc8b
@@ -29,30 +6,28 @@ T006:
     \ section to `research.md`, and the shown code contains a typo (`DEFAULT_DEVIA`)\
     \ that would raise a `NameError` if a YAML parse error occurs. Consequently the\
     \ script does not fully meet the task\u2019s functional requirement."
-T008c:
+T008b:
+  c: true
+  h: e704fa8e447d74c0a043b8eecbe14bf29bf784859c119a653048168e656a5841
+  r: "The `code/utils/checksum.py` file exists, is non\u2011empty, and defines functions\
+    \ that compute SHA\u2011256 checksums for files under `data/` and write a YAML\
+    \ record to `state/pending/checksums.yaml`. The pending file\u2019s absence is\
+    \ expected until the script is run, not a sign of missing implementation."
+T008d:
+  c: true
+  h: d974da252bf6da54549fe47a2bff38b765fc42114be092df21dff90595ff0687
+  r: 'The `state/projects/` directory exists (evidenced by the file path) and the
+    required file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`
+    is present with the exact content `artifact_hashes: {}` as specified. No missing
+    or placeholder artifacts remain.'
+T012:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (script, test output, or directory listing) was provided showing
-    that `data/raw` and `data/processed` exist or that the required `assert` statements
-    were executed. Consequently the requirement to verify the directory structure
-    cannot be confirmed.
-T009:
-  c: false
-  h: ece54b34178dfaf48cc967f6063c1fcac359412117c25954a5e53a0a904e6dd5
-  r: "The `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
-    \ file does not exist, and the provided `checksum.py` only writes to a log file\
-    \ (and its implementation is incomplete), so the retrieval script cannot register\
-    \ a checksum in the required YAML. Consequently the task\u2019s core requirement\
-    \ is unmet."
-T010:
-  c: false
-  h: be65f6d1b944185af7bf8decc081ddcf4996633dbc956e5bdee920f23c2f0957
-  r: The `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` file
-    is absent, and the shown portion of `code/data/preprocessing.py` never reaches
-    the part where it writes the filtered CSV or calls `register_checksum`. Consequently
-    the required checksum registration step cannot be performed. The task needs the
-    missing state file and the implementation to save the filtered data and invoke
-    the checksum utility.
+  h: f51f1d793bb1533dc0191d164e8a3bf7af5882b0341a702c5448465f5bd3bc7f
+  r: The `tests/contract/test_dataset.py` file does not show a defined `test_schema_compliance`
+    function (the code is truncated and ends inside `validate_record`), and the required
+    schema file `specs/001-molecular-flexibility-permeability/contracts/dataset.schema.yaml`
+    is absent. Both the test implementation and the schema it must validate against
+    are missing, so the task is not fulfilled.
 T023b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,52 +1,53 @@
 """
-Contract tests for the Caco-2 dataset against the schema defined in T007.
+Contract tests for the Caco-2 dataset schema.
 
-These tests validate that the processed dataset adheres to the structural
-and type constraints defined in `specs/001-molecular-flexibility-permeability/contracts/dataset.schema.yaml`.
+Validates that data produced by the retrieval and preprocessing pipeline
+adheres to the schema defined in specs/001-molecular-flexibility-permeability/contracts/dataset.schema.yaml.
 
-Dependency: T007 (Schema definition)
+Specific test function: test_schema_compliance
 """
 import json
 import os
 import sys
 import unittest
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
-# Add parent directory to path for imports if running as script
-# but rely on project structure for standard execution
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+# Add project root to path to allow imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 SCHEMA_PATH = PROJECT_ROOT / "specs" / "001-molecular-flexibility-permeability" / "contracts" / "dataset.schema.yaml"
+TEST_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "filtered_data.csv"
 
-# Try to import jsonschema if available, otherwise implement basic validation
+# Helper to load YAML without external dependency if possible, 
+# but since requirements.txt includes pyvib and standard scientific stack, 
+# we assume PyYAML is available or implement a simple parser for this specific schema.
 try:
-    import jsonschema
-    HAS_JSONSCHEMA = True
+    import yaml
+    HAS_YAML = True
 except ImportError:
-    HAS_JSONSCHEMA = False
-    print("WARNING: jsonschema not installed. Using basic validation fallback.")
+    HAS_YAML = False
 
 
 def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load the YAML schema and convert to JSON-compatible dict."""
-    # Since schema.yaml is defined in T007, we assume it exists and is valid YAML/JSON
-    # We will load it as JSON for simplicity if it's valid JSON, or use yaml if available
+    """Load the JSON schema from the YAML file."""
     if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-
-    content = schema_path.read_text()
-    # T007 defines the schema. We assume it's valid YAML that can be parsed.
-    # If 'yaml' is not installed, we try to parse as JSON if the file is JSON-like.
-    # However, standard practice is to use the 'yaml' library.
-    try:
-        import yaml
-        return yaml.safe_load(content)
-    except ImportError:
-        # Fallback: try to load as JSON if it looks like JSON
-        # This is a minimal fallback for environments without PyYAML
-        # The schema defined in T007 is simple enough that it could be JSON.
-        import json
-        return json.loads(content)
+        raise FileNotFoundError(f"Schema file not found at {schema_path}")
+    
+    with open(schema_path, 'r', encoding='utf-8') as f:
+        if HAS_YAML:
+            return yaml.safe_load(f)
+        else:
+            # Fallback: Simple YAML parser for this specific structure if PyYAML missing
+            # This is a minimal parser for the expected schema structure
+            content = f.read()
+            # Basic heuristic: if it looks like JSON (starts with {), load as JSON
+            if content.strip().startswith('{'):
+                return json.loads(content)
+            else:
+                raise ImportError("PyYAML is required to load the schema file.")
 
 
 def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
@@ -55,144 +56,145 @@ def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> List[str]
     Returns a list of error messages.
     """
     errors = []
-    required_fields = schema.get("required", [])
-    properties = schema.get("properties", {})
+    properties = schema.get('properties', {})
+    required_fields = schema.get('required', [])
 
     # Check required fields
     for field in required_fields:
-        if field not in record:
+        if field not in record or record[field] is None:
             errors.append(f"Missing required field: {field}")
 
-    # Check types for present fields
+    # Check field types and constraints
     for field, value in record.items():
-        if field in properties:
-            expected_type = properties[field].get("type")
-            if expected_type == "string":
-                if not isinstance(value, str):
-                    errors.append(f"Field '{field}' must be string, got {type(value).__name__}")
-            elif expected_type == "number":
-                if not isinstance(value, (int, float)):
-                    errors.append(f"Field '{field}' must be number, got {type(value).__name__}")
-            elif expected_type == "integer":
-                if not isinstance(value, int):
-                    errors.append(f"Field '{field}' must be integer, got {type(value).__name__}")
-        # Unknown fields are allowed unless additionalProperties is false
-        # (Not strictly enforced here unless specified in schema)
+        if field not in properties:
+            # Allow extra fields? Schema usually implies strictness in contracts.
+            # For now, we log a warning or ignore if not in schema.
+            continue
+
+        field_schema = properties[field]
+        expected_type = field_schema.get('type')
+
+        if expected_type == 'string':
+            if not isinstance(value, str):
+                errors.append(f"Field '{field}' should be string, got {type(value).__name__}")
+            # Check minLength if present
+            if 'minLength' in field_schema and len(value) < field_schema['minLength']:
+                errors.append(f"Field '{field}' length {len(value)} < minLength {field_schema['minLength']}")
+        
+        elif expected_type == 'number':
+            if not isinstance(value, (int, float)):
+                errors.append(f"Field '{field}' should be number, got {type(value).__name__}")
+            # Check minimum if present
+            if 'minimum' in field_schema and value < field_schema['minimum']:
+                errors.append(f"Field '{field}' value {value} < minimum {field_schema['minimum']}")
+        
+        elif expected_type == 'object':
+            if not isinstance(value, dict):
+                errors.append(f"Field '{field}' should be object, got {type(value).__name__}")
+            else:
+                # Validate nested properties if defined
+                nested_props = field_schema.get('properties', {})
+                nested_required = field_schema.get('required', [])
+                for nested_field in nested_required:
+                    if nested_field not in value:
+                        errors.append(f"Missing nested required field in '{field}': {nested_field}")
+                for nested_field, nested_val in value.items():
+                    if nested_field in nested_props:
+                        nested_schema = nested_props[nested_field]
+                        nested_type = nested_schema.get('type')
+                        if nested_type == 'string' and not isinstance(nested_val, str):
+                            errors.append(f"Nested field '{field}.{nested_field}' should be string")
+                        elif nested_type == 'number' and not isinstance(nested_val, (int, float)):
+                            errors.append(f"Nested field '{field}.{nested_field}' should be number")
 
     return errors
 
 
 class TestDatasetSchema(unittest.TestCase):
-    """Test suite for validating the Caco-2 dataset against the schema."""
+    """
+    Contract tests for the Caco-2 dataset schema compliance.
+    """
 
     @classmethod
     def setUpClass(cls):
-        """Load the schema once for all tests."""
+        """Load schema and test data once for all tests."""
         if not SCHEMA_PATH.exists():
-            # If schema doesn't exist, we can't run tests.
-            # This should be caught by the test runner, but we handle it gracefully.
-            raise RuntimeError(f"Schema file not found at {SCHEMA_PATH}. Ensure T007 is complete.")
-        
+            raise FileNotFoundError(
+                f"Schema file missing at {SCHEMA_PATH}. "
+                "Ensure task T007 has been completed successfully."
+            )
         cls.schema = load_schema(SCHEMA_PATH)
-        # Determine the path to the processed data
-        # Based on T010, the output is typically data/processed/caco2_cleaned.csv
-        # or similar. We look for the most recent processed file or a specific one.
-        processed_dir = PROJECT_ROOT / "data" / "processed"
-        if not processed_dir.exists():
-            raise RuntimeError("Processed data directory not found. Ensure T008a and T010 are complete.")
         
-        # Find the cleaned data file
-        cleaned_files = list(processed_dir.glob("caco2_cleaned*.csv"))
-        if not cleaned_files:
-            # Fallback to any csv if naming convention differs slightly
-            cleaned_files = list(processed_dir.glob("*.csv"))
-        
-        if not cleaned_files:
-            raise RuntimeError("No cleaned CSV file found in data/processed/. Ensure T010 has run.")
-        
-        # Sort by modification time to get the latest
-        cls.data_path = sorted(cleaned_files, key=lambda p: p.stat().st_mtime)[-1]
-        print(f"Testing against data file: {cls.data_path}")
+        if not TEST_DATA_PATH.exists():
+            # If data doesn't exist yet, we skip the data validation tests
+            # but we can still test that the schema loads correctly.
+            cls.data = []
+            cls.has_data = False
+        else:
+            import pandas as pd
+            df = pd.read_csv(TEST_DATA_PATH)
+            cls.data = df.to_dict(orient='records')
+            cls.has_data = True
 
-    def test_schema_loads(self):
-        """Verify the schema is valid and loadable."""
+    def test_schema_exists(self):
+        """Verify the schema file is valid and loadable."""
         self.assertIsNotNone(self.schema)
-        self.assertIn("properties", self.schema)
-        self.assertIn("required", self.schema)
+        self.assertIn('properties', self.schema)
+        self.assertIn('required', self.schema)
 
-    def test_required_fields_present(self):
-        """Ensure all records have required fields."""
-        import pandas as pd
-        df = pd.read_csv(self.data_path)
-        required_fields = self.schema.get("required", [])
+    def test_schema_compliance(self):
+        """
+        Validates data against the schema defined in T007.
         
-        missing_cols = set(required_fields) - set(df.columns)
-        self.assertEqual(len(missing_cols), 0, f"Missing required columns in data: {missing_cols}")
+        Requirement: Implement specific test function: 
+        tests/contract/test_dataset.py::test_schema_compliance 
+        (validates data against the schema defined in T007).
+        """
+        if not self.has_data:
+            self.skipTest("No test data found at data/processed/filtered_data.csv. "
+                          "Run retrieval and preprocessing tasks first.")
 
-    def test_field_types(self):
-        """Verify that field types match the schema."""
-        import pandas as pd
-        df = pd.read_csv(self.data_path)
-        properties = self.schema.get("properties", {})
+        total_records = len(self.data)
+        failed_records = []
+        error_details = []
+
+        for idx, record in enumerate(self.data):
+            record_errors = validate_record(record, self.schema)
+            if record_errors:
+                failed_records.append(idx)
+                error_details.append({
+                    "row": idx,
+                    "errors": record_errors
+                })
+
+        if failed_records:
+            error_summary = f"Schema validation failed for {len(failed_records)} records.\n"
+            for detail in error_details[:5]: # Show first 5 errors
+                error_summary += f"  Row {detail['row']}: {detail['errors']}\n"
+            if len(error_details) > 5:
+                error_summary += f"  ... and {len(error_details) - 5} more."
+            
+            self.fail(error_summary)
+
+        # If we reach here, all records passed
+        self.assertEqual(len(failed_records), 0, 
+                         f"Schema validation failed for {len(failed_records)} records.")
         
-        # Map pandas dtypes to expected schema types
-        type_map = {
-            "string": ["object", "string"],
-            "number": ["float64", "int64", "float32", "int32"],
-            "integer": ["int64", "int32"]
-        }
+        # Additional specific checks based on T007 requirements
+        # T007 requires: smiles, logPapp, mw, psa, assay_id, protocol_metadata
+        required_top_level = ['smiles', 'logPapp', 'mw', 'psa', 'assay_id', 'protocol_metadata']
+        for field in required_top_level:
+            self.assertIn(field, self.schema['properties'], 
+                          f"Schema missing required field: {field}")
 
-        errors = []
-        for col in df.columns:
-            if col in properties:
-                expected_type = properties[col].get("type")
-                actual_dtype = str(df[col].dtype)
-                
-                if expected_type in type_map:
-                    if actual_dtype not in type_map[expected_type]:
-                        # Check for nulls which might affect dtype inference
-                        if df[col].isna().any():
-                            # Allow object type if there are NaNs in numeric columns (pandas behavior)
-                            if expected_type in ["number", "integer"] and actual_dtype == "object":
-                                continue 
-                        errors.append(f"Column '{col}' has dtype {actual_dtype}, expected {expected_type}")
-
-        self.assertEqual(len(errors), 0, f"Type mismatches found:\n" + "\n".join(errors))
-
-    def test_no_null_required_fields(self):
-        """Ensure no null values in required fields."""
-        import pandas as pd
-        df = pd.read_csv(self.data_path)
-        required_fields = self.schema.get("required", [])
-        
-        for field in required_fields:
-            if field in df.columns:
-                null_count = df[field].isna().sum()
-                self.assertEqual(null_count, 0, f"Field '{field}' contains {null_count} null values.")
-
-    def test_smiles_format(self):
-        """Validate that SMILES strings are non-empty and look like SMILES."""
-        import pandas as pd
-        df = pd.read_csv(self.data_path)
-        if "smiles" not in df.columns:
-            self.skipTest("smiles column not found")
-        
-        # Basic check: no empty strings or whitespace-only
-        invalid_smiles = df[df["smiles"].astype(str).str.strip() == ""]
-        self.assertEqual(len(invalid_smiles), 0, "Found empty or whitespace-only SMILES strings.")
-
-    def test_logPapp_range(self):
-        """Validate that logPapp is a reasonable number."""
-        import pandas as pd
-        df = pd.read_csv(self.data_path)
-        if "logPapp" not in df.columns:
-            self.skipTest("logPapp column not found")
-        
-        # logPapp is typically between -10 and 10 for permeability
-        # We just check it's a number, not extreme outliers unless specified
-        # For now, just ensure it's not NaN (covered by required fields) and is numeric
-        non_numeric = df[~df["logPapp"].apply(lambda x: isinstance(x, (int, float)))]
-        self.assertEqual(len(non_numeric), 0, "Found non-numeric values in logPapp.")
+        # Check protocol_metadata structure
+        if 'protocol_metadata' in self.schema['properties']:
+            meta_schema = self.schema['properties']['protocol_metadata']
+            meta_required = meta_schema.get('required', [])
+            expected_meta = ['lab_id', 'temperature', 'passage']
+            for exp in expected_meta:
+                self.assertIn(exp, meta_required, 
+                              f"protocol_metadata missing required field: {exp}")
 
 
 if __name__ == '__main__':

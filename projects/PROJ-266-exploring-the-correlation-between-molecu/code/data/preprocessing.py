@@ -13,14 +13,15 @@ from typing import List, Dict, Any, Optional
 
 from utils.logging import get_logger, configure_root_logger
 from utils.config import get_project_root, get_data_path
-from utils.checksum import register_checksum
+from utils.checksum import write_checksums_to_pending
 
 logger = get_logger(__name__)
 
 # Constants
 RAW_DATA_PATH = "data/raw/chembl_caco2_raw.csv"
-PROCESSED_DATA_PATH = "data/processed/caco2_filtered.csv"
+PROCESSED_DATA_PATH = "data/processed/filtered_data.csv"
 STATE_PATH = "state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml"
+PENDING_CHECKSUM_PATH = "state/pending/checksums.yaml"
 
 def load_raw_data() -> List[Dict[str, Any]]:
     """
@@ -68,7 +69,8 @@ def preprocess_data(raw_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     excluded_reasons = {
         "missing_smiles": 0,
         "missing_logpapp": 0,
-        "invalid_logpapp": 0
+        "invalid_logpapp": 0,
+        "protocol_heterogeneity": 0
     }
 
     for i, record in enumerate(raw_data):
@@ -95,6 +97,25 @@ def preprocess_data(raw_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             excluded_reasons["invalid_logpapp"] += 1
             continue
 
+        # Check protocol heterogeneity (missing required protocol_metadata fields)
+        # The schema requires lab_id, temperature, passage in protocol_metadata
+        protocol_metadata = record.get('protocol_metadata', {})
+        if not isinstance(protocol_metadata, dict):
+            try:
+                import json
+                protocol_metadata = json.loads(protocol_metadata)
+            except:
+                protocol_metadata = {}
+
+        has_lab_id = bool(protocol_metadata.get('lab_id', '').strip())
+        has_temperature = bool(protocol_metadata.get('temperature', '').strip())
+        has_passage = bool(protocol_metadata.get('passage', '').strip())
+
+        if not (has_lab_id and has_temperature and has_passage):
+            excluded_count += 1
+            excluded_reasons["protocol_heterogeneity"] += 1
+            continue
+
         # Record is valid
         filtered_data.append(record)
 
@@ -108,6 +129,7 @@ def preprocess_data(raw_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     logger.info(f"    - Missing SMILES: {excluded_reasons['missing_smiles']}")
     logger.info(f"    - Missing logPapp: {excluded_reasons['missing_logpapp']}")
     logger.info(f"    - Invalid logPapp: {excluded_reasons['invalid_logpapp']}")
+    logger.info(f"    - Protocol heterogeneity: {excluded_reasons['protocol_heterogeneity']}")
     logger.info(f"  Passed records: {passed} ({pass_rate:.2f}%)")
 
     if excluded_count > 0:
@@ -149,7 +171,7 @@ def main():
     This function:
     1. Loads raw data from T009.
     2. Filters for non-NULL SMILES and logPapp.
-    3. Writes the filtered data to data/processed/caco2_filtered.csv.
+    3. Writes the filtered data to data/processed/filtered_data.csv.
     4. Registers the checksum of the output file in the project state YAML.
     """
     configure_root_logger()
@@ -168,8 +190,9 @@ def main():
         write_clean_data(filtered_data, output_path)
 
         # 4. Register checksum
-        # The register_checksum function expects: file_path, state_path, description
-        register_checksum(output_path, project_root / STATE_PATH, "Filtered Caco-2 dataset for US1")
+        # The write_checksums_to_pending function expects: file_path, pending_path, description
+        pending_path = project_root / PENDING_CHECKSUM_PATH
+        write_checksums_to_pending(output_path, pending_path, "Filtered Caco-2 dataset for US1")
 
         logger.info("Preprocessing completed successfully.")
 

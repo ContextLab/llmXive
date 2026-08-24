@@ -1,4 +1,3 @@
 """
-Data directory placeholder.
-Contains raw, processed, and intermediate data artifacts.
+Data directory for raw and processed datasets.
 """

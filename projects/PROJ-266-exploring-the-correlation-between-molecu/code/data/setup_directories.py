@@ -1,60 +1,64 @@
-"""
-Script to create the required directory structure for the project.
-This task (T008a) creates 'data/raw/' and 'data/processed/' directories.
-"""
 import logging
 import sys
 from pathlib import Path
-import logging
 
-# Import project root utility from the existing API surface
+from utils.logging import get_logger, configure_root_logger
 from utils.config import get_project_root
 
-def create_directories() -> bool:
+
+def create_directories(logger: logging.Logger) -> None:
     """
-    Creates the 'data/raw' and 'data/processed' directories under the project root.
+    Create the required directory structure for data storage.
     
-    Returns:
-        True if directories were created or already exist, False on failure.
+    This function creates:
+    - data/raw/
+    - data/processed/
+    
+    Args:
+        logger: Logger instance for logging operations.
     """
     project_root = get_project_root()
-    data_dir = project_root / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
+    data_root = project_root / "data"
+    
+    raw_dir = data_root / "raw"
+    processed_dir = data_root / "processed"
+    
+    # Create directories with exist_ok=True to avoid errors if they already exist
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Created directory: {raw_dir}")
+    logger.info(f"Created directory: {processed_dir}")
+    
+    # Verification step as per requirements
+    assert raw_dir.is_dir(), f"Failed to create directory: {raw_dir}"
+    assert processed_dir.is_dir(), f"Failed to create directory: {processed_dir}"
+    
+    logger.info("Directory structure verification passed.")
 
-    try:
-        # Requirement: Execute os.makedirs with exist_ok=True
-        raw_dir.mkdir(parents=True, exist_ok=True)
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        
-        logging.info(f"Successfully ensured existence of: {raw_dir}")
-        logging.info(f"Successfully ensured existence of: {processed_dir}")
-        
-        # Verification step as per requirements
-        assert raw_dir.is_dir(), f"Failed to create or verify {raw_dir}"
-        assert processed_dir.is_dir(), f"Failed to create or verify {processed_dir}"
-        
-        return True
-    except OSError as e:
-        logging.error(f"Failed to create directories: {e}")
-        return False
-    except AssertionError as e:
-        logging.error(f"Directory verification failed: {e}")
-        return False
 
 def main() -> int:
-    """Entry point for the script."""
+    """
+    Main entry point for the directory creation script.
+    
+    Returns:
+        int: 0 on success, 1 on failure.
+    """
     configure_root_logger()
-    success = create_directories()
-    return 0 if success else 1
+    logger = get_logger(__name__)
+    
+    try:
+        logger.info("Starting directory creation process.")
+        create_directories(logger)
+        logger.info("Directory creation process completed successfully.")
+        return 0
+    except AssertionError as e:
+        logger.error(f"Directory verification failed: {e}")
+        return 1
+    except Exception as e:
+        logger.error(f"Unexpected error during directory creation: {e}")
+        return 1
 
-def configure_root_logger():
-    """Basic logging configuration for this script."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stdout)]
-    )
 
 if __name__ == "__main__":
     sys.exit(main())

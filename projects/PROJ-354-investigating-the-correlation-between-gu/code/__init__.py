@@ -1,4 +1,3 @@
 """
-llmXive Gut Microbiome-Cognitive Correlation Study
-Core code package.
+llmXive automated science pipeline - code module.
 """

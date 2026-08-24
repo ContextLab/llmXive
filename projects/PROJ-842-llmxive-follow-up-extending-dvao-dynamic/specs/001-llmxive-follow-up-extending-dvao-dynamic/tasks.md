@@ -36,10 +36,10 @@
 
 - [X] T014 [P] Create `src/config/defaults.yaml` with hyperparameters: `N` (a range of values including 5, 10, 20, 50), `k` (window size ratios), `seeds`, `noise_correlation` (ρ ∈ {0, 0.2, 0.5}), and `distributions` (Linear, Sparse, Non-Convex). **Exact Content**: The file must contain:
  ```yaml
-n_objectives: [, 10, 20, 50]
-k_sweep: [0.01, 0.05, 0.1]
-seeds: [42, 123, 456, 789, 101112]
-noise_correlation: [zero, 0.2, 0.5]
+n_objectives: [, 10, 20, 50] [UNRESOLVED-CLAIM: c_dfe4f74d — status=not_enough_info]
+k_sweep: [0.01, 0.05, 0.1] [UNRESOLVED-CLAIM: c_b5e4943d — status=not_enough_info]
+seeds: [42, 123, 456, 789, 101112] [UNRESOLVED-CLAIM: c_7af15205 — status=not_enough_info]
+noise_correlation: [zero, 0.2, 0.5] [UNRESOLVED-CLAIM: c_121777ea — status=not_enough_info]
 rollout_size: a sufficiently large batch to ensure statistical robustness in trajectory sampling.
 distributions: ["linear", "sparse", "non-convex"]
 construct_validity_threshold: a statistically significant minimum threshold
@@ -48,11 +48,11 @@ construct_validity_threshold: a statistically significant minimum threshold
 
 - [X] T015 [P] Implement `src/environment/synthetic_mdp.py` with: (1) tabular MDP generation with N objectives using random linear combinations of state features, (2) explicit support for noise correlation parameter ρ across a range of values including the absence of correlation as required by FR-009, (3) deterministic seeded random state management. **Depends on**: T014 (config).
 
-- [X] T015b [P] Implement and verify N=5 case in `src/environment/synthetic_mdp.py`. **Deliverable**: Function call `generate_mdp(n_objectives=5, seed=42)` returning a valid MDP instance. **Verification**: Run `python -c "from src.environment.synthetic_mdp import generate_mdp; mdp = generate_mdp(5, seed=42); assert mdp.n_objectives == 5; assert len(mdp.state_space) >= 10 [UNRESOLVED-CLAIM: c_f6a54225 — status=not_enough_info]; assert len(mdp.action_space) > 0"`
+- [X] T015b [P] Implement and verify N=5 case in `src/environment/synthetic_mdp.py`. **Deliverable**: Function call `generate_mdp(n_objectives=5, seed=42)` returning a valid MDP instance. **Verification**: Run `python -c "from src.environment.synthetic_mdp import generate_mdp; mdp = generate_mdp(5, seed=42); assert mdp.n_objectives == 5; assert len(mdp.state_space) >= 10; assert len(mdp.action_space) > 0"`
 
 - [X] T015d [P] Implement function `get_theoretical_noise_variance(n_objectives, noise_std)` in `src/environment/synthetic_mdp.py` that calculates the theoretical noise variance $\sigma^2$ based on the configured noise standard deviation and number of objectives, returning a float. **Deliverable**: Function `get_theoretical_noise_variance` returning the scalar $\sigma^2$. **Verification**: Run `python -c "from src.environment.synthetic_mdp import get_theoretical_noise_variance; v = get_theoretical_noise_variance(5, 0.1); assert isinstance(v, float) and v > 0 and abs(v - 0.01) < 1e-9"`
 
-- [X] T016 [P] Implement `src/heuristic/moving_window.py` for the "Moving-Window Heuristic" variance estimation using last k steps (configurable k < rollout group size). **Deliverable**: Function `estimate_variance(trajectory, window_size_k)` returning a float. **Verification**: Run `python -c "from src.heuristic.moving_window import estimate_variance; import numpy as np; traj = np.random.rand(100); assert estimate_variance(traj, 10) >= 0 [UNRESOLVED-CLAIM: c_2a711728 — status=not_enough_info]"`
+- [X] T016 [P] Implement `src/heuristic/moving_window.py` for the "Moving-Window Heuristic" variance estimation using last k steps (configurable k < rollout group size). **Deliverable**: Function `estimate_variance(trajectory, window_size_k)` returning a float. **Verification**: Run `python -c "from src.heuristic.moving_window import estimate_variance; import numpy as np; traj = np.random.rand(100); assert estimate_variance(traj, 10) >= 0 "`
 
 - [X] T017-core [P] Implement `src/environment/runner.py` with basic structure and main() function accepting --n-objectives, --seed, --noise-correlation arguments. **Deliverable**: Basic runner script skeleton. **Verification**: Run `python src/environment/runner.py --help`
 
@@ -80,7 +80,7 @@ construct_validity_threshold: a statistically significant minimum threshold
 
 - [X] T021a [P] Implement one-sample t-test in `src/analysis/stats.py` comparing mean deviation from theoretical bound against zero.
 
-- [X] T021b [P] Implement stability check: ratio of heuristic/full-batch variance must remain within [0.9, 1.1] for ≥ 95% of steps.
+- [X] T021b [P] Implement stability check: ratio of heuristic/full-batch variance must remain within [0.9, 1.1] for ≥ 95% of steps [UNRESOLVED-CLAIM: c_933b1b65 — status=not_enough_info].
 
 - [X] T021c [P] Implement sensitivity analysis sweep logic in `src/analysis/stats.py` for window size k.
 
@@ -146,12 +146,12 @@ construct_validity_threshold: a statistically significant minimum threshold
 **Independent Test**: The system outputs a statistical report containing p-values from the one-sample t-tests and a table showing how convergence rates change as k varies.
 
 ### Implementation for User Story 3
-- [X] T060 [US3] Implement minimum window size enforcement in `src/heuristic/moving_window.py`. **Formula**: `min_k = max(min_threshold, int(rollout_size * 0.01)) [UNRESOLVED-CLAIM: c_49fc65b3 — status=not_enough_info]
+- [X] T060 [US3] Implement minimum window size enforcement in `src/heuristic/moving_window.py`. **Formula**: `min_k = max(min_threshold, int(rollout_size * 0.01))
 
 The specific value to remove/generalize: 'min_threshold'
 
 Rewritten passage:
-min_k = max(min_threshold, int(rollout_size * 0.01)) [UNRESOLVED-CLAIM: c_49fc65b3 — status=not_enough_info]`. Raise `ValueError` if `k < min_k`. **Note**: T072 overrides this logic to a hardcode of 5 for the final implementation; this task establishes the dynamic baseline.
+min_k = max(min_threshold, int(rollout_size * 0.01)) `. Raise `ValueError` if `k < min_k`. **Note**: T072 overrides this logic to a hardcode of 5 for the final implementation; this task establishes the dynamic baseline.
 - [X] T062 [US3] Implement sensitivity analysis sweep for window size k in `src/analysis/stats.py`.
 - [ ] T063 [US3] Implement final report generation with statistical results. **Deliverable**: `data/processed/statistical_report.json`. **Verification**: Run the full suite and verify the report contains all required fields.
 - [X] T064 [US3] Verify the one-sample t-test implementation in `src/analysis/stats.py`.

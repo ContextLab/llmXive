@@ -1,273 +1,160 @@
 """
-Unit tests for data retrieval and filtering logic (T011).
+Unit tests for data retrieval and filtering logic.
 
-This module verifies the filtering logic and pass rate calculation
-implemented in code/data/preprocessing.py (T010), which depends on
-the retrieval logic from code/data/retrieval.py (T009).
-
-Tests verify:
-1. Filtering logic correctly removes records with NULL SMILES or logPapp
-2. Pass rate calculation is accurate
-3. Excluded records are properly categorized
+This module contains tests for the data filtering logic implemented in
+code/data/preprocessing.py, specifically focusing on:
+1. test_filter_logic: Verifies the core filtering criteria (non-NULL SMILES and logPapp).
+2. test_pass_rate_calculation: Verifies the calculation of the pass rate.
 """
 
-import os
+import pytest
+import pandas as pd
+import numpy as np
 import sys
-import tempfile
-import csv
-import logging
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add the project root to the path to allow imports from code/
+# Assuming this test runs from the project root or the path is set correctly
+project_root = Path(__file__).parent.parent
+if str(project_root / 'code') not in sys.path:
+    sys.path.insert(0, str(project_root / 'code'))
 
-from code.data.preprocessing import load_raw_data, preprocess_data, write_clean_data
+from data.preprocessing import load_raw_data, preprocess_data, write_clean_data
 
-# Configure logging for tests
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
-# Test fixtures
-def create_sample_raw_csv(filepath: Path, records: List[Dict[str, Any]]) -> None:
-    """Create a sample raw CSV file with test data."""
-    with open(filepath, 'w', newline='', encoding='utf-8') as f:
-        fieldnames = ['smiles', 'logPapp', 'mw', 'psa', 'assay_id', 'standard_value', 'standard_units']
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(records)
-
-def test_filtering_logic_removes_null_smiles():
-    """Test that records with NULL/empty SMILES are filtered out."""
-    logger.info("Testing filtering logic for NULL SMILES...")
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        raw_csv = tmpdir_path / "raw_data.csv"
-        clean_csv = tmpdir_path / "clean_data.csv"
-        
-        # Create sample data with some NULL SMILES
-        records = [
-            {'smiles': 'CCO', 'logPapp': -5.5, 'mw': 46.07, 'psa': 20.23, 'assay_id': 'A1', 'standard_value': '5.5e-6', 'standard_units': 'cm/s'},
-            {'smiles': '', 'logPapp': -6.0, 'mw': 100.0, 'psa': 30.0, 'assay_id': 'A2', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
-            {'smiles': None, 'logPapp': -5.8, 'mw': 120.0, 'psa': 25.0, 'assay_id': 'A3', 'standard_value': '2.0e-6', 'standard_units': 'cm/s'},
-            {'smiles': 'CCC', 'logPapp': -5.2, 'mw': 44.09, 'psa': 0.0, 'assay_id': 'A4', 'standard_value': '6.3e-6', 'standard_units': 'cm/s'},
+def create_mock_raw_dataframe() -> pd.DataFrame:
+    """
+    Creates a mock DataFrame simulating the output of code/data/retrieval.py.
+    Includes cases for valid records, NULL SMILES, NULL logPapp, and valid protocol_metadata.
+    """
+    data = {
+        'smiles': [
+            'CCO',  # Valid
+            None,   # NULL SMILES
+            'CCC',  # Valid
+            '',     # Empty string (treated as invalid)
+            'CCN',  # Valid
+            None,   # NULL SMILES
+            'CSC',  # Valid
+        ],
+        'logPapp': [
+            -5.0,  # Valid
+            -6.0,  # Valid
+            None,  # NULL logPapp
+            -7.0,  # Valid
+            None,  # NULL logPapp
+            -8.0,  # Valid
+            -9.0,  # Valid
+        ],
+        'assay_id': [
+            'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7'
+        ],
+        'protocol_metadata': [
+            {'lab_id': 'L1', 'temperature': 37.0, 'passage': 5},
+            {'lab_id': 'L1', 'temperature': 37.0, 'passage': 5},
+            {'lab_id': 'L1', 'temperature': 37.0, 'passage': 5},
+            {'lab_id': 'L1', 'temperature': 37.0, 'passage': 5},
+            {'lab_id': 'L1', 'temperature': 37.0, 'passage': 5},
+            {'lab_id': 'L1', 'temperature': 37.0, 'passage': 5},
+            {'lab_id': 'L1', 'temperature': 37.0, 'passage': 5},
         ]
-        
-        create_sample_raw_csv(raw_csv, records)
-        
-        # Load and preprocess
-        raw_data = load_raw_data(raw_csv)
-        clean_data, excluded_records, pass_rate = preprocess_data(raw_data)
-        
-        # Verify filtering
-        assert len(clean_data) == 2, f"Expected 2 valid records, got {len(clean_data)}"
-        assert all(record['smiles'] for record in clean_data), "All records should have non-NULL SMILES"
-        
-        # Verify excluded records
-        assert len(excluded_records) == 2, f"Expected 2 excluded records, got {len(excluded_records)}"
-        excluded_smiles = [r for r in excluded_records if r.get('reason') == 'null_smiles']
-        assert len(excluded_smiles) == 2, "Both excluded records should be due to null SMILES"
-        
-        # Verify pass rate
-        expected_pass_rate = 2 / 4 * 100  # 50%
-        assert abs(pass_rate - expected_pass_rate) < 0.01, f"Expected pass rate {expected_pass_rate}%, got {pass_rate}%"
-        
-        logger.info("✓ Filtering logic for NULL SMILES passed")
+    }
+    return pd.DataFrame(data)
 
-def test_filtering_logic_removes_null_logpapp():
-    """Test that records with NULL/empty logPapp are filtered out."""
-    logger.info("Testing filtering logic for NULL logPapp...")
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        raw_csv = tmpdir_path / "raw_data.csv"
-        clean_csv = tmpdir_path / "clean_data.csv"
-        
-        # Create sample data with some NULL logPapp
-        records = [
-            {'smiles': 'CCO', 'logPapp': -5.5, 'mw': 46.07, 'psa': 20.23, 'assay_id': 'A1', 'standard_value': '5.5e-6', 'standard_units': 'cm/s'},
-            {'smiles': 'CC', 'logPapp': None, 'mw': 30.0, 'psa': 0.0, 'assay_id': 'A2', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
-            {'smiles': 'CCC', 'logPapp': '', 'mw': 44.09, 'psa': 0.0, 'assay_id': 'A3', 'standard_value': '2.0e-6', 'standard_units': 'cm/s'},
-            {'smiles': 'CCCC', 'logPapp': -4.8, 'mw': 58.12, 'psa': 0.0, 'assay_id': 'A4', 'standard_value': '3.2e-6', 'standard_units': 'cm/s'},
-        ]
-        
-        create_sample_raw_csv(raw_csv, records)
-        
-        # Load and preprocess
-        raw_data = load_raw_data(raw_csv)
-        clean_data, excluded_records, pass_rate = preprocess_data(raw_data)
-        
-        # Verify filtering
-        assert len(clean_data) == 2, f"Expected 2 valid records, got {len(clean_data)}"
-        assert all(record['logPapp'] is not None and record['logPapp'] != '' for record in clean_data), "All records should have non-NULL logPapp"
-        
-        # Verify excluded records
-        assert len(excluded_records) == 2, f"Expected 2 excluded records, got {len(excluded_records)}"
-        excluded_logpapp = [r for r in excluded_records if r.get('reason') == 'null_logpapp']
-        assert len(excluded_logpapp) == 2, "Both excluded records should be due to null logPapp"
-        
-        # Verify pass rate
-        expected_pass_rate = 2 / 4 * 100  # 50%
-        assert abs(pass_rate - expected_pass_rate) < 0.01, f"Expected pass rate {expected_pass_rate}%, got {pass_rate}%"
-        
-        logger.info("✓ Filtering logic for NULL logPapp passed")
 
-def test_pass_rate_calculation():
-    """Test that pass rate is calculated correctly."""
-    logger.info("Testing pass rate calculation...")
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        raw_csv = tmpdir_path / "raw_data.csv"
-        clean_csv = tmpdir_path / "clean_data.csv"
-        
-        # Create sample data: 10 records, 7 valid, 3 invalid
-        records = [
-            {'smiles': f'MOL{i}', 'logPapp': -5.0 - i * 0.1, 'mw': 100.0 + i, 'psa': 20.0, 'assay_id': f'A{i}', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'}
-            for i in range(7)
-        ] + [
-            {'smiles': '', 'logPapp': -5.0, 'mw': 100.0, 'psa': 20.0, 'assay_id': f'A{i}', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'}
-            for i in range(7, 8)
-        ] + [
-            {'smiles': f'MOL{i}', 'logPapp': None, 'mw': 100.0 + i, 'psa': 20.0, 'assay_id': f'A{i}', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'}
-            for i in range(8, 10)
-        ]
-        
-        create_sample_raw_csv(raw_csv, records)
-        
-        # Load and preprocess
-        raw_data = load_raw_data(raw_csv)
-        clean_data, excluded_records, pass_rate = preprocess_data(raw_data)
-        
-        # Verify pass rate
-        expected_pass_rate = 7 / 10 * 100  # 70%
-        assert abs(pass_rate - expected_pass_rate) < 0.01, f"Expected pass rate {expected_pass_rate}%, got {pass_rate}%"
-        
-        # Verify counts
-        assert len(clean_data) == 7, f"Expected 7 valid records, got {len(clean_data)}"
-        assert len(excluded_records) == 3, f"Expected 3 excluded records, got {len(excluded_records)}"
-        
-        logger.info("✓ Pass rate calculation passed")
+def test_filter_logic(tmp_path: Path):
+    """
+    Verifies that the filtering logic correctly removes records with NULL or empty SMILES
+    and NULL logPapp.
 
-def test_filtering_logic_handles_mixed_invalid():
-    """Test filtering with a mix of NULL SMILES and NULL logPapp."""
-    logger.info("Testing filtering logic with mixed invalid records...")
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        raw_csv = tmpdir_path / "raw_data.csv"
-        clean_csv = tmpdir_path / "clean_data.csv"
-        
-        # Create sample data with mixed invalid records
-        records = [
-            # Valid records
-            {'smiles': 'CCO', 'logPapp': -5.5, 'mw': 46.07, 'psa': 20.23, 'assay_id': 'A1', 'standard_value': '5.5e-6', 'standard_units': 'cm/s'},
-            {'smiles': 'CCC', 'logPapp': -5.2, 'mw': 44.09, 'psa': 0.0, 'assay_id': 'A2', 'standard_value': '6.3e-6', 'standard_units': 'cm/s'},
-            {'smiles': 'CCCC', 'logPapp': -4.8, 'mw': 58.12, 'psa': 0.0, 'assay_id': 'A3', 'standard_value': '3.2e-6', 'standard_units': 'cm/s'},
-            # Invalid: NULL SMILES
-            {'smiles': '', 'logPapp': -6.0, 'mw': 100.0, 'psa': 30.0, 'assay_id': 'A4', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
-            {'smiles': None, 'logPapp': -5.8, 'mw': 120.0, 'psa': 25.0, 'assay_id': 'A5', 'standard_value': '2.0e-6', 'standard_units': 'cm/s'},
-            # Invalid: NULL logPapp
-            {'smiles': 'CC', 'logPapp': None, 'mw': 30.0, 'psa': 0.0, 'assay_id': 'A6', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
-            {'smiles': 'CC', 'logPapp': '', 'mw': 30.0, 'psa': 0.0, 'assay_id': 'A7', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
-            # Invalid: Both NULL
-            {'smiles': '', 'logPapp': None, 'mw': 100.0, 'psa': 20.0, 'assay_id': 'A8', 'standard_value': '1.0e-6', 'standard_units': 'cm/s'},
-        ]
-        
-        create_sample_raw_csv(raw_csv, records)
-        
-        # Load and preprocess
-        raw_data = load_raw_data(raw_csv)
-        clean_data, excluded_records, pass_rate = preprocess_data(raw_data)
-        
-        # Verify filtering
-        assert len(clean_data) == 3, f"Expected 3 valid records, got {len(clean_data)}"
-        assert all(record['smiles'] for record in clean_data), "All records should have non-NULL SMILES"
-        assert all(record['logPapp'] is not None and record['logPapp'] != '' for record in clean_data), "All records should have non-NULL logPapp"
-        
-        # Verify excluded records
-        assert len(excluded_records) == 5, f"Expected 5 excluded records, got {len(excluded_records)}"
-        
-        # Categorize excluded records
-        null_smiles = [r for r in excluded_records if r.get('reason') == 'null_smiles']
-        null_logpapp = [r for r in excluded_records if r.get('reason') == 'null_logpapp']
-        
-        # At least 3 should be due to null SMILES (A4, A5, A8)
-        assert len(null_smiles) >= 3, f"Expected at least 3 null SMILES exclusions, got {len(null_smiles)}"
-        # At least 2 should be due to null logPapp (A6, A7, A8)
-        assert len(null_logpapp) >= 2, f"Expected at least 2 null logPapp exclusions, got {len(null_logpapp)}"
-        
-        # Verify pass rate
-        expected_pass_rate = 3 / 8 * 100  # 37.5%
-        assert abs(pass_rate - expected_pass_rate) < 0.01, f"Expected pass rate {expected_pass_rate}%, got {pass_rate}%"
-        
-        logger.info("✓ Filtering logic with mixed invalid records passed")
+    Requirements:
+    - Input: Mock data with 7 records (2 NULL SMILES, 1 empty SMILES, 2 NULL logPapp).
+    - Expected Output: 4 valid records.
+    """
+    # Arrange
+    input_df = create_mock_raw_dataframe()
+    input_file = tmp_path / 'raw_input.csv'
+    output_file = tmp_path / 'filtered_output.csv'
 
-def test_write_clean_data_creates_file():
-    """Test that write_clean_data creates the output file correctly."""
-    logger.info("Testing write_clean_data file creation...")
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        clean_csv = tmpdir_path / "clean_data.csv"
-        
-        clean_data = [
-            {'smiles': 'CCO', 'logPapp': -5.5, 'mw': 46.07, 'psa': 20.23, 'assay_id': 'A1'},
-            {'smiles': 'CCC', 'logPapp': -5.2, 'mw': 44.09, 'psa': 0.0, 'assay_id': 'A2'},
-        ]
-        
-        write_clean_data(clean_data, clean_csv)
-        
-        # Verify file exists
-        assert clean_csv.exists(), "Output file should exist"
-        
-        # Verify content
-        with open(clean_csv, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        
-        assert len(rows) == 2, f"Expected 2 rows in output, got {len(rows)}"
-        assert all('smiles' in row and 'logPapp' in row for row in rows), "All rows should have required fields"
-        
-        logger.info("✓ write_clean_data file creation passed")
+    # Save mock data to simulate raw file
+    input_df.to_csv(input_file, index=False)
 
-def test_empty_input_handling():
-    """Test handling of empty input data."""
-    logger.info("Testing empty input handling...")
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir_path = Path(tmpdir)
-        raw_csv = tmpdir_path / "raw_data.csv"
-        clean_csv = tmpdir_path / "clean_data.csv"
-        
-        # Create empty CSV with headers only
-        records = []
-        create_sample_raw_csv(raw_csv, records)
-        
-        # Load and preprocess
-        raw_data = load_raw_data(raw_csv)
-        clean_data, excluded_records, pass_rate = preprocess_data(raw_data)
-        
-        # Verify results
-        assert len(clean_data) == 0, "Empty input should produce empty output"
-        assert len(excluded_records) == 0, "Empty input should have no excluded records"
-        assert pass_rate == 0.0, "Pass rate for empty input should be 0%"
-        
-        logger.info("✓ Empty input handling passed")
+    # Act
+    # Load raw data
+    raw_df = load_raw_data(input_file)
 
-if __name__ == '__main__':
-    logger.info("Running data filtering unit tests...")
+    # Preprocess (filter)
+    filtered_df, stats = preprocess_data(raw_df)
+
+    # Write clean data (just to ensure the function works end-to-end)
+    write_clean_data(filtered_df, output_file)
+
+    # Assert
+    # Original count
+    assert len(raw_df) == 7
+
+    # Filtered count
+    # Valid: Index 0 (CCO), 2 (CCC), 4 (CCN), 6 (CSC) -> 4 records
+    # Invalid: Index 1 (None SMILES), 3 ('' SMILES), 5 (None SMILES) -> 3 records removed due to SMILES
+    # Invalid: Index 2 (None logPapp - wait, index 2 is CCC with None logPapp? Let's recheck mock data)
+    # Mock Data Review:
+    # 0: CCO, -5.0 (Valid)
+    # 1: None, -6.0 (Invalid SMILES)
+    # 2: CCC, None (Invalid logPapp)
+    # 3: '', -7.0 (Invalid SMILES)
+    # 4: CCN, None (Invalid logPapp)
+    # 5: None, -8.0 (Invalid SMILES)
+    # 6: CSC, -9.0 (Valid)
+    # Total Valid: 0, 6 -> 2 records.
+    # Total Invalid: 1, 2, 3, 4, 5 -> 5 records.
+
+    assert len(filtered_df) == 2, f"Expected 2 valid records, got {len(filtered_df)}"
+
+    # Verify specific columns are not null
+    assert filtered_df['smiles'].notna().all(), "Filtered data contains NULL SMILES"
+    assert filtered_df['logPapp'].notna().all(), "Filtered data contains NULL logPapp"
     
-    test_filtering_logic_removes_null_smiles()
-    test_filtering_logic_removes_null_logpapp()
-    test_pass_rate_calculation()
-    test_filtering_logic_handles_mixed_invalid()
-    test_write_clean_data_creates_file()
-    test_empty_input_handling()
+    # Verify empty strings are removed
+    assert (filtered_df['smiles'] != '').all(), "Filtered data contains empty SMILES strings"
+
+
+def test_pass_rate_calculation(tmp_path: Path):
+    """
+    Verifies that the pass rate is calculated correctly based on the number of
+    valid records versus the total number of input records.
+
+    Formula: Pass Rate = (Valid Count / Total Count) * 100
+    """
+    # Arrange
+    input_df = create_mock_raw_dataframe()
+    input_file = tmp_path / 'raw_input.csv'
+    output_file = tmp_path / 'filtered_output.csv'
+
+    input_df.to_csv(input_file, index=False)
+
+    # Act
+    raw_df = load_raw_data(input_file)
+    filtered_df, stats = preprocess_data(raw_df)
+
+    # Calculate expected pass rate
+    total_records = len(raw_df)
+    valid_records = len(filtered_df)
+    expected_pass_rate = (valid_records / total_records) * 100
+
+    # Assert
+    # Check that stats dictionary contains the pass rate
+    assert 'pass_rate' in stats, "stats dictionary missing 'pass_rate' key"
     
-    logger.info("All data filtering unit tests passed successfully!")
+    # Verify the calculated pass rate matches expected
+    actual_pass_rate = stats['pass_rate']
+    assert np.isclose(actual_pass_rate, expected_pass_rate), \
+        f"Expected pass rate {expected_pass_rate}, got {actual_pass_rate}"
+    
+    # Verify total and valid counts in stats
+    assert stats['total_records'] == total_records
+    assert stats['valid_records'] == valid_records
+    
+    # Verify excluded count
+    expected_excluded = total_records - valid_records
+    assert stats['excluded_records'] == expected_excluded

@@ -69,7 +69,7 @@ status: Draft
 **Dependency**: T000.
 
 - [ ] T002 Create project structure per implementation plan (`code/`, `tests/`, `data/`). **Requirement**: Execute `os.makedirs('code/', exist_ok=True)`, `os.makedirs('tests/', exist_ok=True)`, `os.makedirs('data/', exist_ok=True)`. **Dependency**: None.
-- [ ] T003 Initialize a Python project with `requirements.txt` (rdkit, pandas, scikit-learn, matplotlib, seaborn, requests, numpy, scipy, statsmodels, pyvib). **Requirement**: Create `code/requirements.txt` and explicitly include `pyvib` in the list of dependencies. **Dependency**: T002.
+- [X] T003 Initialize a Python project with `requirements.txt` (rdkit, pandas, scikit-learn, matplotlib, seaborn, requests, numpy, scipy, statsmodels, pyvib). **Requirement**: Create `code/requirements.txt` and explicitly include `pyvib` in the list of dependencies. **Dependency**: T002.
 - [ ] T004 [P] Configure linting (flake8/black) and formatting tools. **Dependency**: T002.
 
 ---
@@ -82,8 +82,8 @@ status: Draft
 
 - [ ] T008a [US0] Create directory structure for `data/raw/` and `data/processed/`. **Requirement**: Execute `os.makedirs('data/raw/', exist_ok=True)` and `os.makedirs('data/processed/', exist_ok=True)` in Python. **Verification**: Execute `assert os.path.isdir('data/raw')` and `assert os.path.isdir('data/processed')` to confirm creation. **Dependency**: None.
 - [ ] T008c [US0] Verify directory structure. **Requirement**: Execute `assert os.path.isdir('data/raw')` and `assert os.path.isdir('data/processed')` to confirm creation. **Dependency**: T008a.
-- [ ] T008d [US0] Initialize `state/projects/` directory and create `PROJ-266-exploring-the-correlation-between-molecu.yaml`. **Requirement**: Create `state/projects/` directory. Create `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` with an empty `artifact_hashes: {}` map. **Dependency**: T002.
-- [ ] T008b [US0] Implement `code/utils/checksum.py`. **Requirement**: Implement the checksum utility code in `code/utils/checksum.py`. The utility MUST compute SHA-256 checksums for files in `data/` and write the results to `state/pending/checksums.yaml` (NOT directly to the state file). **Governance Constraint**: Per Constitution Principle V, only the Advancement-Evaluator Agent may write to the state file. This script outputs to a pending file. **Dependency**: T008a, T008d.
+- [X] T008d [US0] Initialize `state/projects/` directory and create `PROJ-266-exploring-the-correlation-between-molecu.yaml`. **Requirement**: Create `state/projects/` directory. Create `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml` with an empty `artifact_hashes: {}` map. **Dependency**: T002.
+- [X] T008b [US0] Implement `code/utils/checksum.py`. **Requirement**: Implement the checksum utility code in `code/utils/checksum.py`. The utility MUST compute SHA-256 checksums for files in `data/` and write the results to `state/pending/checksums.yaml` (NOT directly to the state file). **Governance Constraint**: Per Constitution Principle V, only the Advancement-Evaluator Agent may write to the state file. This script outputs to a pending file. **Dependency**: T008a, T008d.
 - [ ] T007 [US0] Create `specs/001-molecular-flexibility-permeability/contracts/dataset.schema.yaml`. **Requirement**: Define the JSON schema for the Caco-2 dataset including fields: `smiles` (string), `logPapp` (number), `mw` (number), `psa` (number), `assay_id` (string), AND `protocol_metadata` (object with `lab_id`, `temperature`, `passage`). **Dependency**: None.
 
 ---
@@ -98,7 +98,7 @@ status: Draft
 
 - [ ] T009 [US1] [Depends on T008a, T008d, T008b, T007] Implement `code/data/retrieval.py` to fetch ≥600 raw Caco-2 records from ChEMBL REST API (assay_type = Caco-2, standard_type = MEASUREMENT) with exponential backoff. **Requirement**: Save output to `data/raw/chembl_raw.csv`. The script MUST capture `protocol_metadata` (lab_id, temperature, passage) for each record. After saving, invoke `code/utils/checksum.py` to generate a checksum and write to `state/pending/checksums.yaml`. **Dependency**: T008a, T008d, T008b, T007.
 - [ ] T010 [US1] [Depends on T008a, T008d, T008b, T007, T009] Implement `code/data/preprocessing.py` to filter raw data for non-NULL SMILES and logPapp, reporting pass rate and excluded records due to protocol heterogeneity. **Requirement**: Save output to `data/processed/filtered_data.csv`. The script MUST count and report the number of records excluded due to protocol heterogeneity (based on `protocol_metadata` fields). After saving, invoke `code/utils/checksum.py` to generate a checksum and write to `state/pending/checksums.yaml`. **Dependency**: T008a, T008d, T008b, T007, T009.
-- [ ] T011 [US1] Write unit tests for data filtering logic in `tests/test_retrieval.py`. **Requirement**: Implement specific test functions: `tests/test_retrieval.py::test_filter_logic` (verifies filtering logic) and `tests/test_retrieval.py::test_pass_rate_calculation` (verifies pass rate). **Dependency**: T010.
+- [X] T011 [US1] Write unit tests for data filtering logic in `tests/test_retrieval.py`. **Requirement**: Implement specific test functions: `tests/test_retrieval.py::test_filter_logic` (verifies filtering logic) and `tests/test_retrieval.py::test_pass_rate_calculation` (verifies pass rate). **Dependency**: T010.
 - [ ] T012 [US1] [Depends on T007] Write contract tests against `dataset.schema.yaml` in `tests/contract/test_dataset.py`. **Requirement**: Implement specific test function: `tests/contract/test_dataset.py::test_schema_compliance` (validates data against the schema defined in T007). **Verification**: Ensure `specs/.../contracts/dataset.schema.yaml` exists before running tests. **Dependency**: T007.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel. T008a, T008d, T008b, T008c, and T007 provide the directory structure, state init, checksum utility, and schema required by T009/T010 for data integrity.
@@ -114,10 +114,10 @@ status: Draft
 ### Implementation for User Story 2
 
 - [ ] T013 [US2] [Depends on T010] Implement conformer generation and descriptor calculation in `code/data/descriptors.py`. **Requirement**: Implement three specific functions:
-  1. `generate_conformers(smiles_list)`: Uses RDKit to generate 3D conformer ensembles (size = 50, energy window ≤ 10 kcal/mol).
-  2. `handle_conformer_errors(errors_list)`: Logs failures, skips molecules, and continues processing.
-  3. `calculate_success_rate(total, valid)`: Computes the Conformer Generation Success Rate and compares against SC-002 (≥450 valid descriptors).
-  **Traceability**: Explicitly reference FR-003 in code comments and logs. **Dependency**: T010 (data ready).
+ 1. `generate_conformers(smiles_list)`: Uses RDKit to generate 3D conformer ensembles (size = 50, energy window ≤ 10 kcal/mol).
+ 2. `handle_conformer_errors(errors_list)`: Logs failures, skips molecules, and continues processing.
+ 3. `calculate_success_rate(total, valid)`: Computes the Conformer Generation Success Rate and compares against SC-002 (≥450 valid descriptors).
+ **Traceability**: Explicitly reference FR-003 in code comments and logs. **Dependency**: T010 (data ready).
 - [ ] T014a [US2] Implement flexibility descriptor calculation in `code/data/descriptors.py`. **Requirement**: Compute torsional variance (dihedral, bond, angle) in rad². **CRITICAL**: `dihedral_variance` is the **primary** descriptor for modeling (FR-004). `bond_variance` and `angle_variance` are **diagnostic only** (Plan Constitution Check VI). **Output**: Save all three to CSV for SC-003 completeness reporting, but note that only dihedral is used for prediction. **Dependency**: T013.
 - [ ] T014b [P] [US2] Implement outlier flagging logic in `code/data/descriptors.py` using the interquartile range method (IQR > 1.5 × Q1) for the computed variance columns. **Dependency**: T014a.
 - [ ] T014c [P] [US2] Implement output formatting in `code/data/descriptors.py` to save results as a CSV/Parquet file with explicit columns: `smiles`, `bond_variance`, `angle_variance`, `dihedral_variance`, and `is_outlier`. **Dependency**: T014b.

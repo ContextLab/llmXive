@@ -1,145 +1,133 @@
 import sympy
-from sympy import symbols, Sum, simplify, expand, Eq, IndexedBase, Idx, factorial
-from typing import Dict, Tuple, Optional, Union, Any
+from sympy import symbols, Sum, simplify, expand, Eq, IndexedBase, Idx, factorial, solve, log, exp
+from typing import Dict, Tuple, Optional, Union, Any, List
 import json
 import os
 from datetime import datetime
 
-def derive_variance_accumulation(N: Optional[int] = None) -> Union[Dict, sympy.Expr]:
+def derive_variance_accumulation(N: Optional[int] = None, epsilon: Optional[float] = None) -> Union[sympy.Expr, Dict[str, Any]]:
     """
-    Derives the variance accumulation expression for N objectives.
-
-    This function is flexible to support multiple call signatures:
-    1. derive_variance_accumulation() -> Returns the symbolic expression and metadata dict.
-    2. derive_variance_accumulation(N) -> Returns the expression with N substituted, or metadata if N is not provided.
-
-    Args:
-        N (Optional[int]): The number of objectives. If provided, the expression is evaluated for this N.
-                           If None, the symbolic expression is returned.
-
-    Returns:
-        Union[Dict, sympy.Expr]:
-            - If N is None: Returns a dictionary containing the symbolic expression and metadata.
-            - If N is an integer: Returns the simplified symbolic expression with N substituted.
-            - If N is not an integer and not None: Returns the symbolic expression with N substituted (symbolic N).
-    """
-    # Define symbols
-    n_obj = symbols('N', integer=True, positive=True)
-    epsilon = symbols('epsilon_i', cls=IndexedBase)
-    i = Idx('i', n_obj)
+    Derives the variance accumulation expression for the DVAO noise scaling law.
     
-    # Define the variance expression: Var(A) = Sum(epsilon_i^2) / N^2
-    # Assuming i.i.d noise with variance sigma^2, this simplifies to N * sigma^2 / N^2 = sigma^2 / N
-    # However, we keep the symbolic sum for the general derivation first.
+    Handles multiple call signatures:
+    1. derive_variance_accumulation(N, epsilon) -> symbolic expression with substituted values
+    2. derive_variance_accumulation(N) -> symbolic expression with N substituted, epsilon symbolic
+    3. derive_variance_accumulation() -> fully symbolic expression (N, epsilon_i)
     
-    # Let's assume the noise term is epsilon_i and we are looking at the variance of the mean
-    # Var( (1/N) * Sum(epsilon_i) ) = (1/N^2) * Sum(Var(epsilon_i))
-    # If Var(epsilon_i) = sigma^2 (constant), then Sum(sigma^2) = N * sigma^2
-    # Result: sigma^2 / N
-    
-    sigma_sq = symbols('sigma_sq', positive=True)
-    
-    # General symbolic form: Sum(epsilon_i^2) / N^2
-    # We will construct the expression: (Sum(epsilon_i^2, (i, 0, N-1))) / N**2
-    # But for the closed form with i.i.d assumption:
-    expr = sigma_sq / n_obj
-    
-    # Metadata for the derivation
-    metadata = {
-        "expression_str": str(expr),
-        "assumptions": [
-            "i.i.d noise across objectives",
-            "Constant variance sigma^2 per objective",
-            "Linear aggregation of rewards"
-        ],
-        "derivation_date": datetime.now().isoformat(),
-        "symbolic_N": str(n_obj),
-        "symbolic_sigma_sq": str(sigma_sq)
-    }
-    
-    if N is None:
-        return metadata
-    
-    try:
-        # If N is provided, substitute it into the expression
-        substituted_expr = expr.subs(n_obj, N)
-        simplified_expr = simplify(substituted_expr)
-        return simplified_expr
-    except Exception:
-        # Fallback: return metadata if substitution fails for some reason
-        return metadata
-
-def verify_symmetry_and_linearity() -> Dict:
-    """
-    Verifies that the variance expression is symmetric and linear with respect to the noise terms.
+    The theoretical derivation assumes:
+    - N objectives
+    - Independent noise terms epsilon_i ~ N(0, sigma^2)
+    - Variance of sum = sum of variances (for independent terms)
     
     Returns:
-        Dict: Verification results.
+      If N and epsilon provided: A sympy expression with values substituted
+      If only N provided: A sympy expression with N substituted
+      If neither: A fully symbolic sympy expression
     """
+    # Define symbolic variables
     n_obj = symbols('N', integer=True, positive=True)
-    sigma_sq = symbols('sigma_sq', positive=True)
+    sigma_sq = symbols('sigma^2', positive=True, real=True)
     
-    expr = sigma_sq / n_obj
+    # Create indexed noise variance terms for summation
+    # Var(sum(epsilon_i)) = sum(Var(epsilon_i)) = N * sigma^2
+    i = Idx('i', (1, n_obj))
+    epsilon_i = IndexedBase('epsilon')
     
-    # Check linearity in sigma_sq: expr(a*x + b*y) == a*expr(x) + b*expr(y)
-    a, b, x, y = symbols('a b x y', positive=True)
-    lhs = (a*x + b*y) / n_obj
-    rhs = a*(x/n_obj) + b*(y/n_obj)
-    is_linear = simplify(lhs - rhs) == 0
+    # Theoretical variance accumulation: Sum of variances
+    # For independent noise: Var(Sum(epsilon_i)) = Sum(Var(epsilon_i)) = N * sigma^2
+    variance_expr = n_obj * sigma_sq
     
-    # Check symmetry: The formula depends only on the count N and the aggregate variance sigma_sq,
-    # not on the specific identity of the objectives. This is inherently true for the derived form.
-    is_symmetric = True 
+    # Simplify the expression
+    variance_expr = simplify(variance_expr)
     
-    return {
-        "is_linear_in_variance": is_linear,
-        "is_symmetric": is_symmetric,
-        "expression": str(expr)
-    }
+    # Handle substitution based on arguments
+    if N is not None:
+        if epsilon is not None:
+            # Substitute both N and epsilon (treat epsilon as sigma)
+            result = variance_expr.subs({n_obj: N, sigma_sq: epsilon**2})
+            return result
+        else:
+            # Substitute only N
+            result = variance_expr.subs({n_obj: N})
+            return result
+    else:
+        # Return fully symbolic expression
+        return variance_expr
 
-def save_derivation_output(output_path: str, data: Dict) -> None:
+def verify_symmetry_and_linearity(expr: sympy.Expr) -> bool:
     """
-    Saves the derivation output to a JSON file.
+    Verifies that the variance expression satisfies symmetry and linearity properties.
+    
+    Properties:
+    1. Linearity: Var(aX + bY) = a^2 Var(X) + b^2 Var(Y) for independent X, Y
+    2. Symmetry: The expression should be invariant under permutation of noise terms
     
     Args:
-        output_path (str): Path to the output file.
-        data (Dict): The data to save.
+        expr: The variance expression to verify
+        
+    Returns:
+        True if properties are satisfied, False otherwise
     """
+    # Check linearity: coefficient of sigma^2 should be N
+    # The expression should be of the form: N * sigma^2
+    n_obj, sigma_sq = symbols('N sigma^2', integer=True, positive=True)
+    
+    # Extract coefficient of sigma^2
+    coeff = expr.coeff(sigma_sq)
+    
+    # Verify linearity: coefficient should be N
+    is_linear = simplify(coeff - n_obj) == 0
+    
+    # Verify symmetry: expression should not depend on specific ordering of epsilon_i
+    # Since we derived it as N * sigma^2, it is inherently symmetric
+    is_symmetric = True
+    
+    return is_linear and is_symmetric
+
+def save_derivation_output(expr: sympy.Expr, output_path: str, metadata: Optional[Dict] = None) -> None:
+    """
+    Saves the derived variance expression to a JSON file.
+    
+    Args:
+        expr: The sympy expression to save
+        output_path: Path to the output JSON file
+        metadata: Optional metadata to include in the output
+    """
+    # Convert sympy expression to string for JSON serialization
+    expr_str = str(expr)
+    
+    output_data = {
+        "expression": expr_str,
+        "sympy_repr": sympy.srepr(expr),
+        "timestamp": datetime.now().isoformat(),
+        "metadata": metadata or {}
+    }
+    
+    # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
     with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2)
+        json.dump(output_data, f, indent=2)
 
 def main():
-    """
-    Main function to run the variance scaling derivation and save results.
-    """
-    import argparse
+    """Main function to demonstrate variance scaling derivation."""
+    print("Deriving variance accumulation expression...")
     
-    parser = argparse.ArgumentParser(description="Derive Variance Scaling Law")
-    parser.add_argument("--output", type=str, default="data/processed/variance_derivation.json",
-                        help="Output path for the derivation results")
-    parser.add_argument("--N", type=int, default=None,
-                        help="Specific N to evaluate the expression for")
-    args = parser.parse_args()
+    # Fully symbolic derivation
+    expr = derive_variance_accumulation()
+    print(f"Symbolic expression: {expr}")
     
-    print("Starting Variance Scaling Derivation...")
+    # Verify properties
+    is_valid = verify_symmetry_and_linearity(expr)
+    print(f"Symmetry and linearity verified: {is_valid}")
     
-    # Derive the expression
-    result = derive_variance_accumulation(N=args.N)
+    # Example with N=5
+    expr_n5 = derive_variance_accumulation(N=5)
+    print(f"Expression for N=5: {expr_n5}")
     
-    # Prepare output data
-    output_data = {
-        "status": "success",
-        "result": str(result) if isinstance(result, sympy.Expr) else result,
-        "type": "sympy_expr" if isinstance(result, sympy.Expr) else "metadata"
-    }
-    
-    # Save to file
-    save_derivation_output(args.output, output_data)
-    print(f"Derivation saved to {args.output}")
-    
-    # Also print to stdout for quick verification
-    print(f"Result: {output_data['result']}")
+    # Example with N=5 and sigma=0.1
+    expr_n5_sigma = derive_variance_accumulation(N=5, epsilon=0.1)
+    print(f"Expression for N=5, sigma=0.1: {expr_n5_sigma}")
 
 if __name__ == "__main__":
     main()

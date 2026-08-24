@@ -1,32 +1,41 @@
-# PROJ-354: Investigating the Correlation Between Gut Microbiome and Cognitive Function
+# Gut Microbiome-Cognitive Correlation Study (PROJ-354)
 
 ## Project Structure
 
 This project follows the llmXive automated science pipeline structure:
 
-- `code/`: Source code for data processing, analysis, and visualization
-- `data/`: Raw and processed data files (excluded from git, populated by download scripts)
-- `results/`: Generated reports, plots, and statistical outputs
-- `tests/`: Unit and integration tests
+- `code/`: Source code for data download, preprocessing, analysis, and visualization.
+- `data/`: Raw and processed datasets.
+ - `raw/`: Unprocessed data from UK Biobank (not included in repo).
+ - `processed/`: Intermediate and final processed data artifacts (ILR coordinates, etc.).
+- `results/`: Output artifacts from analysis and validation.
+ - `power/`: Power analysis reports.
+ - `associations/`: Statistical association results.
+ - `sensitivity/`: Sensitivity analysis reports.
+ - `plots/`: Generated visualizations.
+ - `validation/`: Validation reports.
+- `tests/`: Unit and integration tests.
+- `specs/`: Feature specifications and design documents.
 
-## Setup
+## Quick Start
 
 1. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-2. Configure environment variables for UK Biobank access (if applicable)
+2. Configure environment variables (e.g., UK Biobank token) as per `code/config.py`.
 
-## Execution
+3. Run the preprocessing pipeline:
+ ```bash
+ python code/preprocess.py
+ ```
 
-Follow the tasks in `tasks.md` to execute the pipeline phases:
-- Phase 1: Setup (Current)
-- Phase 2: Foundational
-- Phase 3: User Story 1 (Data Download & Preprocessing)
-- Phase 4: User Story 2 (Statistical Analysis)
-- Phase 5: User Story 3 (Interaction Analysis & Visualization)
+4. Run the analysis:
+ ```bash
+ python code/analysis.py
+ ```
 
 ## License
 
-Research use only. See project documentation for details.
+[License Information]

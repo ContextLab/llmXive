@@ -41,7 +41,7 @@
 
 - [ ] T004a [P] Create data directory structure (`data/raw`, `data/processed`, `data/explainability`)
 - [X] T004b [P] Implement checksum validation infrastructure in `code/data/ingest.py`
-- [X] T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py` to produce ≥2,000 images [UNRESOLVED-CLAIM: c_139f682f — status=not_enough_info] (Plan-driven correction to Spec's ≥500; see Plan 'Spec Assumption Correction' note) with physics-informed K_IC values. **Includes verification step to confirm count ≥2,000.**
+- [X] T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py` to produce ≥2,000 images (Plan-driven correction to Spec's ≥500; see Plan 'Spec Assumption Correction' note) with physics-informed K_IC values. **Includes verification step to confirm count ≥2,000.**
 - [ ] T005b [P] Benchmark synthetic generator runtime for [deferred] images on 2-core CPU to verify ≤6h constraint (SC-004)
 - [ ] T006a [P] Create base data contracts in `contracts/` (dataset_schema, evaluation_schema)
 - [ ] T006b [P] Create attribution schema contract `contracts/attribution_schema.schema.yaml` (required for T048)
@@ -258,7 +258,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must be executable on CPU-only CI (2 cores, 7GB RAM) within 6 hours. No GPU, no 8-bit quantization.
+- **Critical Constraint**: All tasks must be executable on CPU-only CI (2 cores, 7GB RAM) within 6 hours. [UNRESOLVED-CLAIM: c_e1b32e99 — status=not_enough_info] No GPU, no 8-bit quantization.
 - **Data Integrity**: All data must be real (synthetic generator) or user-provided with strict validation. No fabrication of results.
 - **Metadata Dependency**: Tasks in Phase 3 (T012b, T013) depend on metadata schema defined in Phase 2 (T031) and data generation (T005).
 - **Artifact Dependency**: Task T037 depends on T009 (creation of research.md), T005 (data generation), T012b (validation), and T013 (preprocessing).

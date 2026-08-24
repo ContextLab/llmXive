@@ -40,3 +40,11 @@ T019:
   r: "The `code/power_analysis.py` script exists, but the required output artifact\
     \ `results/power/power_report.md` is missing, so the task\u2019s deliverable is\
     \ not fully satisfied."
+T021:
+  c: false
+  h: d7b1ec865d1140a17dc81d07b52aad2cf07348debe8a47783f72dc8867aa52d5
+  r: "The required output file `results/associations/main_effects.parquet` does not\
+    \ exist, and the provided `code/analysis.py` is truncated before any logic that\
+    \ would perform Benjamini\u2011Hochberg correction and write the results. Without\
+    \ the parquet file containing adjusted p\u2011values, the task\u2019s deliverable\
+    \ is not satisfied."
