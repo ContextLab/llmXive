@@ -1,25 +1,3 @@
-- artifact_hash: 1545118a412f3ce64458908b0a67ee467cebbc37b7470b2974097db2092e3a2f
-  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-04T00:43:50.787006Z'
-- artifact_hash: 1545118a412f3ce64458908b0a67ee467cebbc37b7470b2974097db2092e3a2f
-  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/llmXive/gam-baseline-stats/resolve/main/gam_reference_stats.json`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/llmXive/gam-baseline-stats/resolve/main/gam_reference_stats.json
-  verified_at: '2026-08-04T00:43:50.787006Z'
 - artifact_hash: 42a0fe4f33ed023a80457b7213ecd2388f2aab7c7fb104111b6611ee2cd8fbbf
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/quickstart.md
   cite_id: c-001
@@ -44,3 +22,14 @@
   verification_status: pending
   verified_against_url: https://github.com/astral-sh/ruff-pre-commit
   verified_at: '2026-08-22T07:01:01.829149Z'
+- artifact_hash: 55d3fd0bc56ddf2b01a3d35f0a277346caba88dc615e2c32f2046660c444884c
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-08-24T16:57:34.634611Z'

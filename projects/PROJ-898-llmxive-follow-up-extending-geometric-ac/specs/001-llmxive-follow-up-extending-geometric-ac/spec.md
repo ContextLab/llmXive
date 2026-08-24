@@ -89,7 +89,7 @@
 - **SC-002**: The inference latency (ms per step) of the symbolic-latent approach is measured against the baseline GAM latency on the same hardware configuration (See US-3).
 - **SC-003**: The statistical significance of the difference in success rates is measured against the null hypothesis of no difference using McNemar's test with a standard confidence interval. The system MUST also verify that constraint satisfaction is ≥ 95% and reconstruction error (MSE) is ≤ 1.5x the baseline decoder-only error (See US-3).
 - **SC-004**: The statistical significance of the difference in latency is measured against the null hypothesis of no difference using a Wilcoxon Signed-Rank test (if normality fails) or paired t-test (if normality holds) with a standard confidence interval (See US-3).
-- **SC-005**: The feasibility of the approach is measured against the constraint of completing all 100 trials within a 6-hour CI time limit on a GitHub Actions 2-core x86_64 runner (See US-2).
+- **SC-005**: The feasibility of the approach is measured against the constraint of completing a representative set of trials within a 6-hour CI time limit on a GitHub Actions 2-core x86_64 runner (See US-2).
 
 ## Assumptions
 

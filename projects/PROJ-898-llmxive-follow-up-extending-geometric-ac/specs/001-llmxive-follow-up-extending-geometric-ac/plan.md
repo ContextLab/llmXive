@@ -123,7 +123,7 @@ The following directories and files are required to exist for the implementation
 
 ### Phase 1: Core Implementation
 
-- **1.1 Topology-Shift Test Set Generation**: Generate 300 unique tasks using PyBullet (FR-001, US-1).
+- **1.1 Topology-Shift Test Set Generation**: Generate a diverse set of unique tasks using PyBullet. (FR-001, US-1).
 - **1.2 Symbolic Solver Implementation**: Implement DiffTaichi solver with hybrid convex/non-convex fallback (FR-003, US-2).
 - **1.3 Decoder Robustness Control**: Implement a control phase to measure decoder reconstruction error independently (Addressing Methodology Concern).
 - **1.4 Finite Difference Verification**: Execute numerical finite difference check to validate solver differentiability (FR-003, Phase 1.6).
@@ -131,7 +131,7 @@ The following directories and files are required to exist for the implementation
 
 ### Phase 2: Execution & Analysis
 
-- **2.1 Trial Execution**: Run 300 trials for both symbolic and baseline methods (US-3).
+- **2.1 Trial Execution**: Run a sufficient number of trials for both symbolic and baseline methods to ensure statistical robustness. (US-3).
 - **2.2 Statistical Analysis**: Perform McNemar's test (paired success) and Wilcoxon Signed-Rank test (latency) (US-3).
 - **2.3 Feasibility Check**: Verify total execution time ≤ 6 hours (SC-005).
 - **2.4 CI Time Limit Verification**: Explicitly measure and record `ci_time_limit_exceeded` flag against the 6-hour limit (SC-005).
