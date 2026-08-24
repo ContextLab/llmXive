@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "MotifImportance"
-description: "Schema for motif importance scores and statistical validation. Uses Label-Shuffling (global) and Motif-Masking (local) permutation tests."
+description: "Schema for motif importance scores and statistical validation. Uses Null Attribution Test (algorithmic validation) and χ² test (data quality)."
 type: "object"
 properties:
   motif_pattern:
@@ -8,23 +8,23 @@ properties:
     description: "SMILES fragment or subgraph description"
   pathway:
     type: "string"
-    description: "Associated degradation pathway"
+    description: "Associated degradation pathway (always 'unknown' in feasibility study)"
     enum:
-      - "hydrolysis"
-      - "oxidation"
-      - "photolysis"
-      - "other"
+      - "unknown"
   importance_score:
     type: "number"
-    description: "Integrated Gradients attribution score (for interpretation only)"
-  p_value_global:
+    description: "Integrated Gradients attribution score (for technical demonstration only)"
+  p_value_null:
     type: "number"
-    description: "Label-shuffling permutation test p-value (global model significance)"
+    description: "Null Attribution Test p-value (algorithmic validation only)"
     minimum: 0
     maximum: 1
-  p_value_local:
+  chi_square_statistic:
     type: "number"
-    description: "Motif-masking permutation test p-value (local motif significance)"
+    description: "χ² statistic for motif distribution analysis (data quality)"
+  chi_square_p_value:
+    type: "number"
+    description: "χ² p-value for motif distribution analysis"
     minimum: 0
     maximum: 1
   confidence:
@@ -36,7 +36,8 @@ required:
   - "motif_pattern"
   - "pathway"
   - "importance_score"
-  - "p_value_global"
-  - "p_value_local"
+  - "p_value_null"
+  - "chi_square_statistic"
+  - "chi_square_p_value"
   - "confidence"
 additionalProperties: false

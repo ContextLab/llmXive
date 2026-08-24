@@ -1,42 +1,39 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PolymerRecord"
-description: "Schema for polymer degradation records ingested from NIST/WebBooks-1. Records with missing environmental data or pathway labels are excluded."
 type: "object"
 properties:
-  id:
-    type: "string"
-    description: "Unique identifier (hash of SMILES + conditions)"
   smiles:
     type: "string"
-    description: "Canonical SMILES string of polymer"
-    pattern: "^[A-Za-z0-9@#$%&*\\-+=\\[\\]{}()<>|~]+$"
-  temp:
-    type: "number"
-    description: "Temperature in degrees Celsius"
-  pH:
-    type: "number"
-    description: "pH value (0-14)"
-  uv:
-    type: "number"
-    description: "UV exposure in W/m²"
-  pathway:
+    description: "Canonical SMILES string of the polymer"
+  degradation_pathway:
     type: "string"
-    description: "Degradation pathway label"
+    description: "Categorical label (always 'unknown' in feasibility study)"
     enum:
-      - "hydrolysis"
-      - "oxidation"
-      - "photolysis"
-      - "other"
+      - "unknown"
+  temperature:
+    type: "number"
+    description: "Temperature in Kelvin"
+    minimum: 0
+  ph:
+    type: "number"
+    description: "pH value"
+    minimum: 0
+    maximum: 14
+  uv_exposure:
+    type: "number"
+    description: "Normalized UV exposure level"
+    minimum: 0
+    maximum: 1
+  source:
+    type: "string"
+    description: "Origin of the record"
   flags:
     type: "array"
     items:
       type: "string"
-    description: "Flags for missing data, invalid SMILES, manual review"
+    description: "List of flags (e.g., missing_pathway, missing_ph, imputed_temp)"
 required:
-  - "id"
-  - "smiles"
-  - "temp"
-  - "pH"
-  - "uv"
-  - "pathway"
+  - smiles
+  - degradation_pathway
+  - source
 additionalProperties: false

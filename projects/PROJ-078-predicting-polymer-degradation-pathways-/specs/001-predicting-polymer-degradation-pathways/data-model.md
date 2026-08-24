@@ -1,56 +1,52 @@
-# Data Model: Predicting Polymer Degradation Pathways with Graph Neural Networks
+# Data Model: Polymer Degradation Pipeline Feasibility Study
+
+## Overview
+
+This document defines the data structures used throughout the project, ensuring consistency between ingestion, preprocessing, training, and analysis. The data model is designed to support the lightweight GNN architecture and the statistical validation requirements. **Note**: The `degradation_pathway` field is populated with `"unknown"` for all records in the current feasibility study due to the absence of ground-truth labels.
 
 ## Entities
 
-### PolymerRecord
+### 1. PolymerRecord
+Represents a single entry from the source data.
+- **`smiles`**: `string` - Canonical SMILES string of the polymer.
+- **`degradation_pathway`**: `string` - Categorical label. **Always "unknown"** in the current feasibility study due to missing ground truth.
+- **`temperature`**: `float` - Temperature in Kelvin (Celsius converted).
+- **`ph`**: `float` - pH value.
+- **`uv_exposure`**: `float` - UV exposure level (normalized).
+- **`source`**: `string` - Origin of the record (e.g., "nist", "materials_project", "smiles-proxy").
+- **`flags`**: `list[string]` - List of flags (e.g., "missing_ph", "imputed_temp", "missing_pathway").
 
-Represents a single polymer degradation entry.
+### 2. MolecularGraph
+The graph representation of a `PolymerRecord` used for GNN input.
+- **`node_features`**: `tensor` - Matrix of shape (num_atoms, feature_dim). Features include atomic number, hybridization, degree, and environmental conditions (broadcasted).
+- **`edge_index`**: `tensor` - Matrix of shape (2, num_edges) representing bond connectivity.
+- **`edge_features`**: `tensor` - Matrix of shape (num_edges, edge_feature_dim). Features include bond type, conjugation, and environmental conditions (broadcasted).
+- **`label`**: `int` - Encoded degradation pathway label. **Always encoded as "unknown"** in the current feasibility study.
 
-| Field | Type | Description | Source |
-|-------|------|-------------|--------|
-| `id` | str | Unique identifier (hash of SMILES + conditions) | Derived |
-| `smiles` | str | Canonical SMILES string of polymer | NIST/WebBooks-1 |
-| `temp` | float | Temperature (°C) | NIST/WebBooks-1 (records with missing values are EXCLUDED) |
-| `pH` | float | pH value | NIST/WebBooks-1 (records with missing values are EXCLUDED) |
-| `uv` | float | UV exposure (W/m²) | NIST/WebBooks-1 (records with missing values are EXCLUDED) |
-| `pathway` | str | Degradation pathway label (hydrolysis/oxidation/photolysis/other) | NIST/WebBooks-1 (records without this label are EXCLUDED) |
-| `flags` | list[str] | Flags for missing data, invalid SMILES, manual review | Derived |
-
-### MolecularGraph
-
-Graph representation of a polymer record.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `nodes` | list[dict] | Atom features: `{atomic_num, degree, hybridization, charge}` |
-| `edges` | list[dict] | Bond features: `{type, conjugation}` |
-| `global_features` | list[float] | `[temp, pH, uv]` |
-| `label` | int | Integer-encoded degradation pathway |
-
-### MotifImportance
-
-Derived metric linking structural motifs to pathways.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `motif_pattern` | str | SMILES fragment or subgraph description |
-| `pathway` | str | Associated degradation pathway |
-| `importance_score` | float | Integrated Gradients attribution score (for interpretation only) |
-| `p_value_global` | float | Label-shuffling permutation test p-value (global model significance) |
-| `p_value_local` | float | Motif-masking permutation test p-value (local motif significance) |
-| `confidence` | float | Prediction confidence (0-1) |
+### 3. MotifImportance
+Derived metric linking a structural motif to a degradation pathway (for technical demonstration only).
+- **`motif_id`**: `string` - Unique identifier for the subgraph pattern.
+- **`structure`**: `string` - SMILES representation of the motif.
+- **`pathway`**: `string` - Associated degradation pathway. **Always "unknown"** in the current feasibility study.
+- **`importance_score`**: `float` - Score from Integrated Gradients (technical demonstration only).
+- **`p_value`**: `float` - Significance from Null Attribution Test (algorithmic validation only).
 
 ## Data Flow
 
-1. **Ingestion**: `raw/` → `processed/polymer_graphs.csv` (FR-001, FR-008). **Records with missing environmental data or missing pathway labels are excluded.**
-2. **Preprocessing**: `polymer_graphs.csv` → `processed/graph_dataset.pt` (PyTorch Geometric DataList) (FR-002).
-3. **Augmentation**: `graph_dataset.pt` → `processed/augmented_graph_dataset.pt` (FR-004). **Only if n < 150; uses SMILES canonicalization and functional-group-preserving edge dropout (corrected from bond rotation).**
-4. **Training**: `augmented_graph_dataset.pt` → `models/gnn_model.pt` (FR-003).
-5. **Evaluation**: `models/gnn_model.pt` + `graph_dataset.pt` → `reports/motif_report.yaml` (FR-006, FR-007). **Uses Label-Shuffling (global) and Motif-Masking (local) permutation tests.**
+1.  **Ingestion**: Raw data from sources (NIST, Materials Project, or SMILES proxies) is loaded into `PolymerRecord` objects.
+2.  **Preprocessing**: `PolymerRecord` is converted to `MolecularGraph` using RDKit. Missing values are imputed/flagged. **All records are flagged as `missing_pathway`**.
+3.  **Feasibility Study**: `MolecularGraph` objects are fed into a *randomly initialized* GNN.
+4.  **Attribution**: `MotifImportance` objects are generated from model predictions and Integrated Gradients (technical demonstration only).
+5.  **Validation**: `MotifImportance` objects are used in Null Attribution Tests to validate the algorithm.
+6.  **Statistical Analysis**: A χ² test is performed on the distribution of structural motifs in the dataset.
 
-## Storage Schema
+## Schema Definitions
 
-- **Raw Data**: `data/raw/*.txt` (original downloads, checksummed).
-- **Processed Data**: `data/processed/*.csv`, `*.pt` (PyTorch Geometric format).
-- **Models**: `models/*.pt` (trained GNN weights).
-- **Reports**: `reports/*.yaml`, `*.json` (motif rankings, p-values, macro-F1).
+See `contracts/polymer_record.schema.yaml` and `contracts/model_output.schema.yaml` for formal YAML schemas.
+
+## Constraints
+
+- **SMILES Validity**: All SMILES strings must be valid according to RDKit. Invalid strings are logged and excluded.
+- **Label Presence**: If `degradation_pathway` is missing (which is always true for proxy data), the record is flagged as `missing_pathway` and excluded from any supervised training.
+- **Environmental Defaults**: Missing `temperature`, `ph`, or `uv_exposure` are imputed with community-standard defaults (e.g., 298K, pH 7, 0 UV) and flagged.
+- **Graph Size**: Graphs must be within memory limits (typically < 1000 atoms for CPU feasibility).

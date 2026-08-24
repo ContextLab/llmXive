@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput"
+type: "object"
+properties:
+  motif_id:
+    type: "string"
+    description: "Unique identifier for the subgraph pattern"
+  structure:
+    type: "string"
+    description: "SMILES representation of the motif"
+  pathway:
+    type: "string"
+    description: "Associated degradation pathway (always 'unknown' in feasibility study)"
+    enum:
+      - "unknown"
+  importance_score:
+    type: "number"
+    description: "Score from Integrated Gradients (technical demonstration only)"
+    minimum: 0
+  p_value:
+    type: "number"
+    description: "Significance from Null Attribution Test (algorithmic validation only)"
+    minimum: 0
+    maximum: 1
+  confidence_flag:
+    type: "boolean"
+    description: "True if confidence score >= 0.6, False otherwise"
+required:
+  - motif_id
+  - structure
+  - pathway
+  - importance_score
+  - p_value
+  - confidence_flag
+additionalProperties: false

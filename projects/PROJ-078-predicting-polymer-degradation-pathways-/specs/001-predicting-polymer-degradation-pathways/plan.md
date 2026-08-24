@@ -1,28 +1,32 @@
-# Implementation Plan: Predicting Polymer Degradation Pathways with Graph Neural Networks
+# Implementation Plan: Polymer Degradation Pipeline Feasibility Study
 
-**Branch**: `001-polymer-degradation` | **Date**: 2026-06-28 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/001-polymer-degradation/spec.md`
+**Branch**: `001-polymer-degradation` | **Date**: 2026-06-28 | **Spec**: `specs/001-predicting-polymer-degradation-pathways/spec.md`
+**Input**: Feature specification from `/specs/001-polymer-degradation/spec.md`
 
 ## Summary
 
-This project implements a computational chemistry pipeline to predict polymer degradation pathways (hydrolysis, oxidation, photolysis) using a lightweight Graph Neural Network (GNN). The system ingests polymer records (SMILES, environmental conditions) from verified sources, converts them to molecular graphs, trains a CPU-tractable GNN (≤3 layers, hidden dim ≤128), and validates structure-mechanism correlations via Integrated Gradients and a rigorous two-tier statistical validation (Label-Shuffling for global model significance, Motif-Masking for local motif significance). The implementation is strictly constrained to free-tier CI resources (CPU-only, ≤7GB RAM, ≤6h runtime).
+This project implements a **Feasibility Study** for a Graph Neural Network (GNN) pipeline to process polymer structures and generate feature attribution maps. Due to the absence of verified open-source datasets containing both polymer SMILES and documented degradation pathway labels (hydrolysis, oxidation, photolysis), the project **cannot** proceed as a supervised learning task for predicting degradation pathways. 
 
-**Critical Scope Note**: The source spec originally assumed the existence of a dataset with explicit "degradation pathway" labels and mandated specific data handling strategies (imputation, bond rotation) that are methodologically flawed. This plan addresses those flaws by:
-1.  **Excluding** records with missing environmental data (correcting FR-002/US-1).
-2.  **Replacing** bond rotation/atom masking with functional-group-preserving edge dropout (correcting FR-004/US-2).
-3.  **Implementing** a fallback protocol if verified labeled data is unavailable.
+Instead, the scope is reduced to:
+1.  Ingesting available open SMILES datasets (e.g., `maykcaldas/smiles-transformers`).
+2.  Converting SMILES to molecular graphs using RDKit.
+3.  Implementing a lightweight GNN architecture (≤3 layers, hidden dim ≤128) on CPU.
+4.  Demonstrating the pipeline's ability to generate Integrated Gradients attribution maps on a *randomly initialized* model to verify code paths (not scientific validity).
+5.  Performing statistical checks (χ² test on motif distribution) to validate data quality and algorithmic stability.
+
+The implementation strictly adheres to the project's computational constraints (CPU-only, ≤7GB RAM) and governance principles (reproducibility, data hygiene). All claims of predicting degradation pathways are suspended until valid ground-truth labels are available.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `rdkit`, `torch` (CPU wheel), `torch-geometric` (CPU), `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `requests`  
-**Storage**: Local filesystem (`data/` for raw/processed, `code/` for scripts)  
-**Testing**: `pytest` (unit tests for ingestion, integration tests for pipeline)  
+**Primary Dependencies**: `rdkit`, `torch` (CPU version), `torch-geometric`, `scikit-learn`, `pandas`, `pyyaml`, `datasets`  
+**Storage**: Local filesystem (`data/` for raw/processed data, `code/` for scripts)  
+**Testing**: `pytest`  
 **Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Data science / Computational chemistry research pipeline  
-**Performance Goals**: Complete full pipeline (ingest → train → evaluate → report) within 6 hours on 2 CPU cores, ≤7GB RAM.  
-**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; dataset must be sampled if >150 instances to fit memory; records with missing environmental data are EXCLUDED to prevent confounding.  
-**Scale/Scope**: Target a sufficient number of polymer degradation instances (if available) to ensure statistical power for the research question.; if <50, switch to leave-one-out validation.
+**Project Type**: Computational Chemistry / Pipeline Feasibility Study  
+**Performance Goals**: Complete pipeline execution within 6 hours on 2 CPU cores; memory usage < 7GB.  
+**Constraints**: No GPU access for training; dataset contains SMILES only (no degradation labels); must handle missing environmental data via flagging.  
+**Scale/Scope**: Single feature branch; processes available SMILES records (count determined at runtime).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -30,15 +34,13 @@ This project implements a computational chemistry pipeline to predict polymer de
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Note |
-|-----------|--------|---------------------|
-| **I. Reproducibility** | ✅ PASS | Random seeds pinned in `code/`; external datasets fetched from canonical verified URLs; `requirements.txt` pins all versions. |
-| **II. Verified Accuracy** | ✅ PASS | All citations (datasets, methods) cross-referenced against verified URLs; Title overlap ≥0.7 enforced by Reference-Validator. |
-| **III. Data Hygiene** | ✅ PASS | Raw data checksummed; transformations write to new files; no in-place edits; PII scan enforced. |
-| **IV. Single Source of Truth** | ✅ PASS | All figures/stats in report trace to `data/` rows and `code/` blocks; no hand-typed numbers. |
-| **V. Versioning Discipline** | ✅ PASS | Content hashes tracked in state YAML; artifact updates trigger timestamp refresh. |
-| **VI. Computational Chemistry Validation** | ✅ PASS (with protocol) | Constitution VI mandates a χ² test. The plan implements a **χ² Discretization Protocol**: IG scores are binned into 'High' vs 'Low' to form a contingency table against pathway labels, satisfying the categorical requirement. Additionally, a **Motif-Masking Permutation Test** is used as the primary scientific validation for motif significance to avoid statistical invalidity. |
-| **VII. Small Dataset Robustness** | ✅ PASS | **Conditional Logic**: If n > 150, subsample to 150 (no augmentation). If 50 ≤ n ≤ 150, apply **chemically valid augmentation** (SMILES canonicalization, functional-group-preserving edge dropout). If n < 50, apply aggressive augmentation + Leave-One-Out. |
+- **Principle I (Reproducibility)**: Plan mandates fixed random seeds in all scripts and deterministic data loading. All dependencies pinned in `requirements.txt`.
+- **Principle II (Verified Accuracy)**: The plan references only verified dataset URLs provided in the input block. No fabricated citations.
+- **Principle III (Data Hygiene)**: Raw data will be checksummed upon download; derived data (graphs) will be written to new files with versioned names. No in-place modification.
+- **Principle IV (Single Source of Truth)**: All metrics (counts, distribution stats) will be generated by code and stored in JSON artifacts; the report will parse these directly.
+- **Principle V (Versioning Discipline)**: Implementation scripts will generate content hashes for output artifacts; the state file will be updated automatically.
+- **Principle VI (Computational Chemistry Validation)**: The plan explicitly includes a **χ² test** to analyze the distribution of structural motifs in the available data, as required by the Constitution. This test validates *data quality* (non-trivial motif distribution), not model predictions. Integrated Gradients is implemented for *code path verification* only.
+- **Principle VII (Small Dataset Robustness)**: The plan implements 5-fold Cross-Validation for n ≥ 150. For 50 ≤ n < 150, 5-fold CV is used with a power analysis warning. For n < 50, Leave-One-Out Cross-Validation (LOOCV) is used, aligning with the Constitution's specific threshold for LOOCV. No data augmentation is performed to preserve chemical integrity.
 
 ## Project Structure
 
@@ -51,51 +53,152 @@ specs/001-polymer-degradation/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+│   ├── polymer_record.schema.yaml
+│   ├── model_output.schema.yaml
+│   ├── motif_importance.schema.yaml
+│   └── chi_square_test.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-078-predicting-polymer-degradation-pathways-/
-├── code/
-│   ├── requirements.txt
-│   ├── ingest.py          # FR-001, FR-008 (Download, Label Validation)
-│   ├── preprocess.py      # FR-002 (SMILES-to-Graph), FR-004 (Augmentation)
-│   ├── model.py           # FR-003, FR-005 (Architecture, IG)
-│   ├── train.py           # FR-003, FR-004 (Training Loop)
-│   ├── evaluate.py        # FR-006, FR-007 (Permutation Test, Reporting)
-│   └── utils.py           # Shared helpers (backoff, logging)
+projects/PROJ-078-predicting-polymer-degradation-pathways-/code/
 ├── data/
-│   ├── raw/               # Downloaded raw files (checksummed)
-│   ├── processed/         # Graph datasets, augmented sets
-│   └── reports/           # Final motif reports, p-values
+│   ├── raw/                  # Downloaded raw files (checksummed)
+│   ├── processed/            # Converted graphs (parquet/pickle)
+│   └── analysis/             # Statistical outputs
+├── models/
+│   ├── gnn.py                # GNN architecture definition
+│   ├── trainer.py            # Training loop (suspended for feasibility study)
+│   └── attribution.py        # Integrated Gradients implementation
+├── pipelines/
+│   ├── ingest.py             # Data download and filtering (FR-001 mechanism)
+│   ├── preprocess.py         # SMILES to Graph conversion (FR-002 mechanism)
+│   └── flags.py              # Label validation and flagging (FR-008 mechanism)
+├── analysis/
+│   ├── chi_square_test.py    # Motif distribution analysis (Constitution VI)
+│   ├── null_test.py          # Permutation test for algorithmic validation
+│   └── report_gen.py         # Final report generation
 ├── tests/
 │   ├── unit/
-│   └── integration/
-└── state/
-    └── projects/PROJ-078-predicting-polymer-degradation-pathways-.yaml
+│   ├── integration/
+│   └── contract/
+├── requirements.txt
+└── main.py                   # Entry point for orchestration
 ```
 
-**Structure Decision**: Single-project layout (`code/`, `data/`, `tests/`) chosen for simplicity and alignment with computational chemistry workflows. No frontend/backend split required; all logic is CLI-driven scripts.
-*Clarification*: `ingest.py` handles FR-001 (downloading) and FR-008 (label validation) and outputs raw CSVs. `preprocess.py` handles FR-002 (SMILES-to-Graph conversion) and FR-004 (augmentation). This aligns with the data-model.md entity separation.
+**Structure Decision**: Selected a modular pipeline structure (`pipelines/`, `models/`, `analysis/`) to separate data ingestion, graph construction, and statistical validation. This aligns with the Constitution's requirement for reproducibility and single-source-of-traceability. The `data/` directory is split into `raw`, `processed`, and `analysis` to enforce data hygiene (Principle III).
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Constitution VI (χ² Test)** | The spec mandates a χ² test for motif significance. This is statistically invalid for continuous IG scores unless discretized. The plan implements a **χ² Discretization Protocol** (binning IG scores) to satisfy the spec, while using a **Motif-Masking Permutation Test** as the primary scientific validation. | N/A |
-| **FR-004 (Bond Rotation)** | The original spec mandated "bond rotation" augmentation. This is chemically invalid for degradation pathways as it alters the 3D conformation required for specific hydrolysis/oxidation events. The plan implements "functional-group-preserving edge dropout" (non-ester bonds only) and **SMILES canonicalization**. The spec (FR-004, US-2) has been amended to reflect this correction. | N/A |
-| **FR-002 (Imputation)** | The original spec mandated imputation of missing environmental data. This creates a massive confound where the model learns from missingness rather than chemistry. The plan implements **exclusion** of records with missing temp/pH/UV. The spec (FR-002, US-1) has been amended to reflect this correction. | N/A |
+| None | The project scope is tightly constrained by the spec (lightweight GNN, CPU-only) and the Constitution. The modular structure is necessary to manage the distinct phases of data ingestion, graph construction, and statistical validation without violating data hygiene principles. | A monolithic script would violate Principle III (Data Hygiene) by mixing raw and derived data handling, and would make reproducibility (Principle I) difficult to verify. |
 
-## Assumptions
+## Requirements Status
 
-- **Assumption about data availability**: The NIST Chemistry WebBook and Materials Project APIs contain sufficient polyester records with documented degradation products to construct a dataset of at least 150 instances; if not, the project scope is limited to available data, and power analysis is triggered for <150 instances.
-- **Assumption about environmental variables**: The public records contain explicit or derivable values for temperature, pH, and UV exposure; if a record lacks a specific variable, the record is **EXCLUDED** from the training set to prevent confounding (per amended FR-002).
-- **Assumption about computational resources**: The lightweight GNN (≤3 layers, hidden dim ≤128) and the augmented dataset will fit within the memory constraints of the free-tier GitHub Actions runner; If memory usage exceeds a predefined threshold, the dataset will be further subsampled.
-- **Assumption about methodological framing**: Since the data is observational (no random assignment), all findings regarding structure-mechanism relationships are framed as associational rather than causal, consistent with the observational nature of the dataset.
-- **Assumption about threshold justification**: The [deferred] macro-F1 target and the permutation test methodology are adopted as community-standard defaults for initial exploratory ML studies in chemistry; no sensitivity analysis on these specific thresholds is required for this phase, but the model's performance will be reported across the full validation curve.
-- **Assumption about measurement validity**: The degradation pathways labeled in the source datasets are considered ground truth for the purpose of supervised learning, assuming the original experimental methods were valid.
-- **Assumption about Data Exclusion**: Records with missing environmental data are excluded rather than imputed, accepting a potential reduction in sample size to preserve the validity of the structure-mechanism correlation.
+The following Functional Requirements (FRs) and Success Criteria (SCs) from the original spec are **Deferred** or **Out of Scope** for the current feasibility study due to the absence of ground-truth degradation labels:
+
+- **FR-001** (Download NIST/Materials Project): **Deferred**. The *mechanism* (download, filter, convert) will be implemented using proxy SMILES data. The *outcome* (successful ingestion of labeled records) is not achievable.
+- **FR-008** (Validate Labels): **Deferred**. The *mechanism* (flagging missing labels) will be implemented. The *outcome* (validating presence of labels) is not achievable; all records will be flagged as `missing_pathway`.
+- **SC-005** (Ester Bond Identification): **Unmeasurable**. No hydrolysis labels exist to verify this criterion.
+- **SC-002** (Structure-Mechanism Significance): **Unmeasurable**. No mechanism relationship can be tested without labels.
+
+The project's success is defined by the successful execution of the pipeline and the generation of structural distribution statistics.
+
+## Assumptions & Data Gaps
+
+- **Assumption about data availability**: The NIST Chemistry WebBook and Materials Project APIs **do not** contain verified open-access records with degradation pathway labels. The plan uses available SMILES datasets as a proxy for structural analysis only.
+- **Assumption about environmental variables**: The public records contain explicit or derivable values for temperature, pH, and UV exposure; if a record lacks a specific variable, a community-standard default (e.g., neutral ambient pH, standard laboratory temperature, no UV) will be applied with a flag in the metadata.
+- **Assumption about computational resources**: The lightweight GNN (≤3 layers, hidden dim ≤128) and the available dataset will fit within the RAM limit of the free-tier GitHub Actions runner; if memory usage exceeds a practical threshold, the dataset will be further subsampled.
+- **Assumption about methodological framing**: Since the data is observational (no random assignment) and lacks ground truth labels, all findings regarding structure-mechanism relationships are framed as **unmeasurable** in this phase. The study validates the *pipeline* only.
+- **Assumption about threshold justification**: The [deferred] macro-F1 target and the permutation test methodology are **not applicable** due to the lack of labels. The plan focuses on structural distribution analysis (χ²) and code path validation.
+- **Assumption about measurement validity**: The degradation pathways labeled in the source datasets are **not available**. The study treats all records as having `degradation_pathway = "unknown"`.
+
+## Unmeasurable Success Criteria
+
+The following success criteria from the original spec **cannot be measured** due to the absence of ground-truth degradation labels:
+- **SC-005**: "The feature attribution validity is measured by verifying that Integrated Gradients identifies ester bonds in the top [deferred] of attribution scores for ≥90% of hydrolysis cases." (No hydrolysis cases exist in the data).
+- **SC-002**: "The statistical significance of the structure-mechanism relationship is measured against a permuted null distribution." (No mechanism relationship can be tested without labels).
+
+These criteria are marked as **Unmeasurable** in the final report. The project's success is defined by the successful execution of the pipeline and the generation of structural distribution statistics.
+
+## Risk Assessment
+
+- **Data Gap**: The primary risk is the lack of verified open datasets with *both* SMILES and *degradation pathway labels*. The plan mitigates this by:
+    1.  Using available SMILES data for structural analysis.
+    2.  Clearly documenting the label gap.
+    3.  Reframing the project as a feasibility study for the pipeline architecture.
+- **Small Sample Size**: The plan includes a power analysis warning if the available SMILES count is <150. No data augmentation is performed to avoid introducing chemical noise.
+- **Computational Limits**: The model architecture and processing strategy are explicitly designed to fit within the 6-hour, 7GB RAM constraint.
+
+## Methodological Rationale
+
+### 1. Model Architecture (FR-003)
+- **Choice**: 3-layer Graph Convolutional Network (GCN) with hidden dimension 128.
+- **Rationale**: Fits within CPU memory constraints (≤7GB RAM). 3 layers are sufficient to capture local chemical environments (bonds, functional groups) without over-smoothing.
+- **Hardware**: CPU-only (`device="cpu"`). No GPU fallback needed as the model is explicitly lightweight.
+- **Training Status**: The model is **not trained** to predict degradation pathways (no labels). It is used in a *randomly initialized* state to demonstrate the attribution code path.
+
+### 2. Data Augmentation vs. Imputation (FR-004)
+- **Strategy**: **NO AUGMENTATION**.
+- **Rationale**: Bond rotation changes conformation (3D geometry) but not connectivity (topology), which is what GNNs typically use. Atom masking removes atoms, fundamentally altering the molecule's identity and potentially its degradation pathway. Augmenting a dataset of specific polymers by destroying their chemical identity (masking) or changing their conformation (rotation) introduces noise that does not represent the true distribution of polymer degradation, invalidating the statistical generalization. The plan preserves chemical integrity by using the raw data only.
+- **Imputation Rationale**: Missing environmental variables (pH, temp) are imputed with community-standard defaults (e.g., pH 7, 298K) and **flagged** as `imputed`. This is necessary to maintain a fixed feature vector size for the GNN. Unlike augmentation, imputation preserves the identity of the specific polymer instance while filling missing metadata. It does not create new synthetic molecules.
+- **Feasibility**: No augmentation time required.
+
+### 3. Feature Attribution (FR-005)
+- **Method**: Integrated Gradients.
+- **Rationale**: Provides a theoretically grounded attribution of the model's prediction to specific atoms/bonds.
+- **Constraint**: Must run on CPU; Integrated Gradients is computationally intensive but feasible for small graphs and limited dataset size.
+- **Validation**: The attribution is generated on a *randomly initialized* model to verify the code path works. **No scientific validity** is claimed for the attribution scores. The test validates that the algorithm runs without error, not that it identifies chemical mechanisms.
+
+### 4. Statistical Validation (FR-006, SC-002, Constitution VI)
+- **Method**: **χ² Test** (Constitution Principle VI) and **Null Attribution Test**.
+- **Procedure**:
+    1.  **χ² Test**: Analyze the distribution of structural motifs (e.g., ester bonds, aromatic rings) in the available data to check for non-random distribution. This validates *data quality* (ensuring the dataset contains a mix of motifs), not mechanism prediction. This satisfies Constitution Principle VI's requirement for a statistical test.
+    2.  **Null Attribution Test**: Shuffle node features to verify the attribution mechanism does not assign high importance to random noise. This validates the *attribution algorithm*, not a chemical hypothesis.
+- **Rationale**: Validates the pipeline's technical correctness without requiring ground truth labels.
+- **Constraint**: Must run on CPU; feasible for small datasets.
+
+### 5. Cross-Validation Strategy
+- **Method**: 
+    - **n ≥ 150**: 5-fold Cross-Validation.
+    - **50 ≤ n < 150**: 5-fold Cross-Validation with a **power analysis warning** (SC-004).
+    - **n < 50**: Leave-One-Out Cross-Validation (LOOCV) as per Constitution Principle VII.
+- **Rationale**: Provides robust performance estimates for the feasibility study (e.g., inference stability). Aligns with Constitution Principle VII and SC-004.
+- **Constraint**: Computationally feasible on CPU for small n.
+
+## Compute Feasibility
+
+- **CPU-First**: All methods (GCN, Integrated Gradients, χ² Test) are selected for their ability to run on a 2-core CPU within 6 hours.
+- **Memory**: The model size (≤128 hidden dim) and dataset size (available SMILES count) ensure memory usage stays well below 7GB.
+- **Disk**: Streaming data from Hugging Face and storing processed graphs in compressed formats (pickle/parquet) ensures disk usage remains within efficient operational limits.
+- **No GPU Needed**: The spec explicitly requires CPU-only training. The "GPU escape hatch" is not needed as the model is designed to be lightweight.
+
+## Data Availability
+
+The plan relies on open, programmatically accessible datasets. The spec assumes the existence of a substantial collection of polyester degradation records in NIST and Materials Project. However, the "Verified datasets" block provided in the input contains **no verified source** for polymer degradation records, NIST Chemistry WebBook API data, or Materials Project data with degradation labels.
+
+**Critical Finding**: The provided verified dataset list contains:
+- `maykcaldas/smiles-transformers` (SMILES only): https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+- `HUBioDataLab/SELFormer-smiles` (SMILES only): https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+
+These datasets contain **only SMILES strings**. They lack:
+1.  **Degradation Pathway Labels** (hydrolysis, oxidation, photolysis).
+2.  **Environmental Conditions** (temperature, pH, UV exposure).
+
+**Resolution**: Since the spec requires "degradation records from NIST Chemistry WebBook and Materials Project" but the verified list does not contain these specific records, and the spec's assumption about data availability is conditional ("if not, the project scope is limited"), the plan adopts the following strategy:
+1.  **Primary Attempt**: Download the available SMILES datasets (`maykcaldas/smiles-transformers`, `HUBioDataLab/SELFormer-smiles`) to test the ingestion and graph conversion pipeline.
+2.  **Gap Acknowledgement**: Explicitly state that the *degradation pathway labels* and *environmental conditions* are **missing** from these open datasets.
+3.  **Fallback/Feasibility Study**: The implementation will demonstrate the *structure* of the data ingestion pipeline (FR-001) using the available SMILES data. The model will be initialized but **not trained** to predict degradation pathways (as no labels exist). Instead, the study will:
+    -   Generate attribution maps on a *randomly initialized* model to verify the code path works.
+    -   Perform a χ² test on the distribution of structural motifs to validate data quality.
+    -   Flag all records as `missing_pathway` (FR-008).
+4.  **Power Analysis**: If the usable dataset (available SMILES count) is <150, the system triggers the power analysis warning (SC-004) and switches to Leave-One-Out Cross-Validation (LOOCV) for the feasibility study.
+
+**Verified Datasets Reference**:
+- `maykcaldas/smiles-transformers` (SMILES only): https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+- `HUBioDataLab/SELFormer-smiles` (SMILES only): https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+
+*Note: No verified URL exists for the specific NIST/Materials Project degradation records mentioned in the spec. The implementation will handle this by flagging the data gap and proceeding with available SMILES data for structural analysis, while noting the inability to validate pathway prediction without ground-truth labels.*
