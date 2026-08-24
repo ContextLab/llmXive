@@ -40,17 +40,17 @@ The system MUST compute Spearman rank correlation coefficients between (a) X-ray
 
 ### User Story 3 - Threshold Identification and Sensitivity Analysis (Priority: P3)
 
-The system MUST attempt to identify predictive thresholds (e.g., CME speed > 1000 km/s) where severe storm probability increases, using a hold-out validation set to prevent overfitting. The hold-out set MUST be strictly the last two years of data (e.g., the most recent available period) to ensure the threshold was not derived from the validation period. It MUST perform a sensitivity analysis sweeping the cutoff over a range of high-velocity thresholds (step size 100 km/s) and report how detection rates (True Positive Rate) vary on the validation set.
+The system MUST attempt to identify predictive thresholds (e.g., CME speed > 1000 km/s) where severe storm probability increases, using a hold-out validation set to prevent overfitting. The hold-out set MUST be strictly the last two years of data (e.g., the most recent available period) to ensure the threshold was not derived from the validation period. It MUST perform a sensitivity analysis sweeping the cutoff over a range of high-velocity thresholds (step size km/s) and report how detection rates (True Positive Rate) vary on the validation set.
 
 **Why this priority**: This provides the practical predictive value for space weather forecasting. The sensitivity analysis ensures the threshold is not arbitrarily chosen and demonstrates robustness. The hold-out set ensures validation metrics are not training artifacts.
 
-**Independent Test**: Can be fully tested by verifying that the system attempts to identify thresholds, reports if none meet significance criteria, and computes detection rates for cutoffs in {900, 1000, 1100} km/s on a separate validation subset (last 2 years).
+**Independent Test**: Can be fully tested by verifying that the system attempts to identify thresholds, reports if none meet significance criteria, and computes detection rates for cutoffs in {, 1000, 1100} km/s on a separate validation subset (last 2 years).
 
 **Acceptance Scenarios**:
 
 1. **Given** the correlation analysis, **When** the system attempts to identify thresholds, **Then** it reports a candidate threshold with justification OR explicitly states no significant threshold was found
-2. **Given** a threshold is proposed, **When** the sensitivity sweep executes, **Then** detection rates (True Positive Rate) are computed for cutoffs in {900, 1000, 1100} km/s on the hold-out set and variation is documented
-3. **Given** a threshold is proposed, **When** justification is required, **Then** the threshold cites a community-standard basis (e.g., "severe storm" definition from NOAA SWPC Dst≤-100 nT) with a specific citation to the NOAA SWPC definition document
+2. **Given** a threshold is proposed, **When** the sensitivity sweep executes, **Then** detection rates (True Positive Rate) are computed for cutoffs in a range of velocities centered around 1000 km/s. on the hold-out set and variation is documented
+3. **Given** a threshold is proposed, **When** justification is required, **Then** the threshold cites a community-standard basis (e.g., "severe storm" definition from NOAA SWPC Dst ≤ significantly negative values) with a specific citation to the NOAA SWPC definition document
 
 ---
 
@@ -74,7 +74,7 @@ The system MUST attempt to identify predictive thresholds (e.g., CME speed > 100
 - **FR-008**: System MUST sweep identified thresholds over 900, 1000, and 1100 km/s (step size 100 km/s) and report variation in detection rates (True Positive Rate) (See US-3)
 - **FR-009**: System MUST frame all findings as ASSOCIATIONAL (not causal) in output documentation, specifically in `results/metrics.json`, `README.md`, and any generated reports (See US-2)
 - **FR-010**: System MUST run on CPU-only hardware without GPU/CUDA requirements, fitting within ≤7 GB RAM and ≤6 h execution time (See US-1, US-2, US-3)
-- **FR-011**: System MUST implement a hold-out validation strategy using a **time-series split (train on events from 2010-2020, test on events from 2021-2023)** to separate threshold discovery from validation, ensuring detection rates are computed on unseen data (See US-3)
+- **FR-011**: System MUST implement a hold-out validation strategy using a **time-series split (train on events from an early historical period, test on events from a subsequent recent period)** to separate threshold discovery from validation, ensuring detection rates are computed on unseen data (See US-3)
 - **FR-012**: System MUST measure and report execution time and peak RAM usage to `results/metrics.json` to verify FR-010 constraints (See US-1, US-2, US-3)
 - **FR-013**: System MUST validate aligned events against `contracts/aligned_event.schema.yaml` and metrics against `contracts/metrics.schema.yaml` (See US-1, US-3)
 - **FR-014**: If the linear regression R² is < 0.1, the system MUST test a non-linear (piecewise) model and report the improvement in fit (See US-2)
