@@ -59,13 +59,12 @@ T030:
     \ output generation)."
 T040a:
   c: false
-  h: e8387026566f7272bf48063d95346c0158a3b255c99176d7586eb3787d152fda
-  r: "The repository contains a partially shown `code/09_literature_extraction.py`\
-    \ that stops mid\u2011function and does not include the logic for NER extraction,\
-    \ median selection, or writing `data/raw/literature_metadata.json`. Moreover,\
-    \ the required output file `data/raw/literature_metadata.json` is absent. The\
-    \ task\u2019s core deliverable \u2013 a populated JSON metadata file \u2013 is\
-    \ missing."
+  h: 6b31735d8e4a06ebe5a6483a4b6b6a5de539e2ac18057ec63fe3367835685f80
+  r: The repository contains `code/09_literature_extraction.py`, but the required
+    output file `data/raw/literature_metadata.json` is absent, and the script (as
+    shown) does not include the spaCy NER extraction, confidence filtering, or JSON
+    writing logic needed to satisfy the task. The implementer must complete the extraction
+    pipeline and generate the specified JSON file.
 T041:
   c: false
   h: 4df2b840be502e4326edfa42e4d63070980b5e13932ec5d5e28b38da49fd98e2

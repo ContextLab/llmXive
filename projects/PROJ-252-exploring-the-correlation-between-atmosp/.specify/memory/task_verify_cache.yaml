@@ -6,16 +6,6 @@ T009:
     (`earthquake.schema.yaml` and `pressure-anomaly.schema.yaml`) are absent from
     the repository. Both the test logic and the dependent schema artifacts are missing,
     so the task is not genuinely fulfilled.
-T014:
-  c: false
-  h: e4117203360505b3af6106a145bd78639b0dbff4df7c46ca63b03a4359362bc6
-  r: "The provided `preprocess.py` is truncated and does not show any implementation\
-    \ of a left\u2011censored moving\u2011average pressure anomaly calculation, nor\
-    \ does it contain the required assertion that `config.MOVING_AVERAGE_DAYS` is\
-    \ a positive integer and matches a top\u2011level `config.yaml`. Moreover, the\
-    \ referenced `config.yaml` file is missing entirely, so the verification step\
-    \ cannot be performed. The task\u2019s core logic and required configuration file\
-    \ are absent."
 T016:
   c: false
   h: 16108849caf57c05b2226f25fdf2ccec29937f1b4baf267d4de854e605f459a1
@@ -23,13 +13,6 @@ T016:
     \ and the provided `code/preprocess.py` excerpt is truncated before any deduplication\
     \ logic or write\u2011out code can be verified. Consequently the task\u2019s core\
     \ deliverable is missing."
-T017:
-  c: false
-  h: 0d0257ee826a61c168b657d403475511174e26050ac056aaf26d67ef705f2cb4
-  r: "The required output file `data/processed/master_dataset.csv` (and its SHA\u2011\
-    256 checksum) are absent, as is the prerequisite input `data/interim/deduplicated_with_anomalies.csv`\
-    \ and the schema files referenced for validation. Consequently the verification\
-    \ steps cannot be performed."
 T017b:
   c: false
   h: 10cae2444d6ca03a7762c80ae92c3285918a231f3e797812ce188ecac594d597

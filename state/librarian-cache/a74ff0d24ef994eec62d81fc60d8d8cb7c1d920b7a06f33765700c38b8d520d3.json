@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-05T21:34:00Z",
+  "fetched_at": "2026-08-24T04:51:09Z",
   "field": "chemistry",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "Predicting Molecular Ionization Energies with Graph Neural Networks",
       "target_n": 5
     },
-    "duration_seconds": 53.721,
-    "ended_at": "2026-07-05T21:34:00Z",
+    "duration_seconds": 49.468,
+    "ended_at": "2026-08-24T04:51:09Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -19,79 +19,79 @@
         ],
         [
           2,
-          "Deep learning models for molecular ionization energy"
+          "Machine learning models for molecular ionization energy"
         ],
         [
           3,
-          "Machine learning prediction of vertical ionization energies"
+          "Deep learning approaches to vertical ionization energies"
         ],
         [
           4,
-          "GNN-based quantum chemical property estimation"
+          "GNN-based property prediction for electronic structure"
         ],
         [
           5,
-          "Neural networks for computing HOMO energy levels"
+          "Neural network prediction of HOMO energy levels"
         ],
         [
           6,
-          "Graph convolutional networks for ionization potential"
+          "Quantum chemical property estimation using graph networks"
         ],
         [
           7,
-          "Data-driven prediction of molecular ionization potentials"
+          "Adiabatic ionization energy prediction with deep learning"
         ],
         [
           8,
-          "Graph representation learning for electronic properties"
+          "Molecular orbital energy prediction via graph convolutional networks"
         ],
         [
           9,
-          "Machine learning approaches to Koopmans' theorem applications"
+          "Data-driven prediction of gas-phase ionization energies"
         ],
         [
           10,
-          "Deep learning for first ionization energy in molecules"
+          "Graph representation learning for electronic properties"
         ],
         [
           11,
-          "Graph neural networks for orbital energy prediction"
+          "Hybrid quantum mechanics/machine learning for ionization potentials"
         ],
         [
           12,
-          "AI methods for estimating molecular ionization thresholds"
+          "Transfer learning for molecular ionization energy estimation"
         ],
         [
           13,
-          "Computational chemistry ionization energy with graph models"
+          "Equivariant graph neural networks for electronic structure"
         ],
         [
           14,
-          "Molecular property prediction using graph attention networks"
+          "Prediction of first ionization potentials using AI"
         ],
         [
           15,
-          "Neural network regression for ionization potentials"
+          "Molecular graph embeddings for ionization energy regression"
         ],
         [
           16,
-          "Graph-based quantum machine learning for ionization"
+          "SchNet and other message-passing networks for ionization energy"
         ],
         [
           17,
-          "Predicting adiabatic and vertical ionization energies with GNNs"
+          "Computational chemistry ionization energy prediction"
         ],
         [
           18,
-          "Graph neural networks for valence electron binding energies"
+          "Density functional theory benchmarks for GNN ionization models"
         ],
         [
           19,
-          "Automated ionization energy calculation using deep learning"
+          "Automated discovery of ionization energy trends with GNNs"
         ],
         [
           20,
-          "Transfer learning for molecular ionization energy prediction"
+          "Spectral graph theory applications to molecular ionization"
         ]
       ],
       "original_term": "",
@@ -102,11 +102,11 @@
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "ionization potential DFT benchmark dataset",
-      "QM9 ANI-1x molecular property prediction",
-      "electron removal energy HOMO-LUMO gap",
-      "GNN molecular property regression error",
-      "Koopmans theorem DFT functional accuracy"
+      "vertical ionization potential DFT benchmark",
+      "QM9 dataset GNN molecular properties",
+      "electronegativity equalization quantum chemical descriptors",
+      "HOMO energy prediction graph representation learning",
+      "density functional theory accuracy electronic structure"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2602.20573"
+        "2304.14810"
       ]
     },
     "per_query_hit_count": {
-      "GNN molecular property regression error": 1,
-      "Koopmans theorem DFT functional accuracy": 3,
+      "HOMO energy prediction graph representation learning": 3,
       "Predicting Molecular Ionization Energies with Graph Neural Networks chemistry": 3,
-      "QM9 ANI-1x molecular property prediction": 3,
-      "electron removal energy HOMO-LUMO gap": 3,
-      "ionization potential DFT benchmark dataset": 3
+      "QM9 dataset GNN molecular properties": 3,
+      "density functional theory accuracy electronic structure": 3,
+      "electronegativity equalization quantum chemical descriptors": 3,
+      "vertical ionization potential DFT benchmark": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -164,7 +164,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-05T21:33:06Z",
+    "started_at": "2026-08-24T04:50:20Z",
     "term_input": {
       "normalized": "predicting molecular ionization energies with graph neural networks chemistry",
       "raw": "Predicting Molecular Ionization Energies with Graph Neural Networks chemistry"
@@ -188,7 +188,7 @@
           "primary_pointer": "2306.14753"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
-        "failed_at": "2026-07-05T21:33:34Z",
+        "failed_at": "2026-08-24T04:50:48Z",
         "reason": "query_irrelevant"
       },
       {
@@ -206,7 +206,45 @@
           "primary_pointer": "2307.05639"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
-        "failed_at": "2026-07-05T21:33:34Z",
+        "failed_at": "2026-08-24T04:50:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We analyze atomic photoelectron momentum distributions induced by bichromatic and monochromatic laser fields within the strong field approximation (SFA), separable Coulomb-Volkov approximation (SCVA), and ab initio treatment. We focus on the high frequency regime -- the smallest frequency used is larger than the ionization potential of the atom. We observe a remarkable agreement between the ab initio and velocity gauge SFA results while the velocity gauge SCVA fails to agree. Reasons of such a failure are discussed.",
+          "claimed_authors": [
+            "Denys I. Bondar",
+            "Michael Spanner",
+            "Wing-Ki Liu",
+            "Gennady L. Yudin"
+          ],
+          "claimed_title": "Photoelectron spectra in strong-field ionization by a high frequency field",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0809.2819"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Photoelectron spectra in strong-field ionization by a high frequency field')",
+        "failed_at": "2026-08-24T04:50:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Extremely large-scale array (XL-array) has emerged as one promising technology to improve the spectral efficiency and spatial resolution of future sixth generation (6G) wireless systems.The upsurge in the antenna number antennas renders communication users more likely to be located in the near-field region, which requires a more accurate spherical (instead of planar) wavefront propagation modeling.This inevitably incurs unaffordable beam training overhead when performing a two-dimensional (2D) beam-search in both the angular and range domains.To address this issue, we first introduce a new sparse discrete Fourier transform (DFT) codebook, which exhibits the angular periodicity in the received beam pattern at the user, which motivates us to propose a three-phase beam training scheme.Specifically, in the first phase, we utilize the sparse DFT codebook for beam sweeping in an angular subspace and estimate candidate user angles according to the received beam pattern.Then, a central sub-array is activated to scan specific candidate angles for resolving the issue of angular ambiguity and identity the user angle.In the third phase, the polar-domain codebook is applied in the estimated angle to search the best effective range of the user.Finally, numerical results show that the proposed beam training scheme enabled by sparse DFT codebook achieves 98.67% reduction as compared with the exhaustive-search scheme, yet without compromising rate performance in the high signal-to-ratio (SNR) regime.",
+          "claimed_authors": [
+            "Cong Zhou",
+            "Chenyu Wu",
+            "Changsheng You",
+            "Shuo Shi"
+          ],
+          "claimed_title": "Near-field Beam Training with Sparse DFT Codebook",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.04262"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Near-field Beam Training with Sparse DFT Codebook')",
+        "failed_at": "2026-08-24T04:50:49Z",
         "reason": "query_irrelevant"
       },
       {
@@ -261,7 +299,29 @@
           "primary_pointer": "2405.19595"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
-        "failed_at": "2026-07-05T21:33:35Z",
+        "failed_at": "2026-08-24T04:50:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-08-24T04:50:49Z",
         "reason": "query_irrelevant"
       },
       {
@@ -312,193 +372,174 @@
           "primary_pointer": "2506.09162"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
-        "failed_at": "2026-07-05T21:33:35Z",
+        "failed_at": "2026-08-24T04:50:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The past decade has witnessed great strides in video recovery by specialist technologies, like video inpainting, completion, and error concealment. However, they typically simulate the missing content by manual-designed error masks, thus failing to fill in the realistic video loss in video communication (e.g., telepresence, live streaming, and internet video) and multimedia forensics. To address this, we introduce the bitstream-corrupted video (BSCV) benchmark, the first benchmark dataset with more than 28,000 video clips, which can be used for bitstream-corrupted video recovery in the real world. The BSCV is a collection of 1) a proposed three-parameter corruption model for video bitstream, 2) a large-scale dataset containing rich error patterns, multiple corruption levels, and flexible dataset branches, and 3) a plug-and-play module in video recovery framework that serves as a benchmark. We evaluate state-of-the-art video inpainting methods on the BSCV dataset, demonstrating existing approaches' limitations and our framework's advantages in solving the bitstream-corrupted video recovery problem. The benchmark and dataset are released at https://github.com/LIUTIGHE/BSCV-Dataset.",
+          "claimed_abstract": "The electronegativity equalization principle provides a simple framework to describe charge redistribution, yet its conventional formulation is limited to a first-order description based on chemical potential equalization. In this work, we introduce 'multi-equalization,' a generalized framework that extends this concept by incorporating higher-order responses within Conceptual Density Functional Theory.\n  This approach represents molecules as sets of flexible electron density partitions, allowing different electronic descriptions (e.g., atomic densities or localized orbitals) to be treated within a unified formalism. We demonstrate that correlations between energy and density derivatives with respect to the number of electrons lead to the simultaneous equalization of multiple descriptors, including chemical hardness and Fukui indices.\n  A constructive algorithm is introduced to determine the optimal density partitions satisfying these multi-equalization conditions. This scheme provides a consistent description of both global charge transfer and local reactivity, overcoming the intrinsic limitations of traditional electronegativity equalization models. Notably, the inclusion of density response functions enables local hardness equalization, introducing spatial resolution into reactivity descriptions. Under multi-equalization, local reactivity descriptors become constrained functionals of the global electron density. This framework establishes a deeper connection between charge equalization models and formal density functional theory, offering a theoretically grounded route toward improved predictions of molecular reactivity.",
           "claimed_authors": [
-            "Tianyi Liu",
-            "Kejun Wu",
-            "Yi Wang",
-            "Wenyang Liu",
-            "Kim-Hui Yap",
-            "Lap-Pui Chau"
+            "Jesús Sánchez-Márquez"
           ],
-          "claimed_title": "Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2309.13890"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method')",
-        "failed_at": "2026-07-05T21:33:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
-          "claimed_authors": [
-            "Zeyu Wang",
-            "Tianyi Jiang",
-            "Huanchang Ma",
-            "Yao Lu",
-            "Xiaoze Bao",
-            "Shanqing Yu",
-            "Qi Xuan",
-            "Shirui Pan",
-            "Xin Zheng"
-          ],
-          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.08900"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
-        "failed_at": "2026-07-05T21:33:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
-          "claimed_authors": [
-            "Nicolas Grosso",
-            "Marc Audard",
-            "Jérôme Bouvier",
-            "Kevin R. Briggs",
-            "Manuel Güdel",
-            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
-            " Collaboration"
-          ],
-          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2006,
-          "primary_pointer": "astro-ph/0609027"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
-        "failed_at": "2026-07-05T21:33:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Molecular systems involve interactions across multiple spatial scales, from local coordination and short-range perturbations to long-range electrostatic and solvent-mediated effects. However, most molecular representation learning methods rely on manually predefined scales, and the task-optimal modeling scale may not coincide with these fixed levels. This study introduces a loss-guided adaptive scale refinement framework for molecular force prediction, treating predefined scales as initial anchors and discovering task-effective resolutions through interpolation, routing, differentiable scale updates, and scale pool refinement.\n  Using a NaCl aqueous ionic system as a minimal testbed, this study constructs short-scale and long-range force prediction branches and analyzes their complementarity. Oracle hard routing reduces the overall force MAE from 399.65 to 382.67, while continuous oracle interpolation further reduces it to 380.96. In close-contact regimes with nearest-ion distance below 0.6 nm, the close-contact MAE decreases from 327.22 to 260.51. A minimal scale pool update experiment shows that starting from endpoint anchors {0,1}, loss-guided updates automatically generate intermediate scales and recover most of the continuous oracle performance. The final updated scale pool {0,0.125,0.25,0.375,0.5,0.75,1} achieves an overall MAE of 381.23.\n  These results support adaptive scale refinement as a promising direction for molecular representation learning, especially when fixed-scale modeling is insufficient.",
-          "claimed_authors": [
-            "Limin Yu"
-          ],
-          "claimed_title": "Loss-Guided Adaptive Scale Refinement for Molecular Force Prediction",
+          "claimed_title": "Multi-Equalization in Conceptual Density Functional Theory: Beyond Electronegativity Equalization",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2606.09480"
+          "primary_pointer": "2606.19547"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Loss-Guided Adaptive Scale Refinement for Molecular Force Prediction')",
-        "failed_at": "2026-07-05T21:33:35Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Multi-Equalization in Conceptual Density Functional Theory: Beyond Electronegativity Equalization')",
+        "failed_at": "2026-08-24T04:50:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In this paper we study spectral properties of graphs which are constructed from two given invertible graphs by bridging them over a bipartite graph. We analyze the so-called HOMO-LUMO spectral gap which is the difference between the smallest positive and largest negative eigenvalue of the adjacency matrix of a graph. We investigate its dependence on the bridging bipartite graph and we construct a mixed integer semidefinite program for maximization of the HOMO-LUMO gap with respect to the bridging bipartite graph. We also derive upper and lower bounds for the optimal HOMO-LUMO spectral graph by means of semidefinite relaxation techniques. Several computational examples are also presented in this paper.",
+          "claimed_abstract": "In this article, a fractional-norm constrained blind adaptive algorithm is presented for sparse channel equalization. In essence, the algorithm improves on the minimization of the constant modulus (CM) criteria by adding a sparsity inducing \\(\\ell_p\\)-norm penalty. Simulation results demonstrate that the proposed regularized equalizer exploits the inherent channel sparsity effectively and exhibits faster convergence compared to its counterparts.",
           "claimed_authors": [
-            "Sona Pavlikova",
-            "Daniel Sevcovic"
+            "Shafayat Abrar"
           ],
-          "claimed_title": "On Construction of Upper and Lower Bounds for the HOMO-LUMO Spectral Gap",
+          "claimed_title": "Adaptive Blind Sparse-Channel Equalization",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1806.00870"
+          "claimed_year": 2017,
+          "primary_pointer": "1708.01824"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='On Construction of Upper and Lower Bounds for the HOMO-LUMO Spectral Gap')",
-        "failed_at": "2026-07-05T21:33:35Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Adaptive Blind Sparse-Channel Equalization')",
+        "failed_at": "2026-08-24T04:50:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "A detailed study of energy differences between the highest occupied and lowest unoccupied molecular orbitals (HOMO-LUMO gaps) in protein systems and water clusters is presented. Recent work questioning the applicability of Kohn-Sham density-functional theory to proteins and large water clusters (E. Rudberg, J. Phys.: Condens. Mat. 2012, 24, 072202) has demonstrated vanishing HOMO-LUMO gaps for these systems, which is generally attributed to the treatment of exchange in the functional used. The present work shows that the vanishing gap is, in fact, an electrostatic artefact of the method used to prepare the system. Practical solutions for ensuring the gap is maintained when the system size is increased are demonstrated. This work has important implications for the use of large-scale density-functional theory in biomolecular systems, particularly in the simulation of photoemission, optical absorption and electronic transport, all of which depend critically on differences between energies of molecular orbitals.",
+          "claimed_abstract": "Tianyan Quantum Cloud Platform offers cloud services demonstrating quantum advantage capabilities with a Zuchongzhi 3.0-like superconducting quantum processor. This cloud-accessible superconducting quantum prototype, named Tianyan-287, features 105 qubits and achieves high operational fidelities, with single-qubit gates, two-qubit gates, and readout fidelity at 99.90%, 99.56%, 98.7%, respectively. For a specific benchmark task involving random circuit sampling on a 74-qubit system over 24 cycles, the platform completes one million samples in just 18.4 minutes. In contrast, state-of-the-art classical supercomputers would require approximately 16,000 years to complete the equivalent calculation. To facilitate this, the platform provides access via Cqlib, an open-source SDK designed for working with quantum systems at the level of extended quantum circuits, operators, and primitives. The cloud service aims to democratize access to high-performance quantum hardware, enabling the community to validate and explore practical quantum advantages.",
           "claimed_authors": [
-            "Greg Lever",
-            "Daniel J Cole",
-            "Nicholas D M Hine",
-            "Peter D Haynes",
-            "Mike C Payne"
+            " Tianyan Quantum Group"
           ],
-          "claimed_title": "Electrostatic considerations affecting the calculated HOMO-LUMO gap in protein molecules",
+          "claimed_title": "Tianyan: Cloud services with quantum advantage",
           "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1302.4696"
+          "claimed_year": 2025,
+          "primary_pointer": "2512.10504"
         },
-        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Electrostatic considerations affecting the calculated HOMO-LUMO gap in protein molecules')",
-        "failed_at": "2026-07-05T21:33:35Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Tianyan: Cloud services with quantum advantage')",
+        "failed_at": "2026-08-24T04:50:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In this work we present and evaluate an implementation of the purify-shift-and-project method [J. Chem. Phys. 128, 176101 (2008)] for linear scaling computation of multiple eigenvectors around the homo-lumo gap of the Fock/Kohn-Sham matrix. Recursive polynomial expansions allow for linear scaling density matrix construction if matrices are sufficiently sparse. However, a drawback is that, compared to the traditional diagonalization approach, eigenvectors of the Fock/Kohn-Sham matrix are not readily available. The sharp polynomial filter, constructed in intermediate iterations of the recursive polynomial expansion, increases the relative separation of eigenvalues near the homo-lumo gap. The computed density matrix approximation is used to project away the uninteresting part of the spectrum, so that the eigenvalues of interest become the extreme eigenvalues, enabling fast convergence of a Lanczos eigensolver. We implement the purify-shift-and-project algorithm in the quantum chemistry program Ergo [SoftwareX 7, 107 (2018)]. We illustrate the performance of the method by computing 30 eigenvectors around the homo-lumo gap for large scale systems.",
+          "claimed_abstract": "With the rising interest in graph representation learning, a variety of approaches have been proposed to effectively capture a graph's properties. While these approaches have improved performance in graph machine learning tasks compared to traditional graph techniques, they are still perceived as techniques with limited insight into the information encoded in these representations. In this work, we explore methods to interpret node embeddings and propose the creation of a robust evaluation framework for comparing graph representation learning algorithms and hyperparameters. We test our methods on graphs with different properties and investigate the relationship between embedding training parameters and the ability of the produced embedding to recover the structure of the original graph in a downstream task.",
           "claimed_authors": [
-            "Anastasia Kruchinina"
+            "Antonia Gogoglou",
+            "C. Bayan Bruss",
+            "Keegan E. Hines"
           ],
-          "claimed_title": "Multiple eigenvectors around the homo-lumo gap as a cheap by-product in linear scaling electronic structure calculations",
+          "claimed_title": "On the Interpretability and Evaluation of Graph Representation Learning",
           "claimed_venue": "arXiv",
           "claimed_year": 2019,
-          "primary_pointer": "1909.11662"
+          "primary_pointer": "1910.03081"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Multiple eigenvectors around the homo-lumo gap as a cheap by-product in linear scaling electronic structure calculations')",
-        "failed_at": "2026-07-05T21:33:35Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='On the Interpretability and Evaluation of Graph Representation Learning')",
+        "failed_at": "2026-08-24T04:50:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Given a monotone convex function on the space of essentially bounded random variables with the Lebesgue property (order continuity), we consider its extension preserving the Lebesgue property to as big solid vector space of random variables as possible. We show that there exists a maximum such extension, with explicit construction, where the maximum domain of extension is obtained as a (possibly proper) subspace of a natural Orlicz-type space, characterized by a certain uniform integrability property. As an application, we provide a characterization of the Lebesgue property of monotone convex function on arbitrary solid spaces of random variables in terms of uniform integrability and a \"nice\" dual representation of the function.",
+          "claimed_abstract": "Graph representation learning models aim to represent the graph structure and its features into low-dimensional vectors in a latent space, which can benefit various downstream tasks, such as node classification and link prediction. Due to its powerful graph data modelling capabilities, various graph embedding models and libraries have been proposed to learn embeddings and help researchers ease conducting experiments. In this paper, we introduce a novel graph representation framework covering various graph embedding models, ranging from shallow to state-of-the-art models, namely Connector. First, we consider graph generation by constructing various types of graphs with different structural relations, including homogeneous, signed, heterogeneous, and knowledge graphs. Second, we introduce various graph representation learning models, ranging from shallow to deep graph embedding models. Finally, we plan to build an efficient open-source framework that can provide deep graph embedding models to represent structural relations in graphs. The framework is available at https://github.com/NSLab-CUK/Connector.",
           "claimed_authors": [
-            "Keita Owari"
+            "Thanh Sang Nguyen",
+            "Jooho Lee",
+            "Van Thuy Hoang",
+            "O-Joun Lee"
           ],
-          "claimed_title": "Maximum Lebesgue Extension of Monotone Convex Functions",
+          "claimed_title": "Connector 0.5: A unified framework for graph representation learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1304.7934"
+          "claimed_year": 2023,
+          "primary_pointer": "2304.13195"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Maximum Lebesgue Extension of Monotone Convex Functions')",
-        "failed_at": "2026-07-05T21:33:35Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Connector 0.5: A unified framework for graph representation learning')",
+        "failed_at": "2026-08-24T04:50:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This article presents a construction of the concept of stochastic integration in Riemannian manifolds from a purely functional-analytic point of view. We show that there are infinitely many such integrals, and that any two of them are related by a simple formula. We also find that the Stratonovich and Itô integrals known to probability theorists are two instances of the general concept constructed herein.",
+          "claimed_abstract": "Graph representation learning, involving both node features and graph structures, is crucial for real-world applications but often encounters pervasive noise. State-of-the-art methods typically address noise by focusing separately on node features with large language models (LLMs) and on graph structures with graph structure learning models (GSLMs). In this paper, we introduce LangGSL, a robust framework that integrates the complementary strengths of pre-trained language models and GSLMs to jointly enhance both node feature and graph structure learning. In LangGSL, we first leverage LLMs to filter noise in the raw data and extract valuable cleaned information as features, enhancing the synergy of downstream models. During the mutual learning phase in LangGSL, the core idea is to leverage the relatively small language model (LM) to process local attributes and generate reliable pseudo-labels and informative node embeddings, which are then integrated into the GSLM's prediction phase. This approach enriches the global context and enhances overall performance. Meanwhile, GSLM refines the evolving graph structure constructed from the LM's output, offering updated labels back to the LM as additional guidance, thus facilitating a more effective mutual learning process. The LM and GSLM work synergistically, complementing each other's strengths and offsetting weaknesses within a variational information-maximizing framework, resulting in enhanced node features and a more robust graph structure. Extensive experiments on diverse graph datasets of varying scales and across different task scenarios demonstrate the scalability and effectiveness of the proposed approach.",
           "claimed_authors": [
-            "Alexandru Mustăţea"
+            "Guangxin Su",
+            "Yifan Zhu",
+            "Wenjie Zhang",
+            "Hanchen Wang",
+            "Ying Zhang"
           ],
-          "claimed_title": "Stochastic integration in Riemannian manifolds from a functional-analytic point of view",
+          "claimed_title": "Bridging Large Language Models and Graph Structure Learning Models for Robust Representation Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2207.08285"
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12096"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Stochastic integration in Riemannian manifolds from a functional-analytic point of view')",
-        "failed_at": "2026-07-05T21:33:35Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Bridging Large Language Models and Graph Structure Learning Models for Robust Representation Learning')",
+        "failed_at": "2026-08-24T04:50:49Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "A remarkable result by S. Artstein-Avidan and V. Milman states that, up to pre-composition with affine operators, addition of affine functionals, and multiplication by positive scalars, the only fully order preserving mapping acting on the class of lower semicontinuous proper convex functions defined on $\\mathbb{R}^n$ is the identity operator, and the only fully order reversing one acting on the same set is the Fenchel conjugation. Here fully order preserving (reversing) mappings are understood to be those which preserve (reverse) the pointwise order among convex functions, are invertible, and such that their inverses also preserve (reverse) such order. In this paper we establish a suitable extension of these results to order preserving and order reversing operators acting on the class of lower semicontinous proper convex functions defined on arbitrary infinite dimensional Banach spaces.",
+          "claimed_abstract": "The electronic structure of the $f$-based superconductor $\\mathrm{CeIr_3}$ was studied by photoelectron spectroscopy. The energy distribution of the $\\mathrm{Ce}~4f$ states were revealed by the $\\mathrm{Ce}~3d-4f$ resonant photoelectron spectroscopy. The $\\mathrm{Ce}~4f$ states were mostly distributed in the vicinity of the Fermi energy, suggesting the itinerant character of the $\\mathrm{Ce}~4f$ states. The contribution of the $\\mathrm{Ce}~4f$ states to the density of states (DOS) at the Fermi energy was estimated to be nearly half of that of the $\\mathrm{Ir}~5d$ states, implying that the $\\mathrm{Ce}~4f$ states have a considerable contribution to the DOS at the Fermi energy. The $\\mathrm{Ce}~3d$ core-level and $\\mathrm{Ce}~3d$ X-ray absorption spectra were analyzed based on a single-impurity Anderson model. The number of the $\\mathrm{Ce}~4f$ states in the ground state was estimated to be $0.8-0.9$, which is much larger than the values obtained in the previous studies (i.e., $0-0.4$).",
           "claimed_authors": [
-            "Alfredo N. Iusem",
-            "Daniel Reem",
-            "Benar F. Svaiter"
+            "Shin-ichi Fujimori",
+            "Ikuto Kawasaki",
+            "Yukiharu Takeda",
+            "Hiroshi Yamagami",
+            "Norimasa Sasabe",
+            "Yoshiki J. Sato",
+            "Ai Nakamura",
+            "Yusei Shimizu",
+            "Arvind Maurya",
+            "Yoshiya Homma",
+            "Dexin Li",
+            "Fuminori Honda",
+            "Dai Aoki"
           ],
-          "claimed_title": "Order preserving and order reversing operators on the class of convex functions in Banach spaces",
+          "claimed_title": "Impact of the Ce $4f$ states in the electronic structure of the intermediate-valence superconductor CeIr$_3$",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.03640"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Impact of the Ce $4f$ states in the electronic structure of the intermediate-valence superconductor CeIr$_3$')",
+        "failed_at": "2026-08-24T04:50:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fundamentals of energy density functional in nuclear physics are presented. Much attention is paid to a mathematically rigorous treatment of deriving the energy density functional. The specific features of the density functional used in studying many-nucleon systems, which is quite different from that used in many-electron systems, are also shown. The intended audience are physicists, chemists and mathematicians. In particular those who will start to study the density functional theory are intended.",
+          "claimed_authors": [
+            "Yoritaka Iwata",
+            "Joachim A. Maruhn"
+          ],
+          "claimed_title": "Energy density functional in nuclear physics",
           "claimed_venue": "arXiv",
           "claimed_year": 2012,
-          "primary_pointer": "1212.1120"
+          "primary_pointer": "1211.2355"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Order preserving and order reversing operators on the class of convex functions in Banach spaces')",
-        "failed_at": "2026-07-05T21:33:35Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Energy density functional in nuclear physics')",
+        "failed_at": "2026-08-24T04:50:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development of novel materials for vacuum electron sources in particle accelerators is an active field of research that can greatly benefit from the results of \\textit{ab initio} calculations for the characterization of the electronic structure of target systems. As state-of-the-art many-body perturbation theory calculations are too expensive for large-scale material screening, density functional theory offers the best compromise between accuracy and computational feasibility. The quality of the obtained results, however, crucially depends on the choice of the exchange-correlation potential, $v_{xc}$. To address this essential point, we systematically analyze the performance of three popular approximations of $v_{xc}$ (PBE, SCAN, and HSE06) on the structural and electronic properties of bulk Cs$_3$Sb and Cs$_2$Te, two representative materials of Cs-based semiconductors employed in photocathode applications. Among the adopted approximations, PBE shows expectedly the largest discrepancies from the target: the unit cell volume is overestimated compared to the experimental value, while the band gap is severely underestimated. On the other hand, both SCAN and HSE06 perform remarkably well in reproducing both structural and electronic properties. Spin-orbit coupling, which mainly impacts the valence region of both materials inducing a band splitting and, consequently, a band-gap reduction of the order of 0.2 eV, is equally captured by all functionals. Our results indicate SCAN as the best trade-off between accuracy and computational costs, outperforming the considerably more expensive HSE06.",
+          "claimed_authors": [
+            "Holger-Dietrich Saßnick",
+            "Caterina Cocchi"
+          ],
+          "claimed_title": "Electronic Structure of Cesium-based Photocathode Materials from Density Functional Theory: Performance of PBE, SCAN, and HSE06 functionals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.04596"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Ionization Energies with Graph Neural Networks chemistry', candidate_title='Electronic Structure of Cesium-based Photocathode Materials from Density Functional Theory: Performance of PBE, SCAN, and HSE06 functionals')",
+        "failed_at": "2026-08-24T04:50:49Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -506,27 +547,28 @@
       {
         "bibliographic_info": {
           "authors": [
-            " Rajan",
-            "Ishaan Gupta"
+            "Saddem Mamache",
+            "Marta Gałyńska",
+            "Katharina Boguslawski"
           ],
-          "title": "MolGraphBench: A Benchmark of GNN Architectures for Molecular Regression Tasks",
+          "title": "Benchmarking ionization potentials from the simple pCCD model",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2023
         },
-        "primary_pointer": "2602.20573",
-        "summary": "Molecules are often represented as SMILES strings, which can be readily converted to hand-crafted descriptors or fingerprints (FP) for molecular property prediction. Research has demonstrated that SMILES can be converted to molecular graphs $G = (V, E)$, with atoms as nodes $(V)$ and bonds as edges $(E)$. These molecular graphs can subsequently be used to train graph neural networks (GNN) models. Despite the recent surge in application of GNN (existing and novel architectures) for molecular property prediction, a rigorous benchmark is still lacking. We propose MolGraphBench, a comprehensive benchmark of four commonly used GNN models for molecular property prediction. Benchmarking results demonstrate graph convolutional network (GCN) and graph isomorphism networks (GIN) as the optimal GNN architectures for molecular graph regression tasks, based on absolute performance, training efficiency, transfer learning and prediction quality. The study also indicates the non-complementary nature of molecular fingerprints in the fusion (GNN-FP) framework. Furthermore, our GNN models achieved performance superior or comparable performance to current state-of-the-art GNN baselines across three datasets (GCN with RMSE of $0.518$ on B3DB, GIN-FP with RMSE of $1.022$ on FreeSolv and GIN with MAE of $63.783$ on RT datasets). Findings from this study indicate that type of GNN-layer, should be treated as a tunable hyperparameter rather than a fixed design choice to achieve superior performance.",
+        "primary_pointer": "2304.14810",
+        "summary": "The electron-detachment energy is measured by its ionization potential (IP). As a result, it is a fundamental observable and important molecular electronic signature in photoelectron spectroscopy. A precise theoretical prediction of electron-detachment energies or ionization potentials is essential for organic optoelectronic systems like transistors, solar cells, or light-emitting diodes. In this work, we benchmark the performance of the recently presented IP variant of the equation-of-motion pair coupled cluster doubles (IP-EOM-pCCD) model to determine IPs. Specifically, the predicted ionization energies are compared to experimental results and higher-order coupled cluster theories based on statistically assessing 201 electron-detached states of 41 organic molecules for three different molecular orbital basis sets and two sets of particle-hole operators. While IP-EOM-pCCD features a reasonable spread and skewness of ionization energies, its mean error and standard deviation deviate up to 1.5 eV from reference data. Our study, thus, highlights the importance of dynamical correlation to reliably predict IPs from a pCCD reference function in small organic molecules.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2602.20573",
+          "final_url": "https://arxiv.org/abs/2304.14810",
           "http_status": 200,
-          "pdf_sample_score": 0.2753,
-          "query_relevance_score": 0.5714,
+          "pdf_sample_score": 0.2235,
+          "query_relevance_score": 0.4286,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-05T21:33:35Z"
+          "verified_at": "2026-08-24T04:50:49Z"
         }
       }
     ]

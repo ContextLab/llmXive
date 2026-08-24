@@ -19,7 +19,7 @@ This feature implements a Graph Neural Network (GNN) pipeline to predict protein
 **Constraints**: Memory footprint < 7 GB RAM; No local GPU; Strict adherence to FR-002 (128 hidden units) and FR-007 (4h timeout)  
 **Scale/Scope**: PDBbind v2020 refined set (a large collection of complexes); Sampled or streamed processing to fit CI limits  
 
-> **Note on Data Fit**: The plan relies on the verified Hugging Face parquet source for PDBbind. The dataset contains 3D coordinates and pKd values. However, the "refined" set explicitly excludes water molecules by definition. FR-009 addresses this by implementing a heuristic to flag potential water-mediated interactions based on distance to oxygen atoms (< 3.5 Å). This heuristic is validated against a separate, small "Gold Standard" subset of raw PDB files (downloaded via FTP) to ensure construct validity, as the main processed dataset lacks the necessary water data for direct validation.
+> **Note on Data Fit**: The plan relies on the verified Hugging Face parquet source for PDBbind. The dataset contains spatial coordinates and pKd values. However, the "refined" set explicitly excludes water molecules by definition. FR-009 addresses this by implementing a heuristic to flag potential water-mediated interactions based on distance to oxygen atoms (< 3.5 Å). This heuristic is validated against a separate, small "Gold Standard" subset of raw PDB files (downloaded via FTP) to ensure construct validity, as the main processed dataset lacks the necessary water data for direct validation.
 
 ## Constitution Check
 
@@ -117,7 +117,7 @@ projects/PROJ-543-predicting-molecular-interactions-in-pro/
 - [ ] **T014**: Implement `code/data/ingest.py` to parse 3D coordinates and construct heterogeneous graphs (FR-001).
 - [ ] **T015**: Implement `code/data/water_detector.py` to flag water-mediated interactions (distance < 3.5 Å to oxygen) (FR-009).
 - [ ] **T015b**: Validate `water_detector.py` heuristic against the "Gold Standard" subset (T006) to estimate false-positive/negative rates.
-- [ ] **T016**: Implement `code/data/sensitivity.py` to vary cutoff (,, 6.0 Å) and compute edge/node variance (T016a).
+- [ ] **T016**: Implement `code/data/sensitivity.py` to vary cutoff (,, [qualitative range]) and compute edge/node variance (T016a).
 - [ ] **T016b**: Analyze model performance variance across cutoffs and generate `data/results/sensitivity_analysis.json`.
 - [ ] **T017**: Implement memory instrumentation to record total RAM usage during graph construction (T017a).
 - [ ] **T017b**: Generate `data/results/memory_profile.json` with total memory footprint of loaded dataset and graph construction overhead.
@@ -130,8 +130,8 @@ projects/PROJ-543-predicting-molecular-interactions-in-pro/
 - [ ] **T023**: Implement a multi-layer MPNN with a configurable number of hidden units. (FR-002).
 - [ ] **T023b**: Implement ablation study to train model without explicit distance features (to test geometry learning vs. coordinate memorization).
 - [ ] **T024**: Implement Random Forest QSAR baseline model (T024) for SC-001 comparison.
-- [ ] **T025**: Train GNN on training split with early stopping (max reasonable epoch limit, 4h timeout).
-- [ ] **T026**: Evaluate GNN and baseline on test split; record Spearman correlation and Top-10% Recall.
+- [ ] **T025**: Train GNN on training split with early stopping (max reasonable epoch limit, time-bound timeout).
+- [ ] **T026**: Evaluate GNN and baseline on test split; record Spearman correlation and Top% Recall.
 
 ### Phase 3: Interpretability & Validation (US-3)
 

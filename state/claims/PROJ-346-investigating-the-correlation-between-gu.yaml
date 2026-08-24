@@ -765,3 +765,617 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T20:58:58Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: spaCy NER confidence threshold > 0.85 for effect size extraction
+  claim_id: c_aa2a96c4
+  context: 'Logic: 1) Download abstracts. 2) Extract effect sizes (r, beta) using
+    spaCy NER with confidence threshold > 0.85.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use spaCy NER with confidence threshold > 0.85 to extract effect sizes
+    (r, beta).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:27:16Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: API retry logic 3 times with exponential backoff
+  claim_id: c_eedabaaf
+  context: Create base data loading functions in code/utils.py with retry logic (retry
+    up to 3 times with exponential backoff) for API failures
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement retry logic up to 3 times with exponential backoff for API failures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:27:53Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Query Qiita Study ID 10313
+  claim_id: c_6565fcfa
+  context: Use requests library to query Qiita Study ID 10313 via endpoint
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query Qiita Study ID 10313 for microbiome data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:28:24Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Filters <10k reads and <0.1% abundance
+  claim_id: c_39b22a7a
+  context: Apply FR-001 filters (<10k reads, <0.1% abundance).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply filters for <10k reads and <0.1% abundance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:28:24Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: UK Biobank Field 20002_2_1 for cognitive function
+  claim_id: c_b7f696df
+  context: Implement code logic to fetch cognitive data from UK Biobank (Field 20002,
+    specifically 20002_2_1 for cognitive function)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch cognitive data from UK Biobank Field 20002, specifically 20002_2_1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:29:09Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: NHANES variables CXT, CXT1, CXT2 for cognitive function
+  claim_id: c_82f01b15
+  context: or NHANES (Cognitive Function Battery variables CXT, CXT1, CXT2)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NHANES_variables_CXT,_CXT1,_CXT2_for_cognitive_function
+  kind: entity_fact
+  raw_text: Fetch cognitive data from NHANES variables CXT, CXT1, CXT2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:29:58Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: MICE imputation for missing values
+  claim_id: c_35ce3314
+  context: Implement code logic to load cognitive data, handle missing values via
+    MICE (per FR-002)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MICE_imputation_for_missing_values
+  kind: entity_fact
+  raw_text: Handle missing values via MICE imputation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:30:51Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Outlier filtering z-score > 3
+  claim_id: c_747eabc8
+  context: Implement code/02_preprocess.py logic to add robust outlier filtering (z-score
+    > 3 on merged dataset)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply robust outlier filtering with z-score > 3 on merged dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:30:51Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Significant taxa q < 0.05 after FDR correction
+  claim_id: c_f2189b92
+  context: Implement code/03_correlation.py logic to apply Benjamini-Hochberg FDR
+    correction and flag significant taxa (q < 0.05)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag significant taxa with q < 0.05 after Benjamini-Hochberg FDR correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:30:52Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Spearman rank correlations between taxa and cognitive scores
+  claim_id: c_cafa9b15
+  context: Implement code/03_correlation.py to compute Spearman rank correlations
+    between taxa and cognitive scores (FR-003).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Spearman
+      source_id: Q104269345
+      url: https://www.wikidata.org/wiki/Q104269345
+      value: Spearman
+    filled: true
+  kind: entity_fact
+  raw_text: Compute Spearman rank correlations between taxa and cognitive scores.
+  resolved_value: Spearman
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T04:31:02Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: LASSO/Elastic Net with CLR-transformed taxa
+  claim_id: c_22073b38
+  context: Implement code/04_regression.py to fit LASSO/Elastic Net models with CLR-transformed
+    microbial taxa as predictors, age, sex, BMI (FR-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LASSO/Elastic_Net_with_CLR-transformed_taxa
+  kind: entity_fact
+  raw_text: Fit LASSO/Elastic Net models with CLR-transformed microbial taxa as predictors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:32:25Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: "Age stratification groups <40, 40-60, \u226560"
+  claim_id: c_4c1bbbde
+  context: "Implement code/05_sensitivity.py to stratify correlations by age groups\
+    \ (<40, \u226540-<60, \u226560) (FR-006)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Stratify correlations by age groups <40, \u226540-<60, \u226560."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:32:25Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Compare DESeq2 vs rarefaction normalization methods
+  claim_id: c_dbdfd60a
+  context: Implement code/05_sensitivity.py to compare significant taxa counts across
+    normalization methods (DESeq2 vs rarefaction)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_DESeq2_vs_rarefaction_normalization_methods
+  kind: entity_fact
+  raw_text: Compare significant taxa counts across DESeq2 vs rarefaction normalization
+    methods.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:33:39Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Heatmap of taxa-cognition correlation matrix
+  claim_id: c_7f4acf1d
+  context: Implement code/06_visualize.py to generate heatmap of taxa-cognition correlation
+    matrix (FR-007)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Heatmap_of_taxa-cognition_correlation_matrix
+  kind: entity_fact
+  raw_text: Generate heatmap of taxa-cognition correlation matrix.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:34:40Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Forest plot of regression coefficients with confidence intervals
+  claim_id: c_3c968c00
+  context: Implement code/06_visualize.py to generate forest plot of regression coefficients
+    with confidence intervals (FR-007)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Forest_plot_of_regression_coefficients_with_confidence_inter
+  kind: entity_fact
+  raw_text: Generate forest plot of regression coefficients with confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:35:25Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Effect sizes for Microbe-SCFA-HDAC-BDNF-Cognition pathway
+  claim_id: c_c4b85865
+  context: 'Extract effect sizes (r, beta) for: (a) Microbe -> SCFA, (b) SCFA -> HDAC
+    inhibition, (c) HDAC inhibition -> BDNF upregulation, (d) BDNF -> Cognitive Flexibility.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Effect_sizes_for_Microbe-SCFA-HDAC-BDNF-Cognition_pathway
+  kind: entity_fact
+  raw_text: Extract effect sizes for Microbe -> SCFA, SCFA -> HDAC inhibition, HDAC
+    inhibition -> BDNF upregulation, BDNF -> Cognitive Flexibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:36:14Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Product-of-coefficients or Bayesian mediation for indirect effect
+  claim_id: c_b8bfa70a
+  context: Use a product-of-coefficients method (or Bayesian mediation analysis) to
+    estimate the indirect effect of the microbiome on cognition via this specific
+    pathway.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Product-of-coefficients_or_Bayesian_mediation_for_indirect_e
+  kind: entity_fact
+  raw_text: Use product-of-coefficients method or Bayesian mediation analysis to estimate
+    indirect effect.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:37:11Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: 95% CI for indirect effect via bootstrap n_resamples=1000 BCa
+  claim_id: c_e554bcdb
+  context: Calculate the 95% Confidence Interval for the indirect effect using scipy.stats.bootstrap
+    with statistic function defined as product-of-coefficients, confidence_level=0.95,
+    n_resamples=1000, and method='BCa'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate 95% Confidence Interval for the indirect effect using scipy.stats.bootstrap
+    with n_resamples=1000 and method='BCa'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:37:28Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Indirect effect product-of-coefficients calculation
+  claim_id: c_6ec6affe
+  context: Compute the indirect effect of the microbiome on cognition via the pathway
+    using the product-of-coefficients method (beta_microbe_scfa * beta_scfa_hdac *
+    beta_hdac_bdnf * beta_bdnf_cog).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Indirect_effect_product-of-coefficients_calculation
+  kind: entity_fact
+  raw_text: Compute indirect effect as beta_microbe_scfa * beta_scfa_hdac * beta_hdac_bdnf
+    * beta_bdnf_cog.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:38:31Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Benchmark on N=10,000 samples
+  claim_id: c_5e86b520
+  context: Run the full analysis pipeline on a subset of N=10,000 samples (or the
+    maximum feasible sample size) and measure total runtime.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark pipeline on N=10,000 samples or maximum feasible sample size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:39:29Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Benchmark runtime < 6 hours
+  claim_id: c_defc9a1d
+  context: 'Output: data/qc/benchmark_results.json containing total_runtime_seconds
+    (float)... status (str: pass if < 6h, fail if >= 6h). Verification: Script must
+    validate JSON schema and report pass if runtime < 21600 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify benchmark runtime is < 6 hours (21600 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:39:30Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Indirect effect size range 0.01 to 0.5
+  claim_id: c_9057f339
+  context: verify that the pathway_quantification.json file is generated with the
+    correct schema and that the indirect_effect_size is within a biologically plausible
+    range (e.g., > 0.01, < 0.5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate indirect_effect_size is within biologically plausible range >
+    0.01 and < 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:39:30Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: ChIP-seq for H3K27ac at Bdnf promoter
+  claim_id: c_464b2328
+  context: Include specific metrics (e.g., ChIP-seq for H3K27ac at Bdnf promoter).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ChIP-seq_for_H3K27ac_at_Bdnf_promoter
+  kind: entity_fact
+  raw_text: Propose ChIP-seq for H3K27ac at Bdnf promoter as a molecular assay.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:40:32Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Germ-free mice with defined microbiota for cognitive flexibility study
+  claim_id: c_732fe010
+  context: Propose a specific animal model (e.g., Germ-free mice colonized with defined
+    microbiota from high/low cognitive flexibility donors).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Germ-free_mice_with_defined_microbiota_for_cognitive_flexibi
+  kind: entity_fact
+  raw_text: Use Germ-free mice colonized with defined microbiota from high/low cognitive
+    flexibility donors as animal model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:41:23Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: 'Cognitive flexibility task: Reversal Learning or Attentional Set Shifting'
+  claim_id: c_5a37074a
+  context: Define the cognitive flexibility task (e.g., Reversal Learning in a T-maze
+    or Attentional Set Shifting).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cognitive_flexibility_task:_Reversal_Learning_or_Attentional
+  kind: entity_fact
+  raw_text: Define cognitive flexibility task as Reversal Learning in a T-maze or
+    Attentional Set Shifting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:42:23Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Fecal SCFA quantification via GC-MS
+  claim_id: c_037da17e
+  context: 'Specify the molecular assays to be performed: (a) Fecal SCFA quantification
+    (GC-MS)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fecal_SCFA_quantification_via_GC-MS
+  kind: entity_fact
+  raw_text: Use Fecal SCFA quantification via GC-MS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:43:15Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Hippocampal HDAC activity assay
+  claim_id: c_e0f2ef43
+  context: 'Specify the molecular assays to be performed: (b) Hippocampal HDAC activity
+    assay'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hippocampal_HDAC_activity_assay
+  kind: entity_fact
+  raw_text: Use Hippocampal HDAC activity assay.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:44:07Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: qPCR for Bdnf isoforms
+  claim_id: c_1f74da25
+  context: 'Specify the molecular assays to be performed: (d) qPCR for Bdnf isoforms.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QPCR_for_Bdnf_isoforms
+  kind: entity_fact
+  raw_text: Use qPCR for Bdnf isoforms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:45:02Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project
+  claim_id: c_ca71f403
+  context: Initialize Python 3.11 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python 3.11 for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:45:23Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pydantic v2 model dump for schema
+  claim_id: c_4235b819
+  context: Create and output contracts/dataset.schema.yaml (YAML format, Pydantic
+    v2 model dump)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pydantic_v2_model_dump_for_schema
+  kind: entity_fact
+  raw_text: Use Pydantic v2 model dump for dataset schema.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:46:08Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Search PubMed/PMC with requests, pubmed-client, or BeautifulSoup
+  claim_id: c_3d045741
+  context: Use requests and pubmed-client or BeautifulSoup to search PubMed/PMC for
+    queries
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Search_PubMed/PMC_with_requests,_pubmed-client,_or_Beautiful
+  kind: entity_fact
+  raw_text: Use requests and pubmed-client or BeautifulSoup to search PubMed/PMC.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:47:16Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: ukbiobank package with --token-file authentication
+  claim_id: c_4d4db18a
+  context: 'Authentication: Use ukbiobank package with --token-file argument pointing
+    to data/auth/ukb_token.txt'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ukbiobank_package_with_--token-file_authentication
+  kind: entity_fact
+  raw_text: Use ukbiobank package with --token-file argument for authentication.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:47:57Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: ElasticNet with GridSearchCV for l1_ratio
+  claim_id: c_e82f751b
+  context: Use sklearn.linear_model.ElasticNet with l1_ratio determined by GridSearchCV
+    (range to 1.0)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ElasticNet_with_GridSearchCV_for_l1_ratio
+  kind: entity_fact
+  raw_text: Use sklearn.linear_model.ElasticNet with l1_ratio determined by GridSearchCV.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:48:36Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: scipy.stats.bootstrap for confidence intervals
+  claim_id: c_b81293d5
+  context: Calculate the 95% Confidence Interval for the indirect effect using scipy.stats.bootstrap
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scipy.stats.bootstrap_for_confidence_intervals
+  kind: entity_fact
+  raw_text: Use scipy.stats.bootstrap for confidence interval calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:49:26Z'
+- artifact_path: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: itertools.islice sampling strategy
+  claim_id: c_8cd42bef
+  context: explicitly define the sampling strategy (e.g., itertools.islice first N
+    rows)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use itertools.islice for sampling strategy if N=10,000 is not feasible.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:50:16Z'
