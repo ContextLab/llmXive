@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-186-predicting-the-stability-of-perovskite-s
-last_run_id: 1a4ccb1b-bb12-4375-8bad-73746be31b8a
+last_run_id: 12b0aaf3-c7d5-4185-a673-63b821547cdc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s
 title: Predicting the Stability of Perovskite Structures Using Machine Learning
-updated_at: '2026-08-22T08:07:11.005482Z'
+updated_at: '2026-08-24T17:57:51.737874Z'

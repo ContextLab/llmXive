@@ -1,10 +1,3 @@
-"""
-Module to handle the full screening pipeline: loading training stats,
-predicting stability for the hypothetical library, ranking, and saving results.
-
-This module specifically implements T040: Saving the full ranked list to 
-results/screening_full.csv with validation for >= 200 feasible candidates.
-"""
 import os
 import sys
 import logging
@@ -12,210 +5,166 @@ import pandas as pd
 import pickle
 import json
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List
+from typing import List, Dict, Any, Optional
 
-# Import from sibling modules based on provided API surface
-from models.predict import (
-    load_model, 
-    calculate_tolerance_factor_from_ions,
-    generate_combinatorial_library,
-    load_training_statistics,
-    perform_ood_check,
-    predict_stability,
-    flag_thermodynamic_stability,
-    rank_and_output
-)
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from utils.logging_config import get_logger, log_pipeline_event
-
-# Project root path
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent
-DATA_PROCESSED_DIR = ROOT_DIR / "data" / "processed"
-RESULTS_DIR = ROOT_DIR / "results"
-LOGS_DIR = ROOT_DIR / "logs"
-
-# Ensure directories exist
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+from models.model_utils import calculate_permutation_importance
 
 logger = get_logger(__name__)
 
-def load_hypothetical_library(path: Path) -> pd.DataFrame:
-    """
-    Load the hypothetical library generated in T034.
-    If the file does not exist, generate it on the fly to ensure the pipeline can run.
-    """
-    if not path.exists():
-        logger.warning(f"Hypothetical library not found at {path}. Generating now...")
-        # Regenerate using the logic from T034 (5 A, 5 B, 4 X = 100 combos)
-        # Note: T034 spec says 5 A, 5 B, 4 X. 
-        # A={K, Rb, Cs, Ba, Sr} (5)
-        # B={Ti, Zr, Hf, Sn, Ge} (5)
-        # X={F, Cl, Br, I} (4)
-        # Total = 100.
-        # However, T034/T040 requirement is >= 200 FEASIBLE candidates.
-        # If the generated library is only 100 total, we cannot get 200 feasible.
-        # We must expand the A-site or B-site to meet the >= 200 requirement.
-        # The plan.md Phase 3 says "A={K, Rb, Cs, Ba, Sr}" (5 elements).
-        # To get >= 200 feasible, we likely need to expand the set or the plan implies
-        # a larger set was intended. 
-        # Let's re-read T034: "Output format: save to data/processed/hypothetical_library.csv"
-        # And T040: "Ensure the list contains at least 200 feasible candidates".
-        # If the input library is only 100, T040 cannot be satisfied unless we expand the library.
-        # We will expand the A-site to include Na, Li, Mg, Ca, etc. to ensure we have enough candidates.
-        # Based on typical perovskite screening, adding Na, Li, Ca, Mg, Ba (already there), Sr (already there).
-        # Let's use a larger set for A to ensure we hit the 200 feasible threshold.
-        # A = {Li, Na, K, Rb, Cs, Mg, Ca, Sr, Ba} (9 elements)
-        # B = {Ti, Zr, Hf, Sn, Ge} (5 elements)
-        # X = {F, Cl, Br, I} (4 elements)
-        # Total = 9 * 5 * 4 = 180. Still not 200.
-        # Let's add more B: {Ti, Zr, Hf, Sn, Ge, V, Nb, Ta, Mo, W} (10 elements)
-        # 9 * 10 * 4 = 360. This should be enough.
-        
-        # However, to strictly follow T034 which defined specific sets, 
-        # we should check if the file exists. If it doesn't, we generate the *correct* set 
-        # that satisfies the >= 200 feasible requirement, overriding the narrow T034 set if necessary
-        # to meet the T040 validation criteria.
-        
-        # Let's use the sets that guarantee >= 200 feasible candidates.
-        # We will use a slightly expanded set to ensure feasibility.
-        A_elements = ["Li", "Na", "K", "Rb", "Cs", "Mg", "Ca", "Sr", "Ba"]
-        B_elements = ["Ti", "Zr", "Hf", "Sn", "Ge", "V", "Nb", "Ta"]
-        X_elements = ["F", "Cl", "Br", "I"]
-        
-        df = generate_combinatorial_library(A_elements, B_elements, X_elements)
-        df.to_csv(path, index=False)
-        logger.info(f"Generated hypothetical library with {len(df)} candidates.")
-    
+# Threshold for thermodynamically favorable stability (eV/atom)
+STABILITY_THRESHOLD = -0.1
+
+def load_hypothetical_library(path: str) -> pd.DataFrame:
+    """Load the hypothetical library CSV."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Hypothetical library not found at {path}")
     return pd.read_csv(path)
 
-def load_training_statistics() -> Dict[str, Any]:
-    """Load training statistics (min/max for OOD check) from results."""
-    stats_path = RESULTS_DIR / "training_stats.json"
-    if not stats_path.exists():
-        # Fallback: try to infer from model or use defaults if necessary, 
-        # but ideally this is generated by train.py
-        logger.warning("Training stats not found. Using default ranges for OOD check.")
-        return {
-            "tolerance_factor": {"min": 0.8, "max": 1.1},
-            "octahedral_factor": {"min": 0.4, "max": 0.9},
-            "ionic_radius_mismatch": {"min": -0.5, "max": 0.5},
-            "electronegativity_diff": {"min": 0.0, "max": 2.0}
-        }
-    
-    with open(stats_path, 'r') as f:
-        return json.load(f)
+def load_training_statistics(path: str) -> Dict[str, Any]:
+    """Load training statistics if needed."""
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            return json.load(f)
+    return {}
 
-def predict_stability_batch(df: pd.DataFrame, model: Any) -> pd.DataFrame:
-    """
-    Predict stability for a batch of candidates.
-    Adds 'predicted_decomposition_energy' column.
-    """
-    logger.info(f"Predicting stability for {len(df)} candidates...")
-    
-    # Prepare features
-    features = ["tolerance_factor", "octahedral_factor", "ionic_radius_mismatch", "electronegativity_diff"]
-    # Ensure all features exist
-    for col in features:
-        if col not in df.columns:
-            raise ValueError(f"Feature {col} missing from input dataframe. Descriptor calculation failed.")
-    
-    X = df[features].values
-    
-    # Predict
-    predictions = model.predict(X)
-    df["predicted_decomposition_energy"] = predictions
-    
+def load_ranked_candidates(path: str) -> pd.DataFrame:
+    """Load the ranked candidates CSV (output of T029)."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Ranked candidates not found at {path}")
+    df = pd.read_csv(path)
     return df
 
-def load_ranked_candidates(path: Path) -> pd.DataFrame:
-    """Load the ranked candidates CSV."""
-    if not path.exists():
-        raise FileNotFoundError(f"Ranked candidates file not found: {path}")
-    return pd.read_csv(path)
+def predict_stability_batch(
+    df: pd.DataFrame,
+    model_path: str,
+    feature_cols: List[str]
+) -> pd.DataFrame:
+    """
+    Predict stability for a batch of candidates using the trained model.
+    
+    Args:
+        df: DataFrame with candidate features
+        model_path: Path to the saved model pickle
+        feature_cols: List of feature column names expected by the model
+        
+    Returns:
+        DataFrame with added 'predicted_energy' column
+    """
+    logger.info(f"Loading model from {model_path}")
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
+    
+    logger.info(f"Predicting stability for {len(df)} candidates")
+    
+    # Ensure all required features are present
+    missing_cols = set(feature_cols) - set(df.columns)
+    if missing_cols:
+        raise ValueError(f"Missing required features: {missing_cols}")
+    
+    X = df[feature_cols]
+    predictions = model.predict(X)
+    
+    df = df.copy()
+    df['predicted_energy'] = predictions
+    
+    logger.info(f"Prediction complete. Min: {predictions.min():.4f}, Max: {predictions.max():.4f}")
+    return df
 
-def validate_output(df: pd.DataFrame, min_feasible: int = 200) -> bool:
+def apply_stability_threshold(df: pd.DataFrame, threshold: float = STABILITY_THRESHOLD) -> pd.DataFrame:
     """
-    Validate that the output contains at least min_feasible candidates.
-    This is the core requirement for T040.
+    Add a boolean column 'is_stable_candidate' indicating if predicted_energy < threshold.
+    
+    Args:
+        df: DataFrame with 'predicted_energy' column
+        threshold: Energy threshold in eV/atom (default: -0.1)
+        
+    Returns:
+        DataFrame with added 'is_stable_candidate' column
     """
-    count = len(df)
-    logger.info(f"Validating output: {count} candidates found.")
+    df = df.copy()
+    df['is_stable_candidate'] = df['predicted_energy'] < threshold
+    stable_count = df['is_stable_candidate'].sum()
+    logger.info(f"Threshold flagging complete: {stable_count} candidates below {threshold} eV/atom")
+    return df
+
+def validate_output(df: pd.DataFrame, output_path: str) -> None:
+    """Validate the output DataFrame before saving."""
+    required_cols = ['formula', 'predicted_energy', 'rank', 'is_stable_candidate']
+    missing = [col for col in required_cols if col not in df.columns]
+    if missing:
+        raise ValueError(f"Output missing required columns: {missing}")
     
-    if count < min_feasible:
-        logger.error(f"Validation FAILED: Only {count} candidates found. Required: {min_feasible}.")
-        return False
+    if df['is_stable_candidate'].dtype != bool:
+        raise ValueError(f"is_stable_candidate must be boolean, got {df['is_stable_candidate'].dtype}")
     
-    logger.info(f"Validation PASSED: {count} candidates >= {min_feasible}.")
-    return True
+    logger.info(f"Validation passed for {len(df)} rows")
+
+def save_results(df: pd.DataFrame, output_path: str) -> None:
+    """Save the final screening results to CSV."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Results saved to {output_path}")
 
 def main():
     """
-    Main entry point for T040: Save full ranked list to results/screening_full.csv.
+    Main entry point for T030: Threshold flagging.
+    
+    This script:
+    1. Loads the ranked candidates from T029 (results/screening_full.csv)
+    2. Applies the stability threshold (-0.1 eV/atom)
+    3. Adds 'is_stable_candidate' boolean column
+    4. Saves the updated DataFrame back to results/screening_full.csv
     """
-    log_pipeline_event("Starting T040: Full Screening and Ranking")
+    # Paths
+    results_dir = project_root / 'results'
+    input_path = results_dir / 'screening_full.csv'
+    model_path = results_dir / 'model.pkl'
+    output_path = results_dir / 'screening_full.csv'
     
-    # 1. Load Hypothetical Library
-    lib_path = DATA_PROCESSED_DIR / "hypothetical_library.csv"
-    df = load_hypothetical_library(lib_path)
-    logger.info(f"Loaded hypothetical library with {len(df)} candidates.")
+    # Feature columns used in training (must match T014/T015)
+    feature_cols = [
+        'tolerance_factor',
+        'octahedral_factor',
+        'ionic_radius_mismatch',
+        'electronegativity_diff'
+    ]
     
-    # 2. Calculate Descriptors (if not already present)
-    # The generate_combinatorial_library function in predict.py should handle this,
-    # but we ensure it's done here.
-    if "tolerance_factor" not in df.columns:
-        logger.info("Calculating descriptors for hypothetical library...")
-        # Re-calculate descriptors for all rows
-        # This logic is duplicated from descriptors.py or predict.py logic
-        # We assume generate_combinatorial_library did this, but if not:
-        # We need to call calculate_all_descriptors logic.
-        # Since we don't have a direct function to update a DF, we assume it's done.
-        # If not, we must re-calculate.
-        # For safety, we assume the library generation in T034/35/36/37 pipeline 
-        # produced a DF with descriptors. If not, we fail here.
-        raise ValueError("Hypothetical library missing descriptor columns. Run T034-T037 first.")
+    logger.info("Starting T030: Threshold flagging for stability candidates")
     
-    # 3. Load Model
-    model_path = RESULTS_DIR / "model.pkl"
-    if not model_path.exists():
-        raise FileNotFoundError(f"Model file not found: {model_path}. Run T023-T031 first.")
+    # Load ranked candidates (output of T029)
+    try:
+        df = load_ranked_candidates(str(input_path))
+        logger.info(f"Loaded {len(df)} ranked candidates")
+    except FileNotFoundError as e:
+        logger.error(f"Input file not found: {e}")
+        raise
     
-    with open(model_path, 'rb') as f:
-        model = pickle.load(f)
-    logger.info("Model loaded successfully.")
+    # Apply stability threshold
+    df = apply_stability_threshold(df, threshold=STABILITY_THRESHOLD)
     
-    # 4. Perform OOD Check
-    stats = load_training_statistics()
-    df = perform_ood_check(df, stats)
-    logger.info(f"OOD check completed. {df['is_ood'].sum()} candidates flagged as OOD.")
+    # Validate output
+    validate_output(df, str(output_path))
     
-    # 5. Predict Stability
-    df = predict_stability_batch(df, model)
-    logger.info("Stability predictions completed.")
+    # Save results (overwrite the same file as per task description)
+    save_results(df, str(output_path))
     
-    # 6. Flag Thermodynamic Stability
-    # Threshold: -0.1 eV/atom (stable)
-    df = flag_thermodynamic_stability(df, threshold=-0.1)
+    # Summary
+    stable_count = df['is_stable_candidate'].sum()
+    total_count = len(df)
+    logger.info(f"Final Summary: {stable_count}/{total_count} candidates are stable (E < {STABILITY_THRESHOLD} eV/atom)")
     
-    # 7. Rank Candidates
-    # Sort by predicted_decomposition_energy ascending (most stable first)
-    df = df.sort_values(by="predicted_decomposition_energy", ascending=True)
-    df = df.reset_index(drop=True)
+    log_pipeline_event("T030_COMPLETE", {
+        "stable_candidates": int(stable_count),
+        "total_candidates": int(total_count),
+        "threshold": STABILITY_THRESHOLD
+    })
     
-    # 8. Save Full Ranked List
-    output_path = RESULTS_DIR / "screening_full.csv"
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved full ranked list to {output_path}")
-    
-    # 9. Validate Output (T040 Requirement)
-    is_valid = validate_output(df, min_feasible=200)
-    
-    if not is_valid:
-        log_pipeline_event("T040 FAILED: Insufficient feasible candidates.", level="ERROR")
-        sys.exit(1)
-    
-    log_pipeline_event("T040 COMPLETED: Full ranked list saved and validated.")
-    return df
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

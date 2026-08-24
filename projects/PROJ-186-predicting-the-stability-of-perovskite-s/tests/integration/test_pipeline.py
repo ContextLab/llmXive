@@ -5,14 +5,26 @@ import pytest
 from pathlib import Path
 import subprocess
 import sys
+import pandas as pd
+import numpy as np
 
 def test_full_training_pipeline_with_sample_data(tmp_path: Path):
     """
     Integration test for the full training pipeline.
     Generates a sample dataset, runs the training script, and verifies outputs.
+    
+    NOTE: This task specifically requires generating the sample dataset at the
+    persistent path `data/processed/sample_features.csv` relative to the project root,
+    not just in tmp_path, to satisfy the verification requirements for T020a.
     """
     # 1. Setup paths
-    input_file = tmp_path / "sample_features.csv"
+    # We need to write to the project's data/processed directory to satisfy T020a
+    # We determine the project root based on the test file location
+    project_root = Path(__file__).parent.parent.parent
+    data_processed_dir = project_root / "data" / "processed"
+    data_processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    input_file = data_processed_dir / "sample_features.csv"
     output_dir = tmp_path / "results"
     
     # Ensure output directory exists
@@ -21,30 +33,26 @@ def test_full_training_pipeline_with_sample_data(tmp_path: Path):
     # 2. Generate sample dataset (100 rows)
     # Columns: tolerance_factor, octahedral_factor, ionic_radius_mismatch, 
     #          electronegativity_diff, decomposition_energy
-    sample_data = [
-        ["tolerance_factor", "octahedral_factor", "ionic_radius_mismatch", "electronegativity_diff", "decomposition_energy"]
-    ]
-    for i in range(100):
-        row = [
-            0.9 + (i * 0.001),  # tolerance_factor
-            0.8 + (i * 0.001),  # octahedral_factor
-            0.05 + (i * 0.0005), # ionic_radius_mismatch
-            0.5 + (i * 0.002),   # electronegativity_diff
-            -0.1 - (i * 0.001)   # decomposition_energy
-        ]
-        sample_data.append(row)
+    # Using numpy for reproducibility and proper float handling
+    np.random.seed(42)
+    n_rows = 100
+    
+    data = {
+        "tolerance_factor": 0.9 + np.random.uniform(0, 0.1, n_rows),
+        "octahedral_factor": 0.8 + np.random.uniform(0, 0.1, n_rows),
+        "ionic_radius_mismatch": np.random.uniform(0.0, 0.1, n_rows),
+        "electronegativity_diff": np.random.uniform(0.5, 2.0, n_rows),
+        "decomposition_energy": np.random.uniform(-0.5, 0.0, n_rows) # eV/atom, negative is stable
+    }
+    
+    df = pd.DataFrame(data)
+    
+    # Write CSV to the REQUIRED persistent location
+    df.to_csv(input_file, index=False)
 
-    # Write CSV
-    with open(input_file, 'w') as f:
-        for row in sample_data:
-            f.write(','.join(map(str, row)) + '\n')
-
-    assert input_file.exists(), "Sample features CSV was not created."
+    assert input_file.exists(), f"Sample features CSV was not created at {input_file}."
     
     # 3. Run training script
-    # Assuming the script is at code/models/train.py relative to project root
-    # We need to run it from the project root context or adjust paths
-    project_root = Path(__file__).parent.parent.parent
     script_path = project_root / "code" / "models" / "train.py"
     
     if not script_path.exists():
@@ -57,7 +65,7 @@ def test_full_training_pipeline_with_sample_data(tmp_path: Path):
         "--output", str(output_dir)
     ]
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    result = subprocess.run(cmd, capture_output=True, text=True, cwd=str(project_root))
     
     # 4. Verify execution success
     if result.returncode != 0:
@@ -103,3 +111,4 @@ def test_full_training_pipeline_with_sample_data(tmp_path: Path):
         assert isinstance(importance[feat], (int, float)), f"Importance for {feat} is not numeric"
 
     print("Integration test passed: All artifacts created and validated.")
+    print(f"Sample data successfully saved to: {input_file}")

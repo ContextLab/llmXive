@@ -4,9 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T020a` (rejected 1x): The test creates a CSV in the temporary `tmp_path` directory instead of saving it to `data/processed/sample_features.csv`, and the required file `data/processed/sample_features.csv` is missing from the repository. Consequently the task’s core requirement is not satisfied.
-- `T020b` (rejected 1x): The required input file `data/processed/sample_features.csv` does not exist, and the expected output model file `results/model.pkl` is also missing. No test logs, execution traces, or generated artifacts are provided to show that the training pipeline was run and produced the model file. The task therefore is not satisfied.
-- `T020c` (rejected 1x): The required artifact `results/metrics.json` does not exist on disk, so the unit test cannot verify the presence of the file nor the `test_rmse` numeric key. The implementer must create the file with a valid JSON object containing a numeric `test_rmse` entry.
+- `T018` (rejected 1x): The required artifact `data/processed/features.csv` is missing, so the assertion cannot be run and there is no evidence that the `decomposition_energy` column has zero nulls. The implementer must provide the CSV file (non‑empty) and demonstrate the assertion passes.
 
 ## Required change
 

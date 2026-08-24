@@ -12,21 +12,13 @@ T016:
   r: The repository contains a `code/data/preprocess.py` script, but the required
     output file `data/processed/features.csv` is absent, so the primary artifact the
     task demands does not exist. The task is therefore not fully satisfied.
-T017:
+T017b:
   c: false
-  h: 2dd0a03643c8b7f7af80ee5112506d510b50601d10813727b07fab3e2bcb7a46
-  r: "The repository contains `code/data/preprocess.py`, but the required output file\
-    \ `data/processed/features.csv` is missing, so the task\u2019s primary artifact\
-    \ does not exist and cannot be verified. The next implementer must ensure the\
-    \ script is executed (or provide a pre\u2011generated CSV) so that `data/processed/features.csv`\
-    \ is present and contains the cleaned data."
-T018:
-  c: false
-  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
-  r: "The required artifact `data/processed/features.csv` is missing, so the assertion\
-    \ cannot be run and there is no evidence that the `decomposition_energy` column\
-    \ has zero nulls. The implementer must provide the CSV file (non\u2011empty) and\
-    \ demonstrate the assertion passes."
+  h: 847769146a91813ba37a9a5a5867ab8dd543cdc595d92100d1be5820b12c374f
+  r: "The required artifact `data/processed/features.csv` does not exist on disk,\
+    \ so the save step cannot be verified. Additionally, the provided `preprocess.py`\
+    \ excerpt does not show the RuntimeError check for an empty dataset. The task\u2019\
+    s verification cannot be performed without the CSV file."
 T019:
   c: false
   h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
@@ -34,15 +26,55 @@ T019:
     \ is no way to check for nulls in the `decomposition_energy` column. The implementer\
     \ must provide the CSV file (non\u2011empty) and confirm that the specified column\
     \ contains zero null values."
-T021:
+T020a:
+  c: true
+  h: c5e67f9f9285adbbd8b48400cf3ada05c198f4d62c11b4326c2e037d7b08bd47
+  r: "The repository contains the integration test `tests/integration/test_pipeline.py`\
+    \ with a `test_full_training_pipeline_with_sample_data` function that generates\
+    \ a 100\u2011row DataFrame with the required columns, writes it to `data/processed/sample_features.csv`,\
+    \ and asserts the file exists. This fulfills the task\u2019s requirement; the\
+    \ CSV is created at test runtime, so its pre\u2011existence on disk is not needed."
+T020b:
   c: false
-  h: 6abc08cf4c0e7828380b1a1da301fcd175d9cff0985393fcabce273eaeb53e1f
-  r: "The repository lacks the required `data/processed/features.csv` and the expected\
-    \ output files (`results/model.pkl`, `results/metrics.json`, `results/feature-importance.png`).\
-    \ Moreover, the provided `code/models/train.py` is truncated and does not show\
-    \ the full implementation of re\u2011training, evaluation, warning logging, permutation\
-    \ importance, and saving of results, so we cannot confirm those steps are present.\
-    \ The task is therefore not genuinely completed."
+  h: 3b396d91efde48be7af7652021fb45506f335534a535e11eaccb3eaf5367e7d3
+  r: The required input file `data/processed/sample_features.csv` does not exist,
+    and the expected output `results/model.pkl` is also missing. No execution logs
+    or evidence that `train.py` was run with the specified arguments are provided.
+    The task therefore has not been fulfilled.
+T020c:
+  c: false
+  h: 1e5913fa4a49c57f9625664dc530c0a33ec6466de912adc734dbb6045a40af9c
+  r: "The required artifact `results/metrics.json` is missing entirely, so the unit\u2011\
+    test assertion cannot be satisfied; there is no file to contain the required keys\
+    \ (`test_rmse`, `best_params`, `dft_functional`). The implementer must create\
+    \ this JSON file with those keys and appropriate numeric/string values."
+T021a:
+  c: false
+  h: d034ee9096f1f9e65ba61c6ea6b2527cd7c23e27db127ed40fc3873c0bdde0af
+  r: "The repository lacks the required `data/processed/features.csv` input file,\
+    \ and the expected output artifacts `results/model.pkl` and `results/feature-importance.png`\
+    \ are not present. Moreover, the provided `code/models/train.py` is truncated\
+    \ (the `evaluate_model` function is incomplete and there is no code that re\u2011\
+    trains on the full training set, computes test RMSE, performs permutation importance,\
+    \ or saves the model and importance plot). These missing pieces prevent the task\
+    \ from being genuinely fulfilled."
+T021c:
+  c: false
+  h: 0bffa8fe8f57c8f023ad41e8bf485e12fd3c2a9b47f64982f22232cee7f44cef
+  r: "The required output artifacts (`results/model.pkl`, `results/metrics.json`,\
+    \ `results/feature-importance.png`) are missing from the repository. Moreover,\
+    \ the provided `code/models/train.py` is incomplete (truncated at the `evaluate_model`\
+    \ function) and does not contain any logic to save the model, metrics, or feature\u2011\
+    importance plot. The task\u2019s deliverables are therefore not satisfied."
+T022:
+  c: false
+  h: 73b06548c09e9044ce65f5d52826624de90e6149bb85ca3941e9e736c5d33904
+  r: The required output file `results/predicted-vs-true.png` does not exist, and
+    the supporting artifacts `results/model.pkl` and `results/metrics.json` are also
+    missing, so the plot cannot be generated. Additionally, the provided `code/viz/plot.py`
+    is truncated and does not contain a complete implementation for loading the model,
+    predictions, and creating the scatter plot. The implementer must supply the missing
+    model and metrics files and finish the plotting script to produce the PNG.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -50,6 +82,13 @@ T025:
     \ re\u2011trained on the full `train_set` with the best hyper\u2011parameters\
     \ identified earlier. The required artifact (e.g., a training script and the resulting\
     \ serialized model) is missing, so the task is not demonstrably completed."
+T026b:
+  c: false
+  h: 21c3e1bd826d588454feedc09c1781c18d8e8c633bcd0893cbdabd14dfa22e21
+  r: "The required artifact `data/processed/hypothetical_library.csv` does not exist\
+    \ on disk, so no row\u2011count verification can be performed. The task\u2019\
+    s core requirement\u2014asserting that the file has a sufficient number of rows\u2014\
+    cannot be satisfied without the file."
 T034:
   c: false
   h: aa4fdd54291bb9bd00e1e2b379607b99fcedd8103fa756f7187715a5d11c56ce
