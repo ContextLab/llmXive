@@ -1,0 +1,14 @@
+status: none
+intent: Materials Project fatigue data NIST fatigue database UCI repository python
+  package dataset
+required_fields:
+- elemental_percentages
+- heat_treatment
+- stress_amplitude
+- frequency
+- R_ratio
+- remaining_useful_life
+- stiffness_loss
+cache_key: 3a74f6c344ad2fa6316bcb1a7ab1a5754af72606b8a21e9cf792e8be9725baa0
+searched_at: '2026-08-24T21:25:11.859563+00:00'
+retry_count: 1

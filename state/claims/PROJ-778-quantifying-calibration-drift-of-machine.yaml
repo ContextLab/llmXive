@@ -364,3 +364,66 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T21:29:24Z'
+- artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/tasks.md
+  attempts: 1
+  canonical: Abort if feature intersection is less than 90% of original features
+  claim_id: c_cb9ba8e9
+  context: 'T014 [US1] Implement schema alignment logic in code/01_data_acquisition.py:
+    Intersect feature columns between training and test snapshots (FR-008). Save aligned
+    feature list to data/processed/aligned_features.json. Abort with error if intersection
+    < 90% of original features.'
+  evidence:
+    candidates:
+    - - ''
+      - 90.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Abort_if_feature_intersection_is_less_than_90%25_of_original_f
+  kind: magnitude
+  raw_text: Abort with error if intersection < 90% of original features.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-24T22:07:00Z'
+- artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/tasks.md
+  attempts: 1
+  canonical: Verify robustness by ensuring coefficient consistency within 0.1 across
+    ECE binning strategies of 5, 10, and 20 bins
+  claim_id: c_af4d4167
+  context: "T027 [US3] Implement code/04_statistical_analysis.py: Compute Spearman\
+    \ rank correlation between covariate shift and calibration error. Verify robustness\
+    \ by ensuring the coefficient remains consistent (within \xB10.1) across ECE binning\
+    \ strategies of 5, 10, and 20 bins (FR-010, FR-009)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify robustness by ensuring the coefficient remains consistent (within\
+    \ \xB10.1) across ECE binning strategies of 5, 10, and 20 bins."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T22:07:31Z'
+- artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/tasks.md
+  attempts: 1
+  canonical: Perform BIC-based change-point detection with alpha 0.05
+  claim_id: c_0a5de325
+  context: 'T028 [US3] Implement code/04_statistical_analysis.py: Perform BIC-based
+    change-point detection (alpha = 0.05) to identify abrupt shifts. Do NOT implement
+    fixed block-permutation as per Plan Complexity Tracking (BIC required to avoid
+    arbitrary block sizes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform BIC-based change-point detection (alpha = 0.05) to identify abrupt
+    shifts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T22:07:51Z'

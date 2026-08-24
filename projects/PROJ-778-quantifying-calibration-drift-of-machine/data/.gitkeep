@@ -1,2 +1,1 @@
-# This directory stores all data artifacts: raw downloads, processed splits, model weights, and metrics.
-# Subdirectories: raw/, processed/, models/, figures/
+# Placeholder to ensure data directory exists in git

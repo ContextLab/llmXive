@@ -71,12 +71,12 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Contract test for `data/processed/` schema in `tests/contract/test_corpus_schema.py`
-- [ ] T010 [P] [US1] Integration test for data ingestion pipeline in `tests/integration/test_data_ingestion.py`
+- [X] T009 [P] [US1] Contract test for `data/processed/` schema in `tests/contract/test_corpus_schema.py`
+- [X] T010 [P] [US1] Integration test for data ingestion pipeline in `tests/integration/test_data_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Implement `code/data_ingestion.py` to download dataset 'arxiv' (split: train) filtered by categories [cs.CL, physics.gen-ph, q-bio.QM] and save to `data/raw/arxiv_subset.parquet`
+- [ ] T011 [US1] Implement `code/data_ingestion.py` to download dataset 'arxiv' (split: train) filtered by categories [cs.CL, physics.gen-ph, q-bio.QM] and save to `data/raw/arxiv_subset.parquet`
 - [X] T012 [US1] Implement filtering logic in `code/data_ingestion.py` to extract 20 distinct lead authors with ≥10 abstracts each (FR-001, FR-009)
 - [X] T013 [US1] Implement author disambiguation and collision logging in `code/data_ingestion.py`: log warning if name appears >50 times (FR-009)
 - [ ] T013a [US1] Implement collision flagging: write `data/processed/collision_report.json` and update `state/PROJ-809-llmxive-followup.yaml` with manual_review flag for names appearing >50 times; raise fatal error if critical collision threshold is exceeded (FR-009)
@@ -97,13 +97,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for `artifacts/models/` schema in `tests/contract/test_model_schema.py`
-- [ ] T019 [P] [US2] Integration test for perplexity calculation in `tests/integration/test_perplexity.py`
+- [X] T018 [P] [US2] Contract test for `artifacts/models/` schema in `tests/contract/test_model_schema.py`
+- [X] T019 [P] [US2] Integration test for perplexity calculation in `tests/integration/test_perplexity.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/model_training.py` to train character-level n-gram models (n=4, 5, 6) per author using sklearn CountVectorizer, saving to `artifacts/models/author_{id}_n{n}.pkl` (FR-003)
-- [ ] T021 [US2] Implement Kneser-Ney smoothing in `code/model_training.py` to handle data sparsity for ALL models (n=4, 5, 6) (FR-011)
+- [X] T020 [US2] Implement `code/model_training.py` to train character-level n-gram models (n=4, 5, 6) per author using sklearn CountVectorizer, saving to `artifacts/models/author_{id}_n{n}.pkl` (FR-003)
+- [X] T021 [US2] Implement Kneser-Ney smoothing in `code/model_training.py` to handle data sparsity for ALL models (n=4, 5, 6) (FR-011)
 - [ ] T022 [US2] Implement /20 train/test split logic within `code/model_training.py`
 - [ ] T023 [US2] Implement sparsity check logic in `code/model_training.py`: if n=6 sparsity > threshold, trigger fallback to n=5 for that author
 - [ ] T023b [US2] Implement fallback logic: if n=6 fails sparsity check, train and save n=5 model to `artifacts/models/author_{id}_n5_fallback.pkl` to ensure a model is generated for every author (FR-003, FR-011)

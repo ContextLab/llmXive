@@ -7,6 +7,7 @@ from typing import Dict, Any
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_ARTIFACTS_DIR = PROJECT_ROOT / "data" / "artifacts"
 ARTIFACTS_MODELS_DIR = PROJECT_ROOT / "artifacts" / "models"
 ARTIFACTS_REPORTS_DIR = PROJECT_ROOT / "artifacts" / "reports"
 STATE_DIR = PROJECT_ROOT / "state"
@@ -22,6 +23,7 @@ def ensure_dirs():
     dirs = [
         DATA_RAW_DIR,
         DATA_PROCESSED_DIR,
+        DATA_ARTIFACTS_DIR,
         ARTIFACTS_MODELS_DIR,
         ARTIFACTS_REPORTS_DIR,
         STATE_DIR,
@@ -40,8 +42,9 @@ def set_global_seed(seed: int):
     os.environ['PYTHONHASHSEED'] = str(seed)
 
 # Timeout constants (in seconds)
+GITHUB_ACTIONS_TIMEOUT = 5 * 3600  # 5 hours
 TRAINING_TIMEOUT = 4 * 3600  # 4 hours
-TOTAL_PIPELINE_TIMEOUT = 5 * 3600  # 5 hours
+TOTAL_PIPELINE_TIMEOUT = GITHUB_ACTIONS_TIMEOUT
 
 # Runner constraints
 MAX_MEMORY_GB = 6.5
@@ -71,6 +74,24 @@ MODEL_OUTPUT_SCHEMA = {
     }
 }
 
+# Hyperparameter grids for modeling tasks
+HYPERPARAMETER_GRIDS = {
+    "linear_regression": {
+        "fit_intercept": [True, False]
+    },
+    "random_forest": {
+        "n_estimators": [100, 200],
+        "max_depth": [10, 20, None],
+        "min_samples_split": [2, 5],
+        "min_samples_leaf": [1, 2],
+        "random_state": [GLOBAL_SEED]
+    },
+    "ridge_regression": {
+        "alpha": [0.1, 1.0, 10.0],
+        "fit_intercept": [True, False]
+    }
+}
+
 def get_config() -> Dict[str, Any]:
     """
     Returns the current configuration dictionary.
@@ -79,6 +100,7 @@ def get_config() -> Dict[str, Any]:
         "paths": {
             "raw": str(DATA_RAW_DIR),
             "processed": str(DATA_PROCESSED_DIR),
+            "artifacts": str(DATA_ARTIFACTS_DIR),
             "models": str(ARTIFACTS_MODELS_DIR),
             "reports": str(ARTIFACTS_REPORTS_DIR),
             "state": str(STATE_DIR)
@@ -86,9 +108,11 @@ def get_config() -> Dict[str, Any]:
         "seed": GLOBAL_SEED,
         "timeout": {
             "training": TRAINING_TIMEOUT,
-            "pipeline": TOTAL_PIPELINE_TIMEOUT
+            "pipeline": TOTAL_PIPELINE_TIMEOUT,
+            "github_actions": GITHUB_ACTIONS_TIMEOUT
         },
         "constraints": {
             "max_memory_gb": MAX_MEMORY_GB
-        }
+        },
+        "hyperparameter_grids": HYPERPARAMETER_GRIDS
     }

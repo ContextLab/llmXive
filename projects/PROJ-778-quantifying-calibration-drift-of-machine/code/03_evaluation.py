@@ -1,10 +1,3 @@
-"""
-Evaluation Pipeline for Calibration Drift Analysis.
-
-This module loads fixed models and iterates through yearly test splits to compute
-calibration and covariate shift metrics. It implements graceful handling of missing
-years as per Edge Cases (T025).
-"""
 import os
 import json
 import logging
@@ -12,11 +5,8 @@ import pickle
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
 
-import pandas as pd
-import numpy as np
-
-# Local imports matching API surface
-from utils.config import get_path, ensure_directories
+# Import from local utils
+from utils.config import get_path, ensure_directories, get_config_dict
 from utils.metrics import (
     expected_calibration_error,
     brier_score,
@@ -25,7 +15,6 @@ from utils.metrics import (
     spearman_correlation
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
@@ -33,355 +22,355 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def load_models(model_dir: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Load trained models from the data/models directory.
-
-    Args:
-        model_dir: Optional path to models directory. Defaults to config.
-
-    Returns:
-        Dictionary mapping model names to loaded model objects.
-    """
-    if model_dir is None:
-        model_dir = get_path("models")
-    
-    if not model_dir.exists():
-        raise FileNotFoundError(f"Model directory not found: {model_dir}")
-
+def load_models(models_dir: str) -> Dict[str, Any]:
+    """Load trained models from the specified directory."""
     models = {}
-    for model_file in model_dir.glob("*.pkl"):
-        model_name = model_file.stem
-        with open(model_file, 'rb') as f:
-            models[model_name] = pickle.load(f)
-        logger.info(f"Loaded model: {model_name}")
+    models_path = Path(models_dir)
+    
+    model_files = {
+        'logistic_regression': 'logistic_regression.pkl',
+        'random_forest': 'random_forest.pkl'
+    }
+    
+    for name, filename in model_files.items():
+        filepath = models_path / filename
+        if not filepath.exists():
+            raise FileNotFoundError(f"Model file not found: {filepath}")
+        
+        with open(filepath, 'rb') as f:
+            models[name] = pickle.load(f)
+            logger.info(f"Loaded model: {name}")
     
     return models
 
 
-def load_yearly_test_splits(data_dir: Optional[Path] = None) -> Dict[int, pd.DataFrame]:
+def load_yearly_test_splits(data_dir: str) -> Dict[int, Dict[str, Any]]:
     """
-    Load yearly test splits from data/processed.
-
-    Args:
-        data_dir: Optional path to processed data directory.
-
-    Returns:
-        Dictionary mapping year to DataFrame.
+    Load yearly test splits from data/processed/.
+    Handles missing years gracefully by logging a warning and skipping them.
+    
+    Returns a dictionary mapping year -> {X: array, y: array, year: int}
     """
-    if data_dir is None:
-        data_dir = get_path("processed")
+    processed_dir = Path(data_dir)
+    yearly_data = {}
+    available_years = []
     
-    if not data_dir.exists():
-        raise FileNotFoundError(f"Processed data directory not found: {data_dir}")
-
-    yearly_splits = {}
+    # Determine range of years based on available files
+    # We expect files named test_data_{year}.json
+    all_files = list(processed_dir.glob("test_data_*.json"))
+    extracted_years = []
     
-    # Look for files matching pattern: test_split_YEAR.csv
-    for file_path in data_dir.glob("test_split_*.csv"):
+    for f in all_files:
         try:
-            # Extract year from filename
-            year_str = file_path.stem.replace("test_split_", "")
+            year_str = f.stem.replace("test_data_", "")
             year = int(year_str)
+            extracted_years.append(year)
+        except ValueError:
+            continue
+    
+    if not extracted_years:
+        logger.warning("No yearly test split files found in data/processed/")
+        return {}
+    
+    min_year = min(extracted_years)
+    max_year = max(extracted_years)
+    
+    logger.info(f"Scanning years from {min_year} to {max_year}")
+    
+    for year in range(min_year, max_year + 1):
+        filepath = processed_dir / f"test_data_{year}.json"
+        
+        if not filepath.exists():
+            # GRACEFUL HANDLING OF MISSING YEARS (T025)
+            logger.warning(
+                f"Missing year {year}: Test split file not found at {filepath}. "
+                f"Skipping processing for this year as per edge case handling."
+            )
+            continue
+        
+        try:
+            with open(filepath, 'r') as f:
+                data = json.load(f)
             
-            df = pd.read_csv(file_path)
-            yearly_splits[year] = df
-            logger.info(f"Loaded test split for year: {year}")
-        except ValueError as e:
-            logger.warning(f"Skipping file {file_path.name} due to invalid year format: {e}")
+            if 'X' not in data or 'y' not in data:
+                logger.warning(
+                    f"Skipping year {year}: Invalid data format in {filepath}. "
+                    f"Expected 'X' and 'y' keys."
+                )
+                continue
+            
+            yearly_data[year] = {
+                'X': data['X'],
+                'y': data['y'],
+                'year': year
+            }
+            available_years.append(year)
+            logger.info(f"Loaded test data for year {year}")
+            
+        except json.JSONDecodeError as e:
+            logger.warning(
+                f"Skipping year {year}: Failed to parse JSON in {filepath}. Error: {e}"
+            )
+            continue
         except Exception as e:
-            logger.warning(f"Error loading {file_path.name}: {e}")
-
-    return yearly_splits
-
-
-def compute_metrics_for_year(
-    year: int,
-    model: Any,
-    df: pd.DataFrame,
-    feature_cols: List[str],
-    target_col: str,
-    bins_list: List[int] = [5, 10, 20]
-) -> Dict[str, Any]:
-    """
-    Compute all calibration and shift metrics for a single year.
-
-    Args:
-        year: The year being evaluated.
-        model: The trained model to evaluate.
-        df: The DataFrame containing test data for the year.
-        feature_cols: List of feature column names.
-        target_col: Name of the target column.
-        bins_list: List of bin counts for ECE calculation.
-
-    Returns:
-        Dictionary containing all computed metrics.
-    """
-    X = df[feature_cols].values
-    y_true = df[target_col].values
-
-    # Get predictions (probabilities for positive class)
-    try:
-        y_prob = model.predict_proba(X)[:, 1]
-    except AttributeError:
-        # Fallback for models that only have predict
-        y_prob = model.predict(X)
-        # If predictions are already probabilities (0/1), convert to prob-like
-        if set(np.unique(y_prob)) == {0, 1}:
-            y_prob = y_prob.astype(float)
-
-    # Compute calibration metrics
-    ece_results = {}
-    for n_bins in bins_list:
-        ece = expected_calibration_error(y_true, y_prob, n_bins)
-        ece_results[f'ece_{n_bins}'] = ece
-
-    # Compute Brier score
-    brier = brier_score(y_true, y_prob)
-
-    # Compute covariate shift metrics
-    # We need training data for shift calculation, but this function is called per year
-    # The shift metrics are computed against the original training set
-    # This will be handled in the pipeline function by passing train data
-
-    metrics = {
-        'year': year,
-        'model_type': model.__class__.__name__,
-        **ece_results,
-        'brier': brier
-    }
-
-    return metrics
+            logger.warning(
+                f"Skipping year {year}: Unexpected error loading {filepath}. Error: {e}"
+            )
+            continue
+    
+    if not available_years:
+        logger.error("No valid test data could be loaded for any year.")
+    
+    return yearly_data
 
 
 def compute_shift_metrics(
-    year: int,
+    train_features: List[List[float]],
+    test_features: List[List[float]],
+    feature_names: Optional[List[str]] = None
+) -> Dict[str, float]:
+    """Compute covariate shift metrics (PCA shift and Key Feature Shift)."""
+    try:
+        pca_val = pca_shift(train_features, test_features)
+        key_val = key_feature_shift(train_features, test_features, feature_names)
+        
+        return {
+            'pca_shift': float(pca_val),
+            'key_feature_shift': float(key_val)
+        }
+    except Exception as e:
+        logger.warning(f"Could not compute shift metrics: {e}")
+        return {
+            'pca_shift': None,
+            'key_feature_shift': None
+        }
+
+
+def compute_metrics_for_year(
     model_name: str,
-    train_features: np.ndarray,
-    test_features: np.ndarray,
-    feature_names: List[str],
-    ece_5: float,
-    ece_10: float,
-    ece_20: float,
-    y_true: np.ndarray,
-    y_prob: np.ndarray
+    model: Any,
+    year_data: Dict[str, Any],
+    train_features: List[List[float]],
+    feature_names: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """
-    Compute covariate shift metrics and correlation with calibration error.
-
-    Args:
-        year: The year being evaluated.
-        model_name: Name of the model.
-        train_features: Training feature matrix.
-        test_features: Test feature matrix for the year.
-        feature_names: List of feature names.
-        ece_5, ece_10, ece_20: ECE values for different bin counts.
-        y_true: True labels.
-        y_prob: Predicted probabilities.
-
-    Returns:
-        Dictionary containing shift metrics and correlations.
+    Compute all calibration and shift metrics for a single year.
+    
+    Returns a record dictionary compatible with metric_record_schema.yaml.
     """
-    # Compute PCA Shift
-    pca_shift_val = pca_shift(train_features, test_features, n_components=0.95)
-
-    # Compute Key Feature Shift
-    key_shift_val = key_feature_shift(train_features, test_features, feature_names)
-
-    # Compute Spearman correlation between shift and calibration error
-    # We correlate the shift metric with the ECE for this year
-    # Since we have only one point per year, we compute correlation across years
-    # This will be aggregated later. For now, we store individual values.
+    year = year_data['year']
+    X_test = year_data['X']
+    y_test = year_data['y']
     
-    # Compute rho for each binning strategy (correlation of shift vs ECE across years)
-    # Since we can't compute correlation on a single point, we return the raw values
-    # The correlation will be computed in the statistical analysis phase
+    # Predict probabilities and labels
+    try:
+        if hasattr(model, 'predict_proba'):
+            y_prob = model.predict_proba(X_test)[:, 1]
+        else:
+            # Fallback for models without predict_proba
+            y_prob = model.decision_function(X_test)
+            # Normalize if necessary (simple sigmoid for now if not already prob)
+            # In practice, we assume LogisticRegression/RF provide probs
+        
+        y_pred = (y_prob >= 0.5).astype(int)
+    except Exception as e:
+        logger.error(f"Prediction failed for year {year}, model {model_name}: {e}")
+        return None
     
-    rho_5 = np.nan  # Placeholder, will be computed across years
-    rho_10 = np.nan
-    rho_20 = np.nan
-
-    metrics = {
+    # Calibration Metrics
+    ece_5 = expected_calibration_error(y_test, y_prob, n_bins=5)
+    ece_10 = expected_calibration_error(y_test, y_prob, n_bins=10)
+    ece_20 = expected_calibration_error(y_test, y_prob, n_bins=20)
+    brier = brier_score(y_test, y_prob)
+    
+    # Covariate Shift Metrics
+    shift_metrics = compute_shift_metrics(train_features, X_test, feature_names)
+    
+    # Spearman Correlation (Rho) for each binning strategy
+    # We compute correlation between binned predictions and true labels within each bin?
+    # Actually, per T024 spec: rho is the correlation between bin centers and observed rates?
+    # Standard ECE calculation involves bins. We compute rho as Spearman correlation
+    # between the average predicted probability in each bin and the actual fraction of positives in that bin.
+    
+    def compute_rho(y_true, y_prob, n_bins):
+        # Bin the predictions
+        bins = np.linspace(0, 1, n_bins + 1)
+        bin_indices = np.digitize(y_prob, bins) - 1
+        bin_indices = np.clip(bin_indices, 0, n_bins - 1)
+        
+        rho_vals = []
+        for i in range(n_bins):
+            mask = bin_indices == i
+            if np.sum(mask) > 1:
+                pred_mean = np.mean(y_prob[mask])
+                true_mean = np.mean(y_true[mask])
+                # We need multiple points to compute correlation, but here we have one point per bin (mean vs mean)
+                # This is a degenerate correlation (n=1). 
+                # Correction: The task likely implies computing correlation over the *time series* later,
+                # or computing rho as a measure of alignment within the binning.
+                # However, T024 says "rho_5, rho_10, rho_20" are stored per year.
+                # Interpretation: rho is the Spearman correlation between the bin centers and the observed rates.
+                # But with one point per bin, correlation is undefined.
+                # Alternative: Maybe it's the correlation of the residuals?
+                # Let's assume the standard "reliability diagram" correlation:
+                # We collect (bin_center, observed_rate) for all bins with data.
+                # If we have < 2 bins with data, rho is 0 or NaN.
+                pass
+        
+        # Re-implementation for robust rho calculation per binning strategy
+        bin_centers = []
+        observed_rates = []
+        
+        for i in range(n_bins):
+            mask = bin_indices == i
+            if np.sum(mask) > 0:
+                bin_centers.append((bins[i] + bins[i+1]) / 2)
+                observed_rates.append(np.mean(y_true[mask]))
+        
+        if len(bin_centers) < 2:
+            return 0.0
+        
+        rho, _ = spearman_correlation(np.array(bin_centers), np.array(observed_rates))
+        return rho
+    
+    rho_5 = compute_rho(y_test, y_prob, 5)
+    rho_10 = compute_rho(y_test, y_prob, 10)
+    rho_20 = compute_rho(y_test, y_prob, 20)
+    
+    # Compute differences
+    rho_diff_5_10 = abs(rho_5 - rho_10)
+    rho_diff_10_20 = abs(rho_10 - rho_20)
+    max_rho_diff = max(rho_diff_5_10, rho_diff_10_20)
+    
+    record = {
         'year': year,
         'model_type': model_name,
-        'pca_shift': pca_shift_val,
-        'key_feature_shift': key_shift_val,
+        'ece_5': ece_5,
+        'ece_10': ece_10,
+        'ece_20': ece_20,
+        'brier': brier,
+        'pca_shift': shift_metrics['pca_shift'],
+        'key_feature_shift': shift_metrics['key_feature_shift'],
         'rho_5': rho_5,
         'rho_10': rho_10,
-        'rho_20': rho_20
+        'rho_20': rho_20,
+        'rho_diff_5_10': rho_diff_5_10,
+        'rho_diff_10_20': rho_diff_10_20,
+        'max_rho_diff': max_rho_diff,
+        'p_value_wls': None, # Computed later in T026
+        'change_point_year': None # Computed later in T028
     }
-
-    return metrics
+    
+    return record
 
 
 def run_evaluation_pipeline(
-    models: Optional[Dict[str, Any]] = None,
-    train_data: Optional[pd.DataFrame] = None,
-    output_path: Optional[Path] = None
-) -> List[Dict[str, Any]]:
+    config_path: Optional[str] = None,
+    output_path: Optional[str] = None
+) -> bool:
     """
-    Run the full evaluation pipeline.
-
-    Loads models, iterates through yearly test splits, computes metrics,
-    and handles missing years gracefully.
-
-    Args:
-        models: Pre-loaded models. If None, loads from default path.
-        train_data: Training data for shift calculation. If None, loads from default.
-        output_path: Path to save metrics records.
-
-    Returns:
-        List of metric records.
+    Main pipeline to evaluate models across all available years.
+    Handles missing years gracefully.
     """
-    if models is None:
-        models = load_models()
+    config = get_config_dict(config_path)
     
-    if not models:
-        raise ValueError("No models found to evaluate.")
-
-    yearly_splits = load_yearly_test_splits()
+    models_dir = get_path(config, 'paths.models_dir')
+    data_dir = get_path(config, 'paths.processed_dir')
+    output_file = output_path or get_path(config, 'paths.metrics_output')
+    
+    ensure_directories([output_file])
+    
+    logger.info("Loading models...")
+    models = load_models(models_dir)
+    
+    logger.info("Loading yearly test splits (handling missing years)...")
+    yearly_splits = load_yearly_test_splits(data_dir)
     
     if not yearly_splits:
-        raise ValueError("No yearly test splits found.")
-
-    # Load training data for shift calculation
-    if train_data is None:
-        train_path = get_path("processed", "train_split_1994.csv")
-        if not train_path.exists():
-            # Try to find any train split
-            train_dir = get_path("processed")
-            train_files = list(train_dir.glob("train_split_*.csv"))
-            if train_files:
-                train_path = train_files[0]
-            else:
-                raise FileNotFoundError("Training data not found for shift calculation.")
-        train_data = pd.read_csv(train_path)
-        logger.info(f"Loaded training data from: {train_path}")
-
-    # Determine feature columns (common subset)
-    # Assume target column is 'income' or similar
-    target_col = 'income' if 'income' in train_data.columns else train_data.columns[-1]
-    feature_cols = [col for col in train_data.columns if col != target_col]
+        logger.error("No test data available. Aborting evaluation.")
+        return False
     
-    train_features = train_data[feature_cols].values
-    train_feature_names = feature_cols
-
-    # Sort years to handle gaps
-    sorted_years = sorted(yearly_splits.keys())
-    all_metrics = []
-
-    # Track years for correlation calculation
-    all_eces = {5: [], 10: [], 20: []}
-    all_shifts = []
-    all_years_for_corr = []
-
-    for year in sorted_years:
-        df = yearly_splits[year]
+    # Load training features for shift calculation (from the earliest year)
+    # We assume the first available year in splits is the training year or we load from a specific file
+    # For shift calculation, we need the training set features.
+    # Assumption: The first year's test data is used as a proxy for training distribution if not explicitly saved,
+    # OR we load 'train_data_{earliest_year}.json' if it exists.
+    # Per T017, we saved test splits. We need training features.
+    # Let's try to load training data for the earliest year.
+    earliest_year = min(yearly_splits.keys())
+    train_file = Path(data_dir) / f"train_data_{earliest_year}.json"
+    
+    train_features = None
+    feature_names = None
+    
+    if train_file.exists():
+        with open(train_file, 'r') as f:
+            train_data = json.load(f)
+            train_features = train_data.get('X')
+            feature_names = train_data.get('feature_names')
+        logger.info(f"Loaded training features from {earliest_year}")
+    else:
+        # Fallback: Use the earliest test set as the reference distribution for shift
+        # This is a limitation, but necessary if training data isn't persisted separately
+        logger.warning(
+            f"Training data file {train_file} not found. "
+            f"Using earliest test year ({earliest_year}) as reference for shift calculation."
+        )
+        train_features = yearly_splits[earliest_year]['X']
+        # feature_names might be missing, handled in metrics.py
+    
+    all_records = []
+    
+    for model_name, model in models.items():
+        logger.info(f"Evaluating model: {model_name}")
         
-        # Check for missing columns (graceful handling)
-        missing_cols = set(feature_cols) - set(df.columns)
-        if missing_cols:
-            logger.warning(f"Year {year}: Missing features {missing_cols}. Skipping year.")
-            continue
-
-        # Check for missing target column
-        if target_col not in df.columns:
-            logger.warning(f"Year {year}: Target column '{target_col}' not found. Skipping year.")
-            continue
-
-        # Filter to common features
-        X_test = df[feature_cols].values
-        y_true = df[target_col].values
-
-        # Process each model
-        for model_name, model in models.items():
+        for year in sorted(yearly_splits.keys()):
+            year_data = yearly_splits[year]
+            
             try:
-                # Compute calibration metrics
-                year_metrics = compute_metrics_for_year(
-                    year=year,
-                    model=model,
-                    df=df,
-                    feature_cols=feature_cols,
-                    target_col=target_col
+                record = compute_metrics_for_year(
+                    model_name, model, year_data, train_features, feature_names
                 )
-
-                # Compute shift metrics
-                shift_metrics = compute_shift_metrics(
-                    year=year,
-                    model_name=model_name,
-                    train_features=train_features,
-                    test_features=X_test,
-                    feature_names=train_feature_names,
-                    ece_5=year_metrics['ece_5'],
-                    ece_10=year_metrics['ece_10'],
-                    ece_20=year_metrics['ece_20'],
-                    y_true=y_true,
-                    y_prob=model.predict_proba(X_test)[:, 1]
-                )
-
-                # Merge metrics
-                record = {**year_metrics, **shift_metrics}
-                all_metrics.append(record)
-
-                # Collect for correlation calculation
-                all_eces[5].append(year_metrics['ece_5'])
-                all_eces[10].append(year_metrics['ece_10'])
-                all_eces[20].append(year_metrics['ece_20'])
-                all_shifts.append(shift_metrics['pca_shift'])
-                all_years_for_corr.append(year)
-
-                logger.info(f"Computed metrics for {model_name} in year {year}")
-
+                
+                if record:
+                    all_records.append(record)
+                    logger.info(f"  Computed metrics for {year} ({model_name})")
+                else:
+                    logger.warning(f"  Skipped {year} for {model_name} due to computation error")
+                    
             except Exception as e:
-                logger.warning(f"Error processing {model_name} for year {year}: {e}")
+                logger.error(f"  Error processing year {year} for {model_name}: {e}")
                 continue
-
-    # Compute correlations across years
-    if len(all_years_for_corr) > 1:
-        # Correlation between PCA shift and ECE
-        rho_5, _ = spearman_correlation(all_shifts, all_eces[5])
-        rho_10, _ = spearman_correlation(all_shifts, all_eces[10])
-        rho_20, _ = spearman_correlation(all_shifts, all_eces[20])
-
-        # Update records with correlation values
-        for record in all_metrics:
-            if record['year'] in all_years_for_corr:
-                idx = all_years_for_corr.index(record['year'])
-                record['rho_5'] = rho_5
-                record['rho_10'] = rho_10
-                record['rho_20'] = rho_20
-
-        # Compute rho_diff fields
-        for record in all_metrics:
-            record['rho_diff_5_10'] = abs(record['rho_5'] - record['rho_10'])
-            record['rho_diff_10_20'] = abs(record['rho_10'] - record['rho_20'])
-            record['max_rho_diff'] = max(record['rho_diff_5_10'], record['rho_diff_10_20'])
-
+    
+    if not all_records:
+        logger.error("No metrics records were generated.")
+        return False
+    
     # Save results
-    if output_path is None:
-        output_path = get_path("processed", "metrics_records.json")
+    with open(output_file, 'w') as f:
+        json.dump(all_records, f, indent=2)
     
-    ensure_directories(output_path)
-    
-    with open(output_path, 'w') as f:
-        json.dump(all_metrics, f, indent=2)
-    
-    logger.info(f"Saved {len(all_metrics)} metric records to {output_path}")
-
-    return all_metrics
+    logger.info(f"Evaluation complete. Results saved to {output_file}")
+    return True
 
 
 def main():
-    """Main entry point for the evaluation pipeline."""
-    logger.info("Starting evaluation pipeline...")
+    """Entry point for script execution."""
+    import argparse
     
-    try:
-        metrics = run_evaluation_pipeline()
-        logger.info(f"Evaluation complete. Processed {len(metrics)} records.")
-    except Exception as e:
-        logger.error(f"Evaluation pipeline failed: {e}")
-        raise
+    parser = argparse.ArgumentParser(description="Evaluate calibration drift over time")
+    parser.add_argument('--config', type=str, help='Path to config file')
+    parser.add_argument('--output', type=str, help='Output file path')
+    args = parser.parse_args()
+    
+    success = run_evaluation_pipeline(
+        config_path=args.config,
+        output_path=args.output
+    )
+    
+    sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
+    import sys
     main()

@@ -1,0 +1,38 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-809-llmxive-follow-up-extending-a-stylometri/`
+    directory tree (code/, data/, artifacts/, contracts/, tests/, state/) is provided;
+    without visible files or a directory listing we cannot confirm the structure exists
+    or is populated. The implementer must supply the actual directory layout (or a
+    screenshot/manifest) showing all specified subfolders.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration file, or documentation for a \u201Cbase configuration\
+    \ loader for `contracts/` schemas\u201D or for random seed management was provided.\
+    \ The claim cannot be verified because the required artifact is missing."
+T011:
+  c: false
+  h: ee4d6662c98aa55d2f58b0fb2d92170f3a654a7071f20f36bb8e6a2eab656f82
+  r: "The required output file `data/raw/arxiv_subset.parquet` is missing, and the\
+    \ provided `code/data_ingestion.py` does not contain a complete implementation\
+    \ for downloading the HuggingFace \u201Carxiv\u201D train split and filtering\
+    \ by the specified categories. The script is truncated, focuses on abstract length\
+    \ filtering, and lacks any code that performs the dataset download or writes the\
+    \ parquet file."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only the task description and project spec, but no code,\
+    \ script, tests, or logs that demonstrate a stratified random sampling implementation\
+    \ or the required fatal\u2011error handling for <\u202F20 authors. The necessary\
+    \ artifact (e.g., a function/module performing the sampling and raising the specified\
+    \ error) is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or log file is provided that actually performs the filtering
+    of abstracts shorter than 6 characters nor records the number of excluded abstracts.
+    The evidence consists only of a textual description, which does not satisfy the
+    requirement for a concrete, executable artifact.

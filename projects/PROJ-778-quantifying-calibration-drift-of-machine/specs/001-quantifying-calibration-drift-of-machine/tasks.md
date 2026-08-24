@@ -68,7 +68,7 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Unit test for schema validation logic in `tests/unit/test_schema_validation.py`: Implement `test_schema_validation_rejects_mismatched_columns` to assert that a schema mismatch >10% triggers an abort with a clear error message.
+- [X] T010 [P] [US1] Unit test for schema validation logic in `tests/unit/test_schema_validation.py`: Implement `test_schema_validation_rejects_mismatched_columns` to assert that a schema mismatch >10% triggers an abort with a clear error message.
 - [ ] T011 [P] [US1] Integration test for data download and model serialization in `tests/integration/test_data_pipeline.py`: Verify that `data/models/` contains `logistic_regression.pkl` and `random_forest.pkl` and that `data/processed/` contains yearly splits for the test datasets (mocked for this test). Assert files are loadable and non-empty.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -102,10 +102,10 @@
 
 ### Implementation for User Story 3
 
-- [~] T026 [US3] Implement `code/04_statistical_analysis.py`: Load metric records and fit **Weighted Least Squares (WLS)** (Year vs. ECE) with p-value reporting. **Do NOT implement Simple Linear Regression** as per Plan Complexity Tracking (WLS required for heteroscedasticity). Note: Implements Plan's architectural override of FR-005. Save results to `data/processed/regression_results.json` (fields: slope, intercept, p_value, r_squared).
-- [ ] T027 [US3] Implement `code/04_statistical_analysis.py`: Compute Spearman rank correlation between covariate shift and calibration error. **Verify robustness** by ensuring the coefficient remains consistent (within ±0.1) across ECE binning strategies of 5, 10, and 20 bins (FR-010, FR-009). Use `rho_5`, `rho_10`, `rho_20` from T024 and the `max_rho_diff` field to validate SC-002.
-- [ ] T028 [US3] Implement `code/04_statistical_analysis.py`: Perform **BIC-based change-point detection** (alpha = 0.05) to identify abrupt shifts. **Do NOT implement fixed block-permutation** as per Plan Complexity Tracking (BIC required to avoid arbitrary block sizes). Note: Implements Plan's architectural override of FR-006.
-- [ ] T029 [US3] Implement `code/05_report_generation.py`: Generate time-series plots (ECE/Brier vs. Year) using matplotlib/seaborn.
+- [ ] T026 [US3] Implement `code/04_statistical_analysis.py`: Load metric records and fit **Weighted Least Squares (WLS)** (Year vs. ECE) with p-value reporting. **Do NOT implement Simple Linear Regression** as per Plan Complexity Tracking (WLS required for heteroscedasticity). Note: Implements Plan's architectural override of FR-005. Save results to `data/processed/regression_results.json` (fields: slope, intercept, p_value, r_squared).
+- [X] T027 [US3] Implement `code/04_statistical_analysis.py`: Compute Spearman rank correlation between covariate shift and calibration error. **Verify robustness** by ensuring the coefficient remains consistent (within ±0.1) across ECE binning strategies of 5, 10, and 20 bins (FR-010, FR-009). Use `rho_5`, `rho_10`, `rho_20` from T024 and the `max_rho_diff` field to validate SC-002.
+- [X] T028 [US3] Implement `code/04_statistical_analysis.py`: Perform **BIC-based change-point detection** (alpha = 0.05) to identify abrupt shifts. **Do NOT implement fixed block-permutation** as per Plan Complexity Tracking (BIC required to avoid arbitrary block sizes). Note: Implements Plan's architectural override of FR-006.
+- [X] T029 [US3] Implement `code/05_report_generation.py`: Generate time-series plots (ECE/Brier vs. Year) using matplotlib/seaborn.
 - [ ] T030 [US3] Implement `code/05_report_generation.py`: Generate scatter plots (Shift vs. Calibration Error).
 - [ ] T031 [US3] Implement `code/05_report_generation.py`: Assemble Markdown report with Title, Methodology, Time-Series Plot, Scatter Plot, Statistical Significance Table (p-values, rho, change-points), and Conclusion. Flag trends if shift metrics are missing (Constitution Principle VI).
 

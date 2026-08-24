@@ -8,33 +8,35 @@ version = "0.1.0"
 description = "Quantifying Calibration Drift of Machine Learning Classifiers Over Time"
 requires-python = ">=3.11"
 dependencies = [
-    "scikit-learn>=1.3.0",
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "scipy>=1.11.0",
-    "statsmodels>=0.14.0",
-    "ruptures>=1.1.8",
-    "requests>=2.31.0",
-    "pyyaml>=6.0.1",
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0"
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "ruptures",
+    "requests",
+    "pyyaml",
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
-
-[tool.ruff]
-line-length = 100
-target-version = "py311"
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ARG"]
-ignore = ["E501", "B008"]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
+addopts = "-v --tb=short"

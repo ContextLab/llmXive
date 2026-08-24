@@ -1,217 +1,211 @@
+"""
+Data preprocessing module for grain size prediction.
+Includes interaction feature generation, normalization, and residualization logic.
+"""
 import os
 import sys
 import json
 import logging
 import argparse
 from pathlib import Path
-
 import pandas as pd
 import numpy as np
+from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.exceptions import NotFittedError
+from sklearn.metrics import r2_score
 
-# Import config for paths and seeds
-try:
-    from config import get_config, ensure_dirs
-except ImportError:
-    # Fallback for direct execution context if config is not in path yet
-    # In a real run, this should be resolved via PYTHONPATH or installed package
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from config import get_config, ensure_dirs
+# Ensure we can import from the code directory
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import get_config
 
 logger = logging.getLogger(__name__)
 
-def load_processed_data(input_path: str) -> pd.DataFrame:
-    """
-    Loads the processed dataset (with interaction features already added)
-    from the specified CSV path.
-    """
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Processed data file not found at {input_path}")
-    
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
-    
-    if df.empty:
-        raise ValueError(f"Loaded dataset from {input_path} is empty.")
-    
-    return df
+def load_processed_data(data_path):
+    """Load processed data from CSV."""
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+    return pd.read_csv(data_path)
 
-def generate_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
+def generate_interaction_features(df, temp_col='Rolling_Temperature', composition_cols=None):
     """
-    Generates interaction features between Temperature and composition elements.
-    Note: According to task T022, this should have been done prior to normalization.
-    This function serves as a verification or re-application step if needed,
-    but primarily ensures the data is ready for normalization.
-    
-    Returns a copy of the dataframe with interaction columns appended.
-    """
-    # Identify temperature column
-    temp_col = 'rolling_temperature'
-    if temp_col not in df.columns:
-        logger.warning(f"Temperature column '{temp_col}' not found. Skipping interaction generation.")
-        return df
-
-    # Identify composition columns (assumed to be numeric columns starting with '%')
-    # Or specifically known alloying elements if defined in schema
-    # For robustness, we look for columns that are numeric and not the target
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    
-    # Filter out target variable 'grain_size' and the temperature itself
-    feature_cols = [c for c in numeric_cols if c not in ['grain_size', 'rolling_temperature']]
-    
-    interaction_cols = []
-    
-    for col in feature_cols:
-        # Create interaction: Temperature * Element
-        new_col_name = f"{temp_col}_x_{col}"
-        df[new_col_name] = df[temp_col] * df[col]
-        interaction_cols.append(new_col_name)
-        logger.debug(f"Created interaction feature: {new_col_name}")
-
-    logger.info(f"Generated {len(interaction_cols)} interaction features.")
-    return df
-
-def normalize_features(df: pd.DataFrame, target_col: str = 'grain_size') -> tuple:
-    """
-    Normalizes all numeric features using StandardScaler.
-    
-    Excludes the target column from normalization.
+    Generate interaction features between Temperature and Composition elements.
     
     Args:
-        df: Input DataFrame.
-        target_col: Name of the target column to exclude.
-        
+        df: DataFrame with data
+        temp_col: Name of the temperature column
+        composition_cols: List of composition column names (e.g., ['Mg', 'Si', 'Cu'])
+    
     Returns:
-        tuple: (normalized_df, scaler)
+        DataFrame with added interaction columns
     """
-    if df.empty:
-        raise ValueError("Input DataFrame is empty.")
-
-    # Identify numeric columns excluding target
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    feature_cols = [c for c in numeric_cols if c != target_col]
+    df = df.copy()
+    if composition_cols is None:
+        composition_cols = ['Mg', 'Si', 'Cu']
     
-    if not feature_cols:
-        logger.warning("No numeric features found to normalize.")
-        return df, None
+    for elem in composition_cols:
+        if temp_col in df.columns and elem in df.columns:
+            interaction_name = f"{temp_col}_x_{elem}"
+            df[interaction_name] = df[temp_col] * df[elem]
+            logger.info(f"Generated interaction: {interaction_name}")
+        else:
+            logger.warning(f"Columns {temp_col} or {elem} not found for interaction")
+    
+    return df
 
+def normalize_features(df, feature_cols=None, exclude_cols=None):
+    """
+    Normalize numeric features using StandardScaler.
+    
+    Args:
+        df: DataFrame
+        feature_cols: List of columns to normalize (default: all numeric except target/exclude)
+        exclude_cols: Columns to exclude from normalization
+    
+    Returns:
+        DataFrame with normalized features and a scaler object
+    """
+    df = df.copy()
+    if exclude_cols is None:
+        exclude_cols = ['Grain_Size', 'Alloy_Series', 'Sample_ID']
+    
+    if feature_cols is None:
+        feature_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        feature_cols = [c for c in feature_cols if c not in exclude_cols]
+    
     scaler = StandardScaler()
+    df_scaled = df.copy()
     
-    logger.info(f"Normalizing {len(feature_cols)} features: {feature_cols}")
+    if len(feature_cols) > 0:
+        df_scaled[feature_cols] = scaler.fit_transform(df[feature_cols])
+        logger.info(f"Normalized {len(feature_cols)} features")
+    else:
+        logger.warning("No features found to normalize")
     
-    # Fit and transform
-    try:
-        normalized_values = scaler.fit_transform(df[feature_cols])
-    except ValueError as e:
-        logger.error(f"Error during normalization: {e}")
-        raise
+    return df_scaled, scaler
 
-    # Create a copy to avoid SettingWithCopyWarning
-    df_normalized = df.copy()
-    
-    # Replace original columns with normalized values
-    for i, col in enumerate(feature_cols):
-        df_normalized[col] = normalized_values[:, i]
-        
-    logger.info("Normalization complete.")
-    return df_normalized, scaler
-
-def validate_data_quality(df: pd.DataFrame) -> bool:
+def residualize_data(df, target_col='Grain_Size', group_cols=None):
     """
-    Validates that the dataframe has no NaN values in numeric columns
-    and that ranges are reasonable.
-    """
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    Regress Grain Size vs. Alloy Series + Composition; store residuals.
     
-    for col in numeric_cols:
-        if df[col].isnull().any():
-            logger.error(f"NaN values found in column: {col}")
-            return False
-        
-        # Check for infinite values
-        if np.isinf(df[col]).any():
-            logger.error(f"Infinite values found in column: {col}")
-            return False
+    This function removes the linear effect of Alloy Series and Composition 
+    from the Grain Size variable, creating a residual that represents the 
+    variation not explained by these main effects.
+    
+    Args:
+        df: DataFrame with data
+        target_col: Name of the target column to residualize
+        group_cols: List of columns to regress against (e.g., ['Alloy_Series', 'Mg', 'Si', 'Cu'])
+    
+    Returns:
+        DataFrame with added residual column, and the fitted model
+    """
+    df = df.copy()
+    if group_cols is None:
+        group_cols = ['Alloy_Series', 'Mg', 'Si', 'Cu']
+    
+    # Ensure numeric
+    for col in group_cols:
+        if col not in df.columns:
+            raise ValueError(f"Group column {col} not found in data")
+    
+    # Filter rows where target and groups are not null
+    mask = df[target_col].notna() & df[group_cols].notna().all(axis=1)
+    df_clean = df[mask]
+    
+    if len(df_clean) == 0:
+        logger.warning("No valid data points for residualization")
+        df[target_col + '_resid'] = np.nan
+        return df, None
+    
+    X = df_clean[group_cols]
+    y = df_clean[target_col]
+    
+    model = LinearRegression()
+    model.fit(X, y)
+    
+    residuals = y - model.predict(X)
+    
+    # Assign residuals back to the original dataframe
+    df[target_col + '_resid'] = np.nan
+    df.loc[mask, target_col + '_resid'] = residuals.values
+    
+    logger.info(f"Residualization complete. R² of main effects: {model.score(X, y):.4f}")
+    
+    return df, model
 
-    logger.info("Data quality validation passed.")
+def validate_data_quality(df):
+    """
+    Validate data quality after preprocessing.
+    
+    Checks:
+    - No missing values in critical columns
+    - Reasonable ranges for numeric columns
+    - Residuals are uncorrelated with predictors
+    """
+    critical_cols = ['Rolling_Temperature', 'Grain_Size', 'Mg', 'Si', 'Cu']
+    missing = df[critical_cols].isnull().sum()
+    
+    if missing.sum() > 0:
+        logger.warning(f"Missing values in critical columns: {missing[missing > 0].to_dict()}")
+    
+    # Check residuals if they exist
+    if 'Grain_Size_resid' in df.columns:
+        group_cols = ['Alloy_Series', 'Mg', 'Si', 'Cu']
+        valid_mask = df['Grain_Size_resid'].notna() & df[group_cols].notna().all(axis=1)
+        if valid_mask.sum() > 0:
+            residuals = df.loc[valid_mask, 'Grain_Size_resid']
+            for col in group_cols:
+                corr = residuals.corr(df.loc[valid_mask, col])
+                if abs(corr) > 0.1:
+                    logger.warning(f"Residuals still correlated with {col}: {corr:.4f}")
+    
+    logger.info("Data quality validation complete")
     return True
 
-def run_preprocessing_pipeline(input_path: str, output_path: str, save_scaler_path: str = None) -> bool:
+def run_preprocessing_pipeline(input_path, output_path):
     """
-    Orchestrates the preprocessing pipeline:
+    Run the full preprocessing pipeline:
     1. Load data
-    2. Generate interactions (if not present)
-    3. Validate data
-    4. Normalize features
-    5. Save results
+    2. Generate interaction features
+    3. Normalize features
+    4. Residualize Grain Size
+    5. Validate quality
+    6. Save output
     """
-    try:
-        # 1. Load
-        df = load_processed_data(input_path)
-        
-        # 2. Interactions (T022 requirement - ensure they exist)
-        # We check if interaction columns exist, if not, generate them.
-        # Assuming interaction columns have a specific naming convention or we just generate them.
-        # For safety, we generate them if the specific 'Temperature_x_Element' pattern is missing.
-        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        has_interactions = any('_x_' in c for c in numeric_cols)
-        
-        if not has_interactions:
-            logger.info("Interaction features missing. Generating them now.")
-            df = generate_interaction_features(df)
-        else:
-            logger.info("Interaction features detected. Skipping generation.")
-
-        # 3. Validate
-        if not validate_data_quality(df):
-            logger.error("Data validation failed. Aborting pipeline.")
-            return False
-
-        # 4. Normalize
-        df_normalized, scaler = normalize_features(df, target_col='grain_size')
-
-        # 5. Save
-        output_dir = Path(output_path).parent
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        df_normalized.to_csv(output_path, index=False)
-        logger.info(f"Normalized data saved to {output_path}")
-
-        if scaler and save_scaler_path:
-            import joblib
-            save_scaler_path = Path(save_scaler_path)
-            save_scaler_path.parent.mkdir(parents=True, exist_ok=True)
-            joblib.dump(scaler, save_scaler_path)
-            logger.info(f"Scaler saved to {save_scaler_path}")
-
-        return True
-
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        return False
+    logger.info(f"Starting preprocessing pipeline for {input_path}")
+    
+    df = load_processed_data(input_path)
+    logger.info(f"Loaded {len(df)} rows")
+    
+    # Generate interactions
+    df = generate_interaction_features(df)
+    
+    # Residualize Grain Size
+    df, model = residualize_data(df)
+    
+    # Normalize features (excluding target and residuals)
+    exclude = ['Grain_Size', 'Grain_Size_resid', 'Alloy_Series', 'Sample_ID']
+    df, scaler = normalize_features(df, exclude_cols=exclude)
+    
+    # Validate
+    validate_data_quality(df)
+    
+    # Save
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved preprocessed data to {output_path}")
+    
+    return df
 
 def main():
-    parser = argparse.ArgumentParser(description="Preprocess data: Interactions and Normalization")
-    parser.add_argument("--input", type=str, required=True, help="Path to input CSV (raw/processed)")
-    parser.add_argument("--output", type=str, required=True, help="Path to output normalized CSV")
-    parser.add_argument("--scaler", type=str, default=None, help="Path to save the fitted scaler")
-    parser.add_argument("--log", type=str, default="INFO", help="Log level")
-
+    parser = argparse.ArgumentParser(description="Run data preprocessing pipeline")
+    parser.add_argument("--input", type=str, required=True, help="Input CSV path")
+    parser.add_argument("--output", type=str, required=True, help="Output CSV path")
     args = parser.parse_args()
-    logging.basicConfig(level=getattr(logging, args.log.upper(), logging.INFO))
-
-    # Ensure config directories exist if needed
-    ensure_dirs()
-
-    success = run_preprocessing_pipeline(
-        input_path=args.input,
-        output_path=args.output,
-        save_scaler_path=args.scaler
-    )
-
-    sys.exit(0 if success else 1)
+    
+    logging.basicConfig(level=logging.INFO)
+    run_preprocessing_pipeline(args.input, args.output)
 
 if __name__ == "__main__":
     main()

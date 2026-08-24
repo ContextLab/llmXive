@@ -1,90 +1,87 @@
-"""
-T001: Initialize project directory structure.
-
-Creates the required directory tree for PROJ-809-llmxive-follow-up-extending-a-stylometri
-including code/, data/, artifacts/, contracts/, tests/, and state/ with subdirectories.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Determine project root based on execution context
-    # If run as script, assume current working directory is the project root
-    # If run from within 'code', go up one level
-    script_path = Path(__file__).resolve()
-    current_dir = script_path.parent
+    """
+    Initialize the project directory structure for PROJ-809-llmxive-follow-up-extending-a-stylometri.
     
-    # Check if we are in 'code' directory
-    if current_dir.name == 'code':
-        project_root = current_dir.parent
-    else:
-        project_root = current_dir
-
-    # Define the directory structure to create
-    # Base directories
-    base_dirs = [
+    Creates the following hierarchy relative to the project root:
+    - code/
+    - data/
+      - raw/
+      - processed/
+      - hybrid/
+    - artifacts/
+      - models/
+      - metrics/
+    - contracts/
+    - tests/
+      - unit/
+      - contract/
+      - integration/
+    - state/
+    """
+    # Determine project root. We assume the script is run from the repository root.
+    # If run from a subdirectory, we look for the specific project folder or assume CWD is root.
+    # Based on task description, we are creating structure inside:
+    # projects/PROJ-809-llmxive-follow-up-extending-a-stylometri/
+    # However, the existing API surface shows files like `code/config.py` at the root of the context.
+    # The task specifically says: "Initialize project directory structure (projects/PROJ-809-llmxive-follow-up-extending-a-stylometri/)"
+    # But the existing files (code/utils.py, etc.) imply a flat structure or a specific root.
+    # Let's assume the current working directory IS the project root for the structure to be created.
+    # The task description mentions the path `projects/...` as the target, but the existing files
+    # (e.g., code/setup_project.py) suggest we are already in the project root or a workspace.
+    # To be safe and consistent with the "Extend, don't re-author" constraint and the existing file paths
+    # provided in the API surface (e.g. `code/utils.py`), we will create the structure relative to CWD.
+    # If the user intends to run this inside a `projects/...` folder, CWD should be that folder.
+    
+    root = Path.cwd()
+    
+    # Define the directory tree to create
+    # Based on task T001 description:
+    # code/, data/ (raw, processed, hybrid), artifacts/ (models, metrics), contracts/,
+    # tests/ (unit, contract, integration), state/
+    
+    directories = [
         "code",
-        "data",
-        "artifacts",
-        "contracts",
-        "tests",
-        "state",
-        "docs",
-        "specs",
-    ]
-    
-    # Subdirectories
-    sub_dirs = [
-        # Data structure
         "data/raw",
         "data/processed",
         "data/hybrid",
-        
-        # Artifacts structure
         "artifacts/models",
         "artifacts/metrics",
-        "artifacts/figures",
-        
-        # Tests structure
+        "contracts",
         "tests/unit",
         "tests/contract",
         "tests/integration",
+        "state"
     ]
     
-    all_dirs = base_dirs + sub_dirs
-
     created_count = 0
-    skipped_count = 0
-
-    for dir_path in all_dirs:
-        full_path = project_root / dir_path
+    existing_count = 0
+    
+    print(f"Initializing project structure at: {root}")
+    
+    for dir_path in directories:
+        full_path = root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             print(f"Created: {full_path}")
             created_count += 1
         else:
-            # print(f"Exists: {full_path}") # Optional: reduce noise
-            skipped_count += 1
-
-    print(f"\nProject structure initialized at: {project_root}")
-    print(f"Directories created: {created_count}")
-    print(f"Directories skipped (already exist): {skipped_count}")
+            existing_count += 1
+            
+    print(f"Project initialization complete. Created {created_count} directories, {existing_count} already existed.")
     
-    # Verify critical directories exist
-    critical_paths = [
-        "code", "data/processed", "artifacts/models", "tests/unit", "state"
-    ]
-    missing = []
-    for p in critical_paths:
-        if not (project_root / p).exists():
-            missing.append(p)
-    
-    if missing:
-        print(f"ERROR: Critical directories missing: {missing}")
-        sys.exit(1)
-    else:
-        print("Verification: All critical directories present.")
+    # Create .gitkeep files to ensure directories are tracked by git if needed
+    # This is a common practice for empty directories
+    for dir_path in directories:
+        full_path = root / dir_path
+        keep_file = full_path / ".gitkeep"
+        if not keep_file.exists():
+            keep_file.write_text("")
+            
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

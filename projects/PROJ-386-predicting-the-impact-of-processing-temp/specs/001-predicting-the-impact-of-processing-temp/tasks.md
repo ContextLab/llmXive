@@ -34,10 +34,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` with paths, `GITHUB_ACTIONS_TIMEOUT=5h`, and hyperparameter grids
-- [ ] T005 [P] Implement `code/main.py` orchestration entry point with hard timeout enforcement (signal/alarm or `signal` module) and runner verification (check `ubuntu-latest`, no GPU, CPU count)
-- [ ] T006 [P] Create `code/__init__.py` and `tests/__init__.py`
-- [~] T007 Setup `state/projects/PROJ-386...yaml` schema for artifact hashing and checksums
+- [X] T004 Implement `code/config.py` with paths, `GITHUB_ACTIONS_TIMEOUT=5h`, and hyperparameter grids
+- [X] T005 [P] Implement `code/main.py` orchestration entry point with hard timeout enforcement (signal/alarm or `signal` module) and runner verification (check `ubuntu-latest`, no GPU, CPU count)
+- [X] T006 [P] Create `code/__init__.py` and `tests/__init__.py`
+- [ ] T007 Setup `state/projects/PROJ-386...yaml` schema for artifact hashing and checksums
 - [X] T008 Implement `code/data/__init__.py` and `code/modeling/__init__.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -52,7 +52,7 @@
 
 ### Tests for User Story 1
 
-- [~] T009 [P] [US1] Contract test for schema pre-check logic in `tests/contract/test_ingestion_schema.py` (verify skip logic for missing fields)
+- [ ] T009 [P] [US1] Contract test for schema pre-check logic in `tests/contract/test_ingestion_schema.py` (verify skip logic for missing fields)
 - [X] T010 [P] [US1] Unit test for filtering logic in `tests/unit/test_filtering.py` (verify rows with missing temp/grain_size are excluded)
 - [X] T011 [P] [US1] Integration test for "Data Missing" halt scenario in `tests/integration/test_data_halt.py` (verify Exit Code 1 when all sources fail)
 
@@ -61,8 +61,8 @@
 - [X] T012 [P] [US1] Implement `code/data/ingestion.py` schema pre-check function (check OpenML, NOMAD, Citrination for 'rolling temperature', 'composition', 'grain size' fields; **aggregate list of missing variables across all skipped sources** to support error logging)
 - [X] T013 [US1] Implement `code/data/ingestion.py` download and parsing logic (fetch real data from verified URLs; handle CSV/JSON formats)
 - [X] T014 [US1] Implement `code/data/ingestion.py` filtering and validation logic (exclude rows with null critical variables; report final dataset size)
-- [ ] T015 [US1] Implement `code/data/ingestion.py` "Critical Variables Missing" halt logic (**Raise SystemExit(1) after logging to stderr** with message: "Critical variables missing from all sources: [list of missing variables]")
-- [ ] T016 [P] [US1] Create `data/raw/` storage logic with SHA-256 checksum generation in `code/data/ingestion.py`
+- [X] T015 [US1] Implement `code/data/ingestion.py` "Critical Variables Missing" halt logic (**Raise SystemExit(1) after logging to stderr** with message: "Critical variables missing from all sources: [list of missing variables]")
+- [X] T016 [P] [US1] Create `data/raw/` storage logic with SHA-256 checksum generation in `code/data/ingestion.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -76,18 +76,18 @@
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Unit test for interaction feature generation in `tests/unit/test_feature_engineering.py` (verify `Temp × Mg` column creation)
-- [ ] T018 [P] [US2] Unit test for residualization logic in `tests/unit/test_residualization.py` (verify residuals against Alloy Series and Composition)
-- [ ] T019 [P] [US2] Contract test for baseline model output schema in `tests/contract/test_baseline_output.py`
+- [X] T017 [P] [US2] Unit test for interaction feature generation in `tests/unit/test_feature_engineering.py` (verify `Temp × Mg` column creation)
+- [X] T018 [P] [US2] Unit test for residualization logic in `tests/unit/test_residualization.py` (verify residuals against Alloy Series and Composition)
+- [X] T019 [P] [US2] Contract test for baseline model output schema in `tests/contract/test_baseline_output.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/data/preprocessing.py` interaction feature generation (`Temperature × %Mg`, `Temperature × %Si`, etc.) with verification step to confirm columns exist.
-- [ ] T021 [P] [US2] Implement `code/data/preprocessing.py` normalization (StandardScaler) for all numeric features with verification step to confirm scaling.
-- [ ] T022 [US2] Implement `code/data/preprocessing.py` residualization logic (Regress Grain Size vs. Alloy Series + Composition; store residuals) with verification step to confirm residuals are uncorrelated with Alloy Series.
+- [X] T020 [P] [US2] Implement `code/data/preprocessing.py` interaction feature generation (`Temperature × %Mg`, `Temperature × %Si`, etc.) with verification step to confirm columns exist.
+- [X] T021 [P] [US2] Implement `code/data/preprocessing.py` normalization (StandardScaler) for all numeric features with verification step to confirm scaling.
+- [X] T022 [US2] Implement `code/data/preprocessing.py` residualization logic (Regress Grain Size vs. Alloy Series + Composition; store residuals) with verification step to confirm residuals are uncorrelated with Alloy Series.
 - [ ] T023 [US2] Implement `code/data/preprocessing.py` collinearity detection (Correlation > 0.8) and JSON report generation (`data/artifacts/collinearity_report.json`) **with schema requiring `flagged_pairs` list of tuples/strings of correlated feature names**.
-- [ ] T024 [US2] Implement `code/modeling/baseline.py` Linear Regression training on residuals with interaction terms
-- [ ] T025 [US2] Implement `code/modeling/baseline.py` coefficient extraction and logging (R², MAE, coefficients for Temp, Composition, Interactions) **AND** logic to check `collinearity_report.json` to suppress independent interpretation for flagged pairs, framing them descriptively as joint effects.
+- [X] T024 [US2] Implement `code/modeling/baseline.py` Linear Regression training on residuals with interaction terms
+- [X] T025 [US2] Implement `code/modeling/baseline.py` coefficient extraction and logging (R², MAE, coefficients for Temp, Composition, Interactions) **AND** logic to check `collinearity_report.json` to suppress independent interpretation for flagged pairs, framing them descriptively as joint effects.
 - [ ] T026 [US2] Implement `code/modeling/baseline.py` "Limited Interaction Effects" flagging logic (if interaction coefficients ~0)
 - [ ] T022b [US2] Implement `code/modeling/baseline.py` **Stratified Group K-Fold** cross-validation logic, explicitly **consuming 'Alloy Series' grouping variable from preprocessed data** to prevent leakage as per Constitution Principle VII.
 

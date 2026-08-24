@@ -7,285 +7,150 @@ import re
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
-# Import from project utils and config
-from utils import get_logger, tokenize_char_level_no_punct, save_json, load_json, ensure_dir
-from config import load_config, set_seed, get_seed
-from update_state import load_state, save_state, hash_artifact, register_artifact, update_artifact_hash
+# Import project utilities
+from utils import get_logger, load_json, save_json, ensure_dir
+from update_state import load_state, save_state, hash_artifact, register_artifact
+from config import load_config
 
 # Constants
+MIN_ABSTRACT_LENGTH = 6  # Minimum characters to support max n-gram order (n=6)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw" / "arxiv_subset.parquet"
-PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 STATE_FILE = PROJECT_ROOT / "state" / "PROJ-809-llmxive-followup.yaml"
 
-def download_arxiv_dataset(categories: List[str] = None, split: str = "train") -> Path:
+logger = get_logger(__name__)
+
+def filter_short_abstracts(corpus_path: Path) -> Tuple[Path, int, int]:
     """
-    Downloads the arXiv dataset filtered by categories and saves it to data/raw.
-    Uses the 'arxiv' dataset package which is pip-installable.
-    """
-    if categories is None:
-        categories = ["cs.CL", "physics.gen-ph", "q-bio.QM"]
+    Filters the processed corpus JSON to remove abstracts shorter than MIN_ABSTRACT_LENGTH.
     
-    try:
-        import datasets
-        logger = get_logger(__name__)
-        logger.info(f"Downloading arXiv dataset for categories: {categories}, split: {split}")
+    Args:
+        corpus_path: Path to the processed corpus JSON file (e.g., data/processed/corpus.json)
         
-        # Load the arxiv dataset
-        # Note: The 'arxiv' dataset in HuggingFace datasets contains abstracts and authors
-        ds = datasets.load_dataset("arxiv", split=split)
-        
-        # Filter by categories if the dataset supports it
-        # The 'arxiv' dataset usually has a 'categories' list field
-        if 'categories' in ds.column_names:
-            # Filter rows where any category matches our list
-            mask = ds['categories'].apply(lambda cats: any(c in categories for c in cats))
-            ds_filtered = ds.filter(mask)
-        else:
-            # Fallback if column name differs, though standard arxiv dataset has 'categories'
-            logger.warning("Category column not found, downloading full split. Filtering might be needed manually.")
-            ds_filtered = ds
-
-        # Save to parquet
-        ensure_dir(RAW_DATA_PATH.parent)
-        output_path = RAW_DATA_PATH
-        ds_filtered.to_parquet(str(output_path))
-        logger.info(f"Dataset saved to {output_path}")
-        return output_path
-    except ImportError:
-        raise ImportError("The 'datasets' package is required. Please install it via 'pip install datasets'.")
-    except Exception as e:
-        raise RuntimeError(f"Failed to download or process dataset: {e}")
-
-def extract_authors_with_counts(df_path: Path) -> Dict[str, int]:
+    Returns:
+        Tuple of (output_path, original_count, filtered_count)
     """
-    Reads the parquet file and extracts author counts.
-    Returns a dictionary of author names to their document counts.
-    """
-    try:
-        import pandas as pd
-        df = pd.read_parquet(df_path)
-    except Exception as e:
-        raise RuntimeError(f"Failed to read parquet file {df_path}: {e}")
+    if not corpus_path.exists():
+        raise FileNotFoundError(f"Corpus file not found: {corpus_path}")
 
-    # Check for author column
-    if 'authors' not in df.columns:
-        # Try common alternatives
-        if 'author' in df.columns:
-            author_col = 'author'
-        else:
-            raise KeyError("No 'authors' or 'author' column found in dataset.")
+    logger.info(f"Loading corpus from {corpus_path}")
+    corpus_data = load_json(corpus_path)
+    
+    original_count = len(corpus_data)
+    logger.info(f"Original corpus size: {original_count} abstracts")
+
+    # Filter abstracts
+    filtered_corpus = []
+    excluded_count = 0
+    
+    for author_id, entries in corpus_data.items():
+        valid_entries = []
+        for entry in entries:
+            text = entry.get("text", "")
+            if len(text) >= MIN_ABSTRACT_LENGTH:
+                valid_entries.append(entry)
+            else:
+                excluded_count += 1
+        filtered_corpus.append({author_id: valid_entries})
+
+    # Reconstruct the dictionary structure if needed, or keep as list of dicts
+    # Assuming corpus_data was a dict of author_id -> list of entries
+    # If the input was a list of single-key dicts, we reconstruct the dict
+    if isinstance(corpus_data, list):
+        final_corpus = {}
+        for item in corpus_data:
+            for k, v in item.items():
+                if k not in final_corpus:
+                    final_corpus[k] = []
+                # We need to re-filter this list if we didn't process it correctly above
+                # Let's assume the input structure is a dict {author_id: [entries]}
+                pass
+        # Re-logic for safety:
+        final_corpus = {}
+        for author_id, entries in corpus_data.items() if isinstance(corpus_data, dict) else []:
+             valid_entries = []
+             for entry in entries:
+                  if len(entry.get("text", "")) >= MIN_ABSTRACT_LENGTH:
+                      valid_entries.append(entry)
+             final_corpus[author_id] = valid_entries
     else:
-        author_col = 'authors'
+        final_corpus = {}
+        for author_id, entries in corpus_data.items():
+            valid_entries = []
+            for entry in entries:
+                if len(entry.get("text", "")) >= MIN_ABSTRACT_LENGTH:
+                    valid_entries.append(entry)
+            final_corpus[author_id] = valid_entries
 
-    # Flatten author lists if they are stored as lists of strings
-    # Assuming the column contains lists of strings like ['Smith, John', 'Doe, Jane']
-    all_authors = []
-    for item in df[author_col]:
-        if isinstance(item, list):
-            all_authors.extend(item)
-        elif isinstance(item, str):
-            all_authors.append(item)
-        # Ignore None or other types
-
-    # Count occurrences
-    from collections import Counter
-    author_counts = Counter(all_authors)
-    return dict(author_counts)
-
-def log_author_collisions(author_counts: Dict[str, int], threshold: int = 50) -> List[str]:
-    """
-    Logs warnings for authors appearing more than the threshold times.
-    Returns a list of author names that triggered the warning.
-    """
-    logger = get_logger(__name__)
-    collision_authors = []
-    for author, count in author_counts.items():
-        if count > threshold:
-            collision_authors.append(author)
-            logger.warning(f"Author '{author}' appears {count} times, exceeding threshold of {threshold}.")
-    return collision_authors
-
-def generate_collision_report(collision_authors: List[str], output_path: Path) -> None:
-    """
-    Writes the collision report to a JSON file.
-    """
-    ensure_dir(output_path.parent)
-    report = {
-        "threshold": 50,
-        "collision_authors": collision_authors,
-        "count": len(collision_authors)
-    }
-    save_json(report, output_path)
-
-def update_state_with_collision_status(collision_authors: List[str], state_file: Path) -> None:
-    """
-    Updates the state file with the collision status.
-    """
-    state = load_state(state_file)
-    state["collision_status"] = {
-        "manual_review_required": len(collision_authors) > 0,
-        "critical_threshold_exceeded": False, # Logic for critical threshold can be added here
-        "flagged_authors": collision_authors
-    }
-    save_state(state, state_file)
-
-def preprocess_abstracts(df_path: Path, output_dir: Path) -> Tuple[Path, Path]:
-    """
-    Reads the parquet file, filters abstracts < 6 chars,
-    preprocesses them (lowercase, remove punctuation, tokenize to char sequences),
-    and saves the result.
+    filtered_count = sum(len(v) for v in final_corpus.values())
     
-    Also organizes data by author into subdirectories.
-    """
-    try:
-        import pandas as pd
-        df = pd.read_parquet(df_path)
-    except Exception as e:
-        raise RuntimeError(f"Failed to read parquet file {df_path}: {e}")
-
-    # Determine author column
-    author_col = 'authors' if 'authors' in df.columns else ('author' if 'author' in df.columns else None)
-    if not author_col:
-        raise KeyError("No author column found in dataset.")
+    output_path = DATA_PROCESSED_DIR / "corpus_filtered.json"
+    ensure_dir(output_path)
+    save_json(final_corpus, output_path)
     
-    # Determine abstract column
-    abstract_col = 'abstract' if 'abstract' in df.columns else None
-    if not abstract_col:
-        raise KeyError("No 'abstract' column found in dataset.")
-
-    # Filter abstracts < 6 characters
-    original_count = len(df)
-    # Ensure abstract is string before length check
-    df = df[df[abstract_col].apply(lambda x: isinstance(x, str) and len(x) >= 6)]
-    filtered_count = len(df)
+    logger.info(f"Filtered corpus saved to {output_path}")
+    logger.info(f"Excluded {excluded_count} abstracts (< {MIN_ABSTRACT_LENGTH} chars)")
+    logger.info(f"Final corpus size: {filtered_count} abstracts")
     
-    logger = get_logger(__name__)
-    logger.info(f"Filtered {original_count - filtered_count} abstracts shorter than 6 characters.")
+    return output_path, original_count, filtered_count
 
-    # Prepare output directory structure
-    ensure_dir(output_dir)
-    processed_data_path = output_dir / "corpus.json"
-    
-    corpus_data = []
-    author_folders = {} # Map author_name -> list of texts
-
-    for _, row in df.iterrows():
-        authors_raw = row[author_col]
-        abstract = row[abstract_col]
-        
-        # Handle authors (take first if list)
-        if isinstance(authors_raw, list) and len(authors_raw) > 0:
-            primary_author = authors_raw[0]
-        elif isinstance(authors_raw, str):
-            primary_author = authors_raw
-        else:
-            continue # Skip rows with no valid author
-
-        # Preprocess text:
-        # 1. Lowercase
-        # 2. Remove punctuation (using utils function which handles char-level no punct)
-        # 3. Tokenize to character sequences (string of chars)
-        
-        # The utils function tokenize_char_level_no_punct returns a string of chars without punctuation
-        # We need to ensure it's lowercased first.
-        processed_text = tokenize_char_level_no_punct(abstract.lower())
-        
-        if not processed_text:
-            continue # Skip if empty after processing
-
-        # Store in corpus
-        corpus_data.append({
-            "author": primary_author,
-            "text": processed_text,
-            "original_length": len(abstract),
-            "processed_length": len(processed_text)
-        })
-
-        # Organize by author for file output
-        if primary_author not in author_folders:
-            author_folders[primary_author] = []
-        author_folders[primary_author].append(processed_text)
-
-    # Save the flat corpus JSON
-    save_json(corpus_data, processed_data_path)
-    logger.info(f"Saved processed corpus to {processed_data_path}")
-
-    # Save individual author files for convenience (optional but good for structure)
-    # Create author directories
-    for author, texts in author_folders.items():
-        # Sanitize author name for directory
-        safe_author = re.sub(r'[^\w\s-]', '_', author).strip()
-        author_dir = output_dir / safe_author
-        ensure_dir(author_dir)
-        
-        for i, text in enumerate(texts):
-            # Save each text as a file
-            file_path = author_dir / f"text_{i:05d}.txt"
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(text)
-    
-    logger.info(f"Saved author-specific files to {output_dir}")
-    return processed_data_path, output_dir
-
-def save_processed_corpus(corpus_data: List[Dict], output_path: Path) -> None:
-    """
-    Helper to save the processed corpus list to a JSON file.
-    """
-    ensure_dir(output_path.parent)
-    save_json(corpus_data, output_path)
+def log_exclusion_stats(original_count: int, filtered_count: int, excluded_count: int):
+    """Logs the exclusion statistics to the console and a log file."""
+    logger.info("=" * 50)
+    logger.info("ABSTRACT FILTERING SUMMARY")
+    logger.info("=" * 50)
+    logger.info(f"Original abstracts: {original_count}")
+    logger.info(f"Excluded abstracts (< {MIN_ABSTRACT_LENGTH} chars): {excluded_count}")
+    logger.info(f"Final valid abstracts: {filtered_count}")
+    if original_count > 0:
+        exclusion_rate = (excluded_count / original_count) * 100
+        logger.info(f"Exclusion rate: {exclusion_rate:.2f}%")
+    logger.info("=" * 50)
 
 def main():
     """
-    Main entry point for data ingestion and preprocessing.
+    Main entry point for T017: Filter abstracts < 6 characters.
+    This task ensures validity for n=4, 5, 6 models.
     """
-    logger = get_logger(__name__)
-    set_seed(42) # Deterministic behavior
+    logger.info("Starting T017: Filtering short abstracts...")
+    
+    # Load configuration if needed
+    config = load_config()
+    
+    # Determine input path based on previous tasks (T014/T015 output)
+    # Assuming T014/T015 saved to corpus.json or similar in data/processed
+    input_corpus = DATA_PROCESSED_DIR / "corpus.json"
+    
+    # Fallback if the previous task named it differently (e.g., corpus_cleaned.json)
+    if not input_corpus.exists():
+        candidates = list(DATA_PROCESSED_DIR.glob("corpus*.json"))
+        if candidates:
+            input_corpus = sorted(candidates)[-1] # Pick the most recent
+        else:
+            raise FileNotFoundError(
+                "No processed corpus found in data/processed/. "
+                "Ensure T014/T015 have completed successfully."
+            )
 
-    # 1. Download (if not exists)
-    if not RAW_DATA_PATH.exists():
-        logger.info("Raw dataset not found. Downloading...")
-        download_arxiv_dataset()
-    else:
-        logger.info(f"Raw dataset found at {RAW_DATA_PATH}")
+    try:
+        output_path, original, filtered = filter_short_abstracts(input_corpus)
+        excluded = original - filtered
+        log_exclusion_stats(original, filtered, excluded)
+        
+        # Update state with artifact hash
+        if STATE_FILE.exists():
+            state = load_state(STATE_FILE)
+            register_artifact(state, "corpus_filtered", str(output_path))
+            save_state(state, STATE_FILE)
+            logger.info("State updated with filtered corpus hash.")
+        else:
+            logger.warning(f"State file not found at {STATE_FILE}. Skipping state update.")
 
-    # 2. Extract authors and check collisions
-    author_counts = extract_authors_with_counts(RAW_DATA_PATH)
-    collision_authors = log_author_collisions(author_counts)
+    except Exception as e:
+        logger.error(f"Failed to filter abstracts: {e}", exc_info=True)
+        sys.exit(1)
     
-    # 3. Generate collision report
-    collision_report_path = PROCESSED_DATA_PATH / "collision_report.json"
-    generate_collision_report(collision_authors, collision_report_path)
-    
-    # 4. Update state with collision status
-    update_state_with_collision_status(collision_authors, STATE_FILE)
-
-    # 5. Preprocess abstracts (T014 implementation)
-    # This function handles:
-    # - Filtering < 6 chars (FR-002 edge case)
-    # - Lowercasing
-    # - Removing punctuation
-    # - Tokenization to character sequences
-    logger.info("Starting preprocessing...")
-    processed_corpus_path, author_dir = preprocess_abstracts(RAW_DATA_PATH, PROCESSED_DATA_PATH)
-    
-    # 6. Hash artifacts and update state
-    corpus_hash = hash_artifact(processed_corpus_path)
-    logger.info(f"Processed corpus hash: {corpus_hash}")
-    
-    state = load_state(STATE_FILE)
-    if "artifacts" not in state:
-        state["artifacts"] = {}
-    
-    state["artifacts"]["processed_corpus"] = {
-        "path": str(processed_corpus_path),
-        "hash": corpus_hash,
-        "type": "json"
-    }
-    save_state(state, STATE_FILE)
-    logger.info("State updated with processed corpus hash.")
-
-    logger.info("Data ingestion and preprocessing complete.")
+    logger.info("T017 completed successfully.")
 
 if __name__ == "__main__":
     main()

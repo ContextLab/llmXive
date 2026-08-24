@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T21:31:24.060438Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-378-predicting-material-degradation-under-cy
-last_run_id: 85335deb-f122-4b50-9d0e-0f34af6c88e8
+last_run_id: 65119bb6-a6f9-47aa-9dc7-fa1b622d8889
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-378-predicting-material-degradation-under-cy/specs/001-predicting-material-degradation-under-cy
 title: Predicting Material Degradation Under Cyclic Loading from Public Datasets
-updated_at: '2026-08-20T03:51:33.537449Z'
+updated_at: '2026-08-24T21:42:26.823617Z'
