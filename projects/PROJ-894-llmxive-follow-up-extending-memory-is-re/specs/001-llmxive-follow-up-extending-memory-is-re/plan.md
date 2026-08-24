@@ -9,7 +9,7 @@ This project extends the "Memory is Reconstructed, Not Retrieved" paradigm by im
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `datasets` (HuggingFace), `pandas`, `scipy`, `networkx`, `pytest`, `llama-cpp-python` (conditional), `numpy`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`), JSON/CSV artifacts  
 **Testing**: `pytest` (unit tests for graph logic, integration tests for runners)  
@@ -30,7 +30,11 @@ This project extends the "Memory is Reconstructed, Not Retrieved" paradigm by im
 - **III. Data Hygiene**: Raw data (`data/raw/locomo.jsonl`) will be checksummed. Derived data (noisy graphs, results CSVs) will be written to new files with explicit derivation logs.
 - **IV. Single Source of Truth**: All metrics (accuracy, nodes_visited, latency) will be computed by the code runners and written to CSVs. The paper/report will reference these CSVs, not hand-typed numbers.
 - **V. Versioning**: Artifacts will be hashed in `state/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re.yaml`.
-- **VI. Computational Efficiency**: All graph algorithms and statistical tests are CPU-tractable. LLM inference will use a quantized model (e.g., `llama-cpp-python` 4-bit/8-bit) **only if** the benchmark requires generation or evidence scoring; otherwise, the benchmark's provided answers are used (observational study). `token_count` is logged as a primary metric.
+- **VI. Computational Efficiency**: All graph algorithms and statistical tests are CPU-tractable. LLM inference will use a quantized model (e.g., `llama-cpp-python` Low-bit/8-bit
+
+The specific value to remove/generalize: 'low'
+
+Rewritten passage:) **only if** the benchmark requires generation or evidence scoring; otherwise, the benchmark's provided answers are used (observational study). `token_count` is logged as a primary metric.
 - **VII. Graph Topology Robustness**: The plan explicitly includes the `inject_noise` function to **replace** edges (per FR-001) and a statistical comparison (McNemar's test / t-test) between clean and noisy baselines.
 
 ## Project Structure
