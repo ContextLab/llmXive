@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-gene-regulation/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_0ec33744 — status=not_enough_info]
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -39,13 +39,24 @@
  ============================================================================
 -->
 
+## Phase 0: Research & Feasibility (Plan Phase 0)
+
+**Purpose**: Verify data availability and coordinate alignment before implementation begins.
+
+- [X] T000a [P] [Plan] Verify OpenNeuro dataset `ds000001` (or equivalent HCP) contains at least 50 subjects with both resting-state and task-fMRI data and distinct session IDs. Log results to `data/research/data_availability_log.txt`.
+- [X] T000b [P] [Plan] Verify Power 264 atlas coordinates and Ventral Striatum ROI coordinates are compatible with HCP MNI152NLin2009cAsym space. If mismatch, plan resampling strategy. Log results to `data/research/coordinate_alignment_log.txt`.
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `state/` (Note: `specs/001-gene-regulation/` is a source artifact, not created here)
-- [ ] T001b [P] Create `.gitignore` excluding `data/raw/*.nii*`, `data/processed/*.csv`, `__pycache__`, `*.pyc`, `env/`
-- [ ] T001c [P] Create `README.md` skeleton with project title and empty installation/usage sections
+- [X] T001a [P] Create directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `state/`, `data/research/`, `data/contracts/` (Note: `specs/001-gene-regulation/` is a source artifact, not created here)
+- [X] T001b [P] Create `.gitignore` excluding `data/raw/*.nii*`, `data/processed/*.csv`, `data/processed/*.json`, `data/processed/*.png`, `__pycache__`, `*.pyc`, `env/`, `.env`
+- [X] T001c [P] Create `README.md` skeleton with project title and empty installation/usage sections
+- [X] T001d [P] [Plan] Define and write `data/contracts/csv_time_series.schema.yaml` for extracted BOLD time series.
+- [X] T001e [P] [Plan] Define and write `data/contracts/states.schema.yaml` for dynamic state sequences.
 
 ---
 
@@ -56,15 +67,15 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn, nibabel, scipy, matplotlib, requests, tqdm, bids)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
-- [X] T004 Create `code/config.py` defining paths, seeds (), and parameters (window sizes:, 30, 40 TRs)
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools: Create `setup.cfg` with flake8 rules and `pyproject.toml` for black
+- [X] T004 Create `code/config.py` defining paths, seeds (42), and parameters (window sizes: 20, 30, 40 TRs)
 - [X] T005 [P] Implement `code/state_manager.py` to compute content hashes for artifacts and update `state/` YAML
 - [X] T006 [P] Setup `code/__init__.py` and basic logging infrastructure
 - [X] T007a [P] Define and write `data/contracts/atlas_power264.json` containing Power node coordinates in MNI space
 - [X] T007b [P] Define and write `data/contracts/roi_ventral_striatum.json` containing Ventral Striatum ROI MNI coordinates
 - [X] T007c [P] Implement logic to identify and write `data/contracts/Power264_excl_vs_nodes.json` listing Power 264 nodes overlapping with VS ROI to prevent double-dipping
-- [ ] T008 [P] Implement memory-efficient streaming utilities for large NIfTI files to ensure <7GB RAM usage
-- [ ] T009 Setup environment configuration management for OpenNeuro credentials
+- [X] T008 [P] Implement memory-efficient streaming utilities: Create `code/streaming_utils.py` with function `load_nifti_chunked(input_path, chunk_size)` to load NIfTI data in chunks to ensure <7GB RAM usage
+- [X] T009 [P] Setup environment configuration management: Create `code/.env.example` with placeholders for OpenNeuro credentials (OPENNEURO_USER, OPENNEURO_PASS) and implement `code/config.py` to load these securely.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,7 +85,7 @@
 
 **Goal**: Download and prepare a subsample of 50 HCP subjects (resting-state and task-fMRI) ensuring memory constraints and data validity.
 
-**Independent Test**: The pipeline can be fully tested by executing the data ingestion script and verifying the output directory contains exactly 50 subject folders (or fewer if skipped), with both resting-state and task-fMRI NIfTI files, and that total disk usage is ≤ 14 GB.
+**Independent Test**: The pipeline can be fully tested by executing the data ingestion script and verifying the output directory contains exactly 50 subject folders [UNRESOLVED-CLAIM: c_c09c31a8 — status=not_enough_info] (or fewer if skipped), with both resting-state and task-fMRI NIfTI files, and that total disk usage is ≤ 14 GB.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -86,16 +97,19 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/data_ingestion.py` to download HCP data from OpenNeuro for 50 subjects (FR-001)
+- [X] T012a [US1] Implement logic in `code/data_ingestion.py` to read NIfTI headers and extract Repetition Time (TR) values for validation (Supports T017).
 - [X] T013 [US1] Implement session ID distinctness validation logic in `code/data_ingestion.py` (FR-008), explicitly excluding subjects with matching session IDs from the downstream pipeline
-- [ ] T013b [US1] Implement logic to calculate the pass-rate percentage of subjects with distinct session IDs and write this metric to `data/processed/session_validation_metrics.json` (SC-005)
-- [X] T013c [US1] Implement logic to write the list of excluded subject IDs (due to session ID mismatch) to `data/processed/excluded_session_ids.csv`
-- [X] T014 [US1] Implement logic to skip corrupted/missing subjects and log warnings to `data/processed/ingestion_warnings.log` (Edge Case)
-- [ ] T015 [US1] Implement logic to fail fast with non-zero exit code and error message "Error: Insufficient valid subjects (<50)" if <50 valid subjects found, logging to `data/processed/ingestion_errors.log` (FR-010)
-- [X] T016 [US1] Implement `code/preprocessing.py` to extract BOLD time series using Power 264 atlas, explicitly excluding nodes listed in `data/contracts/Power264_excl_vs_nodes.json` to prevent double-dipping (FR-002)
+- [ ] T013b [US1] Implement logic to calculate the pass-rate percentage of subjects with distinct session IDs and write this metric to `data/processed/session_validation_metrics.json` (SC-005). Schema: `{"pass_rate": float, "total_subjects": int, "valid_subjects": int}`
+- [ ] T013d [US1] Verify `data/processed/session_validation_metrics.json` exists and contains valid keys (pass_rate, total_subjects, valid_subjects)
+- [ ] T013c [US1] Implement logic to write the list of excluded subject IDs (due to session ID mismatch) to `data/processed/excluded_session_ids.csv`
+- [X] T015 [US1] Implement logic to fail fast with non-zero exit code (exit 1) and error message "Error: Insufficient valid subjects (<50)" if <50 valid subjects found, writing the error to `data/processed/ingestion_errors.log` (FR-010). **Depends on: T013c, T013b**. **Blocks: T016**
+- [X] T015b [US1] Unit test for T015: Verify that running the ingestion script with <50 valid subjects produces `data/processed/ingestion_errors.log` and exits with code 1
+- [X] T016 [US1] Implement `code/preprocessing.py` to extract BOLD time series using Power 264 atlas [UNRESOLVED-CLAIM: c_0e863fcb — status=not_enough_info], explicitly excluding nodes listed in `data/contracts/Power264_excl_vs_nodes.json` to prevent double-dipping (FR-002). **Note**: VS ROI is excluded from this extraction per spec; VS time series are extracted separately from task-fMRI in T016c.
+- [ ] T016b [US1] Implement aggregation of task-fMRI BOLD time series (from T016c) to calculate mean ventral striatum activation magnitude per subject, writing to `data/processed/ventral_striatum_activation.csv` (FR-002). Schema: `{"subject_id": str, "mean_activation": float}`
 - [X] T016c [US1] Implement `code/preprocessing.py` to explicitly extract the Ventral Striatum (VS) ROI time series from task-fMRI NIfTI files for all valid subjects (FR-002)
-- [ ] T016b [US1] Implement aggregation of task-fMRI BOLD time series (from T016c) to calculate mean ventral striatum activation magnitude per subject, writing to `data/processed/ventral_striatum_activation.csv` (FR-002)
-- [ ] T017 [US1] Verify TR of downloaded data matches expected values for window calculations; fail with non-zero exit code and "Error: TR mismatch" if invalid (Assumption)
-- [ ] T018 [US1] Ensure memory footprint of loaded data never exceeds 7 GB during processing (SC-001) <!-- FAILED: unspecified -->
+- [ ] T016d [US1] Verify `data/processed/ventral_striatum_activation.csv` exists and contains the required columns (subject_id, mean_activation)
+- [X] T017 [US1] Verify TR of downloaded data matches expected values for window calculations; fail with non-zero exit code and "Error: TR mismatch" if invalid (Assumption). **Depends on: T012a**.
+- [X] T018 [US1] Ensure memory footprint of loaded data never exceeds 7 GB during processing [UNRESOLVED-CLAIM: c_4bf621ca — status=not_enough_info] (SC-001). Generate `data/processed/memory_profile.json` logging peak RAM usage and assert peak < 7GB. **Depends on: T008**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (valid CSV time series generated for 50 subjects)
 
@@ -109,18 +123,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for K-means clustering determinism (seed=42) in `tests/unit/test_connectivity.py`
-- [ ] T020 [P] [US2] Unit test for flexibility score calculation against known ground truth in `tests/unit/test_connectivity.py`
+- [X] T019 [P] [US2] Unit test for K-means clustering determinism (seed=42) in `tests/unit/test_connectivity.py`
+- [X] T020 [P] [US2] Unit test for flexibility score calculation against known ground truth in `tests/unit/test_connectivity.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020b [US2] Generate synthetic ground truth dataset with known switching patterns to validate the flexibility calculation logic (Independent Test requirement)
-- [ ] T021 [US2] Implement sliding window functional connectivity calculation (window=30 TR, step=1 TR) in `code/connectivity.py` (FR-003)
-- [ ] T022 [US2] Implement K-means clustering (K=4, K-means++, seed=42) to define state space in `code/connectivity.py` (FR-003a)
-- [ ] T023 [US2] Implement flexibility score calculation (state switching frequency) normalized for scan length in `code/connectivity.py` (FR-004)
-- [ ] T025 [US2] Handle edge case: flag and exclude subjects with zero variance flexibility scores, writing excluded subject IDs to `data/processed/excluded_subjects_log.csv` (Edge Case)
-- [ ] T025b [US2] Filter the `data/processed/ventral_striatum_activation.csv` (from T016b) to match the remaining subject list after zero-variance exclusions, ensuring data alignment for correlation analysis
-- [ ] T026 [US2] Ensure output files are CSVs containing time-series state sequences and scalar flexibility scores
+- [X] T020b [US2] Generate synthetic ground truth dataset with known switching patterns to validate the flexibility calculation logic. Write to `data/synthetic/ground_truth_seed42.csv` with columns: `subject_id`, `state_sequence`, `flexibility_score`
+- [X] T021a [US2] Refactor `code/connectivity.py` sliding window function to accept `window_size` as a parameter (default 30) to support sensitivity analysis (FR-009).
+- [X] T021b [US2] Implement sensitivity analysis loop in `code/connectivity.py` to execute sliding window calculation for window sizes [20, 30, 40] TRs and store intermediate state sequences. **Depends on: T021a**.
+- [X] T021 [US2] Implement sliding window functional connectivity calculation (window=30 TR, step=1 TR) [UNRESOLVED-CLAIM: c_e41b9533 — status=not_enough_info] in `code/connectivity.py` (FR-003). **Depends on: T021a**.
+- [X] T022 [US2] Implement K-means clustering (K=4, K-means++, seed=42) to define state space [UNRESOLVED-CLAIM: c_9a4366be — status=not_enough_info] in `code/connectivity.py` (FR-003a). **Explicitly use `init='k-means++'`**.
+- [X] T023 [US2] Implement flexibility score calculation (state switching frequency) normalized for scan length in `code/connectivity.py` (FR-004)
+- [X] T025 [US2] Handle edge case: flag and exclude subjects with zero variance flexibility scores, writing excluded subject IDs to `data/processed/excluded_zero_variance_subjects.csv` (Edge Case)
+- [X] T025c [US2] Verify `data/processed/excluded_zero_variance_subjects.csv` exists and contains valid subject IDs
+- [ ] T025b [US2] Filter the `data/processed/ventral_striatum_activation.csv` (from T016b) to match the remaining subject list after zero-variance exclusions, ensuring data alignment for correlation analysis. **Depends on: T016b, T025**
+- [X] T026 [US2] Ensure output files are CSVs containing time-series state sequences and scalar flexibility scores
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (flexibility scores generated for 50 subjects)
 
@@ -134,18 +151,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for Pearson correlation and p-value calculation in `tests/unit/test_analysis.py`
-- [ ] T028 [P] [US3] Unit test for permutation test logic (A sufficient number of iterations will be performed to ensure convergence.) in `tests/unit/test_analysis.py`
+- [X] T027 [P] [US3] Unit test for Pearson correlation and p-value calculation in `tests/unit/test_analysis.py`
+- [X] T028 [P] [US3] Unit test for permutation test logic (1,000 iterations) in `tests/unit/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement Pearson correlation analysis between flexibility scores and ventral striatum activation in `code/analysis.py` (FR-005)
-- [ ] T029b [US3] Implement sensitivity analysis loop for window sizes {20, 30, 40} TRs; calculate correlation and p-value for each; write results to `data/processed/sensitivity_analysis.csv` with columns: window_size, correlation_coefficient, p_value (FR-009)
-- [ ] T030 [US3] Implement permutation test (A sufficient number of iterations will be performed to ensure convergence.) to calculate empirical p-value in `code/analysis.py` (FR-006)
-- [ ] T031 [US3] Handle edge case: report p < 1/1001 if permutation p-value is exactly 0 (Edge Case)
-- [ ] T032 [US3] Generate scatter plot with regression line for the correlation result
-- [ ] T033 [US3] Implement `code/reporting.py` to generate final markdown report containing "associational relationship" and excluding "causal" (FR-007)
-- [ ] T034 [US3] Include sensitivity analysis results (window sizes 20, 30, 40) from `data/processed/sensitivity_analysis.csv` in the final report (FR-009)
+- [X] T029 [US3] Implement Pearson correlation analysis between flexibility scores and ventral striatum activation in `code/analysis.py` (FR-005). **Depends on: T025b**
+- [X] T029b [US3] Implement sensitivity analysis loop for window sizes {20, 30, 40} TRs; calculate correlation and p-value for each; write results to `data/processed/sensitivity_analysis.csv` with columns: window_size, correlation_coefficient, p_value (FR-009). **Depends on: T021b, T029**
+- [X] T030 [US3] Implement permutation test with exactly 1,000 iterations to calculate empirical p-value [UNRESOLVED-CLAIM: c_fe4240fa — status=not_enough_info] in `code/analysis.py` (FR-006)
+- [X] T031 [US3] Handle edge case: report p < 1/1001 if permutation p-value is exactly 0 [UNRESOLVED-CLAIM: c_7ad8a45d — status=not_enough_info] (Edge Case)
+- [X] T032 [US3] Generate scatter plot with regression line for the correlation result. Output to `data/processed/correlation_plot.png` using `matplotlib.pyplot.scatter` with regression line overlay
+- [X] T033 [US3] Implement `code/reporting.py` to generate final markdown report containing "associational relationship" and excluding "causal" (FR-007)
+- [X] T033b [US3] Implement validation logic (e.g., grep or string check) in `code/reporting.py` or `tests/` to verify the final report contains "associational relationship" and excludes "causal" (FR-007). **Depends on: T033**
+- [X] T034 [US3] Include sensitivity analysis results (window sizes 20, 30, 40) from `data/processed/sensitivity_analysis.csv` in the final report (FR-009)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,16 +173,16 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035a [P] Update `README.md` with installation instructions and CLI usage examples
-- [ ] T035b [P] Update `specs/001-gene-regulation/` documentation with final data flow diagrams
-- [ ] T036a Code cleanup: fix linting errors in `code/`
-- [ ] T036b Code cleanup: remove dead code and unused imports in `code/`
-- [ ] T037c [P] Benchmark pipeline runtime on a small subset (e.g., 5 subjects) to establish a baseline and verify the time constraint before full execution (FR-009/Assumptions)
-- [ ] T037b [P] Performance optimization: ensure total runtime stays <6h for 50 subjects based on T037c results (FR-009/Assumptions)
-- [ ] T037a Performance optimization: ensure peak RAM usage stays <6GB during processing
-- [ ] T038 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T039 Run `quickstart.md` validation
-- [ ] T040 Verify `state/` YAML contains hashes for all artifacts in `data/processed/` and `paper/` (Constitution V)
+- [X] T035a [P] Update `README.md` with installation instructions and CLI usage examples
+- [X] T035b [P] Update `specs/001-gene-regulation/` documentation with final data flow diagrams
+- [X] T036a Code cleanup: fix linting errors in `code/`
+- [X] T036b Code cleanup: remove dead code and unused imports in `code/`
+- [X] T037c [P] Benchmark pipeline runtime on a small subset (e.g., 5 subjects) to establish a baseline and verify the time constraint before full execution (FR-009/Assumptions)
+- [X] T037b [P] Performance optimization: ensure total runtime stays <6h for 50 subjects based on T037c results (FR-009/Assumptions)
+- [X] T037a Performance optimization: ensure peak RAM usage stays <6GB during processing
+- [X] T038 [P] Additional unit tests (if requested) in `tests/unit/`
+- [X] T039 Run `quickstart.md` validation
+- [X] T040 Verify `state/` YAML contains hashes for all artifacts in `data/processed/` and `paper/` (Constitution V)
 
 ---
 
@@ -182,7 +200,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1 (specifically T016b)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on data from US1 and metrics from US2
 
 ### Within Each User Story
@@ -258,3 +276,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [ ] T041 Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

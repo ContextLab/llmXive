@@ -1,78 +1,52 @@
+"""
+Unit tests for T013b: session_validation_metrics.py
+"""
 import pytest
 import json
 import os
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import sys
 
-# Import the module under test
-from code.session_validation_metrics import calculate_pass_rate, write_metrics
-from code.write_excluded_session_ids import load_validation_state
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-class TestCalculatePassRate:
+from session_validation_metrics import calculate_pass_rate, write_metrics
+
+class TestSessionValidationMetrics:
     def test_calculate_pass_rate_normal(self):
-        """Test pass rate calculation with normal values."""
-        result = calculate_pass_rate(100, 10)
-        assert result == 90.0
-
-    def test_calculate_pass_rate_all_valid(self):
-        """Test pass rate when all subjects are valid."""
-        result = calculate_pass_rate(50, 0)
-        assert result == 100.0
-
-    def test_calculate_pass_rate_all_excluded(self):
-        """Test pass rate when all subjects are excluded."""
-        result = calculate_pass_rate(50, 50)
-        assert result == 0.0
+        valid = ["sub-01", "sub-02", "sub-03"]
+        total = 5
+        rate = calculate_pass_rate(valid, total)
+        assert rate == 0.6
 
     def test_calculate_pass_rate_zero_total(self):
-        """Test pass rate when total subjects is zero."""
-        result = calculate_pass_rate(0, 0)
-        assert result == 0.0
+        valid = []
+        total = 0
+        rate = calculate_pass_rate(valid, total)
+        assert rate == 0.0
 
-class TestWriteMetrics:
-    def test_write_metrics_creates_file(self, tmp_path):
-        """Test that write_metrics creates the output file."""
-        output_path = tmp_path / "test_metrics.json"
+    def test_calculate_pass_rate_all_valid(self):
+        valid = ["sub-01", "sub-02"]
+        total = 2
+        rate = calculate_pass_rate(valid, total)
+        assert rate == 1.0
+
+    def test_write_metrics(self):
         metrics = {
-            "total_subjects": 50,
-            "pass_rate_percentage": 95.0
+            "pass_rate": 0.8,
+            "total_subjects": 10,
+            "valid_subjects": 8
         }
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+            temp_path = Path(f.name)
         
-        write_metrics(metrics, output_path)
+        write_metrics(metrics, temp_path)
         
-        assert output_path.exists()
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-            assert data["total_subjects"] == 50
-            assert data["pass_rate_percentage"] == 95.0
-
-class TestMainIntegration:
-    @patch('code.session_validation_metrics.load_validation_state')
-    @patch('code.session_validation_metrics.write_metrics')
-    def test_main_success(self, mock_write, mock_load):
-        """Test main function with successful validation data."""
-        mock_load.return_value = {
-            'total_subjects': 100,
-            'excluded_subjects': ['sub-001', 'sub-002'],
-            'timestamp': '2023-01-01T00:00:00'
-        }
+        assert temp_path.exists()
+        with open(temp_path, 'r') as f:
+            loaded = json.load(f)
         
-        # Mock ensure_directories to avoid file system issues in test
-        with patch('code.session_validation_metrics.ensure_directories'):
-            result = 0  # Simulate success
-            
-            # We can't easily test the full main() without a real file system
-            # but we can verify the logic path by checking the mocked calls
-            mock_load.assert_called_once()
-            # The write_metrics would be called with calculated values
-            # This is verified by the unit tests above
-
-    @patch('code.session_validation_metrics.load_validation_state')
-    def test_main_no_validation_data(self, mock_load):
-        """Test main function when no validation data is found."""
-        mock_load.return_value = None
+        assert loaded == metrics
         
-        with patch('code.session_validation_metrics.ensure_directories'):
-            # We would need to capture sys.exit or return code
-            # For now, we verify the logic by checking the mock
-            mock_load.assert_called_once()
+        temp_path.unlink()

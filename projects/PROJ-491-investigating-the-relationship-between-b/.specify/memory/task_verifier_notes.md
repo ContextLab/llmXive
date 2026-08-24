@@ -2,14 +2,8 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — No evidence of the required directories (`code/`, `tests/`, `data/raw/`, `data/processed/`, `state/`) is provided; the artifact list is empty, so the task’s requirement is not satisfied.
-- **T001b** — No `.gitignore` file content was presented; the required file excluding `data/raw/*.nii*`, `data/processed/*.csv`, `__pycache__`, `*.pyc`, and `env/` is missing. The implementer must supply a non‑empty `.gitignore` with those patterns.
-- **T001c** — No `README.md` file was presented in the evidence, and thus the required skeleton with a project title and empty installation/usage sections is missing. The implementer must add a non‑empty `README.md` containing at least the title and placeholder sections for installation and usage.
-- **T003** — No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with Black settings, or a pre‑commit hook) are present, and the provided artifacts relate only to the research pipeline, not to the requested linting setup. The task therefore remains unfulfilled.
-- **T008** — No code, scripts, or documentation for memory‑efficient streaming of large NIfTI files is present; the claim lacks any artifact demonstrating that the utilities exist or that they keep RAM usage under 7 GB. The required implementation and evidence are missing.
-- **T009** — The implementer supplied only a high‑level feature specification for data ingestion and analysis; no files, scripts, or configuration related to “Setup environment configuration management for OpenNeuro credentials” are present. The required artifact (e.g., a configuration file, secret‑management script, or documentation showing how OpenNeuro credentials are stored and accessed) is missing.
 - **T013b** — declared artifact(s) missing/empty/invalid: data/processed/session_validation_metrics.json
-- **T015** — declared artifact(s) missing/empty/invalid: data/processed/ingestion_errors.log
+- **T013d** — The required file `data/processed/session_validation_metrics.json` is absent, so the existence check fails and no content can be verified for the required keys. The task therefore remains unfinished.
+- **T013c** — declared artifact(s) missing/empty/invalid: data/processed/excluded_session_ids.csv
 - **T016b** — declared artifact(s) missing/empty/invalid: data/processed/ventral_striatum_activation.csv
-- **T017** — No script, function, or test output is present that checks the TR of the downloaded HCP data against expected values, nor any logic that exits with a non‑zero code and the message “Error: TR mismatch”. The required verification artifact is missing.
-- **T018** — No artifact (e.g., script, log, test report, or documentation) was provided that demonstrates the system monitors or limits its memory usage to ≤ 7 GB during data loading/processing. Consequently, there is no evidence that the requirement has been met. The implementer must supply concrete code or test output showing the memory footprint stays within the specified bound.
+- **T016d** — The required file `data/processed/ventral_striatum_activation.csv` is absent, so the existence check fails and there is no way to verify the presence of the required columns. The task is therefore not satisfied.

@@ -1,0 +1,12 @@
+status: none
+intent: Human Connectome Project HCP WU-Minn HCP 1200 subjects download package python
+  package dataset
+required_fields:
+- subject_id
+- resting_state_nifti
+- task_fMRI_nifti
+- power_264_atlas_bold_time_series
+- ventral_striatum_roi_bold_time_series
+cache_key: f2c3b0decf5a39da5a63db5e3a15522d8f65c651acd6c44ebf4ee43dd88a09e6
+searched_at: '2026-08-24T13:55:31.188427+00:00'
+retry_count: 1

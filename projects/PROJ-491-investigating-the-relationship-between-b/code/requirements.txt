@@ -1,0 +1,7 @@
+python-dotenv  # auto-added: imported by run-book but missing from venv
+nibabel  # auto-added: imported by run-book but missing from venv
+nilearn  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+pandas  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

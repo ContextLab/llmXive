@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-491-investigating-the-relationship-between-b",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 3 declared deliverable(s) absent: data/processed/excluded_session_ids.csv; data/processed/session_validation_metrics.json; data/processed/ventral_striatum_activation.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-491-investigating-the-relationship-between-b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-491-investigating-the-relationship-between-b/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-24T13:47:57Z"
+}

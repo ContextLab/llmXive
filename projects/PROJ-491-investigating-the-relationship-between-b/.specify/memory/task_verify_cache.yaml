@@ -1,3 +1,15 @@
+T013d:
+  c: false
+  h: 7ef828be6a8dd5d6146062dec805953066ce4b72c5b2aa6ff1cdd5c479fa8c1c
+  r: The required file `data/processed/session_validation_metrics.json` is absent,
+    so the existence check fails and no content can be verified for the required keys.
+    The task therefore remains unfinished.
+T016d:
+  c: false
+  h: 3f23bb4fde000063a3b08b97a0d76fcbf6668a97cfc1b3d4807dbaf9f927dfeb
+  r: The required file `data/processed/ventral_striatum_activation.csv` is absent,
+    so the existence check fails and there is no way to verify the presence of the
+    required columns. The task is therefore not satisfied.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

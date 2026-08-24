@@ -155,3 +155,247 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-20T03:49:23Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/quickstart.md
+  attempts: 1
+  canonical: HCP data downloaded for 50 subjects
+  claim_id: c_1dd88fb2
+  context: '### 2. Data Ingestion
+
+    Downloads HCP data for 50 subjects (or validates existing data).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Downloads HCP data for 50 subjects (or validates existing data).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:58:27Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Tests are optional in feature specifications
+  claim_id: c_0ec33744
+  context: The document outlines task formats and prerequisites, noting that test
+    tasks are included in examples but are optional.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_in_feature_specifications
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:00:15Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000001 contains at least 50 subjects with resting-state and
+    task-fMRI data
+  claim_id: c_3ccaeedc
+  context: Phase 0 tasks require verification of data availability, specifically checking
+    for at least 50 subjects with specific data types.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000001_contains_at_least_50_subjects_with_restin
+  kind: magnitude
+  raw_text: Verify OpenNeuro dataset ds000001 (or equivalent HCP) contains at least
+    50 subjects with both resting-state and task-fMRI data and distinct session IDs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:00:50Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Data ingestion pipeline output contains exactly 50 subject folders
+  claim_id: c_c09c31a8
+  context: Independent test criteria for User Story 1 specifies the expected number
+    of output folders.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline can be fully tested by executing the data ingestion script
+    and verifying the output directory contains exactly 50 subject folders
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:01:31Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Data ingestion total disk usage is less than or equal to 14 GB
+  claim_id: c_2e3e9cbf
+  context: Independent test criteria for User Story 1 includes a constraint on total
+    disk usage.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_total_disk_usage_is_less_than_or_equal_to_14
+  kind: magnitude
+  raw_text: "Verify that total disk usage is \u2264 14 GB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:02:08Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: BOLD time series extracted using Power 264 atlas
+  claim_id: c_0e863fcb
+  context: User Story 1 implementation details specify the use of the Power 264 atlas
+    for extraction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/preprocessing.py` to extract BOLD time series using Power
+    264 atlas
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:03:26Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Memory footprint during processing does not exceed 7 GB
+  claim_id: c_4bf621ca
+  context: User Story 1 includes a constraint on memory usage during data processing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure memory footprint of loaded data never exceeds 7 GB during processing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:03:53Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: K-means clustering uses 4 clusters with k-means++ initialization and
+    seed 42
+  claim_id: c_9a4366be
+  context: User Story 2 implementation specifies parameters for the K-means clustering
+    algorithm.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement K-means clustering (K=4, K-means++, seed=42) to define state
+    space
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:04:29Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sliding window functional connectivity uses 30 TR window and 1 TR step
+  claim_id: c_e41b9533
+  context: User Story 2 implementation defines specific parameters for the sliding
+    window calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sliding window functional connectivity calculation (window=30
+    TR, step=1 TR)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:05:05Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Permutation test uses exactly 1000 iterations
+  claim_id: c_fe4240fa
+  context: User Story 3 implementation specifies the number of iterations for the
+    permutation test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement permutation test with exactly 1,000 iterations to calculate
+    empirical p-value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:06:14Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Permutation p-value of 0 is reported as p less than 1/1001
+  claim_id: c_7ad8a45d
+  context: User Story 3 handles the edge case where the permutation p-value is zero.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_p-value_of_0_is_reported_as_p_less_than_1/1001
+  kind: magnitude
+  raw_text: 'Handle edge case: report p < 1/1001 if permutation p-value is exactly
+    0'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:07:39Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed for window sizes 20, 30, and 40 TRs
+  claim_id: c_36494e04
+  context: User Story 2 and 3 implementation details include a sensitivity analysis
+    loop with specific window sizes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform sensitivity analysis loop for window sizes [20, 30, 40] TRs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:08:02Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Total runtime for 50 subjects is less than 6 hours
+  claim_id: c_382d8bbb
+  context: Phase 6 performance optimization tasks specify a runtime constraint for
+    processing 50 subjects.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_for_50_subjects_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Ensure total runtime stays <6h for 50 subjects
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:08:34Z'
+- artifact_path: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage during processing is less than 6 GB
+  claim_id: c_cc7004af
+  context: Phase 6 performance optimization tasks specify a peak RAM usage constraint.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_during_processing_is_less_than_6_GB
+  kind: magnitude
+  raw_text: Ensure peak RAM usage stays <6GB during processing
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:09:05Z'
