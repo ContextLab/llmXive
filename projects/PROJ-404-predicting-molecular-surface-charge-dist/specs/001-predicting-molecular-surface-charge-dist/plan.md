@@ -5,7 +5,7 @@
 
 ## Summary
 
-The project implements a Geometric Message Passing Neural Network (GNN) to predict atomic partial charges (ESP-derived, specifically Merz-Kollman or equivalent) from molecular geometries, using the QM9 dataset. The system prioritizes CPU-only execution on a GitHub Actions free-tier runner with constrained resources, enforcing strict memory constraints via dynamic memory profiling and adaptive sampling.
+The project implements a Geometric Message Passing Neural Network (GNN) to predict atomic partial charges (ESP-derived, specifically Merz-Kollman or equivalent) from molecular geometries, using a standard benchmark molecular dataset. The system prioritizes CPU-only execution on a GitHub Actions free-tier runner with constrained resources, enforcing strict memory constraints via dynamic memory profiling and adaptive sampling.
 
 **Core Hypothesis**: Specific 3D conformations (beyond the average geometry implied by topology) provide predictive power for charge distribution. The model is tested on its ability to predict *deviations* from the topological mean.
 
