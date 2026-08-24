@@ -33,7 +33,7 @@ This project implements a reproducible pipeline to evaluate the zero-shot effect
 | **III. Data Hygiene** | **PASS** | Plan includes checksumming steps and immutable raw data storage (`data/raw`). |
 | **IV. Single Source of Truth** | **PASS** | All stats flow from `data/processed` CSVs; no hand-typed numbers in `paper/`. |
 | **V. Versioning** | **PASS** | Artifact hashes recorded in state file; `updated_at` triggers on change. |
-| **VI. Compute Limits** | **PASS** | Plan prioritizes CPU-tractable methods (small models: Phi-3-mini-4k-instruct, Qwen2.5-0.5B) and defines GPU escape hatch. Feasibility: [deferred] samples @ 4.32s/sample = 6h. |
+| **VI. Compute Limits** | **PASS** | Plan prioritizes CPU-tractable methods (small models: Phi-mini-4k-instruct, Qwen2.5-0.5B) and defines GPU escape hatch. Feasibility: [deferred] samples @ 4.32s/sample = 6h. |
 | **VII. Baseline Comparison** | **PASS** | Plan explicitly includes Bandit/cppcheck execution and McNemar's test (with paired sample protocol). |
 
 ## Project Structure
