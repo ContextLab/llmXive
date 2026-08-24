@@ -91,7 +91,7 @@ The system must perform statistical correlation analysis between the computed gr
 - **SC-002**: The correlation analysis process is measured against the requirement that the script completes successfully and reports correlation coefficients, p-values, and effect sizes for all tested metric-score pairs (See US-3).
 - **SC-003**: The effect size calculation is measured against the requirement that Cohen's d (or equivalent) is correctly calculated and reported for all significant correlations (See US-3).
 - **SC-004**: The multiple comparison correction is measured against the requirement that all reported p-values are adjusted using FDR (Benjamini-Hochberg) to control the false discovery rate (See US-3).
-- **SC-005**: The computational resource usage is measured against the constraint of ≤ 7 GB RAM and ≤ 6 hours total runtime on a GitHub Actions 2-core runner (See US-2, US-3).
+- **SC-005**: The computational resource usage is measured against the constraint of ≤ 7 GB RAM and ≤ 6 hours total runtime on a GitHub Actions -core runner (See US-2, US-3).
 
 ## Assumptions
 
