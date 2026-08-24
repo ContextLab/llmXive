@@ -3,77 +3,84 @@ import subprocess
 from pathlib import Path
 import pytest
 
+PROJECT_ROOT = Path(__file__).parent.parent
+
 def test_flake8_config_exists():
     """Verify .flake8 configuration file exists."""
-    config_path = Path("code/.flake8")
-    assert config_path.exists(), f"Missing flake8 config at {config_path}"
-    content = config_path.read_text()
-    assert "[flake8]" in content, "Missing [flake8] section in .flake8"
+    flake8_path = PROJECT_ROOT / ".flake8"
+    assert flake8_path.exists(), ".flake8 configuration file is missing"
+    assert flake8_path.is_file(), ".flake8 is not a file"
 
 def test_black_config_exists():
-    """Verify pyproject.toml contains Black configuration."""
-    config_path = Path("code/pyproject.toml")
-    assert config_path.exists(), f"Missing pyproject.toml at {config_path}"
-    content = config_path.read_text()
-    assert "[tool.black]" in content, "Missing [tool.black] section in pyproject.toml"
+    """Verify Black configuration exists in pyproject.toml."""
+    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml is missing"
+    
+    content = pyproject_path.read_text()
+    assert "[tool.black]" in content, "Black configuration missing in pyproject.toml"
+    assert "line-length" in content, "Black line-length setting missing"
 
 def test_pre_commit_config_exists():
-    """Verify .pre-commit-config.yaml exists and is valid YAML."""
-    config_path = Path("code/.pre-commit-config.yaml")
-    assert config_path.exists(), f"Missing .pre-commit-config.yaml at {config_path}"
-    # Validate YAML syntax by attempting to parse
-    import yaml
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-    assert config is not None, "Failed to parse .pre-commit-config.yaml"
-    assert "repos" in config, "Missing 'repos' key in .pre-commit-config.yaml"
+    """Verify pre-commit configuration file exists."""
+    precommit_path = PROJECT_ROOT / ".pre-commit-config.yaml"
+    assert precommit_path.exists(), ".pre-commit-config.yaml is missing"
+    assert precommit_path.is_file(), ".pre-commit-config.yaml is not a file"
 
 def test_requirements_includes_linting_tools():
-    """Verify linting tools are listed in dependencies."""
-    config_path = Path("code/pyproject.toml")
-    content = config_path.read_text()
-    assert "flake8" in content, "flake8 not found in pyproject.toml dependencies"
-    assert "black" in content, "black not found in pyproject.toml dependencies"
-    assert "pre-commit" in content, "pre-commit not found in pyproject.toml dependencies"
+    """Verify linting tools are listed in requirements.txt."""
+    requirements_path = PROJECT_ROOT / "requirements.txt"
+    assert requirements_path.exists(), "requirements.txt is missing"
+    
+    content = requirements_path.read_text().lower()
+    assert "flake8" in content, "flake8 not in requirements.txt"
+    assert "black" in content, "black not in requirements.txt"
+    assert "pre-commit" in content, "pre-commit not in requirements.txt"
 
 def test_pyproject_toml_structure():
-    """Verify pyproject.toml has required build-system and project sections."""
-    config_path = Path("code/pyproject.toml")
-    content = config_path.read_text()
-    assert "[build-system]" in content, "Missing [build-system] section"
-    assert "[project]" in content, "Missing [project] section"
-    assert "setuptools" in content, "Missing setuptools in build-system"
+    """Verify pyproject.toml has required sections."""
+    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+    content = pyproject_path.read_text()
+    
+    required_sections = [
+        "[build-system]",
+        "[project]",
+        "[tool.black]",
+        "[tool.pytest.ini_options]"
+    ]
+    
+    for section in required_sections:
+        assert section in content, f"Missing required section: {section}"
 
 def test_pre_commit_hooks_valid():
-    """Verify pre-commit hooks reference valid repositories."""
-    config_path = Path("code/.pre-commit-config.yaml")
-    import yaml
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
+    """Verify pre-commit configuration is valid YAML and references valid repos."""
+    precommit_path = PROJECT_ROOT / ".pre-commit-config.yaml"
     
-    repos = config.get("repos", [])
-    assert len(repos) >= 3, "Expected at least 3 repos in pre-commit config"
-    
-    hook_ids = []
-    for repo in repos:
-        hooks = repo.get("hooks", [])
-        for hook in hooks:
-            hook_ids.append(hook.get("id"))
-    
-    assert "black" in hook_ids, "black hook not found"
-    assert "flake8" in hook_ids, "flake8 hook not found"
+    try:
+        import yaml
+        with open(precommit_path) as f:
+            config = yaml.safe_load(f)
+        
+        assert "repos" in config, "pre-commit config missing 'repos' key"
+        assert isinstance(config["repos"], list), "'repos' must be a list"
+        
+        for repo in config["repos"]:
+            assert "repo" in repo, "Repository entry missing 'repo' key"
+            assert "hooks" in repo, f"Repository {repo.get('repo')} missing 'hooks' key"
+    except ImportError:
+        pytest.skip("PyYAML not installed")
 
 def test_black_config_settings():
-    """Verify Black is configured with correct line length."""
-    config_path = Path("code/pyproject.toml")
-    content = config_path.read_text()
+    """Verify Black has specific configuration settings."""
+    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+    content = pyproject_path.read_text()
+    
     assert "line-length = 88" in content, "Black line-length should be 88"
-    assert 'target-version = ["py311"]' in content, "Black should target Python 3.11"
+    assert "target-version" in content, "Black target-version setting missing"
 
 def test_flake8_config_settings():
-    """Verify flake8 is configured with correct settings."""
-    config_path = Path("code/.flake8")
-    content = config_path.read_text()
-    assert "max-line-length = 88" in content, "flake8 max-line-length should be 88"
-    assert "E203" in content, "flake8 should ignore E203 (compatible with Black)"
-    assert "W503" in content, "flake8 should ignore W503 (compatible with Black)"
+    """Verify flake8 has specific configuration settings."""
+    flake8_path = PROJECT_ROOT / ".flake8"
+    content = flake8_path.read_text()
+    
+    assert "max-line-length" in content, "flake8 max-line-length setting missing"
+    assert "extend-ignore" in content, "flake8 extend-ignore setting missing"

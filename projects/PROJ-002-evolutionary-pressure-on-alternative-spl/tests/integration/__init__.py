@@ -1,3 +1,1 @@
-"""
-Integration tests for end-to-end flows.
-"""
+"""Integration tests for PROJ-002."""

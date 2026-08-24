@@ -1,41 +1,67 @@
-# Genome Assembly Configuration
-# Paths are relative to the project root or absolute paths if on HPC
+# Genome assembly configurations for primate species
+# Used by the pipeline for alignment and annotation steps
+# Reference: GRCh38, panTro6, rheMac10, calJac4
+
 assemblies:
   human:
-    name: GRCh38
-    accession: GCA_000001405.28
-    fasta: data/raw/genomes/GRCh38.fa
-    gtf: data/raw/genomes/GRCh38.gtf
-    phylop_bw: data/raw/conservation/phyloP100way_GRCh38.bw
-    star_index: data/raw/indexes/STAR_GRCh38
+    species: "Homo sapiens"
+    assembly: "GRCh38"
+    genome_fasta: "data/genomes/GRCh38.primary_assembly.genome.fa"
+    gtf: "data/genomes/GRCh38.primary_assembly.annotation.gtf"
+    chrom_sizes: "data/genomes/GRCh38.chrom.sizes"
+    phyloP_track: "data/annotations/phyloP100way/GRCh38.bigWig"
+    star_index: "data/indices/GRCh38_star"
 
   chimp:
-    name: panTro6
-    accession: GCA_000151205.2
-    fasta: data/raw/genomes/panTro6.fa
-    gtf: data/raw/genomes/panTro6.gtf
-    phylop_bw: data/raw/conservation/phyloP100way_panTro6.bw
-    star_index: data/raw/indexes/STAR_panTro6
+    species: "Pan troglodytes"
+    assembly: "panTro6"
+    genome_fasta: "data/genomes/panTro6.genome.fa"
+    gtf: "data/genomes/panTro6.annotation.gtf"
+    chrom_sizes: "data/genomes/panTro6.chrom.sizes"
+    phyloP_track: "data/annotations/phyloP100way/panTro6.bigWig"
+    star_index: "data/indices/panTro6_star"
 
   macaque:
-    name: rheMac10
-    accession: GCA_000151205.2
-    fasta: data/raw/genomes/rheMac10.fa
-    gtf: data/raw/genomes/rheMac10.gtf
-    phylop_bw: data/raw/conservation/phyloP100way_rheMac10.bw
-    star_index: data/raw/indexes/STAR_rheMac10
+    species: "Macaca mulatta"
+    assembly: "rheMac10"
+    genome_fasta: "data/genomes/rheMac10.genome.fa"
+    gtf: "data/genomes/rheMac10.annotation.gtf"
+    chrom_sizes: "data/genomes/rheMac10.chrom.sizes"
+    phyloP_track: "data/annotations/phyloP100way/rheMac10.bigWig"
+    star_index: "data/indices/rheMac10_star"
 
   marmoset:
-    name: calJac4
-    accession: GCA_000151805.1
-    fasta: data/raw/genomes/calJac4.fa
-    gtf: data/raw/genomes/calJac4.gtf
-    phylop_bw: data/raw/conservation/phyloP100way_calJac4.bw
-    star_index: data/raw/indexes/STAR_calJac4
+    species: "Callithrix jacchus"
+    assembly: "calJac4"
+    genome_fasta: "data/genomes/calJac4.genome.fa"
+    gtf: "data/genomes/calJac4.annotation.gtf"
+    chrom_sizes: "data/genomes/calJac4.chrom.sizes"
+    phyloP_track: "data/annotations/phyloP100way/calJac4.bigWig"
+    star_index: "data/indices/calJac4_star"
 
-# SRA Accession IDs for RNA-seq data
-sra_accessions:
-  human: SRP010775
-  chimp: SRP009050
-  macaque: SRP009051
-  marmoset: SRP009052
+# Default parameters for alignment tools
+alignment_defaults:
+  star:
+    runThreadN: 8
+    outFilterMultimapNmax: 20
+    alignSJoverhangMin: 8
+    alignSJDBoverhangMin: 1
+    outFilterMismatchNoverLmax: 0.04
+    outFilterMismatchNmax: 999
+    outFilterType: "BySJout"
+    outSAMtype: "BAM SortedByCoordinate"
+    outSAMunmapped: "Within"
+    quantMode: "TranscriptomeSAM"
+  suppa:
+    io: "event"
+    method: "ev"
+    minJunc: 1
+
+# Phylogenetic tree configuration
+phylogeny:
+  tree_file: "data/phylogeny/primate_tree.nwk"
+  root_species: "human"
+  outgroups:
+    - "chimp"
+    - "macaque"
+    - "marmoset"

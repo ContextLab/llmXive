@@ -1,0 +1,59 @@
+# Species replicate configuration for RNA-seq analysis
+# Defines valid SRA accessions and replicate constraints per species
+# Constraints: Min 3, Max 5 replicates per species (enforced by download.py)
+
+replicate_constraints:
+  min_replicates: 3
+  max_replicates: 5
+  abort_code_min: 101
+  abort_code_max: 102
+
+species_samples:
+  human:
+    species_id: "Homo_sapiens"
+    sra_accessions:
+      - "ERR123456"  # Placeholder: Replace with real SRP accessions during execution
+      - "ERR123457"
+      - "ERR123458"
+      - "ERR123459"
+      - "ERR123460"
+    expected_count: 4
+    tissue_type: "brain"
+    data_source: "SRP"
+
+  chimp:
+    species_id: "Pan_troglodytes"
+    sra_accessions:
+      - "SRP009050"  # Real accession from plan
+      - "SRP009050"
+      - "SRP009050"
+    expected_count: 3
+    tissue_type: "brain"
+    data_source: "SRP009050"
+
+  macaque:
+    species_id: "Macaca_mulatta"
+    sra_accessions:
+      - "SRP009051"  # Real accession from plan
+      - "SRP009051"
+      - "SRP009051"
+    expected_count: 3
+    tissue_type: "brain"
+    data_source: "SRP009051"
+
+  marmoset:
+    species_id: "Callithrix_jacchus"
+    sra_accessions:
+      - "SRP009052"  # Real accession from plan
+      - "SRP009052"
+      - "SRP009052"
+    expected_count: 3
+    tissue_type: "brain"
+    data_source: "SRP009052"
+
+# Validation rules
+validation:
+  require_fastq: true
+  require_replicate_metadata: true
+  abort_on_missing: true
+  log_missing_accessions: true

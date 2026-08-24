@@ -1,42 +1,29 @@
 #!/bin/bash
-# R Environment Setup Script for PROJ-002
-# Validates R version and installs required packages.
+# Setup script to initialize the R environment for PROJ-002.
+# Installs R packages from renv.lock.
 
 set -e
 
-REQUIRED_R_VERSION="4.3"
-
-echo "=== PROJ-002 R Environment Setup ==="
-
-# Check R version
-if ! command -v R &> /dev/null; then
-    echo "Error: R is not installed. Please install R 4.3+."
+RSCRIPT=$(which Rscript)
+if [ -z "$RSCRIPT" ]; then
+    echo "Error: Rscript not found. Please install R."
     exit 1
 fi
 
-R_VERSION=$(R --version | grep "R version" | awk '{print $3}' | cut -d'.' -f1,2)
-echo "Found R version: $R_VERSION"
+echo "R version: $($RSCRIPT --version | head -n 1)"
 
-# Simple version check (assuming 4.3.x)
-if [[ ! "$R_VERSION" =~ ^4\.[0-9]+$ ]]; then
-    echo "Warning: R version $R_VERSION detected. Expected 4.3.x. Proceeding anyway."
+RENV_LOCK="renv.lock"
+if [ ! -f "$RENV_LOCK" ]; then
+    echo "Error: $RENV_LOCK not found"
+    exit 1
 fi
 
-# Install R packages
-R_SCRIPT=$(mktemp)
-cat > "$R_SCRIPT" << 'EOF'
-# Install packages if not present
-packages <- c("phylolm", "ape", "data.table", "ggplot2")
-install.packages(packages, repos = "https://cloud.r-project.org")
-library(phylolm)
-library(ape)
-library(data.table)
-library(ggplot2)
-cat("✓ All R packages installed and loaded successfully.\n")
-EOF
+echo "Installing R dependencies..."
 
-echo "Installing R packages..."
-R --vanilla --slave < "$R_SCRIPT"
-rm "$R_SCRIPT"
+# Install renv if not present
+$RSCRIPT -e "if (!requireNamespace('renv', quietly = TRUE)) install.packages('renv', repos='https://cloud.r-project.org')"
 
-echo "=== R Setup Complete ==="
+# Restore environment from renv.lock
+$RSCRIPT -e "renv::restore()"
+
+echo "R environment setup complete."

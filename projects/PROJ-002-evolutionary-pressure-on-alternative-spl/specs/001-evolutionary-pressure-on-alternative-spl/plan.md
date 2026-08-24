@@ -99,7 +99,7 @@ tests/
 | **4c – Aggregate Counts** | Compute `count_LSE`, `count_NonLSE`, `n_lse_accelerated`, etc., per lineage. | FR‑004, FR‑007 | SC‑002 |
 | **4d – Cohort Assembly** | Merge LSEs and Controls into a single dataframe (`regression_cohort.tsv`) linked by `event_id`. | FR‑007 | SC‑002 |
 | **5 – Flanking Sequence Extraction** | bedtools `getfasta` (±500 bp). | FR‑005, FR‑009 | SC‑001 |
-| **6 – PhyloP Annotation** | Query UCSC multi-way bigWig via `pyBigWig`; compute mean, flag accelerated (≤‑2.0) for descriptive stats. | FR‑005, FR‑006, FR‑009 | SC‑001 |
+| **6 – PhyloP Annotation** | Query UCSC multi-way bigWig via `pyBigWig`; compute mean, flag accelerated (≤‑) for descriptive stats. | FR‑005, FR‑006, FR‑009 | SC‑001 |
 | **6b – Sensitivity Analysis** | Sweep acceleration threshold (±0.5) to validate robustness of the binary flag. | FR‑014 | – |
 | **7 – Enrichment Testing** | R script (`stats.R`) runs `phylolm::phyloglm` per lineage using `mean_phyloP` (continuous) as predictor. Includes control regions. Permutation (a sufficient number for CI, A substantial number of samples for Full) shuffles 'accelerated' labels across the *combined* LSE+Control cohort. Applies BH‑FDR across lineages. | FR‑007, FR‑008, FR‑012, FR‑013, FR‑014, FR‑009 | SC‑003, SC‑004 |
 | **8 – Plot Generation** | PNG Manhattan plot (≥ 1200×800). Traceable via `result_id`. | FR‑008, FR‑009 | SC‑004 |

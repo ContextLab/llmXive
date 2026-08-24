@@ -1,3 +1,1 @@
-"""
-Contract tests for API interfaces.
-"""
+"""Contract tests for PROJ-002."""

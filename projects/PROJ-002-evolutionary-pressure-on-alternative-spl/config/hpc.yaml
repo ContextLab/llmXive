@@ -1,0 +1,44 @@
+# HPC Environment Configuration for PROJ-002
+# Constraints based on high-performance compute cluster
+# RAM=32GB, cores=8, disk=unlimited (assumed)
+environment:
+  name: hpc
+  type: high_performance_computing
+  constraints:
+    ram_gb: 32
+    cores: 8
+    disk_gb: 500  # Minimum guaranteed, assume more available
+  features:
+    star_alignment: true
+    suppa2_quantification: true
+    phylop_annotation: true  # Full phyloP100way tracks available
+    phylogenetic_regression: true
+  data_handling:
+    max_replicates: 5  # Maximum allowed per FR-001
+    use_synthetic_data: false  # Real data only for HPC
+    max_fastq_size_gb: 50
+  timeouts:
+    max_alignment_minutes: 120
+    max_pipeline_minutes: 480
+  logging:
+    level: INFO
+    retention_hours: 168  # 1 week
+# Specific tool parameters for HPC optimization
+tools:
+  star:
+    outFilterMultimapNmax: 20
+    alignSJoverhangMin: 8
+    alignSJDBoverhangMin: 1
+    outFilterMismatchNmax: 999
+    outFilterMismatchNoverReadLmax: 0.04
+    alignIntronMin: 20
+    alignIntronMax: 1000000
+    alignMatesGapMax: 1000000
+    limitBAMsortRAM: 30000000000  # 30GB
+  suppa2:
+    ioThreads: 8
+    outputFormat: psi
+  phylop:
+    track: phyloP100way
+    source: UCSC
+    assembly: hg38  # Default, species-specific in code

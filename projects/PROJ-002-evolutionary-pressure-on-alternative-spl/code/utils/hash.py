@@ -1,25 +1,13 @@
-"""
-Artifact hashing utilities for the evolutionary pressure pipeline.
-
-Provides functions to generate SHA-256 checksums for all intermediate and final
-files, generate manifests, and verify file integrity against manifests.
-"""
 import hashlib
 import os
 import json
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Union
 from loguru import logger
 
-# Constants
-HASH_ALGORITHM = "sha256"
-MANIFEST_FILENAME = "artifacts_manifest.json"
-PIPELINE_LOG_FILENAME = "pipeline.log"
-
-
-def calculate_sha256(file_path: Path) -> str:
+def calculate_sha256(file_path: Union[str, Path]) -> str:
     """
-    Calculate the SHA-256 hash of a file.
+    Calculate the SHA-256 checksum of a file.
 
     Args:
         file_path: Path to the file to hash.
@@ -30,18 +18,16 @@ def calculate_sha256(file_path: Path) -> str:
     Raises:
         FileNotFoundError: If the file does not exist.
         IsADirectoryError: If the path points to a directory.
-        PermissionError: If the file cannot be read.
     """
+    file_path = Path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-    
     if file_path.is_dir():
-        raise IsADirectoryError(f"Cannot hash a directory: {file_path}")
-    
+        raise IsADirectoryError(f"Path is a directory, not a file: {file_path}")
+
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            # Read in chunks to handle large files (e.g., BAMs)
             for chunk in iter(lambda: f.read(8192), b""):
                 sha256_hash.update(chunk)
     except PermissionError as e:
@@ -50,205 +36,176 @@ def calculate_sha256(file_path: Path) -> str:
     
     return sha256_hash.hexdigest()
 
-
 def generate_manifest(
-    directory: Path,
-    output_path: Optional[Path] = None,
-    extensions: Optional[List[str]] = None,
+    file_paths: List[Union[str, Path]],
+    output_path: Union[str, Path],
     exclude_patterns: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """
-    Generate a manifest of SHA-256 hashes for all files in a directory.
+    Generate a JSON manifest containing SHA-256 hashes for a list of files.
 
     Args:
-        directory: Root directory to scan for artifacts.
-        output_path: Optional path to write the manifest JSON. If None, 
-                    manifest is returned as dict only.
-        extensions: Optional list of file extensions to include (e.g., ['.bam', '.tsv']).
-                   If None, all files are included.
-        exclude_patterns: Optional list of filename patterns to exclude (e.g., ['*.log', '.*']).
+        file_paths: List of file paths to hash.
+        output_path: Path where the manifest JSON will be written.
+        exclude_patterns: Optional list of glob patterns to exclude (not implemented in core logic, 
+                          but structure prepared for future expansion).
 
     Returns:
-        Dictionary containing manifest metadata and file hashes.
-
-    Raises:
-        FileNotFoundError: If the directory does not exist.
+        Dictionary containing the manifest data.
     """
-    if not directory.exists():
-        raise FileNotFoundError(f"Directory not found: {directory}")
-    
-    if not directory.is_dir():
-        raise NotADirectoryError(f"Path is not a directory: {directory}")
-    
     manifest = {
-        "algorithm": HASH_ALGORITHM,
-        "directory": str(directory.resolve()),
-        "files": {}
+        "files": {},
+        "generated_at": str(Path(output_path).parent), # Placeholder for timestamp if needed
+        "algorithm": "sha256"
     }
+
+    output_path = Path(output_path)
     
-    logger.info(f"Generating manifest for directory: {directory}")
-    
-    for file_path in directory.rglob("*"):
-        if file_path.is_file():
-            relative_path = file_path.relative_to(directory)
-            file_str = str(relative_path)
-            
-            # Check extensions filter
-            if extensions:
-                if file_path.suffix not in extensions:
-                    continue
-            
-            # Check exclude patterns
-            if exclude_patterns:
-                import fnmatch
-                if any(fnmatch.fnmatch(file_str, pattern) for pattern in exclude_patterns):
-                    continue
-            
-            # Skip the manifest file itself to avoid circular dependency
-            if file_path.name == MANIFEST_FILENAME:
-                continue
-            
-            try:
-                file_hash = calculate_sha256(file_path)
-                manifest["files"][file_str] = file_hash
-                logger.debug(f"Hashed: {file_str} -> {file_hash[:16]}...")
-            except Exception as e:
-                logger.warning(f"Failed to hash {file_str}: {e}")
-    
-    manifest["file_count"] = len(manifest["files"])
-    
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(manifest, f, indent=2)
-        logger.info(f"Manifest written to: {output_path}")
-    
+    for file_path in file_paths:
+        file_path = Path(file_path)
+        if not file_path.exists():
+            logger.warning(f"Skipping non-existent file in manifest: {file_path}")
+            continue
+        if file_path.is_dir():
+            logger.warning(f"Skipping directory in manifest: {file_path}")
+            continue
+
+        try:
+            file_hash = calculate_sha256(file_path)
+            manifest["files"][str(file_path)] = {
+                "hash": file_hash,
+                "size_bytes": file_path.stat().st_size
+            }
+            logger.debug(f"Hashed file: {file_path} -> {file_hash[:16]}...")
+        except Exception as e:
+            logger.error(f"Failed to hash file {file_path}: {e}")
+            raise
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+
+    logger.info(f"Manifest written to: {output_path}")
     return manifest
 
-
 def verify_manifest(
-    manifest_path: Path,
-    directory: Optional[Path] = None
-) -> Dict[str, Any]:
+    manifest_path: Union[str, Path],
+    base_dir: Optional[Union[str, Path]] = None
+) -> bool:
     """
-    Verify file integrity against a manifest.
+    Verify the integrity of files listed in a manifest against their stored hashes.
 
     Args:
         manifest_path: Path to the manifest JSON file.
-        directory: Optional base directory for relative paths. If None, 
-                  uses the directory recorded in the manifest.
+        base_dir: Optional base directory to resolve relative paths in the manifest.
 
     Returns:
-        Dictionary with verification results:
-        {
-            "valid": bool,
-            "verified_count": int,
-            "failed_count": int,
-            "missing_count": int,
-            "details": List[Dict]
-        }
+        True if all files match their hashes, False otherwise.
 
     Raises:
-        FileNotFoundError: If manifest file or directory not found.
-        json.JSONDecodeError: If manifest is not valid JSON.
+        FileNotFoundError: If the manifest file or any listed file is missing.
+        json.JSONDecodeError: If the manifest is malformed.
     """
+    manifest_path = Path(manifest_path)
     if not manifest_path.exists():
         raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
-    
+
     with open(manifest_path, "r", encoding="utf-8") as f:
         manifest = json.load(f)
-    
-    base_dir = Path(manifest["directory"]) if directory is None else directory
-    
-    if not base_dir.exists():
-        raise FileNotFoundError(f"Base directory not found: {base_dir}")
-    
-    results = {
-        "valid": True,
-        "verified_count": 0,
-        "failed_count": 0,
-        "missing_count": 0,
-        "details": []
-    }
-    
-    logger.info(f"Verifying {len(manifest['files'])} files against manifest")
-    
-    for relative_path, expected_hash in manifest["files"].items():
-        file_path = base_dir / relative_path
+
+    files_to_check = manifest.get("files", {})
+    if not files_to_check:
+        logger.warning("Manifest contains no files to verify.")
+        return True
+
+    all_valid = True
+
+    for relative_path, metadata in files_to_check.items():
+        expected_hash = metadata.get("hash")
         
-        if not file_path.exists():
-            results["missing_count"] += 1
-            results["valid"] = False
-            results["details"].append({
-                "file": relative_path,
-                "status": "MISSING",
-                "expected": expected_hash,
-                "actual": None
-            })
-            logger.warning(f"Missing file: {relative_path}")
+        # Resolve path relative to base_dir if provided, otherwise use absolute
+        if base_dir:
+            full_path = Path(base_dir) / relative_path
+        else:
+            full_path = Path(relative_path)
+
+        if not full_path.exists():
+            logger.error(f"File missing during verification: {full_path}")
+            all_valid = False
             continue
-        
+
         try:
-            actual_hash = calculate_sha256(file_path)
-            
-            if actual_hash == expected_hash:
-                results["verified_count"] += 1
-                results["details"].append({
-                    "file": relative_path,
-                    "status": "OK",
-                    "expected": expected_hash,
-                    "actual": actual_hash
-                })
+            actual_hash = calculate_sha256(full_path)
+            if actual_hash != expected_hash:
+                logger.error(f"Hash mismatch for {full_path}: expected {expected_hash}, got {actual_hash}")
+                all_valid = False
             else:
-                results["failed_count"] += 1
-                results["valid"] = False
-                results["details"].append({
-                    "file": relative_path,
-                    "status": "MISMATCH",
-                    "expected": expected_hash,
-                    "actual": actual_hash
-                })
-                logger.error(f"Hash mismatch for {relative_path}")
+                logger.debug(f"Hash verified: {full_path}")
         except Exception as e:
-            results["failed_count"] += 1
-            results["valid"] = False
-            results["details"].append({
-                "file": relative_path,
-                "status": "ERROR",
-                "error": str(e),
-                "expected": expected_hash,
-                "actual": None
-            })
-            logger.error(f"Error verifying {relative_path}: {e}")
+            logger.error(f"Error verifying {full_path}: {e}")
+            all_valid = False
+
+    if all_valid:
+        logger.info("Manifest verification successful: all hashes match.")
+    else:
+        logger.error("Manifest verification failed: some hashes do not match.")
     
-    return results
+    return all_valid
 
-
-def log_hash_to_file(
-    file_path: Path,
-    log_path: Path,
-    step_name: str
-) -> str:
+def log_hash_to_file(file_path: Union[str, Path], log_path: Union[str, Path]) -> None:
     """
-    Calculate hash of a file and append the result to a log file.
+    Calculate the hash of a file and append it to a log file in a standard format.
+    Used for pipeline logs to record artifact integrity.
 
     Args:
         file_path: Path to the file to hash.
-        log_path: Path to the pipeline log file.
-        step_name: Name of the pipeline step for logging context.
-
-    Returns:
-        The calculated hash string.
-
-    Raises:
-        FileNotFoundError: If file or log path does not exist.
+        log_path: Path to the log file to append to.
     """
+    file_path = Path(file_path)
+    log_path = Path(log_path)
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"Cannot hash non-existent file: {file_path}")
+
     file_hash = calculate_sha256(file_path)
+    file_name = file_path.name
     
-    log_entry = f"[{step_name}] SHA-256({file_path.name}): {file_hash}\n"
+    # Format: [TIMESTAMP] [HASH] [FILENAME] [SIZE]
+    size = file_path.stat().st_size
+    log_entry = f"[HASH] {file_hash} | {file_name} | {size} bytes\n"
+
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(log_entry)
+
+    logger.debug(f"Logged hash for {file_name} to {log_path}")
+
+def log_manifest_entry(manifest_path: Union[str, Path], log_path: Union[str, Path]) -> None:
+    """
+    Read a manifest file and log all its entries to a log file.
     
-    with open(log_path, "a", encoding="utf-8") as log_file:
-        log_file.write(log_entry)
+    Args:
+        manifest_path: Path to the manifest JSON.
+        log_path: Path to the log file to append to.
+    """
+    manifest_path = Path(manifest_path)
+    log_path = Path(log_path)
+
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+
+    files = manifest.get("files", {})
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.debug(f"Logged hash for {file_path.name}: {file_hash[:16]}...")
-    return file_hash
+    with open(log_path, "a", encoding="utf-8") as f:
+        for file_path, metadata in files.items():
+            hash_val = metadata.get("hash", "N/A")
+            size = metadata.get("size_bytes", "N/A")
+            f.write(f"[MANIFEST_ENTRY] {file_path} | Hash: {hash_val} | Size: {size} bytes\n")
+    
+    logger.info(f"Logged {len(files)} manifest entries to {log_path}")

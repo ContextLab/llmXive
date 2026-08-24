@@ -1,10 +1,11 @@
-"""Data models for the evolutionary pressure on alternative splicing pipeline."""
-
-from .models import RNASeqSample, SplicingEvent, EnrichmentResult, PhylogeneticTree
+from .rna_seq_sample import RNASeqSample
+from .splicing_event import SplicingEvent
+from .enrichment_result import EnrichmentResult
+from .phylogenetic_tree import PhylogeneticTree
 
 __all__ = [
     "RNASeqSample",
     "SplicingEvent",
     "EnrichmentResult",
-    "PhylogeneticTree",
+    "PhylogeneticTree"
 ]

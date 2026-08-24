@@ -710,3 +710,478 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T15:40:59Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: 'SRA accession numbers for primate RNA-seq data: Human SRP, Chimp SRP009050,
+    Macaque SRP009051, Marmoset SRP009052'
+  claim_id: c_6fa9d9fd
+  context: T013 [P] [US1] Implement SRA download script (src/pipeline/download.py)
+    to fetch FASTQs for Human (SRP), Chimp (SRP009050), Macaque (SRP009051), Marmoset
+    (SRP009052)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SRA_accession_numbers_for_primate_RNA-seq_data:_Human_SRP,_C
+  kind: entity_fact
+  raw_text: Download FASTQs for Human (SRP), Chimp (SRP009050), Macaque (SRP009051),
+    Marmoset (SRP009052)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:36:42Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: phyloP scores sourced from UCSC Table Browser phyloP100way track
+  claim_id: c_229d705b
+  context: 'T025 [P] [US2] Implement phyloP score retrieval (src/pipeline/annotate_phyloP.py)
+    using pyBigWig to query UCSC Multi-way Vertebrate Conservation track. Source:
+    UCSC Table Browser (phyloP100way).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PhyloP_scores_sourced_from_UCSC_Table_Browser_phyloP100way_t
+  kind: entity_fact
+  raw_text: 'Source: UCSC Table Browser (phyloP100way)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:37:22Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Permutation test uses at least 1000 iterations
+  claim_id: c_4f3ce9bd
+  context: "T036 [US3] Implement permutation test (\u22651,000 iterations) in stats.R\
+    \ shuffling LSE status across the combined LSE+Control cohort"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_uses_at_least_1000_iterations
+  kind: magnitude
+  raw_text: "Implement permutation test (\u22651,000 iterations) in stats.R"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:37:40Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 0
+  canonical: genome assemblies configured include GRCh, panTro6, rheMac10, and calJac4
+  claim_id: c_745f8cc1
+  context: Setup configuration management for genome assemblies (GRCh, panTro6, rheMac10,
+    calJac4) in config/genomes.yaml
+  evidence:
+    entailment_evidence: 'Genome assemblies used: GRCh, panTro6, rheMac10, calJac4'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Genome_assemblies_used:_GRCh,_panTro6,_rheMac10,_calJac4
+  kind: entity_fact
+  raw_text: Setup configuration management for genome assemblies (GRCh, panTro6, rheMac10,
+    calJac4) in config/genomes.yaml
+  resolved_value: 'Genome assemblies used: GRCh, panTro6, rheMac10, calJac4'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T12:49:46Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: pipeline aborts with error 101 if fewer than 3 replicates and error 102
+    if more than 5 replicates
+  claim_id: c_a22567e4
+  context: 'Contract test for data download and replicate validation in tests/contract/test_download_replicates.py:
+    Verify pipeline aborts with error 101 if <3 replicates and error 102 if >5 replicates,
+    including informative error messages as specified in US-1 acceptance scenarios.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_with_error_101_if_fewer_than_3_replicates_an
+  kind: magnitude
+  raw_text: Verify pipeline aborts with error 101 if <3 replicates and error 102 if
+    >5 replicates
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:50:44Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: accelerated-evolution flag is TRUE if average phyloP score is less than
+    or equal to -2.0
+  claim_id: c_08287267
+  context: "Implement accelerated-evolution flagging logic (TRUE if average phyloP\
+    \ score \u2264 -2.0) in annotate_phyloP.py"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Accelerated-evolution_flag_is_TRUE_if_average_phyloP_score_i
+  kind: magnitude
+  raw_text: "Implement accelerated-evolution flagging logic (TRUE if average phyloP\
+    \ score \u2264 -2.0)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:51:24Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: permutation test uses at least 1000 iterations
+  claim_id: c_4527f68b
+  context: "Implement permutation test (\u22651,000 iterations) in stats.R shuffling\
+    \ LSE status across the combined LSE+Control cohort (generated by T033 and T034)\
+    \ while preserving genomic distance to break circularity and avoid breaking the\
+    \ phylogenetic signal."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_uses_at_least_1000_iterations
+  kind: magnitude
+  raw_text: "Implement permutation test (\u22651,000 iterations) in stats.R shuffling\
+    \ LSE status"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:51:42Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: average phyloP score calculation ignores Ns and records NA for assembly
+    gaps
+  claim_id: c_cbbcc5a1
+  context: Implement logic to calculate average phyloP score (ignoring Ns) and record
+    NA for assembly gaps
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Average_phyloP_score_calculation_ignores_Ns_and_records_NA_f
+  kind: entity_fact
+  raw_text: Implement logic to calculate average phyloP score (ignoring Ns) and record
+    NA for assembly gaps
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:52:08Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: flanking sequence extraction uses bedtools getfasta for plus or minus
+    500 bp regions
+  claim_id: c_d20fde71
+  context: "Implement flanking sequence extraction (src/pipeline/extract_flanks.py)\
+    \ using bedtools getfasta for \xB1500 bp regions"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement flanking sequence extraction using bedtools getfasta for \xB1\
+    500 bp regions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:52:47Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: SUPPA2 quantification script generates unified PSI TSV
+  claim_id: c_b9be23bd
+  context: Implement SUPPA2 quantification script (src/pipeline/quantify.py) to generate
+    unified PSI TSV
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SUPPA2_quantification_script_generates_unified_PSI_TSV
+  kind: entity_fact
+  raw_text: Implement SUPPA2 quantification script to generate unified PSI TSV
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:53:50Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: lineage-specific event detection applies absolute delta PSI greater than
+    0.1 and FDR less than 0.05 thresholds
+  claim_id: c_2eecac3b
+  context: "Implement lineage-specific event detection (src/pipeline/detect_events.py)\
+    \ applying |\u0394PSI| > 0.1 and FDR < 0.05 thresholds"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lineage-specific_event_detection_applies_absolute_delta_PSI
+  kind: magnitude
+  raw_text: "Implement lineage-specific event detection applying |\u0394PSI| > 0.1\
+    \ and FDR < 0.05 thresholds"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:54:21Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: minimum 3 replicates requirement is validated for detecting absolute
+    delta PSI greater than or equal to 0.1
+  claim_id: c_16c4936f
+  context: "Execute power_analysis.R to validate the minimum 3 replicates requirement\
+    \ for detecting |\u0394PSI| \u2265 0.1"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_3_replicates_requirement_is_validated_for_detecting
+  kind: magnitude
+  raw_text: "Execute power_analysis.R to validate the minimum 3 replicates requirement\
+    \ for detecting |\u0394PSI| \u2265 0.1"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:54:51Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: linting uses flake and black formatting tools
+  claim_id: c_c030b476
+  context: Configure linting (flake, black) and formatting tools
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linting_uses_flake_and_black_formatting_tools
+  kind: entity_fact
+  raw_text: Configure linting (flake, black) and formatting tools
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:55:37Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: requirements.txt pins versions for pandas, numpy, pyyaml, biopython,
+    requests, tqdm, pybedtools, pyBigWig, scikit-learn, and loguru
+  claim_id: c_81e7ce88
+  context: 'Create requirements.txt pinning versions for: pandas, numpy, pyyaml, biopython,
+    requests, tqdm, pybedtools, pyBigWig, scikit-learn, loguru. Create renv.lock for
+    R dependencies: phylolm, ape, data.table, ggplot2.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Requirements.txt_pins_versions_for_pandas,_numpy,_pyyaml,_bi
+  kind: entity_fact
+  raw_text: 'Create requirements.txt pinning versions for: pandas, numpy, pyyaml,
+    biopython, requests, tqdm, pybedtools, pyBigWig, scikit-learn, loguru'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:55:58Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: renv.lock includes R dependencies phylolm, ape, data.table, and ggplot2
+  claim_id: c_b01f8332
+  context: 'Create requirements.txt pinning versions for: pandas, numpy, pyyaml, biopython,
+    requests, tqdm, pybedtools, pyBigWig, scikit-learn, loguru. Create renv.lock for
+    R dependencies: phylolm, ape, data.table, ggplot2.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Renv.lock_includes_R_dependencies_phylolm,_ape,_data.table,
+  kind: entity_fact
+  raw_text: 'Create renv.lock for R dependencies: phylolm, ape, data.table, ggplot2'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:57:09Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: ci.yaml configuration specifies 7GB RAM, 2 cores, and 14GB disk
+  claim_id: c_23af2e73
+  context: Create config/ci.yaml with RAM=7GB, cores=2, disk=14GB and config/hpc.yaml
+    with RAM=32GB, cores=8 explicitly matching the plan.md Compute Feasibility constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create config/ci.yaml with RAM=7GB, cores=2, disk=14GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:57:32Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: hpc.yaml configuration specifies 32GB RAM and 8 cores
+  claim_id: c_aee272a3
+  context: Create config/ci.yaml with RAM=7GB, cores=2, disk=14GB and config/hpc.yaml
+    with RAM=32GB, cores=8 explicitly matching the plan.md Compute Feasibility constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create config/hpc.yaml with RAM=32GB, cores=8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:58:04Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: logging infrastructure includes timestamped, multi-level logging and
+    error code tracking
+  claim_id: c_acdc297b
+  context: Implement logging infrastructure (src/utils/logger.py) with timestamped,
+    multi-level logging and error code tracking
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logging_infrastructure_includes_timestamped,_multi-level_log
+  kind: entity_fact
+  raw_text: Implement logging infrastructure (src/utils/logger.py) with timestamped,
+    multi-level logging and error code tracking
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:58:26Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: artifact hashing utilities generate SHA-256 checksums for intermediate
+    and final files
+  claim_id: c_280808ba
+  context: Setup artifact hashing utilities (src/utils/hash.py) to generate SHA-256
+    checksums for all intermediate and final files (BAMs, PSI tables, results TSVs),
+    AND to record the hash of external input artifacts (e.g., primate_tree.nwk) in
+    the manifest.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Setup artifact hashing utilities (src/utils/hash.py) to generate SHA-256
+    checksums for all intermediate and final files
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:58:41Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: SRA download script fetches FASTQs for Human, Chimp SRP009050, Macaque
+    SRP009051, and Marmoset SRP009052
+  claim_id: c_aecc2ed1
+  context: Implement SRA download script (src/pipeline/download.py) to fetch FASTQs
+    for Human (SRP), Chimp (SRP009050), Macaque (SRP009051), Marmoset (SRP009052)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SRA_download_script_fetches_FASTQs_for_Human,_Chimp_SRP00905
+  kind: entity_fact
+  raw_text: Implement SRA download script to fetch FASTQs for Human (SRP), Chimp (SRP009050),
+    Macaque (SRP009051), Marmoset (SRP009052)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:59:00Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: phyloP score retrieval uses pyBigWig to query UCSC Table Browser phyloP100way
+    track
+  claim_id: c_a040073b
+  context: 'Implement phyloP score retrieval (src/pipeline/annotate_phyloP.py) using
+    pyBigWig to query UCSC Multi-way Vertebrate Conservation track. Source: UCSC Table
+    Browser (phyloP100way).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PhyloP_score_retrieval_uses_pyBigWig_to_query_UCSC_Table_Bro
+  kind: entity_fact
+  raw_text: 'Implement phyloP score retrieval using pyBigWig to query UCSC Multi-way
+    Vertebrate Conservation track. Source: UCSC Table Browser (phyloP100way).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:59:32Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction is applied across multiple lineage
+    tests
+  claim_id: c_582f4623
+  context: Implement Benjamini-Hochberg FDR correction across the multiple lineage
+    tests in stats.R
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_correction_is_applied_across_multiple
+  kind: entity_fact
+  raw_text: Implement Benjamini-Hochberg FDR correction across the multiple lineage
+    tests in stats.R
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:59:55Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: R statistical script uses phylolm phyloglm with LSE status as response
+    and accelerated_flag as predictor
+  claim_id: c_98a18bea
+  context: Implement R statistical script (src/pipeline/stats.R) using phylolm::phyloglm
+    with LSE status (binary) as response and accelerated_flag (binary) as predictor,
+    per FR-007. The continuous mean_phyloP is used ONLY for sensitivity analysis (FR-014)
+    and descriptive stats, NOT as the primary predictor.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/R_statistical_script_uses_phylolm_phyloglm_with_LSE_status_a
+  kind: entity_fact
+  raw_text: Implement R statistical script using phylolm::phyloglm with LSE status
+    as response and accelerated_flag as predictor
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:00:37Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps acceleration threshold by plus or minus 0.5
+    and validates permutation null model robustness by comparing empirical and model-based
+    p-values
+  claim_id: c_d948b595
+  context: "Implement sensitivity analysis script (src/pipeline/sensitivity_analysis.py)\
+    \ to sweep the acceleration threshold (\xB10.5) AND validates the permutation\
+    \ null model's robustness by comparing empirical p-values against model-based\
+    \ p-values across threshold sweeps."
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement sensitivity analysis script to sweep the acceleration threshold\
+    \ (\xB10.5) AND validates the permutation null model's robustness by comparing\
+    \ empirical p-values against model-based p-values across threshold sweeps"
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T13:00:38Z'
