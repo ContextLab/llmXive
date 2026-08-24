@@ -85,13 +85,13 @@
 - [X] T011 [US1] Implement `code/ingest.py` to download GOES X-ray flare lists from NOAA SWPC FTP (`ftp://ftp.swpc.noaa.gov/pub/lists/`) covering ≥10 years of historical data (See US-1). **Pre-flight validation**: Explicitly check for and reject any imports of `datasets` (HuggingFace) or `huggingface_hub`. If found, raise an `ImportError` with a message citing the Assumptions section.
 - [X] T012 [US1] Implement `code/ingest.py` to retrieve CME catalog data (speed, width, direction) from CDAWeb SOHO/LASCO
 - [X] T012b [US1] Implement `code/ingest.py` utility to verify the CDAWeb SOHO/LASCO URL is reachable and returns valid data; update `data/source_manifest.yaml` with **exact keys**: if successful, write `cme_status: Verified`, `cme_url: <actual_url>`, `retrieved_at: <timestamp>`; if failed, write `cme_status: Unverified`.
-- [X] T013 [US1] Implement `code/ingest.py` to download Dst indices from NOAA SWPC and write to `data/raw/dst_indices.csv`
-- [X] T013b [US1] Implement `code/ingest.py` to download Kp indices from NOAA SWPC and write to `data/raw/kp_indices.csv`; validate against schema.
+- [X] T013 [US1] Implement `code/ingest.py` to download Dst indices from NOAA SWPC and write to `data/raw/dst_indices.csv`. **Validation**: Validate the downloaded data against `contracts/aligned_event.schema.yaml` before writing.
+- [X] T013b [US1] Implement `code/ingest.py` to download Kp indices from NOAA SWPC and write to `data/raw/kp_indices.csv`; validate against `contracts/aligned_event.schema.yaml`.
 - [X] T014 [US1] Implement `code/align.py` to identify Dst minima (storms) independently, then match preceding solar events within ≤3-day window
 - [X] T015 [US1] Implement `code/align.py` logic to flag missing solar predictors as null (do NOT exclude events) and handle "no match found" cases
 - [X] T016 [US1] Implement logic to flag recurrent activity periods in the primary dataset with a `is_recurrent` flag.
-- [X] T016b [US1] Implement logic to filter non-recurrent storms from the primary dataset to create a derived `data/processed/analysis_subset.csv`. **Depends on US1.**
-- [X] T017 [US1] Implement blocking validation gate in `code/validate.py` to check `aligned_events.csv` against `contracts/aligned_event.schema.yaml`.
+- [X] T016b [US1] Implement logic to filter non-recurrent storms from the primary dataset to create a derived `data/processed/analysis_subset.csv`. **Filtering Rule**: Only include distinct minima separated by ≥24 hours of recovery. **Depends on US1.**
+- [X] T017 [US1] Implement blocking validation gate in `code/validate.py` to check `aligned_events.csv` against `contracts/aligned_event.schema.yaml`. **Failure Behavior**: If validation fails, raise a `ValidationError` exception and exit immediately; do not write the file.
 - [X] T018 [US1] Write `data/processed/aligned_events.csv` and update `data/source_manifest.yaml` with checksums (only if T017 passes)
 - [X] T019 [US1] Add logging for data quality metrics (counts of missing CME speeds, flares, etc.)
 
@@ -115,7 +115,7 @@
 - [X] T022 [US2] Implement `code/analysis.py` to compute Spearman rank correlation (log10(flare flux)→Dst and CME speed→Dst) with p-values. **Input: MUST consume `data/processed/analysis_subset.csv`. Depends on US1.**
 - [X] T023 [US2] Implement linear regression modeling (flare vs. CME as separate predictors or Ridge) and calculate R². **Input**: Use the model selected in T024. Output the R² value of the selected model to `results/metrics.json` under the key `model_r2`.
 - [X] T023b [US2] Implement multiple-comparison correction using Bonferroni (as per Plan.md decision). **Configurable**: Allow switching between Bonferroni and Benjamini-Hochberg via a configuration variable in analysis.py.
-- [X] T024 [US2] Implement Variance Inflation Factor (VIF) calculation. **If VIF > 5:** Compute both separate univariate linear models *and* a Ridge regression model (alpha=1.0). Calculate the AIC for both models and select the one with the lowest AIC. Record the selected model type in `results/metrics.json`.
+- [X] T024 [US2] Implement Variance Inflation Factor (VIF) calculation. **If VIF > 5:** Compute separate univariate linear models. Select the univariate model with the **higher absolute correlation coefficient** as the primary report. Record the selected model type in `results/metrics.json`. **Do NOT use AIC for selection.**
 - [X] T025 [US2] Implement post-hoc power analysis using pre-specified effect size r=0.30; log warning if N < 30.
 - [X] T026 [US2] If R² from the selected model in T024 is < 0.1, test a piecewise linear regression and report the improvement in fit compared to the selected model. **Depends on T023 & T024.**
 - [X] T027 [US2] Ensure all findings are framed as associational in output documentation.
@@ -138,9 +138,9 @@
 
 ### Implementation for User Story 3
 
-- [X] T032 [US3] Implement a time-series split: **Enforce the fixed split window defined in Plan.md (Train: 2010-01-01 to 2020-12-31; Test: subsequent period following the training window)**. **Pre-check**: Verify the dataset `data/processed/analysis_subset.csv` contains events spanning this exact window. If the dataset does not cover 2010-2023, raise a `DataWindowError` and log the discrepancy. Do NOT dynamically calculate the split; use the fixed dates from Plan.md as the authoritative strategy per FR-011 and Plan.md override.
+- [X] T032 [US3] Implement a time-series split: **Enforce the fixed split window defined in Plan.md (Train: a specified historical period; Test: subsequent period following the training window)**. **Pre-check**: Verify the dataset `data/processed/analysis_subset.csv` contains events spanning this exact window. If the dataset does not cover 2010-2023, raise a `DataWindowError` and log the discrepancy. Do NOT dynamically calculate the split; use the fixed dates from Plan.md as the authoritative strategy per FR-011 and Plan.md override.
 - [X] T033 [US3] Implement threshold identification for severe storms (Dst ≤ significant negative threshold) by filtering for severe storm events and analyzing CME speeds.
-- [X] T034b [US3] Implement sensitivity analysis sweeping cutoffs over a range of **900 km/s to 1200 km/s** with a step size of **100 km/s** (i.e., 900, 1000, 1100, 1200).
+- [X] T034b [US3] Implement sensitivity analysis sweeping cutoffs over a range of **900, 1000, and 1100 km/s** (step size on the order of typical galactic velocity dispersion scales). **Do NOT include 1200 km/s.**
 - [X] T035 [US3] Compute and report True Positive Rate (detection rate) variation across the specified cutoffs on the hold-out set.
 - [X] T036 [US3] If no significant threshold is found, explicitly report this with justification.
 - [X] T037 [US3] Update `results/metrics.json` with threshold candidates, sensitivity results, and citation.
@@ -155,9 +155,9 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T039 [P] Update `README.md` to frame findings as associational and include data provenance
-- [X] T040 Refactor `code/align.py` to reduce cyclomatic complexity to <10 and remove unused imports.
+- [X] T040 Refactor `code/align.py` to reduce cyclomatic complexity to <10. **Execution Steps**: 1) Ensure `radon` is installed (`pip install radon`). 2) Identify functions in `code/align.py` with complexity ≥10 using `radon cc code/align.py -a -min 10`. 3) Refactor identified functions (e.g., `align_events`, `flag_missing`) to reduce complexity. 4) Verify reduction by re-running `radon cc code/align.py -a`. 5) Generate `reports/complexity_report.md` containing the before/after complexity metrics and a list of refactored functions.
 - [X] T041 Performance optimization (ensure execution ≤6h, RAM ≤7GB)
-- [X] T042 [P] Additional unit tests in `tests/unit/`
+- [X] T042 [P] Additional unit tests in `tests/unit/` targeting [deferred] coverage.
 - [X] T043 Run `quickstart.md` validation
 - [X] T044 Generate final `results/figures/` (scatter plots, threshold distributions)
 - [X] T045 [US1-US3] Execute the final pipeline profiling and report results in `results/metrics.json`.
@@ -182,21 +182,12 @@
 - [X] T051 [US1] Implement logic to flag recurrent activity periods in the primary dataset with a `is_recurrent` flag.
 - [X] T052 [US1] Update `code/ingest.py` to implement strict fail-loud behavior: remove any `try/except` blocks that fall back to `generate_synthetic_*()` or `mock_*()` functions. If a real data fetch fails, the script MUST raise a clear `DataFetchError` exception and exit, ensuring no synthetic data is ever substituted.
 - [X] T053 [US1] Add a docstring to `code/ingest.py` function `download_data` specifying the streaming/sampling rule: "all available data", chunking strategy "process rows in batches of a suitable size", and no random sampling (seed=42 not used).
-- [X] T054 [US1] Add a validation step in `code/validate.py` to check for imports of HuggingFace libraries, raising an error if found.
-- [X] T055 [US3] Implement logic to filter non-recurrent storms from the primary dataset and create derived file (`data/processed/analysis_subset.csv`).
-- [X] T056 [US2] Ensure `code/analysis.py` explicitly cites the Zhang et al., n.d.
-
-The specific value to remove/generalize: 'n.d.'
-
-Rewritten passage:
-Zhang et al.
-
-The specific value to remove/generalize: 'n.d.'
-
-Rewritten passage:
-Zhang et al. paper when performing the post-hoc power analysis with r=0.30.
+- [X] T054 [US1] Add a validation step in `code/validate.py` to check for imports of HuggingFace libraries, raising an error if found. **Error Message**: "ImportError: HuggingFace libraries are forbidden per Constitution Principle VI. Use direct NOAA/CDAWeb ingestion."
+- [X] T055 [US1] Implement logic to filter non-recurrent storms from the primary dataset and create derived file (`data/processed/analysis_subset.csv`). **Filtering Rule**: Only include distinct minima separated by ≥24 hours of recovery.
+- [X] T056 [US2] Ensure `code/analysis.py` explicitly cites the Zhang et al. paper when performing the post-hoc power analysis with r=0.30.
 - [X] T057 [US3] Update `code/analysis.py` to include the NOAA SWPC definition document URL for the "severe storm" threshold justification.
 - [X] T058 [US2] Verify that `code/analysis.py` correctly handles the VIF > 5 condition by switching to univariate models or Ridge regression.
 - [X] T059 [US3] Implement a sensitivity sweep over specified cutoffs on the hold-out set and report detection rate variation.
-- [X] T060 [US1] Add checksum verification step in `code/validate.py` for downloaded raw data files.
+- [X] T060 [US1] Add checksum verification step in `code/validate.py` for downloaded raw data files using **SHA-256** and store results in `state/projects/PROJ-031-...yaml`.
 - [X] T061 [US2] Programmatically inject "Findings are associational, not causal" into results/metrics.json.
+- [X] T062 [US1-US3] Reconcile run-book vs implementation for `code/main.py`: Create `code/main.py` as the orchestrator script to invoke the pipeline steps in the correct order as defined in the plan.

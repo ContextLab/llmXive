@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-031-exploring-the-correlation-between-solar-",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/align.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nstration.\"\"\"     # Load dummy data (replace with actual loa\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 1 command(s) failed: python code/validate.py data/processed/aligned_events.csv contracts/aligned_event.schema.yaml (rc=1); 4 declared deliverable(s) absent: data/processed/aligned_events.csv; data/processed/analysis_subset.csv; data/raw/dst_indices.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-031-exploring-the-correlation-between-solar-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-031-exploring-the-correlation-between-solar-/code/main.py': [Errno 2] No such file or directory",
+    "python code/validate.py data/processed/aligned_events.csv contracts/aligned_event.schema.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-031-exploring-the-correlation-between-solar-/code/validate.py\", line 14, in <module>\n    logging.FileHandler('logs/validate.log', mode='a')\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-24T13:24:41Z"
+}

@@ -324,3 +324,1270 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T04:09:23Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: GOES X-ray flare lists cover 10 years of historical data from NOAA SWPC
+    FTP
+  claim_id: c_143e6f5c
+  context: "Implement code/ingest.py to download GOES X-ray flare lists from NOAA\
+    \ SWPC FTP covering \u226510 years of historical data (See US-1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Download GOES X-ray flare lists from NOAA SWPC FTP covering \u226510\
+    \ years of historical data."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:26:25Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps cutoffs 900 to 1200 km/s with 100 km/s step
+  claim_id: c_3d94503c
+  context: Implement sensitivity analysis sweeping cutoffs over a range of 900 km/s
+    to 1200 km/s with a step size of 100 km/s (i.e., 900, 1000, 1100, 1200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps cutoffs over a range of 900 km/s to 1200 km/s
+    with a step size of 100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:26:44Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Warning logged if N < 30 for post-hoc power analysis
+  claim_id: c_30f2a5a3
+  context: Implement post-hoc power analysis using pre-specified effect size r=0.30;
+    log warning if N < 30.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_N_%3C_30_for_post-hoc_power_analysis
+  kind: magnitude
+  raw_text: A warning is logged if the sample size N is less than 30 during post-hoc
+    power analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:27:30Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: If VIF > 5 compute univariate and Ridge regression models
+  claim_id: c_71a09597
+  context: 'If VIF > 5: Compute both separate univariate linear models and a Ridge
+    regression model (alpha=1.0).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/If_VIF_%3E_5_compute_univariate_and_Ridge_regression_models
+  kind: magnitude
+  raw_text: If Variance Inflation Factor (VIF) is greater than 5, both separate univariate
+    linear models and a Ridge regression model are computed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:27:50Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Ridge regression alpha=1.0
+  claim_id: c_2a4cb5da
+  context: Compute both separate univariate linear models and a Ridge regression model
+    (alpha=1.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ridge regression model uses an alpha value of 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:28:21Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: "If R\xB2 < 0.1 test piecewise linear regression"
+  claim_id: c_b6702fc0
+  context: "If R\xB2 from the selected model in T024 is < 0.1, test a piecewise linear\
+    \ regression and report the improvement in fit compared to the selected model."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "If R\xB2 from the selected model is less than 0.1, a piecewise linear\
+    \ regression is tested."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T13:28:21Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split training window 2010-01-01 to 2020-12-31
+  claim_id: c_20ee6b51
+  context: 'Enforce the fixed split window defined in Plan.md (Train: 2010-01-01 to
+    2020-12-31; Test: subsequent period following the training window).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The time-series split is fixed with a training window from 2010-01-01
+    to 2020-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:28:34Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time target 6 hours
+  claim_id: c_e6f965ef
+  context: "Implement `code/profiler.py` logic for an early profiling run on a limited\
+    \ subset (first rows) of the data to verify FR-010 feasibility (RAM \u22647 GB,\
+    \ Time \u22646 h) before full implementation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline execution time target is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:28:49Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: RAM usage target 7 GB
+  claim_id: c_ee640257
+  context: "Implement `code/profiler.py` logic for an early profiling run on a limited\
+    \ subset (first rows) of the data to verify FR-010 feasibility (RAM \u22647 GB,\
+    \ Time \u22646 h) before full implementation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RAM usage target for the pipeline is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:29:09Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Solar events matched to storms within 3-day window
+  claim_id: c_906df698
+  context: "Download solar eruption data (GOES, LASCO) and geomagnetic indices (Dst,\
+    \ Kp), align them within a \u22643-day window, and produce a unified dataset with\
+    \ missing data flags (no exclusion)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Solar events are matched to geomagnetic storms within a 3-day window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:29:27Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Solar flare data covers 10 years
+  claim_id: c_6816f85a
+  context: "T011 [US1] Implement code/ingest.py to download GOES X-ray flare lists\
+    \ from NOAA SWPC FTP covering \u226510 years of historical data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline covers \u226510 years of historical data."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:34:17Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Solar events matched within 3 days
+  claim_id: c_a78d5e83
+  context: "T014 [US1] Implement code/align.py to identify Dst minima (storms) independently,\
+    \ then match preceding solar events within \u22643-day window."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Solar events are matched within a \u22643-day window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:34:18Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Warning logged if sample size less than 30
+  claim_id: c_5ce42f02
+  context: T025 [US2] Implement post-hoc power analysis using pre-specified effect
+    size r=0.30; log warning if N < 30.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_sample_size_less_than_30
+  kind: magnitude
+  raw_text: A warning is logged if the sample size N is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:35:27Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis range 900 to 1200 km/s
+  claim_id: c_897955f7
+  context: T034b [US3] Implement sensitivity analysis sweeping cutoffs over a range
+    of 900 km/s to 1200 km/s with a step size of 100 km/s.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps cutoffs over a range of 900 km/s to 1200
+    km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:35:48Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis step size 100 km/s
+  claim_id: c_53690cf5
+  context: T034b [US3] Implement sensitivity analysis sweeping cutoffs over a range
+    of 900 km/s to 1200 km/s with a step size of 100 km/s.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis uses a step size of 100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:36:10Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Training window 2010-01-01 to 2020-12-31
+  claim_id: c_0b613252
+  context: 'T032 [US3] Implement a time-series split: Enforce the fixed split window
+    defined in Plan.md (Train: 2010-01-01 to 2020-12-31; Test: subsequent period following
+    the training window).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed time-series split uses a training window from 2010-01-01 to
+    2020-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:36:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Execution time target 6 hours
+  claim_id: c_eb21e8f4
+  context: "T006c [P] [Foundational] ... verify FR-010 feasibility (RAM \u22647 GB,\
+    \ Time \u22646 h) before full implementation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The execution target is \u22646 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:36:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: RAM target 7 GB
+  claim_id: c_3dad0044
+  context: "T006c [P] [Foundational] ... verify FR-010 feasibility (RAM \u22647 GB,\
+    \ Time \u22646 h) before full implementation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The RAM target is \u22647 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:36:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: VIF threshold 5
+  claim_id: c_fa23b6ba
+  context: 'T024 [US2] Implement Variance Inflation Factor (VIF) calculation. If VIF
+    > 5: Compute both separate univariate linear models and a Ridge regression model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF threshold for switching models is > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:36:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Ridge regression alpha 1.0
+  claim_id: c_12b69816
+  context: T024 [US2] ... Compute both separate univariate linear models and a Ridge
+    regression model (alpha=1.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Ridge regression model uses an alpha of 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:36:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: R squared threshold 0.1
+  claim_id: c_57d415af
+  context: "T026 [US2] If R\xB2 from the selected model in T024 is < 0.1, test a piecewise\
+    \ linear regression and report the improvement in fit compared to the selected\
+    \ model."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The R\xB2 threshold for testing piecewise linear regression is < 0.1."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T13:36:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Analysis cites Zhang et al
+  claim_id: c_abfbe4a7
+  context: T056 [US2] Ensure code/analysis.py explicitly cites the Zhang et al. paper
+    when performing the post-hoc power analysis with r=0.30.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_cites_Zhang_et_al
+  kind: entity_fact
+  raw_text: The analysis cites Zhang et al.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:38:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Severe storm threshold cites NOAA SWPC definition
+  claim_id: c_c1599066
+  context: T057 [US3] Update code/analysis.py to include the NOAA SWPC definition
+    document URL for the 'severe storm' threshold justification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Severe_storm_threshold_cites_NOAA_SWPC_definition
+  kind: entity_fact
+  raw_text: The severe storm threshold justification references the NOAA SWPC definition
+    document.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:39:12Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: GOES X-ray flare lists downloaded covering at least 10 years of historical
+    data
+  claim_id: c_71096ad6
+  context: "Implement code/ingest.py to download GOES X-ray flare lists from NOAA\
+    \ SWPC FTP covering \u226510 years of historical data (See US-1)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GOES_X-ray_flare_lists_downloaded_covering_at_least_10_years
+  kind: magnitude
+  raw_text: "The pipeline downloads GOES X-ray flare lists from NOAA SWPC FTP covering\
+    \ \u226510 years of historical data."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:40:56Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Solar events matched to geomagnetic storms within a 3-day window
+  claim_id: c_ec2183cc
+  context: "Implement code/align.py to identify Dst minima (storms) independently,\
+    \ then match preceding solar events within \u22643-day window"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Events are matched within a \u22643-day window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:40:57Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Warning logged if sample size N is less than 30
+  claim_id: c_e8bf0155
+  context: Implement post-hoc power analysis using pre-specified effect size r=0.30;
+    log warning if N < 30.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_sample_size_N_is_less_than_30
+  kind: magnitude
+  raw_text: A warning is logged if the sample size N is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:40:59Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split training window from 2010-01-01 to 2020-12-31
+  claim_id: c_ae3c6c70
+  context: 'Enforce the fixed split window defined in Plan.md (Train: 2010-01-01 to
+    2020-12-31; Test: subsequent period following the training window).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The time-series split uses a training window from 2010-01-01 to 2020-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:41:15Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps cutoffs from 900 km/s to 1200 km/s
+  claim_id: c_b63a24cb
+  context: Implement sensitivity analysis sweeping cutoffs over a range of 900 km/s
+    to 1200 km/s with a step size of 100 km/s (i.e., 900, 1000, 1100, 1200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps cutoffs over a range of 900 km/s to 1200
+    km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:41:15Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses step size of 100 km/s
+  claim_id: c_761c96aa
+  context: Implement sensitivity analysis sweeping cutoffs over a range of 900 km/s
+    to 1200 km/s with a step size of 100 km/s (i.e., 900, 1000, 1100, 1200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis uses a step size of 100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:41:15Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Final pipeline execution target is 6 hours or less
+  claim_id: c_8bfe1891
+  context: "Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final pipeline execution target is 6 hours or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:41:50Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Final pipeline execution target RAM is 7 GB or less
+  claim_id: c_ec5f4d43
+  context: "Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final pipeline execution target RAM is 7 GB or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:42:07Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: GOES X-ray flare lists downloaded covering 10 years
+  claim_id: c_d9761c6c
+  context: "T011 [US1] Implement code/ingest.py to download GOES X-ray flare lists\
+    \ from NOAA SWPC FTP (ftp://ftp.swpc.noaa.gov/pub/lists/) covering \u226510 years\
+    \ of historical data (See US-1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline downloads GOES X-ray flare lists from NOAA SWPC FTP covering\
+    \ \u226510 years of historical data."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:47:54Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Solar events matched to Dst minima within 3 day window
+  claim_id: c_b39bee7e
+  context: "T014 [US1] Implement code/align.py to identify Dst minima (storms) independently,\
+    \ then match preceding solar events within \u22643-day window"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Solar events are matched to Dst minima within a \u22643-day window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:47:55Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Warning logged if sample size N < 30
+  claim_id: c_37d4353b
+  context: T025 [US2] Implement post-hoc power analysis using pre-specified effect
+    size r=0.30; log warning if N < 30.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_sample_size_N_%3C_30
+  kind: magnitude
+  raw_text: A warning is logged if the sample size N is less than 30 for power analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:48:51Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps cutoffs 900 to 1200 km/s step 100 km/s
+  claim_id: c_16ec51d9
+  context: T034b [US3] Implement sensitivity analysis sweeping cutoffs over a range
+    of 900 km/s to 1200 km/s with a step size of 100 km/s (i.e., 900, 1000, 1100,
+    1200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A sensitivity analysis sweeps CME speed cutoffs from 900 km/s to 1200
+    km/s with a step size of 100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:49:26Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split training window 2010-01-01 to 2020-12-31
+  claim_id: c_e9970bb5
+  context: 'T032 [US3] Implement a time-series split: Enforce the fixed split window
+    defined in Plan.md (Train: 2010-01-01 to 2020-12-31; Test: subsequent period following
+    the training window).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The time-series split uses a training window from 2010-01-01 to 2020-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:49:26Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split test window 2021 to 2023
+  claim_id: c_4e25f2cf
+  context: T050 [US3] Update code/analysis.py to enforce the fixed time-series split
+    (-2020 / 2021-2023).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test window for the time-series split covers the period from 2021
+    to 2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:49:45Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Final pipeline profiling targets execution time <= 6 hours
+  claim_id: c_779b6b27
+  context: "T041 Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The final pipeline profiling targets an execution time of \u22646 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:49:46Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Final pipeline profiling targets peak RAM <= 7 GB
+  claim_id: c_51920b13
+  context: "T041 Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The final pipeline profiling targets a peak RAM usage of \u22647 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:49:46Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Early profiling run verifies RAM <= 7 GB and Time <= 6 h
+  claim_id: c_4aabbd67
+  context: "T006c [P] [Foundational] Depends on T006b. Implement code/profiler.py\
+    \ logic for an early profiling run on a limited subset (first rows) of the data\
+    \ to verify FR-010 feasibility (RAM \u22647 GB, Time \u22646 h) before full implementation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "An early profiling run verifies feasibility with RAM \u22647 GB and Time\
+    \ \u22646 h."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:49:46Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps CME speed cutoffs from 900 km/s to 1200 km/s
+    in 100 km/s steps
+  claim_id: c_766563e4
+  context: T034b [US3] Implement sensitivity analysis sweeping cutoffs over a range
+    of 900 km/s to 1200 km/s with a step size of 100 km/s (i.e., 900, 1000, 1100,
+    1200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps cutoffs over a range of 900 km/s to 1200
+    km/s with a step size of 100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:51:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: post-hoc power analysis warns if sample size N < 30
+  claim_id: c_d9e292c5
+  context: T025 [US2] Implement post-hoc power analysis using pre-specified effect
+    size r=0.30; log warning if N < 30.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/post-hoc_power_analysis_warns_if_sample_size_N_%3C_30
+  kind: magnitude
+  raw_text: A warning is logged if the sample size N is less than 30 during the post-hoc
+    power analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:51:34Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: VIF > 5 triggers univariate and Ridge regression (alpha=1.0) comparison
+  claim_id: c_09741cbb
+  context: 'T024 [US2] Implement Variance Inflation Factor (VIF) calculation. If VIF
+    > 5: Compute both separate univariate linear models and a Ridge regression model
+    (alpha=1.0).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_%3E_5_triggers_univariate_and_Ridge_regression_(alpha=1.0)
+  kind: magnitude
+  raw_text: If the Variance Inflation Factor (VIF) is greater than 5, the system computes
+    both separate univariate linear models and a Ridge regression model with alpha=1.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:52:00Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Ridge regression alpha parameter set to 1.0
+  claim_id: c_5d9bdd53
+  context: T024 [US2] ...Compute both separate univariate linear models and a Ridge
+    regression model (alpha=1.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Ridge regression model used for comparison when VIF > 5 uses an alpha
+    value of 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:52:00Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: "piecewise linear regression tested if model R\xB2 < 0.1"
+  claim_id: c_3679f531
+  context: "T026 [US2] If R\xB2 from the selected model in T024 is < 0.1, test a piecewise\
+    \ linear regression and report the improvement in fit compared to the selected\
+    \ model."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "If the R\xB2 from the selected model is less than 0.1, the system tests\
+    \ a piecewise linear regression."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T13:52:00Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: project targets 6 hour execution and 7 GB RAM usage
+  claim_id: c_9d299681
+  context: "T006c [P] ...verify FR-010 feasibility (RAM \u22647 GB, Time \u22646 h)\
+    \ before full implementation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets an execution time of 6 hours and a RAM usage of 7
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:52:28Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: project targets 7 GB RAM limit
+  claim_id: c_63a85302
+  context: "T041 Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets a RAM usage limit of 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:52:57Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: project targets 6 hour execution limit
+  claim_id: c_0333dfe0
+  context: "T041 Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets an execution time of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:53:20Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: data ingestion covers 10 years of historical data
+  claim_id: c_9e04c91c
+  context: "T011 [US1] Implement code/ingest.py to download GOES X-ray flare lists\
+    \ from NOAA SWPC FTP ... covering \u226510 years of historical data"
+  evidence:
+    entailment_evidence: Data ingestion covers 10 years of historical data
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_covers_10_years_of_historical_data
+  kind: magnitude
+  raw_text: The data ingestion process covers at least 10 years of historical data.
+  resolved_value: data ingestion covers 10 years of historical data
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T13:53:22Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: solar events matched to storms within 3 day window
+  claim_id: c_ac2c7be4
+  context: "T014 [US1] Implement code/align.py to identify Dst minima (storms) independently,\
+    \ then match preceding solar events within \u22643-day window"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Solar events are matched to geomagnetic storms within a 3-day window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:53:23Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: time-series split train window 2010-01-01 to 2020-12-31
+  claim_id: c_baa04626
+  context: 'T032 [US3] Implement a time-series split: Enforce the fixed split window
+    defined in Plan.md (Train: 2010-01-01 to 2020-12-31; Test: subsequent period following
+    the training window).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The time-series split uses a training window from January 1, 2010 to December
+    31, 2020.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:53:39Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: time-series split test window starts 2021
+  claim_id: c_351f3e9d
+  context: T050 [US3] Update code/analysis.py to enforce the fixed time-series split
+    (-2020 / 2021-2023).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The time-series split uses a test window starting after December 31, 2020.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:53:53Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Dataset covers at least 10 years of historical solar and geomagnetic
+    data
+  claim_id: c_097343b4
+  context: "T011 [US1] Implement code/ingest.py to download GOES X-ray flare lists\
+    \ from NOAA SWPC FTP (ftp://ftp.swpc.noaa.gov/pub/lists/) covering \u226510 years\
+    \ of historical data (See US-1)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_covers_at_least_10_years_of_historical_solar_and_geo
+  kind: magnitude
+  raw_text: The dataset must cover at least 10 years of historical data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:55:28Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Solar events matched to Dst minima within a 3-day window
+  claim_id: c_7a2280f6
+  context: "T014 [US1] Implement code/align.py to identify Dst minima (storms) independently,\
+    \ then match preceding solar events within \u22643-day window"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The alignment window for matching preceding solar events to Dst minima
+    is 3 days or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:55:51Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Warning logged if sample size N is less than 30
+  claim_id: c_ef0ca97c
+  context: T025 [US2] Implement post-hoc power analysis using pre-specified effect
+    size r=0.30; log warning if N < 30.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_sample_size_N_is_less_than_30
+  kind: magnitude
+  raw_text: A warning is logged if the sample size N is less than 30 during power
+    analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:56:35Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: VIF threshold for model switching is 5
+  claim_id: c_55577170
+  context: 'T024 [US2] Implement Variance Inflation Factor (VIF) calculation. If VIF
+    > 5: Compute both separate univariate linear models and a Ridge regression model
+    (alpha=1.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) threshold for switching to separate
+    univariate or Ridge regression models is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:57:09Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Ridge regression model uses alpha=1.0
+  claim_id: c_d489a016
+  context: 'T024 [US2] Implement Variance Inflation Factor (VIF) calculation. If VIF
+    > 5: Compute both separate univariate linear models and a Ridge regression model
+    (alpha=1.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A Ridge regression model uses an alpha value of 1.0 when selected due
+    to high VIF.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:57:40Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Piecewise linear regression tested if R-squared is less than 0.1
+  claim_id: c_6f403550
+  context: "T026 [US2] If R\xB2 from the selected model in T024 is < 0.1, test a piecewise\
+    \ linear regression and report the improvement in fit compared to the selected\
+    \ model."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If the R-squared value of the selected model is less than 0.1, a piecewise
+    linear regression is tested.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T13:57:40Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Training data time-series split window is 2010-01-01 to 2020-12-31
+  claim_id: c_cfc45b02
+  context: 'T032 [US3] Implement a time-series split: Enforce the fixed split window
+    defined in Plan.md (Train: 2010-01-01 to 2020-12-31; Test: subsequent period following
+    the training window).'
+  evidence:
+    entailment_evidence: Training data time-series split window is 2010-01-01 to 2020
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Training_data_time-series_split_window_is_2010-01-01_to_2020
+  kind: entity_fact
+  raw_text: The time-series split for training data is defined as the period from
+    2010-01-01 to 2020-12-31.
+  resolved_value: Training data time-series split window is 2010-01-01 to 2020-12-31
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T13:57:42Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps CME speed cutoffs from 900 km/s to 1200 km/s
+  claim_id: c_40262e8c
+  context: T034b [US3] Implement sensitivity analysis sweeping cutoffs over a range
+    of 900 km/s to 1200 km/s with a step size of 100 km/s (i.e., 900, 1000, 1100,
+    1200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps CME speed cutoffs from 900 km/s to 1200
+    km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:58:31Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis step size for CME speed cutoffs is 100 km/s
+  claim_id: c_94514127
+  context: T034b [US3] Implement sensitivity analysis sweeping cutoffs over a range
+    of 900 km/s to 1200 km/s with a step size of 100 km/s (i.e., 900, 1000, 1100,
+    1200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis uses a step size of 100 km/s for CME speed cutoffs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:59:09Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Final pipeline execution target is 6 hours
+  claim_id: c_8fb18346
+  context: "T041 Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final pipeline execution is targeted to complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T13:59:26Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Final pipeline execution RAM target is 7 GB
+  claim_id: c_71a9c3c7
+  context: "T041 Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    entailment_evidence: Final pipeline execution RAM target is 7 GB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Final_pipeline_execution_RAM_target_is_7_GB
+  kind: magnitude
+  raw_text: The final pipeline execution is targeted to use no more than 7 GB of RAM.
+  resolved_value: Final pipeline execution RAM target is 7 GB
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T13:59:28Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Post-hoc power analysis cites Zhang et al.
+  claim_id: c_af06fb5f
+  context: 'T056 [US2] Ensure code/analysis.py explicitly cites the Zhang et al.,
+    n.d. The specific value to remove/generalize: ''n.d.'' Rewritten passage: Zhang
+    et al. paper when performing the post-hoc power analysis with r=0.30.'
+  evidence:
+    entailment_evidence: Post-hoc power analysis cites Zhang et al.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Post-hoc_power_analysis_cites_Zhang_et_al.
+  kind: entity_fact
+  raw_text: The post-hoc power analysis cites Zhang et al.
+  resolved_value: Post-hoc power analysis cites Zhang et al.
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T13:59:30Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps cutoffs 900-1200 km/s step 100 km/s
+  claim_id: c_bbb56c79
+  context: T034b [US3] Implement sensitivity analysis sweeping cutoffs over a range
+    of 900 km/s to 1200 km/s with a step size of 100 km/s (i.e., 900, 1000, 1100,
+    1200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps cutoffs over a range of 900 km/s to 1200
+    km/s with a step size of 100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:00:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: power analysis warning if N less than 30
+  claim_id: c_a2232026
+  context: T025 [US2] Implement post-hoc power analysis using pre-specified effect
+    size r=0.30; log warning if N < 30.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_warning_if_N_less_than_30
+  kind: magnitude
+  raw_text: A warning is logged if the sample size N is less than 30 for the power
+    analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:00:40Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: time-series split training window 2010-01-01 to 2020-12-31
+  claim_id: c_8e050cfe
+  context: 'T032 [US3] Implement a time-series split: Enforce the fixed split window
+    defined in Plan.md (Train: 2010-01-01 to 2020-12-31; Test: subsequent period following
+    the training window).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The time-series split uses a training window from 2010-01-01 to 2020-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:00:41Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: if VIF greater than 5 compute univariate and Ridge models with alpha
+    1.0
+  claim_id: c_fd52f252
+  context: 'T024 [US2] Implement Variance Inflation Factor (VIF) calculation. If VIF
+    > 5: Compute both separate univariate linear models and a Ridge regression model
+    (alpha=1.0).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/If_VIF_greater_than_5_compute_univariate_and_Ridge_models_wi
+  kind: magnitude
+  raw_text: If VIF is greater than 5, separate univariate linear models and a Ridge
+    regression model (alpha=1.0) are computed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:01:05Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Ridge regression alpha equals 1.0
+  claim_id: c_9ff4c539
+  context: T024 [US2] ... a Ridge regression model (alpha=1.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Ridge regression model uses an alpha value of 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:01:05Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: pipeline execution time less than or equal to 6 hours
+  claim_id: c_195f5182
+  context: "T041 Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: The pipeline targets an execution time of 6 hours or less.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:01:49Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: pipeline peak RAM less than or equal to 7 GB
+  claim_id: c_b9c022d7
+  context: "T041 Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_peak_RAM_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: The pipeline targets a peak RAM usage of 7 GB or less.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:02:38Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: early profiling check RAM 7 GB time 6 hours
+  claim_id: c_386ac5ce
+  context: "T006c [P] [Foundational] ... verify FR-010 feasibility (RAM \u22647 GB,\
+    \ Time \u22646 h) before full implementation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The early profiling run checks for RAM feasibility of 7 GB and time feasibility
+    of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:03:01Z'

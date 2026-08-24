@@ -1,114 +1,115 @@
+"""
+Unit tests for Kp index ingestion functionality.
+"""
 import pytest
-import os
-import csv
+import pandas as pd
 from unittest.mock import patch, MagicMock
+import os
 import sys
 
-# Add code to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from ingest import validate_kp_schema, write_kp_data, fetch_kp_indices_http
+from ingest import fetch_kp_indices_http, write_kp_data, validate_kp_schema, DataFetchError
 
-class TestKpValidation:
-    def test_valid_kp_data(self):
-        data = [
-            {"timestamp": "2023-01-01 00:00:00", "kp": 0.0},
-            {"timestamp": "2023-01-01 03:00:00", "kp": 5.3},
-            {"timestamp": "2023-01-01 06:00:00", "kp": 9.0}
-        ]
-        is_valid, errors = validate_kp_schema(data)
-        assert is_valid is True
-        assert len(errors) == 0
+class TestKpIngestion:
+    """Tests for Kp index ingestion."""
 
-    def test_invalid_kp_range(self):
-        data = [
-            {"timestamp": "2023-01-01 00:00:00", "kp": 9.5},
-            {"timestamp": "2023-01-01 03:00:00", "kp": -1.0}
-        ]
-        is_valid, errors = validate_kp_schema(data)
-        assert is_valid is False
-        assert len(errors) == 2
+    def test_validate_kp_schema_valid(self):
+        """Test validation passes for valid schema."""
+        df = pd.DataFrame({
+            'time': pd.to_datetime(['2023-01-01 00:00:00', '2023-01-01 03:00:00']),
+            'kp': [2.0, 3.0]
+        })
+        # Should not raise
+        validate_kp_schema(df)
 
-    def test_missing_keys(self):
-        data = [
-            {"timestamp": "2023-01-01 00:00:00"},
-            {"kp": 5.0}
-        ]
-        is_valid, errors = validate_kp_schema(data)
-        assert is_valid is False
-        assert len(errors) == 2
+    def test_validate_kp_schema_missing_column(self):
+        """Test validation fails for missing column."""
+        df = pd.DataFrame({
+            'time': pd.to_datetime(['2023-01-01 00:00:00']),
+            'value': [2.0]
+        })
+        with pytest.raises(ValueError, match="missing required columns"):
+            validate_kp_schema(df)
 
-    def test_invalid_kp_type(self):
-        data = [
-            {"timestamp": "2023-01-01 00:00:00", "kp": "high"}
-        ]
-        is_valid, errors = validate_kp_schema(data)
-        assert is_valid is False
-        assert len(errors) == 1
+    def test_validate_kp_schema_empty(self):
+        """Test validation fails for empty dataframe."""
+        df = pd.DataFrame({'time': pd.to_datetime([]), 'kp': []})
+        with pytest.raises(ValueError, match="Kp data is empty"):
+            validate_kp_schema(df)
 
-class TestKpWrite:
-    def test_write_kp_data(self, tmp_path):
-        # Mock the output path to use tmp_path for testing
-        import ingest
-        original_path = "data/raw/kp_indices.csv"
-        test_path = str(tmp_path / "kp_indices.csv")
-        
-        # Patch the write function to use temp path
-        # We can't easily patch the internal string constant, so we test the logic
-        # by calling the function with a mock or verifying the file content manually
-        # For this unit test, we verify the CSV writing logic by calling write_kp_data
-        # and checking if the file exists and has correct headers.
-        
-        # Since write_kp_data writes to a hardcoded path, we will mock the open function
-        # or simply assert that the function runs without error on valid data.
-        # A better approach for this specific function is to test the CSV generation logic.
-        
-        data = [
-            {"timestamp": "2023-01-01 00:00:00", "kp": 0.0},
-            {"timestamp": "2023-01-01 03:00:00", "kp": 2.7}
-        ]
-        
-        # We will write to a temporary file to verify content
-        test_file = str(tmp_path / "kp_test.csv")
-        with open(test_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["timestamp", "kp"])
-            writer.writeheader()
-            writer.writerows(data)
-        
-        with open(test_file, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
-        assert len(rows) == 2
-        assert rows[0]['kp'] == '0.0'
-        assert rows[1]['kp'] == '2.7'
-
-class TestKpFetch:
     @patch('ingest.requests.get')
-    def test_fetch_kp_success(self, mock_get):
+    def test_fetch_kp_indices_http_success(self, mock_get):
+        """Test successful fetch of Kp indices."""
+        # Mock HTML response
+        mock_html = """
+        <html>
+        <body>
+        <table>
+            <tr><th>Date</th><th>00Z</th><th>03Z</th><th>06Z</th><th>09Z</th><th>12Z</th><th>15Z</th><th>18Z</th><th>21Z</th></tr>
+            <tr><td>2023-01-01</td><td>2</td><td>2+</td><td>3</td><td>3-</td><td>3+</td><td>4</td><td>4-</td><td>4+</td></tr>
+            <tr><td>2023-01-02</td><td>5</td><td>5+</td><td>6</td><td>6-</td><td>6+</td><td>7</td><td>7-</td><td>7+</td></tr>
+        </table>
+        </body>
+        </html>
+        """
         mock_response = MagicMock()
-        mock_response.text = "Year,Month,Day,Hour,Kp,Ap\n2023,1,1,0,1.0,1.0\n2023,1,1,3,2.0,2.0"
+        mock_response.text = mock_html
         mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
 
-        data = fetch_kp_indices_http()
-        # Note: The parser logic in fetch_kp_indices_http expects a specific format.
-        # The mock above might not match the parser's split logic perfectly if it expects 'Date,Time,Kp'
-        # Let's adjust the mock to match the expected format in the code:
-        # "Date, Time, Kp" or similar.
-        # The code does: parts = line.split(',')
-        # And expects: Date, Time, Kp
+        df = fetch_kp_indices_http()
         
-        mock_response.text = "2023-01-01,00,1.0,1.0\n2023-01-01,03,2.0,2.0"
-        mock_get.return_value = mock_response
-        
-        data = fetch_kp_indices_http()
-        assert len(data) == 2
-        assert data[0]['kp'] == 1.0
-        assert "2023-01-01 00:00:00" in data[0]['timestamp']
+        assert not df.empty
+        assert 'time' in df.columns
+        assert 'kp' in df.columns
+        assert len(df) == 16  # 2 days * 8 hours
+        assert pd.api.types.is_datetime64_any_dtype(df['time'])
 
     @patch('ingest.requests.get')
-    def test_fetch_kp_failure(self, mock_get):
-        mock_get.side_effect = Exception("Network error")
-        data = fetch_kp_indices_http()
-        assert data == []
+    def test_fetch_kp_indices_http_no_table(self, mock_get):
+        """Test fetch fails when no table found."""
+        mock_html = "<html><body>No table here</body></html>"
+        mock_response = MagicMock()
+        mock_response.text = mock_html
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+
+        with pytest.raises(DataFetchError, match="No tables found"):
+            fetch_kp_indices_http()
+
+    @patch('ingest.requests.get')
+    def test_fetch_kp_indices_http_no_rows(self, mock_get):
+        """Test fetch fails when no data rows found."""
+        mock_html = """
+        <html>
+        <body>
+        <table>
+            <tr><th>Date</th><th>00Z</th></tr>
+        </table>
+        </body>
+        </html>
+        """
+        mock_response = MagicMock()
+        mock_response.text = mock_html
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+
+        with pytest.raises(DataFetchError, match="No Kp data rows"):
+            fetch_kp_indices_http()
+
+    def test_write_kp_data(self, tmp_path):
+        """Test writing Kp data to CSV."""
+        df = pd.DataFrame({
+            'time': pd.to_datetime(['2023-01-01 00:00:00', '2023-01-01 03:00:00']),
+            'kp': [2.0, 3.0]
+        })
+        output_path = str(tmp_path / "kp_test.csv")
+        write_kp_data(df, output_path)
+        
+        assert os.path.exists(output_path)
+        loaded_df = pd.read_csv(output_path)
+        assert len(loaded_df) == 2
+        assert 'time' in loaded_df.columns
+        assert 'kp' in loaded_df.columns

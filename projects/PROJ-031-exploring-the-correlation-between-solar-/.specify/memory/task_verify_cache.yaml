@@ -1,19 +1,10 @@
-T013:
-  c: false
-  h: 7d9ccf374aa973994f584f2224fb45212cd946dbcabac8d6ef5972cc826df1b0
-  r: "The `code/ingest.py` file contains placeholder functions (`fetch_dst_indices`\
-    \ returns an empty list and `write_dst_data` does nothing) and does not implement\
-    \ any logic to download Dst indices or write them to a CSV. Moreover, the required\
-    \ output file `data/raw/dst_indices.csv` is absent. The task\u2019s core requirement\u2014\
-    downloading Dst data and saving it to the specified CSV\u2014is therefore not\
-    \ satisfied."
 T017:
   c: false
-  h: 7d6a797ebe2192b79a300201d2c4b25514aac3de2e3756dbe63a9f8f1d4fcdff
-  r: "The required file `data/processed/aligned_events.csv` does not exist, and the\
-    \ `data/source_manifest.yaml` still shows the aligned_events entry with status\
-    \ \u201CPending\u201D and no checksum values. Both the CSV output and the manifest\
-    \ updates are missing."
+  h: 006d26f1325ba3f913ce5e0304a3179aea7923d3f8de95aa7cb41f83ddcda5a6
+  r: The `code/validate.py` file is only partially shown (truncated) and does not
+    contain a complete blocking validation routine, and the required schema file `contracts/aligned_event.schema.yaml`
+    is absent from the repository, so the validation gate cannot actually be executed.
+    The task therefore remains unfinished.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
