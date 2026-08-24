@@ -1,0 +1,46 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the `code/`, `tests/`, `data/`, and `results/`
+    directories actually exist in the repository root; without visible directory listings
+    or files, the requirement cannot be confirmed as satisfied. The implementer must
+    add these directories (even if empty) to the project structure.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that `tests/unit/`,
+    `tests/integration/`, and `tests/contract/` exist in the repository. Without concrete
+    proof of these folders being created, the task requirement is not satisfied. The
+    implementer must add the three test directories (and optionally placeholder test
+    files) and present evidence (e.g., a directory tree or file list).
+T003:
+  c: true
+  h: 797725104da221a10b35f271c494f31f9ef119acc72702c233cc7c826e394780
+  r: "The file `code/.pre-commit-config.yaml` exists, is non\u2011empty, and correctly\
+    \ configures both ruff (linting) and black (formatting) as required. The missing\
+    \ `pre-commit-config.yaml` at the repository root is irrelevant to this task."
+T013:
+  c: false
+  h: 0b3b8c286521b065a6ca5aa0e0ac2ed242a10918b38c6efe380bb7189bf4c665
+  r: "The required source file `code/entropy/generator.py` is missing, so there is\
+    \ no implementation of the token\u2011reweighting/resampling algorithm, no convergence\
+    \ logic, and no `ConvergenceError` handling to satisfy the unit\u2011test requirement.\
+    \ While the CSV and JSON outputs exist, without the generator module the task\
+    \ is not genuinely completed."
+T014:
+  c: false
+  h: d7e163c8e2a637c35d833a01465d76a8af10f30808f4fc2f5fff3dd64f5d05a5
+  r: "The `validity_flags.csv` file is absent, and the provided `validator.py` expects\
+    \ an `action_chain` column that does not exist in the supplied `variants.csv`\
+    \ (which has `generated_chain` instead). Moreover, the script is truncated before\
+    \ any logic that reads the CSV, validates rows, and writes the required output,\
+    \ so the task\u2019s output artifact is not produced."
+T015:
+  c: false
+  h: 8d12576a5775801ef127bfdbdb446ed37ad0070ff4eaa6dbe04eb1c1c4c4615b
+  r: The repository contains `code/entropy/scorer.py`, but the provided excerpt ends
+    before any logic that computes a combined complexity score or writes the required
+    `data/processed/complexity_scores.csv`. Moreover, the CSV file does not exist
+    at all, so the primary output artifact is missing. The implementer must add the
+    missing functionality (depth calculation, score aggregation, CSV generation) and
+    produce the specified CSV file.

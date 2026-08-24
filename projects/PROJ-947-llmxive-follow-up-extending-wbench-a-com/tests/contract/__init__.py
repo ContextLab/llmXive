@@ -1,0 +1,1 @@
+# Contract tests for llmXive data schemas and interfaces

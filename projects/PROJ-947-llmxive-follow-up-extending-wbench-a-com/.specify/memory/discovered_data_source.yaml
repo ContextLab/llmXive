@@ -1,0 +1,15 @@
+status: none
+intent: WBench interaction log dataset download pip install python package dataset
+required_fields:
+- case_id
+- variant
+- command_sequence
+- tokenized_sequence
+- shannon_entropy
+- dependency_depth
+- timestamp_sequence
+- user_intent
+- session_id
+cache_key: ba9e50a5e1d7cc740b6228846a2c1cb12ba4b052b34c75be55ddb7312a6baa78
+searched_at: '2026-08-24T22:29:09.481631+00:00'
+retry_count: 1
