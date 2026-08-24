@@ -76,6 +76,40 @@ class LatinSquareCounterbalancer:
             return 0
         return 1
 
+    def generate_balanced_order(self, n_participants: int) -> List[str]:
+        """
+        Generate a balanced sequence of interface presentations for N participants.
+        
+        This method ensures that exactly ceil(N/2) participants start with 
+        "traditional" and floor(N/2) start with "explainable" (or vice versa),
+        maintaining strict balance for the Latin Square design.
+        
+        Args:
+            n_participants: The number of participants in the study.
+            
+        Returns:
+            A list of length n_participants where each element is either
+            "traditional" or "explainable", indicating the first interface
+            each participant will see. The sequence is balanced.
+        """
+        if n_participants <= 0:
+            return []
+        
+        # Calculate the number of each sequence needed
+        half = n_participants // 2
+        remainder = n_participants % 2
+        
+        # Create the balanced list of first interfaces
+        # We ensure exactly half (or half+1 if odd) start with traditional
+        first_interfaces = ["traditional"] * (half + remainder) + ["explainable"] * half
+        
+        # Shuffle deterministically if a seed was set, otherwise just return the list
+        # Since we can't use random.shuffle without a seed in a reproducible way
+        # and the seed might not be set, we'll just return the constructed list
+        # The hash-based assignment in get_sequence will handle the actual distribution
+        # for real participant IDs. This method is for planning/generation.
+        return first_interfaces
+
 def main():
     """Test the counterbalancer."""
     counterbalancer = LatinSquareCounterbalancer()
@@ -95,6 +129,15 @@ def main():
     explainable_first = sum(1 for s in sequences if s[0] == "explainable")
     print("-" * 50)
     print(f"Traditional first: {traditional_first}, Explainable first: {explainable_first}")
+    
+    # Test generate_balanced_order
+    print("\nBalanced Order Generation Test:")
+    print("-" * 50)
+    for n in [1, 2, 3, 4, 5, 10]:
+        order = counterbalancer.generate_balanced_order(n)
+        t_count = order.count("traditional")
+        e_count = order.count("explainable")
+        print(f"N={n}: Traditional={t_count}, Explainable={e_count}, Order={order}")
 
 if __name__ == "__main__":
     main()

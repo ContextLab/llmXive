@@ -170,3 +170,672 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T02:47:14Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if real data is missing
+  claim_id: c_d3e301e4
+  context: 'T012a Create CONTRIBUTING.md with the mandatory ''no synthetic data''
+    clause... Content: Must include the clause: ''No synthetic data is allowed for
+    final research claims. The pipeline must fail loudly if real data is missing.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_real_data_is_missing
+  kind: entity_fact
+  raw_text: The pipeline must fail loudly if real data is missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:19:59Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Sample size N equals 30 per Constitution Principle VI
+  claim_id: c_c5acc8e9
+  context: T006-pre... run_a_priori_power_analysis(effect_size=0.5, alpha=0.05, power=0.80)
+    to justify N=30 per Constitution Principle VI.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 per Constitution Principle VI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:20:52Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Hypothesized effect size Cohen's d equals 0.5
+  claim_id: c_cb8a16fa
+  context: T006-pre... Report exists and explicitly states N=30 is required for pre-study
+    justification... based on hypothesized effect size (Cohen's d=0.5).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen's d=0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:23:01Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Pilot study requires at least 5 sessions
+  claim_id: c_f2eba92c
+  context: T095-gate... Verify data/raw/ contains at least N=5 sessions with status='complete'
+    and source='human_participant'...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pilot_study_requires_at_least_5_sessions
+  kind: magnitude
+  raw_text: N=5 sessions
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:23:35Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Significance level alpha equals 0.05
+  claim_id: c_00f0cb7c
+  context: T006-pre... run_a_priori_power_analysis(effect_size=0.5, alpha=0.05, power=0.80)...
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T17:23:46Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Statistical power equals 0.80
+  claim_id: c_1e826c87
+  context: T006-pre... run_a_priori_power_analysis(effect_size=0.5, alpha=0.05, power=0.80)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power=0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:24:19Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: pipeline fails if real data is missing
+  claim_id: c_a6bde59f
+  context: 'Create CONTRIBUTING.md with the mandatory ''no synthetic data'' clause...
+    Content: Must include the clause: ''No synthetic data is allowed for final research
+    claims. The pipeline must fail loudly if real data is missing.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_real_data_is_missing
+  kind: entity_fact
+  raw_text: The pipeline must fail loudly if real data is missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:25:31Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: N=30 per Constitution Principle VI
+  claim_id: c_477abccd
+  context: Implement code/analysis/power_analysis.py function run_a_priori_power_analysis...
+    to justify N=30 per Constitution Principle VI.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 per Constitution Principle VI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:25:31Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: N=30 required for pre-study justification
+  claim_id: c_f8fa55bd
+  context: 'Verification: Report exists and explicitly states N=30 is required for
+    pre-study justification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 is required for pre-study justification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:26:13Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: power parameter set to 0.80
+  claim_id: c_7d6f9cf3
+  context: Implement code/analysis/power_analysis.py function run_a_priori_power_analysis(effect_size=0.5,
+    power=0.80)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power=0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:26:13Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: effect size parameter set to 0.5
+  claim_id: c_8d31a49c
+  context: Implement code/analysis/power_analysis.py function run_a_priori_power_analysis(effect_size=0.5,
+    power=0.80)...
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'h = 0.50: "medium effect size".'
+      source_id: Cohen's h
+      url: https://en.wikipedia.org/wiki/Cohen's_h
+      value: '0.50'
+    filled: true
+  kind: numeric
+  raw_text: effect_size=0.5
+  resolved_value: '0.50'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T17:26:21Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: pilot study gate requires N=5 complete human sessions
+  claim_id: c_39e05ff6
+  context: 'Scope: Verify data/raw/ contains at least N=5 sessions with status=''complete''
+    and source=''human_participant'' (or dev_mode simulated).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=5 sessions required for pilot study
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:26:53Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: ValueError raised if N < 30 in full mode
+  claim_id: c_4d4d0502
+  context: 'Constraint: IF mode != ''pilot'', raise ValueError if N < 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N < 30 raises ValueError if mode is not pilot
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:26:53Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: pilot mode allows N=5
+  claim_id: c_96e23c56
+  context: 'Constraint: IF mode == ''pilot'', allow N=5 and log a warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=5 allowed in pilot mode
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:27:52Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: pilot run uses seed 42
+  claim_id: c_9659de32
+  context: Must invoke python -m code.analysis.run_analysis --mode pilot --n <n_samples>
+    --seed 42...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed 42 used for pilot run
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:28:17Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: N=30 justified by Constitution Principle VI
+  claim_id: c_4512c474
+  context: 'Deliverable: docs/a_priori_power_report.md justifying N=30 based on hypothesized
+    effect size (Cohen''s d=0.5). Constraint: This task MUST run BEFORE data collection.
+    Dependencies: T035a-verify. Verification: Report exists and explicitly states
+    N=30 is required for pre-study justification. Note: Cites Constitution Principle
+    VI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 per Constitution Principle VI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:28:17Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: pipeline fails if real data is missing
+  claim_id: c_72244a8e
+  context: 'T012a Create CONTRIBUTING.md with the mandatory ''no synthetic data''
+    clause and schema compliance guidelines. Content: Must include the clause: ''No
+    synthetic data is allowed for final research claims. The pipeline must fail loudly
+    if real data is missing. '''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_real_data_is_missing
+  kind: entity_fact
+  raw_text: The pipeline must fail loudly if real data is missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:32:23Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: N=30 required for pre-study justification
+  claim_id: c_f723bec5
+  context: 'T006-pre Implement A Priori Power Analysis... Deliverable: docs/a_priori_power_report.md
+    justifying N=30 based on hypothesized effect size (Cohen''s d=0.5). Verification:
+    Report exists and explicitly states N=30 is required for pre-study justification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The report must explicitly state N=30 is required for pre-study justification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:33:00Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: metrics_summary.csv must include column method_used stating Repeated
+    Measures ANOVA
+  claim_id: c_6efb7ace
+  context: 'T023a Implement Repeated Measures ANOVA... Constraint: The output metrics_summary.csv
+    MUST include a column method_used that explicitly states ''Repeated Measures ANOVA''.'
+  evidence:
+    entailment_evidence: csv must include column method used stating Add languages
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Metrics_summary.csv_must_include_column_method_used_stating
+  kind: entity_fact
+  raw_text: The output metrics_summary.csv must include a column method_used that
+    explicitly states 'Repeated Measures ANOVA'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-24T17:33:39Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: raise ValueError if N < 30 when mode is not pilot
+  claim_id: c_21bf5ba9
+  context: 'T036 Implement generate_power_report()... Constraint: IF mode != ''pilot'',
+    raise ValueError if N < 30. IF mode == ''pilot'', allow N=5 and log a warning.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/raise_ValueError_if_N_%3C_30_when_mode_is_not_pilot
+  kind: magnitude
+  raw_text: If mode is not pilot, raise ValueError if N is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:34:08Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: allow N=5 and log warning when mode is pilot
+  claim_id: c_f8002d36
+  context: 'T036 Implement generate_power_report()... Constraint: IF mode != ''pilot'',
+    raise ValueError if N < 30. IF mode == ''pilot'', allow N=5 and log a warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If mode is pilot, allow N=5 and log a warning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:34:28Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: verify at least N=5 complete human participant sessions
+  claim_id: c_ab8681a4
+  context: 'T095-gate Implement check_pilot_eligibility()... Scope: Verify data/raw/
+    contains at least N=5 sessions with status=''complete'' and source=''human_participant''
+    (or dev_mode simulated).'
+  evidence:
+    candidates:
+    - - ''
+      - 5.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_N%3D5_complete_human_participant_sessions
+  kind: magnitude
+  raw_text: Verify data/raw/ contains at least N=5 sessions with status='complete'
+    and source='human_participant'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-24T17:35:09Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: hypothesized effect size Cohen's d=0.5
+  claim_id: c_3670561e
+  context: 'T006-pre Implement A Priori Power Analysis... Deliverable: docs/a_priori_power_report.md
+    justifying N=30 based on hypothesized effect size (Cohen''s d=0.5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hypothesized effect size is Cohen's d=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:37:13Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: power threshold 0.80
+  claim_id: c_bda65712
+  context: T006-pre Implement A Priori Power Analysis function run_a_priori_power_analysis,
+    power=0.80) -> dict to justify N=30...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power threshold is 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:37:36Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if real data missing
+  claim_id: c_e17a2a16
+  context: 'CONTRIBUTING.md with the mandatory ''no synthetic data'' clause and schema
+    compliance guidelines. Content: Must include the clause: ''No synthetic data is
+    allowed for final research claims. The pipeline must fail loudly if real data
+    is missing.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_if_real_data_missing
+  kind: entity_fact
+  raw_text: The pipeline must fail loudly if real data is missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:43:07Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: N=30 required per Constitution Principle VI
+  claim_id: c_2187150d
+  context: 'Implement run_a_priori_power_analysis, power=0.80) -> dict function to
+    justify N=30 per Constitution Principle VI. Deliverable: docs/a_priori_power_report.md
+    justifying N=30 based on hypothesized effect size (Cohen''s d=0.5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 per Constitution Principle VI
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:43:07Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 2
+  canonical: hypothesized effect size Cohen's d=0.5
+  claim_id: c_f7e1cbf3
+  context: 'Deliverable: docs/a_priori_power_report.md justifying N=30 based on hypothesized
+    effect size (Cohen''s d=0.5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen's d=0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:43:07Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: power set to 0.80
+  claim_id: c_e078b821
+  context: Implement run_a_priori_power_analysis, power=0.80) -> dict function to
+    justify N=30 per Constitution Principle VI.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power=0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:43:07Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: 'SUS imputation rule: 1 or fewer missing items replaced by participant
+    mean'
+  claim_id: c_51ce94b0
+  context: "Implement SUS imputation in code/analysis/data_cleaner.py: if \u22641\
+    \ SUS item missing, replace with participant mean and update session status to\
+    \ 'incomplete'; otherwise, mark as incomplete and update session status field."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If \u22641 SUS item missing, replace with participant mean"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:43:07Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Pilot study gate requires minimum 5 complete human participant sessions
+  claim_id: c_c59fbfc3
+  context: 'Implement check_pilot_eligibility() in code/analysis/pilot_gate.py. Scope:
+    Verify data/raw/ contains at least N=5 sessions with status=''complete'' and source=''human_participant''
+    (or dev_mode simulated).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pilot_study_gate_requires_minimum_5_complete_human_participa
+  kind: magnitude
+  raw_text: Verify data/raw/ contains at least N=5 sessions with status='complete'
+    and source='human_participant'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:43:09Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Full mode requires N >= 30
+  claim_id: c_e326ed32
+  context: 'Constraint: IF mode != ''pilot'', raise ValueError if N < 30. IF mode
+    == ''pilot'', allow N=5 and log a warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: IF mode != 'pilot', raise ValueError if N < 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:43:10Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Pilot mode allows N=5
+  claim_id: c_02f78110
+  context: 'Constraint: IF mode != ''pilot'', raise ValueError if N < 30. IF mode
+    == ''pilot'', allow N=5 and log a warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: IF mode == 'pilot', allow N=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:44:07Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Black line length set to 88
+  claim_id: c_839a8a73
+  context: 'Create pyproject.toml configuration for Black. Content: Must contain [tool.black]
+    section with line-length = 88 and target-version = [''py311''].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length = 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:44:38Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: Black target version set to py311
+  claim_id: c_77d26e85
+  context: 'Create pyproject.toml configuration for Black. Content: Must contain [tool.black]
+    section with line-length = 88 and target-version = [''py311''].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Black_target_version_set_to_py311
+  kind: entity_fact
+  raw_text: target-version = ['py311']
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T17:44:54Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: scipy version pinned to 1.11.0
+  claim_id: c_92731a70
+  context: 'Verification: File exists and contains version pins (e.g., scipy==1.11.0,
+    numpy==1.24.0, statsmodels==0.14.0).'
+  evidence:
+    asserted: '1.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: scipy==1.11.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T17:44:54Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: numpy version pinned to 1.24.0
+  claim_id: c_548e8345
+  context: 'Verification: File exists and contains version pins (e.g., scipy==1.11.0,
+    numpy==1.24.0, statsmodels==0.14.0).'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: numpy==1.24.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T17:44:54Z'
+- artifact_path: projects/PROJ-015-improving-accessibility-and-usability-of/specs/001-improving-accessibility-and-usability-of/tasks.md
+  attempts: 1
+  canonical: statsmodels version pinned to 0.14.0
+  claim_id: c_197b1480
+  context: 'Verification: File exists and contains version pins (e.g., scipy==1.11.0,
+    numpy==1.24.0, statsmodels==0.14.0).'
+  evidence:
+    asserted: '0.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: statsmodels==0.14.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T17:44:54Z'

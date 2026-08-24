@@ -1,17 +1,16 @@
 {
   "project_id": "PROJ-015-improving-accessibility-and-usability-of",
   "ok": false,
-  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/simulator/raw_data_logger.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026b simulator. It does NOT generate synthetic data. \"\"\" import json im\u2026\u201d; code/simulator/simulator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026y]]:         \"\"\"         Generate N synthetic sessions.          Logic\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python main.py; 1 command(s) failed: python code/utils/checksum.py --verify (rc=1); 7 declared deliverable(s) absent: data/processed/cleaned_sessions.csv; data/processed/metrics_summary.csv; data/processed/power_flags.json",
+  "reason": "6 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/data_cleaner.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026dev_mode: If True, allow simulated data. If False, require real\u2026\u201d; code/analysis/data_cleaner.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026eal data required. Found simulated data in input. Use dev_mode=T\u2026\u201d; code/analysis/data_cleaner.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026store_true\", help=\"Allow simulated data\")          args = parser\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py; 1 declared deliverable(s) absent: data/raw/simulated_sessions.json",
   "artifacts": [],
   "failures": [
-    "python main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-015-improving-accessibility-and-usability-of/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-015-improving-accessibility-and-usability-of/main.py': [Errno 2] No such file or directory",
-    "python code/utils/checksum.py --verify -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-015-improving-accessibility-and-usability-of/code/utils/checksum.py\", line 36, in <module>\n    def verify_checksums_in_directory(directory: Path) -> Dict[str, bool]:\n                                                          ^^^^\nNameError: name 'Dict' is not defined. Did you mean: 'dict'?"
+    "python code/analysis.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-015-improving-accessibility-and-usability-of/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-015-improving-accessibility-and-usability-of/code/analysis.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-03T02:08:41Z"
+  "updated_at": "2026-08-24T17:28:49Z"
 }
