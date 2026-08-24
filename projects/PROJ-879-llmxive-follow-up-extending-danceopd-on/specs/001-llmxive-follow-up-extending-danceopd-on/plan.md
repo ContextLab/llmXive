@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project validates the hypothesis that the complex, state-dependent routing logic of the "DanceOPD" on-policy generative field distillation teacher model can be approximated by static, low-complexity Decision Trees. The plan involves: (1) generating a synthetic ground-truth dataset by running the pre-trained DanceOPD teacher on sampled ImageNet-1K and LAIONM prompts to capture `(prompt_embedding, noise_level, routing_label, velocity_vector)` tuples; (2) training a series of `scikit-learn` Decision Tree classifiers with varying `max_depth` (range -20) to approximate these routing labels; (3) executing a CPU-only inference loop where the static tree predicts the routing, the selected expert field generates a velocity vector, and a simple Euler integrator synthesizes an image (using identical parameters for teacher and tree); and (4) quantifying fidelity degradation via FID and CLIP Score, using bootstrap tests on image distributions and paired t-tests on per-sample CLIP scores to determine statistical significance against the teacher baseline. The evaluation includes ALL samples (matched and mismatched) to capture total system error.
+This project validates the hypothesis that the complex, state-dependent routing logic of the "DanceOPD" on-policy generative field distillation teacher model can be approximated by static, low-complexity Decision Trees. The plan involves: () generating a synthetic ground-truth dataset by running the pre-trained DanceOPD teacher on sampled ImageNet-1K and LAIONM prompts to capture `(prompt_embedding, noise_level, routing_label, velocity_vector)` tuples; (2) training a series of `scikit-learn` Decision Tree classifiers with varying `max_depth` across a broad range to approximate these routing labels; (3) executing a CPU-only inference loop where the static tree predicts the routing, the selected expert field generates a velocity vector, and a simple Euler integrator synthesizes an image (using identical parameters for teacher and tree); and (4) quantifying fidelity degradation via FID and CLIP Score, using bootstrap tests on image distributions and paired t-tests on per-sample CLIP scores to determine statistical significance against the teacher baseline. The evaluation includes ALL samples (matched and mismatched) to capture total system error.
 
 ## Technical Context
 
@@ -32,7 +32,7 @@ References: [Insert DOI/arXiv/author-year here]; dynamic sample size for evaluat
 | Dataset | Source URL | Usage |
 |:--- |:--- |:--- |
 | **ImageNetK (Resized)** | ` | Primary source for prompt embeddings. |
-| **LAION-400M** | ` | Secondary source for prompt diversity. |
+| **LAIONM** | ` | Secondary source for prompt diversity. |
 | **TeacherRoutingDataset** | *Generated Artifact* | Created by running the pre-trained DanceOPD teacher on the above sources. |
 
 ## Constitution Check
