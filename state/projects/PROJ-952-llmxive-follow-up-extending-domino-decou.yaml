@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T15:23:40.698497Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-952-llmxive-follow-up-extending-domino-decou
-last_run_id: 141fb93e-ce6e-494c-978a-2bddcaa7fbfa
+last_run_id: acb60555-869e-4442-98b0-bbb3c034db1b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Domino: Decoupling Causal Modeling from Autoregressive
   Drafting in Spe"'
-updated_at: '2026-07-26T05:03:44.449838Z'
+updated_at: '2026-08-24T18:29:54.296399Z'

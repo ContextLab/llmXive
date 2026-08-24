@@ -9,7 +9,7 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does decoupling structural lineage constraints into a deterministic, rule-based evolutionary operator module significantly improve the Population-Evolution Score (PES) of LLM-generated scientific ideas compared to end-to-end generation or raw context prompting?
+To what extent is the ability to track scientific lineage a function of explicit structural constraint satisfaction versus implicit pattern learning, and does the failure of end-to-end models indicate a fundamental limit in neural representational capacity for multi-step logical inheritance?
 
 ## Motivation
 
@@ -17,21 +17,21 @@ The original "Ideas Have Genomes" study identifies a "compositional bottleneck" 
 
 ## Related work
 
-- [Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Lineage-Grounded Idea Generation](https://arxiv.org/abs/2607.08758) — Establishes the baseline IG-Bench framework and demonstrates the current compositional bottleneck where LLMs struggle with multi-step lineage reasoning.
+- [Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Lineage-Grounded Idea Generation](https://arxiv.org/abs/2607.08758) — Establishes the baseline IG-Bench framework and demonstrates the current compositional bottleneck where LLMs struggle with multi-step lineage reasoning, directly motivating the need for structural offloading.
 - [Graphs of Research: Citation Evolution Graphs as Supervision for Research Idea Generation](https://arxiv.org/abs/2605.14790) — Explores using citation evolution graphs as supervision for idea generation, providing a structural alternative to the "Idea Genome" object model used in this proposal.
 - [Bayesian Epistemology with Weighted Authority: A Formal Architecture for Truth-Promoting Autonomous Scientific Reasoning](https://arxiv.org/abs/2506.16015) — Proposes formal architectures for autonomous scientific reasoning, offering a theoretical parallel for the proposed rule-based logic layer in handling epistemic constraints.
 
 ## Expected results
 
-The hybrid approach (LLM + deterministic Operator Engine) will yield a statistically significant increase in Population-Evolution Score (targeting >40% improvement over the baseline) and exact lineage accuracy. This would confirm that structural constraints in scientific evolution are better handled by symbolic logic than by learning them implicitly within neural weights.
+The hybrid approach (LLM + deterministic Operator Engine) will yield a statistically significant increase in Population-Evolution Score (PES) and exact lineage accuracy compared to end-to-end baselines. This would confirm that structural constraints in scientific evolution are better handled by symbolic logic than by learning them implicitly within neural weights, suggesting a fundamental architectural limitation in current neural-only approaches for this specific task.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the IG-Bench dataset (1,961 golden lineage traces, 920 GenomeDiff records) from the official repository or arXiv supplementary materials; filter for 500 "hard" cases where baseline LLMs previously failed on mutation/inheritance tracking.
-- **Operator Engine Implementation**: Develop a CPU-only Python module implementing the six operational evolutionary dynamics (e.g., inheritance, repair, recombination) as deterministic symbolic rules that transform parent Idea Genome objects into valid child structures.
+- **Data Acquisition**: Download the IG-Bench dataset (1,961 golden lineage traces, 920 GenomeDiff records) from the official arXiv supplementary materials; filter for 500 "hard" cases where baseline LLMs previously failed on mutation/inheritance tracking.
+- **Operator Engine Implementation**: Develop a CPU-only Python module implementing the six operational evolutionary dynamics (e.g., inheritance, repair, recombination) as deterministic symbolic rules that transform parent Idea Genome objects into valid child structures, ensuring no neural weights are involved in the structural logic.
 - **Experimental Setup**: Configure three conditions: (1) Baseline LLM generation (no structural guidance), (2) Raw lineage context prompting (original IG-Bench setup), and (3) Hybrid generation where the Operator Engine pre-structures the child genome and the LLM only performs natural language elaboration.
-- **Execution**: Run all three conditions on a selected subset of smaller, open-source LLMs (e.g., Llama-3-8B or Mistral-7B) available via HuggingFace, ensuring execution fits within 6 hours on a 2-CPU/7GB RAM runner.
-- **Evaluation**: Compute the Population-Evolution Score (PES) and exact lineage accuracy for each condition using the official IG-Bench evaluation metrics.
+- **Execution**: Run all three conditions on a selected subset of smaller, open-source LLMs (e.g., Llama-3-8B or Mistral-7B) available via HuggingFace, ensuring execution fits within 6 hours on a 2-CPU/7GB RAM runner by limiting batch sizes and using quantized inference.
+- **Evaluation**: Compute the Population-Evolution Score (PES) and exact lineage accuracy for each condition using the official IG-Bench evaluation metrics, which compare generated ideas against the ground-truth golden traces.
 - **Statistical Analysis**: Perform a non-parametric Kruskal-Wallis test followed by Dunn's post-hoc test to determine if differences in PES and accuracy between the three conditions are statistically significant (p < 0.05), ensuring the validation metric (PES) is calculated against the ground-truth golden traces which are independent of the model's generation process.
 
 ## Duplicate-check
@@ -43,40 +43,38 @@ The hybrid approach (LLM + deterministic Operator Engine) will yield a statistic
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-22T01:08:39Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-24T18:37:09Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Line" computer science
-**Verified citation count**: 4
+**Verified citation count**: 2
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Line" computer science | 0 |
-| 1 | scientific lineage reasoning benchmarks | 2 |
-| 2 | tracing research idea evolution | 5 |
-| 3 | academic genealogy in scientific literature | 0 |
-| 4 | citation network lineage analysis | 0 |
-| 5 | scientific concept propagation tracking | 0 |
-| 6 | benchmarking AI reasoning on research history | 0 |
-| 7 | scientific knowledge graph evolution | 0 |
-| 8 | research paper dependency mapping | 0 |
-| 9 | tracking idea mutation in science | 0 |
-| 10 | scientific narrative lineage reconstruction | 0 |
-| 11 | automated tracing of research influence | 0 |
-| 12 | semantic lineage of scientific concepts | 0 |
-| 13 | benchmarking large language models on citation chains | 0 |
-| 14 | research trajectory prediction using LLMs | 0 |
-| 15 | mapping the genealogy of scientific theories | 0 |
-| 16 | causal reasoning in scientific literature networks | 0 |
-| 17 | evolution of scientific claims over time | 0 |
-| 18 | reconstructing research lineages with NLP | 0 |
-| 19 | scientific idea inheritance patterns | 0 |
-| 20 | longitudinal analysis of research topic emergence | 0 |
+| 1 | scientific lineage reasoning benchmarking | 3 |
+| 2 | tracing scientific idea evolution | 0 |
+| 3 | citation network lineage analysis | 0 |
+| 4 | scientific genealogy reasoning | 0 |
+| 5 | research impact propagation modeling | 0 |
+| 6 | idea inheritance in scientific literature | 0 |
+| 7 | benchmarking AI for scientific tracing | 0 |
+| 8 | automated scientific history reconstruction | 0 |
+| 9 | scholarly genealogy graph reasoning | 0 |
+| 10 | lineage-aware large language models | 0 |
+| 11 | tracing concept mutation in science | 0 |
+| 12 | scientific ancestry tracking systems | 0 |
+| 13 | reasoning over citation trajectories | 0 |
+| 14 | evolutionary patterns in research topics | 0 |
+| 15 | benchmarking LLMs on scientific context | 0 |
+| 16 | knowledge graph lineage inference | 0 |
+| 17 | reconstructing scientific discovery paths | 0 |
+| 18 | semantic lineage in academic corpora | 0 |
+| 19 | AI-driven research trajectory analysis | 0 |
+| 20 | scientific idea drift and inheritance | 0 |
 
 ### Verified citations
 
 1. **Ideas Have Genomes: Benchmarking Scientific Lineage Reasoning and Lineage-Grounded Idea Generation** (2026). Yifan Zhou, Qihao Yang, Yan Li, Donggang Li, Xiru Hu, et al.. arXiv. [2607.08758](https://arxiv.org/abs/2607.08758). PDF-sampled: No.
 2. **Bayesian Epistemology with Weighted Authority: A Formal Architecture for Truth-Promoting Autonomous Scientific Reasoning** (2025). Craig S. Wright. arXiv. [2506.16015](https://arxiv.org/abs/2506.16015). PDF-sampled: No.
-3. **Enhancing Understandability and Transparency of Research Software: Tracing Research to Code** (2026). Adrian Bajraktari, Andreas Vogelsang. arXiv. [2604.10793](https://arxiv.org/abs/2604.10793). PDF-sampled: No.
-4. **Graphs of Research: Citation Evolution Graphs as Supervision for Research Idea Generation** (2026). Songyang Gao, Yinghui Xia, Siyi Liu, Hui Xiong. arXiv. [2605.14790](https://arxiv.org/abs/2605.14790). PDF-sampled: No.

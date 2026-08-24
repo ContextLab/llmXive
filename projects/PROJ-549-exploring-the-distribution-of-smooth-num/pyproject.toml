@@ -5,49 +5,56 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "smooth-numbers-analysis"
 version = "0.1.0"
-description = "Analysis of smooth number distribution in short intervals"
+description = "Exploring the distribution of smooth numbers in short intervals"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "numpy",
-    "scipy",
-    "matplotlib",
-    "pytest",
-    "flake8",
-    "black",
-    "pylint",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "matplotlib>=3.7.0",
+    "pytest>=7.0.0",
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
-[tool.pylint.messages_control]
-disable = [
-    "C0114", # missing-module-docstring
-    "C0115", # missing-class-docstring
-    "C0116", # missing-function-docstring
-    "R0903", # too-few-public-methods
-    "W0511", # TODO
-]
-
-[tool.pylint.format]
-max-line-length = 100
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["sieve", "smoothness", "dickman", "analysis", "viz", "config", "utils", "validate_sieve", "main"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["code"]
+omit = ["*/tests/*", "*/venv/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]

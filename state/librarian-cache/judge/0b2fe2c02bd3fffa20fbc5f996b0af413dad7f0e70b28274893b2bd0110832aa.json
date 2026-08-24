@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.17739",
+  "judged_at": "2026-08-24T18:29:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"domino: decoupling causal modeling from autoregressive drafting in spe\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it implements the same core mechanism (speculative decoding/drafting with a small model to accelerate inference) and operates on the same domain (LLM decoding strategies) as the user's question, even though it applies the technique to safety rather than the specific \"Domino\" causal modeling framework.",
+  "relevant": true
+}

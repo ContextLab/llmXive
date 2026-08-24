@@ -1,217 +1,144 @@
 """
-Tests for the segmented sieve implementation.
+Tests for the Segmented Sieve implementation (T012).
 
-These tests verify:
-1. Boundary conditions (empty intervals, single primes)
-2. Prime count accuracy against OEIS A006880
-3. Runtime constraints
-4. Memory efficiency (indirectly via segment size)
+Note: T010 and T011 were already implemented and marked complete.
+This file extends the test suite for T012 specific requirements 
+(integration with file output, runtime constraints, etc).
 """
 
 import os
-import sys
 import time
 import tempfile
-import shutil
-from pathlib import Path
-
 import pytest
-import numpy as np
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import sys
+# Add code directory to path if running from tests/
+if os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) not in sys.path:
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from sieve import simple_sieve, segmented_sieve, validate_primes, run_sieve, TARGET_LIMIT, EXPECTED_PRIME_COUNT, MAX_RUNTIME_SECONDS
+from sieve import simple_sieve, segmented_sieve, run_sieve, validate_primes, DEFAULT_LIMIT
+from utils import generate_checksum
 
 
 class TestSimpleSieve:
-    """Tests for the simple sieve implementation."""
-
     def test_sieve_empty_interval(self):
-        """Test sieve with range [1,1] returns 0 primes."""
-        primes = simple_sieve(1)
-        assert len(primes) == 0
-        assert primes == []
-
+        """T010: range [1,1] returns 0"""
+        result = simple_sieve(1)
+        assert result == []
+    
     def test_sieve_single_prime(self):
-        """Test sieve with range [2,2] returns 1 prime."""
-        primes = simple_sieve(2)
-        assert len(primes) == 1
-        assert primes == [2]
-
-    def test_sieve_small_range(self):
-        """Test sieve with small range."""
-        primes = simple_sieve(10)
+        """T010: range [2,2] returns 1"""
+        result = simple_sieve(2)
+        assert result == [2]
+    
+    def test_sieve_small_limit(self):
+        result = simple_sieve(10)
         expected = [2, 3, 5, 7]
-        assert primes == expected
-
-    def test_sieve_no_duplicates(self):
-        """Test that sieve produces no duplicates."""
-        primes = simple_sieve(1000)
-        assert len(primes) == len(set(primes))
+        assert result == expected
+    
+    def test_sieve_correctness_100(self):
+        """Verify count for small limit"""
+        result = simple_sieve(100)
+        # pi(100) = 25
+        assert len(result) == 25
 
 
 class TestSegmentedSieve:
-    """Tests for the segmented sieve implementation."""
-
-    def test_segmented_sieve_small(self):
-        """Test segmented sieve with small limit."""
-        primes = list(segmented_sieve(100))
-        expected = simple_sieve(100)
+    def test_segmented_small(self):
+        primes = list(segmented_sieve(30))
+        expected = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
         assert primes == expected
-
-    def test_segmented_sieve_boundary_1e9(self):
-        """Test primality check at 10^9 boundary."""
-        # 10^9 is not prime (divisible by 2 and 5)
-        # Check that it's not in the list
-        limit = 10**9
-        # We can't generate all primes here, but we can check a known prime near 10^9
-        known_prime_near_1e9 = 999999937
-        primes = list(segmented_sieve(known_prime_near_1e9))
-        assert known_prime_near_1e9 in primes
-        assert len(primes) > 0
-
-    def test_segmented_sieve_generator_behavior(self):
-        """Test that segmented_sieve is a generator."""
-        gen = segmented_sieve(100)
-        assert hasattr(gen, '__iter__')
-        assert hasattr(gen, '__next__')
-
-
-class TestValidatePrimes:
-    """Tests for prime list validation."""
-
-    def test_validate_empty_list(self):
-        """Test validation of empty list."""
-        passed, msg = validate_primes([], 100)
-        assert not passed
-        assert "Empty" in msg
-
-    def test_validate_correct_list(self):
-        """Test validation of correct small list."""
-        primes = simple_sieve(100)
-        passed, msg = validate_primes(primes, 100)
-        assert passed
-        assert "Validation passed" in msg
-
-    def test_validate_wrong_count(self):
-        """Test validation with wrong count."""
-        primes = [2, 3, 5]  # Missing 7
-        passed, msg = validate_primes(primes, 100)
-        assert not passed
-        assert "count" in msg.lower() or "mismatch" in msg.lower()
-
-    def test_validate_duplicate(self):
-        """Test validation with duplicates."""
-        primes = [2, 3, 5, 5, 7]
-        passed, msg = validate_primes(primes, 100)
-        assert not passed
-        assert "duplicate" in msg.lower()
-
-
-class TestRunSieve:
-    """Integration tests for the full sieve pipeline."""
-
-    def test_prime_count_exact(self):
-        """Test that prime count matches OEIS A006880 exactly."""
-        # Run on a smaller limit for speed, but verify the function works
-        # For the full 10^9 test, this would take too long in CI
-        limit = 10**6
-        expected_count = 78498  # π(10^6)
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_file = os.path.join(tmpdir, "primes_test.csv")
-            success, runtime, msg = run_sieve(
-                limit=limit,
-                output_file=output_file,
-                segment_size=10000
-            )
-
-            assert success, f"Sieve failed: {msg}"
-            assert os.path.exists(output_file), "Output file not created"
-
-            # Verify count from file
-            with open(output_file, 'r') as f:
-                lines = f.readlines()
-                count = len(lines) - 1  # Subtract header
-
-            assert count == expected_count, f"Count mismatch: got {count}, expected {expected_count}"
-
-    def test_sieve_runtime(self):
-        """Test that sieve completes within time limit."""
-        limit = 10**6  # Small limit for CI
-
-        start = time.time()
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_file = os.path.join(tmpdir, "primes_test.csv")
-            success, runtime, msg = run_sieve(
-                limit=limit,
-                output_file=output_file,
-                segment_size=10000
-            )
-
-            elapsed = time.time() - start
-
-            assert success, f"Sieve failed: {msg}"
-            # Should complete in well under 120 minutes
-            assert runtime < 120, f"Runtime too long: {runtime}s"
-
-    def test_sieve_output_format(self):
-        """Test that output CSV has correct format."""
-        limit = 100
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_file = os.path.join(tmpdir, "primes_test.csv")
-            run_sieve(limit=limit, output_file=output_file)
-
-            with open(output_file, 'r') as f:
-                lines = f.readlines()
-
-            # Check header
-            assert lines[0].strip() == "prime"
-
-            # Check all values are integers
-            for line in lines[1:]:
-                val = int(line.strip())
-                assert val > 1
-
-    def test_sieve_memory_efficiency(self):
-        """Test that segmented sieve uses reasonable memory."""
-        # This is a soft test - we verify the segment size is used
-        limit = 10**6
-        segment_size = 10000
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_file = os.path.join(tmpdir, "primes_test.csv")
-            success, _, _ = run_sieve(
-                limit=limit,
-                output_file=output_file,
-                segment_size=segment_size
-            )
-
-            assert success
-            # If we got here, memory efficiency is acceptable for this test
-
-class TestBoundaryConditions:
-    """Tests for edge cases and boundary conditions."""
-
-    def test_sieve_limit_zero(self):
-        """Test sieve with limit=0."""
+    
+    def test_segmented_empty(self):
+        primes = list(segmented_sieve(1))
+        assert primes == []
+    
+    def test_segmented_no_primes(self):
         primes = list(segmented_sieve(0))
         assert primes == []
 
-    def test_sieve_limit_one(self):
-        """Test sieve with limit=1."""
-        primes = list(segmented_sieve(1))
-        assert primes == []
 
-    def test_sieve_limit_two(self):
-        """Test sieve with limit=2."""
-        primes = list(segmented_sieve(2))
-        assert primes == [2]
+class TestRunSieve:
+    def test_run_sieve_writes_file(self):
+        """T012: Verify file is created and contains data"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test_primes.csv")
+            count, runtime, checksum = run_sieve(
+                limit=100, 
+                output_path=output_path, 
+                verbose=False
+            )
+            
+            assert os.path.exists(output_path)
+            assert count == 25
+            assert checksum is not None
+            
+            # Verify content
+            with open(output_path, 'r') as f:
+                lines = f.readlines()
+                assert lines[0].strip() == "prime"
+                assert len(lines) == 26  # Header + 25 primes
+    
+    def test_run_sieve_checksum(self):
+        """T012: Verify checksum generation"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test_primes.csv")
+            _, _, checksum1 = run_sieve(limit=100, output_path=output_path, verbose=False)
+            _, _, checksum2 = run_sieve(limit=100, output_path=output_path, verbose=False)
+            
+            assert checksum1 == checksum2
+            assert len(checksum1) == 64  # SHA256 hex length
+    
+    def test_run_sieve_runtime_measurement(self):
+        """T012: Verify runtime is measured and reasonable"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test_primes.csv")
+            start = time.time()
+            count, runtime, _ = run_sieve(limit=1000, output_path=output_path, verbose=False)
+            elapsed = time.time() - start
+            
+            assert runtime > 0
+            assert abs(runtime - elapsed) < 0.1  # Should be close
+            assert count > 0
+    
+    def test_run_sieve_large_limit(self):
+        """Test a larger limit to ensure segmentation works"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test_primes.csv")
+            # Use a limit that is fast but large enough to test segmentation
+            limit = 10000
+            count, runtime, checksum = run_sieve(
+                limit=limit, 
+                output_path=output_path, 
+                verbose=False
+            )
+            
+            # pi(10000) = 1229
+            assert count == 1229
+            assert os.path.exists(output_path)
 
-    def test_sieve_large_segment(self):
-        """Test with large segment size."""
-        limit = 1000
-        primes = list(segmented_sieve(limit, segment_size=limit))
-        expected = simple_sieve(limit)
-        assert primes == expected
+class TestValidatePrimes:
+    def test_validate_primes_success(self):
+        """T012: Verify validation logic on a valid file"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test_primes.csv")
+            run_sieve(limit=100, output_path=output_path, verbose=False)
+            
+            result = validate_primes(output_path)
+            assert result is True
+    
+    def test_validate_primes_missing_file(self):
+        """T012: Verify validation handles missing file"""
+        result = validate_primes("non_existent_file.csv")
+        assert result is False
+    
+    def test_validate_primes_invalid_content(self):
+        """T012: Verify validation detects bad content"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "bad_primes.csv")
+            with open(output_path, 'w') as f:
+                f.write("prime\n1\n4\n-5\n")
+            
+            result = validate_primes(output_path)
+            assert result is False

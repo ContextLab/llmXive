@@ -1,9 +1,4 @@
-'|asserting':
-  quote: 4 1229
-  source_id: A006880
-  url: https://oeis.org/A006880
-  value: '9'
-'|matche output pi verify':
+'|matche output verify':
   quote: 9 50847534
   source_id: A006880
   url: https://oeis.org/A006880

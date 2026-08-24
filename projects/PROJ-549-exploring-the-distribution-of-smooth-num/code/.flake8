@@ -1,7 +1,4 @@
+# This file intentionally empty to inherit from root .flake8
+# Specific overrides for code/ directory can be added here if needed
 [flake8]
-max-line-length = 100
-ignore = E203, E266, W503, E501
-exclude = .git,__pycache__,build,dist,venv,.venv
-per-file-ignores =
-    # Allow longer lines in test files for data assertions
-    tests/*:E501
+max-line-length = 88

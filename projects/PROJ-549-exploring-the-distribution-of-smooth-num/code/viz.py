@@ -1,12 +1,13 @@
 """
-Visualization module for smooth number density analysis.
+Visualization module for smooth number distribution analysis.
 
-Generates density vs. interval length plots with 95% confidence intervals
-and theoretical curves for BOTH the Spec-defined and Plan-defined grids.
+This module generates plots for density measurements across Spec-defined and
+Plan-defined parameter grids. It includes confidence intervals and theoretical
+curves for comparison.
 
-Outputs:
-  - data/density_spec_grid.png
-  - data/density_plan_grid.png
+IMPORTANT: This analysis measures statistical associations. Correlation does not
+imply causation. The trends observed are descriptive of the data within the
+sampled intervals and do not establish causal mechanisms.
 """
 
 import argparse
@@ -17,272 +18,354 @@ from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import stats
+import pandas as pd
+from matplotlib.ticker import ScalarFormatter, LogFormatter
 
-# Local imports
-from config import load_config
-from dickman import rho, DickmanFunction
-from analysis import load_density_data
-
-
-def setup_logging(verbose: bool = False) -> None:
-    """Configure logging for the visualization module."""
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stdout)]
-    )
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
-def load_and_group_data(filepath: str, grid_type: str) -> Dict[str, List[Dict[str, Any]]]:
+def setup_logging() -> logging.Logger:
+    """Configure and return the module logger."""
+    return logger
+
+
+def load_and_group_data(
+    file_path: str,
+    group_by: List[str] = ['y']
+) -> Dict[str, pd.DataFrame]:
     """
-    Load density data from CSV and group by y-value for plotting.
+    Load density measurement data from CSV and group by specified columns.
 
     Args:
-        filepath: Path to the density measurements CSV.
-        grid_type: 'spec' or 'plan' to determine column handling.
+        file_path: Path to the CSV file containing density measurements.
+        group_by: List of column names to group data by.
 
     Returns:
-        Dictionary mapping y-values to lists of data points.
+        Dictionary mapping group keys to DataFrames.
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Data file not found: {filepath}. "
-                                "Run T023 to generate density measurements first.")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Data file not found: {file_path}")
 
-    data = load_density_data(filepath)
+    logger.info(f"Loading data from {file_path}")
+    df = pd.read_csv(file_path)
 
-    grouped: Dict[int, List[Dict[str, Any]]] = {}
+    # Ensure numeric columns are properly typed
+    numeric_cols = ['x', 'y', 'h', 'density', 'dickman_rho', 'deviation_ratio']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
 
-    for row in data:
-        y = int(row['y'])
-        if y not in grouped:
-            grouped[y] = []
-        grouped[y].append(row)
-
-    # Sort groups by y-value for consistent plotting
-    return {k: grouped[k] for k in sorted(grouped.keys())}
-
-
-def calculate_confidence_intervals(data_points: List[Dict[str, Any]]) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Calculate mean density and 95% confidence intervals for a group of data points.
-
-    Args:
-        data_points: List of dictionaries containing 'h' and 'density' keys.
-
-    Returns:
-        Tuple of (h_values, mean_density, ci_lower, ci_upper).
-    """
-    if not data_points:
-        return np.array([]), np.array([]), np.array([]), np.array([])
-
-    h_values = np.array([p['h'] for p in data_points])
-    densities = np.array([p['density'] for p in data_points])
-
-    # Sort by h for plotting
-    sort_idx = np.argsort(h_values)
-    h_values = h_values[sort_idx]
-    densities = densities[sort_idx]
-
-    # Calculate mean and standard error
-    mean_density = np.mean(densities)
-    std_density = np.std(densities, ddof=1) if len(densities) > 1 else 0
-    n = len(densities)
-
-    # 95% Confidence Interval
-    if n > 1:
-        se = std_density / np.sqrt(n)
-        ci_margin = stats.t.ppf(0.975, n-1) * se
+    grouped = {}
+    if group_by:
+        for name, group in df.groupby(group_by):
+            key = tuple(name) if isinstance(name, tuple) else (name,)
+            grouped[key] = group
     else:
-        se = 0
-        ci_margin = 0
+        grouped[('all',)] = df
 
-    return h_values, mean_density, mean_density - ci_margin, mean_density + ci_margin
+    logger.info(f"Loaded data with {len(df)} rows, grouped into {len(grouped)} groups")
+    return grouped
 
 
-def plot_spec_grid(grouped_data: Dict[int, List[Dict[str, Any]]], output_path: str) -> None:
+def calculate_confidence_intervals(
+    df: pd.DataFrame,
+    confidence_level: float = 0.95
+) -> Tuple[pd.Series, pd.Series]:
     """
-    Generate density vs. interval length plot for the Spec-defined grid.
+    Calculate confidence intervals for density measurements.
 
-    The Spec grid uses h = x^alpha, so we plot against the computed h values.
-    Includes theoretical Dickman function curves.
+    Args:
+        df: DataFrame containing density measurements.
+        confidence_level: Confidence level for intervals (default 0.95).
+
+    Returns:
+        Tuple of (lower_bound, upper_bound) Series.
     """
-    plt.figure(figsize=(12, 8))
+    if len(df) < 2:
+        # Single point: return the point itself
+        return df['density'], df['density']
 
-    # Colors for different y values
-    colors = plt.cm.viridis(np.linspace(0, 1, len(grouped_data)))
+    mean_density = df['density'].mean()
+    std_density = df['density'].std()
+    n = len(df)
 
-    for idx, (y, points) in enumerate(grouped_data.items()):
-        h_vals, mean_dens, ci_low, ci_high = calculate_confidence_intervals(points)
+    # t-distribution for small samples, normal for large
+    if n > 30:
+        z_score = 1.96  # Approximate for 95%
+    else:
+        from scipy import stats
+        z_score = stats.t.ppf(1 - (1 - confidence_level) / 2, df=n-1)
 
-        if len(h_vals) == 0:
+    margin = z_score * (std_density / np.sqrt(n))
+
+    lower = mean_density - margin
+    upper = mean_density + margin
+
+    return pd.Series([lower] * len(df), index=df.index), \
+           pd.Series([upper] * len(df), index=df.index)
+
+
+def plot_spec_grid(
+    data_path: str,
+    output_path: str,
+    y_values: List[int],
+    title: str = "Density vs Interval Length (Spec Grid)",
+    annotation_text: str = "Associational Trend Only"
+) -> None:
+    """
+    Plot density measurements for the Spec-defined parameter grid.
+
+    Args:
+        data_path: Path to the CSV file with Spec grid results.
+        output_path: Path to save the plot.
+        y_values: List of y values to plot.
+        title: Plot title.
+        annotation_text: Text to annotate on the plot.
+    """
+    logger.info(f"Generating Spec grid plot: {output_path}")
+
+    try:
+        grouped = load_and_group_data(data_path, group_by=['y', 'x'])
+    except FileNotFoundError as e:
+        logger.error(f"Cannot generate plot: {e}")
+        return
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    colors = plt.cm.viridis(np.linspace(0, 0.8, len(y_values)))
+
+    for idx, y_val in enumerate(y_values):
+        # Filter data for this y value
+        y_data = None
+        for key, df in grouped.items():
+            if key[0] == y_val:
+                y_data = df
+                break
+
+        if y_data is None or y_data.empty:
+            logger.warning(f"No data found for y={y_val}")
             continue
 
-        # Plot confidence interval band
-        plt.fill_between(h_vals, ci_low, ci_high, alpha=0.2, color=colors[idx],
-                         label=f'y={y} (95% CI)' if idx == 0 else "")
+        # Group by h to aggregate multiple x values
+        h_grouped = y_data.groupby('h').agg({
+            'density': ['mean', 'std', 'count']
+        }).reset_index()
+        h_grouped.columns = ['h', 'mean_density', 'std_density', 'count']
 
-        # Plot mean points
-        plt.scatter(h_vals, [mean_dens] * len(h_vals), color=colors[idx], s=50, zorder=5)
+        # Sort by h
+        h_grouped = h_grouped.sort_values('h')
 
-        # Plot theoretical curve (Dickman function)
-        # For Spec grid, we approximate theoretical density as rho(u) where u = log(x)/log(y)
-        # Since x varies, we compute theoretical values at the observed h points
-        theoretical_densities = []
-        for p in points:
-            x = p['x']
-            u = np.log(x) / np.log(y) if y > 1 else np.inf
-            theoretical_densities.append(rho(u))
+        # Calculate confidence intervals
+        lower, upper = calculate_confidence_intervals(h_grouped)
 
-        theoretical_densities = np.array(theoretical_densities)
-        theoretical_h = np.array([p['h'] for p in points])
+        # Plot
+        ax.errorbar(
+            h_grouped['h'],
+            h_grouped['mean_density'],
+            yerr=[
+                h_grouped['mean_density'] - lower,
+                upper - h_grouped['mean_density']
+            ],
+            capsize=5,
+            label=f'y={y_val}',
+            color=colors[idx],
+            marker='o',
+            linestyle='-'
+        )
 
-        # Sort theoretical by h for smooth line
-        sort_idx = np.argsort(theoretical_h)
-        theoretical_h = theoretical_h[sort_idx]
-        theoretical_densities = theoretical_densities[sort_idx]
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlabel('Interval Length (h)', fontsize=12)
+    ax.set_ylabel('Smooth Number Density (ρ)', fontsize=12)
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    ax.legend(loc='best', fontsize=10)
+    ax.grid(True, which='both', linestyle='--', alpha=0.7)
 
-        plt.plot(theoretical_h, theoretical_densities, '--', color=colors[idx],
-                 alpha=0.7, linewidth=1.5, label=f'y={y} (Theory)' if idx == 0 else "")
-
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.xlabel('Interval Length (h)', fontsize=12)
-    plt.ylabel('Smooth Number Density (ρ)', fontsize=12)
-    plt.title('Smooth Number Density vs. Interval Length (Spec Grid: h = x^α)',
-              fontsize=14, fontweight='bold')
-    plt.legend(loc='upper right', fontsize=10)
-    plt.grid(True, alpha=0.3, which='both')
-    plt.tight_layout()
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close()
-    logging.info(f"Spec grid plot saved to: {output_path}")
-
-
-def plot_plan_grid(grouped_data: Dict[int, List[Dict[str, Any]]], output_path: str) -> None:
-    """
-    Generate density vs. interval length plot for the Plan-defined grid.
-
-    The Plan grid uses fixed h values, making this a cleaner comparison.
-    Includes theoretical Dickman function curves.
-    """
-    plt.figure(figsize=(12, 8))
-
-    # Colors for different y values
-    colors = plt.cm.plasma(np.linspace(0, 1, len(grouped_data)))
-
-    for idx, (y, points) in enumerate(grouped_data.items()):
-        h_vals, mean_dens, ci_low, ci_high = calculate_confidence_intervals(points)
-
-        if len(h_vals) == 0:
-            continue
-
-        # Plot confidence interval band
-        plt.fill_between(h_vals, ci_low, ci_high, alpha=0.2, color=colors[idx],
-                         label=f'y={y} (95% CI)' if idx == 0 else "")
-
-        # Plot mean points
-        plt.scatter(h_vals, [mean_dens] * len(h_vals), color=colors[idx], s=50, zorder=5)
-
-        # Plot theoretical curve
-        theoretical_densities = []
-        for p in points:
-            x = p['x']
-            u = np.log(x) / np.log(y) if y > 1 else np.inf
-            theoretical_densities.append(rho(u))
-
-        theoretical_densities = np.array(theoretical_densities)
-        theoretical_h = np.array([p['h'] for p in points])
-
-        # Sort theoretical by h for smooth line
-        sort_idx = np.argsort(theoretical_h)
-        theoretical_h = theoretical_h[sort_idx]
-        theoretical_densities = theoretical_densities[sort_idx]
-
-        plt.plot(theoretical_h, theoretical_densities, '--', color=colors[idx],
-                 alpha=0.7, linewidth=1.5, label=f'y={y} (Theory)' if idx == 0 else "")
-
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.xlabel('Interval Length (h)', fontsize=12)
-    plt.ylabel('Smooth Number Density (ρ)', fontsize=12)
-    plt.title('Smooth Number Density vs. Interval Length (Plan Grid: Fixed h)',
-              fontsize=14, fontweight='bold')
-    plt.legend(loc='upper right', fontsize=10)
-    plt.grid(True, alpha=0.3, which='both')
-    plt.tight_layout()
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close()
-    logging.info(f"Plan grid plot saved to: {output_path}")
-
-
-def main(args: Optional[argparse.Namespace] = None) -> int:
-    """
-    Main entry point for visualization generation.
-
-    Generates two plots:
-      1. Spec grid: density_measurements_spec.csv -> density_spec_grid.png
-      2. Plan grid: density_measurements_plan.csv -> density_plan_grid.png
-    """
-    parser = argparse.ArgumentParser(
-        description='Generate density vs. interval length plots for smooth number analysis.'
+    # Add annotation per Spec Assumptions
+    ax.annotate(
+        annotation_text,
+        xy=(0.05, 0.95),
+        xycoords='axes fraction',
+        fontsize=9,
+        verticalalignment='top',
+        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5),
+        fontfamily='monospace'
     )
-    parser.add_argument('--config', type=str, default=None,
-                        help='Path to configuration file (optional)')
-    parser.add_argument('--spec-data', type=str, default='data/density_measurements_spec.csv',
-                        help='Path to Spec grid density data')
-    parser.add_argument('--plan-data', type=str, default='data/density_measurements_plan.csv',
-                        help='Path to Plan grid density data')
-    parser.add_argument('--output-dir', type=str, default='data',
-                        help='Output directory for plots')
-    parser.add_argument('--verbose', action='store_true',
-                        help='Enable verbose logging')
 
-    if args is None:
-        args = parser.parse_args()
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
 
-    setup_logging(args.verbose)
+    logger.info(f"Spec grid plot saved to {output_path}")
 
-    # Load configuration if provided
-    if args.config:
-        try:
-            config = load_config(args.config)
-            logging.info(f"Loaded configuration from: {args.config}")
-        except Exception as e:
-            logging.warning(f"Could not load config: {e}. Using defaults.")
+
+def plot_plan_grid(
+    data_path: str,
+    output_path: str,
+    y_values: List[int],
+    title: str = "Deviation Ratio vs Interval Length (Plan Grid)",
+    annotation_text: str = "Associational Trend Only"
+) -> None:
+    """
+    Plot deviation ratio measurements for the Plan-defined parameter grid.
+
+    Args:
+        data_path: Path to the CSV file with Plan grid results.
+        output_path: Path to save the plot.
+        y_values: List of y values to plot.
+        title: Plot title.
+        annotation_text: Text to annotate on the plot.
+    """
+    logger.info(f"Generating Plan grid plot: {output_path}")
+
+    try:
+        grouped = load_and_group_data(data_path, group_by=['y', 'x'])
+    except FileNotFoundError as e:
+        logger.error(f"Cannot generate plot: {e}")
+        return
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    colors = plt.cm.plasma(np.linspace(0, 0.8, len(y_values)))
+
+    for idx, y_val in enumerate(y_values):
+        # Filter data for this y value
+        y_data = None
+        for key, df in grouped.items():
+            if key[0] == y_val:
+                y_data = df
+                break
+
+        if y_data is None or y_data.empty:
+            logger.warning(f"No data found for y={y_val}")
+            continue
+
+        # Group by h to aggregate multiple x values
+        h_grouped = y_data.groupby('h').agg({
+            'deviation_ratio': ['mean', 'std', 'count']
+        }).reset_index()
+        h_grouped.columns = ['h', 'mean_ratio', 'std_ratio', 'count']
+
+        # Sort by h
+        h_grouped = h_grouped.sort_values('h')
+
+        # Calculate confidence intervals
+        lower, upper = calculate_confidence_intervals(h_grouped)
+
+        # Plot
+        ax.errorbar(
+            h_grouped['h'],
+            h_grouped['mean_ratio'],
+            yerr=[
+                h_grouped['mean_ratio'] - lower,
+                upper - h_grouped['mean_ratio']
+            ],
+            capsize=5,
+            label=f'y={y_val}',
+            color=colors[idx],
+            marker='s',
+            linestyle='--'
+        )
+
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlabel('Interval Length (h)', fontsize=12)
+    ax.set_ylabel('Deviation Ratio (R = ρ_obs / ρ_Dickman)', fontsize=12)
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    ax.legend(loc='best', fontsize=10)
+    ax.grid(True, which='both', linestyle='--', alpha=0.7)
+
+    # Add annotation per Spec Assumptions
+    ax.annotate(
+        annotation_text,
+        xy=(0.05, 0.95),
+        xycoords='axes fraction',
+        fontsize=9,
+        verticalalignment='top',
+        bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.5),
+        fontfamily='monospace'
+    )
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+
+    logger.info(f"Plan grid plot saved to {output_path}")
+
+
+def main() -> None:
+    """Main entry point for visualization generation."""
+    parser = argparse.ArgumentParser(
+        description='Generate visualization plots for smooth number density analysis.'
+    )
+    parser.add_argument(
+        '--spec-data',
+        type=str,
+        default='data/density_measurements_spec.csv',
+        help='Path to Spec grid data CSV'
+    )
+    parser.add_argument(
+        '--plan-data',
+        type=str,
+        default='data/density_measurements_plan.csv',
+        help='Path to Plan grid data CSV'
+    )
+    parser.add_argument(
+        '--output-dir',
+        type=str,
+        default='data',
+        help='Output directory for plots'
+    )
+    parser.add_argument(
+        '--y-values',
+        type=int,
+        nargs='+',
+        default=[100, 1000, 10000],
+        help='Y values to plot'
+    )
+    parser.add_argument(
+        '--spec-output',
+        type=str,
+        default='density_spec_grid.png',
+        help='Output filename for Spec grid plot'
+    )
+    parser.add_argument(
+        '--plan-output',
+        type=str,
+        default='deviation_plan_grid.png',
+        help='Output filename for Plan grid plot'
+    )
+
+    args = parser.parse_args()
+
+    # Ensure output directory exists
+    os.makedirs(args.output_dir, exist_ok=True)
 
     # Generate Spec grid plot
-    spec_output = os.path.join(args.output_dir, 'density_spec_grid.png')
-    try:
-        spec_data = load_and_group_data(args.spec_data, 'spec')
-        plot_spec_grid(spec_data, spec_output)
-    except FileNotFoundError as e:
-        logging.error(f"Spec grid data missing: {e}")
-        return 1
-    except Exception as e:
-        logging.error(f"Error generating Spec grid plot: {e}")
-        return 1
+    spec_path = os.path.join(args.output_dir, args.spec_output)
+    plot_spec_grid(
+        args.spec_data,
+        spec_path,
+        args.y_values,
+        annotation_text="Associational Trend Only"
+    )
 
     # Generate Plan grid plot
-    plan_output = os.path.join(args.output_dir, 'density_plan_grid.png')
-    try:
-        plan_data = load_and_group_data(args.plan_data, 'plan')
-        plot_plan_grid(plan_data, plan_output)
-    except FileNotFoundError as e:
-        logging.error(f"Plan grid data missing: {e}")
-        return 1
-    except Exception as e:
-        logging.error(f"Error generating Plan grid plot: {e}")
-        return 1
+    plan_path = os.path.join(args.output_dir, args.plan_output)
+    plot_plan_grid(
+        args.plan_data,
+        plan_path,
+        args.y_values,
+        annotation_text="Associational Trend Only"
+    )
 
-    logging.info("Visualization generation completed successfully.")
-    return 0
+    logger.info("Visualization generation complete")
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()

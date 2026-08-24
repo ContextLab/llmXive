@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-11T02:55:31.346502Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1040-llmxive-follow-up-extending-ideas-have-g
-last_run_id: fdba9b30-d570-4479-93d3-96698f06a881
+last_run_id: aca9d5ff-c03e-459c-a4eb-8edb605d420f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Ideas Have Genomes: Benchmarking Scientific
   Lineage Reasoning and Line"'
-updated_at: '2026-08-06T23:39:27.425685Z'
+updated_at: '2026-08-24T18:37:27.957639Z'

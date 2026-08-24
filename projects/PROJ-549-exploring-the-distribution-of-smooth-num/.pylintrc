@@ -1,0 +1,44 @@
+[MAIN]
+jobs=0
+persistent=yes
+extension-pkg-allow-list=numpy,scipy
+ignore=tests,venv,.venv,build,dist,*.egg-info
+
+[MESSAGES CONTROL]
+disable=
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0903,  # too-few-public-methods (common in dataclasses)
+    R0913,  # too-many-arguments (common in config/solvers)
+    R0914,  # too-many-locals
+    W0511,  # TODO, FIXME
+    W1203,  # logging-f-string (we use % formatting or f-strings in logging)
+    C0301,  # line-too-long (handled by flake8/black)
+    C0326,  # bad-whitespace (handled by black)
+
+[FORMAT]
+max-line-length=88
+ignore-long-lines=^\s*(from|import)\s.+$
+
+[DESIGN]
+max-args=10
+max-locals=20
+max-returns=6
+max-branches=15
+max-statements=60
+max-attributes=15
+max-public-methods=25
+
+[SIMILARITIES]
+min-similarity-lines=6
+ignore-comments=yes
+ignore-docstrings=yes
+
+[TYPECHECK]
+generated-members=numpy.*,scipy.*,matplotlib.*
+ignored-classes=numpy.ndarray,scipy.sparse.spmatrix
+
+[VARIABLES]
+additional-builtins=_
+init-import=no

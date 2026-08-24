@@ -1,8 +1,6 @@
-# Project dependencies for PROJ-549
-numpy
-scipy
-matplotlib
-pytest
-flake8
-black
-pylint
+numpy>=1.24.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0

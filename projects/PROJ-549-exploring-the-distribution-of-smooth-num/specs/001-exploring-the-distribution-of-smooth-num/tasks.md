@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `projects/PROJ-549-exploring-the-distribution-of-smooth-num/` with `code/`, `data/`, `tests/`, `state/`
+- [ ] T001 Create project structure per implementation plan: `projects/PROJ-549-exploring-the-distribution-of-smooth-num/` with `code/`, `data/`, `tests/`, `state/` <!-- FAILED: unspecified -->
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`, `scipy`, `matplotlib`, `pytest`
 - [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `code/`
 
@@ -67,7 +67,7 @@
 
 **Goal**: Implement a memory-safe segmented sieve to generate all primes up to $10^9$ for use in factorization.
 
-**Independent Test**: Execute the sieve script in isolation; verify output count matches $\pi(10^9) = 50,847,534$ within 1 second; verify peak memory < 4 GB [UNRESOLVED-CLAIM: c_d4318c31 — status=not_enough_info].
+**Independent Test**: Execute the sieve script in isolation; verify output count matches $\pi(10^9) = 50,847,534$ within 1 second; verify peak memory < 4 GB.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -139,10 +139,10 @@
 
 **Purpose**: Improvements that affect multiple user stories and address prior research-stage reviews
 
-- [ ] T030 [P] **Visualization Annotation**: Update `code/viz.py` to add specific text annotations at coordinates (x,y) for each plot indicating "Associational Trend Only" (per Spec Assumptions). Update `code/analysis.py` docstrings to explicitly state "Correlation does not imply causation".
+- [X] T030 [P] **Visualization Annotation**: Update `code/viz.py` to add specific text annotations at coordinates (x,y) for each plot indicating "Associational Trend Only" (per Spec Assumptions). Update `code/analysis.py` docstrings to explicitly state "Correlation does not imply causation".
 - [ ] T031 [P] Documentation updates in `docs/` explaining the methodology and dual-test approach (Chi-Square + KS).
 - [ ] T032a [P] **Performance Profiling**: Profile `code/smoothness.py` loop using `cProfile` to establish a baseline measurement of per-interval processing overhead. **Output**: A detailed profiling report identifying bottlenecks.
-- [ ] T032b [P] **Performance Optimization**: Implement vectorized factorization using `numpy` broadcasting on the factorization loop. **Goal**: Ensure the total runtime for the full parameter grid remains within the 6-hour CI limit [UNRESOLVED-CLAIM: c_99e524b9 — status=not_enough_info]. (Removed arbitrary 50% target to prevent scope creep).
+- [ ] T032b [P] **Performance Optimization**: Implement vectorized factorization using `numpy` broadcasting on the factorization loop. **Goal**: Ensure the total runtime for the full parameter grid remains within the 6-hour CI limit. (Removed arbitrary 50% target to prevent scope creep).
 - [ ] T033 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility on CI.
 - [ ] T034 [P] **Narrative Contextualization**: Implement a script that generates the caption text programmatically from data artifacts to explicitly frame short intervals $[x, x+h]$ as "Snapshot of Prime Density". Add a caption referencing the "forest density" metaphor to elevate the interpretation from pure calculation to a story of number distribution. **Dependency**: Must wait for T028 (visualization generation).
 - [ ] T035 [P] **Strict Data-Driven Captions**: Refactor `code/viz.py` to ensure all visualization captions are strictly derived from data artifacts (density values, confidence intervals, p-values) without subjective metaphors. **Constraint**: Metaphorical framing (e.g., "forest density") must be restricted to the `research.md` narrative section, not the primary `data/` visualizations, to preserve Constitution Principle IV (Single Source of Truth). **Dependency**: Must wait for T028.
