@@ -1,18 +1,17 @@
 status: none
-intent: ENSDF raw beta decay spectra python package download
+intent: "HEPData beta decay D\u2011coefficient upper limits dataset INSPIRE arXiv\
+  \ python package dataset"
 required_fields:
 - nucleus
-- nuclide
-- energy_or_momentum_values
-- intensity_counts
-- intensity_uncertainty
-- polarization_asymmetry
-- asymmetry_uncertainty
-- nuclear_state
-- excitation_energy
-- experiment_reference
-- measurement_date
-- data_source
-cache_key: 368e7cff79a11038a8d9a29ce893091c6e2592c3464bba1b4dcc4c88060de805
-searched_at: '2026-07-22T19:41:29.019497+00:00'
+- D_coefficient_upper_limit
+- confidence_level
+- uncertainty
+- limit_type
+- experimental_conditions
+- experiment_name
+- reference_doi
+- reference_arxiv_id
+- publication_year
+cache_key: 4802f58c0ba61c8abfe6d62dfe91df96c5a8ef3c8637de973c80726e63a73f3e
+searched_at: '2026-08-24T03:07:36.036179+00:00'
 retry_count: 1

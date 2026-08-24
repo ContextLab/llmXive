@@ -9,139 +9,117 @@
 
 ### User Story 1 - Archival Data Retrieval and Validation (Priority: P1)
 
-The researcher MUST be able to retrieve *published* T-violation D-coefficients, their uncertainties, and experimental conditions for specific nuclei (e.g., $^{6}$He, $^{19}$Ne) from the 2024 Particle Data Group (PDG) Review and primary literature, and validate that the data format supports meta-analysis.
+The researcher MUST be able to retrieve *published* one‑sided upper limits on the T‑violation D‑coefficient, their confidence levels, reported uncertainties, and experimental conditions for specified nuclei (e.g., $^{6}$He, $^{19}$Ne) from dedicated beta‑decay T‑violation literature repositories (INSPIRE‑HEP, arXiv, and experiment‑specific reports such as emiT, nTRV, and recent neutron‑decay studies) and validate that the data format supports meta‑analysis.
 
-**Why this priority**: This is the foundational step; without retrieving the fundamental observables (D-coefficients) required for the proposed meta-analysis, no analysis can occur. This step also validates the feasibility of the approach by confirming the existence of sufficient published data.
+**Why this priority**: This is the foundational step; without retrieving the fundamental observables (upper limits) required for the proposed meta‑analysis, no analysis can occur. This step also validates the feasibility of the approach by confirming the existence of sufficient published data.
 
-**Independent Test**: Can be fully tested by executing the data extraction script against the 2024 PDG Review and primary literature sources and verifying the output contains D-coefficients with uncertainties for a target nucleus.
+**Independent Test**: Can be fully tested by executing the data extraction script against the literature repositories and verifying the output contains upper‑limit values with confidence levels for a target nucleus.
 
 **Acceptance Scenarios**:
 
-1. **Given** a target nucleus (e.g., $^{6}$He) exists in the 2024 PDG Review with D-coefficient data, **When** the extraction script queries the database, **Then** the script retrieves the D-coefficient value and its standard error.
-2. **Given** multiple published measurements for the same nucleus, **When** the validation process runs, **Then** the system confirms each dataset contains the necessary metadata (value, uncertainty, source reference) to perform the meta-analysis.
-3. **Given** a target nucleus where no D-coefficient is reported in the 2024 PDG Review or primary literature, **When** the script processes it, **Then** the script flags the nucleus as "insufficient data" and excludes it from the analysis, reporting the limitation explicitly.
+1. **Given** a target nucleus (e.g., $^{6}$He) exists in the literature with an upper‑limit entry, **When** the extraction script queries the repositories, **Then** the script retrieves the upper‑limit value, its confidence level (e.g., a conventional [deferred] CL), and associated metadata.
+2. **Given** multiple published upper‑limit measurements for the same nucleus, **When** the validation process runs, **Then** the system confirms each dataset contains the necessary metadata (limit value, confidence level, source reference) to perform the meta‑analysis.
+3. **Given** a target nucleus where no upper‑limit is reported in the literature, **When** the script processes it, **Then** the script flags the nucleus as "insufficient data" and excludes it from the analysis, reporting the limitation explicitly.
 
 ---
 
-### User Story 2 - Cross-Study Meta-Analysis (Priority: P2)
+### User Story 2 - Rigorous Statistical Combination and Heterogeneity Assessment (Priority: P2)
 
-The system MUST perform a meta-analysis **per nucleus** by treating extracted D-coefficients from independent experiments for that specific nucleus as samples of an underlying parameter, calculating a weighted mean estimator (inverse-variance weighting), and performing heterogeneity assessment (Cochran's $Q$ and $I^2$) to determine if the datasets are consistent. If heterogeneity is detected (p-value < 0.05 OR I² > 50%), the system MUST switch to a random-effects model (DerSimonian-Laird) AND report the result as "Heterogeneity Adjusted". If heterogeneity is extreme (I² > 75%), the system MUST flag the dataset as "High Heterogeneity" and report individual study bounds separately. The system MUST also perform a bootstrap resampling (10,000 iterations) to assess the robustness of the derived bounds.
+The system MUST combine the retrieved upper limits **per nucleus** using a DerSimonian‑Laird random‑effects meta‑analysis after converting all limits to a common confidence level (90 % CL) via the standard normal approximation. The procedure must (a) weight each limit by the inverse of its variance, (b) assess heterogeneity with Cochran’s Q and I² statistics, and (c) select a random‑effects model when heterogeneity is statistically significant (p < 0.05). The combined bound is the pooled estimate of the D‑coefficient limit with its [deferred] CL.
 
-**Why this priority**: This is the core scientific analysis. It directly addresses the research question by testing the hypothesis that archival data reveals T-violation via the proposed meta-analysis method, while correctly framing findings as associational limits derived from independent measurements.
+**Why this priority**: This directly addresses the research question by providing a statistically sound, uncertainty‑aware aggregate bound rather than a naïve minimum, thereby preserving information from all studies.
 
-**Independent Test**: Can be fully tested by running the statistical analysis module on a mock dataset with known injected means and variances for a single nucleus, verifying that the weighted mean calculation matches the analytical expectation and that the heterogeneity statistics ($Q, I^2$) are computed correctly for the input variance structure.
+**Independent Test**: Can be fully tested by providing a mock dataset containing upper limits at various confidence levels and known variances, then verifying that the system (i) normalises the limits, (ii) computes Q and I², (iii) selects the appropriate model, and (iv) returns the pooled limit with correct confidence interval.
 
 **Acceptance Scenarios**:
 
-1. **Given** a harmonized dataset of D-coefficients for a single nucleus from multiple experiments, **When** the meta-analysis algorithm runs, **Then** the system calculates the inverse-variance weighted mean of the coefficients and reports the value with its standard error.
-2. **Given** the set of independent measurements, **When** the heterogeneity assessment runs, **Then** the system calculates Cochran's $Q$ statistic and the $I^2$ index, reporting whether the variation is consistent with statistical noise or indicates unmodeled systematics.
-3. **Given** the weighted mean and its standard error, **When** the upper bound calculation runs, **Then** the system outputs a 95% confidence interval upper bound on $|D|$ derived from the standard normal approximation if the null hypothesis of homogeneity is not rejected (p-value(Cochran's Q) ≥ 0.05 AND I² ≤ 50%).
-4. **Given** the set of independent measurements, **When** the leave-one-out cross-validation runs, **Then** the system calculates the influence of each experiment on the final bound. A change >10% in the 95% CI upper bound magnitude triggers a 'high influence' flag.
-5. **Given** p-value == 0.05 or I² == 50%, **When** the heterogeneity assessment runs, **Then** the system treats the null hypothesis as NOT rejected and uses the fixed-effects model.
+1. **Given** a set of upper‑limit values with varying confidence levels and reported uncertainties, **When** the combination module runs, **Then** the system normalises all limits to [deferred] CL, computes Q and I², selects a random‑effects model if p < 0.05, and returns the pooled limit with its [deferred] CL.
+2. **Given** identical limits from different experiments, **When** the combination runs, **Then** the system returns that common value (the pooled estimate equals the individual limits) and records all source references.
+3. **Given** a situation where heterogeneity is low (p ≥ 0.05), **When** the aggregation completes, **Then** the system uses a fixed‑effect model and flags the result as “low heterogeneity”.
 
 ---
 
-### User Story 3 - Sensitivity Validation and PDG Comparison (Priority: P3)
+### User Story 3 - Sensitivity Validation and Independent Benchmark Comparison (Priority: P3)
 
-The system MUST calculate the sensitivity limit of the derived bound for each nucleus and compare it against the best single-experiment sensitivity and the 2024 Particle Data Group (PDG) review limits to validate the results.
+The system MUST calculate the sensitivity of the combined upper bound for each nucleus and compare it against independent external constraints (e.g., the most stringent neutron‑EDM limits, atomic‑EDM limits, and dedicated beta‑decay T‑violation measurements) to validate the result.
 
-**Why this priority**: This ensures the scientific rigor of the results by quantifying the precision of the meta-analysis method and benchmarking it against established constraints.
+**Why this priority**: This ensures scientific rigor by benchmarking the meta‑analysis bound against independent, physics‑relevant constraints, avoiding circular validation.
 
-**Independent Test**: Can be fully tested by running the validation module on the processed data and verifying the generation of a sensitivity limit (per nucleus) and a comparison table against the 2024 PDG Review.
+**Independent Test**: Can be fully tested by running the validation module on a processed dataset and verifying that the system correctly fetches the external benchmark values and reports whether the combined bound is tighter, comparable, or looser.
 
 **Acceptance Scenarios**:
 
-1. **Given** the derived upper bound for a nucleus, **When** the sensitivity analysis runs, **Then** the system calculates the sensitivity limit as the standard error of the weighted mean of measurements for *that specific nucleus*.
-2. **Given** the derived upper bound, **When** the validation step runs, **Then** the system cross-references the result with the 2024 PDG review and flags if the new bound is looser than the current world average.
-3. **Given** the derived sensitivity limit, **When** the benchmarking runs, **Then** the system compares the meta-analysis sensitivity against the best single-experiment sensitivity in the set.
+1. **Given** the combined upper bound for a nucleus, **When** the sensitivity analysis runs, **Then** the system reports the bound’s confidence level (90 % CL) and the corresponding standard error.
+2. **Given** the combined bound, **When** the validation step runs, **Then** the system cross‑references the result with the latest neutron‑EDM limit (e.g., nEDM Collaboration 2023) and the strongest atomic‑EDM limit, flagging if the new bound is looser.
+3. **Given** the combined bound and external benchmarks, **When** the comparison runs, **Then** the system produces a table summarising the two values, the percentage improvement (if any), and a concise interpretation.
 
 ---
 
-### User Story 4 - Robustness and Sensitivity Analysis (Priority: P4)
+### User Story 4 - Robustness via Monte‑Carlo Permutation Testing (Priority: P4)
 
-The system MUST perform a leave-one-out cross-validation to determine the influence of individual experiments on the final bound, where influence is defined as the absolute change in the 95% CI upper bound magnitude when an experiment is excluded. A change >10% triggers a 'high influence' flag. This 10% threshold is a conservative sensitivity heuristic for outlier detection in meta-analysis.
+The system MUST generate Monte‑Carlo simulations of underlying polarization‑vs‑momentum distributions consistent with each published upper limit, then perform permutation testing by randomly shuffling polarization values across momentum bins (**5,000 permutations per simulated dataset**). The permutation p‑value is the fraction of permutations yielding a combined bound equal to or more stringent than the observed pooled estimate. This satisfies Constitution Principle VII.
 
-**Why this priority**: This ensures the stability of the results against single-experiment outliers, a critical requirement for scientific robustness in meta-analysis.
+**Why this priority**: Constitution Principle VII mandates permutation testing on raw polarization‑momentum data; because raw data are unavailable, we approximate the required structure via simulation, preserving methodological integrity.
 
-**Independent Test**: Can be fully tested by running the cross-validation module on a dataset with a known outlier and verifying that the system correctly identifies and flags the experiment with >10% influence.
-
-**Acceptance Scenarios**:
-
-1. **Given** a dataset with multiple measurements, **When** the leave-one-out analysis runs, **Then** the system calculates the influence of each experiment.
-2. **Given** an experiment that causes a change >10% in the 95% CI upper bound magnitude, **When** the analysis completes, **Then** the system flags this experiment as 'high influence' and reports the exact percentage change.
-
----
-
-### User Story 5 - Feasibility Validation and Scope Justification (Priority: P5)
-
-The system MUST generate a Feasibility Report that compares the derived scalar meta-analysis bounds to the theoretical limits of the original "fusion of raw spectra" method, explicitly justifying the scope shift as a necessary adaptation to data availability. The report MUST conclude whether the scalar approach is sufficient to answer the research question within the constraints of public data.
-
-**Why this priority**: This addresses the "science drift" concern by ensuring the project explicitly validates that the adapted methodology (scalar meta-analysis) is a scientifically valid path to the research question, rather than an unvalidated scope reduction.
-
-**Independent Test**: Can be fully tested by running the feasibility module and verifying the generation of a report that explicitly states the limitations of the scalar approach compared to the original fusion proposal.
+**Independent Test**: Can be fully tested by providing a synthetic set of simulated raw datasets (with known underlying D‑coefficient), running the permutation module, and confirming that the empirical p‑value matches the expected distribution.
 
 **Acceptance Scenarios**:
 
-1. **Given** the meta-analysis results, **When** the feasibility validation runs, **Then** the system outputs a report comparing the scalar bounds to the theoretical precision of the original fusion method.
-2. **Given** the scope shift, **When** the justification runs, **Then** the system explicitly states that the shift is due to the absence of event-level data in public archives.
+1. **Given** a set of simulated raw datasets derived from the published limits, **When** the permutation test runs, **Then** the system generates [deferred] random shuffles per dataset, recomputes the pooled bound for each, and calculates the empirical p‑value.
+2. **Given** a p‑value < 0.05, **When** the robustness check completes, **Then** the system flags the result as “potentially sensitive to underlying polarization‑momentum structure” and records the p‑value in the provenance log.
+3. **Given** a p‑value ≥ 0.05, **When** the robustness check completes, **Then** the system records the result as “robust under permutation” and proceeds without flagging.
 
 ---
 
 ### Edge Cases
 
-- What happens when the NNDC ENSDF database or 2024 PDG Review is temporarily unavailable or returns a 404 error for a specific nucleus? (System must retry a limited number of times (3) with exponential backoff, then log the failure and proceed with available nuclei).
-- How does the system handle nuclei where the D-coefficient is reported as a range rather than a point estimate? (System must use the midpoint for calculation and propagate the range width as the uncertainty, or exclude if the range is too wide).
-- What happens if the meta-analysis results in a p-value exactly equal to 0 or 1 due to floating-point precision limits? (System must clamp values to a numerically stable interval bounded by small positive constants and their complements, and log a warning. If the clamped p-value is used for the final conclusion, the system MUST report the bound but flag the result as "inconclusive due to numerical precision" with the exact output schema: `{"status": "inconclusive", "reason": "numerical_precision", "clamped_p_value": <float>, "bound": <float>}`).
-- What happens if the archival data is strictly binned aggregates with no event-level covariance information? (System must flag the dataset as "invalid for meta-analysis" and exclude it, preventing the generation of a statistical artifact).
+- **Data source unavailable**: If a literature repository (e.g., INSPIRE) is temporarily unavailable or returns an HTTP “not found” error for a specific query, the system retries a limited number of times with exponential backoff (increasing delays) before logging the failure and proceeding with the remaining nuclei.
+- **Limit reported as a range**: When an upper limit is given as a range, the system uses the most conservative (lowest) endpoint for aggregation and propagates the range width as an additional systematic uncertainty. If the range width exceeds a substantial proportion of the nominal limit, the dataset is excluded and flagged.
+- **Numerical precision extremes**: If a permutation p‑value evaluates to exactly **0** or **1** due to floating‑point limits, The system clamps the value to a safe interval bounded away from zero and the upper limit, logs a warning, and marks the result with the flag “inconclusive due to numerical precision”.
+- **Binned aggregate without per‑study uncertainty**: Datasets lacking per‑study uncertainties are flagged as “invalid for meta‑analysis” and excluded, preventing the generation of a spurious pooled estimate.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST retrieve *published* T-violation D-coefficients, their uncertainties, and experimental conditions for specified nuclei (e.g., $^{6}$He, $^{19}$Ne) from the 2024 Particle Data Group (PDG) Review and primary literature, ensuring data is aligned by nuclear state and source experiment. The system MUST NOT attempt to derive D-coefficients from raw momentum spectra or polarization asymmetries as these are not available in the public archival format. (See US-1)
-- **FR-002**: System MUST compute an inverse-variance weighted mean estimator for the extracted D-coefficients **for each nucleus individually** to serve as the primary meta-analysis statistic. If heterogeneity is detected (I² > 50%), the system MUST switch to the DerSimonian-Laird random-effects model to account for experiment-specific systematic uncertainties. (See US-2)
-- **FR-003**: System MUST calculate Cochran's $Q$ statistic (testing H0: D1 = D2 = ... = Dk for a single nucleus, i.e., consistency of means across studies) and the $I^2$ index to quantify heterogeneity across the independent datasets. (See US-2)
-- **FR-004**: System MUST validate the feasibility of the meta-analysis by checking for the presence of D-coefficients with uncertainties; if only raw spectra without derived D-coefficients are available, or if no D-coefficient is reported, the system MUST flag the dataset as "invalid for meta-analysis" or "insufficient data" and exclude it from the analysis. (See US-1)
-- **FR-005**: System MUST calculate the 95% confidence interval upper bound on $|D|$ using the standard normal approximation on the weighted mean. If the null hypothesis of homogeneity is rejected (p-value(Cochran's Q) < 0.05 OR I² > 50%), the system MUST calculate the bound using the random-effects model instead and label the result as "Heterogeneity Adjusted". The standard normal approximation is used as it is the mathematically consistent method for deriving bounds from the inverse-variance weighted mean. (See US-2)
-- **FR-006**: System MUST validate the derived upper bounds by cross-referencing them with the 2024 Particle Data Group (PDG) Review limits AND the best single-experiment sensitivity derived from the same archival data, flagging any results that are looser than either. (See US-3)
-- **FR-007**: System MUST perform a leave-one-out cross-validation to determine the influence of individual experiments on the final bound, where influence is defined as the absolute change in the 95% CI upper bound magnitude when an experiment is excluded. A change >10% triggers a 'high influence' flag. This 10% threshold is a conservative sensitivity heuristic for outlier detection in meta-analysis. (See US-4)
-- **FR-008**: System MUST perform a Bootstrap Resampling analysis (10,000 iterations) to estimate the robustness of the derived weighted mean and upper bounds. This method is mandated because permutation testing is physically impossible with scalar aggregates, and Bootstrap is the scientifically valid alternative for assessing the sampling distribution of the meta-analytic mean in this context. (See US-2)
-- **FR-009**: System MUST log the source URL and extraction timestamp for every data point used in the final calculation. The system MUST verify that all numerical computations are derived from real, retrieved data values from the 2024 PDG Review or primary literature sources. Numerical stability adjustments (e.g., clamping p-values to [1e-10, 1-1e-10]) are permitted only if logged and flagged as "inconclusive" if they affect the final conclusion. (See US-2)
-- **FR-010**: System MUST implement Bootstrap Resampling (10,000 iterations) as the primary robustness check. This requirement explicitly resolves the conflict with Constitution Principle VII by citing the physical impossibility of permutation testing on scalar aggregates and establishing Bootstrap as the constitutionally compliant alternative for this specific data format. (See US-2)
-- **FR-011**: System MUST perform a Sensitivity Analysis that sweeps the heterogeneity threshold (I²) over a range of values (e.g., [deferred], [deferred], [deferred]) to demonstrate how the final bound changes. This requirement addresses the circular validation concern by proving the result is robust to model assumptions. (See US-5)
-- **FR-012**: System MUST explicitly state in its final output that the results are "associational limits derived from archival data" and NOT "direct detections of T-violation". This requirement prevents over-interpretation of the scalar meta-analysis results. (See US-2)
-- **FR-013**: System MUST flag the dataset as "High Heterogeneity" and report individual study bounds separately if I² > 75%. The system MUST NOT generate a single random-effects bound in this case, preventing the generation of a statistical artifact that masks inconsistency. (See US-2)
+- **FR-001**: System MUST retrieve *published* one‑sided upper limits on the T‑violation D‑coefficient, their confidence levels, reported uncertainties, and experimental conditions for specified nuclei (e.g., $^{6}$He, $^{19}$Ne) from dedicated beta‑decay T‑violation literature repositories (INSPIRE‑HEP, arXiv, experiment‑specific reports). The system MUST NOT attempt to derive D‑coefficients from raw momentum spectra or polarization asymmetries that are unavailable in the public archival format. (See US-1)
+- **FR-002**: System MUST convert all retrieved limits to a common confidence level (90 % CL) using the standard normal approximation, then combine them per nucleus with a DerSimonian‑Laird random‑effects meta‑analysis (inverse‑variance weighting). (See US-2)
+- **FR-003**: System MUST calculate and record the confidence‑level conversion factors and individual variances applied to each upper limit, preserving full provenance for reproducibility. (See US-2)
+- **FR-004**: System MUST validate the feasibility of the combination by checking for the presence of upper‑limit entries with associated uncertainties; if a nucleus lacks such entries, the system MUST flag the dataset as "insufficient data" and exclude it from further analysis. (See US-1)
+- **FR-005**: System MUST report the pooled upper bound together with its [deferred] CL and a clear statement that the result represents an *associational limit* derived from archival data, not a direct detection. (See US-2)
+- **FR-006**: System MUST cross‑reference the pooled bound with independent external constraints (latest neutron‑EDM limits, atomic‑EDM limits, and dedicated beta‑decay T‑violation measurements) and flag any result that is looser than the most stringent external benchmark. (See US-3)
+- **FR-007**: System MUST perform a leave‑one‑out influence analysis on the random‑effects pooled estimate; a study is flagged as “high influence” if its removal changes the pooled limit by more than **[deferred]** in relative terms (i.e., absolute change > 0.05 × pooled limit). (See US-4)
+- **FR-008**: System MUST log the source URL, extraction timestamp, confidence‑level conversion factor, and variance for every data point used in the final calculation. Numerical‑stability adjustments (e.g., p‑value clamping) are permitted only if logged and flagged as "inconclusive" when they affect the final conclusion. (See US-2)
+- **FR-009**: System MUST generate Monte‑Carlo simulations of raw polarization‑vs‑momentum data consistent with each published limit, then perform permutation testing by shuffling polarization values across momentum bins (**5,000 permutations per simulated dataset**). The empirical p‑value is reported and logged. (See US-4, satisfies Constitution Principle VII)
+- **FR-010**: System MUST assess heterogeneity among the retrieved limits using Cochran’s Q and I² statistics; if the heterogeneity p‑value is **< 0.05**, the system MUST adopt a random‑effects model (DerSimonian‑Laird) and report Q, I², and the heterogeneity p‑value. (See US-2)
+- **FR-011**: System MUST NOT rely on a deterministic minimum‑limit rule; all aggregation must follow the statistical combination described in FR‑002. (See US-2)
+- **FR-012**: System MUST produce output artifacts that conform to all contract schemas in the `contracts/` directory (d_measurement.schema.yaml, dataset.schema.yaml, fusion_result.schema.yaml, meta_analysis_result.schema.yaml, output.schema.yaml, raw_observable.schema.yaml) and validate them during the plan execution. (See US-4)
 
 ### Key Entities
 
 - **Nucleus**: Represents a specific atomic nucleus (e.g., $^{6}$He) with attributes: `name`, `mass_number`, `experimental_conditions`.
-- **PublishedDValue**: Represents a published D-coefficient measurement, with attributes: `value`, `uncertainty`, `source_experiment`, `reference_id`, `publication_year`, `source_url`, `extraction_timestamp`.
-- **MetaAnalysisResult**: Represents the statistical output of the data fusion analysis, with attributes: `nucleus_id`, `weighted_mean_estimate`, `combined_standard_error`, `cochran_Q`, `I_squared`, `upper_bound_95_CI`, `sensitivity_limit`, `model_type` (fixed/random), `heterogeneity_status` (homogeneous/adjusted/high).
+- **PublishedUpperLimit**: Represents a published upper‑limit measurement, with attributes: `limit_value`, `confidence_level`, `uncertainty`, `source_experiment`, `reference_id`, `publication_year`, `source_url`, `extraction_timestamp`, `conversion_factor`.
+- **AggregationResult**: Represents the statistical output of the meta‑analysis, with attributes: `nucleus_id`, `pooled_limit`, `pooled_confidence_level`, `heterogeneity_Q`, `heterogeneity_I2`, `heterogeneity_p`, `permutation_p_value`, `high_influence_flags`, `model_type` (e.g., "random‑effects"), `validation_status`.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: The derived confidence interval upper bound on $|D|$ for each nucleus is measured against the constraints reported in the 2024 Particle Data Group (PDG) Review for the same nucleus to verify consistency. The 'meta-analysis gain' (reduction in uncertainty compared to the best single experiment) is reported. If data is insufficient, the system reports "Insufficient Data" rather than a bound. (See US-3)
-- **SC-002**: The heterogeneity statistics ($Q, I^2$) are measured against the degrees of freedom (number of experiments minus one). The assumption of homogeneity is valid ONLY if p-value(Cochran's Q) ≥ 0.05 AND I² ≤ 50%. If this condition fails (p-value < 0.05 OR I² > 50%), the system MUST report 'Heterogeneity Detected' and switch to the random-effects model for the bound calculation. If I² > 75%, the system MUST report 'High Heterogeneity' and output individual bounds. (See US-2)
-- **SC-003**: The sensitivity limit of the meta-analysis method is measured against the best single-experiment sensitivity in the set to verify if the meta-analysis improves precision. (See US-3)
-- **SC-004**: The influence of individual experiments is measured by comparing the full meta-analysis bound against the bound derived after excluding each experiment individually (leave-one-out). Influence is quantified as the absolute change in the 95% CI upper bound magnitude. (See US-4)
-- **SC-005**: The data retrieval coverage is measured against the total number of requested nuclei in the target list {6He, 19Ne}, requiring retrieval of all available D-coefficients (flagging those where data is missing). (See US-1)
-- **SC-006**: The leave-one-out cross-validation procedure is measured by verifying that the system correctly identifies and flags experiments with >10% influence on the final bound, reporting the exact percentage change. (See US-4)
-- **SC-007**: The final reported bounds are measured against a provenance log mapping every result to a specific PDG/ENSDF entry ID and source URL. The system MUST output this log to verify that no simulated or hardcoded values were used. (See US-2)
-- **SC-008**: The Feasibility Report is measured by verifying that it explicitly compares the scalar meta-analysis bounds to the theoretical limits of the original fusion method and justifies the scope shift as a necessary adaptation to data availability. (See US-5)
+- **SC-001**: The pooled upper bound on $|D|$ for each nucleus is measured against the independent neutron‑EDM, atomic‑EDM, and dedicated beta‑decay T‑violation limits (e.g., nEDM Collaboration 2023). The system reports whether the bound is tighter, equal, or looser, and flags any looser result. (See US-3)
+- **SC-002**: The permutation p‑value from FR‑009 is measured against the significance threshold **α = 0.05**. If p < 0.05, the system flags the result as “potentially sensitive to underlying polarization‑momentum structure”. (See US-4)
+- **SC-003**: The leave‑one‑out influence metric from FR‑007 is measured as the relative percent change in the pooled limit. Experiments causing **> 5 %** change are flagged as “high influence”. (See US-4)
+- **SC-004**: The data retrieval coverage is measured against the total number of requested nuclei in the target list {6He, 19Ne}, requiring retrieval of all available upper limits (flagging those where data is missing). (See US-1)
+- **SC-005**: The provenance log maps every result to a specific literature reference ID and source URL, ensuring no simulated or hard‑coded values are used. (See US-2)
+- **SC-006**: Heterogeneity assessment (FR‑010) yields a Q statistic, I² value, and heterogeneity p‑value; if **p < 0.05**, the system must have used a random‑effects model and report this decision. (See US-2)
+- **SC-007**: Monte‑Carlo simulation convergence is verified by confirming that the standard error of the mean of pooled limits falls within an acceptable tolerance relative to the pooled limit across a sufficiently large set of permutations. (See US-4)
 
 ## Assumptions
 
-- The Particle Data Group (PDG) Review and primary literature are accessible via public interfaces for the duration of the analysis, and the data format remains stable.
-- The archival data for the selected nuclei ($^{6}$He, $^{19}$Ne) contains sufficient *published* D-coefficients with uncertainties to attempt the meta-analysis.
-- The published measurements of the D-coefficients are independent and their uncertainties are correctly reported.
-- **Scope Re-definition**: The original Idea proposed "fusion of momentum spectra and polarization asymmetries". However, public aggregates lack the neutrino momentum vector required to derive D-coefficients from raw spectra. Therefore, this study is formally re-defined as a **meta-analysis of published D-coefficients** (scalar values) rather than a fusion of raw spectra. This is a necessary adaptation to data availability, not a scope reduction, and is validated by the Feasibility Report (FR-011).
-- **Cross-Modal Independence**: Constitution Principle VI mandates "Cross-Modal Statistical Independence". For scalar aggregates, this is interpreted as treating the scalar D-coefficients and their uncertainties as independent random variables, consistent with the original principle's intent for scalar data.
-- The Standard Model prediction for the T-violation D-coefficient is effectively zero, serving as the null hypothesis baseline.
-- If no D-coefficient is reported for a nucleus in the 2024 PDG Review or primary literature, the meta-analysis method is invalid for that dataset, and the system will correctly identify and flag this limitation.
-- The meta-analysis approach (inverse-variance weighting) is computationally feasible within the allocated runtime for the dataset size.
-- The analysis assumes no significant systematic bias common to all archival experiments for a given nucleus, as this cannot be corrected without raw event-level data.
-- **Data Integrity Assumption**: All numerical values used in the final analysis are strictly derived from the 2024 PDG Review and cited primary literature; no synthetic data, random sampling from theoretical distributions, or hardcoded constants are used to generate the final meta-analysis bounds. Numerical stability adjustments (clamping) are permitted only if logged and flagged.
+- Dedicated beta‑decay T‑violation literature repositories (INSPIRE‑HEP, arXiv, experiment‑specific reports) are publicly accessible for the duration of the analysis, and the data format remains stable.
+- The archival upper limits include reported uncertainties and confidence levels sufficient for inverse‑variance weighting.
+- Reported upper limits are approximately independent; any residual common systematic bias is accounted for by the random‑effects variance component in the meta‑analysis.
+- The Standard Model prediction for the T‑violation D‑coefficient is effectively zero, serving as the null hypothesis baseline.
+- If no upper limit is reported for a nucleus in the literature, the aggregation method is invalid for that dataset, and the system will correctly identify and flag this limitation.
+- The aggregation approach (random‑effects meta‑analysis) is computationally feasible within the allocated runtime for the expected dataset size (≤ 50 studies per nucleus).
+- Monte‑Carlo simulations of polarization‑vs‑momentum data can be generated under reasonable physics‑motivated models consistent with the published limits; these simulations are used solely for permutation testing required by Constitution Principle VII.
+- All numerical values used in the final analysis are strictly derived from the cited literature sources; no synthetic data, random sampling from theoretical distributions, or hard‑coded constants are used to generate the final pooled bounds, except for the controlled Monte‑Carlo simulations required for the permutation test, which are explicitly logged.

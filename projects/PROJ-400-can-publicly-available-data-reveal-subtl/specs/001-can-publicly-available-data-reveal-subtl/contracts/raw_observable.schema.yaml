@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 type: "object"
 title: "RawObservable"
-description: "Represents a raw or semi-raw measurement from ENSDF (LEGACY/DEPRECATED). This schema is retained for compatibility but is not used in the primary Meta-Analysis pipeline. The 'cross-modal fusion' method requiring raw event-level data is physically invalid."
+description: "Legacy schema for a raw or semi‑raw measurement from ENSDF (not used)."
 required:
   - value
   - uncertainty

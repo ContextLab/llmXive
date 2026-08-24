@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PublishedUpperLimit"
+type: "object"
+required:
+  - "nucleus"
+  - "limit_value"
+  - "confidence_level"
+  - "source_experiment"
+  - "reference_id"
+  - "publication_year"
+  - "source_url"
+  - "extraction_timestamp"
+properties:
+  nucleus:
+    type: "string"
+    description: "Canonical nucleus identifier (e.g., \"6He\")."
+  limit_value:
+    type: "number"
+    description: "Reported one‑sided upper limit on |D| (original CL)."
+  confidence_level:
+    type: "number"
+    description: "Reported confidence level as a proportion (e.g., 0.90)."
+  source_experiment:
+    type: "string"
+    description: "Name or acronym of the experiment."
+  reference_id:
+    type: "string"
+    description: "Bibliographic identifier (e.g., DOI)."
+  publication_year:
+    type: "integer"
+    description: "Year of the source publication."
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "URL of the PDG entry or primary paper."
+  extraction_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO‑8601 timestamp when the record was fetched."
+  conversion_factor:
+    type: ["number", "null"]
+ description: "Factor applied to convert to [deferred] CL; null if already [deferred]."
+additionalProperties: false
