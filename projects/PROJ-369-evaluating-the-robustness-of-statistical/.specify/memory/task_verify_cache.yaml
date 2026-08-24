@@ -16,13 +16,6 @@ T021:
   r: "No code, configuration, or log files were provided that implement edge\u2011\
     case handling for undeterminable unit roots, count differencing steps, or record\
     \ them. The claim lacks any concrete artifact to verify the required functionality."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, or documentation for the edge\u2011case handling (fallback to\
-    \ variance\u2011based metric when spectral density fails) was provided; the claim\
-    \ lacks any tangible artifact to verify that the fallback logic was implemented\
-    \ and integrated. The required implementation is therefore missing."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,3 +23,11 @@ T027:
     \ logic to generate synthetic time\u2011series of the specified lengths (100,\u202F\
     500,\u202F1\u202F000,\u202F5\u202F000,\u202F10\u202F000). Without an artifact\
     \ showing the generation routine and its output, the task requirement is not satisfied."
+T029:
+  c: false
+  h: a3717e44f8ae52afef2db39d86e00d6f364d26dc6cd2a88a9a299e956b42a29a
+  r: "The provided `src/synthesis/validation.py` contains only ACF\u2011lag\u2011\
+    1 shuffling checks and never computes a rejection rate, Clopper\u2011Pearson confidence\
+    \ interval, or writes `data/results/baseline_status.json`. Moreover, the required\
+    \ `baseline_status.json` file is absent. The task\u2019s core requirements are\
+    \ therefore unmet."

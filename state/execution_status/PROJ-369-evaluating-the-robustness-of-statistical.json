@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-369-evaluating-the-robustness-of-statistical",
   "ok": false,
-  "reason": "6 run-book script(s) missing (plan/impl path mismatch): python src/main.py --stage ingestion; python src/main.py --stage preprocessing; python src/main.py --stage synthesis; 2 declared deliverable(s) absent: data/results/filtered_features.json; data/results/regression_model.json",
+  "reason": "6 run-book script(s) missing (plan/impl path mismatch): python src/main.py --stage ingestion; python src/main.py --stage preprocessing; python src/main.py --stage synthesis; 5 declared deliverable(s) absent: data/processed/metrics.json; data/results/baseline_status.json; data/results/filtered_features.json",
   "artifacts": [],
   "failures": [
     "python src/main.py --stage ingestion -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-369-evaluating-the-robustness-of-statistical/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-369-evaluating-the-robustness-of-statistical/src/main.py': [Errno 2] No such file or directory",
@@ -11,11 +11,11 @@
     "python src/main.py --stage regression -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-369-evaluating-the-robustness-of-statistical/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-369-evaluating-the-robustness-of-statistical/src/main.py': [Errno 2] No such file or directory",
     "python src/main.py --stage viz -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-369-evaluating-the-robustness-of-statistical/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-369-evaluating-the-robustness-of-statistical/src/main.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-21T00:48:35Z"
+  "updated_at": "2026-08-24T02:10:33Z"
 }

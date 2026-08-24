@@ -14,3 +14,6 @@ ruff>=0.1.0
 black>=22.0.0
 pytest>=6.2.0
 pytest-mock>=3.6.0
+requests_mock  # auto-added: imported by run-book but missing from venv
+tomli  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv

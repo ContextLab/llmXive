@@ -42,20 +42,9 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/maurice/traffic/resolve/main/traffic.csv
   verified_at: '2026-08-04T17:06:00.756414Z'
-- artifact_hash: 608f01bdd90d2c8555bfbdee75b03e2eed001b840bc916529829888ce6c42aed
+- artifact_hash: 981d4c1a62e5297566ccea279f011d570482ced3d4b18168816785e725c084a1
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: isd-inventory.csv
-  kind: url
-  value: https://www.ncei.noaa.gov/pub/data/noaa/isd-inventory.csv`
-  verification_status: pending
-  verified_against_url: https://www.ncei.noaa.gov/pub/data/noaa/isd-inventory.csv
-  verified_at: '2026-08-22T17:24:49.229915Z'
-- artifact_hash: 608f01bdd90d2c8555bfbdee75b03e2eed001b840bc916529829888ce6c42aed
-  artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -63,26 +52,4 @@
   value: https://www.nationalgrideso.com/document/174276/download`
   verification_status: pending
   verified_against_url: https://www.nationalgrideso.com/document/174276/download
-  verified_at: '2026-08-22T17:24:49.229915Z'
-- artifact_hash: 608f01bdd90d2c8555bfbdee75b03e2eed001b840bc916529829888ce6c42aed
-  artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014833.dly.gz`
-  verification_status: mismatch
-  verified_against_url: https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014833.dly.gz
-  verified_at: '2026-08-22T17:24:49.229915Z'
-- artifact_hash: 608f01bdd90d2c8555bfbdee75b03e2eed001b840bc916529829888ce6c42aed
-  artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014895.dly.gz`
-  verification_status: mismatch
-  verified_against_url: https://www.ncei.noaa.gov/pub/data/ghcn/daily/all/USW00014895.dly.gz
-  verified_at: '2026-08-22T17:24:49.229915Z'
+  verified_at: '2026-08-24T02:16:40.838787Z'

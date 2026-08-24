@@ -13,11 +13,11 @@ This project evaluates the robustness of standard statistical tests (one-sample 
 **Primary Dependencies**: `numpy`, `pandas`, `scipy`, `statsmodels`, `arch` (for Hurst/ARFIMA), `yfinance`, `requests`, `pyyaml`, `matplotlib`, `seaborn`, `statsmodels` (for GLM), `xarray` (for NOAA)  
 **Storage**: Local file system (`data/raw/`, `data/processed/`, `results/`) with checksums; no external DB.  
 **Testing**: `pytest` (unit tests for preprocessing, synthetic generation, and hypothesis test logic).  
-**Target Platform**: GitHub Actions Free Tier (Multiple CPU cores, ~7 GB RAM, ~ GB disk, no GPU).  
+**Target Platform**: GitHub Actions Free Tier (Multiple CPU cores, ample RAM, ample disk, no GPU).  
 **Project Type**: Statistical Research Pipeline / CLI Tool  
 **Performance Goals**: Complete full pipeline (ingestion, N-variation grid, Multiple synthetic trials per cell, regression) in ≤ 6 hours.  
 **Constraints**: Must run on CPU; memory usage < 7 GB; no external API keys required; datasets must be directly downloadable (no gated access).  
-**Scale/Scope**: + real datasets, Several Hurst levels spanning a broad range of values will be examined. × sample sizes (, 500, 1k, 5k, 10k), a substantial number of Monte Carlo trials per configuration. A sufficient number of shuffled null distributions per series.
+**Scale/Scope**: + real datasets, Several Hurst levels spanning a broad range of values will be examined. × sample sizes (, A range of sample sizes (from hundreds to tens of thousands) will be evaluated.), a substantial number of Monte Carlo trials per configuration. A sufficient number of shuffled null distributions per series.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

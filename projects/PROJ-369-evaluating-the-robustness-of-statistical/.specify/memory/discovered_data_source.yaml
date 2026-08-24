@@ -1,37 +1,16 @@
-status: verified
-kind: pypi_package
-ref: yfinance
-access_python: 'import yfinance as yf, pandas as pd
-
-  ticker = "AAPL"
-
-  # Download recent daily closing prices
-
-  df = yf.download(ticker, period="5d", interval="1d")
-
-  # Keep date, close price and add series identifier
-
-  df = df.reset_index()[["Date", "Close"]]
-
-  df["series_id"] = ticker
-
-  # Rename to required field names
-
-  df = df.rename(columns={"Date": "timestamp", "Close": "value"})
-
-  print(f"RECORDS={len(df)}")
-
-  print("FIELDS=timestamp,value,series_id")'
-record_count: 5
-sample_fields:
-- timestamp
-- value
-- series_id
-field_coverage: 1.0
+status: none
+intent: download NOAA weather CSV Yahoo Finance price series UK National Grid load
+  dataset python package
 required_fields:
 - timestamp
-- value
-- series_id
-intent: continuous time series NOAA weather Yahoo Finance UK National Grid load python
-  package dataset
-cache_key: 5a9f488c498212d7948de8bdad2a56bb2efd39be89ee02cd507c7bea0a22b796
+- temperature
+- precipitation
+- open
+- high
+- low
+- close
+- volume
+- load_mw
+cache_key: 306a42c6810f9bcae1519314032b721fe332d47f4625116d5d32196196e911b2
+searched_at: '2026-08-24T02:10:56.166865+00:00'
+retry_count: 1

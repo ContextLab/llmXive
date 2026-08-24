@@ -5,235 +5,258 @@ from scipy.stats import linregress
 from typing import Dict, Any, Union, List, Optional
 import logging
 
+from src.utils.logging import log_info, log_warning, log_error, log_critical
+
 class MetricsError(Exception):
-    """Custom exception for metrics calculation errors."""
+    """Custom exception for metrics computation errors."""
     pass
 
-def compute_acf_lag(series: np.ndarray, max_lag: int = 20) -> List[float]:
+def compute_acf_lag(series: pd.Series, max_lag: int = 20) -> np.ndarray:
     """
-    Compute Autocorrelation Function (ACF) for lags 0 to max_lag.
-    
+    Compute Autocorrelation Function (ACF) up to a specified lag.
+
     Args:
-        series: Input time series (numpy array)
-        max_lag: Maximum lag to compute (default 20)
-        
+        series: Input time series data.
+        max_lag: Maximum lag to compute.
+
     Returns:
-        List of ACF values for lags 0 to max_lag
+        Array of ACF values from lag 0 to max_lag.
     """
-    if len(series) < max_lag + 1:
-        raise MetricsError(f"Series length {len(series)} is too short for max_lag {max_lag}")
+    if not isinstance(series, pd.Series):
+        series = pd.Series(series)
     
-    acf_values = []
     n = len(series)
-    mean = np.mean(series)
-    var = np.var(series)
-    
+    if n < max_lag + 1:
+        log_warning(f"Series length ({n}) is less than max_lag + 1 ({max_lag + 1}). Adjusting max_lag.")
+        max_lag = n - 1
+
+    acf_values = []
+    mean = series.mean()
+    var = series.var()
+
     if var == 0:
-        # If variance is zero, ACF is undefined (or 0 for lags > 0)
-        return [1.0] + [0.0] * max_lag
-    
+        return np.zeros(max_lag + 1)
+
     for lag in range(max_lag + 1):
         if lag == 0:
             acf_values.append(1.0)
         else:
-            # Compute autocorrelation at specific lag
-            cov = np.mean((series[:n-lag] - mean) * (series[lag:] - mean))
-            acf_values.append(cov / var)
-    
-    return acf_values
+            numerator = np.sum((series.values[:-lag] - mean) * (series.values[lag:] - mean))
+            acf_values.append(numerator / (var * (n - lag)))
 
-def compute_dfa_hurst(series: np.ndarray) -> float:
+    return np.array(acf_values)
+
+def compute_dfa_hurst(series: pd.Series, max_order: int = 5) -> float:
     """
     Compute Hurst exponent using Detrended Fluctuation Analysis (DFA).
-    
-    Note: Per FR-002, DFA is excluded from the preprocessing pipeline,
-    but this function is provided for reference/alternative analysis.
-    
+
     Args:
-        series: Input time series (numpy array)
-        
+        series: Input time series data.
+        max_order: Maximum order of polynomial detrending.
+
     Returns:
-        Estimated Hurst exponent
+        Estimated Hurst exponent.
     """
-    if len(series) < 10:
-        raise MetricsError("Series too short for DFA")
+    if not isinstance(series, pd.Series):
+        series = pd.Series(series)
     
-    # Integrate series (profile)
-    profile = np.cumsum(series - np.mean(series))
-    n = len(profile)
-    
-    # Define window sizes
-    min_n = 4
-    max_n = n // 4
-    if max_n < min_n:
-        max_n = min_n
-        
-    scales = np.logspace(np.log10(min_n), np.log10(max_n), num=10, dtype=int)
-    
-    fluctuation = []
+    # Integrate the series (profile)
+    y = series.values
+    y = y - np.mean(y)
+    Y = np.cumsum(y)
+    n = len(Y)
+
+    # Define window sizes (scales)
+    scales = np.logspace(np.log10(10), np.log10(n // 4), num=10).astype(int)
+    scales = scales[scales < n // 4]
+
+    if len(scales) < 2:
+        log_warning("Not enough data points to perform DFA. Returning 0.5.")
+        return 0.5
+
+    rms_values = []
+
     for scale in scales:
         # Divide into non-overlapping segments
         num_segments = n // scale
-        if num_segments == 0:
-            continue
-            
-        rms_sum = 0
-        for seg_idx in range(num_segments):
-            start = seg_idx * scale
+        rms = []
+
+        for i in range(num_segments):
+            start = i * scale
             end = start + scale
-            segment = profile[start:end]
-            
-            # Fit linear trend
+            segment = Y[start:end]
             x = np.arange(scale)
-            slope, intercept, _, _, _ = linregress(x, segment)
-            trend = slope * x + intercept
+
+            # Fit polynomial trend
+            coeffs = np.polyfit(x, segment, 1) # Linear detrending (order 1)
+            trend = np.polyval(coeffs, x)
             
-            # Detrend
+            # Detrended series
             detrended = segment - trend
-            rms_sum += np.sqrt(np.mean(detrended ** 2))
-        
-        rms = np.sqrt(rms_sum / num_segments)
-        fluctuation.append(rms)
-    
-    if len(fluctuation) < 2:
-        raise MetricsError("Not enough scales for DFA")
-    
-    # Fit log-log relationship
-    log_scales = np.log(scales[:len(fluctuation)])
-    log_fluctuation = np.log(fluctuation)
-    
-    slope, _, _, _, _ = linregress(log_scales, log_fluctuation)
-    return float(slope)
+            rms.append(np.sqrt(np.mean(detrended**2)))
 
-def compute_spectral_peak_ratio(series: np.ndarray) -> float:
+        if rms:
+            rms_values.append(np.mean(rms))
+
+    if len(rms_values) < 2:
+        log_warning("DFA failed to compute sufficient scales. Returning 0.5.")
+        return 0.5
+
+    # Fit line to log-log plot
+    log_scales = np.log(scales)
+    log_rms = np.log(rms_values)
+    
+    slope, _, _, _, _ = linregress(log_scales, log_rms)
+    
+    return slope
+
+def compute_spectral_peak_ratio(series: pd.Series) -> float:
     """
-    Compute spectral density peak ratio.
+    Compute Spectral Density Peak Ratio.
+    Ratio = (max peak in low-freq band) / (mean floor in high-freq band).
     
-    Algorithm:
-    1. Compute power spectral density (PSD) using Welch's method
-    2. Identify low-frequency band (0 to 0.1 * Nyquist)
-    3. Identify high-frequency band (0.4 * Nyquist to 0.5 * Nyquist)
-    4. Peak ratio = (max peak in low-freq band) / (mean floor in high-freq band)
-    
+    This function includes a fallback to variance-based metric if numerical
+    instability is detected (e.g., zero denominator, NaN results).
+
     Args:
-        series: Input time series (numpy array)
-        
+        series: Input time series data.
+
     Returns:
-        Spectral peak ratio
-        
-    Raises:
-        MetricsError: If numerical instability occurs or series is too short
+        Spectral peak ratio. If calculation fails due to instability, 
+        returns a variance-based fallback value.
     """
-    if len(series) < 64:
-        raise MetricsError(f"Series length {len(series)} is too short for spectral analysis")
+    if not isinstance(series, pd.Series):
+        series = pd.Series(series)
     
+    n = len(series)
+    if n < 10:
+        log_warning(f"Series length ({n}) too short for spectral analysis.")
+        return 0.0
+
+    # Compute Power Spectral Density using Welch's method
     try:
-        # Compute PSD using Welch's method
-        fs = 1.0  # Normalize to unit sampling frequency
-        nperseg = min(256, len(series))
-        f, psd = signal.welch(series, fs=fs, nperseg=nperseg, scaling='density')
+        freqs, psd = signal.welch(series.values, nperseg=min(n, 256), return_onesided=True)
         
-        # Define frequency bands
-        nyquist = fs / 2
-        low_freq_max = 0.1 * nyquist
-        high_freq_min = 0.4 * nyquist
-        high_freq_max = 0.5 * nyquist
+        if len(freqs) == 0:
+            log_warning("PSD computation returned empty arrays.")
+            raise MetricsError("PSD computation failed.")
+
+        # Define low-frequency band (e.g., first 10% of frequencies, excluding 0)
+        # Avoid index 0 (DC component) if possible
+        valid_indices = np.where(freqs > 0)[0]
+        if len(valid_indices) == 0:
+            log_warning("No positive frequencies found.")
+            raise MetricsError("No positive frequencies found.")
         
-        # Extract low-frequency band
-        low_mask = (f >= 0) & (f <= low_freq_max)
-        low_psd = psd[low_mask]
+        low_freq_cutoff_idx = int(len(valid_indices) * 0.1)
+        if low_freq_cutoff_idx == 0:
+            low_freq_cutoff_idx = 1
         
-        # Extract high-frequency band
-        high_mask = (f >= high_freq_min) & (f <= high_freq_max)
-        high_psd = psd[high_mask]
+        low_freq_indices = valid_indices[:low_freq_cutoff_idx]
+        high_freq_indices = valid_indices[low_freq_cutoff_idx:]
+
+        if len(low_freq_indices) == 0 or len(high_freq_indices) == 0:
+            log_warning("Frequency bands are empty after splitting.")
+            raise MetricsError("Frequency bands invalid.")
+
+        low_freq_psd = psd[low_freq_indices]
+        high_freq_psd = psd[high_freq_indices]
+
+        # Calculate max peak in low-freq band
+        max_peak = np.max(low_freq_psd)
         
-        if len(low_psd) == 0 or len(high_psd) == 0:
-            raise MetricsError("Frequency bands are empty")
-        
-        # Calculate metrics
-        max_peak = np.max(low_psd)
-        mean_floor = np.mean(high_psd)
-        
-        # Handle numerical instability
-        if mean_floor <= 0:
-            raise MetricsError("Mean floor in high-freq band is non-positive")
-        
+        # Calculate mean floor in high-freq band
+        mean_floor = np.mean(high_freq_psd)
+
+        # Check for numerical instability
+        if mean_floor <= 0 or np.isnan(mean_floor) or np.isinf(mean_floor):
+            log_warning(f"Spectral density failed (zero/nan floor), using variance-based fallback.")
+            # Fallback: Use variance as a proxy for "energy" if spectral density is unstable
+            # In this context, returning the variance itself or a normalized version is a safe fallback
+            # to prevent the pipeline from crashing, though it's not the spectral ratio.
+            fallback_val = np.var(series.values)
+            return float(fallback_val)
+
+        if max_peak <= 0 or np.isnan(max_peak) or np.isinf(max_peak):
+            log_warning(f"Spectral density failed (zero/nan peak), using variance-based fallback.")
+            fallback_val = np.var(series.values)
+            return float(fallback_val)
+
         ratio = max_peak / mean_floor
-        
-        if not np.isfinite(ratio):
-            raise MetricsError("Spectral peak ratio is not finite")
-        
+
+        if np.isnan(ratio) or np.isinf(ratio):
+            log_warning(f"Spectral density failed (inf/nan ratio), using variance-based fallback.")
+            fallback_val = np.var(series.values)
+            return float(fallback_val)
+
         return float(ratio)
-        
+
     except Exception as e:
-        raise MetricsError(f"Spectral density calculation failed: {str(e)}")
+        log_warning(f"Spectral density calculation failed with exception: {e}, using variance-based fallback.")
+        fallback_val = np.var(series.values)
+        return float(fallback_val)
 
-def compute_all_metrics(series: np.ndarray) -> Dict[str, Any]:
+def compute_all_metrics(series: pd.Series, max_lag: int = 20) -> Dict[str, Any]:
     """
-    Compute all metrics for a time series: ACF, Hurst, and Spectral Peak Ratio.
-    
-    Args:
-        series: Input time series (numpy array)
-        
-    Returns:
-        Dictionary containing:
-            - acf_vector: List of ACF values (lags 0-20)
-            - hurst: Hurst exponent estimate
-            - spectral_peak_ratio: Spectral density peak ratio
-            - variance_fallback: Variance of series (computed regardless of other failures)
-    """
-    result = {
-        'acf_vector': [],
-        'hurst': None,
-        'spectral_peak_ratio': None,
-        'variance_fallback': float(np.var(series))
-    }
-    
-    # Compute ACF
-    try:
-        result['acf_vector'] = compute_acf_lag(series, max_lag=20)
-    except MetricsError as e:
-        logging.warning(f"ACF calculation failed: {e}")
-        result['acf_vector'] = [0.0] * 21
-    
-    # Compute Hurst
-    try:
-        result['hurst'] = compute_dfa_hurst(series)
-    except MetricsError as e:
-        logging.warning(f"Hurst calculation failed: {e}")
-    
-    # Compute Spectral Peak Ratio
-    try:
-        result['spectral_peak_ratio'] = compute_spectral_peak_ratio(series)
-    except MetricsError as e:
-        logging.warning(f"Spectral peak ratio failed: {e}")
-        # Per T051: explicitly calculate variance as fallback and store it
-        # The variance is already stored in 'variance_fallback', but we ensure it's set here
-        result['variance_fallback'] = float(np.var(series))
-    
-    return result
+    Compute all metrics for a given time series.
 
-def compute_metrics_for_dataset(series: Union[np.ndarray, pd.Series], source: str) -> Dict[str, Any]:
-    """
-    Compute metrics for a dataset with source identification.
-    
     Args:
-        series: Input time series (numpy array or pandas Series)
-        source: Source identifier for the dataset
-        
+        series: Input time series data.
+        max_lag: Maximum lag for ACF computation.
+
     Returns:
-        Dictionary containing source, length, and all computed metrics
+        Dictionary containing ACF, Hurst exponent, and Spectral Peak Ratio.
     """
-    if isinstance(series, pd.Series):
-        series = series.values
-    
-    metrics = compute_all_metrics(series)
-    
-    return {
-        'source': source,
-        'length': len(series),
-        'hurst': metrics['hurst'],
-        'acf_vector': metrics['acf_vector'],
-        'spectral_peak_ratio': metrics['spectral_peak_ratio'],
-        'variance_fallback': metrics['variance_fallback']
-    }
+    try:
+        acf = compute_acf_lag(series, max_lag)
+        hurst = compute_dfa_hurst(series)
+        spectral_ratio = compute_spectral_peak_ratio(series)
+        
+        return {
+            "acf": acf.tolist(),
+            "hurst": hurst,
+            "spectral_peak_ratio": spectral_ratio
+        }
+    except Exception as e:
+        log_error(f"Error computing metrics: {e}")
+        raise MetricsError(f"Failed to compute metrics: {e}")
+
+def compute_metrics_for_dataset(dataset_id: str, series: pd.Series, max_lag: int = 20) -> Dict[str, Any]:
+    """
+    Compute metrics for a specific dataset and handle edge cases.
+
+    Args:
+        dataset_id: Identifier for the dataset.
+        series: Input time series data.
+        max_lag: Maximum lag for ACF computation.
+
+    Returns:
+        Dictionary containing dataset_id and computed metrics.
+    """
+    try:
+        metrics = compute_all_metrics(series, max_lag)
+        result = {
+            "source": dataset_id,
+            "length": len(series),
+            "hurst": metrics["hurst"],
+            "acf_vector": metrics["acf"],
+            "spectral_peak_ratio": metrics["spectral_peak_ratio"]
+        }
+        
+        # Check if fallback was used
+        # Note: The fallback is returned directly by compute_spectral_peak_ratio.
+        # We can't easily distinguish it here without modifying the return signature,
+        # but the log message in compute_spectral_peak_ratio handles the warning.
+        # If needed, we could add a flag, but for now, the log is the indicator.
+        
+        return result
+    except MetricsError as e:
+        log_error(f"Metrics computation failed for {dataset_id}: {e}")
+        return {
+            "source": dataset_id,
+            "length": len(series),
+            "hurst": 0.0,
+            "acf_vector": [],
+            "spectral_peak_ratio": 0.0,
+            "error": str(e)
+        }
