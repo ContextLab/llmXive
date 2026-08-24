@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-434-predicting-plant-root-architecture-from-",
+  "tasks": [
+    {
+      "task_key": "T001a",
+      "reject_count": 1,
+      "last_reason": "No `setup_dirs.py` script is present, and the required directories (`code/`, `data/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `artifacts/`, `figures/`) are not shown to exist. The claim lacks any tangible artifact to verify that the directory structure was created.",
+      "first_seen": "2026-08-24T11:09:44.627541+00:00",
+      "last_seen": "2026-08-24T11:09:44.627541+00:00"
+    },
+    {
+      "task_key": "T001c",
+      "reject_count": 1,
+      "last_reason": "No `.gitignore` file was provided or referenced in the evidence; the implementer did not supply the required artifact containing Python and data\u2011artifact ignore patterns. The task remains undone.",
+      "first_seen": "2026-08-24T11:09:44.628712+00:00",
+      "last_seen": "2026-08-24T11:09:44.628712+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) or related setup scripts were provided. Without these artifacts, the task of configuring ruff/flake8 and Black cannot be confirmed as done.",
+      "first_seen": "2026-08-24T11:09:44.629918+00:00",
+      "last_seen": "2026-08-24T11:09:44.629918+00:00"
+    },
+    {
+      "task_key": "T004",
+      "reject_count": 1,
+      "last_reason": "No evidence of a `code/utils/` directory or an `__init__.py` file was provided; without these artifacts the task requirement is not satisfied.",
+      "first_seen": "2026-08-24T11:09:44.630786+00:00",
+      "last_seen": "2026-08-24T11:09:44.630786+00:00"
+    }
+  ],
+  "updated_at": "2026-08-24T11:09:44.630786+00:00"
+}

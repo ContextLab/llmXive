@@ -1,28 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `setup_dirs.py` script is present, and the required directories (`code/`,
-    `data/`, `data/raw`, `data/processed`, `data/logs`, `tests/`, `artifacts/`, `figures/`)
-    are not shown to exist. The claim lacks any tangible artifact to verify that the
-    directory structure was created.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.gitignore` file was provided or referenced in the evidence; the implementer\
-    \ did not supply the required artifact containing Python and data\u2011artifact\
-    \ ignore patterns. The task remains undone."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
-    `pyproject.toml` with Black settings) or related setup scripts were provided.
-    Without these artifacts, the task of configuring ruff/flake8 and Black cannot
-    be confirmed as done.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `code/utils/` directory or an `__init__.py` file was provided;
-    without these artifacts the task requirement is not satisfied.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

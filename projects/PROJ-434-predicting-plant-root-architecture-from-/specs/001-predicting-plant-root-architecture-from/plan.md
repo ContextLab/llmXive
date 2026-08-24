@@ -30,7 +30,7 @@ This feature implements a computational pipeline to predict plant root architect
 | **IV. Single Source of Truth** | PASS | All figures/stats in the final report trace to `data/processed` and `code/`. |
 | **V. Versioning Discipline** | PASS | Artifacts tracked via content hash in `state/`. |
 | **VI. Geospatial Data Alignment** | PASS | Soil rasters reprojected/resampled to common CRS before extraction; Geocoding logged with API version. |
-| **VII. Cross-Species Generalization** | PASS | **Primary**: Stratified k-Fold CV (stratified by Species). **Secondary**: LOSO. This satisfies the 5-fold requirement while maintaining species stratification. |
+| **VII. Cross-Species Generalization** | PASS | **Primary**: Stratified k-Fold CV (stratified by Species). **Secondary**: LOSO. This satisfies the fold requirement while maintaining species stratification. |
 
 ## Project Structure
 

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,7 @@ name = "predict-root-architecture"
 version = "0.1.0"
 description = "Predicting Plant Root Architecture from Soil Nutrient Profiles"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "scikit-learn",
     "pandas",
@@ -17,49 +17,45 @@ dependencies = [
     "requests",
     "pyyaml",
     "pytest",
+    "python-dotenv",
     "ruff",
     "black",
-    "python-dotenv",
+    "matplotlib",
+    "seaborn",
+    "tqdm",
+    "shapely",
+    "pyproj",
+    "xarray",
+    "dask",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
-[tool.ruff]
-line-length = 88
-target-version = "py38"
-
-[tool.ruff.lint]
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
-]
-ignore = [
-    "E501",
-    "B008",
-    "C901",
-]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
 addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+src = ["code"]

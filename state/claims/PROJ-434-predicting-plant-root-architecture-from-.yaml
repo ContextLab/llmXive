@@ -147,3 +147,150 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T02:17:24Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: TRY Plant Trait Database is world's largest open plant trait database
+  claim_id: c_d938a2c2
+  context: 'Primary Source: [TRY Plant Trait Database](https://www.try-db.org/) -
+    Description: The world''s largest open database of plant traits, including root
+    architecture metrics.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TRY_Plant_Trait_Database_is_world's_largest_open_plant_trait
+  kind: magnitude
+  raw_text: The world's largest open database of plant traits, including root architecture
+    metrics, is the TRY Plant Trait Database.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T10:58:05Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Kattge et al. 2020 Global Change Biology 26 119-188
+  claim_id: c_42fee408
+  context: 'Citation: Kattge, J., et al. (2020). TRY plant trait database - enhanced
+    coverage and open access. Global Change Biology, 26(1), 119-188.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Kattge, J., et al. (2020). TRY plant trait database - enhanced coverage
+    and open access. Global Change Biology, 26(1), 119-188.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T10:59:40Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: McCormack et al. 2015 New Phytologist 207 505-518
+  claim_id: c_b1608be1
+  context: 'Citation: McCormack, M. L., et al. (2015). Redefining fine roots improves
+    understanding of below-ground contributions to terrestrial biosphere processes.
+    New Phytologist, 207(3), 505-518.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McCormack, M. L., et al. (2015). Redefining fine roots improves understanding
+    of below-ground contributions to terrestrial biosphere processes. New Phytologist,
+    207(3), 505-518.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:01:25Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: SoilGrids 2.0 provides global soil maps at 250m resolution
+  claim_id: c_c1986aca
+  context: 'Description: Global soil property maps at 250m resolution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SoilGrids 2.0 provides global soil property maps at 250m resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:03:26Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Poggio et al. 2021 PLOS ONE 16 2
+  claim_id: c_0370c388
+  context: 'Citation: Poggio, L., et al. (2021). SoilGrids 250m: Global gridded soil
+    information based on machine learning. PLOS ONE, 16(2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Poggio, L., et al. (2021). SoilGrids 250m: Global gridded soil information
+    based on machine learning. PLOS ONE, 16(2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:04:53Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Cohen 1994 American Psychologist 49 997-1003
+  claim_id: c_c272924f
+  context: 'Citation: Cohen, J. (1994). The Earth is Round (p <.05). American Psychologist,
+    49(12), 997-1003.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen, J. (1994). The Earth is Round (p <.05). American Psychologist,
+    49(12), 997-1003.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:07:13Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Hedges and Olkin 1985 Statistical Methods for Meta-Analysis
+  claim_id: c_da866568
+  context: 'Citation: Hedges, L. V., & Olkin, I. (1985). Statistical Methods for Meta-Analysis.
+    Academic Press.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Hedges, Larry V.; Olkin, Ingram (1985). Statistical methods for meta-analysis.
+        Boston: Academic Press. ISBN 0-12-336380-2.'
+      source_id: Larry V. Hedges
+      url: https://en.wikipedia.org/wiki/Larry_V._Hedges
+      value: Academic Press
+    filled: true
+  kind: numeric
+  raw_text: Hedges, L. V., & Olkin, I. (1985). Statistical Methods for Meta-Analysis.
+    Academic Press.
+  resolved_value: Academic Press
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T11:07:58Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Merow et al. 2014 Methods in Ecology and Evolution 5 11
+  claim_id: c_7e49f131
+  context: 'Citation: Merow, C., et al. (2014). A practical guide to MaxEnt for species
+    distribution modelling. Methods in Ecology and Evolution, 5(11).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Merow, C., et al. (2014). A practical guide to MaxEnt for species distribution
+    modelling. Methods in Ecology and Evolution, 5(11).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:09:25Z'

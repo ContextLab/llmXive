@@ -1,33 +1,44 @@
-- artifact_hash: 40f7fd7d9025064cb952b5bf12679b99c45fd6e7c07cde90ca2cca02642ece48
+- artifact_hash: e34a656ee7c7d5dbbaf9199c7a900483a5c7fc58a675bc40d2c15a71ee588575
   artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
   cite_id: c-001
   cited_authors: []
-  cited_title: null
+  cited_title: TRY Plant Trait Database
   fetched_title: null
   kind: url
-  value: https://try.db-try.org/
-  verification_status: unreachable
-  verified_against_url: https://try.db-try.org/
-  verified_at: '2026-08-22T02:07:13.637865Z'
-- artifact_hash: 40f7fd7d9025064cb952b5bf12679b99c45fd6e7c07cde90ca2cca02642ece48
+  value: https://www.try-db.org/
+  verification_status: pending
+  verified_against_url: https://www.try-db.org/
+  verified_at: '2026-08-24T10:55:21.702954Z'
+- artifact_hash: e34a656ee7c7d5dbbaf9199c7a900483a5c7fc58a675bc40d2c15a71ee588575
   artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
   cite_id: c-002
   cited_authors: []
-  cited_title: null
-  fetched_title: SoilGrids250m 2.0
+  cited_title: ISRIC World Soil Information
+  fetched_title: ISRIC - World Soil Information
   kind: url
-  value: https://soilgrids.org/
-  verification_status: pending
-  verified_against_url: https://soilgrids.org/
-  verified_at: '2026-08-22T02:07:13.637865Z'
-- artifact_hash: 40f7fd7d9025064cb952b5bf12679b99c45fd6e7c07cde90ca2cca02642ece48
+  value: https://www.isric.org/
+  verification_status: verified
+  verified_against_url: https://isric.org/
+  verified_at: '2026-08-24T10:55:21.702954Z'
+- artifact_hash: e34a656ee7c7d5dbbaf9199c7a900483a5c7fc58a675bc40d2c15a71ee588575
   artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.gbif.org/
-  verification_status: pending
-  verified_against_url: https://www.gbif.org/
-  verified_at: '2026-08-22T02:07:13.637865Z'
+  value: https://roottraits.org/
+  verification_status: unreachable
+  verified_against_url: https://roottraits.org/
+  verified_at: '2026-08-24T10:55:21.702954Z'
+- artifact_hash: e34a656ee7c7d5dbbaf9199c7a900483a5c7fc58a675bc40d2c15a71ee588575
+  artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.isric.org/projects/soilgrids
+  verification_status: mismatch
+  verified_against_url: https://isric.org/projects/soilgrids
+  verified_at: '2026-08-24T10:55:21.702954Z'

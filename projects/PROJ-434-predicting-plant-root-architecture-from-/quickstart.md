@@ -1,117 +1,147 @@
 # Quickstart Guide: Predicting Plant Root Architecture from Soil Nutrient Profiles
 
-This guide provides step-by-step instructions to set up the environment, run the data ingestion pipeline, train predictive models, and generate the final sensitivity analysis report.
+This guide provides step-by-step instructions to set up the environment, run the data ingestion pipeline, train models, and generate reports for the `PROJ-434` project.
 
 ## Prerequisites
 
-- Python 3.9 or higher
-- pip (Python package installer)
-- ~15GB disk space (for temporary raster processing and outputs)
-- Internet connection (to download SoilGrids and trait data)
+- Python 3.9+
+- pip
+- A modern web browser (for viewing reports)
+- (Optional) Git for version control
 
-## 1. Environment Setup
+## 1. Setup Environment
 
-Clone the repository and install dependencies:
-
+### Create a Virtual Environment
 ```bash
-# Create and activate a virtual environment (recommended)
 python -m venv venv
 source venv/bin/activate # On Windows: venv\Scripts\activate
+```
 
-# Install dependencies
+### Install Dependencies
+```bash
 pip install -r code/requirements.txt
 ```
 
-## 2. Directory Structure
-
-Ensure the following directory structure exists. If not, run the setup script:
-
+### Configure Environment Variables
+Create a `.env` file in the project root (or use the template):
 ```bash
-python code/setup_directories.py
+#.env
+RUN_MODE=production
+RANDOM_SEED=42
+# Add API keys if required by data sources (e.g., TRY database)
+# TRY_API_KEY=your_key_here
 ```
 
-Expected structure:
+## 2. Directory Structure Setup
+
+Run the setup script to create necessary directories:
+```bash
+python code/setup_dirs.py
 ```
-code/
-data/
- raw/
- processed/
- logs/
-tests/
-artifacts/
-figures/
-```
+This creates:
+- `code/` - Source code
+- `data/` - Raw and processed data
+- `data/raw/` - Original data files
+- `data/processed/` - Cleaned and merged datasets
+- `data/logs/` - Execution logs
+- `tests/` - Test suites
+- `artifacts/` - Model outputs and metrics
+- `figures/` - Generated plots
 
 ## 3. Data Ingestion (User Story 1)
 
-This step extracts soil nutrient data (N, P, K, pH) at specific coordinates and merges it with root trait measurements.
+This pipeline fetches real root trait data and soil nutrient data, merges them, and validates the result.
 
-Run the full ingestion pipeline:
-
+### Run the Ingestion Pipeline
 ```bash
-python code/ingestion/merge.py
+python code/ingestion/main.py
 ```
+**What it does:**
+1. Loads root trait data from verified sources (TRY/SoilGrids).
+2. Extracts soil N, P, K, pH values at trait coordinates.
+3. Merges datasets and applies species filters (≥10 observations).
+4. Validates data quality (match proportion ≥ 0.90).
+5. Generates `data/processed/merged_dataset.csv`.
 
-**Outputs**:
-- `data/processed/merged_dataset.csv`: Unified dataset with soil and trait data.
-- `data/processed/excluded_species_summary.csv`: Summary of species filtered out (<10 observations).
-- `data/logs/species_exclusions.log`: Detailed log of excluded species.
-- `data/logs/record_exclusions.log`: Log of individual rows excluded due to missing soil data or invalid values.
+**Expected Output:**
+- `data/processed/merged_dataset.csv`
+- `data/processed/soil_extracted.csv`
+- `data/logs/validation_summary.log`
+- `data/logs/species_exclusions.log`
 
-**Validation**:
-The pipeline will automatically validate data quality. If the match proportion (valid rows / total rows) is below 0.90, the process will halt and log an error to `data/logs/validation_error.log`.
+**Note:** If `RUN_MODE=production`, the script will fail if real data cannot be fetched. It will not fall back to synthetic data.
 
-## 4. Model Training and Validation (User Story 2)
+## 4. Model Training (User Story 2)
 
-Train Random Forest models to predict root architecture traits (Max Depth, Root Biomass) using soil nutrients and species information.
+Train predictive models using Leave-One-Species-Out (LOSO) cross-validation.
 
-Run the training script:
-
+### Run Training Script
 ```bash
 python code/modeling/train.py
 ```
+**What it does:**
+1. Preprocesses the merged dataset.
+2. Trains Model A (Soil-Only) and Model B (Soil+Species).
+3. Performs LOSO and Stratified 5-Fold CV.
+4. Runs nested permutation tests (1000 iterations).
+5. Validates SC-002 compliance (ΔR² ≥ 0.05, p < 0.05).
 
-**Outputs**:
-- `artifacts/model_metrics.json`: Cross-validation metrics (R², RMSE) for both Soil-Only and Soil+Species models.
-- `artifacts/permutation_distributions.json`: Distribution of R² scores from permutation tests.
-- `artifacts/sc002_status.json`: Pass/Fail status for Constitution Principle 002 (Significant Gain from Species).
-- `figures/feature_importance.png`: Bar chart of feature importance scores.
-- `artifacts/feature_importance.csv`: Raw feature importance scores with p-values.
-
-**Note**: This script performs Stratified 5-Fold CV and Leave-One-Species-Out (LOSO) validation.
+**Expected Output:**
+- `artifacts/model_metrics.json`
+- `artifacts/baseline_metrics.json`
+- `artifacts/permutation_distributions.json`
+- `artifacts/sc002_status.json`
+- `artifacts/feature_importance.csv`
+- `figures/feature_importance.png`
 
 ## 5. Sensitivity Analysis (User Story 3)
 
-Analyze the robustness of feature importance rankings across different p-value thresholds.
+Analyze the stability of feature importance rankings across different p-value thresholds.
 
-Run the sensitivity analysis script:
-
+### Run Sensitivity Analysis
 ```bash
 python code/modeling/sensitivity.py
 ```
+**What it does:**
+1. Loads feature importance scores.
+2. Sweeps p-value thresholds (0.01, 0.05, 0.10).
+3. Tracks top-3 feature stability.
+4. Generates a sensitivity report.
 
-**Outputs**:
-- `artifacts/sensitivity_report.md`: Final report detailing threshold stability and justification for significance levels.
-- `artifacts/feature_importance.csv`: Updated with p-values (if not already present).
+**Expected Output:**
+- `artifacts/sensitivity_report.md`
 
-## 6. Verification
+## 6. Verification & Testing
 
-To verify the entire pipeline end-to-end:
-
+### Run Tests
 ```bash
-# Check that all required output files exist
-ls data/processed/merged_dataset.csv
-ls artifacts/model_metrics.json
-ls figures/feature_importance.png
-ls artifacts/sensitivity_report.md
+pytest tests/ -v
 ```
+This runs:
+- Contract tests for schema validation.
+- Integration tests for geocoding and LOSO logic.
+- Unit tests for helper functions.
+
+### Validate End-to-End Reproducibility
+Run the `quickstart.md` validation script (if available) or manually re-run steps 3-5 to ensure outputs are consistent.
 
 ## Troubleshooting
 
-- **Missing Data**: Ensure your internet connection is active. The pipeline downloads SoilGrids data and trait datasets on the first run.
-- **Validation Errors**: If the pipeline halts with a `DataQualityError`, check `data/logs/validation_error.log` for the specific reason (e.g., low match proportion).
-- **Memory Issues**: If processing large rasters fails, ensure you have sufficient RAM. The pipeline streams data where possible but may require ~7GB for full processing.
+### Data Fetch Errors
+If you see `DataFetchError`, ensure:
+- You have internet access.
+- API keys (if required) are correctly set in `.env`.
+- The `RUN_MODE` is set to `production` (default).
 
-## License
+### Missing Dependencies
+If imports fail, ensure you activated the virtual environment and ran `pip install -r code/requirements.txt`.
 
-This project is part of the llmXive automated science pipeline. See the repository root for license details.
+### Memory Issues
+The dataset may be large. If you encounter memory errors, consider:
+- Using a machine with more RAM.
+- Streaming data in chunks (supported by the ingestion scripts).
+
+## Further Reading
+- [Research Documentation](specs/001-predict-root-architecture/research.md)
+- [Data Model](specs/001-predict-root-architecture/data-model.md)
+- [Contracts](specs/001-predict-root-architecture/contracts/)
