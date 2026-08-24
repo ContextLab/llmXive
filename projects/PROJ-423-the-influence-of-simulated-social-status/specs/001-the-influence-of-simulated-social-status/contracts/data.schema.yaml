@@ -4,12 +4,12 @@ items:
   type: object
   properties:
     participant_id:
-      type: integer
+      type: string
       description: Unique identifier for the participant.
     status_level:
       type: string
       enum: ['high', 'low']
-      description: Social status of observed agent.
+      description: Status of observed agent.
     observed_behavior:
       type: string
       enum: ['risky', 'conservative']

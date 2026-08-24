@@ -1,51 +1,65 @@
-# Quickstart: The Influence of Simulated Social Status on Risk-Taking Behavior
+# Quickstart: Simulated Social Status on Risk-Taking
 
 ## Prerequisites
 
-*   A recent version of Python was installed.
-*   `pip` package manager.
-*   GitHub Actions runner (free tier).
+- Python 3.11+
+- `pip`
+- Access to a Linux environment (GitHub Actions or local WSL)
 
 ## Installation
 
+1. **Clone the repository** (if applicable) or navigate to the project root.
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Dependencies include: `pandas`, `numpy`, `statsmodels`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`.*
+
+## Execution Workflow
+
+### Step 1: Data Simulation
+Run the simulation script to generate the synthetic dataset.
 ```bash
-git clone https://github.com/[your_repo]/the-influence-of-simulated-social-status.git
-cd the-influence-of-simulated-social-status
-python3 -m venv .venv
-source .venv/bin/activate  # or .\.venv\Scripts\activate on Windows
-pip install -r code/requirements.txt
+python code/simulation.py --seed 42 --n 400
 ```
+- **Output**: `data/raw/simulated_data.csv`
+- **Verification**: Check that the file contains a sufficient number of rows and 4 unique conditions.
 
-## Data Preparation
-
-The data will be automatically generated or downloaded during the analysis process, depending on the chosen approach (simulation vs. meta-analysis). **While automated processes are in place for data acquisition and preprocessing, some manual verification of dataset integrity may be required, especially when using aggregated data from external sources.**
-
-## Running the Analysis
-
-1.  **Configure parameters:** Modify the `code/config.yaml` file to specify simulation parameters or select a list of studies for meta-analysis.
-2.  **Run the analysis script:**
-
-    ```bash
-    python code/main.py
-    ```
-
-3.  **View results:** The results will be saved in the `data/processed` directory, including:
-    *   `cleaned_data.csv`: Cleaned and preprocessed dataset.
-    *   `model_config.json`: Model configuration parameters.
-    *   `model_output.json`: Regression model output (coefficients, p-values).
-
-## Report Generation
-
-The report will be automatically generated after the analysis is complete:
-
+### Step 2: Preprocessing
+Clean the data and detect the data structure.
 ```bash
-python code/report_generator.py
+python code/preprocess.py --input data/raw/simulated_data.csv
 ```
+- **Output**: `data/processed/cleaned_data.csv`, `data/processed/structure_config.json`, `data/processed/validation_report.json`.
 
-This will produce a PDF summary of the results, including effect size plots and model diagnostics.
+### Step 3: Analysis
+Fit the mixed-effects model and run sensitivity analysis.
+```bash
+python code/analysis.py --input data/processed/cleaned_data.csv
+```
+- **Output**: `data/processed/model_output.json`, `data/processed/sensitivity_analysis.csv`, `data/processed/posthoc_results.json`.
+
+### Step 4: Reporting
+Generate visualizations and final reports.
+```bash
+python code/reporting.py --model data/processed/model_output.json --plot data/processed/forest_plot.png
+```
+- **Output**: `data/processed/forest_plot.png`, `data/processed/report.html` (if configured).
+
+## Verification
+
+To verify the pipeline:
+1. Check that `data/processed/model_output.json` contains a non-null `interaction_p_value`.
+2. Ensure `data/processed/sensitivity_analysis.csv` has 3 rows (thresholds 2.5, 3.0, 3.5).
+3. Confirm `data/processed/forest_plot.png` exists and displays 4 error bars.
 
 ## Troubleshooting
 
-*   **Missing dependencies:** Ensure all required packages are installed using `pip install -r code/requirements.txt`.
-*   **Memory errors:** Reduce the dataset size or switch to asymptotic standard errors during bootstrapping if memory limitations occur.
-*   **Incorrect data format**: Verify that the input data (if provided manually) matches the expected schema defined in `data-model.md`.
+- **Memory Error**: If `statsmodels` fails due to memory, reduce `--n` in the simulation step.
+- **Singular Fit**: If the random effect variance is zero, the script automatically switches to a fixed-effects model (between-subjects logic) and logs a warning.
+- **Missing Columns**: Ensure the simulation output matches the `contracts/data.schema.yaml` definition.

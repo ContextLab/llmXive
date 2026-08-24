@@ -1,102 +1,46 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
-description: "Schema for the regression model results and diagnostics."
+description: "Schema for the mixed-effects regression model results."
 type: object
 properties:
-  design_type:
-    type: string
-    description: "Type of experimental design detected."
-    enum:
-      - "within-subjects"
-      - "between-subjects"
-  outcome_type:
-    type: string
-    description: "Type of outcome variable."
-    enum:
-      - "continuous"
-      - "binary"
   fixed_effects:
     type: object
-    description: "Coefficients for fixed effects."
-    properties:
-      intercept:
-        type: number
-      status_level_High:
-        type: number
-      observed_behavior_Risky:
-        type: number
-      status_level_High:observed_behavior_Risky:
-        type: number
-    required:
-      - intercept
-      - status_level_High
-      - observed_behavior_Risky
-      - status_level_High:observed_behavior_Risky
-  p_values:
-    type: object
-    description: "P-values for fixed effects."
-    properties:
-      intercept:
-        type: number
-      status_level_High:
-        type: number
-      observed_behavior_Risky:
-        type: number
-      status_level_High:observed_behavior_Risky:
-        type: number
-    required:
-      - intercept
-      - status_level_High
-      - observed_behavior_Risky
-      - status_level_High:observed_behavior_Risky
-  adjusted_p_values:
-    type: object
-    description: "Bonferroni-corrected p-values for post-hoc comparisons (FR-006)."
-    properties:
-      High_Risky_vs_High_Conservative:
-        type: number
-      High_Risky_vs_Low_Risky:
-        type: number
-      High_Risky_vs_Low_Conservative:
-        type: number
-    required:
-      - High_Risky_vs_High_Conservative
-  ci_width:
-    type: number
-    description: "Width of the 95% Confidence Interval for the interaction coefficient (SC-003)."
-  vif_scores:
-    type: object
-    description: "Variance Inflation Factors for fixed effects."
-    properties:
-      status_level:
-        type: number
-      observed_behavior:
-        type: number
-    required:
-      - status_level
-      - observed_behavior
-  sensitivity_analysis:
-    type: array
-    description: "Results of the outlier threshold sweep."
-    items:
+    description: "Map of coefficient names to their statistics."
+    additionalProperties:
       type: object
       properties:
-        threshold_sd:
+        estimate:
           type: number
-        interaction_p_value:
+        std_err:
           type: number
-        interaction_coefficient:
+        p_value:
           type: number
       required:
-        - threshold_sd
-        - interaction_p_value
-        - interaction_coefficient
+        - estimate
+        - std_err
+        - p_value
+  interaction_p_value:
+    type: number
+    description: "P-value for the status_level:observed_behavior interaction."
+  interaction_coefficient:
+    type: number
+    description: "Beta coefficient for the interaction term."
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factors for predictors."
+    additionalProperties:
+      type: number
+  convergence_status:
+    type: string
+    description: "Status of the model fitting process."
+    enum:
+      - "Success"
+      - "Warning"
+      - "Failed"
 required:
-  - design_type
-  - outcome_type
   - fixed_effects
-  - p_values
-  - ci_width
+  - interaction_p_value
+  - interaction_coefficient
   - vif_scores
-  - sensitivity_analysis
+  - convergence_status
 additionalProperties: false

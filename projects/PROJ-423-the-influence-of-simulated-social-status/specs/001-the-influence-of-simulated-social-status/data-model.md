@@ -1,49 +1,75 @@
-# Data Model: The Influence of Simulated Social Status on Risk-Taking Behavior
+# Data Model: Simulated Social Status on Risk-Taking
 
-## Entities
+## Overview
 
-### Participant
+This document defines the schema for the synthetic dataset, the preprocessed data, and the model outputs. It ensures that the data pipeline adheres to the constraints of the factorial design (2x2) and the requirements for mixed-effects modeling.
 
-*   `participant_id`: Unique identifier for each participant (integer).
-*   `status_level`:  Social status level of the observed agent (categorical: "high", "low").
-*   `observed_behavior`: Observed behavior of the agent (categorical: "risky", "conservative").
-*   `risk_taking_score`: Participant's score on a risk-taking measure (numeric, continuous or binary depending on data source).
+## Entity Definitions
 
-## Data Schema (CSV)
+### 1. Participant
+- **Definition**: An individual unit of observation.
+- **Attributes**:
+  - `participant_id`: Unique string identifier.
+  - `condition`: Derived combination of status and behavior.
 
-```yaml
-$schema: 'http://json-schema.org/draft-07/schema#'
-type: array
-items:
-  type: object
-  properties:
-    participant_id:
-      type: integer
-      description: Unique identifier for the participant.
-    status_level:
-      type: string
-      enum: ['high', 'low']
-      description: Social status of observed agent.
-    observed_behavior:
-      type: string
-      enum: ['risky', 'conservative']
-      description: Observed behavior of the agent.
-    risk_taking_score:
-      type: number
-      description: Participant's risk-taking score (continuous or binary).
-  required:
-    - participant_id
-    - status_level
-    - observed_behavior
-    - risk_taking_score
+### 2. Condition (Experimental Factor)
+- **Definition**: A combination of `status_level` and `observed_behavior`.
+- **Levels**:
+  - `status_level`: Binary (High, Low).
+  - `observed_behavior`: Binary (Risky, Conservative).
+- **Combinations**: 4 total (High/Risky, High/Conservative, Low/Risky, Low/Conservative).
+
+### 3. Risk Metric
+- **Definition**: The dependent variable representing risk-taking behavior.
+- **Source**: Simulated to match the distribution of the Balloon Analog Risk Task (BART).
+- **Type**: Continuous (number of pumps) or Binary (burst vs. cash out), determined dynamically.
+
+## Schema Details
+
+### Raw Data Schema (`data/raw/simulated_data.csv`)
+
+| Column | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `participant_id` | string | Unique ID | Unique, non-null |
+| `status_level` | string | Status of observed agent | Values: "High", "Low" |
+| `observed_behavior` | string | Behavior of observed agent | Values: "Risky", "Conservative" |
+| `risk_taking_score` | float | Outcome variable | Non-negative; distribution based on BART |
+| `seed` | int | Random seed for reproducibility | Fixed per run |
+
+### Processed Data Schema (`data/processed/cleaned_data.csv`)
+
+| Column | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `participant_id` | string | Unique ID | Unique |
+| `status_level` | category | Categorical factor | Levels: ["High", "Low"] |
+| `observed_behavior` | category | Categorical factor | Levels: ["Risky", "Conservative"] |
+| `risk_taking_score` | float | Outcome | No missing values (imputed or excluded) |
+| `is_outlier` | boolean | Flag from sensitivity analysis | Default: False |
+
+### Model Configuration (`data/processed/model_config.json`)
+
+```json
+{
+  "family": "gaussian",
+  "random_effects": "(1|participant_id)",
+  "fixed_effects": ["status_level", "observed_behavior", "status_level:observed_behavior"],
+  "data_structure": "within-subjects"
+}
 ```
 
-## Data Relationships
+### Output Schema (`data/processed/model_output.json`)
 
-The data is structured as a flat file, with each row representing a single observation from a participant. There are no explicit relationships between entities beyond the shared `participant_id` which facilitates repeated measures analysis, if applicable.
+| Key | Type | Description |
+| :--- | :--- | :--- |
+| `fixed_effects` | object | Map of coefficient names to {estimate, std_err, p_value} |
+| `interaction_p_value` | float | P-value for the status_level:observed_behavior interaction. |
+| `interaction_coefficient` | float | Beta coefficient for the interaction term. |
+| `vif_scores` | object | Map of predictors to VIF values |
+| `convergence_status` | string | "Success" or "Warning" |
 
-## Assumptions
+## Data Flow
 
-*   `risk_taking_score` can be either continuous or binary depending on the chosen data source/simulation parameters.
-*   The dataset will include sufficient observations to support a mixed-effects regression model with adequate statistical power (deferred).
-*   Data types are appropriately represented and validated during preprocessing. **Data validation will verify that all `participant_id` values are integers, flagging any inconsistencies for manual review.**
+1. **Generation**: `simulation.py` creates `raw/simulated_data.csv` using `numpy.random.default_rng(seed)`.
+2. **Validation**: `preprocess.py` checks for missing levels, bins if necessary (e.g., "Medium" -> "Low"), and detects outcome type.
+3. **Analysis**: `analysis.py` fits the model, calculates VIF, and performs sensitivity sweeps.
+4. **Reporting**: `reporting.py` generates `forest_plot.png` and `sensitivity_analysis.csv`.
