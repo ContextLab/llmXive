@@ -1,0 +1,11 @@
+status: none
+intent: download ImageNet-1K and LAION-400M datasets python package dataset
+required_fields:
+- image_id
+- image_path_or_url
+- prompt_text
+- routing_label
+- expert_id
+cache_key: cacaec14520e435ad7d9cd5e2a0e9bcf21ed25b6d06fbfff47baab8eb4395d5c
+searched_at: '2026-08-24T10:07:42.365861+00:00'
+retry_count: 1

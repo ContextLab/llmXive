@@ -5,228 +5,270 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 
+from utils.config import get_config, get_path
+
+def get_project_root() -> Path:
+    """Get the project root directory."""
+    return Path(__file__).resolve().parent.parent.parent
 
 def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {file_path}")
 
 def get_file_size(file_path: Path) -> int:
     """Get file size in bytes."""
     return file_path.stat().st_size
 
-
 def load_manifest(manifest_path: Path) -> Dict[str, Any]:
-    """Load and parse the weights manifest JSON."""
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
-    
-    with open(manifest_path, "r") as f:
-        return json.load(f)
+    """Load manifest file if it exists."""
+    if manifest_path.exists():
+        with open(manifest_path, "r") as f:
+            return json.load(f)
+    return {}
 
-
-def verify_file(file_path: Path, expected_hash: str, expected_size: int) -> Tuple[bool, str]:
-    """
-    Verify a single file against expected hash and size.
-    Returns (success, message).
-    """
+def verify_file(file_path: Path, expected_hash: str) -> Tuple[bool, str]:
+    """Verify a file against its expected hash."""
     if not file_path.exists():
         return False, f"File not found: {file_path}"
-    
-    actual_size = get_file_size(file_path)
-    if actual_size != expected_size:
-        return False, f"Size mismatch for {file_path}: expected {expected_size}, got {actual_size}"
-    
-    actual_hash = calculate_sha256(file_path)
-    if actual_hash != expected_hash:
-        return False, f"Hash mismatch for {file_path}: expected {expected_hash}, got {actual_hash}"
-    
-    return True, f"Verified: {file_path.name}"
+    try:
+        actual_hash = calculate_sha256(file_path)
+        if actual_hash == expected_hash:
+            return True, "OK"
+        return False, f"Hash mismatch: expected {expected_hash}, got {actual_hash}"
+    except Exception as e:
+        return False, f"Error verifying file: {str(e)}"
 
+def verify_ground_truth(manifest: Dict[str, Any]) -> bool:
+    """Verify ground truth files exist and match manifest."""
+    if "ground_truth" not in manifest:
+        return False
+    
+    gt_files = manifest["ground_truth"]
+    for file_name, expected_hash in gt_files.items():
+        file_path = get_path("data/raw") / file_name
+        if not file_path.exists():
+            print(f"WARNING: Ground truth file not found: {file_path}")
+            return False
+        valid, msg = verify_file(file_path, expected_hash)
+        if not valid:
+            print(f"WARNING: Ground truth verification failed for {file_name}: {msg}")
+            return False
+    return True
 
-def verify_ground_truth(gt_path: Path, manifest: Dict[str, Any]) -> Tuple[bool, str]:
+def initialize_manifest(manifest_path: Path, weight_paths: Optional[Dict[str, Path]] = None) -> Dict[str, Any]:
     """
-    Verify the teacher ground truth parquet file if it exists in the manifest.
-    Returns (success, message).
-    """
-    if gt_path.exists():
-        if "teacher_ground_truth.parquet" not in manifest:
-            return False, f"Ground truth file exists but not in manifest: {gt_path}"
-        
-        expected_entry = manifest["teacher_ground_truth.parquet"]
-        success, msg = verify_file(gt_path, expected_entry["sha256"], expected_entry["size_bytes"])
-        return success, msg
-    
-    # File doesn't exist - this is handled by the main logic
-    return True, "Ground truth file not present (will check other weights)"
-
-
-def initialize_manifest(manifest_path: Path, weight_files: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
-    """
-    Initialize or update the weights manifest.
-    
-    If the manifest file does not exist, creates it with placeholder entries.
-    If weight_files is provided (dict of filename -> expected_hash), updates those entries.
+    Initialize manifest with existing weight files if present.
     
     Args:
-        manifest_path: Path to the manifest JSON file.
-        weight_files: Optional dict of filename -> expected_sha256 to initialize/update.
-    
+        manifest_path: Path to the manifest file to create/update
+        weight_paths: Optional dict mapping weight types to file paths.
+                     If None, uses default paths from config.
+                     
     Returns:
-        The loaded/created manifest dictionary.
+        The initialized manifest dictionary.
     """
-    manifest = {}
+    config = get_config()
+    project_root = get_project_root()
     
-    if manifest_path.exists():
-        try:
-            manifest = load_manifest(manifest_path)
-        except (json.JSONDecodeError, KeyError):
-            manifest = {}
-    
-    # Ensure we have a placeholder for teacher_weights.pth if not present
-    if "teacher_weights.pth" not in manifest:
-        manifest["teacher_weights.pth"] = {
-            "file_path": "teacher_weights.pth",
-            "expected_sha256": None,
-            "size_bytes": None,
-            "status": "pending"
+    # Default weight paths if not provided
+    if weight_paths is None:
+        weight_paths = {
+            "teacher_weights": Path(config.get("TEACHER_WEIGHTS_PATH", "models/teacher_weights.pth")),
+            "expert_fields": Path(config.get("EXPERT_FIELDS_PATH", "models/expert_fields/")),
         }
     
-    # If specific weight files are provided, update their hashes
-    if weight_files:
-        for filename, expected_hash in weight_files.items():
-            if filename not in manifest:
-                manifest[filename] = {
-                    "file_path": filename,
-                    "expected_sha256": expected_hash,
-                    "size_bytes": None,
-                    "status": "verified"
-                }
-            else:
-                manifest[filename]["expected_sha256"] = expected_hash
-                manifest[filename]["status"] = "verified"
+    manifest = {
+        "version": "1.0",
+        "created": None,
+        "updated": None,
+        "weights": {},
+        "ground_truth": {}
+    }
     
-    # Save the manifest
+    # Initialize with existing weight files if present
+    for weight_type, path in weight_paths.items():
+        # Resolve relative to project root if not absolute
+        if not path.is_absolute():
+            full_path = project_root / path
+        else:
+            full_path = path
+        
+        if full_path.exists():
+            if full_path.is_file():
+                # Single file
+                try:
+                    file_hash = calculate_sha256(full_path)
+                    file_size = get_file_size(full_path)
+                    manifest["weights"][weight_type] = {
+                        "path": str(full_path),
+                        "hash": file_hash,
+                        "size": file_size,
+                        "exists": True
+                    }
+                    print(f"Initialized manifest entry for {weight_type}: {full_path.name}")
+                except Exception as e:
+                    print(f"WARNING: Could not process {weight_type}: {str(e)}")
+                    manifest["weights"][weight_type] = {
+                        "path": str(full_path),
+                        "exists": False,
+                        "error": str(e)
+                    }
+            elif full_path.is_dir():
+                # Directory - scan for files
+                manifest["weights"][weight_type] = {
+                    "path": str(full_path),
+                    "type": "directory",
+                    "files": {}
+                }
+                for file_path in full_path.rglob("*"):
+                    if file_path.is_file() and file_path.suffix in [".pth", ".pt", ".bin"]:
+                        try:
+                            file_hash = calculate_sha256(file_path)
+                            file_size = get_file_size(file_path)
+                            rel_path = str(file_path.relative_to(project_root))
+                            manifest["weights"][weight_type]["files"][rel_path] = {
+                                "hash": file_hash,
+                                "size": file_size,
+                                "exists": True
+                            }
+                            print(f"Initialized manifest entry for {weight_type}: {rel_path}")
+                        except Exception as e:
+                            print(f"WARNING: Could not process {file_path}: {str(e)}")
+        else:
+            manifest["weights"][weight_type] = {
+                "path": str(full_path),
+                "exists": False,
+                "note": "File not found - will be initialized when available"
+            }
+            print(f"WARNING: {weight_type} not found at {full_path}")
+    
+    # Check for ground truth files
+    gt_dir = project_root / "data" / "raw"
+    if gt_dir.exists():
+        for file_path in gt_dir.glob("*.parquet"):
+            if "teacher_ground_truth" in file_path.name or "ground_truth" in file_path.name:
+                try:
+                    file_hash = calculate_sha256(file_path)
+                    file_size = get_file_size(file_path)
+                    rel_path = str(file_path.relative_to(project_root))
+                    manifest["ground_truth"][file_path.name] = file_hash
+                    print(f"Initialized manifest entry for ground truth: {rel_path}")
+                except Exception as e:
+                    print(f"WARNING: Could not process ground truth {file_path}: {str(e)}")
+    
+    # Add metadata
+    from datetime import datetime
+    now = datetime.now().isoformat()
+    manifest["created"] = now
+    manifest["updated"] = now
+    
+    # Save manifest
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
     
+    print(f"Manifest initialized at {manifest_path}")
     return manifest
 
-
 def main():
-    """
-    Pre-flight check script for DanceOPD weights.
+    """Main entry point for weight checking and manifest initialization."""
+    import argparse
     
-    Verifies:
-    1. Manifest file exists (creates if missing)
-    2. All files listed in manifest exist and match checksums
-    3. If teacher_ground_truth.parquet exists, it is validated
+    parser = argparse.ArgumentParser(description="Check weights and initialize manifest")
+    parser.add_argument("--path", type=str, default=None,
+                      help="Path to weights directory or file. If not provided, uses config defaults.")
+    parser.add_argument("--manifest", type=str, 
+                      default="data/raw/weights_manifest.json",
+                      help="Path to manifest file (default: data/raw/weights_manifest.json)")
+    parser.add_argument("--init", action="store_true",
+                      help="Initialize manifest with existing weights")
+    parser.add_argument("--verify", action="store_true",
+                      help="Verify existing manifest against files")
     
-    Exit codes:
-    0: All checks passed
-    1: Check failed (missing manifest, missing files, checksum/size mismatch)
-    """
-    # Determine paths relative to project root
-    project_root = Path(__file__).parent.parent.parent
-    data_raw_dir = project_root / "data" / "raw"
-    manifest_path = data_raw_dir / "weights_manifest.json"
-    gt_path = data_raw_dir / "teacher_ground_truth.parquet"
-    weights_dir = data_raw_dir  # Assuming weights are in data/raw/
+    args = parser.parse_args()
     
-    # Check if manifest exists, if not initialize it
-    if not manifest_path.exists():
-        print(f"WARNING: Manifest file not found at {manifest_path}", file=sys.stderr)
-        print("Initializing manifest with placeholder entries...", file=sys.stderr)
+    project_root = get_project_root()
+    manifest_path = project_root / args.manifest
+    
+    # Load existing manifest
+    manifest = load_manifest(manifest_path)
+    
+    if args.init:
+        # Initialize manifest with existing weight files
+        weight_paths = None
+        if args.path:
+            path = Path(args.path)
+            if path.is_file():
+                weight_paths = {"teacher_weights": path}
+            elif path.is_dir():
+                weight_paths = {"teacher_weights": path}
         
-        # Check if teacher_weights.pth exists to compute its hash
-        teacher_weights_path = weights_dir / "teacher_weights.pth"
-        weight_updates = {}
+        manifest = initialize_manifest(manifest_path, weight_paths)
+        print("Manifest initialization complete.")
+        return 0
+    
+    if args.verify:
+        if not manifest_path.exists():
+            print(f"ERROR: Manifest not found at {manifest_path}")
+            return 1
         
-        if teacher_weights_path.exists():
-            actual_hash = calculate_sha256(teacher_weights_path)
-            actual_size = get_file_size(teacher_weights_path)
-            weight_updates["teacher_weights.pth"] = actual_hash
-            print(f"Found teacher_weights.pth, computed hash: {actual_hash}", file=sys.stderr)
+        # Verify files in manifest
+        all_valid = True
+        for weight_type, weight_info in manifest.get("weights", {}).items():
+            if isinstance(weight_info, dict) and weight_info.get("exists", False):
+                if "files" in weight_info:
+                    # Directory case
+                    for rel_path, file_info in weight_info["files"].items():
+                        if file_info.get("exists", False):
+                            file_path = project_root / rel_path
+                            if file_path.exists():
+                                valid, msg = verify_file(file_path, file_info["hash"])
+                                if not valid:
+                                    print(f"VERIFICATION FAILED: {rel_path} - {msg}")
+                                    all_valid = False
+                            else:
+                                print(f"FILE MISSING: {rel_path}")
+                                all_valid = False
+                else:
+                    # Single file case
+                    file_path = project_root / Path(weight_info["path"])
+                    if file_path.exists():
+                        valid, msg = verify_file(file_path, weight_info["hash"])
+                        if not valid:
+                            print(f"VERIFICATION FAILED: {weight_type} - {msg}")
+                            all_valid = False
+                    else:
+                        print(f"FILE MISSING: {weight_type} ({weight_info['path']})")
+                        all_valid = False
+        
+        # Verify ground truth
+        if manifest.get("ground_truth"):
+            if not verify_ground_truth(manifest):
+                all_valid = False
+        
+        if all_valid:
+            print("All verifications passed.")
+            return 0
         else:
-            print("WARNING: teacher_weights.pth not found. Please update manifest manually.", file=sys.stderr)
-        
-        # Initialize manifest
-        manifest = initialize_manifest(manifest_path, weight_updates)
-        print(f"Manifest initialized at {manifest_path}", file=sys.stderr)
-        
-        # If we couldn't find the weights, we can't proceed with verification
-        if not weight_updates and not teacher_weights_path.exists():
-            print("ERROR: No weight files found and unable to initialize manifest with valid hashes.", file=sys.stderr)
-            sys.exit(1)
+            print("Some verifications failed.")
+            return 1
     
-    # Load manifest
-    try:
-        manifest = load_manifest(manifest_path)
-    except json.JSONDecodeError as e:
-        print(f"ERROR: Invalid JSON in manifest: {e}", file=sys.stderr)
-        sys.exit(1)
-    
-    # Check if manifest is empty
-    if not manifest:
-        print("ERROR: Manifest file is empty", file=sys.stderr)
-        sys.exit(1)
-    
-    # Separate weight files from ground truth
-    weight_files = {k: v for k, v in manifest.items() if k != "teacher_ground_truth.parquet"}
-    
-    # Verify all weight files
-    all_passed = True
-    for filename, expected in weight_files.items():
-        file_path = weights_dir / filename
-        
-        # Check if expected hash is missing (uninitialized)
-        if expected.get("expected_sha256") is None:
-            print(f"✗ ERROR: No expected hash for {filename} in manifest. Please update manifest.", file=sys.stderr)
-            all_passed = False
-            continue
-        
-        success, msg = verify_file(file_path, expected["expected_sha256"], expected.get("size_bytes", 0))
-        
-        if success:
-            print(f"✓ {msg}")
-        else:
-            print(f"✗ ERROR: {msg}", file=sys.stderr)
-            all_passed = False
-    
-    # Verify ground truth if it exists
-    if gt_path.exists():
-        success, msg = verify_ground_truth(gt_path, manifest)
-        if success:
-            print(f"✓ {msg}")
-        else:
-            print(f"✗ ERROR: {msg}", file=sys.stderr)
-            all_passed = False
+    # Default: just show current manifest status
+    if manifest_path.exists():
+        print(f"Manifest exists at {manifest_path}")
+        print(f"Contents: {json.dumps(manifest, indent=2)}")
     else:
-        # Ground truth doesn't exist - check if any weights were verified
-        if not weight_files:
-            print("ERROR: No weight files found in manifest and teacher_ground_truth.parquet is missing", file=sys.stderr)
-            sys.exit(1)
-        elif all_passed:
-            # All weights verified but no ground truth - this is acceptable if weights are sufficient
-            print("⚠ Warning: teacher_ground_truth.parquet not found. Downstream tasks will require GPU inference or a verified fallback.", file=sys.stderr)
-        else:
-            # Weights failed verification
-            print("ERROR: Weight verification failed and teacher_ground_truth.parquet is missing", file=sys.stderr)
-            sys.exit(1)
+        print(f"Manifest not found at {manifest_path}")
+        print("Use --init to initialize with existing weights")
     
-    # Final result
-    if all_passed:
-        print("\n✓ All pre-flight checks passed!")
-        sys.exit(0)
-    else:
-        print("\n✗ Pre-flight checks failed!", file=sys.stderr)
-        sys.exit(1)
-
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

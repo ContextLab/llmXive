@@ -1,0 +1,15 @@
+T014:
+  c: false
+  h: 8bb46acb4702d9869a59a7afd12a3997eebc24147f689d2cdde0dd0a5c20fda5
+  r: The `data/processed/teacher_routing_dataset.parquet` file does not exist, and
+    the provided `code/00_data_extraction.py` is truncated and lacks any logic that
+    writes the extracted columns to that Parquet file. Consequently, the required
+    extraction and streaming step is not implemented.
+T020:
+  c: false
+  h: 822dff8be251f1a89aa1585bbf6d2887da51de40e3edd2d66840e2253d6e532f
+  r: "The `code/01_train_trees.py` file is truncated (the `split_data` function ends\
+    \ abruptly) and thus does not contain a complete, runnable data\u2011splitting\
+    \ implementation. Moreover, the required input file `data/processed/teacher_routing_dataset.parquet`\
+    \ is absent, so the code cannot be exercised as specified. Both the missing dataset\
+    \ and the incomplete script must be provided/fixed."

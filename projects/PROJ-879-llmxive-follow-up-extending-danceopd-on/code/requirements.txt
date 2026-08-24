@@ -10,3 +10,7 @@ scipy>=1.11.0
 torch-fidelity>=0.3.0
 pyyaml>=6.0.0
 pytest>=7.4.0
+joblib  # auto-added: imported by run-book but missing from venv
+pyarrow  # auto-added: imported by run-book but missing from venv
+torchvision  # auto-added: imported by run-book but missing from venv
+tqdm  # auto-added: imported by run-book but missing from venv

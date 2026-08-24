@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a Create project directory structure per implementation plan in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/` including directories: `code/`, `code/utils/`, `code/data/`, `code/models/`, `code/metrics/`, `data/raw/`, `data/processed/`, `data/results/`, `models/`, `tests/unit/`, `tests/integration/`, `tests/contract/`.
-- [X] T001b Initialize empty Python script files in `code/`: `main.py`, `00_data_fetch.py`, `00_data_stream.py`, `00_teacher_inference.py`, `01_train_trees.py`, `02_evaluate_fidelity.py`, `03_versioning.py`.
+- [ ] T001b Initialize empty Python script files in `code/`: `main.py`, `00_data_fetch.py`, `00_data_stream.py`, `00_teacher_inference.py`, `01_train_trees.py`, `02_evaluate_fidelity.py`, `03_versioning.py`.
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/` including pinned dependencies: `torch`, `scikit-learn`, `pandas`, `numpy`, `datasets`, `transformers`, `accelerate`, `pillow`, `scipy`, `torch-fidelity`, `pyyaml`, `pytest`.
 - [X] T003 [P] Configure linting and formatting tools (ruff/black) in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/`.
 
@@ -74,7 +74,7 @@
 
 **Goal**: Generate a synthetic dataset of `(prompt_embedding, noise_level, routing_label, velocity_vector)` tuples by running the pre‑trained DanceOPD teacher model on sampled ImageNet‑1K and LAION‑400M prompts.
 
-**Independent Test**: The system produces a CSV/Parquet file with ≥1,000 rows, valid expert identifiers, and consistent velocity vector dimensions.
+**Independent Test**: The system produces a CSV/Parquet file with ≥1,000 rows, valid expert identifiers, and consistent velocity vector dimensions. [UNRESOLVED-CLAIM: c_a2d652fe — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -107,7 +107,7 @@
  - **Writing**: **Write the filtered dataset to `data/processed/teacher_ground_truth_filtered.parquet`**.
  - **Logging**: Write `data/results/exclusion_log.json` with keys `count`, `reason`, and `timestamp`.
  - **Deliverable**: `data/processed/teacher_ground_truth_filtered.parquet` (the filtered dataset) and `exclusion_log.json`.
-- [X] T014 [US1] **Extract and Stream Final Dataset**. Implement logic in `code/00_data_extraction.py` to extract `prompt_embedding`, `noise_level`, `routing_label`, and `velocity_vector` from the filtered dataset and stream them to `data/processed/teacher_routing_dataset.parquet`.
+- [ ] T014 [US1] **Extract and Stream Final Dataset**. Implement logic in `code/00_data_extraction.py` to extract `prompt_embedding`, `noise_level`, `routing_label`, and `velocity_vector` from the filtered dataset and stream them to `data/processed/teacher_routing_dataset.parquet`.
  - **Dependency**: This task depends on the existence of `teacher_ground_truth_filtered.parquet` (produced by T013b).
  - **Pre-check**: Verify input exists. If missing, check for partial artifact `teacher_ground_truth_partial.parquet`. If found, use it. If no fallback, save partial status and exit cleanly.
  - **Deliverable**: `data/processed/teacher_routing_dataset.parquet`.
@@ -131,7 +131,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement data splitting logic (train/test) in `code/01_train_trees.py` consuming `data/processed/teacher_routing_dataset.parquet`.
+- [ ] T020 [US2] Implement data splitting logic (train/test) in `code/01_train_trees.py` consuming `data/processed/teacher_routing_dataset.parquet`.
  - **Dependency**: This task depends on the existence of `teacher_routing_dataset.parquet` (produced by T014) and its validation (T016b).
  - **Pre-check**: Verify `teacher_routing_dataset.parquet` exists and is valid before splitting.
  - **Enforce CPU**: Ensure no GPU usage in data loading (default behavior).
@@ -165,9 +165,9 @@
 - [X] T028a [US3] **Generate Teacher and Tree Images**. Implement `code/02_evaluate_fidelity.py` to generate images for BOTH the Teacher baseline and the Tree-predicted routing.
  - **Dependency**: Depends on T020 (Data Split), T021 (Trained Trees), T029b (Expert Fields Loaded).
  - **Logic**: Iterate through the test set. For each sample:
-   1. Run Teacher model to get `routing_label` and `velocity_vector`. Generate image using Euler integrator.
-   2. Run Tree model to get `predicted_routing_label`. Use T029a to generate `velocity_vector` based on prediction. Generate image using Euler integrator.
-   3. **Crucial**: Use the **exact same random seed and sample indices** for both generations to ensure 1:1 alignment.
+ 1. Run Teacher model to get `routing_label` and `velocity_vector`. Generate image using Euler integrator.
+ 2. Run Tree model to get `predicted_routing_label`. Use T029a to generate `velocity_vector` based on prediction. Generate image using Euler integrator.
+ 3. **Crucial**: Use the **exact same random seed and sample indices** for both generations to ensure 1:1 alignment.
  - **Deliverable**: `data/results/teacher_baseline_images/` and `data/results/tree_generated_images/` with matching filenames.
 - [X] T029a [US3] **Generate Velocity Vectors from Tree Routing**. Implement `code/models/expert_reinference.py` to generate velocity vectors based on tree predictions.
  - **Dependency**: Depends on T029b (Expert Fields Loaded).
@@ -181,7 +181,7 @@
 - [X] T030a [US3] **Compute FID and CLIP Scores**. Compute metrics for tree-generated images against teacher baseline images using metrics from `code/utils/metrics.py`.
  - **Input**: Results from T028a (both image sets).
  - **Deliverable**: Metrics saved in `data/results/fidelity_metrics.csv`.
-- [X] T030b [US3] **Run Pilot**. Execute a pilot run (N=50) to estimate variance for power calculation.
+- [X] T030b [US3] **Run Pilot**. Execute a pilot run (N=50) to estimate variance for power calculation. [UNRESOLVED-CLAIM: c_a2b8fe30 — status=not_enough_info]
  - **Dependency**: Depends on T030a.
  - **Deliverable**: Pilot variance estimate.
 - [X] T030c [US3] **Calculate Power and Configure Sample Size**. Calculate required sample size based on pilot variance.
@@ -192,3 +192,8 @@
  - **Deliverable**: Statistical test outputs saved in `data/results/statistical_tests.json`.
 
 **Checkpoint**: At this point, User Story 3 should be fully functional and testable independently
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [ ] T031 Reconcile run-book vs implementation for `code/data/generate_teacher.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/data/generate_teacher.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T032 Reconcile run-book vs implementation for `code/models/train_tree.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/models/train_tree.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T033 Reconcile run-book vs implementation for `code/utils/stats.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/utils/stats.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

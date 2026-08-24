@@ -1,122 +1,66 @@
+"""
+Versioning Module.
+Calculates SHA256 hashes for artifacts and updates state.
+"""
 import argparse
 import sys
 import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
-from utils.config import get_config
-
-
-def calculate_sha256(file_path: str) -> str:
+def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-
-def get_file_size(file_path: str) -> int:
+def get_file_size(file_path: Path) -> int:
     """Get file size in bytes."""
-    return os.path.getsize(file_path)
+    return file_path.stat().st_size
 
-
-def version_artifact(
-    file_path: str, state_dir: Optional[str] = None
-) -> Dict[str, Any]:
-    """
-    Calculate SHA256 hash and file size for an artifact,
-    then update the state file in the specified state directory.
-
-    Args:
-        file_path: Path to the artifact file to version.
-        state_dir: Path to the state directory. If None, uses config.
-
-    Returns:
-        Dictionary containing the version record.
-    """
-    file_path = Path(file_path)
+def version_artifact(file_path: Path, state_dir: Path):
+    """Version an artifact by adding its hash to state."""
     if not file_path.exists():
-        raise FileNotFoundError(f"Artifact not found: {file_path}")
+        raise FileNotFoundError(f"File not found: {file_path}")
 
-    # Get config for default state path if not provided
-    if state_dir is None:
-        config = get_config()
-        state_dir = config.get("state_dir", "state")
-
-    state_dir = Path(state_dir)
     state_dir.mkdir(parents=True, exist_ok=True)
+    state_file = state_dir / "artifacts.json"
 
-    state_file = state_dir / "artifacts_state.json"
-
-    # Calculate metadata
-    sha256_hash = calculate_sha256(str(file_path))
-    file_size = get_file_size(str(file_path))
-
-    # Load existing state or initialize
     if state_file.exists():
         with open(state_file, "r") as f:
-            state_data = json.load(f)
+            state = json.load(f)
     else:
-        state_data = {"artifacts": {}, "last_updated": None}
+        state = {}
 
-    # Create version record
-    version_record = {
-        "path": str(file_path),
-        "sha256": sha256_hash,
-        "size_bytes": file_size,
-        "version": 1,  # Increment logic could be added if needed
+    artifact_name = file_path.name
+    state[artifact_name] = {
+        "hash": calculate_sha256(file_path),
+        "size": get_file_size(file_path),
+        "path": str(file_path)
     }
 
-    # Update state
-    file_key = str(file_path)
-    if file_key in state_data["artifacts"]:
-        # Increment version if file already exists
-        version_record["version"] = (
-            state_data["artifacts"][file_key].get("version", 0) + 1
-        )
-
-    state_data["artifacts"][file_key] = version_record
-    state_data["last_updated"] = file_path.stat().st_mtime
-
-    # Write updated state
     with open(state_file, "w") as f:
-        json.dump(state_data, f, indent=2)
+        json.dump(state, f, indent=2)
 
-    return version_record
-
+    print(f"Versioned: {artifact_name} -> {state_file}")
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Calculate SHA256 hashes for artifacts and update state."
-    )
-    parser.add_argument(
-        "file_path",
-        type=str,
-        help="Path to the artifact file to version.",
-    )
-    parser.add_argument(
-        "--state-dir",
-        type=str,
-        default=None,
-        help="Path to the state directory (default: from config).",
-    )
-
+    parser = argparse.ArgumentParser(description="Version artifacts")
+    parser.add_argument("--files", nargs="+", required=True, help="Files to version")
+    parser.add_argument("--state_dir", type=str, default="state", help="State directory")
     args = parser.parse_args()
 
-    try:
-        version_record = version_artifact(args.file_path, args.state_dir)
-        print(f"Artifact versioned successfully:")
-        print(json.dumps(version_record, indent=2))
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        sys.exit(1)
-
+    state_dir = Path(args.state_dir)
+    for file_path in args.files:
+        try:
+            version_artifact(Path(file_path), state_dir)
+        except Exception as e:
+            print(f"Failed to version {file_path}: {e}")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()
