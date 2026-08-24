@@ -22,7 +22,7 @@ This project investigates whether machine learning models, specifically interpre
 **Project Type**: Computational research pipeline / CLI
 **Performance Goals**: Complete data retrieval, feature engineering, model training, and analysis within 6 hours on 2 CPU cores, 7 GB RAM.
 **Constraints**: No local GPU; must fit within 7 GB RAM; must use open, directly downloadable datasets; must avoid causal claims.
-**Scale/Scope**: Target dataset size [deferred]–[deferred] compounds (Matbench); 50 external validation PCMs.
+**Scale/Scope**: Target dataset size [deferred]–[deferred] compounds (Matbench); a set of external validation PCMs.
 
 **Dataset Strategy**:
 - **Primary**: **Matbench Melting Points** (via `matbench` Python package). This is an open-source benchmark dataset containing melting points for thousands of compounds.
