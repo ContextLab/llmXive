@@ -9,7 +9,7 @@
 
 ### User Story 1 - Generate and Down-sample Simulated BBH Waveforms (Priority: P1)
 
-The researcher needs to generate a diverse set of binary-black-hole (BBH) gravitational wave signals and systematically down-sample them to various resolution levels (4096Hz, 2048Hz, 1024Hz, 512Hz, 256Hz) while preserving signal integrity via anti-aliasing filters.
+The researcher needs to generate a diverse set of binary-black-hole (BBH) gravitational wave signals and systematically down-sample them to various resolution levels while preserving signal integrity via anti-aliasing filters.
 
 **Why this priority**: This is the foundational data generation step. Without a controlled set of waveforms at known resolutions, no analysis of SNR degradation or detection probability can occur. It directly enables the core research question.
 
@@ -79,7 +79,7 @@ The researcher needs to determine the detection probability (fraction of injecti
 
 ### Measurable Outcomes
 
-- **SC-001**: The monotonic decline of recovered SNR with coarser sampling is measured against the native 4096 Hz baseline SNR to quantify the degradation factor. The baseline and degraded SNRs are aggregated using the median across realizations, with Confidence intervals calculated via bootstrapping. A monotonic decline is claimed if the 95% CIs of adjacent resolution levels do not overlap. Injections where the 4096 Hz baseline SNR < 8 are excluded from the degradation factor calculation or treated as censored data. (See US-2)
+- **SC-001**: The monotonic decline of recovered SNR with coarser sampling is measured against the native 4096 Hz baseline SNR to quantify the degradation factor. The baseline and degraded SNRs are aggregated using the median across realizations, with Confidence intervals calculated via bootstrapping. A monotonic decline is claimed if the % CIs of adjacent resolution levels do not overlap. Injections where the 4096 Hz baseline SNR < 8 are excluded from the degradation factor calculation or treated as censored data. (See US-2)
 - **SC-002**: Detection probability curves (90%, 50%, 10% thresholds) are measured against the resolution sampling rate to identify the "knee" point where performance drops sharply. Thresholds are derived via logistic regression (or linear interpolation if data is sparse) to ensure reproducibility. (See US-3)
 - **SC-003**: Computational resource savings (CPU time reduction) are measured against the sensitivity loss (SNR reduction) to derive an efficiency trade-off guideline. (See US-3)
 - **SC-004**: The validity of the anti-aliasing filter is measured by verifying that no frequency components above the Nyquist limit exceed a negligible magnitude relative to the measured RMS noise floor of the specific segment in the down-sampled data.. (See US-1)
