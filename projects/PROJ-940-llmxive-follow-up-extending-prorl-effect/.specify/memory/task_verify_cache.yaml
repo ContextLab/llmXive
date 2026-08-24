@@ -5,13 +5,6 @@ T001:
     `data/raw/`, `data/processed/`, `results/`, or the required `__init__.py` files
     were provided. The claim lacks concrete artifacts to verify that the project structure
     was actually created.
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/raw/`, `data/processed/`, and `results/` directories\
-    \ or accompanying `.gitkeep` files is present; the implementer\u2019s claim cannot\
-    \ be verified without those artifacts. The task remains undone until the directory\
-    \ structure and placeholder files are created."
 T009a:
   c: false
   h: b4535a967562fce222fc3f8d191f9fc8ba63f33696bba1013d77b6d9659d7c3d
@@ -57,14 +50,6 @@ T024c:
     \ Additionally, the required JSON files are missing from the repository, so the\
     \ validation logic cannot even be exercised. The task\u2019s core requirement\u2014\
     implementing schema\u2011validation logic\u2014is not satisfied."
-T025b:
-  c: false
-  h: e766a8a3f4de2640c08cc64c169ce859293f873efa96c4408641b3b4551239fc
-  r: "The `src/evaluator.py` file does not contain a `compare_metrics` function (the\
-    \ shown code is truncated and ends before any such implementation). Additionally,\
-    \ the required output files `results/greedy_paths.json`, `results/greedy_rectified_paths.json`,\
-    \ and `results/metrics_comparison.json` are absent. The task\u2019s core functionality\
-    \ and artifacts are therefore missing."
 T030:
   c: false
   h: 74710f908c7d855c4d02381898784cad7fa84e26b2c6aa9e3e0d8d94cb8be29c
