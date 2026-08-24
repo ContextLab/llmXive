@@ -43,7 +43,7 @@
 
 **Why this priority**: The research question explicitly targets "CPU-tractable" and "resource-constrained edge devices." If the method requires GPU acceleration or excessive memory, the proposed solution fails its primary deployment constraint, rendering the semantic improvement moot for the target use case.
 
-**Independent Test**: Can be tested by running the full pipeline on a standard 2-core, 7GB RAM runner and logging resource usage metrics.
+**Independent Test**: Can be tested by running the full pipeline on a standard multi-core, limited-memory runner and logging resource usage metrics.
 
 **Acceptance Scenarios**:
 

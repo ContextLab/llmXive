@@ -1,89 +1,91 @@
 # Quickstart: llmXive follow-up: extending "AlayaWorld: Long-Horizon and Playable Video World Generation"
 
-## 1. Prerequisites
+## Prerequisites
 
-- **OS**: Linux (Ubuntu 22.04 recommended).
-- **Python**: 3.11+.
-- **Hardware**: A limited number of CPU cores, 7 GB RAM (simulating GitHub Actions free-tier).
-- **Dependencies**:
-  - `pip install -r requirements.txt`
-  - `requirements.txt` includes: `torch`, `opencv-python`, `pandas`, `scikit-learn`, `pyyaml`, `pytest`.
+- Python 3.11+
+- CPU cores, 7 GB RAM available (GitHub Actions free-tier or local equivalent).
+- AlayaWorld model weights (provided as local artifact or internal path).
+- A subset of video sequences for testing.
 
-## 2. Project Setup
+## Installation
 
-```bash
-# Clone and enter project
-cd projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-1021-llmxive-follow-up-extending-alayaworld-l/code
+   ```
 
-# Install dependencies
-pip install -r code/requirements.txt
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-# Verify environment
-python -c "import cv2; import torch; print('Environment OK')"
-```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` includes `torch` (CPU), `opencv-python-headless`, `scikit-learn`, `pandas`, `numpy`, `pytest`.*
 
-## 3. Data Preparation
+## Configuration
 
-### Option A: Synthetic Simulation (Default for CI)
-Generates fake action sequences and symbolic logs.
-```bash
-python code/main.py --mode generate_synthetic_data
-# Outputs: data/raw/action_sequences.json, data/processed/symbolic_logs.json
-```
+1. **Set up paths**:
+   Edit `code/config.py` to point to the local AlayaWorld model and video data:
+   ```python
+   MODEL_PATH = "/path/to/alayaworld/model.pth"
+   DATA_PATH = "/path/to/alayaworld/data"
+   GROUND_TRUTH_PATH = "data/ground_truth"
+   ```
 
-### Option B: Real Data (If available)
-Place real AlayaWorld video files in `data/raw/videos/` and run:
-```bash
-python code/main.py --mode process_real_data
-```
+2. **Set random seeds**:
+   Ensure `config.py` defines a fixed seed for reproducibility:
+   ```python
+   RANDOM_SEED = 42
+   ```
 
-### Ground Truth Annotation (Required for FR-007)
-Ensure `data/annotated/gt_subset_50.json` exists with ≥50 frames.
-```bash
-# If missing, generate a synthetic subset for testing
-python code/main.py --mode generate_gt_subset --count [specified_threshold]
+## Running the Pipeline
 
-The research question addresses the impact of subset size on model performance, employing a controlled generation methodology as detailed in Smith et al. (2023) [arXiv:2301.12345].
-```
+### 1. Generate Ground Truth Subset (Manual Step)
+   - Run the symbolic engine to generate state logs for ≥50 frames.
+   - Save annotations in `data/ground_truth/annotations.json` following the schema in `contracts/cv_annotation.schema.yaml`.
 
-## 4. Execution
+### 2. Run Ground Truth Validation (FR-007)
+   ```bash
+   python -m code.validation --mode validate
+   ```
+   *Output: A report indicating if CV accuracy ≥ 85%. If not, the experiment is invalid.*
 
-### Run Baseline (Vanilla)
-```bash
-python code/main.py --mode baseline --seeds --sequences-per-seed [variable]
+### 3. Run Baseline (US-1)
+   ```bash
+   python -m code.main --mode baseline --seeds multiple
+   ```
+   *Output: `data/results/baseline_scores.json`*
 
-The research question, method, and references remain unchanged as no specific empirical claims were made in the original text beyond the parameter value, which has been generalized to a placeholder variable.
-# Output: data/results/baseline_scores.json
-```
+### 4. Run Hybrid (US-2)
+   ```bash
+   python -m code.main --mode hybrid --seeds multiple
+   ```
+   *Output: `data/results/hybrid_scores.json`*
 
-### Run Hybrid (Corrected)
-```bash
-python code/main.py --mode hybrid --seeds multiple --sequences-per-seed multiple
-# Output: data/results/hybrid_scores.json
-```
+### 5. Statistical Analysis (US-2)
+   ```bash
+   python -m code.metrics --compare baseline hybrid
+   ```
+   *Output: Statistical report including p-value and drift score reduction (Wilcoxon signed-rank test).*
 
-### Run Validation & Statistics
-```bash
-python code/main.py --mode validate_and_stats
-# Output: data/results/stats_comparison.json, data/results/final_results.csv
-```
+### 6. Resource Check (US-3)
+   Resource usage is logged automatically during runs. Check `data/results/resource_logs.json` to ensure:
+   - Peak RAM ≤ 7 GB
+   - Wall-clock time ≤ 30 minutes per sequence
 
-## 5. Resource Monitoring
+## Verification
 
-The system automatically logs resource usage. To check manually:
-```bash
-# Run with resource monitoring enabled
-python code/main.py --mode hybrid --monitor_resources
-```
-Check `data/results/experiment_log.json` for `peak_ram_gb` and `wall_clock_time_sec`.
+- **Check Drift Reduction**: Verify that the mean drift score for the hybrid mode is at least 30% lower than the baseline (SC-001).
+- **Check Significance**: Ensure the p-value from the **Wilcoxon signed-rank test** is < 0.05 (SC-004).
+- **Check Constraints**: Ensure all resource logs are within limits (SC-002, SC-003).
 
-## 6. Expected Outputs
+## Troubleshooting
 
-- **Success**: `stats_comparison.json` shows `p_value < 0.05` and `drift_reduction >= 30%`.
-- **Failure**: `experiment_log.json` flags `accuracy < 85%` or `ram > 7.0`.
-
-## 7. Troubleshooting
-
-- **CV Accuracy Low**: Check `data/annotated/gt_subset_50.json` for correct formatting.
-- **Memory Error**: Ensure `streaming=True` is used in data loading (if applicable).
-- **Symbolic Mismatch**: Verify `config/params.yaml` rules match the action definitions.
+- **Memory Error**: If the process exceeds 7 GB RAM, reduce the batch size in `config.py` or enable streaming mode.
+- **CV Accuracy Low**: If validation accuracy < 85%, re-annotate the ground truth or adjust template matching parameters in `code/cv_pipeline.py`.
+- **Model Not Found**: Ensure `MODEL_PATH` in `config.py` points to a valid, CPU-compatible model file.

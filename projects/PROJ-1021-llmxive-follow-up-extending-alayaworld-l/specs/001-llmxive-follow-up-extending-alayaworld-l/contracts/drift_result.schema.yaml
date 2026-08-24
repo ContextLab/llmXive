@@ -1,65 +1,59 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Drift Result"
-description: "Computed semantic drift score and metadata for a sequence."
-type: object
+description: "Aggregated metrics for a single sequence."
+type: "object"
 required:
-  - sequence_id
-  - drift_score
-  - validation_status
-  - resource_metrics
+  - "sequence_id"
+  - "mode"
+  - "drift_score"
+  - "permanence_violations"
+  - "phantom_objects"
+  - "cv_accuracy"
+  - "is_valid"
+  - "resource_usage"
 properties:
   sequence_id:
-    type: string
-    description: "Unique identifier for the action sequence."
-  drift_score:
-    type: number
-    description: "Calibrated semantic drift score (0.0 = perfect, 1.0 = complete drift), weighted by CV confidence."
-    minimum: 0.0
-    maximum: 1.0
-  validation_status:
-    type: string
+    type: "string"
+    description: "Unique identifier."
+  mode:
+    type: "string"
     enum:
-      - "high_confidence"
-      - "medium_confidence"
-      - "low_confidence"
-      - "inconclusive"
-    description: "Status of the CV validation. 'low_confidence' scores are retained but weighted less in aggregation."
-  confidence_weight:
-    type: number
-    description: "Weight applied to this score in the final aggregation (0.0 to 1.0). Derived from CV confidence."
+      - "baseline"
+      - "hybrid"
+    description: "Mode of execution."
+  drift_score:
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-  reason:
-    type: string
-    description: "Reason for status if not 'high_confidence' (e.g., 'CV_ACCURACY_LOW', 'RENDER_FAILURE')."
-  resource_metrics:
-    type: object
+    description: "Normalized drift score (0.0 - 1.0)."
+  permanence_violations:
+    type: "integer"
+    minimum: 0
+    description: "Count of objects alive in video but dead in logic."
+  phantom_objects:
+    type: "integer"
+    minimum: 0
+    description: "Count of objects in video but not in logic."
+  cv_accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Validation accuracy (from FR-007)."
+  is_valid:
+    type: "boolean"
+    description: "True if cv_accuracy ≥ 0.85."
+  resource_usage:
+    type: "object"
     required:
-      - peak_ram_gb
-      - wall_clock_time_sec
+      - "peak_ram_gb"
+      - "wall_clock_min"
     properties:
       peak_ram_gb:
-        type: number
-        description: "Peak RAM usage in GB."
-        maximum: 7.0
-      wall_clock_time_sec:
-        type: number
-        description: "Total execution time in seconds."
-        maximum: 1800
-  correction_events:
-    type: integer
-    description: "Number of correction tokens injected."
-  rendering_failures:
-    type: array
-    description: "List of rendering failure logs."
-    items:
-      type: object
-      properties:
-        error_code:
-          type: string
-          enum:
-            - RENDER_FAILURE
-        object_id:
-          type: string
-        timestamp:
-          type: integer
+        type: "number"
+        minimum: 0.0
+        description: "Peak RAM in GB."
+      wall_clock_min:
+        type: "number"
+        minimum: 0.0
+        description: "Wall-clock time in minutes."
+additionalProperties: false

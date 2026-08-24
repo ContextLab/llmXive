@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ground Truth Annotation"
+description: "Manually annotated frames for CV validation."
+type: "object"
+required:
+  - "annotation_id"
+  - "frame_path"
+  - "objects"
+properties:
+  annotation_id:
+    type: "string"
+    description: "Unique identifier."
+  frame_path:
+    type: "string"
+    description: "Path to the image file."
+  objects:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "id"
+        - "exists"
+        - "bbox"
+      properties:
+        id:
+          type: "string"
+          description: "Object ID."
+        exists:
+          type: "boolean"
+          description: "True if object is present."
+        bbox:
+          type: "array"
+          items:
+            type: "integer"
+          minItems: 4
+          maxItems: 4
+          description: "Bounding box [x, y, w, h]."
+additionalProperties: false

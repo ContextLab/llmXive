@@ -1,64 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Symbolic State Log"
-description: "Deterministic ground truth state trajectory from the symbolic engine."
-type: object
+description: "Time-series record of logical object states derived from the rule-based engine."
+type: "object"
 required:
-  - sequence_id
-  - seed
-  - timesteps
+  - "log_id"
+  - "sequence_id"
+  - "frame_index"
+  - "objects"
 properties:
+  log_id:
+    type: "string"
+    description: "Unique identifier for the log."
   sequence_id:
-    type: string
-    description: "Unique identifier for the action sequence."
-  seed:
-    type: integer
-    description: "Random seed used for action generation."
-  timesteps:
-    type: array
-    description: "List of state snapshots at each timestep."
+    type: "string"
+    description: "Reference to the action sequence."
+  frame_index:
+    type: "integer"
+    minimum: 0
+    description: "Frame number (0-indexed)."
+  objects:
+    type: "array"
     items:
-      type: object
+      type: "object"
       required:
-        - timestep
-        - objects
+        - "id"
+        - "hp"
+        - "exists"
+        - "position"
       properties:
-        timestep:
-          type: integer
-          description: "Frame index (0-indexed)."
-        objects:
-          type: array
-          description: "List of object states at this timestep."
+        id:
+          type: "string"
+          description: "Unique object ID."
+        hp:
+          type: "integer"
+          minimum: 0
+          description: "Current HP (0 = dead)."
+        exists:
+          type: "boolean"
+          description: "Whether the object exists in the logical world."
+        position:
+          type: "array"
           items:
-            type: object
-            required:
-              - object_id
-              - type
-              - hp
-              - position
-              - is_alive
-            properties:
-              object_id:
-                type: string
-                description: "Unique ID for the object."
-              type:
-                type: string
-                description: "Object type (e.g., 'player', 'enemy', 'item')."
-              hp:
-                type: integer
-                description: "Current health points."
-              position:
-                type: array
-                description: "[x, y] coordinates."
-                items:
-                  type: integer
-              is_alive:
-                type: boolean
-                description: "True if HP > 0."
-  global_state:
-    type: object
-    description: "Global simulation state (e.g., time, score)."
-    properties:
-      time_elapsed:
-        type: integer
-      score:
-        type: integer
+            type: "number"
+          minItems: 2
+          maxItems: 2
+          description: "Logical (x, y) position."
+additionalProperties: false

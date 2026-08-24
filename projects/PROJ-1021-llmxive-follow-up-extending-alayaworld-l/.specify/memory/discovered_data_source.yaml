@@ -1,18 +1,16 @@
 status: none
-intent: CATER and CLEVRER synthetic video datasets with object state annotations python
-  package dataset
+intent: download AlayaWorld interactive video dataset with object state annotations
+  python package dataset
 required_fields:
-- video_id
-- frame_number
+- video_path
+- action_sequence
 - timestamp
 - object_id
-- object_category
-- bounding_box
-- object_state
 - object_position
-- object_velocity
-- action_sequence_id
-- ground_truth_state
-cache_key: 2a177eaaaf4dc53a3f5536e227e04da6d6465ed15d716dffb1f1b5f367ca2c10
-searched_at: '2026-08-22T09:30:19.538559+00:00'
+- object_orientation
+- object_health
+- symbolic_state_log
+- frame_rate
+cache_key: 8f3dd50d5668bbf265ceb38a98ab689e0cc21a0c1b61c71ab318b1cdd04efedd
+searched_at: '2026-08-24T21:48:36.506880+00:00'
 retry_count: 1
