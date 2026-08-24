@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.19923",
+  "judged_at": "2026-08-24T09:39:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"4d human-scene reconstruction from low-overlap captures\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same core mechanism (4D human-scene reconstruction) and domain (computer vision/3D reconstruction) as the user's question, satisfying criteria (a) and (b) by providing a state-of-the-art baseline and alternative methodology (contact-aware modeling) for the specific problem of reconstructing humans within scenes.",
+  "relevant": true
+}

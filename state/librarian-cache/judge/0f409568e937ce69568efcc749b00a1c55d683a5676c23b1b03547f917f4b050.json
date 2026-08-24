@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1902.09328",
+  "judged_at": "2026-08-24T09:39:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"4d human-scene reconstruction from low-overlap captures\" computer science",
+  "rationale": "The paper focuses on reconstructing the internal elasticity distribution of physical elastic bodies using local displacement fields, which is a distinct construct from the user's question about 4D human-scene reconstruction (geometry and appearance) from low-overlap camera captures. While both involve \"reconstruction\" and \"sparse\" data, the underlying physical mechanisms (elasticity vs. visual geometry), data modalities (displacement sensors vs. images), and target populations (elastic bodies vs",
+  "relevant": false
+}

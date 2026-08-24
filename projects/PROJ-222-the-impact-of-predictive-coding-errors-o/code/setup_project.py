@@ -2,35 +2,35 @@ import os
 import sys
 from pathlib import Path
 
+
 def create_directories():
     """
-    Create the project directory structure as defined in T001.
-    Directories: data/raw, data/processed, code, figures, analysis, contracts
+    Create the project directory structure as per the implementation plan.
+    Creates: data/raw, data/processed, code, figures, analysis, contracts
     """
-    base_dir = Path(".")
+    base_dir = Path(__file__).resolve().parent.parent
     
     directories = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "figures",
-        "analysis",
-        "contracts"
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "code",  # Already exists but ensures presence
+        base_dir / "figures",
+        base_dir / "analysis",
+        base_dir / "contracts",
     ]
     
     created_count = 0
-    for dir_name in directories:
-        target_path = base_dir / dir_name
-        if not target_path.exists():
-            target_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {target_path}")
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
             created_count += 1
         else:
-            print(f"Directory already exists: {target_path}")
+            print(f"Directory already exists: {directory}")
     
-    print(f"Project structure setup complete. {created_count} new directories created.")
-    return True
+    print(f"\nProject structure setup complete. Created {created_count} new directories.")
+    return created_count
+
 
 if __name__ == "__main__":
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    create_directories()

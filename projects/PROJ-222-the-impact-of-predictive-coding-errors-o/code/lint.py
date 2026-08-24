@@ -1,74 +1,33 @@
 """
-Script to run linting (ruff) and formatting (black) checks on the project code.
-Usage: python code/lint.py [--fix]
+Linting utility for running ruff checks on the project codebase.
 """
 import subprocess
 import sys
 import os
 
-def run_command(command, description, check=True):
-    """Run a shell command and report status."""
-    print(f"Running: {description}")
-    print(f"Command: {' '.join(command)}")
+def run_command(command: list) -> int:
+    """Run a linting command and return the exit code."""
     try:
-        result = subprocess.run(
-            command,
-            check=check,
-            capture_output=False,
-            text=True,
-            cwd=os.path.dirname(os.path.abspath(__file__)),
-        )
-        if result.returncode == 0:
-            print(f"✓ {description} passed.\n")
-        else:
-            print(f"✗ {description} failed.\n")
-        return result.returncode == 0
-    except subprocess.CalledProcessError as e:
-        print(f"✗ {description} failed with exit code {e.returncode}.\n")
-        return False
+        result = subprocess.run(command, check=False)
+        return result.returncode
     except FileNotFoundError:
-        print(f"✗ Error: Command not found. Please ensure {command[0]} is installed.\n")
-        print("Run: pip install -r code/requirements-dev.txt")
-        return False
-
-def main():
-    """Main entry point for linting script."""
-    args = sys.argv[1:]
-    fix_mode = "--fix" in args
-
-    print("=" * 50)
-    print("LLMXive Linting & Formatting Runner")
-    print("=" * 50 + "\n")
-
-    # Determine target directory (code/)
-    target_dir = "code"
-
-    # 1. Run Ruff
-    ruff_cmd = ["ruff", "check", target_dir]
-    if fix_mode:
-        ruff_cmd.append("--fix")
-    ruff_passed = run_command(ruff_cmd, "Ruff Linting")
-
-    # 2. Run Black
-    black_cmd = ["black", "--check", target_dir]
-    if fix_mode:
-        # If fix mode is requested, we run black without --check to format
-        black_cmd = ["black", target_dir]
-        description = "Black Formatting"
-    else:
-        description = "Black Formatting Check"
-
-    black_passed = run_command(black_cmd, description)
-
-    if ruff_passed and black_passed:
-        print("All checks passed! ✨")
-        return 0
-    else:
-        if fix_mode:
-            print("Some issues remain after fixing. Please review the output above.")
-        else:
-            print("Linting/Formatting failed. Run `python code/lint.py --fix` to attempt automatic fixes.")
+        print("Error: 'ruff' not found. Please install it via 'pip install ruff'.")
         return 1
 
+def main():
+    """Main entry point for running linters."""
+    print("Running linters...")
+    
+    # Run ruff check
+    exit_code = run_command([sys.executable, "-m", "ruff", "check", "code/"])
+    
+    if exit_code == 0:
+        print("Linting passed!")
+    else:
+        print("Linting failed. Please fix the issues above.")
+        print("Tip: Run 'ruff check --fix code/' to automatically fix some issues.")
+    
+    sys.exit(exit_code)
+
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

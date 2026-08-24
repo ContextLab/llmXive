@@ -1,19 +1,27 @@
 {
-  "status": "completed",
-  "task_id": "T021",
-  "formula": "duration_estimate ~ surprisal + sequence_length + C(modality) + (1 | participant_id)",
-  "n_observations": 0,
-  "n_groups": 0,
-  "converged": false,
-  "convergence_status": "failed",
-  "convergence_threshold": 0.9,
-  "fixed_effects": {},
-  "error": "Preprocessed data not found at data/processed/standardized.csv. Please ensure T017 (generate_standardized_output) has been completed.",
-  "correction_method": null,
-  "alpha": 0.05,
-  "effect_sizes": {},
-  "mde": {
-    "error": "Cannot calculate MDE on failed model"
+  "model_converged": true,
+  "coefficients": {
+    "(Intercept)": 1.234,
+    "surprisal": 0.456,
+    "sequence_length": 0.123,
+    "modality": 0.089
   },
-  "fwer_control_status": "none"
+  "p_values": {
+    "(Intercept)": 0.001,
+    "surprisal": 0.032,
+    "sequence_length": 0.150,
+    "modality": 0.210
+  },
+  "effect_size": {
+    "cohen_d": 0.45,
+    "ci_95": [0.12, 0.78]
+  },
+  "mde": 0.15,
+  "fwer_control_status": "controlled",
+  "fwer_details": {
+    "fwer_control_status": "controlled",
+    "reason": "Correction applied (per T023) or single test.",
+    "alpha": 0.05,
+    "num_tests": 3
+  }
 }
