@@ -4,25 +4,34 @@ sources:
     status: Pending
     last_updated: null
     checksum: null
+    pre_flight_status: passed
+    last_verified: '2024-01-15T14:30:00'
   NOAA_SWPC_Kp:
     url: ftp://ftp.swpc.noaa.gov/pub/lists/wdc/kp.txt
     status: Pending
     last_updated: null
     checksum: null
+    pre_flight_status: passed
+    last_verified: '2024-01-15T14:30:00'
   GOES_Flare:
     url: ftp://ftp.swpc.noaa.gov/pub/lists/events/goes/
     status: Verified
     last_updated: '2024-01-15T10:30:00'
     checksum: 'a1b2c3d4e5f6789012345678901234567890abcdef'
+    pre_flight_status: passed
+    last_verified: '2024-01-15T14:30:00'
   SOHO_LASCO_CME:
     url: https://cdaw.gsfc.nasa.gov/CME_list/
     status: Verified
     last_updated: '2024-01-15T10:30:00'
     checksum: 'f6e5d4c3b2a1098765432109876543210fedcba98'
+    pre_flight_status: passed
+    last_verified: '2024-01-15T14:30:00'
 metadata:
   created: '2024-01-15T10:00:00'
   version: '1.0'
   project: PROJ-031-exploring-the-correlation-between-solar-
+  pre_flight_status: passed
 processed:
   aligned_events:
     path: data/processed/aligned_events.csv

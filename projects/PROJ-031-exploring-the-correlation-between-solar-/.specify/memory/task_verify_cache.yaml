@@ -28,3 +28,10 @@ T023:
     \ regression model with flare and CME as separate predictors nor any calculated\
     \ R\xB2 values. The claim lacks any tangible artifact to verify the analysis was\
     \ performed."
+T049:
+  c: false
+  h: da8ec9126da696be450e2d6c01d01ea50f6f3310186e81eec467140c6135d9ab
+  r: The provided `code/analysis.py` contains statistical functions but no implementation
+    that counts missing CME speed, flare flux, or Dst values and writes them to `results/metrics.json`
+    under the required `missing_data_counts` key. Additionally, the `results/metrics.json`
+    file does not exist at all. Both the code change and the output artifact are missing.

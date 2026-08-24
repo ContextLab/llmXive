@@ -128,3 +128,199 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T21:23:32Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Download GOES X-ray flare lists from ftp://ftp.swpc.noaa.gov/pub/lists/
+    for at least 10 years
+  claim_id: c_e7d077a7
+  context: 'Phase 3: User Story 1 - Data Ingestion and Event Alignment. Task T011
+    specifies downloading historical flare data.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_GOES_X-ray_flare_lists_from_ftp://ftp.swpc.noaa.gov
+  kind: magnitude
+  raw_text: "Implement `code/ingest.py` to download GOES X-ray flare lists from `ftp://ftp.swpc.noaa.gov/pub/lists/`\
+    \ (\u226510 years)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T03:54:30Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Non-linear piecewise model is tested if R-squared is less than 0.1
+  claim_id: c_7838aa47
+  context: 'Phase 4: User Story 2 - Statistical Correlation Analysis. Task T026 defines
+    the threshold for testing non-linear models.'
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Implement logic to test non-linear (piecewise) model if R\xB2 < 0.1 and\
+    \ report the improvement in fit."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T03:54:30Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Download GOES X-ray flare lists from ftp://ftp.swpc.noaa.gov/pub/lists/
+    covering at least 10 years
+  claim_id: c_05759101
+  context: 'Phase 3: User Story 1 - Data Ingestion and Event Alignment, Implementation
+    for User Story 1'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_GOES_X-ray_flare_lists_from_ftp://ftp.swpc.noaa.gov
+  kind: magnitude
+  raw_text: "Implement `code/ingest.py` to download GOES X-ray flare lists from `ftp://ftp.swpc.noaa.gov/pub/lists/`\
+    \ (\u226510 years)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:01:25Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Download GOES X-ray flare lists from ftp://ftp.swpc.noaa.gov/pub/lists/
+    for at least 10 years
+  claim_id: c_bc4f91db
+  context: Phase 3, Implementation for User Story 1, Task T011
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_GOES_X-ray_flare_lists_from_ftp://ftp.swpc.noaa.gov
+  kind: magnitude
+  raw_text: "Implement `code/ingest.py` to download GOES X-ray flare lists from `ftp://ftp.swpc.noaa.gov/pub/lists/`\
+    \ (\u226510 years)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:04:41Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Calculate R-squared for linear regression of flare and CME as separate
+    predictors
+  claim_id: c_2be0ce4a
+  context: Phase 4, Implementation for User Story 2, Task T023
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_R-squared_for_linear_regression_of_flare_and_CME_a
+  kind: entity_fact
+  raw_text: "Implement linear regression modeling (flare vs. CME as separate predictors)\
+    \ and calculate R\xB2."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:05:41Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Switch to separate univariate models if Variance Inflation Factor is
+    greater than 5
+  claim_id: c_60af90a7
+  context: Phase 4, Implementation for User Story 2, Task T024
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_separate_univariate_models_if_Variance_Inflation_F
+  kind: magnitude
+  raw_text: 'Implement Variance Inflation Factor (VIF) calculation. Selection Logic:
+    If VIF > 5, switch to separate univariate models.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:06:23Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Compute hold-out set as the last two years of the available data range
+  claim_id: c_5ea4f3ff
+  context: Phase 5, Implementation for User Story 3, Task T032
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_hold-out_set_as_the_last_two_years_of_the_available
+  kind: entity_fact
+  raw_text: 'Implement time-series split logic: Dynamically compute the hold-out set
+    as the last two years of the available data range.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:07:17Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Implement retry mechanism with 3 retries and exponential backoff for
+    transient network errors in data ingestion
+  claim_id: c_e6a67146
+  context: Revision Tasks, Task T046
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement robust error handling in `code/ingest.py` for NOAA FTP and
+    CDAWeb endpoints: Implement a retry mechanism with exponential backoff (e.g.,
+    3 retries) for transient network errors.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:07:44Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Stream data ingestion to avoid loading entire multi-year history into
+    RAM at once
+  claim_id: c_e481c86f
+  context: Revision Tasks, Task T047
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stream_data_ingestion_to_avoid_loading_entire_multi-year_his
+  kind: entity_fact
+  raw_text: Use `requests` with `stream=True` and iterate line-by-line (or chunk-by-chunk)
+    to parse raw flare/CME/Dst files, accumulating statistics online without loading
+    the entire multi-year history into RAM at once.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:08:35Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Raise ConnectionError or TimeoutError if all retries fail; do not fallback
+    to synthetic or mock data
+  claim_id: c_b0245cb7
+  context: Revision Tasks, Task T046
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raise_ConnectionError_or_TimeoutError_if_all_retries_fail;_d
+  kind: entity_fact
+  raw_text: If all retries fail, raise a clear `ConnectionError` or `TimeoutError`.
+    Explicitly remove any `try/except` blocks that fall back to `generate_synthetic_*()`
+    or `mock_*()` data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T04:09:23Z'
