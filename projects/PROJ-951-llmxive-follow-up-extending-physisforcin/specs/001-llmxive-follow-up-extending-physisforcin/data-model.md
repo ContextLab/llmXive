@@ -1,86 +1,60 @@
 # Data Model: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula"
 
-## 1. Overview
+## Entities & Relationships
 
-This document defines the data schemas for the `VideoSample`, `CuratedDataset`, `TrainedModel`, `BenchmarkResult`, and `MuJoCoValidationResult` entities. All data is stored in `data/` with checksums for reproducibility (Constitution Principle III).
+### VideoSample
+- **Description**: A single generated video clip with associated metadata.
+- **Attributes**:
+  - `id`: Unique identifier (UUID).
+  - `prompt`: Text prompt used for generation.
+  - `video_path`: Relative path to MP4 file in `data/raw/`.
+  - `physics_score`: Float (0.0 - 1.0) from PyBullet filter.
+  - `pass_status`: Boolean (True if score ≥ 60th percentile).
+  - `generation_timestamp`: ISO 8601 string.
+  - `generation_status`: "success", "failed", "crash".
 
-## 2. Entity Definitions
+### CuratedDataset
+- **Description**: The collection of `VideoSample` entities that passed the filter.
+- **Attributes**:
+  - `dataset_id`: UUID.
+  - `total_samples`: Integer.
+  - `retention_rate`: Float (percentage retained).
+  - `min_score`: Float (minimum score in curated set).
+  - `samples`: List of `VideoSample` references.
 
-### 2.1 VideoSample
-A single generated video with metadata.
+### TrainedModel
+- **Description**: The 50M parameter diffusion model trained on `CuratedDataset`.
+- **Attributes**:
+  - `model_id`: UUID.
+  - `architecture`: String (e.g., "UNet-Diffusion-50M").
+  - `training_epochs`: Integer.
+  - `final_loss`: Float.
+  - `checkpoint_path`: Path to model weights.
+  - `training_config`: JSON object of hyperparameters.
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `id` | string | Unique UUID for the sample. | Required, UUIDv4 |
-| `prompt` | string | Text prompt used for generation. | Required |
-| `raw_path` | string | Relative path to the MP4 file in `data/raw/`. | Required |
-| `physics_score` | float | Score from PyBullet filter (0-100). | Range: 0.0 to 100.0 |
-| `status` | string | `pass` or `fail`. | Enum: ["pass", "fail"] |
-| `generation_seed` | integer | Random seed used for generation. | Required |
-| `timestamp` | string | ISO 8601 timestamp of generation. | Required |
+### BenchmarkResult
+- **Description**: Evaluation metrics for a model on R-Bench and PAI-Bench.
+- **Attributes**:
+  - `model_id`: Reference to `TrainedModel` or `BaselineModel`.
+  - `r_bench_score`: Float.
+  - `pai_bench_score`: Float.
+  - `sample_count`: Integer (n).
+  - `tost_p_value`: Float (from equivalence test).
+  - `equivalence_flag`: Boolean (True if gap ≤ 15% and p < 0.05).
 
-### 2.2 CuratedDataset
-A collection of `VideoSample` records that passed the filter.
+## Data Flow Diagram
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `dataset_id` | string | Unique ID for the curated batch. | Required |
-| `samples` | list | List of `VideoSample` objects. | Non-empty |
-| `threshold_score` | float | The fixed absolute threshold used for cutoff (60.0). | Required (Source: 2506.09162) |
-| `total_generated` | integer | Total videos generated before filtering. | Required |
-| `retained_count` | integer | Number of videos retained. | Required |
-| `retention_rate` | float | `retained_count / total_generated`. | Range: 0.0 to 1.0 |
+1. **Generation**: `Wan2.1` -> `data/raw/video_*.mp4` + `data/raw/metadata.jsonl`.
+2. **Filtering**: `data/raw/*` -> `PyBullet Filter` -> `data/curated/scores.parquet` + `data/curated/video_*.mp4`.
+3. **Validation**: `data/curated/*` -> `MuJoCo Validator` -> `data/validation/mujoco_scores.parquet`.
+4. **Training**: `data/curated/*` + `config.yaml` -> `Train Loop` -> `data/models/model_*.pt`.
+5. **Evaluation**: `data/models/*` + `data/validation/*` -> `R-Bench/PAI-Bench` -> `data/results/evaluation.json`.
 
-### 2.3 TrainedModel
-The state of the diffusion model after training.
+## Storage Schema
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `model_id` | string | Unique ID for the model checkpoint. | Required |
-| `checkpoint_path` | string | Relative path to model weights in `models/`. | Required |
-| `training_config` | object | Hyperparameters used (lr, epochs, batch_size). | Required |
-| `dataset_id` | string | Reference to the `CuratedDataset` used. | Required |
-| `training_seed` | integer | Random seed for training. | Required |
-| `loss_history` | list | List of loss values per epoch. | Required |
-| `training_duration` | float | Elapsed time in seconds. | Required (SC-005) |
-
-### 2.4 MuJoCoValidationResult
-Independent validation of the PyBullet filter.
-
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `validation_id` | string | Unique ID for the validation run. | Required |
-| `sample_ids` | list | List of video IDs validated. | Required |
-| `mujoco_scores` | list | List of MuJoCo scores. | Required |
-| `correlation_coefficient` | float | Pearson/Spearman correlation with PyBullet. | Range: -1.0 to 1.0 |
-| `independence_verified` | boolean | True if correlation < 0.95. | Required (SC-006) |
-
-### 2.5 BenchmarkResult
-Evaluation metrics for a model.
-
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `result_id` | string | Unique ID for the result. | Required |
-| `model_id` | string | Reference to the `TrainedModel`. | Required |
-| `r_bench_score` | float | Physical consistency score on R-Bench. | Required |
-| `pai_bench_score` | float | Physical consistency score on PAI-Bench. | Required |
-| `downstream_success_rate` | float | Success rate on the separate control task. | Required |
-| `mujoco_correlation` | float | Correlation with MuJoCo validator (if applicable). | Range: -1.0 to 1.0 |
-| `tost_p_value` | float | P-value from TOST equivalence test. | Range: 0.0 to 1.0 |
-| `equivalence_flag` | boolean | `True` if equivalent within 15% margin. | Required |
-| `training_duration` | float | Elapsed time in seconds. | Required (SC-005) |
-
-## 3. File Formats
-
-- **Videos**: `.mp4` (H.264 codec).
-- **Metadata**: `.jsonl` (one JSON object per line) for `VideoSample` lists.
-- **Configuration**: `.yaml` for `config.yaml`.
-- **Results**: `.json` for `BenchmarkResult`.
-
-## 4. Data Flow
-
-1. **Generation**: `src/generation/wan2_generator.py` produces `VideoSample` records (raw MP4 + metadata).
-2. **Filtering**: `src/filters/pybullet_filter.py` updates `physics_score` and `status`.
-3. **Curation**: `src/cli/main.py` aggregates passing samples into `CuratedDataset`.
-4. **Training**: `src/training/trainer.py` consumes `CuratedDataset` and produces `TrainedModel`.
-5. **Evaluation**: `src/evaluation/` consumes `TrainedModel` and produces `BenchmarkResult` and `MuJoCoValidationResult`.
+- **Raw Videos**: `data/raw/` (MP4).
+- **Metadata**: `data/raw/metadata.jsonl` (JSON Lines).
+- **Curated Data**: `data/curated/` (MP4 + `scores.parquet`).
+- **Validation**: `data/validation/` (Parquet).
+- **Models**: `data/models/` (PyTorch `.pt` files).
+- **Results**: `data/results/` (JSON).

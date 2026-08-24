@@ -1,16 +1,12 @@
 status: none
-intent: Wan2.1 prompts dataset pybullet simulation logs download python package dataset
+intent: RLBench robotics manipulation video dataset pip install python package
 required_fields:
-- prompt_id
-- prompt_text
-- video_id
-- video_file_path
-- physics_score
-- trajectory_continuity_score
-- contact_conservation_score
-- simulation_status
-- simulation_log_path
-- timestamp
-cache_key: e0dd3b428353ac5bb4157095968c09d73c5d25c22641566f8b8d127d155512cb
-searched_at: '2026-08-17T10:40:46.786656+00:00'
+- video_file_path (MP4)
+- joint_trajectory (list of joint angles over time)
+- object_pose_trajectory (list of 3D poses over time)
+- timestamp_series (frame timestamps)
+- task_label (string)
+- camera_intrinsics (optional)
+cache_key: e8d4d4a6c8e0425c73b148a3b59634f1422353231f5e2796084156504035b3bb
+searched_at: '2026-08-24T12:17:15.622659+00:00'
 retry_count: 1

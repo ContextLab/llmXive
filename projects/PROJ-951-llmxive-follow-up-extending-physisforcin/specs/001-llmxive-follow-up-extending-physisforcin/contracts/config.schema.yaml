@@ -4,7 +4,7 @@ description: "Schema for the project configuration file (config.yaml)."
 type: "object"
 required:
   - generation_batch_size
-  - filter_threshold
+  - filter_discard_percent
   - training_epochs
 properties:
   generation_batch_size:
@@ -12,12 +12,12 @@ properties:
     description: "Number of videos to generate per run."
     minimum: 1
     maximum: 1000
-  filter_threshold:
+  filter_discard_percent:
     type: "number"
-    description: "Fixed absolute physics score threshold for filtering."
+    description: "Percentage of videos to discard (bottom) based on physics score. Default 40 (retain top 60)."
     minimum: 0.0
     maximum: 100.0
-    default: 60.0
+    default: 40.0
   training_epochs:
     type: "integer"
     description: "Number of epochs for diffusion training."
@@ -31,4 +31,8 @@ properties:
     type: "boolean"
     description: "Allow GPU offload to Kaggle if CPU fails."
     default: true
+  equivalence_margin:
+    type: "number"
+ description: "Equivalence margin for TOST (e.g., 0.15 for [deferred])."
+    default: 0.15
 additionalProperties: false

@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult"
+description: "Schema for the final evaluation results including TOST equivalence test."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "ID of the evaluated model."
+  r_bench_score:
+    type: "number"
+    description: "Physical consistency score on R-Bench."
+  pai_bench_score:
+    type: "number"
+    description: "Physical consistency score on PAI-Bench."
+  sample_count:
+    type: "integer"
+    minimum: 30
+    description: "Number of samples used for evaluation (n >= 30)."
+  tost_p_value:
+    type: "number"
+    description: "P-value from the Two One-Sided Tests (TOST)."
+  equivalence_margin:
+    type: "number"
+    description: "The equivalence margin used (e.g., 0.15 for 15%)."
+  equivalent:
+    type: "boolean"
+    description: "True if the model is equivalent to the baseline within the margin."
+required:
+  - model_id
+  - r_bench_score
+  - pai_bench_score
+  - sample_count
+  - tost_p_value
+  - equivalence_margin
+  - equivalent
+additionalProperties: false

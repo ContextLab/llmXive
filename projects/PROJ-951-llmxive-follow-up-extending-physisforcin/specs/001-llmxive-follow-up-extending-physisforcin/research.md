@@ -1,79 +1,70 @@
 # Research: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula"
 
-## 1. Problem Statement & Hypothesis
+## Hypothesis & Rationale
 
-**Problem**: Training physics-informed robotic policies (e.g., PhysisForcing) is computationally expensive due to joint optimization of generation and physics constraints.
-**Hypothesis**: Applying a lightweight, post-generation physics-consistency filter to synthetic videos (using a fixed absolute threshold) yields physical consistency in downstream policy learning comparable to that achieved by training-time physics-informed joint optimization.
-**Mechanism**: By discarding videos with a physics score < 60.0 (fixed threshold), the remaining dataset acts as a "curated prior" that allows a standard diffusion model to learn physical laws without explicit physics loss during training.
+**Hypothesis**: Applying a lightweight, post-generation physics-consistency filter to synthetic robotic manipulation videos yields physical consistency in downstream policy learning comparable to that achieved by training-time physics-informed joint optimization.
 
-## 2. Dataset Strategy
+**Rationale**: Training-time physics optimization (e.g., PhysisForcing) is computationally expensive. If a high-quality dataset can be curated by filtering out physically impossible samples (e.g., object clipping, trajectory discontinuities) using a fast CPU-based simulator (PyBullet), then a standard diffusion model trained on this "clean" data should learn the physical priors implicitly, achieving comparable performance on benchmarks (R-Bench, PAI-Bench) without the joint optimization overhead.
 
-The project relies on **open, directly-downloadable datasets** to ensure CI feasibility. No access-gated data is used.
+## Dataset Strategy
 
-| Dataset Role | Source Name | Verified URL / Loader | Justification |
-| :--- | :--- | :--- | :--- |
-| **Prompts & Video Seeds** | RoboTIPS | `datasets.load_dataset("RoboTIPS/roboset")` | Verified source for robotic manipulation prompts and video pairs. |
-| **Model Weights** | Wan2.1 | `huggingface_hub.hf_hub_download("Wan-AI/Wan2.1-T2V-14B")` | Verified source for the Wan2.1 model weights. |
-| **Validation Data** | Robotics-Video-Text | `datasets.load_dataset("robotics-video-text/robotics_video_text")` | Used for real-world proxy validation of filter scores. |
+### Primary Data Source: Synthetic Generation
+- **Generator**: Wan2.1 (Video-to-Video/Image-to-Video).
+- **Strategy**: The system will generate a batch of videos using standard robotic manipulation prompts.
+- **Verification**: The Wan2.1 model weights and architecture are available via the official **Wan-AI Hugging Face repository** (wan2.1).
+- **Dataset Reference**: `wan2.1` from Hugging Face (Official).
 
-**Note on "CPU-based" and "CuratedDataset"**: These are **not** external datasets. They are internal artifacts generated during the pipeline. "CPU-based" refers to the execution environment. "CuratedDataset" is the output of the filtering step. No external URL exists for these; they are created by `src/generation/` and `src/filters/`.
+### Filtering & Validation Data
+- **Physics Filter (PyBullet)**: Uses `pybullet` library.
+  - *Verified Source*: Standard `pybullet_data` package (installed via pip) containing URDFs for standard robots (UR5, KUKA) and objects (blocks, spheres).
+- **Validator (MuJoCo)**: Uses `mujoco` library for independent validation.
+  - *Constraint*: MuJoCo requires a license key for full features, but the open-source version is sufficient for validation.
+  - *Metric Distinction*: PyBullet measures **trajectory continuity** and **contact conservation**. MuJoCo measures **final object pose error** and **energy conservation** to ensure distinct physical invariants.
 
-### Data Feasibility & Streaming
-- **Streaming**: The `datasets` library will be used with `streaming=True` to process video data shards without loading the full dataset into RAM.
-- **Sample Size**: Initial generation will target a representative set of videos. If the retained count is < 30, FR-009 (data augmentation) will be triggered to reach n ≥ 30 for statistical power.
+### Curated Dataset
+- **Target**: Top [deferred] (retaining [deferred] of the initial batch) based on physics scores.
+- **Minimum Threshold**: Videos must score ≥ 60th percentile of the initial batch distribution (source: 2506.09162).
+- **Augmentation**: If the curated count < 30, physics-preserving augmentation (temporal cropping, color jitter) will be applied (FR-009). **Statistical Note**: Augmented samples are used for simulation coverage but not as independent samples for TOST; a non-parametric bootstrap or permutation test will be used if unique samples < 30.
 
-## 3. Methodology
+### Baseline Data
+- **PhysisForcing Baseline**: The plan will attempt to run the publicly available PhysisForcing inference code on the *same* curated dataset to generate a distribution of scores.
+- **Fallback Strategy**: If the code is unavailable, the plan will use the *published mean and standard deviation* from the PhysisForcing paper to generate a synthetic distribution via bootstrapping (labeled "Synthetic Baseline" in results).
 
-### 3.1 Video Generation (FR-001)
-- **Model**: Wan2.1 (Text-to-Video).
-- **Constraint**: CPU-only inference. If the model architecture strictly requires CUDA (e.g., specific attention kernels), the execution agent will offload to Kaggle (GPU escape hatch) using a quantized (8-bit) version of the model on a small batch.
-- **Output**: MP4 videos saved to `data/raw/`.
+## Statistical Methodology
 
-### 3.2 Physics Filtering (FR-002, FR-003)
-- **Engine**: PyBullet (Headless mode).
-- **Reconstruction**: A computer vision pipeline (`src/filters/reconstruction.py`) converts MP4 frames to 3D state vectors (using depth estimation and object detection) before simulation.
-- **Metrics**: 
-  1. **Trajectory Continuity**: Smoothness of object positions over time.
-  2. **Contact Conservation**: Detection of impossible penetrations.
-  3. **Dynamic Consistency**: Force-torque balance (Newtonian violation check).
-- **Scoring**: Each video receives a score $S \in [0, 100]$.
-- **Cutoff**: Discard videos where $S < 60.0$ (Fixed absolute threshold, Source: 2506.09162). This ensures the curated data possesses actual physical validity regardless of batch quality.
-- **Failure Handling**: If PyBullet crashes on a video (corrupted frame), score = 0, video excluded.
+### Equivalence Testing (TOST)
+- **Method**: Two One-Sided Tests (TOST) to determine if the performance gap between the "Filtered Model" and "PhysisForcing Baseline" is within a 15% equivalence margin.
+- **Parameters**:
+  - Equivalence Margin (Δ): A predefined non-inferiority margin.
+  - Significance Level (α):.
+  - Target Power: ≥ 0.80 (requires n ≥ 30 unique samples per group, per FR-006).
+- **Justification**: Standard t-tests only detect differences; TOST is required to prove *equivalence* (SC-003).
+- **Sample Size & Data Type**: If R-Bench/PAI-Bench scores are binary/proportional, a **Non-Parametric Equivalence Test** (bootstrap-based TOST) or **arcsine square root transformation** will be applied to ensure validity.
 
-### 3.3 Model Training (FR-004, FR-007)
-- **Architecture**: Distilled Diffusion Model (50M parameters).
-- **Optimization**: CPU-tractable (e.g., `torch.optim.Adam` on CPU).
-- **Baseline Protocol**: The PhysisForcing baseline is **re-trained from scratch** on the *same* raw (unfiltered) dataset using joint optimization. This ensures the comparison isolates the effect of the curation strategy vs. the training strategy.
-- **Constraint**: If the model requires CUDA for stability, the GPU escape hatch (Kaggle) will be used with a scaled-down batch size and epochs.
-- **Duration**: Target < 4 hours.
+### Orthogonality Check
+- **Method**: Pearson/Spearman correlation between PyBullet scores (continuity) and MuJoCo scores (pose error).
+- **Threshold**: Correlation coefficient < 0.95 (SC-006).
+- **Purpose**: Ensures the filter (PyBullet) predicts the *downstream task* or *validator* without overfitting to the generator's specific artifacts. The check is between *different physical invariants* (continuity vs. pose), not just engines.
+- **Circularity Check**: Additionally, the correlation between the *Filter Score* and *Generator Artifacts* (if available) will be measured to ensure the filter is not circularly correlated with the generator's failure modes.
 
-### 3.4 Evaluation & Statistics (FR-005, FR-006, FR-008)
-- **Benchmarks**: R-Bench and PAI-Bench.
-- **Downstream Task**: Train a lightweight policy on each dataset; measure success rate on a separate control task (e.g., 'reach target'). This proves utility beyond the filter's definition.
-- **Validation**: Independent check using MuJoCo (FR-008) to ensure PyBullet scores are not circularly correlated (Target correlation < 0.95).
-- **Real-World Proxy**: Compare filter scores against a subset of real-world robotic telemetry (from `Robotics-Video-Text`) to ensure the filter measures actual physical correctness.
-- **Statistical Test**: Two One-Sided Tests (TOST) with a predefined equivalence margin.
-  - Null Hypothesis ($H_0$): Difference > 15% (Not equivalent).
-  - Alternative Hypothesis ($H_1$): Difference ≤ 15% (Equivalent).
-  - Power: Target ≥ 0.80 at effect size $d=0.5$. If $n < 30$, augmentation (FR-009) is applied.
-  - **Power Analysis**: A pilot run (n=20) will estimate the variance of R-Bench scores to calculate the required sample size for TOST, rather than assuming a speculative effect size.
+## Compute Feasibility & Escape Hatch
 
-## 4. Statistical Rigor & Limitations
+- **CPU-First Strategy**:
+  - **Generation**: Wan2.1 inference is GPU-heavy. **Resolution**: The plan triggers the **GPU Escape Hatch** (Kaggle) for the **Generation Phase** (US-1) only. The `run_pipeline.sh` script detects the CUDA requirement and offloads that specific step to Kaggle.
+  - **Filtering**: PyBullet runs efficiently on CPU.
+  - **Training**: A 50M parameter diffusion model trained on *static frames* (not video sequences) is small enough for CPU training (scikit-learn/torch CPU) within 4 hours on 2 cores.
+  - **Evaluation**: R-Bench/PAI-Bench scoring is lightweight and CPU-tractable, but if it requires the generator model, it may also trigger the GPU escape hatch.
 
-- **Multiple Comparisons**: TOST is a single composite test for equivalence; no family-wise error correction needed for the primary hypothesis.
-- **Power Limitation**: If the curated dataset yields $n < 30$ even after augmentation, the plan explicitly reports a power limitation and refrains from claiming statistical equivalence, instead reporting effect sizes with confidence intervals.
-- **Causal Claims**: The study is observational regarding the generated data. Claims are limited to "association between filtering and downstream performance" unless the generation process is randomized (which it is, via prompts).
-- **Collinearity**: PyBullet and MuJoCo are independent engines; no definitional collinearity exists between the filter and the validator.
+- **GPU Escape Hatch (Kaggle)**:
+  - Triggered if `torch.cuda.is_available()` is required for Wan2.1 generation or evaluation.
+  - Configuration: Run on Kaggle free GPU (T4/P100) for generation only. The filtered dataset is then saved and passed to the CPU runner for training.
+  - **Constraint**: The plan does *not* fabricate a CPU approximation of the video generation. It uses the real model on the real GPU (scaled down if necessary) and then processes the output on CPU.
 
-## 5. Compute Feasibility (CPU vs. GPU)
+## Risk Assessment
 
-- **CPU-First**: All steps are designed for CPU. PyBullet runs natively on CPU. Diffusion training on a moderate number of parameters is feasible on CPU cores if batch size is small (e.g., 1-2) and epochs are limited.
-- **GPU Escape Hatch**: If `torch` fails to initialize on CPU or the model architecture (Wan2.1) requires CUDA kernels, the execution agent will detect the error and re-run the specific training step on a Kaggle GPU (GB VRAM) with `device="cuda"` and `load_in_8bit`.
-- **Decision**: Plan assumes CPU-first. The GPU escape hatch is a contingency for specific library constraints, not a default.
-
-## 6. Risk Mitigation
-
-- **Data Scarcity**: If < 30 videos pass filtering, FR-009 (augmentation) is triggered.
-- **Training Divergence**: NaN loss check included; retry with lower learning rate (max a limited number of attempts).
-- **Simulation Crashes**: Robust error handling in PyBullet filter assigns score 0 and logs the failure.
-- **Circular Validation**: Real-world proxy validation ensures the filter measures actual physical correctness, not just simulation stability.
+1. **Dataset Mismatch**: The spec requires "robotic manipulation videos." If the Wan2.1 model cannot generate specific robotic tasks (e.g., precise grasping) with sufficient fidelity, the physics filter may reject [deferred] of samples.
+   - *Mitigation*: Use a diverse set of prompts; if rejection rate > 95%, adjust prompts or acknowledge the limitation in the report.
+2. **Compute Limits**: Large-scale model training on 2 CPU cores might exceed 6 hours.
+   - *Mitigation*: Use mixed-precision (if CPU supports AVX512), reduce batch size, or use a smaller model if the standard size is too slow, noting the power limitation.
+3. **Baseline Unavailability**: If the PhysisForcing baseline is not publicly available.
+   - *Mitigation*: Use the published scores from the PhysisForcing paper to generate a synthetic distribution via bootstrapping, clearly stating this in the report.

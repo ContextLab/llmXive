@@ -104,4 +104,4 @@
 - The [deferred] discard rate is the defined experimental parameter as per the research idea.
 - The compact diffusion model is small enough to fit within the RAM limit of the GitHub Actions free-tier runner during training.
 - A sufficiently large dataset of videos is sufficient to produce a statistically meaningful result for the TOST test (assuming a moderate effect size); if the resulting sample size is too small, the power limitation will be explicitly reported and data augmentation (FR-009) will be applied.
-- The physics consistency score threshold for "passing" is derived from the distribution of scores in the generated batch, specifically the 60th percentile.
+- The physics consistency score threshold for "passing" is derived from the distribution of scores in the generated batch, specifically a selected percentile.
