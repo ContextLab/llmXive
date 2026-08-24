@@ -12,7 +12,7 @@ properties:
     type: string
   date:
     type: string
-    format: date
+    format: date-time
   total_steps:
     type: integer
     minimum: 0

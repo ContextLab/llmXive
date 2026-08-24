@@ -1,10 +1,3 @@
-T003a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.flake8` file in a `code/` directory is provided, nor any excerpt of its
-    contents showing the required `[flake8]` section with `max-line-length = 88` and
-    `ignore = E203, E266, W503`. Without the actual file, the task requirement is
-    not satisfied.
 T007:
   c: false
   h: 880e36c80423f8904e47eada5a0a3d53784ff7a61a27fdc7c64f73000237c38f
@@ -12,29 +5,6 @@ T007:
     \ file is missing, and `code/ingest.py` does not actually use the OSF DOI from\
     \ `config.py` nor perform a real SHA\u2011256 verification before writing the\
     \ hash. The implementation is incomplete and does not satisfy the task requirements."
-T011:
-  c: false
-  h: 569e68cf0d69ee1605595be0f439bbfcc022c9dbc02ea822c75b0c98c96dcd97
-  r: "The `parse_step_logs()` function in `code/preprocess.py` does not load `data/raw/bronze.parquet`\
-    \ itself (it expects a DataFrame argument) and the required `data/raw/bronze.parquet`\
-    \ file is absent from the repository. Consequently the implementation does not\
-    \ meet the task\u2019s specification."
-T015:
-  c: false
-  h: ca1899064d112dba205d76e0c1faa6909a827218b0b1dc7dc8a709f79b89b788
-  r: The `daily_aggregates.csv` file exists, but the required `daily_aggregates.schema.yaml`
-    file is missing, so the validation step cannot be performed. Additionally, there
-    is no evidence (e.g., script or log) that the `assert not df['mood_std'].isna().any()`
-    check was executed before writing. The missing schema file must be added and the
-    validation/assertion demonstrated to satisfy the task.
-T034b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of an updated `specs/001-physical-activity-levels-and-mood-variability/`\
-    \ directory containing the required API documentation for `analysis.py` and a\
-    \ Data Dictionary for `daily_aggregates.csv` is provided, nor any indication that\
-    \ a root\u2011level `docs/` directory was removed or deprecated. These artifacts\
-    \ are missing, so the task is not satisfied."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

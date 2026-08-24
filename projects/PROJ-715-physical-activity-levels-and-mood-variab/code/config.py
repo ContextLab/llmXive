@@ -1,7 +1,6 @@
 """
 Configuration module for the Physical Activity and Mood Variability project.
-
-Defines paths, random seeds, constants, and OSF dataset DOI.
+Defines paths, constants, and utility functions.
 """
 import os
 import random
@@ -9,86 +8,71 @@ import logging
 from pathlib import Path
 from typing import Union, List, Tuple
 
-# Project root directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PROJECT_NAME = "PROJ-715-physical-activity-levels-and-mood-variab"
+# --- Constants ---
+SEED = 42
+MISSINGNESS_THRESHOLD = 0.2
+BOOTSTRAP_ITERATIONS = 1000
+OSF_DOI = "10.17605/OSF.IO/XXXXX"  # Placeholder, replaced by actual DOI in real run
 
-# Random seed for reproducibility
-RANDOM_SEED = 42
-
-# Constants for preprocessing and analysis
-MISSINGNESS_THRESHOLD = 0.2  # Threshold for missing data handling
-BOOTSTRAP_ITERATIONS = 1000  # Number of bootstrap iterations for sensitivity analysis
-
-# OSF DOI for the StudentLife dataset
-OSF_DOI = "10.17605/OSF.IO/XXXXX"  # Replace with actual DOI when available
-OSF_DOWNLOAD_URL = f"https://osf.io/download/{OSF_DOI}"
-
-# Initialize logger
-def init_logger(name: str = __name__, level: int = logging.INFO) -> logging.Logger:
-    """Initialize a logger with the specified name and level."""
+# --- Logging Setup ---
+def init_logger(name: str = "project", level: int = logging.INFO) -> logging.Logger:
+    """Initialize a logger with standard formatting."""
     logger = logging.getLogger(name)
     logger.setLevel(level)
     if not logger.handlers:
         handler = logging.StreamHandler()
         formatter = logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     return logger
 
-# Set random seed for reproducibility
-def set_random_seed(seed: int = RANDOM_SEED) -> None:
-    """Set random seed for numpy, random, and tensorflow (if available)."""
-    random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
-    try:
-        import tensorflow as tf
-        tf.random.set_seed(seed)
-    except ImportError:
-        pass
-
-# Flexible path resolution
-def get_path(*args) -> str:
+# --- Path Utilities ---
+def get_path(*args: Union[str, Path]) -> Path:
     """
-    Resolve file paths relative to the project root.
-
-    Accepts multiple calling patterns:
-      - get_path('data/processed', 'file.csv') -> PROJECT_ROOT/data/processed/file.csv
-      - get_path('data', 'processed', 'file.csv') -> PROJECT_ROOT/data/processed/file.csv
-      - get_path('data/processed/file.csv') -> PROJECT_ROOT/data/processed/file.csv
+    Construct a path relative to the project root.
+    Accepts multiple arguments to join path components.
 
     Args:
-        *args: Path components as strings.
+        *args: Path components (strings or Path objects).
 
     Returns:
-        str: Absolute path to the file/directory.
-    """
-    # If a single argument is provided and contains separators, treat as a single path
-    if len(args) == 1 and '/' in args[0]:
-        path_str = args[0]
-    else:
-        # Join multiple arguments with '/'
-        path_str = os.path.join(*args)
+        A pathlib.Path object pointing to the constructed path.
 
-    # Resolve relative to project root
-    return str(PROJECT_ROOT / path_str)
-
-# Ensure directories exist
-def ensure_dirs(*paths: str) -> None:
+    Examples:
+        get_path('data', 'raw', 'file.csv') -> ProjectRoot/data/raw/file.csv
+        get_path('data/processed/file.csv') -> ProjectRoot/data/processed/file.csv
     """
-    Ensure that the specified directories exist, creating them if necessary.
+    # Determine project root (assuming code/ is a subdirectory)
+    # If this script is in code/, root is parent of code/
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent
 
-    Args:
-        *paths: Directory paths relative to the project root.
-    """
-    for path in paths:
-        dir_path = Path(get_path(path))
-        dir_path.mkdir(parents=True, exist_ok=True)
+    if not args:
+        return project_root
+
+    # If a single argument is provided, treat it as a path string relative to root
+    if len(args) == 1:
+        arg = args[0]
+        if isinstance(arg, str):
+            return project_root / arg
+        elif isinstance(arg, Path):
+            return project_root / arg
+
+    # If multiple arguments, join them
+    path_parts = [str(p) for p in args]
+    return project_root / os.path.join(*path_parts)
+
+# --- Random Seed ---
+def set_random_seed(seed: int = SEED) -> None:
+    """Set the random seed for reproducibility."""
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    # Note: numpy and torch seeds are set in specific modules if needed
+
+# --- Directory Utilities ---
+def ensure_dirs(path: Union[str, Path]) -> None:
+    """Ensure that the directory for the given path exists."""
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)

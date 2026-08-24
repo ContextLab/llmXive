@@ -13,11 +13,11 @@ This project implements a statistical analysis pipeline to investigate the assoc
 **Primary Dependencies**: `pandas`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `numpy`
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`)
 **Testing**: `pytest` (contract tests against YAML schemas, unit tests for aggregation logic)
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7GB RAM)
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7GB RAM)
 **Project Type**: Computational Research Pipeline (CLI/Data Processing)
 **Performance Goals**: Complete full pipeline (ingestion to report) within 6 hours on CPU-only runner.
 **Constraints**: No GPU usage; memory usage < 6GB; strict handling of missing data; explicit "associational" framing.
-**Scale/Scope**: Single dataset (StudentLife), a cohort of participants, ~30-60 days per participant.
+**Scale/Scope**: Single dataset (StudentLife), a cohort of participants, approximately one to two months per participant.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
