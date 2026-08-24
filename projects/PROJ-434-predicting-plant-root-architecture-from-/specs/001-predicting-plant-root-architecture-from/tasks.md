@@ -128,7 +128,7 @@
  - **Write** the distribution of R² scores to `artifacts/permutation_distributions.json`.
  **MUST** follow T021.
 
-- [ ] T023 [US2] **Execute/Validate** SC-002 compliance. **Read and validate** `artifacts/permutation_distributions.json` (must contain A sufficient number of iterations will be performed to ensure convergence. and non-empty data). Calculate p-values and enforce SC-002 (ΔR² ≥ 0.05 AND p < 0.05). **Write** pass/fail status to `artifacts/sc002_status.json` with schema `{"pass": bool, "reason": string, "delta_r2": float, "p_value": float}`. **MUST** follow T022. <!-- ATOMIZE: requested -->
+- [ ] T023 [US2] **Execute/Validate** SC-002 compliance. **Read and validate** `artifacts/permutation_distributions.json` (must contain a sufficient number of iterations and non-empty data). Calculate p-values and enforce SC-002 (ΔR² ≥ 0.05 AND p < 0.05). **Write** pass/fail status to `artifacts/sc002_status.json` with schema `{"pass": bool, "reason": string, "delta_r2": float, "p_value": float}`. **MUST** follow T022.
 
 - [ ] T024 [US2] Write `artifacts/model_metrics.json` with explicit schema: `{"mean_r2": float, "mean_rmse": float, "loso_r2_sd": float, "per_target_metrics": {...}}`. **Dependency**: Must run after T023.
 
@@ -152,11 +152,11 @@
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Implement `code/modeling/sensitivity.py`: Calculate p-values for each feature importance score via permutation. **Input**: MUST consume `artifacts/feature_importance.csv` from T025a. **Action**: Append `p_value` column to `artifacts/feature_importance.csv`. **Dependency**: Cannot run in parallel with US2 tasks. **Must run after T025b**. <!-- ATOMIZE: requested -->
+- [X] T027 [US3] Implement `code/modeling/sensitivity.py`: Calculate p-values for each feature importance score via permutation. **Input**: MUST consume `artifacts/feature_importance.csv` from T025a. **Action**: Append `p_value` column to `artifacts/feature_importance.csv`. **Dependency**: Cannot run in parallel with US2 tasks. **Must run after T025b**.
 
 - [X] T028 [US3] Implement `code/modeling/sensitivity.py`: Sweep p-value thresholds across a range of significance levels and track top-3 feature stability. **Dependency**: Must run after T027.
 
-- [X] T029 [US3] Implement `code/modeling/sensitivity.py`: Generate sensitivity analysis report (`artifacts/sensitivity_report.md`). <!-- FAILED: unspecified -->
+- [X] T029 [US3] Implement `code/modeling/sensitivity.py`: Generate sensitivity analysis report (`artifacts/sensitivity_report.md`).
  **Structure**: Must include sections: '## Threshold Stability' (containing the stability table) and '## Justification'.
  **Table Schema**: Columns `threshold`, `top_feature`, `rank_2`, `rank_3`, `stable`.
  **Content**: The '## Justification' section MUST cite a verified community standard.
@@ -184,7 +184,7 @@
 
 - [ ] T030 [P] Documentation updates: Generate `quickstart.md` and finalize `research.md`
 - [ ] T031 Code cleanup and refactoring in `code/`
-- [ ] T032 Performance optimization: Ensure pipeline completes within -hour CI limit (SC-005)
+- [ ] T032 Performance optimization: Ensure pipeline completes within 6-hour CI limit (SC-005)
 - [ ] T033 [P] Additional unit tests in `tests/unit/` for helper functions
 - [ ] T034 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
