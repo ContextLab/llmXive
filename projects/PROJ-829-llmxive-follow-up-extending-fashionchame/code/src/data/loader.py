@@ -6,10 +6,12 @@ Uses HuggingFace datasets library for streaming parquet files.
 """
 
 import sys
+import json
 from pathlib import Path
-from typing import Generator, Dict, Any, Optional
+from typing import Generator, Dict, Any, Optional, List, Callable
 from datasets import load_dataset
 import pandas as pd
+import yaml
 
 # Import from sibling modules as per API surface
 from src.data.prompt_gen import load_settings
@@ -26,8 +28,6 @@ def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
     Returns:
         Dictionary of configuration settings.
     """
-    import yaml
-    
     if config_path is None:
         # Default locations to check
         possible_paths = [
@@ -35,22 +35,22 @@ def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
             Path("config/settings.yaml"),
             Path("settings.yaml")
         ]
-        
+
         config_path = None
         for path in possible_paths:
             if path.exists():
                 config_path = path
                 break
-        
+
         if config_path is None:
             raise FileNotFoundError(
                 "Configuration file not found. Expected settings.yaml in "
                 "code/config/, config/, or root directory."
             )
-    
+
     with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
-    
+
     config["config_path"] = str(config_path)
     return config
 
@@ -78,6 +78,8 @@ def load_deepfashion2_streaming(dataset_name: str = "DeepFashion2/DeepFashion2",
     """
     try:
         # Load dataset in streaming mode
+        # DeepFashion2 is hosted on HuggingFace Hub.
+        # We use streaming=True to avoid OOM on large datasets.
         dataset = load_dataset(
             dataset_name,
             split=split,
@@ -98,7 +100,7 @@ def load_deepfashion2_streaming(dataset_name: str = "DeepFashion2/DeepFashion2",
 
 
 def process_batch(samples: List[Dict[str, Any]], 
-                 batch_processor: Optional[callable] = None) -> List[Dict[str, Any]]:
+                 batch_processor: Optional[Callable] = None) -> List[Dict[str, Any]]:
     """
     Process a batch of samples.
 
@@ -117,7 +119,7 @@ def process_batch(samples: List[Dict[str, Any]],
 
 def iterate_dataset(dataset_stream, 
                     batch_size: int = 32,
-                    processor: Optional[callable] = None) -> Generator[List[Dict[str, Any]], None, None]:
+                    processor: Optional[Callable] = None) -> Generator[List[Dict[str, Any]], None, None]:
     """
     Iterate over dataset stream in batches.
 
@@ -158,10 +160,11 @@ def get_dataset_info(dataset_name: str = "DeepFashion2/DeepFashion2") -> Dict[st
         Dictionary with dataset information.
     """
     try:
-        from datasets import load_dataset
-        
-        # Load briefly to get info (not streaming)
-        dataset = load_dataset(dataset_name, split="train", streaming=False)
+        # Load briefly to get info (not streaming) - only metadata
+        # We use streaming=False here just to inspect the schema, not the data
+        # Note: This might still be heavy if the dataset is huge, but usually schema is small.
+        # For DeepFashion2, we rely on the streaming loader for actual data.
+        dataset = load_dataset(dataset_name, split="train", streaming=False, trust_remote_code=True)
         
         return {
             "name": dataset_name,
@@ -179,26 +182,40 @@ def get_dataset_info(dataset_name: str = "DeepFashion2/DeepFashion2") -> Dict[st
 def main():
     """
     Main entry point for data loading script.
+    Verifies streaming capability by yielding records without OOM.
     """
     config = load_config()
     
     print("Data Loader Module initialized.")
     print(f"Configuration loaded from: {config.get('config_path', 'default')}")
     
-    # Example: Get dataset info
+    # Get dataset info (schema only)
+    print("\nFetching dataset schema...")
     dataset_info = get_dataset_info()
-    print(f"\nDataset Info: {json.dumps(dataset_info, indent=2)}")
+    if "error" in dataset_info:
+        print(f"Warning: Could not fetch full dataset info: {dataset_info['error']}")
+    else:
+        print(f"Dataset Info: {json.dumps(dataset_info, indent=2)}")
     
-    # Example: Stream a few samples
-    print("\nStreaming first 5 samples...")
+    # Verify streaming by yielding records
+    print("\nVerifying streaming capability (yielding first 100 records)...")
     count = 0
-    for sample in load_deepfashion2_streaming():
-        print(f"Sample {count + 1}: {sample.get('image_id', 'unknown')}")
-        count += 1
-        if count >= 5:
-            break
+    try:
+        stream = load_deepfashion2_streaming()
+        for sample in stream:
+            count += 1
+            if count % 10 == 0:
+                print(f"  Yielded {count} records...")
+            if count >= 100:
+                break
+        
+        print(f"\nSuccess: Yielded {count} records without OOM.")
+        print("Streaming verification complete.")
+        
+    except RuntimeError as e:
+        print(f"\nVerification FAILED: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    import json
     main()

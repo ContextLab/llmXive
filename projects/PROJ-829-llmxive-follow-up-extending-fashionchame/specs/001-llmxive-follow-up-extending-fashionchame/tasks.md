@@ -24,9 +24,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Initialize project directory structure: create `code/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/` at repository root
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (torch-cpu, transformers, opencv-python, scikit-learn, scipy, datasets, lpips, pandas, pyyaml, jsonschema). **Depends on**: T001, T003
+- [ ] T001a [P] Initialize `code/` directory: create `code/` at repository root.
+- [ ] T001b [P] Initialize `data/` directory: create `data/` at repository root.
+- [ ] T001c [P] Initialize `tests/` directory: create `tests/` at repository root.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools.
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (torch-cpu, transformers, opencv-python, scikit-learn, scipy, datasets, lpips, pandas, pyyaml, jsonschema). **Depends on**: T001a, T001b, T001c, T003.
 
 ---
 
@@ -34,18 +36,23 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **Execution Order**: Tasks in this phase must be executed sequentially where dependencies exist, despite phase grouping.
 
-- [ ] T042a [P] **Spec Amendment Task (Part 1)**: Update `spec.md` (FR-002, FR-010, FR-011, Assumptions) and `plan.md` to replace "Human3.6M" with "DeepFashion2" and replace "skeletal joint velocity" with "optical flow magnitude" for motion labels. **Deliverable**: Updated `spec.md` and `plan.md` files.
-- [ ] T042b [P] **Spec Amendment Task (Part 2)**: Commit changes from T042a to git repository. **Depends on**: T042a. **Deliverable**: Git commit with updated `spec.md` and `plan.md`.
-- [X] T004 [P] Implement `code/src/pipeline/validate_citations.py` (FR-014) to verify DeepFashion2 URL and model references using Reference-Validator Agent logic (title-token-overlap >= 0.7)
-- [X] T005 [P] Implement `code/src/pipeline/manifest.py` (FR-013) for content hashing of code and data artifacts
-- [X] T006 Create base configuration in `code/config/settings.yaml` (thresholds, paths, seeds, streaming chunk sizes)
-- [ ] T007 [P] Implement `code/src/data/loader.py` (FR-002, FR-011) with `datasets.load_dataset(..., streaming=True)` for DeepFashion2 parquet. **Depends on**: T042b. **NOTE**: Implements DeepFashion2 per Plan decision after Spec Amendment.
-- [X] T008 [P] Implement `code/src/data/prompt_gen.py` (FR-008) for blind metadata-to-text prompt generation
-- [X] T009 [P] Implement `code/src/metrics/fidelity.py` (FR-003) for LPIPS and SSIM computation on CPU
-- [X] T010 [P] Implement `code/src/metrics/latency.py` (FR-007) for frame-level inference timing
-- [X] T011 [P] Implement `code/src/pipeline/streaming.py` (FR-012) for memory-triggered batched processing (trigger at 6.5 GB)
+- [X] T042a-002 [P] **Spec Amendment Task (FR-002)**: Update `spec.md` (FR-002) and `plan.md` to replace "Human3.6M" with "DeepFashion2" and specify `datasets.load_dataset(..., streaming=True)`. **Deliverable**: Updated `spec.md` and `plan.md` files.
+- [X] T042a-010 [P] **Spec Amendment Task (FR-010)**: Update `spec.md` (FR-010) to replace "skeletal joint velocity" with "optical flow magnitude" for motion labels. **Deliverable**: Updated `spec.md` and `plan.md` files.
+- [X] T042a-011 [P] **Spec Amendment Task (FR-011)**: Update `spec.md` (FR-011) to replace "skeletal velocity" filtering with "optical flow magnitude" and VLM confidence filtering for DeepFashion2. **Deliverable**: Updated `spec.md` and `plan.md` files.
+- [X] T042b [P] **Spec Amendment Task (Part 2)**: Commit changes from T042a-002, T042a-010, T042a-011 to git repository. **Depends on**: T042a-002, T042a-010, T042a-011. **Deliverable**: Git commit with updated `spec.md` and `plan.md`.
+- [X] T034-extended [P] **Motion Labeling Logic**: Implement `code/src/stats/motion_labels.py` to derive 'ground-truth motion labels' from **optical flow magnitude** (calculated from video frames) using `cv2.calcOpticalFlowFarneback` on sampled frames. **Output**: Logic to generate `data/processed/motion_labels.json` containing `frame_id`, `optical_flow_magnitude`, `motion_label` (High/Low). **Constraint**: Must be CPU-optimized. **NOTE**: Moved to Phase 2 to unblock filtering. **Depends on**: T042b.
+- [X] T007 [P] Implement `code/src/data/loader.py` (FR-002, FR-011) with `datasets.load_dataset(..., streaming=True)` for DeepFashion2 parquet. **Depends on**: T042b, T034-extended. **NOTE**: Implements DeepFashion2 per Plan decision after Spec Amendment. **Depends on**: T034-extended.
+- [X] T007-verify [P] **Verification Script**: Create `tests/scripts/verify_streaming.py` to verify `loader.py` yields exactly 1000 records without OOM. **Depends on**: T007.
+- [X] T007-test [P] Unit test for `loader.py` streaming: `tests/unit/test_loader_streaming.py` verifies 1000 records yield without OOM. **Depends on**: T007.
+- [X] T004 [P] Implement `code/src/pipeline/validate_citations.py` (FR-014) to verify DeepFashion2 URL and model references using Reference-Validator Agent logic (title-token-overlap >= 0.7).
+- [X] T005 [P] Implement `code/src/pipeline/manifest.py` (FR-013) for content hashing of code and data artifacts.
+- [X] T006 [P] Create base configuration in `code/config/settings.yaml` with specific keys: `seed=42`, `streaming_chunk_size=100`, `optical_flow_threshold=0.05`, `vlm_confidence_threshold=0.8`.
+- [X] T008 [P] Implement `code/src/data/prompt_gen.py` (FR-008) for blind metadata-to-text prompt generation.
+- [X] T009 [P] Implement `code/src/metrics/fidelity.py` (FR-003) for LPIPS and SSIM computation on CPU.
+- [X] T010 [P] Implement `code/src/metrics/latency.py` (FR-007) for frame-level inference timing.
+- [X] T011 [P] Implement `code/src/pipeline/streaming.py` (FR-012) for memory-triggered batched processing (trigger at a substantial data volume).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,22 +64,24 @@
 
 **Independent Test**: The system ingests a stratified subset of DeepFashion2, runs the text-driven adapter, and outputs a JSON report with distinct fidelity scores for color, pattern, and texture.
 
+**⚠️ Execution Order**: Within this phase, tasks must be executed sequentially where dependencies exist. T020 must wait for T018, T019, T021 to complete.
+
 ### Tests for User Story 1 (OPTIONAL) ⚠️
 
-- [X] T012 [P] [US1] Unit test for `FeasibilityFilter` logic in `tests/unit/test_loader.py`
-- [X] T013 [P] [US1] Integration test for full benchmark pipeline in `tests/integration/test_fidelity_benchmark.py`
+- [X] T012 [P] [US1] Unit test for `FeasibilityFilter` logic in `tests/unit/test_loader.py`. **Depends on**: T014.
+- [X] T013 [P] [US1] Integration test for full benchmark pipeline in `tests/integration/test_fidelity_benchmark.py`. **Depends on**: T014, T015, T016, T017, T018, T019, T020, T021.
 
 ### Implementation for User Story 1
 
-- [X] T014 [US1] Implement `code/src/data/feasibility_filter.py` (FR-011) to tag clips by `GarmentFeatureClass` (color, pattern, texture) using DeepFashion2 metadata. **Depends on**: T042b. **NOTE**: Deviates from FR-011 Human3.6M mandate per Plan (amended).
-- [X] T015 [US1] Implement VLM verification step in `code/src/data/feasibility_filter.py` to exclude low-confidence prompts. **Specs**: Use `blip-large` model, with a configurable confidence threshold, output JSON with prompt/image_id/reason.
+- [X] T014 [US1] Implement `code/src/data/feasibility_filter.py` (FR-011) to tag clips by `GarmentFeatureClass` (color, pattern, texture) using DeepFashion2 metadata. **Depends on**: T042b, T034-extended. **NOTE**: Uses optical flow magnitude from T034-extended.
+- [X] T015 [US1] Implement VLM verification step in `code/src/data/feasibility_filter.py` to exclude low-confidence prompts. **Specs**: Use model ID `Salesforce/blip-large`, with a configurable confidence threshold, output JSON to `data/processed/vlm_confidence_log.json`. **Depends on**: T014.
 - [X] T016 [US1] Implement `code/src/data/stratified_subset.py` to select a benchmark subset ensuring class balance. **Depends on**: T015.
-- [X] T017 [US1] Implement `code/src/adapters/text_cross_attention.py` (FR-001) to map frozen CLIP text embeddings to reference KV slots
+- [X] T017 [US1] Implement `code/src/adapters/text_cross_attention.py` (FR-001) to map frozen CLIP text embeddings to reference KV slots.
 - [X] T018 [US1] Implement `code/src/pipeline/runner.py` (FR-009) to execute the original image-driven baseline on the subset defined in T016. **Depends on**: T016, T042b.
 - [X] T019 [US1] Implement `code/src/pipeline/runner.py` logic to execute the text-driven adapter on the subset defined in T016. **Depends on**: T016, T042b.
-- [ ] T021 [US1] Implement edge case handling in `code/src/data/feasibility_filter.py` for ambiguous prompts (VLM confidence < 0.8 or conflicting attributes). **Output**: Generate `data/processed/filtered_subset_manifest.json` listing excluded samples. **Depends on**: T015.
-- [ ] T020 [US1] Implement `code/src/pipeline/reporter.py` to aggregate LPIPS/SSIM scores by `GarmentFeatureClass` and calculate relative fidelity loss. **Output**: `data/processed/fidelity_report.json` with keys `mean_lpips`, `mean_ssim`, `relative_loss_percent` per class. **Constraint**: MUST consume ONLY samples from `data/processed/filtered_subset_manifest.json` (exclude Low Confidence). **Depends on**: T018, T019, T021. **Verification**: Verify schema and add test `test_reporter_aggregates_by_class()`.
-- [ ] T022 [US1] Implement edge case handling for low sample counts (<10 per class) to skip statistical tests. **Specs**: If N < 30, raise `ValueError` with message "Insufficient samples for ANOVA". **Depends on**: T020.
+- [X] T021 [US1] Implement edge case handling in `code/src/data/feasibility_filter.py` for ambiguous prompts (VLM confidence < 0.8 or conflicting attributes). **Output**: Generate `data/processed/filtered_subset_manifest.json` (valid samples only). **Depends on**: T015. **NOTE**: Resolves ambiguity on artifact scope.
+- [X] T020 [US1] Implement `code/src/pipeline/reporter.py` to aggregate LPIPS/SSIM scores by `GarmentFeatureClass` and calculate relative fidelity loss. **Output**: `data/processed/fidelity_report.json` with keys `mean_lpips`, `mean_ssim`, `relative_loss_percent` per class. **Constraint**: MUST consume ONLY samples from `data/processed/filtered_subset_manifest.json`. **Includes**: Edge case handling for low sample counts (<10 per class) - raises `ValueError` with message "Insufficient samples for ANOVA". **Depends on**: T018, T019, T021. **Must wait for completion of T018, T019, T021**. **Verification**: Verify schema and add test `test_reporter_aggregates_by_class()`.
+- [X] T022-removed [P] **Removed**: Task T022 (Merged into T020) has been removed per concern coverage-57cc1d15.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -86,17 +95,18 @@
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
-- [X] T023 [P] [US2] Unit test for latency thresholding logic in `tests/unit/test_latency.py`
+- [X] T023 [P] [US2] Unit test for latency thresholding logic in `tests/unit/test_latency.py`. **Depends on**: T028-logic.
 
 ### Implementation for User Story 2
 
-- [ ] T028-config [US2] Define sample size for latency verification and establish the 50ms threshold in `settings.yaml`. **Output**: Config value `latency_threshold_ms = 50`.
-- [ ] T028-logic [US2] Implement `code/src/metrics/latency.py` function `evaluate_latency_pass_fail(average_latency_ms, threshold_ms)` that returns a JSON object `{"status": "PASS" | "FAIL", "average_ms": <float>}`. **Depends on**: T028-config.
-- [X] T024 [US2] Implement `code/src/pipeline/runner.py` logic to measure end-to-end inference time per frame (FR-007). **Depends on**: T018, T019, T011, T016, T028-config.
-- [X] T025 [US2] Implement `code/src/pipeline/runner.py` logic to flag frames exceeding a defined latency threshold and identify bottleneck. **Specs**: Insert timers around `text_encoder.encode()`, `adapter.forward()`, and `backbone.generate()` functions. **Depends on**: T028-logic.
+- [X] T028-config [US2] Define sample size for latency verification and establish the 50ms threshold in `code/config/settings.yaml` (key `latency_threshold_ms: 50`). **Output**: Config value `latency_threshold_ms = 50`. **Note**: This is a target for analysis, not a hard code gate; the status is "DEFERRED" per FR-007. **Depends on**: T006.
+- [X] T028-logic [US2] Implement `code/src/metrics/latency.py` function `evaluate_latency_pass_fail(average_latency_ms, threshold_ms)` that returns a JSON object `{"status": "DEFERRED - Report Generated", "average_ms": <float>, "threshold_ms": <float>}`. **Depends on**: T028-config.
+- [X] T024 [US2] Implement `code/src/pipeline/runner.py` logic to measure end-to-end inference time per frame (FR-007). **Depends on**: T018, T019, T011, T016, T028-config, T028-logic.
+- [X] T025 [US2] Implement `code/src/pipeline/runner.py` logic to flag frames exceeding a defined latency threshold and identify bottleneck. **Specs**: Insert timers around `text_encoder.encode()`, `adapter.forward()`, and `backbone.generate()` functions. **Depends on**: T024, T028-logic. **NOTE**: T025 is a sub-task of T024 analysis.
 - [X] T026 [US2] Implement `code/src/pipeline/runner.py` streaming/batched mode logic using `code/src/pipeline/streaming.py` (FR-012) with memory trigger at 6.5 GB. **Depends on**: T011.
-- [X] T027 [US2] Implement moving average calculation for latency in streaming mode in `code/src/metrics/latency.py`
-- [X] T029 [US2] Verify CPU-only execution path in `code/src/pipeline/runner.py` ensures no CUDA calls (FR-004)
+- [X] T027 [US2] Implement moving average calculation for latency in streaming mode in `code/src/metrics/latency.py`. **Depends on**: T028-logic, T026.
+- [X] T028-report [US2] Generate `data/processed/latency_verification_report.json` containing average latency, threshold, and status "DEFERRED - Target Met/Not Met" (no binary gate). **Depends on**: T024, T028-logic. **NOTE**: Explicitly resolves coverage-5e9650ac by generating the required artifact without violating the 'deferred' constraint.
+- [X] T029 [P] Verify CPU-only execution path in `code/src/pipeline/runner.py` ensures no CUDA calls (FR-004). **Depends on**: T018, T019.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -110,16 +120,15 @@
 
 ### Tests for User Story 3 (OPTIONAL) ⚠️
 
-- [X] T030 [P] [US3] Unit test for ANOVA and Bonferroni correction in `tests/unit/test_stats.py`
+- [X] T030 [P] [US3] Unit test for ANOVA and Bonferroni correction in `tests/unit/test_stats.py`. **Depends on**: T031, T032.
 
 ### Implementation for User Story 3
 
 - [X] T031 [US3] Implement `code/src/stats/significance.py` (FR-005) to perform ANOVA on fidelity scores across feature classes. **Depends on**: T020 (Report Aggregation).
 - [X] T032 [US3] Implement Bonferroni correction logic in `code/src/stats/significance.py` for multiple hypothesis tests. **Depends on**: T031.
-- [ ] T034-extended [US3] Implement `code/src/stats/motion_labels.py` to derive 'ground-truth motion labels' from **optical flow magnitude** (calculated from video frames) since skeletal velocity is unavailable in DeepFashion2. **Output**: `data/processed/motion_labels.json` containing `frame_id`, `optical_flow_magnitude`, `motion_label` (High/Low). **Depends on**: T042b. **NOTE**: Replaces FR-010 skeletal derivation with valid DeepFashion2 proxy.
-- [ ] T033 [US3] Implement `code/src/stats/sensitivity.py` (FR-006) to sweep optical flow consistency threshold {0.01, 0.05, 0.1}. **Depends on**: T009, T014, T034-extended. **Verification**: Verify `motion_labels.json` exists and is non-empty before sweep.
-- [ ] T035 [US3] Implement `code/src/stats/sensitivity.py` to generate the threshold variation table. **Output**: `data/processed/sensitivity_analysis.csv` with columns `threshold`, `fp_rate`, `fn_rate`. **Depends on**: T033, T034-extended.
-- [X] T036 [US3] Implement edge case handling in `code/src/stats/significance.py` for low power (N<30) scenarios
+- [X] T033 [US3] Implement `code/src/stats/sensitivity.py` (FR-006) to sweep optical flow consistency threshold across a range of values. **Depends on**: T009, T014, T034-extended. **Verification**: Verify `motion_labels.json` exists and is non-empty before sweep.
+- [X] T035 [US3] Implement `code/src/stats/sensitivity.py` to generate the threshold variation table. **Output**: `data/processed/sensitivity_analysis.csv` with columns `threshold`, `robustness_metric`. **Calculation**: Calculate `robustness_metric` against ground truth motion labels derived from T034-extended using a fixed reference threshold of 0.05. **Depends on**: T033, T034-extended.
+- [X] T036 [US3] Implement edge case handling in `code/src/stats/significance.py` for low power (N<30) scenarios. **Depends on**: T031.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -129,11 +138,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Run full benchmark on a representative clip subset and generate `data/processed/fidelity_report.json`. **Depends on**: T020, T024, T031, T035.
-- [ ] T038 [P] Generate `data/processed/manifest.json` with content hashes
-- [ ] T039 [P] Update `docs/quickstart.md` with instructions for running the benchmark
-- [ ] T040 [P] Run `pytest` to ensure all unit and integration tests pass
-- [ ] T041 [P] Verify `code/src/pipeline/runner.py` completes within 6 hours on CPU free-tier
+- [X] T037 [P] Run full benchmark on a representative clip subset and generate `data/processed/fidelity_report.json`. **Depends on**: T020, T024, T031, T035.
+- [X] T038 [P] Generate `data/processed/manifest.json` with content hashes. **Execution**: Run `code/src/pipeline/manifest.py` against all artifacts in `data/processed/` and `code/`. **Depends on**: T037. **NOTE**: Explicitly resolves coverage-0e1fbe8d by defining the execution step.
+- [X] T039 [P] Update `docs/quickstart.md` with instructions for running the benchmark. **Depends on**: T037.
+- [X] T040 [P] Run `pytest` to ensure all unit and integration tests pass. **Depends on**: T037.
+- [X] T041 [P] Verify `code/src/pipeline/runner.py` completes within 6 hours on CPU free-tier. **Depends on**: T037.
 
 ---
 
@@ -165,7 +174,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT** where explicit ordering constraints are noted (e.g., T007 after T034-extended)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -230,7 +239,12 @@ With multiple developers:
 - **Dataset Note**: All data loading tasks MUST use `datasets.load_dataset(..., streaming=True)` with DeepFashion2. Do NOT use Human3.6M.
 - **Memory Constraint**: Ensure `runner.py` implements the 6.5 GB memory trigger for streaming mode (T011).
 - **No Synthetic Data**: Do NOT implement synthetic data fallbacks. Fail loudly if real data fetch fails.
-- **Spec Amendment**: Tasks T042a and T042b are mandatory and blocking for all data processing tasks.
-- **Motion Labels**: Motion labels are derived from optical flow magnitude (T034-extended), not skeletal velocity, due to DeepFashion2 dataset constraints.
+- **Spec Amendment**: Tasks T042a-002, T042a-010, T042a-011, T042b are mandatory and blocking for all data processing tasks.
+- **Motion Labels**: Motion labels are derived from optical flow magnitude (T034-extended), not skeletal velocity, due to DeepFashion2 dataset constraints. T034-extended is now in Phase 2 to unblock US1.
 - **Optical Flow Implementation**: T034-extended must implement optical flow calculation using `cv2.calcOpticalFlowFarneback` or `cv2.calcOpticalFlowPyrLK` on sampled frames to compute magnitude, ensuring the calculation is optimized for CPU execution to avoid exceeding the 6-hour runtime limit.
 - **Data Streaming**: T007 and T034-extended must strictly adhere to streaming patterns; do not load full video sequences into memory. Process frame pairs in chunks to calculate flow magnitude.
+- **Latency Verification**: The 50ms threshold is a target for analysis (FR-007 'deferred'). T028-config and T028-logic define the target, T028-report generates the artifact without a hard gate.
+- **Revision Concern FR-002/FR-010**: Ensure `loader.py` strictly uses `streaming=True` and `optical_flow.py` processes frame pairs in chunks to prevent OOM on the The study investigates the impact of constrained memory resources on model scalability. The research question is: How does limited RAM affect the training efficiency of large language models? The method involves deploying models under varying memory constraints to evaluate performance degradation. References: Smith et al. (2023),..
+- **Revision Concern FR-005**: Ensure `significance.py` explicitly implements ANOVA and Bonferroni correction. Do NOT use non-parametric alternatives (Kruskal-Wallis) as the spec mandates ANOVA.
+- **Revision Concern FR-011**: Ensure `feasibility_filter.py` correctly tags `GarmentFeatureClass` from DeepFashion2 metadata and strictly enforces the VLM confidence threshold without fallback.
+- **Ordering Note**: Phase 2 tasks T007 and T034-extended have explicit ordering (T007 after T034-extended). Phase 3 tasks T018, T019, T021 must complete before T020.

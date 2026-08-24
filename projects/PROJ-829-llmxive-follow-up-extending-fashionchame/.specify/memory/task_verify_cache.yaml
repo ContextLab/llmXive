@@ -18,3 +18,10 @@ T035:
     \ (the file is truncated and never writes the required CSV), and the expected\
     \ output file `data/processed/sensitivity_analysis.csv` does not exist. Consequently\
     \ the task\u2019s required artifact is missing."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test execution artifacts (e.g., pytest output logs, a passed/failed summary,
+    or a CI report) are present. Without evidence that `pytest` was run and all unit/integration
+    tests passed, the requirement cannot be confirmed. The implementer must provide
+    the pytest run results showing a successful pass.

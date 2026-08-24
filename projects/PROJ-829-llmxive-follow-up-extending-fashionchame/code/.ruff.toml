@@ -1,24 +1,27 @@
-# Ruff configuration file
-# This file extends settings from pyproject.toml for IDE compatibility
+# Ruff configuration for llmXive project
+# This file is a duplicate of settings in pyproject.toml for IDE compatibility
+line-length = 88
+target-version = "py311"
 
-[lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
 ]
 ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults
+    "E501",
+    "B008",
+    "C901",
 ]
-target-version = "py311"
-line-length = 88
 
-[lint.isort]
+[per-file-ignores]
+"__init__.py" = ["F401"]
+
+[isort]
 known-first-party = ["src"]
-force-single-line = false
-lines-after-imports = 2
+force-sort-within-sections = true
+combine-as-imports = true

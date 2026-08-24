@@ -62,7 +62,7 @@ Consequently, motion analysis will rely on **optical flow magnitude**.
 
 ### Phase 4: User Story 2 - Real-Time Latency Verification
 - Measure inference latency per frame.
-- Verify 50ms threshold on CPU.
+- Verify ms threshold on CPU.
 - Implement streaming/batched mode with memory trigger.
 
 ### Phase 5: User Story 3 - Statistical Significance & Sensitivity

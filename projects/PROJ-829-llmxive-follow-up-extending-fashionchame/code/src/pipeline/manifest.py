@@ -1,9 +1,3 @@
-"""
-Manifest generator for content hashing of code and data artifacts.
-Implements FR-013: Generate a manifest.json with content hashes for all
-artifacts in the project tree (code/, data/, tests/).
-"""
-
 import hashlib
 import json
 import os
@@ -11,164 +5,121 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-# Supported extensions for hashing
-CODE_EXTENSIONS = {'.py', '.yaml', '.yml', '.json', '.md', '.txt', '.sh'}
-DATA_EXTENSIONS = {'.csv', '.parquet', '.json', '.txt', '.png', '.jpg', '.jpeg', '.pt', '.pth', '.h5', '.npy'}
-TEST_EXTENSIONS = {'.py'}
-
-# Directories to include
-TARGET_DIRS = ['code', 'data', 'tests']
-
-def calculate_file_hash(file_path: Path, algorithm: str = 'sha256') -> str:
-    """
-    Calculate the hash of a file's contents.
-    
-    Args:
-        file_path: Path to the file
-        algorithm: Hash algorithm to use (default: sha256)
-    
-    Returns:
-        Hexadecimal hash string
-    """
+def calculate_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
+    """Calculate the content hash of a file."""
     hasher = hashlib.new(algorithm)
     try:
-        with open(file_path, 'rb') as f:
-            # Read in chunks to handle large files
-            for chunk in iter(lambda: f.read(8192), b''):
+        with open(file_path, "rb") as f:
+            # Read in chunks to handle large files without OOM
+            for chunk in iter(lambda: f.read(65536), b""):
                 hasher.update(chunk)
         return hasher.hexdigest()
-    except (IOError, OSError) as e:
-        raise RuntimeError(f"Failed to read file {file_path} for hashing: {e}")
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found for hashing: {file_path}")
+    except Exception as e:
+        raise RuntimeError(f"Error hashing file {file_path}: {e}")
 
-def should_include_file(file_path: Path) -> bool:
+def should_include_file(file_path: Path, project_root: Path) -> bool:
     """
-    Determine if a file should be included in the manifest based on extension.
-    
-    Args:
-        file_path: Path to the file
-    
-    Returns:
-        True if the file should be included, False otherwise
+    Determine if a file should be included in the manifest.
+    Excludes:
+    - __pycache__ directories
+    - .git directories
+    - .pyc files
+    - Temporary files (~)
+    - The manifest itself (to avoid circular dependency)
+    - data/raw/* (raw data is usually large and handled separately, 
+      but we include processed data)
     """
-    suffix = file_path.suffix.lower()
-    parent = file_path.parent.name
+    path_str = str(file_path)
     
-    # Include based on directory context
-    if parent == 'code' or parent == 'src':
-        return suffix in CODE_EXTENSIONS
-    elif parent == 'data' or 'data' in str(file_path):
-        return suffix in DATA_EXTENSIONS
-    elif parent == 'tests' or parent == 'unit' or parent == 'integration':
-        return suffix in TEST_EXTENSIONS
-    elif suffix in CODE_EXTENSIONS:
-        # Fallback for files in root or other dirs with code extensions
-        return True
+    # Skip hidden files/dirs and pycache
+    if any(part.startswith('.') for part in file_path.parts) or '__pycache__' in path_str:
+        return False
     
-    return False
+    # Skip compiled python
+    if file_path.suffix == '.pyc':
+        return False
+    
+    # Skip the manifest file itself
+    if file_path.name == 'manifest.json':
+        return False
 
-def generate_manifest(project_root: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Generate a manifest of all artifacts in the project with their content hashes.
-    
-    Args:
-        project_root: Path to the project root. Defaults to current working directory.
-    
-    Returns:
-        Dictionary containing the manifest data
-    """
-    if project_root is None:
-        project_root = Path.cwd()
-    
-    artifacts = []
-    
-    for dir_name in TARGET_DIRS:
-        target_dir = project_root / dir_name
-        if not target_dir.exists():
-            continue
+    # We generally include code, processed data, and config
+    # Exclude raw data if it's massive, but the task asks for a manifest of artifacts.
+    # We will include everything under code/, config/, data/processed/, tests/
+    # and exclude data/raw/ if it exists to keep manifest size manageable.
+    try:
+        rel_path = file_path.relative_to(project_root)
+        if rel_path.parts and rel_path.parts[0] == 'data' and len(rel_path.parts) > 1 and rel_path.parts[1] == 'raw':
+            return False
+    except ValueError:
+        return False
         
-        for file_path in target_dir.rglob('*'):
-            if file_path.is_file() and should_include_file(file_path):
-                try:
-                    file_hash = calculate_file_hash(file_path)
-                    relative_path = file_path.relative_to(project_root)
-                    
-                    # Get file size
-                    file_size = file_path.stat().st_size
-                    
-                    artifact_entry = {
-                        'path': str(relative_path),
-                        'hash': file_hash,
-                        'algorithm': 'sha256',
-                        'size_bytes': file_size
-                    }
-                    artifacts.append(artifact_entry)
-                except Exception as e:
-                    # Log error but continue processing other files
-                    print(f"Warning: Could not hash {file_path}: {e}", file=sys.stderr)
-    
+    return True
+
+def generate_manifest(project_root: Path, output_path: Path) -> Dict[str, Any]:
+    """
+    Recursively walk the project root and generate a manifest of content hashes.
+    """
     manifest = {
-        'version': '1.0',
-        'generated_at': None,  # Will be set by caller if needed
-        'project_root': str(project_root),
-        'artifacts': artifacts,
-        'total_artifacts': len(artifacts)
+        "generated_by": "code/src/pipeline/manifest.py",
+        "project_root": str(project_root),
+        "files": {}
     }
-    
+
+    for root, dirs, files in os.walk(project_root):
+        root_path = Path(root)
+        
+        # Filter out excluded directories on the fly
+        dirs[:] = [d for d in dirs if d != '__pycache__' and not d.startswith('.')]
+        
+        for file in files:
+            file_path = root_path / file
+            
+            if not should_include_file(file_path, project_root):
+                continue
+            
+            try:
+                file_hash = calculate_file_hash(file_path)
+                rel_path = str(file_path.relative_to(project_root))
+                manifest["files"][rel_path] = {
+                    "hash": file_hash,
+                    "size_bytes": file_path.stat().st_size
+                }
+            except (FileNotFoundError, RuntimeError) as e:
+                # Log error but continue processing other files
+                print(f"Warning: Skipping {file_path}: {e}", file=sys.stderr)
+
     return manifest
 
 def write_manifest(manifest: Dict[str, Any], output_path: Path) -> None:
-    """
-    Write the manifest to a JSON file.
-    
-    Args:
-        manifest: The manifest dictionary to write
-        output_path: Path where the manifest should be written
-    """
-    # Add timestamp if not present
-    if 'generated_at' not in manifest or manifest['generated_at'] is None:
-        from datetime import datetime
-        manifest['generated_at'] = datetime.utcnow().isoformat() + 'Z'
-    
+    """Write the manifest dictionary to a JSON file."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(manifest, f, indent=2, sort_keys=True)
+        json.dump(manifest, f, indent=2)
 
 def main():
     """
-    Main entry point for generating the manifest.
-    Reads project root from environment or uses current directory.
-    Outputs manifest to data/processed/manifest.json.
+    Entry point for the manifest generation script.
+    Generates data/processed/manifest.json containing hashes of code, config, and processed data.
     """
-    # Determine project root
-    project_root = Path(os.environ.get('PROJECT_ROOT', Path.cwd()))
+    # Determine project root (parent of 'code' directory)
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent.parent # code/src/pipeline -> code -> root
     
-    # Ensure we are at the project root level (where code/, data/, tests/ are)
-    if not (project_root / 'code').exists() and not (project_root / 'data').exists():
-        # Try to find project root by looking for known directories
-        current = project_root
-        while current != current.parent:
-            if (current / 'code').exists() or (current / 'data').exists():
-                project_root = current
-                break
-            current = current.parent
+    output_file = project_root / "data" / "processed" / "manifest.json"
     
     print(f"Generating manifest for project at: {project_root}")
+    print(f"Output will be written to: {output_file}")
     
-    # Generate manifest
-    manifest = generate_manifest(project_root)
-    
-    # Define output path
-    output_dir = project_root / 'data' / 'processed'
-    output_path = output_dir / 'manifest.json'
-    
-    # Write manifest
-    write_manifest(manifest, output_path)
-    
-    print(f"Manifest written to: {output_path}")
-    print(f"Total artifacts hashed: {manifest['total_artifacts']}")
-    
-    return manifest
+    try:
+        manifest = generate_manifest(project_root, output_file)
+        write_manifest(manifest, output_file)
+        print(f"Manifest generated successfully with {len(manifest['files'])} files.")
+    except Exception as e:
+        print(f"Failed to generate manifest: {e}", file=sys.stderr)
+        sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

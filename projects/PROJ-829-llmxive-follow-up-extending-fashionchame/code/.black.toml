@@ -1,20 +1,18 @@
-# Black formatting configuration
-# This file exists for IDE compatibility, though primary config is in pyproject.toml
-
-[tool.black]
+# Black configuration for llmXive project
+# This file is a duplicate of settings in pyproject.toml for IDE compatibility
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
-  \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''

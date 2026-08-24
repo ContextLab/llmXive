@@ -4,36 +4,37 @@ from pathlib import Path
 
 def main():
     """
-    Creates the required directory structure for the llmXive project.
-    Specifically creates data/raw and data/processed directories.
+    Initialize the project directory structure for llmXive.
+    Creates the required folders under the 'code/' directory as per T001.
     """
-    # Determine project root (assuming script is in code/ or code/setup/)
-    # We assume the script is run from the project root or code/
-    # To be safe, we resolve relative to the script location
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent if script_dir.name == 'code' else script_dir
-
-    # Define directories to create
+    base_dir = Path(__file__).resolve().parent.parent
+    code_dir = base_dir / "code"
+    
+    # Ensure the base code directory exists
+    code_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Define required directories relative to the project root (base_dir)
+    # Per T001: create `code/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/`
+    # Since we are running from code/setup_data_dirs.py, we map these to the project structure:
+    # - code/ (already exists as base_dir/code)
+    # - data/raw/ -> base_dir/data/raw
+    # - data/processed/ -> base_dir/data/processed
+    # - tests/unit/ -> base_dir/tests/unit
+    # - tests/integration/ -> base_dir/tests/integration
+    
     directories = [
-        project_root / 'data' / 'raw',
-        project_root / 'data' / 'processed',
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "tests" / "unit",
+        base_dir / "tests" / "integration",
     ]
-
-    created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {directory}")
-
-    if created_count > 0:
-        print(f"Successfully created {created_count} directory/directories.")
-    else:
-        print("No new directories were created; all exist already.")
-
+    
+    for dir_path in directories:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path.relative_to(base_dir)}")
+    
+    print("Directory structure initialization complete.")
     return 0
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

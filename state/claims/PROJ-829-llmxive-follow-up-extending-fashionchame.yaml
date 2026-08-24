@@ -1,0 +1,319 @@
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Benchmark evaluates garment attribute preservation fidelity switching
+    from image-based to text-based reference inputs using DeepFashion2 dataset
+  claim_id: c_f4e8a734
+  context: This guide explains how to run the full benchmark pipeline for the FashionChameleon
+    project. The benchmark evaluates the fidelity of garment attribute preservation
+    when switching from image-based to text-based reference inputs using the DeepFashion2
+    dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_evaluates_garment_attribute_preservation_fidelity
+  kind: entity_fact
+  raw_text: The benchmark evaluates the fidelity of garment attribute preservation
+    when switching from image-based to text-based reference inputs using the DeepFashion2
+    dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:33:16Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: At least 16GB RAM required for benchmark
+  claim_id: c_65011f95
+  context: '- Python 3.11 or higher
+
+    - pip (Python package manager)
+
+    - At least 16GB RAM (streaming mode reduces this requirement)
+
+    - CPU-only execution (no GPU required)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_16GB_RAM_required_for_benchmark
+  kind: magnitude
+  raw_text: At least 16GB RAM is required for the benchmark (streaming mode reduces
+    this requirement).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:34:09Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: CPU-only execution supported no GPU required
+  claim_id: c_4cecaf85
+  context: '- At least 16GB RAM (streaming mode reduces this requirement)
+
+    - CPU-only execution (no GPU required)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-only_execution_supported_no_GPU_required
+  kind: entity_fact
+  raw_text: CPU-only execution is supported with no GPU required.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:34:47Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: BLIP-Large model requires approximately 2GB disk space for model weights
+  claim_id: c_b096de78
+  context: The BLIP-Large model is downloaded automatically on first run. This may
+    take several minutes. Ensure sufficient disk space (~2GB for model weights).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BLIP-Large_model_requires_approximately_2GB_disk_space_for_m
+  kind: entity_fact
+  raw_text: The BLIP-Large model requires approximately 2GB of disk space for model
+    weights.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:35:56Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Full benchmark takes approximately 2-4 hours to run on CPU
+  claim_id: c_34bffb5a
+  context: '- **Full Benchmark**: ~2-4 hours on CPU (depending on dataset subset size)
+
+    - **Memory Usage**: Peak ~6.5GB (triggers batch processing via streaming)
+
+    - **Latency Target**: <50ms per frame average'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full benchmark takes approximately 2-4 hours to run on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:36:32Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Peak memory usage for full benchmark is approximately 6.5GB
+  claim_id: c_177f6f96
+  context: '- **Full Benchmark**: ~2-4 hours on CPU (depending on dataset subset size)
+
+    - **Memory Usage**: Peak ~6.5GB (triggers batch processing via streaming)
+
+    - **Latency Target**: <50ms per frame average'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Peak memory usage for the full benchmark is approximately 6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:36:57Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Pipeline triggers batch processing at 6.5GB memory usage
+  claim_id: c_cbcc0397
+  context: The pipeline automatically triggers batch processing at 6.5GB memory usage.
+    If issues persist, reduce `streaming_chunk_size` in `config/settings.yaml`.
+  evidence:
+    asserted: '6.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline automatically triggers batch processing at 6.5GB memory usage.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T14:36:57Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Example fidelity_report.json shows mean LPIPS of 0.12 for color attribute
+  claim_id: c_69fae276
+  context: "```json\n{\n  \"color\": {\n    \"mean_lpips\": 0.12,\n    \"mean_ssim\"\
+    : 0.85,\n    \"relative_loss_percent\": 5.2\n  },"
+  evidence:
+    asserted: '0.12'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The example fidelity_report.json shows a mean LPIPS of 0.12 for the color
+    attribute.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T14:36:57Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Example fidelity_report.json shows mean SSIM of 0.85 for color attribute
+  claim_id: c_0c096905
+  context: "```json\n{\n  \"color\": {\n    \"mean_lpips\": 0.12,\n    \"mean_ssim\"\
+    : 0.85,\n    \"relative_loss_percent\": 5.2\n  },"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example fidelity_report.json shows a mean SSIM of 0.85 for the color
+    attribute.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:37:16Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Example fidelity_report.json shows relative loss percent of 5.2 for color
+    attribute
+  claim_id: c_290d2e16
+  context: "```json\n{\n  \"color\": {\n    \"mean_lpips\": 0.12,\n    \"mean_ssim\"\
+    : 0.85,\n    \"relative_loss_percent\": 5.2\n  },"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example fidelity_report.json shows a relative loss percent of 5.2
+    for the color attribute.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:37:37Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Example fidelity_report.json shows mean LPIPS of 0.18 for pattern attribute
+  claim_id: c_6a7e6e2e
+  context: "\"pattern\": {\n    \"mean_lpips\": 0.18,\n    \"mean_ssim\": 0.79,\n\
+    \    \"relative_loss_percent\": 12.4\n  },"
+  evidence:
+    asserted: '0.18'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The example fidelity_report.json shows a mean LPIPS of 0.18 for the pattern
+    attribute.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T14:37:37Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Example fidelity_report.json shows mean SSIM of 0.79 for pattern attribute
+  claim_id: c_f1d1fbd1
+  context: "\"pattern\": {\n    \"mean_lpips\": 0.18,\n    \"mean_ssim\": 0.79,\n\
+    \    \"relative_loss_percent\": 12.4\n  },"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example fidelity_report.json shows a mean SSIM of 0.79 for the pattern
+    attribute.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:37:54Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Example fidelity_report.json shows relative loss percent of 12.4 for
+    pattern attribute
+  claim_id: c_da5439f5
+  context: "\"pattern\": {\n    \"mean_lpips\": 0.18,\n    \"mean_ssim\": 0.79,\n\
+    \    \"relative_loss_percent\": 12.4\n  },"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example fidelity_report.json shows a relative loss percent of 12.4
+    for the pattern attribute.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:38:19Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Example fidelity_report.json shows mean LPIPS of 0.15 for texture attribute
+  claim_id: c_7000eece
+  context: "\"texture\": {\n    \"mean_lpips\": 0.15,\n    \"mean_ssim\": 0.82,\n\
+    \    \"relative_loss_percent\": 8.1\n  }\n}"
+  evidence:
+    asserted: '0.15'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The example fidelity_report.json shows a mean LPIPS of 0.15 for the texture
+    attribute.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T14:38:19Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Example fidelity_report.json shows mean SSIM of 0.82 for texture attribute
+  claim_id: c_e81ae468
+  context: "\"texture\": {\n    \"mean_lpips\": 0.15,\n    \"mean_ssim\": 0.82,\n\
+    \    \"relative_loss_percent\": 8.1\n  }\n}"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example fidelity_report.json shows a mean SSIM of 0.82 for the texture
+    attribute.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:38:43Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/docs/quickstart.md
+  attempts: 1
+  canonical: Example fidelity_report.json shows relative loss percent of 8.1 for texture
+    attribute
+  claim_id: c_67a0d507
+  context: "\"texture\": {\n    \"mean_lpips\": 0.15,\n    \"mean_ssim\": 0.82,\n\
+    \    \"relative_loss_percent\": 8.1\n  }\n}"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The example fidelity_report.json shows a relative loss percent of 8.1
+    for the texture attribute.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T14:39:21Z'

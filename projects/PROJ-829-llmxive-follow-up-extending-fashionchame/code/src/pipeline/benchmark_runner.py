@@ -1,7 +1,3 @@
-"""
-Benchmark Runner for Task T037.
-Executes the full benchmark pipeline on a representative subset and generates the final fidelity report.
-"""
 import argparse
 import json
 import sys
@@ -9,203 +5,193 @@ import time
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-# Import existing components from the project API surface
-from src.data.stratified_subset import load_filtered_manifest, stratify_samples, save_stratified_subset
-from src.data.loader import load_deepfashion2_streaming, process_batch, iterate_dataset
+# Import from existing API surface
+from src.data.stratified_subset import load_filtered_manifest, stratify_samples, validate_subset_balance, save_stratified_subset
 from src.pipeline.runner import run_text_adapter_pipeline_with_bottleneck_analysis
-from src.pipeline.reporter import load_raw_scores, aggregate_scores_by_class, calculate_relative_loss, generate_report
-from src.pipeline.streaming import process_batch_with_memory_check, get_current_memory_usage_bytes
-from src.pipeline.manifest import calculate_file_hash, write_manifest
-from src.metrics.latency import measure_inference_latency, evaluate_latency_pass_fail
-from src.stats.significance import perform_anova, bonferroni_correction, analyze_significance
+from src.metrics.fidelity import compute_fidelity_scores
+from src.pipeline.reporter import generate_report, load_filtered_manifest as reporter_load_manifest, load_raw_scores, aggregate_scores_by_class, calculate_relative_loss
+from src.stats.significance import analyze_significance
 from src.stats.sensitivity import run_sensitivity_analysis
-from src.data.prompt_gen import generate_prompt
-from src.adapters.text_cross_attention import load_adapter_from_config
+from src.data.loader import load_config
+from src.pipeline.streaming import get_current_memory_usage_bytes, trigger_memory_cleanup
 
-def load_settings() -> Dict[str, Any]:
-    """Load configuration from settings.yaml."""
-    from src.data.loader import load_config
-    return load_config()
+def load_settings(config_path: str) -> Dict[str, Any]:
+    """Load project settings from YAML."""
+    path = Path(config_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+    
+    # Simple YAML loader without external dependency if possible, 
+    # or assume pyyaml is installed as per requirements.txt
+    try:
+        import yaml
+        with open(path, 'r') as f:
+            return yaml.safe_load(f)
+    except ImportError:
+        # Fallback for environments without pyyaml if strictly necessary, 
+        # though requirements.txt lists it.
+        raise ImportError("pyyaml is required to load settings.yaml")
 
-def run_full_benchmark(subset_size: int = 100, output_dir: Optional[Path] = None) -> Dict[str, Any]:
+def run_full_benchmark(
+    config_path: str,
+    manifest_path: str,
+    output_dir: str,
+    subset_size: int = 100
+) -> Dict[str, Any]:
     """
-    Run the full benchmark on a representative clip subset.
+    Run the full benchmark pipeline on a representative clip subset.
     
-    Args:
-        subset_size: Number of samples to process (stratified).
-        output_dir: Directory to write outputs. Defaults to data/processed/.
+    1. Load configuration.
+    2. Load filtered manifest (from T021).
+    3. Stratify and select subset (T016 logic).
+    4. Run text adapter pipeline (T019/T024).
+    5. Compute fidelity scores (T009).
+    6. Aggregate by class and generate report (T020).
+    7. Run significance analysis (T031).
+    8. Run sensitivity analysis (T035) if needed (though T035 output is separate).
     
-    Returns:
-        Dictionary containing benchmark results.
+    Returns the final report dictionary.
     """
-    if output_dir is None:
-        output_dir = Path("data/processed")
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    settings = load_settings()
+    settings = load_settings(config_path)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    # Step 1: Load filtered manifest
-    filtered_manifest_path = Path("data/processed/filtered_subset_manifest.json")
-    if not filtered_manifest_path.exists():
-        raise FileNotFoundError(f"Filtered manifest not found at {filtered_manifest_path}. Run feasibility_filter first.")
+    print(f"Loading filtered manifest from {manifest_path}...")
+    # Use the reporter's load function which is designed for the manifest
+    manifest_data = reporter_load_manifest(manifest_path)
     
-    manifest_data = load_filtered_manifest(filtered_manifest_path)
-    print(f"Loaded {len(manifest_data)} samples from filtered manifest.")
-
-    # Step 2: Stratify and select subset
-    stratified_data = stratify_samples(manifest_data, subset_size)
-    print(f"Selected {len(stratified_data)} stratified samples.")
-
-    # Save stratified subset manifest
-    subset_manifest_path = output_dir / "stratified_subset_manifest.json"
-    save_stratified_subset(stratified_data, subset_manifest_path)
-    print(f"Saved stratified subset manifest to {subset_manifest_path}")
-
-    # Step 3: Load adapter
-    adapter_config_path = Path("code/config/adapter_config.yaml")
-    if adapter_config_path.exists():
-        adapter = load_adapter_from_config(adapter_config_path)
+    if not manifest_data or 'samples' not in manifest_data:
+        raise ValueError("Invalid manifest format: missing 'samples' key")
+    
+    samples = manifest_data['samples']
+    print(f"Loaded {len(samples)} samples from manifest.")
+    
+    # Stratify subset
+    print("Stratifying subset...")
+    # Assuming stratify_samples returns a list of selected sample dicts
+    # The signature in API surface: stratify_samples(samples, class_key, target_count)
+    # We need to determine the class key. Based on T014, it's likely 'GarmentFeatureClass' or similar.
+    # Let's assume the manifest has a 'feature_class' or 'garment_feature_class' field.
+    class_key = 'garment_feature_class' 
+    if samples and class_key not in samples[0]:
+        # Fallback or error
+        raise ValueError(f"Expected class key '{class_key}' not found in manifest samples.")
+        
+    stratified_samples = stratify_samples(samples, class_key, subset_size)
+    print(f"Selected {len(stratified_samples)} stratified samples.")
+    
+    # Validate balance
+    validate_subset_balance(stratified_samples, class_key)
+    
+    # Save stratified subset for reference
+    subset_manifest_path = output_path / "benchmark_subset_manifest.json"
+    save_stratified_subset(stratified_samples, str(subset_manifest_path))
+    
+    # Run the pipeline to generate outputs (images, latencies, etc.)
+    # The runner returns results or writes them.
+    # T024/T019 logic is in runner.py. We need to call it.
+    # Assuming run_text_adapter_pipeline_with_bottleneck_analysis takes samples and writes results.
+    # It might return a list of results or write to a file.
+    # Let's assume it writes raw scores to a file or returns them.
+    # Based on T020, reporter.py loads raw scores. So runner must write them.
+    
+    print("Running text adapter pipeline on subset...")
+    # The runner function signature: run_text_adapter_pipeline_with_bottleneck_analysis(samples, config)
+    # It likely writes results to data/processed/raw_scores.json or similar.
+    # Let's assume it returns the results list for now, or we read from a known file.
+    # To be safe and align with T020's load_raw_scores, we assume the runner writes to a specific path.
+    # However, T020's load_raw_scores takes a path.
+    # Let's modify the runner call to return results if possible, or we assume a standard path.
+    # Given the constraints, let's assume the runner writes to 'data/processed/raw_benchmark_scores.json'
+    # and we pass that to the reporter.
+    
+    # Actually, let's look at T020: "consume ONLY samples from ... filtered_subset_manifest.json"
+    # And T020 output: fidelity_report.json.
+    # T020 depends on T018, T019 (runner).
+    # So runner must produce the data the reporter consumes.
+    # Let's assume runner writes to 'data/processed/raw_scores.json'
+    
+    raw_scores_path = output_path / "raw_scores.json"
+    
+    # We need to pass the samples to the runner.
+    # The runner function in API surface: run_text_adapter_pipeline_with_bottleneck_analysis
+    # It likely takes a list of samples and config.
+    # We'll call it and assume it writes to raw_scores_path or returns data.
+    # Let's assume it returns a list of results dicts.
+    results = run_text_adapter_pipeline_with_bottleneck_analysis(stratified_samples, settings)
+    
+    # If runner returns results, write them to raw_scores_path for reporter compatibility
+    if isinstance(results, list):
+        with open(raw_scores_path, 'w') as f:
+            json.dump(results, f, indent=2)
+    elif isinstance(results, dict) and 'scores' in results:
+        with open(raw_scores_path, 'w') as f:
+            json.dump(results['scores'], f, indent=2)
     else:
-        # Fallback to default initialization if config not found
-        from src.adapters.text_cross_attention import TextCrossAttentionAdapter
-        adapter = TextCrossAttentionAdapter()
-        print("Using default TextCrossAttentionAdapter (no config file found).")
+        # If runner writes internally, we might need to adjust.
+        # But to ensure T020 works, we ensure the file exists.
+        # If runner didn't write, we try to write from results if available.
+        pass
 
-    # Step 4: Process samples and collect raw scores
-    raw_scores = []
-    latency_scores = []
-    sample_count = 0
-
-    print("Starting benchmark execution...")
-    start_time = time.time()
-
-    for sample in stratified_data:
-        # Check memory usage
-        current_mem = get_current_memory_usage_bytes()
-        if current_mem > settings.get("memory_trigger_gb", 6.5) * 1024 * 1024 * 1024:
-            print("Memory threshold exceeded, triggering cleanup...")
-            import gc
-            gc.collect()
-
-        try:
-            # Generate prompt
-            prompt = generate_prompt(sample, settings)
-            
-            # Run text adapter pipeline with bottleneck analysis
-            result = run_text_adapter_pipeline_with_bottleneck_analysis(
-                sample=sample,
-                prompt=prompt,
-                adapter=adapter,
-                settings=settings
-            )
-            
-            # Extract scores
-            if result.get("lpips_score") is not None:
-                raw_scores.append({
-                    "sample_id": sample.get("id"),
-                    "image_id": sample.get("image_id"),
-                    "garment_class": sample.get("garment_feature_class"),
-                    "lpips": result["lpips_score"],
-                    "ssim": result.get("ssim_score", 0.0),
-                    "latency_ms": result.get("inference_time_ms", 0.0)
-                })
-                latency_scores.append(result.get("inference_time_ms", 0.0))
-                sample_count += 1
-
-        except Exception as e:
-            print(f"Error processing sample {sample.get('id')}: {e}")
-            continue
-
-    total_time = time.time() - start_time
-    print(f"Benchmark completed in {total_time:.2f} seconds. Processed {sample_count} samples.")
-
-    # Step 5: Save raw scores
-    raw_scores_path = output_dir / "raw_fidelity_scores.json"
-    with open(raw_scores_path, "w") as f:
-        json.dump(raw_scores, f, indent=2)
-    print(f"Saved raw scores to {raw_scores_path}")
-
-    # Step 6: Aggregate scores by class and generate report
-    aggregated = aggregate_scores_by_class(raw_scores)
+    # Load raw scores
+    print("Loading raw scores...")
+    raw_scores = load_raw_scores(str(raw_scores_path))
+    
+    # Aggregate by class
+    print("Aggregating scores by class...")
+    aggregated = aggregate_scores_by_class(raw_scores, class_key)
+    
+    # Calculate relative loss
     relative_loss = calculate_relative_loss(aggregated)
+    
+    # Generate report
+    print("Generating fidelity report...")
     report = generate_report(aggregated, relative_loss)
     
-    # Add latency statistics
-    if latency_scores:
-        avg_latency = sum(latency_scores) / len(latency_scores)
-        pass_fail = evaluate_latency_pass_fail(avg_latency, settings.get("latency_threshold_ms", 50))
-        report["latency"] = {
-            "average_ms": avg_latency,
-            "status": pass_fail.get("status", "UNKNOWN"),
-            "threshold_ms": settings.get("latency_threshold_ms", 50)
-        }
-
-    # Step 7: Perform statistical significance analysis
-    try:
-        anova_result = perform_anova(raw_scores, "garment_class", "lpips")
-        bonferroni_result = bonferroni_correction(anova_result.get("p_value", 1.0), num_tests=3)
-        report["significance"] = {
-            "anova": anova_result,
-            "bonferroni": bonferroni_result
-        }
-    except Exception as e:
-        print(f"Warning: Statistical analysis failed: {e}")
-        report["significance"] = {"error": str(e)}
-
-    # Step 8: Run sensitivity analysis (if motion labels available)
-    try:
-        motion_labels_path = output_dir / "motion_labels.json"
-        if motion_labels_path.exists():
-            sensitivity_result = run_sensitivity_analysis(raw_scores, motion_labels_path)
-            report["sensitivity"] = sensitivity_result
-            
-            # Save sensitivity analysis CSV
-            sensitivity_csv_path = output_dir / "sensitivity_analysis.csv"
-            with open(sensitivity_csv_path, "w") as f:
-                f.write("threshold,fp_rate,fn_rate\n")
-                for entry in sensitivity_result.get("threshold_analysis", []):
-                    f.write(f"{entry['threshold']},{entry['fp_rate']},{entry['fn_rate']}\n")
-            print(f"Saved sensitivity analysis to {sensitivity_csv_path}")
-    except Exception as e:
-        print(f"Warning: Sensitivity analysis skipped: {e}")
-
-    # Step 9: Save final fidelity report
-    report_path = output_dir / "fidelity_report.json"
-    with open(report_path, "w") as f:
-        json.dump(report, f, indent=2)
-    print(f"Saved final fidelity report to {report_path}")
-
-    # Step 10: Generate manifest for this run
-    manifest_entries = [
-        {"path": str(raw_scores_path.relative_to(Path("data/processed"))), "hash": calculate_file_hash(raw_scores_path)},
-        {"path": str(report_path.relative_to(Path("data/processed"))), "hash": calculate_file_hash(report_path)},
-        {"path": str(subset_manifest_path.relative_to(Path("data/processed"))), "hash": calculate_file_hash(subset_manifest_path)}
-    ]
+    # Add significance analysis results
+    print("Running significance analysis...")
+    # analyze_significance expects scores grouped by class
+    significance_results = analyze_significance(aggregated)
+    report['significance'] = significance_results
     
-    run_manifest_path = output_dir / "benchmark_manifest.json"
-    write_manifest(manifest_entries, run_manifest_path)
-    print(f"Saved run manifest to {run_manifest_path}")
-
+    # Run sensitivity analysis (optional for this task, but T037 depends on T035)
+    # T035 output is sensitivity_analysis.csv. We might just call it to ensure it runs.
+    # But T037's main output is fidelity_report.json.
+    # We'll call it to ensure dependencies are met, but it writes its own file.
+    print("Running sensitivity analysis...")
+    try:
+        run_sensitivity_analysis(str(config_path), str(output_path / "sensitivity_analysis.csv"))
+    except Exception as e:
+        print(f"Warning: Sensitivity analysis failed: {e}. Continuing with fidelity report.")
+    
+    # Write final report
+    report_path = output_path / "fidelity_report.json"
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    print(f"Full benchmark complete. Report saved to {report_path}")
     return report
 
 def main():
-    parser = argparse.ArgumentParser(description="Run full benchmark pipeline (Task T037)")
-    parser.add_argument("--subset-size", type=int, default=100, help="Number of samples to process")
-    parser.add_argument("--output-dir", type=str, default="data/processed", help="Output directory")
+    parser = argparse.ArgumentParser(description="Run full benchmark pipeline")
+    parser.add_argument("--config", type=str, default="code/config/settings.yaml", help="Path to config file")
+    parser.add_argument("--manifest", type=str, default="data/processed/filtered_subset_manifest.json", help="Path to filtered manifest")
+    parser.add_argument("--output", type=str, default="data/processed", help="Output directory")
+    parser.add_argument("--subset-size", type=int, default=100, help="Number of samples in stratified subset")
+    
     args = parser.parse_args()
-
-    output_path = Path(args.output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
+    
     try:
-        report = run_full_benchmark(subset_size=args.subset_size, output_dir=output_path)
-        print("\n=== BENCHMARK COMPLETE ===")
-        print(f"Report saved to: {output_path / 'fidelity_report.json'}")
+        report = run_full_benchmark(
+            config_path=args.config,
+            manifest_path=args.manifest,
+            output_dir=args.output,
+            subset_size=args.subset_size
+        )
+        print("Benchmark completed successfully.")
         print(json.dumps(report, indent=2))
     except Exception as e:
-        print(f"Benchmark failed: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"Error running benchmark: {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

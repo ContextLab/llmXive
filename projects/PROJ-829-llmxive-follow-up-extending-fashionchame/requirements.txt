@@ -8,6 +8,7 @@ lpips
 pandas
 pyyaml
 jsonschema
+psutil
+ruff
+black
 pytest
-scikit-image
-pillow
