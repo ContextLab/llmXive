@@ -1,0 +1,13 @@
+status: none
+intent: "download QM9 Merz\u2011Kollman charges dataset python package QM9 ESP charges\
+  \ dataset python package"
+required_fields:
+- molecule_id
+- atomic_numbers
+- coordinates_xyz
+- bond_connectivity
+- merz_kollman_partial_charges
+- number_of_atoms
+cache_key: cd35b1281e998fcc415d2c4d2b4d1c6471b659d2516f6060a74437d188a87c89
+searched_at: '2026-08-24T10:34:42.342425+00:00'
+retry_count: 1

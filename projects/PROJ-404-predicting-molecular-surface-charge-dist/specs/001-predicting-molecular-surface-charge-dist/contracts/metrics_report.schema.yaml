@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Report Schema"
+description: "Schema for the final evaluation metrics report."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model evaluated."
+  test_set_size:
+    type: "integer"
+    description: "Number of molecules in the test set."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error."
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error."
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient."
+  baseline_mae:
+    type: "number"
+    description: "MAE of the 2D connectivity-only baseline."
+  hypothesis_validated:
+    type: "boolean"
+    description: "True if model MAE <= 0.05 e AND model MAE < baseline MAE."
+  training_time_hours:
+    type: "number"
+    description: "Total wall-clock training time in hours."
+  peak_memory_gb:
+    type: "number"
+    description: "Peak memory usage in GB."
+required:
+  - model_type
+  - test_set_size
+  - mae
+  - rmse
+  - pearson_r
+  - baseline_mae
+  - hypothesis_validated
+  - training_time_hours
+  - peak_memory_gb
+additionalProperties: false

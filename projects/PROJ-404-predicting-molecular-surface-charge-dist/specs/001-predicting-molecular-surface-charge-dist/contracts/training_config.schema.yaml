@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Configuration Schema"
+description: "Schema for the training configuration JSON."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "SchNet"
+      - "DimeNet"
+      - "Baseline_2D"
+    description: "Type of model architecture."
+  epochs:
+    type: "integer"
+    minimum: 1
+    description: "Maximum number of training epochs."
+  patience:
+    type: "integer"
+    minimum: 1
+    description: "Early stopping patience."
+  learning_rate:
+    type: "number"
+    description: "Learning rate for the optimizer."
+  batch_size:
+    type: "integer"
+    minimum: 1
+    description: "Batch size for training."
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+  device:
+    type: "string"
+    enum:
+      - "cpu"
+      - "cuda"
+    description: "Target device."
+  max_memory_gb:
+    type: "number"
+    description: "Maximum memory constraint in GB."
+required:
+  - model_type
+  - epochs
+  - patience
+  - learning_rate
+  - batch_size
+  - seed
+  - device
+  - max_memory_gb
+additionalProperties: false
