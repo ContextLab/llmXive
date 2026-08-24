@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Output Schema"
+description: "Schema for the final evaluation metrics and results, including Upper Bound Oracle comparison."
+type: "object"
+properties:
+  correlation_metrics:
+    type: "object"
+    properties:
+      spearman_correlation:
+        type: "number"
+        description: "Spearman rank correlation between predicted and true coefficients (Static Model)."
+      kendall_tau:
+        type: "number"
+        description: "Kendall's Tau rank correlation (Static Model)."
+      spearman_ci_lower:
+        type: "number"
+        description: "95% Confidence Interval Lower Bound for Spearman (Static)."
+      spearman_ci_upper:
+        type: "number"
+        description: "95% Confidence Interval Upper Bound for Spearman (Static)."
+      p_value:
+        type: "number"
+        description: "P-value from the permutation test (Example-level)."
+      baseline_random_correlation:
+        type: "number"
+        description: "Correlation against random baseline."
+      baseline_uniform_correlation:
+        type: "number"
+        description: "Correlation against uniform baseline."
+    required:
+      - spearman_correlation
+      - kendall_tau
+      - p_value
+      - baseline_random_correlation
+      - baseline_uniform_correlation
+  upper_bound_metrics:
+    type: "object"
+    properties:
+      spearman_correlation:
+        type: "number"
+        description: "Spearman rank correlation for the Upper Bound Oracle model."
+      spearman_ci_lower:
+        type: "number"
+        description: "95% Confidence Interval Lower Bound for Spearman (Upper Bound)."
+      spearman_ci_upper:
+        type: "number"
+        description: "95% Confidence Interval Upper Bound for Spearman (Upper Bound)."
+    required:
+      - spearman_correlation
+  feature_analysis:
+    type: "object"
+    properties:
+      classification:
+        type: "string"
+        enum: ["emergent", "poor_proxies", "significant"]
+        description: "Classification of the result based on Static vs Upper Bound performance."
+      classification_reasoning:
+        type: "string"
+        description: "Explanation of the classification logic."
+    required:
+      - classification
+      - classification_reasoning
+  execution_info:
+    type: "object"
+    properties:
+      total_time_seconds:
+        type: "number"
+        description: "Total execution time of the pipeline."
+      memory_peak_mb:
+        type: "number"
+        description: "Peak memory usage in MB."
+    required:
+      - total_time_seconds
+      - memory_peak_mb
+  causal_disclaimer:
+    type: "string"
+    description: "Explicit statement that findings are associational."
+required:
+  - correlation_metrics
+  - upper_bound_metrics
+  - feature_analysis
+  - execution_info
+  - causal_disclaimer

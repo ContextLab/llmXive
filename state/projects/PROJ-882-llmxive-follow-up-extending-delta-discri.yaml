@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T16:23:55.624564Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-882-llmxive-follow-up-extending-delta-discri
-last_run_id: 5643786e-1373-4170-a3c8-51db649e2cd0
+last_run_id: 92fcbbab-9633-47bf-8775-8d9623f30197
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri
 title: 'llmXive follow-up: extending "DelTA: Discriminative Token Credit Assignment
   for Reinforcement Learni"'
-updated_at: '2026-08-12T01:08:26.134962Z'
+updated_at: '2026-08-24T22:43:00.900802Z'

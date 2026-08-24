@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Predictions"
+title: "Model Predictions (Static)"
 description: "Schema for the output of the static predictor model."
 type: "object"
 properties:

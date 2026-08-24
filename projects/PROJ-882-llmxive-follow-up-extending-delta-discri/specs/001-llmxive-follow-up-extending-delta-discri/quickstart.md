@@ -1,87 +1,100 @@
-# Quickstart: llmXive follow-up: extending "DelTA"
+# Quickstart: llmXive follow-up: extending "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning"
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to HuggingFace (for dataset download)
-*   (Optional) Kaggle account for GPU offload (if CPU fails)
+- Python 3.11+
+- Git
+- HuggingFace CLI (optional, for model downloads)
+- Kaggle CLI (optional, for GPU offload)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-882-llmxive-follow-up-extending-delta-discri
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd <project-dir>
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions for `transformers`, `torch`, `datasets`, `scikit-learn`, `nltk`, `scipy`, `pandas`, `pyarrow`, `sentence-transformers`.*
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` includes `datasets`, `transformers`, `torch`, `scikit-learn`, `sentence-transformers`, `pandas`, `pyarrow`, `spacy`.*
 
-4.  **Download NLP models**:
-    ```bash
-    python -m nltk.downloader punkt stopwords averaged_perceptron_tagger
-    ```
+4. **Download language models** (optional, for offline use):
+   ```bash
+   python -m spacy download en_core_web_sm
+   # Llama-3-1B and MiniLM will be downloaded automatically on first run
+   ```
 
-## Execution
+## Running the Pipeline
 
-The pipeline is designed to run end-to-end.
+The pipeline is orchestrated by `code/main_pipeline.py`.
 
-### Step 1: Data Download
+### Full Run (CPU + GPU Offload)
+
+```bash
+python code/main_pipeline.py
+```
+
+- **Step 1**: Downloads and filters GSM8K.
+- **Step 2**: Computes DelTA coefficients (auto-offloads to Kaggle GPU if CPU fails).
+- **Step 3**: Extracts static features.
+- **Step 4**: Trains the Static MLP model.
+- **Step 5**: Trains the Upper Bound Oracle model (Control).
+- **Step 6**: Evaluates and saves metrics (including CI, Kendall's Tau, and classification).
+
+### Individual Steps
+
+**Download Data**:
 ```bash
 python code/data/download_gsm8k.py
 ```
-*   Downloads GSM8K, filters for verified solutions, and saves to `data/raw/gsm8k_verified.parquet`.
-*   **Check**: Verify `data/raw/gsm8k_verified.parquet` exists and has > 500 rows.
 
-### Step 2: Oracle Generation (Ground Truth)
+**Generate Oracle**:
 ```bash
-python code/models/generate_oracle.py
+python code/oracle/generate_oracle.py
 ```
-*   Loads Llama-3-8B. If this fails (OOM/Timeout), it automatically switches to Llama-3-1B.
-*   Computes DelTA coefficients.
-*   **Note**: This step is computationally intensive. If running on a CPU-only CI runner, it may take up to 6 hours. If it fails due to OOM, the system will auto-offload to a GPU.
-*   **Check**: Verify `data/processed/delta_coefficients.json` exists and variance > 1e-9.
 
-### Step 3: Feature Extraction
+**Generate Upper Bound**:
 ```bash
-python code/data/extract_features.py
+python code/oracle/generate_upper_bound.py
 ```
-*   Extracts n-grams, POS, and semantic similarity using **sentence-transformers/all-MiniLM-L6-v2**.
-*   **Check**: Verify `data/processed/static_features.parquet` exists.
 
-### Step 4: Model Training
+**Extract Features**:
+```bash
+python code/features/extract_features.py
+```
+
+**Train Model**:
 ```bash
 python code/models/train.py
 ```
-*   Trains the 2-layer MLP on CPU.
-*   **Check**: Verify `data/processed/mlp_model.pt` exists.
 
-### Step 5: Evaluation
+**Evaluate**:
 ```bash
 python code/eval/metrics.py
 ```
-*   Computes Spearman correlation, cluster-robust permutation test, and feature importance.
-*   **Check**: Verify `data/processed/metrics_report.json` and `data/processed/predictions.json`.
 
-## Testing
+## Expected Outputs
 
-Run the test suite:
-```bash
-pytest tests/
-```
+- `data/raw/gsm8k_verified.parquet`: Cleaned dataset.
+- `data/processed/delta_coefficients.json`: Oracle ground truth (Flat format).
+- `data/processed/upper_bound_predictions.json`: Upper Bound model predictions.
+- `data/processed/static_features.parquet`: Feature vectors.
+- `data/processed/mlp_model_static.pt`: Trained Static Model.
+- `data/processed/mlp_model_upper.pt`: Trained Upper Bound Model.
+- `data/processed/metrics.json`: Final results (includes classification, CI, and causal disclaimer).
 
 ## Troubleshooting
 
-*   **OOM Error in Oracle Step**: If the script crashes with "CUDA out of memory" or "CPU out of memory", the execution stage will retry on a Kaggle GPU. If 8B fails, it will automatically switch to 1B.
-*   **Variance Check Failed**: If `generate_oracle.py` exits with "Variance <= 1e-9", the DelTA algorithm failed to find a signal. Check the model loading and input data.
-*   **Missing Dependencies**: Ensure `requirements.txt` is up to date and installed in the virtual environment.
+- **CUDA Out of Memory**: The pipeline will automatically retry on Kaggle GPU. Ensure `KAGGLE_USERNAME` and `KAGGLE_KEY` are set if running locally on Kaggle.
+- **Variance Check Failed**: If `ERR_TRIVIAL_TARGET` is raised, the dataset subset may be too homogeneous. Try increasing the subset size or checking the filtering logic.
+- **MiniLM Download Failed**: Ensure internet access or pre-download the model to `~/.cache/huggingface`.
+- **Classification Logic**: If the result is "Emergent", it means the signal is not recoverable from static features but is recoverable from hidden states. If "Poor Proxies", the signal is not recoverable from either.

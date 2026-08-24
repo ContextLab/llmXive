@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Static Feature Output Schema (Metadata + Array)"
+description: "Schema for the static feature vectors extracted for training (with metadata)."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      feature_extractor_version:
+        type: "string"
+        description: "Version of the feature extraction script."
+      embedding_model:
+        type: "string"
+        description: "Name of the embedding model (e.g., 'all-MiniLM-L6-v2')."
+      ngram_range:
+        type: "array"
+        description: "Range of n-grams used (e.g., [1, 3])."
+  features:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        example_id:
+          type: "integer"
+          description: "Unique identifier for the example."
+        token_index:
+          type: "integer"
+          description: "Position of the token."
+        ngram_features:
+          type: "array"
+          items:
+            type: "number"
+          description: "Flattened n-gram statistics."
+        pos_features:
+          type: "array"
+          items:
+            type: "integer"
+          description: "Encoded POS tags."
+        semantic_similarity:
+          type: "number"
+          description: "Cosine similarity to reference patterns."
+        feature_vector:
+          type: "array"
+          items:
+            type: "number"
+          description: "Concatenated feature vector for model input."
+        delta_coefficient:
+          type: "number"
+          description: "Target variable from Oracle."
+      required:
+        - example_id
+        - token_index
+        - feature_vector
+        - delta_coefficient
+required:
+  - metadata
+  - features

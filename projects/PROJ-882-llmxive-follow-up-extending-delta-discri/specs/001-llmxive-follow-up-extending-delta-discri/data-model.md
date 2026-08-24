@@ -1,78 +1,96 @@
-# Data Model: llmXive follow-up: extending "DelTA"
+# Data Model: llmXive follow-up: extending "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning"
 
 ## Overview
 
-This document defines the data schemas for the project's artifacts. All data is stored in `data/` and validated against the contracts in `contracts/`.
+This document defines the data structures, schemas, and relationships for the DelTA static approximation pipeline. All data is stored in Parquet (tabular) or JSON (nested/variable length) formats.
 
 ## Entity Definitions
 
-### 1. Raw Dataset (GSM8K Verified)
-*   **Source**: HuggingFace `openai/gsm8k` (filtered).
-*   **Format**: Parquet.
-*   **Location**: `data/raw/gsm8k_verified.parquet`
-*   **Schema**:
-    *   `id`: string (unique identifier)
-    *   `question`: string (the math problem)
-    *   `answer`: string (the solution trace)
-    *   `solution_length`: integer (number of tokens in solution)
-    *   `verified`: boolean (must be True)
+### 1. GSM8K Raw Record
+The base unit of data from the GSM8K dataset.
+- **Source**: `openai/gsm8k` (train split)
+- **Format**: Parquet
+- **Fields**:
+  - `question`: String. The math problem.
+  - `answer`: String. The ground truth solution.
+  - `example_id`: Integer. Unique identifier (derived from index).
+  - `solution_length`: Integer. Number of tokens in the solution (computed).
 
-### 2. Oracle Output (DelTA Coefficients)
-*   **Source**: `generate_oracle.py` (DelTA backprop on Llama-3 model).
-*   **Format**: JSON.
-*   **Location**: `data/processed/delta_coefficients.json`
-*   **Structure**: List of objects, one per example.
-    *   `example_id`: string
-    *   `model_used`: string (e.g., "Llama-3-8B" or "Llama-3-1B")
-    *   `tokens`: List of objects
-        *   `token_id`: integer
-        *   `token_text`: string
-        *   `delta_coefficient`: float (the ground truth value)
+### 2. Oracle DelTA Coefficient (Flat)
+The ground-truth discriminative weight for each token position.
+- **Source**: `generate_oracle.py` (Llama-3-1B backprop)
+- **Format**: JSON (Flat list of objects)
+- **Schema**: `contracts/delta_oracle.schema.yaml`
+- **Fields**:
+  - `example_id`: Integer. Links to GSM8K record.
+  - `token_index`: Integer. Position of the token in the prompt.
+  - `token_text`: String. The token string.
+  - `delta_coefficient`: Float. The computed DelTA weight.
+  - `computation_status`: String. "success" or "failed" (if gradient computation failed).
 
-### 3. Static Features
-*   **Source**: `extract_features.py`.
-*   **Format**: Parquet.
-*   **Location**: `data/processed/static_features.parquet`
-*   **Schema**:
-    *   `example_id`: string
-    *   `token_id`: integer
-    *   `ngram_1_count`: float (normalized count of 1-grams in window)
-    *   `ngram_2_count`: float (normalized count of 2-grams in window)
-    *   `ngram_3_count`: float (normalized count of 3-grams in window)
-    *   `pos_tag`: string (one-hot encoded in vector)
-    *   `semantic_similarity`: float (cosine similarity to reference set using MiniLM)
-    *   `feature_vector`: List[float] (dense vector for model input)
+### 3. Upper Bound Predictions
+Predictions from the control model using hidden states.
+- **Source**: `generate_upper_bound.py`
+- **Format**: JSON
+- **Fields**:
+  - `example_id`: Integer.
+  - `token_index`: Integer.
+  - `predicted_coefficient`: Float.
+  - `true_coefficient`: Float.
 
-### 4. Model Predictions
-*   **Source**: `predict.py`.
-*   **Format**: JSON.
-*   **Location**: `data/processed/predictions.json`
-*   **Structure**:
-    *   `example_id`: string
-    *   `predictions`: List of objects
-        *   `token_id`: integer
-        *   `predicted_delta`: float
-        *   `true_delta`: float (for evaluation)
+### 4. Static Feature Vector
+The input features for the regression model.
+- **Source**: `extract_features.py` (MiniLM, spaCy)
+- **Format**: Parquet
+- **Fields**:
+  - `example_id`: Integer.
+  - `token_index`: Integer.
+  - `ngram_features`: Array[Float]. Flattened n-gram statistics.
+  - `pos_features`: Array[Int]. Encoded POS tags.
+  - `semantic_similarity`: Float. Cosine similarity to reference patterns.
+  - `feature_vector`: Array[Float]. Concatenation of all features (used for training).
+  - `delta_coefficient`: Float. Target variable (from Oracle).
 
-### 5. Metrics Report
-*   **Source**: `eval/metrics.py`.
-*   **Format**: JSON.
-*   **Location**: `data/processed/metrics_report.json`
-*   **Schema**:
-    *   `spearman_correlation`: float
-    *   `p_value`: float
-    *   `feature_importance`: Dict (feature_name -> score)
-    *   `result_classification`: string ("signal_predictable" | "signal_emergent" | "poor_proxies")
+### 5. Model Prediction (Static)
+Output of the trained Static MLP.
+- **Source**: `predict.py`
+- **Format**: JSON
+- **Fields**:
+  - `example_id`: Integer.
+  - `token_index`: Integer.
+  - `predicted_coefficient`: Float.
+  - `true_coefficient`: Float.
+  - `error`: Float. Absolute difference.
+
+### 6. Evaluation Metrics
+Final results of the pipeline.
+- **Source**: `metrics.py`
+- **Format**: JSON
+- **Fields**:
+  - `spearman_correlation`: Float.
+  - `kendall_tau`: Float.
+  - `spearman_ci_lower`: Float.
+  - `spearman_ci_upper`: Float.
+  - `p_value`: Float.
+  - `upper_bound_spearman`: Float.
+  - `upper_bound_ci_lower`: Float.
+  - `upper_bound_ci_upper`: Float.
+  - `classification`: String. "emergent", "poor_proxies", or "significant".
+  - `causal_disclaimer`: String. "Findings are associational only."
 
 ## Data Flow
 
-1.  `gsm8k_verified.parquet` -> `generate_oracle.py` -> `delta_coefficients.json`
-2.  `gsm8k_verified.parquet` -> `extract_features.py` -> `static_features.parquet`
-3.  `static_features.parquet` + `mlp_model.pt` -> `predict.py` -> `predictions.json`
-4.  `predictions.json` -> `metrics.py` -> `metrics_report.json`
+1. **Download**: `GSM8K Raw Record` -> `data/raw/gsm8k_verified.parquet`
+2. **Oracle**: `GSM8K Raw Record` -> `data/processed/delta_coefficients.json` (Flat, `delta_oracle.schema.yaml`)
+3. **Upper Bound**: `GSM8K Raw Record` + `hidden_states` -> `data/processed/upper_bound_predictions.json`
+4. **Features**: `GSM8K Raw Record` + `delta_coefficients.json` -> `data/processed/static_features.parquet`
+5. **Train**: `static_features.parquet` -> `data/processed/mlp_model_static.pt`
+6. **Predict**: `static_features.parquet` + `mlp_model_static.pt` -> `data/processed/predictions.json`
+7. **Eval**: `predictions.json` + `upper_bound_predictions.json` -> `data/processed/metrics.json`
 
-## Constraints
+## Constraints & Validation
 
-*   **No NaNs**: All float fields must be valid numbers.
-*   **Variance Check**: The `delta_coefficient` column must have variance > 1e-9 (Runtime check, not schema constraint).
-*   **Completeness**: Every token in the input must have a corresponding coefficient and feature vector.
+- **Variance Check**: Oracle coefficients must have variance > 1e-9.
+- **Completeness**: Every token in the prompt must have a corresponding feature vector and coefficient.
+- **No Leakage**: `feature_vector` (Static Model) must not contain any data from the Llama-3-1B hidden states.
+- **Permutation Unit**: Permutation tests must shuffle at the **example** level, not token level.
