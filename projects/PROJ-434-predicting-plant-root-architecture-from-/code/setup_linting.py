@@ -1,6 +1,6 @@
 """
-Script to initialize linting and formatting configuration for the project.
-This script creates the necessary configuration files for Ruff, Flake8, and Black.
+Script to initialize linting and formatting configuration files.
+This script creates the necessary configuration files for Ruff and Black.
 """
 import os
 from pathlib import Path
@@ -13,10 +13,10 @@ def create_file(path: Path, content: str) -> None:
     print(f"Created: {path}")
 
 def main() -> None:
-    """Main entry point for setting up linting and formatting tools."""
+    """Main entry point to create linting configuration files."""
     project_root = Path(__file__).parent
 
-    # Ruff configuration
+    # Create .ruff.toml
     ruff_config = """[lint]
 select = [
     "E",  # pycodestyle errors
@@ -33,7 +33,7 @@ ignore = [
 ]
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
+"tests/*" = ["S101"]  # Allow assertions in tests
 
 [format]
 line-length = 88
@@ -42,24 +42,7 @@ quote-style = "double"
 """
     create_file(project_root / ".ruff.toml", ruff_config)
 
-    # Flake8 configuration
-    flake8_config = """[flake8]
-max-line-length = 88
-extend-ignore = E203, E501, W503
-exclude =
-    .git,
-    __pycache__,
-    .venv,
-    venv,
-    build,
-    dist,
-    .eggs,
-    *.egg-info
-max-complexity = 10
-"""
-    create_file(project_root / ".flake8", flake8_config)
-
-    # Pyproject.toml with Black and Ruff settings
+    # Create pyproject.toml with Black and Ruff settings
     pyproject_config = """[build-system]
 requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -68,8 +51,7 @@ build-backend = "setuptools.build_meta"
 name = "predict-root-architecture"
 version = "0.1.0"
 description = "Predicting Plant Root Architecture from Soil Nutrient Profiles"
-readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "scikit-learn",
     "pandas",
@@ -86,7 +68,7 @@ dependencies = [
 
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py39', 'py310', 'py311']
 include = '\\.pyi?$'
 exclude = '''
 /(
@@ -104,66 +86,24 @@ exclude = '''
 
 [tool.ruff]
 line-length = 88
-target-version = "py38"
+target-version = "py39"
+src = ["code", "tests"]
 
 [tool.ruff.lint]
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
-]
-ignore = [
-    "E501",
-    "B008",
-    "C901",
-]
+select = ["E", "F", "W", "I", "B"]
+ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
 """
     create_file(project_root / "pyproject.toml", pyproject_config)
 
-    # Create a Makefile for convenience commands
-    makefile_content = """# Linting and Formatting Makefile
-
-.PHONY: lint format check-lint check-format fix
-
-# Run Ruff linter
-lint:
-	ruff check code/
-
-# Run Black formatter
-format:
-	black code/
-
-# Check linting without fixing
-check-lint:
-	ruff check code/ --diff
-
-# Check formatting without fixing
-check-format:
-	black --check code/
-
-# Fix linting issues (where possible)
-fix-lint:
-	ruff check code/ --fix
-
-# Format and fix linting issues
-fix: format fix-lint
-
-# Run all checks
-check: check-lint check-format
-"""
-    create_file(project_root / "Makefile", makefile_content)
-
-    print("\nLinting and formatting configuration completed successfully!")
-    print("Run 'make lint' to check code style.")
-    print("Run 'make format' to auto-format code.")
+    print("\nLinting and formatting configuration created successfully.")
+    print("To format code: black code/ tests/")
+    print("To lint code: ruff check code/ tests/")
 
 if __name__ == "__main__":
     main()

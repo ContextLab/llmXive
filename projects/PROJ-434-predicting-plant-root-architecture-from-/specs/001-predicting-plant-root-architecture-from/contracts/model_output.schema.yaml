@@ -1,126 +1,142 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Output Schema
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
 description: >
-  Schema for the primary model metrics output artifact (artifacts/model_metrics.json).
-  This schema defines the structure of the results produced by the Leave-One-Species-Out
-  (LOSO) and Stratified k-Fold cross-validation pipelines as specified in User Story 2.
+  Schema for the primary model metrics and cross-validation results
+  produced by the predictive modeling pipeline (User Story 2).
+  This contract ensures that all model evaluation artifacts conform to
+  the expected structure for downstream analysis and reporting.
 type: object
 required:
+  - model_a_r2
+  - model_a_rmse
+  - model_b_r2
+  - model_b_rmse
   - mean_r2
   - mean_rmse
   - loso_r2_sd
   - per_target_metrics
 properties:
+  model_a_r2:
+    type: number
+    description: "Leave-One-Species-Out (LOSO) R² score for Model A (Soil-Only predictors: N, P, K, pH)."
+    minimum: -100.0
+    maximum: 1.0
+  model_a_rmse:
+    type: number
+    description: "LOSO Root Mean Squared Error for Model A (averaged across Depth and Branching targets)."
+    minimum: 0.0
+  model_b_r2:
+    type: number
+    description: "LOSO R² score for Model B (Soil + Species predictors: N, P, K, pH, Species)."
+    minimum: -100.0
+    maximum: 1.0
+  model_b_rmse:
+    type: number
+    description: "LOSO RMSE for Model B (averaged across Depth and Branching targets)."
+    minimum: 0.0
   mean_r2:
     type: number
-    description: >
-      The mean R² score across all cross-validation folds for the primary target variable.
-      Calculated as the average of R² scores from the held-out test sets.
+    description: "Arithmetic mean of model_a_r2 and model_b_r2."
   mean_rmse:
     type: number
-    description: >
-      The mean Root Mean Squared Error (RMSE) across all cross-validation folds
-      for the primary target variable.
+    description: "Arithmetic mean of model_a_rmse and model_b_rmse."
   loso_r2_sd:
     type: number
-    description: >
-      The standard deviation of the R² scores across the Leave-One-Species-Out folds.
-      Used to assess the stability of the model performance across different species.
+    description: "Standard deviation of the per-fold R² scores across the LOSO cross-validation."
+    minimum: 0.0
   per_target_metrics:
     type: object
-    description: >
-      Detailed metrics broken down by specific target variables (e.g., root depth, root mass).
-      Allows for multi-target evaluation if the model predicts multiple root architecture traits.
-    additionalProperties:
-      type: object
-      required:
-        - loso_mean_r2
-        - loso_mean_rmse
-        - stratified_cv_mean_r2
-        - stratified_cv_mean_rmse
-        - baseline_r2
-        - delta_r2
-      properties:
-        loso_mean_r2:
-          type: number
-          description: Mean R² from Leave-One-Species-Out CV for this target.
-        loso_mean_rmse:
-          type: number
-          description: Mean RMSE from Leave-One-Species-Out CV for this target.
-        stratified_cv_mean_r2:
-          type: number
-          description: Mean R² from Stratified 5-Fold CV for this target.
-        stratified_cv_mean_rmse:
-          type: number
-          description: Mean RMSE from Stratified 5-Fold CV for this target.
-        baseline_r2:
-          type: number
-          description: >
-            R² score of the mean-prediction null model for this target.
-            Used as a baseline for comparison.
-        delta_r2:
-          type: number
-          description: >
-            The difference between the model's R² and the baseline R² (observed_r2 - baseline_r2).
-            Used to validate SC-002 compliance.
-  model_info:
-    type: object
-    description: Metadata about the model configuration and training run.
+    description: "Breakdown of metrics for each specific target variable."
     required:
-      - model_type
-      - hyperparameters
-      - validation_strategy
-      - random_seed
+      - depth
+      - branching
     properties:
-      model_type:
-        type: string
-        enum:
-          - RandomForestRegressor
-          - GradientBoostingRegressor
-          - LinearRegression
-        description: The type of machine learning model used.
-      hyperparameters:
+      depth:
         type: object
-        description: The specific hyperparameters used for the model.
-      validation_strategy:
-        type: string
-        enum:
-          - LOSO
-          - StratifiedKFold
-        description: The primary validation strategy employed.
-      random_seed:
-        type: integer
-        description: The random seed used for reproducibility.
-  timestamps:
+        required:
+          - model_a_r2
+          - model_a_rmse
+          - model_b_r2
+          - model_b_rmse
+        properties:
+          model_a_r2:
+            type: number
+          model_a_rmse:
+            type: number
+          model_b_r2:
+            type: number
+          model_b_rmse:
+            type: number
+      branching:
+        type: object
+        required:
+          - model_a_r2
+          - model_a_rmse
+          - model_b_r2
+          - model_b_rmse
+        properties:
+          model_a_r2:
+            type: number
+          model_a_rmse:
+            type: number
+          model_b_r2:
+            type: number
+          model_b_rmse:
+            type: number
+  baseline_comparison:
     type: object
-    description: Timestamps for the generation of this artifact.
+    description: "Metrics comparing model performance against a mean-prediction baseline."
     required:
-      - generated_at
+      - mean_baseline_r2
+      - delta_r2_model_a
+      - delta_r2_model_b
     properties:
-      generated_at:
+      mean_baseline_r2:
+        type: number
+        description: "R² score of the null model (predicting the mean of training targets)."
+      delta_r2_model_a:
+        type: number
+        description: "Difference: model_a_r2 - mean_baseline_r2."
+      delta_r2_model_b:
+        type: number
+        description: "Difference: model_b_r2 - mean_baseline_r2."
+  sc002_compliance:
+    type: object
+    description: "Status of compliance with Specification Constraint SC-002 (Significance of Soil Features)."
+    required:
+      - pass
+      - reason
+      - p_value
+    properties:
+      pass:
+        type: boolean
+        description: "True if delta_r2 >= 0.05 AND p_value < 0.05."
+      reason:
+        type: string
+        description: "Human-readable explanation of the compliance status."
+      p_value:
+        type: number
+        description: "P-value derived from the permutation test distribution."
+        minimum: 0.0
+        maximum: 1.0
+  metadata:
+    type: object
+    description: "Run metadata for reproducibility."
+    properties:
+      timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of when this file was generated.
-
-examples:
-  - mean_r2: 0.45
-    mean_rmse: 12.3
-    loso_r2_sd: 0.08
-    per_target_metrics:
-      root_depth:
-        loso_mean_r2: 0.45
-        loso_mean_rmse: 12.3
-        stratified_cv_mean_r2: 0.52
-        stratified_cv_mean_rmse: 10.1
-        baseline_r2: 0.02
-        delta_r2: 0.43
-    model_info:
-      model_type: RandomForestRegressor
-      hyperparameters:
-        n_estimators: 100
-        max_depth: 10
-        min_samples_split: 5
-      validation_strategy: LOSO
-      random_seed: 42
-    timestamps:
-      generated_at: "2023-10-27T10:00:00Z"
+      random_seed:
+        type: integer
+      software_versions:
+        type: object
+        properties:
+          python:
+            type: string
+          scikit_learn:
+            type: string
+          pandas:
+            type: string
+          numpy:
+            type: string
+additionalProperties: false

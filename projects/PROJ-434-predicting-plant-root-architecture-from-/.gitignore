@@ -33,52 +33,35 @@ env/
 *.swo
 *~
 
-# Environment variables
+# Environment Variables (Keep .env.example, ignore .env)
 .env
-.env.local
+!.env.example
 
-# Logs
-data/logs/
-*.log
-
-# Data Artifacts (Raw and Processed)
-data/raw/
-data/processed/
+# Data Artifacts
+data/raw/*.gz
+data/raw/*.zip
+data/processed/*.csv
+data/processed/*.parquet
+data/processed/*.json
+data/logs/*.log
 data/interim/
-data/*.csv
-data/*.parquet
-data/*.json
-data/*.h5
-data/*.nc
-data/*.tif
-data/*.tiff
-data/*.gpkg
-data/*.shp
-data/*.db
-data/*.sqlite
 
 # Model Artifacts
-artifacts/
-models/
-*.pkl
-*.joblib
-*.pth
-*.h5
+artifacts/*.pkl
+artifacts/*.json
+artifacts/*.csv
 
-# Figures (Generated)
-figures/
-*.png
-*.jpg
-*.jpeg
-*.svg
-*.pdf
-
-# OS
-.DS_Store
-Thumbs.db
+# Figures
+figures/*.png
+figures/*.jpg
+figures/*.svg
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
-.mypy_cache/
+coverage.xml
+
+# OS
+.DS_Store
+Thumbs.db

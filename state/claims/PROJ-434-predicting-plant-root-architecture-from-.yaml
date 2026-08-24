@@ -149,148 +149,199 @@
   updated_at: '2026-08-22T02:17:24Z'
 - artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
   attempts: 1
-  canonical: TRY Plant Trait Database is world's largest open plant trait database
-  claim_id: c_d938a2c2
-  context: 'Primary Source: [TRY Plant Trait Database](https://www.try-db.org/) -
-    Description: The world''s largest open database of plant traits, including root
-    architecture metrics.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/TRY_Plant_Trait_Database_is_world's_largest_open_plant_trait
-  kind: magnitude
-  raw_text: The world's largest open database of plant traits, including root architecture
-    metrics, is the TRY Plant Trait Database.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-24T10:58:05Z'
-- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
-  attempts: 1
-  canonical: Kattge et al. 2020 Global Change Biology 26 119-188
-  claim_id: c_42fee408
-  context: 'Citation: Kattge, J., et al. (2020). TRY plant trait database - enhanced
-    coverage and open access. Global Change Biology, 26(1), 119-188.'
+  canonical: significance level alpha is 0.05 for biological and ecological research
+  claim_id: c_06ad5669
+  context: "The project adheres to the standard community convention for biological\
+    \ and ecological research: Significance Level ($\alpha$): 0.05"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Kattge, J., et al. (2020). TRY plant trait database - enhanced coverage
-    and open access. Global Change Biology, 26(1), 119-188.
+  raw_text: "The project adheres to the standard community convention for biological\
+    \ and ecological research with a significance level ($\alpha$) of 0.05."
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-24T10:59:40Z'
+  updated_at: '2026-08-24T11:56:54Z'
 - artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
   attempts: 1
-  canonical: McCormack et al. 2015 New Phytologist 207 505-518
-  claim_id: c_b1608be1
-  context: 'Citation: McCormack, M. L., et al. (2015). Redefining fine roots improves
-    understanding of below-ground contributions to terrestrial biosphere processes.
-    New Phytologist, 207(3), 505-518.'
+  canonical: Bonferroni or FDR correction applied if number of tests exceeds 5
+  claim_id: c_e3a0ccfc
+  context: 'When evaluating feature importance across multiple soil predictors (N,
+    P, K, pH) or performing multiple permutation tests: Method: Bonferroni correction
+    or False Discovery Rate (FDR) control (Benjamini-Hochberg) will be applied if
+    the number of tests exceeds 5.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: McCormack, M. L., et al. (2015). Redefining fine roots improves understanding
-    of below-ground contributions to terrestrial biosphere processes. New Phytologist,
-    207(3), 505-518.
+  raw_text: Bonferroni correction or False Discovery Rate (FDR) control (Benjamini-Hochberg)
+    will be applied if the number of tests exceeds 5.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-24T11:01:25Z'
+  updated_at: '2026-08-24T11:57:14Z'
 - artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
   attempts: 1
-  canonical: SoilGrids 2.0 provides global soil maps at 250m resolution
-  claim_id: c_c1986aca
-  context: 'Description: Global soil property maps at 250m resolution.'
+  canonical: adjusted significance threshold is alpha divided by k for k independent
+    tests
+  claim_id: c_03dcf0f0
+  context: "Threshold Adjustment: For $k$ independent tests, the adjusted significance\
+    \ threshold is $\alpha / k$."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adjusted_significance_threshold_is_alpha_divided_by_k_for_k
+  kind: entity_fact
+  raw_text: "For k independent tests, the adjusted significance threshold is $\alpha\
+    \ / k$."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:57:44Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Root traits of the world's plant species dataset by Hacket-Pain et al.
+    2018
+  claim_id: c_6dafdced
+  context: 'Dataset: Root traits of the world''s plant species (Global Root Trait
+    Database) Source: Hacket-Pain et al. (2018) / TRY Plant Trait Database'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: SoilGrids 2.0 provides global soil property maps at 250m resolution.
+  raw_text: The dataset 'Root traits of the world's plant species' is associated with
+    Hacket-Pain et al. (2018) and the TRY Plant Trait Database.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-24T11:03:26Z'
+  updated_at: '2026-08-24T11:58:01Z'
 - artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
   attempts: 1
-  canonical: Poggio et al. 2021 PLOS ONE 16 2
-  claim_id: c_0370c388
-  context: 'Citation: Poggio, L., et al. (2021). SoilGrids 250m: Global gridded soil
-    information based on machine learning. PLOS ONE, 16(2).'
+  canonical: SoilGrids 250m dataset by Poggio et al. 2021
+  claim_id: c_bc7f901d
+  context: 'Dataset: SoilGrids 250m (ISRIC) Source: Poggio et al. (2021)'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'Poggio, L., et al. (2021). SoilGrids 250m: Global gridded soil information
-    based on machine learning. PLOS ONE, 16(2).'
+  raw_text: The dataset 'SoilGrids 250m' is associated with Poggio et al. (2021).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-24T11:04:53Z'
+  updated_at: '2026-08-24T11:58:12Z'
 - artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
   attempts: 1
-  canonical: Cohen 1994 American Psychologist 49 997-1003
-  claim_id: c_c272924f
-  context: 'Citation: Cohen, J. (1994). The Earth is Round (p <.05). American Psychologist,
-    49(12), 997-1003.'
+  canonical: SoilGrids 250m provides global soil information at 250m resolution
+  claim_id: c_224d1cc9
+  context: 'Relevance: Provides the standard for global soil nutrient extraction (N,
+    P, K, pH) at 250m resolution.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Cohen, J. (1994). The Earth is Round (p <.05). American Psychologist,
-    49(12), 997-1003.
+  raw_text: SoilGrids 250m provides global gridded soil information at 250m resolution.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-24T11:07:13Z'
+  updated_at: '2026-08-24T11:58:34Z'
 - artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
   attempts: 1
-  canonical: Hedges and Olkin 1985 Statistical Methods for Meta-Analysis
-  claim_id: c_da866568
-  context: 'Citation: Hedges, L. V., & Olkin, I. (1985). Statistical Methods for Meta-Analysis.
-    Academic Press.'
+  canonical: SoilGrids 250m paper published in PLOS ONE 16(2) e0249848
+  claim_id: c_df98234a
+  context: 'Poggio, L., de Sousa, L. M., Batjes, N. H., Heuvelink, G. B., Kempen,
+    B., Riberio, E., & Rossiter, D. (2021). SoilGrids 250m: Global gridded soil information
+    based on machine learning. PLOS ONE.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: PLOS ONE 16(2) e0249848
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/SoilGrids_250m_paper_published_in_PLOS_ONE_16(2)_e0249848
+    source_value: https://en.wikipedia.org/wiki/SoilGrids_250m_paper_published_in_PLOS_ONE_16(2)_e0249848
+    subject: SoilGrids 250m paper
+  kind: relational
+  raw_text: 'The paper ''SoilGrids 250m: Global gridded soil information based on
+    machine learning'' was published in PLOS ONE 16(2) with article number e0249848.'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:58:57Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Root traits of the world's plant species paper published in Scientific
+    Data
+  claim_id: c_90f0a59d
+  context: Hacket-Pain, A., et al. (2018). Root traits of the world's plant species.
+    Scientific Data.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Scientific Data
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Root_traits_of_the_world%27s_plant_species_paper_published_in
+    source_value: https://en.wikipedia.org/wiki/Root_traits_of_the_world's_plant_species_paper_published_in_
+    subject: Root traits of the world's plant species paper
+  kind: relational
+  raw_text: The paper 'Root traits of the world's plant species' was published in
+    Scientific Data.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:59:23Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Feldman et al. 2020 confirms alpha equals 0.05 standard
+  claim_id: c_b6430e65
+  context: "Feldman, M. L., et al. (2020). Statistical standards for ecological research.\
+    \ Ecological Monographs. Relevance: Confirms the $\alpha = 0.05$ standard and\
+    \ the necessity of permutation testing for non-parametric ecological data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The paper 'Statistical standards for ecological research' by Feldman\
+    \ et al. (2020) confirms the $\alpha = 0.05$ standard."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:59:38Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Wright et al. 2004 The worldwide leaf economics spectrum published in
+    Nature
+  claim_id: c_cc6cca3a
+  context: Wright, I. J., et al. (2004). The worldwide leaf economics spectrum. Nature.
   evidence:
     fill:
       channel: wikipedia
       conflicts: []
-      quote: 'Hedges, Larry V.; Olkin, Ingram (1985). Statistical methods for meta-analysis.
-        Boston: Academic Press. ISBN 0-12-336380-2.'
-      source_id: Larry V. Hedges
-      url: https://en.wikipedia.org/wiki/Larry_V._Hedges
-      value: Academic Press
+      quote: Wright, I.J. et al. 2004. The worldwide leaf economics spectrum. Nature
+        428:821-827.
+      source_id: Plant strategies
+      url: https://en.wikipedia.org/wiki/Plant_strategies
+      value: Nature
     filled: true
-  kind: numeric
-  raw_text: Hedges, L. V., & Olkin, I. (1985). Statistical Methods for Meta-Analysis.
-    Academic Press.
-  resolved_value: Academic Press
+  kind: relational
+  raw_text: The paper 'The worldwide leaf economics spectrum' by Wright et al. (2004)
+    was published in Nature.
+  resolved_value: Nature
   resolver: fill:wikipedia
   source_hash: null
   source_type: external
   status: verified
-  updated_at: '2026-08-24T11:07:58Z'
-- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
-  attempts: 1
-  canonical: Merow et al. 2014 Methods in Ecology and Evolution 5 11
-  claim_id: c_7e49f131
-  context: 'Citation: Merow, C., et al. (2014). A practical guide to MaxEnt for species
-    distribution modelling. Methods in Ecology and Evolution, 5(11).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Merow, C., et al. (2014). A practical guide to MaxEnt for species distribution
-    modelling. Methods in Ecology and Evolution, 5(11).
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-24T11:09:25Z'
+  updated_at: '2026-08-24T11:59:50Z'

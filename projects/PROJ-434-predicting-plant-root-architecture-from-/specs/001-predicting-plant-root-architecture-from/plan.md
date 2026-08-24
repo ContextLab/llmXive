@@ -128,7 +128,7 @@ projects/PROJ-434-predicting-plant-root-architecture-from-/
 
 ## Compute Feasibility Strategy
 
-*   **CPU-First**: All modeling (Random Forest) is CPU-tractable. The dataset size (likely < 10k rows) fits easily in 7 GB RAM.
+*   **CPU-First**: All modeling (Random Forest) is CPU-tractable. The dataset size (likely < 10k rows) fits easily in available system memory.
 *   **Data Streaming**: SoilGrids rasters are large. The ingestion step will NOT download global rasters. Instead, it will request tiles for specific coordinates via the API or download only the relevant shards if using a pre-processed HF dataset.
 *   **No GPU Needed**: No deep learning or large language models are involved. No "GPU escape hatch" is required.
 *   **Time Budget**:

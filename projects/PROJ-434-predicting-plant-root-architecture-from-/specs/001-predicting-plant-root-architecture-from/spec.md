@@ -45,7 +45,7 @@ The system must perform a sensitivity analysis on the statistical significance t
 
 **Why this priority**: The methodology panel requires that any decision cutoff be justified and tested for sensitivity to ensure findings are robust and not artifacts of arbitrary thresholds. This is essential rigor to prevent spurious conclusions about nutrient drivers.
 
-**Independent Test**: The analysis script runs a loop over a specific set of p-value thresholds (p ∈ {0.01, 0.05, 0.10}) and outputs a table showing how the 'top-3 feature importance rankings' vary across these values.
+**Independent Test**: The analysis script runs a loop over a specific set of p-value thresholds and outputs a table showing how the 'top-3 feature importance rankings' vary across these values.
 
 **Acceptance Scenarios**:
 
@@ -89,7 +89,7 @@ The system must perform a sensitivity analysis on the statistical significance t
 - **SC-002**: The predictive accuracy (R²) of the Random Forest model for root depth is measured against the null model (mean prediction) baseline, requiring a gain of ΔR² ≥ 0.05 AND statistical significance (p < 0.05 via permutation test). (See US-2)
 - **SC-003**: The stability of the model's performance is measured by the standard deviation of R² across the LOSO folds. (See US-2)
 - **SC-004**: The robustness of the feature importance rankings is measured by the variation in the top-3 features across the swept p-value thresholds {0.01, 0.05, 0.10}. (See US-3)
-- **SC-005**: The computational efficiency is measured by the total execution time of the full analysis pipeline (ingestion + modeling + reporting) against the 6-hour free-tier CI limit. (See Assumptions)
+- **SC-005**: The computational efficiency is measured by the total execution time of the full analysis pipeline (ingestion + modeling + reporting) against a standard free-tier CI limit. (See Assumptions)
 
 ## Assumptions
 
@@ -97,4 +97,4 @@ The system must perform a sensitivity analysis on the statistical significance t
 - **Assumption about data fit**: The SoilGrids dataset contains the specific variables (N, P, K, pH) required for the analysis at the resolution of the root study locations; if a variable is missing, the analysis will proceed with available nutrients and note the gap.
 - **Assumption about compute environment**: The modeling step (Random Forest on sampled data) will complete within 30 minutes on a GitHub Actions free-tier runner (2 vCPU, 4GB RAM) without GPU acceleration. The full pipeline will complete within 6 hours.
 - **Assumption about inference**: The relationship between soil nutrients and root architecture is treated as associational; no causal claims are made without randomization.
-- **Assumption about threshold justification**: A p-value threshold of 0.05 is selected as the primary cutoff for 'significant feature importance' based on typical significance levels in ecological regression, with sensitivity analysis performed around this value. An R² < 0.1 is not automatically a null result if the permutation test indicates statistical significance.
+- **Assumption about threshold justification**: A p-value threshold consistent with typical significance levels in ecological regression is selected as the primary cutoff for 'significant feature importance', with sensitivity analysis performed around this value. An R² < 0.1 is not automatically a null result if the permutation test indicates statistical significance.

@@ -1,188 +1,141 @@
 """
-Environment configuration management setup script.
+Environment configuration management for the root architecture prediction pipeline.
 
-This script initializes the .env file and validates environment variables
-required for the plant root architecture prediction pipeline.
+This module handles:
+1. Loading .env files via python-dotenv
+2. Validating required environment variables
+3. Creating a default .env.example file if missing
+4. Centralized configuration access
 """
 import os
 import sys
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+from dotenv import load_dotenv
 
-# Attempt to import dotenv, provide helpful error if missing
-try:
-    from dotenv import load_dotenv
-except ImportError:
-    print("ERROR: python-dotenv is not installed.")
-    print("Please install it via: pip install python-dotenv")
-    print("It should be listed in code/requirements.txt")
-    sys.exit(1)
+# Ensure utils is in path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from utils.config import load_environment, get_env, Config
+from utils.config import load_environment, get_env, Config, validate_config
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def create_default_env_file(env_path: Path) -> bool:
+ENV_FILE_PATH = Path(__file__).resolve().parent.parent / '.env'
+ENV_EXAMPLE_PATH = Path(__file__).resolve().parent.parent / '.env.example'
+
+# Define required environment variables for this project
+# Currently, no external API keys are strictly required for the core pipeline
+# (SoilGrids data is public, trait data is from local files or public repos).
+# However, we define placeholders for potential future API usage (e.g., Zenodo token).
+REQUIRED_VARS: List[str] = [
+    # "ZENODO_API_TOKEN",  # Optional: for authenticated downloads
+    "RUN_MODE",             # Required: 'production' or 'test'
+    "RANDOM_SEED",          # Required: integer for reproducibility
+]
+
+DEFAULT_ENV_VALUES: Dict[str, str] = {
+    "RUN_MODE": "production",
+    "RANDOM_SEED": "42",
+}
+
+def create_default_env_file() -> bool:
     """
-    Create a default .env file if it doesn't exist.
-    
-    Args:
-        env_path: Path to the .env file
-        
-    Returns:
-        True if file was created, False if it already existed
+    Creates a .env.example file with documentation and default values if it doesn't exist.
+    Returns True if successful, False otherwise.
     """
-    if env_path.exists():
-        logger.info(f".env file already exists at {env_path}")
-        return False
-    
-    default_content = """# Environment Configuration for Plant Root Architecture Prediction Pipeline
-# This file is loaded by setup_env.py and should be committed to version control
-# with default values, but sensitive values should be overridden locally.
-
-# Run Mode: 'production' (default) or 'test'
-# In production mode, data loaders will fail if real data fetch fails.
-# In test mode, synthetic fallbacks may be used for pipeline structure testing.
-RUN_MODE=production
-
-# Random seed for reproducibility
-RANDOM_SEED=42
-
-# SoilGrids API (if using direct API access instead of local files)
-# SOILGRIDS_API_KEY=your_api_key_here
-
-# Logging level
-LOG_LEVEL=INFO
-
-# Data paths (relative to project root)
-DATA_RAW_DIR=data/raw
-DATA_PROCESSED_DIR=data/processed
-DATA_LOGS_DIR=data/logs
-FIGURES_DIR=figures
-ARTIFACTS_DIR=artifacts
-
-# Model configuration
-MODEL_TYPE=random_forest
-N_ESTIMATORS=100
-MAX_DEPTH=None
-
-# Validation parameters
-LOSO_ENABLED=True
-STRATIFIED_K_FOLD_ENABLED=True
-K_FOLD_K=5
-
-# Permutation test parameters
-N_PERMUTATIONS=100
-PERMUTATION_SEED=42
-
-# Data quality thresholds
-MIN_MATCH_PROPORTION=0.90
-MIN_OBSERVATIONS_PER_SPECIES=10
-
-# Feature importance significance threshold
-SIGNIFICANCE_THRESHOLD=0.05
-"""
-    
     try:
-        env_path.write_text(default_content)
-        logger.info(f"Created default .env file at {env_path}")
+        if ENV_EXAMPLE_PATH.exists():
+            logger.info(f"Example env file already exists at {ENV_EXAMPLE_PATH}")
+            return True
+
+        content = [
+            "# Environment Configuration for Root Architecture Prediction Pipeline",
+            "# Copy this file to .env and fill in your values.",
+            "",
+            "# Execution Mode",
+            "# Options: 'production' (strict real-data enforcement), 'test' (allows synthetic fallbacks)",
+            "RUN_MODE=production",
+            "",
+            "# Random Seed for Reproducibility",
+            "RANDOM_SEED=42",
+            "",
+            "# Optional: Zenodo API Token for authenticated downloads",
+            "# ZENODO_API_TOKEN=your_token_here",
+            ""
+        ]
+
+        with open(ENV_EXAMPLE_PATH, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(content))
+
+        logger.info(f"Created example env file at {ENV_EXAMPLE_PATH}")
         return True
-    except IOError as e:
-        logger.error(f"Failed to create .env file: {e}")
+
+    except Exception as e:
+        logger.error(f"Failed to create example env file: {e}")
         return False
 
-def validate_required_env_vars(required_vars: Dict[str, Any]) -> bool:
+def validate_required_env_vars() -> Tuple[bool, List[str]]:
     """
-    Validate that required environment variables are set.
-    
-    Args:
-        required_vars: Dictionary of required variable names and their types
-        
-    Returns:
-        True if all required variables are valid, False otherwise
+    Validates that all required environment variables are set.
+    Returns (is_valid, list_of_missing_vars).
     """
-    all_valid = True
-    for var_name, var_type in required_vars.items():
-        value = os.getenv(var_name)
-        if value is None:
-            logger.warning(f"Environment variable '{var_name}' is not set")
-            all_valid = False
-            continue
-        
-        # Type validation
-        if var_type == bool:
-            if value.lower() not in ('true', 'false', '1', '0', 'yes', 'no'):
-                logger.error(f"Environment variable '{var_name}' has invalid boolean value: {value}")
-                all_valid = False
-        elif var_type == int:
-            try:
-                int(value)
-            except ValueError:
-                logger.error(f"Environment variable '{var_name}' has invalid integer value: {value}")
-                all_valid = False
-        elif var_type == float:
-            try:
-                float(value)
-            except ValueError:
-                logger.error(f"Environment variable '{var_name}' has invalid float value: {value}")
-                all_valid = False
-        
-        logger.info(f"Validated '{var_name}': {value}")
+    missing = []
+    for var in REQUIRED_VARS:
+        if var not in os.environ or not os.environ[var]:
+            missing.append(var)
     
-    return all_valid
+    if missing:
+        logger.error(f"Missing required environment variables: {missing}")
+        return False, missing
+    
+    logger.info("All required environment variables are present.")
+    return True, []
 
-def main():
-    """Main entry point for environment setup."""
-    project_root = Path(__file__).resolve().parent.parent
-    env_path = project_root / '.env'
+def main() -> int:
+    """
+    Main entry point for environment setup and validation.
+    Loads the .env file, validates required variables, and creates .env.example if missing.
     
+    Returns:
+        0: Success
+        1: Validation failure
+    """
     logger.info("Starting environment configuration setup...")
-    
-    # Load existing environment variables
-    if env_path.exists():
-        load_dotenv(env_path)
-        logger.info(f"Loaded existing .env file from {env_path}")
+
+    # 1. Ensure .env.example exists
+    create_default_env_file()
+
+    # 2. Load .env file if it exists
+    if ENV_FILE_PATH.exists():
+        logger.info(f"Loading environment from {ENV_FILE_PATH}")
+        load_dotenv(ENV_FILE_PATH)
     else:
-        logger.info("No .env file found, creating default...")
-        create_default_env_file(env_path)
-        load_dotenv(env_path)
-    
-    # Validate critical environment variables
-    required_vars = {
-        'RUN_MODE': str,
-        'RANDOM_SEED': int,
-        'LOG_LEVEL': str,
-        'DATA_RAW_DIR': str,
-        'DATA_PROCESSED_DIR': str,
-        'DATA_LOGS_DIR': str,
-        'FIGURES_DIR': str,
-        'ARTIFACTS_DIR': str,
-        'MIN_MATCH_PROPORTION': float,
-        'MIN_OBSERVATIONS_PER_SPECIES': int,
-        'SIGNIFICANCE_THRESHOLD': float,
-    }
-    
-    is_valid = validate_required_env_vars(required_vars)
-    
+        logger.warning(f"No .env file found at {ENV_FILE_PATH}. Using system environment variables.")
+
+    # 3. Validate required variables
+    is_valid, missing = validate_required_env_vars()
     if not is_valid:
-        logger.error("Environment validation failed. Please check the .env file.")
-        sys.exit(1)
-    
-    # Load and display configuration
-    config = load_environment()
-    logger.info("Environment configuration loaded successfully:")
-    logger.info(f"  RUN_MODE: {config.get('RUN_MODE')}")
-    logger.info(f"  RANDOM_SEED: {config.get('RANDOM_SEED')}")
-    logger.info(f"  LOG_LEVEL: {config.get('LOG_LEVEL')}")
-    logger.info(f"  Data directories configured: {len([k for k in config.keys() if 'DIR' in k])}")
-    
-    logger.info("Environment setup complete.")
+        logger.error("Environment validation failed. Please set the missing variables.")
+        return 1
+
+    # 4. Initialize Config object (optional, for downstream usage)
+    try:
+        config = load_environment()
+        logger.info(f"Configuration loaded successfully. RUN_MODE: {config.run_mode}, RANDOM_SEED: {config.random_seed}")
+    except Exception as e:
+        logger.error(f"Failed to load configuration: {e}")
+        return 1
+
+    logger.info("Environment configuration setup completed successfully.")
     return 0
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

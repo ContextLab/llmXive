@@ -14,9 +14,8 @@ ignore = [
 ]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[lint.isort]
-known-first-party = ["utils", "ingestion", "modeling"]
-force-sort-within-sections = true
+[lint.per-file-ignores]
+"tests/*" = ["S101"]  # Allow assertions in tests
 
 [format]
 quote-style = "double"

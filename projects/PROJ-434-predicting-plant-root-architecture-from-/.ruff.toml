@@ -1,20 +1,20 @@
-# Standalone ruff config for CLI usage if pyproject.toml is not picked up
-target-version = "py39"
+# Ruff Configuration
 line-length = 88
-select = ["E", "W", "F", "I", "C", "B"]
-ignore = ["E501", "B008", "C901"]
-exclude = [
-    ".git",
-    ".venv",
-    "__pycache__",
-    "build",
-    "dist",
-    "data",
-    "figures",
-    "artifacts",
+target-version = "py310"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
 ]
 
-[isort]
-known-first-party = ["ingestion", "modeling", "utils"]
-force-sort-within-sections = true
-lines-after-imports = 2
+[lint.isort]
+known-first-party = ["utils", "ingestion", "modeling"]

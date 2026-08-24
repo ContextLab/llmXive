@@ -1,57 +1,11 @@
-[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "plant-root-architecture"
-version = "0.1.0"
-description = "Predicting Plant Root Architecture from Soil Nutrient Profiles"
-readme = "README.md"
-requires-python = ">=3.8"
-license = {text = "MIT"}
-authors = [
-    {name = "llmXive Research Team"}
-]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-]
-dependencies = [
-    "scikit-learn>=1.0.0",
-    "pandas>=1.3.0",
-    "numpy>=1.21.0",
-    "rasterio>=1.2.0",
-    "geopandas>=0.10.0",
-    "requests>=2.26.0",
-    "pyyaml>=6.0",
-    "pytest>=7.0.0",
-    "python-dotenv>=0.19.0",
-    "matplotlib>=3.4.0",
-    "seaborn>=0.11.0",
-    "xarray>=0.20.0",
-    "dask>=2021.0.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "black>=22.0.0",
-    "ruff>=0.0.200",
-    "mypy>=0.950",
-    "pre-commit>=2.17.0",
-]
-
 [tool.black]
 line-length = 88
-target-version = ['py38', 'py39', 'py310']
+target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -63,36 +17,7 @@ exclude = '''
 )/
 '''
 
-[tool.ruff]
-line-length = 88
-target-version = "py38"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.mypy]
-python_version = "3.8"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
-disallow_untyped_defs = true

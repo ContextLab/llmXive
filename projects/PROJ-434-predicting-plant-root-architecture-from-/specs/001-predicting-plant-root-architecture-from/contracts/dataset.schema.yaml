@@ -1,278 +1,129 @@
-%YAML 1.2
----
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Merged Root Trait and Soil Nutrient Dataset Schema"
 description: >
   Schema for the unified dataset produced by User Story 1 (Data Ingestion and Geospatial Alignment).
-  This file defines the expected structure, data types, and validation rules for the merged dataset
-  used in downstream modeling tasks (US2, US3).
-
+  This dataset pairs root trait measurements with extracted soil nutrient profiles (N, P, K, pH)
+  at the same geospatial coordinates.
 type: object
 required:
-  - properties
-  - required_fields
-  - validation_rules
-
+  - $schema
+  - metadata
+  - data
 properties:
-  version:
+  $schema:
     type: string
-    description: "Schema version identifier (e.g., '1.0.0')"
-    enum:
-      - "1.0.0"
-
-  dataset_name:
-    type: string
-    description: "Human-readable name for this dataset version"
-    const: "merged_root_trait_soil_nutrients"
-
-  properties:
-    type: object
-    description: "Definition of each column in the dataset"
-    properties:
-      record_id:
-        type: string
-        description: "Unique identifier for the observation"
-        format: uuid
-        nullable: false
-      
-      species_name:
-        type: string
-        description: "Scientific name of the plant species"
-        nullable: false
-        min_length: 1
-      
-      latitude:
-        type: number
-        description: "Latitude in WGS84 (EPSG:4326)"
-        minimum: -90
-        maximum: 90
-        nullable: false
-      
-      longitude:
-        type: number
-        description: "Longitude in WGS84 (EPSG:4326)"
-        minimum: -180
-        maximum: 180
-        nullable: false
-      
-      root_depth_cm:
-        type: number
-        description: "Maximum root depth in centimeters"
-        minimum: 0.0
-        nullable: true
-        unit: "cm"
-      
-      root_mass_g:
-        type: number
-        description: "Root biomass in grams"
-        minimum: 0.0
-        nullable: true
-        unit: "g"
-      
-      root_length_cm:
-        type: number
-        description: "Total root length in centimeters"
-        minimum: 0.0
-        nullable: true
-        unit: "cm"
-      
-      soil_n_ppm:
-        type: number
-        description: "Soil nitrogen concentration in parts per million (ppm)"
-        minimum: 0.0
-        nullable: true
-        source: "SoilGrids"
-        unit: "ppm"
-      
-      soil_p_ppm:
-        type: number
-        description: "Soil phosphorus concentration in parts per million (ppm)"
-        minimum: 0.0
-        nullable: true
-        source: "SoilGrids"
-        unit: "ppm"
-      
-      soil_k_ppm:
-        type: number
-        description: "Soil potassium concentration in parts per million (ppm)"
-        minimum: 0.0
-        nullable: true
-        source: "SoilGrids"
-        unit: "ppm"
-      
-      soil_ph:
-        type: number
-        description: "Soil pH value"
-        minimum: 0.0
-        maximum: 14.0
-        nullable: true
-        source: "SoilGrids"
-        unit: "pH"
-      
-      observation_date:
-        type: string
-        description: "Date of observation in ISO 8601 format"
-        format: date
-        nullable: true
-      
-      data_source:
-        type: string
-        description: "Source of the root trait data"
-        nullable: false
-        enum:
-          - "Zenodo"
-          - "Dryad"
-          - "HuggingFace"
-          - "Other"
-      
-      extraction_method:
-        type: string
-        description: "Method used to extract soil values"
-        nullable: false
-        enum:
-          - "bilinear"
-          - "nearest"
-          - "cubic"
-    
-    required:
-      - record_id
-      - species_name
-      - latitude
-      - longitude
-      - data_source
-
-  required_fields:
-    type: array
-    description: "List of fields that must be non-null for a row to be considered valid"
-    items:
-      type: string
-    enum:
-      - record_id
-      - species_name
-      - latitude
-      - longitude
-      - soil_n_ppm
-      - soil_p_ppm
-      - soil_k_ppm
-      - soil_ph
-      - root_depth_cm
-      - data_source
-
-  validation_rules:
-    type: object
-    description: "Business logic and physical constraints applied to the data"
-    properties:
-      geographic_bounds:
-        type: object
-        properties:
-          min_lat:
-            type: number
-            const: -90
-          max_lat:
-            type: number
-            const: 90
-          min_lon:
-            type: number
-            const: -180
-          max_lon:
-            type: number
-            const: 180
-        
-        description: "Valid geographic bounds for coordinates"
-      
-      root_trait_constraints:
-        type: object
-        properties:
-          min_depth:
-            type: number
-            const: 0.0
-          min_mass:
-            type: number
-            const: 0.0
-          min_length:
-            type: number
-            const: 0.0
-        
-        description: "Physical constraints for root trait measurements"
-      
-      soil_nutrient_constraints:
-        type: object
-        properties:
-          min_n:
-            type: number
-            const: 0.0
-          min_p:
-            type: number
-            const: 0.0
-          min_k:
-            type: number
-            const: 0.0
-          min_ph:
-            type: number
-            const: 0.0
-          max_ph:
-            type: number
-            const: 14.0
-        
-        description: "Valid ranges for soil nutrient values"
-      
-      species_filter:
-        type: object
-        properties:
-          min_observations:
-            type: integer
-            const: 10
-        
-        description: "Minimum number of valid observations required per species (FR-007)"
-      
-      match_proportion_threshold:
-        type: number
-        const: 0.90
-        description: "Minimum proportion of valid rows required to proceed (T015)"
-
+    const: "http://json-schema.org/draft-07/schema#"
   metadata:
     type: object
-    description: "Provenance and processing metadata"
+    required:
+      - source_files
+      - processing_date
+      - record_count
+      - species_count
     properties:
-      created_at:
-        type: string
-        format: date-time
-        description: "Timestamp of dataset creation"
-      
-      created_by:
-        type: string
-        description: "Script or pipeline component that generated this dataset"
-      
       source_files:
         type: array
+        description: List of source files used to generate this dataset
         items:
           type: string
-        description: "List of source file paths used to generate this dataset"
-      
-      exclusion_log_path:
+      processing_date:
         type: string
-        description: "Path to the log file containing excluded records"
-      
-      validation_summary_path:
+        format: date-time
+        description: ISO 8601 timestamp of when the dataset was generated
+      record_count:
+        type: integer
+        minimum: 0
+        description: Total number of records in the dataset
+      species_count:
+        type: integer
+        minimum: 0
+        description: Number of unique species in the dataset
+      validation_status:
         type: string
-        description: "Path to the validation summary log"
-      
-      checksum:
-        type: string
-        description: "SHA-256 checksum of the dataset file"
-
-examples:
-  - record_id: "550e8400-e29b-41d4-a716-446655440000"
-    species_name: "Zea mays"
-    latitude: 40.7128
-    longitude: -74.0060
-    root_depth_cm: 120.5
-    root_mass_g: 45.2
-    root_length_cm: 350.0
-    soil_n_ppm: 25.3
-    soil_p_ppm: 12.1
-    soil_k_ppm: 180.5
-    soil_ph: 6.5
-    observation_date: "2023-05-15"
-    data_source: "Zenodo"
-    extraction_method: "bilinear"
+        enum: ["valid", "partial", "invalid"]
+        description: Result of schema validation
+      match_proportion:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Proportion of input rows that successfully matched soil data
+  data:
+    type: array
+    description: Array of records, each containing paired soil and root trait data
+    items:
+      type: object
+      required:
+        - record_id
+        - species_name
+        - latitude
+        - longitude
+        - soil_n
+        - soil_p
+        - soil_k
+        - soil_ph
+        - root_depth
+        - root_branching
+      properties:
+        record_id:
+          type: string
+          description: Unique identifier for this record
+          pattern: "^REC-[0-9]+$"
+        species_name:
+          type: string
+          description: Scientific name of the plant species
+          minLength: 1
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+          description: Latitude in WGS84 (EPSG:4326)
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+          description: Longitude in WGS84 (EPSG:4326)
+        soil_n:
+          type: number
+          description: Soil Nitrogen (N) concentration in mg/kg
+          minimum: 0
+          nullable: true
+        soil_p:
+          type: number
+          description: Soil Phosphorus (P) concentration in mg/kg
+          minimum: 0
+          nullable: true
+        soil_k:
+          type: number
+          description: Soil Potassium (K) concentration in mg/kg
+          minimum: 0
+          nullable: true
+        soil_ph:
+          type: number
+          description: Soil pH value
+          minimum: 0
+          maximum: 14
+          nullable: true
+        root_depth:
+          type: number
+          description: Maximum root depth in cm
+          minimum: 0
+          nullable: true
+        root_branching:
+          type: number
+          description: Root branching intensity (count or index)
+          minimum: 0
+          nullable: true
+        data_source:
+          type: string
+          description: Source of the trait data (e.g., "Zenodo", "Dryad", "Field Study")
+        quality_flags:
+          type: array
+          description: List of quality flags applied to this record
+          items:
+            type: string
+            enum:
+              - "geocoding_confidence_low"
+              - "soil_interpolation"
+              - "outlier_detected"
+              - "unit_conversion_applied"
+additionalProperties: false
