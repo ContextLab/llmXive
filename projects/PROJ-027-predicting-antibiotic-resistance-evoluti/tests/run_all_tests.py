@@ -1,91 +1,48 @@
 """
 Test runner for the llmXive Antibiotic Resistance Pipeline.
-Executes the full test suite including contract, unit, and integration tests.
+Executes the full pytest suite and ensures all contract tests pass.
 """
 import sys
-import os
-import logging
+import subprocess
 import argparse
 from pathlib import Path
 
-# Add project root to path to allow imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / "code"))
+def run_pytest_suite():
+    """Run the full pytest suite with JUnit XML output."""
+    project_root = Path(__file__).parent.parent
+    tests_dir = project_root / "tests"
+    junit_output = project_root / "data" / "pytest_results.xml"
 
-from utils.logging import get_logger, init_pipeline_logging
+    # Ensure data directory exists for output
+    junit_output.parent.mkdir(parents=True, exist_ok=True)
+
+    cmd = [
+        sys.executable, "-m", "pytest",
+        str(tests_dir),
+        "-v",
+        "--tb=short",
+        f"--junit-xml={junit_output}",
+        "-x",  # Stop on first failure
+    ]
+
+    print(f"Running tests with command: {' '.join(cmd)}")
+    result = subprocess.run(cmd)
+
+    if result.returncode == 0:
+        print(f"\n✓ All tests passed. Results saved to {junit_output}")
+    else:
+        print(f"\n✗ Test suite failed with exit code {result.returncode}")
+        print(f"Check {junit_output} for details.")
+
+    return result.returncode
 
 def main():
-    # Initialize logging
-    log_path = project_root / "logs" / "test_run.log"
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger = init_pipeline_logging(
-        name="test_runner",
-        log_file=log_path,
-        level=logging.INFO
-    )
+    parser = argparse.ArgumentParser(description="Run full test suite for llmXive pipeline.")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output (passed to pytest)")
+    args = parser.parse_args()
 
-    logger.info("=" * 80)
-    logger.info("Starting Full Test Suite for Antibiotic Resistance Pipeline")
-    logger.info("=" * 80)
-
-    # Import pytest programmatically
-    try:
-        import pytest
-    except ImportError:
-        logger.error("pytest is not installed. Please install it via: pip install pytest")
-        return 1
-
-    # Define test paths based on project structure
-    test_dirs = [
-        "tests/contract",
-        "tests/unit",
-        "tests/integration"
-    ]
-    
-    # Filter to existing directories
-    existing_paths = []
-    for d in test_dirs:
-        full_path = project_root / d
-        if full_path.exists():
-            existing_paths.append(str(full_path))
-            logger.info(f"Found test directory: {d}")
-        else:
-            logger.warning(f"Test directory not found: {d} (skipping)")
-
-    if not existing_paths:
-        logger.error("No test directories found. Cannot run tests.")
-        return 1
-
-    # Build pytest arguments
-    pytest_args = [
-        "-v",  # Verbose output
-        "--tb=short",  # Short traceback
-        "--strict-markers",
-        "--color=yes",
-        "--junit-xml=" + str(project_root / "tests" / "results" / "junit.xml"),
-    ]
-    
-    # Add specific test directories
-    pytest_args.extend(existing_paths)
-
-    logger.info(f"Running pytest with arguments: {pytest_args}")
-    logger.info("-" * 80)
-
-    # Run pytest
-    exit_code = pytest.main(pytest_args)
-
-    logger.info("-" * 80)
-    if exit_code == 0:
-        logger.info("SUCCESS: All tests passed.")
-    elif exit_code == 1:
-        logger.error("FAILURE: Some tests failed.")
-    elif exit_code == 2:
-        logger.error("INTERRUPTED: Test run interrupted (e.g., KeyboardInterrupt).")
-    else:
-        logger.error(f"ERROR: pytest exited with code {exit_code}.")
-
-    return exit_code
+    exit_code = run_pytest_suite()
+    sys.exit(exit_code)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

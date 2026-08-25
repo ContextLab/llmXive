@@ -4,42 +4,12 @@ T010:
   r: "The required artifact `tests/unit/test_ingest.py` does not exist in the repository,\
     \ so no unit test for isolate filtering logic is present. The task\u2019s deliverable\
     \ is missing entirely."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `build_feature_matrix.py` file or code snippet was provided, and there is
-    no evidence that the script now checks for antibiotic classes with fewer than
-    50 isolates, excludes them, and logs a warning. The required artifact is missing,
-    so the task is not satisfied.
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `build_feature_matrix.py` is provided; the required\
-    \ logic to detect the edge case (all classes having fewer than 50 isolates), abort\
-    \ with Error\u202FE004, and log the appropriate message is not shown or referenced.\
-    \ The implementer must supply the updated script containing this error\u2011handling\
-    \ code."
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes, tests, or file modifications for `build_feature_matrix.py`\
-    \ are provided; the claim lacks any artifact showing validation of missing values\
-    \ in `resistance_phenotype` or a row\u2011count check against isolate count. The\
-    \ required implementation and evidence are missing."
 T022:
   c: false
   h: e5578cecbab6e457caa5cbbab32eef35b23799d6ec722b8c780b7e4802f8874a
   r: "The required integration test file `tests/integration/test_mechanism_blind.py`\
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ No further content can be evaluated."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation for `train_models.py` showing the required\
-    \ stratified, phylogenetically\u2011blocked cross\u2011validation was provided;\
-    \ the evidence consists only of the task description and specifications, without\
-    \ any concrete implementation artifact. The implementer must add the updated `train_models.py`\
-    \ (or equivalent) that demonstrates the CV logic and ensures no data leakage."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -84,3 +54,17 @@ T038:
     \ not address the performance\u2011optimization requirement. The necessary artifacts\
     \ (e.g., updated CI pipeline files, benchmark results, or validation tests) are\
     \ missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest execution logs, result files, or any indication that the test suite
+    was run and all contract tests passed are present. The claim lacks concrete artifacts
+    (e.g., `pytest` output, a passing `junit.xml` report, or a screenshot of the terminal)
+    to verify that the full test suite succeeded.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `hash_artifacts.py` script, no execution logs, and no resulting hash files
+    in a `state/` directory are present. Without these artifacts the claim that the
+    hashing step was run and the research state was finalized cannot be verified.
+    The implementer must provide the script and the generated hash outputs.
