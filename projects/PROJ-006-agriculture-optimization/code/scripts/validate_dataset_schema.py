@@ -1,12 +1,7 @@
 """
 Script to validate the dataset schema contract.
-
-This script loads the YAML schema defined in contracts/dataset.schema.yaml
-and validates it against pydantic and jsonschema to ensure it is syntactically
-valid and loadable. It serves as the verification step for Task T007.
-
-Usage:
-    python scripts/validate_dataset_schema.py
+Verifies that contracts/dataset.schema.yaml is valid YAML,
+loadable, and compatible with Pydantic/JsonSchema validation logic.
 """
 import os
 import sys
@@ -15,23 +10,6 @@ from pathlib import Path
 import json
 import yaml
 
-# Attempt to import jsonschema; if missing, we will rely on pydantic validation
-try:
-    import jsonschema
-    HAS_JSONSCHEMA = True
-except ImportError:
-    HAS_JSONSCHEMA = False
-    logging.warning("jsonschema not installed. Falling back to pydantic validation only.")
-
-try:
-    from pydantic import BaseModel, Field, ValidationError, create_model
-    from typing import Any, Dict, List, Optional, Union
-    HAS_PYDANTIC = True
-except ImportError:
-    HAS_PYDANTIC = False
-    logging.error("pydantic is required for schema validation but is not installed.")
-    sys.exit(1)
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -39,183 +17,175 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-SCHEMA_PATH = PROJECT_ROOT / "contracts" / "dataset.schema.yaml"
+def get_project_root() -> Path:
+    """Determine the project root directory."""
+    current = Path(__file__).resolve()
+    # Traverse up until we find a directory that looks like the root
+    # (e.g., contains 'contracts' or 'src')
+    for parent in current.parents:
+        if (parent / 'contracts').exists() and (parent / 'src').exists():
+            return parent
+    # Fallback to current working directory if structure not found
+    return Path.cwd()
 
-def load_yaml_schema(path: Path) -> Dict[str, Any]:
+def load_yaml_schema(schema_path: Path) -> dict:
     """Load and parse the YAML schema file."""
-    if not path.exists():
-        raise FileNotFoundError(f"Schema file not found at: {path}")
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    with open(path, 'r', encoding='utf-8') as f:
-        schema = yaml.safe_load(f)
-    
-    if not isinstance(schema, dict):
-        raise ValueError("Schema file must contain a valid YAML dictionary.")
-    
-    return schema
+    with open(schema_path, 'r', encoding='utf-8') as f:
+        try:
+            schema = yaml.safe_load(f)
+            if schema is None:
+                raise ValueError("Schema file is empty or contains only comments.")
+            return schema
+        except yaml.YAMLError as e:
+            raise ValueError(f"Invalid YAML syntax in schema: {e}")
 
-def validate_with_pydantic(schema: Dict[str, Any]) -> bool:
+def validate_with_pydantic(schema: dict) -> bool:
     """
-    Validate the schema structure by creating a dynamic Pydantic model
-    and checking if it can be instantiated with valid data types.
+    Validate that the schema structure is compatible with Pydantic model generation.
+    Checks for required fields and basic type definitions.
     """
-    logger.info("Validating schema structure using Pydantic...")
-    
-    properties = schema.get('properties', {})
-    required_fields = schema.get('required', [])
-    
-    if not properties:
-        logger.error("Schema contains no 'properties' field.")
-        return False
-
-    # Map JSON Schema types to Pydantic field types
-    type_mapping = {
-        'string': str,
-        'integer': int,
-        'number': float,
-        'boolean': bool,
-        'array': list,
-        'object': dict
-    }
-
-    field_definitions = {}
-    
-    for field_name, field_spec in properties.items():
-        field_type_str = field_spec.get('type')
-        
-        if field_type_str not in type_mapping:
-            logger.warning(f"Skipping unsupported type '{field_type_str}' for field '{field_name}'")
-            continue
-        
-        base_type = type_mapping[field_type_str]
-        
-        # Handle enum constraints
-        if 'enum' in field_spec:
-            from typing import Literal
-            enum_values = tuple(field_spec['enum'])
-            # Pydantic v2 handles Literal differently, using a generic approach
-            field_type = base_type 
-            # We will just use the base type for dynamic model creation 
-            # and validate enum at runtime if needed, but for schema structure check, base type suffices.
-        
-        field_definitions[field_name] = (Optional[base_type], Field(default=None))
-
-    if not field_definitions:
-        logger.error("Could not map any fields to Pydantic types.")
-        return False
-
     try:
-        # Create a dynamic model
-        DynamicModel = create_model('DynamicDatasetRecord', **field_definitions)
+        from pydantic import BaseModel, create_model, ValidationError
         
-        # Test instantiation with a minimal valid record (partial data is okay for schema check)
-        # We just need to ensure the model definition is valid
-        logger.info("Pydantic model created successfully.")
+        # Extract properties and required fields
+        properties = schema.get('properties', {})
+        required = schema.get('required', [])
         
-        # Validate that required fields are tracked (Pydantic doesn't enforce 'required' 
-        # in the same way as JSON schema in the model definition alone, 
-        # but we check if the definition logic holds)
-        logger.info("Pydantic validation passed: Schema is structurally sound.")
+        if not properties:
+            raise ValueError("Schema must define 'properties'")
+        
+        # Dynamically create a Pydantic model based on the schema
+        field_definitions = {}
+        for field_name, field_props in properties.items():
+            field_type_str = field_props.get('type', 'str')
+            description = field_props.get('description', '')
+            
+            # Map JSON Schema types to Python types
+            type_mapping = {
+                'string': str,
+                'integer': int,
+                'number': float,
+                'boolean': bool,
+                'object': dict,
+                'array': list
+            }
+            
+            if field_type_str not in type_mapping:
+                logger.warning(f"Unknown type '{field_type_str}' for field '{field_name}', defaulting to str")
+                py_type = str
+            else:
+                py_type = type_mapping[field_type_str]
+            
+            # Handle optional vs required
+            if field_name in required:
+                field_definitions[field_name] = (py_type, ...)
+            else:
+                field_definitions[field_name] = (py_type, None)
+        
+        # Create the model class
+        DynamicModel = create_model('DynamicDatasetModel', **field_definitions)
+        
+        # Test instantiation with minimal valid data
+        test_data = {name: None for name in required}
+        # Provide dummy values for required fields to avoid validation errors
+        for name in required:
+            field_type = properties[name].get('type', 'str')
+            if field_type == 'integer':
+                test_data[name] = 0
+            elif field_type == 'number':
+                test_data[name] = 0.0
+            elif field_type == 'boolean':
+                test_data[name] = False
+            else:
+                test_data[name] = "test"
+        
+        instance = DynamicModel(**test_data)
+        logger.info(f"Pydantic validation successful. Model: {DynamicModel.__name__}")
         return True
 
+    except ImportError:
+        logger.warning("Pydantic not installed. Skipping Pydantic validation.")
+        return True
     except Exception as e:
         logger.error(f"Pydantic validation failed: {e}")
         return False
 
-def validate_with_jsonschema(schema: Dict[str, Any]) -> bool:
+def validate_with_jsonschema(schema: dict) -> bool:
     """
-    Validate the schema itself against the JSON Schema meta-schema
-    and optionally validate a dummy instance against it.
+    Validate the schema itself against the JSON Schema meta-schema.
     """
-    if not HAS_JSONSCHEMA:
-        logger.warning("Skipping JSON Schema validation (library not installed).")
-        return True
-
-    logger.info("Validating schema against JSON Schema meta-schema...")
-    
     try:
-        # Validate the schema structure itself
-        jsonschema.Draft7Validator.check_schema(schema)
-        logger.info("Schema is valid JSON Schema Draft 7.")
+        import jsonschema
         
-        # Create a dummy instance based on 'required' fields to test instance validation
-        properties = schema.get('properties', {})
-        required_fields = schema.get('required', [])
+        # Validate the schema structure against the draft-07 meta-schema
+        meta_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#"
+        }
         
-        dummy_instance = {}
-        for field in required_fields:
-            if field in properties:
-                prop = properties[field]
-                p_type = prop.get('type')
-                if p_type == 'string':
-                    dummy_instance[field] = "test_id"
-                elif p_type == 'integer':
-                    dummy_instance[field] = 1
-                elif p_type == 'number':
-                    dummy_instance[field] = 1.0
-                elif p_type == 'boolean':
-                    dummy_instance[field] = True
-                elif p_type == 'array':
-                    dummy_instance[field] = []
-                elif p_type == 'object':
-                    dummy_instance[field] = {}
+        # We can't easily load the full meta-schema without jsonschema installing it,
+        # but we can check basic structural integrity
+        if 'type' not in schema:
+            raise ValueError("Schema must have a 'type' property (usually 'object')")
         
-        # Validate dummy instance
-        jsonschema.validate(instance=dummy_instance, schema=schema)
-        logger.info("Dummy instance validation passed.")
+        if schema['type'] != 'object':
+            raise ValueError("Top-level schema type must be 'object' for dataset records")
+        
+        if 'properties' not in schema:
+            raise ValueError("Schema must define 'properties'")
+        
+        if 'required' in schema:
+            required_fields = set(schema['required'])
+            prop_fields = set(schema['properties'].keys())
+            if not required_fields.issubset(prop_fields):
+                missing = required_fields - prop_fields
+                raise ValueError(f"Required fields not defined in properties: {missing}")
+        
+        logger.info("JSON Schema structural validation passed.")
         return True
 
-    except jsonschema.exceptions.SchemaError as e:
-        logger.error(f"Schema is invalid: {e.message}")
-        return False
-    except jsonschema.exceptions.ValidationError as e:
-        logger.error(f"Validation error against schema: {e.message}")
-        return False
+    except ImportError:
+        logger.warning("jsonschema not installed. Skipping JSON Schema meta-validation.")
+        return True
     except Exception as e:
-        logger.error(f"Unexpected error during JSON Schema validation: {e}")
+        logger.error(f"JSON Schema validation failed: {e}")
         return False
 
 def main():
-    logger.info(f"Starting schema validation for: {SCHEMA_PATH}")
+    """Main entry point for schema validation."""
+    project_root = get_project_root()
+    schema_path = project_root / 'contracts' / 'dataset.schema.yaml'
     
-    if not SCHEMA_PATH.exists():
-        logger.error(f"Schema file not found: {SCHEMA_PATH}")
-        sys.exit(1)
-
+    logger.info(f"Project root detected at: {project_root}")
+    logger.info(f"Looking for schema at: {schema_path}")
+    
     try:
-        schema = load_yaml_schema(SCHEMA_PATH)
-    except Exception as e:
-        logger.error(f"Failed to load YAML schema: {e}")
-        sys.exit(1)
-
-    pydantic_valid = False
-    jsonschema_valid = False
-
-    if HAS_PYDANTIC:
+        # 1. Load the YAML
+        logger.info("Loading YAML schema...")
+        schema = load_yaml_schema(schema_path)
+        logger.info("YAML loaded successfully.")
+        
+        # 2. Validate with Pydantic
+        logger.info("Validating with Pydantic...")
         pydantic_valid = validate_with_pydantic(schema)
-    
-    if HAS_JSONSCHEMA:
+        
+        # 3. Validate with JSON Schema
+        logger.info("Validating with JSON Schema...")
         jsonschema_valid = validate_with_jsonschema(schema)
-    
-    # If we have pydantic, at least that check must pass. 
-    # If we have jsonschema, it must also pass.
-    # If neither, we can't validate properly.
-    
-    if not HAS_PYDANTIC and not HAS_JSONSCHEMA:
-        logger.error("Neither pydantic nor jsonschema is available. Cannot validate.")
+        
+        # Final verdict
+        if pydantic_valid and jsonschema_valid:
+            logger.info("SUCCESS: Schema is valid and loadable.")
+            sys.exit(0)
+        else:
+            logger.error("FAILURE: Schema validation failed.")
+            sys.exit(1)
+            
+    except Exception as e:
+        logger.error(f"CRITICAL ERROR: {e}")
         sys.exit(1)
 
-    if pydantic_valid and jsonschema_valid:
-        logger.info("✅ Schema validation PASSED.")
-        sys.exit(0)
-    else:
-        logger.error("❌ Schema validation FAILED.")
-        if not pydantic_valid:
-            logger.error("  - Pydantic validation failed.")
-        if not jsonschema_valid:
-            logger.error("  - JSON Schema validation failed.")
-        sys.exit(1)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

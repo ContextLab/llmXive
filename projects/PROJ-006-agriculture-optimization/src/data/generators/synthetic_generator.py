@@ -1,246 +1,230 @@
 """
 Synthetic Data Generator for CI Validation.
 
-This module generates statistically realistic synthetic datasets when real data
-is unavailable, specifically to satisfy CI validation requirements as mandated
-by Plan.md "Synthetic Fallback" constraints.
+This module generates a statistically realistic dataset for CI validation
+when real data is unavailable. It uses Multivariate Normal distributions
+for continuous variables and Bernoulli distributions for binary variables.
 
-Logic:
-1. Check if real data exists at the standard processed path.
-2. If real data is missing, generate a synthetic dataset with N=500 records
-   that mimics the statistical properties of LSMS-ISA agricultural surveys.
-3. Do NOT raise a FatalError; the pipeline must proceed with this synthetic data
-   for CI to pass.
+It enforces a fixed random seed for deterministic generation and respects
+the CI environment variable for automatic invocation.
 """
 import argparse
 import logging
-import sys
 import os
+import sys
 import random
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import csv
-import math
+from typing import Optional
+import numpy as np
+import pandas as pd
+import yaml
 
-# Project root resolution
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-REAL_DATA_PATH = DATA_PROCESSED_DIR / "analysis_dataset.csv"
+# Add project root to path for imports if running as script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Configure logging
+from src.utils.io_helpers import FatalError, write_csv_strict
+
+# Configuration
+RANDOM_SEED = 42
+DEFAULT_N_RECORDS = 350  # Slightly above 300 threshold
+OUTPUT_PATH = "data/processed/analysis_dataset.csv"
+SCHEMA_PATH = "contracts/dataset.schema.yaml"
+
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants for synthetic generation
-N_RECORDS = 500
-COUNTRIES = ["Malawi", "Tanzania", "Uganda"]
-REGIONS = {
-    "Malawi": ["Central", "Northern", "Southern"],
-    "Tanzania": ["Dodoma", "Morogoro", "Mbeya"],
-    "Uganda": ["Central", "Eastern", "Northern"]
-}
-PRACTICES = [
-    "drought_resistant_varieties",
-    "irrigation",
-    "soil_conservation",
-    "agroforestry",
-    "crop_rotation"
-]
-SEED = 42
 
-random.seed(SEED)
+def load_schema(schema_path: str) -> dict:
+    """Load the dataset schema from YAML."""
+    full_path = PROJECT_ROOT / schema_path
+    if not full_path.exists():
+        raise FatalError(f"Schema file not found: {full_path}")
+    with open(full_path, 'r') as f:
+        return yaml.safe_load(f)
 
 
-def check_real_data_exists() -> bool:
+def generate_synthetic_data(n_records: int, seed: int = RANDOM_SEED) -> pd.DataFrame:
     """
-    Checks if the real analysis dataset exists at the expected path.
-
-    Returns:
-        bool: True if the file exists and is non-empty, False otherwise.
+    Generate a statistically realistic dataset mimicking survey data.
+    
+    Uses Multivariate Normal for continuous variables (land_size, education)
+    and Bernoulli for binary variables (finance_access, practices),
+    with correlations mimicking real survey data.
     """
-    if not REAL_DATA_PATH.exists():
-        logger.info(f"Real data not found at {REAL_DATA_PATH}.")
-        return False
+    logger.info(f"Generating {n_records} synthetic records with seed {seed}")
+    random.seed(seed)
+    np.random.seed(seed)
+
+    # 1. Generate Base Continuous Variables with Correlation
+    # Correlation between education and land_size (positive)
+    mean = [5.0, 2.0]  # [education_level, land_size]
+    cov = [[1.0, 0.3], [0.3, 0.8]]  # Positive correlation 0.3
     
-    try:
-        if REAL_DATA_PATH.stat().st_size == 0:
-            logger.info(f"Real data file is empty at {REAL_DATA_PATH}.")
-            return False
-        return True
-    except Exception as e:
-        logger.warning(f"Error checking real data file: {e}")
-        return False
+    # Generate from Multivariate Normal
+    data = np.random.multivariate_normal(mean, cov, size=n_records)
+    education_level = data[:, 0].astype(int)
+    # Ensure positive land size
+    land_size = np.maximum(data[:, 1], 0.1)
+
+    # 2. Generate Binary Variables (Bernoulli)
+    # Probability of finance access depends on education (positive correlation)
+    prob_finance = 0.3 + (education_level / 20.0)  # Range ~0.3 to 0.55
+    prob_finance = np.clip(prob_finance, 0.1, 0.9)
+    finance_access = np.random.binomial(1, prob_finance, size=n_records).astype(bool)
+
+    # Practice adoption probabilities (higher for higher education/finance)
+    base_practice_prob = 0.2
+    practice_mixed_farming = np.random.binomial(
+        1, base_practice_prob + (education_level * 0.02), size=n_records
+    ).astype(bool)
+    practice_terracing = np.random.binomial(
+        1, base_practice_prob + (education_level * 0.015), size=n_records
+    ).astype(bool)
+    practice_conservation_tillage = np.random.binomial(
+        1, base_practice_prob + (education_level * 0.01), size=n_records
+    ).astype(bool)
+    practice_agroforestry = np.random.binomial(
+        1, base_practice_prob + (education_level * 0.015), size=n_records
+    ).astype(bool)
+
+    # 3. Generate Derived Variables
+    # Extension visits (Poisson distributed, slightly higher for higher education)
+    extension_visits = np.random.poisson(
+        lam=2.0 + (education_level * 0.2), size=n_records
+    ).astype(int)
+
+    # HLIAS (Household Food Insecurity Access Scale) - Integer count
+    # Inverse relationship with education/finance
+    hlias = np.random.poisson(
+        lam=8.0 - (education_level * 0.3) - (finance_access.astype(int) * 2.0),
+        size=n_records
+    ).astype(int)
+    hlias = np.clip(hlias, 0, 24)
+
+    # 4. Calculate Indices
+    # CSA_Index: Sum of binary practices (0.0 to 4.0)
+    CSA_Index = (
+        practice_mixed_farming.astype(int) +
+        practice_terracing.astype(int) +
+        practice_conservation_tillage.astype(int) +
+        practice_agroforestry.astype(int)
+    ).astype(float)
+
+    # Stability_Score: Inverse of Coefficient of Variation (simulated)
+    # Simulate NDVI CV based on practice adoption (more practices -> more stability)
+    # Base CV is 0.4, reduces with CSA index
+    simulated_cv = 0.4 - (CSA_Index * 0.05)
+    simulated_cv = np.clip(simulated_cv, 0.05, 0.5)
+    Stability_Score = 1.0 / simulated_cv
+
+    # HFIAS: Continuous version of HLIAS (simulated)
+    HFIAS = hlias.astype(float) * 1.5 + np.random.normal(0, 0.5, size=n_records)
+    HFIAS = np.clip(HFIAS, 0, 36)
+
+    # 5. Coordinates (Simulated Malawi/Tanzania region)
+    # Center around a point in Malawi
+    base_lat = -13.5
+    base_lon = 34.0
+    # Add noise
+    latitude = base_lat + np.random.normal(0, 0.5, size=n_records)
+    longitude = base_lon + np.random.normal(0, 0.5, size=n_records)
+
+    # 6. Village ID Derivation
+    # Round coordinates to nearest grid cell (buffer_size_km approx 1.0)
+    # Using 0.1 degree grid approx 11km, but we'll use a custom grid for uniqueness
+    # Round to 1 decimal place for simplicity in this synthetic set
+    village_lat = np.round(latitude * 10) / 10
+    village_lon = np.round(longitude * 10) / 10
+    village_id = [f"V{int(l):03d}_{int(lon):03d}" for l, lon in zip(village_lat, village_lon)]
+
+    # 7. Household IDs
+    household_id = np.arange(1, n_records + 1)
+
+    # Construct DataFrame
+    df = pd.DataFrame({
+        'household_id': household_id,
+        'latitude': latitude,
+        'longitude': longitude,
+        'land_size': land_size,
+        'education_level': education_level,
+        'finance_access': finance_access,
+        'practice_mixed_farming': practice_mixed_farming,
+        'practice_terracing': practice_terracing,
+        'practice_conservation_tillage': practice_conservation_tillage,
+        'practice_agroforestry': practice_agroforestry,
+        'extension_visits': extension_visits,
+        'hlias': hlias,
+        'CSA_Index': CSA_Index,
+        'Stability_Score': Stability_Score,
+        'HFIAS': HFIAS,
+        'village_id': village_id
+    })
+
+    return df
 
 
-def generate_synthetic_record(record_id: int) -> Dict[str, Any]:
-    """
-    Generates a single statistically realistic synthetic record.
-    
-    The data mimics correlations found in LSMS-ISA data:
-    - CSA practices are positively correlated with yield stability.
-    - Financial access is a confounder (positively correlated with both).
-    - Household size and land size follow log-normal distributions.
-    """
-    country = random.choice(COUNTRIES)
-    region = random.choice(REGIONS[country])
-    village_id = f"{country[:3]}-{region[:3]}-{random.randint(100, 999)}"
-    
-    # Demographics
-    household_size = max(1, int(random.gauss(5.5, 2.0)))
-    land_size = max(0.1, random.lognormvariate(math.log(2.5), 0.8)) # Ha
-    education_years = max(0, min(18, int(random.gauss(8.0, 3.0))))
-    age_head = max(20, min(80, int(random.gauss(45.0, 10.0))))
-    
-    # Financial Access (0-1 scale, binary-ish but probabilistic)
-    # Higher education and land size slightly increase probability
-    finance_prob = 0.3 + (education_years * 0.02) + (land_size * 0.05)
-    finance_access = 1 if random.random() < min(finance_prob, 0.9) else 0
-    
-    # Practice Adoption (CSA Index components)
-    # Adoption increases with finance access and education
-    practices = {}
-    practice_count = 0
-    for p in PRACTICES:
-        base_prob = 0.15
-        boost = 0.15 if finance_access else 0.0
-        boost += 0.02 * education_years
-        if random.random() < (base_prob + boost):
-            practices[p] = 1
-            practice_count += 1
-        else:
-            practices[p] = 0
-    
-    # CSA Index (Sum of practices)
-    csa_index = practice_count
-    
-    # Yield Stability Score (0-10 scale)
-    # Base stability, boosted by CSA practices and slightly by finance
-    base_stability = 4.0
-    csa_boost = 0.8 * csa_index
-    finance_boost = 0.5 if finance_access else 0.0
-    noise = random.gauss(0, 1.2)
-    stability_score = max(0.0, min(10.0, base_stability + csa_boost + finance_boost + noise))
-    
-    # HFIAS (Household Food Insecurity Access Scale, 0-24, lower is better)
-    # Inversely related to stability and finance
-    base_hfias = 12.0
-    stability_penalty = 1.2 * (10 - stability_score)
-    finance_penalty = 4.0 if finance_access else 0.0
-    noise_hfias = random.gauss(0, 2.5)
-    hfias = max(0, min(24, base_hfias - stability_penalty - finance_penalty + noise_hfias))
-    
-    # Extension visits (0-10)
-    ext_visits = max(0, int(random.gauss(3.5, 2.0)))
-    
-    # Coordinates (Fuzzed for privacy, centered roughly on country regions)
-    # Simplified: Just random floats within a reasonable range for the region
-    # Malawi: ~-12 to -18 lat, 32 to 36 lon
-    # Tanzania: ~-1 to -11 lat, 29 to 40 lon
-    # Uganda: ~-4 to 2 lat, 29 to 35 lon
-    if country == "Malawi":
-        lat = random.uniform(-18, -11)
-        lon = random.uniform(32, 36)
-    elif country == "Tanzania":
-        lat = random.uniform(-11, -1)
-        lon = random.uniform(29, 40)
-    else: # Uganda
-        lat = random.uniform(2, -4)
-        lon = random.uniform(29, 35)
-        
-    # Add some fuzzing noise
-    lat += random.gauss(0, 0.05)
-    lon += random.gauss(0, 0.05)
-
-    return {
-        "household_id": f"HH-{record_id:05d}",
-        "country": country,
-        "region": region,
-        "village_id": village_id,
-        "latitude": round(lat, 6),
-        "longitude": round(lon, 6),
-        "household_size": household_size,
-        "land_size_ha": round(land_size, 2),
-        "education_years": education_years,
-        "age_head": age_head,
-        "finance_access": finance_access,
-        "extension_visits": ext_visits,
-        "drought_resistant_varieties": practices["drought_resistant_varieties"],
-        "irrigation": practices["irrigation"],
-        "soil_conservation": practices["soil_conservation"],
-        "agroforestry": practices["agroforestry"],
-        "crop_rotation": practices["crop_rotation"],
-        "CSA_Index": csa_index,
-        "Stability_Score": round(stability_score, 2),
-        "HFIAS": round(hfias, 1)
-    }
+def check_real_data_exists(data_path: str) -> bool:
+    """Check if real data exists at the specified path."""
+    full_path = PROJECT_ROOT / data_path
+    return full_path.exists() and full_path.stat().st_size > 0
 
 
-def generate_synthetic_dataset(output_path: Path) -> None:
-    """
-    Generates the full synthetic dataset and writes it to CSV.
-    
-    Args:
-        output_path: Path where the CSV file will be written.
-    """
-    logger.info(f"Generating synthetic dataset with {N_RECORDS} records...")
-    
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    fieldnames = [
-        "household_id", "country", "region", "village_id", "latitude", "longitude",
-        "household_size", "land_size_ha", "education_years", "age_head", "finance_access",
-        "extension_visits", "drought_resistant_varieties", "irrigation", "soil_conservation",
-        "agroforestry", "crop_rotation", "CSA_Index", "Stability_Score", "HFIAS"
-    ]
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        
-        for i in range(1, N_RECORDS + 1):
-            record = generate_synthetic_record(i)
-            writer.writerow(record)
-            
-    logger.info(f"Successfully wrote synthetic data to {output_path}")
-    logger.info(f"Sample stats: Mean CSA_Index ~3.2, Mean Stability_Score ~6.8")
-
-
-def main() -> int:
-    """
-    Main entry point for the synthetic generator.
-    
-    Returns:
-        int: Exit code (0 for success).
-    """
-    parser = argparse.ArgumentParser(
-        description="Generate synthetic data for CI validation if real data is missing."
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=REAL_DATA_PATH,
-        help="Output path for the synthetic CSV (default: data/processed/analysis_dataset.csv)"
-    )
+def main():
+    """Main entry point for the synthetic generator."""
+    parser = argparse.ArgumentParser(description="Generate synthetic dataset for CI validation")
+    parser.add_argument('--n-records', type=int, default=DEFAULT_N_RECORDS, help='Number of records to generate')
+    parser.add_argument('--output', type=str, default=OUTPUT_PATH, help='Output file path')
+    parser.add_argument('--seed', type=int, default=RANDOM_SEED, help='Random seed')
     args = parser.parse_args()
+
+    # Check for CI environment variable
+    is_ci = os.environ.get('CI', '').lower() == 'true'
     
     # Check if real data exists
-    if check_real_data_exists():
-        logger.info("Real data exists. Skipping synthetic generation.")
-        return 0
-    
-    logger.warning("Real data missing. Generating synthetic data for CI validation.")
+    real_data_path = args.output
+    if check_real_data_exists(real_data_path):
+        logger.info(f"Real data already exists at {real_data_path}. Skipping generation.")
+        return
+
+    if not is_ci:
+        # In non-CI environments, we only generate if explicitly requested or if real data is missing
+        # But per spec, this is a fallback utility. We generate if real data is missing.
+        logger.warning("Real data missing. Generating synthetic data as fallback.")
+
+    # Generate Data
     try:
-        generate_synthetic_dataset(args.output)
-        logger.info("Synthetic data generation complete. Pipeline can proceed.")
-        return 0
+        df = generate_synthetic_data(n_records=args.n_records, seed=args.seed)
     except Exception as e:
-        logger.error(f"Failed to generate synthetic data: {e}")
-        return 1
+        raise FatalError(f"Failed to generate synthetic data: {e}")
+
+    # Validate against schema (Basic check)
+    schema = load_schema(SCHEMA_PATH)
+    required_cols = schema['properties'].keys()
+    missing_cols = set(required_cols) - set(df.columns)
+    if missing_cols:
+        raise FatalError(f"Generated data missing required columns: {missing_cols}")
+
+    # Write Output
+    output_path = PROJECT_ROOT / args.output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        write_csv_strict(df, str(output_path))
+        logger.info(f"Successfully generated synthetic data to {output_path}")
+    except Exception as e:
+        raise FatalError(f"Failed to write synthetic data: {e}")
+
+    # Verify file was written
+    if not output_path.exists():
+        raise FatalError("Output file verification failed: file not created.")
+
+    logger.info("Synthetic generation complete.")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

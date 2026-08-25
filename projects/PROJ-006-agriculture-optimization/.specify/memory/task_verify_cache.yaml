@@ -1,16 +1,23 @@
 T002:
   c: false
-  h: 90f3103d9604385b6db94bf7a370f2ea17c1b3f55e7d11c355bb47c71417177b
-  r: "The repository contains `src/utils/state_manager.py`, but the required state\
-    \ file `state/projects/PROJ-006-agriculture-optimization.yaml` is missing, and\
-    \ there is no evidence that the script updates this YAML with hashes or that a\
-    \ dry\u2011run hash calculation was performed. The task\u2019s core requirement\u2014\
-    producing and populating the state file\u2014is therefore unmet."
-T010a:
+  h: 137206cd6ef53c5d88f222f9d5c1468bd4b3ae64cb4a88f21729ea5069cbf04b
+  r: "The required `state/projects/PROJ-006-agriculture-optimization.yaml` file is\
+    \ missing, so the state cannot be updated with artifact hashes, and no evidence\
+    \ of a dry\u2011run hash calculation is provided. The `state_manager.py` exists,\
+    \ but without the YAML file (and verification) the task is not fully satisfied."
+T010:
   c: false
-  h: 8081d98c3a36cd9d6ac02bcdda4de0f3d4c8adb264aa2a949215dda67cfb6265
-  r: "The required file `src/cli/run_pipeline.py` is missing, so the integration wiring\
-    \ cannot exist. Moreover, the existing `synthetic_generator.py` does not implement\
-    \ the specified checks (it looks at `data/processed/`, does not consider `CI=true`\
-    \ or a `--no-synthetic` flag, and never raises a `FatalError`). The task\u2019\
-    s core functionality is therefore not present."
+  h: 32c7ba4040b825b1cdafa03384be3e76bfb23ce0c217275c74de03c804f3fdab
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, so the\
+    \ generator cannot be validated against the schema. Moreover, the provided `synthetic_generator.py`\
+    \ is truncated, contains undefined variables (e.g., `n`), and does not produce\
+    \ all required columns (latitude, longitude, extension_visits, etc.) nor include\
+    \ CI\u2011environment detection logic. The task therefore remains unfinished."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide any of the required test files (e.g., `tests/contract/...`,\
+    \ `tests/integration/...`, `tests/unit/...` for T013, T014, T023, T024, T028,\
+    \ T029). No skeleton files or directory structure is present, so the verification\
+    \ condition \u201Cassert files exist\u201D cannot be satisfied. The task remains\
+    \ unfinished until those test files are created."

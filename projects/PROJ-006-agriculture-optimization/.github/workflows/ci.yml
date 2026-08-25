@@ -7,53 +7,53 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  run-pipeline:
+  test-pipeline:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            echo "No requirements.txt found, skipping dependency installation"
-          fi
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        fi
 
-      - name: Run Pipeline with Synthetic Fallback (CI Mode)
-        env:
-          CI: "true"
-        run: |
-          # The CI=true environment variable triggers the automatic synthetic data generation
-          # in src/cli/run_pipeline.py if real data is missing, as per T010a and T010b.
-          python code/src/cli/run_pipeline.py --dry-run
+    - name: Verify project structure
+      run: |
+        python -c "import os; assert os.path.isdir('src'), 'src directory missing'; assert os.path.isdir('data'), 'data directory missing'; assert os.path.isdir('data/raw'), 'data/raw directory missing'; assert os.path.isdir('data/processed'), 'data/processed directory missing'"
 
-      - name: Verify Synthetic Data Generation
-        run: |
-          # Verify that the synthetic data generator was invoked and produced output
-          if [ -f "data/processed/analysis_dataset.csv" ]; then
-            echo "SUCCESS: Analysis dataset generated."
-            wc -l "data/processed/analysis_dataset.csv"
-          else
-            echo "ERROR: Analysis dataset was not generated."
-            exit 1
-          fi
+    - name: Run pipeline with synthetic fallback (CI mode)
+      run: |
+        export CI=true
+        python src/cli/run_pipeline.py --dry-run
 
-      - name: Run Unit Tests
-        run: |
-          python -m pytest code/tests/unit/ -v
+    - name: Validate synthetic data generation
+      run: |
+        export CI=true
+        python src/cli/run_pipeline.py
+        # Verify that data/processed/analysis_dataset.csv was created
+        if [ ! -f data/processed/analysis_dataset.csv ]; then
+          echo "Error: analysis_dataset.csv was not generated"
+          exit 1
+        fi
+        echo "Synthetic data generation successful."
 
-      - name: Run Contract Tests
-        run: |
-          python -m pytest code/tests/contract/ -v
+    - name: Run unit tests
+      run: |
+        python -m pytest tests/unit/ -v
 
-      - name: Run Integration Tests
-        run: |
-          python -m pytest code/tests/integration/ -v
+    - name: Run contract tests
+      run: |
+        python -m pytest tests/contract/ -v
+
+    - name: Run integration tests
+      run: |
+        python -m pytest tests/integration/ -v

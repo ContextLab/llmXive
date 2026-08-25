@@ -1,105 +1,93 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Climate-Smart Agriculture Analysis Dataset Schema
-description: >
-  Schema defining the expected columns and types for the analysis-ready dataset
-  derived from LSMS-ISA survey data and Sentinel-2 remote sensing imagery.
-  This schema is used by src/data/processing/feature_engineering.py and
-  src/cli/validate.py to ensure data integrity before regression analysis.
+# Dataset Schema for Climate-Smart Agriculture Analysis
+# Generated for PROJ-006-agriculture-optimization
+# Validates against T010 synthetic generator and T015 survey collector output
+
 type: object
 required:
   - household_id
-  - country
-  - region
   - latitude
   - longitude
+  - land_size
+  - education_level
+  - finance_access
+  - practice_mixed_farming
+  - practice_terracing
+  - practice_conservation_tillage
+  - practice_agroforestry
+  - extension_visits
+  - hlias
   - CSA_Index
   - Stability_Score
   - HFIAS
-  - finance_access
-  - land_size
-  - education
   - village_id
-  - survey_year
+
 properties:
   household_id:
-    type: string
-    description: Unique identifier for the household (LSMS-ISA ID)
-  country:
-    type: string
-    enum: [Malawi, Tanzania]
-    description: Country of survey origin
-  region:
-    type: string
-    description: Administrative region name
+    type: integer
+    description: Unique identifier for the household
+
   latitude:
     type: number
-    minimum: -90
-    maximum: 90
-    description: Fuzzed latitude coordinate (1km buffer applied)
+    format: float
+    description: Latitude coordinate (WGS84)
+
   longitude:
     type: number
-    minimum: -180
-    maximum: 180
-    description: Fuzzed longitude coordinate (1km buffer applied)
-  CSA_Index:
-    type: number
-    minimum: 0
-    description: >
-      Composite index of Climate-Smart Agriculture practices adopted.
-      Sum of binary indicators: practice_mixed_farming, practice_terracing,
-      practice_conservation_tillage, practice_agroforestry.
-  Stability_Score:
-    type: number
-    minimum: 0
-    description: >
-      Yield stability metric derived from NDVI time-series coefficient of variation.
-      Calculated as 1 / CV(NDVI) during growing season.
-  HFIAS:
-    type: number
-    minimum: 0
-    description: Household Food Insecurity Access Scale score.
-  finance_access:
-    type: boolean
-    description: Binary indicator for access to financial services.
+    format: float
+    description: Longitude coordinate (WGS84)
+
   land_size:
     type: number
-    minimum: 0
-    description: Total land size in hectares.
-  education:
-    type: number
-    minimum: 0
-    description: Highest years of formal education for household head.
-  village_id:
-    type: string
-    description: Village cluster identifier for hierarchical modeling.
-  survey_year:
+    format: float
+    description: Land size in hectares (continuous variable)
+
+  education_level:
     type: integer
-    minimum: 2010
-    maximum: 2030
-    description: Year of the survey wave.
+    description: Education level (ordinal integer, e.g., 0-16 years)
+
+  finance_access:
+    type: boolean
+    description: Binary indicator for financial access
+
   practice_mixed_farming:
     type: boolean
-    description: Binary indicator for mixed farming adoption.
+    description: Binary indicator for mixed farming practice
+
   practice_terracing:
     type: boolean
-    description: Binary indicator for terracing adoption.
+    description: Binary indicator for terracing practice
+
   practice_conservation_tillage:
     type: boolean
-    description: Binary indicator for conservation tillage adoption.
+    description: Binary indicator for conservation tillage practice
+
   practice_agroforestry:
     type: boolean
-    description: Binary indicator for agroforestry adoption.
+    description: Binary indicator for agroforestry practice
+
   extension_visits:
     type: integer
-    minimum: 0
-    description: Number of agricultural extension visits in the last 12 months.
-  ndvi_mean:
+    description: Number of extension service visits
+
+  hlias:
+    type: integer
+    description: Household Food Insecurity Access Scale (raw count)
+
+  CSA_Index:
     type: number
-    minimum: -1
-    maximum: 1
-    description: Mean NDVI value within the 1km buffer during growing season.
-  ndvi_std:
+    format: float
+    description: Composite Climate-Smart Agriculture Index (0.0 - 4.0)
+
+  Stability_Score:
     type: number
-    minimum: 0
-    description: Standard deviation of NDVI within the 1km buffer.
-additionalProperties: false
+    format: float
+    description: Yield stability score (inverse of NDVI CV)
+
+  HFIAS:
+    type: number
+    format: float
+    description: Household Food Insecurity Access Scale (continuous score)
+
+  village_id:
+    type: string
+    description: Derived village identifier based on spatial grid

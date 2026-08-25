@@ -95,7 +95,7 @@ Smallholder farmers face increasing climate volatility, yet the specific contrib
 - **FR-003**: System MUST construct a CSA Adoption Index based on binary indicators of specific practices and extension visit frequency, validating the index against the survey data schema. *(See US-1)*
 - **FR-004**: System MUST execute two separate multiple linear regression models: (1) `Stability_Score ~ CSA_Index + Access_to_Finance + Controls` and (2) `HFIAS ~ CSA_Index + Access_to_Finance + Controls`, both using robust standard errors. *(See US-2)*
 - **FR-005**: System MUST calculate Variance Inflation Factor (VIF) scores for all predictors in both models to detect multicollinearity and flag any VIF > 5. *(See US-2)*
-- **FR-006**: System MUST perform a sensitivity analysis by sweeping the cloud cover threshold over the set $\{, 0.7, 0.8\}$ and report the variation in the primary `CSA_Index` coefficient for both models. *(See US-3)*
+- **FR-006**: System MUST perform a sensitivity analysis by sweeping the cloud cover threshold over a range of representative values including high-coverage conditions and report the variation in the primary `CSA_Index` coefficient for both models. *(See US-3)*
 - **FR-007**: System MUST apply a Bonferroni correction for multiple hypothesis testing (targeting a reduced significance threshold) when determining statistical significance. *(See US-3)*
 - **FR-008**: System MUST generate a final report that explicitly frames results as "associational" and includes a disclaimer regarding the lack of random assignment. *(See US-3)*
 

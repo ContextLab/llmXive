@@ -1,326 +1,278 @@
 """
-I/O Helpers for strict CSV/Parquet I/O and checksum verification.
+I/O Helpers: Strict CSV/Parquet I/O with checksum verification.
 
-This module provides robust, type-safe functions for reading and writing
-CSV and Parquet files with integrity checks (SHA-256). It enforces strict
-validation to prevent silent data corruption or schema drift.
-
-Key Features:
-- Strict reading: Raises exceptions on malformed data, missing columns, or type mismatches.
-- Checksum verification: Validates file integrity on read and generates checksums on write.
-- Atomic writes: Ensures files are written completely before renaming.
-- FatalError/IntegrityError: Custom exceptions for clear failure modes.
+This module provides robust file reading and writing functions that enforce
+data integrity through checksums and strict schema validation.
 """
-
 import hashlib
 import json
 import logging
 import os
-import tempfile
+import sys
 from pathlib import Path
-from typing import Optional, Union, Dict, Any, List, Literal
+from typing import Optional, Dict, Any, Union
 
 import pandas as pd
 import pyarrow.parquet as pq
 
-# Configure logger
+# Configure logging
 logger = logging.getLogger(__name__)
 
+
 class FatalError(Exception):
-    """
-    Raised when a critical, unrecoverable error occurs (e.g., missing real data,
-    invalid configuration, or schema violation that halts execution).
-    """
+    """Critical error that should stop execution immediately."""
     pass
+
 
 class IntegrityError(Exception):
-    """
-    Raised when data integrity checks fail (e.g., checksum mismatch,
-    corrupted file, or schema violation).
-    """
+    """Data integrity verification failed."""
     pass
 
-def _calculate_sha256(file_path: Path) -> str:
-    """Calculate SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
+
+def _compute_checksum(file_path: Path) -> str:
+    """Compute MD5 checksum of a file."""
+    hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for chunk in iter(lambda: f.read(8192), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
-def _write_atomic(file_path: Path, content: bytes) -> None:
-    """
-    Write content to a file atomically.
-    Writes to a temp file first, then renames to avoid partial writes.
-    """
-    dir_path = file_path.parent
-    dir_path.mkdir(parents=True, exist_ok=True)
 
-    fd, temp_path = tempfile.mkstemp(dir=dir_path, prefix=".tmp_")
-    try:
-        with os.fdopen(fd, 'wb') as tmp:
-            tmp.write(content)
-        os.replace(temp_path, file_path)
-    except Exception:
-        if os.path.exists(temp_path):
-            os.unlink(temp_path)
-        raise
+def _ensure_directory(file_path: Path) -> None:
+    """Ensure the directory for a file exists."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
 
 def read_csv_strict(
     file_path: Union[str, Path],
-    required_columns: Optional[List[str]] = None,
-    dtype_spec: Optional[Dict[str, Any]] = None,
+    expected_columns: Optional[list] = None,
     checksum: Optional[str] = None
 ) -> pd.DataFrame:
     """
     Read a CSV file with strict validation.
-
+    
     Args:
         file_path: Path to the CSV file.
-        required_columns: List of columns that MUST exist.
-        dtype_spec: Dictionary mapping column names to expected dtypes.
-        checksum: Expected SHA-256 checksum of the file.
-
+        expected_columns: Optional list of expected column names.
+        checksum: Optional expected MD5 checksum.
+        
     Returns:
-        pd.DataFrame: The validated DataFrame.
-
+        DataFrame with the CSV contents.
+        
     Raises:
         FatalError: If file does not exist or is unreadable.
-        IntegrityError: If checksum mismatch or schema violation.
+        IntegrityError: If checksum mismatch or column mismatch.
     """
     path = Path(file_path)
+    
     if not path.exists():
-        raise FatalError(f"File not found: {file_path}")
-
-    if checksum:
-        actual_checksum = _calculate_sha256(path)
-        if actual_checksum != checksum:
-            raise IntegrityError(
-                f"Checksum mismatch for {file_path}. "
-                f"Expected: {checksum}, Got: {actual_checksum}"
-            )
-
+        raise FatalError(f"CSV file not found: {path}")
+    
     try:
         df = pd.read_csv(path)
     except Exception as e:
-        raise FatalError(f"Failed to read CSV {file_path}: {e}")
-
-    if required_columns:
-        missing = set(required_columns) - set(df.columns)
+        raise FatalError(f"Failed to read CSV {path}: {e}")
+    
+    if checksum:
+        actual_checksum = _compute_checksum(path)
+        if actual_checksum != checksum:
+            raise IntegrityError(
+                f"Checksum mismatch for {path}: expected {checksum}, got {actual_checksum}"
+            )
+    
+    if expected_columns:
+        missing = set(expected_columns) - set(df.columns)
         if missing:
             raise IntegrityError(
-                f"Missing required columns in {file_path}: {missing}"
+                f"CSV {path} missing expected columns: {missing}"
             )
-
-    if dtype_spec:
-        for col, expected_type in dtype_spec.items():
-            if col in df.columns:
-                if not pd.api.types.is_dtype_equal(df[col].dtype, expected_type):
-                    # Attempt safe conversion if possible, otherwise raise
-                    try:
-                        df[col] = df[col].astype(expected_type)
-                    except Exception:
-                        raise IntegrityError(
-                            f"Type mismatch for column '{col}' in {file_path}. "
-                            f"Expected {expected_type}, got {df[col].dtype}"
-                        )
-
+    
+    logger.info(f"Successfully read CSV: {path} ({len(df)} rows)")
     return df
+
 
 def write_csv_strict(
     df: pd.DataFrame,
     file_path: Union[str, Path],
-    checksum_file: Optional[Union[str, Path]] = None
+    index: bool = False
 ) -> str:
     """
-    Write a DataFrame to CSV strictly.
-
+    Write a DataFrame to CSV with strict validation.
+    
     Args:
         df: DataFrame to write.
-        file_path: Target path.
-        checksum_file: Optional path to write the checksum file (.sha256).
-
+        file_path: Output path.
+        index: Whether to write row index.
+        
     Returns:
-        str: The calculated SHA-256 checksum of the written file.
+        MD5 checksum of the written file.
+        
+    Raises:
+        FatalError: If write fails.
     """
     path = Path(file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write to buffer first to calculate hash
-    csv_content = df.to_csv(index=False).encode('utf-8')
-    checksum = hashlib.sha256(csv_content).hexdigest()
-
-    _write_atomic(path, csv_content)
-    logger.info(f"Wrote CSV to {path} (checksum: {checksum})")
-
-    if checksum_file:
-        ck_path = Path(checksum_file)
-        ck_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(ck_path, 'w') as f:
-            f.write(checksum)
-        logger.debug(f"Wrote checksum to {ck_path}")
-
+    _ensure_directory(path)
+    
+    try:
+        df.to_csv(path, index=index)
+    except Exception as e:
+        raise FatalError(f"Failed to write CSV {path}: {e}")
+    
+    checksum = _compute_checksum(path)
+    logger.info(f"Successfully wrote CSV: {path} ({len(df)} rows), checksum: {checksum}")
     return checksum
+
 
 def read_parquet_strict(
     file_path: Union[str, Path],
-    required_columns: Optional[List[str]] = None,
+    expected_columns: Optional[list] = None,
     checksum: Optional[str] = None
 ) -> pd.DataFrame:
     """
     Read a Parquet file with strict validation.
-
+    
     Args:
         file_path: Path to the Parquet file.
-        required_columns: List of columns that MUST exist.
-        checksum: Expected SHA-256 checksum of the file.
-
+        expected_columns: Optional list of expected column names.
+        checksum: Optional expected MD5 checksum.
+        
     Returns:
-        pd.DataFrame: The validated DataFrame.
-
+        DataFrame with the Parquet contents.
+        
     Raises:
         FatalError: If file does not exist or is unreadable.
-        IntegrityError: If checksum mismatch or schema violation.
+        IntegrityError: If checksum mismatch or column mismatch.
     """
     path = Path(file_path)
+    
     if not path.exists():
-        raise FatalError(f"File not found: {file_path}")
-
+        raise FatalError(f"Parquet file not found: {path}")
+    
+    try:
+        df = pd.read_parquet(path)
+    except Exception as e:
+        raise FatalError(f"Failed to read Parquet {path}: {e}")
+    
     if checksum:
-        actual_checksum = _calculate_sha256(path)
+        actual_checksum = _compute_checksum(path)
         if actual_checksum != checksum:
             raise IntegrityError(
-                f"Checksum mismatch for {file_path}. "
-                f"Expected: {checksum}, Got: {actual_checksum}"
+                f"Checksum mismatch for {path}: expected {checksum}, got {actual_checksum}"
             )
-
-    try:
-        table = pq.read_table(path)
-        df = table.to_pandas()
-    except Exception as e:
-        raise FatalError(f"Failed to read Parquet {file_path}: {e}")
-
-    if required_columns:
-        missing = set(required_columns) - set(df.columns)
+    
+    if expected_columns:
+        missing = set(expected_columns) - set(df.columns)
         if missing:
             raise IntegrityError(
-                f"Missing required columns in {file_path}: {missing}"
+                f"Parquet {path} missing expected columns: {missing}"
             )
-
+    
+    logger.info(f"Successfully read Parquet: {path} ({len(df)} rows)")
     return df
+
 
 def write_parquet_strict(
     df: pd.DataFrame,
     file_path: Union[str, Path],
-    checksum_file: Optional[Union[str, Path]] = None
+    index: bool = False
 ) -> str:
     """
-    Write a DataFrame to Parquet strictly.
-
+    Write a DataFrame to Parquet with strict validation.
+    
     Args:
         df: DataFrame to write.
-        file_path: Target path.
-        checksum_file: Optional path to write the checksum file (.sha256).
-
+        file_path: Output path.
+        index: Whether to write row index.
+        
     Returns:
-        str: The calculated SHA-256 checksum of the written file.
+        MD5 checksum of the written file.
+        
+    Raises:
+        FatalError: If write fails.
     """
     path = Path(file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write to buffer to calculate hash
-    import pyarrow as pa
-    table = pa.Table.from_pandas(df)
-    sink = pa.BufferOutputStream()
-    pq.write_table(table, sink)
-    buffer = sink.getvalue()
-    content = buffer.to_pybytes()
-    checksum = hashlib.sha256(content).hexdigest()
-
-    _write_atomic(path, content)
-    logger.info(f"Wrote Parquet to {path} (checksum: {checksum})")
-
-    if checksum_file:
-        ck_path = Path(checksum_file)
-        ck_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(ck_path, 'w') as f:
-            f.write(checksum)
-        logger.debug(f"Wrote checksum to {ck_path}")
-
+    _ensure_directory(path)
+    
+    try:
+        df.to_parquet(path, index=index)
+    except Exception as e:
+        raise FatalError(f"Failed to write Parquet {path}: {e}")
+    
+    checksum = _compute_checksum(path)
+    logger.info(f"Successfully wrote Parquet: {path} ({len(df)} rows), checksum: {checksum}")
     return checksum
+
 
 def load_json_strict(
     file_path: Union[str, Path],
-    required_keys: Optional[List[str]] = None
+    expected_keys: Optional[list] = None
 ) -> Dict[str, Any]:
     """
     Load a JSON file with strict validation.
-
+    
     Args:
         file_path: Path to the JSON file.
-        required_keys: List of top-level keys that MUST exist.
-
+        expected_keys: Optional list of expected top-level keys.
+        
     Returns:
-        Dict[str, Any]: The loaded JSON data.
-
+        Parsed JSON as a dictionary.
+        
     Raises:
         FatalError: If file does not exist or is invalid JSON.
-        IntegrityError: If required keys are missing.
+        IntegrityError: If expected keys are missing.
     """
     path = Path(file_path)
+    
     if not path.exists():
-        raise FatalError(f"File not found: {file_path}")
-
+        raise FatalError(f"JSON file not found: {path}")
+    
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
-        raise FatalError(f"Invalid JSON in {file_path}: {e}")
+        raise FatalError(f"Invalid JSON in {path}: {e}")
     except Exception as e:
-        raise FatalError(f"Failed to read JSON {file_path}: {e}")
-
-    if not isinstance(data, dict):
-        raise IntegrityError(f"JSON in {file_path} must be an object at the root.")
-
-    if required_keys:
-        missing = set(required_keys) - set(data.keys())
+        raise FatalError(f"Failed to read JSON {path}: {e}")
+    
+    if expected_keys:
+        missing = set(expected_keys) - set(data.keys())
         if missing:
             raise IntegrityError(
-                f"Missing required keys in {file_path}: {missing}"
+                f"JSON {path} missing expected keys: {missing}"
             )
-
+    
+    logger.info(f"Successfully loaded JSON: {path}")
     return data
+
 
 def write_json_strict(
     data: Dict[str, Any],
     file_path: Union[str, Path],
-    checksum_file: Optional[Union[str, Path]] = None
+    indent: int = 2
 ) -> str:
     """
-    Write data to a JSON file strictly.
-
+    Write a dictionary to JSON with strict validation.
+    
     Args:
         data: Dictionary to write.
-        file_path: Target path.
-        checksum_file: Optional path to write the checksum file (.sha256).
-
+        file_path: Output path.
+        indent: Indentation level for pretty printing.
+        
     Returns:
-        str: The calculated SHA-256 checksum of the written file.
+        MD5 checksum of the written file.
+        
+    Raises:
+        FatalError: If write fails.
     """
     path = Path(file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    json_content = json.dumps(data, indent=2, ensure_ascii=False).encode('utf-8')
-    checksum = hashlib.sha256(json_content).hexdigest()
-
-    _write_atomic(path, json_content)
-    logger.info(f"Wrote JSON to {path} (checksum: {checksum})")
-
-    if checksum_file:
-        ck_path = Path(checksum_file)
-        ck_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(ck_path, 'w') as f:
-            f.write(checksum)
-        logger.debug(f"Wrote checksum to {ck_path}")
-
+    _ensure_directory(path)
+    
+    try:
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=indent)
+    except Exception as e:
+        raise FatalError(f"Failed to write JSON {path}: {e}")
+    
+    checksum = _compute_checksum(path)
+    logger.info(f"Successfully wrote JSON: {path}, checksum: {checksum}")
     return checksum

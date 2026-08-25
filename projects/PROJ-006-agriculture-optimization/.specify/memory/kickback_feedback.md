@@ -4,9 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T003` (rejected 1x): No linting/formatting configuration files (e.g., `pyproject.toml` or `setup.cfg` for Black, `.flake8` for Flake8, `.isort.cfg` or `pyproject.toml` section for isort) or a `.gitignore` file are present in the provided evidence. The implementer must add these concrete configuration files to the repository.
-- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T008` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T010a` (rejected 1x): The repository contains `src/cli/run_pipeline.py`, which appears to implement the required logic and flags, but the required workflow file `.github/workflows/ci.yml` is completely missing. Without this CI configuration the task is not fully satisfied.
 
 ## Required change
 

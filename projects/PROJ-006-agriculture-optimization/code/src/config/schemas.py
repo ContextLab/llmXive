@@ -1,154 +1,120 @@
 """
-Internal contract definitions for the llmXive agriculture optimization pipeline.
-
-This module defines Pydantic models used for validating data structures
-during ingestion, processing, and analysis. These schemas enforce the
-data contracts specified in the project design documents.
+Internal contract definitions for the agriculture optimization pipeline.
+Defines Pydantic models for data validation across the pipeline stages.
 """
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field, field_validator
+from typing import List, Optional, Dict, Any, Union
+from pydantic import BaseModel, Field, field_validator, model_validator
 from datetime import datetime
 import os
 from pathlib import Path
 
-# Constants for validation thresholds (referenced from constants.py if needed,
-# but defined here for self-contained schema validation)
-MIN_SAMPLE_SIZE = 300
-VALID_COUNTRIES = {"Malawi", "Tanzania"}
-VALID_GROWING_SEASONS = {
-    "Malawi": ["March-May"],
-    "Tanzania": ["March-May", "Nov-Dec"]
-}
-
+# --- Data Ingestion Models ---
 
 class HouseholdRecord(BaseModel):
-    """Schema for a single household record from LSMS-ISA survey data."""
-    household_id: str = Field(..., description="Unique identifier for the household")
-    country: str = Field(..., description="Country name (Malawi or Tanzania)")
-    region: str = Field(..., description="Administrative region")
-    village_id: str = Field(..., description="Village identifier for aggregation")
-    latitude: float = Field(..., ge=-90, le=90, description="Latitude coordinate")
-    longitude: float = Field(..., ge=-180, le=180, description="Longitude coordinate")
-    survey_year: int = Field(..., ge=2000, le=2030, description="Year of survey")
-    plot_area_ha: float = Field(..., ge=0.0, description="Total plot area in hectares")
-    crop_types: List[str] = Field(default_factory=list, description="List of crops grown")
-    csa_practices: List[str] = Field(default_factory=list, description="List of adopted CSA practices")
-    extension_frequency: int = Field(default=0, ge=0, description="Frequency of extension visits")
-    hfias_score: Optional[float] = Field(None, ge=0.0, description="Household Food Insecurity Access Scale score")
-    yield_stability_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Calculated yield stability score")
-    csa_index: Optional[float] = Field(None, ge=0.0, le=1.0, description="Calculated CSA adoption index")
-
-    @field_validator('country')
-    @classmethod
-    def validate_country(cls, v: str) -> str:
-        if v not in VALID_COUNTRIES:
-            raise ValueError(f"Country must be one of {VALID_COUNTRIES}, got '{v}'")
-        return v
-
-    @field_validator('crops')
-    @classmethod
-    def validate_crops(cls, v: List[str]) -> List[str]:
-        if not v:
-            raise ValueError("crop_types cannot be empty")
-        return v
-
+    """Schema for raw survey data from LSMS-ISA."""
+    household_id: int = Field(..., description="Unique household identifier")
+    latitude: float = Field(..., ge=-90, le=90, description="Latitude (fuzzed)")
+    longitude: float = Field(..., ge=-180, le=180, description="Longitude (fuzzed)")
+    land_size: float = Field(..., ge=0, description="Land size in hectares")
+    education_level: int = Field(..., ge=0, description="Years of education")
+    finance_access: bool = Field(..., description="Access to financial services")
+    
+    # Practice indicators (binary)
+    practice_mixed_farming: bool = Field(default=False, description="Mixed farming practice")
+    practice_terracing: bool = Field(default=False, description="Terracing practice")
+    practice_conservation_tillage: bool = Field(default=False, description="Conservation tillage")
+    practice_agroforestry: bool = Field(default=False, description="Agroforestry practice")
+    
+    # Support and Outcomes
+    extension_visits: int = Field(default=0, ge=0, description="Number of extension visits")
+    hlias: int = Field(default=0, ge=0, description="Household Food Insecurity Access Scale")
+    
+    # Derived/Calculated fields (optional in raw, required in processed)
+    CSA_Index: Optional[float] = Field(None, description="Composite CSA adoption index")
+    Stability_Score: Optional[float] = Field(None, description="Yield stability score (1/CV)")
+    HFIAS: Optional[float] = Field(None, description="Food insecurity score")
+    village_id: Optional[str] = Field(None, description="Derived village cluster ID")
 
 class RemoteSensingPixel(BaseModel):
-    """Schema for a single remote sensing pixel record."""
+    """Schema for a single satellite pixel observation."""
     pixel_id: str = Field(..., description="Unique pixel identifier")
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     acquisition_date: datetime = Field(..., description="Satellite acquisition date")
-    ndvi: float = Field(..., ge=-1.0, le=1.0, description="Normalized Difference Vegetation Index")
-    cloud_cover: float = Field(..., ge=0.0, le=100.0, description="Cloud cover percentage")
-    band_b02: float = Field(..., description="Blue band reflectance")
-    band_b03: float = Field(..., description="Green band reflectance")
-    band_b04: float = Field(..., description="Red band reflectance")
-    band_b08: float = Field(..., description="NIR band reflectance")
+    cloud_cover: float = Field(..., ge=0.0, le=1.0, description="Cloud cover fraction")
+    ndvi: float = Field(..., description="Normalized Difference Vegetation Index")
+    source: str = Field(..., description="Data source (e.g., Sentinel-2)")
 
-    @field_validator('cloud_cover')
-    @classmethod
-    def validate_cloud_cover(cls, v: float) -> float:
-        if v > 80.0:  # Hard threshold for unusable data
-            raise ValueError(f"Cloud cover {v}% exceeds maximum threshold of 80%")
-        return v
-
+# --- Processed Analysis Models ---
 
 class AnalysisDatasetRecord(BaseModel):
-    """Schema for the final analysis-ready dataset record."""
-    household_id: str
-    country: str
-    village_id: str
-    survey_year: int
-    csa_index: float = Field(..., ge=0.0, le=1.0)
-    stability_score: float = Field(..., ge=0.0, le=1.0)
-    hfias: float = Field(..., ge=0.0)
-    mean_ndvi: float = Field(..., ge=-1.0, le=1.0)
-    ndvi_cv: float = Field(..., ge=0.0)
-    cloud_cover_mean: float = Field(..., ge=0.0, le=100.0)
-    plot_area_ha: float
-    extension_frequency: int
-    sample_size: int = Field(..., ge=1)
-    aggregation_level: str = Field(..., pattern="^(household|village)$")
+    """Schema for the final analysis-ready dataset (merged survey + satellite)."""
+    household_id: int = Field(..., description="Unique household identifier")
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    village_id: str = Field(..., description="Derived village cluster ID for clustering")
+    
+    # Predictors
+    land_size: float = Field(..., ge=0)
+    education_level: int = Field(..., ge=0)
+    finance_access: bool = Field(...)
+    
+    # Practice indicators
+    practice_mixed_farming: bool = Field(default=False)
+    practice_terracing: bool = Field(default=False)
+    practice_conservation_tillage: bool = Field(default=False)
+    practice_agroforestry: bool = Field(default=False)
+    
+    # Derived Indices
+    CSA_Index: float = Field(..., ge=0, description="Sum of practice indicators or weighted index")
+    Stability_Score: float = Field(..., ge=0, description="Inverse of NDVI Coefficient of Variation")
+    HFIAS: float = Field(..., description="Food insecurity score")
+    extension_visits: int = Field(..., ge=0)
+    
+    # Metadata
+    linkage_status: str = Field(..., description="Status of spatial linkage (linked/aggregated)")
 
-    @field_validator('aggregation_level')
-    @classmethod
-    def validate_agg_level(cls, v: str) -> str:
-        if v not in {"household", "village"}:
-            raise ValueError(f"aggregation_level must be 'household' or 'village', got '{v}'")
-        return v
-
+# --- Analysis Output Models ---
 
 class RegressionOutput(BaseModel):
-    """Schema for regression model output."""
-    model_name: str
-    dependent_variable: str
-    independent_variables: List[str]
-    coefficients: Dict[str, float]
-    p_values: Dict[str, float]
-    std_errors: Dict[str, float]
-    r_squared: float
-    adj_r_squared: float
-    n_observations: int
-    vif_scores: Dict[str, float]
-    bonferroni_adjusted: bool
-    bonferroni_threshold: float
-    robust_se: bool
-    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
-
+    """Schema for regression model results."""
+    model_name: str = Field(..., description="Identifier for the model (e.g., 'Model1_Stability')")
+    dependent_variable: str = Field(..., description="Name of the dependent variable")
+    independent_variables: List[str] = Field(..., description="List of predictor names")
+    
+    # Results
+    coefficients: Dict[str, float] = Field(..., description="Coefficients for each predictor")
+    p_values: Dict[str, float] = Field(..., description="P-values for each predictor")
+    adjusted_r_squared: float = Field(..., ge=0, le=1, description="Adjusted R-squared")
+    vif_scores: Dict[str, float] = Field(..., description="Variance Inflation Factors")
+    
+    # Diagnostics
+    collinearity_warning: bool = Field(default=False, description="True if any VIF > 5")
+    standard_error_type: str = Field(..., description="Type of SE used (e.g., 'cluster_robust', 'robust')")
+    n_observations: int = Field(..., ge=1)
+    n_clusters: Optional[int] = Field(None, description="Number of clusters if clustered SE used")
 
 class SensitivityResult(BaseModel):
-    """Schema for sensitivity analysis results."""
-    threshold_value: float
-    coefficient_csa_index: float
-    p_value_csa_index: float
-    r_squared: float
-    n_observations: int
-    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+    """Schema for sensitivity analysis results across thresholds."""
+    threshold_type: str = Field(..., description="Type of threshold (e.g., 'cloud_cover')")
+    threshold_value: float = Field(..., description="The specific threshold value used")
+    model_name: str = Field(..., description="Which model this result belongs to")
+    coefficient_csa_index: float = Field(..., description="Coefficient for CSA_Index at this threshold")
+    p_value_csa_index: float = Field(..., description="P-value for CSA_Index at this threshold")
+    n_observations: int = Field(..., ge=1)
 
+# --- Validation Helpers ---
 
-# Validation utilities
-def validate_dataset_schema(df: Any) -> bool:
+def validate_dataset_schema(data: Dict[str, Any]) -> AnalysisDatasetRecord:
     """
-    Validate a pandas DataFrame against the AnalysisDatasetRecord schema.
-    
-    Args:
-        df: pandas DataFrame to validate
-        
-    Returns:
-        True if valid, raises ValueError if invalid
+    Validates a dictionary against the AnalysisDatasetRecord schema.
+    Raises ValidationError if invalid.
     """
-    try:
-        # Convert DataFrame to list of dicts for validation
-        records = df.to_dict(orient='records')
-        for i, record in enumerate(records):
-            AnalysisDatasetRecord(**record)
-        return True
-    except Exception as e:
-        raise ValueError(f"Dataset validation failed at record {i}: {str(e)}")
+    return AnalysisDatasetRecord(**data)
 
-
-def validate_regression_output(output: Dict[str, Any]) -> bool:
-    """Validate regression output dictionary."""
-    RegressionOutput(**output)
-    return True
+def validate_regression_output(data: Dict[str, Any]) -> RegressionOutput:
+    """
+    Validates a dictionary against the RegressionOutput schema.
+    Raises ValidationError if invalid.
+    """
+    return RegressionOutput(**data)

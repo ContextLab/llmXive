@@ -5,57 +5,35 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-agriculture-optimization"
 version = "0.1.0"
-description = "Climate-Smart Agriculture Optimization Pipeline"
-readme = "README.md"
+description = "Climate-Smart Agricultural Practices Analysis Pipeline"
 requires-python = ">=3.9"
-dependencies = [
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "pydantic>=2.0.0",
-    "pyyaml>=6.0",
-    "requests>=2.31.0",
-    "geopandas>=0.13.0",
-    "rasterio>=1.3.0",
-    "shapely>=2.0.0",
-    "statsmodels>=0.14.0",
-    "matplotlib>=3.7.0",
-    "reportlab>=4.0.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.4.0",
-    "black>=23.0.0",
-    "flake8>=6.1.0",
-    "isort>=5.12.0",
-]
+dependencies = []
 
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | \.eggs
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["src", "scripts", "tests"]
+known_first_party = ["src", "scripts", "tests", "contracts", "data"]
+skip = [".git", ".eggs", "build", "dist"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v --strict-markers"
