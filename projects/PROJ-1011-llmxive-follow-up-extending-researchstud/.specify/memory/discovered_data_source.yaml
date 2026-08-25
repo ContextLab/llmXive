@@ -1,0 +1,14 @@
+status: none
+intent: PeerRead dataset and OpenAlex API for Nature Climate Change Health Affairs
+  arXiv abstracts python package dataset
+required_fields:
+- title
+- abstract
+- venue
+- acceptance_status
+- authors
+- publication_year
+- doi
+cache_key: cd461f400b5d1b79be48e28901c1ce645c5d8656842314c2e410701a37a54e11
+searched_at: '2026-08-25T22:53:37.735106+00:00'
+retry_count: 1

@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Proposal Schema"
+description: "Schema for generated research proposals"
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the proposal"
+  problem_statement_id:
+    type: string
+    description: "Reference to the source problem statement"
+  type:
+    type: string
+    enum:
+      - "pattern_guided"
+      - "baseline"
+    description: "Type of generation"
+  content:
+    type: string
+    description: "Full text of the generated proposal"
+  generation_metadata:
+    type: object
+    properties:
+      model:
+        type: string
+        description: "Model used for generation"
+      patterns_used:
+        type: array
+        items:
+          type: string
+        description: "List of pattern IDs used (if pattern_guided)"
+      timestamp:
+        type: string
+        format: date-time
+        description: "Generation timestamp"
+    required:
+      - model
+      - timestamp
+required:
+  - id
+  - problem_statement_id
+  - type
+  - content
+  - generation_metadata
+additionalProperties: false

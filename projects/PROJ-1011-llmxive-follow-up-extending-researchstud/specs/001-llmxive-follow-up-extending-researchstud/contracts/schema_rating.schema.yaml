@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Rating Schema"
+description: "Schema for expert evaluation ratings"
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the rating"
+  proposal_id:
+    type: string
+    description: "Reference to the proposal being rated"
+  expert_id:
+    type: string
+    description: "Anonymized expert identifier"
+  metric:
+    type: string
+    enum:
+      - "feasibility"
+      - "bottleneck"
+      - "alignment"
+    description: "Evaluation metric"
+  score:
+    type: integer
+    minimum: 1
+    maximum: 5
+    description: "Likert scale score"
+  comments:
+    type: string
+    description: "Optional qualitative feedback"
+required:
+  - id
+  - proposal_id
+  - expert_id
+  - metric
+  - score
+additionalProperties: false
