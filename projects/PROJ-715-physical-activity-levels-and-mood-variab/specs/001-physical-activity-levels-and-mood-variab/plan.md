@@ -13,7 +13,7 @@ This project implements a statistical analysis pipeline to investigate the assoc
 **Primary Dependencies**: `pandas`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `numpy`
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`)
 **Testing**: `pytest` (contract tests against YAML schemas, unit tests for aggregation logic)
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7GB RAM)
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~GB RAM)
 **Project Type**: Computational Research Pipeline (CLI/Data Processing)
 **Performance Goals**: Complete full pipeline (ingestion to report) within 6 hours on CPU-only runner.
 **Constraints**: No GPU usage; memory usage < 6GB; strict handling of missing data; explicit "associational" framing.
@@ -27,7 +27,7 @@ This project implements a statistical analysis pipeline to investigate the assoc
 
 | Principle | Requirement | Implementation Plan Alignment |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | Random seeds pinned; external datasets from canonical source. | `code/` scripts will set `np.random.seed(42)` and `random.seed(42)`. Data fetched via verified HuggingFace mirror of OSF DOI. |
+| **I. Reproducibility** | Random seeds pinned; external datasets from canonical source. | `code/` scripts will set `np.random.seed()` and `random.seed()` with a fixed integer to ensure reproducibility.. Data fetched via verified HuggingFace mirror of OSF DOI. |
 | **II. Verified Accuracy** | Citations verified against primary sources. | `research.md` cites only verified dataset URLs. The `Reference-Validator` agent will check title-token overlap (threshold) before awarding review points. |
 | **III. Data Hygiene** | Checksums recorded; raw data immutable; derivations new files. | `ingest.py` computes SHA256 checksum of downloaded files and records it in `state/projects/PROJ-715...yaml`. `data/raw` stores the immutable parquet. |
 | **IV. Single Source of Truth** | Figures/stats trace to one row in `data/` and one block in `code/`. | Report generation will read exclusively from `data/processed/daily_aggregates.csv` and `data/processed/model_results.json`. |

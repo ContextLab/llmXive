@@ -1,64 +1,70 @@
+"""
+Verification script for the raw bronze data artifact.
+This script explicitly verifies that data/raw/bronze.parquet exists and is readable.
+It is a dependency for T011 (preprocess.py).
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 import pandas as pd
+
 from config import get_path, init_logger
 
-logger = logging.getLogger(__name__)
+# Initialize logger
+logger = init_logger(__name__)
 
-def verify_bronze_parquet() -> bool:
+def verify_bronze_parquet():
     """
-    Explicitly verify that data/raw/bronze.parquet exists and is readable.
-    
-    This task (T007b) ensures the artifact produced by T007 is valid.
-    It checks:
-    1. File existence at the declared path.
-    2. File readability (can be loaded by pandas).
-    3. Non-empty content (at least one row).
-    
-    Returns:
-        True if verification passes.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or corrupted.
-        RuntimeError: If the file cannot be read as a Parquet file.
+    Verify that the bronze parquet file exists and is readable.
+    Raises RuntimeError if the file is missing or corrupted.
     """
-    # Resolve path using the project's config utility
-    path = get_path("data/raw", "bronze.parquet")
-    logger.info(f"Verifying artifact: {path}")
-    
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Bronze data not found at {path}. Run ingest.py first.")
-    
+    file_path = get_path("data", "raw", "bronze.parquet")
+    path_obj = Path(file_path)
+
+    # Check existence
+    if not path_obj.exists():
+        raise RuntimeError(
+            f"CRITICAL: Artifact verification failed. "
+            f"File '{file_path}' does not exist. "
+            f"Please ensure T007 (ingest.py) has run successfully and downloaded the data."
+        )
+
+    logger.info(f"File found: {file_path} ({path_obj.stat().st_size} bytes)")
+
+    # Check readability
     try:
-        # Attempt to load the file to verify it is a valid Parquet
-        df = pd.read_parquet(path)
+        df = pd.read_parquet(file_path)
+        logger.info(f"Successfully read parquet file. Shape: {df.shape}")
+        logger.info(f"Columns: {list(df.columns)}")
         
+        # Basic sanity check: ensure it's not empty
         if df.empty:
-            raise ValueError(f"Bronze data at {path} is empty. The ingestion process may have failed to extract data.")
+            raise RuntimeError(
+                f"CRITICAL: Artifact verification failed. "
+                f"File '{file_path}' exists but is empty (0 rows)."
+            )
         
-        logger.info(f"Verification successful: {len(df)} rows loaded from {path}")
+        logger.info("Artifact verification PASSED.")
         return True
-        
-    except pd.errors.EmptyDataError:
-        raise ValueError(f"Bronze data at {path} is empty or corrupted.")
+
     except Exception as e:
-        raise RuntimeError(f"Failed to read or parse bronze.parquet at {path}: {e}")
+        raise RuntimeError(
+            f"CRITICAL: Artifact verification failed. "
+            f"File '{file_path}' exists but could not be read as a valid parquet file. "
+            f"Error: {str(e)}"
+        )
 
 def main():
-    """Entry point for T007b verification script."""
-    init_logger()
-    logger.info("Starting Artifact Verification (T007b)")
-    
+    """Entry point for verification."""
+    logger.info("Starting artifact verification for T007b...")
     try:
         verify_bronze_parquet()
-        logger.info("Artifact verification PASSED. data/raw/bronze.parquet is valid.")
-        return 0
-    except Exception as e:
-        logger.error(f"Artifact verification FAILED: {e}")
-        return 1
+        logger.info("Verification complete. Ready for T011.")
+        sys.exit(0)
+    except RuntimeError as e:
+        logger.error(str(e))
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

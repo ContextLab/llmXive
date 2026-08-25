@@ -1,2 +1,5 @@
+execution_context:
+  gpu_required: false
+  fallback_script: scripts/run_gpu_bootstrap.sh
 artifact_hashes:
-  data_raw_bronze: "77dcce1d1e00be41dff0294d1fae083258dcf6816f6c6940bc97626beae1d5cf"
+  data_raw_bronze: null

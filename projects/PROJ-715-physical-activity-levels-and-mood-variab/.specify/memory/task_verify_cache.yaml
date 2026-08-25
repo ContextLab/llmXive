@@ -1,3 +1,12 @@
+T007:
+  c: false
+  h: 5627346b419c539330b6c7ac585607ad2f35cb7946641123474b64865d1c99bf
+  r: "The repository lacks the required `data/raw/bronze.parquet` file and the state\
+    \ YAML still contains `data_raw_bronze: null`, indicating the checksum was never\
+    \ written. Moreover, `code/ingest.py` defines but never uses `compute_sha256`\
+    \ and does not invoke `update_state_artifact_hash` to atomically record the hash.\
+    \ The download\u2011to\u2011parquet conversion and state update steps are therefore\
+    \ not implemented."
 T011:
   c: true
   h: 50836a4fcc5f35d55d8225c894f4c917d7e7c34d8ce9b8f965cff72b580d151c
@@ -20,8 +29,21 @@ T038:
     demonstrating that the documentation was checked and confirmed accurate.
 T051:
   c: true
-  h: 3304e947ac0485c01b4b53ccb9557dce03be1fe419d425ad0a1f092e2bfc1927
-  r: "The repository contains a non\u2011empty `code/validate_raw.py` that checks\
-    \ for the presence, non\u2011zero size, and SHA\u2011256 checksum of `data/raw/bronze.parquet`,\
+  h: d94a0051f016590d95d76e2995178a2a225532b80913027c39e82bc98af5085b
+  r: "The repository includes a non\u2011empty `code/validate_raw.py` that checks\
+    \ for the presence, non\u2011emptiness, and SHA\u2011256 checksum of `data/raw/bronze.parquet`,\
     \ raising a `RuntimeError` with clear messages when the file is missing or corrupted,\
-    \ satisfying the task\u2019s requirement."
+    \ satisfying the task\u2019s specification."
+T063:
+  c: false
+  h: bf6e452c22fbddcce8f74f21eabb7681bd0de2dff970481bee22c0b07df84ebc
+  r: "The required artifact `data/raw/bronze.parquet` does not exist on disk, so the\
+    \ download logic and fallback handling have not been demonstrated. The task\u2019\
+    s primary output is missing, indicating the implementation is not complete."
+T064:
+  c: false
+  h: 22f988245e47c4cf4bba7e8ac97d42f0d2eb235c562faa81448b939cd0058bfb
+  r: "The repository lacks the required `data/processed/preprocess_stats.json` file,\
+    \ and the shown portion of `code/preprocess.py` does not contain an `init_preprocess_stats()`\
+    \ function that writes this JSON file. Consequently, the task\u2019s core output\
+    \ and behavior are missing."

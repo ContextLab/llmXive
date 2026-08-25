@@ -300,3 +300,670 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T08:52:42Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: full pipeline integration test execution time limit 6 hours
+  claim_id: c_ee0c2769
+  context: "Phase 8: Polish & Cross\u2011Cutting Concerns - T036: Run full pipeline\
+    \ integration test in tests/integration/test_full_pipeline.py to verify end\u2011\
+    to\u2011end execution within 6 hours"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run full integration tests within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T07:52:52Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: bootstrap sampling loop iterations 1000
+  claim_id: c_4886f447
+  context: 'Phase 5: User Story 3 - T031c: Implement Bootstrap Loop ... executes a
+    bootstrap sampling loop with config.BOOTSTRAP_ITERATIONS (1000) iterations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap sampling loop executes 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T07:53:21Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: LOPO coefficient sign consistency threshold 90 percent
+  claim_id: c_81055740
+  context: 'Phase 5: User Story 3 - T026: Unit test ... asserting sign_consistency
+    >= 0.90.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LOPO_coefficient_sign_consistency_threshold_90_percent
+  kind: magnitude
+  raw_text: The LOPO coefficient consistency must be greater than or equal to 90%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T07:53:59Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: bootstrap consistency for single-rating handling threshold 80 percent
+  claim_id: c_c2938249
+  context: "Phase 5: User Story 3 - Independent Test: Verify final report contains\
+    \ ... bootstrap consistency for single\u2011rating handling (\u2265 80%)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_consistency_for_single-rating_handling_threshold_8
+  kind: magnitude
+  raw_text: The bootstrap consistency for single-rating handling must be greater than
+    or equal to 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T07:54:31Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: exclude participants with fewer than 3 valid days from random-effects
+    model
+  claim_id: c_959012b3
+  context: 'Phase 3: User Story 1 - T050: Identify participants with < 3 valid days
+    ... exclude these participants from the random-effects model fitting.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_fewer_than_3_valid_days_from_rando
+  kind: magnitude
+  raw_text: Participants with fewer than 3 valid days are excluded from random-effects
+    model fitting.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T07:55:23Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: exclude days with fewer than 2 mood ratings from daily aggregates
+  claim_id: c_63ff4a43
+  context: 'Phase 3: User Story 1 - T015: Write the filtered dataset (excluding days
+    with n_mood_ratings < 2) to data/processed/daily_aggregates.csv.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_days_with_fewer_than_2_mood_ratings_from_daily_aggre
+  kind: magnitude
+  raw_text: Days with fewer than 2 mood ratings are excluded from the final daily
+    aggregates.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T07:55:57Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: filter days with 0 mood ratings first
+  claim_id: c_1d6685fc
+  context: 'Phase 3: User Story 1 - T014a: Filter out days with 0 mood ratings FIRST
+    (drop entirely to avoid division-by-zero).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Days with 0 mood ratings are filtered out first to avoid division-by-zero.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T07:56:30Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: p-value threshold for consistency 0.05
+  claim_id: c_9111eec3
+  context: 'Phase 5: User Story 3 - T029: Return a result dictionary ... and boolean
+    flags for sign_consistent and pvalue_consistent (p < 0.05 status matches primary
+    model).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: smaller than 0.05. The remaining pairs form a plausible set of sensitivity
+        parameters
+      source_id: '1501.05788'
+      url: https://arxiv.org/abs/1501.05788
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The p-value threshold for consistency in sensitivity analysis is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T07:57:10Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: StudentLife dataset source OSF or HuggingFace
+  claim_id: c_f644574f
+  context: 'Task T063: Consolidated task to fetch the StudentLife dataset. Logic:
+    Attempt download from OSF DOI (primary). If OSF fails, attempt download from the
+    verified HuggingFace mirror.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/StudentLife_dataset_source_OSF_or_HuggingFace
+  kind: entity_fact
+  raw_text: The StudentLife dataset is downloaded from an OSF DOI or a verified HuggingFace
+    mirror.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T07:59:40Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Full pipeline integration test duration 6 hours
+  claim_id: c_37e7ad65
+  context: "Task T036: Run full pipeline integration test in tests/integration/test_full_pipeline.py\
+    \ to verify end\u2011to\u2011end execution within 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runs full integration tests within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:00:56Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Bootstrap iterations count 1000
+  claim_id: c_a4709886
+  context: 'Task T031c: Implement code/analysis.py function run_bootstrap_loop() that
+    executes a bootstrap sampling loop with config.BOOTSTRAP_ITERATIONS (1000) iterations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap sampling loop executes 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:00:57Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Bootstrap random seed 42 plus iteration index
+  claim_id: c_7b283143
+  context: 'Task T031c: Set np.random.seed(42 + i) (seed 42 defined in T004, incremented
+    by iteration).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for the bootstrap loop is 42 incremented by the iteration
+    index.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:02:55Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: LOPO sign consistency threshold 90 percent
+  claim_id: c_d3a5cca6
+  context: "Task T028b: Return a boolean pass flag (True if consistency >= 90%, False\
+    \ otherwise). Independent Test: Verify final report contains LOPO coefficient\
+    \ consistency (\u2265 90% sign stability)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LOPO cross-validation sign consistency threshold is 90%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:02:55Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Bootstrap single-rating consistency threshold 80 percent
+  claim_id: c_9e489d4d
+  context: "Task T031d: Calculate a boolean pass flag (True if percentage >= 80%,\
+    \ False otherwise). Independent Test: Verify final report contains... bootstrap\
+    \ consistency for single\u2011rating handling (\u2265 80%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap consistency threshold for single-rating handling is 80%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:02:55Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Diagnostic test results written to diagnostics_temp.json
+  claim_id: c_b7aad5b9
+  context: 'Task T023: Write the statistical test results (p-values) to data/processed/diagnostics_temp.json
+    under the key diagnostic_tests with structure {"shapiro_wilk_p_value": float,
+    "breusch_pagan_p_value": float}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diagnostic_test_results_written_to_diagnostics_temp.json
+  kind: entity_fact
+  raw_text: The Shapiro-Wilk and Breusch-Pagan diagnostic test results are written
+    to data/processed/diagnostics_temp.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:03:02Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Model results stored in model_results.json
+  claim_id: c_768eb840
+  context: 'Task T041: Write the complete JSON to data/processed/model_results.json.'
+  evidence:
+    entailment_evidence: Model results stored in model results.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Model_results_stored_in_model_results.json
+  kind: entity_fact
+  raw_text: The model results are stored in data/processed/model_results.json.
+  resolved_value: Model results stored in model_results.json
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T08:03:03Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Daily aggregates stored in daily_aggregates.csv
+  claim_id: c_86582162
+  context: 'Independent Test for User Story 1: Verify that data/processed/daily_aggregates.csv
+    contains one row per participant per day.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Daily_aggregates_stored_in_daily_aggregates.csv
+  kind: entity_fact
+  raw_text: The daily aggregates are stored in data/processed/daily_aggregates.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:03:09Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Raw daily aggregates stored in raw_daily_aggregates.csv
+  claim_id: c_0fb9b6ef
+  context: 'Task T014c: Write the unfiltered dataset (including single-rating days)
+    to data/processed/raw_daily_aggregates.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raw_daily_aggregates_stored_in_raw_daily_aggregates.csv
+  kind: entity_fact
+  raw_text: The raw daily aggregates including single-rating days are stored in data/processed/raw_daily_aggregates.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:03:31Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Preprocess stats stored in preprocess_stats.json
+  claim_id: c_31658528
+  context: 'Task T064: Writes data/processed/preprocess_stats.json with {"data_source_url":
+    "<url>", "excluded_days_count": 0, "reason": "initial"}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocess_stats_stored_in_preprocess_stats.json
+  kind: entity_fact
+  raw_text: The preprocess stats are stored in data/processed/preprocess_stats.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:03:43Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Raw data converted to bronze.parquet
+  claim_id: c_5284bcbb
+  context: 'Task T007: Convert the downloaded zip to data/raw/bronze.parquet.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raw_data_converted_to_bronze.parquet
+  kind: entity_fact
+  raw_text: The raw data is converted to data/raw/bronze.parquet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:04:56Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Participants with less than 3 valid days excluded from LMM
+  claim_id: c_e19b878a
+  context: 'Task T050: Identify participants with < 3 valid days. Log a warning and
+    exclude these participants from the random-effects model fitting.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_with_less_than_3_valid_days_excluded_from_LMM
+  kind: magnitude
+  raw_text: Participants with fewer than 3 valid days are excluded from random-effects
+    model fitting.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:04:58Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Days with zero mood ratings filtered out
+  claim_id: c_cfb883de
+  context: 'Task T014a: Filter out days with 0 mood ratings FIRST (drop entirely to
+    avoid division-by-zero).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Days_with_zero_mood_ratings_filtered_out
+  kind: entity_fact
+  raw_text: Days with zero mood ratings are filtered out before computing aggregates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:05:17Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Days with single mood rating retained in raw aggregates
+  claim_id: c_5baf0b38
+  context: 'Task T014a: Retain days with n_mood_ratings == 1 in the output DataFrame
+    (do NOT filter them out yet).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Days_with_single_mood_rating_retained_in_raw_aggregates
+  kind: entity_fact
+  raw_text: Days with a single mood rating are retained in the raw daily aggregates
+    for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:05:26Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Days with less than 2 mood ratings excluded from final aggregates
+  claim_id: c_0fa94e8e
+  context: 'Task T015: Write the filtered dataset (excluding days with n_mood_ratings
+    < 2) to data/processed/daily_aggregates.csv.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Days_with_less_than_2_mood_ratings_excluded_from_final_aggre
+  kind: magnitude
+  raw_text: Days with fewer than 2 mood ratings are excluded from the final daily
+    aggregates dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:05:37Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Log transformation formula log(mood_std + epsilon)
+  claim_id: c_e1f94140
+  context: 'Task T019c: Implement code/analysis.py function apply_log_transform(mood_std:
+    np.ndarray) -> np.ndarray that returns np.log(mood_std + epsilon).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_transformation_formula_log(mood_std_+_epsilon)
+  kind: entity_fact
+  raw_text: The log transformation applied to mood_std uses the formula np.log(mood_std
+    + epsilon).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:05:51Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Analysis findings labeled as associational
+  claim_id: c_98f9aee4
+  context: 'Task T065: The report MUST explicitly label all findings as "associational"
+    (FR-004).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_findings_labeled_as_associational
+  kind: entity_fact
+  raw_text: The analysis is explicitly labeled as associational in the report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:07:32Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Report includes limitations regarding causality
+  claim_id: c_8b9df4ba
+  context: 'Task T065: Include a section discussing limitations regarding causality.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_includes_limitations_regarding_causality
+  kind: entity_fact
+  raw_text: The report includes a section discussing limitations regarding causality.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:07:51Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Report includes 95% confidence intervals
+  claim_id: c_76969eb3
+  context: 'Task T065: Content: Include effect sizes, 95% confidence intervals, diagnostic
+    plots.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The report includes 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:07:51Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Diagnostic plots include Shapiro-Wilk and Breusch-Pagan
+  claim_id: c_f4363e8f
+  context: 'Task T066: Ensure code/report.py generates and embeds the residual diagnostic
+    plots (Shapiro-Wilk QQ-plot, Breusch-Pagan residual plot) directly into the report.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diagnostic_plots_include_Shapiro-Wilk_and_Breusch-Pagan
+  kind: entity_fact
+  raw_text: The residual diagnostic plots include a Shapiro-Wilk QQ-plot and a Breusch-Pagan
+    residual plot.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:08:06Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksum computed upon download
+  claim_id: c_c435585c
+  context: "Task T007: Compute a cryptographic SHA\u2011256 checksum immediately upon\
+    \ download completion (before any write)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SHA-256 checksum is computed upon download completion of the dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:08:09Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: OSF DOI for dataset defined in config.py
+  claim_id: c_edffe644
+  context: 'Task T004: Create configuration module code/config.py defining... the
+    specific OSF DOI string for the dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OSF_DOI_for_dataset_defined_in_config.py
+  kind: entity_fact
+  raw_text: The OSF DOI string for the dataset is defined in code/config.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:08:15Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Report generated as PDF or HTML
+  claim_id: c_e7367297
+  context: 'Task T065: Implement code/report.py function generate_report() to create
+    the final PDF/HTML report.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_generated_as_PDF_or_HTML
+  kind: entity_fact
+  raw_text: The report is generated as a PDF or HTML file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:10:22Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Report saved as report.html or report.pdf
+  claim_id: c_c9b7ce75
+  context: 'Task T065: Assert that the generated file (e.g., data/processed/report.html
+    or report.pdf) exists.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_saved_as_report.html_or_report.pdf
+  kind: entity_fact
+  raw_text: The report is saved as data/processed/report.html or report.pdf.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:10:46Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Diagnostic plots saved to data/processed/plots
+  claim_id: c_299af122
+  context: 'Task T066: Save plots to data/processed/plots/ (e.g., residuals_qq.png,
+    residuals_vs_fitted.png).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diagnostic_plots_saved_to_data/processed/plots
+  kind: entity_fact
+  raw_text: Diagnostic plots are saved to data/processed/plots/.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:11:19Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Analysis summary created at analysis_summary.txt
+  claim_id: c_24009ed2
+  context: 'Task T069: Create a summary text file data/processed/analysis_summary.txt
+    containing the key findings.'
+  evidence:
+    entailment_evidence: Analysis summary created at analysis summary.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Analysis_summary_created_at_analysis_summary.txt
+  kind: entity_fact
+  raw_text: A summary text file is created at data/processed/analysis_summary.txt.
+  resolved_value: Analysis summary created at analysis_summary.txt
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T08:11:24Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Quickstart validation log written to docs/quickstart_validation.log
+  claim_id: c_9ca63b26
+  context: 'Task T038: Write validation log echo "$(date --iso-8601=seconds) QUICKSTART
+    SUCCESS" > docs/quickstart_validation.log.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quickstart_validation_log_written_to_docs/quickstart_validat
+  kind: entity_fact
+  raw_text: The quickstart validation log is written to docs/quickstart_validation.log.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:13:15Z'
+- artifact_path: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/tasks.md
+  attempts: 1
+  canonical: Weekdays-only p-value consistency threshold 0.05
+  claim_id: c_588bfc10
+  context: 'Task T029: Return... boolean flags for sign_consistent and pvalue_consistent
+    (p < 0.05 (1501.05788, https://arxiv.org/abs/1501.05788) status matches primary
+    model).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value consistency check for the weekdays-only sensitivity analysis
+    uses a threshold of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T08:13:27Z'

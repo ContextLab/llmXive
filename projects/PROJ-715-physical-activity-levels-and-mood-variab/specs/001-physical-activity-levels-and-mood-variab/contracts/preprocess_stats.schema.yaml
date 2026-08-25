@@ -1,13 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Preprocess Statistics Schema
+description: >
+  Schema for the preprocessing statistics file (preprocess_stats.json).
+  Tracks data provenance, exclusion counts, and reasons for exclusion.
+  Used to ensure FR-002 compliance by validating generated JSON before writing.
 type: object
 required:
   - excluded_days_count
   - reason
+  - data_source_url
 properties:
   excluded_days_count:
     type: integer
+    description: >
+      The number of days excluded during preprocessing.
+      Typically days with n_mood_ratings < 2 (or 0 depending on the specific filter step).
     minimum: 0
-    description: Number of days excluded during preprocessing
   reason:
     type: string
-    description: Explanation for exclusion (e.g., "n_mood_ratings < 2 or count == 0")
+    description: >
+      A human-readable string explaining why days were excluded.
+      Examples: "n_mood_ratings < 2", "n_mood_ratings == 0", "missing sleep data".
+    minLength: 1
+  data_source_url:
+    type: string
+    description: >
+      The URL or DOI of the data source used for this preprocessing run.
+      This ensures data provenance tracking (e.g., OSF DOI or HuggingFace dataset URL).
+    format: uri
+    minLength: 1
 additionalProperties: false
