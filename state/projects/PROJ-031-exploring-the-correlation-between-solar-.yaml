@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T10:42:32.085981Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-031-exploring-the-correlation-between-solar-
-last_run_id: 09957a71-9ed1-473c-baf0-3d0ee58ea67e
+last_run_id: 745ac397-569a-484c-ace7-345ea41dc000
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar
 title: Exploring the Correlation Between Solar Flare Characteristics and Geomagnetic
   Storm Intensities
-updated_at: '2026-08-25T14:10:02.535101Z'
+updated_at: '2026-08-25T22:12:14.801625Z'

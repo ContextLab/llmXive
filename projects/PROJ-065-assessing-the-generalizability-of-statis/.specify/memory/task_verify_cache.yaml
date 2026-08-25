@@ -1,0 +1,45 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-065-assessing-the-generalizability-of-statis/code/`
+    directory (or any files within it) is provided; the claim is unsubstantiated.
+    The implementer must supply a listing or contents of that directory to confirm
+    it was created.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-065-assessing-the-generalizability-of-statis/data/raw/`
+    or `data/processed/` directories is present; the submission provides only a textual
+    claim without any filesystem artifacts showing those folders exist. The implementer
+    must create the directories (and optionally add placeholder files) and provide
+    a view or listing confirming their presence.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`projects/PROJ-065-assessing-the-generalizability-of-statis/outputs/`,\
+    \ `outputs/figures/`, `outputs/reports/`) being present on disk is provided; the\
+    \ artifact list is empty. The implementer must create these directories (and ensure\
+    \ they contain at least placeholder files or are non\u2011empty) to satisfy the\
+    \ task."
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was presented that the directory `projects/PROJ-065-assessing-the-generalizability-of-statis/tests/`\
+    \ actually exists; the response contains only a claim without any file system\
+    \ listing or screenshots confirming the folder\u2019s creation. The required artifact\
+    \ is therefore missing."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/`, `data/processed/`, or `outputs/` directories
+    was provided, nor any implementation of checksumming logic to verify file integrity.
+    The claim lacks the actual filesystem artifacts or code that the task explicitly
+    demands.
+T010:
+  c: false
+  h: 84d55e2d3b778ce5296d35dd446f0847a70b9a986df107f82dd60527c3560be5
+  r: The `record_artifact_hash` function is only partially shown and does not contain
+    the code that actually writes the hash to the YAML file, and the required state
+    file `state/projects/PROJ-065-assessing-the-generalizability-of-statis.yaml` is
+    absent from the repository. Without the file (or evidence that the function creates/updates
+    it), the task is not fulfilled.

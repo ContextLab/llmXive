@@ -1,43 +1,36 @@
 # PROJ-065: Assessing the Generalizability of Statistical Significance in Pre-Registered Studies
 
 ## Overview
-This project implements an automated pipeline to assess the stability and generalizability of statistical findings from pre-registered studies. It ingests data from the Open Science Framework (OSF), performs bootstrap resampling and sensitivity analysis, and aggregates results using meta-analytic techniques.
+This project implements an automated pipeline to assess the generalizability of statistical significance findings from pre-registered studies across disciplines. It leverages OSF (Open Science Framework) data, performs bootstrap resampling, and conducts meta-analysis to determine the stability of p-values under different model specifications.
 
-## Project Structure
-```
-.
-├── code/ # Python source modules
-│ ├── config.py # Configuration constants and paths
-│ ├── ingestion.py # OSF data download and parsing
-│ ├── bootstrap_engine.py # Resampling and stability analysis
-│ ├── meta_analysis.py # Aggregation and visualization
-│ └── main.py # Orchestration script
-├── data/
-│ ├── raw/ # Downloaded raw study data
-│ └── processed/ # Cleaned and analyzed data
-├── outputs/
-│ ├── figures/ # Generated plots (forest plots, histograms)
-│ └── reports/ # Final summary reports (PDF)
-├── tests/ # Unit and integration tests
-└── specs/ # Project specifications and design docs
-```
+## Directory Structure
+- `code/`: Python source modules
+ - `config.py`: Configuration constants and paths
+ - `ingestion.py`: OSF API client and data ingestion
+ - `bootstrap_engine.py`: Resampling and stability analysis
+ - `meta_analysis.py`: Aggregation and visualization
+ - `main.py`: Orchestration script
+ - `setup_directories.py`: Directory initialization and checksumming
+- `data/`:
+ - `raw/`: Downloaded raw data from OSF
+ - `processed/`: Cleaned and structured data
+- `outputs/`:
+ - `figures/`: Generated plots
+ - `reports/`: Summary reports (PDF/CSV)
+- `tests/`: Unit and integration tests
+- `state/`: Artifact tracking and state management
 
 ## Setup
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-3. Ensure you have an OSF API token configured (via environment variable `OSF_API_TOKEN` or in `code/config.py`).
+1. Install dependencies: `pip install -r requirements.txt`
+2. Initialize directories: `python code/setup_directories.py`
+3. Run pipeline: `python code/main.py`
 
-## Usage
-Run the full pipeline:
-```bash
-python code/main.py
-```
+## Key Features
+- **OSF Ingestion**: Fetches pre-registered study data with exponential backoff.
+- **Bootstrap Resampling**: Stratified resampling to estimate sampling stability.
+- **Specification Stability**: Tests robustness against 5 alternative model specs.
+- **Meta-Analysis**: Aggregates results across studies with I² heterogeneity metrics.
+- **Checksumming**: SHA-256 hashing for data integrity verification.
 
-## Requirements
-- Python 3.9+
-- OSF API Access
-- 6GB+ RAM (recommended for bootstrap iterations)
-- < 6 hours runtime (adaptive iteration reduction enabled)
+## License
+MIT

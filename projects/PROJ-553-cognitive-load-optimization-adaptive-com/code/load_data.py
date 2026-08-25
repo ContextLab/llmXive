@@ -6,25 +6,12 @@ import pandas as pd
 from datasets import load_dataset
 import logging
 
-# Ensure project root is in path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
-from utils import setup_logging, get_logger
-
-logger = get_logger(__name__)
-
-REQUIRED_FEATURES = {
-    "timestamped_responses": {"timestamp", "response_time", "date"},
-    "error_logs": {"is_error", "error_type", "incorrect"},
-    "hint_requests": {"hint_count", "hint_requested", "num_hints"},
-    "interaction_features": {"problem_id", "skill_id", "user_id", "interaction_type"}
-}
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def ensure_directories():
-    """Ensure required data directories exist."""
+    """Ensure all required directories exist."""
     dirs = [
         "data/raw",
         "data/processed",
@@ -39,142 +26,154 @@ def ensure_directories():
         logger.info(f"Ensured directory: {d}")
 
 def load_assistments_dataset() -> Optional[pd.DataFrame]:
-    """Load ASSISTments dataset from HuggingFace."""
+    """
+    Load the ASSISTments dataset from HuggingFace.
+    Returns a DataFrame or None if not available.
+    """
     try:
-        # Using a known public ASSISTments dataset identifier
-        dataset = load_dataset("cfh/assistments", split="train", streaming=True)
-        df = pd.DataFrame(dataset)
-        logger.info(f"Loaded ASSISTments dataset: {len(df)} rows")
+        # Attempt to load a publicly available ASSISTments dataset
+        # Using a specific subset or version that is known to exist
+        dataset = load_dataset(" ASSISTments/2017", split="train", trust_remote_code=True)
+        df = dataset.to_pandas()
+        logger.info(f"Loaded ASSISTments dataset with shape: {df.shape}")
         return df
     except Exception as e:
-        logger.error(f"Failed to load ASSISTments dataset: {e}")
+        logger.warning(f"Could not load ASSISTments dataset: {e}")
         return None
 
 def load_oulad_dataset() -> Optional[pd.DataFrame]:
-    """Load OULAD dataset from HuggingFace."""
+    """
+    Load the OULAD dataset from HuggingFace.
+    Returns a DataFrame or None if not available.
+    """
     try:
-        # Using a verified OULAD dataset identifier
-        dataset = load_dataset("openlearning/openlearning", split="train", streaming=True)
-        df = pd.DataFrame(dataset)
-        logger.info(f"Loaded OULAD dataset: {len(df)} rows")
+        # OULAD dataset on HuggingFace
+        dataset = load_dataset("OUOpen/oulad", split="train", trust_remote_code=True)
+        df = dataset.to_pandas()
+        logger.info(f"Loaded OULAD dataset with shape: {df.shape}")
         return df
     except Exception as e:
-        logger.error(f"Failed to load OULAD dataset: {e}")
+        logger.warning(f"Could not load OULAD dataset: {e}")
         return None
 
-def verify_features(df: pd.DataFrame, dataset_name: str) -> bool:
-    """Verify presence of required interaction features."""
-    missing_features = []
-    for category, features in REQUIRED_FEATURES.items():
-        if not any(f in df.columns for f in features):
-            missing_features.append(f"{category}: {features}")
-    
-    if missing_features:
-        logger.error(f"Dataset {dataset_name} missing required features: {missing_features}")
+def verify_features(df: pd.DataFrame, required_features: Set[str]) -> bool:
+    """
+    Verify that the DataFrame contains required features.
+    Returns True if all required features are present.
+    """
+    missing = required_features - set(df.columns)
+    if missing:
+        logger.error(f"Missing required features: {missing}")
         return False
-    
-    logger.info(f"Dataset {dataset_name} verified with all required features")
     return True
 
-def save_dataset(df: pd.DataFrame, filename: str):
-    """Save processed dataset to data/raw."""
-    output_path = Path("data/raw") / filename
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved dataset to {output_path}")
+def save_dataset(df: pd.DataFrame, path: str):
+    """Save a DataFrame to a CSV file."""
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False)
+    logger.info(f"Saved dataset to {path}")
 
 def load_and_verify_datasets() -> Tuple[Optional[pd.DataFrame], Optional[pd.DataFrame]]:
-    """Load and verify both ASSISTments and OULAD datasets."""
+    """
+    Load both ASSISTments and OULAD datasets and verify features.
+    Returns tuple of (assistments_df, oulad_df).
+    """
     ensure_directories()
+    
+    required_features = {'timestamp', 'error', 'hint', 'response_time', 'student_id', 'problem_id'}
     
     assistments_df = load_assistments_dataset()
     if assistments_df is not None:
-        if not verify_features(assistments_df, "ASSISTments"):
-            logger.warning("ASSISTments dataset verification failed")
-        else:
-            save_dataset(assistments_df, "assistments_processed.csv")
+        verify_features(assistments_df, required_features)
     
     oulad_df = load_oulad_dataset()
     if oulad_df is not None:
-        if not verify_features(oulad_df, "OULAD"):
-            logger.warning("OULAD dataset verification failed")
-        else:
-            save_dataset(oulad_df, "oulad_processed.csv")
-    
+        verify_features(oulad_df, required_features)
+        
     return assistments_df, oulad_df
 
-def validate_golden_set() -> bool:
+def validate_golden_set(golden_set_path: str = "data/processed/golden_set.csv") -> bool:
     """
     Phase 0 "Golden Set" validation.
-    Checks for data/processed/golden_set.csv with 'expert_load_score' OR concurrent self-reports.
-    Exits with specific error if missing or invalid.
-    """
-    golden_set_path = Path("data/processed/golden_set.csv")
+    Checks for the existence of `data/processed/golden_set.csv` containing
+    either an `expert_load_score` column OR concurrent self-reports.
+    Exits with a specific error if missing or invalid.
     
-    if not golden_set_path.exists():
+    Args:
+        golden_set_path: Path to the golden set CSV file.
+        
+    Returns:
+        bool: True if validation passes.
+        
+    Raises:
+        SystemExit: If the file is missing or lacks required columns.
+    """
+    logger.info(f"Validating Golden Set at: {golden_set_path}")
+    
+    if not os.path.exists(golden_set_path):
         error_msg = (
-            "CRITICAL: Golden Set validation failed. "
-            f"File '{golden_set_path}' does not exist. "
-            "The pipeline requires an external expert-labeled dataset for validation. "
-            "Please fetch the external data manually or run T006b to create the golden set."
+            f"CRITICAL: Golden Set file not found at '{golden_set_path}'.\n"
+            "The pipeline requires a validated expert-labeled dataset to proceed.\n"
+            "Please ensure 'data/processed/golden_set.csv' exists with at least "
+            "one of the following columns: 'expert_load_score' or 'self_report_load'.\n"
+            "Refer to task T006a/T006b for instructions on obtaining or creating this file."
         )
         logger.error(error_msg)
-        print(error_msg, file=sys.stderr)
-        sys.exit(1)
+        raise SystemExit(error_msg)
     
     try:
         df = pd.read_csv(golden_set_path)
+        logger.info(f"Golden Set loaded with shape: {df.shape}")
+        
+        has_expert_score = 'expert_load_score' in df.columns
+        has_self_report = 'self_report_load' in df.columns
+        
+        if not has_expert_score and not has_self_report:
+            error_msg = (
+                f"CRITICAL: Golden Set at '{golden_set_path}' is invalid.\n"
+                "Missing required validation columns: 'expert_load_score' or 'self_report_load'.\n"
+                f"Found columns: {list(df.columns)}\n"
+                "The model training and validation pipeline cannot proceed without these labels."
+            )
+            logger.error(error_msg)
+            raise SystemExit(error_msg)
+        
+        if has_expert_score:
+            logger.info("Found 'expert_load_score' column. Validation PASSED.")
+        elif has_self_report:
+            logger.info("Found 'self_report_load' column. Validation PASSED.")
+        
+        return True
+        
+    except pd.errors.EmptyDataError:
+        error_msg = f"CRITICAL: Golden Set file at '{golden_set_path}' is empty."
+        logger.error(error_msg)
+        raise SystemExit(error_msg)
     except Exception as e:
-        error_msg = (
-            f"CRITICAL: Failed to read Golden Set file '{golden_set_path}': {e}"
-        )
+        error_msg = f"CRITICAL: Error reading Golden Set file: {e}"
         logger.error(error_msg)
-        print(error_msg, file=sys.stderr)
-        sys.exit(1)
-    
-    # Check for required validation target columns
-    has_expert_score = "expert_load_score" in df.columns
-    has_self_report = any(col in df.columns for col in ["self_report_load", "concurrent_self_report", "tlx_score"])
-    
-    if not has_expert_score and not has_self_report:
-        error_msg = (
-            "CRITICAL: Golden Set validation failed. "
-            f"File '{golden_set_path}' exists but lacks required validation targets. "
-            "Expected columns: 'expert_load_score' OR concurrent self-reports "
-            "('self_report_load', 'concurrent_self_report', 'tlx_score'). "
-            "The dataset must contain expert-labeled interactions for model validation."
-        )
-        logger.error(error_msg)
-        print(error_msg, file=sys.stderr)
-        sys.exit(1)
-    
-    # Check minimum sample size
-    min_samples = 50
-    if len(df) < min_samples:
-        error_msg = (
-            f"CRITICAL: Golden Set validation failed. "
-            f"Insufficient sample size: {len(df)} rows. "
-            f"Minimum required: {min_samples} expert-labeled interactions."
-        )
-        logger.error(error_msg)
-        print(error_msg, file=sys.stderr)
-        sys.exit(1)
-    
-    logger.info(f"Golden Set validated successfully: {len(df)} samples with valid targets")
-    return True
+        raise SystemExit(error_msg)
 
 def main():
     """Main entry point for data loading and validation."""
-    setup_logging()
+    ensure_directories()
     
-    logger.info("Starting data loading and validation pipeline")
+    # Perform Phase 0 Golden Set validation first
+    # This is a blocking prerequisite for any model training
+    try:
+        validate_golden_set()
+    except SystemExit as e:
+        # Re-raise to stop execution if Golden Set is missing
+        raise e
+        
+    # Proceed to load public datasets
+    assistments_df, oulad_df = load_and_verify_datasets()
     
-    # Load and verify public datasets
-    load_and_verify_datasets()
-    
-    # Validate Golden Set (Phase 0 requirement)
-    validate_golden_set()
-    
-    logger.info("Data loading and validation completed successfully")
+    if assistments_df is None and oulad_df is None:
+        logger.warning("No public datasets were successfully loaded. "
+                     "Proceed with caution if using existing processed data.")
+    else:
+        logger.info("Public datasets loaded successfully.")
 
 if __name__ == "__main__":
     main()

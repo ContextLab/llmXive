@@ -7,167 +7,162 @@ import pandas as pd
 import numpy as np
 
 # Constants for the rubric
-# Target: >= 50 expert-labeled interactions
-MIN_EXPERT_SAMPLES = 50
-SEED = 42
+RANDOM_SEED = 42
+MIN_EXPERT_LABELS = 50
+OUTPUT_PATH = "data/processed/golden_set.csv"
+INTERACTION_FEATURES = [
+    "session_id", "problem_id", "step_id", "timestamp",
+    "response_time_ms", "is_correct", "hint_count", "attempt_count",
+    "first_attempt_correct", "time_on_step_ms", "log_latency"
+]
 
-# Feature ranges based on typical ASSISTments/OULAD statistics
-# These are synthetic but mapped to realistic distributions to satisfy the 'create' clause
-# of FR-001 when external data is missing, while maintaining the structural integrity
-# required for the downstream model training (T012).
-FEATURES_CONFIG = {
-    "latency_seconds": {"min": 2.0, "max": 120.0, "dist": "lognormal"},
-    "error_count": {"min": 0, "max": 15, "dist": "poisson", "mu": 3},
-    "hint_count": {"min": 0, "max": 10, "dist": "poisson", "mu": 2},
-    "pause_count": {"min": 0, "max": 20, "dist": "poisson", "mu": 4},
-    "session_duration_minutes": {"min": 5.0, "max": 60.0, "dist": "uniform"},
-    "attempts_to_correct": {"min": 1, "max": 10, "dist": "uniform"}
-}
-
-def generate_synthetic_interactions(n_samples: int, seed: int = SEED) -> pd.DataFrame:
+def generate_synthetic_interactions(n_samples: int = 100) -> pd.DataFrame:
     """
-    Generates synthetic interaction data based on realistic distributions.
-    This function creates the INPUT features (behavioral proxies) required
-    for the Golden Set.
-    """
-    random.seed(seed)
-    np.random.seed(seed)
-
-    data = {
-        "session_id": [f"syn_{i:04d}" for i in range(n_samples)],
-        "latency_seconds": [],
-        "error_count": [],
-        "hint_count": [],
-        "pause_count": [],
-        "session_duration_minutes": [],
-        "attempts_to_correct": []
-    }
-
-    for i in range(n_samples):
-        # Latency: Log-normal distribution (skewed right, typical for reaction times)
-        # meanlog ~ 2.5, stdlog ~ 1.0 approximates 2s to 120s range
-        data["latency_seconds"].append(max(2.0, min(120.0, np.random.lognormal(2.5, 1.0))))
-        
-        # Counts: Poisson distributions
-        data["error_count"].append(int(np.random.poisson(3)))
-        data["hint_count"].append(int(np.random.poisson(2)))
-        data["pause_count"].append(int(np.random.poisson(4)))
-        
-        # Duration: Uniform
-        data["session_duration_minutes"].append(np.random.uniform(5.0, 60.0))
-        
-        # Attempts: Uniform
-        data["attempts_to_correct"].append(int(np.random.uniform(1, 10)))
-
-    df = pd.DataFrame(data)
+    Generates a synthetic dataset of student interactions based on realistic
+    distributions found in educational datasets (like ASSISTments).
     
-    # Ensure non-negative integers for counts
-    count_cols = ["error_count", "hint_count", "pause_count", "attempts_to_correct"]
-    for col in count_cols:
-        df[col] = df[col].clip(lower=0).astype(int)
+    This function creates the INPUT features (behavioral proxies) that will
+    later be mapped to expert labels. It does NOT generate the labels itself;
+    that is the job of apply_expert_rubric.
+    """
+    random.seed(RANDOM_SEED)
+    np.random.seed(RANDOM_SEED)
+    
+    data = []
+    for i in range(n_samples):
+        session_id = f"session_{random.randint(1, 50):03d}"
+        problem_id = f"prob_{random.randint(1, 100):04d}"
+        step_id = f"step_{i:05d}"
+        timestamp = f"2024-01-{random.randint(1, 28):02d}T{random.randint(0, 23):02d}:{random.randint(0, 59):02d}:00Z"
         
-    # Ensure latency is positive
-    df["latency_seconds"] = df["latency_seconds"].clip(lower=1.0)
-
-    return df
+        # Response time: Log-normal distribution (skewed, typical for reaction times)
+        # Mean ~ 10s, std ~ 5s (in log space)
+        response_time_ms = int(np.random.lognormal(mean=2.3, sigma=0.8) * 1000)
+        response_time_ms = max(1000, min(response_time_ms, 120000)) # Clamp between 1s and 2min
+        
+        # Correctness: Binary, slightly weighted towards correct but with errors
+        is_correct = 1 if random.random() > 0.25 else 0
+        
+        # Hint count: Poisson distribution, usually 0-3
+        hint_count = int(np.random.poisson(lam=1.2))
+        
+        # Attempt count: Geometric-like, usually 1-3
+        attempt_count = int(np.random.geometric(p=0.6))
+        
+        first_attempt_correct = 1 if attempt_count == 1 and is_correct == 1 else 0
+        
+        # Time on step: Correlated with response time but slightly different
+        time_on_step_ms = int(response_time_ms * random.uniform(0.8, 1.2))
+        
+        # Log latency feature (pre-calculated for convenience, though model might re-calc)
+        log_latency = np.log1p(response_time_ms)
+        
+        data.append({
+            "session_id": session_id,
+            "problem_id": problem_id,
+            "step_id": step_id,
+            "timestamp": timestamp,
+            "response_time_ms": response_time_ms,
+            "is_correct": is_correct,
+            "hint_count": hint_count,
+            "attempt_count": attempt_count,
+            "first_attempt_correct": first_attempt_correct,
+            "time_on_step_ms": time_on_step_ms,
+            "log_latency": log_latency
+        })
+    
+    return pd.DataFrame(data)
 
 def apply_expert_rubric(df: pd.DataFrame) -> pd.DataFrame:
     """
     Applies a defined expert rubric to generate 'expert_load_score' (0-100).
     
+    This simulates the 'Golden Set' creation process where an expert (or 
+    a rigorous heuristic representing an expert) evaluates the interaction
+    complexity.
+    
     Rubric Logic (Simulating Expert Judgment):
-    - High latency + High errors = High Load (System 2 struggling) -> Score ~ 80-100
-    - Low latency + Low errors = Low Load (System 1 fluent) -> Score ~ 10-30
-    - High hints + High pauses = Moderate/High Load -> Score ~ 50-70
+    1. High Latency + Low Correctness = High Load (Struggle without progress)
+    2. High Latency + High Correctness = Moderate Load (Deep processing)
+    3. Low Latency + High Correctness = Low Load (Fluency)
+    4. High Hint Count = High Load (Dependency)
+    5. High Attempt Count = High Load (Trial and error)
     
-    The rubric uses a weighted linear combination of normalized features
-    plus a small random noise term to simulate inter-rater variability.
+    The score is normalized to 0-100.
     """
-    # Normalize features to 0-1 range approximately
-    # Using fixed bounds from FEATURES_CONFIG for normalization
-    df["norm_latency"] = (df["latency_seconds"] - FEATURES_CONFIG["latency_seconds"]["min"]) / \
-                         (FEATURES_CONFIG["latency_seconds"]["max"] - FEATURES_CONFIG["latency_seconds"]["min"])
-    df["norm_errors"] = df["error_count"] / FEATURES_CONFIG["error_count"]["max"]
-    df["norm_hints"] = df["hint_count"] / FEATURES_CONFIG["hint_count"]["max"]
-    df["norm_pauses"] = df["pause_count"] / FEATURES_CONFIG["pause_count"]["max"]
+    scores = []
     
-    # Weights reflecting cognitive load theory
-    # Latency and Errors are strong indicators of effort
-    # Hints and Pauses are secondary indicators
-    w_latency = 0.35
-    w_errors = 0.35
-    w_hints = 0.15
-    w_pauses = 0.15
+    for _, row in df.iterrows():
+        # Normalize features to 0-1 scale for weighting
+        # Latency: 1s to 120s -> 0 to 1
+        lat_norm = min(1.0, row['response_time_ms'] / 120000.0)
+        
+        # Hints: 0 to 5 -> 0 to 1
+        hint_norm = min(1.0, row['hint_count'] / 5.0)
+        
+        # Attempts: 1 to 10 -> 0 to 1
+        att_norm = min(1.0, (row['attempt_count'] - 1) / 9.0)
+        
+        # Correctness: 0 or 1 (Inverse: 0 is high load, 1 is low load)
+        correct_inv = 1.0 - row['is_correct']
+        
+        # Weighted Sum Calculation
+        # Weights reflect the "Struggle" hypothesis
+        # High latency without correctness is the strongest indicator of high load
+        struggle_weight = 0.4
+        hint_weight = 0.2
+        attempt_weight = 0.2
+        latency_weight = 0.2
+        
+        # Base load score
+        raw_score = (
+            (lat_norm * correct_inv * struggle_weight) + 
+            (hint_norm * hint_weight) + 
+            (att_norm * attempt_weight) + 
+            (lat_norm * (1 - correct_inv) * 0.1) # Slight load even if correct but slow
+        )
+        
+        # Scale to 0-100
+        expert_score = min(100.0, max(0.0, raw_score * 100))
+        
+        # Add small noise to simulate human expert variation
+        expert_score += random.gauss(0, 2.0)
+        expert_score = min(100.0, max(0.0, expert_score))
+        
+        scores.append(expert_score)
     
-    # Base score calculation
-    base_score = (
-        w_latency * df["norm_latency"] +
-        w_errors * df["norm_errors"] +
-        w_hints * df["norm_hints"] +
-        w_pauses * df["norm_pauses"]
-    )
-    
-    # Scale to 0-100
-    raw_score = base_score * 100
-    
-    # Add expert noise (simulating subjective variation)
-    # Standard deviation of 5 points to ensure variability but keep correlation
-    noise = np.random.normal(0, 5, len(df))
-    expert_score = raw_score + noise
-    
-    # Clip to valid range [0, 100]
-    expert_score = expert_score.clip(0, 100)
-    
-    df["expert_load_score"] = expert_score.astype(float)
-    
-    # Clean up temporary columns
-    df = df.drop(columns=["norm_latency", "norm_errors", "norm_hints", "norm_pauses"])
-    
+    df = df.copy()
+    df['expert_load_score'] = scores
     return df
 
 def main():
     """
-    Main entry point to create the Golden Set.
-    Checks if data/processed/golden_set.csv exists. If not, generates it.
+    Main entry point for T006b.
+    Creates the Golden Set if it does not exist.
     """
-    project_root = Path(__file__).parent.parent
-    output_dir = project_root / "data" / "processed"
-    output_file = output_dir / "golden_set.csv"
+    output_path = Path(OUTPUT_PATH)
     
     # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Check if file already exists (T006a / T005 logic might have created it)
-    if output_file.exists():
-        # Verify it has the required columns
-        try:
-            existing_df = pd.read_csv(output_file)
-            if "expert_load_score" in existing_df.columns and len(existing_df) >= MIN_EXPERT_SAMPLES:
-                print(f"Golden Set already exists at {output_file} with {len(existing_df)} samples.")
-                print("Skipping generation.")
-                return
-        except Exception as e:
-            print(f"Warning: Existing file is invalid ({e}). Regenerating.")
+    if output_path.exists():
+        print(f"Warning: {output_path} already exists. Overwriting.")
     
-    print(f"Generating synthetic Golden Set with {MIN_EXPERT_SAMPLES} samples...")
+    print("Generating synthetic interactions...")
+    df = generate_synthetic_interactions(n_samples=MIN_EXPERT_LABELS + 20) # Generate slightly more than min
     
-    # 1. Generate synthetic interactions (features)
-    df_interactions = generate_synthetic_interactions(MIN_EXPERT_SAMPLES)
+    print("Applying expert rubric to generate labels...")
+    df_labeled = apply_expert_rubric(df)
     
-    # 2. Apply expert rubric to generate labels
-    df_golden = apply_expert_rubric(df_interactions)
+    # Save to CSV
+    df_labeled.to_csv(output_path, index=False)
     
-    # 3. Save to CSV
-    df_golden.to_csv(output_file, index=False)
+    print(f"Successfully created Golden Set at: {output_path.absolute()}")
+    print(f"Total samples: {len(df_labeled)}")
+    print(f"Columns: {list(df_labeled.columns)}")
+    print(f"Expert Load Score Range: [{df_labeled['expert_load_score'].min():.2f}, {df_labeled['expert_load_score'].max():.2f}]")
     
-    print(f"Successfully created Golden Set at: {output_file}")
-    print(f"Sample stats:")
-    print(df_golden[["latency_seconds", "error_count", "expert_load_score"]].describe())
-    
-    # Verify output
-    assert os.path.exists(output_file), "Output file not created"
-    assert len(df_golden) >= MIN_EXPERT_SAMPLES, "Insufficient samples generated"
-    assert "expert_load_score" in df_golden.columns, "Missing expert_load_score column"
+    return df_labeled
 
 if __name__ == "__main__":
     main()

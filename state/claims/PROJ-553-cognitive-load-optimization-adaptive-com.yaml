@@ -615,3 +615,226 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T06:37:43Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: golden set requires 50 expert labeled interactions
+  claim_id: c_1d457ea3
+  context: "Fetch or Verify External Golden Set: Ensure data/processed/golden_set.csv\
+    \ exists with \u226550 expert-labeled interactions. If missing, the task is blocked\
+    \ until external data is manually fetched."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure data/processed/golden_set.csv exists with \u226550 expert-labeled\
+    \ interactions."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:15:54Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: cognitive load model predicts scores 0 to 100
+  claim_id: c_65180277
+  context: "Goal: Train and validate a Cognitive Load Estimation Model predicting\
+    \ continuous load scores (0\u2013100) from interaction features, validated against\
+    \ the Golden Set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train and validate a Cognitive Load Estimation Model predicting continuous\
+    \ load scores (0\u2013100) from interaction features."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:16:15Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: model validation requires pearson r of 0.6
+  claim_id: c_dad9984c
+  context: "Implement model training loop with fixed seed, validation against data/processed/golden_set.csv\
+    \ (Pearson r \u2265 0.6 target)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Pearson correlation between predicted load scores and expert labels\
+    \ is \u2265 0.6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:16:15Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: model size limit is 500 mb
+  claim_id: c_7320523e
+  context: "Implement model size constraint check (\u2264 500 MB RAM) and save model\
+    \ artifact to data/processed/load_model.pkl"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure model size constraint is \u2264 500 MB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:16:16Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: readability difference requires 5 points
+  claim_id: c_49af066c
+  context: "Independent Test: Can be fully tested by processing a sample of instructional\
+    \ units, generating three tiers per unit, and verifying Flesch-Kincaid readability\
+    \ scores show monotonic progression with absolute differences \u2265 5 points."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Flesch-Kincaid readability scores show absolute differences \u2265\
+    \ 5 points between tiers."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:16:16Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: simple tier flesch kincaid decrease 5 points
+  claim_id: c_29212398
+  context: "Implement 'Simple' tier generation: Use HuggingFace facebook/bart-large-cnn\
+    \ model for summarization/simplification to reduce sentence length and remove\
+    \ jargon, ensuring Flesch-Kincaid decreases by \u22655 points."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure Flesch-Kincaid decreases by \u22655 points for the Simple tier."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:16:16Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: complex tier flesch kincaid increase 5 points
+  claim_id: c_03678a15
+  context: "Implement 'Complex' tier generation: Use a rule-based strategy with a\
+    \ predefined jargon dictionary and regex patterns to insert technical terms and\
+    \ increase sentence complexity, ensuring Flesch-Kincaid increases by \u22655 points."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure Flesch-Kincaid increases by \u22655 points for the Complex tier."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:16:16Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: jaccard similarity requires 0.85
+  claim_id: c_9f1d6812
+  context: "Implement fidelity checks: Jaccard similarity (\u2265 0.85) and semantic\
+    \ similarity (\u2265 0.90) against source text"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Jaccard similarity against source text is \u2265 0.85."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:16:16Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: semantic similarity requires 0.90
+  claim_id: c_da2dbd94
+  context: "Implement fidelity checks: Jaccard similarity (\u2265 0.85) and semantic\
+    \ similarity (\u2265 0.90) against source text"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify semantic similarity against source text is \u2265 0.90."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:16:16Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: simulation requires 40 historical sessions
+  claim_id: c_68383ae3
+  context: "Independent Test: Can be fully tested by running the simulation pipeline\
+    \ with N \u2265 40 historical sessions replayed, computing estimated learning\
+    \ efficiency metrics, and verifying the mixed-effects model reports Cohen's d\
+    \ and confidence intervals."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run the simulation pipeline with N \u2265 40 historical sessions replayed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:16:16Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: pipeline execution time limit 6 hours
+  claim_id: c_d080d2c5
+  context: "Implement Pipeline Wrapper: Create code/run_pipeline.py to orchestrate\
+    \ the full pipeline (Phases 1-5) and measure total wall-clock time. Assert \u2264\
+    \ 6h total execution time."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assert total pipeline execution time is \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:16:16Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: power limitation triggers if n less than 40
+  claim_id: c_c33ebf81
+  context: 'Add power limitation check: if N < 40, report limitation and defer effect-size
+    claims'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_limitation_triggers_if_n_less_than_40
+  kind: magnitude
+  raw_text: Report limitation and defer effect-size claims if N < 40.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:17:13Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: vif collinearity diagnostic limit 5
+  claim_id: c_caaa686b
+  context: "Implement collinearity diagnostic (VIF \u2264 5) in code/utils.py and\
+    \ code/train_load_model.py; add logic to flag predictors and frame descriptive\
+    \ relationships if VIF > 5"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement collinearity diagnostic with VIF \u2264 5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T22:17:13Z'
