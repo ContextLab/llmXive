@@ -1,78 +1,44 @@
-"""
-Data Directory Setup Module
-
-This module provides utilities to ensure the data directory structure
-exists and contains .gitkeep files to preserve empty directories in version control.
-"""
 import os
 import sys
 from typing import List, Optional
 
-# Define the required data subdirectories relative to the project root
-DATA_SUBDIRS = [
-    "data/raw",
-    "data/generated",
-    "data/results"
-]
-
-def ensure_gitkeep(directory: str) -> bool:
+def ensure_gitkeep(directory: str) -> None:
     """
-    Ensure a directory exists and contains a .gitkeep file.
-
+    Ensure the given directory exists and contains a .gitkeep file.
+    
     Args:
-        directory: Path to the directory.
-
-    Returns:
-        True if the directory and .gitkeep file were successfully ensured,
-        False otherwise.
+        directory: Path to the directory to ensure exists.
     """
-    try:
-        # Create directory if it doesn't exist (including parents)
-        os.makedirs(directory, exist_ok=True)
-        
-        gitkeep_path = os.path.join(directory, ".gitkeep")
-        
-        # Create .gitkeep if it doesn't exist
-        if not os.path.exists(gitkeep_path):
-            with open(gitkeep_path, 'w') as f:
-                f.write("# Git keep file to preserve directory structure\n")
-            return True
-        else:
-            # Directory and .gitkeep already exist
-            return True
-    except Exception as e:
-        print(f"Error ensuring gitkeep in {directory}: {e}", file=sys.stderr)
-        return False
+    os.makedirs(directory, exist_ok=True)
+    gitkeep_path = os.path.join(directory, ".gitkeep")
+    if not os.path.exists(gitkeep_path):
+        with open(gitkeep_path, "w") as f:
+            f.write("# Keep this directory in git\n")
+        print(f"Created .gitkeep in {directory}")
+    else:
+        print(f".gitkeep already exists in {directory}")
 
-def main(base_path: Optional[str] = None) -> int:
+
+def main() -> None:
     """
     Main entry point to set up the data directory structure.
-
-    Returns:
-        Exit code: 0 on success, 1 on failure.
+    
+    Creates the following directories if they do not exist:
+    - data/raw
+    - data/generated
+    - data/results
+    
+    And ensures each contains a .gitkeep file.
     """
-    # Determine project root (assume script is run from project root or code/ subdirectory)
-    # If running from code/, go up one level
-    if os.path.basename(os.getcwd()) == "code":
-        project_root = os.path.dirname(os.getcwd())
-    else:
-        project_root = os.getcwd()
+    base_path = "data"
+    sub_dirs = ["raw", "generated", "results"]
+    
+    for sub_dir in sub_dirs:
+        full_path = os.path.join(base_path, sub_dir)
+        ensure_gitkeep(full_path)
+    
+    print("Data directory structure setup complete.")
 
-    success = True
-    for subdir in DATA_SUBDIRS:
-        full_path = os.path.join(project_root, subdir)
-        if not ensure_gitkeep(full_path):
-            success = False
-            print(f"Failed to setup: {full_path}", file=sys.stderr)
-        else:
-            print(f"Ensured: {full_path}")
-
-    if success:
-        print("Data directory structure setup complete.")
-        return 0
-    else:
-        print("Data directory setup encountered errors.", file=sys.stderr)
-        return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

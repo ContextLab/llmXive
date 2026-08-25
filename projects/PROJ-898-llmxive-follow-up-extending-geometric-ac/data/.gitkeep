@@ -1,2 +1,1 @@
-# This directory stores generated data artifacts.
-# Do not commit large files; use .gitkeep to preserve directory structure.
+# Keep this directory in git

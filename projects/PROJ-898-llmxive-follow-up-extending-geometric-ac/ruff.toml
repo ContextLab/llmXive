@@ -1,20 +1,63 @@
-target-version = "py39"
+# Ruff configuration for llmXive project
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "N", "W", "D", "UP", "B", "C4", "SIM"]
+ignore = [
+  "D100", # Missing docstring in public module
+  "D104", # Missing docstring in public package
+  "D203", # 1 blank line required before class docstring (conflicts with D211)
+  "D213", # Multi-line docstring summary should start at the second line (conflicts with D212)
+  "E501", # Line too long (handled by black)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/directories
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
+
+# Same as Black
 line-length = 88
 
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
+# Assume Python 3.10 (compatible with torch 2.0)
+target-version = "py310"
+
+[lint.per-file-ignores]
+# Ignore import sorting in __init__.py files
+"__init__.py" = ["I"]
+# Ignore docstring requirements in tests
+"tests/**" = ["D"]
 
 [lint.isort]
-known-first-party = ["code"]
-force-single-line = true
+known-first-party = ["code", "tests"]
+force-sort-within-sections = false
+
+[format]
+# Same as Black
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

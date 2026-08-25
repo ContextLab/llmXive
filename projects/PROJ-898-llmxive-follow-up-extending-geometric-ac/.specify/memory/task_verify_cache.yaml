@@ -5,34 +5,6 @@ T001a:
     any of its contents were presented; the claim provides no tangible artifact to
     confirm the required project root structure exists. The task therefore remains
     unverified and incomplete.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only a feature specification and user stories; no file\u2011\
-    system evidence (e.g., a listing or screenshots) shows that `code/`, `data/`,\
-    \ and `tests/` directories actually exist or contain any files. Without concrete\
-    \ proof of those directories, the task requirement is not satisfied."
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of `.gitkeep` files in the required directories (`data/raw`, `data/generated`,
-    `data/results`) is provided; the implementer did not supply any artifact confirming
-    their existence. The task remains undone until those placeholder files are created
-    and shown.
-T003:
-  c: false
-  h: 51633c16122ef8ff9bd6dc3bd7f275f3749b83c9d33937d1e6750b6703b3e703
-  r: "The `ruff.toml` file is present and correctly populated, but the required `.pre-commit-config.yaml`\
-    \ file is missing entirely, so the task of creating both configuration files is\
-    \ not fully satisfied. The missing pre\u2011commit configuration must be added\
-    \ for the task to be complete."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw`, `data/generated`, `data/results` directories
-    or accompanying `.gitkeep` files is provided; without visible artifacts we cannot
-    confirm the directory structure was created. The implementer must add the directory
-    tree and placeholder `.gitkeep` files to satisfy the task.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -49,6 +21,28 @@ T019:
     \ relate to dataset generation and symbolic planning, which do not satisfy the\
     \ required latent drift detection feature. The task therefore lacks the necessary\
     \ implementation artifact."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated\u202FREADME.md file was presented, nor any excerpt showing CLI usage\
+    \ instructions or a project\u2011structure overview. Without the actual README\
+    \ content, we cannot confirm that the required documentation was added. The implementer\
+    \ must supply the modified README.md containing the requested sections."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No cleaned or refactored code files from the `code/` directory are present;\
+    \ the evidence provides only a high\u2011level feature specification unrelated\
+    \ to the requested code cleanup task. The required artifact\u2014a set of updated,\
+    \ lint\u2011compliant, and refactored source files (or a diff/commit log) \u2013\
+    \ is missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The repository does not contain any new files or code under `tests/unit/` that
+    implement additional unit tests for solver constraints or latent drift detection;
+    no evidence of such tests is present. The required test artifacts are missing,
+    so the task is not satisfied.
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

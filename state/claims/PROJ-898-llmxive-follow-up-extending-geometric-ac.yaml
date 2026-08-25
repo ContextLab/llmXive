@@ -857,3 +857,130 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-04T01:22:41Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: generate at least 100 unique manipulation tasks
+  claim_id: c_e92cd347
+  context: T009-gen-unified [US1] [Depends on T008-manifest-gen, T009-gen-impl] **Generate**
+    a set of **at least 100 unique manipulation tasks** (FR-001, US-1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_100_unique_manipulation_tasks
+  kind: magnitude
+  raw_text: Generate a set of at least 100 unique manipulation tasks
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T01:38:24Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: constraint satisfaction rate is at least 95 percent
+  claim_id: c_68c38015
+  context: "T019d-constraint-sat [US2] ... **Requirement**: Verify constraint satisfaction\
+    \ is **\u2265 95%**."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Constraint_satisfaction_rate_is_at_least_95_percent
+  kind: magnitude
+  raw_text: "Verify constraint satisfaction is \u2265 95%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T01:38:51Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: symbolic MSE is at most 1.5 times baseline MSE
+  claim_id: c_6cbe5d1c
+  context: "T019c [US2] ... **Verify** that symbolic MSE is **\u2264 1.5x baseline\
+    \ MSE**."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Symbolic_MSE_is_at_most_1.5_times_baseline_MSE
+  kind: magnitude
+  raw_text: "Verify that symbolic MSE is \u2264 1.5x baseline MSE"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T01:39:15Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: per-step latency is less than 300 seconds
+  claim_id: c_8d9c71aa
+  context: T020b [US2] ... **Verify** that per-step latency is **< 300 seconds** (Spec
+    Assumption).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-step_latency_is_less_than_300_seconds
+  kind: magnitude
+  raw_text: Verify per-step latency is < 300 seconds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T01:42:08Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: projected total time is less than 6 hours
+  claim_id: c_9ae41e29
+  context: T020b [US2] ... **Verify** projected time **< 6 hours**.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Projected_total_time_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify projected time < 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T01:42:42Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: total execution time is less than or equal to 6 hours
+  claim_id: c_a70815f9
+  context: T023-feasibility-check [US3] ... **Verify** total execution time <= 6 hours
+    (Plan 2.3).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_execution_time_is_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: Verify total execution time <= 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T01:44:40Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: collision flag is 0 and distance to target center is less than 5cm for
+    every frame in success window
+  claim_id: c_f9e7ccf1
+  context: T021b [US2] ... verify that `collision_flag == 0` AND `distance to target
+    object center < 5cm` for **every frame** in a window of `success_frames >= int(config.sim_fps)`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collision_flag_is_0_and_distance_to_target_center_is_less_th
+  kind: magnitude
+  raw_text: Verify that collision_flag == 0 AND distance to target object center <
+    5cm for every frame in a window of success_frames >= int(config.sim_fps)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T01:44:53Z'
