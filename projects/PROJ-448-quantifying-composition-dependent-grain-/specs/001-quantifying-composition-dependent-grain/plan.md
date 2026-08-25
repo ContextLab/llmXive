@@ -20,7 +20,7 @@ The implementation strictly adheres to the project constitution, ensuring reprod
 **Primary Dependencies**: `pymatgen`, `ase`, `numpy`, `scipy`, `pandas`, `scikit-learn`, `pycalphad`, `pyyaml`, `requests`.  
 **Storage**: Local file system (`data/` for raw/calculated data, `data_manifest.json` for tracking).  
 **Testing**: `pytest` (unit tests for McLean calculation, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, ~7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple vCPU, ~7 GB RAM).  
 **Project Type**: Computational research pipeline / CLI.  
 **Performance Goals**: Complete full pipeline (ternary systems, 500-900K range) within 6 hours.  
 **Constraints**: CPU-only execution; memory < 7 GB; no GPU access on primary runner.  
