@@ -29,7 +29,7 @@ The system MUST execute a Bayesian decision model on the preprocessed data to es
 
 **Why this priority**: This addresses the core hypothesis. The research question hinges on whether the salience-augmented model outperforms the baseline and if salience modulates activation independent of pre-existing traits.
 
-**Independent Test**: The model execution can be tested by running the PyMC3 script on a subset of data (e.g., 50 participants) and verifying that the model converges, produces posterior distributions, and calculates a ΔAIC value that is comparable to the full run.
+**Independent Test**: The model execution can be tested by running the PyMC script on a subset of data (e.g., 50 participants) and verifying that the model converges, produces posterior distributions, and calculates a ΔAIC value that is comparable to the full run.
 
 **Acceptance Scenarios**:
 
