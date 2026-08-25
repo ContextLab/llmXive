@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to predict *E. coli* antibiotic resistance phenotypes from genomic sequences (SNPs and resistance gene presence). The approach involves ingesting data from specific NCBI BioProjects, extracting features using Snippy and ARIBA, training mechanism-blind Logistic Regression (L1-regularized) and Random Forest models via scikit-learn, and validating results with phylogenetically-aware permutation testing (PGLS residual permutation) and sensitivity analysis. The entire pipeline is designed to run within the constraints of a free-tier GitHub Actions runner (limited CPU resources, constrained RAM, 6 hours).
+This project implements a computational pipeline to predict *E. coli* antibiotic resistance phenotypes from genomic sequences (SNPs and resistance gene presence). The approach involves ingesting data from specific NCBI BioProjects, extracting features using Snippy and ARIBA, training mechanism-blind Logistic Regression (L1-regularized) and Random Forest models via scikit-learn, and validating results with phylogenetically-aware permutation testing (PGLS residual permutation) and sensitivity analysis. The entire pipeline is designed to run within the constraints of a free-tier GitHub Actions runner (limited CPU resources, constrained RAM, and a time limit).
 
 ## Technical Context
 

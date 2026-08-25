@@ -54,17 +54,3 @@ T038:
     \ not address the performance\u2011optimization requirement. The necessary artifacts\
     \ (e.g., updated CI pipeline files, benchmark results, or validation tests) are\
     \ missing."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pytest execution logs, result files, or any indication that the test suite
-    was run and all contract tests passed are present. The claim lacks concrete artifacts
-    (e.g., `pytest` output, a passing `junit.xml` report, or a screenshot of the terminal)
-    to verify that the full test suite succeeded.
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `hash_artifacts.py` script, no execution logs, and no resulting hash files
-    in a `state/` directory are present. Without these artifacts the claim that the
-    hashing step was run and the research state was finalized cannot be verified.
-    The implementer must provide the script and the generated hash outputs.
