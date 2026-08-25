@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-08-25T22:38:26.930368+00:00"
+    "audited_at": "2026-08-25T23:01:07.759170+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-659-trust-region-on-policy-distillation",
-  "updated_at": "2026-08-25T22:38:26.930380+00:00"
+  "updated_at": "2026-08-25T23:01:07.759183+00:00"
 }
