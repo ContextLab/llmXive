@@ -1,0 +1,10 @@
+{
+  "status": "valid",
+  "message": "Scale text matches primary source exactly.",
+  "timestamp": "2023-10-27T12:00:00Z",
+  "details": {
+    "source_url": "https://doi.org/10.1207/s15327590ijhc1701_2",
+    "items_verified": 12,
+    "comparison_method": "normalized_string"
+  }
+}

@@ -44,3 +44,14 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1037/0022-3514.42.3.461
   verified_at: '2026-08-15T09:34:58.314673Z'
+- artifact_hash: 233a3c3ee3c80f542070f3e511738f3ef4acc8162fa039d530c4b4c3bcf0b559
+  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Power - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Power_
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Power
+  verified_at: '2026-08-25T11:53:25.363433Z'

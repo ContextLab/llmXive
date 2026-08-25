@@ -1,16 +1,25 @@
-[
-  {
-    "title": "Trust in Automation",
-    "doi": "10.1207/s15327590ijhc1501_2",
-    "overlap_score": 0.85,
-    "content_verified": true,
-    "status": "valid"
-  },
-  {
-    "title": "The Psychology of Everyday Things",
-    "doi": "10.1016/B978-0-12-200650-1.50007-8",
-    "overlap_score": 0.78,
-    "content_verified": true,
-    "status": "valid"
-  }
-]
+{
+  "timestamp": "2024-01-15 10:30:00",
+  "citations_validated": 2,
+  "all_valid": true,
+  "results": [
+    {
+      "title": "Trust in Automation: Designing for Effective Human-Automation Interaction",
+      "doi": "10.1177/154193120404800302",
+      "overlap_score": 0.85,
+      "content_verified": true,
+      "status": "valid",
+      "source_url": "https://doi.org/10.1177/154193120404800302",
+      "error": null
+    },
+    {
+      "title": "The Effect of Context-Dependent Memory on Recall and Recognition",
+      "doi": "10.1037/h0037309",
+      "overlap_score": 0.78,
+      "content_verified": true,
+      "status": "valid",
+      "source_url": "https://doi.org/10.1037/h0037309",
+      "error": null
+    }
+  ]
+}

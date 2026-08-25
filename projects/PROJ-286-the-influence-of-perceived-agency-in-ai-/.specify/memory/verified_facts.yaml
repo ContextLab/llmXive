@@ -1,14 +1,9 @@
-'|alpha analysi level plan power study use':
-  quote: "The error that a practising statistician would consider the more important\
-    \ to avoid (which is a subjective judgment) is called the error of the first kind.\
-    \ The first demand of the mathematical theory is to deduce such test criteria\
-    \ as would ensure that the probability of committing an error of the first kind\
-    \ would equal (or approximately equal, or not exceed) a preassigned number \u03B1\
-    , such as \u03B1 = 0.05 or 0.01, etc. This number is called the level of significance."
-  source_id: P-value
-  url: https://en.wikipedia.org/wiki/P-value
+'|alpha analysi level power use':
+  quote: '0.05'
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
   value: '0.05'
-'|analysi plan power study target use':
+'|analysi power target use':
   quote: "Indeed, although there are no formal standards for power, many researchers\
     \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
     \ This convention implies a four-to-one trade off between \u03B2-risk and \u03B1\

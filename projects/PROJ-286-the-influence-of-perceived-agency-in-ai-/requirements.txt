@@ -1,10 +1,28 @@
-streamlit
-pandas
-numpy
-scipy
-statsmodels
-pingouin
-pytest
-flake8
-black
-pyyaml
+# llmXive - The Influence of Perceived Agency in AI Interactions on Trust
+# Pinned dependencies for reproducibility
+# Generated for task T005: Initialize Python project with pinned dependencies
+
+# Core Data & Scientific Computing
+numpy==1.26.4
+pandas==2.2.2
+
+# Statistical Analysis & Power Analysis
+scipy==1.13.1
+statsmodels==0.14.2
+pingouin==0.5.4
+
+# Web Interface (Experiment)
+streamlit==1.35.0
+
+# HTTP Requests & External Data Fetching
+requests==2.32.3
+
+# Testing & Validation
+pytest==8.2.2
+
+# Linting & Formatting (Optional but recommended for CI)
+flake8==7.1.0
+black==24.4.2
+
+# Configuration
+pyyaml==6.0.1

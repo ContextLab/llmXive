@@ -4646,3 +4646,1121 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T08:53:26Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale has 12 items
+  claim_id: c_dac40c60
+  context: Task T010b requires writing the 12 items as a JSON array of strings to
+    docs/trust_scale_items.md. Task T009 defines fields trust_item_1 to trust_item_12.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust Scale consists of 12 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:14:04Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale uses 1-5 Likert mapping
+  claim_id: c_04f5a09f
+  context: Task T024 specifies using st.radio with options ['Strongly Disagree', 'Disagree',
+    'Neutral', 'Agree', 'Strongly Agree'] mapping to 1-5 integers.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust Scale uses a 1-5 Likert response mapping.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:14:28Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Langer 1975 study cited on trust and perceived control
+  claim_id: c_8a8aa411
+  context: Task T001b-2 requires summarizing key findings from Lee & See (2004) and
+    Langer (1975) regarding trust and perceived control.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Langer (1975) study is cited regarding trust and perceived control.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:14:53Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Planned directional contrasts use High vs Low and Combined vs Control
+  claim_id: c_10e1da58
+  context: 'Task T002 calculates sample size for planned directional contrasts: High
+    vs. Low, and Combined vs. Control.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Planned_directional_contrasts_use_High_vs_Low_and_Combined_v
+  kind: entity_fact
+  raw_text: The planned directional contrasts for the study use High vs. Low and Combined
+    vs. Control conditions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:15:34Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High vs Low contrast coefficients are -1 1 0
+  claim_id: c_6c6fef28
+  context: 'Task T002 specifies Contrast Coefficients: 1) High vs. Low: [-1, 1, 0].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The contrast coefficients for High vs. Low are [-1, 1, 0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:15:56Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High plus Low vs Control contrast coefficients are 1 1 -2
+  claim_id: c_21c8660f
+  context: 'Task T002 specifies Contrast Coefficients: 2) (High+Low) vs. Control:
+    [1, 1, -2].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The contrast coefficients for (High+Low) vs. Control are [1, 1, -2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:16:31Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power analysis uses effect size 0.25 alpha 0.05 power 0.80
+  claim_id: c_a984fbc5
+  context: 'Task T002 specifies HARDCODED DESIGN PARAMETERS: effect_size (f=0.25,
+    medium), alpha (0.05), power (0.80).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses a medium effect size (f=0.25), alpha of 0.05,
+    and power of 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:17:28Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Adherence rate defined as proportion of AI recommendations followed relative
+    to total recommendations
+  claim_id: c_19765d9c
+  context: 'Task T022 defines the adherence rate formula: ''The adherence rate is
+    defined as the proportion of AI recommendations followed relative to the total
+    number of recommendations, expressed as a percentage.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adherence_rate_defined_as_proportion_of_AI_recommendations_f
+  kind: entity_fact
+  raw_text: The adherence rate is defined as the proportion of AI recommendations
+    followed relative to the total number of recommendations, expressed as a percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:18:19Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Perceived agency score uses 1-7 Likert scale
+  claim_id: c_4e1503c2
+  context: 'Task T026 specifies the manipulation check question scale: 1-7 Likert.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The perceived agency score uses a 1-7 Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:18:41Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 Trust Scale contains 12 items
+  claim_id: c_5a12513e
+  context: Write the 12 items as a JSON array of strings to `docs/trust_scale_items.md`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust Scale contains 12 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:20:16Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Effect size f=0.25 for planned directional contrasts
+  claim_id: c_a9c16518
+  context: 'HARDCODED DESIGN PARAMETERS for the initial run: effect_size (f=0.25,
+    medium), alpha (0.05), power (0.80).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effect size for the planned directional contrasts is f=0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:21:08Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Target statistical power is 0.80
+  claim_id: c_bcd01fbe
+  context: 'HARDCODED DESIGN PARAMETERS for the initial run: effect_size (f=0.25,
+    medium), alpha (0.05), power (0.80).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The target statistical power is 0.80.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T11:21:17Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High vs. Low contrast coefficients are -1, 1, 0
+  claim_id: c_d9ed5bde
+  context: 'Contrast Coefficients: 1) High vs. Low: [-1, 1, 0], 2) (High+Low) vs.
+    Control: [1, 1, -2].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The contrast coefficients for High vs. Low are [-1, 1, 0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:21:18Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High plus Low vs. Control contrast coefficients are 1, 1, -2
+  claim_id: c_f900decf
+  context: 'Contrast Coefficients: 1) High vs. Low: [-1, 1, 0], 2) (High+Low) vs.
+    Control: [1, 1, -2].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The contrast coefficients for (High+Low) vs. Control are [1, 1, -2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:21:19Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Adherence rate definition: proportion of AI recommendations followed
+    relative to total recommendations'
+  claim_id: c_cb76a2f3
+  context: 'Requirement: Capture behavioral adherence as a percentage. Formula: The
+    adherence rate is defined as the proportion of AI recommendations followed relative
+    to the total number of recommendations, expressed as a percentage.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adherence_rate_definition:_proportion_of_AI_recommendations
+  kind: entity_fact
+  raw_text: The adherence rate is defined as the proportion of AI recommendations
+    followed relative to the total number of recommendations, expressed as a percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:21:21Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Trust score is mean of trust items 1 through 12
+  claim_id: c_60b24ed4
+  context: 'Requirement: Calculate the aggregate Trust Score as the mean of trust_item_1
+    through trust_item_12 for each participant.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trust scores are calculated as the mean of trust_item_1 through trust_item_12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:21:45Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Trust Scale uses 5-point Likert scale
+  claim_id: c_108645af
+  context: 'UI: Use st.radio with options=[''Strongly Disagree'', ''Disagree'', ''Neutral'',
+    ''Agree'', ''Strongly Agree''] mapping to 1-5 integers.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Trust Scale uses a 5-point Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:22:04Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Perceived Agency score uses 7-point Likert scale
+  claim_id: c_7417e92c
+  context: 'Question: To what extent did you feel you had control over the AI''s recommendations?
+    Scale: 1-7 Likert.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Perceived Agency score uses a 7-point Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:22:26Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Straight-lining detection flags consecutive identical responses
+  claim_id: c_6e1d8e17
+  context: 'Logic: Flag if a consecutive sequence of responses is identical.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Straight-lining_detection_flags_consecutive_identical_respon
+  kind: entity_fact
+  raw_text: Straight-lining detection flags consecutive sequences of identical responses.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:22:50Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps straight-lining thresholds 4, 5, and 6 consecutive
+    identical responses
+  claim_id: c_b184e3de
+  context: 'Requirement: Sweep participant exclusion thresholds including: ... 2)
+    Straight-lining detection thresholds (specific values:, 4, 5, 6 consecutive identical
+    responses)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps straight-lining detection thresholds for 4,
+    5, and 6 consecutive identical responses.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:23:15Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis includes adherence rate cutoffs less than 20% or
+    greater than 80%
+  claim_id: c_2b021465
+  context: 'Requirement: Sweep participant exclusion thresholds including: ... 3)
+    Adherence Rate cutoffs (e.g., remove participants with adherence < 20% or > 80%
+    if outliers)...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_includes_adherence_rate_cutoffs_less_th
+  kind: magnitude
+  raw_text: Sensitivity analysis includes adherence rate cutoffs of less than 20%
+    or greater than 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:23:54Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Trust Score outlier detection uses z-score greater than 3
+  claim_id: c_4737a177
+  context: 'Requirement: Sweep participant exclusion thresholds including: ... 4)
+    Trust Score outlier detection (e.g., IQR method or z-score > 3).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trust_Score_outlier_detection_uses_z-score_greater_than_3
+  kind: magnitude
+  raw_text: Trust Score outlier detection uses a z-score greater than 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:24:46Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 0
+  canonical: Pre-study power analysis alpha level 0.05
+  claim_id: c_215c37e0
+  context: 'T002 [P] ... **Args**: **HARDCODED DESIGN PARAMETERS** for the initial
+    run: `effect_size` (f=0.25, medium), `alpha` (0.05), `power` (0.80).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The pre-study power analysis uses an alpha level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T11:27:37Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Adherence rate definition as proportion of AI recommendations followed
+  claim_id: c_72234e89
+  context: 'T022 [US1] [FR-002] Implement adherence tracking logic in `code/experiment/app.py`.
+    **Requirement**: Capture behavioral adherence as a percentage. **Formula**: `The
+    adherence rate is defined as the proportion of AI recommendations followed relative
+    to the total number of recommendations, expressed as a percentage. `.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adherence_rate_definition_as_proportion_of_AI_recommendation
+  kind: entity_fact
+  raw_text: The adherence rate is defined as the proportion of AI recommendations
+    followed relative to the total number of recommendations, expressed as a percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:27:42Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale citation
+  claim_id: c_500797c5
+  context: 'Input: Raw citation strings: "Lee & See (2004)", "Langer (1975)". ...
+    T000b [Const-II] Validate the *text content* of the Lee & See (2004) scale items
+    against the primary source.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lee & See (2004)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:28:12Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Langer 1975 citation regarding perceived control
+  claim_id: c_f8458b26
+  context: 'Input: Raw citation strings: "Lee & See (2004)", "Langer (1975)". ...
+    T001b-2 [P] [Lit Review] Generate the literature review summary required by Plan.md
+    Phase 0. **Logic**: Summarize key findings from "Lee & See (2004)" and "Langer
+    (1975)" regarding trust and perceived control...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer (1975)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:28:39Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 trust scale has 12 items
+  claim_id: c_a75974fb
+  context: 'T010b [P] [SC-004] Retrieve the canonical Lee & See (2004) Trust Scale.
+    ... Write the 12 items as a JSON array of strings to `docs/trust_scale_items.md`.
+    ... Output: `docs/trust_scale_items.md` (JSON array of 12 strings).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust Scale contains 12 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:28:40Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Trust scale items use 1-5 Likert scale
+  claim_id: c_422ddeaa
+  context: 'T024 [US1] ... **UI**: Use `st.radio` with `options=[''Strongly Disagree'',
+    ''Disagree'', ''Neutral'', ''Agree'', ''Strongly Agree'']` mapping to 1-5 integers.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trust scale items use a 1-5 Likert scale mapping to 'Strongly Disagree'
+    through 'Strongly Agree'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:29:00Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Planned directional contrast coefficients for High vs Low and Combined
+    vs Control
+  claim_id: c_764998f0
+  context: 'T002 [P] ... **Contrast Coefficients**: 1) High vs. Low: [-1, 1, 0], 2)
+    (High+Low) vs. Control: [1, 1, -2]. ... T030 [US2] ... Explicitly implement orthogonal
+    contrast vectors with coefficients:) High vs. Low (coefficients: [-1, 1, 0]),
+    2) (High+Low) vs. Control (coefficients: [1, 1, -2]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The planned directional contrasts use coefficients [-1, 1, 0] for High
+    vs. Low and [1, 1, -2] for (High+Low) vs. Control.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:29:24Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Pre-study power analysis effect size 0.25
+  claim_id: c_a48bd6df
+  context: 'T002 [P] Execute pre-study power analysis calculation for **planned directional
+    contrasts** using Python `pwr`. **Script**: `code/research/power_analysis.py`.
+    **Args**: **HARDCODED DESIGN PARAMETERS** for the initial run: `effect_size` (f=0.25,
+    medium)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pre-study power analysis uses an effect size (f) of 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:30:19Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Pre-study power analysis target power 0.80
+  claim_id: c_0e30bac0
+  context: 'T002 [P] ... **Args**: **HARDCODED DESIGN PARAMETERS** for the initial
+    run: `effect_size` (f=0.25, medium), `alpha` (0.05), `power` (0.80).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The pre-study power analysis uses a target power of 0.80.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T11:30:33Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Perceived agency score 1-7 Likert scale
+  claim_id: c_358738e7
+  context: 'T026 [US1] Implement manipulation check question for "Perceived Agency".
+    **Question**: "To what extent did you feel you had control over the AI''s recommendations?"
+    **Scale**: 1-7 Likert. **Variable**: `perceived_agency_score`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The perceived agency score uses a 1-7 Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:30:34Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 0
+  canonical: Pre-study power analysis alpha level is 0.05
+  claim_id: c_95b96d32
+  context: 'HARDCODED DESIGN PARAMETERS for the initial run: effect_size (f=0.25,
+    medium), alpha (0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))),
+    power (0.80).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The pre-study power analysis uses an alpha level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T11:31:19Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 0
+  canonical: Pre-study power analysis target power is 0.80
+  claim_id: c_65b4d8bf
+  context: 'HARDCODED DESIGN PARAMETERS for the initial run: effect_size (f=0.25,
+    medium), alpha (0.05...), power (0.80).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The pre-study power analysis targets a power of 0.80.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T11:31:20Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 trust scale has 12 items
+  claim_id: c_7860463e
+  context: 'Write the 12 items as a JSON array of strings to docs/trust_scale_items.md.
+    Output: docs/trust_scale_items.md (JSON array of 12 strings).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust Scale contains 12 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:31:29Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High vs Low contrast coefficients are -1, 1, 0
+  claim_id: c_dda7f941
+  context: 'Contrast Coefficients: 1) High vs. Low: [-1, 1, 0], 2) (High+Low) vs.
+    Control: [1, 1, -2].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The planned directional contrasts include High vs. Low with coefficients
+    [-1, 1, 0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:31:46Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High plus Low vs Control contrast coefficients are 1, 1, -2
+  claim_id: c_49b2ba48
+  context: 'Contrast Coefficients: 1) High vs. Low: [-1, 1, 0], 2) (High+Low) vs.
+    Control: [1, 1, -2].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The planned directional contrasts include (High+Low) vs. Control with
+    coefficients [1, 1, -2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:32:08Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Pre-study power analysis effect size f is 0.25
+  claim_id: c_595583d5
+  context: 'HARDCODED DESIGN PARAMETERS for the initial run: effect_size (f=0.25,
+    medium), alpha (0.05...), power (0.80).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pre-study power analysis uses an effect size (f) of 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:32:09Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 is primary source for trust scale items
+  claim_id: c_3d61b3da
+  context: Retrieve the canonical Lee & See (2004) Trust Scale. Verify that research/scale_text_validation.json
+    confirms Lee & See (2004) text is valid.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) scale is the primary source for the trust items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:32:36Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Langer 1975 cited for trust and perceived control
+  claim_id: c_d20fc4f8
+  context: Summarize key findings from Lee & See (2004) and Langer (1975) regarding
+    trust and perceived control.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer (1975) is cited regarding trust and perceived control.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:32:58Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Trust score is mean of trust items 1 to 12
+  claim_id: c_414040f6
+  context: Implement Trust Score aggregation logic... Calculate the aggregate Trust
+    Score as the mean of trust_item_1 through trust_item_12 for each participant.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trust score is calculated as the mean of trust items 1 through 12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:32:59Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Perceived agency score uses 1-7 Likert scale
+  claim_id: c_6d3f5875
+  context: 'Implement manipulation check question for Perceived Agency. Question:
+    To what extent did you feel you had control over the AI''s recommendations? Scale:
+    1-7 Likert.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The perceived agency score uses a 1-7 Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:33:00Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Adherence rate is proportion of AI recommendations followed
+  claim_id: c_f08fb395
+  context: The adherence rate is defined as the proportion of AI recommendations followed
+    relative to the total number of recommendations, expressed as a percentage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adherence_rate_is_proportion_of_AI_recommendations_followed
+  kind: entity_fact
+  raw_text: The adherence rate is defined as the proportion of AI recommendations
+    followed relative to the total number of recommendations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:33:35Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps straight-lining thresholds 4, 5, 6
+  claim_id: c_75363501
+  context: 'Sweep participant exclusion thresholds including: Straight-lining detection
+    thresholds (specific values:, 4, 5, 6 consecutive identical responses).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps straight-lining detection thresholds for
+    4, 5, and 6 consecutive identical responses.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:33:36Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis includes adherence rate cutoffs 20 and 80 percent
+  claim_id: c_b7d2165e
+  context: Adherence Rate cutoffs (e.g., remove participants with adherence < 20%
+    or > 80% if outliers).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis includes adherence rate cutoffs of < 20% or >
+    80%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:33:37Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses z-score > 3 for trust score outliers
+  claim_id: c_c76f2fe3
+  context: Trust Score outlier detection (e.g., IQR method or z-score > 3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis includes trust score outlier detection using
+    z-score > 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:33:38Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See published 2004
+  claim_id: c_478cc95e
+  context: 'The script will query the primary sources (via DOI/URL), verify title/author
+    overlap, and check content keywords. Input: Raw citation strings: ''Lee & See
+    (2004) '', ''Langer (1975) ''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lee & See (2004)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:43:02Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Langer published 1975
+  claim_id: c_2cbd7271
+  context: 'The script will query the primary sources (via DOI/URL), verify title/author
+    overlap, and check content keywords. Input: Raw citation strings: ''Lee & See
+    (2004) '', ''Langer (1975) ''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer (1975)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:43:03Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See trust scale has 12 items
+  claim_id: c_4c6899a1
+  context: Write the 12 items as a JSON array of strings to docs/trust_scale_items.md.
+    ... Populate trust_item_ to trust_item_12 fields with the verbatim text from docs/trust_scale_items.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust Scale consists of 12 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:43:04Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Adherence rate definition as proportion of recommendations followed
+  claim_id: c_04928619
+  context: 'Implement adherence tracking logic in code/experiment/app.py. Requirement:
+    Capture behavioral adherence as a percentage. Formula: The adherence rate is defined
+    as the proportion of AI recommendations followed relative to the total number
+    of recommendations, expressed as a percentage.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adherence_rate_definition_as_proportion_of_recommendations_f
+  kind: entity_fact
+  raw_text: The adherence rate is defined as the proportion of AI recommendations
+    followed relative to the total number of recommendations, expressed as a percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:43:07Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High vs Low contrast coefficients are -1 1 0
+  claim_id: c_7855075f
+  context: 'Calculate the required sample size (N) specifically for the planned directional
+    contrasts (High vs. Low, and Combined vs. Control) using contrast-specific effect
+    size formulas (f_contrast). Contrast Coefficients: 1) High vs. Low: [-1, 1, 0]...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The planned directional contrasts include High vs. Low with coefficients
+    [-1, 1, 0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:43:08Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High plus Low vs Control contrast coefficients are 1 1 -2
+  claim_id: c_eb3edf28
+  context: '...and 2) (High+Low) vs. Control: [1, 1, -2]. Method: Use pwr.f2.test
+    with specific contrast vectors or equivalent contrast-specific power calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The planned directional contrasts include (High+Low) vs. Control with
+    coefficients [1, 1, -2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:43:09Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Trust scale uses 1 to 5 Likert scale
+  claim_id: c_a86fafd4
+  context: 'UI: Use st.radio with options=[''Strongly Disagree'', ''Disagree'', ''Neutral'',
+    ''Agree'', ''Strongly Disagree''] mapping to 1-5 integers.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trust scale uses a 1-5 Likert response format.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:43:29Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Perceived agency score uses 1 to 7 Likert scale
+  claim_id: c_13bba1cb
+  context: 'Implement manipulation check question for ''Perceived Agency''. Question:
+    ''To what extent did you feel you had control over the AI''s recommendations?''
+    Scale: 1-7 Likert. Variable: perceived_agency_score.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The perceived agency score is measured on a 1-7 Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:43:49Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power analysis effect size f equals 0.25
+  claim_id: c_d0ba5d72
+  context: 'Execute pre-study power analysis calculation for planned directional contrasts
+    using Python pwr. Args: HARDCODED DESIGN PARAMETERS for the initial run: effect_size
+    (f=0.25, medium)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an effect size of f=0.25 (medium).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:44:44Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power analysis alpha level is 0.05
+  claim_id: c_2492b427
+  context: '...alpha (0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))),
+    power (0.80).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis uses an alpha level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T11:51:40Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power analysis target power is 0.80
+  claim_id: c_363c1d63
+  context: '...alpha (0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))),
+    power (0.80).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis uses a target power of 0.80.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T11:51:50Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps straight-lining thresholds 4 5 6
+  claim_id: c_d0bcd895
+  context: 'Requirement: Sweep participant exclusion thresholds including: ... 2)
+    Straight-lining detection thresholds (specific values:, 4, 5, 6 consecutive identical
+    responses)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps straight-lining detection thresholds for
+    4, 5, and 6 consecutive identical responses.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:51:51Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis checks adherence rate cutoffs below 20 percent and
+    above 80 percent
+  claim_id: c_43bb0e94
+  context: '...3) Adherence Rate cutoffs (e.g., remove participants with adherence
+    < 20% or > 80% if outliers)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_checks_adherence_rate_cutoffs_below_20
+  kind: magnitude
+  raw_text: The sensitivity analysis checks adherence rate cutoffs at less than 20%
+    or greater than 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:52:27Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses z-score greater than 3 for trust score outliers
+  claim_id: c_6b554e0a
+  context: '...and 4) Trust Score outlier detection (e.g., IQR method or z-score >
+    3).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_uses_z-score_greater_than_3_for_trust_s
+  kind: magnitude
+  raw_text: The sensitivity analysis uses a z-score greater than 3 for trust score
+    outlier detection.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:53:24Z'

@@ -1,8 +1,9 @@
 """
-Power analysis module for calculating required sample sizes for One-Way ANOVA.
+Power analysis module for calculating required sample sizes for planned directional contrasts.
 
-This module uses statsmodels to calculate the sample size needed to achieve
-a target power level for detecting a specified effect size (Cohen's f).
+This module calculates the sample size needed for specific planned contrasts in a
+One-Way ANOVA design (High vs. Low, Combined vs. Control) using effect size
+transformations for contrasts (f_contrast).
 """
 import argparse
 import json
@@ -10,139 +11,184 @@ import os
 import sys
 from pathlib import Path
 from statsmodels.stats.power import FTestAnovaPower
+import numpy as np
 
-def calculate_sample_size(effect_size: float = 0.25, alpha: float = 0.05, power: float = 0.80, k_groups: int = 3) -> int:
+def calculate_contrast_effect_size(
+    effect_size: float,
+    contrast_coeffs: list,
+    n_groups: int
+) -> float:
     """
-    Calculate the required sample size per group for a One-Way ANOVA.
-    
+    Calculate the effect size (f_contrast) for a specific contrast.
+
+    The contrast effect size is derived from the overall ANOVA effect size (f)
+    using the formula: f_contrast = f * sqrt(sum(c_i^2) / k)
+    where c_i are the contrast coefficients and k is the number of groups.
+
     Args:
-        effect_size: Cohen's f effect size (0.10=small, 0.25=medium, 0.40=large)
-        alpha: Significance level (Type I error rate)
-        power: Target statistical power (1 - Type II error rate)
-        k_groups: Number of groups in the ANOVA (High, Low, Control)
-        
+        effect_size: Overall ANOVA effect size (Cohen's f)
+        contrast_coeffs: List of contrast coefficients (sum must be 0)
+        n_groups: Number of groups in the design
+
     Returns:
-        Required sample size per group (rounded up to nearest integer)
+        Effect size for the specific contrast (f_contrast)
     """
+    # Validate contrast coefficients sum to zero
+    if abs(sum(contrast_coeffs)) > 1e-6:
+        raise ValueError("Contrast coefficients must sum to zero")
+
+    # Validate number of coefficients matches number of groups
+    if len(contrast_coeffs) != n_groups:
+        raise ValueError(f"Number of coefficients ({len(contrast_coeffs)}) must match number of groups ({n_groups})")
+
+    # Calculate sum of squared coefficients
+    sum_sq_coeffs = sum(c**2 for c in contrast_coeffs)
+
+    # Calculate f_contrast
+    # Formula: f_contrast = f * sqrt(sum(c_i^2) / k)
+    f_contrast = effect_size * np.sqrt(sum_sq_coeffs / n_groups)
+
+    return f_contrast
+
+def calculate_sample_size_for_contrast(
+    effect_size: float,
+    alpha: float,
+    power: float,
+    contrast_coeffs: list,
+    n_groups: int = 3
+) -> int:
+    """
+    Calculate the required sample size per group for a specific contrast.
+
+    Args:
+        effect_size: Overall ANOVA effect size (Cohen's f)
+        alpha: Significance level
+        power: Target statistical power
+        contrast_coeffs: Contrast coefficients
+        n_groups: Number of groups (default 3)
+
+    Returns:
+        Required sample size per group (rounded up)
+    """
+    # Calculate contrast-specific effect size
+    f_contrast = calculate_contrast_effect_size(
+        effect_size=effect_size,
+        contrast_coeffs=contrast_coeffs,
+        n_groups=n_groups
+    )
+
+    # Use statsmodels to calculate sample size
     analysis = FTestAnovaPower()
     n_per_group = analysis.solve_power(
-        effect_size=effect_size,
+        effect_size=f_contrast,
         alpha=alpha,
         power=power,
-        n_groups=k_groups
+        n_groups=n_groups
     )
-    
+
     if n_per_group is None:
         raise ValueError("Could not calculate sample size. Check input parameters.")
-        
-    return int(n_per_group) + 1  # Round up to ensure sufficient power
 
-def generate_report(results: dict) -> str:
-    """
-    Generate a formal markdown pre-study power analysis report.
-    
-    Args:
-        results: Dictionary containing power analysis results.
-        
-    Returns:
-        Formatted markdown string for the report.
-    """
-    report = f"""# Pre-Study Power Analysis Report
-
-## Study Design
-This report details the power analysis conducted to determine the required sample size for the study on "The Influence of Perceived Agency in AI Interactions on Trust". The primary analysis will utilize a One-Way ANOVA to compare trust scores across three experimental conditions: High Agency, Low Agency, and Control.
-
-## Parameters
-| Parameter | Value | Description |
-| :--- | :--- | :--- |
-| **Effect Size (Cohen's f)** | {results['effect_size']} | Medium effect size based on literature review |
-| **Significance Level (α)** | {results['alpha']} | Probability of Type I error |
-| **Target Power (1-β)** | {results['target_power']} | Probability of correctly rejecting null hypothesis |
-| **Number of Groups (k)** | {results['k_groups']} | High Agency, Low Agency, Control |
-| **Statistical Test** | One-Way ANOVA (F-test) | Analysis of Variance |
-
-## Results
-- **Required Sample Size per Group**: {results['n_per_group']} participants
-- **Total Required Sample Size**: {results['total_required_n']} participants
-- **Analysis Method**: {results['analysis_method']}
-- **Software**: {results['software']}
-
-## Conclusion
-To achieve a statistical power of **{results['target_power']}** for detecting a medium effect size ({results['effect_size']}) at a significance level of {results['alpha']} using a One-Way ANOVA with {results['k_groups']} groups, the study requires a minimum of **{results['n_per_group']} participants per condition**, totaling **{results['total_required_n']} participants**.
-
-This sample size ensures that the study is adequately powered to detect the hypothesized differences in trust scores between the experimental conditions.
-
----
-*Generated by code/research/power_analysis.py*
-"""
-    return report
+    return int(np.ceil(n_per_group))  # Round up to ensure sufficient power
 
 def main():
     """
-    Execute power analysis and save results to research/power_calculation.json
-    and research/power_report.md.
-    
-    This function calculates the sample size for the study's power analysis
-    using command-line arguments or defaults, saves the results to a JSON file,
-    and generates a formal markdown report.
+    Execute power analysis for planned directional contrasts and save results.
+
+    Calculates sample size for:
+    1. High vs. Low contrast: [-1, 1, 0]
+    2. Combined (High+Low) vs. Control contrast: [1, 1, -2]
+
+    Uses hardcoded design parameters: effect_size=0.25, alpha=0.05, power=0.80
     """
-    parser = argparse.ArgumentParser(description="Execute pre-study power analysis for One-Way ANOVA.")
-    parser.add_argument('--effect_size', type=float, default=0.25, help='Cohen\'s f effect size')
-    parser.add_argument('--alpha', type=float, default=0.05, help='Significance level')
-    parser.add_argument('--power', type=float, default=0.80, help='Target statistical power')
-    parser.add_argument('--test_type', type=str, default='anova', help='Type of test (currently only anova supported)')
-    
-    args = parser.parse_args()
-    
-    if args.test_type != 'anova':
-        print(f"Error: Test type '{args.test_type}' not supported. Only 'anova' is available.")
-        sys.exit(1)
-    
-    # Determine number of groups (fixed for this study design)
-    k_groups = 3  # High Agency, Low Agency, Control
-    
-    # Calculate required sample size per group
-    n_per_group = calculate_sample_size(
-        effect_size=args.effect_size,
-        alpha=args.alpha,
-        power=args.power,
-        k_groups=k_groups
-    )
-    
-    total_n = n_per_group * k_groups
-    
-    # Prepare results
-    results = {
-        "effect_size": args.effect_size,
-        "alpha": args.alpha,
-        "target_power": args.power,
-        "k_groups": k_groups,
-        "n_per_group": n_per_group,
-        "total_required_n": total_n,
-        "analysis_method": "One-Way ANOVA (F-test)",
-        "software": "statsmodels"
+    # Hardcoded design parameters as per task specification
+    effect_size = 0.25  # Medium effect size (Cohen's f)
+    alpha = 0.05
+    target_power = 0.80
+    n_groups = 3  # High, Low, Control
+
+    # Define planned directional contrasts
+    contrasts = {
+        "high_vs_low": {
+            "coefficients": [-1, 1, 0],
+            "description": "High Agency vs. Low Agency"
+        },
+        "combined_vs_control": {
+            "coefficients": [1, 1, -2],
+            "description": "Combined (High + Low) vs. Control"
+        }
     }
-    
+
+    results = {
+        "params": {
+            "effect_size": effect_size,
+            "alpha": alpha,
+            "power": target_power,
+            "k_groups": n_groups,
+            "contrast_type": "planned_directional"
+        },
+        "results": {}
+    }
+
+    # Calculate sample size for each contrast
+    max_n_per_group = 0
+    for contrast_name, contrast_info in contrasts.items():
+        n_per_group = calculate_sample_size_for_contrast(
+            effect_size=effect_size,
+            alpha=alpha,
+            power=target_power,
+            contrast_coeffs=contrast_info["coefficients"],
+            n_groups=n_groups
+        )
+
+        # Calculate contrast-specific effect size for reporting
+        f_contrast = calculate_contrast_effect_size(
+            effect_size=effect_size,
+            contrast_coeffs=contrast_info["coefficients"],
+            n_groups=n_groups
+        )
+
+        results["results"][contrast_name] = {
+            "description": contrast_info["description"],
+            "coefficients": contrast_info["coefficients"],
+            "f_contrast": round(f_contrast, 4),
+            "required_n_per_group": n_per_group,
+            "required_total_n": n_per_group * n_groups
+        }
+
+        # Track maximum required sample size
+        if n_per_group > max_n_per_group:
+            max_n_per_group = n_per_group
+
+    # Add summary with maximum required sample size
+    results["results"]["summary"] = {
+        "max_required_n_per_group": max_n_per_group,
+        "max_required_total_n": max_n_per_group * n_groups,
+        "recommendation": f"Use {max_n_per_group} participants per group ({max_n_per_group * n_groups} total) to ensure adequate power for all planned contrasts."
+    }
+
     # Ensure output directory exists
-    output_dir = "research"
-    os.makedirs(output_dir, exist_ok=True)
-    
+    output_dir = Path("research")
+    output_dir.mkdir(exist_ok=True)
+
     # Save results to JSON
-    json_path = os.path.join(output_dir, "power_calculation.json")
+    json_path = output_dir / "power_calculation.json"
     with open(json_path, "w") as f:
         json.dump(results, f, indent=2)
-        
-    # Generate and save markdown report
-    report_content = generate_report(results)
-    md_path = os.path.join(output_dir, "power_report.md")
-    with open(md_path, "w") as f:
-        f.write(report_content)
-        
+
     print(f"Power analysis completed successfully.")
-    print(f"Required sample size: {n_per_group} per group ({total_n} total)")
     print(f"Results saved to: {json_path}")
-    print(f"Report saved to: {md_path}")
-    
+    print(f"\nSummary:")
+    for contrast_name, contrast_results in results["results"].items():
+        if contrast_name != "summary":
+            print(f"  {contrast_results['description']}:")
+            print(f"    Coefficients: {contrast_results['coefficients']}")
+            print(f"    f_contrast: {contrast_results['f_contrast']}")
+            print(f"    Required N per group: {contrast_results['required_n_per_group']}")
+
+    print(f"\nRecommended total sample size: {results['results']['summary']['max_required_total_n']}")
+    print(f"  ({results['results']['summary']['max_required_n_per_group']} per group)")
+
     return results
 
 if __name__ == "__main__":
