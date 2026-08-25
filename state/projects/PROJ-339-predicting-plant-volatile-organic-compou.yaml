@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-339-predicting-plant-volatile-organic-compou
-last_run_id: afb14a81-616e-4f2f-905d-740ac4cbfb73
+last_run_id: 125fbbfd-2de3-4a55-82bf-6be250611433
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-339-predicting-plant-volatile-organic-compou/specs/001-predicting-plant-volatile-organic-compou
 title: Predicting Plant Volatile Organic Compound Emission Profiles from Publicly
   Available Genomic and Environmental Data
-updated_at: '2026-08-25T20:22:48.790071Z'
+updated_at: '2026-08-25T21:00:09.580294Z'

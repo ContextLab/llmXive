@@ -13,11 +13,11 @@ This project implements a CPU-tractable pipeline to predict *Arabidopsis thalian
 **Primary Dependencies**: `scikit-learn`, `pandas`, `numpy`, `shap`, `requests`, `biopython` (for potential ID mapping), `pyyaml`  
 **Storage**: Local CSV/Parquet files under `data/` (no external DB)  
 **Testing**: `pytest` (unit tests for data ingestion, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM, 14GB Disk, No GPU)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, standard RAM, 14GB Disk, No GPU)  
 **Project Type**: Data Science Pipeline / Research Script (Methodological Simulation)  
 **Performance Goals**: Complete full pipeline (ingest -> train -> eval -> report) within 6 hours on CPU; memory usage < 6GB.  
 **Constraints**: No GPU usage; no deep learning training; dataset size limited to a small-scale cohort to ensure cross-validation stability and CPU feasibility; strict adherence to "no unpaired samples" rule.  
-**Scale/Scope**: Single species (*Arabidopsis thaliana*), single study type (stress response), ~-100 samples.
+**Scale/Scope**: Single species (*Arabidopsis thaliana*), single study type (stress response), A sample size of approximately one hundred will be utilized..
 
 > **Critical Note on Dataset Availability**: The spec assumes the existence of paired RNA-seq and VOC data for *Arabidopsis thaliana* in public repositories. The verified dataset list provided for this project **does not contain a verified source** for *Arabidopsis thaliana* paired RNA-seq/VOC data. The plan explicitly addresses this gap in `research.md` by defining a fallback strategy (synthetic/mock data generation for pipeline validation) while acknowledging the limitation for real-world biological insight. The project is scoped as a **Methodological Simulation** pending real data acquisition.
 

@@ -1,136 +1,133 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Plant VOC and Genomic Dataset Schema
+title: Plant VOC Prediction Dataset Schema
 description: >
-  Unified schema for the merged dataset containing RNA-seq (gene expression),
-  VOC emission profiles, and environmental metadata for Arabidopsis thaliana
-  stress studies. Used for validation of data ingestion (T015) and model training (T020).
-type: object
-required:
-  - sample_id
-  - gene_expression
-  - voc_profile
-  - environmental_metadata
-  - metadata
-properties:
-  sample_id:
-    type: string
-    description: Unique identifier for the biological sample, used for merging.
-    pattern: "^[A-Za-z0-9_-]+$"
-    example: "AT_S001_T1"
-
-  gene_expression:
+  Schema definition for the plant volatile organic compound (VOC) prediction pipeline.
+  Defines the structure for Samples, Genomic Features, Environmental Features, and VOC Profiles.
+definitions:
+  Sample:
     type: object
-    description: >
-      Normalized gene expression values (TPM - Transcripts Per Million).
-      Keys are Gene IDs (e.g., AT1G01010), values are float TPM.
-    additionalProperties:
-      type: number
-      minimum: 0
-    minProperties: 1
-    example:
-      AT1G01010: 12.5
-      AT2G02020: 0.0
-
-  voc_profile:
-    type: object
-    description: >
-      Volatile Organic Compound emission rates (ng/g/h or ppb).
-      Keys are VOC names/IDs, values are float emission rates.
-    additionalProperties:
-      type: number
-      minimum: 0
-    minProperties: 1
-    example:
-      "Limonene": 5.2
-      "Beta-Ocimene": 12.8
-
-  environmental_metadata:
-    type: object
-    description: >
-      Environmental conditions during the experiment.
-      Critical fields (temperature, light_intensity) are required for FR-012.
+    description: Core sample identifier and metadata linking genomic, environmental, and VOC data.
     required:
-      - temperature
-      - light_intensity
+      - sample_id
+      - species
+      - tissue_type
+      - collection_date
     properties:
+      sample_id:
+        type: string
+        description: Unique identifier for the sample.
+      species:
+        type: string
+        description: Scientific name of the plant species (e.g., Arabidopsis thaliana).
+      tissue_type:
+        type: string
+        description: Type of tissue sampled (e.g., leaf, root, flower).
+      collection_date:
+        type: string
+        format: date
+        description: Date of sample collection (ISO 8601).
+      experiment_id:
+        type: string
+        description: Identifier for the parent experiment.
+      replicate_id:
+        type: integer
+        description: Biological replicate number (1-based).
+      treatment_condition:
+        type: string
+        description: Description of the stress or treatment applied.
+
+  GenomicFeature:
+    type: object
+    description: Gene expression data associated with a sample.
+    required:
+      sample_id
+      gene_id
+      tpm_value
+    properties:
+      sample_id:
+        type: string
+        description: Foreign key linking to Sample.
+      gene_id:
+        type: string
+        description: Gene identifier (e.g., AT1G01010).
+      gene_name:
+        type: string
+        description: Symbolic gene name (optional).
+      tpm_value:
+        type: number
+        format: float
+        description: Transcripts Per Million normalized expression value.
+      pathway_family:
+        type: string
+        description: Pathway family assignment (e.g., TPS-a, TPS-b).
+
+  EnvironmentalFeature:
+    type: object
+    description: Environmental conditions recorded during sample collection.
+    required:
+      sample_id
+      temperature
+      light_intensity
+      co2_level
+    properties:
+      sample_id:
+        type: string
+        description: Foreign key linking to Sample.
       temperature:
         type: number
+        format: float
         description: Temperature in Celsius.
-        minimum: -10
-        maximum: 60
       light_intensity:
         type: number
-        description: Light intensity in µmol/m²/s (PPFD).
-        minimum: 0
-        maximum: 3000
+        format: float
+        description: Light intensity in µmol/m²/s.
+      co2_level:
+        type: number
+        format: float
+        description: CO2 concentration in ppm.
       humidity:
         type: number
-        description: Relative humidity in percent.
-        minimum: 0
-        maximum: 100
-        nullable: true
-      co2_concentration:
+        format: float
+        description: Relative humidity in %.
+      soil_moisture:
         type: number
-        description: CO2 concentration in ppm.
-        minimum: 0
-        nullable: true
-      stress_condition:
-        type: string
-        description: Type of stress applied (e.g., "drought", "heat", "pathogen").
-        enum:
-          - drought
-          - heat
-          - cold
-          - herbivory
-          - pathogen
-          - control
-          - other
-      duration_hours:
-        type: number
-        description: Duration of stress exposure in hours.
-        minimum: 0
-        nullable: true
+        format: float
+        description: Soil moisture content in %.
 
-  metadata:
+  VOCProfile:
     type: object
-    description: >
-      Additional study metadata (replicate info, source, timestamps).
-      Used for filtering replicates (FR-011) and provenance.
+    description: Volatile Organic Compound measurements for a sample.
     required:
-      - replicate_id
-      - source_study
+      sample_id
+      compound_id
+      concentration
     properties:
-      replicate_id:
+      sample_id:
         type: string
-        description: Identifier for the biological replicate.
-      source_study:
+        description: Foreign key linking to Sample.
+      compound_id:
         type: string
-        description: Original study identifier (e.g., GEO accession, Metabolomics Workbench ID).
-      collection_timestamp:
+        description: Identifier for the VOC (e.g., CAS number or InChIKey).
+      compound_name:
         type: string
-        format: date-time
-        description: ISO 8601 timestamp of sample collection.
-        nullable: true
-      notes:
+        description: Common name of the compound.
+      concentration:
+        type: number
+        format: float
+        description: Concentration value (units depend on measurement method).
+      unit:
         type: string
-        description: Free-text notes about the sample.
-        nullable: true
+        description: Unit of measurement (e.g., ng/g/h, ppb).
+      detection_limit:
+        type: number
+        format: float
+        description: Detection limit for the compound.
 
-examples:
-  - sample_id: "AT_S001_T1"
-    gene_expression:
-      AT1G12345: 150.2
-      AT2G67890: 0.5
-    voc_profile:
-      "Myrcene": 2.1
-      "Caryophyllene": 0.8
-    environmental_metadata:
-      temperature: 28.5
-      light_intensity: 400
-      humidity: 65
-      stress_condition: "heat"
-    metadata:
-      replicate_id: "R1"
-      source_study: "GSE12345"
-      collection_timestamp: "2023-05-12T10:30:00Z"
-      notes: "First replicate of heat stress group"
+# Root schema for validation of a dataset containing mixed records
+# In practice, this schema is used to validate individual record types
+# or a combined JSON structure where 'type' discriminates the object.
+anyOf:
+  - $ref: '#/definitions/Sample'
+  - $ref: '#/definitions/GenomicFeature'
+  - $ref: '#/definitions/EnvironmentalFeature'
+  - $ref: '#/definitions/VOCProfile'

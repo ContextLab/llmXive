@@ -1,36 +1,75 @@
+"""
+Imputation utilities for handling missing values.
+Implements T009a (Median) and T009b (KNN) strategies.
+"""
 import pandas as pd
 import numpy as np
-from typing import Literal
+from typing import Literal, Optional
 
-def impute_missing_values(df: pd.DataFrame, strategy: Literal['median', 'knn'] = 'median') -> pd.DataFrame:
+def impute_missing_values(
+    df: pd.DataFrame,
+    strategy: Literal['median', 'mean', 'knn'] = 'median',
+    n_neighbors: int = 5
+) -> pd.DataFrame:
     """
-    Impute missing values in a DataFrame.
+    Impute missing values in the DataFrame based on the specified strategy.
     
     Args:
-        df: Input DataFrame
-        strategy: 'median' or 'knn'
-        
+        df: Input DataFrame.
+        strategy: Imputation strategy ('median', 'mean', 'knn').
+        n_neighbors: Number of neighbors for KNN imputation (default 5).
+    
     Returns:
-        DataFrame with imputed values
+        DataFrame with imputed values.
+    
+    Raises:
+        ImportError: If scikit-learn is not installed for KNN strategy.
+        ValueError: If an unsupported strategy is provided.
     """
-    if df.empty:
-        return df
+    if strategy not in ('median', 'mean', 'knn'):
+        raise ValueError(f"Unsupported strategy: {strategy}. Use 'median', 'mean', or 'knn'.")
+    
+    df_copy = df.copy()
+    
+    # Identify numeric columns only
+    numeric_cols = df_copy.select_dtypes(include=[np.number]).columns
+    
+    if len(numeric_cols) == 0:
+        return df_copy
     
     if strategy == 'median':
-        return df.fillna(df.median(numeric_only=True))
+        for col in numeric_cols:
+            median_val = df_copy[col].median()
+            # If median is NaN (e.g., all values missing), fill with 0 as fallback
+            if pd.isna(median_val):
+                median_val = 0.0
+            df_copy[col] = df_copy[col].fillna(median_val)
+            
+    elif strategy == 'mean':
+        for col in numeric_cols:
+            mean_val = df_copy[col].mean()
+            if pd.isna(mean_val):
+                mean_val = 0.0
+            df_copy[col] = df_copy[col].fillna(mean_val)
+            
     elif strategy == 'knn':
-        # Simple KNN imputation using sklearn
-        from sklearn.impute import KNNImputer
-        imputer = KNNImputer(n_neighbors=5)
-        imputed_array = imputer.fit_transform(df)
-        return pd.DataFrame(imputed_array, columns=df.columns, index=df.index)
-    else:
-        raise ValueError(f"Unknown strategy: {strategy}")
-
-def fit_impute_cv(train_df: pd.DataFrame, val_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Fit imputation on training data and apply to both train and validation sets.
-    This prevents data leakage in cross-validation.
+        try:
+            from sklearn.impute import KNNImputer
+        except ImportError:
+            raise ImportError(
+                "scikit-learn is required for KNN imputation. "
+                "Please install it via `pip install scikit-learn`."
+            )
+        
+        imputer = KNNImputer(n_neighbors=n_neighbors)
+        # Only impute numeric columns
+        df_numeric = df_copy[numeric_cols]
+        
+        # Check if there are any missing values to impute
+        if df_numeric.isnull().any().any():
+            imputed_array = imputer.fit_transform(df_numeric)
+            df_copy[numeric_cols] = imputed_array
+        # If no missing values, we just return the copy
     
     Args:
         train_df: Training DataFrame

@@ -1,24 +1,35 @@
-T023:
+T005:
   c: false
-  h: 5e25857f24acce35c2b378109d8e9ba649eed5b450006c1b5852c13faa4d8191
-  r: "The required `data/results/model_metrics.json` file does not exist, so no R\xB2\
-    \ or RMSE metrics are provided. The task\u2019s primary deliverable is missing,\
-    \ making the implementation incomplete."
-T025:
+  h: 99b8908cddcc8b3a0f72c2b70ed3c0caf0465b87e01906d2ab149f10c78baf9e
+  r: "The required output file `data/raw/synthetic_arabidopsis_v1.csv` does not exist,\
+    \ and the provided `synthetic_data.py` snippet is incomplete (truncated) with\
+    \ no evidence that it writes the CSV or validates against the schema. The task\u2019\
+    s core deliverable is therefore missing."
+T005b:
   c: false
-  h: 447f787329756037202b694460bc99f4aa42f675f5ec5ccefae7de12b57a51e9
-  r: "Both required output files (`data/results/model_metrics.json` and `data/results/interpretation_report.json`)\
-    \ are absent from the repository, so the disclaimer cannot be verified and the\
-    \ task\u2019s core requirement is unmet."
-T031:
+  h: 1b855bfb63028560a6e89ab2b2c6560c109554f76b06f8a4ecead54a93518388
+  r: "The repository lacks the required `data/reference/real_world_schema.json` file,\
+    \ and `code/generators/synthetic_data.py` contains only data generation code without\
+    \ any schema\u2011validation logic that loads and compares against a reference\
+    \ schema. Both the validation implementation and the reference schema are missing,\
+    \ so the task is not satisfied."
+T012:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or result files were provided that perform the required\
-    \ overlap\u2011statistics calculation between the aggregated pathway features\
-    \ from T016 and the known terpene synthase gene families (FR\u2011008). Without\
-    \ such an artifact, the task\u2019s core requirement cannot be verified. The implementer\
-    \ must supply the implementation (e.g., a Python script or notebook) and its output\
-    \ (statistics, tables, or visualizations) showing the overlap analysis."
+  h: 9da3c718750b95e89d68c69352c826349e46649b6f348a3e4f706e772b6169b9
+  r: The repository lacks the required `data/raw/query_log.json` file, and the provided
+    `code/01_ingest.py` is truncated before any logic that writes to this log or checks
+    the sample count to trigger `generators/synthetic_data.py`. Consequently, the
+    script does not demonstrably satisfy the automatic fallback to synthetic data
+    or the logging requirement. The missing log file and incomplete implementation
+    must be fixed.
+T017a:
+  c: false
+  h: 8b084686e0ae1e1e30c76360a0dc1b0c7afbed1c7d46dd93e629bbca3bdfae26
+  r: "The repository contains a `code/02_merge.py` file, but it is truncated and does\
+    \ not show any logic that writes a validation report JSON or produces the merged\
+    \ CSV with enforced types. Moreover, the required output files `data/results/data_validation_report.json`\
+    \ and `data/processed/merged_dataset.csv` are absent from the project directory.\
+    \ The task\u2019s core deliverables are therefore missing."
 T036:
   c: false
   h: 273b7a134f895487f28cefd10ccc04a160dfa614a8d804b6d555564a9856dc72
