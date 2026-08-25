@@ -1,13 +1,13 @@
 status: none
-intent: deepfashion attribute annotated fashion image dataset python package dataset
+intent: download real DeepFashion2 HuggingFace loader python package dataset
 required_fields:
 - image_id
-- image_path
-- category
-- color_label
-- pattern_label
-- texture_label
-- bounding_box
-cache_key: 8158dc519ddb054a48e2d6da5d6479832a5ec4132a988e20a254b06800326c90
-searched_at: '2026-08-23T03:37:48.093108+00:00'
+- image_url
+- color
+- pattern
+- texture
+- material
+- garment_type
+cache_key: 689d838d8e8ec6bc84976c36e3d1b6386f18e741cd9dec47ea2c4e3b4681a76c
+searched_at: '2026-08-25T16:42:24.106517+00:00'
 retry_count: 1

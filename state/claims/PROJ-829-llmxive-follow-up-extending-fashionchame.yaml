@@ -885,3 +885,1246 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T15:57:40Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: "memory trigger activates at 6.5 GB \xB1 5%"
+  claim_id: c_ed1d81da
+  context: "T011 [P] Implement `code/src/pipeline/streaming.py` (FR-012) for memory-triggered\
+    \ batched processing. **Constraint**: Must use `psutil` to monitor memory usage\
+    \ in real-time. **Trigger**: Must trigger batched processing when RAM usage exceeds\
+    \ a high threshold, potentially impacting system stability (). Research Question:\
+    \ How does memory consumption scale with dataset size? Method: Empirical benchmarking\
+    \ using controlled variable loads.. **Verification**: Verify memory trigger activates\
+    \ at 6.5 GB \xB1 5% using psutil. **Depends on**: T007."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify memory trigger activates at 6.5 GB \xB1 5% using psutil."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:48:00Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: frame downsampling ensures runtime less than 6 hours
+  claim_id: c_c836cf69
+  context: 'T034-extended [P] **Motion Labeling Logic**: Implement `code/src/stats/motion_labels.py`
+    to derive ''ground-truth motion labels'' from **optical flow magnitude** (calculated
+    from video frames) using `cv2.calcOpticalFlowFarneback` on sampled frames (every
+    nth frame as defined in T034-sub). **Output**: Logic to generate `data/processed/motion_labels.json`
+    containing `frame_id`, `optical_flow_magnitude`, `motion_label` (High/Low). **Constraint**:
+    Must be CPU-optimized. **Requirement**: Implement frame downsampling (process
+    every nth frame) to ensure runtime < 6h. **Depends on**: T042b, T007, T034-sub.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Frame_downsampling_ensures_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Implement frame downsampling (process every nth frame) to ensure runtime
+    < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:48:17Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: optical flow magnitude calculated on every 5th frame
+  claim_id: c_8fb3c469
+  context: 'T044 [P] **Revision Fix FR-010**: Refactor `code/src/stats/motion_labels.py`
+    to calculate optical flow magnitude using `cv2.calcOpticalFlowFarneback` on a
+    strictly sampled frame sequence (every 5th frame) and implement a chunked processing
+    loop to prevent OOM during flow calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optical_flow_magnitude_calculated_on_every_5th_frame
+  kind: entity_fact
+  raw_text: Refactor `code/src/stats/motion_labels.py` to calculate optical flow magnitude
+    using `cv2.calcOpticalFlowFarneback` on a strictly sampled frame sequence (every
+    5th frame).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:48:43Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Low Power Warning flag output if sample count less than 30
+  claim_id: c_fed47df1
+  context: 'T036 [US3] Implement edge case handling in `code/src/stats/significance.py`
+    for low power (N<30) scenarios. **Constraint**: Perform Power Analysis. If N<30,
+    output results with a ''Low Power Warning'' flag in the report and explicitly
+    state the limitation. If N<10, raise `ValueError` with message ''Insufficient
+    samples for statistical analysis''. **Depends on**: T031.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_Power_Warning_flag_output_if_sample_count_less_than_30
+  kind: magnitude
+  raw_text: If N<30, output results with a 'Low Power Warning' flag in the report.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:49:29Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: ValueError raised if sample count less than 10
+  claim_id: c_bb4fcbe7
+  context: 'T036 [US3] Implement edge case handling in `code/src/stats/significance.py`
+    for low power (N<30) scenarios. **Constraint**: Perform Power Analysis. If N<30,
+    output results with a ''Low Power Warning'' flag in the report and explicitly
+    state the limitation. If N<10, raise `ValueError` with message ''Insufficient
+    samples for statistical analysis''. **Depends on**: T031.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ValueError_raised_if_sample_count_less_than_10
+  kind: magnitude
+  raw_text: If N<10, raise `ValueError` with message 'Insufficient samples for statistical
+    analysis'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:49:47Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: ValueError raised with Insufficient samples for ANOVA if less than 10
+    samples per class
+  claim_id: c_4ed91052
+  context: 'T020 [US1] Implement `code/src/pipeline/reporter.py` to aggregate LPIPS/SSIM
+    scores by `GarmentFeatureClass` and calculate relative fidelity loss. **Output**:
+    `data/processed/fidelity_report.json` with exact schema: ... **Constraint**: MUST
+    consume ONLY samples from `data/processed/filtered_subset_manifest.json`. **Includes**:
+    Edge case handling for low sample counts (<10 per class) - raises `ValueError`
+    with message ''Insufficient samples for ANOVA''. **Depends on**: T018, T019, T021.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ValueError_raised_with_Insufficient_samples_for_ANOVA_if_les
+  kind: magnitude
+  raw_text: Includes edge case handling for low sample counts (<10 per class) - raises
+    `ValueError` with message 'Insufficient samples for ANOVA'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:50:32Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Salesforce/blip-large model ID used for VLM verification
+  claim_id: c_976a8a2c
+  context: 'T015 [US1] Implement VLM verification step in `code/src/data/feasibility_filter.py`
+    to exclude low-confidence prompts. **Specs**: Use model ID `Salesforce/blip-large`,
+    load with `device=''cpu''`, `torch_dtype=torch.float`, `trust_remote_code=False`.
+    Apply configurable confidence threshold (from `settings.yaml`), output JSON to
+    `data/processed/vlm_confidence_log.json`. **Depends on**: T014, T006.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Salesforce/blip-large_model_ID_used_for_VLM_verification
+  kind: entity_fact
+  raw_text: Use model ID `Salesforce/blip-large`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:51:15Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: VLM confidence threshold enforced at 0.8 using Salesforce/blip-large
+  claim_id: c_6577fa5b
+  context: 'T046 [P] **Revision Fix FR-011**: Refactor `code/src/data/feasibility_filter.py`
+    to strictly enforce the VLM confidence threshold (>= 0.8) using `Salesforce/blip-large`
+    and explicitly tag samples with `GarmentFeatureClass` from DeepFashion2 metadata,
+    raising an error if tags are missing. **Depends on**: T014, T015. **Rationale**:
+    Addresses reviewer concern about noisy attribute annotations and ensures the filter
+    logic correctly identifies and excludes low-confidence samples without fallback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor `code/src/data/feasibility_filter.py` to strictly enforce the
+    VLM confidence threshold (>= 0.8) using `Salesforce/blip-large`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:51:28Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: datasets.load_dataset with streaming=True used for DeepFashion2
+  claim_id: c_b36adb02
+  context: 'T007 [P] Implement `code/src/data/loader.py` (FR-002, FR-011) with `datasets.load_dataset(...,
+    streaming=True)` for DeepFashion2 parquet. **Depends on**: T042b. **NOTE**: Implements
+    DeepFashion2 per Plan decision after Spec Amendment.'
+  evidence:
+    entailment_evidence: load dataset with streaming=True used for DeepFashi
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Datasets.load_dataset_with_streaming%3DTrue_used_for_DeepFashi
+  kind: entity_fact
+  raw_text: Use `datasets.load_dataset(..., streaming=True)` for DeepFashion2 parquet.
+  resolved_value: datasets.load_dataset with streaming=True used for DeepFashion2
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:51:30Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Human3.6M replaced with DeepFashion2
+  claim_id: c_7f7ac3bc
+  context: 'T042a-002-spec [P] **Spec Amendment Task (FR-002)**: Update `spec.md`
+    (FR-002) to replace ''Human3.6M'' with ''DeepFashion2'' and specify `datasets.load_dataset(...,
+    streaming=True)`. **Deliverable**: Updated `spec.md` with specific text changes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Human3.6M_replaced_with_DeepFashion2
+  kind: entity_fact
+  raw_text: Replace 'Human3.6M' with 'DeepFashion2'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:51:49Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: skeletal joint velocity replaced with optical flow magnitude for motion
+    labels
+  claim_id: c_e970c542
+  context: 'T042a-010-spec [P] **Spec Amendment Task (FR-010)**: Update `spec.md`
+    (FR-010) to replace ''skeletal joint velocity'' with ''optical flow magnitude''
+    for motion labels. **Deliverable**: Updated `spec.md` with specific text changes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Skeletal_joint_velocity_replaced_with_optical_flow_magnitude
+  kind: entity_fact
+  raw_text: Replace 'skeletal joint velocity' with 'optical flow magnitude' for motion
+    labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:52:12Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialized
+  claim_id: c_039b86bf
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with `requirements.txt`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:52:26Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: torch version pinned to 2.0.0+cpu
+  claim_id: c_c833c3a7
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `torch==2.0.0+cpu`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:26Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: transformers version pinned to 4.30.0
+  claim_id: c_14355fe8
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '4.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `transformers==4.30.0`.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:27Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: opencv-python version pinned to 4.8.0.74
+  claim_id: c_2cee6b8b
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '4.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `opencv-python==4.8.0.74`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:27Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: scikit-learn version pinned to 1.3.0
+  claim_id: c_d442684d
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '1.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `scikit-learn==1.3.0`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:27Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: scipy version pinned to 1.11.0
+  claim_id: c_0b21c167
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '1.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `scipy==1.11.0`.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:27Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: datasets version pinned to 2.14.0
+  claim_id: c_7f98ddf3
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `datasets==2.14.0`.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:27Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: lpips version pinned to 0.1.4
+  claim_id: c_b837ccd0
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `lpips==0.1.4`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:28Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: pandas version pinned to 2.0.3
+  claim_id: c_86f0d225
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `pandas==2.0.3`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:28Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: pyyaml version pinned to 6.0.1
+  claim_id: c_524a4b9d
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `pyyaml==6.0.1`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:28Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: jsonschema version pinned to 4.18.0
+  claim_id: c_ff17a7c7
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '4.18'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `jsonschema==4.18.0`.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:28Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: psutil version pinned to 5.9.5
+  claim_id: c_ff902731
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt`. **Constraint**:
+    MUST pin exact versions for all dependencies (e.g., `torch==2.0.0+cpu`, `transformers==4.30.0`,
+    `opencv-python==4.8.0.74`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `datasets==2.14.0`,
+    `lpips==0.1.4`, `pandas==2.0.3`, `pyyaml==6.0.1`, `jsonschema==4.18.0`, `psutil==5.9.5`).
+    **Depends on**: T001a, T001b, T001c.'
+  evidence:
+    asserted: '5.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin exact version `psutil==5.9.5`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:52:28Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Replace Human3.6M with DeepFashion2 using streaming dataset loading
+  claim_id: c_03d0826f
+  context: Update spec.md (FR-002) to replace 'Human3.6M' with 'DeepFashion2' and
+    specify datasets.load_dataset(..., streaming=True).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Replace_Human3.6M_with_DeepFashion2_using_streaming_dataset
+  kind: entity_fact
+  raw_text: Replace 'Human3.6M' with 'DeepFashion2' and specify datasets.load_dataset(...,
+    streaming=True) for the dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:53:51Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Replace skeletal joint velocity with optical flow magnitude for motion
+    labels
+  claim_id: c_93fc1f46
+  context: Update spec.md (FR-010) to replace 'skeletal joint velocity' with 'optical
+    flow magnitude' for motion labels.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Replace_skeletal_joint_velocity_with_optical_flow_magnitude
+  kind: entity_fact
+  raw_text: Replace 'skeletal joint velocity' with 'optical flow magnitude' for motion
+    labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:53:53Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Replace skeletal velocity filtering with optical flow magnitude and VLM
+    confidence filtering for DeepFashion2
+  claim_id: c_0acb27bc
+  context: Update spec.md (FR-011) to replace 'skeletal velocity' filtering with 'optical
+    flow magnitude' and VLM confidence filtering for DeepFashion2.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Replace_skeletal_velocity_filtering_with_optical_flow_magnit
+  kind: entity_fact
+  raw_text: Replace 'skeletal velocity' filtering with 'optical flow magnitude' and
+    VLM confidence filtering for DeepFashion2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:54:23Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Authorize 5:1 frame downsampling ratio for motion labeling to ensure
+    runtime under 6 hours
+  claim_id: c_d9cc53fb
+  context: Update spec.md (FR-010) to explicitly authorize the 5:1 frame downsampling
+    ratio for motion labeling to ensure runtime < 6h.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Authorize a 5:1 frame downsampling ratio for motion labeling to ensure
+    runtime < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:54:35Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Use Salesforce/blip-large model for VLM verification on CPU
+  claim_id: c_0d977fe5
+  context: Use model ID 'Salesforce/blip-large', load with 'device='cpu', 'torch_dtype=torch.float',
+    'trust_remote_code=False'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Salesforce/blip-large_model_for_VLM_verification_on_CPU
+  kind: entity_fact
+  raw_text: Use model ID 'Salesforce/blip-large' for VLM verification with device='cpu'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:54:53Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Verify memory trigger activates at 6.5 GB plus or minus 5 percent using
+    psutil
+  claim_id: c_2997c860
+  context: "Verify memory trigger activates at 6.5 GB \xB1 5% using psutil."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify memory trigger activates at 6.5 GB \xB1 5% using psutil."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:54:53Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Calculate optical flow magnitude using cv2.calcOpticalFlowFarneback on
+    every 5th frame
+  claim_id: c_08783375
+  context: Refactor code/src/stats/motion_labels.py to calculate optical flow magnitude
+    using cv2.calcOpticalFlowFarneback on a strictly sampled frame sequence (every
+    5th frame)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_optical_flow_magnitude_using_cv2.calcOpticalFlowFa
+  kind: entity_fact
+  raw_text: Calculate optical flow magnitude using cv2.calcOpticalFlowFarneback on
+    sampled frames (every 5th frame).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:55:16Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Perform ANOVA on fidelity scores across feature classes with Bonferroni
+    correction
+  claim_id: c_b2439153
+  context: Refactor code/src/stats/significance.py to explicitly validate input stratification
+    by GarmentFeatureClass before running ANOVA and ensure Bonferroni correction is
+    applied...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_ANOVA_on_fidelity_scores_across_feature_classes_with
+  kind: entity_fact
+  raw_text: Perform ANOVA on fidelity scores across feature classes with Bonferroni
+    correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:55:40Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Raise ValueError if sample count is less than 10 per class for ANOVA
+  claim_id: c_f7b6ef7b
+  context: 'Includes: Edge case handling for low sample counts (<10 per class) - raises
+    ValueError with message ''Insufficient samples for ANOVA''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_ValueError_if_sample_count_is_less_than_10_per_class_f
+  kind: magnitude
+  raw_text: Raise ValueError if sample count is less than 10 per class for ANOVA.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:56:29Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Raise ValueError if sample count is less than 10 for statistical analysis
+  claim_id: c_4fff637d
+  context: If N<10, raise ValueError with message 'Insufficient samples for statistical
+    analysis'.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_ValueError_if_sample_count_is_less_than_10_for_statist
+  kind: magnitude
+  raw_text: Raise ValueError if sample count is less than 10 for statistical analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:57:14Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Output results with Low Power Warning flag if sample count is less than
+    30
+  claim_id: c_e6663af4
+  context: If N<30, output results with a 'Low Power Warning' flag in the report and
+    explicitly state the limitation.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_results_with_Low_Power_Warning_flag_if_sample_count_i
+  kind: magnitude
+  raw_text: Output results with 'Low Power Warning' flag if sample count is less than
+    30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:57:42Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Enforce VLM confidence threshold greater than or equal to 0.8 using Salesforce/blip-large
+  claim_id: c_2c444c5a
+  context: Refactor code/src/data/feasibility_filter.py to strictly enforce the VLM
+    confidence threshold (>= 0.8) using Salesforce/blip-large...
+  evidence:
+    entailment_evidence: Enforce VLM confidence threshold greater than or equal to
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Enforce_VLM_confidence_threshold_greater_than_or_equal_to_0.
+  kind: magnitude
+  raw_text: Enforce VLM confidence threshold >= 0.8 using Salesforce/blip-large.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-25T16:58:04Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Calculate Pearson correlation coefficient between predicted motion labels
+    and ground truth labels for robustness metric
+  claim_id: c_9d6892dc
+  context: '''robustness_metric'' = Pearson correlation coefficient between predicted
+    motion labels and ground truth labels derived from T034-extended.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Pearson_correlation_coefficient_between_predicted
+  kind: entity_fact
+  raw_text: Calculate Pearson correlation coefficient between predicted motion labels
+    and ground truth labels for robustness metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:58:31Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: memory trigger activates at 6.5 GB plus or minus 5 percent
+  claim_id: c_2ca2a892
+  context: "T011 [P] Implement code/src/pipeline/streaming.py (FR-012) for memory-triggered\
+    \ batched processing. ... Verification: Verify memory trigger activates at 6.5\
+    \ GB \xB1 5% using psutil."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify memory trigger activates at 6.5 GB \xB1 5% using psutil."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:01:29Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: use model ID Salesforce slash blip-large
+  claim_id: c_0c531b6f
+  context: 'T015 [US1] Implement VLM verification step in code/src/data/feasibility_filter.py
+    to exclude low-confidence prompts. Specs: Use model ID Salesforce/blip-large...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_model_ID_Salesforce_slash_blip-large
+  kind: entity_fact
+  raw_text: Use model ID Salesforce/blip-large
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:01:31Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: apply configurable confidence threshold from settings yaml
+  claim_id: c_fd6a2881
+  context: T015 [US1] Implement VLM verification step... Apply configurable confidence
+    threshold (from settings.yaml), output JSON to data/processed/vlm_confidence_log.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_configurable_confidence_threshold_from_settings_yaml
+  kind: entity_fact
+  raw_text: Apply configurable confidence threshold (from settings.yaml)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:01:46Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: vlm confidence less than 0.8 or conflicting attributes
+  claim_id: c_c5d1adab
+  context: T021 [US1] Implement edge case handling in code/src/data/feasibility_filter.py
+    for ambiguous prompts (VLM confidence < 0.8 or conflicting attributes).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: + PE 101 48.6 48.1 60.0 47.4 59.5 70.2 84.5 62.6 34.2 51.2 51.7 48.7
+        48.5 42.7 50.4 57.0 47.2 63.7 57.7 69.2 60.2 27.7 32.7 39.2 42.2 33.2 37.2
+        36.9 31.7 37.7 52.2
+      source_id: '2606.02564'
+      url: https://arxiv.org/abs/2606.02564
+      value: '0.22'
+    filled: true
+  kind: magnitude
+  raw_text: VLM confidence < 0.8 or conflicting attributes
+  resolved_value: '0.22'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T17:02:09Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: raises value error with message insufficient samples for ANOVA
+  claim_id: c_084db153
+  context: 'T020 [US1] Implement code/src/pipeline/reporter.py... Includes: Edge case
+    handling for low sample counts (<10 per class) - raises ValueError with message
+    Insufficient samples for ANOVA.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raises_value_error_with_message_insufficient_samples_for_ANO
+  kind: entity_fact
+  raw_text: raises ValueError with message Insufficient samples for ANOVA
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:02:26Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: low sample counts less than 10 per class
+  claim_id: c_7f4a997b
+  context: T020 [US1] ... Edge case handling for low sample counts (<10 per class)
+    - raises ValueError...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_sample_counts_less_than_10_per_class
+  kind: magnitude
+  raw_text: low sample counts (<10 per class)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:02:43Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: sampled frame sequence every 5th frame
+  claim_id: c_0810eb32
+  context: 'T044 [P] Revision Fix FR-010: Refactor code/src/stats/motion_labels.py
+    to calculate optical flow magnitude using cv2.calcOpticalFlowFarneback on a strictly
+    sampled frame sequence (every 5th frame)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampled_frame_sequence_every_5th_frame
+  kind: entity_fact
+  raw_text: strictly sampled frame sequence (every 5th frame)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:03:03Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: vlm confidence threshold greater than or equal to 0.8
+  claim_id: c_6fc61c9d
+  context: 'T046 [P] Revision Fix FR-011: Refactor code/src/data/feasibility_filter.py
+    to strictly enforce the VLM confidence threshold (>= 0.8) using Salesforce/blip-large...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: VBVR-Wan2.2-14B 160 0.682 0.763 0.733 0.713 0.795 0.776 0.827 0.601 0.732
+        0.596 0.542 0.628 0.600
+      source_id: '2606.02564'
+      url: https://arxiv.org/abs/2606.02564
+      value: '0.8'
+    filled: true
+  kind: magnitude
+  raw_text: VLM confidence threshold (>= 0.8)
+  resolved_value: '0.8'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T17:03:29Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: N less than 30 output results with a low power warning flag
+  claim_id: c_13913b93
+  context: 'T036 [US3] Implement edge case handling... Constraint: Perform Power Analysis.
+    If N<30, output results with a Low Power Warning flag in the report...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/N_less_than_30_output_results_with_a_low_power_warning_flag
+  kind: magnitude
+  raw_text: N<30, output results with a Low Power Warning flag
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:04:14Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: if N less than 10 raise value error with message insufficient samples
+    for statistical analysis
+  claim_id: c_b74e05e2
+  context: T036 [US3] ... If N<10, raise ValueError with message Insufficient samples
+    for statistical analysis.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/If_N_less_than_10_raise_value_error_with_message_insufficien
+  kind: magnitude
+  raw_text: If N<10, raise ValueError with message Insufficient samples for statistical
+    analysis
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:04:17Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: 5 to 1 downsampling ratio
+  claim_id: c_38e77ac5
+  context: 'T034-sub [P] Define Downsampling Ratio: ... optical_flow_subsampling_ratio:
+    a subsampling ratio will be applied... T042a-034 explicitly authorize the 5:1
+    downsampling ratio...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5:1 downsampling ratio
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:04:35Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: runtime less than 6 hours
+  claim_id: c_684c9712
+  context: 'T042a-034 [P] Spec Amendment Task (Downsampling): Update spec.md (FR-010)
+    to explicitly authorize the 5:1 frame downsampling ratio for motion labeling to
+    ensure runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: runtime < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:04:52Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: torch version 2.0.0 plus cpu
+  claim_id: c_ba4aff87
+  context: 'T002 Initialize Python 3.11 project with requirements.txt. Constraint:
+    MUST pin exact versions for all dependencies (e.g., torch==2.0.0+cpu...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.0.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:05:19Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: transformers version 4.30.0
+  claim_id: c_ec16c463
+  context: T002 ... e.g., ... transformers==4.30.0 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.30.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:05:34Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: opencv-python version 4.8.0.74
+  claim_id: c_1c514a4d
+  context: T002 ... e.g., ... opencv-python==4.8.0.74 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opencv-python==4.8.0.74
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:05:43Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_dc7aba05
+  context: T002 ... e.g., ... scikit-learn==1.3.0 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:05:55Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.0
+  claim_id: c_9a94af54
+  context: T002 ... e.g., ... scipy==1.11.0 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy==1.11.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:06:11Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_27660d94
+  context: T002 ... e.g., ... datasets==2.14.0 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:06:29Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: lpips version 0.1.4
+  claim_id: c_893e2f0e
+  context: T002 ... e.g., ... lpips==0.1.4 ...
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: lpips==0.1.4
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T17:06:29Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3
+  claim_id: c_20b00170
+  context: T002 ... e.g., ... pandas==2.0.3 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:06:45Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_5b5690ad
+  context: T002 ... e.g., ... pyyaml==6.0.1 ...
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T17:06:48Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: jsonschema version 4.18.0
+  claim_id: c_f54f2569
+  context: T002 ... e.g., ... jsonschema==4.18.0 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: jsonschema==4.18.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:07:03Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: psutil version 5.9.5
+  claim_id: c_670675f5
+  context: T002 ... e.g., ... psutil==5.9.5).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: psutil==5.9.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:07:15Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: reference token overlap greater than or equal to 0.7
+  claim_id: c_ab2d37de
+  context: T004 [P] Implement code/src/pipeline/validate_citations.py (FR-014) to
+    verify DeepFashion2 URL and model references using Reference-Validator Agent logic
+    (title-token-overlap >= 0.7).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reference_token_overlap_greater_than_or_equal_to_0.7
+  kind: magnitude
+  raw_text: reference-token-overlap >= 0.7
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:07:33Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: replace Human3.6M with DeepFashion2
+  claim_id: c_f63e41c2
+  context: 'T042a-002-spec [P] Spec Amendment Task (FR-002): Update spec.md (FR-002)
+    to replace Human3.6M with DeepFashion2...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Replace_Human3.6M_with_DeepFashion2
+  kind: entity_fact
+  raw_text: replace Human3.6M with DeepFashion2
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:07:35Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: replace skeletal joint velocity with optical flow magnitude
+  claim_id: c_de587619
+  context: 'T042a-010-spec [P] Spec Amendment Task (FR-010): Update spec.md (FR-010)
+    to replace skeletal joint velocity with optical flow magnitude for motion labels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Replace_skeletal_joint_velocity_with_optical_flow_magnitude
+  kind: entity_fact
+  raw_text: replace skeletal joint velocity with optical flow magnitude
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T17:08:07Z'

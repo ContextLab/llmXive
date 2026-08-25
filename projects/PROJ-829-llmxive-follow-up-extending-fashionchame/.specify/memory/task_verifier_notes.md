@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T021** — The required output file `data/processed/filtered_subset_manifest.json` does not exist, so the manifest generation step is missing. Moreover, the provided `feasibility_filter.py` is truncated and does not clearly show the full edge‑case handling logic for ambiguous prompts nor the inclusion of `optical_flow_magnitude` and per‑sample threshold values in the manifest. The task’s core output is therefore not present.
+- **T020** — The repository contains a partially‑implemented `code/src/pipeline/reporter.py`, but key functionality (e.g., completing `calculate_relative_loss`, generating and writing the JSON report) is missing or truncated. Moreover, the required output file `data/processed/fidelity_report.json` does not exist. The task’s deliverables are therefore not satisfied.
+- **T025** — The repository contains a `runner.py` file with some timing code, but the required output file `data/processed/latency_breakdown.json` is absent, and the visible portion does not show logic for flagging frames that exceed a latency threshold or for writing the per‑component timings to JSON. The task’s core deliverable is therefore not present.
