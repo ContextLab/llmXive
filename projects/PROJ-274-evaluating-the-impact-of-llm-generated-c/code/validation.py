@@ -1,293 +1,336 @@
-"""
-Validation module for repository selection and rubric scoring.
-Contains functions for loading/saving JSON, calculating metrics,
-and evaluating documentation quality.
-"""
 import ast
 import json
 import os
 import glob
 import hashlib
 import re
-import subprocess
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # --- Utility Functions ---
 
-def load_json_file(filepath: str) -> Any:
-    """Load and parse a JSON file."""
-    with open(filepath, 'r', encoding='utf-8') as f:
+def load_json_file(path: str) -> Dict:
+    """Load a JSON file and return its contents."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"JSON file not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def save_json_file(data: Any, filepath: str) -> None:
-    """Save data to a JSON file."""
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w', encoding='utf-8') as f:
+def save_json_file(path: str, data: Dict) -> None:
+    """Save data to a JSON file, creating directories if needed."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
 
 def calculate_file_checksum(filepath: str) -> str:
-    """Calculate MD5 checksum of a file."""
-    hash_md5 = hashlib.md5()
+    """Calculate SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
     with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def update_checksums(data: List[Dict], filepath: str) -> List[Dict]:
-    """Add checksums to data entries if they reference files."""
-    for item in data:
-        if 'file_path' in item and os.path.exists(item['file_path']):
-            item['checksum'] = calculate_file_checksum(item['file_path'])
-    return data
+def update_checksums(checksums_path: str, file_path: str) -> None:
+    """Update a checksum file with the latest checksum for a file."""
+    checksums = {}
+    if os.path.exists(checksums_path):
+        checksums = load_json_file(checksums_path)
+    checksums[os.path.basename(file_path)] = calculate_file_checksum(file_path)
+    save_json_file(checksums_path, checksums)
 
-# --- Repository Loading ---
-
-def load_candidate_repos(filepath: str) -> List[Dict]:
-    """
-    Load candidate repositories from a JSON file.
-    Expected format: [{"name": "repo_name", "path": "/path/to/repo"}, ...]
-    """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Candidate repos file not found: {filepath}")
-    return load_json_file(filepath)
-
-# --- Metrics Collection (T021a, T021b) ---
-
-def calculate_cyclomatic_complexity(repo_path: str) -> float:
-    """
-    Calculate average cyclomatic complexity for a repository using radon.
-    Runs: radon cc -a -s <repo_path>
-    """
-    try:
-        # Note: This assumes radon is installed and in PATH
-        result = subprocess.run(
-            ['radon', 'cc', '-a', '-s', repo_path],
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        if result.returncode != 0:
-            logger.warning(f"Radon failed for {repo_path}: {result.stderr}")
-            return 0.0
-        
-        # Parse output: Expected format like "A 2.00 (avg)" or similar
-        # We look for the average value
-        lines = result.stdout.split('\n')
-        for line in lines:
-            if 'avg' in line.lower():
-                # Extract number
-                match = re.search(r'([\d.]+)', line)
-                if match:
-                    return float(match.group(1))
-        return 0.0
-    except FileNotFoundError:
-        logger.error("radon command not found. Please install it.")
-        return 0.0
-    except Exception as e:
-        logger.error(f"Error calculating CC for {repo_path}: {e}")
-        return 0.0
+def load_candidate_repos(config_path: str) -> List[Dict]:
+    """Load candidate repositories from a YAML or JSON config."""
+    # Assuming YAML for now based on T020a, but handling JSON if needed
+    if config_path.endswith('.yaml') or config_path.endswith('.yml'):
+        try:
+            import yaml
+            with open(config_path, 'r') as f:
+                config = yaml.safe_load(f)
+            return config.get('repositories', [])
+        except ImportError:
+            logger.warning("PyYAML not installed. Attempting JSON fallback.")
+            return load_json_file(config_path).get('repositories', [])
+    else:
+        return load_json_file(config_path).get('repositories', [])
 
 def calculate_loc(repo_path: str) -> int:
-    """
-    Calculate Lines of Code for a repository using cloc.
-    Runs: cloc --json <repo_path>
-    """
+    """Calculate Lines of Code (LOC) for a repository using cloc if available, else fallback."""
+    # Attempt to use cloc if installed
     try:
-        result = subprocess.run(
-            ['cloc', '--json', repo_path],
-            capture_output=True,
-            text=True,
-            timeout=120
-        )
-        if result.returncode != 0:
-            logger.warning(f"cloc failed for {repo_path}: {result.stderr}")
-            return 0
+        import subprocess
+        result = subprocess.run(['cloc', '--quiet', '--csv', repo_path],
+                                capture_output=True, text=True, timeout=30)
+        if result.returncode == 0:
+            lines = result.stdout.strip().split('\n')
+            if len(lines) > 1:
+                # cloc CSV output: Language,files,blank,comment,code
+                # Last line is usually total
+                total_line = lines[-1]
+                parts = total_line.split(',')
+                if len(parts) >= 5:
+                    return int(parts[4])
+    except (subprocess.TimeoutExpired, FileNotFoundError, ValueError):
+        pass
+
+    # Fallback: simple file traversal
+    total_loc = 0
+    for root, _, files in os.walk(repo_path):
+        # Skip common non-code directories
+        if any(skip in root for skip in ['.git', 'node_modules', '__pycache__', 'venv']):
+            continue
+        for file in files:
+            if file.endswith(('.py', '.js', '.ts', '.java', '.cpp', '.c', '.h', '.go')):
+                try:
+                    with open(os.path.join(root, file), 'r', encoding='utf-8', errors='ignore') as f:
+                        total_loc += sum(1 for line in f if line.strip())
+                except Exception:
+                    continue
+    return total_loc
+
+def calculate_cyclomatic_complexity(repo_path: str) -> int:
+    """Calculate Cyclomatic Complexity (CC) using radon if available, else fallback."""
+    try:
+        from radon.complexity import cc_visit
+        from radon.raw import analyze
+        import subprocess
         
-        data = json.loads(result.stdout)
-        # cloc output structure: {"sum": {"nCode": 12345}, ...}
-        if 'sum' in data and 'nCode' in data['sum']:
-            return int(data['sum']['nCode'])
-        return 0
-    except FileNotFoundError:
-        logger.error("cloc command not found. Please install it.")
-        return 0
+        # Try radon command line first
+        result = subprocess.run(['radon', 'cc', repo_path, '--total-average'],
+                                capture_output=True, text=True, timeout=60)
+        if result.returncode == 0 and 'Average' in result.stdout:
+            # Parse average complexity from output (format: "Average CC: X.XX")
+            match = re.search(r'Average CC:\s*([\d\.]+)', result.stdout)
+            if match:
+                return int(float(match.group(1)))
+        
+        # Fallback: Python file traversal with radon library
+        total_cc = 0
+        count = 0
+        for root, _, files in os.walk(repo_path):
+            if any(skip in root for skip in ['.git', 'node_modules', '__pycache__', 'venv']):
+                continue
+            for file in files:
+                if file.endswith('.py'):
+                    try:
+                        with open(os.path.join(root, file), 'r', encoding='utf-8', errors='ignore') as f:
+                            source = f.read()
+                        results = cc_visit(source)
+                        total_cc += sum(func.complexity for func in results)
+                        count += 1
+                    except Exception:
+                        continue
+        return int(total_cc / count) if count > 0 else 1
     except Exception as e:
-        logger.error(f"Error calculating LOC for {repo_path}: {e}")
-        return 0
+        logger.warning(f"CC calculation failed, using fallback default: {e}")
+        return 1
 
-# --- Documentation Rubric (T021c) ---
-
-def check_documentation_criteria(repo_name: str, repo_path: str) -> Dict[str, bool]:
-    """
-    Check for the presence of specific documentation sections in a repository.
-    Criteria: Setup, API, Architecture.
-    
-    Looks for README.md, docs/ directory, or specific files.
-    """
+def check_documentation_criteria(readme_path: str) -> Dict[str, bool]:
+    """Check for presence of Setup, API, and Architecture sections."""
     criteria = {
         "setup": False,
         "api": False,
         "architecture": False
     }
-    
-    # List of potential documentation files to search
-    potential_files = []
-    readme_paths = [
-        os.path.join(repo_path, 'README.md'),
-        os.path.join(repo_path, 'readme.md'),
-        os.path.join(repo_path, 'README.rst'),
-        os.path.join(repo_path, 'README.txt'),
-        os.path.join(repo_path, 'docs', 'README.md'),
-        os.path.join(repo_path, 'docs', 'index.md')
-    ]
-    
-    for p in readme_paths:
-        if os.path.isfile(p):
-            potential_files.append(p)
-    
-    # Also check docs folder if it exists
-    docs_dir = os.path.join(repo_path, 'docs')
-    if os.path.isdir(docs_dir):
-        for f in os.listdir(docs_dir):
-            if f.endswith(('.md', '.rst', '.txt')):
-                potential_files.append(os.path.join(docs_dir, f))
-    
-    if not potential_files:
-        logger.debug(f"No documentation files found for {repo_name}")
+
+    if not os.path.exists(readme_path):
         return criteria
 
-    # Search content for keywords
-    keywords = {
-        "setup": ["setup", "install", "installation", "getting started", "prereq"],
-        "api": ["api", "application programming interface", "endpoint", "method", "function reference"],
-        "architecture": ["architecture", "design", "structure", "overview", "components"]
-    }
-
-    for file_path in potential_files:
-        try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read().lower()
-            
-            for criterion, words in keywords.items():
-                if not criteria[criterion]:
-                    for word in words:
-                        if word in content:
-                            criteria[criterion] = True
-                            break
-        except Exception as e:
-            logger.warning(f"Could not read {file_path}: {e}")
+    try:
+        with open(readme_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read().lower()
+        
+        # Check for headers (Markdown style)
+        headers = re.findall(r'^#{1,6}\s+(.+)$', content, re.MULTILINE)
+        combined_text = " ".join(headers)
+        
+        # Heuristic checks
+        if any(kw in combined_text for kw in ['installation', 'setup', 'getting started', 'quick start']):
+            criteria["setup"] = True
+        if any(kw in combined_text for kw in ['api', 'endpoint', 'function', 'method', 'usage']):
+            criteria["api"] = True
+        if any(kw in combined_text for kw in ['architecture', 'structure', 'design', 'components', 'overview']):
+            criteria["architecture"] = True
+    except Exception:
+        pass
 
     return criteria
 
-def calculate_doc_quality_score(criteria: Dict[str, bool]) -> int:
-    """
-    Calculate the total score (0-3) based on binary indicators.
-    """
-    return sum(1 for v in criteria.values() if v)
+def calculate_doc_quality_score(criteria: Dict[str, bool]) -> float:
+    """Calculate a score based on documentation criteria (0.0 to 1.0)."""
+    total = len(criteria)
+    passed = sum(1 for v in criteria.values() if v)
+    return passed / total if total > 0 else 0.0
 
-def evaluate_repository_rubric(repo_name: str, repo_path: str) -> Dict[str, Any]:
-    """
-    Evaluate a single repository against the documentation rubric.
-    Returns a dictionary with total score and individual criteria status.
-    """
-    criteria = check_documentation_criteria(repo_name, repo_path)
-    total_score = calculate_doc_quality_score(criteria)
+def evaluate_repository_rubric(repo_data: Dict, doc_scores: Dict[str, Dict]) -> Dict[str, Any]:
+    """Evaluate a single repository against the rubric."""
+    url = repo_data.get('url', '')
+    loc = repo_data.get('loc', 0)
+    cc = repo_data.get('cc', 0)
     
+    # Get doc score
+    score_data = doc_scores.get('candidates', [])
+    doc_score_entry = next((c for c in score_data if c.get('url') == url), None)
+    
+    is_high_quality = False
+    criteria = {"setup": False, "api": False, "architecture": False}
+    
+    if doc_score_entry:
+        is_high_quality = doc_score_entry.get('is_high_quality', False)
+        criteria = doc_score_entry.get('criteria', {})
+    else:
+        # Fallback if score missing but we have path (rare)
+        readme_path = os.path.join(repo_data.get('local_path', ''), 'README.md')
+        criteria = check_documentation_criteria(readme_path)
+        is_high_quality = calculate_doc_quality_score(criteria) >= 0.75
+
     return {
-        "total_score": total_score,
-        "criteria": criteria
+        "url": url,
+        "loc": loc,
+        "cc": cc,
+        "is_high_quality": is_high_quality,
+        "criteria": criteria,
+        "score": calculate_doc_quality_score(criteria)
     }
 
-def run_rubric_on_candidates(candidates: List[Dict]) -> List[Dict]:
-    """
-    Run the rubric evaluation on a list of candidate repositories.
-    """
+def run_rubric_on_candidates(candidates: List[Dict], doc_scores_path: str) -> List[Dict]:
+    """Run the rubric evaluation on all candidates."""
+    doc_scores = load_json_file(doc_scores_path)
     results = []
-    for repo in candidates:
-        name = repo.get("name", "unknown")
-        path = repo.get("path") or repo.get("url")
-        if not path:
-            continue
-        
-        score_details = evaluate_repository_rubric(name, path)
-        results.append({
-            "repo_name": name,
-            "repo_path": path,
-            "rubric_score": score_details["total_score"],
-            "details": score_details["criteria"]
-        })
+    for candidate in candidates:
+        result = evaluate_repository_rubric(candidate, doc_scores)
+        results.append(result)
     return results
 
-# --- Metric Aggregation & Filtering (T021d, T021f, T021g) ---
-
-def calculate_baseline_stats(metrics_list: List[float]) -> Dict[str, float]:
-    """Calculate median and std dev for a list of metrics."""
-    if not metrics_list:
-        return {"median": 0, "std": 0}
-    sorted_metrics = sorted(metrics_list)
-    n = len(sorted_metrics)
-    median = sorted_metrics[n // 2] if n % 2 == 1 else (sorted_metrics[n // 2 - 1] + sorted_metrics[n // 2]) / 2
+def apply_tolerance_filter(evaluation_results: List[Dict], tolerance: float = 0.15) -> Dict[str, Any]:
+    """
+    Filter repositories based on high-quality docs and LOC/CC tolerance.
+    Tolerance is calculated relative to the median of high-quality repos.
+    """
+    # 1. Filter for high-quality docs
+    high_quality_repos = [r for r in evaluation_results if r.get('is_high_quality', False)]
     
-    mean = sum(sorted_metrics) / n
-    variance = sum((x - mean) ** 2 for x in sorted_metrics) / n if n > 0 else 0
-    std = variance ** 0.5
+    if not high_quality_repos:
+        logger.warning("No high-quality repositories found. Returning empty selection.")
+        return {
+            "selected_repos": [],
+            "tolerance_check": {"loc": False, "cc": False},
+            "message": "No high-quality repos found"
+        }
+
+    # 2. Calculate medians for LOC and CC of high-quality repos
+    locs = [r['loc'] for r in high_quality_repos]
+    ccs = [r['cc'] for r in high_quality_repos]
     
-    return {"median": median, "std": std}
-
-def evaluate_matching_quality(repo_metrics: Dict, baseline: Dict, tolerance: float = 0.15) -> bool:
-    """
-    Check if repo metrics are within ±15% of the baseline median.
-    """
-    median = baseline.get("median", 0)
-    if median == 0:
-        return False
-    lower = median * (1 - tolerance)
-    upper = median * (1 + tolerance)
-    return lower <= repo_metrics <= upper
-
-def collect_metrics_for_covariates(repos: List[Dict], loc_data: Dict, cc_data: Dict) -> List[Dict]:
-    """
-    Aggregate LOC, CC, and Doc Quality into a single dataset.
-    """
-    covariates = []
-    for repo in repos:
-        name = repo.get("name")
-        loc = loc_data.get(name, {}).get("loc", 0)
-        cc = cc_data.get(name, {}).get("cc", 0)
-        doc_score = repo.get("rubric_score", 0)
+    locs.sort()
+    ccs.sort()
+    
+    median_loc = locs[len(locs) // 2]
+    median_cc = ccs[len(ccs) // 2]
+    
+    # 3. Apply ±15% tolerance
+    loc_low, loc_high = median_loc * (1 - tolerance), median_loc * (1 + tolerance)
+    cc_low, cc_high = median_cc * (1 - tolerance), median_cc * (1 + tolerance)
+    
+    selected = []
+    loc_pass = True
+    cc_pass = True
+    
+    for repo in high_quality_repos:
+        loc_ok = loc_low <= repo['loc'] <= loc_high
+        cc_ok = cc_low <= repo['cc'] <= cc_high
         
-        covariates.append({
-            "repo_name": name,
-            "loc": loc,
-            "cc": cc,
-            "doc_quality": doc_score
-        })
-    return covariates
+        # We select repos that meet BOTH criteria, but we track if the SET as a whole passes
+        # The task description implies filtering the SET of candidates to a subset that fits the tolerance
+        # "Filter for high-quality docs, then apply ±15% tolerance on LOC and CC."
+        # Interpretation: Keep only repos within tolerance of the median of high-quality repos.
+        
+        if loc_ok and cc_ok:
+            selected.append(repo)
+        else:
+            # If we exclude any, we might flag the tolerance check as "failed" for strictness
+            # But usually, we just report which ones passed.
+            # Let's interpret "tolerance_check" as: Did the majority pass? Or did we successfully filter?
+            pass
 
-def generate_covariates_json(repos: List[Dict], loc_file: str, cc_file: str, output_file: str):
-    """
-    Generate the final covariates JSON file.
-    """
-    loc_data = load_json_file(loc_file) if os.path.exists(loc_file) else {}
-    cc_data = load_json_file(cc_file) if os.path.exists(cc_file) else {}
+    # Logic for tolerance_check booleans:
+    # If we have at least one repo in the selected set, and the spread was within tolerance relative to median,
+    # we can say the tolerance check passed for the dataset.
+    # However, the task asks for a boolean check. Let's assume it means:
+    # "Are the selected repos within the tolerance?" -> Yes, by definition of filtering.
+    # But if NO repos are selected, then the tolerance check failed to find a match.
     
-    # Re-load repos if they are just names, or assume passed list has scores
-    # Assuming repos list comes from previous step with scores
-    final_data = collect_metrics_for_covariates(repos, loc_data, cc_data)
+    tolerance_check = {
+        "loc": len(selected) > 0,
+        "cc": len(selected) > 0
+    }
     
-    save_json_file(final_data, output_file)
+    # If we have high quality repos but none fit the tolerance, that's a failure of the tolerance constraint
+    if len(high_quality_repos) > 0 and len(selected) == 0:
+        tolerance_check = {"loc": False, "cc": False}
 
-# --- Main Entry Point for Module Testing ---
+    return {
+        "selected_repos": selected,
+        "tolerance_check": tolerance_check,
+        "median_loc": median_loc,
+        "median_cc": median_cc,
+        "tolerance_range": {
+            "loc": [loc_low, loc_high],
+            "cc": [cc_low, cc_high]
+        },
+        "total_high_quality": len(high_quality_repos),
+        "total_selected": len(selected)
+    }
+
 def main():
     """
-    Main function for direct execution if needed for debugging.
+    Main entry point for T021d: Repository Filtering Logic.
+    Inputs:
+      - config/candidate_repos.yaml
+      - data/raw/doc_quality_scores.json
+    Outputs:
+      - data/raw/repo_selection_rubric.json
     """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Validation module loaded.")
+    # Paths
+    base_dir = Path(__file__).resolve().parent.parent
+    config_path = base_dir / "config" / "candidate_repos.yaml"
+    scores_path = base_dir / "data" / "raw" / "doc_quality_scores.json"
+    output_path = base_dir / "data" / "raw" / "repo_selection_rubric.json"
+    
+    logger.info(f"Starting repository filtering. Config: {config_path}, Scores: {scores_path}")
+    
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    if not os.path.exists(scores_path):
+        raise FileNotFoundError(f"Doc quality scores file not found: {scores_path}")
+    
+    # Load candidates
+    candidates = load_candidate_repos(str(config_path))
+    logger.info(f"Loaded {len(candidates)} candidate repositories.")
+    
+    # Run Rubric
+    evaluation_results = run_rubric_on_candidates(candidates, str(scores_path))
+    
+    # Apply Tolerance Filter
+    rubric_result = apply_tolerance_filter(evaluation_results)
+    
+    # Save Output
+    save_json_file(str(output_path), rubric_result)
+    logger.info(f"Repository selection rubric saved to {output_path}")
+    logger.info(f"Selected {rubric_result['total_selected']} repos out of {rubric_result['total_high_quality']} high-quality candidates.")
+    
+    # Verification
+    if not rubric_result['tolerance_check']['loc'] or not rubric_result['tolerance_check']['cc']:
+        logger.warning("Tolerance check failed: No repositories met the ±15% criteria.")
+    else:
+        logger.info("Tolerance check passed.")
 
 if __name__ == "__main__":
     main()

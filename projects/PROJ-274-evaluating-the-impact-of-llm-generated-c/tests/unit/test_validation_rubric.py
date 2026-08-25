@@ -1,103 +1,120 @@
-import os
-import tempfile
-import json
+"""
+Unit tests for the documentation quality rubric logic in code/validation.py
+"""
 import pytest
-from validation import check_documentation_criteria, evaluate_repository_rubric, run_rubric_on_candidates
+import json
+import os
+import sys
+from pathlib import Path
 
-@pytest.fixture
-def temp_repo_with_good_docs():
-    """Create a temporary directory with a README.md that meets all criteria."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        readme_path = os.path.join(tmpdir, 'README.md')
-        content = """
-        # Test Repo
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-        ## Architecture
-        This repo has a clear architecture description.
+from validation import (
+    check_documentation_criteria,
+    calculate_doc_quality_score,
+    evaluate_repository_rubric
+)
 
-        ## Installation
-        Run pip install -r requirements.txt
+class TestDocQualityRubric:
+
+    def test_check_setup_section_present(self):
+        readme = """
+        # My Project
+
+        ## Setup
+        Run pip install.
+        """
+        criteria = check_documentation_criteria(readme)
+        assert criteria['setup'] is True
+
+    def test_check_setup_section_missing(self):
+        readme = """
+        # My Project
+
+        ## Usage
+        How to use it.
+        """
+        criteria = check_documentation_criteria(readme)
+        assert criteria['setup'] is False
+
+    def test_check_api_section_present(self):
+        readme = """
+        # My Project
 
         ## API Reference
-        Usage:
-        ```python
-        from test import func
-        ```
+        Here are the functions.
         """
-        with open(readme_path, 'w') as f:
-            f.write(content)
-        yield tmpdir
+        criteria = check_documentation_criteria(readme)
+        assert criteria['api'] is True
 
-@pytest.fixture
-def temp_repo_with_bad_docs():
-    """Create a temporary directory with a README.md missing criteria."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        readme_path = os.path.join(tmpdir, 'README.md')
-        content = """
-        # Test Repo
-        Just a simple readme.
+    def test_check_architecture_section_present(self):
+        readme = """
+        # My Project
+
+        ## Architecture
+        System design overview.
         """
-        with open(readme_path, 'w') as f:
-            f.write(content)
-        yield tmpdir
+        criteria = check_documentation_criteria(readme)
+        assert criteria['architecture'] is True
 
-@pytest.fixture
-def temp_repo_no_readme():
-    """Create a temporary directory with no README.md."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+    def test_all_sections_present(self):
+        readme = """
+        # My Project
 
-def test_check_documentation_criteria_good(temp_repo_with_good_docs):
-    criteria = check_documentation_criteria(temp_repo_with_good_docs)
-    assert criteria['setup_instructions']['score'] == 1.0
-    assert criteria['api_reference']['score'] == 1.0
-    assert criteria['architecture']['score'] == 1.0
+        ## Setup
+        Install dependencies.
 
-def test_check_documentation_criteria_bad(temp_repo_with_bad_docs):
-    criteria = check_documentation_criteria(temp_repo_with_bad_docs)
-    assert criteria['setup_instructions']['score'] == 0.0
-    assert criteria['api_reference']['score'] == 0.0
-    assert criteria['architecture']['score'] == 0.0
+        ## API
+        Function list.
 
-def test_check_documentation_criteria_no_readme(temp_repo_no_readme):
-    criteria = check_documentation_criteria(temp_repo_no_readme)
-    assert criteria['setup_instructions']['score'] == 0.0
-    assert criteria['api_reference']['score'] == 0.0
-    assert criteria['architecture']['score'] == 0.0
+        ## Architecture
+        Design patterns.
+        """
+        criteria = check_documentation_criteria(readme)
+        assert all(criteria.values())
 
-def test_evaluate_repository_rubric_pass(temp_repo_with_good_docs):
-    result = evaluate_repository_rubric(temp_repo_with_good_docs)
-    assert result['passed'] is True
-    assert result['total_score'] == 3.0
+    def test_score_calculation_full(self):
+        criteria = {'setup': True, 'api': True, 'architecture': True}
+        score = calculate_doc_quality_score(criteria)
+        assert score == 1.0
 
-def test_evaluate_repository_rubric_fail(temp_repo_with_bad_docs):
-    result = evaluate_repository_rubric(temp_repo_with_bad_docs)
-    assert result['passed'] is False
-    assert result['total_score'] == 0.0
+    def test_score_calculation_partial(self):
+        criteria = {'setup': True, 'api': False, 'architecture': True}
+        score = calculate_doc_quality_score(criteria)
+        assert score == 2/3.0
 
-def test_evaluate_repository_rubric_threshold(temp_repo_no_readme):
-    result = evaluate_repository_rubric(temp_repo_no_readme)
-    assert result['passed'] is False
-    assert result['total_score'] == 0.0
+    def test_score_calculation_none(self):
+        criteria = {'setup': False, 'api': False, 'architecture': False}
+        score = calculate_doc_quality_score(criteria)
+        assert score == 0.0
 
-def test_run_rubric_on_candidates():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Create two repos: one good, one bad
-        repo_good = os.path.join(tmpdir, 'good')
-        repo_bad = os.path.join(tmpdir, 'bad')
-        os.makedirs(repo_good)
-        os.makedirs(repo_bad)
-        
-        # Good repo
-        with open(os.path.join(repo_good, 'README.md'), 'w') as f:
-            f.write("# Good\n## Architecture\n## Installation\n## API")
-        
-        # Bad repo
-        with open(os.path.join(repo_bad, 'README.md'), 'w') as f:
-            f.write("# Bad")
+    def test_evaluate_repository_rubric_high_quality(self):
+        readme = """
+        # Project
 
-        results = run_rubric_on_candidates([repo_good, repo_bad])
-        
-        assert len(results) == 2
-        assert results[0]['passed'] is True
-        assert results[1]['passed'] is False
+        ## Setup
+        Do this.
+
+        ## API
+        Do that.
+
+        ## Architecture
+        Like this.
+        """
+        result = evaluate_repository_rubric(readme)
+        assert result['is_high_quality'] is True
+        assert result['score'] == 1.0
+
+    def test_evaluate_repository_rubric_low_quality(self):
+        readme = """
+        # Project
+
+        ## Setup
+        Do this.
+        """
+        result = evaluate_repository_rubric(readme)
+        # 1/3 = 0.333 < 0.75
+        assert result['is_high_quality'] is False
+        assert abs(result['score'] - 0.3333) < 0.01

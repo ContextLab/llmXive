@@ -3439,3 +3439,18 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T22:46:24Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Final report includes limitations of 15 to 20 participants
+  claim_id: c_571acc28
+  context: T080 [P] Ensure the final report includes limitations (N=15-20).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the final report includes limitations (N=15-20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T10:37:46Z'

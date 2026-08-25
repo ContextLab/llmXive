@@ -1,9 +1,11 @@
-T019:
+T014b:
   c: false
-  h: 3f5092e2e42d52ad18666c053a6320e64f18bcd75aa984ea91d3dbad74931c3f
-  r: "The required output file `data/raw/participant_logs.json` is missing, so no\
-    \ evidence exists that incomplete records were handled, dropout counts calculated,\
-    \ or status flags were added. The task\u2019s core artifact is absent."
+  h: 6ad9815123b9c442831f7dc3d80d7efc6d9ecc114f93886131a4af1b91e7962d
+  r: "The provided `assignment.py` is truncated (e.g., undefined variable `n_par`\
+    \ and no code to write `data/processed/assignment_log.json`). Moreover, the required\
+    \ output file `data/processed/assignment_log.json` does not exist. The task\u2019\
+    s core deliverables\u2014complete assignment logic and the generated JSON log\u2014\
+    are missing."
 T020:
   c: true
   h: 46f56fe0588eed034caa90ec4bb352cefaaaddebb25e0a0857577a8b12b7e0cd
@@ -12,21 +14,21 @@ T020:
     \ in `checksums.txt`. The constants point to the required path, satisfying the\
     \ export and checksum requirements. (The output file itself need not exist until\
     \ the function is invoked.)"
-T021a:
+T021d:
   c: false
-  h: 28bf8e7a710195b91ef7951f15675c6f6c1750816e2d8f3d13f585f3ab48ced8
-  r: The repository contains a partially implemented `calculate_cyclomatic_complexity`
-    function, but there is no code that iterates over candidate repositories, writes
-    the results to `data/raw/repo_cc_raw.json`, nor does the file `data/raw/repo_cc_raw.json`
-    exist. Consequently the required output file is missing and the task is not fulfilled.
-T021c:
-  c: false
-  h: 2acd910a39480a513e4dc299329c3c4ac69b6023f7652bcbee5b5ce538c8bce0
-  r: "The repository lacks the required `data/raw/doc_quality_scores.json` file, and\
-    \ the shown `code/validation.py` does not contain any function that computes the\
-    \ binary presence of Setup, API, and Architecture sections or writes those scores\
-    \ to the specified JSON output. The task\u2019s core functionality and output\
+  h: ce27ae4278de4325922a7ae6bfae49ec46a656c7219fead1744d8e6076b94dbf
+  r: "The required output file `data/raw/repo_selection_rubric.json` does not exist,\
+    \ and the provided `code/validation.py` (truncated) shows no implementation of\
+    \ the high\u2011quality doc filtering, \xB115\u202F% LOC/CC tolerance checks,\
+    \ or saving of the specified JSON schema. The task\u2019s core logic and output\
     \ are therefore missing."
+T021f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `repo_selection_rubric.json` file or any verification output was provided,
+    and there is no evidence that the gate logic (tolerance check, freshness check,
+    abort behavior, or blocking of downstream tasks) was implemented or executed.
+    The required artifact and its validation are missing.
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,10 +44,16 @@ T033:
     \ file `contracts/dataset.schema.yaml` is missing, so the validation could not\
     \ have actually been performed against the specified schema. The task\u2019s prerequisite\
     \ (ensuring the schema file exists) is not satisfied."
-T070:
+T070b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `specs/001-evaluating-llm-generated-c/research.md` file containing the statistical\
-    \ methodology appendix is present, nor is there any signed\u2011off version placed\
-    \ in the `data/` directory as a pre\u2011registered protocol. The required documentation\
-    \ and its inclusion are missing."
+  r: No `research.md` file was presented at the required path (`specs/001-evaluating-the-impact-of-llm-generated-c/research.md`),
+    and thus no section headers can be verified. The implementer must create the file
+    with the full content defined in T070, ensuring all mandated sections are present.
+T071b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the Reference-Validator Agent being run, no returned status of
+    `'all_valid'`, and the required lock file `state/research_validated.lock` is absent.
+    The implementer must provide the validator output and the created lock file to
+    satisfy the task.

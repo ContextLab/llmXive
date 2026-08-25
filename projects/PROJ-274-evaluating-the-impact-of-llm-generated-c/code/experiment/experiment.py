@@ -1,202 +1,170 @@
-"""
-Experiment module for User Story 1: Controlled Onboarding Experiment Execution.
-Handles participant assignment, mock session generation, logging, and raw data export.
-"""
 import argparse
 import json
 import logging
 import os
 import random
 import sys
-import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, List, Optional
 
-# Configure logging to avoid circular import issues with utils/logging.py
-# Ensure the logs directory exists before configuring file handlers
-LOGS_DIR = Path(__file__).parent.parent / "data" / "logs"
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+# Add project root to path to allow imports from sibling modules
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOGS_DIR / "experiment.log"),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+from utils.seed import set_global_seed
+from utils.monitor import monitor_execution, ActiveMonitor
+from utils.setup_paths import ensure_project_dirs
+from data_collection import ensure_data_directory, save_logs, load_existing_logs, apply_stop_loss_intervention, handle_abandoned_records
+from experiment.logging_utils import log_clarification_event, process_raw_input_for_clarifications, get_clarification_count, update_logs_with_clarification_counts
 
-# Output path for raw participant logs
-RAW_DATA_DIR = Path(__file__).parent.parent / "data" / "raw"
-RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
-PARTICIPANT_LOGS_PATH = RAW_DATA_DIR / "participant_logs.json"
-
-# Constants for Stop-Loss intervention
-MAX_TASK_TIME_SECONDS = 2700  # 45 minutes
-
-def calculate_checksum(data: Dict[str, Any]) -> str:
-    """Calculate SHA-256 checksum of the data dictionary."""
-    serialized = json.dumps(data, sort_keys=True, separators=(',', ':'))
-    return hashlib.sha256(serialized.encode('utf-8')).hexdigest()
-
-def assign_participant(participant_id: int, mode: str) -> Dict[str, Any]:
-    """
-    Assign a participant to a condition (LLM, Human, None).
-    """
-    conditions = ["LLM", "Human", "None"]
-    condition = random.choice(conditions) if mode != "mock" else random.choice(conditions)
+# Configure logging to avoid FileNotFoundError by ensuring directory exists first
+def setup_logging():
+    log_dir = project_root / "data" / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "experiment.log"
     
-    return {
-        "participant_id": participant_id,
-        "condition": condition,
-        "assignment_timestamp": datetime.now().isoformat(),
-        "status": "assigned"
-    }
-
-def log_session_start(participant_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Log the start of a study session."""
-    participant_data["session_start"] = datetime.now().isoformat()
-    participant_data["clarification_questions"] = []
-    participant_data["clarification_question_count"] = 0
-    participant_data["intervention_status"] = "none"
-    participant_data["max_time"] = None
-    participant_data["helpfulness_rating"] = None
-    participant_data["status"] = "in_progress"
-    return participant_data
-
-def log_help_request(participant_data: Dict[str, Any], question_text: str, question_type: str) -> Dict[str, Any]:
-    """
-    Log a clarification question.
-    question_type: 'keyword' (how/why) or 'moderator-tag'
-    """
-    entry = {
-        "timestamp": datetime.now().isoformat(),
-        "content": question_text,
-        "type": question_type
-    }
-    participant_data["clarification_questions"].append(entry)
-    participant_data["clarification_question_count"] = len(participant_data["clarification_questions"])
-    return participant_data
-
-def apply_stop_loss_intervention(participant_data: Dict[str, Any], elapsed_time: float) -> Dict[str, Any]:
-    """
-    Apply Stop-Loss intervention if time exceeds threshold.
-    """
-    if elapsed_time > MAX_TASK_TIME_SECONDS:
-        participant_data["intervention_status"] = "stop_loss"
-        participant_data["max_time"] = MAX_TASK_TIME_SECONDS
-        participant_data["status"] = "failed"
-        logger.info(f"Stop-loss triggered for participant {participant_data['participant_id']} at {elapsed_time}s")
-    return participant_data
-
-def capture_helpfulness_survey(participant_data: Dict[str, Any], rating: int) -> Dict[str, Any]:
-    """Capture subjective helpfulness rating (1-5)."""
-    participant_data["helpfulness_rating"] = rating
-    return participant_data
-
-def handle_abandoned_records(participant_data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Mark incomplete records as dropped out.
-    """
-    if participant_data["status"] == "in_progress":
-        participant_data["status"] = "dropped_out"
-        participant_data["dropout_reason"] = "incomplete"
-    return participant_data
-
-def export_raw_data(logs: List[Dict[str, Any]]) -> str:
-    """
-    Export raw participant logs to JSON with checksums.
-    This function fulfills T020: Create raw data export function.
-    """
-    if not logs:
-        logger.warning("No logs to export.")
-        return str(PARTICIPANT_LOGS_PATH)
-
-    # Add checksums to each record if missing
-    for log in logs:
-        if "checksum" not in log:
-            log["checksum"] = calculate_checksum(log)
+    # Prevent circular import issues by not importing logging module directly as a name
+    # Use standard library logging
+    import logging as std_logging
     
-    # Add global metadata
-    export_record = {
-        "export_timestamp": datetime.now().isoformat(),
-        "total_participants": len(logs),
-        "checksum": calculate_checksum({"count": len(logs), "records": [l.get("participant_id") for l in logs]}),
-        "data": logs
-    }
+    std_logging.basicConfig(
+        level=std_logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            std_logging.FileHandler(log_file),
+            std_logging.StreamHandler(sys.stdout)
+        ]
+    )
+    return std_logging.getLogger(__name__)
 
-    with open(PARTICIPANT_LOGS_PATH, 'w', encoding='utf-8') as f:
-        json.dump(export_record, f, indent=2)
-    
-    logger.info(f"Raw data exported to {PARTICIPANT_LOGS_PATH}")
-    return str(PARTICIPANT_LOGS_PATH)
+def ensure_data_directories():
+    """Ensure all required data directories exist."""
+    ensure_project_dirs()
+    ensure_data_directory("raw")
+    ensure_data_directory("processed")
+    ensure_data_directory("reports")
 
-def run_mock_experiment(num_participants: int) -> List[Dict[str, Any]]:
+def run_mock_experiment(logger, num_participants=3, seed=42):
     """
     Run a mock experiment with simulated participants.
-    Generates realistic mock data for T016, T017, T018, T019, and T020.
+    Implements T016 (clarification logging), T018 (stop-loss), and T019 (incomplete records handling).
     """
-    logs = []
+    set_global_seed(seed)
     
-    for i in range(1, num_participants + 1):
-        # 1. Assign
-        p_data = assign_participant(i, "mock")
-        
-        # 2. Start Session
-        p_data = log_session_start(p_data)
-        
-        # Simulate some activity
-        # Randomly decide if they ask questions (T016)
-        num_questions = random.randint(0, 5)
-        for _ in range(num_questions):
-            q_type = random.choice(["keyword", "moderator-tag"])
-            q_text = f"Mock question {random.randint(100, 999)}: How does this work?"
-            p_data = log_help_request(p_data, q_text, q_type)
-        
-        # Simulate time elapsed (T018)
-        elapsed = random.randint(1200, 3600) # Between 20 and 60 mins
-        p_data = apply_stop_loss_intervention(p_data, elapsed)
-        
-        # If not failed/stop-loss, simulate survey (T017)
-        if p_data["status"] != "failed":
-            rating = random.randint(1, 5)
-            p_data = capture_helpfulness_survey(p_data, rating)
-        
-        # Simulate potential dropouts (T019)
-        if random.random() < 0.1: # 10% chance of dropout
-            p_data = handle_abandoned_records(p_data)
-        
-        # Finalize
-        p_data["session_end"] = datetime.now().isoformat()
-        logs.append(p_data)
+    output_file = project_root / "data" / "raw" / "participant_logs.json"
     
-    # T020: Export the data
-    export_raw_data(logs)
+    # Initialize or load existing logs
+    if output_file.exists():
+        logs = load_existing_logs(str(output_file))
+    else:
+        logs = []
+
+    conditions = ["LLM_Doc", "Human_Doc", "No_Doc"]
+    
+    for i in range(num_participants):
+        p_id = f"mock_p_{i+1:03d}"
+        condition = random.choice(conditions)
+        
+        # Simulate session data
+        start_time = datetime.now(timezone.utc).isoformat()
+        
+        # Simulate task duration (random between 300 and 3600 seconds)
+        duration_seconds = random.randint(300, 3600)
+        end_time = datetime.now(timezone.utc).isoformat()
+        
+        # Simulate clarification questions
+        raw_input_samples = [
+            "How do I install this?",
+            "Why does this function fail?",
+            "What is the architecture?",
+            "Explain the API usage.",
+            "No questions."
+        ]
+        raw_input = random.choice(raw_input_samples)
+        
+        # Process clarification questions (T016)
+        clarification_events = process_raw_input_for_clarifications(raw_input, p_id)
+        for event in clarification_events:
+            log_clarification_event(logs, event)
+        
+        clarification_count = get_clarification_count(logs, p_id)
+        
+        # Check for stop-loss intervention (T018)
+        intervention_status = None
+        max_time = None
+        
+        if duration_seconds > 2700:
+            intervention_status = "stop_loss"
+            max_time = 2700
+            # Mark as failed/abandoned due to stop-loss
+            status = "failed"
+        else:
+            status = "completed"
+        
+        # Handle incomplete records (T019)
+        # Simulate some incomplete records (e.g., 20% chance of abandonment for mock)
+        if random.random() < 0.2 and status != "failed":
+            status = "incomplete"
+            intervention_status = "abandoned"
+            # Record abandonment reason
+            abandonment_reason = "Participant left early (mock simulation)"
+        
+        # Construct record
+        record = {
+            "participant_id": p_id,
+            "condition": condition,
+            "session_start": start_time,
+            "session_end": end_time,
+            "task_duration_seconds": duration_seconds if status != "failed" else max_time,
+            "clarification_question_count": clarification_count,
+            "clarification_events": [e for e in logs if e.get("participant_id") == p_id and e.get("event_type") == "clarification"],
+            "status": status,
+            "intervention_status": intervention_status,
+            "max_time_applied": max_time,
+            "abandonment_reason": abandonment_reason if status == "incomplete" else None,
+            "metadata": {
+                "is_mock": True,
+                "seed": seed
+            }
+        }
+        
+        logs.append(record)
+        
+        logger.info(f"Processed participant {p_id}: status={status}, duration={duration_seconds}s, questions={clarification_count}")
+
+    # T019: Handle incomplete records - flag them and retain for reporting
+    # The records are already flagged with status="incomplete" above.
+    # We ensure they are retained in the logs file (not excluded from storage).
+    # We also calculate summary stats for reporting.
+    total_records = len(logs)
+    completed_records = sum(1 for r in logs if r["status"] == "completed")
+    failed_records = sum(1 for r in logs if r["status"] == "failed")
+    incomplete_records = sum(1 for r in logs if r["status"] == "incomplete")
+    
+    logger.info(f"Experiment Summary: Total={total_records}, Completed={completed_records}, Failed={failed_records}, Incomplete={incomplete_records}")
+    
+    # Save logs to disk
+    save_logs(logs, str(output_file))
+    logger.info(f"Saved participant logs to {output_file}")
     
     return logs
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the onboarding experiment (mock or real).")
+    logger = setup_logging()
+    ensure_data_directories()
+    
+    parser = argparse.ArgumentParser(description="Run the onboarding experiment.")
     parser.add_argument("--mode", type=str, default="mock", choices=["mock", "real"], help="Run mode")
-    parser.add_argument("--participants", type=int, default=3, help="Number of participants for mock run")
+    parser.add_argument("--participants", type=int, default=3, help="Number of mock participants")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    
     args = parser.parse_args()
-
-    logger.info(f"Starting experiment in {args.mode} mode with {args.participants} participants.")
-
+    
     if args.mode == "mock":
-        logs = run_mock_experiment(args.participants)
-        logger.info(f"Mock experiment completed. Logged {len(logs)} participants.")
+        run_mock_experiment(logger, num_participants=args.participants, seed=args.seed)
     else:
-        logger.error("Real mode not implemented for this task. Use --mode mock.")
-        sys.exit(1)
-
-    # Verify output file exists
-    if PARTICIPANT_LOGS_PATH.exists():
-        logger.info(f"Verification: {PARTICIPANT_LOGS_PATH} exists.")
-    else:
-        logger.error(f"Verification failed: {PARTICIPANT_LOGS_PATH} does not exist.")
+        logger.error("Real mode not yet implemented in this task.")
         sys.exit(1)
 
 if __name__ == "__main__":

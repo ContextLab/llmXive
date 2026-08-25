@@ -102,8 +102,8 @@ The system MUST be able to aggregate the collected study data (time, questions, 
 - **SC-001**: Task completion time is measured against the baseline established by the "No Documentation" condition to determine the absolute time savings of LLM vs. Human docs (See US-1, US-3).
 - **SC-002**: The number of clarification questions is measured against the "No Documentation" condition to assess the reduction in cognitive load or ambiguity (See US-1, US-3).
 - **SC-003**: Subjective helpfulness ratings (Likert scale) are measured against the "Human Documentation" condition to evaluate user-perceived quality parity (See US-1, US-3).
-- **SC-004**: Statistical significance (p-value) is measured against the alpha threshold of 0.05 to determine if observed differences are not due to random chance (See US-3).
-- **SC-005**: The analysis pipeline execution time is measured against a 6-hour threshold using `time`, and peak memory usage is measured against a 7GB threshold using `psutil` to ensure the study is reproducible without GPU resources (See US-3).
+- **SC-004**: Statistical significance (p-value) is measured against a predetermined alpha threshold to determine if observed differences are not due to random chance. (See US-3).
+- **SC-005**: The analysis pipeline execution time is measured against a predefined threshold using `time`, and peak memory usage is measured against a 7GB threshold using `psutil` to ensure the study is reproducible without GPU resources (See US-3).
 
 ## Assumptions
 

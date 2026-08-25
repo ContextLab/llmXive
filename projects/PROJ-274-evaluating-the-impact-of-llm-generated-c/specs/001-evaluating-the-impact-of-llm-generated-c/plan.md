@@ -19,7 +19,7 @@ This project implements a controlled feasibility pilot to evaluate the impact of
 **Project Type**: CLI / Research Pipeline.  
 **Performance Goals**: Analysis pipeline completes in ≤6 hours; peak memory ≤7GB. Documentation generation per repo ≤15 minutes (with retries).  
 **Constraints**: No local GPU; strict reproducibility via pinned seeds and commit hashes; IRB compliance for human data.  
-**Scale/Scope**: N=15-20 participants; ≤500 files per repository; 3 experimental conditions.
+**Scale/Scope**: N=15-20 participants; ≤500 files per repository; experimental conditions.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
