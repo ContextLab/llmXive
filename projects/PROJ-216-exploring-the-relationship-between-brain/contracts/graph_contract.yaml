@@ -1,64 +1,6 @@
-name: graph_contract
-description: Contract for graph metric computation from preprocessed fMRI data.
-version: "1.0"
-
 input:
-  preprocessed_nifti:
-    type: file
-    pattern: data/processed/sub-{id}_preproc.nii.gz
-    description: Preprocessed NIfTI file
-  atlas_path:
-    type: string
-    description: Path to Schaefer atlas (200 ROI)
-    required: true
-    default: data/external/schaefer_200.txt
-  roi_count:
-    type: integer
-    description: Number of ROIs in the atlas
-    required: true
-    default: 200
-
+  preprocessed_nifti: path
+  atlas_file: path
 output:
-  correlation_matrix:
-    type: file
-    pattern: data/processed/sub-{id}_correlation_matrix.npy
-    description: Symmetric correlation matrix (ROI x ROI)
-  graph_metrics_csv:
-    type: file
-    path: data/processed/graph_metrics.csv
-    schema:
-      type: array
-      items:
-        type: object
-        properties:
-          subject_id:
-            type: string
-          metric_name:
-            type: string
-            enum: [global_efficiency, clustering_coefficient, modularity]
-          value:
-            type: number
-    description: CSV file containing aggregated graph metrics for all subjects
-
-graph_metrics:
-  - name: global_efficiency
-    description: Average inverse shortest path length
-    method: networkx.global_efficiency
-  - name: clustering_coefficient
-    description: Average clustering coefficient across nodes
-    method: networkx.average_clustering
-  - name: modularity
-    description: Modularity score from Louvain algorithm
-    method: networkx.community.louvain_communities
-    fallback: resolution_sweep
-
-validation_rules:
-  - rule: matrix_symmetry
-    description: Correlation matrix must be symmetric
-    action: validate
-  - rule: metric_range
-    description: Efficiency must be in [0, 1], clustering in [0, 1]
-    action: log_anomaly
-  - rule: modularity_convergence
-    description: Louvain algorithm must converge within resolution sweep
-    fallback: resolution_sweep
+  connectivity_matrix: path
+  graph_metrics_csv: path

@@ -10,7 +10,7 @@ try:
     import psutil
 except ImportError:
     psutil = None
-    print("Warning: psutil not installed. Resource monitoring will be limited.")
+    print("Warning: psutil not installed. Resource monitoring will be limited.", file=sys.stderr)
 
 class ResourceUsage:
     def __init__(self, timestamp: float, ram_gb: float, cpu_percent: float):

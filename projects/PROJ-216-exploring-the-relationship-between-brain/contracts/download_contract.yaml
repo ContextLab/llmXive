@@ -1,56 +1,7 @@
-name: download_contract
-description: Contract for downloading and validating OpenNeuro datasets for Fluid Intelligence.
-version: "1.0"
-
 input:
-  dataset_id:
-    type: string
-    description: OpenNeuro dataset ID (e.g., ds000224)
-    required: true
-  output_dir:
-    type: string
-    description: Directory path where data will be downloaded
-    required: true
-  n_subjects:
-    type: integer
-    description: Maximum number of subjects to process (N=10 baseline)
-    required: true
-    default: 10
-
+  dataset_id: string
+  output_dir: string
+  n_subjects: integer
 output:
-  valid_subjects_json:
-    type: file
-    path: data/processed/valid_subjects.json
-    schema:
-      type: object
-      properties:
-        subjects:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              fluid_intelligence_score:
-                type: number
-              age:
-                type: integer
-              gender:
-                type: string
-        count:
-          type: integer
-    description: JSON file containing validated subjects with Fluid Intelligence scores
-
-  validation_log:
-    type: file
-    path: data/processed/validation_errors.log
-    description: Log of validation errors encountered during download
-
-validation_rules:
-  - rule: fluid_intelligence_present
-    description: At least one subject must have a valid Fluid Intelligence score
-    error_message: "No valid Fluid Intelligence data found"
-    action: halt
-  - rule: metadata_complete
-    description: Age and gender must be present for all included subjects
-    action: exclude_subject
+  valid_subjects_json: path
+  error_log: path

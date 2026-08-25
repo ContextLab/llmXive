@@ -1,11 +1,1 @@
-- artifact_hash: 753e36b58acbcbafd71c919396762c14a08c0c4639264dc3ba399e9d48f3c02a
-  artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/ThomasYeoLab/CBIG/raw/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/Schaefer2018_200Parcels_17Networks_order.txt`
-  verification_status: mismatch
-  verified_against_url: https://github.com/ThomasYeoLab/CBIG/raw/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/Schaefer2018_200Parcels_17Networks_order.txt
-  verified_at: '2026-08-23T12:54:19.651064Z'
+[]

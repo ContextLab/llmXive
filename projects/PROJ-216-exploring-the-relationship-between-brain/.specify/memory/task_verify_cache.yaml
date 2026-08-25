@@ -1,20 +1,23 @@
-T001:
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directories or Python script were provided as evidence; the claim that the
-    required folder hierarchy (`data/raw`, `data/interim`, `data/processed`, `tests/unit`,
-    `tests/integration`, `reports`) exists and is logged is unsupported. The implementer
-    must supply the actual directory structure (or a script that creates it) and demonstrate
-    its successful execution.
-T008:
+  r: No `specs/amendment-001-fluid-intelligence-n10.md` file content was presented,
+    and thus we cannot verify that the required sections (Project requirements, Feature
+    Specification, User Scenarios & Testing, etc.) are present. The implementer must
+    supply the actual markdown file with the specified headings and details.
+T004b:
   c: false
-  h: dae27e603d70f193f1710f005972fe686ecf3b275dd667836d0daa907d557740
-  r: "The provided `code/utils.py` shows only the beginning of the `ResourceMonitor`\
-    \ class (up to the `start` method) and does not include the required `stop()`\
-    \ and `finalize()` implementations, nor the logic to compute peak RAM and total\
-    \ runtime and write the JSON file. Additionally, the unit test file `tests/unit/test_resource_monitor.py`\
-    \ is truncated (it ends mid\u2011assert), making it syntactically invalid and\
-    \ incomplete. The task\u2019s required artifacts are therefore missing or incomplete."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: 'No evidence was provided that `specs/amendment-001-fluid-intelligence-n10.md`
+    exists nor that it contains the required line `**Status**: Ratified`, and there
+    is no indication that `spec.md` was updated to reflect the amendment. Both required
+    artifacts are missing or unverified.'
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data-model.md` file was presented, nor any excerpt showing the required\
+    \ definitions of `Subject`, `GraphMetric`, and `BehavioralScore` with their attributes\
+    \ and types. Without the artifact, the task\u2019s core deliverable is missing."
 T025:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2

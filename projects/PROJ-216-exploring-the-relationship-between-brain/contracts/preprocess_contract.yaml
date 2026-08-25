@@ -1,60 +1,6 @@
-name: preprocess_contract
-description: Contract for fMRI preprocessing pipeline using FSL/AFNI.
-version: "1.0"
-
 input:
-  subject_path:
-    type: string
-    description: Path to BIDS subject directory or NIfTI file
-    required: true
-  atlas_path:
-    type: string
-    description: Path to Schaefer atlas label file
-    required: false
-  motion_threshold:
-    type: object
-    properties:
-      translation_mm:
-        type: number
-        default: 3.0
-      rotation_mm:
-        type: number
-        default: 2.0
-    description: Motion artifact thresholds for exclusion
-
+  bids_dir: path
+  subject_id: string
 output:
-  preprocessed_nifti:
-    type: file
-    pattern: data/processed/sub-{id}_preproc.nii.gz
-    description: Preprocessed NIfTI file with motion correction, normalization, and bandpass filtering
-  motion_metrics:
-    type: file
-    pattern: data/processed/sub-{id}_motion_metrics.json
-    description: JSON file containing translation and rotation metrics per volume
-  preprocessing_log:
-    type: file
-    pattern: data/processed/sub-{id}_preproc.log
-    description: Log file containing preprocessing steps and FSL/AFNI command outputs
-
-processing_steps:
-  - step: motion_correction
-    tool: fsl_mcflirt
-    description: Rigid body motion correction
-  - step: spatial_normalization
-    tool: fsl_fnirt
-    description: Non-linear spatial normalization to MNI space
-  - step: bandpass_filtering
-    tool: fslmaths
-    description: Temporal bandpass filtering (0.01-0.1 Hz)
-  - step: motion_detection
-    tool: custom
-    description: Calculate motion metrics and flag excessive motion
-
-validation_rules:
-  - rule: fsl_afni_available
-    description: FSL and AFNI tools must be installed
-    error_message: "Required tool [TOOL_NAME] not found in PATH"
-    action: halt
-  - rule: motion_threshold_check
-    description: Subjects exceeding motion thresholds are excluded
-    action: exclude_subject
+  preprocessed_nifti: path
+  motion_log: path

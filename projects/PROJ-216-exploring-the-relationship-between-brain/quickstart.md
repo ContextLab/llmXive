@@ -1,145 +1,119 @@
-# Quickstart Guide: Brain Network Dynamics and Fluid Intelligence Pipeline
+# Quickstart Guide: Exploring the Relationship Between Brain Network Dynamics and Fluid Intelligence
 
-This guide provides step-by-step instructions to run the entire analysis pipeline end-to-end, from data ingestion to final report generation.
+This guide provides step-by-step instructions to run the full pipeline end-to-end, from data ingestion to final report generation, adhering to the amended specifications (Fluid Intelligence, N=10 baseline, Bonferroni correction).
 
-**Prerequisites**
-- Python 3.11+
-- FSL (>= 6.0) and AFNI (>= 21.0) installed and in PATH
-- Git (for cloning the repository)
-- Internet connection (for downloading OpenNeuro datasets)
+## Prerequisites
 
-## 1. Environment Setup
+1. **Python Environment**: Python 3.11+
+2. **System Dependencies**: FSL (>=6.0) and AFNI (>=21.0) must be installed and available in your `PATH`.
+3. **Hardware**: A machine with at least 16GB RAM recommended for processing N=10 subjects.
 
-### Install Dependencies
-Ensure you are in the project root directory.
+## Installation
+
+1. **Clone the repository** and navigate to the project root.
+2. **Create a virtual environment** (optional but recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. **Install Python dependencies** listed in `requirements.txt`:
+ ```bash
+ pip install -r requirements.txt
+ ```
+4. **Verify system tools** are available:
+ ```bash
+ python code/verify_env.py
+ ```
+ If this script fails, install the missing FSL/AFNI tools before proceeding.
+
+## Configuration
+
+Ensure `config.yaml` is correctly set up. The default configuration targets the OpenNeuro dataset `ds000224` with a limit of `n_subjects: 10` as per the ratified amendment `specs/amendment-001-fluid-intelligence-n10.md`.
+
 ```bash
-pip install -r requirements.txt
+cat config.yaml
 ```
 
-### Verify System Tools
-Run the environment verification script to ensure FSL and AFNI are available.
-```bash
-python code/verify_env.py
-```
-*Expected Output*: If all tools are found, the script exits with code 0. If missing, it exits with code 1 and lists the missing tools.
+## Step-by-Step Execution
 
-### Initialize Project Structure
-Create the necessary directory hierarchy and log file.
+Run the following commands in order. Each step generates artifacts required by the subsequent step.
+
+### 1. Setup Directories
+Initialize the required directory structure.
 ```bash
 python code/setup_directories.py
 ```
-*Verification*: Check that `data/.verify_structure.log` exists and contains `OK` for all required directories (`data/raw`, `data/interim`, `data/processed`, `tests/unit`, `tests/integration`, `reports`).
+*Output*: Creates `data/raw`, `data/interim`, `data/processed`, `data/external`, `tests/unit`, `tests/integration`, `reports`.
 
-## 2. Data Ingestion (User Story 1)
-
-### Download and Validate Data
-The pipeline will attempt to download the primary dataset (`ds000224`) from OpenNeuro. If Fluid Intelligence scores are missing, it will fall back to `ds000230`.
-
+### 2. Download and Validate Data
+Fetch resting-state fMRI data from OpenNeuro and validate the presence of Fluid Intelligence scores.
 ```bash
 python code/download.py
 ```
+*Output*:
+- `data/processed/valid_subjects.json`: List of subjects with valid Fluid Intelligence scores.
+- `data/raw/`: Downloaded BIDS dataset.
+- *Note*: If no valid Fluid Intelligence data is found, the script will halt with an error.
 
-*Key Behaviors*:
-- Fetches data from OpenNeuro.
-- Validates the presence of `fluid_intelligence_score` in `participants.tsv`.
-- Enforces the N=10 sample limit as per `specs/amendment-001-fluid-intelligence-n10.md`.
-- Writes `data/processed/valid_subjects.json`.
-- **Halts** with error "No valid Fluid Intelligence data found" if no subjects pass validation.
-
-### Preprocessing Pipeline
-Preprocess the downloaded fMRI data (motion correction, normalization, bandpass filtering).
-
+### 3. Preprocess fMRI Data
+Run motion correction, spatial normalization, and bandpass filtering on valid subjects.
 ```bash
 python code/run_preprocessing.py
 ```
+*Output*:
+- `data/processed/preprocessed_*.nii.gz`: Cleaned BOLD time series.
+- `data/processed/preprocessing_stats.json`: Success rate and subject counts.
+- `data/processed/motion_exclusion_log.csv`: Log of excluded subjects due to motion artifacts.
 
-*Output*: `data/processed/preprocessing_stats.json` containing success rates and logs.
-*Note*: This step requires FSL/AFNI to be installed.
-
-### Motion Artifact Detection
-Detect and exclude subjects with excessive motion.
-
-```bash
-python code/motion_detection.py
-```
-
-*Output*: `data/processed/motion_exclusion_log.csv` and `data/processed/motion_exclusion.log`.
-
-## 3. Graph Metric Computation (User Story 2)
-
-### Acquire Schaefer Atlas
-Ensure the Schaefer atlas (200 ROIs) is available in `data/external/`.
-
-```bash
-# (If not already present, download manually or via script if integrated)
-# The pipeline assumes the atlas is at data/external/schaefer_200.txt
-```
-
-### Compute Connectivity and Graph Metrics
-Generate correlation matrices and compute global efficiency, clustering coefficient, and modularity.
-
+### 4. Generate Graph Metrics
+Compute functional connectivity matrices and derive graph theoretical metrics (Global Efficiency, Clustering Coefficient, Modularity).
 ```bash
 python code/graph_metrics.py
 ```
+*Output*:
+- `data/processed/graph_metrics.csv`: Aggregated metrics per subject.
+- `data/processed/graph_metric_validation.log`: Log of any anomalous values.
 
-*Output*: `data/processed/graph_metrics.csv` containing metrics for each subject.
-*Validation*: `data/processed/graph_metric_validation.log` will list any anomalies.
-
-## 4. Statistical Analysis and Reporting (User Story 3)
-
-### Correlation Analysis
-Perform correlation analysis between graph metrics and Fluid Intelligence scores with Bonferroni correction.
-
+### 5. Statistical Analysis
+Perform correlation analysis between graph metrics and Fluid Intelligence scores using Bonferroni correction.
 ```bash
 python code/stats.py
 ```
+*Output*:
+- `data/processed/correlation_results.csv`: Correlation coefficients, p-values (adjusted), and effect sizes.
 
-*Output*: `data/processed/correlation_results.csv` containing p-values, Bonferroni-corrected p-values, and effect sizes.
-
-### Generate Visualizations
-Create scatter plots of metrics vs. Fluid Intelligence.
-
+### 6. Visualization and Reporting
+Generate scatter plots and the final summary report.
 ```bash
 python code/generate_scatter_plots.py
-```
-
-*Output*: `reports/scatter_metric_vs_fluid.png`.
-
-### Generate Summary Report
-Aggregate all results into a final PDF report.
-
-```bash
 python code/generate_summary_report.py
 ```
+*Output*:
+- `reports/scatter_metric_vs_fluid.png`: Visualizations of correlations.
+- `reports/summary.pdf`: Comprehensive report including preprocessing stats, correlations, effect sizes, and confidence intervals.
 
-*Output*: `reports/summary.pdf` containing plots, coefficients, and preprocessing success rates.
-
-## 5. Resource Profiling
-
-### Monitor Resource Usage
-Run the resource monitor to profile RAM and runtime.
-
+### 7. Resource Profiling (Optional)
+Generate a profile of the computational resources used during the analysis.
 ```bash
-python code/execute_resource_monitor.py
+python code/generate_analysis_resource_profile.py
 ```
+*Output*:
+- `data/processed/analysis_resource_profile.json`: Peak RAM and runtime statistics.
 
-*Output*: `data/processed/resource_profile.json` and `data/processed/analysis_resource_profile.json`.
+## Reproducibility
 
-## Verification Checklist
-
-After running the full pipeline, verify the following artifacts exist:
-- `data/.verify_structure.log` (Directory creation log)
-- `data/processed/valid_subjects.json` (Validated subject list)
-- `data/processed/preprocessing_stats.json` (Preprocessing success rate)
-- `data/processed/motion_exclusion_log.csv` (Motion exclusion log)
-- `data/processed/graph_metrics.csv` (Computed graph metrics)
-- `data/processed/correlation_results.csv` (Statistical results)
-- `reports/scatter_metric_vs_fluid.png` (Scatter plot)
-- `reports/summary.pdf` (Final report)
-- `data/processed/analysis_resource_profile.json` (Resource usage stats)
+To ensure full reproducibility of results:
+1. Pin the versions of all dependencies in `requirements.txt`.
+2. Use the exact `config.yaml` settings.
+3. Ensure the same version of FSL and AFNI are used.
+4. The random seeds for any stochastic processes (e.g., Louvain modularity) should be fixed if non-deterministic behavior is observed (check `code/graph_metrics.py`).
 
 ## Troubleshooting
 
-- **Missing Fluid Intelligence Data**: If the pipeline halts with "No valid Fluid Intelligence data found", check the `participants.tsv` files in the downloaded datasets or ensure the fallback dataset (`ds000230`) contains the required scores.
-- **FSL/AFNI Errors**: Ensure the tools are installed and their paths are added to your system `PATH` environment variable. Run `python code/verify_env.py` to confirm.
-- **Memory Issues**: If you encounter memory errors, reduce the number of subjects in `config.yaml` (though the target is N=10) or ensure sufficient RAM is available.
+- **Missing Fluid Intelligence Data**: If the download step fails, ensure the primary dataset (`ds000224`) or fallback (`ds000230`) contains the required `participants.tsv` with `fluid_intelligence_score`.
+- **Motion Exclusion**: If too many subjects are excluded, check `data/processed/motion_exclusion_log.csv`. The pipeline requires at least N=1 valid subject to proceed.
+- **FSL/AFNI Errors**: Verify installation paths and environment variables (`$FSLDIR`, `$AFNI_HOME`) are correctly set.
+
+## Governance
+
+This pipeline operates under the authority of `specs/amendment-001-fluid-intelligence-n10.md`, which overrides the original specification regarding Fluid Intelligence focus, Bonferroni correction, and the N=10 baseline.

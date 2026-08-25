@@ -2825,3 +2825,709 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T07:23:27Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 0
+  canonical: Primary dataset is ds000224
+  claim_id: c_25ba3e87
+  context: 'Create `config.yaml` with the following content: primary_dataset: ds000224'
+  evidence:
+    entailment_evidence: Primary dataset is ds000224
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_dataset_is_ds000224
+  kind: entity_fact
+  raw_text: The primary dataset is ds000224.
+  resolved_value: Primary dataset is ds000224
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T06:21:42Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 0
+  canonical: Fallback dataset is ds000230
+  claim_id: c_ec169976
+  context: 'Create `config.yaml` with the following content: fallback_dataset: ds000230'
+  evidence:
+    entailment_evidence: Fallback dataset is ds000230
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_dataset_is_ds000230
+  kind: entity_fact
+  raw_text: The fallback dataset is ds000230.
+  resolved_value: Fallback dataset is ds000230
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T06:21:42Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Amendment artifact overrides spec regarding Fluid Intelligence, Bonferroni
+    correction, and N=10 limits
+  claim_id: c_59a606a8
+  context: 'Governance Note: The `specs/amendment-001-fluid-intelligence-n10.md` artifact
+    is the ratified authority for this project, overriding the unamended text in `spec.md`
+    regarding Fluid Intelligence, Bonferroni correction, and N=10 limits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The amendment artifact specs/amendment-001-fluid-intelligence-n10.md overrides
+    the unamended text in spec.md regarding Fluid Intelligence, Bonferroni correction,
+    and N=10 limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:22:29Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas contains 200 ROIs
+  claim_id: c_35b2c476
+  context: Implement connectivity matrix generation using `nilearn` and the 200-ROI
+    Schaefer atlas (fixed, per FR-003)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer atlas contains 200 ROIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:24:02Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Motion exclusion if Translation > 3mm
+  claim_id: c_cecb9aba
+  context: Implement logic to detect excessive motion (Translation > 3mm OR Rotation
+    > 2mm) on preprocessed data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_if_Translation_%3E_3mm
+  kind: magnitude
+  raw_text: Motion exclusion is triggered if Translation is greater than 3mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:26:32Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Motion exclusion if Rotation > 2mm
+  claim_id: c_e80fd71b
+  context: Implement logic to detect excessive motion (Translation > 3mm OR Rotation
+    > 2mm) on preprocessed data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_if_Rotation_%3E_2mm
+  kind: magnitude
+  raw_text: Motion exclusion is triggered if Rotation is greater than 2mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:27:13Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: System halts with 'No valid Fluid Intelligence data found' if count is
+    0
+  claim_id: c_326e72ce
+  context: If count is 0, halt with error 'No valid Fluid Intelligence data found'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must halt with error 'No valid Fluid Intelligence data found'
+    if the count of valid subjects is 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:27:58Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: System halts with 'No valid subjects remaining' if N=0
+  claim_id: c_dbf24363
+  context: If NO subjects remain (N=0), halt with error 'No valid subjects remaining
+    after motion and covariate exclusion'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must halt with error 'No valid subjects remaining after motion
+    and covariate exclusion' if N=0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:28:23Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: System proceeds with analysis if N >= 1
+  claim_id: c_9ed60153
+  context: If valid subjects remain (N >= 1), the system MUST proceed with analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must proceed with analysis if N >= 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:29:43Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for multiple comparisons
+  claim_id: c_5da688f0
+  context: System MUST apply **Bonferroni** correction (per Constitution Principle
+    VII) for multiple comparisons across all tested graph metrics...
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P2159: multiple comparisons problem'
+      source_id: Q385989
+      url: https://www.wikidata.org/wiki/Q385989
+      value: multiple comparisons problem
+    filled: true
+  kind: entity_fact
+  raw_text: Bonferroni correction is applied for multiple comparisons.
+  resolved_value: multiple comparisons problem
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T06:30:10Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Cohen's d used for effect sizes
+  claim_id: c_4f84ea02
+  context: Calculate effect sizes (Cohen's d) and confidence intervals...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_d_used_for_effect_sizes
+  kind: entity_fact
+  raw_text: Cohen's d is used to calculate effect sizes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:33:03Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: correlation_results.csv schema includes metric_name, score_type, correlation,
+    p_value, p_adj_bonferroni, cohens_d, ci_lower, ci_upper
+  claim_id: c_6afc51b1
+  context: 'write results to **new artifact** `data/processed/correlation_results.csv`
+    with columns: `metric_name`, `score_type`, `correlation`, `p_value`, `p_adj_bonferroni`,
+    `cohens_d`, `ci_lower`, `ci_upper`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_results.csv_schema_includes_metric_name,_score_t
+  kind: entity_fact
+  raw_text: 'The output artifact correlation_results.csv contains columns: metric_name,
+    score_type, correlation, p_value, p_adj_bonferroni, cohens_d, ci_lower, ci_upper.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:33:40Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: peak_ram_gb in resource profile is a float
+  claim_id: c_0af04dca
+  context: 'Generate `data/processed/analysis_resource_profile.json` with keys: `peak_ram_gb`
+    (float)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_ram_gb_in_resource_profile_is_a_float
+  kind: entity_fact
+  raw_text: The resource profile artifact peak_ram_gb is a float.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:34:21Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: total_runtime_hours in resource profile is a float
+  claim_id: c_d161e74b
+  context: 'Generate `data/processed/analysis_resource_profile.json` with keys: ...
+    `total_runtime_hours` (float).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_hours_in_resource_profile_is_a_float
+  kind: entity_fact
+  raw_text: The resource profile artifact total_runtime_hours is a float.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:35:04Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: preprocessing_stats.json contains total_subjects, successful_subjects,
+    success_rate_percentage
+  claim_id: c_782ca846
+  context: Verify `data/processed/preprocessing_stats.json` is generated with keys
+    `total_subjects`, `successful_subjects`, `success_rate_percentage`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_stats.json_contains_total_subjects,_successful
+  kind: entity_fact
+  raw_text: 'The preprocessing stats artifact contains keys: total_subjects, successful_subjects,
+    success_rate_percentage.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:35:56Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: graph_metrics.csv has columns subject_id, metric_name, value
+  claim_id: c_2ba395a3
+  context: 'Aggregate results into `data/processed/graph_metrics.csv` with columns:
+    subject_id, metric_name, value.'
+  evidence:
+    entailment_evidence: csv has columns subject id, metric name, value
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Graph_metrics.csv_has_columns_subject_id,_metric_name,_value
+  kind: entity_fact
+  raw_text: 'The graph metrics artifact is a CSV file with columns: subject_id, metric_name,
+    value.'
+  resolved_value: graph_metrics.csv has columns subject_id, metric_name, value
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T06:36:02Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: valid_subjects.json schema includes subjects and count
+  claim_id: c_99243528
+  context: '**Output Schema**: `{"subjects": [{"id": "str", "score": "float", "age":
+    int, "gender": str},...], "count": int}`.'
+  evidence:
+    entailment_evidence: json schema includes subjects and count
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Valid_subjects.json_schema_includes_subjects_and_count
+  kind: entity_fact
+  raw_text: The valid_subjects.json output schema includes subjects (id, score, age,
+    gender) and count.
+  resolved_value: valid_subjects.json schema includes subjects and count
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T06:36:06Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: motion_exclusion_log.csv has columns subject_id, translation_mm, rotation_mm,
+    excluded
+  claim_id: c_7e982fb3
+  context: 'Output: `data/processed/motion_exclusion_log.csv` with columns `subject_id,
+    translation_mm, rotation_mm, excluded (bool)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_log.csv_has_columns_subject_id,_translation
+  kind: entity_fact
+  raw_text: 'The motion exclusion log is a CSV file with columns: subject_id, translation_mm,
+    rotation_mm, excluded (bool).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:36:40Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Regression output schema includes coefficients, p_values, r_squared
+  claim_id: c_0526b413
+  context: 'Output Schema: JSON with keys `coefficients`, `p_values`, `r_squared`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_output_schema_includes_coefficients,_p_values,_r
+  kind: entity_fact
+  raw_text: 'The regression output schema includes keys: coefficients, p_values, r_squared.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:37:01Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Mock subjects list contains 10 subjects
+  claim_id: c_cdce162f
+  context: Create `data/mock/subjects.json` with a list of subjects containing `id`,
+    `fluid_intelligence_score`, `age`, and `gender`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock subjects list contains 10 subjects (sub-001 to sub-010).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:37:55Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 0
+  canonical: Primary dataset ds000224
+  claim_id: c_4105affd
+  context: 'Create config.yaml with the following content: primary_dataset: ds000224'
+  evidence:
+    entailment_evidence: Primary dataset ID ds000224
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_dataset_ID_ds000224
+  kind: entity_fact
+  raw_text: The primary dataset ID is ds000224.
+  resolved_value: Primary dataset ID ds000224
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T06:39:21Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 0
+  canonical: Fallback dataset ds000230
+  claim_id: c_3971c726
+  context: 'Create config.yaml with the following content: fallback_dataset: ds000230'
+  evidence:
+    entailment_evidence: Fallback dataset ID ds000230
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_dataset_ID_ds000230
+  kind: entity_fact
+  raw_text: The fallback dataset ID is ds000230.
+  resolved_value: Fallback dataset ID ds000230
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T06:39:21Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas 200 ROIs
+  claim_id: c_454767fd
+  context: Implement connectivity matrix generation using nilearn and the 200-ROI
+    Schaefer atlas (fixed, per FR-003) in code/graph_metrics.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer atlas has 200 ROIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:41:01Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 2
+  canonical: FSL version >= 6.0
+  claim_id: c_e0ae4909
+  context: 'Version Constraints: FSL >= 6.0, AFNI >= 21.0.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FSL_version_%3E=_6.0
+  kind: magnitude
+  raw_text: FSL version must be greater than or equal to 6.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:41:05Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 2
+  canonical: AFNI version >= 21.0
+  claim_id: c_0cce82ad
+  context: 'Version Constraints: FSL >= 6.0, AFNI >= 21.0.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/AFNI_version_%3E=_21.0
+  kind: magnitude
+  raw_text: AFNI version must be greater than or equal to 21.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:41:09Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Motion exclusion translation > 3mm
+  claim_id: c_6d6d86ff
+  context: Implement logic to detect excessive motion (Translation > 3mm OR Rotation
+    > 2mm) on preprocessed data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_translation_%3E_3mm
+  kind: magnitude
+  raw_text: Motion exclusion threshold for translation is greater than 3mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:41:56Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Motion exclusion rotation > 2mm
+  claim_id: c_43441aa4
+  context: Implement logic to detect excessive motion (Translation > 3mm OR Rotation
+    > 2mm) on preprocessed data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_rotation_%3E_2mm
+  kind: magnitude
+  raw_text: Motion exclusion threshold for rotation is greater than 2mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:42:30Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Mock dataset 10 subjects sub-001 to sub-010
+  claim_id: c_eeae0f9b
+  context: Create data/mock/subjects.json with a list of subjects containing id, fluid_intelligence_score,
+    age, and gender.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock subject data includes 10 subjects with IDs from sub-001 to sub-010.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:43:14Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Mock subject ages 22 to 40
+  claim_id: c_f03f7211
+  context: Mock input data includes subjects with ages 25, 30, 28, 35, 22, 40, 29,
+    33, 27, 31.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock subject data includes subjects with ages ranging from 22 to 40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:44:15Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Mock subject fluid intelligence scores 0.4 to 0.9
+  claim_id: c_168b0a1c
+  context: 'Mock input data includes subjects with fluid_intelligence_score values:
+    0.5, 0.7, 0.6, 0.8, 0.4, 0.9, 0.55, 0.65, 0.75, 0.85.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock subject fluid intelligence scores range from 0.4 to 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:45:21Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: primary dataset ds000224 and fallback dataset ds000230
+  claim_id: c_175d890d
+  context: 'Create config.yaml with the following content: primary_dataset: ds000224,
+    fallback_dataset: ds000230.'
+  evidence:
+    entailment_evidence: Primary dataset ds000224 and fallback dataset ds000230
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_dataset_ds000224_and_fallback_dataset_ds000230
+  kind: entity_fact
+  raw_text: The primary dataset is ds000224 and the fallback dataset is ds000230.
+  resolved_value: primary dataset ds000224 and fallback dataset ds000230
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T06:49:00Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas contains 200 ROIs
+  claim_id: c_063342f2
+  context: Implement connectivity matrix generation using nilearn and the 200-ROI
+    Schaefer atlas... The ROI count MUST be set to 200.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer atlas used for connectivity matrix generation contains 200
+    ROIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:50:42Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: system halts if no valid Fluid Intelligence data found
+  claim_id: c_09a8c7b6
+  context: If NO subjects with valid data are found, the system MUST halt execution
+    with a critical error stating 'No valid Fluid Intelligence data found in specified
+    datasets'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_halts_if_no_valid_Fluid_Intelligence_data_found
+  kind: entity_fact
+  raw_text: The system halts with a critical error if no valid Fluid Intelligence
+    data is found.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:51:38Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: system proceeds if N >= 1 valid subjects remain
+  claim_id: c_637d7077
+  context: If valid subjects remain (N >= 1), the system MUST proceed with analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/system_proceeds_if_N_%3E=_1_valid_subjects_remain
+  kind: magnitude
+  raw_text: The system proceeds with analysis if at least one valid subject remains
+    after motion exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:52:46Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: motion exclusion threshold translation > 3mm or rotation > 2mm
+  claim_id: c_6eedf994
+  context: Implement logic to detect excessive motion (Translation > 3mm OR Rotation
+    > 2mm) on preprocessed data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/motion_exclusion_threshold_translation_%3E_3mm_or_rotation_%3E_2
+  kind: entity_fact
+  raw_text: Motion exclusion is triggered if translation exceeds 3mm or rotation exceeds
+    2mm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:53:27Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: motion exclusion threshold rotation > 2mm
+  claim_id: c_956115f1
+  context: Implement logic to detect excessive motion (Translation > 3mm OR Rotation
+    > 2mm) on preprocessed data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/motion_exclusion_threshold_rotation_%3E_2mm
+  kind: entity_fact
+  raw_text: Motion exclusion is triggered if rotation exceeds 2mm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:54:02Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: RAM usage less than 7GB for N=10
+  claim_id: c_5c7d2959
+  context: Verify RAM usage < 7GB on N=10.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_7GB_for_N=10
+  kind: magnitude
+  raw_text: The resource profile JSON contains a peak RAM limit of less than 7GB for
+    N=10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:54:59Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: runtime less than 6 hours for N=10
+  claim_id: c_4a46bf84
+  context: Verify runtime < 6h for N=10.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours_for_N%3D10
+  kind: magnitude
+  raw_text: The total runtime for N=10 subjects is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:55:48Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: FSL version >= 6.0 required
+  claim_id: c_b0f72376
+  context: 'Version Constraints: FSL >= 6.0, AFNI >= 21.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FSL version 6.0 or higher is required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:56:20Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: AFNI version >= 21.0 required
+  claim_id: c_065c0bf3
+  context: 'Version Constraints: FSL >= 6.0, AFNI >= 21.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: AFNI version 21.0 or higher is required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T06:56:45Z'
