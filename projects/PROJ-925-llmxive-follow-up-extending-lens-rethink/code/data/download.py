@@ -5,226 +5,291 @@ import sys
 import logging
 import random
 from pathlib import Path
-from typing import Optional, Dict, Any, Iterator, List, Tuple
-from dataclasses import dataclass, field
-import json
+from typing import Iterator, Dict, Any, Optional, List, Tuple
+from dataclasses import dataclass, field, asdict
+import yaml
 
-# Import from project API surface
-from config import get_paths, get_config
-from utils.logging import setup_logging, get_logger
+# Local imports
+from utils.errors import DataSchemaError
+from utils.logging import get_logger
+from config import get_paths
 
-# Ensure datasets is imported (dependency from requirements.txt)
-try:
-    from datasets import load_dataset
-except ImportError:
-    raise ImportError(
-        "The 'datasets' package is required. "
-        "Install it via: pip install datasets"
-    )
-
-# --- Constants ---
-PROJECT_ID = "PROJ-925-llmxive-follow-up-extending-lens-rethink"
-DATASET_NAME = "pick-a-pic"
-DATASET_SPLIT = "train"
-STREAMING_CHUNK_SIZE = 1000  # Rows per batch for streaming
-
-# --- Logging Setup ---
 logger = get_logger(__name__)
 
 @dataclass
 class DownloadState:
-    """Tracks the state of the data download process."""
-    total_rows: int = 0
-    valid_rows: int = 0
-    invalid_rows: int = 0
+    raw_data_path: Optional[str] = None
     checksums: Dict[str, str] = field(default_factory=dict)
-    error: Optional[str] = None
+    total_rows: int = 0
+    sampled_rows: int = 0
+    sampling_seed: Optional[int] = None
+    sampling_fraction: Optional[float] = None
+    strata_columns: List[str] = field(default_factory=list)
+    status: str = "not_started"  # not_started, downloaded, sampled, failed
+    error_message: Optional[str] = None
+
+def load_project_state() -> DownloadState:
+    """Load the project state from the YAML file."""
+    paths = get_paths()
+    state_file = paths["state_file"]
+    if os.path.exists(state_file):
+        with open(state_file, 'r') as f:
+            data = yaml.safe_load(f)
+            return DownloadState(**data)
+    return DownloadState()
+
+def save_project_state(state: DownloadState) -> None:
+    """Save the project state to the YAML file."""
+    paths = get_paths()
+    state_file = paths["state_file"]
+    os.makedirs(os.path.dirname(state_file), exist_ok=True)
+    with open(state_file, 'w') as f:
+        yaml.dump(asdict(state), f, default_flow_style=False)
 
 def compute_sha256(file_path: str) -> str:
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found for checksum: {file_path}")
-
-def load_project_state(state_file: Path) -> Dict[str, Any]:
-    """Load project state from JSON file."""
-    if not state_file.exists():
-        return {"projects": {}}
-    try:
-        with open(state_file, "r") as f:
-            return json.load(f)
-    except json.JSONDecodeError:
-        logger.warning(f"Invalid JSON in state file {state_file}, resetting.")
-        return {"projects": {}}
-
-def save_project_state(state_file: Path, state: Dict[str, Any]):
-    """Save project state to JSON file."""
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(state_file, "w") as f:
-        json.dump(state, f, indent=2)
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 def validate_row(row: Dict[str, Any]) -> bool:
-    """
-    Validate a row from the dataset.
-    Returns True if the row is valid (has non-empty caption and image), False otherwise.
-    """
-    if not row.get("caption") or not row.get("caption").strip():
+    """Validate a row from the dataset."""
+    if not row.get('caption') or not row.get('image_path'):
         return False
-    # Check if image exists and is not None
-    if row.get("image") is None:
+    if not row['caption'].strip():
         return False
     return True
 
-def stream_pick_a_pic_dataset(
-    seed: Optional[int] = None,
-    sample_size: Optional[int] = None,
-    strata_columns: Optional[List[str]] = None
-) -> Iterator[Dict[str, Any]]:
+def stream_pick_a_pic_dataset() -> Iterator[Dict[str, Any]]:
     """
-    Stream the Pick-a-Pic dataset.
+    Stream the pick-a-pic dataset from Hugging Face.
+    Validates the presence of 'human_rating' and 'caption' columns.
+    Fails loudly if the dataset is unavailable or schema is missing.
+    """
+    try:
+        from datasets import load_dataset
+    except ImportError:
+        raise DataSchemaError("Missing required dataset or column: pick-a-pic/human_rating. 'datasets' package not installed.")
+
+    try:
+        # Load in streaming mode to handle large datasets
+        dataset = load_dataset("pick-a-pic", split="train", streaming=True)
+        
+        # Validate schema: check for required columns
+        if 'human_rating' not in dataset.column_names:
+            raise DataSchemaError("Missing required dataset or column: pick-a-pic/human_rating")
+        if 'caption' not in dataset.column_names:
+            raise DataSchemaError("Missing required dataset or column: pick-a-pic/caption")
+        
+        logger.info(f"Dataset loaded successfully. Columns: {dataset.column_names}")
+        
+        for row in dataset:
+            yield row
+            
+    except Exception as e:
+        # Log the specific error and re-raise as DataSchemaError to fail loudly
+        logger.error(f"Failed to load pick-a-pic dataset: {e}")
+        raise DataSchemaError(f"Missing required dataset or column: pick-a-pic/human_rating. Reason: {str(e)}")
+
+def download_and_checksum(state: DownloadState) -> None:
+    """
+    Download the dataset in streaming mode, validate rows, and compute checksums.
+    This function writes the raw data to disk and updates the state.
+    """
+    paths = get_paths()
+    raw_data_dir = paths["raw_data_dir"]
+    os.makedirs(raw_data_dir, exist_ok=True)
     
-    This function implements the core data loading logic.
-    CRITICAL: It FAILS LOUDLY if the dataset cannot be fetched.
-    There is NO synthetic fallback or try/except block that generates mock data.
+    output_file = os.path.join(raw_data_dir, "pick_a_pic_raw.jsonl")
+    state.raw_data_path = output_file
+    state.status = "downloading"
+    save_project_state(state)
+    
+    logger.info(f"Starting download to {output_file}")
+    
+    total_rows = 0
+    valid_rows = 0
+    checksum_data = []
+    
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            for row in stream_pick_a_pic_dataset():
+                if validate_row(row):
+                    json_line = json.dumps(row, ensure_ascii=False)
+                    f.write(json_line + '\n')
+                    valid_rows += 1
+                    checksum_data.append(json_line)
+                else:
+                    logger.debug(f"Skipping invalid row")
+                total_rows += 1
+                
+        state.total_rows = valid_rows
+        state.status = "downloaded"
+        
+        # Compute checksum for the file
+        file_hash = compute_sha256(output_file)
+        state.checksums[os.path.basename(output_file)] = file_hash
+        
+        logger.info(f"Download complete. Total rows: {total_rows}, Valid rows: {valid_rows}")
+        
+    except DataSchemaError as e:
+        state.status = "failed"
+        state.error_message = str(e)
+        logger.critical(f"Download failed: {e}")
+        raise
+    except Exception as e:
+        state.status = "failed"
+        state.error_message = str(e)
+        logger.critical(f"Download failed with unexpected error: {e}")
+        raise
+
+def apply_stratified_sampling(
+    state: DownloadState, 
+    strata_columns: List[str], 
+    sample_fraction: float, 
+    seed: int
+) -> None:
+    """
+    Apply stratified random sampling to the downloaded dataset.
     
     Args:
+        state: Current download state.
+        strata_columns: List of column names to use for stratification.
+        sample_fraction: Fraction of data to sample (0.0 to 1.0).
         seed: Random seed for reproducibility.
-        sample_size: Number of rows to sample (optional).
-        strata_columns: Columns to use for stratified sampling (optional).
-        
-    Yields:
-        Valid rows from the dataset.
         
     Raises:
-        ConnectionError: If the dataset cannot be fetched from HuggingFace.
-        ValueError: If the dataset format is unexpected.
-        RuntimeError: If any error occurs during streaming that prevents data retrieval.
+        DataSchemaError: If sampling fails due to missing columns or invalid parameters.
     """
-    logger.info(f"Starting stream for dataset: {DATASET_NAME}")
+    paths = get_paths()
+    raw_data_file = state.raw_data_path
     
-    # Attempt to load the dataset. 
-    # We do NOT wrap this in a try/except that returns synthetic data.
-    # If this fails, the script must crash so the execution stage can detect the issue.
+    if not raw_data_file or not os.path.exists(raw_data_file):
+        raise DataSchemaError("Raw data file not found. Run download_and_checksum first.")
+    
+    if not (0.0 < sample_fraction <= 1.0):
+        raise DataSchemaError(f"Invalid sample_fraction: {sample_fraction}. Must be between 0 and 1 (exclusive of 0).")
+        
+    if not strata_columns:
+        # If no strata columns provided, perform simple random sampling
+        logger.warning("No strata columns provided. Performing simple random sampling.")
+        strata_columns = []
+    
     try:
-        # Load with streaming to handle large datasets efficiently
-        dataset = load_dataset(
-            DATASET_NAME,
-            split=DATASET_SPLIT,
-            streaming=True,
-            trust_remote_code=True
-        )
-    except Exception as e:
-        # Re-raise with a clear message indicating failure to fetch real data
-        # This ensures we do not silently fallback to synthetic data
-        raise ConnectionError(
-            f"CRITICAL: Failed to fetch real data from '{DATASET_NAME}'. "
-            f"Network error or dataset unavailable. "
-            f"Error details: {str(e)}. "
-            "The pipeline requires real data and cannot proceed with synthetic fallback."
-        ) from e
+        from datasets import Dataset
+        import pandas as pd
+    except ImportError:
+        raise DataSchemaError("Required packages 'datasets' or 'pandas' not installed for sampling.")
 
-    logger.info(f"Successfully connected to dataset stream: {DATASET_NAME}")
-
-    # Apply seed if provided
-    if seed is not None:
-        # Note: HuggingFace datasets streaming doesn't support direct seed setting
-        # on the iterator itself easily without materializing. 
-        # We rely on the downstream sampling logic to handle determinism if materialized,
-        # or we set a global seed for any random operations we perform here.
-        random.seed(seed)
-
-    # If sample size is requested, we need to sample.
-    # Since streaming is one-pass, we implement a reservoir sampling or simple limit
-    # depending on the requirement. Here we assume a simple limit for efficiency 
-    # or a reservoir if we need a random sample of N from a stream of unknown size.
-    # Given the task context (T013), we likely want a stratified sample or random sample.
-    # For T012, the focus is just on failing loudly.
+    logger.info(f"Applying stratified sampling with seed={seed}, fraction={sample_fraction}, strata={strata_columns}")
     
-    count = 0
-    for row in dataset:
-        # Validate row
-        if not validate_row(row):
-            continue
+    # Load data into memory for sampling (assuming it fits in memory after initial filter)
+    # If the file is too large, we would need to stream and sample, but for now we load.
+    data_list = []
+    with open(raw_data_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            data_list.append(json.loads(line))
+    
+    if not data_list:
+        raise DataSchemaError("No data found in raw file.")
         
-        yield row
-        count += 1
+    df = pd.DataFrame(data_list)
+    
+    # Validate strata columns exist
+    missing_cols = [col for col in strata_columns if col not in df.columns]
+    if missing_cols:
+        raise DataSchemaError(f"Strata columns not found in dataset: {missing_cols}")
+    
+    # Set seed
+    random.seed(seed)
+    np.random.seed(seed)
+    
+    sampled_df = None
+    
+    if strata_columns:
+        # Perform stratified sampling
+        logger.info(f"Performing stratified sampling on columns: {strata_columns}")
+        # Ensure strata columns are treated as strings for grouping
+        for col in strata_columns:
+            df[col] = df[col].astype(str)
+        
+        try:
+            sampled_df = df.groupby(strata_columns, group_keys=False).apply(
+                lambda x: x.sample(frac=sample_fraction, random_state=seed)
+            )
+        except Exception as e:
+            raise DataSchemaError(f"Stratified sampling failed: {e}")
+    else:
+        # Simple random sampling
+        logger.info("Performing simple random sampling.")
+        sampled_df = df.sample(frac=sample_fraction, random_state=seed)
+    
+    # Update state
+    state.sampled_rows = len(sampled_df)
+    state.sampling_seed = seed
+    state.sampling_fraction = sample_fraction
+    state.strata_columns = strata_columns
+    state.status = "sampled"
+    
+    # Save sampled data
+    sampled_file = os.path.join(paths["processed_data_dir"], "pick_a_pic_sampled.jsonl")
+    os.makedirs(paths["processed_data_dir"], exist_ok=True)
+    
+    with open(sampled_file, 'w', encoding='utf-8') as f:
+        for _, row in sampled_df.iterrows():
+            f.write(json.dumps(row.to_dict(), ensure_ascii=False) + '\n')
+    
+    logger.info(f"Sampled data saved to {sampled_file}. Rows: {state.sampled_rows}")
+    
+    # Update checksums for sampled file
+    sampled_hash = compute_sha256(sampled_file)
+    state.checksums["pick_a_pic_sampled.jsonl"] = sampled_hash
 
-        if sample_size and count >= sample_size:
-            logger.info(f"Reached sample size limit: {sample_size}")
-            break
-
-def download_and_checksum(output_path: Path, seed: Optional[int] = None):
-    """
-    Download the dataset to a local file and compute checksums.
-    This function is a wrapper to save the stream to disk for reproducibility.
-    
-    Raises:
-        ConnectionError: If data fetch fails.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Downloading dataset to {output_path}")
-    
-    # Use the streaming function which will fail loudly
-    rows = list(stream_pick_a_pic_dataset(seed=seed))
-    
-    if not rows:
-        raise RuntimeError(
-            "Download completed but no valid rows were retrieved. "
-            "Check data validation logic or source availability."
-        )
-
-    # Save to JSONL
-    with open(output_path, "w", encoding="utf-8") as f:
-        for row in rows:
-            f.write(json.dumps(row) + "\n")
-    
-    checksum = compute_sha256(str(output_path))
-    logger.info(f"Download complete. Checksum: {checksum}")
-    return checksum
+def update_state_with_checksum(state: DownloadState, filename: str, file_path: str) -> None:
+    """Update the state with a new checksum."""
+    state.checksums[filename] = compute_sha256(file_path)
 
 def main():
-    """Main entry point for the download script."""
-    setup_logging()
-    paths = get_paths()
-    config = get_config()
+    """
+    Main entry point for the download and sampling pipeline.
+    Usage: python code/data/download.py --sample --strata-columns column1,column2 --fraction 0.1 --seed 42
+    """
+    import argparse
     
-    # Define output path
-    raw_data_path = paths.data_raw / "pick_a_pic_raw.jsonl"
+    parser = argparse.ArgumentParser(description="Download and sample pick-a-pic dataset")
+    parser.add_argument("--sample", action="store_true", help="Enable stratified sampling")
+    parser.add_argument("--strata-columns", type=str, default="", help="Comma-separated list of columns for stratification")
+    parser.add_argument("--fraction", type=float, default=1.0, help="Fraction of data to sample")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for sampling")
     
-    logger.info("Starting data download process...")
+    args = parser.parse_args()
+    
+    state = load_project_state()
     
     try:
-        checksum = download_and_checksum(raw_data_path, seed=config.seed)
+        # Step 1: Download and validate
+        download_and_checksum(state)
         
-        # Update state file
-        state_file = paths.state_dir / f"{PROJECT_ID}.yaml" # Using JSON for state as per code
-        state_file = Path(str(state_file).replace(".yaml", ".json"))
+        # Step 2: Apply sampling if requested
+        if args.sample:
+            strata_cols = [col.strip() for col in args.strata_columns.split(',') if col.strip()]
+            apply_stratified_sampling(state, strata_cols, args.fraction, args.seed)
         
-        current_state = load_project_state(state_file)
-        if "projects" not in current_state:
-            current_state["projects"] = {}
+        save_project_state(state)
+        logger.info("Pipeline completed successfully.")
         
-        current_state["projects"][PROJECT_ID] = {
-            "raw_data_hash": checksum,
-            "last_updated": "2023-10-27T00:00:00Z" # Placeholder, real code would use datetime
-        }
-        
-        save_project_state(state_file, current_state)
-        logger.info("Download and state update completed successfully.")
-        
-    except ConnectionError as ce:
-        logger.critical(f"Data fetch failed: {ce}")
-        # Re-raise to ensure the process exits with error code
-        raise
+    except DataSchemaError as e:
+        logger.critical(f"Pipeline failed: {e}")
+        save_project_state(state)
+        sys.exit(1)
     except Exception as e:
-        logger.critical(f"Unexpected error during download: {e}")
-        raise
+        logger.critical(f"Pipeline failed with unexpected error: {e}")
+        state.status = "failed"
+        state.error_message = str(e)
+        save_project_state(state)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

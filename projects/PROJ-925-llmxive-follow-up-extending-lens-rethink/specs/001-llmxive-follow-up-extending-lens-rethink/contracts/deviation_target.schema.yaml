@@ -1,43 +1,24 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Deviation Target Schema"
-description: "Schema for the calculated deviation score and joined features."
+$schema: http://json-schema.org/draft-07/schema#
+title: Deviation Target Schema
+description: Schema for the calculated deviation target variable Y = |CLIP - Human|.
 type: object
+required:
+  - image_id
+  - clip_score
+  - human_rating
+  - deviation_score
 properties:
-  caption_id:
+  image_id:
     type: string
-    description: "Unique identifier."
+    description: Reference to the original image ID.
+  clip_score:
+    type: number
+    description: Normalized CLIP score (Z-score or INT transformed).
+  human_rating:
+    type: number
+    description: Normalized human rating (Z-score or INT transformed).
   deviation_score:
     type: number
-    description: "Absolute difference between Z-normalized CLIP score and Human rating."
-  linguistic_uncertainty_proxy:
-    type: number
-    description: "Feature from feature_vector."
-  syntactic_depth:
-    type: integer
-    description: "Feature from feature_vector."
-  noun_phrase_density:
-    type: number
-    description: "Feature from feature_vector."
-  caption_length_tokens:
-    type: integer
-    description: "Covariate."
-  textual_complexity:
-    type: integer
-    description: "Covariate."
-  lexical_diversity:
-    type: number
-    description: "Covariate: Type-Token Ratio."
-  syntactic_variety:
-    type: integer
-    description: "Covariate: Count of unique dependency relations."
-required:
-  - caption_id
-  - deviation_score
-  - linguistic_uncertainty_proxy
-  - syntactic_depth
-  - noun_phrase_density
-  - caption_length_tokens
-  - textual_complexity
-  - lexical_diversity
-  - syntactic_variety
+    description: Absolute difference |CLIP - Human|.
+    minimum: 0.0
 additionalProperties: false

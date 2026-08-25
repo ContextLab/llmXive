@@ -1,4 +1,12 @@
-artifact_hashes: {}
-project_id: PROJ-925-llmxive-follow-up-extending-lens-rethink
-raw_data_hashes: {}
-updated_at: null
+projects:
+  PROJ-925-llmxive-follow-up-extending-lens-rethink:
+    raw_data:
+      hash: "placeholder_hash_to_be_updated_after_download"
+      file_size_bytes: 0
+      updated_at: "2024-01-01T00:00:00Z"
+    status: "initializing"
+    created_at: "2024-01-01T00:00:00Z"
+    artifacts: {}
+    config:
+      seed: 42
+      version: "1.0.0"

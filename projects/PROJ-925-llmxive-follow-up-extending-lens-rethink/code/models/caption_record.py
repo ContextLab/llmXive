@@ -1,43 +1,32 @@
 """
-Data model for a raw caption record from the Pick-a-Pic dataset.
+Data Model for Caption Records.
 
-This class represents a single row from the source data after initial
-filtering (non-empty captions, valid image paths).
+Defines the structure for individual caption entries.
 """
 from dataclasses import dataclass
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
+@dataclass
+class CaptionRecord:
+    """Simple dataclass for a caption record."""
+    caption_id: str
+    caption: str
+    image_path: Optional[str] = None
+    human_rating: Optional[float] = None
+    clip_score: Optional[float] = None
 
-class CaptionRecord(BaseModel):
-    """
-    Represents a single caption record with its associated metadata.
-
-    Attributes:
-        record_id: Unique identifier for the record (usually from dataset index).
-        caption: The text caption associated with the image.
-        image_path: Local or remote path to the image file.
-        prompt_id: The original prompt ID from the dataset (if available).
-        winner_id: ID of the 'winner' image in the pair (if applicable).
-        loser_id: ID of the 'loser' image in the pair (if applicable).
-        raw_metadata: Dictionary to store any additional raw fields not explicitly mapped.
-    """
-    record_id: str = Field(..., description="Unique identifier for the record")
-    caption: str = Field(..., min_length=1, description="The text caption")
-    image_path: str = Field(..., description="Path to the image file")
-    prompt_id: Optional[str] = Field(None, description="Original prompt ID")
-    winner_id: Optional[str] = Field(None, description="Winner image ID")
-    loser_id: Optional[str] = Field(None, description="Loser image ID")
-    raw_metadata: Optional[dict] = Field(default_factory=dict, description="Additional raw fields")
+class CaptionRecordModel(BaseModel):
+    """Pydantic model for validation of caption records."""
+    caption_id: str
+    caption: str
+    image_path: Optional[str] = None
+    human_rating: Optional[float] = Field(None, ge=0.0, le=5.0)
+    clip_score: Optional[float] = Field(None, ge=0.0, le=1.0)
 
     @field_validator('caption')
     @classmethod
-    def caption_must_not_be_empty(cls, v: str) -> str:
+    def caption_not_empty(cls, v):
         if not v or not v.strip():
-            raise ValueError("Caption cannot be empty or whitespace")
+            raise ValueError('Caption cannot be empty')
         return v.strip()
-
-    @property
-    def is_pair(self) -> bool:
-        """Returns True if this record represents a winner/loser pair."""
-        return self.winner_id is not None and self.loser_id is not None

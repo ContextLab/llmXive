@@ -1,18 +1,40 @@
-T018:
+T001:
   c: false
-  h: 6ea948dc15ed5dccc674f8ab026e57d1d6af57950bbdde0f16d1dde16e9d83b1
-  r: The `code/data/features.py` file exists but is truncated (the `validate_dataframe`
-    function ends abruptly and there is no logic to read the input stream, call `extract_features_batch`,
-    or write `data/processed/features.csv`). Moreover, the required schema file `contracts/feature_vector.schema.yaml`
-    is absent, and the expected output CSV was not generated. These missing pieces
-    prevent the task from being fully satisfied.
-T025:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the requested directory hierarchy (`projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/`
+    with the specified subfolders) is present; the implementer did not provide any
+    file or folder listing to confirm the structure exists. The required artifact
+    is missing.
+T001b:
   c: false
-  h: 1248d67c27d1c1044c252e2c20d74474d78fa2f6f13590ddb99185dac36c8986
-  r: The required output file `data/processed/deviation.csv` does not exist, and the
-    provided `code/data/preprocess.py` snippet is truncated before any code that checks
-    zero variance or raises the exact `ValueError("Target not learnable")`. Both the
-    artifact and the specific behavior are missing.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no evidence that the required directories (`data/raw`, `data/processed`,\
+    \ `code`, `code/tests`, `code/utils`, `code/models`, `docs`) actually exist in\
+    \ the repository; no file\u2011tree or screenshots were provided. The task\u2019\
+    s deliverable is the creation of this folder structure, and without concrete proof\
+    \ of those directories being present, the requirement is not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The repository provides no visible linting or formatting configuration files
+    (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings, or CI scripts
+    invoking these tools). Without such artifacts, the requirement to configure ruff/flake8
+    and Black is not satisfied. The next implementer should add the appropriate configuration
+    files and ensure they are integrated into the development workflow.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No contracts were found under `specs/001-llmxive-follow-up-extending-lens-rethink/contracts/`,
+    and there is no definition of a `DataSchemaError` with the required message. The
+    implementer did not provide the required schema files (dataset, feature_vector,
+    deviation_target, significance_results) nor the error message implementation.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or commit diff were provided showing that the data loader\u2019\
+    s `try/except` blocks generating synthetic data were removed, nor any demonstration\
+    \ that fetch errors now raise explicit exceptions. Without such artifacts, we\
+    \ cannot confirm the loader fails loudly as required."
 T033:
   c: false
   h: 354e078bcc6f427efa472bbcda701c5207cb69a2b41a258cf4d24799f51856f1

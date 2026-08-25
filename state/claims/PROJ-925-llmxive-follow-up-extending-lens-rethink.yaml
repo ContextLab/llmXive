@@ -1,0 +1,457 @@
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: 5-second timeout per caption for BERT inference
+  claim_id: c_39763566
+  context: T014a requires a timeout wrapper for compute_linguistic_uncertainty_proxy
+    to flag captions for review rather than exclusion if they exceed the limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a 5-second timeout wrapper per caption; if calculation exceeds
+    5 seconds, flag the caption for manual review.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:06:54Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Permutation-based significance test with 1,000 shuffles
+  claim_id: c_e5f253d4
+  context: T030 mandates a permutation importance calculation using 1,000 shuffles
+    to generate a null distribution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a specific 'permutation-based significance test' involving N=1,000
+    shuffles to generate a null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:07:22Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction for FDR control at 0.05
+  claim_id: c_0725668d
+  context: T030 and T032 require the use of Benjamini-Hochberg correction to control
+    the False Discovery Rate at or below 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use Benjamini-Hochberg correction to control FDR \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:07:22Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Fixed iteration count of 1,000 for label permutation test
+  claim_id: c_44c412b1
+  context: T031 requires a fixed iteration count of 1,000 for the label permutation
+    test to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a fixed iteration count of N=1,000 by default with pinned seeds
+    to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:08:06Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Significance threshold sweep over 0.01, 0.05, and 0.1
+  claim_id: c_e930b52c
+  context: T033 requires a sensitivity analysis loop that sweeps the significance
+    threshold alpha over the values 0.01, 0.05, and 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a significance threshold sweep (alpha) over {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:08:22Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: 'Noise injection standard deviations: 0.0, 0.1, 0.2, 0.3, 0.4, 0.5'
+  claim_id: c_4ac5473e
+  context: T048 requires defining a specific list of standard deviations for injecting
+    synthetic Gaussian noise into human ratings.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly define std_devs = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5] for the noise
+    injection range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:08:33Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Construct validity warning if correlation is less than 0.3
+  claim_id: c_eb6b1824
+  context: T050 and T051 require logging a warning and flagging a risk if the correlation
+    between the uncertainty proxy and the baseline is less than 0.3.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Construct_validity_warning_if_correlation_is_less_than_0.3
+  kind: magnitude
+  raw_text: Log a warning and flag construct validity risk if correlation coefficient
+    is < 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:09:24Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Validation of CLIP scores and handling of missing clip_score column
+  claim_id: c_a5a2b25a
+  context: T021a requires checking for the presence of the 'clip_score' column in
+    the dataset and raising a specific error if absent.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_of_CLIP_scores_and_handling_of_missing_clip_score
+  kind: entity_fact
+  raw_text: Validate pre-computed CLIP scores and raise DataSchemaError if the 'clip_score'
+    column is missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:09:48Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Error message for zero variance in target variable
+  claim_id: c_5c5aef05
+  context: T025a requires halting execution with a specific error message if the target
+    variable has zero variance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raise a ValueError with the exact message ''Target not learnable: zero
+    variance detected'' if variance is 0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:10:06Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Exclusion of samples with insufficient caption length for dependency
+    tree
+  claim_id: c_ca6b232c
+  context: T015 requires excluding samples where the caption is too short to compute
+    a meaningful dependency tree depth.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclusion_of_samples_with_insufficient_caption_length_for_de
+  kind: entity_fact
+  raw_text: If the caption is too short to compute a meaningful dependency tree depth,
+    exclude the sample.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:10:26Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Python 3.11 required
+  claim_id: c_6d87a135
+  context: T002 [P] Initialize Python 3.11 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:12:15Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: CPU-only torch required dependency
+  claim_id: c_510eefaf
+  context: 'T002 [P] Initialize Python 3.11 project with requirements.txt (xgboost,
+    scikit-learn, transformers, spacy, datasets, pandas, numpy, pydantic, jsonschema,
+    torch). Note: torch (CPU-only version) is a REQUIRED dependency for CPU-only BERT
+    inference in T014a.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-only_torch_required_dependency
+  kind: entity_fact
+  raw_text: The project requires the 'torch' (CPU-only version) as a dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:12:34Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: 5-second timeout for linguistic uncertainty proxy
+  claim_id: c_fe2135bc
+  context: 'T014a [S] [US1] ... Requirement: Implement a 5-second timeout wrapper
+    per caption; if calculation exceeds 5 seconds, flag the caption for manual review.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The linguistic uncertainty proxy calculation has a 5-second timeout wrapper.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:13:12Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: noise injection std devs 0.0 0.1 0.2 0.3 0.4 0.5
+  claim_id: c_a5ecf427
+  context: 'T048 [US3] [FR-008] ... Requirement: Explicitly define std_devs = [0.0,
+    0.1, 0.2, 0.3, 0.4, 0.5] for the noise injection range.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The noise injection range for human ratings includes standard deviations
+    of 0.0, 0.1, 0.2, 0.3, 0.4, and 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:13:27Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: significance threshold sweep alpha 0.01 0.05 0.1
+  claim_id: c_9c11d3e6
+  context: T033 [S] [US3] ... 3) Perform a significance threshold sweep (alpha) over
+    {0.01, 0.05, 0.1} as required by FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The significance threshold sweep for sensitivity analysis uses alpha levels
+    of 0.01, 0.05, and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:13:47Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: 1000 shuffles for permutation significance test
+  claim_id: c_26f0a3a1
+  context: 'T030 [P] [US3] ... Requirement: This must be a specific ''permutation-based
+    significance test'' involving N=1,000 shuffles to generate a null distribution,
+    followed by p-value calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation-based significance test involves 1,000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:14:04Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: 1000 iterations for label permutation test
+  claim_id: c_15506beb
+  context: 'T031 [US3] ... Requirement: Enforce a fixed iteration count of N=1,000
+    by default with pinned seeds to ensure reproducibility (FR-006).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label permutation test enforces a fixed iteration count of 1,000 by
+    default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:14:24Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction FDR <= 0.05
+  claim_id: c_edcc9476
+  context: "T030 [P] [US3] ... Requirement: Use Benjamini-Hochberg correction to control\
+    \ FDR \u2264 0.05, as mandated by FR-006."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "using the respective FDR procedures at level \u03B1 = 0.05. Compared\
+        \ to the classical FDR controlling"
+      source_id: '1706.08250'
+      url: https://arxiv.org/abs/1706.08250
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: The Benjamini-Hochberg correction is used to control FDR at a level less
+    than or equal to 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T11:14:51Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: warning if correlation < 0.3 for uncertainty proxy
+  claim_id: c_9156f22d
+  context: 'T050 [US1] [FR-009] ... Requirement: Use a stratified [deferred] split
+    for the held-out subset. If correlation coefficient is < 0.3, log a warning and
+    flag construct validity risk in the final report.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/warning_if_correlation_%3C_0.3_for_uncertainty_proxy
+  kind: magnitude
+  raw_text: A warning is logged if the correlation coefficient between the uncertainty
+    proxy and the semantic entropy baseline is less than 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:15:37Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Y equals absolute difference between CLIP Score and Human Rating
+  claim_id: c_f8ac4c03
+  context: 'Phase 3: User Story 2 - Calculate Alignment Deviation Score (Priority:
+    P2) ... Goal: Calculate the target variable Y = | CLIP_Score - Human_Rating |
+    from human preference data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Y_equals_absolute_difference_between_CLIP_Score_and_Human_Ra
+  kind: entity_fact
+  raw_text: The target variable Y is defined as the absolute difference between CLIP
+    Score and Human Rating.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:16:10Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: pick-a-pic dataset used
+  claim_id: c_3f5a963d
+  context: T009 [S] [P] Implement code/data/download.py to stream pick-a-pic dataset
+    via datasets.load_dataset(..., streaming=True).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: over half-a-million examples of human preferences over model-generated
+        images.2 Each example in
+      source_id: '2305.01569'
+      url: https://arxiv.org/abs/2305.01569
+      value: over half-a-million
+    filled: true
+  kind: entity_fact
+  raw_text: The dataset 'pick-a-pic' is used for human preference data.
+  resolved_value: over half-a-million
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T11:16:26Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: bert-base-uncased model used on CPU
+  claim_id: c_abb7e942
+  context: 'T014a [S] [US1] Implement def compute_linguistic_uncertainty_proxy(caption:
+    str) -> float in code/features.py using bert-base-uncased on CPU.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bert-base-uncased_model_used_on_CPU
+  kind: entity_fact
+  raw_text: The 'bert-base-uncased' model is used on CPU for linguistic uncertainty
+    proxy calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:17:11Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: spaCy used to compute syntactic depth
+  claim_id: c_bb7be3f8
+  context: 'T015 [P] [US1] Implement def compute_syntactic_depth(caption: str) ->
+    int in code/features.py using spaCy (FR-002).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SpaCy_used_to_compute_syntactic_depth
+  kind: entity_fact
+  raw_text: The 'spaCy' library is used to compute syntactic depth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:17:30Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: XGBoost used for regression
+  claim_id: c_d8feb529
+  context: 'Phase 4: User Story 3 - Train CPU-Only Predictor and Rank Features (Priority:
+    P3) ... Goal: Train XGBoost on CPU to predict deviation and perform rigorous statistical
+    significance testing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/XGBoost_used_for_regression
+  kind: entity_fact
+  raw_text: XGBoost is used for the regression model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:17:55Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk check on inputs for deviation calculation
+  claim_id: c_f4248bec
+  context: T022 [S] [US2] ... 1) Perform Shapiro-Wilk distributional check on inputs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shapiro-Wilk_check_on_inputs_for_deviation_calculation
+  kind: entity_fact
+  raw_text: The Shapiro-Wilk distributional check is performed on inputs for deviation
+    calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T11:18:20Z'

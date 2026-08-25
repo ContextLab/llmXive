@@ -1,39 +1,41 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Linguistic Feature Vector Schema"
-description: "Schema for the output of features.py. Contains only text-derived features."
+$schema: http://json-schema.org/draft-07/schema#
+title: Linguistic Feature Vector Schema
+description: Schema for the extracted linguistic feature vectors per caption.
 type: object
-properties:
-  caption_id:
-    type: string
-    description: "Reference to the original caption."
-  linguistic_uncertainty_proxy:
-    type: number
-    description: "Natural log of perplexity (ln(perplexity))."
-  syntactic_depth:
-    type: integer
-    description: "Maximum depth of the dependency parse tree."
-  noun_phrase_density:
-    type: number
-    description: "Count of noun phrases divided by caption length."
-  caption_length_tokens:
-    type: integer
-    description: "Number of tokens in the caption."
-  textual_complexity:
-    type: integer
-    description: "Count of distinct noun phrases or named entities."
-  lexical_diversity:
-    type: number
-    description: "Type-Token Ratio (unique tokens / total tokens)."
-  syntactic_variety:
-    type: integer
-    description: "Count of unique dependency relations in the parse tree."
 required:
-  - caption_id
+  - image_id
   - linguistic_uncertainty_proxy
   - syntactic_depth
   - noun_phrase_density
-  - caption_length_tokens
-  - textual_complexity
-  - lexical_diversity
-  - syntactic_variety
+  - token_diversity
+properties:
+  image_id:
+    type: string
+    description: Reference to the original image ID.
+  linguistic_uncertainty_proxy:
+    type: number
+    description: Log-perplexity based uncertainty proxy (ln(perplexity)).
+    minimum: 0.0
+  syntactic_depth:
+    type: integer
+    description: Maximum depth of the dependency parse tree.
+    minimum: 1
+  noun_phrase_density:
+    type: number
+    description: Ratio of noun phrases to total tokens.
+    minimum: 0.0
+    maximum: 1.0
+  token_diversity:
+    type: number
+    description: Ratio of unique tokens to total tokens.
+    minimum: 0.0
+    maximum: 1.0
+  caption_length_tokens:
+    type: integer
+    description: Number of tokens in the caption (for covariate control).
+    minimum: 1
+  textual_description_complexity:
+    type: integer
+    description: Union of unique noun phrases and named entities.
+    minimum: 0
 additionalProperties: false

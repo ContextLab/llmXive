@@ -1,154 +1,186 @@
 """
-Logging infrastructure for the llmXive research pipeline.
+Logging Infrastructure for llmXive.
 
-Provides a centralized logging configuration and utility functions
-to ensure consistent log formatting, file rotation, and log levels
-across all project modules.
+Provides centralized logging configuration and helper functions.
 """
-
 import logging
 import os
+import sys
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
-from typing import Optional
+from typing import Optional, Dict, Any
 
-# Project root is assumed to be two levels up from this file
-# code/utils/logging.py -> code/utils -> code -> root
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-_LOG_DIR = _PROJECT_ROOT / "data" / "logs"
-_LOG_FILE = _LOG_DIR / "pipeline.log"
+# Default log directory
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
 
-# Default configuration
-DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-MAX_LOG_BYTES = 10 * 1024 * 1024  # 10 MB
-BACKUP_COUNT = 5
-
-_configured = False
-_root_logger: Optional[logging.Logger] = None
-
-
-def _ensure_log_dir() -> None:
-    """Create the log directory if it does not exist."""
-    _LOG_DIR.mkdir(parents=True, exist_ok=True)
-
+# Global configuration for logging
+_log_config: Dict[str, Any] = {
+    "initialized": False,
+    "level": logging.INFO,
+    "project_id": "llmxive"
+}
 
 def setup_logging(
-    level: int = DEFAULT_LOG_LEVEL,
-    log_file: Optional[Path] = None,
-    console: bool = True,
+    log_file: Optional[str] = None,
+    level: int = logging.INFO,
+    project_id: str = "llmxive",
+    console_level: Optional[int] = None,
+    file_level: Optional[int] = None
 ) -> logging.Logger:
     """
     Configure the root logger for the project.
-
+    
+    This function sets up a root logger with both console and file handlers.
+    It ensures that log messages are formatted consistently and that log files
+    are rotated to prevent disk space issues.
+    
     Args:
-        level: The logging level (e.g., logging.DEBUG, logging.INFO).
-        log_file: Path to the log file. Defaults to data/logs/pipeline.log.
-        console: Whether to also log to stdout/stderr.
-
+        log_file: Optional filename for file logging. Defaults to {project_id}.log.
+        level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        project_id: Identifier for the log file and default logger name.
+        console_level: Optional override for console handler level. Defaults to `level`.
+        file_level: Optional override for file handler level. Defaults to `level`.
+        
     Returns:
-        The configured root logger.
+        Configured root logger instance.
     """
-    global _configured, _root_logger
-
-    if _configured:
-        return _root_logger
-
-    _ensure_log_dir()
-    target_log_file = log_file or _LOG_FILE
-
-    # Configure root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-
-    # Clear existing handlers to avoid duplicates on re-runs in same process
-    root_logger.handlers.clear()
-
+    global _log_config
+    
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    
+    # Clear existing handlers to avoid duplicates
+    if logger.handlers:
+        logger.handlers.clear()
+    
     # Formatter
-    formatter = logging.Formatter(DEFAULT_LOG_FORMAT)
-
-    # File Handler (Rotating)
-    try:
-        file_handler = RotatingFileHandler(
-            target_log_file,
-            maxBytes=MAX_LOG_BYTES,
-            backupCount=BACKUP_COUNT,
-            encoding="utf-8",
-        )
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-    except Exception as e:
-        # Fallback if file cannot be opened (e.g., permissions)
-        logging.warning(f"Failed to initialize file logging: {e}")
-
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
     # Console Handler
-    if console:
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
+    console_handler_level = console_level if console_level is not None else level
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(console_handler_level)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
+    # File Handler
+    if log_file:
+        log_path = LOG_DIR / log_file
+    else:
+        log_path = LOG_DIR / f"{project_id}.log"
+        
+    # Ensure log directory exists
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    file_handler_level = file_level if file_level is not None else level
+    file_handler = RotatingFileHandler(
+        log_path,
+        maxBytes=10*1024*1024, # 10 MB
+        backupCount=5
+    )
+    file_handler.setLevel(file_handler_level)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    
+    # Update config state
+    _log_config["initialized"] = True
+    _log_config["level"] = level
+    _log_config["project_id"] = project_id
+    
+    return logger
 
-    _configured = True
-    _root_logger = root_logger
-
-    # Log startup info
-    root_logger.info(f"Logging initialized at level {logging.getLevelName(level)}")
-    root_logger.info(f"Log file: {target_log_file}")
-
-    return root_logger
-
-
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def get_logger(name: str = "llmxive") -> logging.Logger:
     """
-    Get a logger instance.
-
-    If the root logger has not been configured yet, this function
-    will attempt to configure it with default settings first.
-
+    Get a logger instance with the given name.
+    
+    This is the primary entry point for obtaining a logger in any module.
+    If the root logger hasn't been configured yet via `setup_logging`, 
+    this will return a logger with default settings (INFO level, console only).
+    
     Args:
-        name: The name of the logger (e.g., 'code.features').
-            If None, returns the root logger.
-
+        name: Logger name, typically the module name (__name__) or a custom identifier.
+        
     Returns:
-        A configured logger instance.
+        Logger instance.
     """
-    if not _configured:
-        setup_logging()
-
-    if name is None:
-        return _root_logger
-
+    if not _log_config["initialized"]:
+        # Auto-configure if not done yet to ensure logging works immediately
+        setup_logging(project_id="llmxive")
+    
     return logging.getLogger(name)
 
-
-def log_exception(msg: str, exc_info: bool = True) -> None:
+def log_exception(logger: logging.Logger, exc: Exception, msg: str = "An exception occurred"):
     """
-    Log an exception at the ERROR level.
-
+    Log an exception with full traceback information.
+    
     Args:
-        msg: The error message.
-        exc_info: Whether to include exception traceback.
+        logger: Logger instance to use.
+        exc: Exception instance to log.
+        msg: Optional message prefix to include before the exception details.
     """
-    logger = get_logger()
-    logger.error(msg, exc_info=exc_info)
+    logger.exception(f"{msg}: {exc}")
 
+def log_critical(logger: logging.Logger, msg: str):
+    """
+    Log a critical message indicating a severe error condition.
+    
+    Args:
+        logger: Logger instance to use.
+        msg: Message to log.
+    """
+    logger.critical(msg)
 
-def log_critical(msg: str) -> None:
-    """Log a critical message."""
-    get_logger().critical(msg)
+def log_warning(logger: logging.Logger, msg: str):
+    """
+    Log a warning message indicating a potential issue.
+    
+    Args:
+        logger: Logger instance to use.
+        msg: Message to log.
+    """
+    logger.warning(msg)
 
+def log_info(logger: logging.Logger, msg: str):
+    """
+    Log an informational message.
+    
+    Args:
+        logger: Logger instance to use.
+        msg: Message to log.
+    """
+    logger.info(msg)
 
-def log_warning(msg: str) -> None:
-    """Log a warning message."""
-    get_logger().warning(msg)
+def log_debug(logger: logging.Logger, msg: str):
+    """
+    Log a debug message for detailed troubleshooting.
+    
+    Args:
+        logger: Logger instance to use.
+        msg: Message to log.
+    """
+    logger.debug(msg)
 
+def set_log_level(level: int) -> None:
+    """
+    Dynamically update the logging level for all handlers.
+    
+    Args:
+        level: The new logging level (e.g., logging.DEBUG).
+    """
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    for handler in logger.handlers:
+        handler.setLevel(level)
 
-def log_info(msg: str) -> None:
-    """Log an info message."""
-    get_logger().info(msg)
-
-
-def log_debug(msg: str) -> None:
-    """Log a debug message."""
-    get_logger().debug(msg)
+def get_log_directory() -> Path:
+    """
+    Get the path to the log directory.
+    
+    Returns:
+        Path object pointing to the log directory.
+    """
+    return LOG_DIR

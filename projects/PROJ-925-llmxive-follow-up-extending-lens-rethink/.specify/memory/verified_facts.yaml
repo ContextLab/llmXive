@@ -1,0 +1,6 @@
+'|benjamini control correction fdr hochberg less level than used':
+  quote: "using the respective FDR procedures at level \u03B1 = 0.05. Compared to\
+    \ the classical FDR controlling"
+  source_id: '1706.08250'
+  url: https://arxiv.org/abs/1706.08250
+  value: '0.05'

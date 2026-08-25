@@ -1,56 +1,46 @@
-"""
-Project initialization script for PROJ-925-llmxive-follow-up-extending-lens-rethink.
-Creates the required directory structure as per the implementation plan.
-"""
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
-def main():
-    # Define the base project root relative to this script's location
-    # Assuming this script is at: projects/PROJ-925-.../code/setup_project.py
-    # We need to go up two levels to reach the project root
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-
-    # Define the required directories relative to the project root
-    required_dirs = [
-        "code/data",
+def create_structure(project_root: Path) -> None:
+    """
+    Creates the required directory structure for the project.
+    
+    Creates:
+    - data/raw
+    - data/processed
+    - code (already exists as parent)
+    - code/tests
+    - code/utils
+    - code/models
+    - docs
+    
+    Note: data/ and code/ are sibling directories at the project root.
+    """
+    directories = [
+        "data/raw",
+        "data/processed",
         "code/tests",
         "code/utils",
         "code/models",
-        "data/raw",
-        "data/processed",
-        "docs"
+        "docs",
     ]
-
-    created_count = 0
-    existing_count = 0
-
-    print(f"Initializing project structure at: {project_root}")
-
-    for dir_path in required_dirs:
+    
+    for dir_path in directories:
         full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            existing_count += 1
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path}")
 
-    print(f"Project structure initialization complete. Created: {created_count}, Existing: {existing_count}")
-
-    # Verification: List the created structure to stdout
-    print("\nVerifying directory structure:")
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
-        if full_path.exists():
-            print(f"  [OK] {full_path.relative_to(project_root)}")
-        else:
-            print(f"  [FAIL] {full_path.relative_to(project_root)}")
-            return 1
-
-    return 0
+def main() -> None:
+    """Main entry point for structure creation."""
+    # Determine project root (parent of code/ directory)
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent
+    
+    print(f"Project root: {project_root}")
+    create_structure(project_root)
+    print("Directory structure creation complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

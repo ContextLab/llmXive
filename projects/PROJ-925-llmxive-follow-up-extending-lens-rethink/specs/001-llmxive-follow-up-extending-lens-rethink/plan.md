@@ -117,7 +117,7 @@ No complexity violations identified. The plan strictly follows the CPU-first, te
   - **Multicollinearity Check**: Compute VIF for features.
 - **T031**: Fixed Iteration Count. Ensure $N=1,000$ permutations are used. No dynamic reduction.
 - **T033**: Sensitivity Analysis.
-  - **Threshold Sweep**: Repeat significance testing for a range of standard significance levels (e.g., $\alpha \in \{0.05, 0.1\}$).
+  - **Threshold Sweep**: Repeat significance testing for a range of standard significance levels (e.g., conventional thresholds).
   - **Data Variance**: Repeat training with different random seeds (e.g., multiple seeds) to assess stability.
   - **Output**: JSON file `results/stability_metrics.json` with `mean_rank` and `std_dev_rank` for each feature across sweeps.
 - **T042**: Noise Robustness Analysis (FR-008).

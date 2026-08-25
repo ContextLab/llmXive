@@ -1,4 +1,3 @@
-# Existing dependencies
 xgboost
 scikit-learn
 transformers
@@ -6,9 +5,10 @@ spacy
 datasets
 pandas
 numpy
-torch
 pydantic
 jsonschema
-
-# New dependencies for logging (standard library, no extra install needed)
-# No additional pip packages required for basic logging infrastructure
+torch
+ruff
+black
+pytest
+pytest-mock
