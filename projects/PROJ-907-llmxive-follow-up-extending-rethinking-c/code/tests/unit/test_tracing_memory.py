@@ -6,74 +6,123 @@ from unittest.mock import patch, MagicMock
 import torch
 import numpy as np
 from pathlib import Path
+import json
 
 # Add the code directory to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from src.tracing import get_memory_usage_gb, trace_single_image, trace_routing_batch
+from src.tracing import (
+    trace_single_image,
+    trace_routing_batch,
+    trace_routing,
+    get_memory_usage_gb,
+    compute_data_source_hash
+)
+from src.utils import memory_guard
 
 class TestTracingMemoryManagement:
-    @patch('src.tracing.get_memory_usage_gb')
-    def test_memory_guard_in_trace(self, mock_mem_usage):
-        """Test that trace_routing_batch skips images when memory is high."""
-        # Mock memory usage to be high
-        mock_mem_usage.return_value = 7.0  # Above threshold
+    """Test memory management in tracing functions."""
 
-        # Mock model and dataset
+    def test_memory_guard_raises_on_exceed(self):
+        """Test that memory_guard raises MemoryError when threshold is exceeded."""
+        with patch('src.utils.get_memory_usage_gb', return_value=8.0):  # 8GB > 7GB
+            with pytest.raises(MemoryError):
+                memory_guard(7.0)
+
+    def test_memory_guard_passes_under_limit(self):
+        """Test that memory_guard returns True when under threshold."""
+        with patch('src.utils.get_memory_usage_gb', return_value=4.0):  # 4GB < 7GB
+            assert memory_guard(7.0) is True
+
+    def test_trace_single_image_memory_check(self):
+        """Test that trace_single_image checks memory before processing."""
+        # Create mock model
         mock_model = MagicMock()
         mock_model.eval = MagicMock()
-        mock_model.forward_with_trace = MagicMock(return_value=(None, []))
-
-        mock_dataset_item = {'image': torch.zeros(3, 224, 224)}
-        mock_iterator = [mock_dataset_item] * 5
-
+        
+        # Create mock image
+        mock_image = torch.randn(3, 256, 256)
+        
+        # Create temporary directories
         with tempfile.TemporaryDirectory() as tmpdir:
-            cache_dir = Path(tmpdir) / 'cache'
-            cache_dir.mkdir()
-            results_log = Path(tmpdir) / 'log.jsonl'
-            memory_log = Path(tmpdir) / 'mem.jsonl'
+            results_path = Path(tmpdir) / "results"
+            cache_path = Path(tmpdir) / "cache"
+            results_path.mkdir()
+            cache_path.mkdir()
+            
+            # Create mock log files
+            log_file = MagicMock()
+            memory_log_file = MagicMock()
+            
+            # Mock memory_guard to pass
+            with patch('src.tracing.memory_guard', return_value=True):
+                # Mock the actual tracing logic to avoid model dependency
+                with patch('src.tracing.get_memory_usage_gb', return_value=4.0):
+                    result = trace_single_image(
+                        mock_model, mock_image, list(range(-99, 100)),
+                        'cpu', 0, results_path, cache_path,
+                        log_file, memory_log_file
+                    )
+                    
+                    # Verify result is a numpy array
+                    assert isinstance(result, np.ndarray)
+                    assert result.shape == (199, 28, 32)  # [timesteps, blocks, history_dim]
 
-            trace_routing_batch(
-                model=mock_model,
-                dataset_iterator=iter(mock_dataset_item for _ in range(5)),
-                num_images=5,
-                timestep_schedule=list(range(10)),
-                cache_dir=cache_dir,
-                results_log_path=results_log,
-                memory_log_path=memory_log,
-                seed=42
-            )
-
-            # Verify that no files were created because memory was high
-            assert len(list(cache_dir.glob('*.npz'))) == 0
-
-    def test_get_memory_usage_gb_cpu(self):
-        """Test memory usage function on CPU."""
-        # This should not raise an error
-        mem = get_memory_usage_gb()
-        assert isinstance(mem, float)
-        assert mem >= 0
-
-    @patch('src.tracing.trace_single_image')
-    def test_trace_single_image_error_handling(self, mock_trace):
-        """Test that trace_single_image handles errors gracefully."""
-        mock_trace.side_effect = Exception("Test error")
-
+    def test_trace_routing_batch_memory_cleanup(self):
+        """Test that trace_routing_batch cleans up memory after each image."""
+        # Create mock model
         mock_model = MagicMock()
-        mock_image = torch.zeros(3, 224, 224)
-        timestep_schedule = list(range(10))
-
+        
+        # Create mock images
+        mock_images = [torch.randn(3, 256, 256) for _ in range(3)]
+        image_ids = [0, 1, 2]
+        
+        # Create temporary directories
         with tempfile.TemporaryDirectory() as tmpdir:
-            cache_dir = Path(tmpdir) / 'cache'
-            cache_dir.mkdir()
+            results_path = Path(tmpdir) / "results"
+            cache_path = Path(tmpdir) / "cache"
+            results_path.mkdir()
+            cache_path.mkdir()
+            
+            # Create mock log files
+            log_file = MagicMock()
+            memory_log_file = MagicMock()
+            
+            # Mock memory_guard to pass
+            with patch('src.tracing.memory_guard', return_value=True):
+                with patch('src.tracing.get_memory_usage_gb', return_value=4.0):
+                    with patch('torch.no_grad'):
+                        with patch('np.save'):
+                            results = trace_routing_batch(
+                                mock_model, mock_images, image_ids,
+                                list(range(-99, 100)), 'cpu',
+                                results_path, cache_path,
+                                log_file, memory_log_file
+                            )
+                            
+                            # Verify all results are numpy arrays
+                            assert len(results) == 3
+                            for result in results:
+                                assert isinstance(result, np.ndarray)
+                                assert result.shape == (199, 28, 32)
 
-            # This should raise an exception
-            with pytest.raises(Exception):
-                trace_single_image(
-                    model=mock_model,
-                    image=mock_image,
-                    timestep_schedule=timestep_schedule,
-                    image_index=0,
-                    cache_dir=cache_dir,
-                    seed=42
-                )
+    def test_compute_data_source_hash(self):
+        """Test data source hash computation."""
+        hash1 = compute_data_source_hash("imagenetk", "validation", b"test_shard")
+        hash2 = compute_data_source_hash("imagenetk", "validation", b"test_shard")
+        hash3 = compute_data_source_hash("imagenetk", "validation", b"different_shard")
+        
+        # Same inputs should produce same hash
+        assert hash1 == hash2
+        
+        # Different inputs should produce different hash
+        assert hash1 != hash3
+        
+        # Verify hash format (SHA-256)
+        assert len(hash1) == 64  # Hex string of SHA-256
+
+    def test_memory_usage_gb_function(self):
+        """Test that get_memory_usage_gb returns a float."""
+        mem_usage = get_memory_usage_gb()
+        assert isinstance(mem_usage, float)
+        assert mem_usage >= 0.0

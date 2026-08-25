@@ -1,3 +1,13 @@
+T011:
+  c: false
+  h: 3d39a82fc4a62a01d38dba44fdeea648da5ab84bbd38e7a919714b3fb5fd9392
+  r: "The provided `tracing.py` stops after defining helper functions and does not\
+    \ contain the main logic to load SiT\u2011XL/2, iterate over the validation set\
+    \ with the specified fixed timestep schedule, enforce `memory_guard(7.0)`, save\
+    \ per\u2011image `.npy` files with the required 4\u2011D shape, or write the required\
+    \ JSON\u2011lines logs. Additionally, the expected log files `data/results/tracing_log.jsonl`\
+    \ and `data/results/memory_profile_raw.jsonl` are absent. The script therefore\
+    \ does not meet the task specifications."
 T012:
   c: false
   h: 9e7ebd7ac1b05f85a0b0dba4c44a44c6ade2108caf220452f7d0175eb46a7936
@@ -29,3 +39,9 @@ T018:
     static routing map cannot be loaded as the task demands. Consequently the implemented
     `static_model.py` cannot be instantiated with the needed static map, and the verification
     condition is not satisfied.
+T031c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a grep result, code diff, or updated source files) was provided
+    to demonstrate that all `print(` calls in `src/` have been removed and replaced
+    with logging. Without such evidence, the claim cannot be verified.

@@ -64,7 +64,7 @@ code/
 │   ├── benchmark.py         # FR-004, FR-005: Latency & FID (500 images per seed)
 │   ├── stats_analysis.py    # FR-006, FR-007: Bootstrap (n_resamples=1000) & Sensitivity
 │   └── utils/
-│       ├── memory_guard.py  # SC-005: RAM monitoring and explicit 7GB limit comparison
+│       ├── memory_guard.py  # SC-005: RAM monitoring and explicit storage limit comparison
 │       └── fid_utils.py     # FID calculation
 ├── data/
 │   ├── routing_cache/       # Intermediate tensors & maps (aggregated, not full 4D)
@@ -91,7 +91,7 @@ The following concerns from the previous iteration have been resolved in this pl
 5.  **Sensitivity Sweep (FR-007)**: The sweep will specifically target the `distance_threshold` used for the dominant cluster decision, outputting `sensitivity_sweep.json` with a list of objects keyed by threshold.
 6.  **Dependency Consistency**: `torchmetrics` removed from primary dependencies; `torchvision` used for Inception as per implementation.
 7.  **Task Logic Fixes**: The plan describes the *logic* (not the tasks) to ensure per-block preservation, explicit threshold sweeping, and correct artifact generation order.
-8.  **Sample Size & Statistical Rigor**: Benchmarking uses a substantial number of images per seed to reduce FID variance. N=5 seeds is acknowledged as low for parametric tests, but a paired t-test on the 500-image means is included as a sensitivity check.
+8.  **Sample Size & Statistical Rigor**: Benchmarking uses a substantial number of images per seed to reduce FID variance. N=5 seeds is acknowledged as low for parametric tests, but a paired t-test on the image means is included as a sensitivity check.
 9.  **Cross-Validation**: The static map is derived on Set A (a subset of images) and tested on Set B (a separate subset of images). to prove generalizability.
 10. **Control Analysis**: A specific control analysis measures the latency of the softmax vs. lookup to validate the claim of a substantial reduction in latency even if clustering is trivial timestep binning.
 11. **Weighted Clustering**: A weighted clustering approach handles the bias towards high-noise regions.

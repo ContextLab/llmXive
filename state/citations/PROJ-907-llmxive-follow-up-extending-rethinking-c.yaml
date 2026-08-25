@@ -1,14 +1,3 @@
-- artifact_hash: e6a3dd263ca099d8c21f3092a8cd233d6fb7a1d85be8f16800412133351f64df
-  artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-13T20:47:01.402468Z'
 - artifact_hash: f55991e008b888bb84e98c72d81abf26eda8d8e69b05b5ee8a0688219d0ac04e
   artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/research.md
   cite_id: c-001
@@ -31,3 +20,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/facebook/sit-xlarge-2
   verified_at: '2026-08-22T18:53:31.936445Z'
+- artifact_hash: 843c7d56aa9b9a52752b240f1366d5cde0167cba8c766437592840e38bf82a6a
+  artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-08-25T07:58:04.670220Z'
