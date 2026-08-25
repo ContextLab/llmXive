@@ -2,6 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T003** — The `pyproject.toml` correctly contains the `ruff` and `black` configuration, but the required artifact `data/logs/linting_config.json` does not exist, so the verification step is missing. The task remains incomplete until this log file is generated and saved.
-- **T015** — The required artifact `data/logs/orchestration_log.json` is missing, so the orchestration flow has not been documented or validated as specified. No evidence of the defined execution order, downstream task calls, schema validation, or adaptive batch sizing is provided. The implementer must create the JSON log file with the expected contents.
-- **T010a** — No evidence of the required `data/raw/vuldeepecker_*` files is provided; the response contains only task description and project specifications, with no actual downloaded dataset or file listings to verify that the VulDeePecker Python dataset was saved to `data/raw/`. The implementer must supply the downloaded files (or a directory listing) to satisfy the task definition.
+- **T004b** — declared artifact(s) missing/empty/invalid: src/utils/cpu_check.py, data/logs/cpu_check.json
+- **T011a** — declared artifact(s) missing/empty/invalid: data/logs/jsvulndb_mapping.json
+- **T027** — declared artifact(s) missing/empty/invalid: tests/unit/test_static_analyzer.py

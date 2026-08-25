@@ -3785,3 +3785,259 @@
   source_type: external
   status: verified
   updated_at: '2026-08-17T21:36:34Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: 'VulDeePecker dataset source: VulDeePecker/VulDeePecker'
+  claim_id: c_b0148a73
+  context: 'T010a-Impl Implement VulDeePecker Downloader: Add src/data/ingest.py::download_vuldeepecker().
+    Fetch VulDeePecker via datasets.load_dataset(''VulDeePecker/VulDeePecker'') or
+    fallback wget URL.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VulDeePecker_dataset_source:_VulDeePecker/VulDeePecker
+  kind: entity_fact
+  raw_text: Fetch VulDeePecker via datasets.load_dataset('VulDeePecker/VulDeePecker')
+    or fallback wget URL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:04:56Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: 'Reference pattern embeddings model: sentence-transformers/all-MiniLM-L-v2'
+  claim_id: c_5f98bf68
+  context: 'T019b-Impl Implement Pattern Curation: Filter NVD for keywords, generate
+    embeddings using sentence-transformers/all-MiniLM-L-v2, and save to data/processed/reference_patterns.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reference_pattern_embeddings_model:_sentence-transformers/al
+  kind: entity_fact
+  raw_text: Generate embeddings using sentence-transformers/all-MiniLM-L-v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:05:40Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: 'Target snippet embeddings model: sentence-transformers/all-MiniLM-L6-v2'
+  claim_id: c_2e845120
+  context: 'T019c-Pre-Impl Implement Target Snippet Embedding: Create src/data/feature_extractor.py::embed_target_snippets()
+    to generate embeddings for every snippet in data/processed/sampled_snippets.parquet
+    using sentence-transformers/all-MiniLM-L6-v2.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_snippet_embeddings_model:_sentence-transformers/all-M
+  kind: entity_fact
+  raw_text: Generate embeddings for every snippet using sentence-transformers/all-MiniLM-L6-v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:06:13Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: 'Independent secondary labeled dataset size: 100 samples'
+  claim_id: c_79b155c2
+  context: 'T036-Impl Acquire Independent Secondary Labeled Dataset: Download a vetted
+    secondary ground-truth dataset (e.g., a curated subset of the ''CVE-Annotated
+    Code'' corpus) containing exactly n=100 samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download a vetted secondary ground-truth dataset containing exactly n=100
+    samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:06:49Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: VulDeePecker dataset available via datasets.load_dataset
+  claim_id: c_25ae0401
+  context: 'T010a-Impl Implement VulDeePecker Downloader: Add src/data/ingest.py::download_vuldeepecker().
+    Fetch VulDeePecker via datasets.load_dataset(''VulDeePecker/VulDeePecker'') or
+    fallback wget URL.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VulDeePecker_dataset_available_via_datasets.load_dataset
+  kind: entity_fact
+  raw_text: Fetch VulDeePecker via datasets.load_dataset('VulDeePecker/VulDeePecker')
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:10:44Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L-v2 used for embedding generation
+  claim_id: c_071938aa
+  context: 'T019b-Impl Implement Pattern Curation: Filter NVD for keywords, generate
+    embeddings using sentence-transformers/all-MiniLM-L-v2, and save to data/processed/reference_patterns.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sentence-transformers/all-MiniLM-L-v2_used_for_embedding_gen
+  kind: entity_fact
+  raw_text: Generate embeddings using sentence-transformers/all-MiniLM-L-v2
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:10:49Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 used for target snippet embeddings
+  claim_id: c_b7ae0872
+  context: 'T019c-Pre-Impl Implement Target Snippet Embedding: Create src/data/feature_extractor.py::embed_target_snippets()
+    to generate embeddings for every snippet... using sentence-transformers/all-MiniLM-L6-v2.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 for target snippet embeddings
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T05:11:29Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Secondary ground-truth dataset contains exactly 100 samples
+  claim_id: c_f9368434
+  context: 'T036-Impl Acquire Independent Secondary Labeled Dataset: Download a vetted
+    secondary ground-truth dataset... containing exactly n=100 samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download a vetted secondary ground-truth dataset containing exactly n=100
+    samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:11:29Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Stratified sampling limit is 5000 samples
+  claim_id: c_7b7879b7
+  context: "T012b-Impl Implement Stratified Sampler: Add src/data/ingest.py::sample_stratified()\
+    \ to perform stratified sampling (\u2264 5 000 samples) by language AND vulnerability\
+    \ type (CWE category)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform stratified sampling of <= 5 000 samples by language AND vulnerability
+    type
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:12:10Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Inference time budget is 4.32 seconds per sample
+  claim_id: c_280835c5
+  context: 'T013-Impl Implement Zero-Shot Inference Service: If any sample exceeds
+    4.32 s, abort and fall back to a smaller fallback model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort and fall back to a smaller fallback model if any sample exceeds
+    4.32 s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:12:41Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Inference time budget is 4320 milliseconds
+  claim_id: c_7019b748
+  context: "T013g-Impl Enforce Per-Sample Time Budget: Create src/utils/inference_time_check.py\
+    \ that reads data/results/llm_predictions_raw.json, asserts every inference_time_ms\
+    \ \u2264 4 320 ms."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert every inference_time_ms <= 4 320 ms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:13:09Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Independence check aborts if overlap exceeds 5 percent
+  claim_id: c_92c7d18f
+  context: 'T019pre-Impl Pre-Verify Reference Set Independence: Compare its CVE IDs
+    against all IDs in the three training datasets. Abort if overlap > 5% and log
+    to data/logs/reference_independence_check.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if overlap > 5% between NVD CVE IDs and training dataset IDs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:13:09Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Stratification bias threshold is 5 percent
+  claim_id: c_97def68e
+  context: 'T012b-1-Impl Implement Verification & Cap Enforcer: ...ensure proportional
+    representation... and enforce the 5 000 cap; if bias > 5 % reduce sample size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce sample size if bias > 5% in stratification verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:13:10Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Regression metrics include McFadden's Pseudo R2 and Nagelkerke adjusted
+    R2
+  claim_id: c_185814c4
+  context: "T030-Impl Implement Logistic Regression: ...Compute McFadden's Pseudo\
+    \ R\xB2 and Nagelkerke adjusted R\xB2."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_metrics_include_McFadden's_Pseudo_R2_and_Nagelker
+  kind: entity_fact
+  raw_text: "Compute McFadden's Pseudo R\xB2 and Nagelkerke adjusted R\xB2"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T05:13:58Z'

@@ -14,7 +14,7 @@ This project implements a reproducible pipeline to evaluate the zero-shot effect
 **Primary Dependencies**: `datasets` (HuggingFace), `transformers` (CPU-optimized), `scikit-learn`, `networkx` (AST analysis), `tree-sitter`, `bandit`, `cppcheck`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/logs`); no external DB.  
 **Testing**: `pytest` (unit/integration), `jsonschema` (contract validation).  
-**Target Platform**: GitHub Actions Free Tier (2 CPU, 7GB RAM, no GPU) with optional Kaggle GPU offload for embedding generation if CPU fails.  
+**Target Platform**: GitHub Actions Free Tier (CPU, 7GB RAM, no GPU) with optional Kaggle GPU offload for embedding generation if CPU fails.  
 **Project Type**: Data Science / Research Pipeline  
 **Performance Goals**: Complete [deferred] samples in ≤6 hours; per-sample inference ≤4.32s.
 **Constraints**: CPU-only inference; no internet access for gated data; strict memory limits (≤7GB).  
