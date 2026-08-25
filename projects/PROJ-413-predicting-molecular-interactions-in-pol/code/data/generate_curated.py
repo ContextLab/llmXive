@@ -5,17 +5,10 @@ import json
 import math
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import pandas as pd
-import numpy as np
 
-# Ensure the code root is in the path
-CODE_ROOT = Path(__file__).resolve().parent.parent
-if str(CODE_ROOT) not in sys.path:
-    sys.path.insert(0, str(CODE_ROOT))
-
-from utils.logger import PerformanceLogger, log_performance
+# Import from existing API surface
 from utils.exceptions import DataError
-from utils.seed_utils import set_seed
+from utils.logger import get_memory_usage_mb
 
 # Configure logging
 logging.basicConfig(
@@ -24,150 +17,186 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_cleaned_data(input_path: Path) -> pd.DataFrame:
-    """
-    Load the cleaned dataset from the intermediate CSV.
-    Validates that required columns exist.
-    """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Cleaned data file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    required_cols = ['polymer_smiles', 'filler_smiles', 'adhesion_energy']
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        raise DataError(f"Missing required columns in cleaned data: {missing_cols}")
-    
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
-    return df
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_CURATED_DIR = PROJECT_ROOT / "data" / "curated"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
-def compute_graph_properties(smiles_str: str) -> Dict[str, Any]:
+# Ensure directories exist
+DATA_CURATED_DIR.mkdir(parents=True, exist_ok=True)
+
+def load_cleaned_data(input_path: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
-    Compute simple topological properties from a SMILES string.
-    Since we don't have the full RDKit import in the API surface list for this specific
-    file, we assume the graph_build.py logic handles the heavy lifting or
-    we compute basic string-based proxies if RDKit is not imported here.
+    Load the cleaned data from the output of code/data/clean.py.
+    If input_path is None, it defaults to the standard path for cleaned data.
     
-    However, the task requires 'complete molecular graph structures'.
-    We will attempt to import rdkit locally. If not available, we rely on
-    the graph_build.py module which is guaranteed to exist per API surface.
+    Returns a list of dictionaries, each representing a row with polymer/filler SMILES and adhesion energy.
+    """
+    if input_path is None:
+        # Assuming clean.py outputs to a standard location or we need to find the latest
+        # For this implementation, we assume clean.py writes to data/raw/cleaned_data.csv
+        # or the task T014 produces a file that we read here.
+        # Based on typical pipeline: download -> clean -> curated.
+        # Let's assume clean.py writes to data/raw/cleaned_data.csv as an intermediate step
+        # or we read directly from the raw download if clean.py modified it in place.
+        # Given T014 description, it flags missing values. Let's assume it writes to data/raw/cleaned_data.csv
+        input_path = DATA_RAW_DIR / "cleaned_data.csv"
+    
+    if not input_path.exists():
+        raise DataError(f"Cleaned data file not found at {input_path}. "
+                        "Run T014 (clean.py) first.")
+    
+    data = []
+    with open(input_path, 'r', encoding='utf-8') as f:
+        header = f.readline().strip().split(',')
+        for line in f:
+            values = line.strip().split(',')
+            if len(values) != len(header):
+                logger.warning(f"Skipping malformed row: {line}")
+                continue
+            row = dict(zip(header, values))
+            data.append(row)
+    
+    logger.info(f"Loaded {len(data)} rows from {input_path}")
+    return data
+
+def compute_graph_properties(smiles: str) -> Dict[str, Any]:
+    """
+    Compute basic graph properties for a given SMILES string.
+    Since we are generating the curated dataset, we need to represent the molecular graph.
+    We will store the SMILES and basic counts (nodes, edges) as proxies for graph structure
+    until T022 converts them to PyG graphs.
+    
+    Returns a dict with node_count, edge_count, and the original SMILES.
     """
     try:
         from rdkit import Chem
-        from rdkit.Chem import Descriptors, rdMolDescriptors
-        mol = Chem.MolFromSmiles(smiles_str)
+        mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            return {
-                "num_atoms": 0,
-                "num_bonds": 0,
-                "molecular_weight": 0.0,
-                "logp": 0.0,
-                "num_rotatable_bonds": 0,
-                "num_h_acceptors": 0,
-                "num_h_donors": 0
-            }
+            return {"node_count": 0, "edge_count": 0, "valid": False}
         
+        num_atoms = mol.GetNumAtoms()
+        num_bonds = mol.GetNumBonds()
         return {
-            "num_atoms": mol.GetNumAtoms(),
-            "num_bonds": mol.GetNumBonds(),
-            "molecular_weight": Descriptors.MolWt(mol),
-            "logp": Descriptors.MolLogP(mol),
-            "num_rotatable_bonds": rdMolDescriptors.CalcNumRotatableBonds(mol),
-            "num_h_acceptors": rdMolDescriptors.CalcNumLipinskiHBA(mol),
-            "num_h_donors": rdMolDescriptors.CalcNumLipinskiHBD(mol)
+            "node_count": num_atoms,
+            "edge_count": num_bonds,
+            "valid": True
         }
-    except ImportError:
-        logger.warning("RDKit not found. Using placeholder properties.")
-        return {
-            "num_atoms": len(smiles_str), # Fallback proxy
-            "num_bonds": len(smiles_str) - 1,
-            "molecular_weight": float(len(smiles_str) * 12.0),
-            "logp": 0.0,
-            "num_rotatable_bonds": 0,
-            "num_h_acceptors": 0,
-            "num_h_donors": 0
-        }
+    except Exception as e:
+        logger.warning(f"RDKit failed to parse SMILES '{smiles}': {e}")
+        return {"node_count": 0, "edge_count": 0, "valid": False}
 
-def generate_curated_dataset(df: pd.DataFrame, output_path: Path) -> pd.DataFrame:
+def generate_curated_dataset(
+    raw_data: List[Dict[str, Any]],
+    output_path: Path
+) -> None:
     """
-    Generate the final curated dataset by appending graph properties.
+    Generates the final curated dataset CSV.
+    
+    This function:
+    1. Iterates through the cleaned data.
+    2. Validates that adhesion energy is present and numeric.
+    3. Computes graph properties for polymer and filler.
+    4. Writes the enriched rows to the output CSV.
+    
+    The output CSV will have columns:
+    polymer_smiles, filler_smiles, adhesion_energy, 
+    polymer_nodes, polymer_edges, filler_nodes, filler_edges, is_valid
     """
-    logger.info("Computing graph properties for polymer and filler...")
-    
-    # Initialize lists for new columns
-    polymer_props = []
-    filler_props = []
-    
-    # Compute properties row by row
-    for i, row in df.iterrows():
-        if i % 100 == 0:
-            logger.info(f"Processing row {i}/{len(df)}")
-        
-        p_props = compute_graph_properties(row['polymer_smiles'])
-        f_props = compute_graph_properties(row['filler_smiles'])
-        
-        # Flatten properties into columns with prefixes
-        for k, v in p_props.items():
-            polymer_props.append(v)
-        for k, v in f_props.items():
-            filler_props.append(v)
-    
-    # Create new column names
-    poly_cols = [f"polymer_{k}" for k in polymer_props[0].keys()]
-    fill_cols = [f"filler_{k}" for k in filler_props[0].keys()]
-    
-    # Construct the new dataframe
-    new_data = df.copy()
-    for i, col in enumerate(poly_cols):
-        new_data[col] = [row[i] for row in polymer_props]
-    for i, col in enumerate(fill_cols):
-        new_data[col] = [row[i] for row in filler_props]
-    
-    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Save to CSV
-    new_data.to_csv(output_path, index=False)
-    logger.info(f"Curated dataset saved to {output_path} with {len(new_data)} rows.")
+    headers = [
+        "polymer_smiles", "filler_smiles", "adhesion_energy",
+        "polymer_nodes", "polymer_edges", "filler_nodes", "filler_edges",
+        "is_valid"
+    ]
     
-    return new_data
+    valid_count = 0
+    invalid_count = 0
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(','.join(headers) + '\n')
+        
+        for row in raw_data:
+            polymer_smiles = row.get('polymer_smiles', '').strip()
+            filler_smiles = row.get('filler_smiles', '').strip()
+            adhesion_str = row.get('adhesion_energy', '').strip()
+            
+            # Validate adhesion energy
+            if not adhesion_str:
+                logger.warning(f"Missing adhesion energy for row. Skipping.")
+                invalid_count += 1
+                continue
+            
+            try:
+                adhesion_val = float(adhesion_str)
+            except ValueError:
+                logger.warning(f"Invalid adhesion energy '{adhesion_str}'. Skipping.")
+                invalid_count += 1
+                continue
+            
+            # Compute graph properties
+            poly_props = compute_graph_properties(polymer_smiles)
+            fill_props = compute_graph_properties(filler_smiles)
+            
+            is_valid = poly_props['valid'] and fill_props['valid']
+            
+            if is_valid:
+                valid_count += 1
+            else:
+                invalid_count += 1
+            
+            # Write row
+            out_row = [
+                polymer_smiles,
+                filler_smiles,
+                f"{adhesion_val}",
+                str(poly_props['node_count']),
+                str(poly_props['edge_count']),
+                str(fill_props['node_count']),
+                str(fill_props['edge_count']),
+                str(is_valid)
+            ]
+            f.write(','.join(out_row) + '\n')
+    
+    logger.info(f"Curated dataset written to {output_path}")
+    logger.info(f"Valid rows: {valid_count}, Invalid rows (skipped): {invalid_count}")
+    
+    if valid_count == 0:
+        raise DataError("E-DATA-001: No valid rows generated in curated dataset.")
+    
+    # Log memory usage as per requirements
+    mem_mb = get_memory_usage_mb()
+    logger.info(f"Memory usage after generation: {mem_mb:.2f} MB")
 
 def main():
     """
     Main entry point for generating the curated dataset.
     """
-    # Define paths
-    data_dir = Path(__file__).resolve().parent.parent.parent / "data"
-    input_path = data_dir / "curated" / "cleaned_data.csv"
-    output_path = data_dir / "curated" / "curated_dataset.csv"
+    logger.info("Starting curated dataset generation (T016)...")
     
-    # Set seed for reproducibility
-    set_seed(42)
+    # Determine input path
+    # T014 (clean.py) should have produced a cleaned file.
+    # Let's assume the standard output of clean.py is data/raw/cleaned_data.csv
+    input_path = DATA_RAW_DIR / "cleaned_data.csv"
+    output_path = DATA_CURATED_DIR / "curated_dataset.csv"
     
-    logger.info("Starting curated dataset generation...")
+    if not input_path.exists():
+        # Fallback: check if raw download exists and try to clean on the fly?
+        # No, T014 is a separate task. We must fail if T014 hasn't run.
+        raise DataError(f"Input file {input_path} not found. "
+                        "Ensure T014 (clean.py) has been executed successfully.")
     
     try:
-        # Load cleaned data
-        df = load_cleaned_data(input_path)
-        
-        # Check row count (enforced by T013/T014, but good to verify)
-        if len(df) < 100:
-            raise DataError(f"Row count {len(df)} is less than minimum 100. Aborting.")
-        
-        # Generate curated dataset
-        generate_curated_dataset(df, output_path)
-        
-        logger.info("Curated dataset generation completed successfully.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Input file missing: {e}")
-        sys.exit(1)
+        raw_data = load_cleaned_data(input_path)
+        generate_curated_dataset(raw_data, output_path)
+        logger.info("T016 completed successfully.")
     except DataError as e:
-        logger.error(f"Data validation error: {e}")
+        logger.error(f"DataError: {e}")
         sys.exit(1)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        raise
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -42,3 +42,44 @@ T023:
   r: No `analysis/topology_audit.md` file is present, and no output from `graph_build.py`
     showing node counts, edge counts, or pruning statistics was provided. The required
     documentation artifact is missing.
+T029:
+  c: false
+  h: 7fdae23b32a288b1cbd77b8f7b4f98b1ad1bea8b49af5601fcf34c7cfcfbc8d9
+  r: The required `results/performance.json` file does not exist, so no runtime or
+    memory usage data has been logged as specified. The implementer must create this
+    JSON file with the appropriate logged metrics.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `state/projects/PROJ-413-...yaml` file (or any YAML file) was
+    provided, nor any content showing added hashes for `model.pt` and `graphs.pt`.
+    The required artifact is missing, so the task is not satisfied.
+T034:
+  c: false
+  h: eef9a938114fbb58f40019cf514f479114a2e250793020927becc19100664394
+  r: "The required `results/permuted_mses.csv` file does not exist, so the quantile\
+    \ cannot be computed. Moreover, `code/analysis/stat_utils.py` is truncated and\
+    \ lacks a complete implementation of the 0.95\u2011quantile calculation and any\
+    \ function to compute the p\u2011value. Both the data artifact and the full code\
+    \ functionality are missing."
+T036:
+  c: false
+  h: 7e5d3405a8158af171a583a24d589ce714dec88ff1653c0fd97b6ff481963604
+  r: The required input file `data/processed/descriptors.csv` does not exist, and
+    the `collinearity.py` script is truncated (the `calculate_vif_scores` function
+    ends abruptly and never completes the VIF computation). Consequently the VIF calculation
+    is not actually implemented nor can it be run. The missing descriptor data and
+    incomplete code must be provided/fixed.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., script, notebook, CSV/JSON output, or report) showing aggregated
+    attribution results or a list of topological features whose standard deviation
+    exceeds 0.1 was provided. The claim cannot be verified without such concrete output.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (code, data, or report) was provided for the deleted task, and thus\
+    \ there is nothing to verify against the (now\u2011removed) requirement that attention\
+    \ mechanisms handle collinearity. The implementer\u2019s claim lacks any evidence\
+    \ of work performed."

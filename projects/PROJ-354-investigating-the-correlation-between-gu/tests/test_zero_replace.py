@@ -1,310 +1,148 @@
-"""
-Unit tests for Bayesian-multiplicative zero-replacement functionality.
-
-These tests verify:
-1. Correct estimation of zero-replacement parameters
-2. Proper application of Bayesian-multiplicative replacement
-3. Handling of edge cases (all zeros, no zeros, etc.)
-4. Integration with the pipeline
-"""
-
 import pytest
-import numpy as np
 import pandas as pd
+import numpy as np
 from pathlib import Path
-import tempfile
+import sys
 import os
 
-# Import the functions to test
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from code.zero_replace import (
     estimate_zero_replacement_params,
     bayesian_multiplicative_replace,
-    process_batch,
-    run_zero_replacement_pipeline
+    process_batch
 )
 from code.utils.logging import PreprocessingError
 
+class TestZeroReplacement:
+    """Test suite for Bayesian-multiplicative zero replacement."""
 
-class TestZeroReplacementParams:
-    """Tests for parameter estimation."""
-    
-    def test_estimate_params_basic(self):
-        """Test parameter estimation on basic data."""
-        # Create test data with some zeros
+    @pytest.fixture
+    def sample_counts_with_zeros(self):
+        """Create a sample dataframe with known zeros for testing."""
         data = {
-            'taxon_a': [10, 0, 20, 0, 15],
-            'taxon_b': [5, 8, 0, 12, 0],
-            'taxon_c': [0, 0, 0, 0, 0]  # All zeros
+            'taxon_A': [10, 0, 50, 0, 100],
+            'taxon_B': [0, 20, 0, 40, 0],
+            'taxon_C': [30, 30, 30, 30, 30],  # No zeros
+            'participant_id': ['P1', 'P2', 'P3', 'P4', 'P5']
         }
-        df = pd.DataFrame(data)
-        taxon_cols = ['taxon_a', 'taxon_b', 'taxon_c']
-        
-        params = estimate_zero_replacement_params(df, taxon_cols)
-        
-        # Check that parameters are returned
+        return pd.DataFrame(data)
+
+    @pytest.fixture
+    def sample_counts_all_nonzero(self):
+        """Create a sample dataframe with no zeros."""
+        data = {
+            'taxon_A': [10, 20, 30, 40, 50],
+            'taxon_B': [15, 25, 35, 45, 55],
+            'taxon_C': [5, 15, 25, 35, 45]
+        }
+        return pd.DataFrame(data)
+
+    def test_estimate_params_calculates_geometric_means(self, sample_counts_with_zeros):
+        """Test that geometric means are calculated correctly for non-zero values."""
+        params = estimate_zero_replacement_params(sample_counts_with_zeros)
+
+        # Check delta is set
+        assert 'delta' in params
+        assert params['delta'] == 0.65
+
+        # Check geometric means are calculated
         assert 'geometric_means' in params
-        assert 'zero_proportions' in params
-        assert 'alpha' in params
-        
-        # Check geometric means (for non-zero taxa)
-        assert 'taxon_a' in params['geometric_means']
-        assert 'taxon_b' in params['geometric_means']
-        assert 'taxon_c' in params['geometric_means']
-        
-        # Check zero proportions
-        assert abs(params['zero_proportions']['taxon_a'] - 0.4) < 0.01
-        assert abs(params['zero_proportions']['taxon_b'] - 0.4) < 0.01
-        assert abs(params['zero_proportions']['taxon_c'] - 1.0) < 0.01
-        
-        # Check alpha is reasonable
-        assert 0 < params['alpha'] <= 0.5
-    
-    def test_estimate_params_empty_dataframe(self):
-        """Test parameter estimation on empty DataFrame."""
-        df = pd.DataFrame()
-        taxon_cols = ['taxon_a', 'taxon_b']
-        
-        with pytest.raises(ValueError):
-            estimate_zero_replacement_params(df, taxon_cols)
-    
-    def test_estimate_params_no_taxa(self):
-        """Test parameter estimation with empty taxon list."""
-        df = pd.DataFrame({'taxon_a': [1, 2, 3]})
-        
-        with pytest.raises(ValueError):
-            estimate_zero_replacement_params(df, [])
-    
-    def test_estimate_params_missing_columns(self):
-        """Test parameter estimation with missing taxon columns."""
-        df = pd.DataFrame({'taxon_a': [1, 2, 3]})
-        taxon_cols = ['taxon_a', 'taxon_b', 'taxon_c']
-        
-        params = estimate_zero_replacement_params(df, taxon_cols)
-        
-        # Should only estimate for existing columns
-        assert 'taxon_a' in params['geometric_means']
-        # Missing columns should be handled gracefully
-        assert 'taxon_b' in params['geometric_means']  # Default value
-        assert 'taxon_c' in params['geometric_means']  # Default value
+        geo_means = params['geometric_means']
 
+        # Taxon A: non-zero values are [10, 50, 100]
+        # Geometric mean = (10 * 50 * 100)^(1/3) = 50000^(1/3) ≈ 36.84
+        expected_A = np.exp(np.mean(np.log([10, 50, 100])))
+        assert abs(geo_means['taxon_A'] - expected_A) < 1e-6
 
-class TestBayesianMultiplicativeReplace:
-    """Tests for the zero-replacement function."""
-    
-    def test_replace_zeros_basic(self):
-        """Test zero replacement on basic data."""
-        data = {
-            'taxon_a': [10, 0, 20, 0, 15],
-            'taxon_b': [5, 8, 0, 12, 0],
-            'taxon_c': [1, 2, 3, 4, 5]
-        }
-        df = pd.DataFrame(data)
-        taxon_cols = ['taxon_a', 'taxon_b', 'taxon_c']
-        
-        # Apply replacement
-        df_replaced = bayesian_multiplicative_replace(df, taxon_cols)
-        
-        # Check that no zeros remain
-        assert (df_replaced[taxon_cols] == 0).sum().sum() == 0
-        
-        # Check that all values are positive
-        assert (df_replaced[taxon_cols] > 0).all().all()
-        
-        # Check that original non-zero values are approximately preserved
-        # (they may be slightly scaled down)
-        original_non_zeros = df[taxon_cols][df[taxon_cols] > 0]
-        replaced_non_zeros = df_replaced[taxon_cols][df[taxon_cols] > 0]
-        
-        # The ratio should be close to 1 (allowing for scaling)
-        ratios = replaced_non_zeros / original_non_zeros
-        assert (ratios > 0).all().all()
-    
-    def test_replace_all_zeros(self):
-        """Test replacement when all values are zero."""
-        data = {
-            'taxon_a': [0, 0, 0],
-            'taxon_b': [0, 0, 0]
-        }
-        df = pd.DataFrame(data)
-        taxon_cols = ['taxon_a', 'taxon_b']
-        
-        df_replaced = bayesian_multiplicative_replace(df, taxon_cols)
-        
-        # Should have no zeros
-        assert (df_replaced[taxon_cols] == 0).sum().sum() == 0
-        
-        # All values should be positive
-        assert (df_replaced[taxon_cols] > 0).all().all()
-    
-    def test_replace_no_zeros(self):
-        """Test replacement when there are no zeros."""
-        data = {
-            'taxon_a': [10, 20, 30],
-            'taxon_b': [5, 15, 25]
-        }
-        df = pd.DataFrame(data)
-        taxon_cols = ['taxon_a', 'taxon_b']
-        
-        df_replaced = bayesian_multiplicative_replace(df, taxon_cols)
-        
-        # Values should be very close to original (only scaled)
-        np.testing.assert_array_almost_equal(
-            df_replaced[taxon_cols].values,
-            df[taxon_cols].values,
-            decimal=5
-        )
-    
-    def test_replace_with_custom_alpha(self):
-        """Test replacement with custom alpha parameter."""
-        data = {
-            'taxon_a': [10, 0, 20],
-            'taxon_b': [5, 0, 15]
-        }
-        df = pd.DataFrame(data)
-        taxon_cols = ['taxon_a', 'taxon_b']
-        
-        # Test with different alpha values
-        df_alpha1 = bayesian_multiplicative_replace(df, taxon_cols, alpha=0.1)
-        df_alpha2 = bayesian_multiplicative_replace(df, taxon_cols, alpha=0.5)
-        
-        # Different alpha should produce different results
-        assert not df_alpha1.equals(df_alpha2)
-        
-        # Higher alpha should result in larger replacements for zeros
-        zero_rows = df[taxon_cols].eq(0).any(axis=1)
-        replacement_diff = (df_alpha2.loc[zero_rows, taxon_cols] - 
-                          df_alpha1.loc[zero_rows, taxon_cols]).mean()
-        assert replacement_diff > 0  # Higher alpha -> larger replacements
-    
-    def test_replace_invalid_columns(self):
-        """Test replacement with invalid column names."""
-        data = {
-            'taxon_a': [10, 20, 30]
-        }
-        df = pd.DataFrame(data)
-        taxon_cols = ['taxon_a', 'nonexistent']
-        
-        with pytest.raises(PreprocessingError):
-            bayesian_multiplicative_replace(df, taxon_cols)
-    
-    def test_replace_empty_dataframe(self):
-        """Test replacement on empty DataFrame."""
-        df = pd.DataFrame()
-        taxon_cols = ['taxon_a', 'taxon_b']
-        
-        result = bayesian_multiplicative_replace(df, taxon_cols)
-        
+        # Taxon B: non-zero values are [20, 40]
+        # Geometric mean = (20 * 40)^(1/2) = 800^(1/2) ≈ 28.28
+        expected_B = np.exp(np.mean(np.log([20, 40])))
+        assert abs(geo_means['taxon_B'] - expected_B) < 1e-6
+
+        # Taxon C: all values are 30
+        assert abs(geo_means['taxon_C'] - 30.0) < 1e-6
+
+    def test_bayesian_replacement_replaces_zeros(self, sample_counts_with_zeros):
+        """Test that zeros are replaced with small positive values."""
+        params = estimate_zero_replacement_params(sample_counts_with_zeros)
+        result = bayesian_multiplicative_replace(sample_counts_with_zeros, params)
+
+        # Check no zeros remain
+        numeric_cols = result.select_dtypes(include=[np.number]).columns
+        for col in numeric_cols:
+            assert (result[col] == 0).sum() == 0, f"Zeros still present in {col}"
+
+        # Check non-zero values are preserved
+        assert result.loc[0, 'taxon_A'] == 10
+        assert result.loc[2, 'taxon_A'] == 50
+
+        # Check that replaced values are positive and small
+        # Taxon A, row 1 was 0, should be delta * geo_mean
+        expected_replacement_A = 0.65 * params['geometric_means']['taxon_A']
+        assert result.loc[1, 'taxon_A'] == expected_replacement_A
+
+    def test_bayesian_replacement_preserves_non_zeros(self, sample_counts_all_nonzero):
+        """Test that non-zero values are not modified."""
+        params = estimate_zero_replacement_params(sample_counts_all_nonzero)
+        result = bayesian_multiplicative_replace(sample_counts_all_nonzero, params)
+
+        # All values should be identical
+        pd.testing.assert_frame_equal(result, sample_counts_all_nonzero)
+
+    def test_replacement_values_are_positive(self, sample_counts_with_zeros):
+        """Test that all replacement values are positive."""
+        params = estimate_zero_replacement_params(sample_counts_with_zeros)
+        result = bayesian_multiplicative_replace(sample_counts_with_zeros, params)
+
+        numeric_cols = result.select_dtypes(include=[np.number]).columns
+        for col in numeric_cols:
+            assert (result[col] > 0).all(), f"Non-positive values found in {col}"
+
+    def test_process_batch_function(self, sample_counts_with_zeros):
+        """Test the process_batch helper function."""
+        params = estimate_zero_replacement_params(sample_counts_with_zeros)
+        result = process_batch(sample_counts_with_zeros, params)
+
+        # Should be same as bayesian_multiplicative_replace
+        expected = bayesian_multiplicative_replace(sample_counts_with_zeros, params)
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_empty_dataframe_handling(self):
+        """Test handling of empty dataframes."""
+        empty_df = pd.DataFrame()
+        params = {'delta': 0.65, 'geometric_means': {}}
+
+        result = bayesian_multiplicative_replace(empty_df, params)
         assert result.empty
 
-
-class TestProcessBatch:
-    """Tests for batch processing."""
-    
-    def test_process_batch_basic(self):
-        """Test basic batch processing."""
+    def test_all_zero_column_handling(self):
+        """Test handling of a column with all zeros."""
         data = {
-            'taxon_a': [10, 0, 20, 0],
-            'taxon_b': [5, 8, 0, 12]
-        }
-        batch_df = pd.DataFrame(data)
-        taxon_cols = ['taxon_a', 'taxon_b']
-        
-        processed = process_batch(batch_df, taxon_cols)
-        
-        # Should have no zeros
-        assert (processed[taxon_cols] == 0).sum().sum() == 0
-        
-        # Should have same shape
-        assert processed.shape == batch_df.shape
-    
-    def test_process_batch_with_params(self):
-        """Test batch processing with pre-computed parameters."""
-        data = {
-            'taxon_a': [10, 0, 20],
-            'taxon_b': [5, 0, 15]
-        }
-        batch_df = pd.DataFrame(data)
-        taxon_cols = ['taxon_a', 'taxon_b']
-        
-        # Estimate params first
-        params = estimate_zero_replacement_params(batch_df, taxon_cols)
-        
-        # Process with params
-        processed = process_batch(batch_df, taxon_cols, params=params)
-        
-        # Should have no zeros
-        assert (processed[taxon_cols] == 0).sum().sum() == 0
-
-
-class TestZeroReplacementPipeline:
-    """Tests for the full pipeline."""
-    
-    def test_pipeline_basic(self):
-        """Test basic pipeline execution."""
-        # Create test data
-        data = {
-            'eids': [1, 2, 3, 4, 5],
-            'taxon_a': [10, 0, 20, 0, 15],
-            'taxon_b': [5, 8, 0, 12, 0],
-            'taxon_c': [1, 2, 3, 4, 5]
+            'taxon_A': [0, 0, 0, 0, 0],
+            'taxon_B': [10, 20, 30, 40, 50]
         }
         df = pd.DataFrame(data)
-        
-        # Create temporary files
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.parquet'
-            output_path = Path(tmpdir) / 'output.parquet'
-            
-            # Save input
-            df.to_parquet(input_path)
-            
-            # Run pipeline
-            result_path = run_zero_replacement_pipeline(
-                input_path=str(input_path),
-                output_path=str(output_path),
-                taxon_columns=['taxon_a', 'taxon_b', 'taxon_c'],
-                use_streaming=False
-            )
-            
-            # Check output exists
-            assert Path(result_path).exists()
-            
-            # Load and verify
-            result_df = pd.read_parquet(result_path)
-            
-            # Should have no zeros in taxon columns
-            assert (result_df[['taxon_a', 'taxon_b', 'taxon_c']] == 0).sum().sum() == 0
-            
-            # Should have same number of rows
-            assert len(result_df) == len(df)
-    
-    def test_pipeline_infer_taxa(self):
-        """Test pipeline with automatic taxon column inference."""
-        data = {
-            'eids': [1, 2, 3],
-            'taxon_a': [10, 0, 20],
-            'taxon_b': [5, 8, 0]
-        }
-        df = pd.DataFrame(data)
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.parquet'
-            output_path = Path(tmpdir) / 'output.parquet'
-            
-            df.to_parquet(input_path)
-            
-            # Run pipeline without specifying taxa
-            result_path = run_zero_replacement_pipeline(
-                input_path=str(input_path),
-                output_path=str(output_path),
-                use_streaming=False
-            )
-            
-            # Should succeed and produce output
-            assert Path(result_path).exists()
-            
-            result_df = pd.read_parquet(result_path)
-            assert (result_df[['taxon_a', 'taxon_b']] == 0).sum().sum() == 0
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+        params = estimate_zero_replacement_params(df)
+        result = bayesian_multiplicative_replace(df, params)
+
+        # Check no zeros remain
+        assert (result['taxon_A'] == 0).sum() == 0
+        assert (result['taxon_B'] == 0).sum() == 0
+
+        # Check values are positive
+        assert (result['taxon_A'] > 0).all()
+
+    def test_log_ready_output(self, sample_counts_with_zeros):
+        """Test that output is ready for log transformation (no zeros)."""
+        params = estimate_zero_replacement_params(sample_counts_with_zeros)
+        result = bayesian_multiplicative_replace(sample_counts_with_zeros, params)
+
+        # After replacement, log should not produce -inf
+        numeric_cols = result.select_dtypes(include=[np.number]).columns
+        for col in numeric_cols:
+            log_vals = np.log(result[col])
+            assert not np.isinf(log_vals).any(), f"Log produced inf in {col}"
+            assert not np.isnan(log_vals).any(), f"Log produced nan in {col}"

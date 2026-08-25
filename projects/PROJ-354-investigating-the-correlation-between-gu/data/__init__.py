@@ -1,3 +1,4 @@
 """
-Data directory for raw and processed datasets.
+Data storage directory.
+Contains raw, processed, and intermediate data artifacts.
 """

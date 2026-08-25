@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-15T03:53:38.566487Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1063-llmxive-follow-up-extending-abot-n1-towa
-last_run_id: b0f593fd-bd38-4e22-a43c-6e33f2200316
+last_run_id: d584524d-3019-487f-8b0e-78d761b5360c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "ABot-N1: Toward a General Visual Language Navigation
   Foundation Model"'
-updated_at: '2026-08-22T09:39:17.363778Z'
+updated_at: '2026-08-25T04:03:03.512167Z'

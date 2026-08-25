@@ -1,3 +1,3 @@
 """
-Utility modules for statistical analysis, matching, and PDF parsing.
+Utility modules for statistical helpers, matching, and PDF parsing.
 """

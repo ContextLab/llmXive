@@ -9,3 +9,5 @@ rapidfuzz
 pytest
 statsmodels
 pypcurve
+black
+ruff

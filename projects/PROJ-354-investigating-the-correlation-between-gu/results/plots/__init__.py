@@ -1,3 +1,4 @@
 """
-Generated plots and visualizations.
+Plots directory.
+Stores generated figures and visualizations.
 """

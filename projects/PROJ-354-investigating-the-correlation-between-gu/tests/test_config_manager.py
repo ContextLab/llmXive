@@ -1,14 +1,14 @@
 """
-Tests for environment configuration management.
+Tests for the environment configuration manager.
 """
 import os
 import pytest
 from unittest.mock import patch, MagicMock
 from pathlib import Path
-import tempfile
-import shutil
 
-from utils.config_manager import (
+# Import the module under test
+# Note: Using relative import structure compatible with the project layout
+from code.utils.config_manager import (
     load_dotenv_file,
     get_token_from_env,
     get_token_from_keyring,
@@ -19,149 +19,120 @@ from utils.config_manager import (
     init_config,
     ConfigError
 )
-from utils.logging import get_logger
-
-logger = get_logger(__name__)
-
 
 class TestConfigManager:
-    """Test cases for configuration management functions."""
+    """Test suite for config_manager utilities."""
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.original_env = os.environ.copy()
-        self.test_env = {}
-
-    def teardown_method(self):
-        """Restore original environment."""
-        os.environ.clear()
-        os.environ.update(self.original_env)
-
-    def test_load_dotenv_file_with_existing_file(self, tmp_path):
-        """Test loading from an existing .env file."""
+    @patch('code.utils.config_manager.load_dotenv')
+    @patch('code.utils.config_manager.Path.exists', return_value=True)
+    def test_load_dotenv_file_success(self, mock_exists, mock_load_dotenv, tmp_path):
+        """Test successful loading of a .env file."""
         env_file = tmp_path / ".env"
-        env_file.write_text("TEST_VAR=test_value\nANOTHER_VAR=another_value")
+        env_file.write_text("TEST_VAR=value\n")
         
-        with patch.dict(os.environ, {}, clear=True):
-            result = load_dotenv_file(env_file)
-            assert result is True
-            assert os.getenv("TEST_VAR") == "test_value"
-            assert os.getenv("ANOTHER_VAR") == "another_value"
-
-    def test_load_dotenv_file_with_missing_file(self):
-        """Test loading from a non-existent .env file."""
-        with patch.dict(os.environ, {}, clear=True):
-            result = load_dotenv_file(Path("/nonexistent/.env"))
-            assert result is False
-
-    def test_get_token_from_env(self):
-        """Test retrieving token from environment variable."""
-        os.environ["TEST_TOKEN"] = "test_token_value"
+        result = load_dotenv_file(env_file)
         
-        token = get_token_from_env("TEST_TOKEN")
-        assert token == "test_token_value"
-
-    def test_get_token_from_env_missing(self):
-        """Test retrieving non-existent token from environment variable."""
-        token = get_token_from_env("NONEXISTENT_TOKEN")
-        assert token is None
-
-    @patch('utils.config_manager.keyring')
-    def test_get_token_from_keyring(self, mock_keyring):
-        """Test retrieving token from keyring."""
-        mock_keyring.get_password.return_value = "keyring_token_value"
-        
-        token = get_token_from_keyring()
-        assert token == "keyring_token_value"
-
-    @patch('utils.config_manager.keyring')
-    def test_get_token_from_keyring_not_found(self, mock_keyring):
-        """Test keyring retrieval when token is not found."""
-        mock_keyring.get_password.return_value = None
-        
-        token = get_token_from_keyring()
-        assert token is None
-
-    @patch('utils.config_manager.keyring')
-    def test_set_token_to_keyring(self, mock_keyring):
-        """Test storing token in keyring."""
-        mock_keyring.set_password.return_value = None
-        
-        result = set_token_to_keyring("test_token")
         assert result is True
-        mock_keyring.set_password.assert_called_once()
+        mock_load_dotenv.assert_called_once_with(dotenv_path=env_file, override=True)
 
-    @patch('utils.config_manager.keyring')
-    def test_set_token_to_keyring_failure(self, mock_keyring):
-        """Test storing token in keyring when it fails."""
-        mock_keyring.set_password.side_effect = Exception("Keyring error")
+    @patch('code.utils.config_manager.Path.exists', return_value=False)
+    def test_load_dotenv_file_not_found(self, mock_exists, tmp_path):
+        """Test loading when .env file does not exist."""
+        result = load_dotenv_file(tmp_path / "nonexistent.env")
         
-        result = set_token_to_keyring("test_token")
         assert result is False
 
-    def test_get_uk_biobank_token_from_env(self):
-        """Test getting UK Biobank token from environment variable."""
-        os.environ["UK_BIOBANK_TOKEN"] = "uk_token_value"
+    def test_get_token_from_env_found(self, monkeypatch):
+        """Test retrieving token from environment variable."""
+        monkeypatch.setenv("TEST_TOKEN", "secret_123")
         
-        token = get_uk_biobank_token()
-        assert token == "uk_token_value"
+        token = get_token_from_env("TEST_TOKEN")
+        
+        assert token == "secret_123"
 
-    @patch('utils.config_manager.load_dotenv_file')
-    @patch('utils.config_manager.get_token_from_env')
-    @patch('utils.config_manager.get_token_from_keyring')
-    def test_get_uk_biobank_token_from_keyring(
-        self, mock_keyring, mock_env, mock_load
-    ):
-        """Test getting UK Biobank token from keyring when not in env."""
-        mock_load.return_value = None
-        mock_env.return_value = None
-        mock_keyring.return_value = "keyring_uk_token"
+    def test_get_token_from_env_missing(self, monkeypatch):
+        """Test retrieving token when env var is missing."""
+        if "TEST_MISSING_TOKEN" in monkeypatch:
+            monkeypatch.delenv("TEST_MISSING_TOKEN", raising=False)
         
-        token = get_uk_biobank_token()
-        assert token == "keyring_uk_token"
+        token = get_token_from_env("TEST_MISSING_TOKEN")
+        
+        assert token is None
 
-    @patch('utils.config_manager.load_dotenv_file')
-    @patch('utils.config_manager.get_token_from_env')
-    @patch('utils.config_manager.get_token_from_keyring')
-    def test_get_uk_biobank_token_missing(
-        self, mock_keyring, mock_env, mock_load
-    ):
-        """Test getting UK Biobank token when not found anywhere."""
-        mock_load.return_value = None
-        mock_env.return_value = None
-        mock_keyring.return_value = None
+    @patch('code.utils.config_manager.keyring.get_password')
+    def test_get_token_from_keyring_found(self, mock_get_password):
+        """Test retrieving token from keyring."""
+        mock_get_password.return_value = "keyring_secret"
         
+        token = get_token_from_keyring("test_service", "test_user")
+        
+        assert token == "keyring_secret"
+        mock_get_password.assert_called_once_with("test_service", "test_user")
+
+    @patch('code.utils.config_manager.keyring.get_password')
+    def test_get_token_from_keyring_missing(self, mock_get_password):
+        """Test retrieving token when keyring returns None."""
+        mock_get_password.return_value = None
+        
+        token = get_token_from_keyring("test_service", "test_user")
+        
+        assert token is None
+
+    @patch('code.utils.config_manager.keyring.set_password')
+    def test_set_token_to_keyring_success(self, mock_set_password):
+        """Test setting token in keyring."""
+        set_token_to_keyring("my_secret", "test_service", "test_user")
+        
+        mock_set_password.assert_called_once_with("test_service", "test_user", "my_secret")
+
+    @patch('code.utils.config_manager.keyring.set_password', side_effect=Exception("Keyring error"))
+    def test_set_token_to_keyring_failure(self, mock_set_password):
+        """Test failure when setting token in keyring."""
+        with pytest.raises(ConfigError):
+            set_token_to_keyring("my_secret", "test_service", "test_user")
+
+    @patch('code.utils.config_manager.get_token_from_env', return_value="env_token")
+    @patch('code.utils.config_manager.get_token_from_keyring', return_value="keyring_token")
+    def test_get_uk_biobank_token_priority_env(self, mock_keyring, mock_env):
+        """Test that environment variable takes priority over keyring."""
+        token = get_uk_biobank_token()
+        
+        assert token == "env_token"
+        mock_env.assert_called_once_with("UK_BIOBANK_TOKEN")
+        # Keyring should not be called if env is found
+        assert not mock_keyring.called
+
+    @patch('code.utils.config_manager.get_token_from_env', return_value=None)
+    @patch('code.utils.config_manager.get_token_from_keyring', return_value="keyring_token")
+    def test_get_uk_biobank_token_fallback_keyring(self, mock_keyring, mock_env):
+        """Test fallback to keyring when env is missing."""
+        token = get_uk_biobank_token()
+        
+        assert token == "keyring_token"
+        mock_env.assert_called_once_with("UK_BIOBANK_TOKEN")
+        mock_keyring.assert_called_once()
+
+    @patch('code.utils.config_manager.get_token_from_env', return_value=None)
+    @patch('code.utils.config_manager.get_token_from_keyring', return_value=None)
+    def test_get_uk_biobank_token_raises_error(self, mock_keyring, mock_env):
+        """Test that ConfigError is raised when no token is found."""
         with pytest.raises(ConfigError):
             get_uk_biobank_token()
 
-    @patch('utils.config_manager.load_dotenv_file')
-    @patch('utils.config_manager.get_token_from_env')
-    def test_get_uk_biobank_api_key(self, mock_env, mock_load):
-        """Test getting UK Biobank API key."""
-        mock_load.return_value = None
-        mock_env.return_value = "api_key_value"
+    @patch('code.utils.config_manager.get_uk_biobank_token', return_value="valid_token")
+    @patch('code.utils.config_manager.get_uk_biobank_api_key', return_value="valid_key")
+    def test_validate_credentials_success(self, mock_api_key, mock_token):
+        """Test successful validation of all credentials."""
+        result = validate_credentials()
         
-        # Need to patch the function in the module where it's used
-        with patch('utils.config_manager.get_token_from_env', return_value="api_key_value"):
-            api_key = get_uk_biobank_api_key()
-            assert api_key == "api_key_value"
+        assert result["uk_biobank_token"] is True
+        assert result["uk_biobank_api_key"] is True
 
-    @patch('utils.config_manager.validate_credentials')
-    def test_init_config(self, mock_validate):
-        """Test configuration initialization."""
-        mock_validate.return_value = {"uk_biobank_token": True}
+    @patch('code.utils.config_manager.get_uk_biobank_token', side_effect=ConfigError("Missing"))
+    @patch('code.utils.config_manager.get_uk_biobank_api_key', return_value="valid_key")
+    def test_validate_credentials_partial_failure(self, mock_api_key, mock_token):
+        """Test validation when some credentials are missing."""
+        result = validate_credentials()
         
-        result = init_config()
-        assert result == {"uk_biobank_token": True}
-
-    def test_validate_credentials(self):
-        """Test credential validation."""
-        # Set up a token
-        os.environ["UK_BIOBANK_TOKEN"] = "test_token"
-        
-        results = validate_credentials()
-        assert "uk_biobank_token" in results
-        assert results["uk_biobank_token"] is True
-        assert "uk_biobank_api_key" in results
-        # API key is optional, so it might be False if not set
-        assert isinstance(results["uk_biobank_api_key"], bool)
+        assert result["uk_biobank_token"] is False
+        assert result["uk_biobank_api_key"] is True

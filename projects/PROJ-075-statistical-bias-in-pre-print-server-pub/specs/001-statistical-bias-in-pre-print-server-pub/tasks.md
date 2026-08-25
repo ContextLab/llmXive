@@ -112,7 +112,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T019 [P] [US2] Unit test for p-curve analysis in `tests/unit/test_analysis_pcurve.py`
-- [ ] T020 [P] [US2] Unit test for paired t-test/Wilcoxon logic in `tests/unit/test_analysis_magnitude.py`
+- [X] T020 [P] [US2] Unit test for paired t-test/Wilcoxon logic in `tests/unit/test_analysis_magnitude.py`
 
 ### Implementation for User Story 2
 

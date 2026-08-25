@@ -1,3 +1,4 @@
 """
-Power analysis reports and artifacts.
+Power analysis results directory.
+Stores power calculation reports and related artifacts.
 """

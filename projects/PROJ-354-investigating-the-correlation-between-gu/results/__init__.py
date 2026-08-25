@@ -1,3 +1,4 @@
 """
-Results directory for analysis outputs, plots, and reports.
+Results storage directory.
+Contains analysis outputs, statistical reports, and visualizations.
 """

@@ -1,16 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `code/` directory or an `__init__.py` file was provided; the\
-    \ prompt contains no artifact listing or file contents to verify that the required\
-    \ structure exists. The implementer must add the `code/` folder with an `__init__.py`\
-    \ (and any other expected sub\u2011directories) to satisfy the task."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/` folder with the required sub\u2011directories (`raw/`,\
-    \ `processed/`, `results/`) or a `data/.gitkeep` file is present; the implementer\
-    \ did not provide any artifact confirming the directory structure was created."
 T003:
   c: true
   h: 5641ad2e8919412d246dbf19b00a4c5588792b0c200df69b0bfd7a36549b3e06
@@ -18,28 +5,6 @@ T003:
     \ files with full Ruff and Black configurations, matching the task\u2019s specification.\
     \ The missing root\u2011level `ruff.toml`/`black.toml` are not required by the\
     \ task."
-T011:
-  c: false
-  h: b3d2596043459f5440561cdf041e20169e6d2d49f4a748a2f1277c0ad9c4a1b7
-  r: "The required file `tests/unit/test_extraction.py` does not exist in the repository,\
-    \ so no unit test verifying parsing of inequalities and effect sizes is present.\
-    \ The task\u2019s core artifact is missing."
-T012:
-  c: false
-  h: f523067fbb97c9856ae6a2405579165d92a310dcd94ed640850c497f9892f061
-  r: "The required artifact `tests/integration/test_pipeline_us1.py` does not exist,\
-    \ so no integration test is present to verify the 10\u2011pair subset pipeline\
-    \ behavior. The task cannot be considered fulfilled until this file is added with\
-    \ the appropriate test logic."
-T014:
-  c: false
-  h: d72f226f2918647de10ff227e4c7eed006c8a8004c7849f0bf187ce944c0119f
-  r: "The `exclusion_log.csv` file contains only the header and no logged rows, and\
-    \ the shown portion of `code/01_fetch_and_match.py` ends abruptly without any\
-    \ filtering implementation, exclusion\u2011reason column handling, or logging\
-    \ of reasons such as \u201Cmethodological shift\u201D, \u201Cunmatched\u201D,\
-    \ or \u201CN_change\u201D. The required logic to exclude case studies, theoretical\
-    \ papers, and >20\u202F% sample\u2011size changes is absent."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

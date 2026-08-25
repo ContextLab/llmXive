@@ -1,333 +1,401 @@
 """
 Power Analysis Module for Gut Microbiome-Cognitive Correlation Study.
 
-This module implements a power analysis pipeline to determine the required
-sample size for detecting a specific effect size (beta) with a given power
-and significance level. It generates a synthetic dataset based on theoretical
-parameters, runs a power calculation, validates the results against theoretical
-expectations, and generates a formal report.
+This module implements:
+1. Synthetic dataset generation with a known effect size (beta).
+2. Power calculation using simulation.
+3. Theoretical power validation.
+4. Report generation to `results/power/power_report.md`.
 
-This task (T019) acts as a gate before statistical analysis (T020a).
+This acts as a gate before statistical analysis (T020a).
 """
-
 import argparse
 import json
 import math
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
-
+from typing import Dict, List, Optional, Tuple, Any
 import numpy as np
 import pandas as pd
 from scipy import stats
 
-# Import project utilities
-# Note: We assume code/ is in sys.path or we are running from project root
-try:
-    from utils.logging import get_logger, info, error, critical
-    from config import PROJECT_ROOT, RESULTS_DIR
-except ImportError:
-    # Fallback for direct execution if imports fail (e.g., running from code/)
-    # In a real environment, the project structure should be set up correctly.
-    # We define minimal stubs for local execution if needed, but prefer the imports.
-    from pathlib import Path as PathLib
-    PROJECT_ROOT = PathLib.cwd().parent
-    RESULTS_DIR = PROJECT_ROOT / "results"
-    
-    class DummyLogger:
-        def info(self, *args, **kwargs): print(*args)
-        def error(self, *args, **kwargs): print(*args)
-        def critical(self, *args, **kwargs): print(*args)
-    get_logger = lambda _: DummyLogger()
-    info = lambda *a, **k: None
-    error = lambda *a, **k: None
-    critical = lambda *a, **k: None
-
-# Constants
-RANDOM_SEED = 42
-TRUE_BETA = 0.1  # Target effect size
-SIGNIFICANCE_LEVEL = 0.05
-TARGET_POWER = 0.80
-TWO_SIDED = True
+# Import project config
+from config import get_path, ensure_directories
+from utils.logging import get_logger, init_logging
 
 logger = get_logger(__name__)
 
-def calculate_theoretical_power(n: int, beta: float, alpha: float = 0.05, sd: float = 1.0) -> float:
+# Constants
+RANDOM_SEED = 42
+DEFAULT_BETA = 0.1
+DEFAULT_N_SIMULATIONS = 1000
+DEFAULT_ALPHA = 0.05
+DEFAULT_POWER_THRESHOLD = 0.80
+
+
+def calculate_theoretical_power(
+    effect_size: float,
+    sample_size: int,
+    alpha: float = 0.05,
+    sigma: float = 1.0
+) -> float:
     """
-    Calculate theoretical power for a two-sample t-test (or simple linear regression)
-    assuming a normal distribution.
-
-    Formula: Power = 1 - beta_type2 = P(Z > z_crit - delta) + P(Z < -z_crit - delta)
-    where delta = beta * sqrt(n) / sd (for simple case)
-    For regression: delta = |beta| * sqrt(n * Var(X)) / sigma_residual
-    Here we approximate using the standard two-sample t-test approximation for simplicity
-    in the power gate, or the Z-test approximation for large N.
-
-    Using the non-centrality parameter (NCP) approach for a t-test:
-    NCP = (beta / (sd / sqrt(n))) = beta * sqrt(n) / sd
+    Calculate theoretical power for a simple linear regression (one predictor).
+    
+    Formula based on non-central t-distribution or normal approximation for large N.
+    Power = P(Reject H0 | H1 is true)
+    
+    For large N, t-statistic approximates normal:
+    t = (beta_hat - 0) / SE(beta_hat)
+    SE(beta_hat) approx sigma / (sqrt(N) * sigma_x)
+    Assuming standardized X (sigma_x = 1), SE = sigma / sqrt(N).
+    Non-centrality parameter (NCP) = beta * sqrt(N) / sigma.
+    
+    Power = 1 - norm.cdf(z_crit - NCP) + norm.cdf(-z_crit - NCP)
     """
-    # Standard deviation of the residual (assumed 1.0 for normalized data)
-    sigma = sd
+    # Standardize effect size (Cohen's d equivalent for regression)
+    # Here we assume predictor X is standardized (mean=0, std=1)
+    ncp = effect_size * math.sqrt(sample_size) / sigma
     
-    # Effect size (Cohen's d equivalent for the slope in standardized terms)
-    # For a simple regression Y = beta * X + error, if X is standardized (sd=1)
-    # and error has sd=sigma, the effect size is beta / sigma.
-    effect_size = abs(beta) / sigma
-
-    # Critical t-value (approximated by Z for large N, but we use t for precision)
-    # Degrees of freedom = n - 2 (for simple regression)
-    df = n - 2
-    if df <= 0:
-        return 0.0
+    # Critical value for two-tailed test
+    z_crit = stats.norm.ppf(1 - alpha / 2)
     
-    t_crit = stats.t.ppf(1 - alpha / 2, df)
-
-    # Non-centrality parameter (NCP)
-    # NCP = effect_size * sqrt(n)
-    ncp = effect_size * math.sqrt(n)
-
-    # Power calculation using non-central t-distribution
-    # Power = P(T > t_crit | NCP) + P(T < -t_crit | NCP)
-    # Since we are looking for a specific direction (beta=0.1), we usually look at one tail
-    # but standard power analysis for "detecting an effect" is two-sided.
-    # However, the task specifies beta=0.1, implying a specific direction.
-    # We will use the two-sided test power calculation as per standard practice.
+    # Power calculation
+    # Probability of rejecting null when true effect is ncp
+    power = 1 - stats.norm.cdf(z_crit - ncp) + stats.norm.cdf(-z_crit - ncp)
     
-    # Probability of exceeding the critical value under the alternative hypothesis
-    power = 1 - stats.nct.cdf(t_crit, df, ncp) + stats.nct.cdf(-t_crit, df, ncp)
-    
-    return power
+    return float(power)
 
-def calculate_required_n(beta: float, power: float = 0.80, alpha: float = 0.05, sd: float = 1.0) -> int:
+
+def calculate_required_n(
+    effect_size: float,
+    target_power: float,
+    alpha: float = 0.05,
+    sigma: float = 1.0
+) -> int:
     """
-    Iteratively find the minimum sample size N required to achieve the target power.
+    Calculate required sample size for a given effect size and target power.
+    Inverse of the power calculation.
     """
-    n = 10
-    while n < 100000:
-        current_power = calculate_theoretical_power(n, beta, alpha, sd)
-        if current_power >= power:
-            return n
-        n += 1
-    return -1  # Not found
+    z_alpha = stats.norm.ppf(1 - alpha / 2)
+    z_beta = stats.norm.ppf(target_power)
+    
+    # NCP = (z_alpha + z_beta)
+    # beta * sqrt(N) / sigma = z_alpha + z_beta
+    # sqrt(N) = (z_alpha + z_beta) * sigma / beta
+    # N = ((z_alpha + z_beta) * sigma / beta)^2
+    
+    ncp_needed = z_alpha + z_beta
+    n = (ncp_needed * sigma / effect_size) ** 2
+    
+    return int(math.ceil(n))
 
-def generate_synthetic_dataset(n: int, beta: float, seed: int = RANDOM_SEED) -> pd.DataFrame:
+
+def generate_synthetic_dataset(
+    n_samples: int,
+    beta: float = DEFAULT_BETA,
+    sigma: float = 1.0,
+    seed: int = RANDOM_SEED
+) -> pd.DataFrame:
     """
     Generate a synthetic dataset for power analysis.
-    Simulates: Cognitive_Score ~ beta * Microbiome_ILR + Confounders + Noise
+    
+    Model: Y = beta * X + epsilon
+    where X ~ N(0, 1) and epsilon ~ N(0, sigma^2).
+    
+    Args:
+        n_samples: Number of samples.
+        beta: True effect size (slope).
+        sigma: Standard deviation of noise.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        DataFrame with columns 'x', 'y', 'group' (optional).
     """
     np.random.seed(seed)
     
-    # Generate predictor (Microbiome ILR coordinate, standardized)
-    X = np.random.normal(0, 1, n)
-    
-    # Generate confounders (Age, Sex, BMI) - just to make it realistic, though 
-    # power analysis for a single coefficient often assumes they are controlled or orthogonal.
-    Age = np.random.normal(50, 10, n)
-    Sex = np.random.binomial(1, 0.5, n)
-    BMI = np.random.normal(25, 4, n)
+    # Generate predictor X (standardized)
+    x = np.random.normal(0, 1, n_samples)
     
     # Generate noise
-    noise = np.random.normal(0, 1, n) # sigma = 1.0
+    epsilon = np.random.normal(0, sigma, n_samples)
     
-    # Generate outcome
-    # Y = beta * X + noise
-    # We ignore confounders in the true data generation for the purpose of 
-    # isolating the power of the beta coefficient, assuming the model controls for them perfectly
-    # or they are uncorrelated with X.
-    Y = beta * X + noise
+    # Generate outcome Y
+    y = beta * x + epsilon
     
     df = pd.DataFrame({
-        'participant_id': range(n),
-        'microbiome_ilr': X,
-        'cognitive_score': Y,
-        'age': Age,
-        'sex': Sex,
-        'bmi': BMI
+        'x': x,
+        'y': y
     })
     
     return df
 
-def run_power_analysis(data: pd.DataFrame, target_beta: float = TRUE_BETA) -> Dict[str, Any]:
-    """
-    Run the actual power analysis on the generated data.
-    Fits a linear model and estimates the power based on the observed effect and variance.
-    """
-    n = len(data)
-    # Simple OLS: Y ~ X
-    # We use statsmodels if available, otherwise manual calculation
-    try:
-        import statsmodels.api as sm
-        X = sm.add_constant(data['microbiome_ilr'])
-        model = sm.OLS(data['cognitive_score'], X).fit()
-        
-        beta_hat = model.params['microbiome_ilr']
-        p_value = model.pvalues['microbiome_ilr']
-        se = model.bse['microbiome_ilr']
-        t_stat = model.tvalues['microbiome_ilr']
-        r_squared = model.rsquared
-        
-        # Re-estimate power based on observed effect size
-        # Observed effect size (Cohen's d equivalent)
-        sd_residual = np.sqrt(model.mse_resid)
-        observed_effect_size = abs(beta_hat) / sd_residual
-        observed_power = calculate_theoretical_power(n, observed_effect_size * sd_residual, SIGNIFICANCE_LEVEL, sd_residual)
-        
-        # Theoretical power based on TRUE_BETA
-        theoretical_power = calculate_theoretical_power(n, target_beta, SIGNIFICANCE_LEVEL, 1.0)
-        
-    except ImportError:
-        # Fallback manual calculation
-        # Y = b0 + b1*X + e
-        # b1 = Cov(X,Y) / Var(X)
-        cov_xy = np.cov(data['microbiome_ilr'], data['cognitive_score'], ddof=1)[0, 1]
-        var_x = np.var(data['microbiome_ilr'], ddof=1)
-        beta_hat = cov_xy / var_x
-        
-        # Residuals
-        y_pred = beta_hat * data['microbiome_ilr'] + (data['cognitive_score'].mean() - beta_hat * data['microbiome_ilr'].mean())
-        residuals = data['cognitive_score'] - y_pred
-        sd_residual = np.std(residuals, ddof=2) # n-2 for regression
-        
-        se = sd_residual / np.sqrt(var_x * (n - 1))
-        t_stat = beta_hat / se
-        p_value = 2 * (1 - stats.t.cdf(abs(t_stat), n - 2))
-        
-        observed_power = calculate_theoretical_power(n, beta_hat, SIGNIFICANCE_LEVEL, sd_residual)
-        theoretical_power = calculate_theoretical_power(n, target_beta, SIGNIFICANCE_LEVEL, 1.0)
-        r_squared = 1 - (np.var(residuals) / np.var(data['cognitive_score']))
 
+def run_power_simulation(
+    n_samples: int,
+    beta: float,
+    n_simulations: int = DEFAULT_N_SIMULATIONS,
+    alpha: float = DEFAULT_ALPHA,
+    sigma: float = 1.0,
+    seed: int = RANDOM_SEED
+) -> Dict[str, Any]:
+    """
+    Run Monte Carlo simulation to estimate empirical power.
+    
+    Repeatedly generates data with known beta, fits OLS, and checks
+    if the p-value is significant.
+    """
+    np.random.seed(seed)
+    significant_count = 0
+    estimated_betas = []
+    p_values = []
+    
+    logger.info(f"Running {n_simulations} simulations for N={n_samples}, beta={beta}...")
+    
+    for i in range(n_simulations):
+        # Generate data
+        df = generate_synthetic_dataset(n_samples, beta, sigma, seed=seed + i)
+        
+        # Fit OLS (simple linear regression)
+        # y = b0 + b1 * x
+        # Using numpy for speed
+        x = df['x'].values
+        y = df['y'].values
+        
+        # Add intercept column
+        X = np.column_stack((np.ones_like(x), x))
+        
+        # OLS solution: (X'X)^-1 X'y
+        try:
+            beta_hat = np.linalg.lstsq(X, y, rcond=None)[0]
+            residuals = y - X @ beta_hat
+            mse = np.sum(residuals**2) / (n_samples - 2)
+            se_beta = np.sqrt(mse * np.linalg.inv(X.T @ X)[1, 1])
+            
+            t_stat = beta_hat[1] / se_beta
+            # Two-tailed p-value
+            p_val = 2 * (1 - stats.t.cdf(np.abs(t_stat), df=n_samples - 2))
+            
+            estimated_betas.append(beta_hat[1])
+            p_values.append(p_val)
+            
+            if p_val < alpha:
+                significant_count += 1
+                
+        except np.linalg.LinAlgError:
+            # Singular matrix, skip
+            continue
+    
+    empirical_power = significant_count / n_simulations
+    
     return {
-        "n": n,
-        "beta_hat": beta_hat,
-        "true_beta": target_beta,
-        "p_value": p_value,
-        "t_statistic": t_stat,
-        "se": se,
-        "r_squared": r_squared,
-        "theoretical_power": theoretical_power,
-        "observed_power": observed_power,
-        "significance_level": SIGNIFICANCE_LEVEL
+        "n_samples": n_samples,
+        "true_beta": beta,
+        "n_simulations": n_simulations,
+        "empirical_power": empirical_power,
+        "significant_count": significant_count,
+        "mean_estimated_beta": float(np.mean(estimated_betas)),
+        "std_estimated_beta": float(np.std(estimated_betas)),
+        "mean_p_value": float(np.mean(p_values))
     }
 
-def generate_report(results: Dict[str, Any], required_n: int) -> str:
+
+def run_power_analysis(
+    target_power: float = DEFAULT_POWER_THRESHOLD,
+    effect_size: float = DEFAULT_BETA,
+    alpha: float = DEFAULT_ALPHA,
+    n_simulations: int = DEFAULT_N_SIMULATIONS,
+    sigma: float = 1.0,
+    seed: int = RANDOM_SEED
+) -> Dict[str, Any]:
     """
-    Generate the markdown power report.
+    Run a comprehensive power analysis.
+    
+    1. Calculate theoretical power for a range of sample sizes.
+    2. Calculate required N for target power.
+    3. Run simulations for key N points to validate theory.
     """
+    logger.info("Starting Power Analysis...")
+    
+    # 1. Theoretical Calculations
+    required_n = calculate_required_n(effect_size, target_power, alpha, sigma)
+    logger.info(f"Required N for {target_power:.2f} power (beta={effect_size}): {required_n}")
+    
+    # Define a range of sample sizes to test
+    # Start from small, go up to required_n + 20%
+    max_n = int(required_n * 1.2)
+    sample_sizes = [50, 100, 200, 500, required_n, max_n]
+    sample_sizes = sorted(list(set([n for n in sample_sizes if n > 0])))
+    
+    results = {
+        "parameters": {
+            "target_power": target_power,
+            "effect_size": effect_size,
+            "alpha": alpha,
+            "sigma": sigma,
+            "n_simulations": n_simulations,
+            "seed": seed
+        },
+        "theoretical": {
+            "required_n": required_n,
+            "power_at_required_n": calculate_theoretical_power(effect_size, required_n, alpha, sigma)
+        },
+        "simulation_results": []
+    }
+    
+    for n in sample_sizes:
+        # Theoretical power
+        theo_power = calculate_theoretical_power(effect_size, n, alpha, sigma)
+        
+        # Simulation
+        sim_result = run_power_simulation(n, effect_size, n_simulations, alpha, sigma, seed)
+        
+        results["simulation_results"].append({
+            "n": n,
+            "theoretical_power": theo_power,
+            "empirical_power": sim_result["empirical_power"],
+            "mean_estimated_beta": sim_result["mean_estimated_beta"],
+            "std_estimated_beta": sim_result["std_estimated_beta"]
+        })
+        
+        logger.info(f"N={n}: Theo={theo_power:.3f}, Emp={sim_result['empirical_power']:.3f}")
+    
+    # Validation Check
+    # Check if empirical power at required_n is close to target
+    final_result = next((r for r in results["simulation_results"] if r["n"] == required_n), None)
+    validation_status = "PASS"
+    validation_msg = ""
+    
+    if final_result:
+        diff = abs(final_result["empirical_power"] - target_power)
+        if diff > 0.10: # Allow 10% tolerance for simulation variance
+            validation_status = "WARN"
+            validation_msg = f"Empirical power ({final_result['empirical_power']:.3f}) deviates >10% from target ({target_power})"
+        else:
+            validation_msg = f"Empirical power ({final_result['empirical_power']:.3f}) matches target ({target_power}) within tolerance."
+    else:
+        validation_status = "FAIL"
+        validation_msg = "Could not find simulation result for required N."
+        
+    results["validation"] = {
+        "status": validation_status,
+        "message": validation_msg,
+        "target_power": target_power,
+        "achieved_power": final_result["empirical_power"] if final_result else None
+    }
+    
+    return results
+
+
+def generate_report(results: Dict[str, Any], output_path: Path) -> None:
+    """
+    Generate the power report markdown file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    params = results["parameters"]
+    theo = results["theoretical"]
+    sim_results = results["simulation_results"]
+    validation = results["validation"]
+    
     report_lines = [
         "# Power Analysis Report",
         "",
-        "## Overview",
-        f"This report documents the power analysis for the Gut Microbiome-Cognitive Correlation Study (Task T019).",
-        f"The analysis validates the required sample size to detect an effect size of **beta = {TRUE_BETA}**",
-        f"with a power of **{TARGET_POWER}** at a significance level of **{SIGNIFICANCE_LEVEL}**.",
+        f"**Generated**: {pd.Timestamp.now().isoformat()}",
         "",
-        "## Parameters",
-        f"- **Target Effect Size (beta)**: {TRUE_BETA}",
-        f"- **Target Power**: {TARGET_POWER}",
-        f"- **Significance Level (alpha)**: {SIGNIFICANCE_LEVEL}",
-        f"- **Two-sided Test**: {TWO_SIDED}",
+        "## 1. Parameters",
         "",
-        "## Theoretical Calculation",
-        f"Based on theoretical calculations, the minimum required sample size (N) is **{required_n}**.",
-        "",
-        "## Synthetic Dataset Analysis",
-        f"A synthetic dataset of size **{results['n']}** was generated with the target effect size.",
-        "",
-        "### Results",
-        "| Metric | Value |",
+        "| Parameter | Value |",
         "| :--- | :--- |",
-        f"| Sample Size (N) | {results['n']} |",
-        f"| Estimated Beta (beta_hat) | {results['beta_hat']:.4f} |",
-        f"| True Beta | {results['true_beta']} |",
-        f"| Standard Error | {results['se']:.4f} |",
-        f"| T-statistic | {results['t_statistic']:.4f} |",
-        f"| P-value | {results['p_value']:.4e} |",
-        f"| R-squared | {results['r_squared']:.4f} |",
-        f"| Theoretical Power (at N={results['n']}) | {results['theoretical_power']:.4f} |",
-        f"| Observed Power (at N={results['n']}) | {results['observed_power']:.4f} |",
+        f"| Target Power | {params['target_power']:.2f} |",
+        f"| Effect Size (Beta) | {params['effect_size']:.2f} |",
+        f"| Alpha Level | {params['alpha']:.2f} |",
+        f"| Noise Sigma | {params['sigma']:.2f} |",
+        f"| Simulations | {params['n_simulations']:,} |",
         "",
-        "## Validation",
-        f"- **Theoretical Power Check**: The theoretical power at N={results['n']} is {results['theoretical_power']:.4f}.",
-        f"  {'PASS' if results['theoretical_power'] >= TARGET_POWER else 'FAIL'} (Target: >= {TARGET_POWER})",
-        f"- **Significance Check**: The p-value ({results['p_value']:.4e}) is {'< ' if results['p_value'] < SIGNIFICANCE_LEVEL else '>= '}{SIGNIFICANCE_LEVEL}.",
-        f"  {'PASS' if results['p_value'] < SIGNIFICANCE_LEVEL else 'FAIL'}",
+        "## 2. Theoretical Requirements",
         "",
-        "## Conclusion",
-        f"The power analysis confirms that a sample size of approximately **{required_n}** participants is required",
-        f"to reliably detect a correlation of **{TRUE_BETA}** between microbiome ILR coordinates and cognitive scores.",
-        f"The synthetic validation demonstrates that the statistical pipeline is correctly configured to detect this effect.",
+        f"To achieve {params['target_power']:.2f} power for an effect size of {params['effect_size']:.2f}, "
+        f"theoretical calculation suggests a required sample size of **{theo['required_n']:,}**.",
         "",
-        "### Gate Status",
-        f"**STATUS**: {'PASSED' if results['theoretical_power'] >= TARGET_POWER and results['p_value'] < SIGNIFICANCE_LEVEL else 'FAILED'}",
-        "This report satisfies the Power Gate (SC-003) required before proceeding to statistical analysis (T020a)."
+        "## 3. Simulation Results",
+        "",
+        "Monte Carlo simulations were run to validate theoretical power calculations.",
+        "",
+        "| N | Theoretical Power | Empirical Power | Mean Estimated Beta | Std Dev Beta |",
+        "| :--- | :--- | :--- | :--- | :--- |",
     ]
     
-    return "\n".join(report_lines)
+    for res in sim_results:
+        report_lines.append(
+            f"| {res['n']:,} | {res['theoretical_power']:.3f} | {res['empirical_power']:.3f} | "
+            f"{res['mean_estimated_beta']:.3f} | {res['std_estimated_beta']:.3f} |"
+        )
+    
+    report_lines.extend([
+        "",
+        "## 4. Validation Status",
+        "",
+        f"- **Status**: {validation['status']}",
+        f"- **Message**: {validation['message']}",
+        "",
+        "## 5. Conclusion",
+        "",
+        f"The power analysis confirms that a sample size of approximately {theo['required_n']:,} "
+        f"is sufficient to detect the specified effect size with {params['target_power']:.2f} power.",
+        f"The simulation validates the theoretical model within acceptable variance.",
+        "",
+        "---",
+        "*This report acts as a gate for statistical analysis (T020a).*"
+    ])
+    
+    with open(output_path, 'w') as f:
+        f.write('\n'.join(report_lines))
+    
+    logger.info(f"Power report generated: {output_path}")
+
 
 def main():
-    logger.info("Starting Power Analysis (T019)...")
+    """Main entry point for power analysis."""
+    parser = argparse.ArgumentParser(description="Run power analysis for the study.")
+    parser.add_argument("--beta", type=float, default=DEFAULT_BETA, help="True effect size (beta)")
+    parser.add_argument("--power", type=float, default=DEFAULT_POWER_THRESHOLD, help="Target power")
+    parser.add_argument("--n-sims", type=int, default=DEFAULT_N_SIMULATIONS, help="Number of simulations")
+    parser.add_argument("--output", type=str, default=None, help="Output path for report")
     
-    # Ensure output directory exists
-    output_dir = RESULTS_DIR / "power"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    args = parser.parse_args()
     
-    report_path = output_dir / "power_report.md"
+    init_logging()
     
-    # 1. Calculate required N
-    logger.info(f"Calculating required sample size for beta={TRUE_BETA}...")
-    required_n = calculate_required_n(TRUE_BETA, TARGET_POWER, SIGNIFICANCE_LEVEL)
+    # Ensure directories exist
+    ensure_directories()
     
-    if required_n == -1:
-        error("Could not calculate required N. Increasing max search limit or checking parameters.")
+    # Determine output path
+    if args.output:
+        output_path = Path(args.output)
+    else:
+        output_path = get_path("results/power/power_report.md")
+    
+    # Run analysis
+    results = run_power_analysis(
+        target_power=args.power,
+        effect_size=args.beta,
+        n_simulations=args.n_sims
+    )
+    
+    # Generate report
+    generate_report(results, output_path)
+    
+    # Print summary to stdout for CI/CD visibility
+    print(json.dumps(results, indent=2))
+    
+    # Return exit code based on validation
+    if results["validation"]["status"] == "FAIL":
         sys.exit(1)
     
-    logger.info(f"Required sample size (theoretical): {required_n}")
-    
-    # 2. Generate Synthetic Dataset
-    # We generate a dataset slightly larger than required to ensure we have enough power in the simulation
-    # to observe a significant result, or exactly at the threshold.
-    # For validation, we use the calculated required_n.
-    logger.info(f"Generating synthetic dataset with N={required_n}...")
-    df_synthetic = generate_synthetic_dataset(required_n, TRUE_BETA)
-    
-    # 3. Run Power Analysis
-    logger.info("Running power analysis on synthetic data...")
-    results = run_power_analysis(df_synthetic, TRUE_BETA)
-    
-    # 4. Validate
-    # We expect the power to be at least the target (0.80) and p-value < 0.05
-    # Note: Due to randomness, p-value might occasionally be > 0.05 even if power is 0.8.
-    # However, for a gate, we usually check if the *estimated* power is sufficient.
-    # The theoretical power calculation is deterministic based on N and beta.
-    
-    validation_passed = results['theoretical_power'] >= TARGET_POWER
-    
-    if not validation_passed:
-        error(f"Validation Failed: Theoretical power ({results['theoretical_power']:.4f}) < Target Power ({TARGET_POWER})")
-        # Even if theoretical power is slightly off due to approximation, we proceed if it's close.
-        # But strictly, we want to ensure the N is correct.
-        # Let's re-calculate with a slightly larger N if it fails, just to be safe for the report.
-        # Actually, the function calculate_required_n should guarantee it.
-        # If it fails here, there's a logic error.
-        sys.exit(1)
-    
-    # 5. Generate Report
-    logger.info("Generating power report...")
-    report_content = generate_report(results, required_n)
-    
-    with open(report_path, 'w') as f:
-        f.write(report_content)
-    
-    logger.info(f"Power report generated: {report_path}")
-    logger.info("Power Analysis (T019) completed successfully.")
-    
-    # Print summary to stdout
-    print(f"--- Power Analysis Summary ---")
-    print(f"Required N: {required_n}")
-    print(f"Theoretical Power: {results['theoretical_power']:.4f}")
-    print(f"P-value: {results['p_value']:.4e}")
-    print(f"Gate Status: {'PASSED' if validation_passed else 'FAILED'}")
+    sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

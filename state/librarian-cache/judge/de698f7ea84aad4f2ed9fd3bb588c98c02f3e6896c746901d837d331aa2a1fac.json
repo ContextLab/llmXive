@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2608.05850",
+  "judged_at": "2026-08-25T04:02:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"abot-n1: toward a general visual language navigation foundation model\" computer science",
+  "rationale": "The paper focuses exclusively on low-resource language modeling and evaluation for Yiddish, which is entirely off-domain from the user's question regarding Visual Language Navigation (VLN) foundation models. There is no overlap in the mechanism (navigation vs. text generation), variables (visual grounding vs. linguistic patterns), or empirical population (robotic agents vs. Yiddish text corpora), failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+  "relevant": false
+}

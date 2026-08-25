@@ -8,16 +8,21 @@ version = "0.1.0"
 description = "Gut Microbiome-Cognitive Correlation Study"
 requires-python = ">=3.10"
 dependencies = [
-    "pandas",
-    "numpy",
-    "scikit-learn",
-    "statsmodels",
-    "seaborn",
-    "matplotlib",
-    "pyarrow",
-    "requests",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "statsmodels>=0.14.0",
+    "seaborn>=0.13.0",
+    "matplotlib>=3.7.0",
+    "pyarrow>=12.0.0",
+    "requests>=2.31.0",
     "zCompositions",
-    "huggingface_hub",
+    "huggingface_hub>=0.17.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.4.0",
+    "python-dotenv>=1.0.0",
+    "keyring>=24.0.0"
 ]
 
 [tool.black]
@@ -26,7 +31,8 @@ target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -43,18 +49,37 @@ exclude = '''
 line-length = 88
 target-version = "py310"
 
-# Exclude a variety of commonly ignored directories.
+# Assume Python 3.10
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific files/directories.
 exclude = [
     ".bzr",
     ".direnv",
     ".eggs",
     ".git",
-    ".git-rewrite",
     ".hg",
     ".mypy_cache",
     ".nox",
     ".pants.d",
-    ".pytype",
     ".ruff_cache",
     ".svn",
     ".tox",
@@ -68,39 +93,14 @@ exclude = [
     "venv",
 ]
 
-[tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-# Allow autofix for all enabled rules (when `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow asserts in tests
-"code/preprocess.py" = ["E501"] # Allow long lines for data processing logic if needed
+# Per-file ignores.
+per-file-ignores = {}
 
 [tool.ruff.lint.isort]
-known-first-party = ["code", "data", "results", "tests"]
-force-sort-within-sections = true
-combine-as-imports = true
+known-first-party = ["code", "tests", "data", "results"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["code"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"

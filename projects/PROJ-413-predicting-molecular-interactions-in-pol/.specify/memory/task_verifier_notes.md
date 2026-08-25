@@ -10,3 +10,11 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T023** — No `analysis/topology_audit.md` file is present, and no output from `graph_build.py` showing node counts, edge counts, or pruning statistics was provided. The required documentation artifact is missing.
 - **T024** — declared artifact(s) missing/empty/invalid: data/processed/graphs.pt
 - **T028** — declared artifact(s) missing/empty/invalid: results/model.pt
+- **T029** — The required `results/performance.json` file does not exist, so no runtime or memory usage data has been logged as specified. The implementer must create this JSON file with the appropriate logged metrics.
+- **T030** — No evidence of a `state/projects/PROJ-413-...yaml` file (or any YAML file) was provided, nor any content showing added hashes for `model.pt` and `graphs.pt`. The required artifact is missing, so the task is not satisfied.
+- **T033** — declared artifact(s) missing/empty/invalid: code/analysis/perm_test.py, results/permuted_mses.csv
+- **T034** — The required `results/permuted_mses.csv` file does not exist, so the quantile cannot be computed. Moreover, `code/analysis/stat_utils.py` is truncated and lacks a complete implementation of the 0.95‑quantile calculation and any function to compute the p‑value. Both the data artifact and the full code functionality are missing.
+- **T035** — declared artifact(s) missing/empty/invalid: code/analysis/attribution.py
+- **T036** — The required input file `data/processed/descriptors.csv` does not exist, and the `collinearity.py` script is truncated (the `calculate_vif_scores` function ends abruptly and never completes the VIF computation). Consequently the VIF calculation is not actually implemented nor can it be run. The missing descriptor data and incomplete code must be provided/fixed.
+- **T037** — No artifact (e.g., script, notebook, CSV/JSON output, or report) showing aggregated attribution results or a list of topological features whose standard deviation exceeds 0.1 was provided. The claim cannot be verified without such concrete output.
+- **T038** — No artifact (code, data, or report) was provided for the deleted task, and thus there is nothing to verify against the (now‑removed) requirement that attention mechanisms handle collinearity. The implementer’s claim lacks any evidence of work performed.

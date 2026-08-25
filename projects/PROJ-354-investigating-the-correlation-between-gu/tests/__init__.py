@@ -1,3 +1,4 @@
 """
-Test suite for the Gut Microbiome-Cognitive Correlation Study.
+Test package.
+Contains unit and integration tests for the project.
 """

@@ -1,2 +1,8 @@
-# This directory contains raw, processed, and results data for the project.
-# It is kept in version control to preserve the directory structure.
+# This file ensures the data directory is tracked by git.
+# Directory structure:
+# data/
+#   raw/          # Raw data downloads (arXiv, bioRxiv, OpenAlex)
+#   processed/    # Cleaned and matched datasets
+#   results/      # Analysis outputs and reports
+#
+# Do not delete this file.

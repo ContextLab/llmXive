@@ -1,3 +1,4 @@
 """
-Validation reports and instrument checks.
+Validation results directory.
+Stores instrument validation reports and data quality checks.
 """
