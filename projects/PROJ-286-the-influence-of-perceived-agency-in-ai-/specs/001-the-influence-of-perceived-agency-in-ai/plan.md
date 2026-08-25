@@ -1,39 +1,37 @@
 # Implementation Plan: The Influence of Perceived Agency in AI Interactions on Trust
 
-**Branch**: `001-perceived-agency-trust` | **Date**: 2024-05-21 | **Spec**: `specs/001-perceived-agency-trust/spec.md`
+**Branch**: `001-perceived-agency-trust` | **Date**: 2024-05-21 | **Spec**: `spec.md`
 **Input**: Feature specification from `specs/001-perceived-agency-trust/spec.md`
 
 ## Summary
 
-This project implements a randomized controlled experiment to test whether increasing a user's *perceived* agency in an AI interaction (via illusory controls) increases trust in the AI's recommendations. The implementation consists of two main phases: (1) a data collection interface that randomizes participants into High Agency, Low Agency, or Control conditions and captures behavioral adherence, psychometric trust scores, and a manipulation check for perceived agency, and (2) a reproducible statistical analysis pipeline that executes One-Way ANOVA, planned orthogonal contrasts, post-hoc pairwise comparisons with multiple-comparison corrections, effect size calculations, and sensitivity analyses.
+This project implements a computational psychology experiment to test whether increasing a user's *perceived* agency (even when illusory) increases trust in AI recommendations. The system consists of two main components: () a data collection interface that randomizes participants into High Agency, Low Agency, or Control conditions while capturing behavioral adherence and psychometric trust scores (Lee & See,), and (2) a reproducible statistical analysis pipeline that performs planned contrasts, post-hoc tests with multiple-comparison corrections, and sensitivity analyses. The implementation adheres to a CPU-first compute strategy, utilizing standard Python libraries (`pandas`, `scipy`, `statsmodels`, `pwr`) to ensure feasibility on GitHub Actions free-tier runners.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `streamlit` (experiment interface), `pandas`, `numpy`, `scipy`, `statsmodels`, `pingouin`, `pytest`, `pandas`  
-**Storage**: Local CSV files in `data/raw/` (participant data) and `data/processed/` (analysis-ready data)  
-**Testing**: `pytest` with `pytest-cov` for coverage; synthetic data generators for unit tests  
-**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPUs, ample RAM, no GPU)  
-**Project Type**: computational-experiment  
-**Performance Goals**: Analysis pipeline completes within 6 hours on free-tier; data collection interface responsive (<200ms interactions)  
-**Constraints**: No GPU/CUDA; all statistical methods must run on CPU; data subset to fit available RAM; no external API dependencies for core analysis  
-**Scale/Scope**: Single experimental study; A sample size sufficient to achieve adequate statistical power, determined by a priori power analysis.; experimental conditions  
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `pwr`, `matplotlib`, `seaborn`, `pyyaml`, `jsonschema`
+**Storage**: CSV files for raw/processed data; JSON for configuration and power analysis results.
+**Testing**: `pytest` for unit tests of statistical functions and data validation.
+**Target Platform**: Linux (GitHub Actions Runner).
+**Project Type**: Computational Experiment / Data Analysis Pipeline.
+**Performance Goals**: Complete analysis of ~300-500 participants in < 10 minutes on CPU.
+**Constraints**: Must run within 7GB RAM / 14GB disk limits; no GPU required for statistical analysis; data collection interface must be lightweight (static HTML/JS or lightweight Python web app).
+**Scale/Scope**: Single experimental study; A sample size determined by contrast-specific power analysis (based on contrast-specific power analysis); multiple experimental conditions.
 
-> **Dataset Variable Fit**: The study relies on self-collected data from the experiment interface. All required variables (Condition ID, Adherence Rate, Trust Score, Perceived Agency Score, Attention Check Status) are captured directly in the survey export. No external dataset is needed, eliminating dataset-variable fit concerns.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Detail |
-|-----------|--------|----------------------|
-| **I. Reproducibility** | ✅ PASS | Random seeds pinned in `code/analysis/` (e.g., `np.random.seed()`); all dependencies pinned in `requirements.txt`; GitHub Actions workflow ensures fresh runner execution. |
-| **II. Verified Accuracy** | ✅ PASS | Lee & See () and Langer () citations will be validated by the Reference-Validator Agent in Phase 0 before data collection begins. Trust scale items will be cross-referenced with original instrument. |
-| **III. Data Hygiene** | ✅ PASS | Raw data in `data/raw/` is checksummed; no in-place modifications; derivations written to new files in `data/processed/`; PII scan enforced. |
-| **IV. Single Source of Truth** | ✅ PASS | All figures/statistics in paper trace to exactly one row in `data/processed/` and one code block in `code/analysis/`; no hand-typed numbers. |
-| **V. Versioning Discipline** | ✅ PASS | Content hashes for all artifacts; `state/projects/PROJ-286-*.yaml` updated via CI hook/post-run script upon artifact generation. |
-| **VI. Experimental Manipulation Fidelity** | ✅ PASS | High/Low/Control conditions implemented via specific UI manipulations (sliders vs. static display); predictor is interface feature, not derived metric. AI output content is identical across conditions. |
-| **VII. Behavioral Outcome Isolation** | ✅ PASS | Trust scores derived from the Lee & See scale; adherence is a secondary outcome, not used as a filter. No mathematical derivation links trust to agency signal; circularity check enforced. |
+1.  **Reproducibility (Principle I)**: All random seeds will be pinned in `code/analysis/config.yaml`. The analysis pipeline will be fully scriptable, ensuring results are reproducible by re-running `code/` against `data/`.
+2.  **Verified Accuracy (Principle II)**: The Lee & See (year) scale items and Langer (1975) concepts will be validated against primary sources before being hardcoded or used in the survey logic. The plan explicitly mandates that the exact items be stored in `docs/trust_scale_items.md` (generated by `research/literature_review.md`) and read by the analysis pipeline, preventing hardcoding.
+3.  **Data Hygiene (Principle III)**: Raw data exports will be checksummed. No data modification in place; all transformations (cleaning, aggregation) will produce new files (e.g., `data/raw/`, `data/processed/`). PII will be excluded from the dataset (only anonymous Participant IDs).
+4.  **Single Source of Truth (Principle IV)**: All statistics in the final report will be generated dynamically from the `data/processed` files by the analysis script, preventing hand-typed numbers. The scale items themselves are sourced from `docs/trust_scale_items.md`, which is the SSoT for the survey content.
+5.  **Versioning Discipline (Principle V)**: Content hashes for data and code artifacts will be tracked.
+6.  **Experimental Manipulation Fidelity (Principle VI)**: The "High Agency" condition will be implemented strictly via UI manipulations (sliders) defined in the technical design, ensuring the predictor is the interface feature, not a derived metric.
+7.  **Behavioral Outcome Isolation (Principle VII)**: The trust measure (Lee & See scale) is a distinct psychometric instrument. The `perceived_agency_score` collected in the data is strictly a *manipulation check* to verify the success of the "High Agency" condition. It will NOT be used as a covariate in the primary trust analysis to avoid circularity (i.e., we will not regress trust on perceived agency to prove trust increases when agency increases). The primary analysis remains a direct group comparison (High vs. Low vs. Control) on trust scores.
 
 ## Project Structure
 
@@ -42,114 +40,76 @@ This project implements a randomized controlled experiment to test whether incre
 ```text
 specs/001-perceived-agency-trust/
 ├── plan.md              # This file
-├── research.md          # Phase 0 output
+├── research.md          # Phase 0 output (contains lit review, verification, power calc)
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── participant.schema.yaml
+│   ├── dataset.schema.yaml
 │   ├── analysis_output.schema.yaml
-│   └── power_analysis.schema.yaml
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+│   └── participant.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/
-├── code/
-│   ├── experiment/
-│   │   ├── app.py                 # Streamlit interface for data collection
-│   │   ├── randomization.py       # Condition assignment logic
-│   │   └── tests/
-│   │       └── test_randomization.py
-│   ├── analysis/
-│   │   ├── data_cleaning.py       # Attention check filtering, threshold sweeps
-│   │   ├── contrasts.py           # Planned directional contrasts (ANOVA framework)
-│   │   ├── pairwise.py            # Tukey HSD post-hoc tests
-│   │   ├── effect_sizes.py        # Cohen's d calculations
-│   │   ├── power_analysis.py      # Pre-study power calculation
-│   │   ├── sensitivity.py         # Threshold sensitivity sweep
-│   │   └── report.py              # Final report generation
-│   └── tests/
-│       └── test_analysis_pipeline.py
-├── data/
-│   ├── raw/                       # Participant CSV exports (checksummed)
-│   └── processed/                 # Cleaned, analysis-ready datasets
-├── docs/
-│   └── protocol.md                # Pre-registered analysis plan
-├── requirements.txt               # Pinned dependencies
-└── .github/workflows/
-    └── experiment.yml             # CI/CD for analysis pipeline
+code/
+├── data_collection/
+│   ├── app.py                 # Lightweight Flask/Streamlit app for participant task
+│   ├── static/                # HTML/JS/CSS for the experimental interface
+│   └── templates/             # Survey templates
+├── analysis/
+│   ├── __init__.py
+│   ├── config.yaml            # Seeds, thresholds, alpha levels
+│   ├── power_analysis.py      # Pre-study power calculation script
+│   ├── main.py                # Main analysis pipeline (cleaning, contrasts, post-hoc)
+│   ├── sensitivity.py         # Sensitivity analysis script
+│   └── utils.py               # Statistical helper functions
+├── tests/
+│   ├── test_analysis.py
+│   └── test_data_validation.py
+├── requirements.txt
+└── README.md
+
+data/
+├── raw/                       # Raw CSV exports from data collection
+├── processed/                 # Cleaned/filtered datasets
+└── outputs/                   # Statistical tables, plots, power reports
+
+research/
+├── literature_review.md       # Summary of Lee & See (2004), Langer (1975)
+├── dataset_verification_report.md # Verification of variables
+└── power_calculation.json     # Pre-study power analysis results
+docs/
+├── trust_scale_items.md       # SSoT for Lee & See (2004) items (generated by research phase)
 ```
 
-**Structure Decision**: Single-project structure (Option 1) is selected because the experiment interface and analysis pipeline are tightly coupled, share the same data schema, and require no separate backend/frontend deployment. The `code/experiment/` and `code/analysis/` directories provide clear separation of concerns while maintaining reproducibility.
+**Structure Decision**: A single-project structure (`code/`, `data/`, `research/`) is selected. The separation of `data_collection` (interface) and `analysis` (pipeline) ensures modularity while keeping the project lightweight for CI/CD execution. The `contracts/` directory will house schemas for data validation.
 
 ## Complexity Tracking
 
-No violations detected. The single-project structure is appropriate for a self-contained experimental study with no need for microservices, separate databases, or complex deployment architectures.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| None | The project scope (3 conditions, standard stats) fits within a single module structure. | N/A |
+
+## Unresolved Panel Concerns Addressed
+
+- **Task T011 Hardcoding**: The plan now explicitly defines `docs/trust_scale_items.md` as the canonical source for the scale items. The implementation will read these items from this file. The `research/literature_review.md` phase is responsible for generating this file after verifying the primary source.
+- **Task T001a/T001b/T003**: The plan mandates the creation of `research/dataset_verification_report.md`, `research/literature_review.md` (which now includes the power calculation details), and `research/power_calculation.json` as explicit deliverables in the `research/` directory.
+- **Data Contract**: The plan now explicitly states that the external data collection interface MUST conform to `contracts/dataset.schema.yaml` to ensure the analysis pipeline can ingest the data.
+- **Causal Framing**: The plan corrects the assumption to state that the randomized design supports causal inference regarding the *effect of the interface manipulation* on trust.
+
+## Compute Feasibility & Data Strategy
+
+- **Compute**: The statistical analysis (ANOVA, contrasts, Tukey HSD, power analysis) relies on `scipy` and `statsmodels`, which are fully CPU-tractable and will run comfortably within the 7GB RAM / 14GB disk limits of the GitHub Actions free tier. No GPU is required.
+- **Data**: The project will generate synthetic data for testing the pipeline (using `numpy.random` with fixed seeds) and will be designed to accept real CSV exports from a data collection interface.
+- **Data Contract**: The external data collection interface **MUST** conform to the schema defined in `contracts/dataset.schema.yaml` (specifically the `participant.schema.yaml` for raw data) to ensure the analysis pipeline can ingest the data without manual intervention.
+- **Scale Items**: The exact items from Lee & See (2004) will be verified and stored in `docs/trust_scale_items.md` before being used in the survey.
 
 ## Phase Ordering
 
-The plan enforces the following computational task ordering to ensure data integrity and reproducibility:
-
-1. **Phase 0: Research** → 
-   - Dataset verification (self-collected).
-   - **Reference Validation**: Run Reference-Validator Agent on Lee & See (n.d.) and Langer (n.d.) citations.
-   - Power analysis.
-   - Literature review.
-2. **Phase 1: Design** → Data model contracts, experimental interface design, analysis pipeline specification.
-3. **Phase 2: Implementation** → 
-   - **Step 2.1**: Data collection interface (`code/experiment/app.py`) deployed for participant recruitment.
-   - **Step 2.2**: Raw data exported to `data/raw/` and checksummed.
-   - **Step 2.3**: **Versioning Automation**: CI hook updates `state/projects/PROJ-286-*.yaml` with artifact hashes.
-   - **Step 2.4**: Data cleaning and filtering (`code/analysis/data_cleaning.py`) - sweeps attention/completion thresholds.
-   - **Step 2.5**: One-Way ANOVA and planned contrasts (`code/analysis/contrasts.py`).
-   - **Step 2.6**: Tukey HSD post-hoc tests (`code/analysis/pairwise.py`).
-   - **Step 2.7**: Effect size calculations (`code/analysis/effect_sizes.py`).
-   - **Step 2.8**: Sensitivity analysis (`code/analysis/sensitivity.py`).
-   - **Step 2.9**: Final report generation (`code/analysis/report.py`).
-4. **Phase 3: Validation** → Reproducibility check, citation validation, PII scan.
-
-## FR/SC Coverage Matrix
-
-| ID | Type | Plan Element |
-|----|------|--------------|
-| FR-001 | Functional | `code/experiment/randomization.py` implements randomized assignment to High/Low/Control conditions. |
-| FR-002 | Functional | `code/experiment/app.py` captures adherence rate (percentage scale), Lee & See trust scale items, and Perceived Agency manipulation check. Validated against `participant.schema.yaml`. |
-| FR-003 | Functional | `code/analysis/contrasts.py` executes One-Way ANOVA and planned directional contrasts (High vs. Low, (High+Low) vs. Control). |
-| FR-004 | Functional | `code/analysis/effect_sizes.py` computes Cohen's d for all pairwise comparisons. |
-| FR-005 | Functional | `code/analysis/pairwise.py` applies Tukey HSD correction for family-wise error rate. |
-| FR-006 | Functional | `code/analysis/sensitivity.py` sweeps attention/completion thresholds (not adherence) and reports stability. |
-| SC-001 | Success | `code/analysis/contrasts.py` tests primary outcome (High vs. Low trust) against null hypothesis (α = 0.05). |
-| SC-002 | Success | `code/analysis/power_analysis.py` generates pre-study report confirming ≥0.80 power for f=0.25 (ANOVA). |
-| SC-003 | Success | `code/analysis/sensitivity.py` measures robustness via threshold sweep (attention/completion) and reports p-value/effect size variation. |
-| SC-004 | Success | Trust scale items in `code/experiment/app.py` match Lee & See () verbatim; validated against `participant.schema.yaml` contract. |
-| SC-005 | Success | Tukey HSD correction in `code/analysis/pairwise.py` controls Type I error across multiple pairwise comparisons. |
-
-## Compute Feasibility
-
-All methods are CPU-tractable and fit within GitHub Actions free-tier constraints:
-
-- **Statistical Analysis**: `scipy`, `statsmodels`, and `pingouin` are pure-Python/C extensions with no GPU requirements.
-- **Data Size**: ~ participants × A moderate number of columns = <1MB CSV; well within 7GB RAM and 14GB disk.
-- **Runtime**: Power analysis, ANOVA, contrasts, and sensitivity sweeps complete in <10 minutes on CPU cores.
-- **Libraries**: All dependencies have CPU wheels available on PyPI; no CUDA, 8-bit quantization, or mixed-precision training.
-
-## Risk Mitigation
-
-| Risk | Mitigation |
-|------|------------|
-| Dataset lacks required variables | N/A: All variables are self-collected via experiment interface. |
-| Power analysis yields insufficient sample size | Post-hoc power calculation reported; findings framed as limited if N < target. |
-| Illusory controls fail to manipulate perceived agency | **Manipulation Check** included; participants who fail the illusion check are analyzed separately or excluded. |
-| Multiple-comparison inflation | Tukey HSD correction applied; family-wise error rate controlled. |
-| Circular reasoning (trust derived from agency) | Trust scale validated as independent measure; adherence is NOT used as a filter. |
-| Stimulus inconsistency | AI output content is explicitly identical across all conditions; only UI changes. |
-
-## Next Steps
-
-1. Execute `/speckit-plan` to generate `research.md`, `data-model.md`, `quickstart.md`, and `contracts/`.
-2. Implement data collection interface (`code/experiment/app.py`) with randomized condition assignment and manipulation check.
-3. Deploy experiment interface for participant recruitment (Prolific/MTurk).
-4. Run analysis pipeline on collected data; generate final report.
-5. Validate reproducibility, citations, and data hygiene before advancing to `research_accepted`.
+1.  **Phase 0 (Research)**: Verify literature (Lee & See, Langer), confirm scale items, generate `docs/trust_scale_items.md`, and create `research/dataset_verification_report.md`, `research/literature_review.md`, and `research/power_calculation.json`.
+2.  **Phase 1 (Design)**: Define data schemas (`contracts/`), finalize config, and prepare the data collection interface to conform to `contracts/dataset.schema.yaml`.
+3.  **Phase 2 (Implementation)**: Build the data collection interface and the analysis pipeline.
+4.  **Phase 3 (Execution)**: Run the pipeline on synthetic data (testing) and real data (once collected).
+5.  **Phase 4 (Reporting)**: Generate final statistical reports and visualizations.

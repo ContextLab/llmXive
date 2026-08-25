@@ -1,5 +1,6 @@
-# Participant Data Schema
-# Defines the structure for raw experimental data exports
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Data Schema"
+description: "Defines the structure for raw experimental data exports. Note: Trust items use a 7-point Likert scale (1-7) as per Lee & See (2004)."
 type: object
 required:
   - participant_id
@@ -44,7 +45,7 @@ properties:
     type: number
     description: Aggregated trust score (mean of 12 items)
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   attention_check:
     type: boolean
@@ -54,73 +55,73 @@ properties:
     type: integer
     description: "Trust item 1: I trust this system"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_2:
     type: integer
     description: "Trust item 2: I feel confident in this system"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_3:
     type: integer
     description: "Trust item 3: I believe this system is reliable"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_4:
     type: integer
     description: "Trust item 4: I feel this system is competent"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_5:
     type: integer
     description: "Trust item 5: I feel this system is predictable"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_6:
     type: integer
     description: "Trust item 6: I feel this system is safe"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_7:
     type: integer
     description: "Trust item 7: I feel this system is honest"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_8:
     type: integer
     description: "Trust item 8: I feel this system is benevolent"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_9:
     type: integer
     description: "Trust item 9: I feel this system is capable"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_10:
     type: integer
     description: "Trust item 10: I feel this system is useful"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_11:
     type: integer
     description: "Trust item 11: I feel this system is accurate"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   trust_item_12:
     type: integer
     description: "Trust item 12: I feel this system is effective"
     minimum: 1
-    maximum: 5
+    maximum: 7
   
   perceived_agency_score:
     type: integer

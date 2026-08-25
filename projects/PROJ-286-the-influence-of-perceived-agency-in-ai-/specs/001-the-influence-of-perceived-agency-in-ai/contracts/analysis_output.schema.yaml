@@ -1,150 +1,96 @@
-# Analysis Output Schema
-# Defines the structure for statistical analysis results
-type: object
-required:
-  - anova_results
-  - planned_contrasts
-  - post_hoc_tests
-  - effect_sizes
-  - sensitivity_analysis
-  - metadata
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the statistical analysis results."
+type: "object"
 properties:
-  anova_results:
-    type: object
-    properties:
-      source:
-        type: string
-      df_between:
-        type: number
-      df_within:
-        type: number
-      F:
-        type: number
-      p:
-        type: number
-      eta_squared:
-        type: number
-    required:
-      - source
-      - df_between
-      - df_within
-      - F
-      - p
-      - eta_squared
-  
   planned_contrasts:
-    type: array
-    items:
-      type: object
-      properties:
-        contrast_name:
-          type: string
-        coefficients:
-          type: array
-          items:
-            type: integer
-        t_statistic:
-          type: number
-        p_value:
-          type: number
-        significant:
-          type: boolean
-      required:
-        - contrast_name
-        - coefficients
-        - t_statistic
-        - p_value
-        - significant
-    description: |
-      Contrast 1: High vs Low [1, -1, 0]
-      Contrast 2: (High+Low) vs Control [1, 1, -2]
-  
-  post_hoc_tests:
-    type: object
+    type: "object"
+    description: "Results of planned directional contrasts (High vs. Low)."
     properties:
-      method:
-        type: string
-        description: "Tukey HSD"
-      family_wise_error_rate_adjustment:
-        type: boolean
-      comparisons:
-        type: array
-        items:
-          type: object
-          properties:
-            group1:
-              type: string
-            group2:
-              type: string
-            mean_diff:
-              type: number
-            p_adj:
-              type: number
-            significant:
-              type: boolean
-          required:
-            - group1
-            - group2
-            - mean_diff
-            - p_adj
-            - significant
-  
+      high_vs_low:
+        type: "object"
+        properties:
+          t_statistic:
+            type: "number"
+          p_value:
+            type: "number"
+          degrees_of_freedom:
+            type: "integer"
+          significant:
+            type: "boolean"
+      high_low_vs_control:
+        type: "object"
+        properties:
+          t_statistic:
+            type: "number"
+          p_value:
+            type: "number"
+          degrees_of_freedom:
+            type: "integer"
+          significant:
+            type: "boolean"
+  pairwise_comparisons:
+    type: "object"
+    description: "Results of post-hoc pairwise comparisons."
+    properties:
+      high_vs_low:
+        type: "object"
+        properties:
+          p_value_raw:
+            type: "number"
+          p_value_adjusted:
+            type: "number"
+          significant:
+            type: "boolean"
+      high_vs_control:
+        type: "object"
+        properties:
+          p_value_raw:
+            type: "number"
+          p_value_adjusted:
+            type: "number"
+          significant:
+            type: "boolean"
+      low_vs_control:
+        type: "object"
+        properties:
+          p_value_raw:
+            type: "number"
+          p_value_adjusted:
+            type: "number"
+          significant:
+            type: "boolean"
   effect_sizes:
-    type: array
-    items:
-      type: object
-      properties:
-        comparison:
-          type: string
-        cohen_d:
-          type: number
-        interpretation:
-          type: string
-      required:
-        - comparison
-        - cohen_d
-        - interpretation
-  
-  sensitivity_analysis:
-    type: object
+    type: "object"
+    description: "Cohen's d for significant pairwise comparisons."
+    additionalProperties:
+      type: "number"
+  power_analysis:
+    type: "object"
+    description: "Pre-study power calculation results."
     properties:
-      threshold_type:
-        type: string
-      sweep_results:
-        type: array
-        items:
-          type: object
-          properties:
-            threshold_value:
-              type: number
-            p_value_primary:
-              type: number
-            effect_size_primary:
-              type: number
-          required:
-            - threshold_value
-            - p_value_primary
-            - effect_size_primary
-  
-  metadata:
-    type: object
-    properties:
-      analysis_timestamp:
-        type: string
-        format: date-time
-      n_total:
-        type: integer
-      n_excluded:
-        type: integer
-      power_target:
-        type: number
+      required_sample_size:
+        type: "integer"
       achieved_power:
-        type: number
-      manipulation_check_status:
-        type: string
-        enum:
-          - valid
-          - invalid
-    required:
-      - analysis_timestamp
-      - n_total
+        type: "number"
+      effect_size:
+        type: "number"
+      alpha:
+        type: "number"
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of threshold sensitivity sweep."
+    properties:
+      thresholds_tested:
+        type: "array"
+        items:
+          type: "number"
+      stability_report:
+        type: "string"
+required:
+  - planned_contrasts
+  - pairwise_comparisons
+  - effect_sizes
+  - power_analysis
+  - sensitivity_analysis
+additionalProperties: false

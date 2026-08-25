@@ -1,5 +1,6 @@
-# Power Analysis Schema
-# Defines the structure for power calculation parameters and results
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Power Analysis Schema"
+description: "Defines the structure for power calculation parameters and results."
 type: object
 required:
   - parameters
@@ -11,7 +12,7 @@ properties:
     properties:
       effect_size:
         type: number
-        description: Expected effect size (f)
+        description: Expected effect size (d for t-test, f for ANOVA)
       alpha:
         type: number
         description: Significance level
@@ -21,6 +22,9 @@ properties:
       groups:
         type: integer
         description: Number of experimental groups
+      test_type:
+        type: string
+        description: "Type of test (e.g., 't-test', 'ANOVA')"
     required:
       - effect_size
       - alpha
@@ -51,7 +55,7 @@ properties:
         format: date-time
       method:
         type: string
-        description: Statistical method used (e.g., F-test ANOVA)
+        description: Statistical method used (e.g., F-test ANOVA, T-test)
       reference:
         type: string
         description: Citation for power calculation method
