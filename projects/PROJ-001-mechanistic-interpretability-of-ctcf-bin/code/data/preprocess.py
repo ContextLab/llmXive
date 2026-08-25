@@ -1,175 +1,117 @@
+"""
+T014: Preprocess the extracted features and exclude cell types with missing ATAC-seq data.
+
+This script loads the raw feature extraction output, identifies cell types missing
+ATAC-seq data, excludes them to ensure data integrity, and writes the cleaned
+intermediate dataset to a CSV file for T015 to consume.
+
+Output: data/processed/intermediate_ctcf_features.csv
+"""
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, List, Set, Any, Optional
-
 import pandas as pd
-import numpy as np
 
-# Add project root to path to allow imports from sibling modules
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from data.extract_features import load_manifest
-from setup_env import ensure_directories
-
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(project_root / 'logs' / 'preprocess.log')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-MIN_CELL_TYPES_REQUIRED = 5
+INPUT_FILE = PROJECT_ROOT / "data" / "processed" / "extracted_features.csv"
+OUTPUT_FILE = PROJECT_ROOT / "data" / "processed" / "intermediate_ctcf_features.csv"
+MIN_CELL_TYPES = 5
 
-def load_processed_dataset(dataset_path: Path) -> pd.DataFrame:
-    """Load the dataset produced by extract_features (Parquet)."""
-    if not dataset_path.exists():
-        raise FileNotFoundError(f"Processed dataset not found at {dataset_path}")
-    logger.info(f"Loading dataset from {dataset_path}")
-    return pd.read_parquet(dataset_path)
+def load_processed_dataset() -> pd.DataFrame:
+    """Load the dataset produced by extract_features.py."""
+    if not INPUT_FILE.exists():
+        raise FileNotFoundError(f"Input file {INPUT_FILE} not found. Run extract_features.py first.")
+    return pd.read_csv(INPUT_FILE)
 
-def identify_missing_atac_cells(df: pd.DataFrame, cell_type_col: str = 'cell_type') -> Set[str]:
+def identify_missing_atac_cells(df: pd.DataFrame) -> Set[str]:
     """
-    Identify cell types where ATAC-seq data is missing.
-    
-    Based on the spec edge case: "exclude that cell type... or impute".
-    We choose exclusion. We assume missing ATAC signal is represented by NaN
-    in the 'atac_signal' column or a flag in the metadata.
+    Identify cell types that have missing ATAC-seq data.
+    Assumes 'atac_signal' column contains NaN for missing data.
     """
-    logger.info("Identifying cell types with missing ATAC-seq data...")
+    missing_atac = df[df['atac_signal'].isna()]
+    if missing_atac.empty:
+        return set()
     
-    # Group by cell_type and check for NaN in atac_signal
-    # Assuming the dataset has columns: sequence, cell_type, atac_signal, h3k27ac_signal, is_peak
-    if 'atac_signal' not in df.columns:
-        logger.warning("Column 'atac_signal' not found. Checking for 'atac' or similar.")
-        # Fallback check if column name varies
-        atac_col = next((c for c in df.columns if 'atac' in c.lower()), None)
-        if not atac_col:
-            logger.error("No ATAC-seq related column found. Cannot filter.")
-            return set()
-    else:
-        atac_col = 'atac_signal'
+    # Group by cell_type to see which ones have missing entries
+    # If a cell type has ANY missing ATAC data, we exclude the whole type (per spec)
+    missing_types = missing_atac['cell_type'].unique().tolist()
+    logger.warning(f"Cell types with missing ATAC-seq data: {missing_types}")
+    return set(missing_types)
 
-    # Check for NaN values per cell type
-    missing_cells = set()
-    cell_groups = df.groupby(cell_type_col)
-    
-    for cell_type, group in cell_groups:
-        if group[atac_col].isna().all():
-            missing_cells.add(cell_type)
-            logger.warning(f"Cell type '{cell_type}' has 100% missing ATAC-seq data. Marking for exclusion.")
-        elif group[atac_col].isna().any():
-            # If partial missing, we might still exclude or impute. 
-            # Per spec: "exclude that cell type". We will exclude if >50% missing to be safe,
-            # or strictly if any missing if the spec implies strict exclusion.
-            # Let's implement strict exclusion for any missing data to ensure integrity as per "exclude... to ensure data integrity".
-            missing_cells.add(cell_type)
-            logger.warning(f"Cell type '{cell_type}' has some missing ATAC-seq data. Marking for exclusion.")
-
-    return missing_cells
-
-def filter_by_cell_types(df: pd.DataFrame, exclude_cells: Set[str], cell_type_col: str = 'cell_type') -> pd.DataFrame:
-    """Filter the dataframe to remove rows belonging to excluded cell types."""
-    if not exclude_cells:
-        logger.info("No cell types to exclude.")
+def filter_by_cell_types(df: pd.DataFrame, exclude_types: Set[str]) -> pd.DataFrame:
+    """Filter the dataframe to exclude specified cell types."""
+    if not exclude_types:
         return df
     
     initial_count = len(df)
-    initial_types = df[cell_type_col].unique().tolist()
-    
-    filtered_df = df[~df[cell_type_col].isin(exclude_cells)]
-    
+    filtered_df = df[~df['cell_type'].isin(exclude_types)]
     final_count = len(filtered_df)
-    final_types = filtered_df[cell_type_col].unique().tolist()
     
-    logger.info(f"Filtered {initial_count} rows to {final_count} rows.")
-    logger.info(f"Excluded cell types: {exclude_cells}")
-    logger.info(f"Remaining cell types: {final_types}")
-    
+    logger.info(f"Filtered out {initial_count - final_count} rows from cell types: {exclude_types}")
     return filtered_df
 
-def check_minimum_cell_types(df: pd.DataFrame, min_count: int = MIN_CELL_TYPES_REQUIRED, cell_type_col: str = 'cell_type') -> bool:
-    """Check if the remaining dataset has enough cell types."""
-    remaining_types = df[cell_type_col].nunique()
-    logger.info(f"Remaining unique cell types: {remaining_types} (Required: {min_count})")
-    return remaining_types >= min_count
+def check_minimum_cell_types(df: pd.DataFrame) -> bool:
+    """Ensure we still have at least MIN_CELL_TYPES after filtering."""
+    unique_cells = df['cell_type'].nunique()
+    if unique_cells < MIN_CELL_TYPES:
+        logger.error(f"Insufficient cell types remaining: {unique_cells} (min: {MIN_CELL_TYPES})")
+        return False
+    logger.info(f"Remaining cell types: {unique_cells}")
+    return True
 
-def generate_scope_revision_trigger(output_path: Path, missing_cells: Set[str], remaining_cells: Set[str]):
-    """Generate a trigger file if the dataset falls below the minimum cell type threshold."""
-    content = {
-        "trigger": "SCOPE_REVISION_REQUIRED",
-        "reason": f"Exclusion of cell types with missing ATAC-seq data resulted in fewer than {MIN_CELL_TYPES_REQUIRED} cell types.",
-        "excluded_cell_types": list(missing_cells),
-        "remaining_cell_types": list(remaining_cells),
-        "action_required": "Re-run T003 (search_sources) to find additional cell types with ATAC-seq data.",
-        "timestamp": str(pd.Timestamp.now())
-    }
+def generate_scope_revision_trigger():
+    """Generate a trigger file if we fall below the minimum cell types."""
+    trigger_file = PROJECT_ROOT / "docs" / "scope_revision_trigger.md"
+    trigger_file.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(content, f, indent=2)
-    
-    logger.error(f"Scope revision trigger generated at {output_path}")
-    raise RuntimeError(f"Scope revision required: {output_path}")
+    with open(trigger_file, 'w') as f:
+        f.write("# Scope Revision Trigger\n\n")
+        f.write("The data filtering process resulted in fewer than the required 5 cell types.\n")
+        f.write("Please re-run the data search (T003) or consider imputation strategies.\n")
+        f.write("Pipeline halted pending resolution.\n")
+    logger.critical(f"Generated scope revision trigger: {trigger_file}")
 
 def main():
-    logger.info("Starting T014: Preprocess - Exclude cell types with missing ATAC-seq data")
+    """Main entry point for T014."""
+    logger.info("Starting data preprocessing (T014)...")
     
-    # Paths
-    manifest_path = project_root / 'data' / 'manifest.json'
-    dataset_path = project_root / 'data' / 'processed' / 'unified_ctcf_dataset.parquet'
-    output_path = project_root / 'data' / 'processed' / 'unified_ctcf_dataset_preprocessed.parquet'
-    trigger_path = project_root / 'docs' / 'scope_revision_trigger.md'
-    
-    # Ensure output directory exists
-    ensure_directories([output_path.parent, trigger_path.parent])
-    
-    # 1. Load the dataset produced by extract_features (T013)
+    # Load data
     try:
-        df = load_processed_dataset(dataset_path)
+        df = load_processed_dataset()
     except FileNotFoundError as e:
-        logger.error(f"Cannot proceed: {e}")
-        sys.exit(1)
-    
-    if df.empty:
-        logger.error("Dataset is empty. Cannot proceed.")
+        logger.error(str(e))
         sys.exit(1)
 
-    # 2. Identify cell types with missing ATAC-seq data
-    missing_cells = identify_missing_atac_cells(df)
-    
-    if not missing_cells:
-        logger.info("No cell types found with missing ATAC-seq data. Skipping exclusion.")
-        # Still save the dataset as preprocessed (no change) to maintain pipeline flow
-        df.to_parquet(output_path, index=False)
-        logger.info(f"Saved preprocessed dataset to {output_path}")
-        return
+    logger.info(f"Loaded {len(df)} rows from {INPUT_FILE}")
 
-    # 3. Filter the dataset
-    filtered_df = filter_by_cell_types(df, missing_cells)
+    # Identify missing ATAC
+    missing_types = identify_missing_atac_cells(df)
     
-    # 4. Check if we still have enough cell types
-    if not check_minimum_cell_types(filtered_df):
-        remaining_cells = set(filtered_df['cell_type'].unique())
-        logger.error("Exclusion resulted in insufficient cell types.")
-        # Generate trigger file
-        generate_scope_revision_trigger(trigger_path, missing_cells, remaining_cells)
-        # The pipeline should halt here as per spec
+    if missing_types:
+        df = filter_by_cell_types(df, missing_types)
+    
+    # Check minimum constraint
+    if not check_minimum_cell_types(df):
+        generate_scope_revision_trigger()
         sys.exit(1)
+
+    # Save intermediate file for T015
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(OUTPUT_FILE, index=False)
     
-    # 5. Save the final preprocessed dataset
-    filtered_df.to_parquet(output_path, index=False)
-    logger.info(f"Successfully saved preprocessed dataset to {output_path}")
-    logger.info(f"Final dataset shape: {filtered_df.shape}")
-    
-    # Log summary
-    logger.info("Preprocessing complete. Dataset ready for model training.")
+    logger.info(f"Saved preprocessed dataset to {OUTPUT_FILE} ({len(df)} rows)")
+    logger.info("T014 completed.")
 
 if __name__ == "__main__":
     main()

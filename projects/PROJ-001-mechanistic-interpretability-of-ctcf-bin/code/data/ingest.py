@@ -5,32 +5,50 @@ import hashlib
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-import requests
 
-# Configure logging for the data ingestion pipeline
-# This ensures that cell type counts, download status, and exclusion reasons are captured
-def setup_logging() -> logging.Logger:
+# Import config utilities to ensure paths are set up correctly
+# We assume the project root is the parent of the 'code' directory
+# so we add the parent to sys.path if not already present
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from data.config.config_loader import load_env_config, validate_manifest_exists, get_data_paths
+
+def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
+    """
+    Configures logging for the ingestion process.
+    Logs to both console and a file if provided.
+    """
     logger = logging.getLogger("ctcf_ingest")
     logger.setLevel(logging.INFO)
-    
-    # Avoid adding duplicate handlers if called multiple times
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-    
+
+    # Prevent duplicate handlers if called multiple times
+    if logger.handlers:
+        return logger
+
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    # File handler
+    if log_file:
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
     return logger
 
 def load_manifest(manifest_path: Path) -> List[Dict[str, Any]]:
     """
-    Load the manifest JSON file containing verified data sources.
-    Returns a list of dictionaries with experiment details.
+    Loads the data manifest JSON.
     """
     if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
+        raise FileNotFoundError(f"Manifest not found at {manifest_path}")
     
     with open(manifest_path, 'r') as f:
         data = json.load(f)
@@ -41,33 +59,11 @@ def load_manifest(manifest_path: Path) -> List[Dict[str, Any]]:
     elif isinstance(data, dict) and 'entries' in data:
         return data['entries']
     else:
-        raise ValueError("Manifest file must be a list or contain an 'entries' key")
-
-def download_file(url: str, dest_path: Path, timeout: int = 300) -> bool:
-    """
-    Download a file from a URL to a destination path.
-    Returns True if successful, False otherwise.
-    """
-    try:
-        logging.info(f"Downloading from {url} to {dest_path}")
-        response = requests.get(url, stream=True, timeout=timeout)
-        response.raise_for_status()
-        
-        dest_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(dest_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        
-        logging.info(f"Successfully downloaded {dest_path.name}")
-        return True
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Failed to download {url}: {str(e)}")
-        return False
+        raise ValueError("Manifest must be a list or a dict with 'entries' key")
 
 def calculate_sha256(file_path: Path) -> str:
     """
-    Calculate SHA-256 checksum of a file.
+    Calculates the SHA256 checksum of a file.
     """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -75,159 +71,182 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def process_manifest_entry(
-    entry: Dict[str, Any], 
-    data_dir: Path, 
-    logger: logging.Logger
-) -> Dict[str, Any]:
+def download_file(url: str, dest_path: Path, logger: logging.Logger) -> bool:
     """
-    Process a single manifest entry: download file, calculate checksum, update entry.
-    Returns updated entry with download status, checksum, and local path.
+    Downloads a file from a URL to a destination path.
+    Returns True on success, False on failure.
     """
+    import requests
+    from requests.exceptions import RequestException
+
+    try:
+        logger.info(f"Downloading {url} to {dest_path}")
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(dest_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        
+        logger.info(f"Successfully downloaded {dest_path.name}")
+        return True
+    except RequestException as e:
+        logger.error(f"Failed to download {url}: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error downloading {url}: {e}")
+        return False
+
+def process_manifest_entry(entry: Dict[str, Any], base_dir: Path, logger: logging.Logger) -> Dict[str, Any]:
+    """
+    Processes a single manifest entry: downloads file, calculates checksum,
+    and logs cell type and exclusion reasons.
+    """
+    accession_id = entry.get('accession_id', 'unknown')
     cell_type = entry.get('cell_type', 'unknown')
     file_type = entry.get('file_type', 'unknown')
-    accession_id = entry.get('accession_id', 'unknown')
-    url = entry.get('url')
-    
-    if not url:
-        logger.warning(f"Skipping {cell_type} {file_type}: No URL provided")
+    url = entry.get('url', '')
+    status = entry.get('status', 'pending')
+
+    log_prefix = f"[{cell_type} - {accession_id}]"
+
+    if status == 'excluded':
+        reason = entry.get('exclusion_reason', 'Unknown reason')
+        logger.warning(f"{log_prefix} EXCLUDED: {reason}")
         return {
-            **entry,
-            'status': 'skipped',
-            'reason': 'missing_url'
+            'accession_id': accession_id,
+            'cell_type': cell_type,
+            'status': 'excluded',
+            'reason': reason
         }
-    
-    # Determine local path
-    filename = f"{accession_id}_{file_type}"
-    local_path = data_dir / filename
-    
-    # Download file
-    success = download_file(url, local_path)
-    
-    if success:
-        checksum = calculate_sha256(local_path)
-        logger.info(f"Downloaded {cell_type} {file_type}: {local_path.name} (SHA256: {checksum[:16]}...)")
-        
+
+    if not url:
+        reason = "No download URL provided in manifest"
+        logger.error(f"{log_prefix} EXCLUDED: {reason}")
         return {
-            **entry,
+            'accession_id': accession_id,
+            'cell_type': cell_type,
+            'status': 'excluded',
+            'reason': reason
+        }
+
+    # Determine file extension and target path
+    ext = '.bam' if file_type == 'bam' else '.bigwig' if file_type == 'bigwig' else '.gz'
+    filename = f"{accession_id}{ext}"
+    dest_path = base_dir / filename
+
+    if dest_path.exists():
+        logger.info(f"{log_prefix} File already exists, skipping download: {filename}")
+        # Verify checksum if local file exists
+        local_checksum = calculate_sha256(dest_path)
+        expected_checksum = entry.get('checksum', '')
+        if expected_checksum and local_checksum != expected_checksum:
+            logger.warning(f"{log_prefix} Checksum mismatch. Re-downloading.")
+            # Re-download logic could go here, for now we just log
+        else:
+            return {
+                'accession_id': accession_id,
+                'cell_type': cell_type,
+                'status': 'downloaded',
+                'path': str(dest_path),
+                'checksum': local_checksum
+            }
+
+    # Attempt download
+    if download_file(url, dest_path, logger):
+        checksum = calculate_sha256(dest_path)
+        logger.info(f"{log_prefix} Download complete. Checksum: {checksum}")
+        return {
+            'accession_id': accession_id,
+            'cell_type': cell_type,
             'status': 'downloaded',
-            'local_path': str(local_path),
+            'path': str(dest_path),
             'checksum': checksum
         }
     else:
-        logger.error(f"Failed to download {cell_type} {file_type}: {accession_id}")
+        reason = "Download failed"
+        logger.error(f"{log_prefix} EXCLUDED: {reason}")
         return {
-            **entry,
-            'status': 'failed',
-            'reason': 'download_error'
+            'accession_id': accession_id,
+            'cell_type': cell_type,
+            'status': 'excluded',
+            'reason': reason
         }
 
 def main():
     """
-    Main function to execute data ingestion with comprehensive logging.
-    
-    This function:
-    1. Loads the manifest of verified data sources
-    2. Logs initial counts of cell types and data types
-    3. Downloads each file and logs progress
-    4. Tracks and logs exclusion reasons for any failures
-    5. Generates a summary report of the ingestion process
+    Main entry point for data ingestion with logging.
     """
-    logger = setup_logging()
-    
-    # Define paths
-    project_root = Path(__file__).parent.parent.parent
-    manifest_path = project_root / "data" / "manifest.json"
-    data_dir = project_root / "data" / "raw"
-    
-    logger.info("=" * 60)
+    # Setup logging
+    log_dir = Path("data/logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "ingest_run.log"
+    logger = setup_logging(log_file)
+
+    logger.info("="*50)
     logger.info("Starting CTCF Data Ingestion Pipeline")
-    logger.info("=" * 60)
-    
-    # Load manifest
+    logger.info("="*50)
+
     try:
-        manifest = load_manifest(manifest_path)
-        logger.info(f"Loaded manifest with {len(manifest)} entries")
+        # Load configuration
+        config = load_env_config()
+        data_paths = get_data_paths()
+        raw_data_dir = data_paths.get('raw', Path("data/raw"))
+        raw_data_dir.mkdir(parents=True, exist_ok=True)
+
+        # Validate manifest
+        manifest_path = Path("data/manifest.json")
+        validate_manifest_exists(manifest_path)
+        
+        entries = load_manifest(manifest_path)
+        logger.info(f"Loaded {len(entries)} entries from manifest.")
+
+        # Counters for logging summary
+        total_count = len(entries)
+        processed_count = 0
+        excluded_count = 0
+        downloaded_count = 0
+        exclusion_reasons: Dict[str, int] = {}
+
+        results = []
+
+        for entry in entries:
+            processed_count += 1
+            result = process_manifest_entry(entry, raw_data_dir, logger)
+            results.append(result)
+
+            if result['status'] == 'excluded':
+                excluded_count += 1
+                reason = result.get('reason', 'Unknown')
+                exclusion_reasons[reason] = exclusion_reasons.get(reason, 0) + 1
+            elif result['status'] == 'downloaded':
+                downloaded_count += 1
+
+        # Final Summary Log
+        logger.info("="*50)
+        logger.info("Ingestion Summary")
+        logger.info("="*50)
+        logger.info(f"Total entries processed: {total_count}")
+        logger.info(f"Successfully downloaded: {downloaded_count}")
+        logger.info(f"Excluded: {excluded_count}")
+        
+        if exclusion_reasons:
+            logger.info("Exclusion Reasons Breakdown:")
+            for reason, count in exclusion_reasons.items():
+                logger.info(f"  - {reason}: {count}")
+        
+        logger.info(f"Logs saved to: {log_file}")
+        logger.info("Ingestion complete.")
+
+    except FileNotFoundError as e:
+        logger.error(f"Configuration or Manifest error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Failed to load manifest: {str(e)}")
+        logger.error(f"Unexpected error during ingestion: {e}")
         sys.exit(1)
-    
-    # Log initial statistics
-    cell_types = set()
-    file_types = set()
-    for entry in manifest:
-        if entry.get('cell_type'):
-            cell_types.add(entry['cell_type'])
-        if entry.get('file_type'):
-            file_types.add(entry['file_type'])
-    
-    logger.info(f"Found {len(cell_types)} unique cell types: {', '.join(sorted(cell_types))}")
-    logger.info(f"Found {len(file_types)} unique file types: {', '.join(sorted(file_types))}")
-    
-    # Ensure data directory exists
-    data_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Process each entry
-    results = []
-    successful_downloads = 0
-    failed_downloads = 0
-    skipped_entries = 0
-    
-    exclusion_reasons = {}
-    
-    for idx, entry in enumerate(manifest, 1):
-        cell_type = entry.get('cell_type', 'unknown')
-        file_type = entry.get('file_type', 'unknown')
-        accession_id = entry.get('accession_id', 'unknown')
-        
-        logger.info(f"[{idx}/{len(manifest)}] Processing: {cell_type} - {file_type} - {accession_id}")
-        
-        result = process_manifest_entry(entry, data_dir, logger)
-        results.append(result)
-        
-        status = result.get('status', 'unknown')
-        
-        if status == 'downloaded':
-            successful_downloads += 1
-        elif status == 'failed':
-            failed_downloads += 1
-            reason = result.get('reason', 'unknown')
-            exclusion_reasons[reason] = exclusion_reasons.get(reason, 0) + 1
-            logger.warning(f"Excluded {cell_type} {file_type}: {reason}")
-        elif status == 'skipped':
-            skipped_entries += 1
-            reason = result.get('reason', 'unknown')
-            exclusion_reasons[reason] = exclusion_reasons.get(reason, 0) + 1
-            logger.info(f"Skipped {cell_type} {file_type}: {reason}")
-    
-    # Log summary statistics
-    logger.info("=" * 60)
-    logger.info("Ingestion Summary")
-    logger.info("=" * 60)
-    logger.info(f"Total entries processed: {len(manifest)}")
-    logger.info(f"Successful downloads: {successful_downloads}")
-    logger.info(f"Failed downloads: {failed_downloads}")
-    logger.info(f"Skipped entries: {skipped_entries}")
-    
-    if exclusion_reasons:
-        logger.info("Exclusion reasons:")
-        for reason, count in exclusion_reasons.items():
-            logger.info(f"  - {reason}: {count}")
-    
-    # Save updated manifest
-    output_manifest_path = project_root / "data" / "manifest_processed.json"
-    with open(output_manifest_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Updated manifest saved to: {output_manifest_path}")
-    logger.info("Data ingestion pipeline completed successfully")
-    
-    # Exit with error code if any downloads failed
-    if failed_downloads > 0:
-        logger.warning(f"Some downloads failed ({failed_downloads}). Review logs for details.")
-        sys.exit(1)
-    
-    sys.exit(0)
 
 if __name__ == "__main__":
     main()

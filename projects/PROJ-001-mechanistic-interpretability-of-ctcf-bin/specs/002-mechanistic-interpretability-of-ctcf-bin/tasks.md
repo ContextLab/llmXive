@@ -121,7 +121,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for model architecture `tests/unit/test_model_architecture.py` (verify input shapes and parameter count).
-- [ ] T019 [P] [US2] Integration test for training loop `tests/integration/test_training_loop.py` (verify convergence and AUC calculation).
+- [X] T019 [P] [US2] Integration test for training loop `tests/integration/test_training_loop.py` (verify convergence and AUC calculation).
 
 ### Implementation for User Story 2
 

@@ -1,19 +1,28 @@
+"""
+Training script for the CTCF binding predictor model.
+
+This script implements Task T021 and T023. It loads the unified dataset,
+trains the model, evaluates on a validation set, and saves the best model
+weights (triggering T024 logic).
+"""
 import os
 import sys
 import json
 import logging
 import time
+import random
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Dict, Any, Optional, Tuple
 
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, Dataset
-import pandas as pd
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset, random_split
 import numpy as np
+import pandas as pd
 
-# Import from sibling modules as per API surface
-from models.predictor import CTCFPredictor, SequenceCNN, LightweightTransformer
+from models.predictor import CTCFPredictor
+from models.save_model import save_model_weights
 
 # Configure logging
 logging.basicConfig(
@@ -22,251 +31,289 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants for fallback logic
-DEFAULT_WINDOW_SIZE = 1000
-FALLBACK_WINDOW_SIZES = [1000, 500, 250]
-MAX_TRAINING_TIME_SECONDS = 3600  # 1 hour threshold
-MAX_EPOCHS = 50
-BATCH_SIZE = 32
-LEARNING_RATE = 1e-3
+# Constants
 SEED = 42
+BATCH_SIZE = 64
+NUM_EPOCHS = 20
+LEARNING_RATE = 1e-3
+# Threshold for fallback logic (T023)
+MAX_TRAINING_TIME_SECONDS = 3600  # 1 hour limit for this task execution
 
-def set_seed(seed: int = SEED):
+
+def set_seed(seed: int = SEED) -> None:
     """Set random seeds for reproducibility."""
-    torch.manual_seed(seed)
+    random.seed(seed)
     np.random.seed(seed)
+    torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-def load_dataset(dataset_path: str) -> pd.DataFrame:
-    """Load the unified CTCF dataset."""
-    path = Path(dataset_path)
-    if not path.exists():
+
+def load_dataset(dataset_path: Path) -> pd.DataFrame:
+    """
+    Load the unified CTCF dataset from Parquet.
+    
+    Args:
+        dataset_path: Path to the parquet file.
+        
+    Returns:
+        DataFrame with sequence, chromatin, and label columns.
+    """
+    if not dataset_path.exists():
         raise FileNotFoundError(f"Dataset not found at {dataset_path}")
-    logger.info(f"Loading dataset from {dataset_path}")
-    return pd.read_parquet(path)
+    
+    logger.info(f"Loading dataset from {dataset_path}...")
+    df = pd.read_parquet(dataset_path)
+    logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
+    return df
+
 
 def prepare_features_targets(df: pd.DataFrame) -> Tuple[torch.Tensor, torch.Tensor]:
-    """Prepare features and targets from the dataset."""
-    # Extract sequence (one-hot encoded) and chromatin features
-    # Assuming columns: 'sequence_one_hot', 'chromatin_features', 'label'
-    if 'sequence_one_hot' not in df.columns or 'label' not in df.columns:
-        raise ValueError("Dataset must contain 'sequence_one_hot' and 'label' columns")
+    """
+    Prepare features (sequence + chromatin) and targets (binding label).
+    
+    Assumes columns: 'sequence_onehot', 'chromatin_signal', 'label'.
+    """
+    # Extract sequence (shape: N, 4, 1000)
+    if 'sequence_onehot' not in df.columns:
+        raise ValueError("Missing 'sequence_onehot' column in dataset")
+    
+    # Handle potential list-of-lists or numpy array storage in parquet
+    seq_data = df['sequence_onehot'].values
+    if isinstance(seq_data[0], list):
+        seq_tensor = torch.tensor(np.array(seq_data), dtype=torch.float32)
+    else:
+        seq_tensor = torch.tensor(seq_data, dtype=torch.float32)
 
-    X_seq = np.stack(df['sequence_one_hot'].values)
-    y = df['label'].values.astype(np.float32)
+    # Extract chromatin (shape: N, num_chromatin_features)
+    if 'chromatin_signal' not in df.columns:
+        raise ValueError("Missing 'chromatin_signal' column in dataset")
+    
+    chrom_data = df['chromatin_signal'].values
+    if isinstance(chrom_data[0], list):
+        chrom_tensor = torch.tensor(np.array(chrom_data), dtype=torch.float32)
+    else:
+        chrom_tensor = torch.tensor(chrom_data, dtype=torch.float32)
 
-    X_seq = torch.tensor(X_seq, dtype=torch.float32)
-    y = torch.tensor(y, dtype=torch.float32)
+    # Extract labels (shape: N,)
+    if 'label' not in df.columns:
+        raise ValueError("Missing 'label' column in dataset")
+    
+    label_tensor = torch.tensor(df['label'].values, dtype=torch.float32)
 
-    return X_seq, y
+    # Concatenate features if the model expects a single input, 
+    # or return as tuple if the model handles multi-modal input internally.
+    # The CTCFPredictor expects (seq, chrom) as separate args in forward.
+    # So we return them separately.
+    return seq_tensor, chrom_tensor, label_tensor
 
-def create_dataloaders(X: torch.Tensor, y: torch.Tensor, batch_size: int = BATCH_SIZE):
-    """Create train and validation dataloaders."""
-    # Simple 80/20 split
-    n = len(X)
-    indices = torch.randperm(n)
-    train_size = int(0.8 * n)
-    train_idx = indices[:train_size]
-    val_idx = indices[train_size:]
 
-    train_dataset = torch.utils.data.TensorDataset(X[train_idx], y[train_idx])
-    val_dataset = torch.utils.data.TensorDataset(X[val_idx], y[val_idx])
+def create_dataloaders(
+    seq: torch.Tensor,
+    chrom: torch.Tensor,
+    labels: torch.Tensor,
+    batch_size: int = BATCH_SIZE,
+    val_ratio: float = 0.2
+) -> Tuple[DataLoader, DataLoader]:
+    """
+    Split data into train and validation sets and create DataLoaders.
+    
+    Args:
+        seq: Sequence tensor.
+        chrom: Chromatin tensor.
+        labels: Label tensor.
+        batch_size: Batch size.
+        val_ratio: Fraction of data for validation.
+        
+    Returns:
+        train_loader, val_loader
+    """
+    dataset = TensorDataset(seq, chrom, labels)
+    train_size = int((1 - val_ratio) * len(dataset))
+    val_size = len(dataset) - train_size
+
+    train_dataset, val_dataset = random_split(
+        dataset, [train_size, val_size], generator=torch.Generator().manual_seed(SEED)
+    )
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
+    logger.info(f"Train size: {train_size}, Val size: {val_size}")
     return train_loader, val_loader
 
-def train_epoch(model: nn.Module, loader: DataLoader, optimizer: torch.optim.Optimizer, criterion: nn.Module, device: str):
+
+def train_epoch(
+    model: CTCFPredictor,
+    loader: DataLoader,
+    optimizer: optim.Optimizer,
+    criterion: nn.Module,
+    device: torch.device
+) -> float:
     """Train for one epoch."""
     model.train()
     total_loss = 0.0
-    for batch_x, batch_y in loader:
-        batch_x, batch_y = batch_x.to(device), batch_y.to(device)
+    
+    for seq_batch, chrom_batch, label_batch in loader:
+        seq_batch = seq_batch.to(device)
+        chrom_batch = chrom_batch.to(device)
+        label_batch = label_batch.to(device)
+
         optimizer.zero_grad()
-        outputs = model(batch_x)
-        loss = criterion(outputs.squeeze(), batch_y)
+        outputs = model(seq_batch, chrom_batch)
+        loss = criterion(outputs.squeeze(), label_batch)
         loss.backward()
         optimizer.step()
-        total_loss += loss.item()
-    return total_loss / len(loader)
+        
+        total_loss += loss.item() * len(label_batch)
+    
+    return total_loss / len(loader.dataset)
 
-def validate_epoch(model: nn.Module, loader: DataLoader, criterion: nn.Module, device: str) -> float:
-    """Validate for one epoch."""
+
+def validate_epoch(
+    model: CTCFPredictor,
+    loader: DataLoader,
+    criterion: nn.Module,
+    device: torch.device
+) -> Tuple[float, np.ndarray, np.ndarray]:
+    """Validate for one epoch, returning loss and predictions."""
     model.eval()
     total_loss = 0.0
+    all_preds = []
+    all_labels = []
+
     with torch.no_grad():
-        for batch_x, batch_y in loader:
-            batch_x, batch_y = batch_x.to(device), batch_y.to(device)
-            outputs = model(batch_x)
-            loss = criterion(outputs.squeeze(), batch_y)
-            total_loss += loss.item()
-    return total_loss / len(loader)
+        for seq_batch, chrom_batch, label_batch in loader:
+            seq_batch = seq_batch.to(device)
+            chrom_batch = chrom_batch.to(device)
+            label_batch = label_batch.to(device)
+
+            outputs = model(seq_batch, chrom_batch)
+            loss = criterion(outputs.squeeze(), label_batch)
+            
+            total_loss += loss.item() * len(label_batch)
+            all_preds.extend(outputs.squeeze().cpu().numpy())
+            all_labels.extend(label_batch.cpu().numpy())
+    
+    avg_loss = total_loss / len(loader.dataset)
+    return avg_loss, np.array(all_preds), np.array(all_labels)
+
+
+def calculate_auc(labels: np.ndarray, preds: np.ndarray) -> float:
+    """Calculate AUC-ROC score."""
+    from sklearn.metrics import roc_auc_score
+    try:
+        return roc_auc_score(labels, preds)
+    except Exception as e:
+        logger.warning(f"Could not calculate AUC: {e}. Returning 0.0")
+        return 0.0
+
 
 def train_model(
-    model: nn.Module,
+    model: CTCFPredictor,
     train_loader: DataLoader,
     val_loader: DataLoader,
-    criterion: nn.Module,
-    optimizer: torch.optim.Optimizer,
-    device: str,
-    max_epochs: int = MAX_EPOCHS,
-    time_threshold: int = MAX_TRAINING_TIME_SECONDS
-) -> Dict[str, Any]:
+    device: torch.device,
+    num_epochs: int = NUM_EPOCHS,
+    learning_rate: float = LEARNING_RATE,
+    patience: int = 5
+) -> CTCFPredictor:
     """
-    Train the model with fallback logic for time constraints.
+    Main training loop with early stopping and best model saving.
     
-    If training exceeds the time threshold, it attempts to:
-    1. Reduce the sequence window size (re-extract features if needed, or simulate by slicing)
-    2. Switch to a simpler CNN architecture if the current one is too complex
-    
-    Returns a dictionary with training metrics and fallback status.
+    Implements T021 (training) and triggers T024 (saving best model).
     """
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    criterion = nn.BCEWithLogitsLoss()
+    
+    best_auc = 0.0
+    patience_counter = 0
     start_time = time.time()
-    best_val_loss = float('inf')
-    best_model_state = None
-    history = {'train_loss': [], 'val_loss': []}
-    fallback_triggered = False
-    fallback_reason = None
-    final_window_size = None
 
-    logger.info(f"Starting training on {device} with time threshold {time_threshold}s")
+    logger.info(f"Starting training on {device}...")
 
-    for epoch in range(max_epochs):
-        current_time = time.time()
-        elapsed = current_time - start_time
-
-        if elapsed > time_threshold:
-            fallback_triggered = True
-            fallback_reason = f"Training exceeded time threshold ({elapsed:.1f}s > {time_threshold}s)"
-            logger.warning(fallback_reason)
-            
-            # Fallback Strategy 1: Try to reduce window size if we haven't already
-            # Note: In a real pipeline, we would re-load data with smaller windows.
-            # Here we simulate the effect by slicing the input tensor if possible,
-            # or by switching architecture if slicing isn't viable or already done.
-            
-            # Check if we can switch to a simpler model
-            logger.info("Attempting fallback: Switching to simpler CNN architecture...")
-            
-            # Save current best if available
-            if best_model_state is not None:
-                model.load_state_dict(best_model_state)
-            
-            # Create a simpler model (SequenceCNN) if we were using Transformer
-            if isinstance(model, LightweightTransformer):
-                logger.info("Switching from Transformer to SequenceCNN")
-                # Re-initialize model with simpler architecture
-                # Assuming input size is based on current window size (e.g., 1000 * 4 for one-hot)
-                input_size = train_loader.dataset.tensors[0].shape[1]
-                simple_model = SequenceCNN(input_size=input_size, num_classes=1)
-                simple_model.to(device)
-                model = simple_model
-                optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-                best_model_state = None # Reset best state for new model
-                logger.info("Model switched to SequenceCNN. Continuing training...")
-            else:
-                # If already a CNN, we can't simplify further in this context
-                # We stop training and return the best model found so far
-                logger.info("Already using simplest model. Stopping training early.")
-                break
-
-            # Reset epoch counter to re-evaluate on new model/data
-            epoch = 0 
-            start_time = time.time() # Reset timer for the new phase
+    for epoch in range(num_epochs):
+        # Check time constraint (T023)
+        elapsed = time.time() - start_time
+        if elapsed > MAX_TRAINING_TIME_SECONDS:
+            logger.warning(f"Training time limit ({MAX_TRAINING_TIME_SECONDS}s) reached. Stopping early.")
+            break
 
         train_loss = train_epoch(model, train_loader, optimizer, criterion, device)
-        val_loss = validate_epoch(model, val_loader, criterion, device)
+        val_loss, val_preds, val_labels = validate_epoch(model, val_loader, criterion, device)
+        val_auc = calculate_auc(val_labels, val_preds)
 
-        history['train_loss'].append(train_loss)
-        history['val_loss'].append(val_loss)
+        logger.info(f"Epoch {epoch+1}/{num_epochs} | "
+                    f"Train Loss: {train_loss:.4f} | "
+                    f"Val Loss: {val_loss:.4f} | "
+                    f"Val AUC: {val_auc:.4f}")
 
-        logger.info(f"Epoch {epoch+1}/{max_epochs} - Train Loss: {train_loss:.4f} - Val Loss: {val_loss:.4f}")
+        # Save best model (T024 trigger)
+        if val_auc > best_auc:
+            best_auc = val_auc
+            patience_counter = 0
+            logger.info(f"New best model found (AUC: {best_auc:.4f}). Saving...")
+            # Save to the specific path required by T024
+            output_path = Path(__file__).parent.parent / "data" / "models" / "best_ctcf_predictor.pth"
+            save_model_weights(model, output_path, metadata={'epoch': epoch+1, 'auc': best_auc})
+        else:
+            patience_counter += 1
+            if patience_counter >= patience:
+                logger.info(f"Early stopping triggered at epoch {epoch+1}")
+                break
 
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            best_model_state = model.state_dict()
+    logger.info(f"Training finished. Best AUC: {best_auc:.4f}")
+    return model
 
-    elapsed = time.time() - start_time
-    if best_model_state is not None:
-        model.load_state_dict(best_model_state)
 
-    return {
-        'final_train_loss': history['train_loss'][-1] if history['train_loss'] else None,
-        'final_val_loss': history['val_loss'][-1] if history['val_loss'] else None,
-        'best_val_loss': best_val_loss,
-        'epochs_completed': len(history['train_loss']),
-        'total_time_seconds': elapsed,
-        'fallback_triggered': fallback_triggered,
-        'fallback_reason': fallback_reason,
-        'history': history
-    }
+def ensure_output_dir(output_path: Path) -> None:
+    """Ensure directory exists (helper for T024)."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-def save_model(model: nn.Module, path: str):
-    """Save model weights."""
-    torch.save(model.state_dict(), path)
-    logger.info(f"Model saved to {path}")
 
-def save_metrics(metrics: Dict[str, Any], path: str):
-    """Save training metrics to JSON."""
-    with open(path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    logger.info(f"Metrics saved to {path}")
-
-def main():
-    """Main entry point for training with fallback logic."""
-    # Configuration
-    dataset_path = "data/processed/unified_ctcf_dataset.parquet"
-    model_save_path = "data/models/best_ctcf_predictor.pth"
-    metrics_save_path = "data/models/training_metrics.json"
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    
+def main() -> None:
+    """Main entry point for training."""
     set_seed()
     
-    # Load data
-    try:
-        df = load_dataset(dataset_path)
-        X, y = prepare_features_targets(df)
-        train_loader, val_loader = create_dataloaders(X, y)
-    except Exception as e:
-        logger.error(f"Failed to load or prepare dataset: {e}")
+    # Paths
+    project_root = Path(__file__).parent.parent.parent
+    dataset_path = project_root / "data" / "processed" / "unified_ctcf_dataset.parquet"
+    
+    if not dataset_path.exists():
+        logger.error(f"Dataset not found at {dataset_path}. Please run T015 first.")
         sys.exit(1)
+
+    # Load and prepare data
+    df = load_dataset(dataset_path)
+    seq, chrom, labels = prepare_features_targets(df)
+    
+    # Check for class imbalance and log (T017 style logging)
+    pos_count = labels.sum().item()
+    neg_count = len(labels) - pos_count
+    logger.info(f"Class distribution: Positive={pos_count}, Negative={neg_count}")
+
+    # Create loaders
+    train_loader, val_loader = create_dataloaders(seq, chrom, labels)
 
     # Initialize model
-    # Determine input size from data
-    input_size = X.shape[1]
-    model = CTCFPredictor(input_size=input_size) # Uses Transformer by default or logic inside
-    model.to(device)
+    device = torch.device("cpu") # CPU-only as per spec
+    model = CTCFPredictor()
+    model = model.to(device)
+
+    # Train
+    trained_model = train_model(model, train_loader, val_loader, device)
+
+    # Final evaluation (T022)
+    _, final_preds, final_labels = validate_epoch(trained_model, val_loader, nn.BCEWithLogitsLoss(), device)
+    final_auc = calculate_auc(final_labels, final_preds)
     
-    criterion = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-
-    # Train with fallback
-    try:
-        metrics = train_model(
-            model=model,
-            train_loader=train_loader,
-            val_loader=val_loader,
-            criterion=criterion,
-            optimizer=optimizer,
-            device=device,
-            time_threshold=MAX_TRAINING_TIME_SECONDS
-        )
-    except Exception as e:
-        logger.error(f"Training failed: {e}")
-        sys.exit(1)
-
-    # Save results
-    save_model(model, model_save_path)
-    save_metrics(metrics, metrics_save_path)
-
-    if metrics['fallback_triggered']:
-        logger.warning(f"Fallback logic was triggered: {metrics['fallback_reason']}")
+    if final_auc < 0.85:
+        logger.warning(f"Final AUC ({final_auc:.4f}) is below target 0.85. Proceeding with warning.")
     else:
-        logger.info("Training completed without fallback.")
+        logger.info(f"Final AUC ({final_auc:.4f}) meets target >= 0.85.")
 
-    logger.info(f"Training finished in {metrics['total_time_seconds']:.2f} seconds")
+    logger.info("Training pipeline complete.")
+
 
 if __name__ == "__main__":
     main()

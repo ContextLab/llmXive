@@ -126,17 +126,17 @@
 - [X] T028 [US3] Implement `code/statistical_analysis.py` to calculate 95% confidence intervals for correlation coefficients
 - [X] T029 [US3] Implement `code/statistical_analysis.py` to calculate VIF for predictors (Gini, Gini², Size, Age) as required by FR-013. **Specifics**: Calculate VIF for all listed terms. If VIF is infinite or ≥5, flag the result in the output JSON with a message stating "independent effects cannot be claimed". Note: While Gini and Gini² are collinear, the task must still attempt the calculation and report the result (including infinity) to satisfy the spec's diagnostic requirement.
 - [X] T030 [US3] Implement `code/statistical_analysis.py` to apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) (FR-011)
-- [ ] T031 [US3] Implement `code/statistical_analysis.py` to test for non-linearity. **Specifics**: Fit a linear model (Outcome ~ Gini + Size + Age) and a quadratic model (Outcome ~ Gini + Gini² + Size + Age).
+- [X] T031 [US3] Implement `code/statistical_analysis.py` to test for non-linearity. **Specifics**: Fit a linear model (Outcome ~ Gini + Size + Age) and a quadratic model (Outcome ~ Gini + Gini² + Size + Age).
  1. Perform a Likelihood Ratio Test (LRT) to compare models.
  2. **Crucially**: Perform a standard t-test on the quadratic model to obtain the p-value for the Gini² coefficient.
  3. **Output**: Report the t-test p-value of the Gini² coefficient as the primary metric for FR-016 compliance. Also report the LRT p-value for model improvement.
  4. **Dependency**: Ensure this task executes after T024 (which generates Gini²) and T029 (which calculates VIF).
 - [ ] T032 [US3] Implement `code/statistical_analysis.py` to perform p-value sensitivity analysis. **Sweep Set**: Explicitly use the set `{0.01, 0.05, 0.1}` as defined in SC-008. **Output**: Generate a CSV file at `data/results/sensitivity_pvalue.csv` with columns: `cutoff`, `count_significant`, `count_total`.
 - [ ] T033 [US3] Implement `code/statistical_analysis.py` to perform correlation magnitude sensitivity analysis. **Sweep Set**: Explicitly use the set `{0.2, 0.3, 0.4}` as defined in SC-011. **Output**: Generate a CSV file at `data/results/sensitivity_rho.csv` with columns: `cutoff`, `count_significant`, `count_total`.
-- [ ] T034 [US3] Implement `code/visualizations.py` to generate scatter plots with regression lines (≥300 DPI) for ≥8 repos
+- [X] T034 [US3] Implement `code/visualizations.py` to generate scatter plots with regression lines (≥300 DPI) for ≥8 repos
 - [ ] T035 [US3] Implement `code/main.py` to orchestrate the full pipeline, ensuring temporal separation (T vs T+1) and associational framing (FR-010). **Output**: Write the final report to `data/results/final_report.json`, explicitly including the text "associational rather than causal" in the report metadata.
-- [ ] T036 [US3] Create `tests/unit/test_statistical_analysis.py` to verify correlation, VIF, and regression logic
-- [ ] T037 [US3] Create `tests/integration/test_analysis_pipeline.py` to verify full statistical output JSON and plot generation
+- [X] T036 [US3] Create `tests/unit/test_statistical_analysis.py` to verify correlation, VIF, and regression logic
+- [X] T037 [US3] Create `tests/integration/test_analysis_pipeline.py` to verify full statistical output JSON and plot generation
 
 **Checkpoint**: All user stories should now be independently functional
 

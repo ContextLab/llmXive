@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `tests/`)
-- [X] T002 Initialize Python 3.10 project with `requirements.txt` (pinned versions: pandas, numpy, scikit-learn, statsmodels, seaborn, matplotlib, pyarrow, requests, zCompositions, huggingface_hub)
+- [X] T002 Initialize Python 3.10 project with `requirements.txt` (pinned versions: pandas, numpy, scikit-learn, statsmodels, seaborn, matplotlib, pyarrow, requests, zCompositions, huggingface_hub, scikit-bio)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -61,7 +61,7 @@
 - [ ] T007 Create base data models/entities (Participant, MicrobiomeProfile, CognitiveScore) in `code/models/`
 - [X] T008 Configure error handling and logging infrastructure in `code/utils/logging.py`
 - [ ] T009 Setup environment configuration management for credentials (UK Biobank token)
-- [ ] T019 [P] Implement `code/power_analysis.py` to generate synthetic dataset (beta=0.1), run power script, validate against theoretical values (SC-003), and **generate `results/power/power_report.md`** as the required evidence artifact. This task acts as a gate before statistical analysis.
+- [X] T019 [P] Implement `code/power_analysis.py` to generate synthetic dataset (beta=0.1), run power script, validate against theoretical values (SC-003), and **generate `results/power/power_report.md`** as the required evidence artifact. **Gate Criteria**: Report MUST contain (1) calculated power, (2) required sample size, (3) explicit pass/fail statement where **PASS = calculated power >= 0.8**. This task acts as a gate before statistical analysis.
 - [X] T024a [P] **Execute Reference-Validator Agent** on cognitive instrument citations (FR-009) against primary sources. Generate `results/validation/instrument_citation_report.md` to satisfy the 'Verified Accuracy' gate.
 - [X] T024b [P] Update `code/config.py` and metadata with validated citation IDs and enforce citation validity in `code/analysis.py` imports.
 
@@ -77,17 +77,17 @@
 
 ### Tests for User Story 1 (OPTIONAL)
 
-- [X] T010 [P] [US1] Unit test for ILR transformation with Bayesian zero-replacement in `tests/test_preprocess.py`
+- [X] T010 [P] [US1] Unit test for ILR transformation with zero-replacement in `tests/test_preprocess.py`
 - [X] T011 [P] [US1] Unit test for cohort filtering logic (antibiotics, missingness) in `tests/test_preprocess.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement `code/download.py` to fetch UK Biobank microbiome data and cognitive scores (fields 20400, 20002) using streaming batches <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T012 [P] [US1] Implement `code/download.py` to fetch UK Biobank microbiome data and cognitive scores using streaming batches <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T013 [US1] Implement `code/preprocess.py` to filter cohort: exclude recent antibiotic users and participants missing either data type (log exclusion counts)
-- [ ] T014 [US1] Apply **Bayesian-multiplicative zero-replacement** to raw microbiome counts (per Plan Complexity Tracking) to avoid log(0) bias. **Output**: `data/processed/zero_replaced_counts.parquet`.
-- [ ] T015 [US1] Implement `code/preprocess.py` genus-level aggregation and **Isometric Log-Ratio (ILR)** transformation. Pipeline: Zero-replaced counts -> Centered Log-Ratio (CLR) -> ILR (orthonormal coordinates). **Output**: `data/processed/ilr_coordinates.parquet`. Satisfies Constitution Principle VI.
-- [ ] T015.5 [US1] Derive `Age_Group` categorical variable from continuous age in `code/preprocess.py` using a **configurable cutoff**. **Output**: `data/processed/cohort_with_age_groups.parquet` and `results/validation/age_group_check.json`.
-- [ ] T016 [US1] Generate `data/processed/cohort_retention_log.json` containing retention counts and rate (SC-001)
+- [X] T014 [US1] Apply **a small fixed pseudocount** to raw microbiome counts to handle zero counts as explicitly mandated by Spec Assumptions (overriding Plan's Bayesian preference for this implementation). **Output**: `data/processed/zero_replaced_counts.parquet`.
+- [X] T015 [US1] Implement `code/preprocess.py` genus-level aggregation and **Isometric Log-Ratio (ILR)** transformation. **Pipeline**: Zero-replaced counts -> Direct ILR transformation using an orthonormal basis (e.g., `skbio.stats.composition.ilr`) to produce orthonormal coordinates. **Output**: `data/processed/ilr_coordinates.parquet`. Satisfies Constitution Principle VI and FR-003.
+- [X] T015.5 [US1] Derive `Age_Group` categorical variable from continuous age in `code/preprocess.py` using a **configurable cutoff** defined in `code/config.py`. **Output**: `data/processed/cohort_with_age_groups.parquet` and `results/validation/age_group_check.json`.
+- [X] T016 [US1] Generate `data/processed/cohort_retention_log.json` containing retention counts and rate (SC-001)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,12 +106,13 @@
 
 ### Implementation for User Story 2
 
-- [X] T020a [US2] Implement `code/analysis.py` to fit **Standard OLS** linear models for main effects (ILR coords vs. cognitive scores) with covariates (age, sex, BMI, diet, activity, medication). **Requires T019 completion** (Power Gate).
-- [X] T020b [US2] Implement `code/analysis.py` covariate handling logic and ensure all confounders from FR-004 are included.
-- [ ] T021 [US2] Implement `code/analysis.py` Benjamini-Hochberg correction for all taxon-cognitive associations and report adjusted p-values (FR-005). **Output**: `results/associations/main_effects.parquet`.
-- [ ] T022a [US2] Fit reduced models excluding diet/medication covariates to check for over-control bias (FR-010).
-- [ ] T022b [US2] Generate over-control bias comparison report comparing effect sizes between full and reduced models. **Output**: `results/sensitivity/over_control_report.json`.
-- [ ] T023 [US2] Update `results/associations/*.parquet` metadata columns to include `causality_claim: false` (FR-008).
+- [X] T020a [US2] Implement `code/analysis.py` to fit **Lasso-regularized** linear models for main effects (ILR coords vs. cognitive scores) with covariates (age, sex, BMI, diet, activity, medication). **Requires T019 completion** (Power Gate). **Note**: If Lasso fails to converge or is insufficient, fallback to T020b.
+- [X] T020b [US2] Implement `code/analysis.py` to fit **Ridge-regularized** linear models as a fallback if Lasso is insufficient, ensuring full coverage of the 'Lasso/Ridge' mandate in the Plan. **Output**: `results/associations/main_effects_lasso.parquet` (primary) and `results/associations/main_effects_ridge.parquet` (fallback).
+- [X] T020c [US2] Implement `code/analysis.py` covariate handling logic and ensure all confounders from FR-004 are included.
+- [X] T021 [US2] Implement `code/analysis.py` Benjamini-Hochberg correction for all taxon-cognitive associations and report adjusted p-values (FR-005). **Output**: `results/associations/main_effects.parquet`.
+- [X] T022a [US2] Fit reduced models excluding diet/medication covariates to check for over-control bias (FR-010).
+- [X] T022b [US2] Generate over-control bias comparison report comparing effect sizes between full and reduced models. **Output**: `results/sensitivity/over_control_report.json`.
+- [X] T023 [US2] Update `results/associations/*.parquet` metadata columns to include `causality_claim: false` (FR-008).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,7 +133,7 @@
 
 - [ ] T027 [P] [US3] Implement `code/analysis.py` interaction models: fit linear models with 'Age_Group * Taxon' term to assess age-dependent effects without splitting sample (FR-006). **Output**: `results/associations/interaction_effects.parquet`.
 - [ ] T028 [US3] Implement `code/visualize.py` to generate Manhattan-style plots showing -log10(p-values) for each taxon-cognitive association with effect size annotations (FR-007). **Output**: `results/plots/manhattan_plot.png`.
-- [ ] T029 [US3] Implement `code/visualize.py` threshold sweep sensitivity analysis (SC-005): sweep p-value cutoffs including conventional significance thresholds and report 'headline association rate' (count of taxa with adj-p < threshold). **Requires T027 completion**. **Output**: `results/sensitivity/threshold_sweep_report.json`.
+- [ ] T029 [US3] Implement `code/visualize.py` threshold sweep sensitivity analysis (SC-005): sweep p-value cutoffs **specifically {0.01, 0.05, 0.1}** and report 'headline association rate' (count of taxa with adj-p < threshold). **Requires T021 completion (Main Effects)**. **Output**: `results/sensitivity/threshold_sweep_report.json`.
 - [ ] T030 [US3] Generate final reports: Aggregate Association results, Sensitivity analysis (Threshold Sweep, Over-control), and Power analysis reports in `results/`.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -190,7 +191,7 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for ILR transformation with Bayesian zero-replacement in tests/test_preprocess.py"
+Task: "Unit test for ILR transformation with zero-replacement in tests/test_preprocess.py"
 Task: "Unit test for cohort filtering logic (antibiotics, missingness) in tests/test_preprocess.py"
 
 # Launch all models for User Story 1 together:
@@ -241,6 +242,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All data processing MUST respect CPU-only, constrained RAM, and limited disk space constraints. Use streaming/batching and sampling if necessary. No GPU/CUDA/8-bit quantization allowed.
-- **Methodology Note**: ILR transformation is mandatory (Constitution Principle VI). Zero-replacement MUST use Bayesian-multiplicative method (Plan Complexity Tracking), not fixed pseudocounts.
+- **Methodology Note**: ILR transformation is mandatory (Constitution Principle VI). Zero-replacement MUST use **pseudocount of 1×10⁻⁶** per Spec Assumptions (Task T014).
 - **Citation Gate**: T024a must pass before any analysis code consumes cognitive instrument definitions.
-- **Power Gate**: T019 must pass (Power Report generated) before T020a (Statistical Analysis) begins.
+- **Power Gate**: T019 must pass (Power Report generated with **power >= 0.8**) before T020a (Statistical Analysis) begins.
+- **Regularization**: T020a uses Lasso; T020b provides Ridge fallback to satisfy Plan's Lasso/Ridge mandate.

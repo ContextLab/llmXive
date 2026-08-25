@@ -6,12 +6,11 @@ T009:
     configuration management artifact is missing.
 T015:
   c: false
-  h: 04aaa515f3e01354c6a8f76bb71e62a06037ee88769993f5a6a790bc1ead8882
-  r: "The `code/data/save_dataset.py` script is present but appears truncated and\
-    \ does not show the complete logic to load the intermediate CSV and write the\
-    \ Parquet file, and the required output file `data/processed/unified_ctcf_dataset.parquet`\
-    \ is missing. The task is not satisfied until the script fully implements the\
-    \ save operation and the Parquet file exists and is non\u2011empty."
+  h: 3076dbf9a464fbfec0049674ef0975527855d4fbeb40d2874cce67155091b8ef
+  r: The `code/data/save_dataset.py` file is present but its content is truncated
+    and does not show the logic that actually writes `data/processed/unified_ctcf_dataset.parquet`.
+    Moreover, the required Parquet file is missing from the repository. The implementation
+    therefore does not demonstrably fulfill the task of saving the unified dataset.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,12 +27,13 @@ T017:
     log files) to verify the requirement.
 T021:
   c: false
-  h: d81501bc3b2875b2e19651bed16555b790476be4243ecf8baa09d810cb76f398
-  r: The `code/models/train.py` file is present but ends abruptly (truncated code,
-    missing the training loop, loss computation, and any handling of majority/minority
-    class ratios). Moreover, the required dataset `data/processed/unified_ctcf_dataset.parquet`
-    does not exist on disk. Both the script implementation and the input data are
-    missing, so the task is not genuinely completed.
+  h: 615317d98b1498aaf94b77fbd6e44ad053103c0b8c4dd2abd59611b69cccb6e3
+  r: The `code/models/train.py` file is present but ends abruptly (truncated with
+    a syntax error) and does not show the required logic for splitting into train/validation
+    sets or completing the training loop. Additionally, the required input dataset
+    `data/processed/unified_ctcf_dataset.parquet` is missing, so the script cannot
+    be executed as specified. The implementation needs to be completed and the dataset
+    provided.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

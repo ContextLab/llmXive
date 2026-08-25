@@ -7,13 +7,4 @@ exclude =
     build,
     dist,
     .eggs,
-    *.egg-info,
-    data/raw/*,
-    data/intermediate/*,
-    data/ownership_metrics/*,
-    .venv,
-    venv,
-    env
-per-file-ignores =
-    # Allow unused imports in __init__.py for package exports
-    */__init__.py: F401
+    *.egg-info

@@ -1,0 +1,18 @@
+# CTCF Binding Site Selection - Configuration File
+# Copy this file to config/config.yaml and fill in your API keys and paths.
+
+paths:
+  data_root: data
+  code_root: code
+  processed_data: data/processed
+  models: data/models
+  interpretation: data/interpretation
+  figures: figures
+
+api:
+  encode_api_key: null
+  encode_base_url: https://www.encodeproject.org
+
+model:
+  device: cpu
+  seed: 42
