@@ -105,7 +105,7 @@ requirements.txt
 *   **Goal**: Define the statistical methodology, verify dataset availability, and establish the repository selection rubric.
 *   **Deliverables**: `research.md` (with Statistical Methodology Appendix), `data-model.md`.
 *   **Key Steps**:
-    *   Identify -5 open-source repositories with high-quality human docs (verified via rubric).
+    *   Identify a set of open-source repositories with high-quality human docs. (verified via rubric).
     *   Confirm availability of `datasets` or `openml` sources for any synthetic/auxiliary data.
     *   Draft the statistical protocol (Welch's ANOVA + Bootstrapped CIs) in `research.md`.
 
