@@ -317,3 +317,206 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T14:39:21Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: batched processing triggered at 6.5 GB RAM usage
+  claim_id: c_8071f8cf
+  context: Task T011 requires implementation of memory-triggered batched processing
+    using psutil to monitor memory usage in real-time.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must trigger batched processing when RAM usage exceeds 6.5
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:36:08Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: frame downsampling to every 5th frame for runtime under 6 hours
+  claim_id: c_332d6182
+  context: Task T034-extended requires frame downsampling (process every 5th frame)
+    to ensure runtime < 6h.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optical flow calculation must process every 5th frame to ensure runtime
+    under 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:36:23Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: optical flow threshold swept from 0.01 to 0.10 in 0.01 steps
+  claim_id: c_13817e96
+  context: Task T035 requires iterating the threshold from 0.01 to 0.10 in steps of
+    0.01 to record robustness metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optical flow consistency threshold is iterated from 0.01 to 0.10 in
+    steps of 0.01 for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:36:46Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: latency threshold target of 50ms
+  claim_id: c_06c6fa1c
+  context: Task T028-config establishes the 50ms threshold in settings.yaml as a target
+    for analysis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latency_threshold_target_of_50ms
+  kind: entity_fact
+  raw_text: The latency verification report targets a 50ms threshold for inference
+    time per frame.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:37:14Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: ANOVA minimum sample size of 30
+  claim_id: c_01194c39
+  context: Task T036 implements edge case handling for low power scenarios where N
+    is less than 30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ANOVA test requires a minimum sample size of 30 to avoid low power
+    scenarios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:37:37Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: title-token-overlap threshold of 0.7
+  claim_id: c_8b93edbc
+  context: Task T004 implements verification of DeepFashion2 URL and model references
+    using a title-token-overlap >= 0.7.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Title-token-overlap_threshold_of_0.7
+  kind: magnitude
+  raw_text: The reference-validator agent logic requires a title-token-overlap score
+    of at least 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:38:26Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project version
+  claim_id: c_952422f3
+  context: Task T002 specifies initializing a Python 3.11 project with specific requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11 as the base version.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:38:46Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: streaming chunk size of 100
+  claim_id: c_1d9f0c31
+  context: Task T006 creates a base configuration with specific keys including streaming_chunk_size=100.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The streaming chunk size is configured to 100 records.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:39:07Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: optical flow threshold setting of 0.05
+  claim_id: c_4a77ce10
+  context: Task T006 creates a base configuration with specific keys including optical_flow_threshold=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optical flow threshold in settings is configured to 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:39:37Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: loader streaming test for 1000 records without OOM
+  claim_id: c_09bc5b38
+  context: Task T007-test is a unit test verifying 1000 records yield without OOM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit test for loader.py streaming verifies that 1000 records yield
+    without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:39:58Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: ANOVA raises ValueError for fewer than 10 samples per class
+  claim_id: c_aeb5f205
+  context: Task T020 includes edge case handling for low sample counts (<10 per class)
+    raising a ValueError.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ANOVA_raises_ValueError_for_fewer_than_10_samples_per_class
+  kind: magnitude
+  raw_text: The ANOVA edge case handling raises a ValueError if there are fewer than
+    10 samples per class.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:40:52Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: "memory trigger verification at 6.5 GB \xB1 5%"
+  claim_id: c_5de69331
+  context: "Task T011 requires verification that the memory trigger activates at 6.5\
+    \ GB \xB1 5% using psutil."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The memory trigger verification requires activation at 6.5 GB with a\
+    \ tolerance of \xB15%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:41:19Z'

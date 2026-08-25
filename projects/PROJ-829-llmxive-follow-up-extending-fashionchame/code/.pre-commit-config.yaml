@@ -1,0 +1,33 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--config, code/pyproject.toml]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix, --config, code/pyproject.toml]
+      - id: ruff-format
+        args: [--config, code/pyproject.toml]
+
+  - repo: local
+    hooks:
+      - id: ensure-dirs
+        name: Ensure required directories exist
+        entry: python code/setup_data_dirs.py
+        language: python
+        pass_filenames: false
+        always_run: true
+        additional_dependencies: []
+
+      - id: ensure-test-dirs
+        name: Ensure test directories exist
+        entry: python code/setup_test_dirs.py
+        language: python
+        pass_filenames: false
+        always_run: true
+        additional_dependencies: []

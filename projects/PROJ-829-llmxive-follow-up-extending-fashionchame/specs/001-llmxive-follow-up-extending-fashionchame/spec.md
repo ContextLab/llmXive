@@ -50,7 +50,7 @@ Execute both the image-driven baseline and the text-driven adapter on a stratifi
 - Exclude samples with low VLM confidence (< 0.8) or conflicting attributes.
 
 ### FR-012: Memory Management
-Implement a streaming processor that triggers batched processing when memory usage exceeds 6.5 GB.
+Implement a streaming processor that triggers batched processing when memory usage exceeds a predefined threshold.
 
 ### FR-013: Manifest Generation
 Generate content hashes for all code and data artifacts.
@@ -121,7 +121,7 @@ This project extends the FashionChame framework to evaluate the fidelity of text
 
 ### Phase 4: User Story 2 - Latency Verification
 - Implement latency measurement in `runner.py`.
-- Verify CPU-only execution and 50ms threshold.
+- Verify CPU-only execution and ms threshold.
 
 ### Phase 5: User Story 3 - Statistical Analysis
 - Implement ANOVA and Bonferroni correction in `significance.py`.
@@ -135,7 +135,7 @@ This project extends the FashionChame framework to evaluate the fidelity of text
 
 - **Data Availability**: DeepFashion2 is stable and accessible via HuggingFace.
 - **Motion Proxy Validity**: Optical flow is a standard computer vision proxy for motion when skeletal data is absent.
-- **Memory Constraints**: Streaming mode and memory-triggered batch processing (6.5GB trigger) mitigate OOM risks.
+- **Memory Constraints**: Streaming mode and memory-triggered batch processing (configurable trigger) mitigate OOM risks.
 
 ## 5. Success Criteria
 

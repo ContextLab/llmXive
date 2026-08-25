@@ -1,2 +1,5 @@
-# Integration tests for llmXive automated science pipeline
-# Tests interactions between components and full pipelines
+"""
+Integration tests package for the llmXive project.
+
+Contains tests for pipeline components and end-to-end workflows.
+"""

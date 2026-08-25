@@ -94,5 +94,5 @@ Consequently, motion analysis will rely on **optical flow magnitude**.
 - System successfully loads and processes DeepFashion2 data via streaming.
 - Motion labels are correctly derived from optical flow magnitude.
 - Fidelity report shows distinct scores for color, pattern, and texture classes.
-- Latency measurements meet the 50ms threshold.
+- Latency measurements meet the performance threshold.
 - Statistical significance is established for observed fidelity differences.

@@ -1,8 +1,6 @@
-# Ruff configuration for llmXive project
-# This file is a duplicate of settings in pyproject.toml for IDE compatibility
+# Ruff configuration file (duplicate of pyproject.toml settings for CLI convenience)
 line-length = 88
 target-version = "py311"
-
 select = [
     "E",
     "W",
@@ -15,13 +13,7 @@ select = [
 ignore = [
     "E501",
     "B008",
-    "C901",
 ]
 
 [per-file-ignores]
 "__init__.py" = ["F401"]
-
-[isort]
-known-first-party = ["src"]
-force-sort-within-sections = true
-combine-as-imports = true

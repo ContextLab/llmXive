@@ -1,2 +1,5 @@
-# Unit tests for llmXive automated science pipeline
-# Tests isolated logic, functions, and classes
+"""
+Unit tests package for the llmXive project.
+
+Contains tests for individual modules and components.
+"""
