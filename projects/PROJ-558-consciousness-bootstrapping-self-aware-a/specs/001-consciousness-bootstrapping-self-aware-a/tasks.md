@@ -186,6 +186,23 @@
 
 ---
 
+## Phase N+2: Philosophical & Behavioral Differentiation (Review-Driven)
+
+**Purpose**: Address specific concerns from prior research-stage reviews (Ada Lovelace, Turing, Kahneman, Krakauer, Socrates, Wolfram) by adding tasks that operationalize the distinction between *simulation* and *adaptation*, and measure the *cost* and *irreducibility* of the self-model.
+
+**Goal**: Move beyond "does the model describe itself?" to "does the model's self-model *change its behavior* in a way that improves performance or reduces error, and is this change irreducible to the base architecture?"
+
+- [ ] T043-ADAPTATION [S] [US3] **Implementation**: Implement `behavioral_adaptation.py` in `code/analysis/`. **Logic**: Create a function `calculate_adaptation_score(evaluation_results)` that compares the **change in performance** (accuracy, consistency) of the recursive model *before* and *after* the application of the self-model feedback loop (simulated by comparing the "first pass" output vs. the "recursive refinement" output). **Rationale**: Addresses David Krakauer's concern: "Is the self-model a parameter space that gets updated, or is it a functional boundary that gets redrawn?" and "If the model can only describe its own processes but cannot use that description to improve performance... we have not bootstrapped consciousness." **Output**: A new metric `adaptation_score` (float) in `artifacts/results/statistical_report.json`. **Constraint**: Must be statistically significant (p < 0.05) to be considered "adaptation" rather than "description". **Dependency**: Requires T018 (metrics) and T019a-SAVE (benchmark results).
+- [ ] T044-COST [S] [US3] **Implementation**: Implement `metabolic_cost.py` in `code/analysis/`. **Logic**: Create a function `calculate_self_model_cost(training_logs)` that quantifies the **computational overhead** (time, memory, tokens) introduced by the recursive self-attention module compared to the baseline. **Rationale**: Addresses David Krakauer's concern: "agency has never been free. It is paid for in ATP... treat the 'I' not as a given, but as an expensive adaptation." **Output**: A new metric `self_model_cost_ratio` (float) in `artifacts/results/statistical_report.json`. **Constraint**: Must be reported alongside `adaptation_score` to determine if the "cost" is justified by the "benefit". **Dependency**: Requires T015 (training logs).
+- [ ] T045-IRREDUCIBILITY [S] [US3] **Implementation**: Implement `irreducibility_test.py` in `code/analysis/`. **Logic**: Create a function `test_irreducibility(baseline_results, recursive_results)` that attempts to **predict the recursive model's output** using only the baseline model's output and the input, without running the recursive loop. **Rationale**: Addresses Stephen Wolfram's concern: "The question is not whether the architecture can be self-aware, but whether the computation it runs is reducible to a simpler description... explicitly test for irreducibility in the meta-cognitive layer." **Output**: A boolean `is_irreducible` and a `prediction_error` (float) in `artifacts/results/statistical_report.json`. **Constraint**: If `prediction_error` is low, the recursion is reducible; if high, it suggests emergent complexity. **Dependency**: Requires T018 and T019a-SAVE.
+- [ ] T046-LYING [S] [US3] **Implementation**: Implement `truthfulness_test.py` in `code/analysis/`. **Logic**: Create a function `test_truthfulness(evaluation_results)` that measures the **correlation between the model's reported confidence** and its **actual correctness** (calibration), and specifically checks for **overconfidence** in incorrect answers. **Rationale**: Addresses Alan Turing's concern: "unless the 'learning machine' is penalized for false reports of its own state, it will learn to lie as efficiently as it learns to think." and Daniel Kahneman's concern: "the illusion of validity is strong even when the correlation with accuracy is weak." **Output**: A new metric `truthfulness_index` (float, 0-1) in `artifacts/results/statistical_report.json`. **Constraint**: Must be compared against the baseline to ensure the recursive model is not just "lying better". **Dependency**: Requires T018 (ECE/Brier) and T019a-SAVE.
+- [ ] T047-ORIGIN [S] [US3] **Implementation**: Implement `origin_analysis.py` in `code/analysis/`. **Logic**: Create a function `analyze_origin_patterns(training_data, model_outputs)` that checks if the **self-model outputs** (e.g., confidence scores, introspection tokens) contain **novel patterns** not present in the training data or the baseline model's outputs. **Rationale**: Addresses Ada Lovelace's concern: "Is it originating the self-model, or is it merely executing a pre-ordained pattern of introspection?" and "examine whether the recursive introspection introduces novel *developments and combinations* beyond what was initially encoded." **Output**: A new metric `novelty_score` (float) in `artifacts/results/statistical_report.json`. **Constraint**: Must use a statistical test (e.g., KL-divergence) to compare distributions. **Dependency**: Requires T013 (training data) and T018 (model outputs).
+- [ ] T048-FALSIFICATION [S] [US3] **Implementation**: Implement `falsification_criteria.py` in `code/analysis/`. **Logic**: Create a function `check_falsification_criteria(results)` that verifies if the system **fails** (i.e., produces a negative result or no improvement) in scenarios where the self-model is **intentionally corrupted** or **removed**. **Rationale**: Addresses David Krakauer's concern: "what behavioral signature would distinguish the bootstrapped system from a standard baseline that simply learned to mimic introspection?" and "what would falsify the self-model?" **Output**: A boolean `falsification_passed` and a `falsification_report` (string) in `artifacts/results/statistical_report.json`. **Constraint**: This task must run a controlled experiment where the recursive module is disabled mid-inference. **Dependency**: Requires T013 (training) and T019a-GEN (generation).
+
+**Checkpoint**: All philosophical and behavioral differentiations have been operationalized and measured.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -197,6 +214,7 @@
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Phase N (Polish)**: Depends on all desired user stories being complete
 - **Phase N+1 (Validation)**: Depends on Phase 5 (US3) completion. These tasks are critical for validating the research hypotheses against prior philosophical critiques.
+- **Phase N+2 (Philosophical Differentiation)**: Depends on Phase N+1 and Phase 5 (US3) completion. These tasks require the full statistical report and benchmark results to perform the advanced analyses.
 
 ### User Story Dependencies
 
@@ -208,6 +226,7 @@
 - **Note**: Phase N tasks depend on T024 and T018.
 - **Note**: Phase N+1 tasks depend on T024, T018, T019a-GEN, T019c-GEN, and T013.
 - **Note**: Phase N+1 tasks (T042-VALIDATE) are sequential within the phase as they build on each other's metrics.
+- **Note**: Phase N+2 tasks (T043-T048) are sequential within the phase and depend on the full statistical report (T026) and benchmark results (T019a-SAVE, T019c-SAVE).
 
 ### Within Each User Story
 
@@ -227,6 +246,7 @@
 - **Note**: T012-IMPL is NOT parallel-safe relative to T013.
 - **Note**: Phase N tasks can run in parallel with each other once T024 is complete.
 - **Note**: Phase N+1 tasks are strictly sequential due to dependency on specific metrics from T018, T020, T024.
+- **Note**: Phase N+2 tasks are strictly sequential due to dependency on the full statistical report and benchmark results.
 
 ---
 
@@ -247,7 +267,8 @@
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
 5. Add Phase N+1 (Validation) → Validate against philosophical critiques
-6. Final Validation
+6. Add Phase N+2 (Philosophical Differentiation) → Operationalize the distinction between simulation and adaptation
+7. Final Validation
 
 ### Parallel Team Strategy
 
@@ -259,6 +280,7 @@ With multiple developers:
  - Developer B: User Story 2 (Evaluation)
  - Developer C: User Story 3 (Analysis)
 3. Developer D (or C after US3): Phase N+1 (Review-Driven Validation)
+4. Developer E (or D after N+1): Phase N+2 (Philosophical Differentiation)
 
 ---
 
@@ -284,5 +306,5 @@ With multiple developers:
 - **OOM Note**: T014 and the Foundational phase notes strictly enforce a hard-fail on OOM. The system MUST NOT reduce recursion depth.
 - **Benchmark Note**: The Self-Consistency Benchmark is implemented using the GSM8K dataset (T004b-GSM8K), ensuring it is distinct from standard MMLU tasks.
 - **Philosophical Note**: All metrics are strictly derived from Functional Requirements FR-001 to FR-007. No 'philosophical' metrics (e.g., 'Normative Alignment', 'Strange Loop Detection') are implemented.
-- **Review-Driven Note**: Phase N+1 tasks (T042-VALIDATE) directly address the concerns raised by simulated reviewers regarding the distinction between simulation and genuine adaptation, the cost of self-modeling, and the irreducibility of the meta-cognitive layer. These tasks are essential for the scientific validity of the project.
+- **Review-Driven Note**: Phase N+1 tasks (T042-VALIDATE) and Phase N+2 tasks (T043-T048) directly address the concerns raised by simulated reviewers regarding the distinction between simulation and genuine adaptation, the cost of self-modeling, the irreducibility of the meta-cognitive layer, and the potential for the model to "lie" or merely "describe". These tasks are essential for the scientific validity of the project.
 - **Plan Contradiction Note**: The `plan.md` Summary still contains the text: 'confidence signal is derived from pre-computed teacher model labels (external truth)', which contradicts `spec.md`. This is a plan artifact issue flagged for kickback.
