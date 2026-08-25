@@ -1,3 +1,12 @@
+T007:
+  c: false
+  h: 2d32e7ba351cf79df598d39a5f75805b776af3cfad7c09caac677ac20479bb7b
+  r: "The repository contains `code/01_download_data.py`, but the script is incomplete\
+    \ (truncated) and does not show any logic that writes `data/interim/data_source_manifest.json`.\
+    \ Moreover, the required manifest file is absent from the project directory, so\
+    \ the task\u2019s core output was not produced. The implementer must ensure the\
+    \ script fully downloads the dataset, verifies checksums, and creates the manifest\
+    \ file at the specified location."
 T010:
   c: false
   h: dd3ef973364ee1e0970904278148c940d57399af69e374ffc8f2b7edf3aa301c
@@ -6,43 +15,20 @@ T010:
     \ writes the required `.fif` files. Moreover, the required `data/interim/exclusion_log.csv`\
     \ (and the `.fif` output directories) are absent from the repository. The task\u2019\
     s output artifacts are therefore missing or incomplete."
-T017:
+T023:
   c: false
-  h: 4475e12fa76d8364c7771d8d370a3012793881d3cd63dad04c954fe1a8eee9c1
-  r: "The required output files `data/interim/split_indices.json` and `data/processed/model_results.json`\
-    \ are not present, and the provided `code/04_modeling.py` is truncated before\
-    \ any logic that would generate or save these files (or fully implement the chunked\u2011\
-    processing requirement). The task\u2019s deliverables are therefore not satisfied."
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, results file, or any other artifact demonstrating that a Bonferroni\
-    \ correction (0.05/6\u202F=\u202F0.0083) was actually computed and that significant\
-    \ results were flagged is present. The implementer\u2019s claim cannot be verified\
-    \ because the required output (e.g., a script, log, or CSV with adjusted p\u2011\
-    values and significance flags) is missing."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output files implementing the polynomial \u03B1\
-    /\u03B2 interaction analysis and the F\u2011test comparison (FR\u2011012) were\
-    \ provided. The claim lacks any tangible artifact showing the analysis runs after\
-    \ T019, so the required functionality is not demonstrated."
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or report was provided that actually compares R\xB2 stability\
-    \ or calculates the percentage difference in alpha\u2011power means (FR\u2011\
-    008). The required artifact is missing, so the task is not satisfied."
+  h: 08bdb69e445545bdca4e8601b5b770b3e4e6453dbf22fd9ebbc5aa7fd816af49
+  r: "The required output file `data/processed/model_results.json` is missing, so\
+    \ no post\u2011hoc power analysis results (required_n, power, effect_size) can\
+    \ be verified as appended. Without the file, the task\u2019s core requirement\
+    \ is not satisfied."
 T031:
   c: false
-  h: 974d22f557fa1958f2738fb8c15b62c99902bd8964151b595aa78674760447f7
-  r: The repository contains the implementation `code/07_generate_report.py`, but
-    the required output file `data/processed/final_report.md` is absent. Since the
-    task explicitly demands that the script produce this markdown report, the missing
-    artifact means the requirement is not satisfied. The next implementer must ensure
-    the script runs successfully after T030 and creates the `final_report.md` file
-    with the aggregated metrics.
+  h: 6ed94d5829cb6dfccb67b0269469078fa4ab626ada568acbb635fddf840a334e
+  r: "The repository contains `code/11_generate_report.py`, but the required output\
+    \ file `data/processed/final_report.md` is missing, and the script shown does\
+    \ not include any logic that writes a markdown report to that path. Without the\
+    \ generated report file, the task\u2019s core requirement is not satisfied."
 T032:
   c: false
   h: 34857c223d77bcab7486dac7accd0b576d2daa0d92be8373d915ec294f99d761
@@ -50,3 +36,35 @@ T032:
     \ there is no evidence that the pipeline was run, resource usage was logged, or\
     \ the failure conditions were checked. Without this file the task\u2019s verification\
     \ requirements are not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test execution artifacts (e.g., pytest output, log files, or a report indicating
+    that `pytest tests/unit/` was run and passed) are present. Without such evidence,
+    we cannot confirm that the unit tests for the `utils/` helpers were actually executed.
+    The implementer must provide the test run results or a CI log showing the successful
+    execution of the unit tests.
+T035a:
+  c: false
+  h: 57a50f64ed7ccff841f123d2f8bedbe344d8e426320539ad1c21d5a3486ca87d
+  r: "The required `data/processed/features.csv` does not exist, and the contract\
+    \ schema file `contracts/feature_schema.schema.yaml` is also missing, causing\
+    \ the provided pytest to fail. Both artifacts must be created with valid, non\u2011\
+    empty content for the task to be satisfied."
+T035b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No contract test files, schema definitions, or validation results for `model_results.json`,
+    `correlations_corrected.csv`, `non_linear_comparison.json`, or `permutation_results.json`
+    are present. The implementer provided only a textual description of the task and
+    specifications, but no actual artifacts demonstrating that the schemas were validated.
+    To satisfy the requirement, concrete test code (e.g., pytest or schemathesis contracts)
+    and the resulting pass/fail reports need to be added.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test run output, logs, or pytest result files are present; the required artifact\
+    \ \u201Cevidence that the contract tests for `feature_schema` and `result_schema`\
+    \ were executed (e.g., pytest output, a passed/failed report, or generated test\
+    \ report files)\u201D is missing. The implementer has not provided any such evidence,\
+    \ so the task is not satisfied."

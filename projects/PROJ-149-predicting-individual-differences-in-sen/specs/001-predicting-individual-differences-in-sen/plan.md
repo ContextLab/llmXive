@@ -99,7 +99,7 @@ data/
 *   **Output**: `data/processed/feasibility_report.md` (if halted) or proceed to Phase 1.
 
 ### Phase 1: Preprocessing & Feature Extraction (FR-002, FR-003, FR-004, FR-010)
-*   **Action**: Apply band-pass (lower-frequency to 40Hz) and notch filters. Reject channels with variance > 3 SD. Exclude participants if the **ratio of rejected channels (channels_rejected / total_channels) > 0.30**, matching the invariant in `data-model.md`.
+*   **Action**: Apply band-pass (lower-frequency to a specified cutoff) and notch filters. Reject channels with variance > 3 SD. Exclude participants if the **ratio of rejected channels (channels_rejected / total_channels) > 0.30**, matching the invariant in `data-model.md`.
 * **Action**: Compute Welch's PSD on continuous -minute epochs using short windows with **[deferred] overlap** (per Constitution Principle VI). The **overlap parameter is [deferred]** in the spec but fixed here to [deferred] for standardization; code will default to [deferred] unless overridden by config.
 *   **Action**: Extract median RT, exclude outliers (<100ms, >2000ms), exclude participants if <70% trials remain.
 *   **Action**: Calculate relative power (band/total) and **apply Centered Log-Ratio (CLR) transformation** to handle compositional data constraints before modeling.
