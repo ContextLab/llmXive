@@ -5,186 +5,170 @@ import json
 import hashlib
 import time
 from pathlib import Path
-from utils.logging_config import get_logger, info, error, warning, log_error
+from utils.logging_config import get_logger, error, info, warning
+from utils.checksums import compute_sha256, update_state_file
 from config import get_config
 
-# Constants
-DATASET_ID = "ds001495"
-DATASET_NAME = f"openneuro_{DATASET_ID}"
-BASE_URL = "https://openneuro.org/datasets"
-OUTPUT_DIR = Path("data/raw") / DATASET_NAME
-CHECKSUMS_FILE = OUTPUT_DIR / "checksums.json"
-LOG_FILE = Path("logs/pipeline.log")
-
-# Initialize logger
 logger = get_logger(__name__)
+config = get_config()
 
 def check_datalad_available() -> bool:
-    """Check if datalad is installed and accessible."""
+    """Check if datalad is installed and available."""
     try:
         result = subprocess.run(
-            ["datalad", "--version"],
-            capture_output=True,
-            text=True,
+            ['datalad', '--version'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             timeout=10
         )
         if result.returncode == 0:
-            info(logger, f"Datalad available: {result.stdout.strip()}")
-            return True
-    except (subprocess.SubprocessError, FileNotFoundError) as e:
-        warning(logger, f"Datalad not available: {e}")
-    return False
-
-def fetch_with_datalad(dataset_id: str, output_dir: Path) -> bool:
-    """Fetch dataset using datalad."""
-    if not check_datalad_available():
-        error(logger, "Datalad not available. Falling back to direct fetch.")
-        return False
-
-    try:
-        info(logger, f"Starting datalad fetch for {dataset_id} to {output_dir}")
-        os.makedirs(output_dir, exist_ok=True)
-        
-        # Change to output directory to run datalad install
-        original_cwd = os.getcwd()
-        os.chdir(str(output_dir))
-        
-        try:
-            cmd = ["datalad", "install", "-s", f"https://openneuro.org/datasets/{dataset_id}", "-d", "."]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
-            
-            if result.returncode != 0:
-                error(logger, f"Datalad install failed: {result.stderr}")
-                return False
-            
-            info(logger, "Datalad fetch completed successfully")
-            return True
-        finally:
-            os.chdir(original_cwd)
-    except Exception as e:
-        error(logger, f"Datalad fetch failed with exception: {e}")
-        return False
-
-def fetch_direct(dataset_id: str, output_dir: Path) -> bool:
-    """
-    Fetch dataset using direct HTTP download (fallback).
-    Since full fMRI datasets are large, we attempt to fetch the derivative or
-    a subset if available, or at least verify connectivity and structure.
-    For this implementation, we use rsync or wget to fetch the public derivative
-    if datalad fails, but primarily rely on the datalad path for full integrity.
-    
-    NOTE: In a production environment with large datasets, one would stream
-    specific files. Here we simulate the fetch structure or fetch a small
-    representative file if the full dataset is too large for the runner.
-    However, per constraints, we must use real data. We will attempt to
-    fetch the dataset metadata or a small subset to verify integrity.
-    """
-    info(logger, f"Attempting direct fetch for {dataset_id}")
-    
-    # Try to fetch the dataset description file first to verify access
-    # This is a small file that proves the dataset exists and is accessible
-    description_url = f"https://openneuro.org/datasets/{dataset_id}/versions/1.0.0/file-display/dataset_description.json"
-    
-    try:
-        import urllib.request
-        import json
-        
-        os.makedirs(output_dir, exist_ok=True)
-        desc_path = output_dir / "dataset_description.json"
-        
-        info(logger, f"Fetching dataset description from {description_url}")
-        urllib.request.urlretrieve(description_url, str(desc_path))
-        
-        if desc_path.exists():
-            info(logger, "Dataset description fetched successfully. Dataset is accessible.")
-            # Mark this as a partial fetch indicator if full fetch is not possible in runner
-            # But for the purpose of T012, we have verified the dataset and downloaded a real file
-            # from the real source.
+            info(logger, "datalad is available")
             return True
         else:
-            error(logger, "Failed to create dataset description file")
+            warning(logger, "datalad returned non-zero exit code")
             return False
-            
-    except Exception as e:
-        error(logger, f"Direct fetch failed: {e}")
+    except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.SubprocessError) as e:
+        warning(logger, f"datalad not available or failed to run: {e}")
         return False
 
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
+def fetch_with_datalad(dataset_id: str, target_dir: Path) -> bool:
+    """Fetch dataset using datalad."""
     try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
+        info(logger, f"Fetching {dataset_id} using datalad to {target_dir}")
+        subprocess.run(
+            ['datalad', 'install', '-s', f'https://github.com/OpenNeuroDatasets/{dataset_id}', '-d', str(target_dir)],
+            check=True,
+            capture_output=False
+        )
+        # Install content (get the actual files)
+        subprocess.run(
+            ['datalad', 'get', '-r', '.'],
+            cwd=target_dir,
+            check=True,
+            capture_output=False
+        )
+        info(logger, f"Successfully fetched {dataset_id} with datalad")
+        return True
+    except subprocess.CalledProcessError as e:
+        error(logger, f"datalad fetch failed: {e}")
+        return False
     except Exception as e:
-        error(logger, f"Error computing checksum for {file_path}: {e}")
-        raise
+        error(logger, f"Unexpected error during datalad fetch: {e}")
+        return False
 
-def verify_integrity(output_dir: Path) -> bool:
-    """Verify integrity of downloaded files using checksums."""
-    info(logger, f"Verifying integrity of {output_dir}")
+def fetch_direct(dataset_id: str, target_dir: Path) -> bool:
+    """
+    Fetch dataset directly from OpenNeuro using rsync or curl.
+    OpenNeuro provides data via rsync: rsync://openneuro.org/dsXXXXXX
+    """
+    info(logger, f"Attempting direct fetch of {dataset_id} to {target_dir}")
     
-    if not output_dir.exists():
-        error(logger, f"Output directory {output_dir} does not exist")
+    # Ensure target directory exists
+    target_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Try rsync first (preferred for large datasets)
+    try:
+        info(logger, "Attempting rsync fetch...")
+        # OpenNeuro rsync URL pattern
+        rsync_url = f"rsync://openneuro.org/{dataset_id}/"
+        subprocess.run(
+            ['rsync', '-avz', '--progress', rsync_url, str(target_dir)],
+            check=True,
+            capture_output=False
+        )
+        info(logger, f"Successfully fetched {dataset_id} via rsync")
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        warning(logger, f"rsync failed or not available: {e}")
+        # Fall back to curl/wget if rsync fails
+        # This is a simplified direct fetch; in production, one would use the 
+        # OpenNeuro API or specific file downloads
+        error(logger, "Direct fetch via rsync failed. In a real scenario, "
+                      "this would fallback to specific file downloads via "
+                      "OpenNeuro API or wget/curl for individual files.")
         return False
+
+def verify_integrity(dataset_dir: Path, expected_files: list = None) -> bool:
+    """
+    Verify download integrity via checksums.
+    For OpenNeuro, we check if expected structural files exist and compute checksums.
+    """
+    info(logger, f"Verifying integrity of {dataset_dir}")
     
-    checksums = {}
-    files_verified = 0
-    
-    # Find all files (excluding hidden and large temporary files if any)
-    for file_path in output_dir.rglob("*"):
-        if file_path.is_file() and not file_path.name.startswith('.'):
-            try:
-                checksum = compute_sha256(file_path)
-                relative_path = str(file_path.relative_to(output_dir))
-                checksums[relative_path] = checksum
-                files_verified += 1
-                info(logger, f"Verified: {relative_path} ({checksum[:16]}...)")
-            except Exception as e:
-                error(logger, f"Failed to verify {file_path}: {e}")
-                return False
-    
-    # Save checksums
-    if checksums:
-        try:
-            with open(CHECKSUMS_FILE, 'w') as f:
-                json.dump(checksums, f, indent=2)
-            info(logger, f"Saved checksums to {CHECKSUMS_FILE}")
-        except Exception as e:
-            error(logger, f"Failed to save checksums: {e}")
-            return False
-    
-    if files_verified == 0:
-        warning(logger, "No files verified. Dataset may be empty.")
+    if not dataset_dir.exists():
+        error(logger, f"Dataset directory does not exist: {dataset_dir}")
         return False
+
+    # Common expected files/dirs in OpenNeuro ds001495
+    expected_paths = [
+        "dataset_description.json",
+        "sub-01",
+        "task-rest_bold.nii.gz"
+    ]
+    
+    missing = []
+    for path_name in expected_paths:
+        full_path = dataset_dir / path_name
+        if not full_path.exists():
+            missing.append(path_name)
+    
+    if missing:
+        error(logger, f"Missing expected files/directories: {missing}")
+        return False
+
+    # Compute checksum for dataset_description.json if present
+    desc_file = dataset_dir / "dataset_description.json"
+    if desc_file.exists():
+        checksum = compute_sha256(desc_file)
+        info(logger, f"dataset_description.json checksum: {checksum}")
         
-    info(logger, f"Integrity verification complete. {files_verified} files verified.")
+        # Update state file with this checksum
+        state_path = Path("state/data_state.json")
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        update_state_file(
+            state_path,
+            "data/raw/openneuro_ds001495/dataset_description.json",
+            checksum
+        )
+    
+    info(logger, f"Integrity verification passed for {dataset_dir}")
     return True
 
 def main():
-    """Main entry point for downloading OpenNeuro dataset."""
-    config = get_config()
-    logger.info(f"Starting download of OpenNeuro {DATASET_ID}")
+    """Main entry point for downloading OpenNeuro ds001495."""
+    dataset_id = "ds001495"
+    base_dir = Path("data/raw")
+    target_dir = base_dir / f"openneuro_{dataset_id}"
     
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    info(logger, f"Starting download of OpenNeuro {dataset_id}")
+    info(logger, f"Target directory: {target_dir}")
+    
+    # Setup directories
+    base_dir.mkdir(parents=True, exist_ok=True)
+    
+    success = False
     
     # Try datalad first
-    if fetch_with_datalad(DATASET_ID, OUTPUT_DIR):
-        logger.info("Datalad fetch successful.")
-    else:
-        # Fallback to direct fetch
-        if not fetch_direct(DATASET_ID, OUTPUT_DIR):
-            log_error(logger, "E001", "Failed to download dataset from any source.")
-            sys.exit(1)
+    if check_datalad_available():
+        if fetch_with_datalad(dataset_id, target_dir):
+            success = True
     
-    # Verify integrity
-    if not verify_integrity(OUTPUT_DIR):
-        log_error(logger, "E001", "Dataset integrity verification failed.")
+    # Fall back to direct fetch if datalad fails
+    if not success:
+        if fetch_direct(dataset_id, target_dir):
+            success = True
+    
+    if not success:
+        error(logger, f"Failed to download {dataset_id} via all available methods")
         sys.exit(1)
     
-    logger.info(f"Download and verification complete for {DATASET_ID}")
+    # Verify integrity
+    if not verify_integrity(target_dir):
+        error(logger, f"Integrity verification failed for {dataset_id}")
+        sys.exit(1)
+    
+    info(logger, f"Download and verification of {dataset_id} completed successfully")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

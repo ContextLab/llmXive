@@ -5,24 +5,18 @@ T000:
     the Summary and Technical Context sections were edited to reference OpenNeuro
     dataset `ds001495` and to remove all mentions of `ds000208`. The required artifact
     is missing.
-T012:
+T017:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/raw/openneuro_ds001495/` directory, download script, or
-    checksum verification files is present. The required dataset download, integrity
-    checks, and logging (T009) are missing, so the task is not satisfied.
+  h: 9acff128edcbd3a53b5ff6c0599abc2fe2187ab38c9c52283b076cde9ca7bc2d
+  r: The required artifact `data/processed/roi_timecourses.csv` does not exist, so
+    the combined timecourse file with the specified columns is missing. The implementer
+    must create this CSV file containing the merged data.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No evidence of `utils/checksums.py` being executed or of a state file being\
     \ updated is provided; the required artifact (updated state file with checksum\
     \ entries) is missing, so the task\u2019s requirement is not demonstrably satisfied."
-T019:
-  c: false
-  h: d43586a850d43b9f27008f95dfb186ced91d43524ea2c24d38e8b8447eb54c24
-  r: The required output file `data/text/rocstories_sample.jsonl` is missing, so the
-    ROCStories corpus was not downloaded and sampled as specified. No evidence of
-    a successful download or error handling is present.
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,12 +30,6 @@ T025:
     \ code implementing a retry mechanism across three random seeds for the sparse\
     \ autoencoder (SAE), nor any evidence (e.g., saved model checkpoints, convergence\
     \ plots) that such a loop was executed. The required artifact is missing."
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or test output showing a training loop with retry logic, seed
-    increment, sparsity measurement, or the required E003 error is present. The artifact
-    needed to demonstrate the core training loop and its retry behavior is missing.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

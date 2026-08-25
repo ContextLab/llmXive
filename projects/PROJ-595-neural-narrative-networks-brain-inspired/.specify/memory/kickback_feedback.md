@@ -4,8 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T017` (rejected 1x): The required output file `data/processed/roi_timecourses.csv` does not exist, so the combined timecourse data is missing and the task’s specification is not satisfied. The implementer must create the CSV with the specified columns.
-- `T021` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/mean_bold_intermediate.npy
+- `T012` (rejected 1x): No evidence of a `data/raw/openneuro_ds001495/` directory, download script, or checksum verification files is present. The required dataset download, integrity checks, and logging (T009) are missing, so the task is not satisfied.
+- `T014` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_left_hipp.npy
+- `T015` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_right_hipp.npy
+- `T016` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_dlpfc.npy
+- `T019` (rejected 1x): The required output file `data/text/rocstories_sample.jsonl` is missing, so the ROCStories corpus was not downloaded and sampled as specified. No evidence of a successful download or error handling is present.
 
 ## Required change
 

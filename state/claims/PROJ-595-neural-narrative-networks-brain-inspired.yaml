@@ -4014,42 +4014,6 @@
   updated_at: '2026-08-22T13:59:25Z'
 - artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
   attempts: 1
-  canonical: project uses OpenNeuro dataset ds001495
-  claim_id: c_cb69885f
-  context: Update plan.md Summary and Technical Context to explicitly reference OpenNeuro
-    dataset ds001495 (matching spec FR-001), removing all references to ds000208.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Project_uses_OpenNeuro_dataset_ds001495
-  kind: entity_fact
-  raw_text: The project uses OpenNeuro dataset ds001495.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-22T14:00:12Z'
-- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
-  attempts: 1
-  canonical: system generates at least 1000 unique stories
-  claim_id: c_3ba3d82b
-  context: 'Goal: Implement hippocampal-like pattern separation (sparse autoencoder)
-    and prefrontal gating, generate at least 1,000 stories on CPU.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/System_generates_at_least_1000_unique_stories
-  kind: magnitude
-  raw_text: The system must generate at least 1,000 unique stories.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-22T14:00:37Z'
-- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
-  attempts: 1
   canonical: peak RAM usage less than 7GB
   claim_id: c_94b3c0eb
   context: 'Independent Test: The system verifies SAE sparsity is within an acceptable
@@ -4136,3 +4100,383 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T14:01:57Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: baseline model is a TinyLSTM quantized transformer
+  claim_id: c_0195b323
+  context: Update plan.md Step 2 to explicitly state the baseline is a 'TinyLSTM (quantized
+    transformer)' to match spec FR-004, resolving the contradiction with 'Standard
+    SAE'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_is_a_TinyLSTM_quantized_transformer
+  kind: entity_fact
+  raw_text: The baseline model is a TinyLSTM (quantized transformer).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:07:03Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: system generates at least 1000 unique stories on CPU
+  claim_id: c_75212481
+  context: 'Goal: Implement hippocampal-like pattern separation (sparse autoencoder)
+    and prefrontal gating, generate at least 1,000 stories on CPU.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_generates_at_least_1000_unique_stories_on_CPU
+  kind: magnitude
+  raw_text: The system is designed to generate at least 1,000 unique stories on CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:07:51Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: permutation test stops if p-value variance < 0.001 over final 1000 permutations
+  claim_id: c_e58d4f53
+  context: Iterate permutations until p-value variance < 0.001 over the final 1,000
+    permutations OR 3600 seconds (1 hour) elapsed.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/permutation_test_stops_if_p-value_variance_%3C_0.001_over_fina
+  kind: magnitude
+  raw_text: The permutation test iteration stops if p-value variance is less than
+    0.001 over the final 1,000 permutations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:08:27Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: SAE training has 3 retries
+  claim_id: c_afcd85a0
+  context: 'Implement core training loop in code/02_model_generation.py with retry
+    logic: use config.random_seed as base_seed; increment seed by base_seed + retry_count
+    each retry (max 3 retries).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SAE training loop has a maximum of 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:09:24Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: sparsity ratio constraint is <= 0.20
+  claim_id: c_479f7f5d
+  context: "Implement verification script in code/verify_sparsity.py to measure and\
+    \ log the sparsity ratio against the \u22640.20 constraint, raising an error if\
+    \ violated."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/sparsity_ratio_constraint_is_%3C=_0.20
+  kind: magnitude
+  raw_text: The sparsity ratio constraint is less than or equal to 0.20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:09:55Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: peak RAM limit is 7GB
+  claim_id: c_3525a6f0
+  context: 'Independent Test: The system verifies SAE sparsity is within an acceptable
+    low range. Verify peak RAM < 7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_limit_is_7GB
+  kind: entity_fact
+  raw_text: The peak RAM limit for the system is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:10:40Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: config max_ram_gb is 7
+  claim_id: c_699c6f88
+  context: 'Create code/config.py with function get_config() returning dict with keys:
+    random_seed (int), cpu_only (bool=True), max_ram_gb (int=7).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration sets max_ram_gb to 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:11:11Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: chunked loading handles files > 7GB
+  claim_id: c_dbb1d562
+  context: Implement chunked loading function load_chunked_fMRI() in code/01_data_ingestion.py
+    to handle files >7GB, verified by OOM test on a large file.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/chunked_loading_handles_files_%3E_7GB
+  kind: magnitude
+  raw_text: The chunked loading function handles files greater than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:11:41Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: requirements.txt contains pinned versions for torch nibabel nilearn scikit-learn
+    datasets pandas numpy matplotlib sentence-transformers ruff black pytest
+  claim_id: c_d633e589
+  context: 'Create code/requirements.txt containing pinned versions for: torch (cpu-only),
+    nibabel, nilearn, scikit-learn, datasets, pandas, numpy, matplotlib, sentence-transformers,
+    ruff, black, pytest.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Requirements.txt_contains_pinned_versions_for_torch_nibabel
+  kind: entity_fact
+  raw_text: The code/requirements.txt contains pinned versions for torch (cpu-only),
+    nibabel, nilearn, scikit-learn, datasets, pandas, numpy, matplotlib, sentence-transformers,
+    ruff, black, and pytest.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:12:17Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: ruff and black line-length is 88
+  claim_id: c_fe28fcc2
+  context: Create pyproject.toml with [tool.ruff] and [tool.black] sections defining
+    line-length=88 and target-version='py'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ruff and black configuration defines line-length=88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:13:07Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Project uses OpenNeuro dataset ds001495
+  claim_id: c_6d37f4a5
+  context: T012 [US1] Download OpenNeuro ds fMRI dataset using datalad (or direct
+    fetch if datalad unavailable) to data/raw/openneuro_ds001495/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_OpenNeuro_dataset_ds001495
+  kind: entity_fact
+  raw_text: Download OpenNeuro ds fMRI dataset using datalad (or direct fetch if datalad
+    unavailable) to data/raw/openneuro_ds001495/.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:16:02Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Generate at least 1,000 unique stories using Brain-Inspired model
+  claim_id: c_cf2af341
+  context: T030 [US2] Implement generation loop to produce at least 1,000 unique stories
+    using the Brain-Inspired model.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1,000_unique_stories_using_Brain-Inspired
+  kind: magnitude
+  raw_text: Implement generation loop to produce at least 1,000 unique stories using
+    the Brain-Inspired model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:17:04Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Generate at least 1,000 unique stories using Baseline TinyLSTM model
+  claim_id: c_5ce96e53
+  context: T031 [US2] Run generation loop to produce at least 1,000 unique stories
+    using the Baseline (TinyLSTM) model and save to data/results/baseline_stories.jsonl.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_1,000_unique_stories_using_Baseline_TinyLS
+  kind: magnitude
+  raw_text: Run generation loop to produce at least 1,000 unique stories using the
+    Baseline (TinyLSTM) model and save to data/results/baseline_stories.jsonl.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:17:51Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 3
+  canonical: project uses OpenNeuro dataset ds001495
+  claim_id: c_cb69885f
+  context: Update plan.md Summary and Technical Context to explicitly reference OpenNeuro
+    dataset ds001495 (matching spec FR-001), removing all references to ds000208.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_OpenNeuro_dataset_ds001495
+  kind: entity_fact
+  raw_text: The project uses OpenNeuro dataset ds001495.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:22:24Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: baseline model is TinyLSTM quantized transformer
+  claim_id: c_bba1ac27
+  context: Update plan.md Step 2 to explicitly state the baseline is a 'TinyLSTM (quantized
+    transformer)' to match spec FR-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_is_TinyLSTM_quantized_transformer
+  kind: entity_fact
+  raw_text: The baseline model is a TinyLSTM (quantized transformer).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:22:27Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 2
+  canonical: system generates at least 1000 unique stories
+  claim_id: c_3ba3d82b
+  context: 'Goal: Implement hippocampal-like pattern separation (sparse autoencoder)
+    and prefrontal gating, generate at least 1,000 stories on CPU.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_generates_at_least_1000_unique_stories
+  kind: magnitude
+  raw_text: The system must generate at least 1,000 unique stories.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:23:11Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: system respects peak RAM limit of 7GB
+  claim_id: c_cab9d147
+  context: 'Independent Test: The system verifies SAE sparsity is within an acceptable
+    low range. Verify peak RAM < 7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_respects_peak_RAM_limit_of_7GB
+  kind: entity_fact
+  raw_text: The system must respect a peak RAM limit of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:23:54Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: permutation test iterates until p-value variance < 0.001 over final 1000
+    permutations
+  claim_id: c_5ecc16cd
+  context: Iterate permutations until p-value variance < 0.001 over the final 1,000
+    permutations OR 3600 seconds (1 hour) elapsed.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/permutation_test_iterates_until_p-value_variance_%3C_0.001_ove
+  kind: magnitude
+  raw_text: The permutation test iterates until p-value variance is less than 0.001
+    over the final 1,000 permutations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:24:31Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 2
+  canonical: permutation test timeout is 3600 seconds
+  claim_id: c_714b0ae2
+  context: Iterate permutations until p-value variance < 0.001 over the final 1,000
+    permutations OR 3600 seconds (1 hour) elapsed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test has a timeout limit of 3600 seconds (1 hour).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:24:32Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: SAE training has maximum 3 retries
+  claim_id: c_da7aa5ee
+  context: If sparsity constraint not met after 3 retries, raise Error with code E003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SAE training loop has a maximum of 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:24:33Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: sparsity ratio constraint is <= 0.20
+  claim_id: c_160052ba
+  context: "Implement verification script in code/verify_sparsity.py to measure and\
+    \ log the sparsity ratio against the \u22640.20 constraint."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/sparsity_ratio_constraint_is_%3C=_0.20
+  kind: magnitude
+  raw_text: The sparsity ratio constraint is less than or equal to 0.20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T02:24:33Z'

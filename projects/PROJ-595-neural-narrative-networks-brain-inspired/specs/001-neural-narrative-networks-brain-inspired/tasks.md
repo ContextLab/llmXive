@@ -44,6 +44,7 @@
 **Purpose**: Resolve cross-artifact contradictions before implementation begins
 
 - [X] T000 [DONE] Update `plan.md` Summary and Technical Context to explicitly reference OpenNeuro dataset `ds001495` (matching spec FR-001), removing all references to `ds000208`. Verify change by checking `plan.md` text for `ds001495`. <!-- FIXED: plan updated to ds001495 -->
+- [X] T000.1 [DONE] Update `plan.md` Step 2 to explicitly state the baseline is a "TinyLSTM (quantized transformer)" to match spec FR-004, resolving the contradiction with "Standard SAE". <!-- FIXED: plan updated -->
 
 ---
 
@@ -72,9 +73,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 Setup data directory structure: `data/raw/`, `data/processed/`, `data/results/`
-- [X] T006 [P] Implement `code/utils/schema_validation.py` with functions `validate_neural_data()`, `validate_text_data()`, and `validate_rsa_output()` that load `specs/001-neural-narrative-networks/contracts/neural-data.schema.yaml`, `specs/001-neural-narrative-networks/contracts/text-data.schema.yaml`, and `specs/001-neural-narrative-networks/contracts/rsa-output.schema.yaml` respectively and return boolean validation results.
+- [X] T006 [P] Implement `code/utils/schema_validation.py` with functions `validate_neural_data()`, `validate_text_data()`, and `validate_rsa_output()` that load `specs/001-neural-narrative-networks-brain-inspired/contracts/neural-data.schema.yaml`, `specs/001-neural-narrative-networks-brain-inspired/contracts/text-data.schema.yaml`, and `specs/001-neural-narrative-networks-brain-inspired/contracts/rsa-output.schema.yaml` respectively and return boolean validation results.
 - [X] T007 [P] Implement `code/utils/checksums.py` for SHA-256 hashing and state file updates.
-- [X] T008 [DONE] Create `code/config.py` with function `get_config()` returning dict with keys: `random_seed` (int), `cpu_only` (bool=True), `max_ram_gb` (int=7). Includes `set_seed()` function that calls `np.random.seed(seed)`, `torch.manual_seed(seed)`, and `random.seed(seed)` to ensure reproducibility.
+- [X] T008 [DONE] Create `code/config.py` with function `get_config()` returning dict with keys: `random_seed` (int), `cpu_only` (bool=True), `max_ram_gb` (int=7). Includes `set_seed()` function that calls `np.random.seed(seed)`, `torch.manual_seed(seed)`, and `random.seed(seed)`.
 - [X] T009 Create `code/utils/logging_config.py` initializing a logger that writes to `logs/pipeline.log` and prints specific error codes (e.g., E001 for data corruption) to stderr.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -94,8 +95,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Download OpenNeuro ds001495 fMRI dataset using `datalad` (or direct fetch if datalad unavailable) to `data/raw/openneuro_ds001495/`. Verify download integrity via checksums. Requires T009 (logging).
-- [X] T013 [US1] Load Harvard-Oxford masks for Left Hippocampus, Right Hippocampus, and DLPFC using `nilearn.datasets.fetch_atlas_harvard_oxford`. If fetch fails, load Harvard-Oxford atlas coordinates and generate masks programmatically. If ROI cannot be defined via coordinates, raise Error with exact string: "ROI definition failed: neither precomputed mask nor Harvard-Oxford coordinates available." Save valid mask paths to `data/processed/mask_paths.json` with schema: `{"left_hipp": "path", "right_hipp": "path", "dlpfc": "path"}`.
+- [ ] T012 [US1] Download OpenNeuro ds fMRI dataset using `datalad` (or direct fetch if datalad unavailable) to `data/raw/openneuro_ds001495/`. Verify download integrity via checksums. Requires T009 (logging).
+- [X] T013 [US1] Load Harvard-Oxford masks for Left Hippocampus, Right Hippocampus, and DLPFC using `nilearn.datasets.fetch_atlas_harvard_oxford`. If fetch fails, load Harvard-Oxford atlas coordinates and generate masks programmatically. If ROI cannot be defined via coordinates, raise Error with exact string: "ROI definition failed: neither precomputed mask nor Harvard-Oxford coordinates available." Save valid mask paths to `data/processed/mask_paths.json` with schema: `{"left_hipp": "path", "right_hipp": "path", "dlpfc": "path"}`. **Paths must be relative to repository root.**
 - [ ] T014 [P] [US1] Extract BOLD timecourses for Left Hippocampus from `data/raw/` using masks from T013. Requires T013. If masks missing, halt with E001. Save to `data/processed/roi_left_hipp.npy`.
 - [ ] T015 [P] [US1] Extract BOLD timecourses for Right Hippocampus from `data/raw/` using masks from T013. Requires T013. If masks missing, halt with E001. If timecourses empty, halt with E002. Save to `data/processed/roi_right_hipp.npy`.
 - [ ] T016 [P] [US1] Extract BOLD timecourses for DLPFC from `data/raw/` using masks from T013. Requires T013. If masks missing, halt with E001. If timecourses empty, halt with E002. Save to `data/processed/roi_dlpfc.npy`.
@@ -103,10 +104,10 @@
 - [X] T018 [US1] Implement chunked loading function `load_chunked_fMRI()` in `code/01_data_ingestion.py` to handle files >7GB, verified by OOM test on a large file.
 - [ ] T019 [US1] Download ROCStories corpus via HuggingFace `datasets` and sample a representative subset of stories to `data/text/rocstories_sample.jsonl`. If download fails, halt with clear error.
 - [X] T020 [US1] Implement validation step in `code/01_data_ingestion.py` to halt on corrupted/incomplete data with specific error codes (E001, E002) logged to `logs/pipeline.log`.
-- [ ] T021 [US1] Compute mean BOLD per event using direct index mapping from T019 and save intermediate array to `data/processed/mean_bold_intermediate.npy`. Requires T017, T019 completion.
-- [ ] T021.1 [US1] Format intermediate array into final CSV `data/processed/event_averages.csv` with columns: `subject_id`, `event_id`, `roi`, `mean_signal`. **Explicitly verify that the aggregation method used is 'mean' to satisfy FR-005.** Requires T021 completion.
+- [ ] T021 [US1] Compute mean BOLD per event using direct index mapping from T019 and save intermediate array to `data/processed/mean_bold_intermediate.npy`. **Log the aggregation method used as 'mean'.** Requires T017, T019 completion.
+- [ ] T021.1 [US1] Format intermediate array into final CSV `data/processed/event_averages.csv` with columns: `subject_id`, `event_id`, `roi`, `mean_signal`. **Explicitly verify that the aggregation method used is mean by logging the method and asserting the value.** Requires T021 completion.
 - [ ] T022 [US1] Run `utils/checksums.py` after data processing and update state file.
-- [ ] T022.5 [US1] Generate `data/processed/derivation_logs.json` documenting the chain of custody for all files in `data/processed/`, including source file hashes, transformation steps, and output file hashes, as required by Constitution Principle III.
+- [ ] T022.5 [US1] Generate `data/processed/derivation_logs.json` documenting the chain of custody for all files in `data/processed/`, including source file hashes, transformation steps, and output file hashes, as required by Constitution Principle III. Requires T021.1 completion.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -129,8 +130,9 @@
 - [X] T026 [US2] Implement verification script in `code/verify_sparsity.py` to measure and log the sparsity ratio against the ≤0.20 constraint, raising an error if violated.
 - [X] T027 [US2] Implement Prefrontal Gating Module in `code/models/gating_module.py` distinguishing plot (coherence) vs memory (episodic trace).
 - [X] T028 [US2] Implement TinyLSTM baseline architecture with quantization (e.g., int or lower) using `torch.quantization` (CPU backend only) in `code/models/baseline.py` for comparison, ensuring it runs on CPU and respects the 7GB RAM limit. Verify no CUDA kernels are invoked.
-- [ ] T029 [US2] Implement core training loop with retry logic (**max a limited number of retries**, increment random seed by +1 each retry) to ensure SAE convergence (sparsity < 0.20). If sparsity constraint not met after 3 retries, raise Error with code E003. Save trained weights to `data/results/sae_weights.pt`. Verify convergence by running `verify_sparsity.py` and saving `data/results/convergence_verified.json` with timestamp and seed.
-- [ ] T030 [US2] Implement generation loop to produce at least 1,000 unique stories using the Brain-Inspired model. **Load trained weights from data/results/sae_weights.pt.** Requires T029 completion. Verify sparsity < 0.20. Ensure uniqueness via hash deduplication. Save to `data/results/brain_stories.jsonl`.
+- [ ] T029a [US2] Implement core training loop in `code/02_model_generation.py` with retry logic: use `config.random_seed` as base_seed; increment seed by base_seed + retry_count each retry (max 3 retries). If sparsity constraint not met after 3 retries, raise Error with code E003. Save trained weights to `data/results/sae_weights.pt`. Requires T025, T026, T027 completion.
+- [ ] T029b [US2] Execute training loop from T029a. Verify convergence by running `verify_sparsity.py` and saving `data/results/convergence_verified.json` with timestamp and seed. If T029a raises E003, log the failure and halt. Requires T029a completion.
+- [ ] T030 [US2] Implement generation loop to produce at least 1,000 unique stories using the Brain-Inspired model. **Load trained weights from data/results/sae_weights.pt.** Requires T029b completion. Verify sparsity < 0.20. Ensure uniqueness via hash deduplication. Save to `data/results/brain_stories.jsonl`.
 - [ ] T031 [US2] Run generation loop to produce at least 1,000 unique stories using the Baseline (TinyLSTM) model and save to `data/results/baseline_stories.jsonl`. Ensure uniqueness via hash deduplication. Requires T028 completion.
 - [ ] T032 [US2] Implement memory monitoring to log peak usage and ensure < 7GB limit. Save peak RAM log to `data/results/memory_profile.json` with keys `peak_gb` and `timestamp`. Verify file exists and `peak_gb` < 7.0.
 - [ ] T033 [US2] Run `utils/checksums.py` after generation and update state file.
@@ -147,14 +149,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T034 [P] [US3] Contract test for RSA output schema in `tests/test_rsa.py`
-- [X] T035 [P] [US3] Integration test for permutation test convergence in `tests/test_rsa.py`
+- [X] T043 [P] [US3] Contract test for RSA output schema in `tests/test_rsa.py`
+- [X] T044 [P] [US3] Integration test for permutation test convergence in `tests/test_rsa.py`
 
 ### Implementation for User Story 3
 
 - [ ] T036 [US3] Implement `code/03_rsa_analysis.py` to compute RSA matrices for Brain-Inspired (from T030) and Baseline (from T031) models against fMRI BOLD. **Requires T030, T031, T017, and T021 completion.** If T030/T031/T017/T021 artifacts missing, halt with error. Save RSA distances to `data/results/rsa_matrix.csv`.
-- [ ] T037 [US3] Implement permutation test in `code/03_rsa_analysis.py`. Iterate permutations until p-value variance < 0.001 over the **final 1,000 permutations** OR seconds elapsed. If timeout reached without convergence, flag result as "borderline". Save results to `data/results/permutation_test_results.json`.
-- [ ] T038 [US3] Validate RSA output against `specs/001-neural-narrative-networks/contracts/rsa-output.schema.yaml` and save validated output to `data/results/rsa_validated.jsonl`.
+- [ ] T037 [US3] Implement permutation test in `code/03_rsa_analysis.py`. Start with a sufficient number of permutations in batches, ensuring convergence of the permutation distribution.. Iterate permutations until p-value variance < 0.001 over the **final 1,000 permutations** OR **3600 seconds (1 hour)** elapsed. If timeout reached without convergence, flag result as "borderline" and log the exact variance. Save results to `data/results/permutation_test_results.json`.
+- [ ] T038 [US3] Validate RSA output against `specs/001-neural-narrative-networks-brain-inspired/contracts/rsa-output.schema.yaml` and save validated output to `data/results/rsa_validated.jsonl`.
 - [ ] T039 [US3] Create `code/04_visualization.py` with a function `plot_rsa_heatmap(matrix, output_path)` that saves a heatmap image to `data/results/rsa_heatmap.png`.
 - [ ] T040 [US3] Generate bar plot with confidence intervals comparing RSA distances and save to `data/results/rsa_comparison_barplot.png`.
 
@@ -166,7 +168,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T056 [P] Documentation updates in `docs/` ensuring clarity on the ds001495 source, the biological mechanisms (sparse autoencoder, gating), and the data lineage.
+- [ ] T056 [P] Documentation updates: Update `README.md` section "Biological Mechanisms" ensuring clarity on the ds001495 source, the biological mechanisms (sparse autoencoder, gating), and the data lineage.
 - [ ] T057 Code cleanup and refactoring for CPU efficiency.
 - [ ] T058 [P] Performance optimization for permutation test (parallelization) in T037 to ensure a sufficient number of iterations complete within the runtime limit.
 - [ ] T059 [P] Additional unit tests for edge cases (ROI failure, memory overflow, alignment failure, convergence failure) in `tests/unit/`.
@@ -191,7 +193,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data availability
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data and US2 model outputs (T030, T031)
-- **Polish (Phase N)**: Depends on US3 completion.
+- **Polish (Phase N)**: Depends on Phase 5 completion.
 
 ### Within Each User Story
 
@@ -269,7 +271,9 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Dataset Note**: This project uses OpenNeuro ds001495 as per spec FR-001.
-- **Biological Fidelity Note**: The architecture implements a sparse autoencoder and gating module as defined in FR-002 and FR-003.
+- **Biological Fidelity Note**: The architecture implements a sparse autoencoder and gating module as defined in FR-002, FR-003.
 - **Constitution Note**: Data derivation logs are generated in T022.5 to satisfy Constitution Principle III.
-- **Scope Note**: Tasks T041-T048 (Short-Term/Long-Term memory consolidation) are explicitly OUT OF SCOPE for this iteration as they lack corresponding Functional Requirements or Success Criteria in the spec.
-- **Scope Note**: Semantic alignment (T019.5) is out of scope; direct index mapping is used per US-1.
+- **Scope Note**: All tasks are strictly scoped to Functional Requirements FR-001 through FR-007. Phase 6 (Reviewer Addressing) has been removed as its tasks (T045-T050) were not covered by the spec.
+- **Baseline Note**: The baseline model is a TinyLSTM (quantized transformer) as per spec FR-004. **Note: plan.md Complexity Tracking table still lists Standard SAE; requires plan update.**
+- **Timeout Note**: Permutation test (T037) has a hard 3600s timeout.
+- **Retry Note**: SAE training (T029a) has a hard 3 retry limit using config.random_seed.
