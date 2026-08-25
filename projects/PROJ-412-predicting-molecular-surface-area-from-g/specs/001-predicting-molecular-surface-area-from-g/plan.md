@@ -17,7 +17,7 @@ This project implements a pipeline to predict molecular surface area (SASA) usin
 **Project Type**: Computational Research / Machine Learning Pipeline
 **Performance Goals**: Complete full pipeline (ingest -> preprocess -> train -> eval -> report) within 6 hours on CPU.
 **Constraints**: 
-- Max 7 GB RAM, 14 GB disk.
+- Max limited RAM, 14 GB disk.
 - No local GPU (GPU tasks offloaded to Kaggle if triggered).
 - Dataset must be open and directly downloadable (ZINC15 via HuggingFace canonical repo).
 - Ground truth is RDKit-computed SASA of a specific generated conformer.

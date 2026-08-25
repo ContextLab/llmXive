@@ -5,74 +5,74 @@ from typing import Dict, Any, Optional
 from .config import get_project_root, get_data_dir
 from .logging import get_logger
 
+logger = get_logger(__name__)
+
+DEFAULT_NUM_THREADS = 0
+DEFAULT_MAX_ATTEMPTS = 250
+DEFAULT_ENERGY_MINIMIZATION_STEPS = 200
+
 def generate_conformer_config(
-    num_threads: int = 1,
-    max_attempts: int = 250,
-    energy_minimization_steps: int = 200,
-    mmff_variant: str = "MMFF94s"
-) -> Dict[str, Any]:
+    num_threads: int = DEFAULT_NUM_THREADS,
+    max_attempts: int = DEFAULT_MAX_ATTEMPTS,
+    energy_minimization_steps: int = DEFAULT_ENERGY_MINIMIZATION_STEPS,
+    random_seed: int = 42
+) -> Dict[str, int]:
     """
-    Generate RDKit conformer generation parameters.
-    
-    Args:
-        num_threads: Number of threads for parallel processing.
-        max_attempts: Maximum number of conformer generation attempts.
-        energy_minimization_steps: Steps for energy minimization.
-        mmff_variant: MMFF force field variant to use.
-        
-    Returns:
-        Dictionary of conformer generation parameters.
+    Generate a conformer configuration dictionary.
     """
     return {
         "numThreads": num_threads,
         "maxAttempts": max_attempts,
         "energyMinimizationSteps": energy_minimization_steps,
-        "mmffVariant": mmff_variant,
-        "numConfs": 10,
-        "pruneRmsThresh": 0.5
+        "random_seed": random_seed
     }
 
-def load_conformer_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+def save_conformer_config(config: Dict[str, int], output_path: Optional[str] = None) -> str:
+    """
+    Save conformer configuration to a JSON file.
+    Returns the path to the saved file.
+    """
+    if output_path is None:
+        output_path = str(get_data_dir() / "processed" / "conformer_params.json")
+    
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(config, f, indent=2)
+    
+    logger.info(f"Saved conformer config to {output_path}")
+    return str(output_path)
+
+def load_conformer_config(input_path: Optional[str] = None) -> Dict[str, int]:
     """
     Load conformer configuration from a JSON file.
-    
-    Args:
-        config_path: Path to the config file. If None, uses default location.
-        
-    Returns:
-        Dictionary of conformer generation parameters.
+    Returns default config if file doesn't exist.
     """
-    if config_path is None:
-        config_path = get_data_dir() / "processed" / "conformer_params.json"
+    if input_path is None:
+        input_path = str(get_data_dir() / "processed" / "conformer_params.json")
     
-    logger = get_logger("conformer_config")
+    input_path = Path(input_path)
     
-    if not Path(config_path).exists():
-        logger.warning(f"Config file not found at {config_path}, generating default config.")
-        config = generate_conformer_config()
-        # Save default config
-        config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(config_path, 'w') as f:
-            json.dump(config, f, indent=2)
-        return config
+    if input_path.exists():
+        with open(input_path, 'r') as f:
+            return json.load(f)
     
-    with open(config_path, 'r') as f:
-        config = json.load(f)
-    
-    # Validate required keys
-    required_keys = ["numThreads", "maxAttempts", "energyMinimizationSteps"]
-    for key in required_keys:
-        if key not in config:
-            logger.warning(f"Missing required key '{key}' in config, using default.")
-            config[key] = generate_conformer_config()[key]
-    
-    return config
+    logger.warning(f"Conformer config not found at {input_path}, using defaults")
+    return {
+        "numThreads": DEFAULT_NUM_THREADS,
+        "maxAttempts": DEFAULT_MAX_ATTEMPTS,
+        "energyMinimizationSteps": DEFAULT_ENERGY_MINIMIZATION_STEPS,
+        "random_seed": 42
+    }
 
-def main() -> None:
+def main():
     """
-    Main entry point for conformer config utilities.
+    Entry point for conformer config generation.
     """
-    logger = get_logger("conformer_config")
-    logger.info("Conformer config utilities loaded.")
-    config = load_conformer_config()
-    logger.info(f"Loaded conformer config: {config}")
+    config = generate_conformer_config()
+    save_conformer_config(config)
+    logger.info("Conformer configuration generated and saved")
+
+if __name__ == "__main__":
+    main()
