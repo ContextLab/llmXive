@@ -1,10 +1,6 @@
-[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -17,25 +13,6 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | \.egg-info
   | venv
-  | env
 )/
 '''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["code", "bes", "dataset", "analysis", "symbolic", "utils"]
-skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist", ".egg-info", "venv", "env"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning"
-]

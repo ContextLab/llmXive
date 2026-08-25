@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 5603cccb0205049e3a0ea016e13e5ff5bfc8be77f713c031192966a313418337
+  artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Binomial proportion confidence interval - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+  verified_at: '2026-08-25T20:02:07.346702Z'

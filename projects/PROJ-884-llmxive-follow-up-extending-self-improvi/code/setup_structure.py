@@ -1,81 +1,91 @@
-"""
-Setup script to create the code directory hierarchy for the llmXive project.
-Creates: code/{dataset,symbolic,bes,analysis,utils}
-"""
 import os
 import sys
 import argparse
 from pathlib import Path
 from typing import List
 
-# Define the required directory structure relative to the project root
-# The project root is assumed to be the parent of the 'code' directory
-CODE_ROOT = Path(__file__).parent.resolve()
-PROJECT_ROOT = CODE_ROOT.parent
-
-REQUIRED_DIRS = [
-    "dataset",
-    "symbolic",
-    "bes",
-    "analysis",
-    "utils"
-]
-
-def setup_code_directories() -> List[str]:
+def setup_code_directories(base_path: Path) -> bool:
     """
-    Creates the required code subdirectories and verifies they exist and are writable.
+    Creates the required code directory hierarchy for the project.
     
+    Creates:
+    - code/dataset
+    - code/symbolic
+    - code/bes
+    - code/analysis
+    - code/utils
+    
+    Args:
+        base_path: The project root directory path.
+        
     Returns:
-        List[str]: List of created directory paths as strings.
+        True if all directories were created successfully and are writable.
         
     Raises:
-        RuntimeError: If a directory cannot be created or is not writable.
+        RuntimeError: If any directory cannot be created or verified.
     """
-    created_dirs = []
+    sub_dirs = [
+        "dataset",
+        "symbolic",
+        "bes",
+        "analysis",
+        "utils"
+    ]
     
-    for dir_name in REQUIRED_DIRS:
-        target_path = CODE_ROOT / dir_name
-        
-        # Check if directory exists
-        if not target_path.exists():
-            try:
-                target_path.mkdir(parents=True, exist_ok=True)
-                print(f"Created directory: {target_path}")
-            except OSError as e:
-                raise RuntimeError(f"Failed to create directory {target_path}: {e}")
-        
-        # Verify directory exists and is writable
-        if not target_path.exists():
-            raise RuntimeError(f"Directory {target_path} does not exist after creation attempt.")
-        
-        if not os.access(target_path, os.W_OK):
-            raise RuntimeError(f"Directory {target_path} is not writable.")
-        
-        created_dirs.append(str(target_path))
+    code_root = base_path / "code"
+    code_root.mkdir(parents=True, exist_ok=True)
     
-    return created_dirs
+    # Verify code root is writable
+    try:
+        test_file = code_root / ".write_test"
+        test_file.touch()
+        test_file.unlink()
+    except OSError as e:
+        raise RuntimeError(f"Code root directory '{code_root}' is not writable: {e}")
+    
+    for subdir in sub_dirs:
+        target_dir = code_root / subdir
+        try:
+            target_dir.mkdir(parents=True, exist_ok=True)
+            # Verify the specific subdirectory is writable
+            test_file = target_dir / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+        except OSError as e:
+            raise RuntimeError(f"Failed to create or verify writability of '{target_dir}': {e}")
+    
+    return True
 
 def main():
-    """Entry point for the setup script."""
+    """Entry point for CLI execution."""
     parser = argparse.ArgumentParser(
-        description="Setup code directory hierarchy for llmXive project."
+        description="Setup the code directory hierarchy for the llmXive project."
     )
     parser.add_argument(
-        "--verify-only",
-        action="store_true",
-        help="Only verify existing directories, do not create new ones."
+        "--base-path",
+        type=Path,
+        default=Path("."),
+        help="Path to the project root (default: current directory)"
     )
+    
     args = parser.parse_args()
     
     try:
-        created = setup_code_directories()
-        print(f"\nSuccessfully verified/created {len(created)} directories:")
-        for d in created:
-            print(f"  - {d}")
-        return 0
+        success = setup_code_directories(args.base_path)
+        if success:
+            print("Successfully created and verified code directory hierarchy:")
+            print(f"  - code/dataset")
+            print(f"  - code/symbolic")
+            print(f"  - code/bes")
+            print(f"  - code/analysis")
+            print(f"  - code/utils")
+            sys.exit(0)
+        else:
+            print("Failed to setup directories.")
+            sys.exit(1)
     except RuntimeError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        return 1
+        print(f"Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

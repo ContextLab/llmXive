@@ -1,19 +1,19 @@
+"""
+Script to setup the data directory hierarchy for the llmXive project.
+Creates data/raw and data/processed directories and verifies they are writable.
+"""
 import os
 import sys
 import argparse
 from pathlib import Path
 from typing import List
 
-def setup_data_directories(base_path: Path) -> List[Path]:
+def setup_data_directories(base_dir: Path) -> List[Path]:
     """
-    Create the required data directory hierarchy:
-    - data/raw: for immutable puzzles and raw inputs
-    - data/processed: for logs, results, and intermediate artifacts
-
-    Verifies that directories exist and are writable.
+    Create the required data directory structure.
     
     Args:
-        base_path: The project root path where 'data' directory will be created.
+        base_dir: The root directory of the project.
         
     Returns:
         List of created directory paths.
@@ -21,62 +21,78 @@ def setup_data_directories(base_path: Path) -> List[Path]:
     Raises:
         RuntimeError: If a directory cannot be created or is not writable.
     """
-    data_root = base_path / "data"
-    raw_dir = data_root / "raw"
-    processed_dir = data_root / "processed"
+    data_dir = base_dir / "data"
+    raw_dir = data_dir / "raw"
+    processed_dir = data_dir / "processed"
     
-    directories = [raw_dir, processed_dir]
+    directories = [data_dir, raw_dir, processed_dir]
     
     for directory in directories:
-        # Create directory if it doesn't exist, including parents
-        try:
-            directory.mkdir(parents=True, exist_ok=True)
-        except OSError as e:
-            raise RuntimeError(f"Failed to create directory {directory}: {e}")
-        
-        # Verify the directory exists
+        # Create directory if it doesn't exist
         if not directory.exists():
-            raise RuntimeError(f"Directory {directory} was not created successfully.")
+            try:
+                directory.mkdir(parents=True, exist_ok=True)
+                print(f"Created directory: {directory}")
+            except OSError as e:
+                raise RuntimeError(f"Failed to create directory {directory}: {e}")
         
-        if not directory.is_dir():
-            raise RuntimeError(f"Path {directory} exists but is not a directory.")
+        # Verify the directory is writable
+        if not os.access(directory, os.W_OK):
+            raise RuntimeError(f"Directory {directory} exists but is not writable.")
         
-        # Verify writability by attempting to create a temporary file
+        # Verify we can create a temporary file to ensure writability
         test_file = directory / ".write_test"
         try:
-            test_file.touch(exist_ok=True)
-            test_file.unlink()  # Remove the test file
-        except (OSError, PermissionError) as e:
-            raise RuntimeError(f"Directory {directory} is not writable: {e}")
-        
-        print(f"Verified directory: {directory}")
+            with open(test_file, 'w') as f:
+                f.write("test")
+            test_file.unlink()
+        except OSError as e:
+            raise RuntimeError(f"Cannot write to directory {directory}: {e}")
     
-    print(f"Data directory hierarchy created successfully at {data_root}")
     return directories
 
 def main():
-    """
-    Command-line entry point for setting up data directories.
-    """
+    """Main entry point for the script."""
     parser = argparse.ArgumentParser(
-        description="Setup data directory hierarchy for the research project."
+        description="Setup data directory hierarchy for llmXive project."
     )
     parser.add_argument(
-        "--project-root",
-        type=Path,
-        default=Path("."),
-        help="Path to the project root directory (default: current directory)"
+        "--base-dir",
+        type=str,
+        default=".",
+        help="Base directory for the project (default: current directory)"
     )
     
     args = parser.parse_args()
+    base_dir = Path(args.base_dir).resolve()
+    
+    print(f"Setting up data directories in: {base_dir}")
     
     try:
-        dirs = setup_data_directories(args.project_root)
-        print("SUCCESS: Data directories created and verified.")
-        sys.exit(0)
+        created_dirs = setup_data_directories(base_dir)
+        print("Data directory setup completed successfully.")
+        print("Created directories:")
+        for d in created_dirs:
+            print(f"  - {d}")
+        
+        # Verify final state
+        data_dir = base_dir / "data"
+        raw_dir = data_dir / "raw"
+        processed_dir = data_dir / "processed"
+        
+        assert data_dir.exists(), "data directory missing"
+        assert raw_dir.exists(), "data/raw directory missing"
+        assert processed_dir.exists(), "data/processed directory missing"
+        
+        print("Verification passed: All required directories exist and are writable.")
+        return 0
+        
     except RuntimeError as e:
-        print(f"ERROR: {e}")
-        sys.exit(1)
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

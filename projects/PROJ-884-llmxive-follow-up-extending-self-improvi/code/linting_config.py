@@ -1,156 +1,107 @@
 """
-Linting and formatting configuration management for the llmXive project.
+Linting configuration and validation utilities.
 
-This module provides utilities to create and manage configuration files
-for Black and Flake8, ensuring consistent code style across the project.
+This module provides functions to generate configuration files for 
+flake8 and black, and to run linting checks.
 """
 import os
 import subprocess
 import sys
 from pathlib import Path
 from typing import Tuple, Optional
+import tempfile
+import shutil
 
 
-def create_black_config_file(config_path: Optional[Path] = None) -> Path:
+def create_black_config_file(output_path: Optional[str] = None) -> str:
     """
-    Create a pyproject.toml file with Black configuration if it doesn't exist
-    or update it if it does.
+    Create a pyproject.toml file with Black configuration.
     
     Args:
-        config_path: Optional path to the config file. Defaults to project root.
-        
+        output_path: Optional path to write the config file. 
+                     If None, writes to code/pyproject.toml
+                     
     Returns:
-        Path to the created/updated configuration file.
+        Path to the created configuration file
     """
-    if config_path is None:
-        config_path = Path.cwd() / "pyproject.toml"
-        
-    black_config = """[tool.black]
+    if output_path is None:
+        output_path = str(Path("code") / "pyproject.toml")
+    
+    config_content = """[tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
   | _build
   | buck-out
   | build
   | dist
+  | venv
 )/
 '''
-
-[tool.isort]
-profile = "black"
-line_length = 88
 """
     
-    # Check if file exists
-    if config_path.exists():
-        content = config_path.read_text()
-        if "[tool.black]" in content:
-            # Update existing config
-            lines = content.split('\n')
-            in_black_section = False
-            new_lines = []
-            skip_until_next_section = False
-            
-            for i, line in enumerate(lines):
-                if line.strip().startswith('[tool.black]'):
-                    in_black_section = True
-                    new_lines.append(line)
-                    continue
-                elif in_black_section and line.strip().startswith('['):
-                    in_black_section = False
-                    skip_until_next_section = False
-                    new_lines.append(line)
-                elif in_black_section:
-                    # Skip existing black config lines
-                    continue
-                else:
-                    new_lines.append(line)
-            
-            # Insert black config before isort if it exists, or at end
-            insert_pos = len(new_lines)
-            for i, line in enumerate(new_lines):
-                if line.strip().startswith('[tool.isort]'):
-                    insert_pos = i
-                    break
-            
-            final_content = '\n'.join(new_lines[:insert_pos]) + '\n' + black_config + '\n'.join(new_lines[insert_pos:])
-            config_path.write_text(final_content)
-        else:
-            # Append to existing file
-            config_path.write_text(content + '\n' + black_config)
-    else:
-        # Create new file
-        config_path.write_text(black_config)
-        
-    return config_path
+    Path(output_path).write_text(config_content)
+    return output_path
 
 
-def create_flake8_config_file(config_path: Optional[Path] = None) -> Path:
+def create_flake8_config_file(output_path: Optional[str] = None) -> str:
     """
-    Create a .flake8 file with Flake8 configuration.
+    Create a .flake8 file with configuration.
     
     Args:
-        config_path: Optional path to the config file. Defaults to project root.
-        
+        output_path: Optional path to write the config file.
+                     If None, writes to code/.flake8
+                     
     Returns:
-        Path to the created configuration file.
+        Path to the created configuration file
     """
-    if config_path is None:
-        config_path = Path.cwd() / ".flake8"
-        
-    flake8_config = """[flake8]
+    if output_path is None:
+        output_path = str(Path("code") / ".flake8")
+    
+    config_content = """[flake8]
 max-line-length = 88
 extend-ignore = E203, W503
-exclude = 
-    .git,
-    __pycache__,
-    build,
-    dist,
-    .eggs,
-    *.egg-info,
-    .venv,
-    venv
+exclude = .git,__pycache__,build,dist,.venv,venv
 per-file-ignores =
-    __init__.py: F401
+    code/dataset/generator.py:E501
+    code/analysis/stats.py:E501
+    code/bes/population.py:E501
+count = True
+show-source = True
+statistics = True
 """
     
-    config_path.write_text(flake8_config)
-    return config_path
+    Path(output_path).write_text(config_content)
+    return output_path
 
 
-def run_black_check(path: Optional[Path] = None, check_only: bool = True) -> Tuple[bool, str]:
+def run_black_check(path: str = "code", check_only: bool = True) -> Tuple[bool, str]:
     """
-    Run Black on the specified path.
+    Run Black formatting check on the code directory.
     
     Args:
-        path: Path to check. Defaults to current directory.
-        check_only: If True, only check formatting (don't modify files).
-        
+        path: Directory or file path to check
+        check_only: If True, only check formatting (don't modify)
+                    
     Returns:
-        Tuple of (success, message)
+        Tuple of (success: bool, message: str)
     """
-    if path is None:
-        path = Path.cwd()
-        
-    cmd = [sys.executable, "-m", "black"]
-    if check_only:
-        cmd.append("--check")
-    cmd.append("--diff")
-    cmd.append(str(path))
+    cmd = ["black", "--check"] if check_only else ["black"]
+    cmd.append(path)
     
     try:
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=300
+            timeout=60
         )
         
         if result.returncode == 0:
@@ -158,93 +109,94 @@ def run_black_check(path: Optional[Path] = None, check_only: bool = True) -> Tup
         else:
             return False, f"Black formatting issues found:\n{result.stdout}\n{result.stderr}"
             
-    except subprocess.TimeoutExpired:
-        return False, "Black check timed out."
     except FileNotFoundError:
         return False, "Black is not installed. Run: pip install black"
+    except subprocess.TimeoutExpired:
+        return False, "Black check timed out."
     except Exception as e:
         return False, f"Error running Black: {str(e)}"
 
 
-def run_flake8_check(path: Optional[Path] = None) -> Tuple[bool, str]:
+def run_flake8_check(path: str = "code") -> Tuple[bool, str]:
     """
-    Run Flake8 on the specified path.
+    Run flake8 linting check on the code directory.
     
     Args:
-        path: Path to check. Defaults to current directory.
-        
+        path: Directory or file path to check
+                    
     Returns:
-        Tuple of (success, message)
+        Tuple of (success: bool, message: str)
     """
-    if path is None:
-        path = Path.cwd()
-        
-    cmd = [sys.executable, "-m", "flake8", str(path)]
+    cmd = ["flake8", path]
     
     try:
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=300
+            timeout=60
         )
         
         if result.returncode == 0:
-            return True, "All files pass Flake8 checks."
+            return True, "No linting issues found."
         else:
-            return False, f"Flake8 issues found:\n{result.stdout}\n{result.stderr}"
+            return False, f"Linting issues found:\n{result.stdout}\n{result.stderr}"
             
-    except subprocess.TimeoutExpired:
-        return False, "Flake8 check timed out."
     except FileNotFoundError:
         return False, "Flake8 is not installed. Run: pip install flake8"
+    except subprocess.TimeoutExpired:
+        return False, "Flake8 check timed out."
     except Exception as e:
         return False, f"Error running Flake8: {str(e)}"
 
 
-def setup_linting(project_root: Optional[Path] = None) -> Tuple[Path, Path]:
+def setup_linting() -> Tuple[bool, str]:
     """
-    Set up linting configuration files for the project.
+    Set up linting configuration files in the project.
     
-    Args:
-        project_root: Optional path to project root. Defaults to current directory.
-        
     Returns:
-        Tuple of (black_config_path, flake8_config_path)
+        Tuple of (success: bool, message: str)
     """
-    if project_root is None:
-        project_root = Path.cwd()
+    try:
+        # Create configuration files
+        black_path = create_black_config_file()
+        flake8_path = create_flake8_config_file()
         
-    os.chdir(project_root)
-    
-    black_config = create_black_config_file()
-    flake8_config = create_flake8_config_file()
-    
-    return black_config, flake8_config
+        return True, f"Linting configuration created:\n- Black: {black_path}\n- Flake8: {flake8_path}"
+        
+    except Exception as e:
+        return False, f"Failed to set up linting configuration: {str(e)}"
 
 
-def main():
-    """Main entry point for linting configuration setup and checks."""
+def main() -> int:
+    """
+    Main entry point for linting setup and checks.
+    
+    Returns:
+        Exit code (0 for success, 1 for failure)
+    """
     print("Setting up linting configuration...")
+    success, message = setup_linting()
+    print(message)
     
-    black_config, flake8_config = setup_linting()
-    print(f"Created Black config: {black_config}")
-    print(f"Created Flake8 config: {flake8_config}")
+    if not success:
+        return 1
     
     print("\nRunning Black check...")
-    success, message = run_black_check()
-    print(message)
+    black_success, black_message = run_black_check()
+    print(black_message)
     
     print("\nRunning Flake8 check...")
-    success, message = run_flake8_check()
-    print(message)
+    flake8_success, flake8_message = run_flake8_check()
+    print(flake8_message)
     
-    if success:
+    if black_success and flake8_success:
         print("\n✓ All linting checks passed!")
+        return 0
     else:
-        print("\n✗ Some linting checks failed.")
-        sys.exit(1)
+        print("\n✗ Some linting checks failed. Please fix the issues above.")
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,5 +1,5 @@
-'|alpha comparing proportion rate success test two use':
+'|alpha include parameter proportion test two':
   quote: '0.05'
-  source_id: Two-proportion Z-test
-  url: https://en.wikipedia.org/wiki/Two-proportion_Z-test
+  source_id: Binomial proportion confidence interval
+  url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
   value: '0.05'

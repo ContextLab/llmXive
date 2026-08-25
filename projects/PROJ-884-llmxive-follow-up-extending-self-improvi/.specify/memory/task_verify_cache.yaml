@@ -12,19 +12,19 @@ T000d:
     \ document defining the Statistical Plan, Data Entities, and the explicit `complexity_metric`\
     \ mapping for SC\u2011005 is missing. The implementer must supply a non\u2011\
     empty `data-model.md` that meets the specified constraints."
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `data/` directory, nor the required `data/raw` and `data/processed` subdirectories,\
-    \ are present in the provided artifacts, and there is no evidence (e.g., script\
-    \ output or logs) showing that they exist and are writable. The task\u2019s core\
-    \ requirement is therefore unmet."
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of a `code/` directory with the required subfolders (`dataset`, `symbolic`,
     `bes`, `analysis`, `utils`) is provided, nor any verification that they exist
     and are writable. The implementer must create the hierarchy and demonstrate writability.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was presented showing that a `tests/` directory with `unit` and\
+    \ `integration` sub\u2011directories exists, nor any proof (e.g., command output,\
+    \ script, or test) that they are writable. The implementer must create the directories\
+    \ and provide verification that they are present and have write permissions."
 T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -32,6 +32,13 @@ T002a:
     \ the claim lacks any artifact showing the repository structure or the ignore\
     \ rules for Python artifacts. The required files must be present and non\u2011\
     empty to satisfy task T002a."
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `.venv` directory (or its contents) was provided for the path\
+    \ `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/`, nor any indication\
+    \ that `python3 -m venv .venv` was run and the environment activated. The required\
+    \ virtual\u2011environment artifact is missing."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -59,24 +66,3 @@ T021:
     \ for CPU\u2011optimized inference, and the referenced `code/bes/config.py` is\
     \ missing entirely, so the model cannot be loaded as specified. These gaps mean\
     \ the task\u2019s constraints are not met."
-T031a:
-  c: false
-  h: 7ba0e370872dcfb7a95b919c9776c96567656e642cee305a65ef05c7ad2dcb78
-  r: "The repository contains `code/analysis/stats.py`, but it does not show any code\
-    \ that writes results to `data/processed/stats_results.json`, and the required\
-    \ JSON file is absent. Consequently the task\u2019s core requirement\u2014producing\
-    \ a machine\u2011readable stats file with p\u2011values, confidence intervals,\
-    \ and test statistics\u2014is not satisfied."
-T035:
-  c: false
-  h: fdcc53ba40ea46075b92cd76c7258a11ec65634363275067fb48b5f847b92c66
-  r: The required artifact `pre_registration.yaml` is missing from the provided evidence,
-    so the set of required files is not complete, violating the verification constraint.
-T040c:
-  c: false
-  h: 99dd1f7c7e8501eaa3ffbb6600cce90562467a5f430d00d5786aeafe49cc609b
-  r: "The required `data/processed/literature_gpu_factor.json` file is absent, and\
-    \ the provided `code/analysis/metrics.py` does not contain any implemented logic\
-    \ that reads this file and checks that the conversion factor is non\u2011zero\
-    \ (the file is truncated before any such function). Both the artifact and the\
-    \ validation step are missing."
