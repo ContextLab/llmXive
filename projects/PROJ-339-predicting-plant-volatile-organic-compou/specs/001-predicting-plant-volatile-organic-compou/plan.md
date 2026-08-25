@@ -117,7 +117,7 @@ Nested k-Fold Cross-Validation** (inner loop for tuning, outer for evaluation) o
 
 ## Compute Feasibility Plan
 
-- **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
+- **Hardware**: GitHub Actions Free Tier (multi-core CPU, 7GB RAM).
 - **Data Size**: Capped at ~ samples to ensure <1 hour runtime and <4GB RAM usage.
 - **Method**: Random Forest (CPU-optimized in scikit-learn). No GPU, no quantization.
 - **Fallback**: If real data is unavailable (highly likely given the verified list), the pipeline will run on a synthetic dataset generated to match the schema, ensuring the code logic is validated.

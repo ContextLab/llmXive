@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-339-predicting-plant-volatile-organic-compou",
+  "ok": false,
+  "reason": "15 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/00_query_sources.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026JSON file.     Triggers synthetic data generation if no valid p\u2026\u201d; code/00_query_sources.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026amples found. Triggering synthetic data generation (T005).\")\u2026\u201d; code/00_query_sources.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ain()             print(\"Synthetic data generation completed.\")\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 2 command(s) failed: python code/01_ingest.py (rc=1); python code/03_train.py (rc=1); 3 declared deliverable(s) absent: data/processed/merged_dataset.csv; data/results/data_validation_report.json; data/results/model_metrics.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-339-predicting-plant-volatile-organic-compou/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-339-predicting-plant-volatile-organic-compou/code/main.py': [Errno 2] No such file or directory",
+    "python code/01_ingest.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-339-predicting-plant-volatile-organic-compou/code/01_ingest.py\", line 25, in <module>\n    from utils.config import get_config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-339-predicting-plant-volatile-organic-compou/code/utils/__init__.py\", line 8, in <module>\n    from .config import ConfigError, ProjectConfig, get_config, reset_config, EnvConfig, EnvConfigError\nImportError: cannot import name 'EnvConfig' from 'utils.config' (/home/runner/work/llmXive/llmXi",
+    "python code/03_train.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-339-predicting-plant-volatile-organic-compou/code/03_train.py\", line 21, in <module>\n    from utils.imputation import impute_missing_values\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-339-predicting-plant-volatile-organic-compou/code/utils/__init__.py\", line 8, in <module>\n    from .config import ConfigError, ProjectConfig, get_config, reset_config, EnvConfig, EnvConfigError\nImportError: cannot import name 'EnvConfig' from 'utils.config' (/home/runner/work/"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-25T20:23:18Z"
+}

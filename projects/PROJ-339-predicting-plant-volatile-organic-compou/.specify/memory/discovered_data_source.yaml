@@ -1,0 +1,15 @@
+status: none
+intent: Arabidopsis thaliana paired RNA-seq TPM and VOC metabolomics dataset GEO Metabolomics
+  Workbench download
+required_fields:
+- sample_id
+- treatment
+- time_point
+- tissue
+- gene_id
+- TPM
+- voc_compound_id
+- voc_concentration
+cache_key: 7422e89e551789fa649bf68d8d26143007dc0cc78e21b157590596a78dd968f7
+searched_at: '2026-08-25T20:23:42.050703+00:00'
+retry_count: 1
