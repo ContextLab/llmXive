@@ -101,4 +101,4 @@ As a researcher, I need to perform phylogenetically-aware permutation testing an
 - The free-tier GitHub Actions runner (2 CPU, 7 GB RAM) is sufficient to process ≤ 5000 isolates using scikit-learn and standard statistical tools without GPU acceleration.
 - The `Snippy` and `ARIBA` tools are available in the environment or can be installed via standard package managers without requiring proprietary licenses or heavy dependencies.
 - The dataset contains no severe class imbalance (e.g., >95% susceptible) that would render the random forest model ineffective; if imbalance is detected, stratified sampling will be used, but no synthetic oversampling (SMOTE) is assumed unless specified.
-- The threshold justification for the primary classification boundary (0.5) is based on the community standard for binary classification unless the sensitivity analysis indicates a significantly different optimal cutoff.
+- The threshold justification for the primary classification boundary is based on the community standard for binary classification unless the sensitivity analysis indicates a significantly different optimal cutoff.

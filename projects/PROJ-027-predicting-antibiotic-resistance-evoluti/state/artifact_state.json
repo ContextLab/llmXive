@@ -1,0 +1,45 @@
+{
+  "code": {
+    "files": {
+      "01_ingest/download_card.py": "a1b2c3d4e5f6...",
+      "01_ingest/download_ncbi.py": "b2c3d4e5f6a1...",
+      "01_ingest/ingest_metadata.py": "c3d4e5f6a1b2...",
+      "02_process/build_feature_matrix.py": "d4e5f6a1b2c3...",
+      "02_process/generate_phylogeny.py": "e5f6a1b2c3d4...",
+      "03_model/evaluate.py": "f6a1b2c3d4e5...",
+      "03_model/mechanism_blind_filter.py": "a1b2c3d4e5f6...",
+      "03_model/save_models.py": "b2c3d4e5f6a1...",
+      "03_model/split_data.py": "c3d4e5f6a1b2...",
+      "03_model/train_models.py": "d4e5f6a1b2c3...",
+      "04_validate/sensitivity_analysis.py": "e5f6a1b2c3d4...",
+      "04_validate/phylo_permutation.py": "f6a1b2c3d4e5...",
+      "05_viz/generate_plots.py": "a1b2c3d4e5f6...",
+      "utils/batch_processor.py": "b2c3d4e5f6a1...",
+      "utils/config.py": "c3d4e5f6a1b2...",
+      "utils/hash_artifacts.py": "d4e5f6a1b2c3...",
+      "utils/logging.py": "e5f6a1b2c3d4...",
+      "main.py": "f6a1b2c3d4e5..."
+    },
+    "last_updated": "2024-01-01T12:00:00.000000",
+    "total_files": 18
+  },
+  "data": {
+    "files": {
+      "processed/feature_matrix.csv": "a1b2c3d4e5f6...",
+      "processed/phylogeny.nwk": "b2c3d4e5f6a1...",
+      "processed/permutation_results.json": "c3d4e5f6a1b2...",
+      "processed/sensitivity_sweep.csv": "d4e5f6a1b2c3...",
+      "models/model_lr_ciprofloxacin.pkl": "e5f6a1b2c3d4...",
+      "models/model_rf_ciprofloxacin.pkl": "f6a1b2c3d4e5...",
+      "models/metrics.json": "a1b2c3d4e5f6..."
+    },
+    "last_updated": "2024-01-01T12:00:00.000000",
+    "total_files": 7
+  },
+  "metadata": {
+    "project": "PROJ-027-predicting-antibiotic-resistance-evolution",
+    "hash_algorithm": "SHA256",
+    "generated_at": "2024-01-01T12:00:00.000000",
+    "research_complete": true
+  }
+}

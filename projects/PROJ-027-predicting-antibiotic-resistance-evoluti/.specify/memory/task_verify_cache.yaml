@@ -54,3 +54,9 @@ T038:
     \ not address the performance\u2011optimization requirement. The necessary artifacts\
     \ (e.g., updated CI pipeline files, benchmark results, or validation tests) are\
     \ missing."
+T040:
+  c: false
+  h: ba594196d4bf482ec44bb23a97007c6fdd90fea0d5747506b5f892df34f53fec
+  r: "The required `state/projects/PROJ-027-predicting-antibiotic-resistance-evoluti.yaml`\
+    \ file does not exist, so no hashes, timestamp, or stage updates can be verified.\
+    \ The task\u2019s core artifact is missing."

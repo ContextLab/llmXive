@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-027-predicting-antibiotic-resistance-evoluti",
+  "ok": false,
+  "reason": "4 run-book script(s) missing (plan/impl path mismatch): python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852; python code/main.py --stage train --antibiotic ciprofloxacin; python code/main.py --stage validate --antibiotic ciprofloxacin --permutations [sufficient_permutations]; 1 command(s) failed: python code/utils/hash_artifacts.py (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --stage ingest --n-isolates 1000 --bio_project PRJNA528852 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --stage train --antibiotic ciprofloxacin -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --stage validate --antibiotic ciprofloxacin --permutations [sufficient_permutations] -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/main.py': [Errno 2] No such file or directory",
+    "python code/utils/hash_artifacts.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/utils/hash_artifacts.py\", line 11, in <module>\n    from utils.logging import get_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/utils/logging.py\", line 4, in <module>\n    import logging\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/utils/logging.py\", line 12, in <module>\n    def get_l",
+    "python code/main.py --stage viz --antibiotic ciprofloxacin -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-027-predicting-antibiotic-resistance-evoluti/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-25T15:59:14Z"
+}
