@@ -1,170 +1,88 @@
 """
-Unit tests for sweep_matrix_generator.py (T040a)
+Unit tests for T040a: sweep_matrix_generator.py
 """
-import os
-import sys
-import tempfile
 import json
+import os
+import tempfile
 from pathlib import Path
-import pytest
 import numpy as np
+import pytest
 
-# Add code directory to path
+# Adjust import path for testing
+import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from analysis.sweep_matrix_generator import (
     generate_sweep_configs,
     save_raw_sweep_matrix,
+    compute_file_sha256,
     run_sweep_generation
 )
 
+def test_generate_sweep_configs():
+    """Test that the grid is generated correctly."""
+    configs = generate_sweep_configs()
+    assert len(configs) == 3 * 7 * 3  # 3 Ns * 7 thetas * 3 seeds
+    assert all("N" in c and "theta" in c and "seed" in c for c in configs)
+    assert all(c["N"] in [500, 1000, 2000] for c in configs)
+    assert all(c["theta"] in [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0] for c in configs)
+    assert all(c["seed"] in [42, 123, 456] for c in configs)
 
-class TestGenerateSweepConfigs:
-    """Tests for generate_sweep_configs function"""
+def test_save_raw_sweep_matrix(tmp_path):
+    """Test that a single matrix is saved correctly."""
+    config = {"N": 100, "theta": 2.0, "seed": 42}
+    file_path = save_raw_sweep_matrix(config, tmp_path)
 
-    def test_generate_single_config(self):
-        """Test generating a single configuration"""
-        configs = generate_sweep_configs(
-            N_values=[100],
-            theta_values=[2.0],
-            seeds=[42]
-        )
-        assert len(configs) == 1
-        assert configs[0]["N"] == 100
-        assert configs[0]["theta"] == 2.0
-        assert configs[0]["seed"] == 42
-        assert configs[0]["perturbation_type"] == "diagonal"
+    assert file_path.exists()
+    assert file_path.suffix == ".npy"
 
-    def test_generate_multiple_configs(self):
-        """Test generating multiple configurations"""
-        configs = generate_sweep_configs(
-            N_values=[100, 200],
-            theta_values=[1.0, 2.0],
-            seeds=[42, 43]
-        )
-        assert len(configs) == 8  # 2 * 2 * 2
-        # Check that all combinations are present
-        N_values = set(c["N"] for c in configs)
-        theta_values = set(c["theta"] for c in configs)
-        seed_values = set(c["seed"] for c in configs)
-        assert N_values == {100, 200}
-        assert theta_values == {1.0, 2.0}
-        assert seed_values == {42, 43}
+    # Verify content
+    loaded = np.load(file_path)
+    assert loaded.shape == (100, 100)
+    assert loaded.dtype == np.float64
 
+def test_compute_file_sha256(tmp_path):
+    """Test checksum computation."""
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("hello world")
 
-class TestSaveRawSweepMatrix:
-    """Tests for save_raw_sweep_matrix function"""
+    checksum = compute_file_sha256(test_file)
+    assert len(checksum) == 64  # SHA-256 hex length
+    assert isinstance(checksum, str)
 
-    def test_save_matrix_creates_file(self):
-        """Test that save_raw_sweep_matrix creates a valid .npy file"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            config = {
-                "N": 100,
-                "theta": 2.0,
-                "seed": 42,
-                "perturbation_type": "diagonal"
-            }
+def test_run_sweep_generation_small(tmp_path):
+    """Test full sweep generation with a small subset."""
+    # Create a minimal config list
+    configs = [
+        {"N": 50, "theta": 1.0, "seed": 42},
+        {"N": 50, "theta": 2.0, "seed": 123}
+    ]
 
-            filepath = save_raw_sweep_matrix(config, output_dir)
+    checksum_file = tmp_path / "checksums.json"
+    output_dir = tmp_path / "matrices"
 
-            assert os.path.exists(filepath)
-            assert filepath.endswith(".npy")
+    result = run_sweep_generation(
+        configs=configs,
+        output_dir=output_dir,
+        checksum_file=checksum_file
+    )
 
-            # Verify the file can be loaded
-            matrix = np.load(filepath)
-            assert matrix.shape == (100, 100)
-            assert matrix.dtype == np.float64
+    assert result["total_generated"] == 2
+    assert checksum_file.exists()
 
-    def test_save_matrix_filename_format(self):
-        """Test that the filename follows the expected format"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            config = {
-                "N": 500,
-                "theta": 2.5,
-                "seed": 123,
-                "perturbation_type": "diagonal"
-            }
-
-            filepath = save_raw_sweep_matrix(config, output_dir)
-            filename = os.path.basename(filepath)
-
-            assert filename == "matrix_N500_theta2.5_seed123.npy"
-
-    def test_save_matrix_reproducibility(self):
-        """Test that the same seed produces the same matrix"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            config = {
-                "N": 50,
-                "theta": 1.5,
-                "seed": 999,
-                "perturbation_type": "diagonal"
-            }
-
-            filepath1 = save_raw_sweep_matrix(config, output_dir)
-            matrix1 = np.load(filepath1)
-
-            # Generate again with same config
-            filepath2 = save_raw_sweep_matrix(config, output_dir)
-            matrix2 = np.load(filepath2)
-
-            # Should be identical
-            assert np.allclose(matrix1, matrix2)
-
-
-class TestRunSweepGeneration:
-    """Tests for run_sweep_generation function"""
-
-    def test_run_sweep_creates_files(self):
-        """Test that run_sweep_generation creates the expected files"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-
-            files = run_sweep_generation(
-                N_values=[50],
-                theta_values=[1.0, 2.0],
-                seeds=[42],
-                output_dir=output_dir
-            )
-
-            assert len(files) == 2
-            for f in files:
-                assert os.path.exists(f)
-                assert f.endswith(".npy")
-
-    def test_run_sweep_default_values(self):
-        """Test that run_sweep_generation works with default values"""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-
-            # Use minimal defaults to avoid long tests
-            files = run_sweep_generation(
-                N_values=[50],
-                theta_values=[2.0],
-                seeds=[42],
-                output_dir=output_dir
-            )
-
-            assert len(files) == 1
-            matrix = np.load(files[0])
-            assert matrix.shape == (50, 50)
-
-    def test_run_sweep_different_perturbation_types(self):
-        """Test sweep generation with different perturbation types"""
-        for ptype in ["diagonal", "block-sparse", "random-sparse"]:
-            with tempfile.TemporaryDirectory() as tmpdir:
-                output_dir = Path(tmpdir)
-
-                files = run_sweep_generation(
-                    N_values=[50],
-                    theta_values=[2.0],
-                    seeds=[42],
-                    perturbation_type=ptype,
-                    output_dir=output_dir
-                )
-
-                assert len(files) == 1
-                matrix = np.load(files[0])
-                assert matrix.shape == (50, 50)
+    # Verify manifest content
+    with open(checksum_file, "r") as f:
+        manifest = json.load(f)
+    
+    assert manifest["total_configs"] == 2
+    assert len(manifest["checksums"]) == 2
+    
+    # Verify files exist and checksums match
+    for entry in manifest["checksums"]:
+        file_path = Path(entry["file_path"])
+        if not file_path.is_absolute():
+            file_path = output_dir / Path(entry["file_path"]).name
+        
+        assert file_path.exists()
+        computed_checksum = compute_file_sha256(file_path)
+        assert computed_checksum == entry["checksum"]

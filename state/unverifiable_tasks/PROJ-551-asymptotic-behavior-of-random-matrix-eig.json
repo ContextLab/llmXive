@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
+  "tasks": [
+    {
+      "task_key": "T028",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/sensitivity_density_sweep.csv",
+      "first_seen": "2026-08-25T09:32:30.283704+00:00",
+      "last_seen": "2026-08-25T09:32:30.283704+00:00"
+    },
+    {
+      "task_key": "T029a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/sensitivity_density_sweep.csv, data/processed/sensitivity_variation.csv",
+      "first_seen": "2026-08-25T09:32:30.285119+00:00",
+      "last_seen": "2026-08-25T09:32:30.285119+00:00"
+    }
+  ],
+  "updated_at": "2026-08-25T09:32:30.285119+00:00"
+}

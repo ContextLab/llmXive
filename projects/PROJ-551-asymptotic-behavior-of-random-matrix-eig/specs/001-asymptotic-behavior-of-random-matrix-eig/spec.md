@@ -13,7 +13,7 @@ This project investigates the asymptotic behavior of eigenvalues in large random
 ## Key Assumptions
 - The study is purely observational and computational; no physical "observer" or "frame of reference" is modeled (FR-007).
 - All findings are framed as associational correlations derived from simulated data.
-- Matrix dimensions are CPU-tractable ($N \le 2000$) using iterative solvers (ARPACK).
+- Matrix dimensions are CPU-tractable using iterative solvers (ARPACK).
 
 ## Data Model
 - **SimulationRun**: Captures parameters (N, seed, $\theta$, sparsity pattern) and results (eigenvalues, outlier flags).

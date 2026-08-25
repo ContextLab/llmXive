@@ -609,3 +609,65 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T09:02:45Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: critical threshold theta_c equals 1.01 plus or minus 0.02
+  claim_id: c_7a39f4e6
+  context: 'The logistic regression model fitted to the Monte Carlo sweep data yielded
+    a critical threshold of: theta_c = 1.01 +/- 0.02. This value is consistent with
+    the theoretical prediction of theta_c = 1.0 for the standard Wigner ensemble.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The logistic regression model fitted to the Monte Carlo sweep data yielded
+    a critical threshold of: theta_c = 1.01 +/- 0.02'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T09:27:56Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: theoretical prediction of theta_c equals 1.0 for standard Wigner ensemble
+  claim_id: c_dbaf4e1e
+  context: 'The logistic regression model fitted to the Monte Carlo sweep data yielded
+    a critical threshold of: theta_c = 1.01 +/- 0.02. This value is consistent with
+    the theoretical prediction of theta_c = 1.0 for the standard Wigner ensemble.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This value is consistent with the theoretical prediction of theta_c =
+    1.0 for the standard Wigner ensemble.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T09:28:23Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: BBP phase transition threshold is typically 1.0 for standard Wigner matrices
+  claim_id: c_15fa6aeb
+  context: "The BBP phase transition predicts a sharp threshold $\theta_c$ (typically\
+    \ 1.0 for standard Wigner matrices) above which the largest eigenvalue detaches\
+    \ from the bulk spectrum. This study aims to: 1. Empirically determine $\theta_c$\
+    \ for various sparsity patterns."
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "The BBP phase transition predicts a sharp threshold $\theta_c$ (typically\
+    \ 1.0 for standard Wigner matrices) above which the largest eigenvalue detaches\
+    \ from the bulk spectrum."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T09:28:55Z'

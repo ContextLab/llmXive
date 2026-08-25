@@ -12,6 +12,13 @@ T018:
     repository, so the integration test for the full parameter sweep cannot be verified.
     The task remains unfinished until the file is added with the appropriate test
     implementation.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.npy` matrix file under `data/raw/` nor a `state/checksums_raw.json` file
+    was presented. Consequently the required atomic generation and checksum recording
+    cannot be confirmed. The implementer must provide the actual NumPy file and the
+    JSON checksum entry.
 T032a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,3 +33,39 @@ T033:
     \ about the \"observer\", the nature of the study, or the definition of \"sparse\
     \ noise\" is provided. The implementer\u2019s claim lacks the actual artifact\
     \ needed to satisfy the task."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `research.md` file or its contents was provided, so we cannot\
+    \ confirm that a \u201CTheoretical Context\u201D section distinguishing the mathematical\
+    \ model from physical analogs and explicitly invoking FR\u2011007 was added. The\
+    \ required documentation artifact is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No memory profile log `state/memory_profile_N2000.log` or any code changes were\
+    \ presented; thus there is no evidence that the code was refactored to stay under\
+    \ 7\u202FGB RAM for N=2000 or that a memory\u2011profiler run was performed. The\
+    \ required artifact is missing."
+T035b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/code_observation_audit.log` file was presented, and no evidence of\
+    \ a static analysis of the `code/` directory was provided. Without this log showing\
+    \ that no hard\u2011coded physical constants or observer assumptions remain, the\
+    \ task requirement is unmet. The implementer must supply the audit log containing\
+    \ the analysis results."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/sweep_timing.log` file or any other evidence of the parameter sweep\
+    \ execution time is present; thus the required artifact is missing and the claim\
+    \ that the sweep completes within 6\u202Fhours cannot be verified."
+T040a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.npy` matrix files under `data/raw/sweep/` nor a `state/checksums_sweep.json`\
+    \ file were presented. Without these files and their SHA\u2011256 entries, the\
+    \ required grid sweep and atomic checksum recording have not been demonstrated.\
+    \ The implementer must provide the generated matrix files and the corresponding\
+    \ checksum JSON."

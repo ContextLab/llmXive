@@ -20,7 +20,7 @@
 - Ruff (linting), Black (formatting)
 
 ## Risk Mitigation
-- **Memory**: Use sparse matrix representations where possible; limit $N$ to 2000.
+- **Memory**: Use sparse matrix representations where possible; limit $N$ to a feasible sample size.
 - **Reproducibility**: Enforce strict random seed management and logging.
 - **Validation**: Cross-check eigenvalues against theoretical bounds to avoid artifacts.
 

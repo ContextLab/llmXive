@@ -1,203 +1,131 @@
 # Quick Start Guide
 
-## Overview
-
-This project investigates the asymptotic behavior of eigenvalues of random matrices under sparse perturbations. It generates Wigner matrices, applies deterministic sparse perturbations, and analyzes the emergence of outliers (eigenvalues outside the bulk spectral support) to empirically determine the critical threshold $\theta_c$.
+This guide provides instructions for reproducing the full parameter sweep and sensitivity analysis for the project "Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations".
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip` for dependency management
-- 7GB+ available RAM (for $N=2000$ simulations)
-- 14GB+ available disk space for data artifacts
+- Required dependencies installed via `pip install -r code/requirements.txt`
+- Ensure the project root is the current working directory
 
-## Installation
+## Environment Setup
 
-1. Clone the repository and navigate to the project directory.
-2. Install dependencies:
+1. Install dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-```bash
-cd code
-pip install -r requirements.txt
-```
+2. Verify directory structure:
+ ```bash
+ ls code/
+ ls data/raw/
+ ls data/processed/
+ ```
 
-3. Ensure all required directories exist (run once):
+## Reproducing the Full Parameter Sweep (User Story 2)
 
-```bash
-cd code
-python -c "from utils.config import ensure_directories; ensure_directories()"
-```
+The parameter sweep investigates the critical threshold $\theta_c$ by varying matrix size $N$, perturbation strength $\theta$, and random seeds.
 
-## Reproducing the Full Parameter Sweep
+### Step 1: Generate Raw Data with Checksums (Task T040a)
 
-The full parameter sweep systematically varies matrix size $N$ and perturbation strength $\theta$ to map the phase transition boundary.
-
-### Step 1: Generate Raw Sweep Matrices (T040a)
-
-This step generates and saves raw Wigner matrix instances for the full parameter grid.
+This step generates the raw Wigner matrices for the sweep grid and computes their SHA-256 checksums.
 
 ```bash
-cd code
-python analysis/sweep_matrix_generator.py
+python code/analysis/sweep_matrix_generator.py
 ```
 
-**Output**: `data/raw/sweep/matrix_N{N}_theta{theta}_seed{seed}.npy`
+**Outputs:**
+- Raw matrices: `data/raw/sweep/matrix_N{N}_theta{theta}_seed{seed}.npy`
+- Checksum manifest: `state/checksums_sweep.json`
 
-### Step 2: Compute Sweep Checksums (T040b)
+### Step 2: Execute the Threshold Sweep (Task T020)
 
-This step computes SHA-256 checksums for all generated raw matrices to ensure data integrity.
+This step processes the raw data, computes eigenvalues, and identifies outliers.
 
 ```bash
-cd code
-python analysis/sweep_checksums.py
+python code/analysis/threshold_sweep.py
 ```
 
-**Output**: `state/checksums_sweep.json`
+**Outputs:**
+- Aggregated results: `data/processed/threshold_sweep_results.csv`
 
-### Step 3: Run Threshold Sweep Analysis (T020)
+### Step 3: Statistical Analysis and Threshold Identification (Task T021b)
 
-This orchestrator executes the full sweep, ingesting the checksummed raw data and managing iterations.
+This step fits a logistic regression model to determine the critical threshold $\theta_c$.
 
 ```bash
-cd code
-python analysis/threshold_sweep.py
+python code/analysis/threshold_analysis_runner.py
 ```
 
-**Output**: Aggregated results used for downstream analysis.
+**Outputs:**
+- Threshold identification: `data/processed/threshold_identification.json`
+- Fitted parameters: `data/processed/threshold_fit_params.json`
+- Final report: `data/processed/critical_threshold_report.json`
 
-### Step 4: Run Monte Carlo Simulation (T021a)
+### Step 4: Visualization (Task T025)
 
-This step runs a sufficient number of Monte Carlo iterations per configuration to estimate outlier probabilities.
+Generate the plot of outlier probability vs. $\theta$.
 
 ```bash
-cd code
-python analysis/monte_carlo_runner.py
+python code/analysis/plot_outlier_probability.py
 ```
 
-**Output**: `data/processed/mc_results.csv`
+**Output:**
+- Plot: `data/figures/outlier_probability_vs_theta.png`
 
-### Step 5: Analyze Threshold Identification (T021b)
+## Reproducing the Sensitivity Analysis (User Story 3)
 
-This step prepares the Monte Carlo results for threshold fitting.
+This analysis tests the robustness of $\theta_c$ against variations in sparsity density.
+
+### Step 1: Execute the Density Sweep (Task T028)
+
+Run the sensitivity analysis over sparsity densities $\{0.1, 0.2, 0.3\}$.
 
 ```bash
-cd code
-python analysis/threshold_identification_raw.py
+python code/analysis/sensitivity_density_sweep.py
 ```
 
-**Output**: `data/processed/threshold_identification_raw.json`
+**Output:**
+- Results: `data/processed/sensitivity_density_sweep.csv`
 
-### Step 6: Fit Critical Threshold (T022a, T022b, T022c)
+### Step 2: Compute Threshold Variation (Task T029a)
 
-This step fits a sigmoid curve to the outlier probability data to estimate $\theta_c$.
+Calculate the standard deviation of $\theta_c$ across the density sweep.
 
 ```bash
-cd code
-python analysis/threshold_fit.py
+python code/analysis/sensitivity_variation.py
 ```
 
-**Output**: `data/processed/threshold_fit_params.json`
+**Output:**
+- Variation data: `data/processed/sensitivity_variation.csv`
 
-### Step 7: Aggregate Sweep Results (T024)
-
-This step generates the final aggregated results file.
+### Step 3: Generate Sensitivity Report (Task T030)
 
 ```bash
-cd code
-python analysis/threshold_sweep_aggregator.py
+python code/analysis/sensitivity_analysis.py
 ```
 
-**Output**: `data/processed/threshold_sweep_results.csv`
+**Output:**
+- Report: `data/processed/sensitivity_report.md`
 
-### Step 8: Visualize Outlier Probability (T025)
+## Verification
 
-This step generates a plot of the probability of outlier emergence vs. $\theta$.
+To verify the integrity of the generated data:
 
 ```bash
-cd code
-python analysis/plot_outlier_probability.py
+python code/utils/checksum.py --verify-all
 ```
 
-**Output**: `data/figures/outlier_probability_vs_theta.png`
-
-## Sensitivity Analysis of Sparsity Thresholds
-
-This analysis examines the robustness of $\theta_c$ to changes in sparsity density $p$.
-
-### Step 1: Run Sensitivity Density Sweep (T027, T028)
-
-This step sweeps over support density set $\{0.1, 0.2, 0.3\}$ for each sparsity pattern type.
-
-```bash
-cd code
-python analysis/sensitivity_density_sweep.py
-```
-
-**Output**: `data/processed/sensitivity_density_sweep.csv`
-
-### Step 2: Run Sensitivity Analysis (T027)
-
-This step performs the core sensitivity analysis logic.
-
-```bash
-cd code
-python analysis/sensitivity_analysis.py
-```
-
-**Output**: `data/processed/sensitivity_variation.csv`
-
-### Step 3: Generate Sensitivity Report (T030)
-
-This step generates the final markdown report stating stability or shift magnitude.
-
-```bash
-cd code
-python analysis/threshold_comparison.py
-```
-
-**Output**: `data/processed/sensitivity_report.md`
-
-## Single Run Mode (User Story 1)
-
-For quick verification, run a single simulation instance.
-
-```bash
-cd code
-python main.py --N 1000 --theta 2.5 --seed 42
-```
-
-**Outputs**:
-- Raw matrix: `data/raw/matrix_N1000_seed42.npy`
-- Checksum: `state/checksums_raw.json`
-- Results: `data/processed/single_run_results.json`
-- Logs: `data/logs/simulation_run.log`
-
-## Verification of Edge Cases (T031)
-
-Verify semicircle law compliance for the unperturbed (rank-0) case.
-
-```bash
-cd code
-python analysis/edge_case_rank0.py
-```
-
-**Output**: `data/logs/edge_case_rank0.log`
-
-## Configuration
-
-All simulation parameters (seeds, tolerances, matrix sizes) can be configured via `code/config.yaml` or command-line arguments. See `code/utils/config.py` for available options.
+This will validate all checksums in `state/checksums_raw.json` and `state/checksums_sweep.json`.
 
 ## Troubleshooting
 
-- **Memory Error**: Ensure you have at least 7GB RAM for $N=2000$. Use smaller $N$ for testing.
-- **Convergence Failure**: If the iterative solver fails to converge, check the tolerance settings in `config.yaml` or increase the maximum iterations.
-- **Missing Data**: If output files are missing, ensure all prerequisite steps (e.g., raw matrix generation) have completed successfully.
+- **Memory Errors**: Ensure you are not running multiple instances simultaneously. The iterative solver is designed for CPU-tractable memory usage (< 7 GB for N=2000).
+- **Missing Dependencies**: If `scipy.sparse.linalg.eigsh` fails, ensure `scipy` is installed and up to date.
+- **Path Errors**: Ensure you are running commands from the project root directory.
 
-## Data Hygiene
+## Notes
 
-This project adheres to Constitution Principle III (Data Hygiene). All raw data is checksummed before processing. Verify integrity using:
-
-```bash
-cd code
-python utils/checksum.py --verify
-```
+- All scripts use deterministic random seeds defined in `code/utils/config.py` or via CLI arguments.
+- The "observer" in this study is the computational algorithm measuring spectral statistics, not a physical entity.
+- This project is purely observational with simulated data; no physical systems are being modeled.
