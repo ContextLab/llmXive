@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GlobalResults"
+description: "Schema for the final aggregated results of the study, including statistical test outcomes."
+type: object
+properties:
+  total_pairs:
+    type: integer
+    minimum: 0
+    description: "Total number of valid pairs (Human vs LLM)."
+  human_scores:
+    type: array
+    items:
+      type: number
+    description: "List of all human coverage scores."
+  llm_scores:
+    type: array
+    items:
+      type: number
+    description: "List of all LLM coverage scores."
+  wilcoxon_statistic:
+    type: number
+    description: "Test statistic from Wilcoxon signed-rank test."
+  wilcoxon_p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value from the test."
+  significance:
+    type: boolean
+    description: "True if p-value < 0.05 AND difference > 0.05 (Minimum Effect Size)."
+  execution_time_seconds:
+    type: number
+    minimum: 0.0
+    description: "Total runtime of the pipeline."
+required:
+  - total_pairs
+  - human_scores
+  - llm_scores
+  - wilcoxon_statistic
+  - wilcoxon_p_value
+  - significance
+  - execution_time_seconds

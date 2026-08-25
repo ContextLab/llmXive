@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DocstringPair"
+description: "Schema for a single data point containing method signature, human docstring, and generated docstring with scores."
+type: object
+properties:
+  repo_name:
+    type: string
+    description: "Name of the repository (e.g., 'requests')."
+  file_path:
+    type: string
+    description: "Relative path to the source file within the repo."
+  method_name:
+    type: string
+    description: "Name of the public method."
+  parameters:
+    type: array
+    items:
+      type: string
+    description: "List of parameter names extracted from the AST signature (excluding 'self', 'cls')."
+  human_docstring:
+    oneOf:
+      - type: string
+      - type: "null"
+    description: "The existing human-written docstring (or null if absent)."
+  generated_docstring:
+    type: string
+    description: "The LLM-generated docstring."
+  parameter_coverage_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Primary metric: (matched params / total params). Calculated using docstring_parser."
+  semantic_similarity_score:
+    type: number
+    minimum: -1.0
+    maximum: 1.0
+    description: "Auxiliary metric: Cosine similarity between human and generated embeddings."
+  generation_status:
+    type: string
+    enum:
+      - "success"
+      - "timeout"
+      - "error"
+    description: "Status of the generation process."
+  error_message:
+    type: string
+    description: "Description of error if generation_status is not 'success'."
+required:
+  - repo_name
+  - file_path
+  - method_name
+  - parameters
+  - human_docstring
+  - generated_docstring
+  - parameter_coverage_score
+  - semantic_similarity_score
+  - generation_status

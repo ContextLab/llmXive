@@ -1,0 +1,17 @@
+status: none
+intent: CodeSearchNet Python dataset PyPI leaderboard HuggingFace mirror for method
+  signatures python package dataset
+required_fields:
+- repository_name
+- repository_url
+- repo_rank
+- file_path
+- class_name
+- method_name
+- signature
+- docstring
+- is_public
+- method_index
+cache_key: 83e0b57de8a0df316dc85c0c2c3b2dccfb955037bd77bc6b29457d3e84d88db3
+searched_at: '2026-08-25T21:16:24.229547+00:00'
+retry_count: 1

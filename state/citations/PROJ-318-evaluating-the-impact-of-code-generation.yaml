@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 1701cb078c71e7c4ad9d4bcd9a08e90d16ec6e80c3ce6537e70ae015dd9dff99
+  artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://pypi.org/pypi/{package}/json`
+  verification_status: mismatch
+  verified_against_url: https://pypi.org/pypi/%7Bpackage%7D/json
+  verified_at: '2026-08-25T21:28:53.246199Z'
+- artifact_hash: 1701cb078c71e7c4ad9d4bcd9a08e90d16ec6e80c3ce6537e70ae015dd9dff99
+  artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://pypistats.org/api/packages/top`
+  verification_status: mismatch
+  verified_against_url: https://pypistats.org/api/packages/top
+  verified_at: '2026-08-25T21:28:53.246199Z'
