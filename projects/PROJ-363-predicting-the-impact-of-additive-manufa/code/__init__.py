@@ -1,3 +1,1 @@
-"""
-llmXive Research Pipeline - Code Module
-"""
+"""Code package for 316L Porosity Prediction Pipeline."""

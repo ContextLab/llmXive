@@ -1,14 +1,10 @@
-# Project Directory for PROJ-363
-# This directory serves as the root for the "Predicting the Impact of Additive Manufacturing Parameters on the Porosity of 316L Stainless Steel" project.
-# Subdirectories (code/, data/, tests/, models/, results/, specs/, state/) are created by subsequent tasks (e.g., T001a logic applied here, T002, T006).
+# Placeholder file to ensure the project directory structure exists.
+# This directory was created as part of task T001b to satisfy the
+# requirement for a specific subdirectory structure for this project.
 #
 # Structure:
-# ├── code/          # Python source modules
-# ├── data/          # Raw and processed datasets
-# ├── models/        # Trained model artifacts
-# ├── results/       # Reports and plots
-# ├── specs/         # Feature specifications
-# ├── tests/         # Unit and contract tests
-# ├── state/         # Artifact versioning state
-# ├── requirements.txt
-# └── .gitkeep
+# projects/
+#   PROJ-363-predicting-the-impact-of-additive-manufa/
+#     (future feature specs, local configs, or project-specific artifacts)
+#
+# This file prevents the directory from being empty in version control.

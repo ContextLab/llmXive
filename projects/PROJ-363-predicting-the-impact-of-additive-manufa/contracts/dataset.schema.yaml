@@ -1,49 +1,63 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: 316L Stainless Steel LPBF Dataset Schema
-description: |
-  Schema defining the required columns and data types for the
-  preprocessed dataset used in predicting porosity from additive manufacturing parameters.
+title: 316L Additive Manufacturing Porosity Dataset Schema
+description: >
+  Schema for the preprocessed 316L Stainless Steel LPBF dataset.
+  Defines required columns, data types, and constraints for data integrity.
 type: object
 required:
   - properties
-  - required
-  - additionalProperties
 properties:
   type:
     type: string
     const: object
-  properties:
-    type: object
-    properties:
-      laser_power:
-        description: Laser power in Watts
-        type: number
-      scan_speed:
-        description: Scan speed in mm/s
-        type: number
-      hatch_spacing:
-        description: Hatch spacing in mm
-        type: number
-      layer_thickness:
-        description: Layer thickness in mm
-        type: number
-      porosity:
-        description: Measured porosity (percentage or volume fraction)
-        type: number
-      energy_density:
-        description: Volumetric Energy Density (J/mm^3), derived column
-        type: number
-    required:
+  required:
+    type: array
+    items:
+      type: string
+    contains:
       - laser_power
       - scan_speed
       - hatch_spacing
       - layer_thickness
       - porosity
       - energy_density
-  additionalProperties:
-    type: boolean
-    const: false
-required:
-  - type
-  - properties
-  - additionalProperties
+  properties:
+    type: object
+    properties:
+      laser_power:
+        description: Laser power in Watts
+        type: number
+        minimum: 0
+      scan_speed:
+        description: Scan speed in mm/s
+        type: number
+        minimum: 0
+      hatch_spacing:
+        description: Hatch spacing in mm
+        type: number
+        minimum: 0
+      layer_thickness:
+        description: Layer thickness in mm
+        type: number
+        minimum: 0
+      porosity:
+        description: Measured porosity percentage (0-100)
+        type: number
+        minimum: 0
+        maximum: 100
+      energy_density:
+        description: Volumetric Energy Density in J/mm^3 (derived)
+        type: number
+        minimum: 0
+    additionalProperties: true
+  additionalProperties: true
+dependencies:
+  energy_density:
+    oneOf:
+      - required:
+          - laser_power
+          - scan_speed
+          - hatch_spacing
+          - layer_thickness
+      - required:
+          - energy_density

@@ -1,3 +1,1 @@
-"""
-llmXive Research Pipeline - Results Module
-"""
+"""Results package for reports and plots."""

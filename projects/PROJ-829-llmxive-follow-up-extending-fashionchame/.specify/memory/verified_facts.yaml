@@ -1,0 +1,6 @@
+'|confidence filtering sample set threshold vlm':
+  quote: VBVR-Wan2.2-14B 160 0.682 0.763 0.733 0.713 0.795 0.776 0.827 0.601 0.732
+    0.596 0.542 0.628 0.600
+  source_id: '2606.02564'
+  url: https://arxiv.org/abs/2606.02564
+  value: '0.8'

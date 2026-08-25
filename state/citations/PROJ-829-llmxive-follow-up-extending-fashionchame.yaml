@@ -20,14 +20,3 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/Hemabhushan/capstone_sakuka_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet
   verified_at: '2026-08-23T03:54:34.181703Z'
-- artifact_hash: 443fbd8f84a7107a0e558dc622f602d0ff73988f0f15f8ed78bc4e3d6866c402
-  artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1109/ACCESS.2020.2999999
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1109/ACCESS.2020.2999999
-  verified_at: '2026-08-25T15:04:59.438041Z'

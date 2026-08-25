@@ -1,3 +1,1 @@
-"""
-llmXive Research Pipeline - Models Module
-"""
+"""Models package for trained artifacts."""

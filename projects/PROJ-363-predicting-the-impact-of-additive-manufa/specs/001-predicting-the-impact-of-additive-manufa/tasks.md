@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create `code/`, `tests/`, `data/`, `results/`, `models/` directories at repository root
 - [ ] T001b [P] Create `projects/PROJ-363-predicting-the-impact-of-additive-manufa/` subdirectory structure if required by plan
-- [ ] T002 Initialize Python project with `requirements.txt` (pandas, scikit-learn, shap, matplotlib, seaborn, pyyaml, jsonschema)
+- [X] T002 Initialize Python project with `requirements.txt` (pandas, scikit-learn, shap, matplotlib, seaborn, pyyaml, jsonschema)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -57,10 +57,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Create `contracts/dataset.schema.yaml` defining required columns (power, speed, hatch, thickness, porosity) and types
-- [ ] T005 [P] Implement `code/utils.py` with helper functions for logging, seed setting, and state hash updating
-- [~] T006 [P] Setup `code/` directory structure with `__init__.py` and placeholder files for data, models, and results
+- [X] T005 [P] Implement `code/utils.py` with helper functions for logging, seed setting, and state hash updating
+- [ ] T006 [P] Setup `code/` directory structure with `__init__.py` and placeholder files for data, models, and results
 - [ ] T007 Create `state/` directory and initial `state.yaml` for artifact versioning
-- [~] T008 Configure environment configuration management (`.env` example and loading logic in `utils.py`)
+- [ ] T008 Configure environment configuration management (`.env` example and loading logic in `utils.py`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,7 +75,7 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/download_data.py` to fetch the verified 316L LPBF dataset from Zenodo (ID: - placeholder for actual ID, use specific URL like `), verify material type is 316L, and save to `data/raw/`.
-- [~] T013 [US1] Implement `code/download_data.py` checksum logic (SHA-256) and update `state.yaml` after download.
+- [ ] T013 [US1] Implement `code/download_data.py` checksum logic (SHA-256) and update `state.yaml` after download.
 - [X] T014 [US1] Implement `code/preprocess.py` to load raw data, map column synonyms (e.g., "P" -> "laser_power"), and implement fallback logic: FIRST check if a 'VolumetricEnergyDensity' (or similar) column exists; if present, use it. If not, check raw parameters; filter rows where scan_speed <= 0, hatch_spacing <= 0, or layer_thickness <= 0. Assign sentinel value -1.0 for missing raw parameters if Ev is used.
 - [X] T015 [US1] Implement `code/preprocess.py` to detect "Degenerate Dataset" (zero porosity variance). If detected, raise a specific "Degenerate Dataset" error and halt execution (do not filter).
 - [X] T016 [US1] Implement `code/preprocess.py` to normalize input features (power, speed, hatch, thickness) to [0, 1] and calculate `VolumetricEnergyDensity` for valid rows where raw parameters are available.
@@ -89,9 +89,9 @@
 - [~] T009 [US1] Contract test: Validate `data/processed/cleaned_316L.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_dataset_schema.py` (Depends on T018)
 - [X] T010 [US1] Unit test: Verify median imputation logic with synthetic missing data in `tests/unit/test_preprocessing.py` (Depends on T014)
 - [X] T011 [US1] Unit test: Verify normalization scaling to [0, 1] range in `tests/unit/test_preprocessing.py` (Depends on T016) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
-  in "<unicode string>", line 2, column 17:
-            contents: |
-                    ^) -->
+ in "<unicode string>", line 2, column 17:
+ contents: |
+ ^) -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (clean data ready).
 
@@ -105,18 +105,18 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/train_models.py` to load `data/processed/cleaned_316L.csv` (Depends on T018), split into features (X) and target (y).
-- [ ] T022 [US2] Implement `code/train_models.py` to train a Gradient Boosting Regressor using 5-fold CV, ensuring no GPU usage.
-- [ ] T023 [US2] Implement `code/train_models.py` to train a Multi-Layer Perceptron (MLP) Regressor using 5-fold CV, ensuring CPU-only execution and fixed seed.
-- [ ] T024 [US2] Implement `code/train_models.py` to compute RMSE and R² for each of the 5 folds and the aggregate mean performance.
-- [ ] T025 [US2] Save trained Gradient Boosting and MLP models to `models/artifacts/` (`.pkl` format).
+- [~] T021 [US2] Implement `code/train_models.py` to load `data/processed/cleaned_316L.csv` (Depends on T018), split into features (X) and target (y).
+- [X] T022 [US2] Implement `code/train_models.py` to train a Gradient Boosting Regressor using 5-fold CV, ensuring no GPU usage.
+- [X] T023 [US2] Implement `code/train_models.py` to train a Multi-Layer Perceptron (MLP) Regressor using 5-fold CV, ensuring CPU-only execution and fixed seed.
+- [X] T024 [US2] Implement `code/train_models.py` to compute RMSE and R² for each of the 5 folds and the aggregate mean performance.
+- [~] T025 [US2] Save trained Gradient Boosting and MLP models to `models/artifacts/` (`.pkl` format).
 - [ ] T026 [US2] Save performance metrics (RMSE, R² per fold, mean) to `results/reports/model_metrics.json`.
-- [ ] T027 [US2] Update `state.yaml` with hashes of model artifacts and metrics report.
+- [~] T027 [US2] Update `state.yaml` with hashes of model artifacts and metrics report.
 - [ ] T027b [US2] Verify SC-001: Explicitly compute a dummy regressor baseline (e.g., `DummyRegressor` with strategy='mean') on the same 5-fold CV splits, compare the best model's mean R² against the dummy baseline, and log the result (PASS/FAIL) in `results/reports/model_metrics.json`.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test: Verify 5-fold CV splits are reproducible with fixed seed in `tests/unit/test_training.py`
+- [X] T019 [P] [US2] Unit test: Verify 5-fold CV splits are reproducible with fixed seed in `tests/unit/test_training.py`
 - [ ] T020 [P] [US2] Unit test: Verify CPU-only execution constraint (no CUDA device assignment) in `tests/unit/test_training.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (models trained and evaluated).

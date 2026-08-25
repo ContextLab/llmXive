@@ -520,3 +520,368 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T14:41:19Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: "memory trigger activates at 6.5 GB \xB1 5%"
+  claim_id: c_e1436c27
+  context: "T011 Implement code/src/pipeline/streaming.py... Verification: Verify\
+    \ memory trigger activates at 6.5 GB \xB1 5% using psutil."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify memory trigger activates at 6.5 GB \xB1 5% using psutil."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:48:46Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: robustness_metric calculated as Pearson correlation coefficient
+  claim_id: c_85b8e193
+  context: 'T035 Implement code/src/stats/sensitivity.py... Calculation: Iterate threshold
+    from a low value to a higher value in incremental steps. robustness_metric = Pearson
+    correlation coefficient between predicted motion labels and ground truth labels
+    derived from T034-extended.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Robustness_metric_calculated_as_Pearson_correlation_coeffici
+  kind: entity_fact
+  raw_text: Iterate threshold from a low value to a higher value in incremental steps...
+    robustness_metric = Pearson correlation coefficient between predicted motion labels
+    and ground truth labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:49:14Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: raise ValueError if N<10 for statistical analysis
+  claim_id: c_bf01e7d1
+  context: T036 Implement edge case handling... If N<10, raise ValueError with message
+    'Insufficient samples for statistical analysis'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N<10, raise ValueError with message 'Insufficient samples for statistical
+    analysis'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:49:15Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: output Low Power Warning flag if N<30
+  claim_id: c_9087eb98
+  context: T036 Implement edge case handling... If N<30, output results with a 'Low
+    Power Warning' flag in the report and explicitly state the limitation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N<30, output results with a 'Low Power Warning' flag in the report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:49:15Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: raise ValueError if sample count < 10 per class for ANOVA
+  claim_id: c_23fbc214
+  context: 'T020 Implement code/src/pipeline/reporter.py... Includes: Edge case handling
+    for low sample counts (<10 per class) - raises ValueError with message ''Insufficient
+    samples for ANOVA''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Includes: Edge case handling for low sample counts (<10 per class) -
+    raises ValueError with message ''Insufficient samples for ANOVA''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:49:15Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: output VLM confidence log to data/processed/vlm_confidence_log.json
+  claim_id: c_0db00db2
+  context: T015 Implement VLM verification step... Apply configurable confidence threshold
+    (from settings.yaml), output JSON to data/processed/vlm_confidence_log.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_VLM_confidence_log_to_data/processed/vlm_confidence_l
+  kind: entity_fact
+  raw_text: Apply configurable confidence threshold... output JSON to data/processed/vlm_confidence_log.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:49:35Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: use Salesforce/blip-large on cpu with float dtype
+  claim_id: c_48973592
+  context: 'T015 Implement VLM verification step... Specs: Use model ID Salesforce/blip-large,
+    load with device=''cpu'', torch_dtype=torch.float, trust_remote_code=False.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Salesforce/blip-large_on_cpu_with_float_dtype
+  kind: entity_fact
+  raw_text: Use model ID Salesforce/blip-large, load with device='cpu', torch_dtype=torch.float,
+    trust_remote_code=False.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:49:55Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: authorize 5:1 frame downsampling ratio for runtime < 6h
+  claim_id: c_3144bd93
+  context: T042a-034... Update spec.md (FR-010) to explicitly authorize the 5:1 frame
+    downsampling ratio for motion labeling to ensure runtime < 6h.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T042a-034... explicitly authorize the 5:1 frame downsampling ratio for
+    motion labeling to ensure runtime < 6h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:50:07Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: 5:1 frame downsampling ratio for motion labeling
+  claim_id: c_4b7bb9ad
+  context: T042a-034 explicitly authorizes the 5:1 frame downsampling ratio for motion
+    labeling to ensure runtime < 6h.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system implements a 5:1 frame downsampling ratio for motion labeling
+    to ensure runtime < 6h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:52:38Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: memory trigger activates at 6.5 GB
+  claim_id: c_5edc0693
+  context: "Verification: Verify memory trigger activates at 6.5 GB \xB1 5% using\
+    \ psutil."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system triggers batched processing when RAM usage exceeds 6.5 GB\
+    \ \xB1 5%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:52:58Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: optical flow calculation using cv2.calcOpticalFlowFarneback on every
+    5th frame
+  claim_id: c_a95d8f7f
+  context: Refactor code/src/stats/motion_labels.py to calculate optical flow magnitude
+    using cv2.calcOpticalFlowFarneback on a strictly sampled frame sequence (every
+    5th frame).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optical_flow_calculation_using_cv2.calcOpticalFlowFarneback
+  kind: entity_fact
+  raw_text: The optical flow magnitude is calculated using cv2.calcOpticalFlowFarneback
+    on sampled frames (every 5th frame).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:53:22Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: VLM confidence threshold of 0.8
+  claim_id: c_5c8f107c
+  context: Refactor code/src/data/feasibility_filter.py to strictly enforce the VLM
+    confidence threshold (>= 0.8) using Salesforce/blip-large.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: VBVR-Wan2.2-14B 160 0.682 0.763 0.733 0.713 0.795 0.776 0.827 0.601 0.732
+        0.596 0.542 0.628 0.600
+      source_id: '2606.02564'
+      url: https://arxiv.org/abs/2606.02564
+      value: '0.8'
+    filled: true
+  kind: numeric
+  raw_text: The VLM confidence threshold is set to >= 0.8 for filtering samples.
+  resolved_value: '0.8'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T15:53:38Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: VLM verification uses Salesforce/blip-large
+  claim_id: c_01c8b4f3
+  context: Use model ID Salesforce/blip-large, load with device='cpu', torch_dtype=torch.float,
+    trust_remote_code=False.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VLM_verification_uses_Salesforce/blip-large
+  kind: entity_fact
+  raw_text: The system uses Salesforce/blip-large for VLM verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:54:02Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: ANOVA raises ValueError if sample count < 10 per class
+  claim_id: c_f8070947
+  context: 'Includes: Edge case handling for low sample counts (<10 per class) - raises
+    ValueError with message Insufficient samples for ANOVA.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ANOVA_raises_ValueError_if_sample_count_%3C_10_per_class
+  kind: magnitude
+  raw_text: The system raises a ValueError if sample count is less than 10 per class
+    for ANOVA.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:54:49Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Statistical analysis raises ValueError if N < 10
+  claim_id: c_1ff178a7
+  context: If N<10, raise ValueError with message Insufficient samples for statistical
+    analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_raises_ValueError_if_N_%3C_10
+  kind: magnitude
+  raw_text: The system raises a ValueError if total samples are less than 10 for statistical
+    analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:55:36Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Power analysis performed if N < 30
+  claim_id: c_644ae13e
+  context: 'Constraint: Perform Power Analysis. If N<30, output results with a Low
+    Power Warning flag in the report and explicitly state the limitation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system performs power analysis if N < 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:55:37Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_a97304c2
+  context: Initialize Python 3.11 project with requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:55:52Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: DeepFashion2 dataset used instead of Human3.6M
+  claim_id: c_e36be315
+  context: Update spec.md (FR-002) to replace Human3.6M with DeepFashion2.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DeepFashion2_dataset_used_instead_of_Human3.6M
+  kind: entity_fact
+  raw_text: The dataset DeepFashion2 is used instead of Human3.6M.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:56:06Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Fidelity report schema includes mean_lpips, mean_ssim, relative_loss_percent,
+    sample_count
+  claim_id: c_ca97982d
+  context: 'Output: data/processed/fidelity_report.json with exact schema including
+    per_class metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fidelity_report_schema_includes_mean_lpips,_mean_ssim,_relat
+  kind: entity_fact
+  raw_text: The fidelity report includes mean LPIPS, mean SSIM, relative loss percent,
+    and sample count per class.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:56:28Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Latency verification status is MEASURED
+  claim_id: c_0a8ac076
+  context: Generate data/processed/latency_verification_report.json containing average
+    latency, threshold (null), and status MEASURED based on empirical data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latency_verification_status_is_MEASURED
+  kind: entity_fact
+  raw_text: The latency verification report status is 'MEASURED' based on empirical
+    data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T15:57:40Z'

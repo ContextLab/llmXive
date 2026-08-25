@@ -1,3 +1,1 @@
-"""
-llmXive Research Pipeline - Data Module
-"""
+"""Data package for raw and processed datasets."""

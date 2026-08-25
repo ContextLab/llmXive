@@ -1,60 +1,98 @@
 # Data Model: Predicting Molecular Dipole Moments with Graph Neural Networks
 
-## 1. Overview
+## Overview
 
-This document defines the data structures, schemas, and transformation flows for the molecular dipole moment prediction pipeline. All data artifacts are derived from the QM9 dataset and must adhere to the contracts defined in `contracts/`.
+This document defines the data model for the molecular dipole moment prediction pipeline. It covers the raw dataset schema, processed feature schemas, and output schemas for model predictions and analysis.
 
-## 2. Data Flow
+## Raw Data Schema
 
-1.  **Raw Data**: `data/raw/qm9_subset.parquet`
-    *   Source: QM9 (PyTorch Geometric loader).
-    *   Content: A large-scale dataset of molecules with `mol_id`, `z` (atom types), `pos` (3D coords), `edge_index`, `mu` (dipole).
-2.  **Processed Features**: `data/processed/features_2d.parquet` and `data/processed/features_3d.parquet`
-    *   Derivation: `code/preprocess.py`.
-    *   Content: 2D descriptors (fingerprints, topological counts) and 3D graph features.
-3.  **Model Outputs**: `results/predictions.csv`
-    *   Content: Predicted dipole moments, errors, and feature attribution scores.
+### QM9 Dataset (Parquet)
 
-## 3. Schema Definitions
+Source: `
 
-### 3.1 Input Schema (QM9 Subset)
-*Derived from the verified QM9 PyTorch Geometric loader. See `contracts/molecule.schema.yaml`.*
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `mol_id` | string | Unique molecule identifier |
+| `atoms` | list[dict] | List of atoms with `element` (int) and `x`, `y`, `z` (float) |
+| `bonds` | list[dict] | List of bonds with `atom1`, `atom2`, `order` (int) |
+| `dipole_x` | float | Dipole moment x-component (Debye) |
+| `dipole_y` | float | Dipole moment y-component (Debye) |
+| `dipole_z` | float | Dipole moment z-component (Debye) |
+| `dipole_magnitude` | float | Total dipole moment magnitude (Debye) |
+| `conformer_id` | string | Conformer identifier (lowest energy) |
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `mol_id` | string | Unique molecule identifier | Non-null, unique |
-| `z` | int[] | Atomic numbers (e.g., [6, 1, 8]) | Length > 0 |
-| `pos` | float[][] | 3D coordinates (Angstroms) | Shape: (N_atoms, 3) |
-| `edge_index` | int[][] | Bond connectivity (2 x N_edges) | Valid graph topology |
-| `mu` | float | Dipole moment magnitude (Debye) | >= 0.0 |
+**Notes**:
+- `atoms` and `bonds` are nested lists.
+- `dipole_magnitude` is derived from `dipole_x`, `dipole_y`, `dipole_z`.
+- Missing 3D coordinates are flagged in `data/reports/excluded_molecules.csv`.
 
-### 3.2 Feature Set Schema
-*Output of `preprocess.py`. See `contracts/feature_set.schema.yaml`.*
+## Processed Data Schema
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `mol_id` | string | Molecule ID | Non-null |
-| `morgan_fp` | int[] | Morgan fingerprint (2048 bits) | Length = 2048 |
-| `topo_counts` | int[] | Topological counts (atoms, bonds, etc.) | Length = 10 |
-| `atom_types_onehot` | float[][] | One-hot encoded atom types | Shape: (N_atoms, 6) |
-| `pos_norm` | float[][] | Normalized 3D coordinates | Shape: (N_atoms, 3) |
+### Feature Matrix (Parquet)
 
-### 3.3 Prediction Output Schema
-*Output of `evaluate.py`. See `contracts/prediction_output.schema.yaml`.*
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `mol_id` | string | Unique molecule identifier |
+| `features_2d` | list[float] | Morgan fingerprint (2048 bits) |
+| `features_3d` | list[float] | SchNet node/edge features (flattened) |
+| `target` | float | Dipole magnitude (Debye) |
+| `split` | string | `train`, `val`, `test` |
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `mol_id` | string | Molecule ID | Non-null |
-| `true_mu` | float | Ground truth dipole | >= 0.0 |
-| `pred_mu_gnn` | float | GNN prediction | Any |
-| `pred_mu_rf` | float | Random Forest prediction | Any |
-| `error_gnn` | float | `abs(true - pred_gnn)` | >= 0.0 |
-| `error_rf` | float | `abs(true - pred_rf)` | >= 0.0 |
-| `seed` | int | Random seed used | 0-4 |
+**Notes**:
+- `features_2d` and `features_3d` are flattened vectors.
+- `split` is assigned via `code/data/split.py` with fixed seeds.
 
-## 4. Data Hygiene Rules
+### Exclusion Report (CSV)
 
-*   **Checksumming**: Every file in `data/raw` must be checksummed (SHA-256) upon download.
-*   **Immutability**: Raw data files are never modified. All transformations produce new files in `data/processed`.
-*   **NaN Handling**: Molecules with missing 3D coordinates or NaN dipole values are excluded during preprocessing and logged in `data/processed/exclusion_log.txt`.
-*   **Versioning**: Each processed dataset file includes a `source_hash` and `transform_date` in its metadata.
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `mol_id` | string | Unique molecule identifier |
+| `reason` | string | Reason for exclusion (e.g., "missing_3d_coords") |
+| `original_row` | int | Original row index in raw dataset |
+
+**Notes**:
+- Generated by `code/data/preprocess.py` for T019.
+
+## Output Schema
+
+### Model Predictions (Parquet)
+
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `mol_id` | string | Unique molecule identifier |
+| `seed` | int | Random seed used for training |
+| `model_type` | string | `schnet`, `schnet_randomized`, `schnet_2d`, `random_forest`, `random_forest_combined` |
+| `pred_dipole` | float | Predicted dipole magnitude |
+| `true_dipole` | float | True dipole magnitude |
+| `error` | float | `pred_dipole - true_dipole` |
+
+### Metrics Summary (JSON)
+
+```json
+{
+ "model_type": "schnet",
+ "seed": 42,
+ "mae": 0.15,
+ "rmse": 0.20,
+ "mae_ci_95": [0.14, 0.16],
+ "rmse_ci_95": [0.19, 0.21]
+}
+```
+
+### Attribution Results (Parquet)
+
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `mol_id` | string | Unique molecule identifier |
+| `feature_name` | string | Feature identifier (e.g., "atom_C", "bond_C-C") |
+| `importance_score` | float | Integrated Gradients or SHAP score |
+| `model_type` | string | `schnet` or `random_forest` |
+
+## Data Flow
+
+1. **Download**: Raw QM9 Parquet → `data/raw/qm9_full.parquet`
+2. **Preprocess**: Raw → Filtered (missing coords excluded) → Feature extraction → `data/processed/feature_matrix.parquet`
+3. **Split**: Feature matrix → Train/Val/Test splits → `data/processed/splits/`
+4. **Train**: Splits → Model weights (in memory) → Predictions → `data/processed/predictions.parquet`
+5. **Evaluate**: Predictions → Metrics → `data/reports/metrics.json`
+6. **Attribute**: Predictions + Features → Attribution scores → `data/reports/attribution.parquet`

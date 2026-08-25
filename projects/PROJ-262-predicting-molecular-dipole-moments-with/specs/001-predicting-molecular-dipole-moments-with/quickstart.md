@@ -1,78 +1,86 @@
 # Quickstart: Predicting Molecular Dipole Moments with Graph Neural Networks
 
-## 1. Prerequisites
+## Prerequisites
 
-*   Python 3.11+
-*   `pip` (Python package manager)
-*   Sufficient free disk space (for QM9 download and processing)
-*   ~ GB RAM (managed to 7GB via streaming)
+- Python 3.11+
+- 8GB RAM available
+- 14GB disk space
+- Internet access (for dataset download)
 
-## 2. Installation
+## Installation
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-262-predicting-molecular-dipole-moments-with
-    ```
+1. Clone the repository:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-262-predicting-molecular-dipole-moments-with
+   ```
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. Create a virtual environment and install dependencies:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r code/requirements.txt
+   ```
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` includes `torch`, `torch-geometric`, `rdkit`, `scikit-learn`, `pandas`, `numpy`.*
+## Running the Pipeline
 
-## 3. Data Download & Preprocessing
-
-Run the data preparation script. This will download the QM9 subset via PyTorch Geometric, verify integrity, and extract features.
+### Step 1: Download and Preprocess Data
 
 ```bash
-python code/download_data.py
-python code/preprocess.py
+python code/main.py --step download
+python code/main.py --step preprocess
 ```
 
-*   **Output**: `data/raw/qm9_subset.parquet`, `data/processed/features_2d.parquet`, `data/processed/features_3d.parquet`.
-*   **Verification**: Check `data/processed/exclusion_log.txt` for any molecules dropped due to missing data.
+- This downloads the QM9 dataset from Hugging Face, filters missing 3D coordinates, and generates feature matrices.
+- Excluded molecules are reported in `data/reports/excluded_molecules.csv`.
+- **Note**: The `code/data/preprocess.py` script handles all data cleaning and exclusion logic. The deprecated `handle_missing_coords.py` has been removed.
 
-## 4. Model Training & Evaluation
-
-Execute the full pipeline (training seeds, evaluation, attribution, and visualization).
+### Step 2: Train Models
 
 ```bash
-python code/train.py --seeds 0 1 2 3 4
-python code/evaluate.py
-python code/attribution.py
-python code/visualize.py
+python code/main.py --step train
 ```
 
-*   **Output**: `results/metrics_summary.csv`, `results/predictions.csv`, `results/figures/`.
-*   **Runtime**: Expected several hours on 2 CPU cores.
+- Train SchNet GNN, Random Forest baseline, and Combined Random Forest across multiple random seeds.
+- Uses 50 epochs with early stopping (patience=10).
+- Results saved to `data/processed/predictions.parquet`.
 
-## 5. Statistical Analysis
-
-Run the statistical significance tests.
+### Step 3: Evaluate and Analyze
 
 ```bash
-python code/stats.py
+python code/main.py --step evaluate
+python code/main.py --step attribute
 ```
 
-*   **Output**: `results/statistical_summary.json` containing t-test p-values, degrees of freedom, and confidence intervals.
+- Computes MAE, RMSE, and 95% CIs.
+- Performs paired t-tests (RF 2D vs Combined, SchNet vs Randomized) and generates feature attribution plots.
+- Reports saved to `data/reports/`.
 
-## 6. Validation
-
-Validate the output data against the defined contracts.
+### Step 4: Visualize Results
 
 ```bash
-pytest tests/contract/test_schemas.py
+python code/main.py --step visualize
 ```
 
-## 7. Troubleshooting
+- Generates plots comparing GNN vs. RF performance and feature importance maps (RDKit heatmaps).
+- Output saved to `docs/figures/`.
 
-*   **Out of Memory**: If `preprocess.py` fails with OOM, reduce the subset size in `code/download_data.py` (e.g., `subset_size=5000`).
-*   **CUDA Error**: This pipeline is CPU-only. If you see CUDA errors, ensure `torch` is installed in CPU mode (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-*   **Missing Data**: If the QM9 download fails, verify your internet connection and check the verified source in `research.md` (PyTorch Geometric loader).
+## Expected Output
+
+- `data/processed/feature_matrix.parquet`: Processed feature data.
+- `data/reports/excluded_molecules.csv`: Report of excluded molecules.
+- `data/reports/metrics.json`: MAE, RMSE, and confidence intervals.
+- `data/reports/attribution.parquet`: Feature importance scores.
+- `docs/figures/`: Comparison plots and attribution visualizations.
+
+## Troubleshooting
+
+- **OOM Errors**: If memory exceeds 8GB, reduce the dataset subset size in `code/data/preprocess.py`.
+- **Download Failures**: Verify internet connection; retry with `--step download`.
+- **Missing 3D Coords**: Check `data/reports/excluded_molecules.csv` for details.
+
+## Constraints
+
+- Execution time ≤ 6h on 2 CPU cores.
+- Memory footprint ≤ 8GB.
+- CPU-only mode for GNN training.

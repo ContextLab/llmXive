@@ -1,12 +1,15 @@
 status: none
-intent: download QM9 dataset DOI 10.1038/sdata.2014.22 python package dataset
+intent: QM9 dataset download pip install python package dataset
 required_fields:
 - molecule_id
-- atom_types
-- 3D_coordinates
+- atom_index
+- atom_type
+- x_coordinate
+- y_coordinate
+- z_coordinate
 - bond_connectivity
-- Morgan_fingerprint
-- Coulomb_matrix
-cache_key: e6d20e6090aa30f621feec5bc45cc891c9c0e5888ec0924d0768e2d5fc653b45
-searched_at: '2026-08-21T18:00:32.391799+00:00'
+- morgan_fingerprint
+- coulomb_matrix
+cache_key: 362b72f686ca5dcad0525000ca21e2424945023be877d08fd48b76a15dde595d
+searched_at: '2026-08-25T15:33:57.367346+00:00'
 retry_count: 1

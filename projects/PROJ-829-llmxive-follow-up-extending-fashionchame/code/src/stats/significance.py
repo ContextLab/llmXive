@@ -1,296 +1,300 @@
 """
-Statistical significance analysis module for fidelity benchmarking.
-
-Implements ANOVA testing, Bonferroni correction, and edge case handling
-for low sample power scenarios.
+Statistical significance analysis module for the llmXive pipeline.
+Implements ANOVA and Bonferroni correction as mandated by FR-005.
 """
+
 import json
 import sys
 import argparse
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from collections import defaultdict
-import warnings
-
-import numpy as np
 from scipy import stats
+import numpy as np
 
-# Minimum sample size threshold for reliable statistical testing
-MIN_SAMPLE_SIZE_FOR_POWER = 30
-MIN_SAMPLE_SIZE_FOR_WARNING = 10
+
+# Constants for GarmentFeatureClass validation
+VALID_FEATURE_CLASSES = {"Color", "Pattern", "Texture"}
+
 
 def check_sample_sizes(scores_by_class: Dict[str, List[float]]) -> Dict[str, int]:
     """
-    Check and report sample sizes for each garment feature class.
-    
-    Args:
-        scores_by_class: Dictionary mapping class names to lists of scores
-        
-    Returns:
-        Dictionary mapping class names to their sample counts
+    Check and return sample sizes for each class.
     """
-    sample_counts = {class_name: len(scores) for class_name, scores in scores_by_class.items()}
-    return sample_counts
+    return {cls: len(scores) for cls, scores in scores_by_class.items()}
 
-def has_low_sample_count(scores_by_class: Dict[str, List[float]], threshold: int = MIN_SAMPLE_SIZE_FOR_POWER) -> Tuple[bool, Dict[str, bool]]:
+
+def has_low_sample_count(scores_by_class: Dict[str, List[float]], threshold: int = 10) -> bool:
     """
-    Determine if any class has insufficient sample size for reliable statistical testing.
-    
-    Args:
-        scores_by_class: Dictionary mapping class names to lists of scores
-        threshold: Minimum sample size required (default: 30)
-        
-    Returns:
-        Tuple of (any_low_power: bool, low_power_classes: Dict[class_name, bool])
+    Check if any class has fewer samples than the threshold.
+    Returns True if any class is below the threshold.
     """
-    sample_counts = check_sample_sizes(scores_by_class)
-    low_power_classes = {
-        class_name: count < threshold 
-        for class_name, count in sample_counts.items()
-    }
-    any_low = any(low_power_classes.values())
-    return any_low, low_power_classes
+    for cls, scores in scores_by_class.items():
+        if len(scores) < threshold:
+            return True
+    return False
+
+
+def validate_stratification(scores_by_class: Dict[str, List[float]]) -> None:
+    """
+    Explicitly validate that input data is stratified by GarmentFeatureClass.
+    Raises ValueError if:
+    1. No classes found
+    2. Unknown classes found (not in Color, Pattern, Texture)
+    3. Missing any of the required classes
+    """
+    if not scores_by_class:
+        raise ValueError("Input data is empty. No stratified classes found.")
+
+    found_classes = set(scores_by_class.keys())
+
+    # Check for unknown classes
+    unknown_classes = found_classes - VALID_FEATURE_CLASSES
+    if unknown_classes:
+        raise ValueError(
+            f"Unknown GarmentFeatureClass found in input: {unknown_classes}. "
+            f"Valid classes are: {VALID_FEATURE_CLASSES}"
+        )
+
+    # Check for missing required classes
+    missing_classes = VALID_FEATURE_CLASSES - found_classes
+    if missing_classes:
+        raise ValueError(
+            f"Missing required GarmentFeatureClass in input: {missing_classes}. "
+            f"Data must be stratified by {VALID_FEATURE_CLASSES}."
+        )
+
 
 def perform_anova(scores_by_class: Dict[str, List[float]]) -> Tuple[float, float]:
     """
-    Perform one-way ANOVA test on fidelity scores across feature classes.
-    
-    Args:
-        scores_by_class: Dictionary mapping class names to lists of scores
-        
-    Returns:
-        Tuple of (f_statistic, p_value)
-        
-    Raises:
-        ValueError: If insufficient data for ANOVA
+    Perform One-Way ANOVA on fidelity scores across feature classes.
+    Returns (F-statistic, p-value).
+    Raises ValueError if stratification is invalid or sample sizes are insufficient.
     """
-    # Extract score lists for each class
-    score_lists = list(scores_by_class.values())
-    
-    # Filter out empty lists
-    score_lists = [scores for scores in score_lists if len(scores) > 0]
-    
-    if len(score_lists) < 2:
-        raise ValueError("Insufficient classes with data for ANOVA test (need at least 2)")
-    
-    # Perform one-way ANOVA
-    f_stat, p_val = stats.f_oneway(*score_lists)
-    return f_stat, p_val
+    # Validate stratification first
+    validate_stratification(scores_by_class)
 
-def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Tuple[List[float], List[bool]]:
-    """
-    Apply Bonferroni correction for multiple hypothesis testing.
-    
-    Args:
-        p_values: List of raw p-values from pairwise tests
-        alpha: Significance level (default: 0.05)
-        
-    Returns:
-        Tuple of (corrected_p_values, significant_results)
-    """
-    n_tests = len(p_values)
-    if n_tests == 0:
-        return [], []
-    
-    # Bonferroni correction: multiply p-values by number of tests
-    corrected_p_values = [min(p * n_tests, 1.0) for p in p_values]
-    
-    # Determine significance
-    significant_results = [p < alpha for p in corrected_p_values]
-    
-    return corrected_p_values, significant_results
+    # Extract arrays for ANOVA
+    class_groups = [np.array(scores) for scores in scores_by_class.values()]
 
-def analyze_significance(scores_by_class: Dict[str, List[float]], 
-                         alpha: float = 0.05) -> Dict[str, Any]:
+    # Check for minimum sample size per group for ANOVA validity
+    # ANOVA requires at least 2 samples per group to calculate variance
+    for i, group in enumerate(class_groups):
+        if len(group) < 2:
+            class_name = list(scores_by_class.keys())[i]
+            raise ValueError(
+                f"Insufficient samples for ANOVA in class '{class_name}'. "
+                f"Requires at least 2 samples, got {len(group)}."
+            )
+
+    # Perform One-Way ANOVA
+    f_stat, p_value = stats.f_oneway(*class_groups)
+
+    return float(f_stat), float(p_value)
+
+
+def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
     """
-    Perform complete significance analysis with edge case handling.
+    Apply Bonferroni correction to p-values for multiple hypothesis testing.
+    This is required for pairwise comparisons.
     
     Args:
-        scores_by_class: Dictionary mapping class names to lists of scores
-        alpha: Significance level for hypothesis tests
-        
+        p_values: List of raw p-values from pairwise comparisons
+        alpha: Significance level (default 0.05)
+    
     Returns:
-        Dictionary containing analysis results and warnings
+        Dictionary containing corrected p-values and significance decisions
     """
-    result = {
-        "analysis_complete": False,
-        "sample_sizes": {},
-        "low_power_warning": False,
-        "low_power_classes": {},
-        "anova_results": None,
-        "bonferroni_results": None,
-        "warnings": []
-    }
-    
-    # Check sample sizes
-    result["sample_sizes"] = check_sample_sizes(scores_by_class)
-    any_low, low_power_classes = has_low_sample_count(scores_by_class, MIN_SAMPLE_SIZE_FOR_POWER)
-    
-    if any_low:
-        result["low_power_warning"] = True
-        result["low_power_classes"] = {k: v for k, v in low_power_classes.items() if v}
-        
-        # Collect warnings for classes with low power
-        for class_name, is_low in low_power_classes.items():
-            if is_low:
-                count = result["sample_sizes"][class_name]
-                if count < MIN_SAMPLE_SIZE_FOR_WARNING:
-                    warning_msg = (
-                        f"CRITICAL: Class '{class_name}' has only {count} samples "
-                        f"(< {MIN_SAMPLE_SIZE_FOR_WARNING}). Statistical tests may be unreliable."
-                    )
-                    result["warnings"].append(warning_msg)
-                else:
-                    warning_msg = (
-                        f"WARNING: Class '{class_name}' has {count} samples "
-                        f"(< {MIN_SAMPLE_SIZE_FOR_POWER}). Reduced statistical power."
-                    )
-                    result["warnings"].append(warning_msg)
-    
-    # Attempt ANOVA only if we have sufficient data
-    try:
-        f_stat, p_val = perform_anova(scores_by_class)
-        result["anova_results"] = {
-            "f_statistic": float(f_stat),
-            "p_value": float(p_val),
-            "is_significant": p_val < alpha,
-            "alpha": alpha
+    if not p_values:
+        return {
+            "corrected_p_values": [],
+            "significance_decisions": [],
+            "alpha_adjusted": alpha,
+            "num_tests": 0
         }
-        
-        # If ANOVA is significant, perform pairwise comparisons with Bonferroni
-        if p_val < alpha:
-            # Perform pairwise t-tests
-            class_names = list(scores_by_class.keys())
-            p_values = []
-            comparisons = []
-            
-            for i in range(len(class_names)):
-                for j in range(i + 1, len(class_names)):
-                    group1 = scores_by_class[class_names[i]]
-                    group2 = scores_by_class[class_names[j]]
-                    
-                    if len(group1) > 0 and len(group2) > 0:
-                        _, p = stats.ttest_ind(group1, group2, equal_var=False)
-                        p_values.append(p)
-                        comparisons.append(f"{class_names[i]} vs {class_names[j]}")
-            
-            if len(p_values) > 0:
-                corrected_p, significant = bonferroni_correction(p_values, alpha)
-                result["bonferroni_results"] = {
-                    "comparisons": comparisons,
-                    "raw_p_values": [float(p) for p in p_values],
-                    "corrected_p_values": corrected_p,
-                    "significant": significant,
-                    "alpha": alpha
-                }
-        
-        result["analysis_complete"] = True
-        
-    except ValueError as e:
-        warning_msg = f"ANOVA test failed: {str(e)}"
-        result["warnings"].append(warning_msg)
-        result["analysis_complete"] = False
-    
-    return result
 
-def run_pipeline(input_path: str, output_path: str, alpha: float = 0.05) -> None:
+    num_tests = len(p_values)
+    alpha_adjusted = alpha / num_tests if num_tests > 0 else alpha
+
+    corrected_p_values = [min(p * num_tests, 1.0) for p in p_values]
+    significance_decisions = [p < alpha_adjusted for p in corrected_p_values]
+
+    return {
+        "corrected_p_values": corrected_p_values,
+        "significance_decisions": significance_decisions,
+        "alpha_adjusted": alpha_adjusted,
+        "num_tests": num_tests,
+        "original_alpha": alpha
+    }
+
+
+def analyze_significance(
+    scores_by_class: Dict[str, List[float]],
+    pairwise_p_values: Optional[List[float]] = None,
+    alpha: float = 0.05
+) -> Dict[str, Any]:
     """
-    Run the significance analysis pipeline on fidelity scores.
+    Complete significance analysis pipeline:
+    1. Validate stratification
+    2. Check sample sizes
+    3. Perform ANOVA
+    4. Apply Bonferroni correction (if pairwise p-values provided)
+    5. Generate comprehensive report
     
     Args:
-        input_path: Path to JSON file containing raw fidelity scores by class
-        output_path: Path to write the analysis results
-        alpha: Significance level for hypothesis tests
-    """
-    input_file = Path(input_path)
-    output_file = Path(output_path)
+        scores_by_class: Dictionary mapping GarmentFeatureClass to list of scores
+        pairwise_p_values: Optional list of p-values from pairwise t-tests
+        alpha: Significance threshold
     
+    Returns:
+        Comprehensive analysis report dictionary
+    """
+    # Step 1: Validate stratification
+    validate_stratification(scores_by_class)
+    
+    # Step 2: Check sample sizes
+    sample_sizes = check_sample_sizes(scores_by_class)
+    low_power_warning = has_low_sample_count(scores_by_class, threshold=30)
+    critical_low_count = has_low_sample_count(scores_by_class, threshold=10)
+    
+    if critical_low_count:
+        raise ValueError(
+            "Insufficient samples for statistical analysis. "
+            "At least 10 samples per class are required."
+        )
+
+    # Step 3: Perform ANOVA
+    f_stat, p_value = perform_anova(scores_by_class)
+    anova_significant = p_value < alpha
+
+    # Step 4: Bonferroni correction if pairwise p-values provided
+    bonferroni_result = None
+    if pairwise_p_values is not None and len(pairwise_p_values) > 0:
+        bonferroni_result = bonferroni_correction(pairwise_p_values, alpha)
+
+    # Step 5: Compile report
+    report = {
+        "analysis_type": "One-Way ANOVA with Bonferroni Correction",
+        "stratification_valid": True,
+        "classes_analyzed": list(scores_by_class.keys()),
+        "sample_sizes": sample_sizes,
+        "low_power_warning": low_power_warning,
+        "anova_results": {
+            "f_statistic": f_stat,
+            "p_value": p_value,
+            "is_significant": anova_significant,
+            "alpha": alpha
+        },
+        "bonferroni_correction": bonferroni_result,
+        "conclusion": "Significant differences detected" if anova_significant else "No significant differences detected"
+    }
+
+    if low_power_warning:
+        report["limitation"] = "Low statistical power due to sample size < 30 per class"
+
+    return report
+
+
+def run_pipeline(
+    input_path: str,
+    output_path: str,
+    alpha: float = 0.05,
+    pairwise_p_values: Optional[List[float]] = None
+) -> None:
+    """
+    Main pipeline function to run significance analysis on fidelity scores.
+    
+    Args:
+        input_path: Path to JSON file containing fidelity scores stratified by class
+        output_path: Path to output JSON report
+        alpha: Significance threshold
+        pairwise_p_values: Optional list of pairwise comparison p-values
+    """
+    # Load input data
+    input_file = Path(input_path)
     if not input_file.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    # Load raw scores
     with open(input_file, 'r') as f:
-        raw_scores = json.load(f)
+        data = json.load(f)
     
-    # Organize scores by garment feature class
-    scores_by_class = defaultdict(list)
-    for record in raw_scores.get("scores", []):
-        class_name = record.get("garment_feature_class")
-        lpips_score = record.get("lpips")
-        
-        if class_name and lpips_score is not None:
-            scores_by_class[class_name].append(lpips_score)
+    # Extract scores by class
+    # Expected format: {"per_class": {"Color": {"mean_lpips": ..., "scores": [...]}, ...}}
+    if "per_class" not in data:
+        # Try alternative format: {"Color": [...], "Pattern": [...], ...}
+        scores_by_class = data
+    else:
+        scores_by_class = {}
+        for cls_name, cls_data in data["per_class"].items():
+            if "scores" in cls_data:
+                scores_by_class[cls_name] = cls_data["scores"]
+            elif "mean_lpips" in cls_data:
+                # If only mean is provided, we can't do ANOVA, but we'll handle gracefully
+                # For now, assume this is an error in data format
+                raise ValueError(
+                    f"Class '{cls_name}' missing 'scores' array. "
+                    "ANOVA requires individual sample scores, not just means."
+                )
+            else:
+                raise ValueError(f"Class '{cls_name}' has invalid data format")
     
-    if not scores_by_class:
-        raise ValueError("No valid scores found in input file")
+    # Run analysis
+    report = analyze_significance(scores_by_class, pairwise_p_values, alpha)
     
-    # Perform analysis
-    analysis_results = analyze_significance(dict(scores_by_class), alpha)
-    
-    # Add metadata
-    analysis_results["input_file"] = str(input_file)
-    analysis_results["total_samples"] = sum(analysis_results["sample_sizes"].values())
-    analysis_results["classes_analyzed"] = list(scores_by_class.keys())
-    
-    # Write results
+    # Write output
+    output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_file, 'w') as f:
-        json.dump(analysis_results, f, indent=2)
+        json.dump(report, f, indent=2)
     
-    # Print summary to stdout
-    print(f"Analysis complete. Results written to: {output_path}")
-    print(f"Total samples: {analysis_results['total_samples']}")
-    print(f"Classes analyzed: {', '.join(analysis_results['classes_analyzed'])}")
-    
-    if analysis_results["low_power_warning"]:
-        print("\n⚠️  LOW SAMPLE POWER DETECTED:")
-        for warning in analysis_results["warnings"]:
-            if "CRITICAL" in warning or "WARNING" in warning:
-                print(f"  - {warning}")
-    
-    if analysis_results["anova_results"]:
-        anova = analysis_results["anova_results"]
-        print(f"\nANOVA Results: F={anova['f_statistic']:.4f}, p={anova['p_value']:.6f}")
-        print(f"Significant difference found: {anova['is_significant']}")
-    
-    if analysis_results.get("bonferroni_results"):
-        bonf = analysis_results["bonferroni_results"]
-        print(f"\nPairwise Comparisons (Bonferroni corrected):")
-        for i, comp in enumerate(bonf["comparisons"]):
-            sig_str = "✓" if bonf["significant"][i] else "✗"
-            print(f"  {sig_str} {comp}: p={bonf['corrected_p_values'][i]:.6f}")
+    print(f"Significance analysis report written to: {output_path}")
 
-def main():
-    """Main entry point for command-line execution."""
-    parser = argparse.ArgumentParser(
-        description="Perform statistical significance analysis on fidelity scores"
-    )
+
+def main() -> None:
+    """Command-line interface for significance analysis."""
+    parser = argparse.ArgumentParser(description="Run statistical significance analysis on fidelity scores")
     parser.add_argument(
         "--input",
         type=str,
         required=True,
-        help="Path to JSON file containing raw fidelity scores"
+        help="Path to input JSON file with fidelity scores stratified by class"
     )
     parser.add_argument(
         "--output",
         type=str,
         required=True,
-        help="Path to write analysis results"
+        help="Path to output JSON report"
     )
     parser.add_argument(
         "--alpha",
         type=float,
         default=0.05,
-        help="Significance level for hypothesis tests (default: 0.05)"
+        help="Significance threshold (default: 0.05)"
+    )
+    parser.add_argument(
+        "--pairwise-pvalues",
+        type=str,
+        default=None,
+        help="Optional JSON string of pairwise p-values for Bonferroni correction"
     )
     
     args = parser.parse_args()
     
-    try:
-        run_pipeline(args.input, args.output, args.alpha)
-    except Exception as e:
-        print(f"Error during analysis: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+    pairwise_pvals = None
+    if args.pairwise_pvalues:
+        try:
+            pairwise_pvals = json.loads(args.pairwise_pvalues)
+        except json.JSONDecodeError:
+            raise ValueError("Invalid JSON format for --pairwise-pvalues")
+    
+    run_pipeline(
+        input_path=args.input,
+        output_path=args.output,
+        alpha=args.alpha,
+        pairwise_p_values=pairwise_pvals
+    )
+
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Predictions Schema"
+type: "object"
+properties:
+  mol_id:
+    type: "string"
+    description: "Unique molecule identifier"
+  seed:
+    type: "integer"
+    description: "Random seed used for training"
+  model_type:
+    type: "string"
+    enum:
+      - schnet
+      - random_forest
+    description: "Model type"
+  pred_dipole:
+    type: "number"
+    description: "Predicted dipole magnitude"
+  true_dipole:
+    type: "number"
+    description: "True dipole magnitude"
+  error:
+    type: "number"
+    description: "Prediction error"
+required:
+  - mol_id
+  - seed
+  - model_type
+  - pred_dipole
+  - true_dipole
+  - error

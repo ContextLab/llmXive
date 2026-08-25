@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Summary Schema"
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - schnet
+      - random_forest
+    description: "Model type"
+  seed:
+    type: "integer"
+    description: "Random seed"
+  mae:
+    type: "number"
+    description: "Mean Absolute Error"
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error"
+  mae_ci_95:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence Interval for MAE"
+  rmse_ci_95:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence Interval for RMSE"
+required:
+  - model_type
+  - seed
+  - mae
+  - rmse
+  - mae_ci_95
+  - rmse_ci_95
