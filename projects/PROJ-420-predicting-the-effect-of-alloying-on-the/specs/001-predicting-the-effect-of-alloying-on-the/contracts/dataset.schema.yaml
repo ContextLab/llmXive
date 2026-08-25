@@ -9,71 +9,77 @@ properties:
   source:
     type: "string"
     enum:
-      - "Materials Project"
-      - "NIST MDR"
-    description: "Source database of the record."
-  poissons_ratio:
-    type: "number"
-    minimum: 0.0
-    maximum: 0.5
-    description: "Poisson's ratio (dimensionless)."
-  youngs_modulus_gpa:
-    type: "number"
-    exclusiveMinimum: 0
-    description: "Young's modulus in GPa."
-  measurement_method:
-    type: "string"
-    description: "Method used to measure Poisson's ratio."
-  composition_cu:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Atomic fraction of Copper."
-  composition_mg:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Atomic fraction of Magnesium."
-  composition_si:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Atomic fraction of Silicon."
-  composition_zn:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Atomic fraction of Zinc."
-  composition_mn:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Atomic fraction of Manganese."
-  composition_al:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Calculated atomic fraction of Aluminum."
-  is_independent_measurement:
-    type: "boolean"
-    description: "True if Poisson's ratio is an independent measurement."
-  alloy_series:
-    type: "string"
-    description: "Derived alloy series."
-
+      - "nist"
+      - "materials_project"
+    description: "Origin of the data."
+  composition:
+    type: "object"
+    properties:
+      Cu:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Copper."
+      Mg:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Magnesium."
+      Si:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Silicon."
+      Zn:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Zinc."
+      Mn:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Atomic fraction of Manganese."
+      Al:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Calculated atomic fraction of Aluminum."
+    required:
+      - "Cu"
+      - "Mg"
+      - "Si"
+      - "Zn"
+      - "Mn"
+      - "Al"
+  properties:
+    type: "object"
+    properties:
+      poissons_ratio:
+        type: "number"
+        minimum: 0.0
+        maximum: 0.5
+        description: "Poisson's ratio (dimensionless)."
+      youngs_modulus:
+        type: "number"
+        minimum: 0.0
+        description: "Young's modulus in GPa."
+    required:
+      - "poissons_ratio"
+      - "youngs_modulus"
+  metadata:
+    type: "object"
+    properties:
+      is_independent_measurement:
+        type: "boolean"
+        description: "True if Poisson's ratio is from ultrasonic measurement."
+      exclusion_reason:
+        type: ["string", "null"]
+        description: "Reason for exclusion if applicable."
 required:
-  - id
-  - source
-  - poissons_ratio
-  - youngs_modulus_gpa
-  - measurement_method
-  - composition_cu
-  - composition_mg
-  - composition_si
-  - composition_zn
-  - composition_mn
-  - composition_al
-  - is_independent_measurement
-  - alloy_series
-
+  - "id"
+  - "source"
+  - "composition"
+  - "properties"
+  - "metadata"
 additionalProperties: false

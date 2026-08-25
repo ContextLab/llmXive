@@ -1,71 +1,69 @@
 # Data Model: Predicting the Effect of Alloying on the Poisson's Ratio of Aluminum Alloys
 
-## Overview
+## Data Flow Architecture
 
-This document defines the data structures used throughout the project, ensuring consistency between data extraction, processing, modeling, and output. All data is stored in Parquet format for efficient I/O and schema enforcement.
+1.  **Raw Ingestion**: Download from HuggingFace `materials/alloy-elastic` -> `data/raw/al_alloy_raw.json`
+2.  **Filtering & Normalization**: Remove non-monolithic, missing values, unit conversion -> `data/processed/alloy_cleaned.csv`
+3.  **Transformation**: Apply ILR to composition -> `data/processed/alloy_features.csv`
+4.  **Modeling**: Train/Validate (Repeated 5-Fold CV) -> `models/rf_model.pkl`
+5.  **Metrics**: Compute CV-MAE (with CI), Permutation Importance -> `data/processed/metrics.json`
+6.  **Reporting**: Aggregate -> `results/final_report.md`
 
 ## Entity Definitions
 
-### 1. AlloyRecord
-Represents a single aluminum alloy entry after cleaning and filtering.
+### AlloyRecord (Input/Processed)
+Represents a single aluminum alloy entry.
+-   `id`: Unique identifier (string)
+-   `source`: "materials/alloy-elastic"
+-   `composition`: Object containing atomic fractions.
+    -   `Cu`: float (0.0 - 1.0)
+    -   `Mg`: float
+    -   `Si`: float
+    -   `Zn`: float
+    -   `Mn`: float
+    -   `Al`: float (Calculated as 1.0 - sum(others))
+-   `properties`: Object containing elastic constants.
+    -   `poissons_ratio`: float (0.0 - 0.5)
+    -   `youngs_modulus`: float (GPa)
+-   `metadata`:
+    -   `is_independent_measurement`: boolean (True if ultrasonic, False if derived)
+    -   `exclusion_reason`: string (null if included)
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `alloy_id` | string | Unique identifier for the alloy | Primary Key |
-| `poissons_ratio` | float | Poisson's ratio (dimensionless) | Non-null, 0 < value < 0.5 |
-| `youngs_modulus_gpa` | float | Young's modulus in GPa | Non-null, > 0 |
-| `composition_cu` | float | Atomic fraction of Copper | 0 ≤ value ≤ 1 |
-| `composition_mg` | float | Atomic fraction of Magnesium | 0 ≤ value ≤ 1 |
-| `composition_si` | float | Atomic fraction of Silicon | 0 ≤ value ≤ 1 |
-| `composition_zn` | float | Atomic fraction of Zinc | 0 ≤ value ≤ 1 |
-| `composition_mn` | float | Atomic fraction of Manganese | 0 ≤ value ≤ 1 |
-| `composition_al` | float | Atomic fraction of Aluminum (calculated) | 1.0 - sum(other elements) |
-| `sum_major_elements` | float | Sum of Cu, Mg, Si, Zn, Mn | ≥ 0.95 |
-| `measurement_method` | string | Method used to measure Poisson's ratio | Must not be "Derived" |
-| `is_independent_measurement` | boolean | True if Poisson's ratio is an independent measurement | False if derived |
-| `source` | string | Original data source (MP or NIST) | Enum: ["Materials Project", "NIST MDR"] |
-| `alloy_series` | string | Derived alloy series (e.g., "2xxx", "6xxx") | Inferred from composition |
+### ModelMetrics (Output)
+-   `cv_mae_mean`: float (Mean Absolute Error from Repeated 5-Fold CV)
+-   `cv_mae_ci_lower`: float (95% CI Lower Bound)
+-   `cv_mae_ci_upper`: float (95% CI Upper Bound)
+-   `n_samples_total`: int
+-   `model_type`: "RandomForest"
+-   `transform`: "ILR"
+-   `cv_repeats`: int (5)
 
-### 2. ILR_AlloyRecord
-Represents the AlloyRecord after Isometric Log-Ratio transformation.
+### CollinearityDiagnostic (Output)
+-   `vif_scores`: Object mapping element name to VIF float.
+    -   `Cu`: float
+    -   `Mg`: float
+    -   `Si`: float
+    -   `Zn`: float
+    -   `Mn`: float
+-   `max_vif`: float
+-   `flag`: boolean (True if max_vif > 5; expected to be True)
+-   `interpretation`: string (Explains that high VIF confirms closure problem)
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `alloy_id` | string | Unique identifier | Primary Key |
-| `poissons_ratio` | float | Target variable | Non-null |
-| `ilr_1` | float | ILR-transformed feature 1 | Non-null |
-| `ilr_2` | float | ILR-transformed feature 2 | Non-null |
-| `ilr_3` | float | ILR-transformed feature 3 | Non-null |
-| `ilr_4` | float | ILR-transformed feature 4 | Non-null |
-| `alloy_series` | string | Derived alloy series | Categorical |
+### FeatureImportanceSummary (Output)
+-   `rankings`: List of objects (element, importance_score, rank).
+-   `top_two_elements`: List of strings (element names).
+-   `importance_ratio`: float (Importance of 1st / Importance of 2nd).
+-   `method`: "Permutation Importance on ILR Features"
 
-### 3. ModelMetrics
-Stores the evaluation results of the Random Forest model.
+## Schema Constraints
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `cv_mae` | float | Mean Absolute Error from 5-fold cross-validation |
-| `test_mae` | float | Mean Absolute Error on the held-out test set |
-| `feature_importance_cu` | float | Permutation importance score for Copper (ILR space) |
-| `feature_importance_mg` | float | Permutation importance score for Magnesium (ILR space) |
-| `feature_importance_si` | float | Permutation importance score for Silicon (ILR space) |
-| `feature_importance_zn` | float | Permutation importance score for Zinc (ILR space) |
-| `feature_importance_mn` | float | Permutation importance score for Manganese (ILR space) |
-| `collinearity_flag` | boolean | True if any VIF > 5 (Diagnostic only) |
+-   **Composition Sum**: `Cu + Mg + Si + Zn + Mn + Al` must equal `1.0` (within tolerance 1e-6).
+-   **Exclusion Threshold**: If `Cu + Mg + Si + Zn + Mn < 0.95`, the record is excluded.
+-   **Unit Consistency**: `youngs_modulus` must be in GPa. `poissons_ratio` is dimensionless.
+-   **Data Types**: All numeric fields must be floats. No NaNs allowed in processed data.
 
-### 4. CollinearityDiagnostic
-Stores the Variance Inflation Factor (VIF) for raw predictors.
+## Error Handling
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `element` | string | Alloying element name |
-| `vif_score` | float | Variance Inflation Factor |
-| `flagged` | boolean | True if VIF > 5 (Diagnostic only) |
-
-## Data Flow
-
-1.  **Raw Data**: Downloaded from MP and NIST into `data/raw/`.
-2.  **Cleaned Data**: Filtered and normalized into `data/processed/alloys_clean.parquet` (AlloyRecord schema).
-3.  **Transformed Data**: ILR applied to create `data/processed/alloys_ilr.parquet` (ILR_AlloyRecord schema).
-4.  **Model Output**: Metrics saved to `data/processed/model_metrics.json` (ModelMetrics schema).
-5.  **Diagnostics**: VIF results saved to `data/processed/collinearity_diagnostic.json` (CollinearityDiagnostic schema).
+-   **Missing Data**: If `poissons_ratio` or any required element is missing, the record is dropped and logged.
+-   **Unit Mismatch**: If `youngs_modulus` is in MPa, convert to GPa. If ambiguous, drop and log.
+-   **API Failure**: If `materials/alloy-elastic` is unreachable, the pipeline exits with code 1.

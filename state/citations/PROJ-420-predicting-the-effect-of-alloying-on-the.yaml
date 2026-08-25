@@ -1,26 +1,15 @@
-- artifact_hash: 026b76f886f6dc231f29c441e4fe869b836ed79ae041537ee63b6b50e1b72140
+- artifact_hash: c684ec61c65f289658a6265d41fffa79d5f5c1ee5f8b855d5ca486bfa29f5698
   artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: https://www.materialsproject.org/open
-  fetched_title: null
-  kind: url
-  value: https://www.materialsproject.org/open
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/open
-  verified_at: '2026-08-08T16:56:08.322961Z'
-- artifact_hash: 026b76f886f6dc231f29c441e4fe869b836ed79ae041537ee63b6b50e1b72140
-  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.nist.gov/data-library
-  verification_status: mismatch
-  verified_against_url: https://www.nist.gov/data-library
-  verified_at: '2026-08-08T16:56:08.322961Z'
-- artifact_hash: 1476c5b5bd4077883cda8ade0eaf20aa656ec8541f4636cdf36b257a8f630e53
+  value: https://huggingface.co/datasets/materials/alloy-elastic`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/materials/alloy-elastic
+  verified_at: '2026-08-25T02:53:53.234038Z'
+- artifact_hash: 179b26e2f3467cf58f2c7a39353b46f4a957ae3f391eb4927fb9ae689c220be6
   artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +19,4 @@
   value: https://next-gen.materialsproject.org/api/v2/materials/`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/api/v2/materials/
-  verified_at: '2026-08-18T02:58:07.319167Z'
+  verified_at: '2026-08-25T03:34:38.556800Z'

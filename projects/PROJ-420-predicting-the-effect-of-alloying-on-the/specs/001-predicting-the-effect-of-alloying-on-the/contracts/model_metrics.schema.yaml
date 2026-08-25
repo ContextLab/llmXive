@@ -1,50 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelMetrics"
-description: "Schema for the evaluation results of the Random Forest model."
-type: object
-required:
-  - cv_mae
-  - test_mae
-  - feature_importance_cu
-  - feature_importance_mg
-  - feature_importance_si
-  - feature_importance_zn
-  - feature_importance_mn
+title: "ModelMetrics Schema"
+description: "Schema for model performance metrics from Repeated 5-Fold CV."
+type: "object"
 properties:
-  cv_mae:
-    type: number
-    description: "Mean Absolute Error from 5-fold cross-validation"
-    minimum: 0
-  test_mae:
-    type: number
-    description: "Mean Absolute Error on the held-out test set"
-    minimum: 0
-  feature_importance_cu:
-    type: number
-    description: "Permutation importance score for Copper (in ILR space)"
-    minimum: 0
-    maximum: 1
-  feature_importance_mg:
-    type: number
-    description: "Permutation importance score for Magnesium (in ILR space)"
-    minimum: 0
-    maximum: 1
-  feature_importance_si:
-    type: number
-    description: "Permutation importance score for Silicon (in ILR space)"
-    minimum: 0
-    maximum: 1
-  feature_importance_zn:
-    type: number
-    description: "Permutation importance score for Zinc (in ILR space)"
-    minimum: 0
-    maximum: 1
-  feature_importance_mn:
-    type: number
-    description: "Permutation importance score for Manganese (in ILR space)"
-    minimum: 0
-    maximum: 1
-  collinearity_flag:
-    type: boolean
-    description: "True if any VIF > 5 (Diagnostic only)"
+  cv_mae_mean:
+    type: "number"
+    description: "Mean Absolute Error from Repeated 5-Fold Cross-Validation."
+  cv_mae_ci_lower:
+    type: "number"
+    description: "95% Confidence Interval Lower Bound for CV-MAE."
+  cv_mae_ci_upper:
+    type: "number"
+    description: "95% Confidence Interval Upper Bound for CV-MAE."
+  n_samples_total:
+    type: "integer"
+    minimum: 1
+    description: "Total number of samples used."
+  model_type:
+    type: "string"
+    enum:
+      - "RandomForest"
+    description: "Type of model used."
+  transform:
+    type: "string"
+    enum:
+      - "ILR"
+    description: "Transformation applied to features."
+  cv_repeats:
+    type: "integer"
+    enum:
+      - 5
+    description: "Number of repeats for CV."
+required:
+  - "cv_mae_mean"
+  - "cv_mae_ci_lower"
+  - "cv_mae_ci_upper"
+  - "n_samples_total"
+  - "model_type"
+  - "transform"
+  - "cv_repeats"
 additionalProperties: false

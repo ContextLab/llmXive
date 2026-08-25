@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CollinearityDiagnostic Schema"
+description: "Schema for Variance Inflation Factor (VIF) diagnostics. Note: High VIF is expected due to closure problem."
+type: "object"
+properties:
+  vif_scores:
+    type: "object"
+    properties:
+      Cu:
+        type: "number"
+        minimum: 0.0
+        description: "VIF for Copper."
+      Mg:
+        type: "number"
+        minimum: 0.0
+        description: "VIF for Magnesium."
+      Si:
+        type: "number"
+        minimum: 0.0
+        description: "VIF for Silicon."
+      Zn:
+        type: "number"
+        minimum: 0.0
+        description: "VIF for Zinc."
+      Mn:
+        type: "number"
+        minimum: 0.0
+        description: "VIF for Manganese."
+    required:
+      - "Cu"
+      - "Mg"
+      - "Si"
+      - "Zn"
+      - "Mn"
+  max_vif:
+    type: "number"
+    minimum: 0.0
+    description: "Maximum VIF among all predictors."
+  flag:
+    type: "boolean"
+    description: "True if max_vif > 5. Expected to be True for raw compositional data."
+  interpretation:
+    type: "string"
+    description: "Human-readable interpretation of the VIF results, noting the closure problem."
+required:
+  - "vif_scores"
+  - "max_vif"
+  - "flag"
+  - "interpretation"
+additionalProperties: false

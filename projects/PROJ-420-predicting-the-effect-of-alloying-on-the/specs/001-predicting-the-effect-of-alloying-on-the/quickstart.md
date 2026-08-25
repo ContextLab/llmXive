@@ -2,86 +2,61 @@
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- `pip` package manager
-- Git
+-   Python 3.11+
+-   Git
+-   Access to `materialsproject.org` API (optional, if NIST data is insufficient)
 
 ## Installation
 
-1.  Clone the repository and navigate to the project directory:
+1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-420-predicting-the-effect-of-alloying-on-the/
+    cd projects/PROJ-420-predicting-the-effect-of-alloying-on-the
     ```
 
-2.  Create a virtual environment and install dependencies:
+2.  **Create virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
     pip install -r requirements.txt
     ```
 
 ## Running the Pipeline
 
-### 1. Data Extraction
-
-Download, merge, and filter data from Materials Project and NIST MDR:
+The pipeline is executed via the main entry point. It handles data fetching, cleaning, modeling, and reporting.
 
 ```bash
-python code/cli/download_cli.py --extract
+python code/main.py
 ```
 
-This command:
-- Queries the Materials Project API and NIST MDR.
-- Merges and deduplicates the data.
-- Filters for monolithic aluminum alloys with complete data and independent Poisson's ratio measurements.
-- Normalizes units and composition.
-- Saves the cleaned dataset to `data/processed/alloys_clean.parquet`.
+### Expected Output
 
-### 2. Model Training & Evaluation
+Upon successful completion, the following files will be generated:
 
-Train the Random Forest model and evaluate performance:
+-   `data/raw/`: Raw downloaded data files.
+-   `data/processed/alloy_cleaned.csv`: Filtered and normalized dataset.
+-   `models/rf_model.pkl`: Trained Random Forest model.
+-   `data/processed/model_metrics.json`: CV and Test MAE.
+-   `data/processed/collinearity_diagnostic.json`: VIF analysis.
+-   `results/feature_importance_summary.json`: Ranked elements.
+-   `results/final_report.md`: The final scientific report.
 
-```bash
-python code/modeling.py
-```
+## Verification
 
-This script:
-- Applies Isometric Log-Ratio (ILR) transformation to the atomic fractions of Cu, Mg, Si, Zn, and Mn.
-- Performs 5-fold cross-validation.
-- Trains the final model on [deferred] of the data.
-- Evaluates on the held-out [deferred] test set.
-- Saves metrics to `data/processed/model_metrics.json`.
-
-### 3. Analysis & Diagnostics
-
-Generate feature importance rankings and collinearity diagnostics:
-
-```bash
-python code/analysis.py
-```
-
-This script:
-- Extracts feature importance scores using Permutation Importance and SHAP values in ILR space.
-- Computes VIF for raw predictors (diagnostic only).
-- Outputs results to `data/processed/analysis_results.json`.
-
-### 4. Verifying Results
-
-To ensure reproducibility, run the following test suite:
+To verify the results and ensure reproducibility:
 
 ```bash
 pytest tests/
 ```
 
-This validates:
-- Schema compliance of all output files.
-- Correctness of ILR transformation.
-- Consistency of model metrics.
-- Verification of associational framing in results.
+This runs contract tests against the generated JSON schemas and unit tests for the ILR transformation.
 
 ## Troubleshooting
 
-- **No data found**: If the pipeline halts with "No valid entries found", check the source APIs for availability or update the query parameters.
-- **VIF > 5**: If collinearity is flagged, note that this is expected for compositional data and confirms the need for ILR transformation.
-- **High MAE**: If test MAE is high relative to the target standard deviation, the model may not be capturing the underlying physics. Consider feature engineering or alternative models in future iterations.
+-   **Error: "No verified open-source dataset found"**: The pipeline could not fetch data from NIST or Materials Project. Check your internet connection or API keys.
+-   **Error: "Insufficient data (< 50 samples)"**: The filtered dataset is too small for 5-fold cross-validation. The pipeline halts to prevent unreliable results.
+-   **Error: "Unit conversion failed"**: The raw data contained inconsistent units (e.g., MPa vs GPa) that could not be resolved automatically. Check `data/processed/exclusion_log.csv`.

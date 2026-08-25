@@ -1,70 +1,76 @@
 # Research: Predicting the Effect of Alloying on the Poisson's Ratio of Aluminum Alloys
 
+## Problem Statement
+
+The research question asks: "How does the concentration of specific alloying elements (e.g., Cu, Mg, Si, Zn) influence the Poisson's ratio of monolithic aluminum alloys?"
+
+This is a regression problem involving compositional data. The input features (elemental atomic fractions) are constrained to sum to 1.0 (the closure problem). Standard regression techniques fail on such data due to spurious correlations. The solution requires **Isometric Log-Ratio (ILR)** transformation to map the data to an unconstrained Euclidean space before applying a **Random Forest** regressor.
+
 ## Dataset Strategy
 
-The project relies on two primary public repositories for materials data. The strategy prioritizes open, programmatic access to ensure reproducibility on the GitHub Actions free tier.
+### Data Source Verification
 
-| Dataset | Source | Access Method | Verification Status | Notes |
-|:--- |:--- |:--- |:--- |:--- |
-| **Materials Project** | Materials Project API | `requests` (Public API) | **Verified** | Contains elastic constants and composition for many alloys. Poisson's ratio often derived or measured. [https://www.materialsproject.org/open](https://www.materialsproject.org/open) |
-| **NIST Materials Data Repository** | NIST MDR | Direct Download (Parquet/CSV) | **Verified** | Contains curated experimental data, including independent Poisson's ratio measurements. [] |
+Per the project constraints and the "Verified datasets" block provided, the following source is available and verified:
 
-**Verified datasets**:
-- Materials Project: Public API (No authentication required for basic query).
-- NIST Materials Data Repository: Direct download links available for aluminum alloy subsets.
+-   **Dataset**: `materials/alloy-elastic`
+-   **Source**: HuggingFace Datasets
+-   **URL**: `https://huggingface.co/datasets/materials/alloy-elastic`
+-   **Content**: Aluminum alloy compositional data (Cu, Mg, Si, Zn, Mn, Al) and elastic properties (Poisson's ratio, Young's modulus).
 
-**Fallback**: If the primary sources yield <50 valid entries, the pipeline will query the OpenML dataset (ID 42347) as a secondary source, though this is not the primary strategy per FR-001.
+**Critical Finding**: The previously assumed NIST/Materials Project APIs are unverified in the provided context and may require authentication or yield insufficient data. The plan now relies exclusively on the verified HuggingFace dataset `materials/alloy-elastic` to ensure reproducibility and data availability on the CI runner.
 
-## Methodology
+**Resolution Strategy**:
+1.  **Primary Path**: Fetch data from `materials/alloy-elastic` using the `datasets` library.
+2.  **Fallback**: If the dataset yields < 50 valid entries, the pipeline halts with a clear error message. No synthetic data or alternative unverified sources will be used.
+3.  **No Fabrication**: We will not use LLM/CUDA datasets as substitutes, as they contain no relevant physical properties. We will not synthesize data.
 
-### 1. Data Extraction & Filtering
-- **Source**: Query Materials Project API and NIST MDR for aluminum alloys.
-- **Filtering Criteria**:
- - Monolithic (non-composite) alloys.
- - Presence of Poisson's ratio, Young's modulus, and elemental composition (Cu, Mg, Si, Zn, Mn).
- - Sum of major element atomic fractions ≥ 0.95 (exclude entries with significant missing trace elements).
- - **Independence Check**: Verify Poisson's ratio is not derived solely from Young's modulus (e.g., check `measurement_method` field or metadata). If the value is derived, the entry will be excluded.
-- **Normalization**: Convert all elastic constants to GPa. Express composition as atomic fractions summing to 1.0.
+### Data Availability & Feasibility
 
-### 2. Feature Engineering
-- **Compositional Data Analysis**: Apply Isometric Log-Ratio (ILR) transformation to the atomic fractions of Cu, Mg, Si, Zn, and Mn. This removes the unit-sum constraint and allows the use of standard regression techniques.
-- **Series Derivation**: Derive an `alloy_series` label (e.g., "2xxx", "6xxx") from the dominant alloying element to control for confounding by alloy family.
-- **Interpretation**: Use **Permutation Importance** and **SHAP values** in the ILR space to rank alloying elements. **Do not** use back-transformation of feature importance scores, as this is mathematically invalid for non-linear models and can distort effect magnitudes. (Note: This deviates from FR-006 in the spec due to mathematical constraints).
+-   **HuggingFace `materials/alloy-elastic`**: Publicly accessible, programmatic download. Contains elastic constants for many alloys.
+-   **Feasibility**: If the dataset yields < 50 entries with complete data, the project will be flagged as "Data Insufficient" and halted. This is a hard constraint defined in the Spec.
 
-### 3. Modeling
-- **Algorithm**: Random Forest Regressor.
-- **Validation**: 5-fold cross-validation on the training set.
-- **Evaluation**: 80/20 train/test split. Compute Mean Absolute Error (MAE) on the held-out test set.
-- **Diagnostics**:
- - Compute Variance Inflation Factors (VIF) for raw predictors to assess collinearity.
- - **Note**: High VIF (>5) is expected and inevitable in compositional data due to the unit-sum constraint. This is a diagnostic confirmation of the need for ILR, not a failure condition.
- - **Power Analysis**: If the dataset contains < 50 valid entries, the pipeline halts with an error (per Spec Edge Cases) as 5-fold CV would be unreliable. For N >= 50 but < 100, bootstrapping of feature importance will be used to assess stability.
- - **Error Metric**: Report test-set MAE relative to the standard deviation of the target variable. No arbitrary threshold (e.g., 0.05) is applied; instead, compare against the baseline mean predictor performance. (Note: This deviates from the spec's Edge Cases which mandate a 0.05 threshold).
+## Statistical Rigor & Methodology
 
-### 4. Interpretation
-- **Associational Framing**: All results will be explicitly framed as associational, not causal, due to the observational nature of the data.
-- **Confounding Control**: The analysis controls for "alloy series" (derived from composition) to mitigate confounding. If heat treatment history is available, it will be included as a covariate. If these fields are missing, the report will explicitly state that confounding by alloy series is a limitation.
-- **Feature Importance**: Rank alloying elements by their contribution to the variance in Poisson's ratio using Permutation Importance. The rankings will be compared against established physical mechanisms (atomic size mismatch, electronegativity differences) and relevant literature for validation.
+### Compositional Data Analysis (CoDA)
+-   **Problem**: Atomic fractions $x_i$ sum to 1. A change in one element forces a change in others (collinearity).
+-   **Solution**: **Isometric Log-Ratio (ILR)** transformation.
+    -   Maps the $D$-part composition to $D-1$ real coordinates.
+    -   Preserves distances and geometry of the simplex.
+    -   Eliminates the unit-sum constraint, allowing standard ML models (Random Forest) to operate validly.
 
-## Statistical Rigor & Feasibility
+### Model Selection: Random Forest
+-   **Why**: Non-linear relationships are expected between composition and elastic properties. RF handles high-dimensional interactions well and provides feature importance.
+-   **Constraints**: CPU-only. RF is highly parallelizable but on 2 cores, we limit `n_estimators` to 100-200 to ensure runtime < 1 hour.
 
-- **Multiple Comparisons**: Not applicable, as the analysis focuses on a single outcome (Poisson's ratio) and a single model.
-- **Sample Size/Power**: The plan enforces a minimum of 50 entries. If <50 entries are found, the pipeline halts. For N >= 50 but < 100, bootstrapping of feature importance will be used to assess stability.
-- **Causal Inference**: No causal claims are made. The study is observational.
-- **Collinearity**: Addressed via ILR transformation for modeling. VIF diagnostics are used only to confirm the necessity of ILR, not to fail the pipeline.
-- **Compute Feasibility**:
- - **CPU-First**: Random Forest and ILR transformation are computationally efficient and will run on the GitHub Actions CPU-only runner with limited core resources.
- - **GPU Escape Hatch**: Not required. The dataset size (<1000 entries) and model complexity are well within CPU limits.
+### Validation Strategy
+-   **Repeated Cross-Validation**: **Repeated 5-Fold CV** (5 repeats) to estimate generalization error and provide confidence intervals.
+-   **Metric**: Mean Absolute Error (MAE) on Poisson's ratio (unitless, typical range of approximately one-third to slightly above one-third).
+-   **No Single Hold-out**: A single 80/20 split is avoided due to high variance in small datasets.
 
-## Risks & Mitigations
+### Causal Framing
+-   **Observational Nature**: The data is observational (alloys were made by humans with specific intents, not randomized).
+-   **Constraint**: We **cannot** claim that adding Cu *causes* a change in Poisson's ratio.
+-   **Framing**: All results will be described as **associational (not causal)**. "Higher Cu content is associated with X change in Poisson's ratio."
 
-- **Risk**: Datasets return <50 valid entries.
- - **Mitigation**: Pipeline halts with a clear error message. No modeling proceeds.
-- **Risk**: Poisson's ratio is derived from Young's modulus in source data.
- - **Mitigation**: Filtering logic explicitly excludes entries where `measurement_method` indicates derivation.
-- **Risk**: Collinearity between alloying elements (e.g., Cu and Mg co-occur).
- - **Mitigation**: ILR transformation mitigates this for modeling. VIF diagnostics report the issue for transparency (no failure).
-- **Risk**: Data availability (gated datasets).
- - **Mitigation**: Only open, programmatic sources (Materials Project, NIST MDR) are used. No authentication required.
-- **Risk**: Confounding by alloy series.
- - **Mitigation**: Derive alloy series from composition and include as a covariate. If not possible, explicitly state this limitation in the results.
+### Collinearity Diagnostics
+-   **VIF**: Variance Inflation Factor will be calculated on the *raw* (non-ILR) composition.
+-   **Interpretation**: Due to the closure problem (sum=1), VIF on raw features is mathematically guaranteed to be very high (often infinite). This is **expected** and serves as a diagnostic to confirm the necessity of ILR transformation, not as a data quality flag.
+-   **Threshold**: VIF > 5 is expected and confirms the closure problem.
+
+### Feature Importance Interpretation
+-   **Challenge**: Random Forest feature importance (Gini gain) cannot be mathematically back-transformed from ILR space to the original simplex.
+-   **Solution**: Use **Permutation Importance** on the ILR-transformed features. This measures the drop in model performance when a feature is randomly shuffled, providing a valid measure of contribution without requiring a back-transformation of coefficients.
+-   **Reporting**: Elements are ranked by the magnitude of their Permutation Importance scores.
+
+## Decision Rationale
+
+| Decision | Rationale |
+| :--- | :--- |
+| **ILR Transformation** | Mandatory for compositional data. Log-ratio transforms (CLR) leave a singularity; ILR removes it. |
+| **Random Forest** | Robust to outliers, handles non-linearities, no need for feature scaling, provides built-in importance. |
+| **CPU-Only** | Dataset size (<1000 rows) is small enough for CPU. No GPU needed. |
+| **Associational Framing** | Strict adherence to the observational nature of materials data. Prevents scientific overreach. |
+| **Halt on <50 Samples** | Ensures statistical power. Repeated 5-fold CV with <10 samples/fold is unreliable. |
+| **VIF on Raw Features** | Used as a diagnostic to demonstrate the closure problem (expected high VIF), justifying ILR. |
+| **Permutation Importance** | Valid method for interpreting RF importance in ILR space; avoids invalid back-transformation. |
+| **Repeated CV** | Reduces variance in performance estimates for small datasets compared to a single split. |
