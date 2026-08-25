@@ -1,178 +1,156 @@
-# llmXive Follow-up: Extending "Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents"
+# llmXive Follow-up: Extending "Memory is Reconstructed, Not Retrieved"
 
-This project implements a research pipeline to evaluate graph-based memory reconstruction strategies for LLM agents, using the LoCoMo benchmark. It compares a "Full" traversal baseline against "Greedy" and "Lazy" heuristic strategies, both on clean and synthetically noisy graphs.
+This project implements an automated research pipeline to evaluate graph-based memory reconstruction strategies for LLM agents, specifically testing the hypothesis that memory is reconstructed rather than retrieved.
 
-## Project Structure
+## Overview
 
-```text
-projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/
-├── code/
-│ ├── analysis/ # Statistical analysis and report generation
-│ │ ├── stats.py
-│ │ └── report_generator.py
-│ ├── strategies/ # Traversal strategies and runners
-│ │ ├── full.py
-│ │ ├── greedy.py
-│ │ ├── lazy.py
-│ │ ├── baseline_runner.py
-│ │ ├── greedy_runner.py
-│ │ ├── lazy_runner.py
-│ │ ├── noisy_greedy_runner.py
-│ │ └── noisy_lazy_runner.py
-│ ├── utils/
-│ │ └── validate_results.py
-│ ├── config.py
-│ ├── data_loader.py
-│ ├── graph_utils.py
-│ ├── inference.py
-│ └── runner.py
-├── data/
-│ ├── raw/ # Downloaded LoCoMo dataset
-│ └── processed/ # Execution results (CSVs) and stats reports (JSON)
-├── docs/
-│ └── results.md # Auto-generated results report
-├── tests/ # Pytest unit and integration tests
-├── requirements.txt
-└── README.md
-```
+The pipeline processes the **LoCoMo** benchmark dataset to:
+1. Extract knowledge graphs (triples) from task contexts.
+2. Inject controlled noise to simulate retrieval errors.
+3. Execute three traversal strategies: **Full** (baseline), **Lazy**, and **Greedy**.
+4. Perform statistical analysis on accuracy, node traversal counts, and robustness.
 
 ## Prerequisites
 
 - Python 3.9+
-- pip (package manager)
-- Access to Hugging Face Hub (for dataset and model downloads)
+- `pip` (Python package installer)
+- Access to Hugging Face Hub (for LoCoMo dataset)
+- `en_core_web_sm` spaCy model (automatically installed during setup)
 
 ## Installation
 
-1. **Clone the repository** (if applicable) and navigate to the project root:
+1. **Clone and Navigate**:
  ```bash
- cd projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/
+ cd projects/PROJ-894-llmxive-follow-up-extending-memory-is-re
  ```
 
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
+2. **Install Dependencies**:
  ```bash
  pip install -r code/requirements.txt
  ```
 
-4. **Configure the environment** (optional):
- - Set the `HF_HOME` environment variable to control Hugging Face cache directory.
- - The `code/config.py` module handles model paths. By default, it attempts to download `TheBloke/Llama-2-7B-Chat-GGUF` (Q4_K_M) if no local path is provided.
+3. **Download spaCy Model**:
+ The pipeline requires the `en_core_web_sm` model for NER and dependency parsing.
+ ```bash
+ python -m spacy download en_core_web_sm
+ ```
 
-## Execution Workflow
+## Quickstart Guide
 
-The pipeline consists of three main phases: Data Preparation, Execution (Strategies), and Analysis.
+The pipeline is designed to run in a specific sequence to generate intermediate artifacts required by downstream tasks.
 
-### 1. Data Preparation
+### Step 1: Data Ingestion & Graph Construction
 
-Download the LoCoMo benchmark dataset and generate synthetic noisy graphs.
+Download the LoCoMo dataset, extract triples, and build the initial memory graphs.
+This step also generates the noisy graph dataset for robustness testing.
 
 ```bash
-python code/data_loader.py
+# Download data and build graphs (Clean + Noisy)
+python code/data_loader.py --download
 ```
 
-**Outputs:**
-- `data/raw/locomo_dataset.json` (or similar format from HF)
-- `data/processed/noisy_graphs.json` (generated with fixed seed)
+*Expected Output*:
+- `data/raw/locomo.jsonl`
+- `data/intermediate/triples_raw.jsonl`
+- `data/intermediate/graphs_raw.json`
+- `data/processed/graphs/graph_noise_42.json`
 
-### 2. Strategy Execution
+### Step 2: Strategy Execution (Streaming & Robustness)
 
-Run the traversal strategies. Each runner processes the tasks and logs results to CSV.
+Run the traversal strategies. The runner now supports **streaming** (memory-efficient) and **robustness** handling (timeouts, degenerate graphs).
 
-**Baseline (Full Traversal):**
+**Baseline (Full Strategy)**:
 ```bash
-python code/strategies/baseline_runner.py
-# Outputs: data/processed/baseline_results.csv
+python code/runner.py --strategy full --graph data/processed/graphs/graph_clean.json --output data/processed/baseline_results.csv
 ```
 
-**Noisy Baseline:**
+**Heuristics (Lazy & Greedy)**:
 ```bash
-python code/strategies/baseline_runner.py --noisy
-# Outputs: data/processed/noisy_baseline_results.csv
+# Lazy Strategy (with evidence threshold)
+python code/runner.py --strategy lazy --graph data/processed/graphs/graph_clean.json --output data/processed/lazy_results.csv --threshold 0.7
+
+# Greedy Strategy (with top-k)
+python code/runner.py --strategy greedy --graph data/processed/graphs/graph_clean.json --output data/processed/greedy_results.csv --topk 5
 ```
 
-**Heuristic Strategies:**
+**Noisy Variants** (for robustness testing):
 ```bash
-python code/strategies/greedy_runner.py
-# Outputs: data/processed/greedy_results.csv
-
-python code/strategies/lazy_runner.py
-# Outputs: data/processed/lazy_results.csv
+python code/runner.py --strategy full --graph data/processed/graphs/graph_noise_42.json --output data/processed/noisy_baseline_results.csv
+python code/runner.py --strategy lazy --graph data/processed/graphs/graph_noise_42.json --output data/processed/noisy_lazy_results.csv --threshold 0.7
+python code/runner.py --strategy greedy --graph data/processed/graphs/graph_noise_42.json --output data/processed/noisy_greedy_results.csv --topk 5
 ```
 
-**Noisy Heuristics:**
+*Streaming Mode*:
+To process large datasets without loading everything into RAM, add the `--streaming` flag:
 ```bash
-python code/strategies/noisy_greedy_runner.py
-# Outputs: data/processed/noisy_greedy_results.csv
-
-python code/strategies/noisy_lazy_runner.py
-# Outputs: data/processed/noisy_lazy_results.csv
+python code/runner.py --strategy full --graph data/processed/graphs/graph_clean.json --output data/processed/baseline_results.csv --streaming --chunk-size 10
 ```
 
-**Sensitivity Analysis (Lazy Strategy):**
+### Step 3: Statistical Analysis
+
+Once all result CSVs are generated, run the analysis scripts to compute significance, correlations, and thresholds.
+
 ```bash
-python code/strategies/lazy.py --sweep
-# Outputs: data/processed/sweep_results.csv
-```
-
-### 3. Statistical Analysis & Reporting
-
-Validate results, perform statistical tests, and generate the final report.
-
-**Validate Results:**
-```bash
-python code/utils/validate_results.py
-```
-
-**Run Statistical Analysis:**
-```bash
+# Statistical significance (Clean vs Noisy)
 python code/analysis/stats.py
-```
-**Outputs:**
-- `data/processed/stats_report.json`
-- `data/processed/noisy_stats_report.json`
+python code/analysis/noisy_stats.py
 
-**Generate Documentation:**
+# Correlation Analysis (Nodes visited vs Accuracy)
+python code/analysis/correlation_analysis.py
+
+# Threshold & Inflection Point Analysis
+python code/analysis/threshold_analysis.py
+```
+
+*Expected Output*:
+- `data/processed/statistical_results.json`
+- `data/processed/correlation_results.json`
+- `data/processed/threshold_analysis.json`
+
+### Step 4: Report Generation
+
+Generate the final research report aggregating all findings.
+
 ```bash
-python code/analysis/report_generator.py
+python code/report/generate_report.py
 ```
-**Outputs:**
-- `docs/results.md` (Auto-generated from `stats_report.json`)
 
-## Testing
+*Output*: `docs/research_report.md`
 
-Run the test suite using `pytest`:
+## Project Structure
 
+```text
+.
+├── code/
+│ ├── data_loader.py # Data fetching, NER, graph construction
+│ ├── runner.py # Main execution engine (streaming, timeout, robustness)
+│ ├── graph_utils.py # Graph manipulation, noise injection
+│ ├── strategies/ # Traversal algorithms (full, lazy, greedy)
+│ ├── analysis/ # Statistical analysis scripts
+│ └── report/ # Report generation
+├── data/
+│ ├── raw/ # Downloaded LoCoMo dataset
+│ ├── intermediate/ # Extracted triples, raw graphs
+│ └── processed/ # Execution results, noisy graphs
+├── tests/ # Unit and integration tests
+└── docs/ # Final research report
+```
+
+## Robustness Features
+
+This implementation includes specific handling for edge cases:
+- **Timeouts**: Configurable hard timeouts per task (via `--timeout` flag in `runner.py`).
+- **Degenerate Graphs**: Automatic detection of single-node or disconnected components; flagged as `DEGENERATE` or `UNRESOLVED` in results.
+- **Streaming**: Low-memory processing for large datasets via `stream_locomo_tasks()`.
+
+## Reproducibility
+
+To verify the reproducibility of noise injection:
 ```bash
-pytest tests/ -v
+python code/utils/verify_seeds.py
 ```
-
-## Configuration
-
-- **Model Path**: Controlled via `code/config.py`. Defaults to downloading `TheBloke/Llama-2-7B-Chat-GGUF` (Q4_K_M) from Hugging Face if not specified.
-- **Timeouts**: Enforced by `code/runner.py` to prevent hanging tasks.
-- **Logging**: All scripts use Python's `logging` module. Logs are printed to stdout/stderr.
-
-## Research Hypotheses
-
-This project validates the following hypotheses:
-1. **Reconstruction vs. Retrieval**: Full graph traversal (reconstruction) yields higher accuracy than heuristic retrieval.
-2. **Efficiency Trade-off**: Heuristic strategies (Greedy/Lazy) reduce inference time and nodes visited with minimal accuracy loss.
-3. **Robustness**: Performance degradation on noisy graphs quantifies the resilience of each strategy.
-4. **Complexity Threshold**: There exists a graph complexity threshold where heuristic accuracy drops significantly below baseline.
+This compares the SHA-256 hash of the generated noisy graph against the stored state.
 
 ## License
 
-MIT License. See `LICENSE` for details.
-
-## Contributing
-
-1. Fork the repository.
-2. Create a feature branch.
-3. Commit changes with clear messages.
-4. Submit a pull request.
+Research implementation for llmXive.
