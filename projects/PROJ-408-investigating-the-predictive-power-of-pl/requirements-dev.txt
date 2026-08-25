@@ -1,0 +1,19 @@
+# Development and Tooling Dependencies
+# Derived from T002 base requirements + linting/formatting tools
+biopython
+scikit-bio
+scipy
+pandas
+numpy
+ete3
+requests
+lxml
+matplotlib
+seaborn
+pytest
+
+# Linting and Formatting (T003)
+# ruff: Fast Python linter (replaces flake8, isort, pyupgrade)
+ruff>=0.1.0
+# black: Uncompromising code formatter
+black>=23.0.0

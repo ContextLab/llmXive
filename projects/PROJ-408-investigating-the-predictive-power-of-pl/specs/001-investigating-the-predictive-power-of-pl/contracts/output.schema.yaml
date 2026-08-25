@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MantelTestResults"
+description: "Schema for the output of the Mantel and Partial Mantel tests."
+type: object
+properties:
+  mantel_test:
+    type: object
+    description: "Results of the standard Mantel test."
+    properties:
+      correlation_coefficient:
+        type: number
+        description: "Pearson correlation (r) between phylogenetic and metabolite distances."
+      p_value:
+        type: number
+        description: "P-value from 999 permutations."
+      permutations:
+        type: integer
+        description: "Number of permutations performed."
+      significance:
+        type: boolean
+        description: "True if p < 0.05."
+      spearman_correlation:
+        type: number
+        description: "Spearman rank correlation (robustness check)."
+      spearman_p_value:
+        type: number
+        description: "P-value for Spearman correlation."
+    required:
+      - correlation_coefficient
+      - p_value
+      - permutations
+      - significance
+      - spearman_correlation
+      - spearman_p_value
+  partial_mantel_test:
+    type: object
+    description: "Results of the Partial Mantel test controlling for climate."
+    properties:
+      partial_correlation:
+        type: number
+        description: "Partial correlation coefficient (r_partial)."
+      partial_p_value:
+        type: number
+        description: "P-value for the partial correlation."
+      significance:
+        type: boolean
+        description: "True if partial p < 0.05."
+    required:
+      - partial_correlation
+      - partial_p_value
+      - significance
+  dataset_completeness:
+    type: object
+    description: "Data retention metrics."
+    properties:
+      total_input_species:
+        type: integer
+      retained_species:
+        type: integer
+      retention_rate:
+        type: number
+        description: "Fraction of species retained (0.0 to 1.0)."
+      meets_threshold:
+        type: boolean
+        description: "True if retention_rate >= 0.80."
+    required:
+      - total_input_species
+      - retained_species
+      - retention_rate
+      - meets_threshold
+  negative_control:
+    type: object
+    description: "Results from the shuffled metabolite negative control."
+    properties:
+      correlation_coefficient:
+        type: number
+        description: "Expected to be ~0."
+      p_value:
+        type: number
+    required:
+      - correlation_coefficient
+      - p_value
+required:
+  - mantel_test
+  - partial_mantel_test
+  - dataset_completeness
+  - negative_control
+additionalProperties: false

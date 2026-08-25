@@ -1,1 +1,11 @@
-[]
+- artifact_hash: e6d40746847a403f671d02eb69584d2a8e325c11ea243f68c8405348b79406f8
+  artifact_path: projects/PROJ-408-investigating-the-predictive-power-of-pl/specs/001-investigating-the-predictive-power-of-pl/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: plants.zip
+  kind: url
+  value: https://huggingface.co/datasets/sampath017/plants/resolve/main/plants.zip`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64250911ecb4ee8275ed4a25/be6e5d599ad0d1ca71484db559891468cdd56fd6aab91e74c4935c2c61e1751d?response-content-type=application%2Fzip&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27plants.zip%3B+filename%3D%22plants.zip%22%3B&X-Xet-Cas-Uid=public&Expires=1787682258&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQyNTA5MTFlY2I0ZWU4Mjc1ZWQ0YTI1L2JlNmU1ZDU5OWFkMGQxY2E3MTQ4NGRiNTU5ODkxNDY4Y2RkNTZmZDZhYWI5MWU3NGM0OTM1YzJjNjFlMTc1MWRcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3BsYW50cy56aXAlM0IrZmlsZW5hbWUlM0QlMjJwbGFudHMuemlwJTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODc2ODIyNTh9fX1dfQ__&Signature=MEUCIEh30GIzjj20TcgYExWZthXZcWRvMmOU3xCls2mpMjAiAiEAiz4bjRrkn5E2GPen5fwrGzMBcNUY84uBcDzNz59sZyI_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-25T17:24:18.188681Z'

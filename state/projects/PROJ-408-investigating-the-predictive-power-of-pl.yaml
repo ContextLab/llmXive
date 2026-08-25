@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T19:38:00.880298Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-408-investigating-the-predictive-power-of-pl
-last_run_id: e0dff5e0-87fe-4788-9746-60c74a5adf5e
+last_run_id: c6f6aa54-b8da-4832-8947-7f6631605cbb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-408-investigating-the-predictive-power-of-pl/specs/001-investigating-the-predictive-power-of-pl
 title: Investigating the Predictive Power of Plant Phylogeny on Secondary Metabolite
   Profiles
-updated_at: '2026-08-13T00:43:10.897919Z'
+updated_at: '2026-08-25T17:54:15.268012Z'

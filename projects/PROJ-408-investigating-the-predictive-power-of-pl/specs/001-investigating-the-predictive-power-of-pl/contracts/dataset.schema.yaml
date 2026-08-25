@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PlantPhylogenyMetaboliteDataset"
+description: "Schema for the combined dataset of species, sequences, and metabolite profiles."
+type: object
+properties:
+  species_list:
+    type: array
+    description: "List of species with metadata."
+    items:
+      type: object
+      properties:
+        ncbi_tax_id:
+          type: integer
+          description: "NCBI Taxonomy ID."
+        kegg_organism_code:
+          type: string
+          description: "KEGG organism code (e.g., 'ath')."
+        species_name:
+          type: string
+          description: "Binomial species name."
+        climate_zone:
+          type: string
+          description: "USDA climate zone code (e.g., '5a')."
+        status:
+          type: string
+          enum: ["retrieved", "missing_seq", "missing_metabolite", "excluded"]
+      required:
+        - ncbi_tax_id
+        - kegg_organism_code
+        - species_name
+        - status
+  sequences:
+    type: object
+    description: "Dictionary of species_id -> multi-locus FASTA string."
+    additionalProperties:
+      type: string
+  metabolite_matrix:
+    type: object
+    description: "Dictionary of species_id -> list of KEGG Compound IDs."
+    additionalProperties:
+      type: array
+      items:
+        type: string
+  climate_data:
+    type: object
+    description: "Dictionary of species_id -> climate zone."
+    additionalProperties:
+      type: string
+required:
+  - species_list
+  - sequences
+  - metabolite_matrix
+  - climate_data
+additionalProperties: false

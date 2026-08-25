@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-phylogeny-metabolite"
+version = "0.1.0"
+description = "Investigating the predictive power of plant phylogeny on secondary metabolite profiles"
+requires-python = ">=3.9"
+dependencies = [
+    "biopython",
+    "scikit-bio",
+    "scipy",
+    "pandas",
+    "numpy",
+    "ete3",
+    "requests",
+    "lxml",
+    "matplotlib",
+    "seaborn",
+    "pytest",
+]
+optional-dependencies.dev = [
+    "ruff",
+    "black",
+]
+
+[tool.ruff]
+# Inherit from .ruff.toml if present, or define here
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = [
+    "F401",
+    "ANN",
+    "E",
+    "W",
+    "I",
+]
+ignore = [
+    "ANN001",
+    "ANN201",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
