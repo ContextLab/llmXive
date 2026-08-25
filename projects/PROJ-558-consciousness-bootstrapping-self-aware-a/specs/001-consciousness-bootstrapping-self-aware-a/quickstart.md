@@ -1,86 +1,58 @@
-# Quickstart: Consciousness Bootstrapping
+# Quickstart: Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection
 
-## Prerequisites
+## 1. Prerequisites
 
-* Python 3.11+
-* Git
-* GitHub Account (for CI)
+- Python 3.11+
+- Git
+- Sufficient RAM available (for CPU run)
+- Internet connection (for dataset streaming)
 
-## Installation
+## 2. Installation
 
-1. **Clone the repository**:
- ```bash
- git clone
- cd PROJ-558-consciousness-bootstrapping-self-aware-a
- ```
-
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- *Note: `requirements.txt` pins `torch` to a CPU-only version to ensure compatibility with the GitHub Actions free-tier.*
-
-4. **Download Datasets**:
- The `code/utils/data_loader.py` script handles downloads and updates `data/manifest.json` with checksums. Run:
- ```bash
- python -m code.utils.data_loader --download
- ```
- This will fetch the Pile (arXiv subset), GSM8K, and MMLU to `data/raw/`. It will also generate the teacher labels (if not present) and store them in `data/processed/`.
-
-## Execution
-
-### Step 1: Training
-
-Run the training script for a single seed (e.g., seed 1):
 ```bash
-python -m code.training.train --seed 1 --model-type recursive --epochs 1
-```
-*This will train the recursive model. To train the baseline, change `--model-type baseline`.*
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-558-consciousness-bootstrapping-self-aware-a
 
-### Step 2: Evaluation
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-Evaluate the trained model on GSM8K:
-```bash
-python -m code.evaluation.run_benchmarks --checkpoint artifacts/checkpoints/seed_1_recursive.pt --dataset gsm8k --num-paths 10
-```
-*This script validates the output JSON against `contracts/evaluation-schema.schema.yaml` before saving.*
-
-### Step 3: Analysis
-
-Run the statistical analysis across all seeds (assuming you have run training for seeds 1-5):
-```bash
-python -m code.analysis.stats --seeds 1,2,3,4,5 --metrics consistency,ece,roc_auc
+# Install dependencies
+pip install -r code/requirements.txt
 ```
 
-## Reproducibility
+## 3. Running the Experiment
 
-To reproduce the full experiment:
+### Step 1: Train Models
+Run the training script. This will train both the recursive and baseline models on a large-scale corpus.
 ```bash
-# Run training for all seeds
-for seed in 1 2 3 4 5; do
- python -m code.training.train --seed $seed --model-type recursive --epochs 1
- python -m code.training.train --seed $seed --model-type baseline --epochs 1
-done
+python code/training/train.py --seeds 42 123 456 789 101 --epochs 1 --tokens 100000
+```
+*Note: This may take up to 4 hours on CPU. If it fails, the system will attempt to offload to Kaggle.*
 
-# Run evaluation
-python -m code.evaluation.run_benchmarks --all-checkpoints --num-paths 10
+### Step 2: Evaluate Models
+Run the evaluation script on GSM8K and MMLU.
+```bash
+python code/evaluation/benchmarks.py --seeds 42 123 456 789 101 --dataset gsm8k,mmlu
+```
+*Note: This script saves both 'first pass' and 'recursive refinement' outputs for T043.*
 
-# Run analysis
-python -m code.analysis.stats --seeds 1,2,3,4,5
-
-# Update state with checksums
-sha256sum artifacts/checkpoints/*.pt artifacts/results/*.json > state/checksums.txt
-# (In CI, this step updates the state YAML file automatically)
+### Step 3: Statistical Analysis
+Run the analysis script to generate the report.
+```bash
+python code/analysis/stats.py --input-dir artifacts/reports --output artifacts/reports/statistical_report.yaml
 ```
 
-## Troubleshooting
+## 4. Verifying Results
 
-* **OOM Error**: If you encounter "Out of Memory", reduce the `--context-length` in `config.py` or ensure `gradient_checkpointing` is enabled.
-* **CUDA Error**: Ensure `torch` is installed as the CPU version (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-* **Contract Validation Error**: If `run_benchmarks.py` fails validation, check the output JSON against `contracts/evaluation-schema.schema.yaml` for missing fields or type mismatches.
+Check the generated `statistical_report.yaml` for p-values and effect sizes.
+```bash
+cat artifacts/reports/statistical_report.yaml
+```
+
+## 5. Troubleshooting
+
+- **OOM Error**: Reduce `--tokens` to 50000 or `--batch-size` to 2.
+- **Dataset Download Failure**: Check internet connection; ensure HF token is set if required (not required for public datasets).
+- **CUDA Error on CPU**: Ensure `torch` is installed without CUDA support or set `CUDA_VISIBLE_DEVICES=""`.

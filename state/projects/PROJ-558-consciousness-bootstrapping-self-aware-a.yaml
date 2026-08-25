@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-558-consciousness-bootstrapping-self-aware-a
-last_run_id: 979c3b38-9662-49fd-a3ee-4f58b27d056f
+last_run_id: 7da54a66-43d8-44cf-b696-e15640bb356b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a
 title: 'Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection'
-updated_at: '2026-08-22T21:25:06.171952Z'
+updated_at: '2026-08-25T12:18:23.784118Z'

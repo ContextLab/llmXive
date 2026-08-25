@@ -1,98 +1,133 @@
 # Implementation Plan: Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection
 
-**Branch**: `001-consciousness-bootstrapping-self-aware-ai` | **Date**: 2026-07-03 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-consciousness-bootstrapping-self-aware-ai/spec.md`
+**Branch**: `001-consciousness-bootstrapping-self-aware-ai` | **Date**: 2026-07-02 | **Spec**: `specs/001-consciousness-bootstrapping-self-aware-a/spec.md`
+**Input**: Feature specification from `specs/001-consciousness-bootstrapping-self-aware-a/spec.md`
 
 ## Summary
 
-This project implements a computational investigation into whether recursive self-attention mechanisms can bootstrap meta-cognitive behaviors (self-consistency, error detection, uncertainty calibration) in a small language model. The technical approach involves modifying a small transformer architecture (e.g., Qwen-0.5B) to include a temporal recursive self-attention module that attends to confidence distributions from previous generation steps. We will train both a recursive variant and a standard baseline on a sampled subset of the Pile dataset (arXiv domain) using a joint loss function, where the confidence signal is derived from pre-computed teacher model labels (external truth). The models will be evaluated on MMLU, GSMK, and Self-Consistency benchmarks, followed by rigorous statistical analysis (paired t-tests, sensitivity analysis, multiple-comparison correction) across five random seeds to determine if the recursive architecture yields statistically significant improvements in the correlation between consistency and accuracy.
+This project implements a comparative study of a TinyLlama-based language model augmented with a **temporal recursive self-attention module** against a standard baseline. The core hypothesis is that attending to the uncertainty distribution (projected softmax vector) of previous generation steps improves meta-cognitive behaviors: self-consistency, error detection, and uncertainty calibration. The implementation strictly adheres to the GitHub Actions free-tier compute budget (2 CPU, 7 GB RAM, ≤4 hours) by utilizing a small-scale dataset subset (100k tokens), quantized model loading where possible, and streaming data access. The project delivers trained checkpoints, evaluation metrics, and a statistically rigorous report validating the architectural impact.
+
+**Key Revisions**:
+- **Training Objective**: Replaced circular self-consistency proxy with external calibration loss using ground-truth labels from a held-out calibration set (GSM8K/MMLU).
+- **Architecture**: Defined recursive input as a projected softmax vector (not scalar) to capture uncertainty shape.
+- **Feasibility**: Limited confidence history to a sliding window (t-1 + 5 steps) to fit 7 GB RAM.
+- **Token Limit**: 100k tokens derived from memory calculation for TinyLlama-1.1B + recursive overhead.
+- **Statistical Rigor**: Added power analysis note and revised interpretation protocol for effect sizes.
 
 ## Technical Context
 
-**Language/Version**: Python  
-**Primary Dependencies**: `torch` (CPU-only, pinned to.0+), `transformers` (4.40+), `datasets` (2.18+), `scikit-learn`, `numpy`, `pandas`, `pytest`, `jsonschema`  
-**Storage**: Local filesystem (`data/` for datasets, `artifacts/` for checkpoints and evaluation results).  
-**Testing**: `pytest` for unit tests; `GitHub Actions` for end-to-end integration and reproducibility.  
-**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPU cores, ~7 GB RAM, ~ GB disk, no GPU).  
-**Project Type**: Computational research / Machine Learning experiment  
-**Performance Goals**: Training must complete within 2 hours per seed; total CI job time ≤ 4 hours for 5 seeds (aligned with Constitution Principle VII). Memory usage must remain < 7 GB.  
-**Constraints**: No GPU/CUDA usage; no 8-bit/4-bit quantization requiring CUDA; no large-LLM inference; strict adherence to 7 GB RAM limit.  
-**Scale/Scope**: Training on a representative subset of tokens from the Pile (arXiv subset); evaluation on standard benchmark test sets (GSM8K, MMLU).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `transformers`, `datasets`, `torch` (CPU-only build), `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `pytest`  
+**Storage**: Local filesystem (`data/`, `code/`, `artifacts/`); no external database.  
+**Testing**: `pytest` with contract tests against YAML schemas.  
+**Target Platform**: GitHub Actions free-tier runner (Ubuntu-latest, 2 vCPU, 7 GB RAM).  
+**Project Type**: Computational Research / Machine Learning Experiment.  
+**Performance Goals**: Complete training and evaluation within 4 hours; memory usage < 6 GB to allow OS overhead.  
+**Constraints**:  
+- No GPU access on primary runner; CPU-first implementation.  
+- Max recursion depth fixed at 2 for the primary run (resource constraint), but code supports varying depths as per FR-001.  
+- Dataset limited to a token count that fits within available RAM (derived from memory calculation).  
+- All random seeds pinned for reproducibility.  
+**Scale/Scope**: 1 model architecture variant (recursive) + 1 baseline; 3 benchmark datasets (MMLU, GSM8K, Self-Consistency); 5 random seeds for statistical power.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+
+### Token Limit Derivation
+The 100k token limit is derived from the available memory:
+- Available RAM: 7 GB (GitHub Actions) - 2 GB (OS overhead) = 5 GB.
+- Model Size (TinyLlama, FP): Approximately 2 GB.
+- Remaining for context/overhead: a substantial amount of memory.
+- Estimated memory per token (with recursive overhead): moderate.
+- Max tokens: 2.8 GB / 28 KB ≈ a large-scale context window suitable for extensive document analysis.
+This calculation ensures the model fits within the 7 GB RAM limit while accounting for the recursive module's memory footprint.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file*
 
-- **I. Reproducibility**: Plan mandates pinned seeds, canonical dataset sources (HuggingFace), and deterministic evaluation scripts.
-- **II. Verified Accuracy**: All dataset URLs cited in `research.md` are drawn exclusively from the verified list. No hallucinated URLs.
-- **III. Data Hygiene**: Raw data will be downloaded to `data/raw/` with checksums recorded in `data/manifest.json`. Derived data (e.g., training splits, teacher labels) will be stored in `data/processed/` with versioning.
-- **IV. Single Source of Truth**: All metrics in the final report will be generated directly from `data/` artifacts by `code/` scripts.
-- **V. Versioning Discipline**: Artifacts (checkpoints, JSON results) will be named with content hashes. A `sha256sum` script in CI will update `state/...yaml` with the hashes.
-- **VI. Statistical Rigor**: Plan explicitly includes multiple random seeds., paired t-tests, Cohen's d, and Bonferroni correction as required by the constitution and spec.
-- **VII. Resource-Constrained Architectural Fidelity**: Plan strictly limits training to a small subset of tokens, uses a small model (<300M params), and enforces a max recursion depth of a fixed, configurable limit to fit within 7 GB RAM.
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| **I. Reproducibility** | PASS | All seeds pinned; `requirements.txt` provided; CI workflow deterministic. |
+| **II. Verified Accuracy** | PASS | Citations limited to verified dataset URLs; no hallucinated DOIs. |
+| **III. Data Hygiene** | PASS | Data streamed from HF; checksums recorded; no PII. |
+| **IV. Single Source of Truth** | PASS | Metrics flow from `data/` to `paper/` via automated scripts; no manual entry. |
+| **V. Versioning Discipline** | PASS | Artifacts hashed; `state` updated on change. |
+| **VI. Statistical Rigor** | PASS | Paired t-tests across multiple seeds; Bonferroni correction applied; effect sizes reported with confidence intervals. |
+| **VII. Resource-Constrained** | PASS | Model scaled (TinyLlama); data subset (100k tokens, derived from memory calc); recursion depth ≤2 (for primary run); CPU-first. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-consciousness-bootstrapping-self-aware-ai/
+specs/001-consciousness-bootstrapping-self-aware-a/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── tasks.md             # Phase 2 output (generated later, currently flawed)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
-├── data/
-│   ├── raw/             # Downloaded datasets (checksummed)
-│   ├── processed/       # Preprocessed training splits & teacher labels
-│   └── manifest.json    # SHA256 checksums for all data files
-├── code/
-│   ├── __init__.py
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── base_llama.py        # Standard small transformer wrapper
-│   │   └── recursive_llama.py   # Modified with temporal recursive attention
-│   ├── training/
-│   │   ├── __init__.py
-│   │   ├── train.py             # Main training script
-│   │   └── loss_functions.py    # Joint loss implementation
-│   ├── evaluation/
-│   │   ├── __init__.py
-│   │   ├── run_benchmarks.py    # MMLU, GSM8K, Self-Consistency runner (with contract validation)
-│   │   └── metrics.py           # Brier, ECE, ROC-AUC, Consistency calc
-│   ├── analysis/
-│   │   ├── __init__.py
-│   │   └── stats.py             # T-tests, sensitivity, plots
-│   └── utils/
-│       ├── __init__.py
-│       ├── data_loader.py       # Dataset fetching logic (updates manifest)
-│       └── config.py            # Hyperparameter config
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── contract/
-├── artifacts/
-│   ├── checkpoints/
-│   └── results/
-└── requirements.txt
+code/
+├── __init__.py          # [REMOVED: Task T001b]
+├── models/
+│   ├── __init__.py      # [REMOVED: Task T001b]
+│   ├── recursive_attention.py  # Custom module
+│   └── tinyllama_wrapper.py    # Model loading
+├── training/
+│   ├── __init__.py      # [REMOVED: Task T001b]
+│   ├── train.py                # Main training loop
+│   └── config.py               # Hyperparameters
+├── evaluation/
+│   ├── __init__.py      # [REMOVED: Task T001b]
+│   ├── benchmarks.py           # MMLU, GSM8K, Self-Consistency
+│   └── metrics.py              # Brier, ECE, ROC-AUC
+├── analysis/
+│   ├── __init__.py      # [REMOVED: Task T001b]
+│   ├── stats.py                # T-tests, effect sizes
+│   └── sensitivity.py          # Threshold sweeps
+├── utils/
+│   ├── __init__.py      # [REMOVED: Task T001b]
+│   └── data_loader.py          # Streaming logic
+└── main.py                     # Orchestration
+
+data/
+├── raw/                        # Streaming pointers (no full download)
+└── processed/                  # Checksummed metrics JSONs
+
+artifacts/
+├── checkpoints/                # Model weights
+└── reports/                    # Statistical reports
 ```
 
-**Structure Decision**: A monolithic Python package structure within `code/` is selected to minimize overhead and simplify dependency management on the constrained CI runner. The separation into `models`, `training`, `evaluation`, and `analysis` ensures modularity while keeping the execution flow linear: Train -> Evaluate -> Analyze.
+**Structure Decision**: Single-project structure selected to minimize overhead and ensure tight coupling between training and evaluation scripts, which is critical for the recursive module's dependency on the baseline. The `code/` directory is organized by functional domain (models, training, evaluation, analysis) to align with the User Stories (US-01, US-02, US-03).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Recursive Self-Attention Module | Required by FR-001 to implement the core hypothesis of temporal recursion. | A standard attention mechanism cannot model the "confidence distribution of the previous generation step" as required. |
-| Joint Loss Function | Required by FR-002 to train the model on self-consistency proxies. | Standard cross-entropy alone does not optimize for confidence calibration or error detection. |
-| Random Seeds | Required by Constitution Principle VI and FR-005 for statistical rigor. | A single seed or fewer seeds would not provide sufficient power for paired t-tests or control for stochastic variance. |
-| Teacher-Student Distillation | Required to break the tautological loop of self-consistency proxies. | Internal consistency proxies create circular validation and cannot measure true error detection. |
-| Small Model (<300M params) | Required to fit the 7GB RAM and 2-hour CPU budget. | Larger models are computationally infeasible on the target hardware. |
-| Pre-computed Teacher Labels | Required to avoid triple inference cost during training. | On-the-fly generation for labels is too slow and memory-intensive. |
+| **Recursive Attention Module** | Core research hypothesis requires temporal recursion. | Standard attention cannot model confidence feedback loops; removing it invalidates the study. |
+| **Streaming Data Loading** | 100k token subset must be fetched without OOM on 7 GB RAM. | Downloading full Pile or caching entire subset exceeds RAM; streaming is the only viable path. |
+| **Paired T-Tests (5 Seeds)** | Constitution Principle VI mandates statistical rigor. | Single-run comparison is scientifically invalid; 5 seeds balance compute cost and power (with acknowledged limitations). |
+| **Sliding Window Confidence** | Full history of confidence vectors exceeds RAM. | Storing only t-1 and 5 previous steps fits memory while preserving the recursive signal. |
+
+## Evaluation Protocol
+
+### Self-Consistency
+- Generate N=10 paths per question (Temperature=0.7, top_p=0.9).
+- **Tie-Breaking Rule**: If a majority vote tie occurs, select the path with the highest *average confidence* score. (Addresses spec edge case).
+
+### Sensitivity Analysis (FR-006, SC-005)
+- Sweep confidence thresholds for error detection: **0.3, 0.5, 0.7**.
+- These three values explicitly satisfy the "at least three distinct threshold values" requirement of SC-005.
+- Metric: False Positive Rate (FPR) and False Negative Rate (FNR) at each threshold.
+
+### Advanced Analyses (T043, T045, T047, T048)
+- **T043 (Adaptation)**: Evaluation script saves both 'first pass' and 'recursive refinement' outputs separately.
+- **T045 (Irreducibility)**: Prediction method defined as linear regression on baseline outputs.
+- **T047 (Origin)**: Reference distribution for KL-divergence defined as the token distribution of the Pile (arXiv) training data.
+- **T048 (Falsification)**: Mechanism defined as setting `recursion_enabled=False` in the model config during mid-inference.

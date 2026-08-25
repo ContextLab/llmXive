@@ -13,6 +13,7 @@ required:
   - avg_confidence
   - consistency_score
   - metrics
+  - tie_breaker_used
 properties:
   question_id:
     type: string
@@ -55,6 +56,9 @@ properties:
     minimum: 0
     maximum: 1
     description: "Proportion of paths matching the majority vote."
+  tie_breaker_used:
+    type: boolean
+    description: "True if the tie-breaking rule (max avg confidence) was applied."
   metrics:
     type: object
     required:

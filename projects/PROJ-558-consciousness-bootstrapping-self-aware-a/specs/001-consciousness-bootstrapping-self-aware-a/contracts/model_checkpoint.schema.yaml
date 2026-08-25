@@ -1,0 +1,47 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelCheckpoint
+description: Schema for a trained model checkpoint record.
+type: object
+properties:
+  id:
+    type: string
+    description: Unique checkpoint identifier.
+  model_type:
+    type: string
+    enum:
+      - recursive
+      - baseline
+    description: Type of model architecture.
+  seed:
+    type: integer
+    description: Random seed used for training.
+  path:
+    type: string
+    description: Relative path to the checkpoint file.
+  hash:
+    type: string
+    description: SHA-256 checksum of the file.
+  training_params:
+    type: object
+    properties:
+      epochs:
+        type: integer
+      batch_size:
+        type: integer
+      learning_rate:
+        type: number
+      tokens:
+        type: integer
+    required:
+      - epochs
+      - batch_size
+      - learning_rate
+      - tokens
+required:
+  - id
+  - model_type
+  - seed
+  - path
+  - hash
+  - training_params
+additionalProperties: false

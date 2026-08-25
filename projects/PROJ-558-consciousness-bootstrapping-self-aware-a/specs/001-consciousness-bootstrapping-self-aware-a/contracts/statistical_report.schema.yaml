@@ -1,0 +1,85 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StatisticalReport
+description: Schema for the final statistical analysis report.
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: Unique experiment identifier.
+  seeds:
+    type: array
+    items:
+      type: integer
+    minItems: 5
+    description: List of random seeds used.
+  metrics:
+    type: object
+    properties:
+      self_consistency:
+        type: object
+        properties:
+          mean_diff:
+            type: number
+          p_value:
+            type: number
+          effect_size:
+            type: number
+          adjusted_p_value:
+            type: number
+        required:
+          - mean_diff
+          - p_value
+          - effect_size
+          - adjusted_p_value
+      brier_score:
+        type: object
+        properties:
+          mean_diff:
+            type: number
+          p_value:
+            type: number
+          effect_size:
+            type: number
+          adjusted_p_value:
+            type: number
+        required:
+          - mean_diff
+          - p_value
+          - effect_size
+          - adjusted_p_value
+      roc_auc:
+        type: object
+        properties:
+          mean_diff:
+            type: number
+          p_value:
+            type: number
+          effect_size:
+            type: number
+          adjusted_p_value:
+            type: number
+        required:
+          - mean_diff
+          - p_value
+          - effect_size
+          - adjusted_p_value
+    required:
+      - self_consistency
+      - brier_score
+      - roc_auc
+  correction_method:
+    type: string
+    enum:
+      - bonferroni
+      - benjamini_hochberg
+    description: Method used for multiple comparison correction.
+  conclusion:
+    type: string
+    description: Summary of findings.
+required:
+  - experiment_id
+  - seeds
+  - metrics
+  - correction_method
+  - conclusion
+additionalProperties: false

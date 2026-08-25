@@ -1,64 +1,113 @@
-# Data Model: Consciousness Bootstrapping
+# Data Model: Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection
 
-## Overview
+## 1. Overview
 
-This document defines the data structures used for model checkpoints, evaluation results, and statistical reports. All data is stored in JSON/Parquet formats to ensure reproducibility and ease of analysis.
+This document defines the data structures, schemas, and flow for the project. All data is stored in `data/` and `artifacts/` directories. Raw data is streamed; processed data is checksummed.
 
-## Entities
+## 2. Data Flow Diagram
 
-### 1. ModelCheckpoint
+```mermaid
+graph TD
+    A[Pile (arXiv) Stream] -->|100k tokens| B(Training Data)
+    C[GSM8K Stream] -->|Test Set| D(Evaluation Data)
+    E[MMLU Stream] -->|Dev Set| D
+    B -->|Train| F[Recursive Model Checkpoint]
+    B -->|Train| G[Baseline Model Checkpoint]
+    F -->|Eval| H[Recursive Metrics JSON]
+    G -->|Eval| I[Baseline Metrics JSON]
+    H -->|Analysis| J[Statistical Report YAML]
+    I -->|Analysis| J
+```
 
-Represents the saved state of a trained model.
+## 3. Entity Definitions
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `checkpoint_id` | string | Unique identifier (e.g., `seed_001_recursive`). |
-| `model_type` | string | `recursive` or `baseline`. |
-| `seed` | integer | Random seed used for training. |
-| `epoch` | integer | Number of epochs trained. |
-| `loss_history` | list[float] | List of total loss values per step. |
-| `config` | dict | Hyperparameters (lr, batch_size, etc.). |
-| `path` | string | Filesystem path to the checkpoint file. |
-| `teacher_label_source` | string | Path to the teacher labels used for training. |
+### 3.1 ModelCheckpoint
+Represents a trained model state.
+- `id`: Unique string (e.g., `recursive_seed_001`).
+- `model_type`: `recursive` or `baseline`.
+- `seed`: Integer random seed.
+- `path`: Relative path to checkpoint file.
+- `hash`: SHA-256 checksum of the file.
+- `training_params`: JSON object of hyperparameters.
 
-### 2. EvaluationResult
+### 3.2 EvaluationResult
+Structured record for a single test item.
+- `question_id`: Unique string.
+- `dataset`: `gsm8k`, `mmlu`, etc.
+- `input_text`: The prompt.
+- `ground_truth`: Correct answer.
+- `generated_paths`: List of strings (N=10).
+- `majority_vote`: String (most frequent answer).
+- `confidence_scores`: List of floats (one per path).
+- `correct`: Boolean (majority vote == ground truth).
+- `tie_breaker_used`: Boolean (True if tie-breaking rule was applied).
+- `metrics`: JSON object with `consistency`, `calibration`, `error_detection` scores.
+- **First Pass Output**: (For T043) The output of the first pass generation (before recursion).
 
-A structured record for a single test item (question).
+### 3.3 StatisticalReport
+Summary of the analysis.
+- `experiment_id`: String.
+- `seeds`: List of integers.
+- `metrics_summary`: JSON object with mean, std, p-value, effect_size for each metric.
+- `correction_method`: `bonferroni`.
+- `conclusion`: String summary.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `question_id` | string | Unique ID for the question. |
-| `question_text` | string | The input prompt. |
-| `ground_truth` | string | The correct answer. |
-| `generated_paths` | list[string] | List of 10 generated answer strings. |
-| `majority_vote` | string | The answer chosen by majority vote. |
-| `is_correct` | boolean | Whether `majority_vote` matches `ground_truth`. |
-| `confidence_scores` | list[float] | Confidence score for each of the 10 paths. |
-| `avg_confidence` | float | Mean confidence across paths. |
-| `consistency_score` | float | Proportion of paths matching the majority vote. |
-| `metrics` | dict | Derived metrics: `brier_score`, `ece`, `roc_auc`, `correlation_coefficient`. |
+## 4. File Formats
 
-### 3. StatisticalReport
+### 4.1 Metrics JSON
+Located in `artifacts/reports/metrics_seed_{seed}.json`.
+```json
+{
+  "seed": 42,
+  "model_type": "recursive",
+  "results": [
+    {
+      "question_id": "gsm8k_001",
+      "correct": true,
+      "confidence": 0.85,
+      "consistency_score": 0.9,
+      "tie_breaker_used": false
+    }
+  ],
+  "aggregate": {
+    "self_consistency_mean": 0.75,
+    "brier_score": 0.12,
+    "roc_auc": 0.88
+  }
+}
+```
 
-A summary of the statistical analysis across seeds.
+### 4.2 Statistical Report YAML
+Located in `artifacts/reports/statistical_report.yaml`.
+```yaml
+experiment_id: "exp_001"
+seeds: [42, 123, 456, 789, 101]
+metrics:
+  self_consistency:
+    mean_diff: 0.05
+    p_value: 0.03
+    effect_size: 0.45
+    adjusted_p_value: 0.09
+  brier_score:
+    mean_diff: -0.02
+    p_value: 0.15
+    effect_size: 0.20
+    adjusted_p_value: 0.45
+  roc_auc:
+    mean_diff: 0.03
+    p_value: 0.04
+    effect_size: 0.35
+    adjusted_p_value: 0.12
+correction_method: "bonferroni"
+conclusion: "Recursive model shows significant improvement in self-consistency after correction."
+```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `analysis_id` | string | Unique identifier for the run. |
-| `seeds` | list[int] | List of seeds used (e.g., [1, 2, 3, 4, 5]). |
-| `metrics_summary` | dict | Aggregated stats per metric: `mean_diff`, `p_value`, `cohen_d`, `adj_p_value`. |
-| `sensitivity_analysis` | dict | Results for thresholds {0.4, 0.5, 0.6}. |
-| `conclusion` | string | Text summary of findings. |
+## 5. Data Hygiene & Checksums
 
-## Data Flow
+- **Raw Data**: Not stored. Streamed from HF.
+- **Processed Data**: `artifacts/reports/*.json` and `*.yaml`.
+- **Checksums**: Recorded in `state/projects/PROJ-558-consciousness-bootstrapping-self-aware-a.yaml` under `artifact_hashes`.
+- **PII**: None expected in GSM8K/MMLU. Pile filtered for PII before training (via `datasets` preprocessing).
 
-1.  **Training**: `train.py` reads `data/processed/train.parquet` + `data/processed/teacher_labels.parquet` -> produces `artifacts/checkpoints/`.
-2.  **Evaluation**: `run_benchmarks.py` reads checkpoints + `data/raw/gsm8k.parquet` -> produces `artifacts/results/seed_XX_eval.json`. *Validates against `contracts/evaluation-schema.schema.yaml`.*
-3.  **Analysis**: `stats.py` reads all `seed_XX_eval.json` -> produces `artifacts/results/statistical_report.json`.
-
-## Constraints
-
-*   **Size**: `EvaluationResult` JSON files must be < 100MB each.
-*   **Format**: All numeric values must be floats. All strings must be UTF-8.
-*   **Versioning**: Checkpoints are versioned by `seed` and `model_type`.
-*   **Data Hygiene**: All data files must be listed in `data/manifest.json` with SHA256 checksums.
+## 6. Tie-Breaking Rule
+In the event of a majority vote tie (e.g., 5 correct vs. 5 incorrect), the system MUST select the path with the **highest average confidence score** as the tie-breaker. This rule is documented here and implemented in the evaluation script.

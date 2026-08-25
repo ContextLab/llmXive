@@ -1,0 +1,7 @@
+status: none
+intent: EleutherAI The Pile arXiv subset HuggingFace datasets python package dataset
+required_fields:
+- text
+cache_key: 6502fc998fb8538935fc40b4912b87ceddb987a21769d55938db0c6de85cb0ce
+searched_at: '2026-08-25T12:09:02.681347+00:00'
+retry_count: 1

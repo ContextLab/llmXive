@@ -1,0 +1,69 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: EvaluationResult
+description: Schema for a single evaluation result record.
+type: object
+properties:
+  question_id:
+    type: string
+    description: Unique identifier for the question.
+  dataset:
+    type: string
+    enum:
+      - gsm8k
+      - mmlu
+    description: Source dataset name.
+  input_text:
+    type: string
+    description: The prompt text.
+  ground_truth:
+    type: string
+    description: The correct answer.
+  generated_paths:
+    type: array
+    items:
+      type: string
+    minItems: 10
+    maxItems: 10
+    description: N=10 generated reasoning paths.
+  majority_vote:
+    type: string
+    description: The most frequent answer.
+  confidence_scores:
+    type: array
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+    minItems: 10
+    maxItems: 10
+    description: Confidence score for each path.
+  correct:
+    type: boolean
+    description: Whether majority vote matches ground truth.
+  tie_breaker_used:
+    type: boolean
+    description: True if the tie-breaking rule was applied.
+  metrics:
+    type: object
+    properties:
+      consistency_score:
+        type: number
+        description: Self-consistency score.
+      calibration_error:
+        type: number
+        description: ECE value.
+      error_detection_auc:
+        type: number
+        description: ROC-AUC for error detection.
+required:
+  - question_id
+  - dataset
+  - input_text
+  - ground_truth
+  - generated_paths
+  - majority_vote
+  - confidence_scores
+  - correct
+  - tie_breaker_used
+  - metrics
+additionalProperties: false
