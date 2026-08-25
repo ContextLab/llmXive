@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a reproducible pipeline to investigate the association between resting-state EEG complexity (Lempel-Ziv complexity and Permutation Entropy) and subjective cognitive fatigue. The technical approach involves downloading public EEG and fatigue datasets, preprocessing signals using MNE-Python (-40 Hz bandpass, artifact rejection), extracting non-linear complexity metrics, and performing correlation analyses with Benjamini-Hochberg correction. The pipeline is constrained to CPU-only execution with strict memory (≤7 GB) and runtime (≤6 h) limits.
+This project implements a reproducible pipeline to investigate the association between resting-state EEG complexity (Lempel-Ziv complexity and Permutation Entropy) and subjective cognitive fatigue. The technical approach involves downloading public EEG and fatigue datasets, preprocessing signals using MNE-Python (A bandpass filter within the gamma frequency range will be applied to the signal., artifact rejection), extracting non-linear complexity metrics, and performing correlation analyses with Benjamini-Hochberg correction. The pipeline is constrained to CPU-only execution with strict memory (≤7 GB) and runtime (≤6 h) limits.
 
 Crucially, the analysis design is conditional: it first verifies if the dataset contains paired pre/post resting-state segments. If so, it uses an ANCOVA approach (Post ~ Pre + Fatigue) to avoid collinearity. If only single-timepoint data exists, it pivots to a cross-sectional analysis (Baseline Complexity vs. Baseline Fatigue).
 
