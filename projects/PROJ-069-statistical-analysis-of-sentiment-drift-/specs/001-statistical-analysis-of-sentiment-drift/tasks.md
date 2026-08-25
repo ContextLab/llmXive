@@ -42,7 +42,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] Initialize project directory structure (`code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `results/`, `tests/`, `artifacts/`, `docs/`)
-- [X] T002 Create `code/requirements.txt` with pinned dependencies. **Execution**: Run `pip-compile --generate-hashes requirements.in` to ensure exact equality `package==1.2.3` and checksum verification `--hash=sha256:...` for all packages to ensure reproducibility per Constitution Principle I.
+- [X] T002 Create `code/requirements.txt` with pinned dependencies. **Execution**: {{claim:c_872bd0b4}}
 - [X] T003 [P] Initialize Python 3.11 virtualenv and install dependencies
 - [X] T004 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [X] T005 [P] Create base schema definitions in `code/contracts/` for `TimeSeries`, `ModelResult`, and `RecessionPeriod`
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 [P] Implement `code/update_state.py` to automatically update `state/projects/...yaml` with artifact hashes for `data/raw/`, `data/processed/`, `data/metadata/`, and `code/` using SHA-256
+- [X] T006 [P] Implement `code/update_state.py` to automatically update `state/projects/...yaml` with artifact hashes for `data/raw/`, `data/processed/`, `data/metadata/`, and `code/` using SHA-256
 - [ ] T007 [P] Setup environment configuration management (`.env` handling for FRED API keys, HF token)
-- [ ] T008 Create `code/data_ingestion.py` skeleton with FRED and HuggingFace client wrappers
-- [ ] T009 Create `code/preprocessing.py` skeleton for interpolation logic and stationarity checks
-- [ ] T010 Create `code/modeling.py` skeleton for ADF, Johansen, VAR, and Granger tests
-- [ ] T011 [P] Create `code/validation.py` skeleton for MBB and sensitivity analysis
+- [X] T008 Create `code/data_ingestion.py` skeleton with FRED and HuggingFace client wrappers
+- [X] T009 Create `code/preprocessing.py` skeleton for interpolation logic and stationarity checks
+- [X] T010 Create `code/modeling.py` skeleton for ADF, Johansen, VAR, and Granger tests
+- [X] T011 [P] Create `code/validation.py` skeleton for MBB and sensitivity analysis
 - [ ] T012 [P] Create `code/visualization.py` skeleton for NBER-shaded plots
 - [ ] T049 [P] [Foundational] **Execute Sensitivity Threshold Pilot**: Run a pilot sensitivity sweep using standard masking proportions ([deferred], [deferred], [deferred]) on a small sample of the data to empirically determine the optimal masking range and the 'negligible' p-value shift threshold (target <0.01). Output the final masking proportions and threshold to `code/config.yaml` as `sensitivity_masking_proportions` and `p_value_shift_threshold`. **Note**: This resolves the '[deferred]' values in FR-012/SC-006 by executing a concrete analysis step rather than deferring to a future research phase, making the requirement testable.
 
@@ -84,12 +84,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] **Override FR-001/FR-002 per Plan**: Implement FRED data fetcher in `code/data_ingestion.py` to download GDP (`FRED/GDP`), UNRATE (`FRED/UNRATE`), and Consumer Confidence (`FRED/UMCSENT`). **Scope Change**: This task overrides the Spec's FR-001/FR-002 "quarterly frequency" requirement with **monthly frequency** per the Plan's "Critical Methodological Correction". Handle partial data with forward-fill and flag affected periods as per FR-008. **Input**: Reads from FRED API. **Output**: `data/raw/fred_gdp.csv`, `data/raw/fred_unrate.csv`.
-- [ ] T017 [US1] **Override FR-001 per Plan**: Implement GDELT sentiment fetcher in `code/data_ingestion.py` to download historical sentiment time-series using the GDELT 2.0 API (Dataset ID: `gdelt-2.0` or equivalent verified endpoint via `pygdelt`) and aggregate to **monthly** time series. **Scope Change**: This task overrides the Spec's FR-001 requirement for `snap-cornell/twitter-roberta-base-sentiment-dataset` (which is not a time-series source) with **GDELT** to satisfy the requirement for historical sentiment time-series data. **Aggregation**: Compute monthly mean of daily sentiment scores. **Input**: GDELT API. **Output**: `data/raw/gdelt_sentiment.csv`.
+- [ ] T016 [US1] **Override FR-001/FR-002 per Plan**: {{claim:c_380bf5d4}} **Scope Change**: This task overrides the Spec's FR-001/FR-002 "quarterly frequency" requirement with **monthly frequency** per the Plan's "Critical Methodological Correction". Handle partial data with forward-fill and flag affected periods as per FR-008. **Input**: Reads from FRED API. **Output**: `data/raw/fred_gdp.csv`, `data/raw/fred_unrate.csv`.
+- [ ] T017 [US1] **Override FR-001 per Plan**: {{claim:c_a3a504ef}} **Scope Change**: This task overrides the Spec's FR-001 requirement for `snap-cornell/twitter-roberta-base-sentiment-dataset` (which is not a time-series source) with **GDELT** to satisfy the requirement for historical sentiment time-series data. **Aggregation**: Compute monthly mean of daily sentiment scores. **Input**: GDELT API. **Output**: `data/raw/gdelt_sentiment.csv`.
 - [ ] T018 [US1] **Override FR-002 per Plan**: Implement monthly alignment logic in `code/preprocessing.py` (resample daily sentiment to monthly averages using `mean`; interpolate monthly macro data using `linear`). **Scope Change**: This task overrides the Spec's FR-002 "quarterly alignment" requirement with **monthly alignment** to ensure statistical validity of the MBB step. **Input**: `data/raw/fred_*.csv`, `data/raw/gdelt_sentiment.csv`. **Output**: `data/processed/aligned_monthly.csv`.
 - [ ] T019 [US1] Implement missing data rate calculation and flagging logic (exclude periods >5% missing) in `code/preprocessing.py`
-- [ ] T020 [US1] Implement sentiment noise reduction (rolling average) in `code/preprocessing.py`
-- [ ] T021 [US1] Implement low-confidence flagging (confidence <0.7 (2502.18978, https://arxiv.org/abs/2502.18978) or sample size <100) in `code/preprocessing.py`
+- [ ] T020 [US1] Implement sentiment noise reduction (rolling average) in `code/preprocessing.py` [UNRESOLVED-CLAIM: c_f055cecb — status=not_enough_info]
+- [ ] T021 [US1] Implement low-confidence flagging (confidence <0.7 (2502.18978, https://arxiv.org/abs/2502.18978) or sample size <100) in `code/preprocessing.py` [UNRESOLVED-CLAIM: c_4ffc9ace — status=not_enough_info]
 - [ ] T022 [US1] Generate `data/processed/aligned_monthly.csv` and `data/processed/data_quality_log.json` (logging method and % affected per variable)
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -115,10 +115,10 @@
 - [ ] T029 [US2] Implement Granger Causality F-test runner in `code/modeling.py` for Sentiment → GDP/Unemployment/ConsumerConfidence and reverse directions
 - [ ] T030 [US2] Implement collinearity diagnostic (Variance Inflation Factor) for GDP vs Unemployment in `code/modeling.py`. **Action**: If high collinearity is detected (VIF > 33 (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)), log the VIF and explicitly **frame results as a joint relationship** rather than independent effects in the final output, as per spec Edge Cases.
 - [ ] T031 [US2] Generate `results/model_stats.json` with p-values, F-statistics, and lag lengths (Updated by T027/T028/T029)
-- [ ] T032 [US2] Implement Moving Block Bootstrap (MBB) with block length = **1 month** in `code/validation.py`; **Logic**: Since the input data (`aligned_monthly.csv`) is now monthly, the '4-week' requirement from FR-006/SC-004 is approximated by **1 month** (1 data point) as a necessary correction per the Plan's "Frequency Shift". The MBB must use a block length of 1 month. Calculate 95% CI; verify CI width ≤20% of original OLS coefficient and convergence (width stable <1% for 3 runs). **Verification**: Explicitly check if the CI width ≤20% of the OLS coefficient for the monthly frequency and log a warning if statistical properties change significantly. **Output**: Generate `results/validation_stats.json` containing CI arrays, convergence flag, verification status, and convergence log. **Dependency**: T033/T050 depend on T032 completing successfully (validation pass).
+- [ ] T032 [US2] Implement Moving Block Bootstrap (MBB) with block length = **1 month** in `code/validation.py`; **Logic**: Since the input data (`aligned_monthly.csv`) is now monthly, the '4-week' requirement from FR-006/SC-004 is approximated by **1 month** (1 data point) as a necessary correction per the Plan's "Frequency Shift". The MBB must use a block length of 1 month [UNRESOLVED-CLAIM: c_2517f4b6 — status=not_enough_info]. Calculate 95% CI; verify CI width ≤20% of original OLS coefficient and convergence (width stable <1% for 3 runs). **Verification**: Explicitly check if the CI width ≤20% of the OLS coefficient for the monthly frequency and log a warning if statistical properties change significantly. **Output**: Generate `results/validation_stats.json` containing CI arrays, convergence flag, verification status, and convergence log. **Dependency**: T033/T050 depend on T032 completing successfully (validation pass).
 - [ ] T033 [US2] Implement sensitivity analysis scaffolding in `code/validation.py` (prepare logic for masking/re-interpolation)
 - [ ] T049b [US2] Execute sensitivity analysis in `code/validation.py` using masking proportions **read from `code/config.yaml` (output of T049)**; re-interpolate masked data, re-run VAR/VECM for each proportion, and generate `results/validation_stats.json` reporting absolute p-value shifts for each specific proportion (must be < `p_value_shift_threshold` from T049). **Dependency**: Depends on `results/model_stats.json` from T031/T028. **Note**: This task explicitly tags FR-012 and handles the '[deferred]' values by using the concrete values defined in T049.
-- [ ] T034a [US2] Fetch/define recession periods for major economic downturns from NBER. **Primary Method**: Fetch NBER recession dates from the official URL ` and save to `data/metadata/recession_periods.json`. **Verification**: Compute a checksum of the fetched data and record it in `data/metadata/recession_periods.json` to satisfy Constitution Principle II (Verified Accuracy). **Note**: This hardcoded list is the 'sourced' data from the Committee.
+- [ ] T034a [US2] Fetch/define recession periods for major economic downturns from NBER. **Primary Method**: Fetch NBER recession dates from the official URL ` and save to `data/metadata/recession_periods.json`. **Verification**: Compute a checksum of the fetched data and record it in `data/metadata/recession_periods.json` to satisfy Constitution Principle II (Verified Accuracy) [UNRESOLVED-CLAIM: c_a9299df1 — status=not_enough_info]. **Note**: This hardcoded list is the 'sourced' data from the Committee.
 - [ ] T034 [US2] Implement out-of-sample validation using periods in `data/metadata/recession_periods.json`; hold out representative historical and recent months, re-fit model, forecast, and generate `results/holdout_validation.json` with RMSE and consistency metrics. **Dependency**: T034 explicitly depends on T034a completion.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, including all validation steps
@@ -260,7 +260,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Feasibility Note**: All tasks are designed for CPU-only execution. No GPU models or large-scale training are included. The dataset is sampled to a representative subset if necessary to fit in available RAM.
-- **Data Integrity**: All data sources are real (FRED API, GDELT, NBER historical data). No synthetic data generation is used for primary analysis.
+- **Data Integrity**: All data sources are real (FRED API, GDELT, NBER historical data). No synthetic data generation is used for primary analysis. [UNRESOLVED-CLAIM: c_907a8f82 — status=not_enough_info]
 - **Sensitivity Analysis**: T049 defines masking proportions via a pilot analysis, ensuring traceability to the '[deferred]' requirement in the spec. T049b iterates over these values.
 - **Frequency Correction**: The analysis frequency is shifted to **Monthly** (T016, T017, T018) to satisfy the spec's "4-week block" requirement for MBB (T032), resolving the mathematical incoherence of a 4-week block on quarterly data. This is a **Plan override** of the Spec's FR-001/FR-002.
 - **MBB Block Length Note**: Task T032 correctly maps the '4-week' spec requirement to the monthly data frequency by using a block length of 1 month (approximation). This ensures statistical validity on the `aligned_monthly.csv` input, acknowledging the discrepancy (1 month [deferred] ≠ 4 weeks = 28 days) but prioritizing the Plan's frequency correction.

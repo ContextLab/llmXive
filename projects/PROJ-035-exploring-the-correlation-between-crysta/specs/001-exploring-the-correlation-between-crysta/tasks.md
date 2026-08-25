@@ -108,7 +108,7 @@
 
 - [X] T016 [US2] Unit test for descriptor calculation in tests/unit/test_descriptors.py
 - [X] T017 [US2] Unit test for correlation analysis in tests/unit/test_analysis.py
-- [ ] T024 [US2] Unit test for sensitivity analysis in tests/unit/test_sensitivity.py verifying p-value sweep output includes results for {0.01, 0.05, 0.1} (FR-009)
+- [X] T024 [US2] Unit test for sensitivity analysis in tests/unit/test_sensitivity.py verifying p-value sweep output includes results for {0.01, 0.05, 0.1} (FR-009)
 
 ### Implementation for User Story 2
 

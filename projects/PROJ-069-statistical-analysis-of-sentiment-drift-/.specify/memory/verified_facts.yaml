@@ -1,5 +1,5 @@
-'|collinearity detected explicitly frame high if joint log relationship result vif':
-  quote: 'P1533: Q113107166'
-  source_id: Q113106917
-  url: https://www.wikidata.org/wiki/Q113106917
-  value: '33'
+100|applied confidence flagging less low sample size than when:
+  quote: by a confidence threshold of <0.7 . The result-
+  source_id: '2502.18978'
+  url: https://arxiv.org/abs/2502.18978
+  value: '0.7'

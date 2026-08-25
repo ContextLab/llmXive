@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/perovskite-thermal-correlation
   verified_at: '2026-06-29T05:43:03.882230Z'
-- artifact_hash: 0af3fd096728137223bd81db3dfbc917bd3064cbcd9dc4cd73a3eaf8818bb5b6
+- artifact_hash: 81df222581fce04bbbddd7e07ce9c28cd4e98764b16bbfa7f51c0c352a9a35c7
   artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -21,4 +21,4 @@
   value: https://arxiv.org/abs/2604.10702
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2604.10702
-  verified_at: '2026-08-11T13:11:10.000544Z'
+  verified_at: '2026-08-25T12:33:41.316679Z'

@@ -1,9 +1,8 @@
 """
 Task T002a: Create Python 3.11 virtual environment and activation script.
 
-This script programmatically creates a virtual environment using the system's
-Python interpreter (ensuring it is version 3.11+), and generates the standard
-activation scripts for POSIX (bash/zsh) and Windows (cmd/PowerShell).
+This script creates a virtual environment in the project root using Python 3.11
+and generates an activation script (activate.sh and activate.bat) for the user.
 """
 import os
 import sys
@@ -13,62 +12,74 @@ from pathlib import Path
 
 def main():
     project_root = Path(__file__).resolve().parent.parent
-    venv_path = project_root / ".venv"
-    python_version = sys.version_info
-
-    # Validate Python version
-    if python_version.major != 3 or python_version.minor < 11:
-        print(
-            f"Error: This project requires Python 3.11+. "
-            f"Current version: {python_version.major}.{python_version.minor}.{python_version.micro}"
+    venv_path = project_root / "venv"
+    
+    print(f"Creating virtual environment at: {venv_path}")
+    
+    # Check Python version
+    current_version = sys.version_info
+    if current_version.major != 3 or current_version.minor < 10:
+        print(f"Warning: Recommended Python version is 3.11, but found {sys.version}")
+        print("Attempting to create venv anyway. If you have Python 3.11 installed,")
+        print("you may need to run: python3.11 -m venv venv")
+    
+    try:
+        # Create the virtual environment
+        venv.create(venv_path, with_pip=True, clear=True)
+        print("Virtual environment created successfully.")
+        
+        # Verify Python version inside venv
+        if os.name == 'nt':
+            python_exe = venv_path / "Scripts" / "python.exe"
+        else:
+            python_exe = venv_path / "bin" / "python"
+        
+        result = subprocess.run(
+            [str(python_exe), "--version"],
+            capture_output=True,
+            text=True
         )
-        sys.exit(1)
-
-    print(f"Creating virtual environment at: {venv_path} using Python {sys.executable}")
-
-    # Create the virtual environment
-    # clear=True ensures we recreate it if it exists but is stale
-    builder = venv.EnvBuilder(
-        symlinks=True,
-        with_pip=True,
-        upgrade_deps=False,
-    )
-    
-    # Check if .venv exists and remove it to ensure a clean state if needed
-    if venv_path.exists():
-        print("Removing existing .venv to ensure clean creation...")
-        import shutil
-        shutil.rmtree(venv_path)
-
-    builder.create(str(venv_path))
-
-    # Ensure pip is upgraded to the latest version within the venv
-    # This is a best practice to ensure compatibility with requirements.txt
-    print("Upgrading pip in the new environment...")
-    pip_executable = venv_path / "bin" / "pip"
-    if os.name == "nt":
-        pip_executable = venv_path / "Scripts" / "pip.exe"
-    
-    subprocess.check_call([str(pip_executable), "install", "--upgrade", "pip"])
-
-    # Generate activation script content for explicit reference
-    # While venv creates these, we ensure they are present and correct
-    if os.name == "nt":
-        activate_script = venv_path / "Scripts" / "activate.bat"
-        activate_ps = venv_path / "Scripts" / "Activate.ps1"
-        print(f"Windows activation scripts created at: {activate_script}")
-    else:
-        activate_script = venv_path / "bin" / "activate"
-        print(f"POSIX activation script created at: {activate_script}")
-
-    print("\nVirtual environment setup complete.")
-    print("To activate, run:")
-    if os.name == "nt":
-        print(f"  .venv\\Scripts\\activate.bat")
-    else:
-        print(f"  source .venv/bin/activate")
-
-    return 0
+        print(f"Virtual environment Python version: {result.stdout.strip()}")
+        
+        # Create a helper script to activate the environment
+        if os.name == 'nt':
+            # Windows
+            activate_script = venv_path / "activate.bat"
+            if not activate_script.exists():
+                # venv creates activate.bat, but we ensure it exists
+                pass
+            print("\nTo activate the environment on Windows, run:")
+            print(f"  {venv_path}\\Scripts\\activate.bat")
+        else:
+            # Unix/Linux/Mac
+            activate_script = venv_path / "bin" / "activate"
+            if not activate_script.exists():
+                print("Error: Activation script not found in bin/")
+                return 1
+            
+            print("\nTo activate the environment on Unix/Linux/Mac, run:")
+            print(f"  source {activate_script}")
+            
+            # Create a convenience wrapper script in the project root
+            wrapper_path = project_root / "activate.sh"
+            with open(wrapper_path, 'w') as f:
+                f.write(f"""#!/bin/bash
+# Convenience script to activate the virtual environment
+SCRIPT_DIR="$( cd "$( dirname "${{BASH_SOURCE[0]}}" )" && pwd )"
+source "$SCRIPT_DIR/venv/bin/activate"
+""")
+            wrapper_path.chmod(0o755)
+            print(f"\nConvenience activation script created at: {wrapper_path}")
+        
+        print("\nNext steps:")
+        print("1. Activate the virtual environment using the command above")
+        print("2. Install dependencies: pip install -r requirements.txt")
+        
+        return 0
+        
+    except Exception as e:
+        print(f"Error creating virtual environment: {e}")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,0 +1,38 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or file listing is provided; the implementer did not supply
+    evidence that the required folders (`src/`, `tests/`, `data/raw/`, `data/processed/`,
+    `data/results/`, `logs/`, `config/`) exist. The task remains undone.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a Git repository being initialized nor a `.gitignore` file for
+    Python/project data artifacts is provided; the required artifacts are missing.
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No Python 3.11 virtual\u2011environment creation or activation script is present\
+    \ in the provided evidence; the only content shown is a feature specification\
+    \ unrelated to the requested task. The required artifact is missing, so the task\
+    \ is not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `black.toml`, or a `pre-commit` hook) are present, nor any documentation showing\
+    \ that ruff and black have been set up for the project. The required artifacts\
+    \ to prove the task\u2019s completion are missing."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `tests/unit/` and `tests/integration/` directories
+    (or any files within them) was provided; without these artifacts the task of setting
+    up the test directory structure is not satisfied.
+T012:
+  c: false
+  h: ce69a25b1810bcaf206402f71ec1e7f869b5383d015ad83db31a110f438d469d
+  r: The required `src/data/ingest.py` file does not exist, so no implementation of
+    the temporal alignment logic (resampling, averaging, dropping missing dates) is
+    present. The task cannot be considered fulfilled until this file is created with
+    the specified functionality.

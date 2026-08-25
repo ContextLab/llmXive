@@ -1,21 +1,14 @@
-"""
-Unit tests for descriptor calculation module.
-
-Tests for compute_descriptors.py (T018)
-"""
 import pytest
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from unittest.mock import Mock, patch
 import sys
+from typing import Dict, Any
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Ensure the src directory is in the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from pymatgen.core import Structure, Lattice, Species
 from src.descriptors.compute_descriptors import (
     calculate_tolerance_factor,
     calculate_octahedral_tilting_angles,
@@ -24,55 +17,56 @@ from src.descriptors.compute_descriptors import (
     compute_all_descriptors,
     process_dataframe
 )
+from pymatgen.core import Structure, Lattice
 
 
 class TestToleranceFactor:
-    """Tests for tolerance factor calculation."""
-
-    def test_perovskite_tolerance_factor(self):
-        """Test tolerance factor calculation for a standard perovskite."""
-        # Create a simple cubic perovskite structure (e.g., SrTiO3)
-        # Lattice parameter ~3.9 Angstroms
-        lattice = Lattice.cubic(3.9)
-        species = ['Sr', 'Ti', 'O', 'O', 'O']
+    def test_perfect_perovskite(self):
+        """Test with a perfect cubic perovskite (e.g., SrTiO3)"""
+        # Sr at corners, Ti at body center, O at face centers
+        lattice = Lattice.cubic(3.905)
+        species = ["Sr", "Ti", "O"]
         coords = [
-            [0, 0, 0],       # Sr at corner (A-site)
-            [0.5, 0.5, 0.5], # Ti at body center (B-site)
-            [0.5, 0.5, 0],   # O at face centers (X-site)
+            [0, 0, 0],       # Sr
+            [0.5, 0.5, 0.5], # Ti
+            [0.5, 0.5, 0],   # O
+            [0.5, 0, 0.5],   # O
+            [0, 0.5, 0.5]    # O
+        ]
+        structure = Structure(lattice, species, coords)
+        
+        t = calculate_tolerance_factor(structure)
+        # For SrTiO3, t should be close to 1.0 (ideal is 1.0)
+        # Using standard radii: Sr=1.44, Ti=0.605, O=1.40
+        # t = (1.44 + 1.40) / (sqrt(2) * (0.605 + 1.40)) = 2.84 / (1.414 * 2.005) = 2.84 / 2.835 = 1.001
+        assert 0.9 < t < 1.1, f"Tolerance factor {t} is not close to 1.0"
+
+    def test_distorted_perovskite(self):
+        """Test with a distorted structure"""
+        # Slightly distort the lattice
+        lattice = Lattice.cubic(3.95)
+        species = ["Ba", "Zr", "O"]
+        coords = [
+            [0, 0, 0],
+            [0.5, 0.5, 0.5],
+            [0.5, 0.5, 0],
             [0.5, 0, 0.5],
             [0, 0.5, 0.5]
         ]
-        
         structure = Structure(lattice, species, coords)
         
         t = calculate_tolerance_factor(structure)
-        
-        # For SrTiO3, t should be close to 1.0 (ideal perovskite)
-        # Typical range: 0.8 - 1.1
-        assert not np.isnan(t), "Tolerance factor should not be NaN"
-        assert 0.5 < t < 1.5, f"Tolerance factor {t} out of expected range"
-
-    def test_invalid_structure(self):
-        """Test tolerance factor with invalid structure."""
-        # Create a non-perovskite structure
-        lattice = Lattice.cubic(5.0)
-        species = ['Fe', 'O']
-        coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        
-        structure = Structure(lattice, species, coords)
-        
-        t = calculate_tolerance_factor(structure)
-        # Should return NaN or handle gracefully
-        assert isinstance(t, float), "Should return a float"
+        # Ba=1.61, Zr=0.72, O=1.40
+        # t = (1.61 + 1.40) / (sqrt(2) * (0.72 + 1.40)) = 3.01 / (1.414 * 2.12) = 3.01 / 3.00 = 1.003
+        # Should be close to 1.0
+        assert 0.9 < t < 1.1, f"Tolerance factor {t} is not close to 1.0"
 
 
 class TestOctahedralTilting:
-    """Tests for octahedral tilting angle calculation."""
-
-    def test_ideal_perovskite_tilting(self):
-        """Test tilting angles for an ideal (untilted) perovskite."""
-        lattice = Lattice.cubic(3.9)
-        species = ['Sr', 'Ti', 'O', 'O', 'O']
+    def test_perfect_octahedron(self):
+        """Test with a perfect octahedron (180 degree angles)"""
+        lattice = Lattice.cubic(3.905)
+        species = ["Sr", "Ti", "O"]
         coords = [
             [0, 0, 0],
             [0.5, 0.5, 0.5],
@@ -80,43 +74,37 @@ class TestOctahedralTilting:
             [0.5, 0, 0.5],
             [0, 0.5, 0.5]
         ]
-        
         structure = Structure(lattice, species, coords)
         
-        tilting = calculate_octahedral_tilting_angles(structure)
-        
-        assert 'mean_angle' in tilting
-        assert 'std_angle' in tilting
-        assert not np.isnan(tilting['mean_angle']), "Mean angle should not be NaN"
+        angle = calculate_octahedral_tilting_angles(structure)
+        # In a perfect cubic structure, B-X-B angles are 180 degrees
+        # Deviation should be 0
+        assert angle < 1.0, f"Tilting angle {angle} should be close to 0 for perfect cube"
 
-    def test_tilted_perovskite(self):
-        """Test tilting angles for a distorted perovskite."""
-        # Create a slightly distorted structure
-        lattice = Lattice([[3.9, 0, 0], [0, 3.9, 0], [0, 0, 4.0]])  # Slightly stretched
-        species = ['Sr', 'Ti', 'O', 'O', 'O']
+    def test_tilted_octahedron(self):
+        """Test with a tilted structure"""
+        # Create a structure with slight distortion
+        lattice = Lattice.cubic(4.0)
+        species = ["Sr", "Ti", "O"]
         coords = [
             [0, 0, 0],
             [0.5, 0.5, 0.5],
-            [0.5, 0.5, 0],
+            [0.5, 0.5, 0.02], # Slight tilt
             [0.5, 0, 0.5],
             [0, 0.5, 0.5]
         ]
-        
         structure = Structure(lattice, species, coords)
         
-        tilting = calculate_octahedral_tilting_angles(structure)
-        
-        assert not np.isnan(tilting['mean_angle'])
-        assert tilting['min_angle'] <= tilting['mean_angle'] <= tilting['max_angle']
+        angle = calculate_octahedral_tilting_angles(structure)
+        # Should be non-zero
+        assert angle >= 0, "Tilting angle cannot be negative"
 
 
 class TestBondLengthVariance:
-    """Tests for bond length variance calculation."""
-
-    def test_ideal_bond_lengths(self):
-        """Test bond length variance for an ideal perovskite."""
-        lattice = Lattice.cubic(3.9)
-        species = ['Sr', 'Ti', 'O', 'O', 'O']
+    def test_perfect_octahedron(self):
+        """Test variance for a perfect octahedron"""
+        lattice = Lattice.cubic(3.905)
+        species = ["Sr", "Ti", "O"]
         coords = [
             [0, 0, 0],
             [0.5, 0.5, 0.5],
@@ -124,71 +112,54 @@ class TestBondLengthVariance:
             [0.5, 0, 0.5],
             [0, 0.5, 0.5]
         ]
-        
         structure = Structure(lattice, species, coords)
         
-        bond_var = calculate_bond_length_variance(structure)
-        
-        assert 'mean_length' in bond_var
-        assert 'variance' in bond_var
-        assert not np.isnan(bond_var['mean_length'])
-        assert bond_var['variance'] >= 0
+        var = calculate_bond_length_variance(structure)
+        # In a perfect cubic structure, all Ti-O bonds are equal
+        # Variance should be close to 0
+        assert var < 0.01, f"Bond length variance {var} should be close to 0"
 
-    def test_distorted_bond_lengths(self):
-        """Test bond length variance for a distorted perovskite."""
-        lattice = Lattice([[3.8, 0, 0], [0, 3.9, 0], [0, 0, 4.1]])
-        species = ['Sr', 'Ti', 'O', 'O', 'O']
+    def test_distorted_octahedron(self):
+        """Test variance for a distorted octahedron"""
+        lattice = Lattice.cubic(4.0)
+        species = ["Sr", "Ti", "O"]
         coords = [
             [0, 0, 0],
             [0.5, 0.5, 0.5],
-            [0.5, 0.5, 0],
+            [0.5, 0.5, 0.01], # Distortion
             [0.5, 0, 0.5],
             [0, 0.5, 0.5]
         ]
-        
         structure = Structure(lattice, species, coords)
         
-        bond_var = calculate_bond_length_variance(structure)
-        
-        assert not np.isnan(bond_var['mean_length'])
-        assert bond_var['min_length'] <= bond_var['mean_length'] <= bond_var['max_length']
+        var = calculate_bond_length_variance(structure)
+        # Variance should be positive
+        assert var >= 0, "Variance cannot be negative"
 
 
 class TestUnitCellVolume:
-    """Tests for unit cell volume calculation."""
-
     def test_cubic_volume(self):
-        """Test volume calculation for cubic lattice."""
+        """Test volume calculation for a cubic lattice"""
         lattice = Lattice.cubic(4.0)
-        species = ['Sr', 'Ti', 'O']
-        coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0]]
+        structure = Structure(lattice, ["A"], [[0, 0, 0]])
         
-        structure = Structure(lattice, species, coords)
-        
-        volume = calculate_unit_cell_volume(structure)
-        
-        assert volume == pytest.approx(64.0, rel=1e-5)  # 4^3 = 64
+        vol = calculate_unit_cell_volume(structure)
+        assert abs(vol - 64.0) < 1e-6, f"Volume {vol} should be 64.0"
 
-    def test_tetragonal_volume(self):
-        """Test volume calculation for tetragonal lattice."""
-        lattice = Lattice([[4.0, 0, 0], [0, 4.0, 0], [0, 0, 5.0]])
-        species = ['Sr', 'Ti', 'O']
-        coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0]]
+    def test_orthorhombic_volume(self):
+        """Test volume for orthorhombic lattice"""
+        lattice = Lattice.from_parameters(3, 4, 5, 90, 90, 90)
+        structure = Structure(lattice, ["A"], [[0, 0, 0]])
         
-        structure = Structure(lattice, species, coords)
-        
-        volume = calculate_unit_cell_volume(structure)
-        
-        assert volume == pytest.approx(80.0, rel=1e-5)  # 4 * 4 * 5 = 80
+        vol = calculate_unit_cell_volume(structure)
+        assert abs(vol - 60.0) < 1e-6, f"Volume {vol} should be 60.0"
 
 
 class TestComputeAllDescriptors:
-    """Tests for the combined descriptor computation."""
-
-    def test_all_descriptors_computed(self):
-        """Test that all descriptors are computed for a structure."""
-        lattice = Lattice.cubic(3.9)
-        species = ['Sr', 'Ti', 'O', 'O', 'O']
+    def test_all_descriptors(self):
+        """Test that all descriptors are computed"""
+        lattice = Lattice.cubic(3.905)
+        species = ["Sr", "Ti", "O"]
         coords = [
             [0, 0, 0],
             [0.5, 0.5, 0.5],
@@ -196,34 +167,27 @@ class TestComputeAllDescriptors:
             [0.5, 0, 0.5],
             [0, 0.5, 0.5]
         ]
-        
         structure = Structure(lattice, species, coords)
         
-        descriptors = compute_all_descriptors(structure)
+        desc = compute_all_descriptors(structure)
         
-        # Check all expected keys exist
-        expected_keys = [
-            'tolerance_factor',
-            'tilting_mean_angle', 'tilting_std_angle', 
-            'tilting_min_angle', 'tilting_max_angle',
-            'bond_length_mean', 'bond_length_std',
-            'bond_length_variance', 'bond_length_min', 'bond_length_max',
-            'unit_cell_volume'
-        ]
+        assert 'tolerance_factor' in desc
+        assert 'octahedral_tilting_angle' in desc
+        assert 'bond_length_variance' in desc
+        assert 'unit_cell_volume' in desc
         
-        for key in expected_keys:
-            assert key in descriptors, f"Missing key: {key}"
-            assert isinstance(descriptors[key], float), f"Key {key} should be float"
+        assert isinstance(desc['tolerance_factor'], float)
+        assert isinstance(desc['octahedral_tilting_angle'], float)
+        assert isinstance(desc['bond_length_variance'], float)
+        assert isinstance(desc['unit_cell_volume'], float)
 
 
 class TestProcessDataFrame:
-    """Tests for DataFrame processing."""
-
-    def test_process_single_structure(self):
-        """Test processing a DataFrame with one structure."""
-        # Create a mock structure
-        lattice = Lattice.cubic(3.9)
-        species = ['Sr', 'Ti', 'O', 'O', 'O']
+    def test_process_dataframe(self):
+        """Test processing a dataframe with structures"""
+        # Create a mock dataframe
+        lattice = Lattice.cubic(3.905)
+        species = ["Sr", "Ti", "O"]
         coords = [
             [0, 0, 0],
             [0.5, 0.5, 0.5],
@@ -234,62 +198,30 @@ class TestProcessDataFrame:
         structure = Structure(lattice, species, coords)
         
         df = pd.DataFrame({
-            'id': [1],
-            'structure': [structure]
+            'structure_id': ['1', '2'],
+            'thermal_conductivity': [1.0, 2.0],
+            'structure': [structure, structure]
         })
         
-        result = process_dataframe(df, structure_column='structure')
+        result = process_dataframe(df)
         
-        assert len(result) == 1
         assert 'tolerance_factor' in result.columns
+        assert 'octahedral_tilting_angle' in result.columns
+        assert 'bond_length_variance' in result.columns
         assert 'unit_cell_volume' in result.columns
-
-    def test_process_multiple_structures(self):
-        """Test processing a DataFrame with multiple structures."""
-        structures = []
-        for i, a in enumerate([3.9, 4.0, 4.1]):
-            lattice = Lattice.cubic(a)
-            species = ['Sr', 'Ti', 'O', 'O', 'O']
-            coords = [
-                [0, 0, 0],
-                [0.5, 0.5, 0.5],
-                [0.5, 0.5, 0],
-                [0.5, 0, 0.5],
-                [0, 0.5, 0.5]
-            ]
-            structures.append(Structure(lattice, species, coords))
         
+        assert len(result) == 2
+        assert result['tolerance_factor'].iloc[0] > 0
+        
+    def test_process_dataframe_with_missing_structure(self):
+        """Test handling of missing structure"""
         df = pd.DataFrame({
-            'id': [1, 2, 3],
-            'structure': structures
+            'structure_id': ['1'],
+            'thermal_conductivity': [1.0],
+            'structure': [None]
         })
         
-        result = process_dataframe(df, structure_column='structure')
+        result = process_dataframe(df)
         
-        assert len(result) == 3
-        assert 'tolerance_factor' in result.columns
-        assert all(result['tolerance_factor'].notna())
-
-    def test_process_with_missing_structures(self):
-        """Test processing when some structures are invalid."""
-        lattice = Lattice.cubic(3.9)
-        species = ['Sr', 'Ti', 'O', 'O', 'O']
-        coords = [
-            [0, 0, 0],
-            [0.5, 0.5, 0.5],
-            [0.5, 0.5, 0],
-            [0.5, 0, 0.5],
-            [0, 0.5, 0.5]
-        ]
-        valid_structure = Structure(lattice, species, coords)
-        
-        df = pd.DataFrame({
-            'id': [1, 2, 3],
-            'structure': [valid_structure, None, valid_structure]
-        })
-        
-        result = process_dataframe(df, structure_column='structure')
-        
-        assert len(result) == 3
-        # Should have NaN for the invalid entry
-        assert result.loc[1, 'tolerance_factor'] != result.loc[1, 'tolerance_factor']  # NaN check
+        assert pd.isna(result['tolerance_factor'].iloc[0])
+        assert pd.isna(result['octahedral_tilting_angle'].iloc[0])

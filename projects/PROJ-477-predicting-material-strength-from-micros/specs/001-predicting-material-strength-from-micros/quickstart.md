@@ -1,99 +1,76 @@
 # Quickstart: Predicting Material Strength from Microstructure Images
 
 ## Prerequisites
+
 - Python 3.11+
-- pip
-- 7GB+ RAM (for local testing)
-- Access to the verified HuggingFace dataset URL.
+- `pip`
+- Sufficient RAM (for dataset loading and augmentation)
+- GB+ Disk space
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory.
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+1.  **Clone and Setup**
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-477-predicting-material-strength-from-micros
+    ```
 
-## Data Download & Preprocessing
+2.  **Create Virtual Environment**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-1. **Download the dataset**:
-   ```bash
-   python code/data/download.py
-   ```
-   *Output*: `data/raw/data_synth_ebsd.zip` and checksum verification.
+3.  **Install Dependencies**
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
-2. **Preprocess and Split**:
-   ```bash
-   python code/data/preprocess.py
-   ```
-   *Output*: `data/processed/` (train/, val/, test/ directories) and `data/processed/manifest.csv`.
+## Data Preparation
 
-3. **Validate Data**:
-   ```bash
-   python code/data/validate.py
-   ```
-   *Output*: `results/validation_report.json`. Exits with code 1 if invalid pairs > 1%.
+The data download and validation are automated.
 
-4. **Extract Features**:
-   ```bash
-   python code/data/extract_features.py
-   ```
-   *Output*: `data/features/grain_features.csv`.
+1.  **Run Validation and Preprocessing**
+    This script downloads the dataset, validates it, and prepares the splits.
+    ```bash
+    python code/main.py --stage preprocess
+    ```
+    *   **Output**: `data/processed/`, `results/validation_report.json`.
+    *   **Note**: If validation fails (invalid ratio > 1%), the script exits with code 1.
 
-## Model Training
+## Training
 
-1. **Train the CNN**:
-   ```bash
-   python code/models/train.py
-   ```
-   *Output*: `models/best_checkpoint.pt`, `results/training_log.json`.
-   *Note*: Uses early stopping (patience=5). Runs on CPU by default.
+Train the MobileNetV2 model with data augmentation.
 
-2. **Run Ablation (No Augmentation)**:
-   ```bash
-   python code/models/train_ablation.py
-   ```
-   *Output*: `models/best_ablation_checkpoint.pt`.
+1.  **Run Training**
+    ```bash
+    python code/main.py --stage train
+    ```
+    *   **Output**: `results/models/best_model.pth`, `results/metrics.log`.
+    *   **Duration**: ~2-3 hours on CPU.
 
-## Evaluation & Interpretation
+## Evaluation & Interpretability
 
-1. **Run Evaluation**:
-   ```bash
-   python code/eval/metrics.py
-   ```
-   *Output*: `results/performance_report.json`, `results/null_hypothesis_report.json`.
+Generate metrics, heatmaps, and sensitivity analysis.
 
-2. **Generate Interpretability**:
-   ```bash
-   python code/eval/interpret.py
-   ```
-   *Output*: `results/interpretability_report.json`, Grad-CAM heatmaps in `results/heatmaps/`.
+1.  **Run Evaluation**
+    ```bash
+    python code/main.py --stage evaluate
+    ```
+    *   **Output**: `results/metrics.json`, `results/plots/gradcam/*.png`, `results/sensitivity_analysis.csv`.
 
-3. **Generate Predictions with Confidence Intervals**:
-   ```bash
-   python code/eval/predictor.py
-   ```
-   *Output*: `results/predictions.csv` (contains `predicted_strength`, `ci_lower`, `ci_upper`, `baseline_strength`).
+## Reproducibility
 
-4. **Sensitivity Analysis**:
-   ```bash
-   python code/eval/sensitivity.py
-   ```
-   *Output*: `results/sensitivity_analysis.csv`.
-
-## Running Tests
-
-```bash
-pytest tests/
-```
+To reproduce the exact results:
+1.  Ensure `code/config.py` has the same `RANDOM_SEED` (default: 42).
+2.  Use the same dataset source URL (verified in `research.md`).
+3.  Run the full pipeline:
+    ```bash
+    python code/main.py --stage full
+    ```
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce `batch_size` in `code/utils/config.py`.
-- **Data Missing**: Verify the HuggingFace URL is accessible; check `data/raw/` for incomplete downloads.
-- **Baseline Outperforms**: This is a valid scientific result; check `results/null_hypothesis_report.json` for the p-value.
+- **OOM Error**: Reduce `BATCH_SIZE` in `code/config.py`.
+- **Dataset Missing**: Check network connectivity and the HuggingFace URL.
+- **Validation Fail**: Inspect `results/validation_report.json` for specific error types.

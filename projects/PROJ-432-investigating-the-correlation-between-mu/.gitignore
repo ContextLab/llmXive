@@ -16,14 +16,18 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Virtual Environments
 venv/
 ENV/
 env/
+.venv/
 
 # IDEs
 .idea/
@@ -31,40 +35,65 @@ env/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
+.settings/
 
-# Data Artifacts (Raw and Processed)
-data/raw/*.csv
-data/raw/*.h5
-data/raw/*.nc
-data/processed/*.csv
-data/processed/*.h5
-data/results/*.csv
-data/results/*.json
-data/results/*.parquet
-
-# Logs
-logs/*.log
-logs/*.json
-
-# Figures
-figures/*.png
-figures/*.pdf
-figures/*.svg
-
-# OS
-.DS_Store
-Thumbs.db
+# Jupyter Notebook
+.ipynb_checkpoints
+ipynb_checkpoints/
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
-coverage.xml
-*.cover
+.hypothesis/
 
-# Jupyter
-.ipynb_checkpoints
+# Logs
+logs/
+*.log
 
-# Environment variables
+# Data Artifacts (Raw and Processed)
+data/raw/
+data/processed/
+data/results/
+data/interim/
+*.csv
+*.json
+*.h5
+*.hdf5
+*.parquet
+*.feather
+*.pkl
+*.pickle
+
+# Figures and Visualizations
+figures/
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.svg
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Configuration overrides
 .env
 .env.local
+*.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Git related
+.git/
+.gitignore

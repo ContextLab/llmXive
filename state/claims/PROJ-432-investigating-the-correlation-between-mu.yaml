@@ -1,0 +1,16 @@
+- artifact_path: projects/PROJ-432-investigating-the-correlation-between-mu/specs/001-investigating-the-correlation-between-mu/tasks.md
+  attempts: 1
+  canonical: T_eff weighting parameters based on Grieder 1985
+  claim_id: c_0e2f7949
+  context: Create src/config/constants.yaml defining T_eff weighting parameters (Grieder
+    1985), thresholds, and interpolation settings
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T_eff weighting parameters are based on Grieder 1985.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T12:19:39Z'

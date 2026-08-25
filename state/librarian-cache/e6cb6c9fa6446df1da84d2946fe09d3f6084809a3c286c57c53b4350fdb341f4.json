@@ -1,0 +1,541 @@
+{
+  "fetched_at": "2026-08-25T12:18:20Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"The Topological Trouble With Transformers\"",
+      "target_n": 5
+    },
+    "duration_seconds": 63.018,
+    "ended_at": "2026-08-25T12:18:20Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "topological limitations of transformer architectures"
+        ],
+        [
+          2,
+          "homological analysis of neural network representations"
+        ],
+        [
+          3,
+          "persistent homology in deep learning models"
+        ],
+        [
+          4,
+          "topological data analysis of attention mechanisms"
+        ],
+        [
+          5,
+          "geometric constraints in transformer self-attention"
+        ],
+        [
+          6,
+          "topological defects in transformer embeddings"
+        ],
+        [
+          7,
+          "manifold learning in transformer representations"
+        ],
+        [
+          8,
+          "algebraic topology applied to language models"
+        ],
+        [
+          9,
+          "structural bottlenecks in transformer capacity"
+        ],
+        [
+          10,
+          "expressivity limits of transformer topologies"
+        ],
+        [
+          11,
+          "higher-order interactions in transformer attention heads"
+        ],
+        [
+          12,
+          "topological obstructions in sequence modeling"
+        ],
+        [
+          13,
+          "connectivity patterns in transformer residual streams"
+        ],
+        [
+          14,
+          "topological complexity of transformer function approximation"
+        ],
+        [
+          15,
+          "Betti numbers in neural network feature spaces"
+        ],
+        [
+          16,
+          "topological invariance in language model representations"
+        ],
+        [
+          17,
+          "geometric bottlenecks in deep attention networks"
+        ],
+        [
+          18,
+          "topological analysis of transformer layer depth"
+        ],
+        [
+          19,
+          "curvature and topology in transformer latent spaces"
+        ],
+        [
+          20,
+          "structural rigidity in transformer attention graphs"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "homological analysis of neural network representations": 5,
+        "llmXive follow-up: extending \"The Topological Trouble With Transformers\" computer science": 0,
+        "topological limitations of transformer architectures": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "graph neural networks spectral bias transformers",
+      "homophily heterophily GNN over-squashing",
+      "message passing limitations spectral filtering",
+      "topological expressivity graph isomorphism test",
+      "long-range dependency graph connectivity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2602.08216"
+      ]
+    },
+    "per_query_hit_count": {
+      "graph neural networks spectral bias transformers": 3,
+      "homophily heterophily GNN over-squashing": 3,
+      "llmXive follow-up: extending \"The Topological Trouble With Transformers\" computer science": 3,
+      "long-range dependency graph connectivity": 3,
+      "message passing limitations spectral filtering": 3,
+      "topological expressivity graph isomorphism test": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2601.03290",
+          "rationale": "The paper focuses on engineering optimizations (compression, quantization, pruning) for deploying transformers on edge devices, which is a distinct construct from the user's question regarding the \"topological trouble\" (likely referring to inductive biases, attention sparsity, or graph-theoretic limitations) of transformer architectures. While both involve transformers, the paper does not measure the same biological/physical/algorithmic mechanism, nor does it address the specific theoretical or ",
+          "title": "Lightweight Transformer Architectures for Edge Devices in Real-Time Applications"
+        },
+        {
+          "primary_pointer": "1609.04846",
+          "rationale": "The candidate paper discusses \"Random Neural Networks\" (RNNs) in the context of queuing theory and supervised learning, which is a distinct construct from the \"Transformers\" architecture and their \"topological\" properties (e.g., attention mechanisms, graph structures) central to the user's question. This falls under the rejection rule for distinct constructs sharing only homonym keywords (specifically the acronym \"RNN\" or the general term \"neural networks\") without addressing the specific mechan",
+          "title": "A Tutorial about Random Neural Networks in Supervised Learning"
+        },
+        {
+          "primary_pointer": "2504.12429",
+          "rationale": "The paper focuses on the theoretical optimization of neural state arrangements in biological systems (specifically animal navigation and motor control) using sphere-packing analogies, which is distinct from the user's question regarding the topological properties and limitations of Transformer architectures in computer science. While both fields involve \"neural representations,\" the paper does not address the specific mechanism (Transformer topology), the domain (LLMs/CS), or the empirical popul",
+          "title": "Optimal packing of attractor states in neural representations"
+        },
+        {
+          "primary_pointer": "2502.01654",
+          "rationale": "The paper focuses on applying LSTM and transfer learning to air pollution prediction, which is an off-domain application unrelated to the user's question about the topological properties and structural limitations of Transformer architectures in computer science. While both involve neural networks, the paper does not address the specific mechanism (topology of Transformers), the domain (computer science theory), or the variables (topological trouble) central to the user's research question, fail",
+          "title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network"
+        },
+        {
+          "primary_pointer": "1803.02421",
+          "rationale": "The paper focuses on audio classification using Masked Conditional Neural Networks (MCLNN) and does not address the topological properties, structural limitations, or specific mechanisms of Transformer architectures discussed in \"The Topological Trouble With Transformers.\" It fails to meet any inclusion criteria as it studies a different model family (MCLNN vs. Transformers) and a different domain (audio signal recognition vs. topological analysis of attention mechanisms), constituting an off-do",
+          "title": "Masked Conditional Neural Networks for Audio Classification"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper proposes a specific architectural modification (Arbitrary Polynomial Chaos) to address redundancy and orthogonality in general Deep Neural Networks, but it does not address the \"topological\" properties of Transformers (such as attention head connectivity, graph structure, or topological data analysis) that are central to the user's question about \"The Topological Trouble With Transformers.\" While both involve neural networks, the paper lacks the specific mechanism (topology), domain (T",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-25T12:17:17Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"the topological trouble with transformers\" computer science",
+      "raw": "llmXive follow-up: extending \"The Topological Trouble With Transformers\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We establish connections between the Transformer architecture, originally introduced for natural language processing, and Graph Neural Networks (GNNs) for representation learning on graphs. We show how Transformers can be viewed as message passing GNNs operating on fully connected graphs of tokens, where the self-attention mechanism capture the relative importance of all tokens w.r.t. each-other, and positional encodings provide hints about sequential ordering or structure. Thus, Transformers are expressive set processing networks that learn relationships among input elements without being constrained by apriori graphs. Despite this mathematical connection to GNNs, Transformers are implemented via dense matrix operations that are significantly more efficient on modern hardware than sparse message passing. This leads to the perspective that Transformers are GNNs currently winning the hardware lottery.",
+          "claimed_authors": [
+            "Chaitanya K. Joshi"
+          ],
+          "claimed_title": "Transformers are Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.22084"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Transformers are Graph Neural Networks')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph Neural Networks (GNNs) leverage the graph structure to transmit information between nodes, typically through the message-passing mechanism. While these models have found a wide variety of applications, they are known to suffer from over-squashing, where information from a large receptive field of node representations is collapsed into a single fixed sized vector, resulting in an information bottleneck. In this paper, we re-examine the over-squashing phenomenon through the lens of model storage and retrieval capacity, which we define as the amount of information that can be stored in a node's representation for later use. We study some of the limitations of existing tasks used to measure over-squashing and introduce a new synthetic task to demonstrate that an information bottleneck can saturate this capacity. Furthermore, we adapt ideas from the sequence modeling literature on associative memories, fast weight programmers, and the xLSTM model to develop a novel GNN architecture with improved capacity. We demonstrate strong performance of this architecture both on our capacity synthetic task, as well as a range of real-world graph benchmarks.",
+          "claimed_authors": [
+            "Hugh Blayney",
+            "Álvaro Arroyo",
+            "Xiaowen Dong",
+            "Michael M. Bronstein"
+          ],
+          "claimed_title": "gLSTM: Mitigating Over-Squashing by Increasing Storage Capacity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08450"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='gLSTM: Mitigating Over-Squashing by Increasing Storage Capacity')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph Neural Networks (GNNs) have achieved remarkable success in diverse real-world applications. Traditional GNNs are designed based on homophily, which leads to poor performance under heterophily scenarios. Current solutions deal with heterophily mainly by mixing high-order neighbors or passing signed messages. However, mixing high-order neighbors destroys the original graph structure and passing signed messages utilizes an inflexible message-passing mechanism, which is prone to producing unsatisfactory effects. To overcome the above problems, we propose a novel GNN model based on relation vector translation named Variational Relation Vector Graph Neural Network (VR-GNN). VR-GNN models relation generation and graph aggregation into an end-to-end model based on Variational Auto-Encoder. The encoder utilizes the structure, feature and label to generate a proper relation vector. The decoder achieves superior node representation by incorporating the relation translation into the message-passing framework. VR-GNN can fully capture the homophily and heterophily between nodes due to the great flexibility of relation translation in modeling neighbor relationships. We conduct extensive experiments on eight real-world datasets with different homophily-heterophily properties to verify the effectiveness of our model. The experimental results show that VR-GNN gains consistent and significant improvements against state-of-the-art GNN methods under heterophily, and competitive performance under homophily.",
+          "claimed_authors": [
+            "Fengzhao Shi",
+            "Ren Li",
+            "Yanan Cao",
+            "Yanmin Shang",
+            "Lanxue Zhang",
+            "Chuan Zhou",
+            "Jia Wu",
+            "Shirui Pan"
+          ],
+          "claimed_title": "VR-GNN: Variational Relation Vector Graph Neural Network for Modeling both Homophily and Heterophily",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.14523"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='VR-GNN: Variational Relation Vector Graph Neural Network for Modeling both Homophily and Heterophily')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph Neural Networks (GNNs) are widely used on a variety of graph-based machine learning tasks. For node-level tasks, GNNs have strong power to model the homophily property of graphs (i.e., connected nodes are more similar) while their ability to capture the heterophily property is often doubtful. This is partially caused by the design of the feature transformation with the same kernel for the nodes in the same hop and the followed aggregation operator. One kernel cannot model the similarity and the dissimilarity (i.e., the positive and negative correlation) between node features simultaneously even though we use attention mechanisms like Graph Attention Network (GAT), since the weight calculated by attention is always a positive value. In this paper, we propose a novel GNN model based on a bi-kernel feature transformation and a selection gate. Two kernels capture homophily and heterophily information respectively, and the gate is introduced to select which kernel we should use for the given node pairs. We conduct extensive experiments on various datasets with different homophily-heterophily properties. The experimental results show consistent and significant improvements against state-of-the-art GNN methods.",
+          "claimed_authors": [
+            "Lun Du",
+            "Xiaozhou Shi",
+            "Qiang Fu",
+            "Xiaojun Ma",
+            "Hengyu Liu",
+            "Shi Han",
+            "Dongmei Zhang"
+          ],
+          "claimed_title": "GBK-GNN: Gated Bi-Kernel Graph Neural Networks for Modeling Both Homophily and Heterophily",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.15777"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='GBK-GNN: Gated Bi-Kernel Graph Neural Networks for Modeling Both Homophily and Heterophily')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we present the concept of MPF, Message Passing Fluid, an abstract fluid where the molecules move by mean of the informations that they exchange each other, on the basis of rules and methods of a generalized Cellular Automaton. The model is intended for its simulation by mean of message passing libraries on the field of parallel computing. We present a critical analysis of the necessary computational effort in a possible implementation of such an object.",
+          "claimed_authors": [
+            "Gianluca Argentini"
+          ],
+          "claimed_title": "Message Passing Fluids: molecules as processes in parallel computational fluids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "physics/0304041"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Message Passing Fluids: molecules as processes in parallel computational fluids')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graphical models use the intuitive and well-studied methods of graph theory to implicitly represent dependencies between variables in large systems. They can model the global behaviour of a complex system by specifying only local factors. This thesis studies inference in discrete graphical models from an algebraic perspective and the ways inference can be used to express and approximate NP-hard combinatorial problems.\n  We investigate the complexity and reducibility of various inference problems, in part by organizing them in an inference hierarchy. We then investigate tractable approximations for a subset of these problems using distributive law in the form of message passing. The quality of the resulting message passing procedure, called Belief Propagation (BP), depends on the influence of loops in the graphical model. We contribute to three classes of approximations that improve BP for loopy graphs A) loop correction techniques; B) survey propagation, another message passing technique that surpasses BP in some settings; and C) hybrid methods that interpolate between deterministic message passing and Markov Chain Monte Carlo inference.\n  We then review the existing message passing solutions and provide novel graphical models and inference techniques for combinatorial problems under three broad classes: A) constraint satisfaction problems such as satisfiability, coloring, packing, set / clique-cover and dominating / independent set and their optimization counterparts; B) clustering problems such as hierarchical clustering, K-median, K-clustering, K-center and modularity optimization; C) problems over permutations including assignment, graph morphisms and alignment, finding symmetries and traveling salesman problem. In many cases we show that message passing is able to find solutions that are either near optimal or favourably compare with today's state-of-the-art approaches.",
+          "claimed_authors": [
+            "Siamak Ravanbakhsh"
+          ],
+          "claimed_title": "Message Passing and Combinatorial Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1508.05013"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Message Passing and Combinatorial Optimization')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Purpose: For quantitative susceptibility mapping (QSM), the lack of ground-truth in clinical settings makes it challenging to determine suitable parameters for the dipole inversion. We propose a probabilistic Bayesian approach for QSM with built-in parameter estimation, and incorporate the nonlinear formulation of the dipole inversion to achieve a robust recovery of the susceptibility maps.\n  Theory: From a Bayesian perspective, the image wavelet coefficients are approximately sparse and modelled by the Laplace distribution. The measurement noise is modelled by a Gaussian-mixture distribution with two components, where the second component is used to model the noise outliers. Through probabilistic inference, the susceptibility map and distribution parameters can be jointly recovered using approximate message passing (AMP).\n  Methods: We compare our proposed AMP with built-in parameter estimation (AMP-PE) to the state-of-the-art L1-QSM, FANSI and MEDI approaches on the simulated and in vivo datasets, and perform experiments to explore the optimal settings of AMP-PE. Reproducible code is available at https://github.com/EmoryCN2L/QSM_AMP_PE\n  Results: On the simulated Sim2Snr1 dataset, AMP-PE achieved the lowest NRMSE, DFCM and the highest SSIM, while MEDI achieved the lowest HFEN. On the in vivo datasets, AMP-PE is robust and successfully recovers the susceptibility maps using the estimated parameters, whereas L1-QSM, FANSI and MEDI typically require additional visual fine-tuning to select or double-check working parameters.\n  Conclusion: AMP-PE provides automatic and adaptive parameter estimation for QSM and avoids the subjectivity from the visual fine-tuning step, making it an excellent choice for the clinical setting.",
+          "claimed_authors": [
+            "Shuai Huang",
+            "James J. Lah",
+            "Jason W. Allen",
+            "Deqiang Qiu"
+          ],
+          "claimed_title": "Robust Quantitative Susceptibility Mapping via Approximate Message Passing with Parameter Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.14709"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Robust Quantitative Susceptibility Mapping via Approximate Message Passing with Parameter Estimation')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In a recent breakthrough, Babai (STOC 2016) gave a quasipolynomial time graph isomorphism test. In this work, we give an improved isomorphism test for graphs of small degree: our algorithms runs in time $n^{O((\\log d)^{c})}$, where $n$ is the number of vertices of the input graphs, $d$ is the maximum degree of the input graphs, and $c$ is an absolute constant. The best previous isomorphism test for graphs of maximum degree $d$ due to Babai, Kantor and Luks (FOCS 1983) runs in time $n^{O(d/ \\log d)}$.",
+          "claimed_authors": [
+            "Martin Grohe",
+            "Daniel Neuen",
+            "Pascal Schweitzer"
+          ],
+          "claimed_title": "A Faster Isomorphism Test for Graphs of Small Degree",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.04659"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='A Faster Isomorphism Test for Graphs of Small Degree')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The big graph database model provides strong modeling for complex applications and efficient querying. However, it is still a big challenge to find all exact matches of a query graph in a big graph database, which is known as the subgraph isomorphism problem. The current subgraph isomorphism approaches are built on Ullmann's idea of focusing on the strategy of pruning out the irrelevant candidates. Nevertheless, the existing pruning techniques need much more improvement to efficiently handle complex queries. Moreover, many of those existing algorithms need large indices requiring extra memory consumption. Motivated by these, we introduce a new subgraph isomorphism algorithm, named as BB-Graph, for querying big graph databases efficiently without requiring a large data structure to be stored in main memory. We test and compare our proposed BB-Graph algorithm with two popular existing approaches, GraphQL and Cypher. Our experiments are done on three different data sets; (1) a very big graph database of a real-life population database, (2) a graph database of a simulated bank database, and (3) the publicly available World Cup big graph database. We show that our solution performs better than those algorithms mentioned here for most of the query types experimented on these big databases.",
+          "claimed_authors": [
+            "Merve Asiler",
+            "Adnan Yazıcı"
+          ],
+          "claimed_title": "BB-Graph: A Subgraph Isomorphism Algorithm for Efficiently Querying Big Graph Databases",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.06654"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='BB-Graph: A Subgraph Isomorphism Algorithm for Efficiently Querying Big Graph Databases')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a simple and efficient local algorithm for graph isomorphism which succeeds for a large class of sparse graphs. This algorithm produces a low-depth canonical labeling, which is a labeling of the vertices of the graph that identifies its isomorphism class using vertices' local neighborhoods.\n  Prior work by Czajka and Pandurangan showed that the degree profile of a vertex (i.e., the sorted list of the degrees of its neighbors) gives a canonical labeling with high probability when $n p_n = ω( \\log^{4}(n) / \\log \\log n )$ (and $p_{n} \\leq 1/2$); subsequently, Mossel and Ross showed that the same holds when $n p_n = ω( \\log^{2}(n) )$. We first show that their analysis essentially cannot be improved: we prove that when $n p_n = o( \\log^{2}(n) / (\\log \\log n)^{3} )$, with high probability there exist distinct vertices with isomorphic $2$-neighborhoods. Our first main result is a positive counterpart to this, showing that $3$-neighborhoods give a canonical labeling when $n p_n \\geq (1+δ) \\log n$ (and $p_n \\leq 1/2$); this improves a recent result of Ding, Ma, Wu, and Xu, completing the picture above the connectivity threshold.\n  Our second main result is a smoothed analysis of graph isomorphism, showing that for a large class of deterministic graphs, a small random perturbation ensures that $3$-neighborhoods give a canonical labeling with high probability. While the worst-case complexity of graph isomorphism is still unknown, this shows that graph isomorphism has polynomial smoothed complexity.",
+          "claimed_authors": [
+            "Julia Gaudio",
+            "Miklós Z. Rácz",
+            "Anirudh Sridhar"
+          ],
+          "claimed_title": "Average-case and smoothed analysis of graph isomorphism",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.16454"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Average-case and smoothed analysis of graph isomorphism')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Token graphs, or symmetric powers of graphs, see \\cite{alavi2002survey} and \\cite{Fabila-Monroy2012}, are defined on the $k$-combinations of the vertex set of some graph $L$, where edges exist between two such combinations, if their symmetric difference corresponds to an edge in the underlying graph $L$. It has been noted, for example in \\cite{AUDENAERT200774}, that these graphs constitute an inherent correspondence between the relationships between random walks and graph invariants, and particle systems and higher order graph properties, employing in particular the structure of vertex induced sub-graphs. In this work, we contribute to this perspective, by giving a synthetic perspective on the vertex connectivity of token graphs, which equals its minimal degree, as well as on their diameter, if the underlying graph $L$ has diameter $2$. Some combinatorial results on the clique-Johnson graph link between $L$ and its token graph are proven as well.",
+          "claimed_authors": [
+            "Jens Walter Fischer"
+          ],
+          "claimed_title": "On the connectivity and diameter of Token graphs from a vertex induced sub-graph perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.14634"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='On the connectivity and diameter of Token graphs from a vertex induced sub-graph perspective')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spontaneous synchronization is a general phenomenon in which a large population of coupled oscillators of diverse natural frequencies self-organize to operate in unison. The phenomenon occurs in physical and biological systems over a wide range of spatial and temporal scales, e.g., in electrochemical and electronic oscillators, Josephson junctions, laser arrays, animal flocking, pedestrians on footbridges, audience clapping, etc. Besides the obvious necessity of the synchronous firings of cardiac cells to keep the heart beating, synchrony is desired in many man-made systems such as parallel computing, electrical power-grids. On the contrary, synchrony could also be hazardous, e.g., in neurons, leading to impaired brain function in Parkinson's disease and epilepsy. Due to this wide range of applications, collective synchrony in networks of oscillators has attracted the attention of physicists, applied mathematicians and researchers from many other fields. An essential aspect of synchronizing systems is that long-range order naturally appear in these systems, which questions the fact whether long-range interactions may be particular suitable to synchronization. In this context, it is interesting to remind that long-range interacting system required several adaptations from statistical mechanics à la Gibbs Boltzmann, in order to deal with the peculiarities of these systems: negative specific heat, breaking of ergodicity or lack of extensivity. As for synchrony, it is still lacking a theoretical framework to use the tools from statistical mechanics. The present issue presents a collection of exciting recent theoretical developments in the field of synchronization and long-range interactions, in order to highlight the mutual progresses of these twin areas.",
+          "claimed_authors": [
+            "Shamik Gupta",
+            "Romain Bachelard",
+            "Tarcisio Rocha Filho"
+          ],
+          "claimed_title": "Preface: Long-range Interactions and Synchronization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2101.05298"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Preface: Long-range Interactions and Synchronization')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Carsten Thomassen conjectured that every longest circuit in a 3-connected graph has a chord. We prove the conjecture for graphs having no $K_{3,3}$ minor, and consequently for planar graphs.",
+          "claimed_authors": [
+            "E. Birmelé"
+          ],
+          "claimed_title": "Every longest circuit of a 3-connected, $K_{3,3}$-minor free graph has a chord",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0711.2360"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Every longest circuit of a 3-connected, $K_{3,3}$-minor free graph has a chord')",
+        "failed_at": "2026-08-25T12:17:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gunn Kim"
+          ],
+          "title": "Thermodynamic Isomorphism of Transformers: A Lagrangian Approach to Attention Dynamics",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.08216",
+        "summary": "We propose an effective field-theoretic framework for analyzing Transformer attention through a thermodynamic lens. By constructing a Lagrangian on the information manifold equipped with the Fisher metric, we show that, within the Shannon--Boltzmann entropy framework, the Softmax function arises as a stationary solution minimizing a Helmholtz free energy functional. This establishes a formal correspondence between scaled dot-product attention and canonical ensemble statistics. Extending this mapping to macroscopic observables, we define an effective specific heat associated with fluctuations of the attention energy landscape. In controlled experiments on the modular addition task ($p = 19$--$113$), we observe a robust peak in this fluctuation measure that consistently precedes the onset of generalization. While no asymptotic power-law divergence is detected in this finite-depth regime, the reproducible enhancement of energy variance suggests a critical-like crossover accompanying representational reorganization. Our framework provides a unified statistical-mechanical perspective on attention scaling, training dynamics, and positional encoding, interpreting the phenomena as emergent properties of an effective thermodynamic system rather than isolated heuristics. Although the present results indicate finite-size crossover behavior rather than a strict phase transition, they motivate further investigation into scaling limits of deep architectures through fluctuation-based observables.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.08216",
+          "http_status": 200,
+          "pdf_sample_score": 0.27,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-25T12:17:54Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"the topological trouble with transformers\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

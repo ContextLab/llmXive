@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://www.nber.org/research/business-cycle-dating
   verified_at: '2026-07-09T20:17:21.493831Z'
-- artifact_hash: bba6d86093ef34bd939b3e8b91bea80e34e43fdefa13f555e394a5526232ebe9
+- artifact_hash: 0a4792b1260804fb70da7b653687bb301a499ab6e34420fcc4b7f55afd75af89
   artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -18,10 +18,10 @@
     for Efficient Instruction Tuning'
   kind: url
   value: https://arxiv.org/abs/2502.18978
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2502.18978
-  verified_at: '2026-07-10T13:07:12.834773Z'
-- artifact_hash: bba6d86093ef34bd939b3e8b91bea80e34e43fdefa13f555e394a5526232ebe9
+  verified_at: '2026-08-25T12:55:27.262927Z'
+- artifact_hash: 0a4792b1260804fb70da7b653687bb301a499ab6e34420fcc4b7f55afd75af89
   artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -29,6 +29,6 @@
   fetched_title: Vif - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q113106917
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-07-10T13:07:12.834773Z'
+  verified_at: '2026-08-25T12:55:27.262927Z'

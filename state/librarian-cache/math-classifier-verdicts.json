@@ -1703,6 +1703,10 @@
     "classified_at": "2026-07-19T10:04:00Z",
     "verdict": false
   },
+  "PROJ-931-llmxive-follow-up-extending-the-topologi::1.6.0": {
+    "classified_at": "2026-08-25T12:17:48Z",
+    "verdict": false
+  },
   "PROJ-933-llmxive-follow-up-extending-anti-self-di::1.6.0": {
     "classified_at": "2026-08-01T10:37:31Z",
     "verdict": false
