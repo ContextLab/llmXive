@@ -1,281 +1,513 @@
+"""
+Statistical analysis module for solar flare and geomagnetic storm correlation.
+
+Implements Spearman correlation, linear regression, VIF checks, and power analysis.
+"""
 import pandas as pd
 import numpy as np
 from scipy import stats
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.regression.linear_model import OLS
 from statsmodels.tools import add_constant
-import os
 import json
+import os
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from pathlib import Path
+from typing import Dict, Any, Optional, Tuple, List
+import warnings
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def spearman_correlation(df: pd.DataFrame, x_col: str, y_col: str) -> Tuple[float, float]:
+def calculate_mdes(n: int, alpha: float = 0.05, power: float = 0.80) -> float:
     """
-    Compute Spearman rank correlation and p-value between two columns.
-    Returns (correlation_coefficient, p_value).
-    """
-    # Drop rows where either column is missing
-    clean_data = df[[x_col, y_col]].dropna()
-    if len(clean_data) < 2:
-        return 0.0, 1.0
+    Calculate the Minimum Detectable Effect Size (MDES) for a given sample size.
     
-    corr, p_value = stats.spearmanr(clean_data[x_col], clean_data[y_col])
-    return corr, p_value
-
-def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
-    """
-    Calculate Variance Inflation Factor for each feature.
-    Returns a dictionary mapping feature name to VIF value.
-    """
-    # Add constant for intercept
-    X = df[features].dropna()
-    if len(X) < len(features) + 1:
-        return {f: np.inf for f in features}
+    Uses the approximation for Pearson correlation coefficient:
+    MDES ≈ t_alpha/2 * sqrt((1 - r^2) / (n - 2)) for large n,
+    but we use a more direct inversion of power analysis for correlation.
     
-    X = add_constant(X)
-    vif_data = {}
-    for i, feature in enumerate(features):
-        # Get the column for the feature (index i+1 because of constant)
-        vif = variance_inflation_factor(X.values, i+1)
-        vif_data[feature] = vif
-    return vif_data
-
-def linear_regression_r2(df: pd.DataFrame, x_col: str, y_col: str) -> float:
+    Args:
+        n: Sample size
+        alpha: Significance level (default 0.05)
+        power: Desired statistical power (default 0.80)
+        
+    Returns:
+        Minimum detectable effect size (correlation coefficient r)
     """
-    Perform simple linear regression and return R².
-    """
-    clean_data = df[[x_col, y_col]].dropna()
-    if len(clean_data) < 2:
-        return 0.0
+    if n < 3:
+        return float('inf')
+        
+    # Use a simplified approximation based on the non-centrality parameter
+    # For correlation, we use the Fisher z-transformation approach
+    # t_crit = t_{1-alpha/2, n-2}
+    t_crit = stats.t.ppf(1 - alpha/2, n - 2)
     
-    X = add_constant(clean_data[[x_col]])
-    y = clean_data[y_col]
-    model = OLS(y, X).fit()
-    return model.rsquared
-
-def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Tuple[List[float], List[bool]]:
-    """
-    Apply Bonferroni correction to a list of p-values.
-    Returns (corrected_p_values, significant_flags).
-    """
-    n = len(p_values)
-    if n == 0:
-        return [], []
+    # Approximate MDES using the formula: r = sqrt(t^2 / (t^2 + df))
+    # This is derived from the t-statistic for correlation: t = r*sqrt((n-2)/(1-r^2))
+    # Solving for r when t = t_crit gives the minimum detectable r
+    df = n - 2
+    mdes = np.sqrt((t_crit ** 2) / (t_crit ** 2 + df))
     
-    corrected = [min(p * n, 1.0) for p in p_values]
-    significant = [p < alpha for p in corrected]
-    return corrected, significant
+    return mdes
 
-def power_analysis(n_samples: int, effect_size: float = 0.30, alpha: float = 0.05) -> Dict[str, Any]:
+def power_analysis(n: int, effect_size: float = 0.30, alpha: float = 0.05) -> Dict[str, Any]:
     """
-    Perform post-hoc power analysis.
-    Returns dictionary with min_detectable_effect_size and power_warning_flag.
+    Perform post-hoc power analysis for correlation.
+    
+    Args:
+        n: Sample size
+        effect_size: Expected effect size (correlation r)
+        alpha: Significance level
+        
+    Returns:
+        Dictionary with power analysis results
     """
-    # Simple approximation for power calculation
-    # For Spearman correlation, we use t-test approximation
-    if n_samples < 2:
+    if n < 3:
         return {
-            'min_detectable_effect_size': float('inf'),
-            'power_warning_flag': True,
-            'n_samples': n_samples
+            'sample_size': n,
+            'effect_size': effect_size,
+            'power': 0.0,
+            'warning': 'Sample size too small for power analysis'
         }
     
-    # Critical t-value for two-tailed test
-    from scipy import stats
-    t_crit = stats.t.ppf(1 - alpha/2, df=n_samples - 2)
+    # Calculate non-centrality parameter
+    # For correlation test: t = r * sqrt((n-2)/(1-r^2))
+    t_stat = effect_size * np.sqrt((n - 2) / (1 - effect_size ** 2))
     
-    # Approximate minimum detectable effect size
-    # Using the formula: r = sqrt(t^2 / (t^2 + df))
-    min_r = t_crit / np.sqrt(t_crit**2 + (n_samples - 2))
+    # Critical t-value
+    t_crit = stats.t.ppf(1 - alpha/2, n - 2)
     
-    warning = n_samples < 30
+    # Power is the probability that |t| > t_crit under the alternative
+    # Using non-central t-distribution approximation
+    # For simplicity, we use the normal approximation for large n
+    if n > 30:
+        z_stat = t_stat
+        z_crit = stats.norm.ppf(1 - alpha/2)
+        power = stats.norm.cdf(z_stat - z_crit) + stats.norm.cdf(-z_stat - z_crit)
+    else:
+        # For small samples, use t-distribution
+        # Power = P(|T| > t_crit | non-centrality parameter)
+        # Approximate using the non-central t-distribution
+        from scipy.stats import nct
+        df = n - 2
+        ncp = t_stat  # Non-centrality parameter
+        power = 1 - (nct.cdf(t_crit, df, ncp) - nct.cdf(-t_crit, df, ncp))
     
     return {
-        'min_detectable_effect_size': float(min_r),
-        'power_warning_flag': warning,
-        'n_samples': n_samples
+        'sample_size': n,
+        'effect_size': effect_size,
+        'power': float(power),
+        'alpha': alpha,
+        't_statistic': float(t_stat),
+        't_critical': float(t_crit)
     }
 
-def test_piecewise_model(df: pd.DataFrame, x_col: str, y_col: str, threshold: float) -> Dict[str, float]:
+def spearman_correlation(x: pd.Series, y: pd.Series) -> Dict[str, float]:
     """
-    Test piecewise linear model at a given threshold.
-    Returns improvement metrics.
+    Compute Spearman rank correlation with p-value.
+    
+    Args:
+        x: First variable
+        y: Second variable
+        
+    Returns:
+        Dictionary with correlation coefficient and p-value
     """
-    # This is a placeholder for the actual piecewise implementation
-    # For now, return a simple comparison
+    # Remove NaN pairs
+    mask = ~(x.isna() | y.isna())
+    x_clean = x[mask]
+    y_clean = y[mask]
+    
+    if len(x_clean) < 3:
+        return {
+            'correlation': np.nan,
+            'p_value': np.nan,
+            'n': len(x_clean)
+        }
+    
+    corr, p_val = stats.spearmanr(x_clean, y_clean)
+    
     return {
-        'piecewise_r2_improvement': 0.0,
-        'threshold_used': threshold
+        'correlation': float(corr),
+        'p_value': float(p_val),
+        'n': len(x_clean)
     }
 
-def validate_timeseries_split(df: pd.DataFrame, train_end_date: pd.Timestamp, test_start_date: pd.Timestamp) -> bool:
+def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
     """
-    Validate that the time series split is correct.
-    Returns True if valid, False otherwise.
+    Calculate Variance Inflation Factor for each predictor.
+    
+    Args:
+        df: DataFrame with predictors
+        predictors: List of predictor column names
+        
+    Returns:
+        Dictionary mapping predictor names to VIF values
+    """
+    X = df[predictors].dropna()
+    if X.shape[0] < 5:
+        return {p: float('inf') for p in predictors}
+        
+    X = add_constant(X)
+    vif_data = {}
+    
+    for i, col in enumerate(predictors):
+        # Skip constant if it's in predictors
+        if col == 'const':
+            continue
+            
+        try:
+            vif = variance_inflation_factor(X.values, i + 1)  # +1 because of constant
+            vif_data[col] = float(vif)
+        except Exception as e:
+            logger.warning(f"Could not calculate VIF for {col}: {e}")
+            vif_data[col] = float('inf')
+    
+    return vif_data
+
+def linear_regression_r2(df: pd.DataFrame, predictor: str, target: str) -> Dict[str, Any]:
+    """
+    Perform simple linear regression and return R².
+    
+    Args:
+        df: DataFrame with data
+        predictor: Name of predictor column
+        target: Name of target column
+        
+    Returns:
+        Dictionary with R², coefficients, and p-values
+    """
+    data = df[[predictor, target]].dropna()
+    if len(data) < 3:
+        return {
+            'r2': np.nan,
+            'coefficients': {},
+            'p_values': {},
+            'n': len(data)
+        }
+    
+    X = add_constant(data[predictor])
+    y = data[target]
+    
+    model = OLS(y, X).fit()
+    
+    return {
+        'r2': float(model.rsquared),
+        'coefficients': {
+            'intercept': float(model.params['const']),
+            predictor: float(model.params[predictor])
+        },
+        'p_values': {
+            'intercept': float(model.pvalues['const']),
+            predictor: float(model.pvalues[predictor])
+        },
+        'n': len(data)
+    }
+
+def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
+    """
+    Apply Bonferroni correction for multiple comparisons.
+    
+    Args:
+        p_values: List of p-values
+        alpha: Significance level
+        
+    Returns:
+        Dictionary with corrected p-values and significance flags
+    """
+    n_tests = len(p_values)
+    if n_tests == 0:
+        return {'corrected_p_values': [], 'significant': []}
+    
+    corrected_p = [min(p * n_tests, 1.0) for p in p_values]
+    significant = [p < alpha for p in corrected_p]
+    
+    return {
+        'corrected_p_values': corrected_p,
+        'significant': significant,
+        'alpha': alpha,
+        'n_tests': n_tests
+    }
+
+def test_piecewise_model(df: pd.DataFrame, x_col: str, y_col: str, 
+                         break_point: Optional[float] = None) -> Dict[str, Any]:
+    """
+    Test a piecewise linear regression model.
+    
+    Args:
+        df: DataFrame with data
+        x_col: Predictor column name
+        y_col: Target column name
+        break_point: Break point for piecewise regression
+        
+    Returns:
+        Dictionary with piecewise model results
+    """
+    data = df[[x_col, y_col]].dropna()
+    if len(data) < 10:
+        return {
+            'r2': np.nan,
+            'improvement': np.nan,
+            'n': len(data)
+        }
+    
+    if break_point is None:
+        break_point = np.median(data[x_col])
+    
+    # Create piecewise features
+    x = data[x_col].values
+    y = data[y_col].values
+    
+    # Features: x, (x - break_point)_+
+    x_piecewise = np.maximum(0, x - break_point)
+    X = np.column_stack([np.ones(len(x)), x, x_piecewise])
+    
+    try:
+        # Fit piecewise model
+        coeffs = np.linalg.lstsq(X, y, rcond=None)[0]
+        y_pred = X @ coeffs
+        ss_res = np.sum((y - y_pred) ** 2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
+        r2_piecewise = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
+        
+        # Fit linear model for comparison
+        X_linear = np.column_stack([np.ones(len(x)), x])
+        coeffs_linear = np.linalg.lstsq(X_linear, y, rcond=None)[0]
+        y_pred_linear = X_linear @ coeffs_linear
+        ss_res_linear = np.sum((y - y_pred_linear) ** 2)
+        r2_linear = 1 - (ss_res_linear / ss_tot) if ss_tot > 0 else 0
+        
+        improvement = r2_piecewise - r2_linear
+        
+        return {
+            'r2_piecewise': float(r2_piecewise),
+            'r2_linear': float(r2_linear),
+            'improvement': float(improvement),
+            'break_point': float(break_point),
+            'n': len(data)
+        }
+    except Exception as e:
+        logger.warning(f"Piecewise regression failed: {e}")
+        return {
+            'r2_piecewise': np.nan,
+            'r2_linear': np.nan,
+            'improvement': np.nan,
+            'break_point': float(break_point),
+            'n': len(data)
+        }
+
+def validate_timeseries_split(df: pd.DataFrame, train_end: str = "2020-12-31") -> Dict[str, Any]:
+    """
+    Validate the time-series split and return train/test masks.
+    
+    Args:
+        df: DataFrame with datetime index or column
+        train_end: End date for training set
+        
+    Returns:
+        Dictionary with train/test masks and split info
     """
     if 'timestamp' not in df.columns:
-        logger.error("DataFrame must contain 'timestamp' column")
-        return False
+        # Try to find a datetime column
+        date_cols = [col for col in df.columns if 'date' in col.lower() or 'time' in col.lower()]
+        if not date_cols:
+            raise ValueError("No datetime column found in DataFrame")
+        date_col = date_cols[0]
+    else:
+        date_col = 'timestamp'
     
-    df_sorted = df.sort_values('timestamp')
+    # Ensure date column is datetime
+    df[date_col] = pd.to_datetime(df[date_col])
     
-    # Check that all train data is before train_end_date
-    train_mask = df_sorted['timestamp'] <= train_end_date
-    test_mask = df_sorted['timestamp'] >= test_start_date
+    train_mask = df[date_col] <= pd.to_datetime(train_end)
+    test_mask = ~train_mask
     
-    if not train_mask.any() or not test_mask.any():
-        logger.warning("Split results in empty train or test set")
-        return False
-    
-    # Check for overlap
-    if (df_sorted.loc[train_mask, 'timestamp'].max() > df_sorted.loc[test_mask, 'timestamp'].min()):
-        logger.error("Train and test sets overlap!")
-        return False
-    
-    return True
+    return {
+        'train_mask': train_mask,
+        'test_mask': test_mask,
+        'train_size': int(train_mask.sum()),
+        'test_size': int(test_mask.sum()),
+        'train_end': train_end
+    }
 
 def calculate_missing_data_counts(df: pd.DataFrame) -> Dict[str, int]:
     """
-    Calculate the number of missing values for key columns.
-    Returns a dictionary with counts for cme_speed, flare_flux, and dst.
+    Calculate counts of missing data for key columns.
     
-    This function satisfies T049 by explicitly counting missing data
-    to ensure transparency in the analysis.
+    Args:
+        df: DataFrame with data
+        
+    Returns:
+        Dictionary with missing counts per column
     """
-    counts = {
-        'cme_speed': int(df['cme_speed'].isna().sum()),
-        'flare_flux': int(df['flare_flux'].isna().sum()),
-        'dst': int(df['dst'].isna().sum())
-    }
+    key_cols = ['flare_flux', 'cme_speed', 'dst_min', 'kp_index']
+    missing_counts = {}
     
-    logger.info(f"Missing data counts: {counts}")
-    return counts
+    for col in key_cols:
+        if col in df.columns:
+            missing_counts[col] = int(df[col].isna().sum())
+        else:
+            missing_counts[col] = 0
+    
+    return missing_counts
 
-def run_correlation_analysis(df: pd.DataFrame, output_path: str) -> Dict[str, Any]:
+def run_correlation_analysis(df: pd.DataFrame, results_path: str = "results/metrics.json") -> Dict[str, Any]:
     """
     Run the full correlation analysis pipeline.
-    Returns the metrics dictionary.
+    
+    Args:
+        df: DataFrame with aligned events
+        results_path: Path to output metrics file
+        
+    Returns:
+        Dictionary with all analysis results
     """
-    # Calculate missing data counts first (T049 requirement)
-    missing_counts = calculate_missing_data_counts(df)
+    logger.info("Starting correlation analysis...")
     
-    # Compute correlations
-    flare_dst_corr, flare_dst_p = spearman_correlation(df, 'flare_flux', 'dst')
-    cme_dst_corr, cme_dst_p = spearman_correlation(df, 'cme_speed', 'dst')
-    
-    # Log correlations
-    logger.info(f"Spearman correlation (flare->dst): {flare_dst_corr:.4f} (p={flare_dst_p:.4f})")
-    logger.info(f"Spearman correlation (cme->dst): {cme_dst_corr:.4f} (p={cme_dst_p:.4f})")
-    
-    # Calculate VIF if both predictors are available
-    vif_result = {}
-    selected_model_r2 = 0.0
-    model_selection_reason = ""
-    
-    if 'flare_flux' in df.columns and 'cme_speed' in df.columns:
-        # Prepare data for VIF calculation (drop rows with any missing values in features)
-        vif_df = df[['flare_flux', 'cme_speed']].dropna()
-        if len(vif_df) >= 3:
-            vif_result = calculate_vif(vif_df, ['flare_flux', 'cme_speed'])
-            logger.info(f"VIF values: {vif_result}")
-            
-            # Check for multicollinearity
-            max_vif = max(vif_result.values()) if vif_result else 0
-            if max_vif > 5:
-                # Use separate univariate models
-                flare_r2 = linear_regression_r2(df, 'flare_flux', 'dst')
-                cme_r2 = linear_regression_r2(df, 'cme_speed', 'dst')
-                
-                if abs(flare_r2) > abs(cme_r2):
-                    selected_model_r2 = flare_r2
-                    model_selection_reason = "univariate_flare"
-                else:
-                    selected_model_r2 = cme_r2
-                    model_selection_reason = "univariate_cme"
-                
-                logger.info(f"VIF > 5, selected {model_selection_reason} with R²={selected_model_r2:.4f}")
-            else:
-                # Use joint model
-                selected_model_r2 = linear_regression_r2(df, 'flare_flux', 'dst')  # Placeholder for joint model
-                model_selection_reason = "joint_model"
-                logger.info(f"Using joint model with R²={selected_model_r2:.4f}")
-    
-    # Bonferroni correction
-    p_values = [flare_dst_p, cme_dst_p]
-    corrected_p, significant = bonferroni_correction(p_values)
-    
-    # Power analysis
-    n_samples = len(df.dropna(subset=['flare_flux', 'cme_speed', 'dst']))
-    power_result = power_analysis(n_samples)
-    
-    # Piecewise model test (placeholder)
-    piecewise_result = test_piecewise_model(df, 'cme_speed', 'dst', threshold=-50)
-    
-    # Assemble metrics
-    metrics = {
-        'correlations': {
-            'flare_dst': {
-                'coefficient': flare_dst_corr,
-                'p_value': flare_dst_p,
-                'corrected_p_value': corrected_p[0] if len(corrected_p) > 0 else None,
-                'significant': significant[0] if len(significant) > 0 else False
-            },
-            'cme_dst': {
-                'coefficient': cme_dst_corr,
-                'p_value': cme_dst_p,
-                'corrected_p_value': corrected_p[1] if len(corrected_p) > 1 else None,
-                'significant': significant[1] if len(significant) > 1 else False
-            }
-        },
-        'vif': vif_result,
-        'model_selection': {
-            'reason': model_selection_reason,
-            'selected_model_r2': selected_model_r2
-        },
-        'correction_method': 'bonferroni',
-        'correction_rationale': 'Family-wise error rate control for small test family',
-        'power_analysis': power_result,
-        'piecewise_r2_improvement': piecewise_result.get('piecewise_r2_improvement', 0.0),
-        'missing_data_counts': missing_counts,  # T049 requirement
-        'sample_size': n_samples
+    results = {
+        'analysis_timestamp': pd.Timestamp.now().isoformat(),
+        'sample_size': len(df),
+        'correlations': {},
+        'regression_models': {},
+        'vif_analysis': {},
+        'power_analysis': {},
+        'missing_data_counts': calculate_missing_data_counts(df),
+        'power_limitation': None
     }
     
-    # Write to output file
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
+    # 1. Spearman correlations
+    logger.info("Computing Spearman correlations...")
     
-    logger.info(f"Metrics written to {output_path}")
-    return metrics
+    if 'flare_flux' in df.columns and 'dst_min' in df.columns:
+        flare_corr = spearman_correlation(df['flare_flux'].apply(np.log10), df['dst_min'])
+        results['correlations']['flare_flux_log_dst'] = flare_corr
+    
+    if 'cme_speed' in df.columns and 'dst_min' in df.columns:
+        cme_corr = spearman_correlation(df['cme_speed'], df['dst_min'])
+        results['correlations']['cme_speed_dst'] = cme_corr
+    
+    # 2. Linear regression and VIF
+    logger.info("Computing linear regression and VIF...")
+    
+    if 'flare_flux' in df.columns and 'cme_speed' in df.columns and 'dst_min' in df.columns:
+        predictors = ['flare_flux', 'cme_speed']
+        available_predictors = [p for p in predictors if p in df.columns]
+        
+        if len(available_predictors) >= 2:
+            # Try multivariate
+            vif_results = calculate_vif(df, available_predictors)
+            results['vif_analysis'] = vif_results
+            
+            max_vif = max(vif_results.values()) if vif_results else 0
+            
+            if max_vif > 5:
+                logger.warning("High VIF detected (>5), switching to univariate models")
+                # Select univariate model with higher correlation
+                univariate_results = {}
+                for pred in available_predictors:
+                    if pred in df.columns:
+                        reg_result = linear_regression_r2(df, pred, 'dst_min')
+                        univariate_results[pred] = reg_result
+                
+                # Select best based on absolute correlation
+                best_pred = None
+                best_abs_corr = 0
+                if 'flare_flux_log_dst' in results['correlations']:
+                    best_abs_corr = abs(results['correlations']['flare_flux_log_dst']['correlation'])
+                    best_pred = 'flare_flux'
+                if 'cme_speed_dst' in results['correlations']:
+                    cme_abs = abs(results['correlations']['cme_speed_dst']['correlation'])
+                    if cme_abs > best_abs_corr:
+                        best_abs_corr = cme_abs
+                        best_pred = 'cme_speed'
+                
+                if best_pred:
+                    results['selected_model_type'] = f'univariate_{best_pred}'
+                    results['regression_models'] = {best_pred: univariate_results.get(best_pred, {})}
+            else:
+                # Multivariate model
+                df_clean = df[available_predictors + ['dst_min']].dropna()
+                if len(df_clean) >= 5:
+                    X = add_constant(df_clean[available_predictors])
+                    y = df_clean['dst_min']
+                    model = OLS(y, X).fit()
+                    results['regression_models']['multivariate'] = {
+                        'r2': float(model.rsquared),
+                        'coefficients': {k: float(v) for k, v in model.params.items()},
+                        'p_values': {k: float(v) for k, v in model.pvalues.items()}
+                    }
+                    results['selected_model_type'] = 'multivariate'
+        else:
+            # Fallback to univariate
+            for pred in available_predictors:
+                if pred in df.columns:
+                    reg_result = linear_regression_r2(df, pred, 'dst_min')
+                    results['regression_models'][pred] = reg_result
+    
+    # 3. Power Analysis and MDES
+    logger.info("Performing power analysis...")
+    n = len(df)
+    results['power_analysis'] = power_analysis(n)
+    
+    # Calculate MDES
+    mdes = calculate_mdes(n)
+    results['minimum_detectable_effect_size'] = float(mdes)
+    
+    # 4. Power Limitation Check
+    if n < 30:
+        logger.warning(f"Sample size (n={n}) is below threshold (30). Power limitation noted.")
+        results['power_limitation'] = {
+            'warning': 'Power Limitation: Sample size is insufficient for definitive threshold claims',
+            'sample_size': n,
+            'minimum_recommended': 30,
+            'interpretation': 'With N < 30, the statistical power is low. Definitive threshold claims cannot be made. The Minimum Detectable Effect Size (MDES) is large, meaning only very strong correlations would be detected.',
+            'mdes': float(mdes)
+        }
+    
+    # 5. Piecewise regression test (if R² < 0.1)
+    if results.get('regression_models'):
+        best_r2 = 0
+        for model_name, model_data in results['regression_models'].items():
+            if isinstance(model_data, dict) and 'r2' in model_data:
+                best_r2 = max(best_r2, model_data.get('r2', 0) or 0)
+        
+        if best_r2 < 0.1:
+            logger.info("R² < 0.1, testing piecewise regression...")
+            if 'cme_speed' in df.columns and 'dst_min' in df.columns:
+                piecewise_result = test_piecewise_model(df, 'cme_speed', 'dst_min')
+                results['piecewise_r2_improvement'] = piecewise_result.get('improvement')
+                results['piecewise_analysis'] = piecewise_result
+    
+    # 6. Save results
+    os.makedirs(os.path.dirname(results_path) if os.path.dirname(results_path) else '.', exist_ok=True)
+    with open(results_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+    
+    logger.info(f"Analysis complete. Results saved to {results_path}")
+    return results
 
 def main():
-    """
-    Main entry point for the analysis module.
-    """
+    """Main entry point for analysis module."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Run correlation analysis on solar flare data')
-    parser.add_argument('--input', type=str, required=True, help='Path to input CSV file')
-    parser.add_argument('--output', type=str, required=True, help='Path to output metrics JSON file')
-    
+    parser = argparse.ArgumentParser(description='Run correlation analysis')
+    parser.add_argument('--input', type=str, required=True, help='Input CSV file')
+    parser.add_argument('--output', type=str, default='results/metrics.json', help='Output metrics file')
     args = parser.parse_args()
     
     # Load data
-    if not os.path.exists(args.input):
-        logger.error(f"Input file not found: {args.input}")
-        return
-    
     df = pd.read_csv(args.input)
-    logger.info(f"Loaded {len(df)} rows from {args.input}")
     
     # Run analysis
-    metrics = run_correlation_analysis(df, args.output)
+    results = run_correlation_analysis(df, args.output)
     
-    print(f"Analysis complete. Metrics saved to {args.output}")
+    print(f"Analysis complete. Sample size: {results['sample_size']}")
+    print(f"Minimum Detectable Effect Size: {results.get('minimum_detectable_effect_size', 'N/A')}")
+    if results.get('power_limitation'):
+        print("WARNING: Power limitation detected!")
+        print(results['power_limitation']['warning'])
 
 if __name__ == '__main__':
     main()
