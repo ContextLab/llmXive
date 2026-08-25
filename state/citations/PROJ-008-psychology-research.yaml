@@ -9,3 +9,25 @@
   verification_status: unreachable
   verified_against_url: https://www.libero
   verified_at: '2026-04-29T04:15:21.023558Z'
+- artifact_hash: f4aa982a317a69e8ebc4a5afe76fee2829e8b2baef943925a03a0b5322cfb3e3
+  artifact_path: projects/PROJ-008-psychology-research/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://clinicaltrials.gov/api/v2
+  verification_status: pending
+  verified_against_url: https://clinicaltrials.gov/api/v2
+  verified_at: '2026-08-25T01:07:54.102934Z'
+- artifact_hash: f4aa982a317a69e8ebc4a5afe76fee2829e8b2baef943925a03a0b5322cfb3e3
+  artifact_path: projects/PROJ-008-psychology-research/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Root \u2013 Django REST framework"
+  kind: url
+  value: https://api.osf.io/v2/
+  verification_status: pending
+  verified_against_url: https://api.osf.io/v2/
+  verified_at: '2026-08-25T01:07:54.102934Z'

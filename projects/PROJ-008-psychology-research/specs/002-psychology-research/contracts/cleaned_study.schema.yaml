@@ -1,0 +1,80 @@
+# Schema contract for cleaned_studies.csv
+# Generated per T007
+type: object
+required:
+  - id
+  - title
+  - registry
+  - age_min
+  - age_max
+  - n_total
+  - n_treatment
+  - n_control
+  - intervention_type
+  - delivery_format
+  - outcome_measure
+  - mean_treatment
+  - sd_treatment
+  - mean_control
+  - sd_control
+  - included
+properties:
+  id:
+    type: string
+    pattern: "^(clinicaltrials\\.gov|osf\\.io)_[A-Za-z0-9]+$"
+  title:
+    type: string
+    minLength: 1
+  registry:
+    type: string
+    enum:
+      - clinicaltrials.gov
+      - osf.io
+  age_min:
+    type: integer
+    minimum: 6
+    maximum: 12
+  age_max:
+    type: integer
+    minimum: 6
+    maximum: 12
+  n_total:
+    type: integer
+    minimum: 1
+  n_treatment:
+    type: integer
+    minimum: 1
+  n_control:
+    type: integer
+    minimum: 1
+  intervention_type:
+    type: string
+    minLength: 1
+  delivery_format:
+    type: string
+    enum:
+      - individual
+      - group
+      - parent_mediated
+      - hybrid
+  outcome_measure:
+    type: string
+    minLength: 1
+  mean_treatment:
+    type: number
+  sd_treatment:
+    type: number
+    minimum: 0
+  mean_control:
+    type: number
+  sd_control:
+    type: number
+    minimum: 0
+  follow_up_months:
+    type: integer
+    minimum: 0
+  included:
+    type: boolean
+  exclusion_reason:
+    type: string
+additionalProperties: false

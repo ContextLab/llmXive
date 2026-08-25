@@ -1,1 +1,1 @@
-# Data collection, extraction, and cleaning modules
+# Data package: collection, extraction, cleaning, verification

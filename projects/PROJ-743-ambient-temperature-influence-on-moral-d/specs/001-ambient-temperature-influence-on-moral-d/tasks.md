@@ -49,7 +49,7 @@
 - [X] T001a [P] **Validate Moral Machine Source**: Verify the canonical URL for the Moral Machine dataset against the "Verified Accuracy" principle. Confirm the dataset exists, is accessible, and contains the required columns: `latitude` (float), `longitude` (float), `timestamp` (datetime), `response_time` (float), `country` (string), `dilemma_id` (string). **URL**: `. Log the validation status (Pass/Fail) and column schema to `results/logs/data_validation_log.txt`. **(FR-014, US-1)**.
 - [ ] T001b [P] **Ingest & Validate ERA5 Sample**: Write a Python script `code/validate_era5.py` to fetch a **specific sample subset** for validation: **Jan 1, 2016 to Jan 7, 2016** in **London (51.5N, -0.1W)**. Execute this script to fetch the sample to `data/raw/era_sample.h5`. Verify the sample contains hourly resolution and valid temperature values. Log success/fail to `results/logs/data_validation_log.txt`. **(FR-014, US-1)**.
 - [X] T001c [P] **Validate ERA5 Citation (Verified Accuracy)**: Implement logic in `code/validate_sources.py` to verify the ERA5 data source against Constitution Principle II. **Action**: Use `cdsapi` to fetch the primary source metadata for ERA5 (product name, temporal coverage, spatial resolution) and log the specific metadata fields (e.g., `product_type`, `variable`, `grid_resolution`) to verify they match the claims in `plan.md`. Compute a "metadata match score" (Pass/Fail) based on exact string matching of key attributes (e.g., "2m temperature", "0.25 deg"). Log the score and validation status (Pass/Fail) to `results/logs/data_validation_log.txt`. **(Constitution Principle II, FR-014)**.
-- [ ] T002 [P] **Derive Bounding Box**: Write a script `code/derive_bbox.py` to load the Moral Machine dataset (or a sample thereof) and calculate the exact geographic bounding box (min/max lat/lon) required for the ERA5 fetch. Output the bounding box to `data/external/bounding_box.json`. **(Executability Fix)**.
+- [X] T002 [P] **Derive Bounding Box**: Write a script `code/derive_bbox.py` to load the Moral Machine dataset (or a sample thereof) and calculate the exact geographic bounding box (min/max lat/lon) required for the ERA5 fetch. Output the bounding box to `data/external/bounding_box.json`. **(Executability Fix)**.
 - [X] T002b [P] **Fetch ERA5 Logic**: Write a Python script `code/fetch_era_full.py` to fetch the **full -2018 ERA5 2m temperature dataset** required for the primary analysis. The script MUST:
  1. Read the bounding box from `data/external/bounding_box.json` (T002).
  2. **Filter**: Only request tiles that overlap with this bounding box.
@@ -59,12 +59,12 @@
  6. Include **retry logic** for CDS API rate limits (exponential backoff).
  **Output**: Save to `data/raw/era5_full.h5`. **(FR-001, Executability Fix)**.
 - [ ] T002b_test [P] **Unit Tests for Fetcher**: Write unit tests in `tests/test_ingestion.py` for `code/fetch_era_full.py` logic. **Specifics**: Test function `test_chunking_strategy` asserts `chunk_count == expected` where `expected` is calculated based on the spatial resolution of the grid, determined by dividing the latitude and longitude ranges by a configurable cell size parameter. **Assumption**: Bounding box coordinates are in degrees and tile size is fixed at 10 degrees. Test `test_merge_logic` asserts `final_file.shape == expected_shape`. **(Executability Fix)**.
-- [ ] T002c [P] **Execute Fetch**: Execute the script from T002b to fetch the full dataset. **Execution Logic**: Run `fetch_era_full.py` which must fetch by year and tile (2014-2018), merge results, and save to `data/raw/era5_full.h5`. Log success/fail to `results/logs/data_validation_log.txt`. **Dependencies**: T002, T002b, T002b_test. <!-- FAILED: unspecified -->
-- [ ] T002d [P] **Checksum ERA5**: Compute and record the SHA-256 checksum of the downloaded full ERA5 file (`data/raw/era5_full.h5`) in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml` under the key `artifact_hashes.era5_full`. **Crucially, this task MUST also update the `updated_at` timestamp in the same YAML file** to comply with Constitution Principle V. **(FR-014, Principle V)**.
-- [ ] T003 [P] **Checksum Sample**: Compute and record the SHA-256 checksum of the downloaded ERA5 sample file (`data/raw/era5_sample.h5`) in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml` under the key `artifact_hashes.era5_sample`. **Crucially, this task MUST also update the `updated_at` timestamp in the same YAML file** to comply with Constitution Principle V.
+- [ ] T002c [P] **Execute Fetch**: Execute the script from T002b to fetch the full dataset. **Execution Logic**: Run `fetch_era_full.py` which must fetch by year and tile (2014-2018), merge results, and save to `data/raw/era5_full.h5`. Log success/fail to `results/logs/data_validation_log.txt`. **Dependencies**: T002, T002b, T002b_test. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T002d [P] **Checksum ERA5**: Compute and record the SHA-256 checksum of the downloaded full ERA5 file (`data/raw/era5_full.h5`) in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml` under the key `artifact_hashes.era5_full`. **Crucially, this task MUST also update the `updated_at` timestamp in the same YAML file** to comply with Constitution Principle V. **(FR-014, Principle V)**. <!-- FAILED: unspecified -->
+- [ ] T003 [P] **Checksum Sample**: Compute and record the SHA-256 checksum of the downloaded ERA5 sample file (`data/raw/era5_sample.h5`) in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml` under the key `artifact_hashes.era5_sample`. **Crucially, this task MUST also update the `updated_at` timestamp in the same YAML file** to comply with Constitution Principle V. <!-- FAILED: unspecified -->
 - [X] T004 [P] Programmatically validate that the downloaded ERA5 sample meets the hourly temporal resolution and geographic grid size standards defined in FR-014. Log validation status (Pass/Fail) to `results/logs/data_validation_log.txt`.
-- [ ] T005 [P] Verify the Moral Machine dataset source against the "Verified Accuracy" principle and log the validation status to `results/logs/data_validation_log.txt` using a standardized format: "Source: <name>, Status: <Pass/Fail>".
-- [ ] T006 [P] **Pre-Ingestion Validation Gate**: Implement a final check task that aggregates results from T001-T005. **Mechanism**: Read JSON log files from T001a, T001c, T004, T005 and check file existence for T002c. If ANY source validation (ERA5 or Moral Machine) fails, this task MUST raise an exception and abort the pipeline. Log the final gate status (Pass/Fail) to `results/logs/data_validation_log.txt`. **Dependencies**: T001-T005.
+- [X] T005 [P] Verify the Moral Machine dataset source against the "Verified Accuracy" principle and log the validation status to `results/logs/data_validation_log.txt` using a standardized format: "Source: <name>, Status: <Pass/Fail>".
+- [X] T006 [P] **Pre-Ingestion Validation Gate**: Implement a final check task that aggregates results from T001-T005. **Mechanism**: Read JSON log files from T001a, T001c, T004, T005 and check file existence for T002c. If ANY source validation (ERA5 or Moral Machine) fails, this task MUST raise an exception and abort the pipeline. Log the final gate status (Pass/Fail) to `results/logs/data_validation_log.txt`. **Dependencies**: T001-T005.
 
 **Checkpoint**: Data validation complete. If Pass, proceed to Phase 1. If Fail, project is blocked.
 
@@ -75,7 +75,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T007 Create project structure per implementation plan, specifically creating directories: `code/`, `data/raw/`, `data/processed/`, `results/figures/`, `results/logs/`, `results/stats/`, `tests/`
-- [ ] T008 Initialize a Python project with dependencies (pandas, numpy, statsmodels>=0.13, scikit-learn, requests, pyyaml, seaborn, matplotlib, geopandas, cdsapi, huggingface_hub, polars, rasterio) in requirements.txt
+- [X] T008 Initialize a Python project with dependencies (pandas, numpy, statsmodels>=0.13, scikit-learn, requests, pyyaml, seaborn, matplotlib, geopandas, cdsapi, huggingface_hub, polars, rasterio) in requirements.txt
 - [ ] T009 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -86,7 +86,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T010 Create base configuration module `code/config.py` defining paths, random seeds, and **configurable** distance thresholds (default distance, with parameters for shorter and longer ranges in sensitivity analysis).
+- [X] T010 Create base configuration module `code/config.py` defining paths, random seeds, and **configurable** distance thresholds (default distance, with parameters for shorter and longer ranges in sensitivity analysis).
 - [ ] T010b [P] **Calculate Temperature Thresholds**: Write a script `code/calc_thresholds.py` to load a sample of the Moral Machine dataset and calculate the 1st and 99th percentile of the `temperature` column (once merged with a sample of ERA5). **Output**: Store `TEMPERATURE_COLD_THRESHOLD` and `TEMPERATURE_HOT_THRESHOLD` in `code/config.py` as constants. **Dependencies**: T001b (Sample Data).
 - [ ] T011 [P] Setup logging infrastructure to write data quality logs and model diagnostics to `results/logs/`
 - [ ] T012 [P] Implement checksum generation and verification for `data/raw/` and `data/processed/` files in `code/utils.py`
@@ -323,9 +323,9 @@
 - Phase 0 together.
 - Phase 1 + 2 together.
 - Then parallel developers:
-  - Dev A: User Story 1
-  - Dev B: User Story 2
-  - Dev C: User Story 3
+ - Dev A: User Story 1
+ - Dev B: User Story 2
+ - Dev C: User Story 3
 - Subsequent phases handled similarly.
 
 ---

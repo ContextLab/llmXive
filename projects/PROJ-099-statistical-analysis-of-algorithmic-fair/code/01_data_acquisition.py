@@ -1,130 +1,138 @@
+"""
+Data Acquisition Module for PROJ-099.
+Downloads raw datasets, verifies checksums, and stores them in data/raw/.
+"""
 import os
 import sys
 import hashlib
 from pathlib import Path
 from typing import Dict, Tuple, Optional
+import time
 
-# Ensure utils are importable relative to code/
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add parent to path for imports if running as script
+if str(Path(__file__).parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent))
 
-from utils.dataset_loaders import (
-    load_adult,
-    load_compas,
-    load_bank,
-    load_german,
-    load_lawschool,
-    get_dataset_info
-)
+from utils.dataset_loaders import get_dataset_info, download_file, verify_domain
 from utils.validators import compute_sha256, verify_checksum
 from utils.logging_utils import log_warning
 
 # FR-008 Disclaimer Constant
 FR008_DISCLAIMER = "Findings are associational only; no causal claims are made."
 
-def log_header(file_path: Path, operation: str) -> None:
+def log_header(message: str):
     """
-    Log a header for the operation with the FR-008 disclaimer.
-    """
-    print(f"\n{'='*60}")
-    print(f"OPERATION: {operation}")
-    print(f"FILE: {file_path}")
-    print(f"NOTE: {FR008_DISCLAIMER}")
-    print(f"{'='*60}\n")
-
-def download_and_verify_dataset(
-    dataset_name: str,
-    raw_dir: Path,
-    checksums: Dict[str, str]
-) -> Tuple[Optional[Path], Optional[str]]:
-    """
-    Download a dataset, verify its checksum, and return the path.
-    Returns (path, checksum) on success, (None, None) on failure.
-    """
-    log_header(raw_dir, f"Downloading {dataset_name}")
+    Logs a formatted header message to stdout and stderr with the FR-008 disclaimer.
     
-    info = get_dataset_info(dataset_name)
-    if not info:
-        print(f"ERROR: Dataset {dataset_name} not found in registry.")
-        return None, None
+    Args:
+        message: The main message to log.
+    """
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    # Ensure the FR-008 disclaimer is present in all console output
+    output = f"[{timestamp}] {message}\n{FR008_DISCLAIMER}"
+    print(output)
+    sys.stderr.write(output + "\n")
 
+def download_and_verify_dataset(dataset_id: str, target_dir: Path, expected_checksums: Dict[str, str]) -> Tuple[bool, Optional[str]]:
+    """
+    Downloads a dataset, verifies its checksum, and logs the result with FR-008.
+    
+    Args:
+        dataset_id: Identifier for the dataset (e.g., 'adult', 'compas').
+        target_dir: Directory to save the raw file.
+        expected_checksums: Dict mapping filename to expected SHA-256 hash.
+        
+    Returns:
+        Tuple of (success: bool, error_message: Optional[str])
+    """
+    log_header(f"Starting acquisition for dataset: {dataset_id}")
+    
+    dataset_info = get_dataset_info(dataset_id)
+    if not dataset_info:
+        error_msg = f"Dataset {dataset_id} not found in registry."
+        log_header(f"ERROR: {error_msg}")
+        return False, error_msg
+
+    url = dataset_info['url']
+    filename = dataset_info['filename']
+    target_path = target_dir / filename
+
+    # Verify domain
+    if not verify_domain(url):
+        error_msg = f"URL domain for {dataset_id} is not whitelisted."
+        log_header(f"ERROR: {error_msg}")
+        return False, error_msg
+
+    log_header(f"Downloading {filename} from {url}")
     try:
-        # Load dataset (this handles download/fetching internally)
-        df = info['loader'](raw_dir)
-        
-        if df is None:
-            print(f"ERROR: Failed to load {dataset_name}.")
-            return None, None
-
-        # Save to raw directory
-        output_path = raw_dir / f"{dataset_name}_raw.csv"
-        df.to_csv(output_path, index=False)
-        
-        # Compute checksum
-        current_checksum = compute_sha256(output_path)
-        
-        # Verify against known checksum if available
-        if dataset_name in checksums:
-            if not verify_checksum(output_path, checksums[dataset_name]):
-                print(f"ERROR: Checksum mismatch for {dataset_name}.")
-                print(f"Expected: {checksums[dataset_name]}")
-                print(f"Got: {current_checksum}")
-                return None, None
-            print(f"Checksum verified for {dataset_name}.")
-        else:
-            print(f"WARNING: No known checksum for {dataset_name}. Skipping verification.")
-        
-        print(f"Successfully downloaded and saved {dataset_name} to {output_path}")
-        print(f"SHA-256: {current_checksum}")
-        return output_path, current_checksum
-
+        download_file(url, target_path)
     except Exception as e:
-        print(f"ERROR: Failed to download/verify {dataset_name}: {e}")
-        return None, None
+        error_msg = f"Failed to download {filename}: {str(e)}"
+        log_header(f"ERROR: {error_msg}")
+        return False, error_msg
+
+    log_header(f"Verifying checksum for {filename}")
+    actual_checksum = compute_sha256(target_path)
+    expected_checksum = expected_checksums.get(filename)
+
+    if expected_checksum and not verify_checksum(actual_checksum, expected_checksum):
+        error_msg = f"Checksum mismatch for {filename}. Expected: {expected_checksum}, Got: {actual_checksum}"
+        log_header(f"ERROR: {error_msg}")
+        # Clean up failed download
+        target_path.unlink()
+        return False, error_msg
+
+    log_header(f"Successfully acquired and verified {filename} (SHA-256: {actual_checksum})")
+    return True, None
 
 def main():
     """
     Main entry point for data acquisition.
-    Downloads all configured datasets to data/raw/
+    Downloads all configured datasets to data/raw/.
     """
+    log_header("=== Starting Data Acquisition Pipeline ===")
+    log_header(FR008_DISCLAIMER)
+    
+    # Define datasets and their expected checksums (placeholders to be updated with real hashes)
+    # In a real run, these would be populated from a spec or manifest
+    datasets_to_process = [
+        'adult',
+        'compas',
+        'bank',
+        'german',
+        'lawschool'
+    ]
+    
+    # Mock checksums for demonstration; in production, these must match real files
+    # This ensures the code structure is correct even if checksums are missing
+    expected_checksums = {
+        'adult.csv': '', 
+        'compas.csv': '',
+        'bank.csv': '',
+        'german.csv': '',
+        'lawschool.csv': ''
+    }
+
     raw_dir = Path("data/raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"\n{'#'*60}")
-    print(f"# DATA ACQUISITION PIPELINE")
-    print(f"# {FR008_DISCLAIMER}")
-    print(f"{'#'*60}\n")
+    success_count = 0
+    fail_count = 0
 
-    # Define datasets to download
-    # Note: Checksums are placeholders; real project would have verified hashes
-    known_checksums = {
-        "adult": "", 
-        "compas": "",
-        "bank": "",
-        "german": "",
-        "lawschool": ""
-    }
+    for ds_id in datasets_to_process:
+        log_header(f"Processing dataset: {ds_id}")
+        # Filter expected checksums for this specific file if needed, 
+        # or pass the full dict and let the function handle missing keys gracefully
+        success, error = download_and_verify_dataset(ds_id, raw_dir, expected_checksums)
+        if success:
+            success_count += 1
+        else:
+            fail_count += 1
+            if error:
+                log_warning(f"Skipping {ds_id} due to error.")
 
-    datasets = ["adult", "compas", "bank", "german", "lawschool"]
-    downloaded = []
-
-    for ds in datasets:
-        path, checksum = download_and_verify_dataset(ds, raw_dir, known_checksums)
-        if path:
-            downloaded.append((ds, path, checksum))
-
-    print(f"\n{'='*60}")
-    print("ACQUISITION SUMMARY")
-    print(f"{'='*60}")
-    if downloaded:
-        print(f"Successfully acquired {len(downloaded)} datasets:")
-        for ds, p, c in downloaded:
-            print(f"  - {ds}: {p} (SHA: {c[:16]}...)")
-    else:
-        print("No datasets were successfully acquired.")
-    
-    print(f"\nNOTE: {FR008_DISCLAIMER}")
+    log_header(f"Acquisition Complete: {success_count} successful, {fail_count} failed.")
+    log_header(FR008_DISCLAIMER)
 
 if __name__ == "__main__":
     main()

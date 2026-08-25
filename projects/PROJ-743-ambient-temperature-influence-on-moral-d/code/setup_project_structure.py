@@ -2,19 +2,20 @@ import os
 import sys
 from pathlib import Path
 
-def ensure_directories(base_path: Path) -> None:
+def ensure_directories():
     """
-    Create the standard project directory structure.
-    
+    Create the project directory structure as defined in the implementation plan.
     Directories created:
-    - code/
-    - data/raw/
-    - data/processed/
-    - results/figures/
-    - results/logs/
-    - results/stats/
-    - tests/
+      - code/
+      - data/raw/
+      - data/processed/
+      - results/figures/
+      - results/logs/
+      - results/stats/
+      - tests/
     """
+    # Define relative paths based on project root
+    project_root = Path.cwd()
     directories = [
         "code",
         "data/raw",
@@ -22,30 +23,30 @@ def ensure_directories(base_path: Path) -> None:
         "results/figures",
         "results/logs",
         "results/stats",
-        "tests",
+        "tests"
     ]
-    
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory already exists: {dir_path}")
 
-def main() -> None:
-    """Main entry point for project structure setup."""
-    # Determine project root (assume script is in code/ or code/scripts/)
-    script_path = Path(__file__).resolve()
-    # If script is in code/, go up one level
-    if script_path.parent.name == "code":
-        project_root = script_path.parent.parent
-    else:
-        project_root = script_path.parent
-    
-    print(f"Setting up project structure at: {project_root}")
-    ensure_directories(project_root)
-    print("Project structure setup complete.")
+    created_count = 0
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory exists: {full_path}")
+
+    print(f"Project structure setup complete. {created_count} new directories created.")
+    return True
+
+def main():
+    """
+    Entry point for the script.
+    """
+    success = ensure_directories()
+    if not success:
+        sys.exit(1)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

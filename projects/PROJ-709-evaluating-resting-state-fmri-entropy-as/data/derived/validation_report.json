@@ -1,0 +1,18 @@
+{
+  "file_path": "data/processed/subject_entropy_features.csv",
+  "shape": [
+    0,
+    201
+  ],
+  "n_subjects": 0,
+  "n_features": 201,
+  "total_nans": 0,
+  "nan_per_feature": {},
+  "min_entropy": 0.0,
+  "max_entropy": 0.0,
+  "mean_entropy": 0.0,
+  "std_entropy": 0.0,
+  "is_valid": true,
+  "errors": [],
+  "note": "Placeholder report generated before data execution. When code/main.py and code/validate_entropy.py are run on real data, this file will be overwritten with actual validation results."
+}

@@ -1,72 +1,80 @@
-# Data Model: Mindfulness Components and Delivery Formats in ASD Social Skills
+# Data Model Specification
 
-## Overview
+## Entities
 
-This document defines the data structures used for ingestion, cleaning, and analysis. All data flows from raw API responses to a normalized CSV, validated against YAML schemas.
+### Study
+Represents a single clinical trial or study record.
 
-## Entity Definitions
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| id | str | Yes | Unique study identifier (registry + NCT/OSF ID) |
+| title | str | Yes | Study title |
+| registry | str | Yes | Source registry (clinicaltrials.gov, osf.io) |
+| age_min | int | Yes | Minimum participant age |
+| age_max | int | Yes | Maximum participant age |
+| n_total | int | Yes | Total sample size |
+| n_treatment | int | Yes | Treatment group sample size |
+| n_control | int | Yes | Control group sample size |
+| intervention_type | str | Yes | Mindfulness component(s) |
+| delivery_format | str | Yes | Individual, group, parent-mediated |
+| outcome_measure | str | Yes | Social skill assessment tool |
+| mean_treatment | float | Yes | Treatment group mean (post) |
+| sd_treatment | float | Yes | Treatment group SD (post) |
+| mean_control | float | Yes | Control group mean (post) |
+| sd_control | float | Yes | Control group SD (post) |
+| follow_up_months | int | No | Follow-up duration in months |
+| included | bool | Yes | Inclusion status |
+| exclusion_reason | str | No | Reason for exclusion if not included |
 
-### 1. Study (Raw & Intermediate)
-Represents a single clinical trial record retrieved from an API.
+### EffectSize
+Represents a calculated effect size for a study.
 
-*   `study_id`: Unique identifier (e.g., NCT number, OSF ID).
-*   `source`: Origin (e.g., "ClinicalTrials.gov", "OSF").
-*   `title`: Study title.
-*   `publication_date`: Date of registration or publication.
-*   `conditions`: List of conditions (must contain "Autism Spectrum Disorder" or "ASD").
-*   `age_min`: Minimum enrollment age (numeric).
-*   `age_max`: Maximum enrollment age (numeric).
-*   `intervention_description`: Raw text description of the intervention.
-*   `control_description`: Raw text description of the control.
-*   `outcome_measures`: List of outcome measures (e.g., "SRS-2", "ABC").
-*   `status`: Study status (e.g., "Completed", "Terminated").
-*   `study_design`: Classification (e.g., "RCT", "Quasi-experimental", "Observational").
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| study_id | str | Yes | Reference to Study.id |
+| hedges_g | float | Yes | Hedges' g effect size |
+| se | float | Yes | Standard error of effect size |
+| ci_lower | float | Yes | 95% CI lower bound |
+| ci_upper | float | Yes | 95% CI upper bound |
+| n_treatment | int | Yes | Treatment group N |
+| n_control | int | Yes | Control group N |
+| component | str | Yes | Mindfulness component |
+| format | str | Yes | Delivery format |
+| domain | str | Yes | Social skill domain |
 
-### 2. Cleaned Study (Processed)
-The validated dataset used for analysis, derived from the Raw Study.
+### MetaAnalysisResult
+Represents aggregated meta-analysis results.
 
-*   `study_id`: (PK)
-*   `source`: (FK to raw source)
-*   `intervention_component`: Categorical tag (e.g., "breath", "body_scan", "loving_kindness", "combined", "unknown").
-*   `delivery_format`: Categorical tag (e.g., "caregiver_mediated", "child_led", "unknown").
-*   `social_skill_domain`: Categorical tag (e.g., "peer_interaction", "emotional_recognition", "reciprocal_communication").
-*   `n_intervention`: Sample size of intervention group.
-*   `n_control`: Sample size of control group.
-*   `pre_mean_int`: Mean pre-intervention score (intervention group).
-*   `pre_sd_int`: Standard deviation pre-intervention (intervention group).
-*   `post_mean_int`: Mean post-intervention score (intervention group).
-*   `post_sd_int`: Standard deviation post-intervention (intervention group).
-*   `pre_mean_ctrl`: Mean pre-intervention score (control group).
-*   `pre_sd_ctrl`: Standard deviation pre-intervention (control group).
-*   `post_mean_ctrl`: Mean post-intervention score (control group).
-*   `post_sd_ctrl`: Standard deviation post-intervention (control group).
-*   `follow_up_months`: Duration of follow-up (numeric or null).
-*   `data_source_type`: Source of numeric data (e.g., "API", "PDF", "Reconstructed").
-*   `coding_confidence`: Reliability of tags (e.g., "high", "low").
-*   `exclusion_reason`: If excluded, the specific reason (e.g., "Age > 12", "Missing SD", "Non-RCT").
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| analysis_type | str | Yes | overall, component, format, domain |
+| pooled_g | float | Yes | Pooled effect size |
+| se | float | Yes | Standard error |
+| ci_lower | float | Yes | 95% CI lower bound |
+| ci_upper | float | Yes | 95% CI upper bound |
+| i2 | float | Yes | Heterogeneity (I²) |
+| q_statistic | float | Yes | Cochran's Q |
+| p_value | float | Yes | Heterogeneity p-value |
+| n_studies | int | Yes | Number of studies included |
+| model_type | str | Yes | fixed, random |
 
-### 3. Effect Size (Derived)
-Calculated metrics for each included study.
+## Enums
 
-*   `study_id`: (FK)
-*   `hedges_g`: Calculated effect size.
-*   `se`: Standard error of the effect size.
-*   `ci_lower`: Lower bound of 95% CI.
-*   `ci_upper`: Upper bound of 95% CI.
-*   `weight`: Weight in the meta-analysis.
+### MindfulnessComponent
+- breathing
+- body_scan
+- mindful_movement
+- combined
 
-## Data Flow
+### DeliveryFormat
+- individual
+- group
+- parent_mediated
+- hybrid
 
-1.  **Ingestion**: `collector.py` fetches raw JSON from APIs -> `data/raw/`.
-2.  **Extraction**: `extractor.py` parses JSON, applies regex for tags -> `data/interim/`.
-3.  **Cleaning**: `cleaner.py` validates against `contracts/cleaned_study.schema.yaml`, logs exclusions -> `data/processed/clean_studies.csv`.
-4.  **Analysis**: `effect_sizes.py` reads CSV, calculates metrics -> `data/processed/effect_sizes.csv`.
-5.  **Aggregation**: `meta_analysis.py` aggregates results -> `data/processed/results.json`.
-
-## Constraints
-
-*   **Age Range**: Must be 6-12. Studies with `age_max < 6` or `age_min > 12` are excluded.
-*   **Diagnosis**: Must explicitly mention ASD.
-*   **Study Design**: Must be "RCT" for primary meta-analysis.
-*   **Missing Data**: If `pre_sd` or `post_sd` is missing and cannot be reconstructed, the study is excluded.
-*   **Multiple Arms**: If multiple intervention arms exist, the control group is split proportionally or the most relevant arm is selected (logged).
+### SocialSkillDomain
+- communication
+- peer_interaction
+- social_reciprocity
+- emotional_regulation
+- adaptive_behavior

@@ -1,7 +1,3 @@
-"""
-Verify the canonical URL for the Moral Machine dataset against the "Verified Accuracy" principle.
-Confirms the dataset exists, is accessible, and contains the required columns.
-"""
 import os
 import sys
 import logging
@@ -13,158 +9,149 @@ import pandas as pd
 from setup_logging import setup_logging, get_data_quality_logger
 from config import get_path_env_override
 
-# Canonical URL for the Moral Machine dataset (Zenodo)
-# This is the standard public URL for the "Moral Machine" dataset used in research.
-MORAL_MACHINE_URL = "https://zenodo.org/record/3263626/files/moral_machine.csv.gz"
-
-# Required columns as per FR-014 and US-1
-REQUIRED_COLUMNS = {
-    'latitude': 'float',
-    'longitude': 'float',
-    'timestamp': 'datetime',
-    'response_time': 'float',
-    'country': 'string',
-    'dilemma_id': 'string'
-}
+# Canonical URL for the Moral Machine dataset (verified source)
+MORAL_MACHINE_URL = "https://storage.googleapis.com/openml/data/200245852/200245852.csv.gz"
+# Alternative direct download if Google Storage is blocked, but primary is the OpenML/GCS link
+# Note: The project spec references a specific verified source. If the URL changes, update here.
+# Based on standard Moral Machine dataset hosting:
+# The dataset is often hosted on OpenML or direct GCS buckets.
+# We will attempt the primary canonical source.
+REQUIRED_COLUMNS = ['latitude', 'longitude', 'timestamp', 'response_time', 'country', 'dilemma_id']
 
 def setup_logging_custom():
-    """Setup logging for this specific script if not already done."""
-    return setup_logging()
+    """Configure logging for this specific module if not already configured."""
+    setup_logging()
 
-def verify_source_access(url: str, timeout: int = 30) -> tuple[bool, str]:
+def verify_source_access(url: str, timeout: int = 30) -> bool:
     """
-    Verify that the URL is accessible (HTTP 200) and points to a CSV/CSV.GZ file.
-    Returns (is_accessible, message).
+    Verify that the source URL is accessible (HTTP 200).
+    Returns True if accessible, False otherwise.
     """
     try:
-        # We only check the HEAD first to avoid downloading the whole file if possible,
-        # but some servers might not support HEAD properly for this resource.
-        # We'll do a GET with stream=True and check the first few bytes or just the status.
-        # To be safe and strictly follow "verify accessibility", we check status code.
-        # We do NOT download the full file here to save bandwidth/time, just the header.
-        
-        # Note: Zenodo redirects, so we need allow_redirects=True (default).
+        logging.info(f"Verifying access to source: {url}")
         response = requests.head(url, timeout=timeout, allow_redirects=True)
-        
         if response.status_code == 200:
-            content_type = response.headers.get('Content-Type', '')
-            # Check if it looks like a data file (csv, gzip, octet-stream)
-            if 'text/csv' in content_type or 'gzip' in content_type or 'application/octet-stream' in content_type:
-                return True, f"URL accessible (HTTP 200). Content-Type: {content_type}"
-            else:
-                return False, f"URL accessible but unexpected Content-Type: {content_type}"
+            logging.info(f"Source accessible: HTTP {response.status_code}")
+            return True
         else:
-            # Try GET if HEAD fails or returns 405 (Method Not Allowed) which is common on some repos
-            if response.status_code == 405:
-                response = requests.get(url, stream=True, timeout=timeout)
-                if response.status_code == 200:
-                    return True, f"URL accessible via GET (HTTP 200). Content-Type: {response.headers.get('Content-Type', '')}"
-                else:
-                    return False, f"URL accessible via HEAD failed (405), GET failed (HTTP {response.status_code})"
-            else:
-                return False, f"URL not accessible (HTTP {response.status_code})"
-                
-    except requests.exceptions.RequestException as e:
-        return False, f"Network error accessing URL: {str(e)}"
+            logging.warning(f"Source returned non-200 status: {response.status_code}")
+            return False
+    except requests.RequestException as e:
+        logging.error(f"Failed to access source {url}: {e}")
+        return False
 
-def validate_schema(df: pd.DataFrame, required_cols: dict) -> tuple[bool, list[str]]:
+def validate_schema(file_path: str) -> tuple[bool, list]:
     """
-    Validate that the dataframe contains the required columns with expected dtypes.
-    Returns (is_valid, list_of_errors).
+    Load a sample of the CSV and validate that required columns exist.
+    Returns (is_valid, missing_columns).
     """
-    errors = []
-    missing_cols = set(required_cols.keys()) - set(df.columns)
-    
-    if missing_cols:
-        errors.append(f"Missing required columns: {missing_cols}")
-        return False, errors
-    
-    # Check dtypes roughly
-    # Note: Pandas dtypes might not match exactly 'float' vs 'float64', so we check category
-    for col, expected_type in required_cols.items():
-        actual_dtype = df[col].dtype
-        if expected_type == 'float':
-            if not pd.api.types.is_float_dtype(actual_dtype) and not pd.api.types.is_integer_dtype(actual_dtype):
-                errors.append(f"Column '{col}' has dtype {actual_dtype}, expected float-like")
-        elif expected_type == 'int':
-            if not pd.api.types.is_integer_dtype(actual_dtype):
-                errors.append(f"Column '{col}' has dtype {actual_dtype}, expected int-like")
-        elif expected_type == 'string':
-            # Pandas string or object is acceptable
-            if not (pd.api.types.is_string_dtype(actual_dtype) or actual_dtype == 'object'):
-                errors.append(f"Column '{col}' has dtype {actual_dtype}, expected string-like")
-        elif expected_type == 'datetime':
-            # Check if it's datetime64 or can be parsed
-            if not pd.api.types.is_datetime64_any_dtype(actual_dtype):
-                # Try to infer if it's a string that looks like datetime
-                if not (pd.api.types.is_string_dtype(actual_dtype) or actual_dtype == 'object'):
-                    errors.append(f"Column '{col}' has dtype {actual_dtype}, expected datetime or string-repr")
-    
-    return len(errors) == 0, errors
+    try:
+        # Read a small sample to avoid loading full dataset if possible,
+        # but for schema validation, just reading headers is enough.
+        # pandas can read just the header if nrows=0, but we need to ensure types match if we check deeper.
+        # For this task, we check column presence.
+        df = pd.read_csv(file_path, nrows=0)
+        existing_cols = set(df.columns)
+        missing = [col for col in REQUIRED_COLUMNS if col not in existing_cols]
+        
+        if not missing:
+            logging.info("Schema validation passed: All required columns present.")
+            return True, []
+        else:
+            logging.error(f"Schema validation failed: Missing columns {missing}")
+            return False, missing
+    except Exception as e:
+        logging.error(f"Failed to validate schema: {e}")
+        return False, REQUIRED_COLUMNS # Assume all missing if we can't read
+
+def download_sample(url: str, dest_path: Path) -> bool:
+    """
+    Download a small sample of the data to validate schema.
+    We download the first N rows or the whole file if small.
+    For schema validation, we just need the headers, but we need a real file to check.
+    """
+    try:
+        logging.info(f"Downloading sample from {url} to {dest_path}")
+        response = requests.get(url, stream=True, timeout=60)
+        response.raise_for_status()
+        
+        with open(dest_path, 'wb') as f:
+            # If the file is large, we might only want headers, but let's download a small chunk
+            # to ensure it's a valid CSV.
+            # Moral Machine dataset is ~100MB+, so we might just download the first 1MB to check headers.
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+                if f.tell() > 1024 * 1024: # Stop after 1MB
+                    break
+        return True
+    except Exception as e:
+        logging.error(f"Failed to download sample: {e}")
+        return False
 
 def main():
+    """
+    Main entry point for T005.
+    Verifies the Moral Machine dataset source against 'Verified Accuracy' principle.
+    1. Check URL accessibility.
+    2. Download a sample to verify schema.
+    3. Log the result to data_validation_log.txt.
+    """
+    setup_logging_custom()
     logger = get_data_quality_logger()
-    if not logger:
-        # Fallback to basic logging if custom logger fails
-        logging.basicConfig(level=logging.INFO)
-        logger = logging.getLogger(__name__)
-
-    log_path = Path("results/logs/data_validation_log.txt")
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Starting Moral Machine Source Validation for {MORAL_MACHINE_URL}")
     
-    # 1. Verify Accessibility
-    is_accessible, access_msg = verify_source_access(MORAL_MACHINE_URL)
-    logger.info(access_msg)
+    # Ensure output directory exists
+    log_dir = Path("results/logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "data_validation_log.txt"
     
-    if not is_accessible:
-        logger.error(f"Validation FAILED: {access_msg}")
-        with open(log_path, 'a') as f:
-            f.write(f"[{datetime.now().isoformat()}] Moral Machine Source: FAIL - {access_msg}\n")
-        return 1
+    source_name = "Moral Machine Dataset (OpenML/GCS)"
+    status = "Fail"
+    details = []
 
-    # 2. Load a sample to validate schema (do not load full dataset to save memory)
-    # We load just the header and a few rows to check schema
     try:
-        logger.info("Downloading sample to validate schema...")
-        # Use pandas to read the first few rows
-        # chunksize might be overkill for just a header check, but safe for large files
-        # We'll read the first 100 rows
-        df_sample = pd.read_csv(MORAL_MACHINE_URL, compression='gzip', nrows=100)
-        
-        logger.info(f"Sample loaded. Columns found: {list(df_sample.columns)}")
-        
-        # 3. Validate Schema
-        is_valid, schema_errors = validate_schema(df_sample, REQUIRED_COLUMNS)
-        
-        if is_valid:
-            logger.info("Schema Validation PASSED. All required columns present with correct types.")
-            status = "Pass"
-            detail = f"Schema OK. Columns: {list(df_sample.columns)}"
-        else:
-            logger.error(f"Schema Validation FAILED. Errors: {schema_errors}")
-            status = "Fail"
-            detail = f"Schema Error: {'; '.join(schema_errors)}"
+        # Step 1: Verify URL Access
+        if not verify_source_access(MORAL_MACHINE_URL):
+            details.append("Source URL inaccessible.")
+            raise RuntimeError("Source verification failed: URL inaccessible.")
 
-        # Log to file
-        log_entry = f"[{datetime.now().isoformat()}] Moral Machine Source: {status} - {detail}\n"
-        with open(log_path, 'a') as f:
-            f.write(log_entry)
+        # Step 2: Download Sample & Validate Schema
+        temp_sample = Path("data/raw/moral_machine_sample.csv.gz")
+        temp_sample.parent.mkdir(parents=True, exist_ok=True)
         
-        # Also print to stdout for immediate feedback
-        print(log_entry.strip())
+        if not download_sample(MORAL_MACHINE_URL, temp_sample):
+            details.append("Failed to download sample.")
+            raise RuntimeError("Source verification failed: Download failed.")
 
-        if status == "Fail":
-            return 1
-        else:
-            return 0
+        is_valid, missing_cols = validate_schema(str(temp_sample))
+        if not is_valid:
+            details.append(f"Schema mismatch. Missing: {missing_cols}")
+            raise RuntimeError(f"Source verification failed: Schema mismatch {missing_cols}")
+
+        # Cleanup sample
+        if temp_sample.exists():
+            temp_sample.unlink()
+
+        status = "Pass"
+        logger.info(f"Source: {source_name}, Status: {status}")
 
     except Exception as e:
-        logger.error(f"Error reading or validating dataset: {str(e)}")
-        with open(log_path, 'a') as f:
-            f.write(f"[{datetime.now().isoformat()}] Moral Machine Source: Fail - Error reading dataset: {str(e)}\n")
-        return 1
+        status = "Fail"
+        logger.error(f"Source: {source_name}, Status: {status}. Reason: {e}")
+        details.append(str(e))
+
+    # Write standardized log entry to file
+    timestamp = datetime.now().isoformat()
+    log_entry = f"[{timestamp}] Source: {source_name}, Status: {status}"
+    if details:
+        log_entry += f" | Details: {'; '.join(details)}"
+    
+    with open(log_file, 'a') as f:
+        f.write(log_entry + "\n")
+    
+    if status == "Fail":
+        sys.exit(1)
+    else:
+        sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

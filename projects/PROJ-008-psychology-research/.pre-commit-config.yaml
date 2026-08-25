@@ -1,23 +1,31 @@
+# Pre-commit configuration for automated linting and formatting
+# Install with: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=10000'] # Allow larger data files if needed
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      # Run the linter.
+      - id: ruff
+        args: [--fix]
+      # Run the formatter.
+      - id: ruff-format
+
   - repo: https://github.com/psf/black
-    rev: 24.3.0
+    rev: 23.12.1
     hooks:
       - id: black
         language_version: python3.11
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.4
-    hooks:
-      - id: ruff
-        args: [--fix]
-      - id: ruff-format
-        # Use ruff's formatter as an alternative to black if preferred,
-        # otherwise keep black separate. Here we use ruff-format for speed.
-        # To use black instead, remove this hook and keep the black one above.
-  - repo: local
-    hooks:
-      - id: ensure-no-fake-data
-        name: Ensure no fake data generation
-        entry: bash -c 'echo "Running pre-commit checks..." && exit 0'
-        language: system
-        pass_filenames: false
-        always_run: true
+        args: [--config=projects/PROJ-008-psychology-research/pyproject.toml]

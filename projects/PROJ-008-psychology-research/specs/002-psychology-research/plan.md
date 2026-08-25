@@ -1,99 +1,62 @@
-# Implementation Plan: Mindfulness Components and Delivery Formats in ASD Social Skills
+# Implementation Plan: Mindfulness and ASD Social Skills Meta-Analysis
 
-**Branch**: `001-mindfulness-asd-social-skills` | **Date**: 2026-06-26 | **Spec**: `specs/001-mindfulness-asd-social-skills/spec.md`
+## Overview
+This document outlines the implementation strategy for a systematic review and
+meta-analysis examining mindfulness-based interventions for improving social
+skills in children aged 6-12 with Autism Spectrum Disorder (ASD).
 
-## Summary
+## Constitution Principles
 
-This feature implements a reproducible meta-analysis pipeline to evaluate the efficacy of mindfulness components (breath awareness, body scan, loving-kindness) and delivery formats (caregiver-mediated vs. child-led) on social skills in children (aged 6-12) with Autism Spectrum Disorder (ASD). The system ingests data from ClinicalTrials.gov, OSF, and verified open-access repositories, calculates Hedges' *g* effect sizes, performs random-effects meta-analysis, and generates publication-quality visualizations. The implementation strictly adheres to CPU-only constraints for GitHub Actions free-tier runners.
+### Principle I: Verified Accuracy
+All data must be sourced from verified registries (ClinicalTrials.gov, OSF).
+No synthetic or fabricated data is permitted.
 
-## Technical Context
+### Principle II: Reproducibility
+All analysis steps must be documented and executable on a fresh environment
+with identical results (SC-005).
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `statsmodels`, `matplotlib`, `requests`, `pyyaml`, `pytest`, `bayesmeta` (for Bayesian fallback)  
-**Storage**: Local file system (`data/raw`, `data/processed`, `data/interim`, `state`)  
-**Testing**: `pytest` with contract validation against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM)  
-**Project Type**: Data Science Pipeline / CLI  
-**Performance Goals**: Complete pipeline execution within 6 hours on CPU-only hardware; memory usage < 7 GB.  
-**Constraints**: No GPU; no heavy LLM inference; strict adherence to FR-001 retry logic for API calls; dataset variable fit must be verified before analysis.  
-**Scale/Scope**: Processing of studies retrieved from ClinicalTrials.gov/OSF, with subgroup analysis contingent on N >= 20 per updated methodology.
+### Principle III: Ethical Compliance
+Secondary analysis of de-identified public registry data is exempt from IRB
+review (see docs/ethics_determination.md).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase.
+### Principle IV: Data Integrity
+All data artifacts must be hashed and versioned (Constitution Principle V).
 
-## Constitution Check
+### Principle V: Fail Fast
+The pipeline must fail loudly on any data quality issue, missing dependency,
+or schema violation. No silent degradation.
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+### Principle VI: Clinical Trial Registry Integrity
+Data sources are strictly limited to ClinicalTrials.gov and OSF. Any other
+sources mentioned in feature specifications are overridden by this principle.
 
-| Principle | Status | Action / Justification |
-|-----------|--------|------------------------|
-| I. Reproducibility | **PASS** | All random seeds pinned in `code/`. External datasets fetched from canonical sources (ClinicalTrials.gov API, OSF API, PMC) with checksums recorded. |
-| II. Verified Accuracy | **PASS** | All citations in `research.md` will be validated against the "Verified datasets" block. No invented URLs. |
-| III. Data Hygiene | **PASS** | Raw data preserved; derivations written to new files. PII scan integrated into CI. |
-| IV. Single Source of Truth | **PASS** | Figures/statistics in paper trace to `data/processed` CSV and `code/` scripts. |
-| V. Versioning Discipline | **PASS** | Content hashes for artifacts will be managed in `state/` via `scripts/hash_artifacts.py`. |
-| VI. Clinical Trial Registry Integrity | **PASS** | Analysis restricted to ClinicalTrials.gov/OSF over the past decade. Search queries logged. |
-| VII. Caregiver-Mediated Delivery Verification | **PASS** | `delivery_format` field explicitly tagged; ambiguous entries flagged/excluded from subgroup analysis; manual double-coding protocol included. |
+## Technical Constraints
 
-## Project Structure
+- **CPU-Only**: All computations must run on CPU (no GPU dependencies).
+- **Memory Limit**: Maximum 7GB RAM, 14GB disk usage.
+- **Python Version**: 3.11+
+- **Dependencies**: Strictly limited to pip-installable packages listed in requirements.txt.
 
-### Documentation (this feature)
+## Implementation Phases
 
-```text
-specs/001-mindfulness-asd-social-skills/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── cleaned_study.schema.yaml
-│   └── effect_size.schema.yaml
-└── tasks.md             # Phase 2 output
-```
+1. **Setup (Phase 1)**: Project structure, dependencies, tooling
+2. **Foundational (Phase 2)**: Models, logging, config, ethics documentation
+3. **User Story 1 (Phase 3)**: Data collection and cleaning pipeline (P1)
+4. **User Story 2 (Phase 4)**: Effect size calculation and meta-analysis (P2)
+5. **User Story 3 (Phase 5)**: Visualization and publication bias (P3)
+6. **Polish (Phase 6)**: CI/CD, validation, documentation
 
-### Source Code (repository root)
+## Novel Contribution
 
-```text
-projects/PROJ-008-psychology-research/
-├── code/
-│   ├── __init__.py
-│   ├── main.py                 # Orchestration entry point
-│   ├── data/
-│   │   ├── collector.py        # API ingestion (FR-001, FR-002)
-│   │   ├── extractor.py        # Data extraction (FR-003, FR-009)
-│   │   └── cleaner.py          # Validation & cleaning (FR-007)
-│   ├── analysis/
-│   │   ├── effect_sizes.py     # Hedges' g calculation (FR-004, FR-013)
-│   │   ├── meta_analysis.py    # Random-effects model (FR-005, FR-011, FR-012)
-│   │   └── bias.py             # Publication bias tests (FR-006, FR-014)
-│   ├── viz/
-│   │   └── plots.py            # Forest & Funnel plots (FR-006)
-│   └── utils/
-│       ├── config.py           # Constants & seeds
-│       └── logging.py          # Structured logging (FR-007)
-├── data/
-│   ├── raw/                    # API dumps (immutable)
-│   ├── interim/                # Intermediate JSON/CSV
-│   └── processed/              # Final clean CSV for analysis
-├── contracts/                  # Schema definitions
-│   ├── cleaned_study.schema.yaml
-│   └── effect_size.schema.yaml
-├── state/                      # Versioning & Hashing
-│   └── projects/PROJ-008-psychology-research.yaml
-├── scripts/                    # Utility scripts
-│   └── hash_artifacts.py       # Generates/updates state hashes
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── contract/
-└── docs/
-    ├── protocol.md
-    └── results.md
-```
+This meta-analysis addresses a gap in the literature by:
+- Focusing specifically on the 6-12 age range (often under-represented)
+- Disaggregating mindfulness components (breathing, body scan, mindful movement)
+- Analyzing delivery formats (individual vs. group, parent-mediated vs. child-only)
+- Providing the first systematic synthesis of delivery format efficacy in this population
 
-**Structure Decision**: Single project structure selected to maintain tight coupling between data ingestion, analysis, and visualization, ensuring reproducibility as per Constitution Principle I.
+## Risk Mitigation
 
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| N/A | No violations identified. | The plan strictly follows the spec and CPU constraints. |
+- **Small Sample Size (N < 10)**: Fallback to descriptive synthesis (T029, T037)
+- **Missing Data**: Multiple imputation or complete-case analysis per analysis-plan.md
+- **Heterogeneity**: Random-effects model if I² > 50%, subgroup analysis for moderators
+- **Publication Bias**: Funnel plot and Egger's test only if N ≥ 10

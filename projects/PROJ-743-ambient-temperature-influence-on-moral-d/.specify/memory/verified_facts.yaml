@@ -1,0 +1,21 @@
+5|2m dataset era5 temperature used variable:
+  quote: against ERA5. In doing so, we identify a recurrent, spatially coherent error
+    in 2m Temperature centred
+  source_id: '2601.04701'
+  url: https://arxiv.org/abs/2601.04701
+  value: 2m Temperature
+'|data era5 grid resolution source':
+  quote: Freely available Global Atmospheric Models such as ERA5 data are generated
+    using Copernicus Climate Change Service Information developed for numerical weather
+    prediction. These models can provide accurate and high-resolution (still is coarse
+    for InSAR studies) parameters for characterizing the atmosphere state. Therefore,
+    these methods are promising and practical techniques for atmospheric noise mitigation
+    in InSAR technique. Based on the combination of different input datasets, the
+    ERA5 is a global atmospheric model calculated by the European Center for Medium-Range
+    Weather Forecasting (ECMWF). Several meteorological parameters are provided, such
+    as pressure, temperature, and relative humidity, at hourly intervals with a horizontal
+    resolution of 0.25 degrees and a vertical resolution of 37 intervals from sea
+    level to 50 km.
+  source_id: Atmospheric correction for interferometric synthetic aperture radar technique
+  url: https://en.wikipedia.org/wiki/Atmospheric_correction_for_interferometric_synthetic_aperture_radar_technique
+  value: '0.25'

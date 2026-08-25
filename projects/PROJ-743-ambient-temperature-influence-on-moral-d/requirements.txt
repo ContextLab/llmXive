@@ -11,5 +11,5 @@ cdsapi
 huggingface_hub
 polars
 rasterio
-h5netcdf
-xarray
+ruff
+black

@@ -1,74 +1,131 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Effect Size Schema
-description: >
-  Schema for calculated Hedges' g effect sizes and associated statistics
-  derived from cleaned study data.
-  Enforced by code/analysis/effect_sizes.py and validated by tests/contract/test_effect_size_schema.py.
+title: EffectSize
+description: |
+  Schema for a calculated effect size (Hedges' g) derived from a cleaned study.
+  Used for meta-analysis aggregation.
+  Produced by code/analysis/effect_sizes.py.
 type: object
 required:
   - study_id
-  - registry_source
+  - source
   - hedges_g
   - var_hedges_g
-  - ci_lower_95
-  - ci_upper_95
-  - intervention_components
+  - se_hedges_g
+  - ci_lower
+  - ci_upper
+  - n_intervention
+  - n_control
+  - mean_intervention
+  - sd_intervention
+  - mean_control
+  - sd_control
+  - intervention_component
   - delivery_format
   - social_skill_domain
+  - follow_up_months
 properties:
   study_id:
     type: string
-    description: Reference to the source study_id from cleaned_studies.csv
-    pattern: "^(NCT[0-9]{8}|osf.io/[a-z0-9]+)$"
-  registry_source:
+    description: Unique identifier matching the source cleaned study.
+
+  source:
     type: string
     enum:
       - ClinicalTrials.gov
       - OSF
-    description: Source registry
+    description: Source registry.
+
   hedges_g:
     type: number
-    description: Calculated Hedges' g effect size with small-sample correction
+    format: float
+    description: Hedges' g effect size (with small-sample correction).
+
   var_hedges_g:
     type: number
-    exclusiveMinimum: 0
-    description: Variance of Hedges' g
-  ci_lower_95:
+    format: float
+    minimum: 0
+    description: Variance of Hedges' g.
+
+  se_hedges_g:
     type: number
-    description: Lower bound of 95% confidence interval
-  ci_upper_95:
+    format: float
+    minimum: 0
+    description: Standard error of Hedges' g.
+
+  ci_lower:
     type: number
-    description: Upper bound of 95% confidence interval
-  intervention_components:
-    type: array
-    items:
-      type: string
-      enum:
-        - mindfulness_breathing
-        - body_scan
-        - mindful_movement
-        - loving_kindness
-        - acceptance
-        - emotion_regulation
-        - cognitive_restructuring
-        - other
-    description: Intervention components for subgroup analysis
+    format: float
+    description: Lower bound of 95% confidence interval.
+
+  ci_upper:
+    type: number
+    format: float
+    description: Upper bound of 95% confidence interval.
+
+  n_intervention:
+    type: integer
+    minimum: 1
+    description: Sample size of intervention group.
+
+  n_control:
+    type: integer
+    minimum: 1
+    description: Sample size of control group.
+
+  mean_intervention:
+    type: number
+    format: float
+    description: Mean outcome for intervention group.
+
+  sd_intervention:
+    type: number
+    format: float
+    minimum: 0
+    description: SD outcome for intervention group.
+
+  mean_control:
+    type: number
+    format: float
+    description: Mean outcome for control group.
+
+  sd_control:
+    type: number
+    format: float
+    minimum: 0
+    description: SD outcome for control group.
+
+  intervention_component:
+    type: string
+    enum:
+      - Mindfulness
+      - Mindfulness + CBT
+      - Mindfulness + Yoga
+      - Mindfulness + Parent Training
+      - Other
+    description: Mindfulness component.
+
   delivery_format:
     type: string
     enum:
-      - individual
-      - group
-      - school_based
-      - home_based
-      - hybrid
-    description: Delivery format for subgroup analysis
+      - Individual
+      - Group
+      - School-based
+      - Home-based
+      - Hybrid
+    description: Delivery format.
+
   social_skill_domain:
     type: string
     enum:
-      - communication
-      - social_perception
-      - emotional_recognition
-      - peer_interaction
-      - general
-    description: Social skill domain for subgroup analysis
+      - Communication
+      - Social Interaction
+      - Emotional Regulation
+      - Peer Relationships
+      - Comprehensive
+    description: Social skill domain.
+
+  follow_up_months:
+    type: integer
+    minimum: 0
+    description: Follow-up duration in months.
 additionalProperties: false

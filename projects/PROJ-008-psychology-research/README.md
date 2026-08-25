@@ -1,25 +1,66 @@
-# PROJ-008: Mindfulness Components and Delivery Formats in ASD Social Skills
+# Mindfulness in ASD Social Skills Meta-Analysis
 
-## Overview
 This project implements a systematic review and meta-analysis of mindfulness-based interventions for improving social skills in children with Autism Spectrum Disorder (ASD).
 
+## Setup
+
+### Prerequisites
+- Python 3.11+
+- pip
+
+### Installation
+
+1. Clone the repository:
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-008-psychology-research
+ ```
+
+2. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. Install dependencies:
+ ```bash
+ pip install -e ".[dev]"
+ ```
+
+4. Install pre-commit hooks:
+ ```bash
+ pre-commit install
+ ```
+
+## Linting and Formatting
+
+This project uses **Ruff** for linting and **Black** for formatting.
+
+### Running Linting
+```bash
+ruff check.
+```
+
+### Running Formatting
+```bash
+ruff format.
+# Or
+black.
+```
+
+### Pre-commit
+To automatically check and fix code before committing:
+```bash
+pre-commit run --all-files
+```
+
 ## Project Structure
-- `code/`: Python source code for data collection, cleaning, analysis, and visualization
-- `data/`: Raw and processed data artifacts
-- `tests/`: Unit, integration, and contract tests
-- `contracts/`: Schema definitions for data validation
-- `docs/`: Documentation including protocol, ethics determination, and results
-- `specs/`: Feature specifications and implementation plans
+- `code/`: Source code modules
+- `data/`: Raw and processed data
+- `tests/`: Unit and integration tests
+- `contracts/`: Data schema definitions
+- `docs/`: Documentation and reports
+- `specs/`: Research specifications and plans
 
-## Quickstart
-1. Ensure Python 3.11+ is installed
-2. Install dependencies: `pip install -r requirements.txt`
-3. Run the pipeline: `python code/main.py`
-
-## Data Sources
-Per Constitution Principle VI, data is sourced exclusively from:
-- ClinicalTrials.gov
-- Open Science Framework (OSF)
-
-## License
-See LICENSE file for usage terms.
+## Running the Pipeline
+Refer to `quickstart.md` for detailed execution steps.

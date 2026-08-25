@@ -1,2 +1,3 @@
-# PROJ-008-psychology-research
-# Automated Science Pipeline for Mindfulness Components and Delivery Formats in ASD Social Skills
+# PROJ-008-psychology-research: Code package
+# Implements data collection, cleaning, analysis, and visualization for
+# mindfulness-based interventions in ASD social skills meta-analysis.

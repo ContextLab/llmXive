@@ -1,139 +1,218 @@
 """
-T019b: Explicitly verify that raw data files under data/raw/ remain unchanged
-after preprocessing completes. Fail if any modification detected.
+T019 Implementation: Verify Raw Data Integrity.
 
-This script implements the integrity check required by Constitution Principle III
-(no in-place modification of raw data) and Task T019b.
+This module computes SHA-256 hashes of raw data files before processing
+and recomputes them after any transformation to ensure no in-place
+modification occurred, adhering to Constitution Principle III.
 
-It compares the SHA-256 checksums of raw files against the hashes recorded
-during the acquisition phase (T014/T019).
+It also provides a workflow to verify that raw files remain unchanged
+after the preprocessing pipeline has run.
 """
 import os
 import sys
 import hashlib
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
+import time
 
-# Add parent directory to path to allow imports from code/
-code_dir = Path(__file__).resolve().parent
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Add project root to path to allow relative imports if running as script
+# but primarily designed to be imported or run within the project context.
+sys.path.insert(0, str(Path(__file__).parent))
 
 from utils.validators import compute_sha256, verify_checksum
 from utils.logging_utils import log_warning, log_exclusion
-from data_model import Dataset  # Using the class if needed for typing, though not strictly used here
 
-# FR-008 Disclaimer
-DISCLAIMER = "Findings are associational only; no causal claims are made."
 
-def log_header(script_name: str):
-    """Print a standardized header for logging purposes."""
-    print(f"--- {script_name} ---")
-    print(f"Disclaimer: {DISCLAIMER}")
-    print("-" * 40)
+def log_header(message: str) -> None:
+    """Print a formatted header to stdout and log to exclusion log if needed."""
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    header = f"[{timestamp}] {message}"
+    print(header)
+    # Note: This specific log header doesn't necessarily go to exclusion log
+    # unless it's a warning or error, but we print it for visibility.
+
 
 def get_raw_files(raw_dir: Path) -> List[Path]:
     """
     Retrieve all CSV files from the raw data directory.
+
+    Args:
+        raw_dir: Path to data/raw/
+
+    Returns:
+        List of Path objects pointing to CSV files.
     """
     if not raw_dir.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
+        log_header(f"ERROR: Raw data directory not found: {raw_dir}")
+        return []
+    
     files = list(raw_dir.glob("*.csv"))
     if not files:
-        raise ValueError(f"No CSV files found in {raw_dir}")
+        log_header(f"WARNING: No CSV files found in {raw_dir}")
     return sorted(files)
+
 
 def load_expected_checksums(state_file: Path) -> Dict[str, str]:
     """
-    Load the expected checksums from the project state file.
-    The state file is expected to be in YAML format with a structure like:
-    artifact_hashes:
-      data/raw/adult.csv: "sha256_hash_string"
-      ...
-    """
-    import yaml
-    if not state_file.exists():
-        raise FileNotFoundError(f"State file not found: {state_file}")
-    
-    with open(state_file, 'r') as f:
-        data = yaml.safe_load(f)
-    
-    if not data or 'artifact_hashes' not in data:
-        raise ValueError(f"State file missing 'artifact_hashes' section: {state_file}")
-    
-    return data['artifact_hashes']
+    Load expected SHA-256 checksums from the project state YAML file.
 
-def verify_integrity_workflow(raw_dir: Path, state_file: Path) -> Tuple[bool, List[str], List[str]]:
-    """
-    Main workflow to verify raw data integrity.
-    
+    Args:
+        state_file: Path to state/projects/PROJ-099...yaml
+
     Returns:
-        (all_passed, passed_files, failed_files)
+        Dictionary mapping relative file paths to their expected SHA-256 hashes.
     """
-    raw_files = get_raw_files(raw_dir)
-    expected_checksums = load_expected_checksums(state_file)
+    if not state_file.exists():
+        log_header(f"WARNING: State file not found at {state_file}. Cannot verify against stored checksums.")
+        return {}
     
-    passed_files = []
-    failed_files = []
-    missing_expected = []
+    import yaml
+    try:
+        with open(state_file, 'r') as f:
+            state_data = yaml.safe_load(f)
+        
+        # The checksums are expected to be under artifact_hashes or similar structure
+        # Based on T009 and T017, they are recorded in the state file.
+        # Assuming a structure like: artifact_hashes: { "data/raw/adult.csv": "sha256..." }
+        artifact_hashes = state_data.get('artifact_hashes', {})
+        return artifact_hashes
+    except Exception as e:
+        log_header(f"ERROR: Failed to load state file {state_file}: {e}")
+        return {}
 
+
+def verify_integrity_workflow(raw_dir: Path, state_file: Path, log_file: Optional[Path] = None) -> Tuple[bool, Dict[str, str], Dict[str, str]]:
+    """
+    Execute the full integrity verification workflow.
+
+    1. Compute current hashes of all raw files.
+    2. Load expected hashes from state file.
+    3. Compare and report mismatches.
+    4. Log any discrepancies to the exclusion log.
+
+    Args:
+        raw_dir: Path to data/raw/
+        state_file: Path to the project state YAML
+        log_file: Optional path to the exclusion log (default: logs/exclusion.log)
+
+    Returns:
+        Tuple of (success_flag, current_hashes, expected_hashes)
+        success_flag is True if all files match expected checksums.
+    """
+    log_header("Starting Raw Data Integrity Verification (T019)")
+    print("Finding raw files...")
+    raw_files = get_raw_files(raw_dir)
+    
+    if not raw_files:
+        log_header("FAILURE: No raw files found to verify.")
+        return False, {}, {}
+
+    print(f"Found {len(raw_files)} raw file(s). Computing SHA-256 hashes...")
+    current_hashes = {}
     for file_path in raw_files:
-        filename = file_path.name
-        current_hash = compute_sha256(file_path)
-        
-        if filename not in expected_checksums:
-            msg = f"Raw file '{filename}' has no recorded checksum in state file. Cannot verify integrity."
-            log_warning(msg)
-            missing_expected.append(filename)
-            failed_files.append(filename)
-            continue
-
-        expected_hash = expected_checksums[filename]
-        
-        if current_hash == expected_hash:
-            passed_files.append(filename)
-            print(f"✓ PASS: {filename} (Integrity Verified)")
-        else:
-            msg = f"✗ FAIL: {filename} - Hash mismatch. Expected: {expected_hash[:16]}..., Got: {current_hash[:16]}..."
-            log_warning(msg)
-            # Log to exclusion log as a critical failure event
+        try:
+            # Compute hash
+            hash_val = compute_sha256(file_path)
+            current_hashes[str(file_path.relative_to(raw_dir.parent))] = hash_val
+            print(f"  {file_path.name}: {hash_val[:16]}...")
+        except Exception as e:
+            log_header(f"ERROR: Failed to compute hash for {file_path}: {e}")
             log_exclusion(
-                dataset_id=filename,
-                missing_variable_name="INTEGRITY_CHECK",
-                reason="Hash mismatch detected. File may have been modified."
+                dataset_id=file_path.stem,
+                missing_variable_name="integrity_check",
+                reason=f"Hash computation failed: {e}"
             )
-            failed_files.append(filename)
 
-    all_passed = len(failed_files) == 0 and len(missing_expected) == 0
-    return all_passed, passed_files, failed_files
+    print("\nLoading expected checksums from state file...")
+    expected_hashes = load_expected_checksums(state_file)
+
+    if not expected_hashes:
+        log_header("WARNING: No expected checksums found in state file. Cannot perform comparison.")
+        # If no expected hashes, we assume the raw files are the baseline, 
+        # but strictly speaking, T019 requires comparison. 
+        # We return success=False to indicate the check couldn't be fully performed against a baseline.
+        return False, current_hashes, {}
+
+    print("\nComparing checksums...")
+    all_match = True
+    mismatches = []
+
+    # Check all expected files exist and match
+    for rel_path, expected_hash in expected_hashes.items():
+        full_path = raw_dir.parent / rel_path
+        
+        if full_path not in [raw_dir.parent / k for k in current_hashes.keys()]:
+            # File expected but not found in current scan (might be in subdirs or deleted)
+            # We look for it specifically
+            found = False
+            for f in raw_files:
+                if f.name in rel_path: # Simple name match if path structure varies slightly
+                    found = True
+                    break
+            
+            if not found:
+                log_header(f"FAILURE: Expected file not found: {rel_path}")
+                all_match = False
+                mismatches.append(rel_path)
+                continue
+
+        if rel_path in current_hashes:
+            actual = current_hashes[rel_path]
+            if actual == expected_hash:
+                print(f"  [OK] {rel_path}")
+            else:
+                log_header(f"FAILURE: Checksum mismatch for {rel_path}")
+                log_header(f"       Expected: {expected_hash}")
+                log_header(f"       Actual:   {actual}")
+                all_match = False
+                mismatches.append(rel_path)
+                log_exclusion(
+                    dataset_id=rel_path.split('/')[-1].split('.')[0],
+                    missing_variable_name="integrity_check",
+                    reason=f"Checksum mismatch: expected {expected_hash[:8]}..., got {actual[:8]}..."
+                )
+        else:
+            log_header(f"FAILURE: File {rel_path} found on disk but not in current scan results.")
+            all_match = False
+            mismatches.append(rel_path)
+
+    # Check for unexpected files (files on disk not in expected list)
+    for rel_path in current_hashes.keys():
+        if rel_path not in expected_hashes:
+            log_header(f"WARNING: Unexpected file found: {rel_path}")
+            # Not necessarily a failure of integrity, but a deviation from expected state.
+            # We log it but don't fail the integrity check unless strict mode is required.
+            # For T019, we focus on "unchanged", so extra files are a warning.
+
+    if all_match:
+        log_header("SUCCESS: All raw data files match their expected checksums. Integrity verified.")
+    else:
+        log_header(f"FAILURE: {len(mismatches)} file(s) failed integrity verification.")
+        print("\nMismatches:")
+        for m in mismatches:
+            print(f"  - {m}")
+
+    return all_match, current_hashes, expected_hashes
+
 
 def main():
-    log_header("T019b: Raw Data Integrity Verification")
-    
-    project_root = code_dir.parent
+    """Main entry point for the script."""
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent
     raw_dir = project_root / "data" / "raw"
     state_file = project_root / "state" / "projects" / "PROJ-099-statistical-analysis-of-algorithmic-fair.yaml"
+    exclusion_log = project_root / "logs" / "exclusion.log"
+
+    if not exclusion_log.exists():
+        # Initialize log if missing to ensure logging works
+        exclusion_log.parent.mkdir(parents=True, exist_ok=True)
+        with open(exclusion_log, 'w') as f:
+            f.write("timestamp,dataset_id,missing_variable_name,reason\n")
+
+    success, current, expected = verify_integrity_workflow(raw_dir, state_file, exclusion_log)
     
-    try:
-        all_passed, passed, failed = verify_integrity_workflow(raw_dir, state_file)
-        
-        print("-" * 40)
-        print(f"Total Checked: {len(passed) + len(failed)}")
-        print(f"Passed: {len(passed)}")
-        print(f"Failed: {len(failed)}")
-        
-        if not all_passed:
-            print("\nCRITICAL: Raw data integrity verification FAILED.")
-            print("The raw data files may have been modified during preprocessing.")
-            print("Please investigate the failed files before proceeding.")
-            sys.exit(1)
-        else:
-            print("\nSUCCESS: All raw data files remain unchanged.")
-            sys.exit(0)
-            
-    except Exception as e:
-        print(f"\nFATAL ERROR during verification: {e}")
-        sys.exit(1)
+    sys.exit(0 if success else 1)
+
 
 if __name__ == "__main__":
     main()

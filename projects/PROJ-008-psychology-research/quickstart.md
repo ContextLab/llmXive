@@ -1,12 +1,6 @@
-# Quickstart Guide: PROJ-008 Psychology Research
+# Quickstart Guide
 
-## Prerequisites
-
-- Python 3.11 or higher
-- pip package manager
-- Access to ClinicalTrials.gov and OSF APIs
-
-## Installation
+## Environment Setup
 
 1. Clone the repository and navigate to the project root:
  ```bash
@@ -16,7 +10,7 @@
 2. Create a virtual environment:
  ```bash
  python -m venv venv
- source venv/bin/activate # Windows: venv\Scripts\activate
+ source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
 3. Install dependencies:
@@ -24,27 +18,26 @@
  pip install -r requirements.txt
  ```
 
+4. (Optional) Install development tools:
+ ```bash
+ pip install -e ".[dev]"
+ ```
+
 ## Verification
 
 Run the test suite to verify the environment:
 ```bash
-pytest tests/ -v
+pytest
 ```
 
-## Data Collection
+## Pipeline Execution
 
-The data collector (Task T014) will download raw study metadata from ClinicalTrials.gov and OSF. Ensure network access is available.
+The main pipeline is executed via the `scripts/run_pipeline.py` entry point
+(to be implemented in subsequent tasks).
 
-## Execution
+## Data Sources
 
-To run the full pipeline:
-```bash
-python code/data/collector.py
-python code/data/extractor.py
-python code/data/cleaner.py
-python code/analysis/effect_sizes.py
-python code/analysis/meta_analysis.py
-python code/viz/plots.py
-```
+- **ClinicalTrials.gov**:
+- **Open Science Framework**: https://api.osf.io/v2/
 
-Refer to `docs/analysis-plan.md` for methodological details.
+Note: API rate limits apply. The collector implements exponential backoff.
