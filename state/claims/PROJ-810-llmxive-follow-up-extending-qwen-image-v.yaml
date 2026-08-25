@@ -4733,3 +4733,256 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T21:50:34Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 0
+  canonical: pandas version 2.2.1
+  claim_id: c_0f6befb1
+  context: 'Content MUST match the plan''s Technical Context exactly: ...pyyaml==6.0.1,
+    pandas==2.2.1...'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: pandas==2.2.1
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:32:00Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 0
+  canonical: pillow version 10.2.0
+  claim_id: c_e024b8be
+  context: 'Content MUST match the plan''s Technical Context exactly: ...seaborn==0.13.2,
+    pillow==10.2.0...'
+  evidence:
+    asserted: '10.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pillow==10.2.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T16:32:03Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: torch version 2.2.0+cpu
+  claim_id: c_09a0330c
+  context: 'Content MUST match the plan''s Technical Context exactly: torch==2.2.0+cpu,
+    transformers==4.40.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.2.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:36:11Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: transformers version 4.40.0
+  claim_id: c_9e2cb137
+  context: 'Content MUST match the plan''s Technical Context exactly: torch==2.2.0+cpu,
+    transformers==4.40.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.40.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:36:27Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: datasets version 2.18.0
+  claim_id: c_440cf5bf
+  context: 'Content MUST match the plan''s Technical Context exactly: ...transformers==4.40.0,
+    datasets==2.18.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.18.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:36:45Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_daa2e576
+  context: 'Content MUST match the plan''s Technical Context exactly: ...datasets==2.18.0,
+    scikit-learn==1.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:37:00Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: opencv-python-headless version 4.9.0.80
+  claim_id: c_75c3637b
+  context: 'Content MUST match the plan''s Technical Context exactly: ...scikit-learn==1.4.0,
+    opencv-python-headless==4.9.0.80...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opencv-python-headless==4.9.0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:37:29Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: paddleocr version 2.7.3
+  claim_id: c_c9346527
+  context: 'Content MUST match the plan''s Technical Context exactly: ...opencv-python-headless==4.9.0.80,
+    paddleocr==2.7.3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: paddleocr==2.7.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:38:00Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_cb490d6a
+  context: 'Content MUST match the plan''s Technical Context exactly: ...paddleocr==2.7.3,
+    pyyaml==6.0.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:38:03Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_fa44466d
+  context: 'Content MUST match the plan''s Technical Context exactly: ...pandas==2.2.1,
+    numpy==1.26.4...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:38:10Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.3
+  claim_id: c_6f5b02be
+  context: 'Content MUST match the plan''s Technical Context exactly: ...numpy==1.26.4,
+    matplotlib==3.8.3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:38:17Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.13.2
+  claim_id: c_de29e40a
+  context: 'Content MUST match the plan''s Technical Context exactly: ...matplotlib==3.8.3,
+    seaborn==0.13.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seaborn==0.13.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:38:22Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pytest version 8.1.1
+  claim_id: c_1a1e06de
+  context: 'Content MUST match the plan''s Technical Context exactly: ...pillow==10.2.0,
+    pytest==8.1.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==8.1.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:38:28Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pytest-cov version 5.0.0
+  claim_id: c_1bf1c53f
+  context: 'Content MUST match the plan''s Technical Context exactly: ...pytest==8.1.1,
+    pytest-cov==5.0.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest-cov==5.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:38:32Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Qwen Image VAE 2.0 model
+  claim_id: c_d8c16140
+  context: Implement CPU-only loading logic for Qwen/Qwen-Image-VAE-2.0 ensuring no
+    CUDA/GPU dependencies are invoked.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen/Qwen-Image-VAE-2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T16:38:36Z'

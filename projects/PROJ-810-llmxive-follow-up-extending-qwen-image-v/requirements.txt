@@ -5,10 +5,10 @@ scikit-learn==1.4.0
 opencv-python-headless==4.9.0.80
 paddleocr==2.7.3
 pyyaml==6.0.1
-pandas==2.2.1
+{{claim:c_0f6befb1}}
 numpy==1.26.4
 matplotlib==3.8.3
 seaborn==0.13.2
-pillow==10.2.0
+{{claim:c_e024b8be}}
 pytest==8.1.1
 pytest-cov==5.0.0

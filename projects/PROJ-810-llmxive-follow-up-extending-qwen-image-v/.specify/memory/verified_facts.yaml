@@ -1,6 +1,5 @@
-'|error family rate wise':
-  quote: FWER under 0.01, 0.05 or 0.1. As a general procedure to control k-FWER (the
-    probability of making
-  source_id: '2310.09493'
-  url: https://arxiv.org/abs/2310.09493
-  value: '0.05'
+1|panda:
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'

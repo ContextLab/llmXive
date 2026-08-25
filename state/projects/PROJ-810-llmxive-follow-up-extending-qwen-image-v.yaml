@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T19:58:27.705335Z'
-current_stage: tasked
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-810-llmxive-follow-up-extending-qwen-image-v
-last_run_id: a8cd715e-b22c-4673-a043-6d82c1626f72
+last_run_id: 9ba1edf9-40b1-477f-a47b-3f6ba8cab4cf
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v
 title: 'llmXive follow-up: extending "Qwen-Image-VAE-2.0 Technical Report"'
-updated_at: '2026-08-24T16:10:57.414638Z'
+updated_at: '2026-08-25T17:01:21.587450Z'
