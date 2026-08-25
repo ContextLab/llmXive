@@ -26,7 +26,7 @@
 
 - [X] T001a Create `scripts/setup_project.py` with explicit directory definitions for `projects/PROJ-448-quantifying-composition-dependent-grain-/`, `code/`, `data/`, `tests/`, `research/`, `data/figures/`, and `data/processed/`. The script MUST create these directories if they do not exist.
 - [X] T001b Execute `scripts/setup_project.py` to create the full directory tree as defined in T001a.
-- [X] T002a Create `requirements.txt` at `projects/PROJ-448-quantifying-composition-dependent-grain-/` with dependencies: `pymatgen`, `ase`, `numpy`, `scipy`, `pandas`, `scikit-learn`, `pycalphad`, `pyyaml`, `requests`, `memory_profiler`, `ruff`, `black`.
+- [X] T002a Create `requirements.txt` at `projects/PROJ-448-quantifying-composition-dependent-grain-/` with dependencies: `pymatgen`, `ase`, `numpy`, `scipy`, `pandas`, `scikit-learn`, `pycalphad`, `pyyaml`, `requests`, `memory_profiler`, `ruff`, `black`, `quantum-espresso-runner` (mock/placeholder for CI).
 - [X] T002b Run `pip install -r requirements.txt` to install dependencies.
 - [X] T003 [P] Configure linting (ruff/flake) and formatting (black) tools in `pyproject.toml`.
 
@@ -38,7 +38,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T008a [P] Create `code/__init__.py` with a minimal logger setup that does NOT depend on `config.py`. **Purpose**: Provide a basic logger for early initialization scripts. **Dependency**: None.
+- [X] T008a Create `code/__init__.py` with a minimal logger setup that does NOT depend on `config.py`. **Purpose**: Provide a basic logger for early initialization scripts. **Dependency**: None.
 - [X] T004 [P] Create `code/config.py` to define paths, random seeds, and temperature ranges (K to elevated temperatures in increments), and alloy system constants. **Dependency**: Must run after T008a.
 - [X] T008b [P] Configure error handling and logging infrastructure in `code/__init__.py` using the constants defined in `code/config.py`. **Dependency**: Must run after T004.
 - [X] T049 [P] Implement `code/data/manifest_validator.py` to verify that all data sources in `data_manifest.json` possess valid DOI or URL fields as required by FR-007. If a source lacks these, the validator MUST raise an error.
@@ -46,9 +46,9 @@
 - [ ] T006a [P] Research: Query the Open Thermodynamic Proxy (e.g., pycalphad open databases) for equilibrium phase compositions for Fe-Cr, Fe-Mo, Fe-V, Fe-W systems at elevated temperatures. **Output**: Write findings to `research/data_sources.md` as a JSON object with keys: `source_id`, `doi`, `url`, `status`. **Dependency**: None.
 - [ ] T045a [P] Research: Query the NIST APT database for specific accession IDs for Fe-Cr, Fe-Mo, Fe-V, Fe-W systems. **Output**: Write findings to `research/data_sources.md` as a JSON list of accession IDs. **Dependency**: Must run after T006a.
 - [ ] T045c [P] Research: Search Zenodo/DOI for peer-reviewed literature sources containing ternary APT data (Fe-Cr-Mo, Fe-Cr-V, etc.). **Output**: Write findings to `research/data_sources.md` as a JSON list of DOIs. **Dependency**: Must run after T006a.
-- [ ] T045d [P] Fetch: Download the real ternary APT literature data from Zenodo using the specific DOIs identified in T045c. **Mechanism**: Use `requests.get()`. **Constraint**: If the fetch fails, raise a fatal error and terminate the pipeline immediately. Do NOT proceed with SC-003 or any validation tasks. The task MUST NOT generate synthetic data or proceed with missing data. **Dependency**: Must run after T045c.
-- [ ] T005 [P] Implement `code/data/manifest.py` to generate and validate `data_manifest.json` using the schema from T050 and validator from T049, checking for missing data flags from T045d. **Dependency**: Must run after T049, T050, T006a, T045a, T045c, and T045d.
-- [ ] T007 [P] Define `code/models/` directory structure and base entity schemas for `SegregationProfile`, `AlloySystem`, and `RegressionModel`. **Output**: Create `code/models/schemas.py` with Pydantic models for `SegregationProfile`, `AlloySystem`, and `RegressionModel`.
+- [ ] T045d [P] Fetch: Download the real ternary APT literature data from Zenodo using the specific DOIs identified in T045c. **Mechanism**: Use `requests.get()`. **Constraint**: If the fetch fails, generate a 'data_missing' flag in `data_manifest.json` and exit gracefully (non-fatal). Do NOT generate synthetic data. **Dependency**: Must run after T045c.
+- [X] T005 [P] Implement `code/data/manifest.py` to generate and validate `data_manifest.json` using the schema from T050 and validator from T049, checking for missing data flags from T045d. **Dependency**: Must run after T049, T050, T006a, T045a, T045c. (Note: T045d is non-blocking).
+- [X] T007 [P] Define `code/models/` directory structure and base entity schemas for `SegregationProfile`, `AlloySystem`, and `RegressionModel`. **Output**: Create `code/models/schemas.py` with Pydantic models for `SegregationProfile`, `AlloySystem`, and `RegressionModel`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -56,7 +56,7 @@
 
 ## Phase 3: User Story 1 - Thermodynamic Segregation Profile Generation (Priority: P1) 🎯 MVP
 
-**Goal**: Compute equilibrium segregation energies and concentrations for BCC alloy systems using surrogate DFT energies and the McLean isotherm model.
+**Goal**: Compute equilibrium segregation energies and concentrations for BCC alloy systems using DFT (preferred) or surrogate energies and the McLean isotherm model.
 
 **Independent Test**: Run the computation pipeline on Fe-Cr at elevated temperatures and verify the output file contains valid segregation energy (eV) and equilibrium concentration (atomic fraction) derived from the McLean equation.
 
@@ -68,10 +68,12 @@
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/services/gb_service.py` to generate symmetric tilt grain boundary supercells using `pymatgen` from MP-13 seed.
-- [ ] T047a [P] [US1] [FR-001] Validate the presence of binary interaction parameters in the open thermodynamic proxy. **Behavior**: If binary parameters are missing, perform linear extrapolation with a warning and flag the gap. **Dependency**: Must run after T006a.
-- [ ] T047b [P] [US1] [FR-001] Handle missing ternary interaction parameters in the open proxy. **Behavior**: If ternary parameters are missing, perform linear interpolation between binary endpoints using `sklearn.linear_model.LinearRegression`. **Constraint**: MUST raise a specific warning and set a "NO_TERNARY_DATA" flag in the output manifest. Do NOT silently interpolate without flagging the gap. **Dependency**: Must run after T047a.
-- [ ] T047c [P] [US1] [FR-001] Implement `code/services/thermo_service.py` to extract equilibrium phase compositions for the specified ternary systems (Fe-Cr-Mo, etc.) at elevated temperatures using the open proxy. **Dependency**: Must run after T047b.
-- [ ] T013 [US1] [FR-002] Implement `code/services/surrogate_service.py` to compute literature-calibrated segregation energies. **Constraint**: This task MUST NOT implement or call any real DFT code (Quantum ESPRESSO) or DFT retry logic, as per the plan's 'Critical Deviation Note'. **Failure Handling**: The surrogate model is deterministic; if the calculation fails (returns NaN or raises error) or if calibration parameters are missing, raise an immediate exception. Do NOT retry. **Dependency**: Must run after T047c, T012.
+- [ ] T047z [P] [US1] [FR-001] Verify Open Proxy coverage for the Several specific ternary systems (Fe-Cr-Mo, etc.) against TCFE9 requirements. **Behavior**: If parameters are missing, log a 'NO_TERNARY_DATA' warning and flag the system in the manifest. **Dependency**: Must run after T006a.
+- [ ] T047a [P] [US1] [FR-001] Implement parameter lookup logic in `code/services/thermo_service.py`. **Function**: `lookup_binary_parameters(system, temp)` returning a dict or raising `ParameterMissingError`. **Dependency**: Must run after T047z.
+- [ ] T047b [P] [US1] [FR-001] Implement linear extrapolation fallback in `code/services/thermo_service.py`. **Library**: Use `scipy.interpolate.interp1d` with `kind='linear'`. **Constraint**: MUST flag the data as 'interpolated' in the output manifest and log a warning. **Dependency**: Must run after T047a.
+- [ ] T047c [P] [US1] [FR-001] Implement `code/services/thermo_service.py` to extract equilibrium phase compositions for the specified ternary systems using the open proxy. **Dependency**: Must run after T047b.
+- [ ] T017 [US1] [FR-002] Implement `code/services/dft_service.py` to compute segregation energies using Quantum ESPRESSO on BCC grain boundary supercells. **Constraint**: If DFT execution fails (e.g., CPU timeout), log the failure and allow the pipeline to proceed to T013 (Surrogate) as a fallback. **Dependency**: Must run after T012.
+- [ ] T013 [US1] [FR-002] Implement `code/services/surrogate_service.py` to compute literature-calibrated segregation energies. **Input**: Load calibration parameters from `data/parameters/surrogate_config.json`. **Constraint**: This task MUST NOT implement or call any real DFT code. If `data/parameters/surrogate_config.json` is missing or DFT (T017) was successful, skip this task or raise an exception if DFT failed and no surrogate is available. **Dependency**: Must run after T017 (to check DFT status) and T012.
 - [X] T055 [US1] Implement validation in `code/services/surrogate_service.py` to ensure surrogate inputs align with the supercell geometry generated by `gb_service.py`. **Dependency**: Must run after T012 and T013.
 - [ ] T014 [US1] Implement `code/models/mclean.py` to calculate equilibrium concentrations from segregation energy and bulk composition. **Requirements**:
  1. Cap equilibrium concentration at a predefined threshold. and log a "saturation" flag if the calculated value exceeds 1.0.
@@ -142,7 +144,7 @@
 - [ ] T062 [Validation] Define sample preparation protocols for APT/SIMS analysis of grain boundaries. Write to `research/sample_prep.md`.
 - [ ] T063 [Validation] Perform feasibility analysis: compare computed segregation signals (from T018) to detection limits (from T061). Write to `research/feasibility_analysis.md`.
 - [ ] T064 [Validation] Document material requirements (purity, grain size) for experimental validation. Write to `research/material_requirements.md`.
-- [ ] T060 [Validation] [SC-003] Perform Experimental Validation (SC-003): Fetch real ternary APT data (from T045d), compute the deviation of computed segregation energy from experimental literature values, and write results to `data/processed/sc003_deviation.json`. Include the feasibility analysis (from T063) and detection limits (from T061). **Constraint**: This task is ONLY executable if T045d succeeded. If T045d failed, the pipeline halts before this task. **Dependency**: Must run after T018, T045d, T061, T062, T063, T064.
+- [ ] T060 [Validation] [SC-003] Perform Experimental Validation (SC-003): Fetch real ternary APT data (from T045d), compute the deviation of computed segregation energy from experimental literature values, and write results to `data/processed/sc003_deviation.json`. Include the feasibility analysis (from T063) and detection limits (from T061). **Constraint**: If T045d failed (data missing), generate `data/processed/sc003_deviation.json` with `status: 'skipped'`, `reason: 'missing_data'`, and placeholder values. **Dependency**: Must run after T018, T061, T062, T063, T064. (Note: T045d is non-blocking).
 
 **Checkpoint**: Validation strategy is documented, and the project acknowledges the gap between computation and experimental proof.
 
@@ -157,39 +159,45 @@
 ### Implementation for Experimental Verification
 
 - [ ] T070 [Validation] Research and document the specific Atom Probe Tomography (APT) instrument models (e.g., CAMECA LEAP) capable of resolving Fe-Cr-Mo segregation at grain boundaries. Write to `research/instrument_spec.md`.
-- [ ] T071 [Validation] Calculate the minimum sample mass (mg) and number of grain boundaries required to achieve statistical significance (p<0.05) for the predicted segregation concentrations from T018. **Effect Size**: Use computed segregation signals from T018. **Variance**: Use detection limits from T072. **Library**: Use `statsmodels.stats.power.TTestIndPower`. **Conversion**: Convert sample size (N) to mass using `mass_mg = N * (avg_atomic_weight / density) * 1000`, where `avg_atomic_weight` is the weighted average of the alloy and `density = 7.87 g/cm3` for Fe-Cr-Mo. **Constraint**: This task requires real data from T045d to be available. **Dependency**: Must run after T018, T072, T045d.
 - [ ] T072 [Validation] Define the specific detection limit (at. ppm) for trace solutes (Mo, V, W) at grain boundaries for the identified APT/SIMS instruments. Update `research/detection_limits.md` with instrument-specific values. **Dependency**: Must run after T061.
+- [ ] T071a [Validation] Perform statistical power analysis for sample size. **Library**: Use `statsmodels.stats.power.TTestIndPower`. **Input**: Effect size from T018, variance from T072. **Output**: Required N. **Dependency**: Must run after T018, T072.
+- [ ] T071b [Validation] Calculate the minimum sample mass (mg) and number of grain boundaries required to achieve statistical significance (p<0.05). **Formula**: `mass_mg = N * (avg_atomic_weight / density) * 1000`. **Constraint**: `density` MUST be calculated dynamically using the weighted average of the specific bulk composition derived in T047c, NOT a fixed constant. **Dependency**: Must run after T071a, T047c.
 - [ ] T073 [Validation] Draft a protocol for correlating the computed segregation energy (eV) to the measurable atomic fraction in the APT dataset, including error propagation analysis. Write to `research/correlation_protocol.md`.
-- [ ] T074 [Validation] Synthesize all experimental findings into a single `research/experimental_verification_plan.md` that explicitly answers: "What apparatus?", "How much material?", and "What is the detection limit?". **Required Inputs**: T070, T071, T072, T073, and **T060 (deviation results)** to define detection limits based on computed signals. **Constraint**: This task is ONLY executable if T045d succeeded. **Dependency**: Must run after T070, T071, T072, T073, and T060.
+- [ ] T074 [Validation] Synthesize all experimental findings into a single `research/experimental_verification_plan.md` that explicitly answers: "What apparatus?", "How much material?", and "What is the detection limit?". **Required Inputs**: T070, T071a, T071b, T072, T073. **Constraint**: This task is executable even if T060 is skipped. **Dependency**: Must run after T070, T071a, T071b, T072, T073.
 
 **Checkpoint**: The project now possesses a concrete, instrument-level plan for experimental validation, satisfying the requirement for direct measurement evidence.
 
----
 
 ## Dependencies & Execution Order
 
 The execution order is strictly enforced as follows:
 
-1.  **Foundation Chain**: T001a → T001b → T002a → T002b → T003 → T008a → T004 → T008b → T049 → T050 → T007.
-2.  **Data Research & Fetch Chain**:
-    -   T006a starts the data research.
-    -   From T006a, two parallel branches emerge:
-        -   Branch A: T045a (NIST APT IDs)
-        -   Branch B: T045c (Zenodo DOIs)
-    -   Both Branch A (T045a) and Branch B (T045c) must complete before T005 (Manifest) can run.
-    -   T045d (Fetch Real Data) depends strictly on T045c. If T045d fails, the pipeline halts.
-    -   T005 depends on T049, T050, T006a, T045a, T045c, and T045d.
-3.  **Core Implementation**:
-    -   T047a, T047b, T047c (Thermo) depend on T006a/T047a chain.
-    -   T012 (GB Service) is independent of T047 chain but must complete before T013.
-    -   T013 (Surrogate) depends on T047c and T012.
-    -   T014 (McLean) depends on T055 and T013.
-    -   T018 (Profiles) depends on T014.
-4.  **Analysis & Validation**:
-    -   T021, T022, T023 (Regression) depend on T018.
-    -   T024 (Heatmaps) depends on T018.
-    -   T029, T030, T031, T032, T033 (Cross-Validation) depend on T021.
-    -   T061, T062, T063, T064 (Validation Prep) depend on T045a/T045d chain.
-    -   T060 (SC-003 Validation) depends on T018, T045d (success), T061, T062, T063, T064.
-    -   T070, T072, T073, T074 depend on T061/T060 chain.
-    -   T071 (Sample Mass) depends on T018, T072, and T045d (success).
+1. **Foundation Chain**: T001a → T001b → T002a → T002b → T003 → T008a → T004 → T008b → T049 → T050 → T007.
+2. **Data Research & Fetch Chain**:
+ - T006a starts the data research.
+ - From T006a, two parallel branches emerge:
+ - Branch A: T045a (NIST APT IDs)
+ - Branch B: T045c (Zenodo DOIs)
+ - Both Branch A (T045a) and Branch B (T045c) must complete before T005 (Manifest) can run.
+ - T045d (Fetch Real Data) depends strictly on T045c. If T045d fails, it generates a flag and exits gracefully (non-fatal).
+ - T005 depends on T049, T050, T006a, T045a, T045c. (T045d is non-blocking).
+3. **Core Implementation**:
+ - T047z (Proxy Verification) depends on T006a.
+ - T047a (Lookup) depends on T047z.
+ - T047b (Extrapolation) depends on T047a.
+ - T047c (Thermo) depends on T047b.
+ - T012 (GB Service) is independent of T047 chain but must complete before T017/T013.
+ - T017 (DFT) depends on T012.
+ - T013 (Surrogate) depends on T017 (to check status) and T012.
+ - T014 (McLean) depends on T055 and T013.
+ - T018 (Profiles) depends on T014.
+4. **Analysis & Validation**:
+ - T021, T022, T023 (Regression) depend on T018.
+ - T024 (Heatmaps) depends on T018.
+ - T029, T030, T031, T032, T033 (Cross-Validation) depend on T021.
+ - T061, T062, T063, T064 (Validation Prep) depend on T045a/T045d chain.
+ - T060 (SC-003 Validation) depends on T018, T061, T062, T063, T064. (T045d is non-blocking).
+ - T070, T072, T073, T074 depend on T061/T060 chain.
+ - T071a (Power) depends on T018, T072.
+ - T071b (Mass) depends on T071a, T047c.
+ - T074 (Plan) depends on T070, T071a, T071b, T072, T073.

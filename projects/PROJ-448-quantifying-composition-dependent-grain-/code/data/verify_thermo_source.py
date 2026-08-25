@@ -1,157 +1,200 @@
-"""
-Module to verify the thermodynamic proxy source (TCFE.tdb) downloaded in T006b.
-This task validates the specific DOI or URL for the file and records it in
-research/data_sources.md to satisfy FR-007 traceability.
-"""
 import os
 import sys
 import json
 import hashlib
 from pathlib import Path
 import logging
-
-# Add parent directory to path for imports if running as script
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from config import PROJECT_ROOT, DATA_DIR, RESEARCH_DIR
+from urllib.request import urlretrieve
+from typing import Dict, Any, Optional
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-TCFE_FILENAME = "TCFE.tdb"
-TCFE_PATH = DATA_DIR / "raw" / TCFE_FILENAME
+# Define the path for the research directory and output file
+# Assuming the project root is the parent of 'code'
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+RESEARCH_DIR = PROJECT_ROOT / "research"
 DATA_SOURCES_PATH = RESEARCH_DIR / "data_sources.md"
 
-# The specific URL/DOI for the TCFE proxy as identified in T006a/T006b
-# Using the open Calphad database proxy URL (e.g., from pycalphad or a specific repo)
-# Note: In a real scenario, this would be the exact URL used in T006b
-TCFE_SOURCE_URL = "https://github.com/pycalphad/pycalphad-data/raw/master/tdb/TCFE.tdb"
-TCFE_SOURCE_DOI = "10.5281/zenodo.1234567" # Placeholder DOI, updated to real one if available
-# Specific DOI for the TCFE database version used (e.g., from the specific open proxy)
-# For this implementation, we assume the TCFE.tdb comes from the pycalphad-data repository
-# which is often associated with a specific Zenodo DOI or GitHub release.
-# We will record the GitHub URL and the associated DOI for the repository.
-ACTUAL_SOURCE_DOI = "10.5281/zenodo.1063947" # Example DOI for pycalphad-data or similar
-ACTUAL_SOURCE_URL = "https://github.com/pycalphad/pycalphad-data/blob/master/tdb/TCFE.tdb"
+# Define the thermodynamic database source (Open CALPHAD / pycalphad)
+# Using the SSOL5 (Solubility) database as a standard open proxy for Fe-based systems
+THERMO_DB_URL = "https://pycalphad.org/data/ssol5.tdb"
+THERMO_DB_FILENAME = "ssol5.tdb"
+THERMO_DB_PATH = PROJECT_ROOT / "data" / "raw" / "thermo" / THERMO_DB_FILENAME
 
-def calculate_file_checksum(file_path: Path) -> str:
-    """Calculate SHA-256 checksum of a file."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
+# Specific systems to query
+SYSTEMS = ["Fe-Cr", "Fe-Mo", "Fe-V", "Fe-W"]
+TEMPERATURES = [800, 1000, 1200, 1400]  # Kelvin
+
+def calculate_file_checksum(filepath: Path, algorithm: str = "sha256") -> str:
+    """Calculate the checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_tdb_exists() -> bool:
-    """Verify that the TCFE.tdb file exists in the expected location."""
-    if not TCFE_PATH.exists():
-        logger.error(f"TCFE.tdb not found at {TCFE_PATH}. Please run T006b first.")
-        return False
+def verify_tdb_exists(db_path: Path) -> bool:
+    """Check if the thermodynamic database file exists."""
+    if not db_path.exists():
+        logger.warning(f"Thermodynamic database not found at {db_path}. Attempting download.")
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            logger.info(f"Downloading {THERMO_DB_URL} to {db_path}")
+            urlretrieve(THERMO_DB_URL, db_path)
+            logger.info("Download successful.")
+        except Exception as e:
+            logger.error(f"Failed to download thermodynamic database: {e}")
+            return False
     return True
 
-def verify_checksum(expected_checksum: str = None) -> str:
-    """
-    Calculate and return the checksum of the downloaded file.
-    If expected_checksum is provided, verify it matches.
-    """
-    if not verify_tdb_exists():
-        raise FileNotFoundError(f"Cannot verify checksum: {TCFE_PATH} not found")
-    
-    actual_checksum = calculate_file_checksum(TCFE_PATH)
-    logger.info(f"Calculated checksum for {TCFE_FILENAME}: {actual_checksum}")
-    
-    if expected_checksum and actual_checksum != expected_checksum:
-        logger.warning(f"Checksum mismatch! Expected: {expected_checksum}, Got: {actual_checksum}")
-        # In a strict implementation, this might raise an error, but for verification
-        # we just log and proceed, noting the mismatch.
-    
-    return actual_checksum
+def verify_checksum(db_path: Path, expected_checksum: Optional[str] = None) -> bool:
+    """Verify the checksum of the database file if an expected checksum is provided."""
+    if expected_checksum:
+        actual_checksum = calculate_file_checksum(db_path)
+        if actual_checksum != expected_checksum:
+            logger.warning(f"Checksum mismatch for {db_path}. Expected: {expected_checksum}, Got: {actual_checksum}")
+            return False
+    return True
 
-def update_data_sources_md(checksum: str):
+def query_pycalphad_databases(systems: list, temperatures: list) -> Dict[str, Any]:
     """
-    Update research/data_sources.md with the verification details for TCFE.tdb.
-    This satisfies FR-007 traceability.
+    Query the pycalphad open databases for equilibrium phase compositions.
+    This function attempts to import pycalphad and perform the query.
+    If pycalphad is not installed or the query fails, it logs the error.
     """
-    if not DATA_SOURCES_PATH.exists():
-        logger.warning(f"{DATA_SOURCES_PATH} does not exist. Creating a new one.")
-        content = []
-    else:
-        with open(DATA_SOURCES_PATH, 'r', encoding='utf-8') as f:
-            content = f.readlines()
+    results = {}
+    db_file = str(THERMO_DB_PATH)
+
+    try:
+        import pycalphad as pc
+        from pycalphad import Database, equilibrium, variables as v
+        import numpy as np
+
+        logger.info(f"Loading database from {db_file}")
+        db = Database(db_file)
+
+        for system in systems:
+            logger.info(f"Querying system: {system}")
+            system_results = []
+            components = system.split("-")
+            # Ensure Fe is always the solvent (first component)
+            if "Fe" not in components:
+                logger.warning(f"Fe not in {system}, skipping or adjusting.")
+                continue
+            
+            # Add solvent if not present (pycalphad often requires it explicitly)
+            # For binary systems like Fe-Cr, components are ['Fe', 'Cr', 'VAC']
+            all_components = list(set(components + ["Fe", "VAC"]))
+            
+            phases = ["BCC_A2"] # Typical BCC phase for these systems at high T
+
+            for temp in temperatures:
+                try:
+                    # Define conditions
+                    # We assume a dilute solute concentration for the query to find equilibrium
+                    # e.g., 0.01 mole fraction of solute, rest Fe
+                    solute = [c for c in components if c != "Fe"][0]
+                    conditions = {
+                        v.T: temp,
+                        v.P: 101325,
+                        v.N: 1,
+                    }
+                    
+                    # Set bulk composition: 99% Fe, 1% Solute
+                    # pycalphad equilibrium takes mole fractions for components
+                    # We need to construct the 'X' dictionary
+                    x_dict = {comp: 0.0 for comp in all_components}
+                    x_dict["Fe"] = 0.99
+                    x_dict[solute] = 0.01
+                    x_dict["VAC"] = 0.0 # Vacancies usually handled internally
+
+                    # Run equilibrium
+                    # Note: This might fail if the database doesn't have parameters for the specific system
+                    # We catch the exception and log it as a status
+                    out = equilibrium(db, all_components, phases, conditions, X=x_dict)
+                    
+                    if out is not None and hasattr(out, 'Phase'):
+                        # Extract composition if successful
+                        # This is a simplified extraction; real analysis would parse the full output
+                        system_results.append({
+                            "temperature": temp,
+                            "status": "success",
+                            "phase": "BCC_A2",
+                            "composition_note": "Equilibrium calculated"
+                        })
+                    else:
+                        system_results.append({
+                            "temperature": temp,
+                            "status": "no_equilibrium_found",
+                            "message": "Equilibrium calculation returned no result"
+                        })
+                except Exception as e:
+                    logger.error(f"Error calculating equilibrium for {system} at {temp}K: {e}")
+                    system_results.append({
+                        "temperature": temp,
+                        "status": "error",
+                        "message": str(e)
+                    })
+            
+            results[system] = system_results
+
+    except ImportError:
+        logger.error("pycalphad is not installed. Cannot perform thermodynamic query.")
+        for system in systems:
+            results[system] = [{"temperature": t, "status": "error", "message": "pycalphad not installed"} for t in temperatures]
+    except Exception as e:
+        logger.error(f"Unexpected error during thermodynamic query: {e}")
+        for system in systems:
+            results[system] = [{"temperature": t, "status": "error", "message": str(e)} for t in temperatures]
     
-    # Ensure the file starts with a header if empty
-    if not content or not content[0].startswith("#"):
-        content.insert(0, "# Data Sources and Traceability Log\n\n")
-        content.insert(1, "This document records the sources, DOIs, URLs, and checksums for all external data used in this project to satisfy FR-007.\n\n")
+    return results
+
+def update_data_sources_md(query_results: Dict[str, Any]):
+    """
+    Update the research/data_sources.md file with the query results.
+    The format is a JSON object as requested.
+    """
+    RESEARCH_DIR.mkdir(parents=True, exist_ok=True)
     
-    # Check if TCFE entry already exists to avoid duplicates
-    tcf_entry_marker = "## Thermodynamic Proxy: TCFE.tdb"
-    entry_exists = any(tcf_entry_marker in line for line in content)
-    
-    if entry_exists:
-        logger.info(f"Updating existing entry for {TCFE_FILENAME} in {DATA_SOURCES_PATH}")
-        # Simple strategy: remove old entry and append new one, or just append a note.
-        # For robustness in this script, we will append a new timestamped entry or update the specific block.
-        # Given the simplicity, we will append the verification info to the end of the file 
-        # with a clear marker if it's a re-run, or update the block if we parse it.
-        # To keep it simple and safe: Append a new verification record.
-        pass
-    
-    # Prepare the entry
-    timestamp = "Verification Run" # In a real script, use datetime.now()
-    entry = f"""
-## Thermodynamic Proxy: TCFE.tdb
-- **Source Type**: Open Thermodynamic Database (PyCalphad Proxy)
-- **File Name**: {TCFE_FILENAME}
-- **URL**: {ACTUAL_SOURCE_URL}
-- **DOI**: {ACTUAL_SOURCE_DOI}
-- **Checksum (SHA-256)**: {checksum}
-- **Verification Status**: PASSED
-- **Notes**: This file was downloaded in T006b. Ternary parameters were validated as present.
-- **Verified At**: {timestamp}
-"""
-    
-    # Append the entry
-    content.append(entry)
-    
-    with open(DATA_SOURCES_PATH, 'w', encoding='utf-8') as f:
-        f.writelines(content)
-    
-    logger.info(f"Successfully updated {DATA_SOURCES_PATH} with TCFE.tdb verification details.")
+    output_data = {
+        "source_id": "pycalphad-ssol5",
+        "doi": "10.21105/joss.00737", # DOI for pycalphad paper
+        "url": "https://pycalphad.org",
+        "status": "queried",
+        "timestamp": str(__import__('datetime').datetime.now()),
+        "systems_queried": SYSTEMS,
+        "temperatures_queried": TEMPERATURES,
+        "results": query_results
+    }
+
+    try:
+        with open(DATA_SOURCES_PATH, 'w') as f:
+            json.dump(output_data, f, indent=2)
+        logger.info(f"Successfully wrote data sources to {DATA_SOURCES_PATH}")
+    except Exception as e:
+        logger.error(f"Failed to write to {DATA_SOURCES_PATH}: {e}")
+        raise
 
 def main():
-    """Main entry point for T006c."""
-    logger.info("Starting T006c: Verify thermodynamic source and record traceability.")
+    logger.info("Starting T006a: Research - Query Open Thermodynamic Proxy")
     
-    # 1. Verify file exists (T006b should have done this, but we check)
-    if not verify_tdb_exists():
-        logger.error("TCFE.tdb not found. Aborting T006c.")
+    # Ensure database exists
+    if not verify_tdb_exists(THERMO_DB_PATH):
+        logger.error("Thermodynamic database verification failed. Aborting.")
         sys.exit(1)
     
-    # 2. Calculate checksum
-    try:
-        checksum = verify_checksum()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
+    # Perform query
+    query_results = query_pycalphad_databases(SYSTEMS, TEMPERATURES)
     
-    # 3. Update data_sources.md
-    try:
-        update_data_sources_md(checksum)
-    except Exception as e:
-        logger.error(f"Failed to update data_sources.md: {e}")
-        sys.exit(1)
+    # Update data sources file
+    update_data_sources_md(query_results)
     
-    logger.info("T006c completed successfully.")
-    return 0
+    logger.info("T006a completed.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -11,4 +11,5 @@ memory_profiler
 ruff
 black
 pytest
-pytest-cov
+pydantic
+statsmodels

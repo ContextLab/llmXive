@@ -1,9 +1,9 @@
-T006c:
+T006a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research/data_sources.md` file was presented, and there is no evidence that
-    a DOI or URL for the `TCFE.tdb` file has been recorded there. The required traceability
-    entry is missing, so the task is not satisfied.
+  r: "No `research/data_sources.md` file was presented, and there is no evidence of\
+    \ a JSON object containing the required keys (`source_id`, `doi`, `url`, `status`).\
+    \ The implementer\u2019s claim lacks the necessary artifact to satisfy the task."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -16,16 +16,25 @@ T010:
   r: The required file `tests/unit/test_mclean.py` does not exist in the repository,
     so no unit test for the McLean isotherm calculation is present. The implementer
     must add this test file with appropriate test cases.
-T045a:
+T045d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research/data_sources.md` file was provided, and there is no evidence that\
-    \ the NIST APT accession IDs for the Fe\u2011Cr, Fe\u2011Mo, Fe\u2011V, and Fe\u2011\
-    W systems were verified or recorded. The required artifact is missing, so the\
-    \ task is not satisfied."
-T045c:
+  r: No downloaded dataset, script, or log file is present to demonstrate that the
+    implementer actually fetched the real ternary APT literature data from Zenodo
+    using `requests.get()`. Consequently, there is no evidence of the required fetch,
+    error handling, or termination behavior, so the task requirement is not satisfied.
+T047a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research/data_sources.md` file was provided, and there is no evidence of\
-    \ any list of peer\u2011reviewed literature sources or DOIs for ternary APT datasets.\
-    \ Consequently the required artifact is missing, so the task is not satisfied."
+  r: No code, script, test results, or documentation were provided that demonstrates
+    a check for binary interaction parameters, performs linear extrapolation with
+    a warning when they are missing, or flags the gap. The required artifact (the
+    implementation of task T047a) is absent, so the claim cannot be verified.
+T047b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or output manifest was provided that demonstrates handling of
+    missing ternary interaction parameters, performing linear interpolation with `sklearn.linear_model.LinearRegression`,
+    raising the required warning, and setting the `"NO_TERNARY_DATA"` flag. The evidence
+    consists only of the task description and project spec, without any concrete implementation
+    artifact.

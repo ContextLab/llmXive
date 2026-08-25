@@ -1,55 +1,54 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: RegressionModel
-description: Schema for the fitted empirical composition-segregation function.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionModel"
+description: "Schema for the fitted empirical composition-segregation function."
+type: "object"
 properties:
-  system_id:
-    type: string
-    description: "The alloy system identifier."
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model."
   coefficients:
-    type: object
-    description: "Map of feature names to coefficients."
+    type: "object"
+    description: "Mapping of term name to coefficient value."
     additionalProperties:
-      type: number
+      type: "number"
   interaction_terms:
-    type: array
+    type: "array"
+    description: "List of interaction terms included in the model."
     items:
-      type: string
-    description: "List of interaction term names."
+      type: "string"
   r_squared:
-    type: number
-    description: "R-squared metric."
+    type: "number"
+    description: "R-squared value on training set."
+    minimum: -1.0
+    maximum: 1.0
+  cv_scores:
+    type: "array"
+    description: "R-squared scores for each CV fold."
+    items:
+      type: "number"
+    minItems: 5
+    maxItems: 5
   p_values:
-    type: object
+    type: "object"
     description: "P-values for each coefficient."
     additionalProperties:
-      type: number
-  cross_validation_scores:
-    type: array
-    items:
-      type: number
-    description: "R-squared scores for each fold."
-  held_out_mse_reduction:
-    type: number
-    description: "Percentage reduction in MSE vs. additive model."
-  validation_type:
-    type: string
-    description: "Type of validation performed (e.g., binary_validation, sensitivity_analysis)."
-  recovered_interaction_coefficient:
-    type: number
-    description: "The coefficient recovered by the model for the injected term."
-  injected_interaction_coefficient:
-    type: number
-    description: "The ground-truth value injected during data generation."
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+  held_out_mse:
+    type: "number"
+    description: "MSE on held-out test set."
+    minimum: 0.0
+  mse_reduction:
+    type: "number"
+    description: "Percentage reduction in MSE vs additive model."
 required:
-  - system_id
+  - model_id
   - coefficients
   - interaction_terms
   - r_squared
+  - cv_scores
   - p_values
-  - cross_validation_scores
-  - held_out_mse_reduction
-  - validation_type
-  - recovered_interaction_coefficient
-  - injected_interaction_coefficient
+  - held_out_mse
+  - mse_reduction
 additionalProperties: false

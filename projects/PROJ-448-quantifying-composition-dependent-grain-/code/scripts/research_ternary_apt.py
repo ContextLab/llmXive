@@ -1,314 +1,241 @@
 """
-Script to verify and log ternary APT data sources for Fe-based BCC alloys.
-
-This script performs the research task T045c:
-- Identifies specific peer-reviewed literature sources containing ternary APT data.
-- Extracts specific DOIs for each dataset.
-- Logs findings to research/data_sources.md.
-
-It does NOT fetch the data (that is T045d), but validates the existence and
-accessibility of the sources via DOI resolution.
+Script to search Zenodo/DOI for peer-reviewed literature sources containing
+ternary APT data (Fe-Cr-Mo, Fe-Cr-V, etc.) and write findings to research/data_sources.md.
 """
 import os
 import sys
+import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List, Dict, Any, Optional
 import requests
-from urllib.parse import urljoin
 
-# Add project root to path
+# Add project root to path for imports
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from errors import DataLoadError
+from code.config import get_logger, DATA_DIR, RESEARCH_DIR
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(PROJECT_ROOT / "research" / "ternary_apt_research.log")
-    ]
-)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-# Define the ternary systems and their expected literature sources
-# These are the sources identified in the research phase (T045c)
-TERNARY_SOURCES = [
-    {
-        "system": "Fe-Cr-Mo",
-        "title": "Cooperative Segregation of Mo and Cr at Grain Boundaries in Ferritic Steels",
-        "authors": "H. S. Kim, J. M. Rickman, et al.",
-        "journal": "Acta Materialia",
-        "year": 2020,
-        "doi": "10.1016/j.actamat.2020.02.045",
-        "zenodo_id": "10.5281/zenodo.3742156",
-        "description": "15 grain boundaries analyzed in Fe-10Cr-2Mo (at.%). Segregation profiles for Cr and Mo."
-    },
-    {
-        "system": "Fe-Cr-V",
-        "title": "V and Cr Co-segregation in Ferritic Martensitic Steels",
-        "authors": "A. V. Ceguerra, et al.",
-        "journal": "Scripta Materialia",
-        "year": 2021,
-        "doi": "10.1016/j.scriptamat.2021.113856",
-        "zenodo_id": "10.17632/x9z8v7k2p1.1",
-        "description": "8 grain boundaries in Fe-9Cr-1V. Quantitative segregation isotherms."
-    },
-    {
-        "system": "Fe-Mo-V",
-        "title": "Ternary Interactions of Mo and V in Ferritic Alloys",
-        "authors": "S. K. Kim, et al.",
-        "journal": "Metallurgical and Materials Transactions A",
-        "year": 2021,
-        "doi": "10.1007/s11661-021-06234-9",
-        "zenodo_id": "10.5281/zenodo.4623891",
-        "description": "Fe-2Mo-1V alloy system. Grain boundary segregation data for Mo and V."
-    },
-    {
-        "system": "Fe-Cr-W",
-        "title": "W and Cr Segregation at High-Temperature Grain Boundaries",
-        "authors": "Y. Chen, et al.",
-        "journal": "Acta Materialia",
-        "year": 2021,
-        "doi": "10.1016/j.actamat.2021.117045",
-        "zenodo_id": "10.5281/zenodo.5123456",
-        "description": "Fe-10Cr-1W system. Segregation profiles at 600K."
-    },
-    {
-        "system": "Fe-Mo-W",
-        "title": "Mo-W Synergistic Segregation in BCC Iron",
-        "authors": "T. S. Byun, et al.",
-        "journal": "Journal of Nuclear Materials",
-        "year": 2021,
-        "doi": "10.1016/j.jnucmat.2021.152789",
-        "zenodo_id": "10.5281/zenodo.4891234",
-        "description": "Fe-2Mo-1W alloy. APT reconstruction and composition profiles."
-    }
+# Zenodo API endpoint for searching
+ZENODO_SEARCH_URL = "https://zenodo.org/api/records"
+
+# Search queries for ternary APT data in Fe-based alloys
+SEARCH_QUERIES = [
+    "Fe-Cr-Mo atom probe",
+    "Fe-Cr-V atom probe",
+    "Fe-Mo-V atom probe",
+    "Fe-Cr-W atom probe",
+    "Fe-Mo-W atom probe",
+    "Fe-Cr-Mo APT",
+    "Fe-Cr-V APT",
+    "grain boundary segregation Fe-Cr-Mo",
+    "grain boundary segregation Fe-Cr-V",
 ]
 
-def resolve_doi(doi: str) -> Tuple[bool, str]:
+def search_zenodo(query: str, max_results: int = 10) -> List[Dict[str, Any]]:
     """
-    Resolve a DOI to a URL and check accessibility.
+    Search Zenodo API for records matching the query.
     
     Args:
-        doi: The DOI string (e.g., '10.1016/j.actamat.2020.02.045')
+        query: Search query string
+        max_results: Maximum number of results to return
         
     Returns:
-        Tuple of (is_resolvable, resolved_url)
+        List of matching records with DOI and metadata
     """
-    url = f"https://doi.org/{doi}"
+    params = {
+        'q': query,
+        'size': max_results,
+        'sort': 'mostrecent',
+        'fields': 'doi,title,publication_date,metadata'
+    }
+    
     try:
-        response = requests.head(url, allow_redirects=True, timeout=10)
-        if response.status_code == 200:
-            return True, response.url
-        else:
-            return False, f"Status {response.status_code}"
+        response = requests.get(ZENODO_SEARCH_URL, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        
+        records = []
+        for hit in data.get('hits', {}).get('hits', []):
+            metadata = hit.get('metadata', {})
+            doi = hit.get('doi')
+            
+            if doi:
+                # Filter for relevant content (APT, atom probe, segregation)
+                title = metadata.get('title', '').lower()
+                description = metadata.get('description', '').lower()
+                keywords = [kw.lower() for kw in metadata.get('keywords', [])]
+                
+                relevance_score = 0
+                if 'atom probe' in title or 'apt' in title:
+                    relevance_score += 3
+                if 'atom probe' in description or 'apt' in description:
+                    relevance_score += 2
+                if any(kw in ['atom probe', 'apt', 'segregation', 'grain boundary'] for kw in keywords):
+                    relevance_score += 2
+                
+                if relevance_score >= 2:  # Only keep relevant results
+                    records.append({
+                        'doi': doi,
+                        'title': metadata.get('title'),
+                        'publication_date': metadata.get('publication_date'),
+                        'authors': [author.get('name') for author in metadata.get('creators', [])],
+                        'description': metadata.get('description'),
+                        'keywords': metadata.get('keywords', []),
+                        'relevance_score': relevance_score,
+                        'source': 'Zenodo'
+                    })
+        
+        return records
+        
     except requests.exceptions.RequestException as e:
-        return False, str(e)
+        logger.error(f"Error searching Zenodo for query '{query}': {e}")
+        return []
 
-def verify_zenodo_accession(zenodo_id: str) -> Tuple[bool, str]:
+def resolve_doi(doi: str) -> Optional[Dict[str, Any]]:
     """
-    Verify Zenodo accession ID accessibility.
+    Resolve a DOI to get full metadata.
     
     Args:
-        zenodo_id: The Zenodo ID (e.g., '10.5281/zenodo.3742156')
+        doi: DOI string
         
     Returns:
-        Tuple of (is_accessible, message)
+        Metadata dictionary or None if resolution fails
     """
-    url = f"https://doi.org/{zenodo_id}"
     try:
-        response = requests.head(url, allow_redirects=True, timeout=10)
-        if response.status_code == 200:
-            return True, "Accessible"
-        else:
-            return False, f"Status {response.status_code}"
+        url = f"https://doi.org/{doi}"
+        response = requests.get(url, timeout=30, allow_redirects=True)
+        response.raise_for_status()
+        
+        # Try to get metadata from Zenodo API if it's a Zenodo DOI
+        if 'zenodo' in doi:
+            zenodo_id = doi.split('/')[-1]
+            api_url = f"https://zenodo.org/api/records/{zenodo_id}"
+            api_response = requests.get(api_url, timeout=30)
+            if api_response.status_code == 200:
+                return api_response.json()
+        
+        return {'doi': doi, 'url': url}
+        
     except requests.exceptions.RequestException as e:
-        return False, str(e)
+        logger.warning(f"Could not resolve DOI {doi}: {e}")
+        return None
+
+def verify_zenodo_accession(doi: str) -> bool:
+    """
+    Verify that a Zenodo accession exists and contains relevant data.
+    
+    Args:
+        doi: DOI to verify
+        
+    Returns:
+        True if accessible and relevant, False otherwise
+    """
+    try:
+        # Check if DOI is accessible
+        url = f"https://doi.org/{doi}"
+        response = requests.head(url, timeout=30, allow_redirects=True)
+        return response.status_code == 200
+    except requests.exceptions.RequestException:
+        return False
 
 def main():
     """
-    Main entry point for T045c research task.
-    
-    1. Verify each DOI in TERNARY_SOURCES.
-    2. Verify each Zenodo accession.
-    3. Log results.
-    4. Write findings to research/data_sources.md (append/update).
+    Main function to search for ternary APT data sources and write to research/data_sources.md.
     """
-    logger.info("Starting T045c: Researching ternary APT data sources.")
+    logger.info("Starting search for ternary APT literature sources on Zenodo/DOI")
     
-    results = []
-    all_valid = True
-
-    for source in TERNARY_SOURCES:
-        system = source["system"]
-        doi = source["doi"]
-        zenodo_id = source["zenodo_id"]
+    # Ensure research directory exists
+    research_dir = RESEARCH_DIR
+    research_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_file = research_dir / "data_sources.md"
+    
+    # Collect all findings
+    all_findings = []
+    seen_dois = set()
+    
+    for query in SEARCH_QUERIES:
+        logger.info(f"Searching for: {query}")
+        results = search_zenodo(query, max_results=15)
         
-        logger.info(f"Checking {system} (DOI: {doi})")
-        
-        # Verify DOI
-        doi_valid, doi_msg = resolve_doi(doi)
-        if not doi_valid:
-            logger.error(f"DOI resolution failed for {system}: {doi_msg}")
-            all_valid = False
-        else:
-            logger.info(f"DOI resolved for {system}: {doi_msg}")
-
-        # Verify Zenodo
-        zenodo_valid, zenodo_msg = verify_zenodo_accession(zenodo_id)
-        if not zenodo_valid:
-            logger.error(f"Zenodo access failed for {system}: {zenodo_msg}")
-            # Note: Zenodo might be down or ID might be private, but DOI should work.
-            # We flag it but don't necessarily fail the whole task if DOI works.
-            # However, for T045d, we need the Zenodo ID to be valid.
-            # So we treat this as a failure for the research task if Zenodo is inaccessible.
-            all_valid = False
-        else:
-            logger.info(f"Zenodo accessible for {system}: {zenodo_msg}")
-
-        results.append({
-            "system": system,
-            "doi": doi,
-            "doi_valid": doi_valid,
-            "zenodo_id": zenodo_id,
-            "zenodo_valid": zenodo_valid,
-            "title": source["title"],
-            "authors": source["authors"],
-            "journal": source["journal"],
-            "year": source["year"],
-            "description": source["description"]
-        })
-
+        for record in results:
+            doi = record['doi']
+            if doi not in seen_dois:
+                seen_dois.add(doi)
+                # Verify the DOI is accessible
+                if verify_zenodo_accession(doi):
+                    all_findings.append(record)
+                    logger.info(f"Found valid source: {doi} (score: {record['relevance_score']})")
+                else:
+                    logger.warning(f"DOI {doi} not accessible, skipping")
+    
+    # Sort by relevance score
+    all_findings.sort(key=lambda x: x['relevance_score'], reverse=True)
+    
     # Write findings to research/data_sources.md
-    # We append the new findings to the existing file or create it if it doesn't exist.
-    data_sources_path = PROJECT_ROOT / "research" / "data_sources.md"
+    if all_findings:
+        output_data = {
+            "search_completed": True,
+            "query_count": len(SEARCH_QUERIES),
+            "total_valid_sources": len(all_findings),
+            "sources": all_findings
+        }
+        
+        with open(output_file, 'w') as f:
+            # Write as markdown with JSON content
+            f.write("# Ternary APT Literature Sources (Zenodo/DOI Search)\n\n")
+            f.write(f"Search completed on: {__import__('datetime').datetime.now().isoformat()}\n\n")
+            f.write(f"Total queries executed: {len(SEARCH_QUERIES)}\n")
+            f.write(f"Valid sources found: {len(all_findings)}\n\n")
+            f.write("## JSON Data\n\n")
+            f.write("```json\n")
+            json.dump(output_data, f, indent=2)
+            f.write("\n```\n\n")
+            f.write("## Summary of Sources\n\n")
+            
+            for i, source in enumerate(all_findings, 1):
+                f.write(f"### {i}. {source['title']}\n")
+                f.write(f"- **DOI**: {source['doi']}\n")
+                f.write(f"- **Publication Date**: {source.get('publication_date', 'N/A')}\n")
+                f.write(f"- **Authors**: {', '.join(source['authors']) if source['authors'] else 'N/A'}\n")
+                f.write(f"- **Keywords**: {', '.join(source['keywords']) if source['keywords'] else 'N/A'}\n")
+                f.write(f"- **Relevance Score**: {source['relevance_score']}/7\n")
+                if source['description']:
+                    f.write(f"- **Description**: {source['description'][:200]}...\n")
+                f.write("\n")
+        
+        logger.info(f"Successfully wrote {len(all_findings)} sources to {output_file}")
+    else:
+        # Write empty result but still create the file
+        output_data = {
+            "search_completed": True,
+            "query_count": len(SEARCH_QUERIES),
+            "total_valid_sources": 0,
+            "sources": [],
+            "note": "No valid ternary APT sources found in Zenodo search. Consider expanding search terms or checking other databases."
+        }
+        
+        with open(output_file, 'w') as f:
+            f.write("# Ternary APT Literature Sources (Zenodo/DOI Search)\n\n")
+            f.write(f"Search completed on: {__import__('datetime').datetime.now().isoformat()}\n\n")
+            f.write("## JSON Data\n\n")
+            f.write("```json\n")
+            json.dump(output_data, f, indent=2)
+            f.write("\n```\n\n")
+            f.write("## Note\n\n")
+            f.write("No valid ternary APT sources were found in the Zenodo search. ")
+            f.write("The search covered multiple queries related to Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, ")
+            f.write("Fe-Cr-W, and Fe-Mo-W systems. Consider expanding search terms or checking ")
+            f.write("other databases like NIST APT or specific journal repositories.\n")
+        
+        logger.warning(f"No valid sources found. Created empty report at {output_file}")
     
-    # Read existing content if it exists
-    existing_content = ""
-    if data_sources_path.exists():
-        with open(data_sources_path, "r", encoding="utf-8") as f:
-            existing_content = f.read()
-
-    # Generate the new section
-    new_section = f"""
-## 3. Ternary APT Data (Literature Sources)
-
-**Source**: Peer-reviewed literature (retrieved via Zenodo/Mendeley Data mirrors)
-**Purpose**: Validate cooperative segregation effects in ternary systems.
-**Status**: Identified in T045c.
-
-The following specific peer-reviewed sources contain **ternary** APT data for the
-systems defined in the specification. Each source has been verified to contain
-grain boundary segregation data for the specific ternary combinations required.
-
-"""
-
-    for r in results:
-        status = "VERIFIED" if (r["doi_valid"] and r["zenodo_valid"]) else "ISSUE"
-        new_section += f"""
-### 3.{results.index(r) + 1} {r['system']}
-**Reference**: 
-- **Authors**: {r['authors']}
-- **Title**: "{r['title']}"
-- **Journal**: {r['journal']}, Vol. N/A, {r['year']}.
-- **DOI**: `{r['doi']}` ({'OK' if r['doi_valid'] else 'FAILED'})
-- **Data Accession**: Zenodo `{r['zenodo_id']}` ({'OK' if r['zenodo_valid'] else 'FAILED'})
-**Data Content**: 
-- {r['description']}
-**Status**: {status}
-
-"""
-
-    # Combine content
-    # We replace the existing section if it exists, or append.
-    # For simplicity, we'll just write the full file with the new content + header.
-    # In a real scenario, we might want to preserve other sections.
-    # Here we assume the file is primarily for this research.
-    
-    final_content = """# Data Sources and Literature References
-## Project: Quantifying Composition-Dependent Grain Boundary Segregation in BCC Alloys
-
-This document catalogs the verified data sources, literature references, and specific
-accession IDs used in this research pipeline. It satisfies the traceability requirements
-of FR-007 and the experimental verification demands of the Marie Curie review.
-
-## 1. Thermodynamic Proxy (Open Database)
-
-**Source**: Open Thermodynamic Database (TCFE proxy)
-**Purpose**: Provide equilibrium phase compositions and interaction parameters for Fe-based
-systems (Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, Fe-Mo-W).
-**Status**: Verified and downloaded in T006b.
-**DOI/URL**: 
-- Primary: `https://github.com/PyCalphad/pycalphad-databases` (Community maintained)
-- Specific File: `TCFE.tdb` (Thermodynamic Database for Iron and Steel)
-**Checksum**: Verified in T006c.
-**Notes**: 
-- Binary parameters for Fe-Cr, Fe-Mo, Fe-V, Fe-W confirmed present.
-- Ternary parameters for Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, Fe-Mo-W are required.
-- Missing ternary parameters are handled via linear interpolation between binary endpoints
-  as per T047b, with explicit flagging (`NO_TERNARY_DATA`).
-
-## 2. Binary APT Data (NIST)
-
-**Source**: NIST Materials Data Repository
-**Purpose**: Binary system validation (Fe-Cr, Fe-Mo, Fe-V, Fe-W).
-**Status**: Referenced in T045a.
-**Accession IDs**:
-- Fe-Cr: `NIST-APT-00142` (Segregation in Fe-Cr alloys at GBs)
-- Fe-Mo: `NIST-APT-00158` (Mo segregation in Fe matrix)
-- Fe-V: `NIST-APT-00163` (V segregation behavior)
-- Fe-W: `NIST-APT-00171` (W segregation in BCC Fe)
-**Notes**: These datasets provide the baseline binary segregation energies used for
-surrogate model calibration.
-
-""" + new_section + """
-## 4. Surrogate Model Parameters
-
-**Source**: Literature-calibrated coefficients
-**File**: `data/raw/literature_surrogate_params.json`
-**Purpose**: Coefficients for `E_seg_ternary = sum(w_i * E_seg_binary_i) + Delta_E_interaction`.
-**Status**: Referenced in T013.
-**Content**: 
-- Binary segregation energies (eV) for Fe-Cr, Fe-Mo, Fe-V, Fe-W.
-- Interaction parameters (Delta_E) for the five ternary systems.
-
-## 5. Experimental Verification Plan
-
-**Source**: Internal research (T070-T074)
-**Purpose**: Define apparatus and detection limits for validating computed segregation.
-**Key Findings**:
-- **Instrument**: CAMECA LEAP 5000 SS (Atom Probe Tomography).
-- **Detection Limit**: ~10 at. ppm for Mo, V, W at grain boundaries.
-- **Sample Mass**: ~0.5 mg required for statistical significance (p<0.05) per T071.
-- **Protocol**: Correlation of computed eV to atomic fraction via McLean isotherm (T014).
-
-## 6. Data Manifest
-
-**File**: `data/data_manifest.json`
-**Schema**: `code/data/manifest_schema.json`
-**Validator**: `code/data/manifest_validator.py`
-**Status**: Generated in T005.
-**Content**: Includes DOIs and URLs for all sources listed above.
-
----
-*Last Updated: 2026-06-13*
-*Verified by: T045c Implementation*
-"""
-
-    with open(data_sources_path, "w", encoding="utf-8") as f:
-        f.write(final_content)
-
-    logger.info(f"Research findings written to {data_sources_path}")
-
-    if not all_valid:
-        logger.error("One or more sources could not be verified. T045c failed.")
-        raise DataLoadError("T045c: Failed to verify all ternary APT data sources. Check logs for details.")
-    
-    logger.info("T045c completed successfully. All ternary sources verified.")
+    logger.info("Ternary APT literature search completed")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
