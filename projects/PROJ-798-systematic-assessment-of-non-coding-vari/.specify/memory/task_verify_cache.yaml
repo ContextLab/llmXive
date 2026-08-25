@@ -1,3 +1,33 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory structure (`code/`, `data/raw/`, `data/derived/`,
+    `tests/`) is provided; the implementer did not supply any artifact listing or
+    screenshots showing these folders exist and contain files. The task therefore
+    remains unfinished.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitignore` file content or path was provided; without the actual file we\
+    \ cannot verify that it exists, is non\u2011empty, or contains the required patterns\
+    \ (`data/raw/*` except checksums, `data/derived/*`, `__pycache__`, `.env`). The\
+    \ implementer must supply the `.gitignore` file with the specified exclusions."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `tests/unit/`, `tests/integration/`, or `tests/contract/`
+    directories (or their `__init__.py` files) is provided; the implementer did not
+    supply any artifacts showing these folders were created. The task remains undone.
+T010:
+  c: false
+  h: 0f6ca39aa23ca79def9a091e6d77e0691b21fa1f8bb09b5981b8e621c1d0f762
+  r: "The provided `code/data_ingestion.py` stops after defining helper functions;\
+    \ there is no implementation that lists the FTP directory, selects the `common_snps.vcf.gz`\
+    \ file, downloads it, applies the MAF\u202F>\u202F1\u202F% filter, or falls back\
+    \ to the 1000\u202FGenomes source when dbSNP is unavailable. Moreover, the required\
+    \ `data/raw/source_log.txt` does not exist, indicating the logging step has not\
+    \ been exercised. The script therefore does not fulfill the task\u2019s functional\
+    \ and logging requirements."
 T010b:
   c: false
   h: 95f6a0ebd0e767f54b537901ae7c4d637f616a2f74b7d567a3cbc4ea0f76467b

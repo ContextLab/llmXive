@@ -21,7 +21,7 @@ This project implements a computational pipeline to assess the impact of non-cod
 **Scale/Scope**: 
 - **Input SNPs**: A set of common SNPs (dbSNP (recent build)
 
-The research question remains: How do common genetic variants influence phenotypic diversity? The method employed is a genome-wide association study (GWAS) using imputed genotype data. Key references include Sherry et al. (2001) and the dbSNP project documentation.).
+The research question remains: How do common genetic variants influence phenotypic diversity? The method employed is a genome-wide association study (GWAS) using imputed genotype data. Key references include Sherry et al. (n.d.) and the dbSNP project documentation.).
 - **Filtered SNPs**: A substantial number of SNPs overlapping regulatory regions (after LD pruning).
 - **TFs**: A set of high-confidence human motifs (filtered from JASPAR to exclude low-confidence/short motifs).
 - **Permutations**: per TF (limited by runtime).

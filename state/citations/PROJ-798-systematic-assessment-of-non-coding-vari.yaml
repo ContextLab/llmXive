@@ -57,3 +57,14 @@
   verification_status: verified
   verified_against_url: https://jaspar.elixir.no/
   verified_at: '2026-07-12T11:09:38.059810Z'
+- artifact_hash: 27bbc0a16dcec3a28216ade860414c16ba4400bb9da0589a126485bd214f5e5c
+  artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-08-25T14:14:03.764847Z'

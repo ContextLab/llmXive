@@ -460,3 +460,731 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T04:02:34Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: dbSNP URL for common human SNPs
+  claim_id: c_affd827f
+  context: 'Implement code/data_ingestion.py to download common human SNPs (MAF >
+    1%) from dbSNP (primary source) using bcftools or FTP. URL: ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DbSNP_URL_for_common_human_SNPs
+  kind: entity_fact
+  raw_text: The primary source for common human SNPs is dbSNP with the URL ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:00:04Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: 1000 Genomes Phase 3 VCF as fallback source
+  claim_id: c_6c7116f0
+  context: 'Implement code/data_ingestion.py to download 1000 Genomes Phase 3 VCF
+    (common SNPs) as a fallback source. URL Logic: Iterate over human autosomes (1-22)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback source for common human SNPs is the 1000 Genomes Phase 3
+    VCF
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:00:13Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: 1000 Genomes VCF filename pattern
+  claim_id: c_6ddc9e92
+  context: 'URL Logic: Iterate over human autosomes (1-22) using the pattern f"ftp://ftp.1000genomes.ebi.ac.uk/ebi/ftp/1000_Genomes/release/20130502/ALL.chr{chr}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 1000 Genomes VCF files follow the pattern ALL.chr{chr}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:00:40Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: ENCODE promoter BED file URL
+  claim_id: c_795b0eca
+  context: 'Implement code/data_ingestion.py to download ENCODE/Roadmap promoter and
+    enhancer BED files. URL: Promoters ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ENCODE_promoter_BED_file_URL
+  kind: entity_fact
+  raw_text: ENCODE promoter BED file URL is ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:01:00Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: ENCODE enhancer BED file URL
+  claim_id: c_46c2c262
+  context: '...and Enhancers ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz.
+    Save to data/raw/regulatory_regions.bed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ENCODE_enhancer_BED_file_URL
+  kind: entity_fact
+  raw_text: ENCODE enhancer BED file URL is ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:01:25Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: GWAS Catalog FTP URL
+  claim_id: c_a3e2729f
+  context: Implement code/statistics.py to download/load GWAS Catalog lead SNPs (BED
+    format) from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GWAS_Catalog_FTP_URL
+  kind: magnitude
+  raw_text: GWAS Catalog lead SNPs are available at ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:02:07Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: GWAS Catalog pinned version
+  claim_id: c_a2ecd596
+  context: 'Constraint: Fetch pinned version gwas_catalog_v1.0.3-2024-01-01 or use
+    a cached, versioned file to ensure reproducibility.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pinned version of the GWAS Catalog is gwas_catalog_v1.0.3-2024-01-01
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T14:02:07Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: GC content matching tolerance
+  claim_id: c_7ac6e2de
+  context: "Iterate to match the GC content distribution of the input filtered SNPs\
+    \ (from T013) within \xB12% tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The GC-matched control set generation requires a tolerance of \xB12%\
+    \ for GC content distribution"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:02:08Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Large magnitude delta score threshold
+  claim_id: c_b738f04f
+  context: "Implement code/scoring.py to calculate and output a boolean flag is_large_magnitude\
+    \ where true if the absolute \u0394 Score is \u2265 2 bits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A delta score magnitude of \u2265 2 bits defines a large magnitude effect"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:02:08Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Permutation test iteration count
+  claim_id: c_de195998
+  context: Implement code/statistics.py to perform permutation test (n=100) by randomly
+    reassigning the 'in-GWAS' or 'out-of-GWAS' status labels...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 100 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:02:25Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Significance threshold alpha
+  claim_id: c_a443b39a
+  context: "Implement code/statistics.py to apply a significance threshold of \u03B1\
+    \ = 0.05 (corrected) to the output p-values from T025 to determine which TFs are\
+    \ significantly enriched."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The significance threshold for the statistical analysis is \u03B1 = 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:02:45Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Download common human SNPs with MAF > 1% from dbSNP
+  claim_id: c_7271f02b
+  context: T010 [US1] Implement code/data_ingestion.py to download common human SNPs
+    (MAF > 1%) from dbSNP (primary source) using bcftools or FTP.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download common human SNPs (MAF > 1%) from dbSNP (primary source) using
+    URL ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:03:05Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Download 1000 Genomes Phase 3 VCF for autosomes 1-22
+  claim_id: c_86f4f1d4
+  context: T010a [US1] Implement code/data_ingestion.py to download 1000 Genomes Phase
+    3 VCF (common SNPs) as a fallback source.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download 1000 Genomes Phase 3 VCF (common SNPs) as a fallback source using
+    URLs for human autosomes 1-22.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:03:27Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Download ENCODE/Roadmap promoter and enhancer BED files
+  claim_id: c_cd7f44b5
+  context: T011 [US1] Implement code/data_ingestion.py to download ENCODE/Roadmap
+    promoter and enhancer BED files.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_ENCODE/Roadmap_promoter_and_enhancer_BED_files
+  kind: entity_fact
+  raw_text: Download ENCODE/Roadmap promoter and enhancer BED files from ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz
+    and ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:04:00Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Download GWAS Catalog lead SNPs version gwas_catalog_v1.0.3-2024-01-01
+  claim_id: c_3cd110ff
+  context: T027 [US3] Implement code/statistics.py to download/load GWAS Catalog lead
+    SNPs (BED format) from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/.
+  evidence:
+    candidates:
+    - - ''
+      - 3.0
+    - - ''
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Download_GWAS_Catalog_lead_SNPs_version_gwas_catalog_v1.0.3-
+  kind: magnitude
+  raw_text: Download GWAS Catalog lead SNPs from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/
+    using version gwas_catalog_v1.0.3-2024-01-01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-25T14:04:55Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Perform permutation test with 100 iterations
+  claim_id: c_7dc677cc
+  context: T024 [US3] Implement code/statistics.py to perform permutation test (n=100)
+    by randomly reassigning the 'in-GWAS' or 'out-of-GWAS' status labels.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a permutation test with n=100 iterations by randomly reassigning
+    the 'in-GWAS' or 'out-of-GWAS' status labels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:05:06Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: Apply significance threshold of 0.05 to p-values
+  claim_id: c_36028959
+  context: "T028 [US3] Implement code/statistics.py to apply a significance threshold\
+    \ of \u03B1 = 0.05 (corrected) to the output p-values from T025 to determine which\
+    \ TFs are significantly enriched."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a significance threshold of alpha = 0.05 (corrected) to the output
+    p-values to determine which TFs are significantly enriched.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:05:22Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: download common human SNPs from dbSNP ftp path
+  claim_id: c_c193c627
+  context: 'T010 [US1] Implement code/data_ingestion.py to download common human SNPs
+    (MAF > 1%) from dbSNP (primary source) using bcftools or FTP. URL: ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download common human SNPs (MAF > 1%) from dbSNP using the URL ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:06:03Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: download 1000 Genomes Phase 3 VCF fallback source
+  claim_id: c_ff313923
+  context: 'T010a [US1] Implement code/data_ingestion.py to download 1000 Genomes
+    Phase 3 VCF (common SNPs) as a fallback source. URL Logic: Iterate over human
+    autosomes (1-22) using the pattern f"ftp://ftp.1000genomes.ebi.ac.uk/ebi/ftp/1000_Genomes/release/20130502/ALL.chr{chr}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download 1000 Genomes Phase 3 VCF (common SNPs) as a fallback source using
+    the pattern ftp://ftp.1000genomes.ebi.ac.uk/ebi/ftp/1000_Genomes/release/20130502/ALL.chr{chr}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz
+    for human autosomes 1-22.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:06:27Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: download ENCODE promoter BED file ENCFF001TDO
+  claim_id: c_afbb73a6
+  context: 'T011 [US1] Implement code/data_ingestion.py to download ENCODE/Roadmap
+    promoter and enhancer BED files. URL: Promoters ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz
+    and Enhancers ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_ENCODE_promoter_BED_file_ENCFF001TDO
+  kind: entity_fact
+  raw_text: Download ENCODE promoter BED file from ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:06:47Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: download ENCODE enhancer BED file ENCFF001TDP
+  claim_id: c_86f9294e
+  context: 'T011 [US1] Implement code/data_ingestion.py to download ENCODE/Roadmap
+    promoter and enhancer BED files. URL: Promoters ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz
+    and Enhancers ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_ENCODE_enhancer_BED_file_ENCFF001TDP
+  kind: entity_fact
+  raw_text: Download ENCODE enhancer BED file from ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:07:09Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: filter SNPs exclude MAF less than 1% and non-ACGT alleles
+  claim_id: c_9e2e0916
+  context: T012 [US1] Implement filtering logic in code/data_ingestion.py to exclude
+    SNPs with MAF < 1% and non-ACGT alleles (handle N/indels).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_SNPs_exclude_MAF_less_than_1%25_and_non-ACGT_alleles
+  kind: magnitude
+  raw_text: Filter SNPs to exclude those with MAF < 1% and non-ACGT alleles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:07:29Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: generate GC-matched control set within 2% tolerance
+  claim_id: c_303717ab
+  context: "T013b [US1] Implement code/data_ingestion.py to generate a GC-matched\
+    \ non-regulatory control set. ... Iterate to match the GC content distribution\
+    \ of the input filtered SNPs (from T013) within \xB12% tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate a GC-matched non-regulatory control set with GC content distribution\
+    \ matching the input filtered SNPs within \xB12% tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:07:29Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: is_large_magnitude flag true if absolute delta score is 2 bits
+  claim_id: c_f8222032
+  context: "T020b [US2] Implement code/scoring.py to calculate and output a boolean\
+    \ flag is_large_magnitude where true if the absolute Delta Score is \u2265 2 bits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate a boolean flag is_large_magnitude where true if the absolute\
+    \ Delta Score is \u2265 2 bits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:07:29Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: download GWAS Catalog lead SNPs from EBI ftp
+  claim_id: c_4db25f7c
+  context: T027 [US3] Implement code/statistics.py to download/load GWAS Catalog lead
+    SNPs (BED format) from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_GWAS_Catalog_lead_SNPs_from_EBI_ftp
+  kind: magnitude
+  raw_text: Download/load GWAS Catalog lead SNPs from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:08:27Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: fetch GWAS Catalog version gwas_catalog_v1.0.3-2024-01-01
+  claim_id: c_c443d22e
+  context: 'T027 [US3] Implement code/statistics.py to download/load GWAS Catalog
+    lead SNPs (BED format) from ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/. Constraint:
+    Fetch pinned version gwas_catalog_v1.0.3-2024-01-01 or use a cached, versioned
+    file to ensure reproducibility.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Fetch GWAS Catalog pinned version gwas_catalog_v1.0.3-2024-01-01.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T14:08:27Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: perform permutation test n=100
+  claim_id: c_81e134ee
+  context: T024 [US3] Implement code/statistics.py to perform permutation test (n=100)
+    by randomly reassigning the 'in-GWAS' or 'out-of-GWAS' status labels across the
+    entire dataset while preserving the total count of GWAS and non-GWAS SNPs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a permutation test with n=100 by randomly reassigning the in-GWAS
+    or out-of-GWAS status labels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:08:42Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 0
+  canonical: GWAS Catalog version 1.0.3-2024-01-01
+  claim_id: c_eafb290c
+  context: '**Constraint**: Fetch pinned version `gwas_catalog_v1.0.3-2024-01-01`
+    or use a cached, versioned file to ensure reproducibility.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The GWAS Catalog version is pinned to `gwas_catalog_v1.0.3-2024-01-01`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T14:09:51Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: scoring engine derives window size from PWM length
+  claim_id: c_e7ac2943
+  context: 'T005 [US2] Create `code/config.py` defining paths, random seeds, and MAF
+    threshold. **CRITICAL**: The scoring engine MUST derive the window size dynamically
+    from the loaded PWM length for each TF.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scoring_engine_derives_window_size_from_PWM_length
+  kind: entity_fact
+  raw_text: The scoring engine MUST derive the window size dynamically from the loaded
+    PWM length for each TF.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:10:57Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: window size equals PWM length
+  claim_id: c_14f17f91
+  context: No fallback constants (e.g., `DEFAULT_WINDOW`) are permitted in this config;
+    the window size is strictly `len(pwm)`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Window_size_equals_PWM_length
+  kind: entity_fact
+  raw_text: The window size is strictly `len(pwm)`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:11:42Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: select common_snps.vcf.gz file pattern
+  claim_id: c_b04e8d19
+  context: 'Implement `code/data_ingestion.py` to download common human SNPs (MAF
+    > 1%) from **dbSNP** (primary source) using `bcftools` or FTP. **URL**: `ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606_b155_GRCh38p13/VCF/`.
+    **Constraint**: Select the file matching the pattern `common_snps.vcf.gz` from
+    the directory listing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_common_snps.vcf.gz_file_pattern
+  kind: entity_fact
+  raw_text: Select the file matching the pattern `common_snps.vcf.gz` from the directory
+    listing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:11:59Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: 1000 Genomes VCF URL pattern
+  claim_id: c_45adaaf4
+  context: 'Implement `code/data_ingestion.py` to download 1000 Genomes Phase 3 VCF
+    (common SNPs) as a fallback source. **URL Logic**: Iterate over human autosomes
+    (1-22) using the pattern `f\"ftp://ftp.1000genomes.ebi.ac.uk/ebi/ftp/1000_Genomes/release/20130502/ALL.chr{chr}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz\"`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The URL pattern for 1000 Genomes Phase 3 VCF is `f\"ftp://ftp.1000genomes.ebi.ac.uk/ebi/ftp/1000_Genomes/release/20130502/ALL.chr{chr}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz\"`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:12:23Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: ENCODE promoters BED URL
+  claim_id: c_9606bac8
+  context: 'Implement `code/data_ingestion.py` to download ENCODE/Roadmap promoter
+    and enhancer BED files. **URL**: Promoters `ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz`
+    and Enhancers `ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ENCODE_promoters_BED_URL
+  kind: entity_fact
+  raw_text: Promoters URL is `ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:12:38Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: ENCODE enhancers BED URL
+  claim_id: c_467660ec
+  context: 'Implement `code/data_ingestion.py` to download ENCODE/Roadmap promoter
+    and enhancer BED files. **URL**: Promoters `ftp://ftp.encodeproject.org/files/ENCFF001TDO/@@download/ENCFF001TDO.bed.gz`
+    and Enhancers `ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ENCODE_enhancers_BED_URL
+  kind: entity_fact
+  raw_text: Enhancers URL is `ftp://ftp.encodeproject.org/files/ENCFF001TDP/@@download/ENCFF001TDP.bed.gz`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:12:53Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: GC content distribution match tolerance 2 percent
+  claim_id: c_7022f2ac
+  context: "Iterate to match the GC content distribution of the input filtered SNPs\
+    \ (from T013) within \xB12% tolerance. **Output**: Save to `data/derived/gc_matched_controls.parquet`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The algorithm matches the GC content distribution of the input filtered\
+    \ SNPs within \xB12% tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:12:54Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: is_large_magnitude flag threshold 2 bits
+  claim_id: c_8d1f0643
+  context: "Implement `code/scoring.py` to calculate and output a boolean flag `is_large_magnitude`\
+    \ where true if the absolute $\\Delta Score$ is \u2265 2 bits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The flag `is_large_magnitude` is true if the absolute $\\Delta Score$\
+    \ is \u2265 2 bits."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:12:54Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: permutation test iterations 100
+  claim_id: c_4866579b
+  context: Implement `code/statistics.py` to perform **permutation test** (n=100)
+    by **randomly reassigning the 'in-GWAS' or 'out-of-GWAS' status labels** across
+    the entire dataset while preserving the total count of GWAS and non-GWAS SNPs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses n=100 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:12:54Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: GWAS Catalog download URL
+  claim_id: c_f7c8ec2c
+  context: Implement `code/statistics.py` to download/load **GWAS Catalog lead SNPs**
+    (BED format) from `ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/`.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GWAS_Catalog_download_URL
+  kind: magnitude
+  raw_text: The GWAS Catalog lead SNPs are fetched from `ftp://ftp.ebi.ac.uk/pub/databases/gwas/latest/`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T14:13:55Z'
+- artifact_path: projects/PROJ-798-systematic-assessment-of-non-coding-vari/specs/001-systematic-assessment-of-non-coding-vari/tasks.md
+  attempts: 1
+  canonical: significance threshold 0.05
+  claim_id: c_35f3774d
+  context: "Implement `code/statistics.py` to apply a significance threshold of \u03B1\
+    \ = 0.05 (corrected) to the output p-values from T025 to determine which TFs are\
+    \ significantly enriched."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Statistical significance
+        url: https://en.wikipedia.org/wiki/Statistical_significance
+        value: '0.005'
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: "The significance threshold is set to \u03B1 = 0.05 (corrected)."
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T14:14:03Z'
