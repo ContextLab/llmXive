@@ -1,44 +1,46 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: MetaAnalysisResult
-description: Schema for the aggregated meta-analysis output.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetaAnalysisResult"
+description: "Schema for the aggregated meta-analysis results."
+type: "object"
 properties:
-  pooled_effect_size:
-    type: number
-    description: "Weighted mean correlation coefficient."
+  pooled_r:
+    type: "number"
+    description: "Weighted mean effect size."
+    minimum: -1.0
+    maximum: 1.0
   ci_lower:
-    type: number
-    description: "Lower bound of the 95% confidence interval."
+    type: "number"
+    description: "Lower bound of 95% CI."
   ci_upper:
-    type: number
-    description: "Upper bound of the 95% confidence interval."
-  heterogeneity_i2:
-    type: number
-    description: "I² statistic for heterogeneity (0-100%)."
-  publication_bias_p:
-    type: ["number", "null"]
-    description: "P-value from Egger's regression test. Null if N < 10."
-  study_count:
-    type: integer
-    description: "Total number of unique studies included."
-  synthesis_mode:
-    type: string
-    enum:
-      - quantitative
-      - narrative
-    description: "Mode of synthesis based on study count."
-  bonferroni_threshold:
-    type: ["number", "null"]
-    description: "Adjusted significance threshold if applied. Null if not applicable."
-  tract_count:
-    type: integer
-    description: "Number of distinct tracts (k) included in the analysis."
+    type: "number"
+    description: "Upper bound of 95% CI."
+  i_squared:
+    type: "number"
+    description: "Heterogeneity statistic (I^2)."
+    minimum: 0.0
+    maximum: 100.0
+  q_statistic:
+    type: "number"
+    description: "Cochran's Q statistic."
+    minimum: 0.0
+  k:
+    type: "integer"
+    description: "Number of studies included."
+    minimum: 1
+  method:
+    type: "string"
+    description: "Model used."
+    enum: ["RandomEffects", "FixedEffects", "MLM"]
+  status:
+    type: "string"
+    description: "Execution status."
+    enum: ["Success", "ConvergenceWarning", "Fallback"]
 required:
-  - pooled_effect_size
+  - pooled_r
   - ci_lower
   - ci_upper
-  - heterogeneity_i2
-  - study_count
-  - synthesis_mode
-  - tract_count
+  - i_squared
+  - k
+  - method
+  - status
 additionalProperties: false

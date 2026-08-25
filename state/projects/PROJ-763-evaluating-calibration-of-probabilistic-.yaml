@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-22T18:31:20.264458Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-763-evaluating-calibration-of-probabilistic-
-last_run_id: 91aadff9-d042-4047-a614-76c5e2198a0b
+last_run_id: 1b5f77eb-ca42-44bc-bcae-8beea9048817
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-763-evaluating-calibration-of-probabilistic-/specs/001-evaluating-calibration-of-probabilistic
 title: Evaluating Calibration of Probabilistic Weather Forecasts
-updated_at: '2026-08-15T01:31:47.340340Z'
+updated_at: '2026-08-25T18:44:49.080031Z'

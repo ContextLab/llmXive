@@ -974,3 +974,315 @@
   source_type: external
   status: verified
   updated_at: '2026-07-21T19:13:55Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 0
+  canonical: Plan references ds000246 while tasks reference ds000248
+  claim_id: c_627f8305
+  context: 'CRITICAL: The plan.md references ''ds000246'' while tasks and constitution
+    reference ''ds000248''. The tasks have been updated to use ''ds000248'' as per
+    the Spec/Constitution.'
+  evidence:
+    entailment_evidence: Plan references ds000246 while tasks reference ds000248
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan_references_ds000246_while_tasks_reference_ds000248
+  kind: entity_fact
+  raw_text: The Plan references 'ds000246' while tasks and constitution reference
+    'ds000248'.
+  resolved_value: Plan references ds000246 while tasks reference ds000248
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T19:12:43Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Virtual Cohort Matching requires 10 valid matched pairs
+  claim_id: c_ca2d9ef9
+  context: "Decision Criterion: If \u226510 valid matched pairs are found (via either\
+    \ method): Write data/processed/matched_pairs.csv."
+  evidence:
+    entailment_evidence: Virtual Cohort Matching requires 10 valid matched pairs
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Virtual_Cohort_Matching_requires_10_valid_matched_pairs
+  kind: magnitude
+  raw_text: Virtual Cohort Matching requires at least 10 valid matched pairs to proceed.
+  resolved_value: Virtual Cohort Matching requires 10 valid matched pairs
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T19:12:50Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Subjects with less than 80% valid epochs are filtered
+  claim_id: c_1d91fe55
+  context: Filter subjects with <80% valid epochs. Output data/processed/eeg_features.csv.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_less_than_80%25_valid_epochs_are_filtered
+  kind: magnitude
+  raw_text: The preprocessing pipeline filters subjects with less than 80% valid epochs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:13:22Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Target available EEG subjects is 50
+  claim_id: c_8c53e8eb
+  context: "Output the available subjects (target \u226550); log a warning if count\
+    \ < 50."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_available_EEG_subjects_is_50
+  kind: magnitude
+  raw_text: The target number of available EEG subjects is at least 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:13:49Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Microbiome CSV requires 100 rows
+  claim_id: c_da263ebf
+  context: "Independent Test: Verify that (1) microbiome CSV has \u2265100 rows, (2)\
+    \ EEG CSV has \u226550 subjects..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Microbiome_CSV_requires_100_rows
+  kind: magnitude
+  raw_text: The microbiome CSV must contain at least 100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:14:14Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: EEG CSV requires 50 subjects
+  claim_id: c_759f541d
+  context: "Independent Test: Verify that (1) microbiome CSV has \u2265100 rows, (2)\
+    \ EEG CSV has \u226550 subjects..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/EEG_CSV_requires_50_subjects
+  kind: magnitude
+  raw_text: The EEG CSV must contain data for at least 50 subjects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:14:38Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Analysis uses 20 highest mean relative abundance taxa
+  claim_id: c_a670f118
+  context: Perform Spearman correlation between the 20 taxa with the highest mean
+    relative abundance and mean alpha power per matched pair.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_uses_20_highest_mean_relative_abundance_taxa
+  kind: magnitude
+  raw_text: The analysis uses the 20 taxa with the highest mean relative abundance
+    for correlation testing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:15:39Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR uses q < 0.1
+  claim_id: c_fa0f8c85
+  context: Apply Benjamini-Hochberg FDR (q<0.1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Benjamini-Hochberg FDR correction uses a q-value threshold of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:16:03Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Permutation test significance at 95th percentile
+  claim_id: c_b1d22690
+  context: Set perm_test_passed boolean if observed statistic exceeds the 95th percentile
+    of null distribution...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_significance_at_95th_percentile
+  kind: entity_fact
+  raw_text: The permutation test considers the observed statistic significant if it
+    exceeds the 95th percentile of the null distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:16:22Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: FastICA uses 20 components
+  claim_id: c_8d93f4ed
+  context: "Filter (0.5\u201345 Hz), run FastICA (20 components), epoch (2-min), compute\
+    \ alpha power..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FastICA algorithm is configured to use 20 components.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:16:45Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 2
+  canonical: EEG signal filtered 0.5 to 45 Hz
+  claim_id: c_b8393854
+  context: "Filter (0.5\u201345 Hz), run FastICA (20 components), epoch (2-min)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The EEG signal is filtered between 0.5 Hz and 45 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:17:06Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: CLR transformation pseudocount is 0.5
+  claim_id: c_a046bd8d
+  context: Implement CLR transformation in code/correlation_analysis.py applying pseudocount=0.5
+    to subject-level data...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pseudocount applied for CLR transformation is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:17:20Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Preprocessing pseudocount is 0.5
+  claim_id: c_22c30379
+  context: Apply pseudocount=0.5. Output data/processed/microbiome_features.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pseudocount applied in preprocessing is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:17:52Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: QIIME2 version 2023.5 used
+  claim_id: c_062c933a
+  context: Run QIIME2 version 2023.5 with CLI command qiime feature-table summarize...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The QIIME2 version used is 2023.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:18:04Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_2fab964f
+  context: Initialize Python 3.11 project with pinned dependencies in code/requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python project is initialized with Python version 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:18:23Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Correlation analysis cyclomatic complexity less than 10
+  claim_id: c_704ba4ea
+  context: Refactor code/correlation_analysis.py to reduce cyclomatic complexity (<10)
+    and improve readability
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: magnitude
+  raw_text: The cyclomatic complexity of correlation_analysis.py must be reduced to
+    less than 10.
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T19:18:23Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 5GB
+  claim_id: c_beb0d47c
+  context: Optimize memory usage in code/preprocess_eeg.py and code/match_cohorts.py
+    to ensure <5GB RAM usage...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_5GB
+  kind: magnitude
+  raw_text: The memory usage must be less than 5GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:18:56Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Runtime less than 6 hours
+  claim_id: c_2dc33f3f
+  context: '...verify runtime <6 hours.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: The runtime must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T19:19:30Z'

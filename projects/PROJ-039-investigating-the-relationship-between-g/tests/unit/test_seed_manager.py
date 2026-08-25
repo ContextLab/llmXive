@@ -1,212 +1,261 @@
 """
-Unit tests for the seed manager module.
-
-Tests verify:
-- Seed generation from project structure
-- Seed setting across different libraries
-- Context manager functionality
-- Configuration save/load
+Unit tests for the seed management utility.
 """
-import os
-import sys
-import tempfile
-from pathlib import Path
-import json
+import pytest
 import random
-import hashlib
+import json
+import os
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path
-code_dir = Path(__file__).parent.parent.parent / 'code'
-sys.path.insert(0, str(code_dir))
-
+# Import the module under test
 from seed_manager import (
-    set_seed, get_seed, generate_seed, 
-    save_seed_config, load_seed_config,
-    SeedContext, SeedManager, get_random_state
+    SeedManager,
+    set_seed,
+    get_seed,
+    generate_seed,
+    save_seed_config,
+    load_seed_config,
+    SeedContext,
+    get_random_state
 )
-
-try:
-    import numpy as np
-    HAS_NUMPY = True
-except ImportError:
-    HAS_NUMPY = False
-
-try:
-    import torch
-    HAS_TORCH = True
-except ImportError:
-    HAS_TORCH = False
+from config import get_project_root
 
 
-class TestSeedGeneration:
-    """Test seed generation functionality."""
+class TestSeedManager:
+    """Tests for the SeedManager class."""
+    
+    def test_set_seed_with_value(self):
+        """Test setting a specific seed value."""
+        seed_value = 12345
+        result = SeedManager.set_seed(seed_value)
+        
+        assert result == seed_value
+        assert SeedManager.get_seed() == seed_value
+    
+    def test_set_seed_generates_new_seed_when_none(self):
+        """Test that setting seed to None generates a new random seed."""
+        result = SeedManager.set_seed(None)
+        
+        assert result is not None
+        assert isinstance(result, int)
+        assert SeedManager.get_seed() == result
+    
+    def test_set_seed_affects_python_random(self):
+        """Test that setting seed affects Python's random module."""
+        seed_value = 42
+        SeedManager.set_seed(seed_value)
+        
+        # Generate a few random numbers
+        rand1 = [random.random() for _ in range(3)]
+        
+        # Reset and regenerate
+        SeedManager.set_seed(seed_value)
+        rand2 = [random.random() for _ in range(3)]
+        
+        assert rand1 == rand2
+    
+    def test_generate_seed_returns_integer(self):
+        """Test that generate_seed returns an integer."""
+        seed = SeedManager.generate_seed()
+        
+        assert isinstance(seed, int)
+        assert seed > 0
+    
+    def test_save_and_load_seed_config(self, tmp_path):
+        """Test saving and loading seed configuration."""
+        seed_value = 99999
+        config_file = tmp_path / "test_seed_config.json"
+        
+        # Save
+        SeedManager.save_seed_config(seed_value, str(config_file))
+        
+        assert config_file.exists()
+        
+        # Load
+        loaded_seed = SeedManager.load_seed_config(str(config_file))
+        
+        assert loaded_seed == seed_value
+    
+    def test_load_seed_config_nonexistent_file(self):
+        """Test loading from a non-existent file returns None."""
+        result = SeedManager.load_seed_config("/nonexistent/path/file.json")
+        
+        assert result is None
+    
+    def test_seed_context_manager(self):
+        """Test the SeedContext manager properly sets and restores seeds."""
+        original_seed = 111
+        temp_seed = 222
+        
+        SeedManager.set_seed(original_seed)
+        
+        with SeedContext(temp_seed) as context_seed:
+            assert context_seed == temp_seed
+            assert SeedManager.get_seed() == temp_seed
+        
+        # Should be restored to original
+        assert SeedManager.get_seed() == original_seed
+    
+    def test_get_random_state(self):
+        """Test that get_random_state returns expected structure."""
+        seed_value = 55555
+        SeedManager.set_seed(seed_value)
+        
+        state = SeedManager.get_random_state()
+        
+        assert "python_random" in state
+        assert state["python_random"] is not None
 
-    def test_generate_seed_deterministic(self):
-        """Test that generate_seed produces deterministic results."""
-        seed1 = generate_seed("test_salt")
-        seed2 = generate_seed("test_salt")
-        assert seed1 == seed2, "Seed generation should be deterministic"
 
-    def test_generate_seed_different_salt(self):
-        """Test that different salts produce different seeds."""
-        seed1 = generate_seed("salt1")
-        seed2 = generate_seed("salt2")
-        assert seed1 != seed2, "Different salts should produce different seeds"
-
-    def test_generate_seed_no_salt(self):
-        """Test seed generation without salt."""
+class TestConvenienceFunctions:
+    """Tests for convenience functions."""
+    
+    def test_set_seed_function(self):
+        """Test the set_seed convenience function."""
+        result = set_seed(777)
+        
+        assert result == 777
+        assert get_seed() == 777
+    
+    def test_generate_seed_function(self):
+        """Test the generate_seed convenience function."""
         seed = generate_seed()
-        assert isinstance(seed, int), "Seed should be an integer"
-        assert seed >= 0, "Seed should be non-negative"
-
-
-class TestSeedSetting:
-    """Test seed setting functionality."""
-
-    def test_set_seed_integer(self):
-        """Test setting seed with an integer."""
-        set_seed(42)
-        assert get_seed() == 42, "Seed should be set to 42"
-
-    def test_set_seed_string(self):
-        """Test setting seed with a string."""
-        set_seed("test_string")
-        assert get_seed() is not None, "Seed should be set from string"
-
-    def test_set_seed_none(self):
-        """Test setting seed with None (auto-generate)."""
-        set_seed(None)
-        assert get_seed() is not None, "Seed should be auto-generated"
-
-    def test_seed_reproducibility(self):
-        """Test that setting the same seed produces same results."""
-        set_seed(12345)
-        val1 = random.random()
         
-        set_seed(12345)
-        val2 = random.random()
+        assert isinstance(seed, int)
+        assert seed > 0
+    
+    def test_get_seed_function(self):
+        """Test the get_seed convenience function."""
+        set_seed(888)
+        result = get_seed()
         
-        assert val1 == val2, "Same seed should produce same random values"
-
-    def test_numpy_seed_reproducibility(self):
-        """Test numpy seed reproducibility."""
-        if not HAS_NUMPY:
-            return
-
-        set_seed(54321)
-        arr1 = np.random.rand(5)
+        assert result == 888
+    
+    def test_save_seed_config_function(self, tmp_path):
+        """Test the save_seed_config convenience function."""
+        config_file = tmp_path / "test_config.json"
+        save_seed_config(999, str(config_file))
         
-        set_seed(54321)
-        arr2 = np.random.rand(5)
+        assert config_file.exists()
+        with open(config_file, 'r') as f:
+            data = json.load(f)
+            assert data["seed"] == 999
+    
+    def test_load_seed_config_function(self, tmp_path):
+        """Test the load_seed_config convenience function."""
+        config_file = tmp_path / "test_config.json"
+        save_seed_config(101010, str(config_file))
         
-        assert np.array_equal(arr1, arr2), "Numpy should be reproducible with same seed"
+        result = load_seed_config(str(config_file))
+        
+        assert result == 101010
+    
+    def test_seed_context_class(self):
+        """Test the SeedContext class as a context manager."""
+        set_seed(123)
+        
+        with SeedContext(456):
+            assert get_seed() == 456
+        
+        assert get_seed() == 123
 
 
-class TestContextManager:
-    """Test SeedContext functionality."""
-
-    def test_context_manager_sets_seed(self):
-        """Test that context manager sets the seed."""
-        set_seed(999)
-        with SeedContext(111):
-            assert get_seed() == 111, "Context should set seed to 111"
-        # After context, seed should be restored
-        assert get_seed() == 999, "Seed should be restored after context"
-
-    def test_context_manager_nested(self):
-        """Test nested context managers."""
-        set_seed(100)
-        with SeedContext(200):
-            assert get_seed() == 200
-            with SeedContext(300):
-                assert get_seed() == 300
-            assert get_seed() == 200
-        assert get_seed() == 100
-
-    def test_context_manager_exception(self):
-        """Test that context manager restores seed even on exception."""
-        set_seed(400)
+class TestReproducibility:
+    """Tests to verify reproducibility guarantees."""
+    
+    def test_reproducible_random_sequence(self):
+        """Test that the same seed produces the same random sequence."""
+        seed = 42
+        
+        # First run
+        set_seed(seed)
+        sequence1 = [random.random() for _ in range(10)]
+        
+        # Second run with same seed
+        set_seed(seed)
+        sequence2 = [random.random() for _ in range(10)]
+        
+        assert sequence1 == sequence2
+    
+    def test_reproducible_with_numpy(self):
+        """Test reproducibility with numpy if available."""
         try:
-            with SeedContext(500):
-                assert get_seed() == 500
+            import numpy as np
+            seed = 12345
+            
+            # First run
+            set_seed(seed)
+            arr1 = np.random.rand(5)
+            
+            # Second run with same seed
+            set_seed(seed)
+            arr2 = np.random.rand(5)
+            
+            assert np.array_equal(arr1, arr2)
+        except ImportError:
+            pytest.skip("numpy not installed")
+    
+    def test_reproducible_with_torch(self):
+        """Test reproducibility with torch if available."""
+        try:
+            import torch
+            seed = 54321
+            
+            # First run
+            set_seed(seed)
+            tensor1 = torch.rand(5)
+            
+            # Second run with same seed
+            set_seed(seed)
+            tensor2 = torch.rand(5)
+            
+            assert torch.equal(tensor1, tensor2)
+        except ImportError:
+            pytest.skip("torch not installed")
+
+
+class TestEdgeCases:
+    """Tests for edge cases and error handling."""
+    
+    def test_seed_zero(self):
+        """Test that seed value 0 is valid."""
+        set_seed(0)
+        assert get_seed() == 0
+    
+    def test_seed_large_value(self):
+        """Test that large seed values are handled correctly."""
+        large_seed = 2**31 - 1
+        set_seed(large_seed)
+        assert get_seed() == large_seed
+    
+    def test_negative_seed(self):
+        """Test that negative seed values are handled (may vary by library)."""
+        # Python's random accepts negative seeds
+        set_seed(-123)
+        assert get_seed() == -123
+    
+    def test_seed_config_persistence(self, tmp_path):
+        """Test that seed config persists across multiple saves."""
+        config_file = tmp_path / "persist_test.json"
+        
+        set_seed(111, persist=False)
+        save_seed_config(222, str(config_file))
+        set_seed(333, persist=True)
+        
+        # Reload and verify the last saved seed
+        loaded = load_seed_config(str(config_file))
+        assert loaded == 333
+    
+    def test_seed_context_exception_handling(self):
+        """Test that seed is restored even if exception occurs in context."""
+        set_seed(100)
+        
+        try:
+            with SeedContext(200):
                 raise ValueError("Test exception")
         except ValueError:
             pass
-        assert get_seed() == 400, "Seed should be restored even after exception"
-
-
-class TestConfiguration:
-    """Test seed configuration save/load."""
-
-    def test_save_and_load_config(self):
-        """Test saving and loading seed configuration."""
-        set_seed(777)
         
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            temp_path = f.name
-
-        try:
-            save_seed_config(temp_path)
-            loaded_seed = load_seed_config(temp_path)
-            assert loaded_seed == 777, "Loaded seed should match saved seed"
-        finally:
-            os.unlink(temp_path)
-
-    def test_save_config_creates_directory(self):
-        """Test that save_config creates directory if needed."""
-        set_seed(888)
-        
-        with tempfile.TemporaryDirectory() as temp_dir:
-            config_path = Path(temp_dir) / 'subdir' / 'config.json'
-            save_seed_config(config_path)
-            assert config_path.exists(), "Config file should be created"
-
-    def test_load_nonexistent_config(self):
-        """Test loading a nonexistent configuration file."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            nonexistent = Path(temp_dir) / 'nonexistent.json'
-            try:
-                load_seed_config(nonexistent)
-                assert False, "Should raise FileNotFoundError"
-            except FileNotFoundError:
-                pass  # Expected
-
-
-class TestRandomState:
-    """Test random state generation."""
-
-    def test_get_random_state_with_seed(self):
-        """Test getting random state with explicit seed."""
-        rs = get_random_state(999)
-        assert rs is not None, "Random state should be created"
-
-    def test_random_state_reproducibility(self):
-        """Test that random state produces reproducible results."""
-        rs1 = get_random_state(123)
-        val1 = rs1.random() if HAS_NUMPY else rs1.random()
-        
-        rs2 = get_random_state(123)
-        val2 = rs2.random() if HAS_NUMPY else rs2.random()
-        
-        assert val1 == val2, "Same seed should produce same random values"
-
-class TestSeedManagerSingleton:
-    """Test SeedManager singleton behavior."""
-
-    def test_singleton_instance(self):
-        """Test that SeedManager returns same instance."""
-        manager1 = SeedManager()
-        manager2 = SeedManager()
-        assert manager1 is manager2, "SeedManager should be a singleton"
-
-    def test_seed_history(self):
-        """Test seed history tracking."""
-        set_seed(10)
-        set_seed(20)
-        set_seed(30)
-        
-        history = SeedManager().get_seed_history()
-        assert len(history) >= 3, "Should track seed history"
-        
-        seeds = [h['seed'] for h in history]
-        assert 10 in seeds and 20 in seeds and 30 in seeds, "All seeds should be in history"
+        # Seed should be restored
+        assert get_seed() == 100

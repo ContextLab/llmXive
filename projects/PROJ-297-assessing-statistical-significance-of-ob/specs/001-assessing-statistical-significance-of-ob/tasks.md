@@ -194,8 +194,8 @@ description: "Task list template for feature implementation"
 - [X] T042 [P] [Data Integrity] **Code Cleanup**: Clean `code/stats_engine.py`. **Depends on T015**.
 - [X] T036 [P] [Data Integrity] **Sensitivity Analysis Test**: Add a test in `code/test_sensitivity.py`. **Depends on T015**.
 - [X] T035 [P] [Data Integrity] **Dataset Checksumming**: Implement checksumming in `code/loaders.py`. **Depends on T015**.
-- [ ] T034 [P] [Data Integrity] **Error Handling**: Add error handling in `code/loaders.py`. **Depends on T015**.
-- [ ] T032 [P] [Data Integrity] **Quickstart Validation**: Run a test in `code/main.py`. **Depends on T015**.
+- [X] T034 [P] [Data Integrity] **Error Handling**: Add error handling in `code/loaders.py`. **Depends on T015**.
+- [X] T032 [P] [Data Integrity] **Quickstart Validation**: Run a test in `code/main.py`. **Depends on T015**.
 - [X] T029 [P] [Data Integrity] **Documentation**: Update docs. **Depends on T015**.
 
 ---

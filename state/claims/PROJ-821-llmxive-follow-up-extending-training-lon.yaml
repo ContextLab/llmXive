@@ -2516,3 +2516,216 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T16:53:07Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: generator supports long-context 128K+ and short-context 4K modes via
+    max_tokens flag
+  claim_id: c_a8b79b07
+  context: "Ensure images are fixed resolution (336x336) and needle placement is deterministic.\
+    \ Crucial: The generator must support a --max_tokens flag to handle both long-context\
+    \ (128K+) and short-context (\u22644K) generation modes."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/generator_supports_long-context_128K+_and_short-context_4K_m
+  kind: entity_fact
+  raw_text: "The generator must support a --max_tokens flag to handle both long-context\
+    \ (128K+) and short-context (\u22644K) generation modes."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T18:45:53Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: model mmpro/MMProLong-7B-1.0 converted to Q4_K_M.gguf format from HuggingFace
+  claim_id: c_eac1035c
+  context: Implement code/inference/model_prep.py to download mmpro/MMProLong-7B-1.0
+    (per Spec FR-002) from HuggingFace and convert it to Q4_K_M.gguf format using
+    llama.cpp.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model mmpro/MMProLong-7B-1.0 must be downloaded from HuggingFace and
+    converted to Q4_K_M.gguf format.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T18:46:08Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: pilot run reduces target context to 64K if it fails at 128K
+  claim_id: c_1a575ef8
+  context: If pilot fails at 128K, automatically reduce target context to 64K and
+    retry pilot. If 64K also fails, abort with error code 1.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The pilot run logic reduces target context from 128K to 64K if the pilot
+    fails at 128K.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T18:46:56Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: generate 500 short-context Arm A samples with 1 image and max 4096 tokens
+  claim_id: c_b3d7fe11
+  context: "Generate the short-context control group (Arm A): 500 samples (\u2264\
+    4K tokens) with 1 image using generator.py with --arm A --max_tokens 4096."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The short-context control group (Arm A) generation requires 500 samples
+    with 1 image and a maximum of 4K tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T18:47:48Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: generate 500 short-context Arm B samples with 0-5 images and max 4096
+    tokens
+  claim_id: c_da26a0eb
+  context: "Generate the short-context control group (Arm B): 500 samples (\u2264\
+    4K tokens) with variable images (0-5) using generator.py with --arm B --max_tokens\
+    \ 4096."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The short-context control group (Arm B) generation requires 500 samples
+    with variable images (0-5) and a maximum of 4K tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T18:50:13Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: system runs on 2-core CPU with 7GB RAM limit and no GPU
+  claim_id: c_5988b871
+  context: "CRITICAL: All tasks must run on 2-core CPU, \u22647GB RAM, no GPU. No\
+    \ 8-bit/4-bit CUDA dependencies."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on a 2-core CPU with \u22647GB RAM and no GPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T18:50:29Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: 20 complex diagrams required in data/assets before generation
+  claim_id: c_fc3240e3
+  context: 'NOTE: The data/assets/ directory must be populated with 20 complex diagrams
+    (Task T004) before generation tasks run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data/assets directory must be populated with 20 complex diagrams before
+    generation tasks run.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T18:50:53Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: peak memory usage must be less than 7GB in memory benchmark
+  claim_id: c_530f323a
+  context: 'Implement code/scripts/memory_benchmark.py to measure peak memory during
+    a representative inference run. Verification: Run script and confirm memory_report.json
+    shows peak memory < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_must_be_less_than_7GB_in_memory_benchmark
+  kind: magnitude
+  raw_text: The memory benchmark script must confirm peak memory usage is less than
+    7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T18:51:22Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: short-context accuracy baseline must be at least 95%
+  claim_id: c_82d816f7
+  context: "Goal: Evaluate short-context samples separately to ensure long-context\
+    \ failure is not due to general visual capability loss. Independent Test: Short-context\
+    \ samples are processed and reported separately with \u226595% accuracy baseline\
+    \ check."
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Short-context_accuracy_baseline_must_be_at_least_95%25
+  kind: magnitude
+  raw_text: "The short-context accuracy check requires a baseline of \u226595% accuracy."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-25T18:52:21Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Arm A text-only token count variance must be less than 1%
+  claim_id: c_d5dc96e0
+  context: 'Independent Test: A script runs to generate a batch. Output validation
+    confirms text-only token count variance <1% (Arm A) or total token variance <1%
+    (Arm B).'
+  evidence:
+    entailment_evidence: Arm A text-only token count variance must be less than 1%
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Arm_A_text-only_token_count_variance_must_be_less_than_1%25
+  kind: magnitude
+  raw_text: Text-only token count variance must be less than 1% across samples for
+    Arm A.
+  resolved_value: Arm A text-only token count variance must be less than 1%
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T18:52:26Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Arm B total token count variance must be less than 1%
+  claim_id: c_9dd0bb5f
+  context: 'Independent Test: A script runs to generate a batch. Output validation
+    confirms text-only token count variance <1% (Arm A) or total token variance <1%
+    (Arm B).'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Arm_B_total_token_count_variance_must_be_less_than_1%25
+  kind: magnitude
+  raw_text: Total token count variance must be less than 1% across samples for Arm
+    B.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-25T18:56:46Z'

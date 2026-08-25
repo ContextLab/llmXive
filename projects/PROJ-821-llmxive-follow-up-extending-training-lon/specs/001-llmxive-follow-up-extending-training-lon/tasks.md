@@ -50,7 +50,7 @@
 
 **Purpose**: Ensure deterministic inputs for data generation
 
-- [ ] T004 [P] [US1] Implement `code/scripts/generate_assets.py` to generate 20 fixed 336x336 images using Pillow. Images must be 'technical manual' style diagrams (grayscale gradients with OCR-readable text labels) to simulate complexity uniformly. [UNRESOLVED-CLAIM: c_33d7f8a1 — status=not_enough_info] **Specifics**: Use `PIL.ImageDraw` with a standard font (e.g., `DejaVuSans` or `Arial`), high contrast (black text on white background), and ensure text is legible. Save to `data/assets/img_00.png` to `data/assets/img_20.png`. **Crucial**: Generate `data/assets/manifest.json` listing filenames and SHA hashes for verification. **Verification**: Run script, confirm `manifest.json` exists with a set of entries
+- [ ] T004 [P] [US1] Implement `code/scripts/generate_assets.py` to generate 20 fixed 336x336 images using Pillow. Images must be 'technical manual' style diagrams (grayscale gradients with OCR-readable text labels) to simulate complexity uniformly. **Specifics**: Use `PIL.ImageDraw` with a standard font (e.g., `DejaVuSans` or `Arial`), high contrast (black text on white background), and ensure text is legible. Save to `data/assets/img_00.png` to `data/assets/img_20.png`. **Crucial**: Generate `data/assets/manifest.json` listing filenames and SHA hashes for verification. **Verification**: Run script, confirm `manifest.json` exists with a set of entries
 
 The research question, method, and references remain unchanged as no specific values were asserted in the original passage beyond the entry count, which has been generalized., and verify one image using `pytesseract` to ensure text is readable.
 
@@ -113,7 +113,7 @@ The research question, method, and references remain unchanged as no specific va
 - [ ] T042 [US2] Implement `code/inference/runner.py` with:
  - Batch inference loop.
  - **OOM Guardrail**: Wrap inference calls in `try/except` blocks catching `RuntimeError` or `MemoryError`. On failure, log sample ID and memory state to `data/results/logs/oom_errors.log`, skip sample, and continue.
- - **Feasibility Gate**: Implement pilot run logic here to test memory feasibility on a single sample before full batch. **If pilot fails at 128K, automatically reduce target context to 64K and retry pilot. If 64K also fails, abort with error code 1. [UNRESOLVED-CLAIM: c_4dff599e — status=not_enough_info]**
+ - **Feasibility Gate**: Implement pilot run logic here to test memory feasibility on a single sample before full batch. **If pilot fails at 128K, automatically reduce target context to 64K and retry pilot. If 64K also fails, abort with error code 1. **
  - **Note**: T042 depends on T041 completion (sequential, not parallel).
 - [ ] T043 [US2] Implement `code/inference/metrics.py` to calculate retrieval accuracy (binary match/no match against ground truth needle).
 - [ ] T044 [US2] Integrate `code/inference/runner.py` into `code/main.py` to process `data/synthetic/` and write results to `data/results/aggregated/`.
@@ -148,7 +148,7 @@ The research question, method, and references remain unchanged as no specific va
 
 **Goal**: Evaluate short-context samples separately to ensure long-context failure is not due to general visual capability loss.
 
-**Independent Test**: Short-context samples are processed and reported separately with ≥95% accuracy baseline check. [UNRESOLVED-CLAIM: c_ffad4df5 — status=not_enough_info]
+**Independent Test**: Short-context samples are processed and reported separately with ≥95% accuracy baseline check.
 
 ### Implementation for User Story 4
 
@@ -261,7 +261,7 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **CRITICAL**: All tasks must run on 2-core CPU, ≤7GB RAM, no GPU. [UNRESOLVED-CLAIM: c_f4558d1a — status=not_enough_info] No 8-bit/4-bit CUDA dependencies.
+- **CRITICAL**: All tasks must run on 2-core CPU, ≤7GB RAM, no GPU. No 8-bit/4-bit CUDA dependencies.
 - **CRITICAL**: No synthetic/fake data inputs. Use real image references (e.g., from NAB or fixed sample set) or strictly synthetic generation that mimics real distribution without fabricating "fake" results.
 - **CRITICAL**: Task ordering respects data flow: Generation → Inference → Analysis.
 - **NOTE**: The Plan mandates **Arm B (Constant Total)** as the PRIMARY arm for the hypothesis test. Tasks follow the Plan. **Note: Plan.md must be updated to match Spec FR-002 regarding the model ID.**

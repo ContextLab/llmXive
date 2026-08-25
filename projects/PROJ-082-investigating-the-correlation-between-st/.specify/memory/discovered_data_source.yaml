@@ -1,17 +1,17 @@
 status: none
-intent: download diffusion MRI white matter music preference dataset Human Connectome
-  Project UK Biobank python package dataset
+intent: Music preference diffusion MRI dataset UK Biobank Human Connectome Project
+  OpenNeuro python package dataset
 required_fields:
-- study_id
 - author
 - year
-- tract_name
-- diffusion_metric
-- correlation_r
 - sample_size_n
+- correlation_r
 - t_value
 - f_statistic
+- tract_name
+- fa
+- md
 - music_preference_score
-cache_key: fb4766e46438db0b79680cdf09f24b4e4f2fd009b009b36becd261a1c7b311bb
-searched_at: '2026-08-23T05:48:57.313236+00:00'
+cache_key: 987aec5547e54b4118ab7fa42d99132a182452127380449696b39f9978a817c1
+searched_at: '2026-08-25T18:58:55.219205+00:00'
 retry_count: 1

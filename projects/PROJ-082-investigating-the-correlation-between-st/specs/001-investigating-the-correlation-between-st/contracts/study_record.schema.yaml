@@ -1,30 +1,47 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: StudyRecord
-description: Schema for a single study entry in the meta-analysis dataset.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StudyRecord"
+description: "Schema for a single study record in the meta-analysis pipeline."
+type: "object"
 properties:
-  author_year:
-    type: string
-    description: "Unique identifier combining author and year (e.g., 'Smith2023')."
+  author:
+    type: "string"
+    description: "First author's last name."
+    minLength: 1
+  year:
+    type: "integer"
+    description: "Publication year."
+    minimum: 1900
+    maximum: 2099
   tract_name:
-    type: string
-    description: "Name of the brain tract (e.g., 'Arcuate Fasciculus')."
-  metric_type:
-    type: string
-    description: "Type of dMRI metric (e.g., 'FA', 'MD')."
-  effect_size:
-    type: number
-    description: "Correlation coefficient (r) or converted effect size."
-    minimum: -1
-    maximum: 1
-  sample_size:
-    type: integer
-    description: "Number of participants in the study."
+    type: "string"
+    description: "Name of the white matter tract."
+    minLength: 1
+  metric:
+    type: "string"
+    description: "dMRI metric used."
+    enum: ["FA", "MD", "RD", "AD"]
+  r:
+    type: "number"
+    description: "Correlation coefficient."
+    minimum: -1.0
+    maximum: 1.0
+  n:
+    type: "integer"
+    description: "Sample size."
     minimum: 1
+  p_value:
+    type: "number"
+    description: "P-value (optional)."
+    minimum: 0.0
+    maximum: 1.0
+  notes:
+    type: "string"
+    description: "Qualitative notes."
 required:
-  - author_year
+  - author
+  - year
   - tract_name
-  - metric_type
-  - effect_size
-  - sample_size
+  - metric
+  - r
+  - n
 additionalProperties: false

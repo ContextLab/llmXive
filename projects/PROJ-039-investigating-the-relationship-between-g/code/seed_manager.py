@@ -1,380 +1,367 @@
 """
-Random seed management utility for reproducible scientific computing.
+Random seed management utility for llmXive project PROJ-039.
 
-This module provides a centralized interface for setting and managing
-random seeds across all major Python libraries used in this project
-(random, numpy, scipy, torch, etc.) to ensure deterministic execution
-of statistical analyses.
+This module ensures reproducibility across statistical runs by providing a centralized
+mechanism to set, retrieve, and propagate random seeds for numpy, random, and torch (if available).
+It also supports context managers for temporary seed scoping and saving/loading seed configurations.
 """
 import os
 import random
 import hashlib
 import json
+import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, Union, Generator, List
 
-# Optional imports for libraries that may be installed
+# Try to import numpy and torch, but don't fail if they aren't installed
 try:
     import numpy as np
     HAS_NUMPY = True
 except ImportError:
     HAS_NUMPY = False
+    np = None
 
 try:
     import torch
     HAS_TORCH = True
 except ImportError:
     HAS_TORCH = False
-
-try:
-    import tensorflow as tf
-    HAS_TENSORFLOW = True
-except ImportError:
-    HAS_TENSORFLOW = False
-
-try:
-    import scipy
-    HAS_SCIPY = True
-except ImportError:
-    HAS_SCIPY = False
+    torch = None
 
 from config import get_project_root
 
 # Constants
 DEFAULT_SEED = 42
-SEED_CONFIG_FILENAME = "seed_config.json"
-SEED_CONFIG_PATH = get_project_root() / "artifacts" / SEED_CONFIG_FILENAME
+SEED_CONFIG_FILE = "artifacts/seed_config.json"
+LOG_MESSAGE = "Seed set to: {seed}"
+
+logger = logging.getLogger(__name__)
 
 
 class SeedManager:
     """
-    Centralized manager for random seed generation and propagation.
-
-    This class handles:
-    - Generation of reproducible seeds
-    - Setting seeds across all supported libraries
-    - Saving/loading seed configurations for audit trails
-    - Context management for temporary seed changes
+    Centralized manager for random seed operations.
+    Ensures all random number generators are seeded consistently.
     """
-
-    def __init__(self, seed: Optional[int] = None):
+    
+    _current_seed: Optional[int] = None
+    
+    @classmethod
+    def set_seed(cls, seed: Optional[int] = None, persist: bool = False) -> int:
         """
-        Initialize the SeedManager.
-
+        Set the random seed for all supported libraries.
+        
         Args:
-            seed: Optional integer seed. If None, generates a new seed.
-        """
-        self._seed = seed if seed is not None else self._generate_seed()
-        self._config_path = SEED_CONFIG_PATH
-        self._ensure_artifacts_dir()
-
-    def _ensure_artifacts_dir(self) -> None:
-        """Ensure the artifacts directory exists."""
-        self._config_path.parent.mkdir(parents=True, exist_ok=True)
-
-    @staticmethod
-    def _generate_seed() -> int:
-        """
-        Generate a new random seed.
-
+            seed: The seed value. If None, generates a new random seed.
+            persist: If True, saves the seed to the project's seed config file.
+        
         Returns:
-            A random integer between 0 and 2^32-1.
+            The seed value that was set.
         """
-        return random.getrandbits(32)
-
-    @property
-    def seed(self) -> int:
-        """Get the current seed value."""
-        return self._seed
-
-    @seed.setter
-    def seed(self, value: int) -> None:
-        """Set the current seed value."""
-        if not isinstance(value, int) or value < 0 or value > 2**32 - 1:
-            raise ValueError(f"Seed must be a non-negative integer <= {2**32-1}")
-        self._seed = value
-
-    def set_all_seeds(self, seed: Optional[int] = None) -> None:
-        """
-        Set seeds for all supported libraries to ensure reproducibility.
-
-        Args:
-            seed: Optional seed value. If None, uses the manager's current seed.
-        """
-        current_seed = seed if seed is not None else self._seed
-
-        # Python random
-        random.seed(current_seed)
-
-        # NumPy
-        if HAS_NUMPY:
-            np.random.seed(current_seed)
-            # For newer numpy versions (1.17+), also set the Generator
-            np.random.default_rng(current_seed)
-
-        # PyTorch
-        if HAS_TORCH:
-            torch.manual_seed(current_seed)
+        if seed is None:
+            seed = cls.generate_seed()
+        
+        cls._current_seed = seed
+        
+        # Seed Python's random module
+        random.seed(seed)
+        
+        # Seed numpy if available
+        if HAS_NUMPY and np is not None:
+            np.random.seed(seed)
+        
+        # Seed torch if available
+        if HAS_TORCH and torch is not None:
+            torch.manual_seed(seed)
             if torch.cuda.is_available():
-                torch.cuda.manual_seed(current_seed)
-                torch.cuda.manual_seed_all(current_seed)
+                torch.cuda.manual_seed(seed)
+                torch.cuda.manual_seed_all(seed)
                 torch.backends.cudnn.deterministic = True
                 torch.backends.cudnn.benchmark = False
-
-        # TensorFlow
-        if HAS_TENSORFLOW:
-            tf.random.set_seed(current_seed)
-
-        # Scipy
-        # Scipy mostly relies on numpy's random state, so no direct seed setting needed
-        # but we ensure numpy is set (done above)
-
-    def save_config(self, metadata: Optional[Dict[str, Any]] = None) -> Path:
+        
+        logger.info(LOG_MESSAGE.format(seed=seed))
+        
+        if persist:
+            cls.save_seed_config(seed)
+        
+        return seed
+    
+    @classmethod
+    def get_seed(cls) -> Optional[int]:
         """
-        Save the current seed configuration to disk.
-
-        Args:
-            metadata: Optional dictionary of metadata to include (e.g., script name, timestamp).
-
+        Get the currently set seed.
+        
         Returns:
-            Path to the saved configuration file.
+            The current seed value, or None if not set.
         """
-        config = {
-            "seed": self._seed,
-            "hash": hashlib.sha256(str(self._seed).encode()).hexdigest()[:16],
-            "libraries": {
-                "python_random": True,
-                "numpy": HAS_NUMPY,
-                "torch": HAS_TORCH,
-                "tensorflow": HAS_TENSORFLOW,
-                "scipy": HAS_SCIPY
-            },
-            "metadata": metadata or {}
+        return cls._current_seed
+    
+    @classmethod
+    def generate_seed(cls) -> int:
+        """
+        Generate a new random seed using system entropy.
+        
+        Returns:
+            A new random integer seed.
+        """
+        # Use system time and random bytes for entropy
+        seed_bytes = os.urandom(4)
+        seed = int.from_bytes(seed_bytes, byteorder='big')
+        return seed
+    
+    @classmethod
+    def save_seed_config(cls, seed: int, filepath: Optional[str] = None) -> None:
+        """
+        Save the seed configuration to a JSON file.
+        
+        Args:
+            seed: The seed value to save.
+            filepath: Optional custom filepath. Defaults to project's seed config file.
+        """
+        if filepath is None:
+            filepath = SEED_CONFIG_FILE
+        
+        project_root = get_project_root()
+        config_path = project_root / filepath
+        
+        # Ensure artifacts directory exists
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        config_data = {
+            "seed": seed,
+            "algorithm": "system_entropy",
+            "timestamp": str(random.getstate()[1][0] if hasattr(random.getstate(), '__getitem__') else 0)
         }
-
-        with open(self._config_path, 'w', encoding='utf-8') as f:
-            json.dump(config, f, indent=2)
-
-        return self._config_path
-
+        
+        with open(config_path, 'w') as f:
+            json.dump(config_data, f, indent=2)
+        
+        logger.info(f"Seed configuration saved to {config_path}")
+    
     @classmethod
-    def load_config(cls, config_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
+    def load_seed_config(cls, filepath: Optional[str] = None) -> Optional[int]:
         """
-        Load a seed configuration from disk.
-
+        Load the seed configuration from a JSON file.
+        
         Args:
-            config_path: Path to the configuration file. If None, uses the default path.
-
+            filepath: Optional custom filepath. Defaults to project's seed config file.
+        
         Returns:
-            Dictionary containing the seed configuration.
-
-        Raises:
-            FileNotFoundError: If the configuration file does not exist.
+            The loaded seed value, or None if file doesn't exist or is invalid.
         """
-        path = Path(config_path) if config_path else cls._config_path
-        if not path.exists():
-            raise FileNotFoundError(f"Seed configuration not found at {path}")
-
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-
+        if filepath is None:
+            filepath = SEED_CONFIG_FILE
+        
+        project_root = get_project_root()
+        config_path = project_root / filepath
+        
+        if not config_path.exists():
+            logger.warning(f"Seed config file not found: {config_path}")
+            return None
+        
+        try:
+            with open(config_path, 'r') as f:
+                config_data = json.load(f)
+            
+            seed = config_data.get("seed")
+            if seed is not None:
+                logger.info(f"Loaded seed from {config_path}: {seed}")
+                return seed
+            else:
+                logger.warning(f"Invalid seed config format in {config_path}")
+                return None
+        except (json.JSONDecodeError, IOError) as e:
+            logger.error(f"Failed to load seed config: {e}")
+            return None
+    
     @classmethod
-    def from_config(cls, config_path: Optional[Union[str, Path]] = None) -> 'SeedManager':
+    def get_random_state(cls, seed: Optional[int] = None) -> Dict[str, Any]:
         """
-        Create a SeedManager instance from a saved configuration.
-
+        Get the current random state for reproducibility debugging.
+        
         Args:
-            config_path: Path to the configuration file.
-
+            seed: Optional seed to set before getting state.
+        
         Returns:
-            A new SeedManager instance initialized with the saved seed.
+            A dictionary containing the random states of all supported libraries.
         """
-        config = cls.load_config(config_path)
-        return cls(seed=config["seed"])
+        if seed is not None:
+            cls.set_seed(seed)
+        
+        state = {
+            "python_random": random.getstate(),
+            "numpy_random": None,
+            "torch_random": None
+        }
+        
+        if HAS_NUMPY and np is not None:
+            state["numpy_random"] = np.random.get_state()
+        
+        if HAS_TORCH and torch is not None:
+            state["torch_random"] = torch.get_rng_state()
+            if torch.cuda.is_available():
+                state["torch_cuda"] = torch.cuda.get_rng_state_all()
+        
+        return state
 
 
-def set_seed(seed: Optional[int] = None) -> int:
+def set_seed(seed: Optional[int] = None, persist: bool = False) -> int:
     """
-    Convenience function to set seeds for all libraries.
-
+    Convenience function to set the random seed.
+    
     Args:
-        seed: Optional seed value. If None, generates a new seed.
-
+        seed: The seed value. If None, generates a new random seed.
+        persist: If True, saves the seed to the project's seed config file.
+    
     Returns:
         The seed value that was set.
     """
-    manager = SeedManager(seed)
-    manager.set_all_seeds()
-    return manager.seed
+    return SeedManager.set_seed(seed, persist)
 
 
 def get_seed() -> Optional[int]:
     """
-    Get the current seed value from the global state.
-
+    Convenience function to get the current seed.
+    
     Returns:
-        The current seed if set, otherwise None.
+        The current seed value, or None if not set.
     """
-    # Try to read from the config file if it exists
-    if SEED_CONFIG_PATH.exists():
-        try:
-            config = SeedManager.load_config()
-            return config.get("seed")
-        except (json.JSONDecodeError, KeyError):
-            return None
-    return None
+    return SeedManager.get_seed()
 
 
 def generate_seed() -> int:
     """
-    Generate a new random seed without setting it.
-
+    Convenience function to generate a new random seed.
+    
     Returns:
         A new random integer seed.
     """
-    return random.getrandbits(32)
+    return SeedManager.generate_seed()
 
 
-def save_seed_config(seed: int, metadata: Optional[Dict[str, Any]] = None) -> Path:
+def save_seed_config(seed: int, filepath: Optional[str] = None) -> None:
     """
-    Save a seed configuration to disk.
-
+    Convenience function to save the seed configuration.
+    
     Args:
         seed: The seed value to save.
-        metadata: Optional metadata dictionary.
-
-    Returns:
-        Path to the saved configuration file.
+        filepath: Optional custom filepath.
     """
-    manager = SeedManager(seed)
-    return manager.save_config(metadata)
+    SeedManager.save_seed_config(seed, filepath)
 
 
-def load_seed_config(config_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
+def load_seed_config(filepath: Optional[str] = None) -> Optional[int]:
     """
-    Load a seed configuration from disk.
-
+    Convenience function to load the seed configuration.
+    
     Args:
-        config_path: Path to the configuration file.
-
+        filepath: Optional custom filepath.
+    
     Returns:
-        Dictionary containing the seed configuration.
+        The loaded seed value, or None if not found.
     """
-    return SeedManager.load_config(config_path)
+    return SeedManager.load_seed_config(filepath)
 
 
 class SeedContext:
     """
-    Context manager for temporary seed changes.
-
-    Usage:
-        with SeedContext(123):
-            # Code that needs a specific seed
-            pass
-        # Seed is restored to previous state after exit
+    Context manager for temporary seed scoping.
+    Resets the seed to its previous value upon exit.
     """
-
+    
     def __init__(self, seed: int):
         """
         Initialize the context manager.
-
+        
         Args:
             seed: The seed to use within the context.
         """
-        self._seed = seed
-        self._original_seed = None
-
+        self.seed = seed
+        self.previous_seed = SeedManager.get_seed()
+    
     def __enter__(self) -> int:
-        """Save current state and set new seed."""
-        # Save current random state
-        self._original_seed = get_seed()
-        set_seed(self._seed)
-        return self._seed
-
+        """Set the seed when entering the context."""
+        SeedManager.set_seed(self.seed)
+        return self.seed
+    
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        """Restore original seed."""
-        if self._original_seed is not None:
-            set_seed(self._original_seed)
+        """Restore the previous seed when exiting the context."""
+        if self.previous_seed is not None:
+            SeedManager.set_seed(self.previous_seed)
+        else:
+            SeedManager._current_seed = None
 
 
-def get_random_state() -> Dict[str, Any]:
+def get_random_state(seed: Optional[int] = None) -> Dict[str, Any]:
     """
-    Capture the current random state of all libraries.
-
+    Convenience function to get the current random state.
+    
+    Args:
+        seed: Optional seed to set before getting state.
+    
     Returns:
-        Dictionary containing the current random states.
+        A dictionary containing the random states of all supported libraries.
     """
-    state = {
-        "python_random": random.getstate()
-    }
-
-    if HAS_NUMPY:
-        state["numpy"] = np.random.get_state()
-
-    if HAS_TORCH:
-        state["torch_cpu"] = torch.get_rng_state()
-        if torch.cuda.is_available():
-            state["torch_cuda"] = torch.cuda.get_rng_state_all()
-
-    return state
+    return SeedManager.get_random_state(seed)
 
 
 def main() -> None:
-    """Command-line interface for seed management utilities."""
+    """
+    Command-line interface for seed management operations.
+    """
     import argparse
-
-    parser = argparse.ArgumentParser(description="Random seed management utility")
+    
+    parser = argparse.ArgumentParser(description="Seed management utility")
     parser.add_argument(
-        "--action",
-        choices=["generate", "set", "save", "load", "show"],
-        default="generate",
-        help="Action to perform"
+        "--set", 
+        type=int, 
+        default=None, 
+        help="Set a specific seed value"
     )
     parser.add_argument(
-        "--seed",
-        type=int,
-        help="Seed value (required for 'set' and 'save' actions)"
+        "--generate", 
+        action="store_true", 
+        help="Generate a new random seed"
     )
     parser.add_argument(
-        "--config",
-        type=str,
-        help="Path to seed config file (for 'load' action)"
+        "--save", 
+        action="store_true", 
+        help="Save the current seed to config file"
     )
     parser.add_argument(
-        "--metadata",
-        type=str,
-        help="JSON string of metadata to save with seed"
+        "--load", 
+        action="store_true", 
+        help="Load seed from config file and set it"
     )
-
+    parser.add_argument(
+        "--show", 
+        action="store_true", 
+        help="Show the current seed"
+    )
+    
     args = parser.parse_args()
-
-    if args.action == "generate":
-        new_seed = generate_seed()
-        print(f"Generated new seed: {new_seed}")
-
-    elif args.action == "set":
-        if args.seed is None:
-            parser.error("--seed is required for 'set' action")
-        set_seed(args.seed)
-        print(f"Set global seed to: {args.seed}")
-
-    elif args.action == "save":
-        if args.seed is None:
-            parser.error("--seed is required for 'save' action")
-        metadata = json.loads(args.metadata) if args.metadata else None
-        path = save_seed_config(args.seed, metadata)
-        print(f"Saved seed configuration to: {path}")
-
-    elif args.action == "load":
-        config = load_seed_config(args.config)
-        print(json.dumps(config, indent=2))
-
-    elif args.action == "show":
+    
+    if args.set is not None:
+        set_seed(args.set, persist=args.save)
+    elif args.generate:
+        seed = generate_seed()
+        print(f"Generated seed: {seed}")
+        if args.save:
+            save_seed_config(seed)
+    elif args.load:
+        seed = load_seed_config()
+        if seed is not None:
+            set_seed(seed)
+        else:
+            print("No seed config found. Use --set or --generate to create one.")
+    elif args.show:
         seed = get_seed()
         if seed is not None:
             print(f"Current seed: {seed}")
         else:
-            print("No seed currently set")
+            print("No seed currently set.")
+    else:
+        parser.print_help()
 
 
 if __name__ == "__main__":

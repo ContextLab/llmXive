@@ -5,138 +5,116 @@ import networkx as nx
 from typing import Callable, Dict, List, Optional, Tuple, Any
 import math
 import logging
-from config import MASTER_SEED
+from joblib import Parallel, delayed
+import psutil
 
-logger = logging.getLogger("stats_engine")
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def compute_correlation(df: pd.DataFrame, method: str = 'pearson') -> pd.DataFrame:
-    """Compute correlation matrix."""
-    # Ensure only numeric columns
-    num_df = df.select_dtypes(include=[np.number])
-    if num_df.shape[1] < 2:
-        raise ValueError("DataFrame must have at least 2 numeric columns.")
-    return num_df.corr(method=method)
+    """Compute the correlation matrix of a DataFrame."""
+    return df.corr(method=method)
 
 def construct_graph(corr_matrix: pd.DataFrame, threshold: float) -> nx.Graph:
-    """Construct a graph from correlation matrix."""
+    """Construct a graph from a correlation matrix above a threshold."""
     G = nx.Graph()
     nodes = corr_matrix.columns
     G.add_nodes_from(nodes)
     
+    threshold = float(threshold)
     for i in range(len(nodes)):
-        for j in range(i + 1, len(nodes)):
+        for j in range(i+1, len(nodes)):
             u, v = nodes[i], nodes[j]
-            r = corr_matrix.iloc[i, j]
-            if abs(r) > threshold:
-                G.add_edge(u, v, weight=r)
+            val = corr_matrix.iloc[i, j]
+            if abs(val) >= threshold:
+                G.add_edge(u, v, weight=val)
     return G
 
-def calculate_stats(graph: nx.Graph) -> Dict[str, float]:
-    """Calculate network statistics."""
-    if graph.number_of_edges() == 0:
-        return {
-            "density": 0.0,
-            "clustering_coefficient": 0.0,
-            "avg_degree": 0.0
-        }
-    
-    density = nx.density(graph)
-    clustering = nx.average_clustering(graph)
-    avg_degree = sum(dict(graph.degree()).values()) / len(graph.nodes())
+def calculate_stats(graph: nx.Graph) -> Dict[str, Any]:
+    """Calculate network statistics for a graph."""
+    if graph.number_of_nodes() == 0:
+        return {'num_nodes': 0, 'num_edges': 0, 'density': 0.0, 'clustering': 0.0}
     
     return {
-        "density": density,
-        "clustering_coefficient": clustering,
-        "avg_degree": avg_degree
+        'num_nodes': graph.number_of_nodes(),
+        'num_edges': graph.number_of_edges(),
+        'density': nx.density(graph),
+        'clustering': nx.average_clustering(graph) if graph.number_of_nodes() > 2 else 0.0
     }
 
-def generate_synthetic_dataset(n_samples: int = 500, n_vars: int = 20, seed: int = 42) -> pd.DataFrame:
+def generate_synthetic_dataset(n_samples: int = 500, n_features: int = 20, seed: int = 42) -> pd.DataFrame:
     """Generate a synthetic dataset with identity covariance."""
     np.random.seed(seed)
-    data = np.random.randn(n_samples, n_vars)
-    cols = [f"synthetic_var_{i}" for i in range(n_vars)]
-    return pd.DataFrame(data, columns=cols)
+    data = np.random.randn(n_samples, n_features)
+    columns = [f'var_{i}' for i in range(n_features)]
+    return pd.DataFrame(data, columns=columns)
 
 def run_permutations_for_threshold(
-    df: pd.DataFrame,
-    threshold: float,
-    n_permutations: int = 2000,
+    df: pd.DataFrame, 
+    n_permutations: int, 
+    threshold: float, 
+    method: str = 'pearson',
     seed: int = 42
-) -> List[float]:
-    """Run permutations to generate null distribution for a threshold."""
+) -> Tuple[List[np.ndarray], List[float]]:
+    """
+    Run permutation tests to generate null distribution for a given threshold.
+    Returns (null_distributions, observed_stats).
+    """
     np.random.seed(seed)
-    null_densities = []
+    corr_matrix = compute_correlation(df, method=method)
+    obs_graph = construct_graph(corr_matrix, threshold)
+    obs_stat = obs_graph.number_of_edges()
     
-    # Compute observed density
-    corr_obs = compute_correlation(df)
-    G_obs = construct_graph(corr_obs, threshold)
-    obs_stats = calculate_stats(G_obs)
-    obs_density = obs_stats['density']
+    # Parallelize permutations
+    def single_permutation(df, n_perm, threshold, method, local_seed):
+        np.random.seed(local_seed)
+        permuted_df = df.apply(np.random.permutation)
+        perm_corr = compute_correlation(permuted_df, method=method)
+        perm_graph = construct_graph(perm_corr, threshold)
+        return perm_graph.number_of_edges()
     
-    # Permutations
-    for i in range(n_permutations):
-        # Shuffle columns independently
-        df_perm = df.apply(np.random.permutation)
-        
-        # Compute stats
-        corr_perm = compute_correlation(df_perm)
-        G_perm = construct_graph(corr_perm, threshold)
-        stats_perm = calculate_stats(G_perm)
-        
-        null_densities.append(stats_perm['density'])
+    # Generate seeds for workers
+    worker_seeds = [seed + i for i in range(n_permutations)]
     
-    return null_densities
+    null_stats = Parallel(n_jobs=-1)(
+        delayed(single_permutation)(df, n_permutations, threshold, method, s) 
+        for s in worker_seeds
+    )
+    
+    return [np.array([s]) for s in null_stats], [obs_stat]
 
-def calculate_empirical_p_value(null_dist: List[float], observed: float) -> float:
+def calculate_empirical_p_value(obs_stat: float, null_dist: np.ndarray) -> float:
     """Calculate two-sided empirical p-value."""
-    if not null_dist:
-        return 1.0
+    # Ensure null_dist is a 1D array
+    if null_dist.ndim > 1:
+        null_dist = null_dist.flatten()
     
-    # Two-sided: count how many null values are >= |observed|
-    # Since densities are positive, we just check >= observed
-    count = sum(1 for x in null_dist if x >= observed)
-    
-    # Add 1 to numerator and denominator to avoid p=0
-    p_val = (count + 1) / (len(null_dist) + 1)
-    
-    # Floor enforcement (T078)
-    if p_val == 0.0:
-        p_val = 1e-10
-    elif p_val == 1.0:
-        p_val = 1.0 - 1e-10
-        
-    return p_val
+    # Avoid p=0 or p=1
+    n = len(null_dist)
+    count_extreme = np.sum(np.abs(null_dist) >= abs(obs_stat))
+    p_val = (count_extreme + 1) / (n + 1)
+    return max(min(p_val, 1.0 - 1e-9), 1e-9)
 
-def estimate_runtime_pilot(df: pd.DataFrame, threshold: float, n_permutations: int = 100) -> float:
-    """Estimate runtime for full permutation run."""
+def estimate_runtime_pilot(df: pd.DataFrame, n_permutations: int, threshold: float) -> float:
+    """Estimate runtime for a full permutation run."""
+    # Run a small pilot
+    pilot_n = 10
     start = time.time()
-    run_permutations_for_threshold(df, threshold, n_permutations=n_permutations)
-    elapsed = time.time() - start
-    return elapsed * (2000 / n_permutations)
+    run_permutations_for_threshold(df, pilot_n, threshold)
+    end = time.time()
+    return (end - start) / pilot_n * n_permutations
 
-def adjust_permutation_count(df: pd.DataFrame, threshold: float, max_time: int = 3600) -> int:
-    """Adjust permutation count based on estimated runtime."""
-    pilot_time = estimate_runtime_pilot(df, threshold, n_permutations=100)
-    estimated_full_time = pilot_time * (2000 / 100)
-    
-    if estimated_full_time > max_time:
-        # Scale down
-        ratio = max_time / estimated_full_time
-        return int(2000 * ratio)
-    return 2000
+def adjust_permutation_count(runtime_limit: float, estimated_time: float) -> int:
+    """Adjust permutation count based on runtime limit."""
+    if estimated_time == 0:
+        return 2000
+    ratio = runtime_limit / estimated_time
+    return max(100, min(int(ratio * 2000), 10000))
 
 def main():
-    """Main entry point for stats engine testing."""
-    logger.info("Running stats engine main...")
-    df = generate_synthetic_dataset()
-    corr = compute_correlation(df)
-    G = construct_graph(corr, 0.3)
-    stats = calculate_stats(G)
-    logger.info(f"Stats: {stats}")
-    
-    null_dist = run_permutations_for_threshold(df, 0.3, n_permutations=100, seed=42)
-    p_val = calculate_empirical_p_value(null_dist, stats['density'])
-    logger.info(f"P-value: {p_val}")
+    """Main entry point for stats engine (for testing)."""
+    pass
 
+import time
 if __name__ == "__main__":
-    main()
+    pass

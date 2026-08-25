@@ -3,107 +3,46 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import yaml
 
-# Project root relative to this file
-ROOT_DIR = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = ROOT_DIR / "data" / "raw"
-DATA_PROCESSED_DIR = ROOT_DIR / "data" / "processed"
-OUTPUT_RESULTS_DIR = ROOT_DIR / "output" / "results"
-OUTPUT_PLOTS_DIR = ROOT_DIR / "output" / "plots"
-OUTPUT_REPORTS_DIR = ROOT_DIR / "output" / "reports"
-STATE_DIR = ROOT_DIR / "state" / "projects"
-
-# Random seed for reproducibility (Master Seed)
-MASTER_SEED = 42
-
-# Default thresholds
-DEFAULT_THRESHOLD = 0.3
-DEFAULT_PERMUTATIONS = 2000
-
-# Runtime limits (seconds)
-MAX_RUNTIME_SECONDS = 21600
-
-# UCI Dataset Configs (Verified URLs)
-# Note: T005/T006 logic handles fallback if these fail or yield < 20 continuous vars
-UCI_DATASETS = {
-    "wine": {
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data",
-        "header": None,
-        "sep": ","
-    },
-    "abalone": {
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/abalone.data",
-        "header": None,
-        "sep": ","
-    },
-    "breast_cancer_wisconsin": {
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data",
-        "header": None,
-        "sep": ","
-    },
-    "student_performance": {
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00218/Student%20Performance%20Data.zip", # Handling zip
-        "type": "zip",
-        "files": ["student-mat.csv"]
-    },
-    "air_quality": {
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00360/AirQualityUCI.zip",
-        "type": "zip",
-        "files": ["AirQualityUCI.csv"]
-    },
-    "concrete_compressive_strength": {
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/Concrete_Data.xls",
-        "header": 0,
-        "sep": None
+def get_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Load configuration from a YAML file or return defaults.
+    """
+    defaults = {
+        'paths': {
+            'data_raw': 'data/raw',
+            'data_processed': 'data/processed',
+            'output_results': 'output/results',
+            'output_plots': 'output/plots',
+            'output_reports': 'output/reports',
+            'output_exploratory': 'output/exploratory'
+        },
+        'random_seed': 42,
+        'thresholds': [0.3, 0.5, 0.7],
+        'permutations': 2000,
+        'min_continuous_vars': 20
     }
-}
+    
+    if config_path and os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            loaded = yaml.safe_load(f)
+            # Deep merge not strictly necessary for this simple structure, 
+            # but we'll update top-level keys
+            defaults.update(loaded)
+    
+    return defaults
 
-def get_config() -> Dict[str, Any]:
-    """Return the full configuration dictionary."""
-    return {
-        "paths": {
-            "raw": str(DATA_RAW_DIR),
-            "processed": str(DATA_PROCESSED_DIR),
-            "results": str(OUTPUT_RESULTS_DIR),
-            "plots": str(OUTPUT_PLOTS_DIR),
-            "reports": str(OUTPUT_REPORTS_DIR),
-            "state": str(STATE_DIR)
-        },
-        "seeds": {
-            "master": MASTER_SEED
-        },
-        "defaults": {
-            "threshold": DEFAULT_THRESHOLD,
-            "permutations": DEFAULT_PERMUTATIONS,
-            "max_runtime": MAX_RUNTIME_SECONDS
-        },
-        "datasets": UCI_DATASETS
-    }
+def ensure_dirs(config: Dict[str, Any]):
+    """Create directories defined in the config if they don't exist."""
+    paths = config.get('paths', {})
+    for key, path in paths.items():
+        os.makedirs(path, exist_ok=True)
 
-def ensure_dirs() -> None:
-    """Create all required directories if they do not exist."""
-    dirs = [
-        DATA_RAW_DIR,
-        DATA_PROCESSED_DIR,
-        OUTPUT_RESULTS_DIR,
-        OUTPUT_PLOTS_DIR,
-        OUTPUT_REPORTS_DIR,
-        STATE_DIR
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-
-def save_config(config: Dict[str, Any], path: Optional[Path] = None) -> None:
+def save_config(config: Dict[str, Any], config_path: str):
     """Save configuration to a YAML file."""
-    if path is None:
-        path = STATE_DIR / "config.yaml"
-    with open(path, 'w') as f:
+    with open(config_path, 'w') as f:
         yaml.dump(config, f, default_flow_style=False)
 
-def load_config(path: Optional[Path] = None) -> Dict[str, Any]:
+def load_config(config_path: str) -> Dict[str, Any]:
     """Load configuration from a YAML file."""
-    if path is None:
-        path = STATE_DIR / "config.yaml"
-    if not path.exists():
-        return get_config()
-    with open(path, 'r') as f:
+    with open(config_path, 'r') as f:
         return yaml.safe_load(f)

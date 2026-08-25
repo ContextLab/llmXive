@@ -1,0 +1,74 @@
+# Preprocessing Configuration for Gut Microbiome and EEG Analysis
+# This file contains parameters for data preprocessing pipelines.
+# Used by: preprocess_microbiome.py, preprocess_eeg.py, match_cohorts.py
+
+# --- Microbiome Preprocessing ---
+microbiome:
+  # Pseudocount to add before log transformation (CLR)
+  # Prevents log(0) errors for zero-abundance features
+  pseudocount: 0.5
+
+  # QIIME2 parameters
+  qiime_version: "2023.5"
+  feature_table_visualization: "table.qzv"
+  taxa_barplot_visualization: "taxa_barplot.qzv"
+
+  # Filtering thresholds
+  min_samples_percent: 0.1  # Keep features present in at least 10% of samples
+  min_abundance_percent: 0.001  # Keep features with at least 0.1% abundance
+
+# --- EEG Preprocessing ---
+eeg:
+  # Dataset source (OpenNeuro)
+  dataset_id: "ds000248"
+
+  # Bandpass filtering
+  filter_bands:
+    low_cutoff: 0.5  # Hz
+    high_cutoff: 45.0  # Hz
+    filter_type: "bandpass"
+    order: 4
+
+  # ICA settings
+  ica:
+    method: "fastica"
+    n_components: 20
+    random_state: 42
+    max_iter: 2000
+    tolerance: 1e-4
+
+  # Epoching
+  epoch:
+    duration_minutes: 2
+    baseline_correction: false
+    reject_criteria:
+      eeg: 100e-6  # 100 microvolts
+      eog: 150e-6  # 150 microvolts
+
+  # Alpha power calculation
+  alpha_band:
+    low: 8.0  # Hz
+    high: 13.0  # Hz
+  method: "welch"
+  welch_params:
+    nperseg: 256
+    noverlap: 128
+    fs: 256
+
+  # Quality control
+  min_valid_epochs_percent: 80  # Minimum % of valid epochs required
+
+# --- Output Configuration ---
+output:
+  microbiome_features_file: "data/processed/microbiome_features.csv"
+  eeg_features_file: "data/processed/eeg_features.csv"
+  matched_pairs_file: "data/processed/matched_pairs.csv"
+  distribution_groups_file: "data/processed/distribution_groups.csv"
+  preprocess_log: "artifacts/preprocess.yaml"
+  checksums_file: "artifacts/checksums.txt"
+
+# --- Logging Configuration ---
+logging:
+  level: "INFO"
+  format: "structured"
+  output_file: "artifacts/preprocess.yaml"

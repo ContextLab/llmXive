@@ -2,51 +2,67 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   `pip` (package manager)
+- Python 3.11+
+- `pip`
+- A standard GitHub Actions runner (or local machine with similar specs)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project root.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+1. **Clone the repository** and navigate to the project directory:
+   ```bash
+   cd projects/PROJ-082-investigating-the-correlation-between-st
+   ```
+
+2. **Create a virtual environment** and install dependencies:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
 ## Running the Pipeline
 
-### Option A: With Real Data (if available)
-1.  Place your `studies.csv` in `code/data/raw/`.
-2.  Run the pipeline:
-    ```bash
-    python code/scripts/run_pipeline.py
-    ```
-3.  Check `code/data/processed/study_count.json` to see if the system entered "quantitative" or "narrative" mode.
+The pipeline is designed to run end-to-end. It automatically detects the number of studies and pivots if necessary.
 
-### Option B: With Mock Data (For Testing)
-If no real data is available, the pipeline can generate synthetic data to demonstrate functionality. **Note: This mock data is for CI testing only and does not answer the research question.**
+### Step 1: Generate Synthetic Data (For Testing)
+Since no real dataset exists, generate a synthetic dataset that mimics the expected distribution of studies.
 ```bash
-python code/scripts/generate_mock_data.py --n-studies 15 --n-tracts 5 --output code/data/raw/studies.csv
-python code/scripts/run_pipeline.py
+python code/utils/generate_synthetic_literature.py --count 15 --seed 42 --config bonferroni
+```
+*This creates `data/raw/synthetic_literature.csv` with exactly 5 distinct tracts (for SC-004).*
+
+### Step 2: Run the Full Pipeline
+Execute the main orchestrator script:
+```bash
+python code/main.py --input data/raw/synthetic_literature.csv --output output/
 ```
 
-## Expected Outputs
+**Expected Behavior**:
+- If `N >= 10`: Performs meta-analysis, calculates $I^2$, runs Egger's test (with warning if 10-19), applies Holm-Bonferroni correction, runs MLM sensitivity analysis, and generates plots.
+- If `N < 10`: Skips quantitative analysis, generates a `narrative_summary.md` instead.
 
--   `code/data/derived/meta_result.json`: Statistical results (if N ≥ 10).
--   `code/data/derived/narrative_summary.json`: Text summary (if N < 10).
--   `code/data/derived/forest_plot.png`: Forest plot visualization.
--   `code/data/derived/funnel_plot.png`: Funnel plot visualization.
--   `code/data/processed/study_count.json`: Gate logic artifact (study count and tract count).
+### Step 3: View Results
+- **JSON Reports**: `output/meta_analysis_results.json`, `output/bias_assessment.json`, `output/mlm_results.json`
+- **Plots**: `output/forest_plot.png`, `output/funnel_plot.png`
+- **Narrative**: `output/narrative_summary.md` (if applicable)
 
-## Verification
+## Testing
 
-To verify the statistical logic:
+Run the unit tests to verify edge cases (e.g., N < 10, missing values, pivot logic):
 ```bash
-pytest code/tests/
+pytest tests/ -v
 ```
-This runs unit tests for the random-effects model, I² calculation, Egger's test, and **the N < 10 pivot logic**.
+
+**Key Test Cases**:
+- `test_pivot_logic`: Verifies that N < 10 triggers narrative mode.
+- `test_egger_skip`: Verifies Egger's test is skipped for N < 10.
+- `test_egger_low_power`: Verifies "Low Power Warning" for 10 <= N < 20.
+- `test_bonferroni`: Verifies Holm-Bonferroni correction is applied for N >= 10 and k >= 2.
+- `test_mlm`: Verifies MLM sensitivity analysis runs and compares with primary model.
+
+## Troubleshooting
+
+- **Convergence Warning**: If the random-effects model fails to converge, the system falls back to a fixed-effects model and logs a warning.
+- **Missing Tract Names**: If a study lacks a tract name, it is excluded from the Holm-Bonferroni correction but included in the overall count if `r` and `n` are present.
+- **Memory Error**: Unlikely given the small data size, but if it occurs, reduce the synthetic dataset size.
+- **Real Data Validator**: If `data/processed/real_data_status.json` is missing, ensure `code/data/real_data_validator.py` has run successfully.

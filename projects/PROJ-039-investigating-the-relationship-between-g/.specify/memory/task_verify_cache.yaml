@@ -40,3 +40,26 @@ T023:
     separation statistics for Path\u202FB) is present, and no evidence of the required\
     \ calculations is provided. The implementer has not supplied the mandated output,\
     \ so the task remains unfinished."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output files were supplied that implement permutation\
+    \ testing or generate a null distribution as required. The claim lacks any tangible\
+    \ artifact (e.g., a Python module, Jupyter notebook, or result CSV/figure) demonstrating\
+    \ the 1000\u2011iteration permutation test on the stratum\u2011level data. The\
+    \ implementer must provide the actual implementation and its generated null\u2011\
+    distribution output."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No result JSON files or reports were presented, and therefore there is no evidence
+    that the required disclaimer string was injected into any artifacts. The implementer
+    must provide the actual JSON and report files showing the exact phrase present
+    in each.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/analysis_results.json` file was presented; thus there is no evidence\
+    \ of correlation coefficients, test statistics, p\u2011values, q\u2011values,\
+    \ VIF values, or permutation flags. The required JSON output is missing, so the\
+    \ task is not satisfied."

@@ -4,60 +4,54 @@ from pathlib import Path
 import logging
 import yaml
 
-logger = logging.getLogger("constitution")
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class ConstitutionalError(Exception):
     """Exception raised for constitutional gate violations."""
     pass
 
-def check_by_amendment_ratification() -> str:
+def check_by_amendment_ratification(state_path: str) -> str:
     """
-    Check the status of the Benjamini-Yekutieli (BY) amendment.
-    Returns: 'ratified', 'pending', or 'missing'
+    Check the status of the BY amendment in the state file.
+    Returns 'ratified', 'pending', or 'missing'.
     """
-    state_dir = Path("state/projects")
-    state_file = state_dir / "PROJ-297-assessing-statistical-significance-of-ob.yaml"
-    
-    if not state_file.exists():
-        logger.warning("Constitutional state file missing.")
-        return "missing"
+    if not os.path.exists(state_path):
+        logger.warning(f"State file not found: {state_path}")
+        return 'missing'
     
     try:
-        with open(state_file, 'r') as f:
+        with open(state_path, 'r') as f:
             state = yaml.safe_load(f)
         
-        if not state:
-            return "missing"
-        
-        status = state.get('amendment_status')
-        if status is None:
-            return "missing"
-        
+        status = state.get('amendment_status', 'missing')
         return status
     except Exception as e:
-        logger.error(f"Error reading constitutional state: {e}")
-        return "missing"
+        logger.error(f"Error reading state file: {e}")
+        return 'missing'
 
-def enforce_gate() -> None:
+def enforce_gate(config: dict):
     """
     Enforce the constitutional gate.
-    Raises ConstitutionalError if the amendment is not ratified.
+    If the amendment is not ratified, raise ConstitutionalError.
     """
-    status = check_by_amendment_ratification()
+    # Default state path relative to project root
+    state_path = os.path.join('state', 'projects', 'PROJ-297-assessing-statistical-significance-of-ob.yaml')
     
-    if status == "ratified":
-        logger.info("Constitutional gate passed: BY amendment ratified.")
-        return
+    status = check_by_amendment_ratification(state_path)
     
-    if status == "pending":
+    if status == 'ratified':
+        logger.info("Constitutional Gate Passed: BY amendment is ratified.")
+        return True
+    elif status == 'pending':
         msg = "Amendment for BY procedure is pending ratification. Execution blocked."
         logger.critical(msg)
         raise ConstitutionalError(msg)
-    
-    if status == "missing":
-        msg = "Constitutional state file missing or malformed. Execution blocked."
+    elif status == 'missing':
+        msg = "State file missing or malformed. Execution blocked."
         logger.critical(msg)
         raise ConstitutionalError(msg)
-    
-    logger.warning(f"Unknown amendment status: {status}. Blocking execution.")
-    raise ConstitutionalError(f"Unknown amendment status: {status}. Execution blocked.")
+    else:
+        msg = f"Unknown amendment status: {status}. Execution blocked."
+        logger.critical(msg)
+        raise ConstitutionalError(msg)
