@@ -1,297 +1,266 @@
+"""
+Analysis module for computing error rates, confidence intervals, and statistical tests.
+
+This module provides functions to load simulation results, calculate Type I and Type II
+error rates, compute bootstrap confidence intervals, and perform Kolmogorov-Smirnov tests
+on p-value distributions.
+"""
+
 import os
 import json
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Any
+from typing import List, Dict, Any, Tuple, Optional, Union
 from scipy import stats
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants
-SIGNIFICANCE_THRESHOLD = 0.05
-BOOTSTRAP_ITERATIONS = 1000
-CONFIDENCE_LEVEL = 0.95
-DISCLAIMER_TEXT = "DISCLAIMER: Findings are associational and do not imply causation. Results are specific to the datasets and configurations tested."
+def load_simulation_results(result_path: Union[str, Path]) -> Dict[str, Any]:
+    """
+    Load simulation results from a JSON file.
 
-def load_simulation_results(filepath: Path) -> Dict[str, Any]:
-    """Load simulation results from a JSON file."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Results file not found: {filepath}")
-    
-    with open(filepath, 'r') as f:
+    Args:
+        result_path: Path to the JSON file containing simulation results.
+
+    Returns:
+        Dictionary containing the loaded simulation results.
+
+    Raises:
+        FileNotFoundError: If the result file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+    """
+    path = Path(result_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Result file not found: {path}")
+
+    with open(path, 'r') as f:
         return json.load(f)
 
-def calculate_error_rates(p_values: List[float]) -> Dict[str, float]:
+def calculate_error_rates(p_values: List[float], alpha: float = 0.05) -> Dict[str, float]:
     """
-    Calculate Type I and Type II error rates based on p-values.
-    
-    Type I Error (False Positive): Rejecting null when it is true.
-    Type II Error (False Negative): Failing to reject null when alternative is true.
-    
-    In this context, we calculate the proportion of p-values < 0.05.
-    For Type I (Null condition): This is the false positive rate.
-    For Type II (Alt condition): 1 - (1 - false negative rate) = power, but we return the error rate directly.
-    
+    Calculate empirical error rates from a list of p-values.
+
     Args:
         p_values: List of p-values from hypothesis tests.
-        
+        alpha: Significance level threshold (default 0.05).
+
     Returns:
-        Dictionary with 'error_rate' and 'total_tests'.
+        Dictionary with 'error_rate' (proportion of p < alpha) and 'n_tests' (count).
     """
     if not p_values:
-        return {'error_rate': 0.0, 'total_tests': 0}
-    
+        return {'error_rate': 0.0, 'n_tests': 0}
+
     p_array = np.array(p_values)
-    rejections = np.sum(p_array < SIGNIFICANCE_THRESHOLD)
-    total = len(p_array)
-    
-    error_rate = rejections / total if total > 0 else 0.0
-    
+    errors = np.sum(p_array < alpha)
+    n_tests = len(p_array)
+    error_rate = errors / n_tests if n_tests > 0 else 0.0
+
     return {
         'error_rate': float(error_rate),
-        'total_tests': int(total),
-        'rejections': int(rejections)
+        'n_tests': int(n_tests)
     }
 
 def calculate_bootstrap_ci(
-    p_values: List[float], 
-    n_iterations: int = BOOTSTRAP_ITERATIONS, 
-    confidence_level: float = CONFIDENCE_LEVEL
+    p_values: List[float],
+    alpha: float = 0.05,
+    n_bootstraps: int = 1000,
+    confidence_level: float = 0.95
 ) -> Dict[str, float]:
     """
-    Calculate bootstrap confidence intervals for the error rate.
-    
+    Calculate bootstrap confidence intervals for error rates.
+
     Args:
         p_values: List of p-values from hypothesis tests.
-        n_iterations: Number of bootstrap iterations.
-        confidence_level: Confidence level for the interval (default 0.95).
-        
+        alpha: Significance level threshold (default 0.05).
+        n_bootstraps: Number of bootstrap iterations (default 1000).
+        confidence_level: Confidence level for CI (default 0.95).
+
     Returns:
-        Dictionary with 'lower_bound', 'upper_bound', and 'point_estimate'.
+        Dictionary with 'error_rate', 'ci_lower', 'ci_upper', and 'n_bootstraps'.
     """
     if not p_values:
         return {
-            'lower_bound': 0.0,
-            'upper_bound': 0.0,
-            'point_estimate': 0.0
+            'error_rate': 0.0,
+            'ci_lower': 0.0,
+            'ci_upper': 0.0,
+            'n_bootstraps': 0
         }
-    
+
     p_array = np.array(p_values)
-    total = len(p_array)
-    
-    # Calculate the proportion of rejections for the original sample
-    original_rejections = np.sum(p_array < SIGNIFICANCE_THRESHOLD)
-    original_error_rate = original_rejections / total
-    
-    # Bootstrap resampling
-    bootstrap_rates = []
-    for _ in range(n_iterations):
+    n = len(p_array)
+    error_rates = []
+
+    for _ in range(n_bootstraps):
         # Resample with replacement
-        resampled_indices = np.random.choice(total, size=total, replace=True)
-        resampled_p = p_array[resampled_indices]
-        
-        # Calculate error rate for resample
-        resampled_rejections = np.sum(resampled_p < SIGNIFICANCE_THRESHOLD)
-        resampled_rate = resampled_rejections / total
-        bootstrap_rates.append(resampled_rate)
-    
-    bootstrap_rates = np.array(bootstrap_rates)
-    
-    # Calculate confidence interval
-    alpha = 1 - confidence_level
-    lower_idx = int((alpha / 2) * n_iterations)
-    upper_idx = int((1 - alpha / 2) * n_iterations)
-    
-    lower_bound = np.percentile(bootstrap_rates, (alpha / 2) * 100)
-    upper_bound = np.percentile(bootstrap_rates, (1 - alpha / 2) * 100)
-    
+        sample = np.random.choice(p_array, size=n, replace=True)
+        errors = np.sum(sample < alpha)
+        error_rates.append(errors / n)
+
+    error_rates = np.array(error_rates)
+    lower_percentile = (1 - confidence_level) / 2 * 100
+    upper_percentile = (1 + confidence_level) / 2 * 100
+
     return {
-        'lower_bound': float(lower_bound),
-        'upper_bound': float(upper_bound),
-        'point_estimate': float(original_error_rate)
+        'error_rate': float(np.mean(error_rates)),
+        'ci_lower': float(np.percentile(error_rates, lower_percentile)),
+        'ci_upper': float(np.percentile(error_rates, upper_percentile)),
+        'n_bootstraps': n_bootstraps
     }
 
-def ks_test_wrapper(p_values_baseline: List[float], p_values_augmented: List[float]) -> Dict[str, float]:
+def ks_test_wrapper(p_values_baseline: List[float], p_values_augmented: List[float]) -> Dict[str, Any]:
     """
-    Perform Kolmogorov-Smirnov test on two sets of p-values.
-    
+    Perform Kolmogorov-Smirnov test to compare two p-value distributions.
+
     Args:
-        p_values_baseline: P-values from baseline simulation.
-        p_values_augmented: P-values from augmented simulation.
-        
+        p_values_baseline: List of p-values from baseline condition.
+        p_values_augmented: List of p-values from augmented condition.
+
     Returns:
-        Dictionary with 'ks_statistic' and 'p_value'.
+        Dictionary with 'statistic', 'p_value', and 'significant' (boolean at alpha=0.05).
+
+    Raises:
+        ValueError: If inputs are not lists/arrays of p-values.
     """
-    if not p_values_baseline or not p_values_augmented:
-        logger.warning("Empty p-value list provided to KS test. Returning NaN.")
-        return {'ks_statistic': float('nan'), 'p_value': float('nan')}
-    
-    stat, p_val = stats.ks_2samp(p_values_baseline, p_values_augmented)
-    
+    if not isinstance(p_values_baseline, (list, np.ndarray)) or not isinstance(p_values_augmented, (list, np.ndarray)):
+        raise ValueError("Inputs must be lists or arrays of p-values")
+
+    if len(p_values_baseline) == 0 or len(p_values_augmented) == 0:
+        raise ValueError("Input lists must not be empty")
+
+    # Validate that inputs look like p-values (between 0 and 1)
+    baseline_arr = np.array(p_values_baseline)
+    augmented_arr = np.array(p_values_augmented)
+
+    if not np.all((baseline_arr >= 0) & (baseline_arr <= 1)):
+        raise ValueError("Baseline p-values must be in range [0, 1]")
+    if not np.all((augmented_arr >= 0) & (augmented_arr <= 1)):
+        raise ValueError("Augmented p-values must be in range [0, 1]")
+
+    statistic, p_value = stats.ks_2samp(baseline_arr, augmented_arr)
+
     return {
-        'ks_statistic': float(stat),
-        'p_value': float(p_val)
+        'statistic': float(statistic),
+        'p_value': float(p_value),
+        'significant': bool(p_value < 0.05)
     }
 
 def analyze_baseline_results(
-    results: Dict[str, Any], 
+    result_path: Union[str, Path],
     condition_type: str
 ) -> Dict[str, Any]:
     """
-    Analyze a single set of baseline results (either Type I or Type II).
-    
+    Analyze baseline simulation results for a specific condition (null or alt).
+
     Args:
-        results: Dictionary containing simulation results with 'p_values'.
-        condition_type: 'type_i' or 'type_ii' to label the analysis.
-        
+        result_path: Path to the baseline result JSON file.
+        condition_type: Type of condition ('null' for Type I, 'alt' for Type II).
+
     Returns:
-        Dictionary containing error rates and confidence intervals.
+        Dictionary containing error rates, confidence intervals, and metadata.
     """
-    p_values = results.get('p_values', [])
-    
-    if not p_values:
-        logger.warning(f"No p-values found for {condition_type} condition.")
-        return {
-            'condition': condition_type,
-            'error_rate': 0.0,
-            'total_tests': 0,
-            'rejections': 0,
-            'confidence_interval': {'lower_bound': 0.0, 'upper_bound': 0.0, 'point_estimate': 0.0}
-        }
-    
-    error_metrics = calculate_error_rates(p_values)
-    ci_metrics = calculate_bootstrap_ci(p_values)
-    
+    results = load_simulation_results(result_path)
+
+    if condition_type not in results:
+        raise ValueError(f"Condition type '{condition_type}' not found in results")
+
+    condition_data = results[condition_type]
+    p_values = condition_data.get('p_values', [])
+
+    error_rates = calculate_error_rates(p_values)
+    bootstrap_ci = calculate_bootstrap_ci(p_values)
+
     return {
-        'condition': condition_type,
-        'error_rate': error_metrics['error_rate'],
-        'total_tests': error_metrics['total_tests'],
-        'rejections': error_metrics['rejections'],
-        'confidence_interval': {
-            'lower_bound': ci_metrics['lower_bound'],
-            'upper_bound': ci_metrics['upper_bound'],
-            'point_estimate': ci_metrics['point_estimate']
-        },
-        'p_values_sample': p_values[:5] if len(p_values) > 5 else p_values  # For inspection
+        'condition_type': condition_type,
+        'error_rates': error_rates,
+        'bootstrap_ci': bootstrap_ci,
+        'metadata': results.get('metadata', {})
     }
 
 def generate_report(
-    baseline_type_i: Dict[str, Any],
-    baseline_type_ii: Dict[str, Any],
-    dataset_name: str,
-    sample_size: int
+    baseline_results: Dict[str, Any],
+    augmented_results: List[Dict[str, Any]],
+    threshold: float = 0.10
 ) -> Dict[str, Any]:
     """
-    Generate a comprehensive report for baseline results.
-    
+    Generate a comprehensive comparative analysis report.
+
     Args:
-        baseline_type_i: Analysis results for Type I error condition.
-        baseline_type_ii: Analysis results for Type II error condition.
-        dataset_name: Name of the dataset used.
-        sample_size: Sample size used in the simulation.
-        
+        baseline_results: Dictionary containing baseline analysis results.
+        augmented_results: List of dictionaries containing augmented analysis results.
+        threshold: Fixed design threshold for Type I error (default 0.10).
+
     Returns:
-        Dictionary containing the full report structure.
+        Dictionary containing the complete analysis report.
     """
     report = {
-        'metadata': {
-            'dataset': dataset_name,
-            'sample_size': sample_size,
-            'analysis_type': 'baseline',
-            'significance_threshold': SIGNIFICANCE_THRESHOLD,
-            'bootstrap_iterations': BOOTSTRAP_ITERATIONS,
-            'disclaimer': DISCLAIMER_TEXT
+        'baseline': baseline_results,
+        'augmented_comparisons': [],
+        'threshold_analysis': {
+            'threshold_value': threshold,
+            'violations': []
         },
-        'results': {
-            'type_i_error': baseline_type_i,
-            'type_ii_error': baseline_type_ii
+        'summary': {}
+    }
+
+    baseline_error_rate = baseline_results.get('error_rates', {}).get('error_rate', 0.0)
+
+    for aug_result in augmented_results:
+        aug_error_rate = aug_result.get('error_rates', {}).get('error_rate', 0.0)
+        difference = aug_error_rate - baseline_error_rate
+
+        comparison = {
+            'method': aug_result.get('method', 'unknown'),
+            'augmented_error_rate': aug_error_rate,
+            'baseline_error_rate': baseline_error_rate,
+            'difference': difference,
+            'exceeds_threshold': aug_error_rate > threshold,
+            'confidence_interval': aug_result.get('bootstrap_ci', {})
         }
+
+        report['augmented_comparisons'].append(comparison)
+
+        if aug_error_rate > threshold:
+            report['threshold_analysis']['violations'].append({
+                'method': aug_result.get('method', 'unknown'),
+                'error_rate': aug_error_rate,
+                'threshold': threshold,
+                'excess': aug_error_rate - threshold
+            })
+
+    # Generate summary
+    report['summary'] = {
+        'total_comparisons': len(augmented_results),
+        'violations_count': len(report['threshold_analysis']['violations']),
+        'baseline_error_rate': baseline_error_rate,
+        'max_augmented_error_rate': max(
+            [r.get('error_rates', {}).get('error_rate', 0.0) for r in augmented_results],
+            default=0.0
+        )
     }
-    
-    # Calculate power for Type II
-    type_ii_error_rate = baseline_type_ii.get('error_rate', 0.0)
-    power = 1.0 - type_ii_error_rate
-    report['results']['power'] = {
-        'value': power,
-        'description': 'Statistical power (1 - Type II error rate)'
-    }
-    
+
     return report
 
-def main():
+def main() -> None:
     """
-    Main entry point for analyzing baseline simulation results.
-    This function is designed to be called by an orchestration script or directly.
-    It processes all baseline result files in the results directory.
+    Main entry point for the analysis module.
+
+    This function demonstrates the usage of the analysis functions by loading
+    sample results and generating a report. In practice, this would be called
+    from the main pipeline script with actual result paths.
     """
-    base_dir = Path.cwd()
-    results_dir = base_dir / 'results'
-    
-    if not results_dir.exists():
-        logger.error(f"Results directory not found: {results_dir}")
-        return
-    
-    # Find baseline result files
-    # Expected naming: [dataset]_[size]_baseline_null.json and [dataset]_[size]_baseline_alt.json
-    baseline_files = list(results_dir.glob("*_baseline_*.json"))
-    
-    if not baseline_files:
-        logger.warning("No baseline result files found in results directory.")
-        return
-    
-    logger.info(f"Found {len(baseline_files)} baseline result files.")
-    
-    analysis_results = []
-    
-    for file_path in baseline_files:
-        try:
-            logger.info(f"Processing: {file_path.name}")
-            data = load_simulation_results(file_path)
-            
-            # Determine condition type from filename
-            if 'null' in file_path.name:
-                condition_type = 'type_i'
-            elif 'alt' in file_path.name:
-                condition_type = 'type_ii'
-            else:
-                logger.warning(f"Could not determine condition type for {file_path.name}. Skipping.")
-                continue
-            
-            analysis = analyze_baseline_results(data, condition_type)
-            analysis['source_file'] = file_path.name
-            analysis_results.append(analysis)
-            
-            # Generate and save report
-            # Extract dataset and size from filename
-            parts = file_path.stem.split('_')
-            if len(parts) >= 3:
-                dataset_name = '_'.join(parts[:-2])
-                sample_size = int(parts[-2])
-            else:
-                dataset_name = 'unknown'
-                sample_size = 0
-                
-            report = generate_report(
-                baseline_type_i=analysis if condition_type == 'type_i' else {},
-                baseline_type_ii=analysis if condition_type == 'type_ii' else {},
-                dataset_name=dataset_name,
-                sample_size=sample_size
-            )
-            
-            # Save report to a new file
-            report_path = file_path.parent / f"{file_path.stem}_analysis.json"
-            with open(report_path, 'w') as f:
-                json.dump(report, f, indent=2)
-            logger.info(f"Saved analysis report to: {report_path}")
-            
-        except Exception as e:
-            logger.error(f"Error processing {file_path}: {e}", exc_info=True)
-            continue
-    
-    logger.info(f"Analysis complete. Processed {len(analysis_results)} files.")
+    logger.info("Analysis module loaded successfully")
+    logger.info("Available functions: load_simulation_results, calculate_error_rates, "
+               "calculate_bootstrap_ci, ks_test_wrapper, analyze_baseline_results, generate_report")
+
+    # Example usage (would be replaced with actual paths in production)
+    # result_path = "results/example_baseline_null.json"
+    # if os.path.exists(result_path):
+    #     analysis = analyze_baseline_results(result_path, 'null')
+    #     logger.info(f"Analysis result: {analysis}")
 
 if __name__ == "__main__":
     main()

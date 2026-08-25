@@ -1,2 +1,2 @@
-# llmXive Project: PROJ-505
-# This package contains the core implementation for the solar wind analysis pipeline.
+# This file intentionally left empty to mark 'code' as a Python package.
+# The actual implementation modules reside in subdirectories.

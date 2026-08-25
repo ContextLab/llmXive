@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T016` (rejected 1x): The repository contains `code/filter_dataset.py`, but the required source data `data/dataset_with_metrics.csv` is absent, and the script has not produced the expected `data/dataset_filtered.csv`. Without the input file the filter cannot be executed, and the output artifact is missing.
+- `T001a` (rejected 1x): No directory listings or file paths were provided to confirm that the required folders (`projects/PROJ-269-assessing-the-impact-of-data-augmentatio/code/`, `data/raw/`, `data/derived/`, `results/`, `tests/`, `contracts/`) actually exist and contain content. The implementer’s claim cannot be verified without concrete artifact evidence.
+- `T001b` (rejected 1x): declared artifact(s) missing/empty/invalid: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/requirements.txt
 
 ## Required change
 

@@ -49,12 +49,12 @@
 - [ ] T004 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/`.
 - [ ] T005 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion`.
 - [ ] T006 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis`.
-- [~] T007 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils`.
-- [~] T008 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/raw`.
-- [~] T009 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/processed`.
-- [~] T010 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/artifacts`.
-- [~] T011 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit`.
-- [~] T012 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration`.
+- [ ] T007 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils`.
+- [ ] T008 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/raw`.
+- [ ] T009 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/processed`.
+- [ ] T010 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/artifacts`.
+- [ ] T011 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit`.
+- [ ] T012 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration`.
 - [X] T013 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/__init__.py`.
 - [X] T014 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/__init__.py`.
 - [X] T015 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/__init__.py`.
@@ -87,7 +87,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T021 [US1] Implement `code/ingestion/generate_synthetic_data.py`: Create a multi-year hourly dataset mimicking ACE/WIND composition and NOAA indices distributions (seeded for reproducibility). **This task must be completed BEFORE T022 and T023 as they depend on this generator for fallback logic.** <!-- FAILED: unspecified -->
+- [X] T021 [US1] Implement `code/ingestion/generate_synthetic_data.py`: Create a multi-year hourly dataset mimicking ACE/WIND composition and NOAA indices distributions (seeded for reproducibility). **This task must be completed BEFORE T022 and T023 as they depend on this generator for fallback logic.** <!-- FAILED: unspecified -->
 - [X] T022 [US1] Implement `code/ingestion/download_ace.py`: Attempt fetch from CDAWeb; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
 - [X] T023 [US1] Implement `code/ingestion/download_noaa.py`: Attempt fetch from NOAA Dst/Kp archives; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
 - [X] T024 [US1] Implement `code/ingestion/align.py`: Merge real/synthetic sources, handle data gaps (>6h) via interpolation/flagging, resample to a regular hourly median, apply epsilon floor for zero-velocity/IMF ratios, and **handle instrument version transitions (e.g., ACE SWICS vs. SWICS-2) by applying calibration offsets IF available, ELSE treat them as separate cohorts**. **Include a memory check during processing; if usage > 6GB, log a warning and defer chunked processing to a future phase.**
@@ -114,7 +114,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T028 [US2] Implement `code/analysis/coupling_functions.py`: Derive Akasofu epsilon, Newell function, and other bulk-parameter coupling functions from aligned data.
 - [X] T029 [US2] Implement `code/analysis/regression.py`: Fit baseline model (coupling functions only) and full model (coupling + composition ratios); calculate coefficients, p-values, and VIF; **explicitly flag and output a warning artifact for any predictor with VIF ≥ 5**. **Prerequisite: T024 (align.py) must be complete.**
-- [ ] T030 [US2] Implement `code/analysis/cross_validation.py`: Perform 5-fold cross-validation to assess out-of-sample R² for both models and calculate ΔR². **Prerequisite: T029 (regression.py) must be complete.**
+- [X] T030 [US2] Implement `code/analysis/cross_validation.py`: Perform 5-fold cross-validation to assess out-of-sample R² for both models and calculate ΔR². **Prerequisite: T029 (regression.py) must be complete.**
 - [~] T031 [US2] Integrate regression results into `data/artifacts/` (CSV/JSON outputs with model metrics).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
@@ -134,14 +134,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Implement `code/analysis/permutation_test.py`: Execute block permutation test (minimum 1,000 iterations, 24h blocks) to generate null distributions for composition coefficients. **Logic: Continue iterating until p-value standard error < 0.001 (calculated as sqrt(p*(1-p)/N) where p is the running estimate of the p-value and N is the current iteration count) OR N reaches [deferred]. Calculate and output the [deferred] percentile range (2.5th/97.5th) of the null distribution.** **Prerequisite: T029 (regression.py) must be complete.**
-- [ ] T035 [US3] Implement `code/analysis/sensitivity.py`: Sweep significance thresholds across a range of conventional levels, including 0.01, 0.05, and 0.10. **Explicitly apply Benjamini-Hochberg FDR correction to the 6 hypothesis tests (O/Fe-Dst, O/Fe-Kp, He/H-Dst, He/H-Kp, C/O-Dst, C/O-Kp).** Report variation in significant predictors. **Prerequisite: T029 (regression.py) must be complete.**
-- [ ] T036 [US3] Implement final reporting logic in `code/main.py`: Aggregate all results, **explicitly label data as 'synthetic' ONLY if the fallback was triggered**, and generate summary artifacts (CSV/JSON) for review.
+- [X] T034 [US3] Implement `code/analysis/permutation_test.py`: Execute block permutation test (minimum 1,000 iterations, 24h blocks) to generate null distributions for composition coefficients. **Logic: Continue iterating until p-value standard error < 0.001 (calculated as sqrt(p*(1-p)/N) where p is the running estimate of the p-value and N is the current iteration count) OR N reaches [deferred]. Calculate and output the [deferred] percentile range (2.5th/97.5th) of the null distribution.** **Prerequisite: T029 (regression.py) must be complete.**
+- [X] T035 [US3] Implement `code/analysis/sensitivity.py`: Sweep significance thresholds across a range of conventional levels, including 0.01, 0.05, and 0.10. **Explicitly apply Benjamini-Hochberg FDR correction to the 6 hypothesis tests (O/Fe-Dst, O/Fe-Kp, He/H-Dst, He/H-Kp, C/O-Dst, C/O-Kp).** Report variation in significant predictors. **Prerequisite: T029 (regression.py) must be complete.**
+- [X] T036 [US3] Implement final reporting logic in `code/main.py`: Aggregate all results, **explicitly label data as 'synthetic' ONLY if the fallback was triggered**, and generate summary artifacts (CSV/JSON) for review.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T037 [US3] Unit test for block permutation logic in `tests/unit/test_permutation.py` (verify 24-hour block shuffling and null distribution generation).
-- [ ] T038 [US3] Integration test for sensitivity analysis in `tests/integration/test_sensitivity.py` (verify threshold sweep and FDR correction application).
+- [X] T037 [US3] Unit test for block permutation logic in `tests/unit/test_permutation.py` (verify 24-hour block shuffling and null distribution generation).
+- [X] T038 [US3] Integration test for sensitivity analysis in `tests/integration/test_sensitivity.py` (verify threshold sweep and FDR correction application).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,10 +151,10 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Documentation updates in `README.md` (explicitly state data gap and synthetic nature if fallback used).
-- [ ] T040 [P] Refactor `code/analysis/regression.py` to reduce cyclomatic complexity to < 10.
-- [ ] T041 [P] Refactor `code/analysis/permutation_test.py` to reduce cyclomatic complexity to < 10.
-- [ ] T042 [P] Run quickstart.md validation.
+- [~] T039 [P] Documentation updates in `README.md` (explicitly state data gap and synthetic nature if fallback used).
+- [X] T040 [P] Refactor `code/analysis/regression.py` to reduce cyclomatic complexity to < 10.
+- [X] T041 [P] Refactor `code/analysis/permutation_test.py` to reduce cyclomatic complexity to < 10.
+- [~] T042 [P] Run quickstart.md validation. <!-- FAILED: unspecified -->
 
 ---
 

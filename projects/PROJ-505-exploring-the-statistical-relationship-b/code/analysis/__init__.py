@@ -1,12 +1,4 @@
 """
-Analysis module for PROJ-505.
-
-This module contains scripts and utilities for statistical analysis,
-including regression, coupling functions, and permutation tests.
+Analysis module for the Solar Wind Composition and Geomagnetic Indices project.
+Provides statistical analysis, regression, and coupling function computations.
 """
-
-from utils.logging import get_logger
-
-logger = get_logger(__name__)
-
-__all__ = []

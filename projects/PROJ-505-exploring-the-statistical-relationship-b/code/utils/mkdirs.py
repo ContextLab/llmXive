@@ -1,29 +1,33 @@
 import os
 from pathlib import Path
 
-def ensure_dirs(base_path: Path) -> None:
+def ensure_dirs():
     """
-    Creates the necessary directory structure for the project if they do not exist.
-    
-    This function implements the directory creation logic for T002, T003, T004, T005, and T006,
-    ensuring that the `code/`, `data/`, `tests/`, and their subdirectories are present.
-    
-    Args:
-        base_path: The root path of the project (e.g., 'projects/PROJ-505-exploring...').
+    Create all necessary directories for the project structure.
+    This function ensures that the directory tree required for the
+    solar wind composition analysis project exists.
     """
-    dirs_to_create = [
-        base_path / "code",
-        base_path / "data",
-        base_path / "tests",
-        base_path / "code" / "ingestion",
-        base_path / "code" / "analysis",
-        base_path / "code" / "utils",
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "data" / "artifacts",
-        base_path / "tests" / "unit",
-        base_path / "tests" / "integration",
+    project_root = Path("projects/PROJ-505-exploring-the-statistical-relationship-b")
+    
+    directories = [
+        # Phase 1: Setup
+        project_root,
+        project_root / "code",
+        project_root / "data",
+        project_root / "tests",
+        
+        # Phase 1: Sub-directories
+        project_root / "code" / "ingestion",
+        project_root / "code" / "analysis",
+        project_root / "code" / "utils",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "artifacts",
+        project_root / "tests" / "unit",
+        project_root / "tests" / "integration",
     ]
     
-    for dir_path in dirs_to_create:
-        dir_path.mkdir(parents=True, exist_ok=True)
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+    
+    return list(directories)

@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1021/j100785a001
   verified_at: '2026-08-17T11:50:05.305071Z'
-- artifact_hash: f2dcad47fb270b1e15b533cfee783ebc94d4380816931a026cb4eb816e1bc696
+- artifact_hash: 444213d3f183030040b6b439b5d13f555ffe808cd2e59246388c5ed870ae0735
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,15 +52,15 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-08-23T13:57:38.733252Z'
-- artifact_hash: f2dcad47fb270b1e15b533cfee783ebc94d4380816931a026cb4eb816e1bc696
+  verified_at: '2026-08-25T07:04:22.064748Z'
+- artifact_hash: 444213d3f183030040b6b439b5d13f555ffe808cd2e59246388c5ed870ae0735
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: Van der Waals radius - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Van_der_Waals_radius
+  fetched_title: van der Waals Volumes and Radii
+  kind: doi
+  value: 10.1021/j100785a001
   verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Van_der_Waals_radius
-  verified_at: '2026-08-23T13:57:38.733252Z'
+  verified_against_url: https://doi.org/10.1021/j100785a001
+  verified_at: '2026-08-25T07:04:22.064748Z'

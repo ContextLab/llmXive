@@ -55,8 +55,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/download_data.py`: Fetch a set of verified UCI datasets (Breast Cancer, Ionosphere, Heart Disease) via direct URLs. [UNRESOLVED-CLAIM: c_70c4c2aa — status=not_enough_info] Save to `data/raw/` and compute SHA256 checksums. **Logic**: If the fetched count is not 3, log a warning indicating the deviation from the original FR-001 intent of 5 datasets. Do not attempt to fetch unverified datasets.
-- [X] T005 [P] Implement `code/subsample.py`: Create stratified subsampling function for N=15, 25, 40. [UNRESOLVED-CLAIM: c_87ba2edf — status=not_enough_info] **Target Column Detection**: Look for 'target', then 'class', then 'label', then default to the last column. **Edge Cases**: If class count < 5 for a configuration, skip it, log a warning, and append the skipped configuration details to `data/derived/skipped_configurations.log`. [UNRESOLVED-CLAIM: c_d0c0d717 — status=not_enough_info]
+- [X] T004 [P] Implement `code/download_data.py`: Fetch a set of verified UCI datasets (Breast Cancer, Ionosphere, Heart Disease) via direct URLs. Save to `data/raw/` and compute SHA256 checksums. **Logic**: If the fetched count is not 3, log a warning indicating the deviation from the original FR-001 intent of 5 datasets. Do not attempt to fetch unverified datasets.
+- [X] T005 [P] Implement `code/subsample.py`: Create stratified subsampling function for N=15, 25, 40. **Target Column Detection**: Look for 'target', then 'class', then 'label', then default to the last column. **Edge Cases**: If class count < 5 for a configuration, skip it, log a warning, and append the skipped configuration details to `data/derived/skipped_configurations.log`.
 - [X] T006 [P] Implement `code/augment.py`: Create functions for Gaussian noise injection, SMOTE, and Random Oversampling using `imbalanced-learn`; ensure no CUDA/GPU dependencies; handle zero-variance samples.
 - [ ] T008a [P] Define JSON schema for simulation output: Create `contracts/simulation_schema.json` defining the structure for p-value distributions, error rates, and metadata. **Must be valid JSON and exist before T007 runs.**
 - [X] T007 [P] Implement `code/simulation.py`: Full implementation of Monte Carlo loop with random seed pinning, configuration management, and a sufficient number of iterations per config to ensure statistical convergence. **Pre-check**: Validate that `contracts/simulation_schema.json` exists and is valid JSON before proceeding. **Logic**: Implement internal helper functions for label permutation (Type I) and mean shift (Type II) within this module; do not rely on external tasks for these functions. **Dependency**: Requires T008a.
@@ -102,8 +102,8 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [P] [US2] Implement Gaussian noise injection in `code/augment.py` with configurable standard deviation (default 0.1). [UNRESOLVED-CLAIM: c_c684c4db — status=not_enough_info]
-- [X] T019 [P] [US2] Implement SMOTE augmentation in `code/augment.py` with edge case handling for N < 5 or extreme imbalance. [UNRESOLVED-CLAIM: c_696c338e — status=not_enough_info]
+- [X] T018 [P] [US2] Implement Gaussian noise injection in `code/augment.py` with configurable standard deviation (default 0.1).
+- [X] T019 [P] [US2] Implement SMOTE augmentation in `code/augment.py` with edge case handling for N < 5 or extreme imbalance.
 - [X] T020 [P] [US2] Implement Random Oversampling in `code/augment.py`.
 - [X] T021 [US2] Integrate augmentation functions into `code/simulation.py` Monte Carlo loop (separate branches for Null and Alt conditions). **Requires T013 (baseline loop) and T018-T020 completion.**
 - [ ] T022 [US2] Implement logic to detect and exclude zero-variance synthetic samples before hypothesis testing to prevent division-by-zero.
@@ -121,17 +121,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Integration test for comparative analysis logic in `tests/test_analysis.py`
-- [ ] T025 [P] [US3] Contract test for final JSON output schema in `tests/contract/test_results_schema.py`
+- [X] T024 [P] [US3] Integration test for comparative analysis logic in `tests/test_analysis.py`
+- [X] T025 [P] [US3] Contract test for final JSON output schema in `tests/contract/test_results_schema.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement KS test wrapper in `code/analyze.py` for supplementary distributional shift diagnostics: **Apply ONLY to p-value distributions** (FR-006). **Constraint**: Input validation must reject any input that is not a list/array of p-values.
+- [X] T026 [P] [US3] Implement KS test wrapper in `code/analyze.py` for supplementary distributional shift diagnostics: **Apply ONLY to p-value distributions** (FR-006). **Constraint**: Input validation must reject any input that is not a list/array of p-values.
 - [ ] T027 [US3] Implement comparative analysis logic: Calculate difference in Type I/II error rates between baseline and each augmentation method.
 - [ ] T028 [US3] Implement threshold identification logic: Flag configurations where Type I error > 0.10 **AND** compare against baseline error rate to quantify impact (FR-005).
-- [ ] T029 [US3] Implement final report generation in `code/analyze.py`: Aggregate results, compute power (1 - Type II), and format output. **Mandatory**: Include fixed design threshold (0.10) value in JSON output (SC-001).
+- [X] T029 [US3] Implement final report generation in `code/analyze.py`: Aggregate results, compute power (1 - Type II), and format output. **Mandatory**: Include fixed design threshold (0.10) value in JSON output (SC-001).
 - [ ] T030 [US3] Inject "DISCLAIMER: Findings are associational..." string into **every** result JSON file (baseline and all augmented variants) and summary report as per FR-007. **Mechanism**: Use glob pattern `results/**/*.json` to discover all files. Insert the disclaimer at the JSON key `metadata.disclaimer`.
-- [ ] T031 [US3] Create `code/main.py` orchestration script to run full pipeline: Download → Subsample → Baseline → Augment → Analyze → Report. **Must be last task in Phase 5.**
+- [X] T031 [US3] Create `code/main.py` orchestration script to run full pipeline: Download → Subsample → Baseline → Augment → Analyze → Report. **Must be last task in Phase 5.**
 
 **Checkpoint**: All user stories should now be independently functional
 

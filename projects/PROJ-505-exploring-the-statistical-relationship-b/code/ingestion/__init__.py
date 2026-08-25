@@ -1,27 +1,63 @@
 """
-Ingestion module for solar wind composition and geomagnetic indices data.
+Ingestion module for solar wind and geomagnetic data.
 
-This package handles the downloading, parsing, and initial alignment of
-time-series data from ACE/WIND and NOAA sources.
+This module handles the downloading, parsing, and initial processing of
+raw data from ACE/WIND and NOAA sources, as well as synthetic data generation
+for pipeline validation when real data is unavailable.
 """
-from utils.mkdirs import ensure_dirs
-import os
-from pathlib import Path
 
-def setup_ingestion_directories():
-    """Ensure all required ingestion subdirectories exist."""
-    base_path = Path(__file__).parent.parent.parent
-    config = {
-        'raw': base_path / 'data' / 'raw',
-        'processed': base_path / 'data' / 'processed',
-    }
-    ensure_dirs(config)
-    return config
+from .align import (
+    load_source_data,
+    apply_epsilon_floor,
+    handle_instrument_transitions,
+    detect_and_handle_gaps,
+    resample_to_hourly_median,
+    validate_temporal_alignment,
+    align_data,
+    main as align_main,
+    check_memory_usage
+)
 
-# Execute directory setup on import if needed (idempotent)
-# This ensures the directory structure exists for downstream tasks
-try:
-    setup_ingestion_directories()
-except Exception:
-    # Fail silently during import; let explicit scripts handle errors
-    pass
+from .download_ace import (
+    fetch_ace_data,
+    load_synthetic_ace,
+    run_ingestion as run_ace_ingestion,
+    main as ace_main
+)
+
+from .download_noaa import (
+    fetch_noaa_kp,
+    fetch_noaa_dst,
+    load_synthetic_noaa,
+    run_ingestion as run_noaa_ingestion,
+    main as noaa_main
+)
+
+# Note: generate_synthetic_data is intentionally excluded from __init__.py
+# as it is a standalone script for synthetic data generation (T021)
+
+__all__ = [
+    # Align functions
+    'load_source_data',
+    'apply_epsilon_floor',
+    'handle_instrument_transitions',
+    'detect_and_handle_gaps',
+    'resample_to_hourly_median',
+    'validate_temporal_alignment',
+    'align_data',
+    'align_main',
+    'check_memory_usage',
+    
+    # ACE ingestion
+    'fetch_ace_data',
+    'load_synthetic_ace',
+    'run_ace_ingestion',
+    'ace_main',
+    
+    # NOAA ingestion
+    'fetch_noaa_kp',
+    'fetch_noaa_dst',
+    'load_synthetic_noaa',
+    'run_noaa_ingestion',
+    'noaa_main'
+]
