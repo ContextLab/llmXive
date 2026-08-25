@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T12:29:02.781215Z'
-current_stage: tasked
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-199-predicting-the-impact-of-cold-rolling-re
-last_run_id: 9f1838dc-31d0-46f8-b613-01d775a50cf9
+last_run_id: bbf8350e-846d-4979-9fba-de81e385f500
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re
 title: Predicting the Impact of Cold Rolling Reduction on Texture Evolution in FCC
   Metals
-updated_at: '2026-08-23T20:53:59.866194Z'
+updated_at: '2026-08-25T00:46:03.462670Z'

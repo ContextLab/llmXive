@@ -2,58 +2,68 @@ import os
 import sys
 from pathlib import Path
 import logging
-
 from utils.logging import get_logger
 
-logger = get_logger(__name__)
-
-
-def ensure_tests_directory(base_path: str = "tests") -> bool:
+def ensure_tests_directory(base_path: Optional[Path] = None) -> Path:
     """
-    Create the tests directory if it does not exist.
+    Ensure the 'tests' directory exists at the project root.
+    
+    Creates the directory if it does not exist.
+    Verifies existence using pathlib.
     
     Args:
-        base_path: Relative path to the tests directory.
+        base_path: Optional base path. Defaults to project root (parent of code/).
         
     Returns:
-        True if the directory exists after the operation, False otherwise.
+        Path object pointing to the tests directory.
+        
+    Raises:
+        RuntimeError: If the directory cannot be created or verified.
     """
-    path = Path(base_path)
+    if base_path is None:
+        # Determine project root: parent of the code directory where this script lives
+        # Assuming this script is in code/, project root is one level up
+        current_file = Path(__file__).resolve()
+        code_dir = current_file.parent
+        base_path = code_dir.parent
     
-    if path.exists():
-        logger.info(f"Tests directory already exists at: {path.absolute()}")
-        return True
+    tests_dir = base_path.joinpath('tests')
+    
+    logger = get_logger(__name__)
+    logger.info(f"Ensuring tests directory exists at: {tests_dir}")
+    
+    if not tests_dir.exists():
+        try:
+            tests_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created tests directory: {tests_dir}")
+        except OSError as e:
+            error_msg = f"Failed to create tests directory at {tests_dir}: {e}"
+            logger.error(error_msg)
+            raise RuntimeError(error_msg) from e
+    else:
+        logger.debug(f"Tests directory already exists: {tests_dir}")
+    
+    # Verification step as required by task T001c
+    if not tests_dir.is_dir():
+        error_msg = f"Verification failed: {tests_dir} exists but is not a directory."
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+        
+    logger.info(f"Verification passed: tests directory exists at {tests_dir}")
+    return tests_dir
+
+def main():
+    """Entry point for CLI execution."""
+    logging.basicConfig(level=logging.INFO)
+    logger = get_logger(__name__)
     
     try:
-        path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created tests directory at: {path.absolute()}")
-        return True
-    except OSError as e:
-        logger.error(f"Failed to create tests directory at {path.absolute()}: {e}")
-        return False
-
-
-def main() -> int:
-    """
-    Main entry point for the script.
-    
-    Returns:
-        0 on success, 1 on failure.
-    """
-    success = ensure_tests_directory()
-    
-    if not success:
-        logger.error("Verification failed: tests directory does not exist.")
+        tests_path = ensure_tests_directory()
+        logger.info(f"Task T001c completed successfully. Directory: {tests_path}")
+        return 0
+    except RuntimeError as e:
+        logger.error(f"Task T001c failed: {e}")
         return 1
-        
-    # Verification step as per task requirements
-    if not os.path.isdir("tests"):
-        logger.error("Verification failed: os.path.isdir('tests') returned False.")
-        return 1
-        
-    logger.info("Verification passed: tests directory exists.")
-    return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

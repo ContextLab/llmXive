@@ -1,12 +1,36 @@
-T013:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, log files, or any other artifact demonstrating error handling\
-    \ for missing reduction levels or corrupted files was provided. Without concrete\
-    \ implementation (e.g., a data\u2011ingestion pipeline that skips missing entries,\
-    \ logs warnings, and flags low\u2011reliability samples), the requirement cannot\
-    \ be verified as met. The next implementer must supply the actual script/module\
-    \ and example output/logs showing the described behavior."
+  r: No evidence of a `code/` directory is provided; the claim cannot be verified
+    because the required artifact (the directory itself) is missing from the supplied
+    evidence. The next implementer must create the `code/` folder in the repository
+    so that `pathlib.Path(__file__).parent.joinpath('code').is_dir()` returns `True`.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/` directory being present in the repository is provided,
+    nor is there any code snippet showing the `pathlib.Path(__file__).parent.joinpath('data').is_dir()`
+    check. The implementer must add the `data/` folder (even if empty) and include
+    a verification step confirming its existence.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/` directory was provided; the claim cannot be verified
+    because the required folder is missing from the supplied artifacts. The implementer
+    must add the `tests/` directory (with at least one file or placeholder) so that
+    `pathlib.Path(__file__).parent.joinpath('tests').is_dir()` returns `True`.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided evidence contains no indication that a `docs/` directory exists
+    in the project, nor any code snippet using `pathlib.Path(__file__).parent.joinpath('docs').is_dir()`
+    to verify it. The required directory artifact is missing, so the task is not satisfied.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file was presented in the evidence; the implementer did not supply
+    any content covering Python, data, or IDE ignore patterns, so the required artifact
+    is missing.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

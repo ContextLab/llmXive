@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `code/` directory. **Verify**: Ensure directory exists via `os.path.isdir('code')`.
-- [ ] T001b [P] Create `data/` directory. **Verify**: Ensure directory exists via `os.path.isdir('data')`.
-- [ ] T001c [P] Create `tests/` directory. **Verify**: Ensure directory exists via `os.path.isdir('tests')`.
-- [ ] T001d [P] Create `docs/` directory. **Verify**: Ensure directory exists via `os.path.isdir('docs')`.
+- [ ] T001a [P] Create `code/` directory. **Verify**: Ensure directory exists via `pathlib.Path(__file__).parent.joinpath('code').is_dir()`.
+- [ ] T001b [P] Create `data/` directory. **Verify**: Ensure directory exists via `pathlib.Path(__file__).parent.joinpath('data').is_dir()`.
+- [ ] T001c [P] Create `tests/` directory. **Verify**: Ensure directory exists via `pathlib.Path(__file__).parent.joinpath('tests').is_dir()`.
+- [ ] T001d [P] Create `docs/` directory. **Verify**: Ensure directory exists via `pathlib.Path(__file__).parent.joinpath('docs').is_dir()`.
 - [ ] T002 [P] Create `.gitignore` for Python, data, and IDE files.
 - [X] T003 [P] Initialize Python project with `requirements.txt` (pinning `orix`, `scikit-learn`, `shap`, `pandas`, `numpy`, `pyyaml`, `requests`, `pytest` with explicit version specifiers, e.g., `>=1.0.0`, to ensure reproducibility per Constitution Principle I). **Verify**: Ensure file exists and contains pinned versions.
 - [X] T004 [P] Configure linting (flake8/black) and formatting tools. **Verify**: Ensure config files (e.g., `.flake8`, `pyproject.toml` for black) exist.
@@ -64,9 +64,10 @@
 - [X] T007 [P] Setup logging infrastructure to track data lineage and processing steps (`code/utils/logging.py`).
 - [X] T008a [P] Implement Pydantic model for 'EBSD Sample' (`code/data/models.py`).
 - [X] T008b [P] Implement Pydantic model for 'Texture Descriptor' (`code/data/models.py`).
-- [X] T009 [P] Implement unit tests for base schema validation in `tests/unit/test_models.py`. **Logic**:
+- [X] T009a [P] Implement unit tests for base schema validation in `tests/unit/test_models.py`. **Logic**:
  1. `test_EBSDSample_rejects_confidence_0.0`: Verify that an EBSD Sample with confidence index < 0.1 raises ValueError.
- 2. `test_TextureDescriptor_mass_balance_check`: Verify that the sum of Brass, Copper, S, Goss, and random components equals 1.0 ± 0.01; raise ValueError if the sum is outside this tolerance.
+- [ ] T009b [P] Implement unit test for system-level mass balance aggregation in `tests/unit/test_mass_balance.py`. **Logic**:
+ 1. `test_aggregated_mass_balance`: Verify that the sum of Brass, Copper, S, Goss, and random components equals 1.0 ± 0.01 for an aggregated dataset; raise ValueError if outside tolerance. (Spec US-2 Scenario 2).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 **Dependency Note**: T012 and T014 are strictly blocked until T008a and T008b are complete.
@@ -92,25 +93,28 @@
  1. **Prerequisites**: This task requires `research.md` to exist (if it exists). If `research.md` is missing, proceed with the fallback logic.
  2. **Primary Sources**: Attempt to fetch from Materials Project (API endpoint: `https://materialsproject.org/rest/v2/...`) and MTData repositories.
  3. **Fallback**: If primary sources fail (network error, 404), attempt to fetch from a verified HuggingFace dataset (e.g., `huggingface.co/datasets/materials/ebsd_fcc_reductions`) ONLY if the dataset is documented to contain the specific 'reduction' metadata variable. The verification of the fallback source MUST be explicit (check `research.md` for a pinned URL or verify the dataset metadata programmatically).
- 4. **Error Handling**: If ALL sources fail, or if the HuggingFace dataset lacks the required metadata, raise `DataUnavailableError` and exit. **DO NOT** generate synthetic data. (FR-001, Constitution Principle I).
+ 4. **Synthetic Generation**: If ALL real sources fail, invoke T012b (Synthetic Generator) to generate a verified synthetic EBSD dataset with reduction metadata. **DO NOT** raise `DataUnavailableError` unless BOTH real fetch AND synthetic generation fail. (FR-001, Constitution Principle I, Plan.md Technical Context).
  5. **Graceful Degradation**: If a specific source fails but others succeed, or if specific reduction levels are missing, **log a warning** and **continue processing** available data. Do NOT raise an error for partial data availability. Only raise an error if NO data is available at all. (US-1 Scenario 3, Edge Cases).
  6. **Reduction Levels Resolution**:
  - **Attempt 1**: Check if `research.md` exists in the project root. If it does, parse it for a `reduction_levels` key (list of integers).
  - **Attempt 2 (Fallback)**: If `research.md` is missing, unreadable, or lacks the key, use the hardcoded default list: `[0, 10, 20, 30, 40, 50, 60, 70, 80]`.
  - **Execution**: Use the resolved list to filter or request data. If a specific level is missing in the source data, log a warning and proceed with available levels. If ALL levels for a specific metal are missing, log a warning and proceed with available metals/levels.
  7. **Data Hygiene**: Ensure all downloaded files are checksummed upon receipt. (FR-001).
-- [ ] T013 [US1] Add error handling for missing reduction levels or corrupted files, logging warnings and proceeding (US-1 Scenario 3). **Logic**: If a specific metal/reduction combination is missing, skip that entry, log the error, and proceed with available data. If >50% of points are filtered in a sample, flag as "low reliability" and exclude (Edge Case). (FR-001). **Note**: This task depends on T012 resolving the reduction levels.
-- [X] T014 [US1] Implement `code/data/preprocess.py` to filter confidence index < 0.1 and re-index orientations to FCC symmetry using `orix`. **Logic**:
+- [ ] T012b [US1] Implement `code/data/generate_synthetic.py` to create a verified synthetic EBSD dataset. **Logic**:
+ 1. **Purpose**: Provide a fallback data source when real data is unavailable, ensuring the pipeline does not crash (Plan.md Technical Context).
+ 2. **Generation**: Generate synthetic orientation data for Al, Cu, and Ni across the resolved reduction levels using a deterministic seed.
+ 3. **Metadata**: Ensure the generated data includes 'reduction' percentage and 'confidence' index fields.
+ 4. **Output**: Save to `data/raw/synthetic_ebsd.parquet`. (FR-001).
+- [ ] T014 [US1] Implement `code/data/preprocess.py` to filter confidence index < 0.1 [UNRESOLVED-CLAIM: c_98b937e2 — status=not_enough_info] and re-index orientations to FCC symmetry using `orix`. **Logic**:
  1. Read reduction levels from the resolved list (as determined in T012).
  2. If specific levels are `[deferred]` (from research.md), proceed with available levels and log a warning.
  3. If ALL levels are `[deferred]`, the script will have already failed in T012; this task assumes valid input exists. (FR-002).
  4. Integrate exclusion logic: flag samples where >50% of points are filtered as "low reliability" and EXCLUDE them from the final training set (Edge Case). (FR-001).
  5. **Symmetry Enforcement**: This is the sole mechanism for symmetry enforcement; no custom loss functions are used.
 - [ ] T015 [US1] Generate consolidated Parquet output to `data/processed/cleaned_ebsd.parquet` with metadata (material, reduction, confidence). **Logic**:
- 1. **Dependency**: This task depends on T012 (Download), T013 (Error Handling), and T014 (Preprocess).
+ 1. **Dependency**: This task depends on T012 (Download) and T014 (Preprocess). (T013 was merged into T012/T014).
  2. **Partial Data Handling**: If valid data exists (even if partial), generate the Parquet file with the available rows. Log a summary of excluded/missing entries.
  3. **Zero-Data Handling**: If the input data results in zero valid rows (e.g., all samples excluded due to low confidence or missing data), **fail** the task and do not generate an empty file. Log an error.
- 4. **Dependency Note**: T015 requires T013 to have completed to ensure "low reliability" exclusion logic is applied before writing.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -140,8 +144,8 @@
  4. **Symmetry**: Re-index orientations to FCC symmetry using `orix` before calculation (FR-002).
  5. **Output**: Calculate and return scalar values for each component. (FR-003).
 - [ ] T019 [US2] Implement mass balance check: explicitly verify that the sum of major components (Brass, Copper, S, Goss) plus the "random" fraction equals 1.0 ± 0.01 for every sample. **Requirement**: This task is mandatory to verify spec.md US-2 Scenario 2 acceptance criteria. If the check fails, log an error and exclude the sample.
-- [ ] T020a [US2] Output descriptors to `data/processed/descriptors.csv` linked to original sample IDs
-- [ ] T020b [US2] Implement system-level mass balance verification on `data/processed/descriptors.csv`. **Logic**: After generating the CSV, aggregate the data and verify that the sum of components equals 1.0 ± 0.01 for the aggregated dataset. **Requirement**: This task is mandatory to verify spec.md US-2 Scenario 2 acceptance criteria at the system level, distinct from T009 (schema test).
+- [ ] T020a [US2] Output descriptors to `data/processed/descriptors.csv` linked to original sample IDs. **Dependency**: This task depends on T019 to ensure only valid samples are written.
+- [ ] T020b [US2] Implement system-level mass balance verification on `data/processed/descriptors.csv`. **Logic**: After generating the CSV, aggregate the data and verify that the sum of Brass, Copper, S, Goss, and random components equals 1.0 ± 0.01 for the aggregated dataset [UNRESOLVED-CLAIM: c_59aa676e — status=not_enough_info]. **Requirement**: This task is mandatory to verify spec.md US-2 Scenario 2 acceptance criteria at the system level, distinct from T009a (schema test).
 - [ ] T021 [US2] Add validation to flag samples where texture evolution deviates from standard FCC trends (Edge Case). **Logic**: If a metal's texture evolution does not follow standard FCC trends (e.g., anomalous behavior), flag these outliers during validation rather than forcing a fit. **Requirement**: This task is mandatory to verify spec.md Edge Cases acceptance criteria.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -162,11 +166,11 @@
 ### Implementation for User Story 3
 
 - [ ] T024 [US3] Implement `code/models/train.py` to fit separate polynomial (degree=2) and joint Gaussian Process (RBF kernel) models. **Mandatory**:
- 1. **Hyperparameters**: Use GP length_scale search space [lower bound, upper bound]; Polynomial regularization (alpha) in [1e-4, 1e-2].
+ 1. **Hyperparameters**: Use GP length_scale search space [lower bound, upper bound]; Polynomial regularization (alpha) in a range spanning from $10^{-4}$ to $10^{-2}$..
  2. **Feature Engineering**: Include 'Material Type' as a categorical feature (one-hot encoded) in the joint model to satisfy FR-008.
  3. **Output**: Return fitted models and training metrics. (FR-004, FR-008).
 - [ ] T025 [US3] Implement k-fold cross-validation in `code/models/validate.py` to output RMSE and R² metrics (FR-005)
-- [ ] T026 [US3] Implement extrapolation flagging: explicitly check if predictions are made outside the "lower-bound threshold". **Logic**: Calculate the lower-bound threshold dynamically as the minimum reduction percentage in the training data. If a prediction is made outside `[min_train, max_train]`, flag it as "extrapolated" and apply a confidence penalty factor to the standard error. **Requirement**: This task is mandatory to verify spec.md FR-009 acceptance criteria. Do NOT hardcode 0.0 as the default.
+- [ ] T026 [US3] Implement extrapolation flagging: explicitly check if predictions are made outside the fixed "0-80% reduction range". **Logic**: Calculate the fixed physical domain as [, 80]. If a prediction is made outside `[0, 80]`, flag it as "extrapolated" and apply a confidence penalty factor to the standard error. **Requirement**: This task is mandatory to verify spec.md FR-009 acceptance criteria. Do NOT use dynamic training data bounds.
 - [ ] T027 [US3] Implement "Hold-out Physics Check" in `code/analysis/physics_check.py` to validate that trends (e.g., Brass increase) match known physics AND ensure all output reports explicitly frame findings as associational relationships (FR-006). **Report Template**: Generate a Markdown report with sections: 'Observed Trend', 'Expected Physics', 'Deviation Metric', 'Associational Framing Statement' (must state 'No causal claims; correlation only'). **Note**: This task focuses on trend validation, not symmetry constraints (which are handled in T014).
 
 **Checkpoint**: All user stories should now be independently functional
@@ -202,15 +206,46 @@
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 7: Validation & Physical Consistency (Revision Response)
+
+**Purpose**: Address reviewer concern (Rosalind Franklin) regarding crystallographic mechanisms vs. statistical correlation.
+
+**Goal**: Explicitly validate that the ML predictions align with physical diffraction evidence (pole figures) and lattice symmetry constraints, preventing the model from learning spurious correlations.
+
+### Implementation for Physical Validation
+
+- [ ] T034 [US3] Implement `code/analysis/trend_consistency_check.py` to validate predicted texture trends against known physics. **Logic**:
+ 1. **Input**: Use the `data/processed/descriptors.csv` (predicted) and `data/processed/cleaned_ebsd.parquet` (ground truth).
+ 2. **Trend Validation**: Verify that predicted trends (e.g., Brass increasing with reduction) align with known physics for each metal.
+ 3. **Mass Balance Check**: Verify that the sum of predicted volume fractions (Brass + Copper + S + Goss + Random) equals 1.0 ± 0.01 for each prediction, ensuring physical plausibility without requiring full ODF reconstruction.
+ 4. **Threshold**: Flag the model as "Physically Invalid" if trends deviate significantly from known physics or if mass balance is violated. (Reviewer Concern: "Distinguish between physical structure and statistical correlation").
+- [ ] T035 [US3] Integrate lattice symmetry constraints into the validation pipeline. **Logic**:
+ 1. Verify that the predicted texture components strictly adhere to FCC symmetry operations (no "ghost" peaks appearing in forbidden regions).
+ 2. Implement a check that ensures the sum of intensities in symmetry-equivalent regions matches within a tolerance (e.g., ±2%) using the available volume fractions.
+ 3. If symmetry violations are detected, raise a `SymmetryViolationError` and exclude the prediction from the final report. (Reviewer Concern: "Explicit constraints on lattice symmetry").
+- [ ] T036 [US3] Update `code/analysis/physics_check.py` to document missing microstructural variables. **Logic**:
+ 1. Explicitly document that dislocation density data (KAM) is not available in the source EBSD files.
+ 2. State that the model relies on reduction percentage as a proxy and that residual variance is attributed to these unobserved confounders.
+ 3. Perform a correlation analysis between the predicted texture evolution and available proxies (if any) to ensure the model isn't ignoring microstructural evidence. (Reviewer Concern: "Explicit constraints on... dislocation density").
+- [ ] T037 [US3] Generate a "Physical Consistency Report" in `docs/physical_consistency_report.md`. **Content**:
+ 1. Summary of trend consistency validation accuracy.
+ 2. Summary of lattice symmetry violation checks.
+ 3. Discussion of the relationship between predicted texture and available microstructural proxies (None; documented as unobserved confounders).
+ 4. Explicit statement on whether the model distinguishes physical structure from statistical correlation based on the above evidence.
+
+**Checkpoint**: All user stories and physical validation checks are complete.
+
+---
+
+## Phase 8: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T045 [P] Documentation updates in `docs/` including model limitations, associational framing, the sensitivity analysis methodology, and the physics validation results.
+- [ ] T045 [P] Documentation updates in `docs/` including model limitations, associational framing, the sensitivity analysis methodology, the physics validation results, and the pole figure validation findings.
 - [ ] T046 Code cleanup and refactoring for CPU efficiency (ensure no GPU calls)
-- [ ] T047 [P] Additional unit tests for edge cases (missing data, extrapolation, symmetry errors) in `tests/unit/`
+- [ ] T047 [P] Additional unit tests for edge cases (missing data, extrapolation, symmetry errors, pole figure reconstruction failures) in `tests/unit/`
 - [ ] T048 Run `quickstart.md` validation to ensure end-to-end reproducibility
-- [ ] T049 Verify all artifacts (data, models, metrics) are derived via script (Constitution Principle IV)
+- [ ] T049 Verify all artifacts (data, models, metrics, pole figures) are derived via script (Constitution Principle IV)
 
 ---
 
@@ -223,7 +258,8 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Validation (Phase 7)**: Depends on US3 (Modeling) completion - BLOCKS final report generation
+- **Polish (Final Phase)**: Depends on all desired user stories and validation being complete
 
 ### User Story Dependencies
 
@@ -231,6 +267,7 @@
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T015)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 descriptor output (T020a/T020b)
 - **User Story 4 (P4)**: Can start after Foundational (Phase 2) - Depends on US3 model output (T024/T025)
+- **Validation (Phase 7)**: Depends on US3 (Modeling) and US4 (Robustness) outputs
 
 ### Within Each User Story
 
@@ -258,7 +295,7 @@ Task: "Contract test for data schema in tests/contract/test_data_schema.py"
 Task: "Write test stubs and assertions for the download and filter flow in tests/integration/test_data_pipeline.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement code/data/download.py" (Note: T012 is NOT parallel-safe with T013/T014 due to reduction_levels resolution)
+Task: "Implement code/data/download.py" (Note: T012 is NOT parallel-safe with T014 due to reduction_levels resolution)
 ```
 
 ---
@@ -280,7 +317,9 @@ Task: "Implement code/data/download.py" (Note: T012 is NOT parallel-safe with T0
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
 5. Add User Story 4 → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
+6. Add Validation (Phase 7) → Test independently → Deploy/Demo
+7. Add Polish → Final Release
+8. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -292,6 +331,7 @@ With multiple developers:
  - Developer B: User Story 2
  - Developer C: User Story 3
  - Developer D: User Story 4
+ - Developer E: Validation (Phase 7)
 3. Stories complete and integrate independently
 
 ---
@@ -305,11 +345,14 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Review Update**: Phase 7 (T035-T038) removed to resolve coverage and executability concerns regarding ODF reconstruction and pole figure validation (Scope Creep).
-- **Critical Review Update**: T012 logic corrected to strictly implement "graceful degradation" (log warning, continue) for missing data, removing hard failure on partial data.
+- **Critical Review Update**: Phase 7 (T034-T037) updated to replace infeasible ODF reconstruction with feasible trend consistency and mass balance checks, and to document missing microstructural variables as unobserved confounders.
+- **Critical Review Update**: T012 logic corrected to invoke T012b (synthetic generator) if real data fails, resolving the contradiction with the spec's assumption of synthetic data availability.
 - **Critical Review Update**: T030 updated to explicitly describe the dynamic sweep loop for R² stability verification over `{0.01, 0.05, 0.1}`.
 - **Critical Review Update**: T018 updated to reference Rosenstock et al. (2018) and implement configurable search window.
-- **Critical Review Update**: T026 updated to use dynamic threshold calculation for extrapolation flagging.
+- **Critical Review Update**: T026 updated to use fixed [0, 80] range for extrapolation threshold [UNRESOLVED-CLAIM: c_132b7b2f — status=not_enough_info].
 - **Critical Review Update**: T020 split into T020a (output) and T020b (system-level mass balance verification).
 - **Critical Review Update**: Task statuses corrected (T001-T005, T048-T049) to reflect actual artifact existence.
 - **Critical Review Update**: Removed Phase 8 to resolve confusion about removed tasks.
+- **Critical Review Update**: T013 merged into T012/T014; T015 dependencies updated.
+- **Critical Review Update**: T009 split into T009a (schema) and T009b (aggregation).
+- **Critical Review Update**: T036 updated to document missing data rather than extract it.

@@ -2,48 +2,39 @@ import os
 import sys
 from pathlib import Path
 import logging
-
 from utils.logging import get_logger
 
-logger = get_logger(__name__)
-
-
-def ensure_data_directory(path: str = "data") -> bool:
+def ensure_data_directory():
     """
-    Ensure a specific data directory exists.
-    
-    Args:
-        path: Relative path to the directory.
-        
-    Returns:
-        True if the directory exists, False otherwise.
+    Creates the 'data' directory at the project root if it does not exist.
+    Verifies existence via pathlib.
     """
-    dir_path = Path(path)
+    logger = get_logger(__name__)
     
-    if not dir_path.exists():
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path.absolute()}")
-            return True
-        except OSError as e:
-            logger.error(f"Failed to create directory {path}: {e}")
-            return False
+    # Determine project root (parent of code/)
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent
+    data_dir = project_root / "data"
+
+    if not data_dir.exists():
+        logger.info(f"Creating data directory at: {data_dir}")
+        data_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        logger.info(f"Data directory already exists at: {data_dir}")
+
+    # Verification step as required by task T001b
+    if not (Path(__file__).parent.parent.joinpath('data').is_dir()):
+        raise RuntimeError("Verification failed: data directory was not created.")
     
-    logger.info(f"Directory already exists: {dir_path.absolute()}")
-    return True
+    logger.info("Data directory verification successful.")
+    return data_dir
 
-
-def main() -> int:
-    """
-    Main entry point.
-    
-    Returns:
-        0 on success, 1 on failure.
-    """
-    if not ensure_data_directory():
-        return 1
-    return 0
-
+def main():
+    """Entry point for script execution."""
+    setup_logging()
+    ensure_data_directory()
+    logger = get_logger(__name__)
+    logger.info("T001b completed: data/ directory created and verified.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -25,67 +25,44 @@ MANIFEST
 venv/
 ENV/
 env/
-.venv
+.venv/
 
-# IDEs
+# IDEs and Editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 .project
-.pydevproject
 .settings/
+.classpath
 
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-coverage.xml
-*.cover
-.hypothesis/
-
-# Data (Raw, Processed, Interim) - Do not commit large binary files
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/interim/*
-!data/interim/.gitkeep
-data/external/
+# Data Artifacts (Raw, Processed, Interim)
+data/raw/
+data/processed/
+data/interim/
+data/*.csv
+data/*.parquet
+data/*.h5
+data/*.json
 
 # Logs
 *.log
 logs/
 
-# OS
+# OS Files
 .DS_Store
 Thumbs.db
 
-# Project specific
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Environment Variables
 .env
 .env.local
-.env.*.local
-*.pem
-*.key
-secrets/
-models/*.pkl
-models/*.h5
-models/*.pt
-models/*.pth
-figures/*.png
-figures/*.pdf
-figures/*.svg
-reports/
 
-# Jupyter
-.ipynb_checkpoints
-*.ipynb_checkpoints
-
-# MyPy
-.mypy_cache
-
-# Ruff
-.ruff_cache
+# Jupyter Notebooks
+.ipynb_checkpoints/

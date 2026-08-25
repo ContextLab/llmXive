@@ -706,3 +706,585 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T20:42:01Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Sum of Brass, Copper, S, Goss, and random components equals 1.0 with
+    tolerance 0.01
+  claim_id: c_585af6b5
+  context: T009b logic for system-level mass balance aggregation test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the sum of Brass, Copper, S, Goss, and random components\
+    \ equals 1.0 \xB1 0.01 for an aggregated dataset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:33:09Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Default reduction levels list is 0, 10, 20, 30, 40, 50, 60, 70, 80
+  claim_id: c_90c92510
+  context: T012 Reduction Levels Resolution fallback logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use the hardcoded default list [0, 10, 20, 30, 40, 50, 60, 70, 80] for
+    reduction levels if research.md is missing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:33:31Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Calculated volume fractions match published values within 0.05 tolerance
+  claim_id: c_205b7beb
+  context: Independent Test for User Story 2 Texture Quantification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the calculated volume fractions match published values within\
+    \ \xB10.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:33:58Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Configurable search window of 5 degrees around central values for texture
+    components
+  claim_id: c_665f7616
+  context: T018 Logic for Texture Index and volume fractions calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement a configurable search window of \xB15 degrees around the central\
+    \ values to account for lattice rotation spread"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:34:18Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: 'Brass Euler angle ranges: phi1 35-45, Phi 55-65, phi2 0-90'
+  claim_id: c_063198b4
+  context: T018 Logic defining Euler ranges for Brass component.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for Brass are phi1=35-45, Phi=55-65, phi2=0-90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:34:39Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: 'Copper Euler angle ranges: phi1 39, Phi 39, phi2 0'
+  claim_id: c_f0e370f4
+  context: T018 Logic defining Euler ranges for Copper component.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for Copper are phi1=39, Phi=39, phi2=0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:34:57Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: 'S Euler angle ranges: phi1 59, Phi 37, phi2 63'
+  claim_id: c_9117c568
+  context: T018 Logic defining Euler ranges for S component.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for S are phi1=59, Phi=37, phi2=63
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:36:57Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: 'Goss Euler angle ranges: phi1 0, Phi 45, phi2 90'
+  claim_id: c_6f20fa66
+  context: T018 Logic defining Euler ranges for Goss component.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for Goss are phi1=0, Phi=45, phi2=90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:37:17Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Sum of Brass, Copper, S, Goss, and random fraction equals 1.0 with tolerance
+    0.01 for every sample
+  claim_id: c_f305d83f
+  context: T019 Logic for mass balance check per sample.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the sum of major components (Brass, Copper, S, Goss) plus\
+    \ the random fraction equals 1.0 \xB1 0.01 for every sample"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:39:18Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Exclude samples where more than 50% of points are filtered as low reliability
+  claim_id: c_f2030355
+  context: T014 Logic for data hygiene and exclusion.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_samples_where_more_than_50%25_of_points_are_filtered_a
+  kind: magnitude
+  raw_text: Flag samples where >50% of points are filtered as low reliability and
+    exclude them from the final training set
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:39:54Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Gaussian Process length_scale search space defined by lower and upper
+    bounds
+  claim_id: c_c25e823d
+  context: T024 Hyperparameters for model training.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gaussian_Process_length_scale_search_space_defined_by_lower
+  kind: entity_fact
+  raw_text: Use GP length_scale search space [lower bound, upper bound]
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:40:47Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Polynomial regularization alpha range from 1e-4 to 1e-2
+  claim_id: c_2a4dd619
+  context: T024 Hyperparameters for model training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Polynomial regularization (alpha) in a range spanning from 10^-4 to
+    10^-2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:42:13Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Fixed physical domain for reduction is 0 to 80 percent
+  claim_id: c_38257260
+  context: T026 Logic for extrapolation flagging.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the fixed physical domain as 0 to 80% reduction range
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:42:44Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: R-squared variation across interpolation tolerances is less than or equal
+    to 0.02
+  claim_id: c_d06136f7
+  context: T030 Logic for stability check in robustness analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/R-squared_variation_across_interpolation_tolerances_is_less
+  kind: magnitude
+  raw_text: "Verify that the variation in R\xB2 across the swept tolerances is \u2264\
+    \ 0.02"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:43:48Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Sum of intensities in symmetry-equivalent regions matches within 2 percent
+    tolerance
+  claim_id: c_35079ff3
+  context: T035 Logic for lattice symmetry constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the sum of intensities in symmetry-equivalent regions matches\
+    \ within a tolerance of \xB12%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:43:48Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Sum of predicted volume fractions equals 1.0 with tolerance 0.01 for
+    each prediction
+  claim_id: c_c9fcf738
+  context: T034 Logic for mass balance check in physical validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the sum of predicted volume fractions (Brass + Copper + S\
+    \ + Goss + Random) equals 1.0 \xB1 0.01 for each prediction"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:45:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: "sum of Brass Copper S Goss and random components equals 1.0 \xB1 0.01\
+    \ for aggregated dataset"
+  claim_id: c_09309f9b
+  context: "T009b: Implement unit test for system-level mass balance aggregation...\
+    \ Verify that the sum of Brass, Copper, S, Goss, and random components equals\
+    \ 1.0 \xB1 0.01 for an aggregated dataset"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the sum of Brass, Copper, S, Goss, and random components\
+    \ equals 1.0 \xB1 0.01 for an aggregated dataset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:49:42Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: "sum of Brass Copper S Goss and random components equals 1.0 \xB1 0.01\
+    \ for aggregated dataset"
+  claim_id: c_59aa676e
+  context: "T020b: Implement system-level mass balance verification... verify that\
+    \ the sum of Brass, Copper, S, Goss, and random components equals 1.0 \xB1 0.01\
+    \ for the aggregated dataset"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the sum of Brass, Copper, S, Goss, and random components\
+    \ equals 1.0 \xB1 0.01 for the aggregated dataset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:49:42Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: "sum of predicted volume fractions equals 1.0 \xB1 0.01 for each prediction"
+  claim_id: c_5786239f
+  context: "T034: Implement trend consistency check... Verify that the sum of predicted\
+    \ volume fractions (Brass + Copper + S + Goss + Random) equals 1.0 \xB1 0.01 for\
+    \ each prediction"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the sum of predicted volume fractions (Brass + Copper + S\
+    \ + Goss + Random) equals 1.0 \xB1 0.01 for each prediction"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:49:42Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Brass Euler angle ranges phi1 35-45 Phi 55-65 phi2 0-90 degrees
+  claim_id: c_ed91a71a
+  context: 'T018: Implement descriptors... Euler Ranges (phi1, Phi, phi2 in degrees):
+    Brass: [35, 45, 55, 65] (Approximate: phi1=35-45, Phi=55-65, phi2=0-90)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for Brass component are phi1=35-45, Phi=55-65, phi2=0-90
+    degrees
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:50:03Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Copper Euler angle ranges phi1 39 Phi 39 phi2 0 degrees
+  claim_id: c_57146b4a
+  context: 'T018: Implement descriptors... Euler Ranges (phi1, Phi, phi2 in degrees):
+    Copper: [39, 39, 0, 0] (Approximate: phi1=39, Phi=39, phi2=0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for Copper component are phi1=39, Phi=39, phi2=0 degrees
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:50:22Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: S Euler angle ranges phi1 59 Phi 37 phi2 63 degrees
+  claim_id: c_9ea6c25b
+  context: 'T018: Implement descriptors... Euler Ranges (phi1, Phi, phi2 in degrees):
+    S: [59, 37, 63, 63] (Approximate: phi1=59, Phi=37, phi2=63)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for S component are phi1=59, Phi=37, phi2=63 degrees
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:52:23Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Goss Euler angle ranges phi1 0 Phi 45 phi2 90 degrees
+  claim_id: c_6f2a4107
+  context: 'T018: Implement descriptors... Euler Ranges (phi1, Phi, phi2 in degrees):
+    Goss: [0, 45, 90, 0] (Approximate: phi1=0, Phi=45, phi2=90)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for Goss component are phi1=0, Phi=45, phi2=90 degrees
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:52:44Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: benchmark test against Rosenstock et al 2018 values
+  claim_id: c_8efa827b
+  context: 'T017: Benchmark test against Rosenstock et al. (2018) values in tests/unit/test_benchmark_validation.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: benchmark test against Rosenstock et al. (2018) values
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:53:08Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: "calculated volume fractions match published values within \xB10.05"
+  claim_id: c_d1daeece
+  context: "Independent Test for User Story 2: The quantification module can be tested\
+    \ by processing a known benchmark dataset and verifying that the calculated volume\
+    \ fractions match published values within \xB10.05"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the calculated volume fractions match published values within\
+    \ \xB10.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:53:08Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: "R\xB2 variation remains \u2264 0.02 across swept tolerances 0.01 0.05\
+    \ 0.1"
+  claim_id: c_159dc03a
+  context: "T031: Verify R\xB2 variation remains \u2264 0.02 across the swept tolerances\
+    \ {0.01, 0.05, 0.1} using T030 output"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that R\xB2 variation remains \u2264 0.02 across the swept tolerances\
+    \ {0.01, 0.05, 0.1}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:53:09Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: train separate polynomial models with degree 2
+  claim_id: c_8a90e1d9
+  context: 'T024: Implement code/models/train.py to fit separate polynomial (degree=2)
+    and joint Gaussian Process (RBF kernel) models'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train separate polynomial models with degree=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:53:53Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: "search window of \xB15 degrees around central values"
+  claim_id: c_02b3181c
+  context: "T018: Implement a configurable search window of \xB15 degrees around the\
+    \ central values to account for lattice rotation spread"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "use a search window of \xB15 degrees around the central values"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:55:11Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: flag samples where >50% of points are filtered as low reliability and
+    exclude them from final training set
+  claim_id: c_4bda6e93
+  context: 'T014: Integrate exclusion logic: flag samples where >50% of points are
+    filtered as low reliability and EXCLUDE them from the final training set'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flag samples where >50% of points are filtered as low reliability and
+    EXCLUDE them from the final training set
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:55:12Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: filter confidence index < 0.1
+  claim_id: c_98b937e2
+  context: 'T014: Implement code/data/preprocess.py to filter confidence index < 0.1
+    and re-index orientations to FCC symmetry'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter confidence index < 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:55:12Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: EBSD Sample with confidence index < 0.1 raises ValueError
+  claim_id: c_83bf1a7f
+  context: 'T009a: test_EBSDSample_rejects_confidence_0.0: Verify that an EBSD Sample
+    with confidence index < 0.1 raises ValueError'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify that an EBSD Sample with confidence index < 0.1 raises ValueError
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:55:12Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: hardcoded default list of reduction levels 0 10 20 30 40 50 60 70 80
+  claim_id: c_39d53db1
+  context: 'T012: If research.md is missing... use the hardcoded default list: [0,
+    10, 20, 30, 40, 50, 60, 70, 80]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use the hardcoded default list of reduction levels [0, 10, 20, 30, 40,
+    50, 60, 70, 80]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T00:58:26Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: fixed 0 80 range for extrapolation threshold
+  claim_id: c_132b7b2f
+  context: 'T026: Implement extrapolation flagging... Calculate the fixed physical
+    domain as [, 80]. If a prediction is made outside [0, 80], flag it as extrapolated'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use fixed [0, 80] range for extrapolation threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T01:00:45Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: set of interpolation tolerances 0.01 0.05 0.1
+  claim_id: c_398155ea
+  context: 'T030: Define the set of interpolation tolerances: {0.01, 0.05, 0.1} as
+    mandated by FR-007'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: define the set of interpolation tolerances {0.01, 0.05, 0.1}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T01:00:56Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: regularization alpha range spanning 10^-4 to 10^-2
+  claim_id: c_02ed8676
+  context: 'T024: Hyperparameters... Polynomial regularization (alpha) in a range
+    spanning from 10^-4 to 10^-2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use a regularization (alpha) in a range spanning from 10^-4 to 10^-2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T01:01:16Z'

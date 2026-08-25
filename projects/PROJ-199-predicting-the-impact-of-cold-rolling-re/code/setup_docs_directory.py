@@ -1,57 +1,90 @@
+"""
+Setup script to create the docs/ directory for the project.
+Verifies directory creation using pathlib as per task requirements.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 from utils.logging import get_logger
 
-def setup_docs_directory(docs_path: str = "docs") -> bool:
+# Configure logger
+logger = get_logger(__name__)
+
+def setup_docs_directory(root_dir: Optional[Path] = None) -> bool:
     """
-    Create the documentation directory if it does not exist.
+    Create the docs/ directory if it doesn't exist.
 
     Args:
-        docs_path: Relative path to the docs directory (default: 'docs')
+        root_dir: Optional root directory. Defaults to project root (parent of this file's parent).
 
     Returns:
-        True if the directory exists after execution (created or pre-existing)
+        True if directory exists or was created successfully, False otherwise.
     """
-    logger = get_logger(__name__)
-    path = Path(docs_path)
+    if root_dir is None:
+        # Default to project root: parent of code/ directory
+        root_dir = Path(__file__).parent.parent
 
-    if not path.exists():
-        logger.info(f"Creating documentation directory: {path}")
-        try:
-            path.mkdir(parents=True, exist_ok=True)
-            # Create a README.md to ensure the directory is tracked by git
-            readme_path = path / "README.md"
-            readme_path.write_text("# Project Documentation\n\nThis directory contains project documentation.\n")
-            logger.info(f"Created {readme_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {path}: {e}")
-            return False
+    docs_path = root_dir.joinpath('docs')
+
+    if docs_path.is_dir():
+        logger.info(f"docs/ directory already exists at {docs_path}")
+        return True
+
+    try:
+        docs_path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created docs/ directory at {docs_path}")
+        return True
+    except OSError as e:
+        logger.error(f"Failed to create docs/ directory at {docs_path}: {e}")
+        return False
+
+def verify_docs_directory(root_dir: Optional[Path] = None) -> bool:
+    """
+    Verify that the docs/ directory exists using pathlib.
+
+    Args:
+        root_dir: Optional root directory. Defaults to project root.
+
+    Returns:
+        True if docs/ exists, False otherwise.
+    """
+    if root_dir is None:
+        root_dir = Path(__file__).parent.parent
+
+    docs_path = root_dir.joinpath('docs')
+    exists = docs_path.is_dir()
+
+    if exists:
+        logger.info(f"Verification passed: docs/ directory exists at {docs_path}")
     else:
-        logger.info(f"Documentation directory already exists: {path}")
+        logger.error(f"Verification failed: docs/ directory does not exist at {docs_path}")
 
-    return path.is_dir()
+    return exists
 
-def main():
-    """Entry point for directory setup script."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    
-    success = setup_docs_directory()
-    
-    if success:
-        logger = get_logger(__name__)
-        logger.info("Verification: docs directory exists.")
-        # Explicit verification as per task requirement
-        if os.path.isdir('docs'):
-            logger.info("SUCCESS: os.path.isdir('docs') returned True.")
-            return 0
-        else:
-            logger.error("FAILURE: os.path.isdir('docs') returned False despite creation attempt.")
-            return 1
-    else:
-        logger.error("FAILURE: Could not create docs directory.")
+def main() -> int:
+    """
+    Main entry point to create and verify the docs/ directory.
+
+    Returns:
+        0 on success, 1 on failure.
+    """
+    logger.info("Starting docs/ directory setup...")
+
+    # Create the directory
+    created = setup_docs_directory()
+    if not created:
+        logger.error("Failed to create docs/ directory.")
         return 1
+
+    # Verify the directory exists
+    verified = verify_docs_directory()
+    if not verified:
+        logger.error("Verification failed: docs/ directory not found after creation.")
+        return 1
+
+    logger.info("docs/ directory setup and verification completed successfully.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())
