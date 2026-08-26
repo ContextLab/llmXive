@@ -1,308 +1,256 @@
-"""
-Distinctness Verifier for Generalization Set (T044 / T013).
-
-Implements explicit hash-based distinctness verification to guarantee that
-logical structures (premises/operators) of the Generalization Set differ
-from any training sample, satisfying FR-008.
-
-Also verifies entropy distribution matching between test and training sets.
-"""
 import os
 import sys
 import csv
 import hashlib
 import json
 import argparse
-from typing import Set, Dict, List, Any, Tuple
+from typing import List, Dict, Set, Tuple
 from collections import Counter
-import math
+from pathlib import Path
 
-# Import from existing project modules
-from config import Config, get_config
+# Import from project modules
+from config import get_config
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
+config = get_config()
 
 def compute_structure_hash(premises: List[str], operators: List[str]) -> str:
     """
     Compute a deterministic SHA256 hash of the logical structure.
-    Uses a canonical representation to ensure semantically identical
-    but syntactically different problems are correctly identified.
-    
-    Args:
-        premises: List of premise strings
-        operators: List of operator strings
-        
-    Returns:
-        Hex digest of the structure hash
+    We sort premises and operators to ensure canonical representation
+    regardless of generation order.
     """
-    # Canonicalize: sort premises and operators to handle permutation invariance
-    # while preserving structural identity
     canonical_premises = sorted(premises)
     canonical_operators = sorted(operators)
     
-    # Create a deterministic string representation
-    structure_str = "|".join(canonical_premises) + "::" + "|".join(canonical_operators)
-    
-    # Hash using SHA256
+    structure_str = "||".join(canonical_premises) + "::" + "||".join(canonical_operators)
     return hashlib.sha256(structure_str.encode('utf-8')).hexdigest()
 
-def load_existing_hashes(file_paths: List[str]) -> Tuple[Set[str], Dict[str, List[str]]]:
+def load_existing_hashes(csv_path: str) -> Set[str]:
     """
-    Load all structure hashes from existing CSV files.
-    
-    Args:
-        file_paths: List of paths to CSV files containing 'structure_hash' column
-        
-    Returns:
-        Tuple of (set of all hashes, dict mapping hash to file source)
+    Load structure hashes from an existing CSV file.
+    Returns a set of hashes.
     """
-    all_hashes: Set[str] = set()
-    hash_sources: Dict[str, List[str]] = {}
+    hashes = set()
+    if not os.path.exists(csv_path):
+        return hashes
     
-    for file_path in file_paths:
-        if not os.path.exists(file_path):
-            logger.warning(f"File not found, skipping: {file_path}")
-            continue
-            
-        with open(file_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                if 'structure_hash' in row and row['structure_hash']:
-                  hash_val = row['structure_hash']
-                  all_hashes.add(hash_val)
-                  if hash_val not in hash_sources:
-                      hash_sources[hash_val] = []
-                  hash_sources[hash_val].append(file_path)
-                  
-    return all_hashes, hash_sources
+    with open(csv_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if 'structure_hash' in row and row['structure_hash']:
+                hashes.add(row['structure_hash'])
+    
+    logger.info(f"Loaded {len(hashes)} structure hashes from {csv_path}")
+    return hashes
 
 def verify_structure_distinctness(
-    test_file: str,
-    training_files: List[str],
-    tolerance: float = 0.0
-) -> Dict[str, Any]:
+    new_problems: List[Dict], 
+    existing_hashes: Set[str],
+    dataset_name: str
+) -> Tuple[bool, List[str]]:
     """
-    Verify that no test sample structure hash collides with any training sample.
+    Verify that the logical structure of new problems does not collide
+    with any existing problem in the training set.
     
-    Args:
-        test_file: Path to the test set CSV
-        training_files: List of paths to training set CSVs
-        tolerance: Fraction of collisions allowed (default 0.0 for strict)
-        
     Returns:
-        Dict with verification results
+        Tuple of (all_distinct: bool, collision_ids: List[str])
     """
-    # Load training hashes
-    training_hashes, training_sources = load_existing_hashes(training_files)
-    logger.info(f"Loaded {len(training_hashes)} unique structure hashes from training sets")
-    
-    # Load and check test hashes
-    test_hashes: Set[str] = set()
-    collisions: List[Dict[str, Any]] = []
-    
-    if not os.path.exists(test_file):
-        raise FileNotFoundError(f"Test file not found: {test_file}")
+    collisions = []
+    for problem in new_problems:
+        structure_hash = compute_structure_hash(
+            problem['premises'], 
+            problem['operators']
+        )
         
-    with open(test_file, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for i, row in enumerate(reader):
-            if 'structure_hash' not in row or not row['structure_hash']:
-                logger.warning(f"Row {i} missing structure_hash, skipping")
-                continue
-                
-            hash_val = row['structure_hash']
-            test_hashes.add(hash_val)
-            
-            if hash_val in training_hashes:
-                collisions.append({
-                    'row_index': i,
-                    'hash': hash_val,
-                    'sources': training_sources.get(hash_val, [])
-                })
-                
-    total_test = len(test_hashes)
-    collision_count = len(collisions)
-    collision_rate = collision_count / total_test if total_test > 0 else 0.0
+        if structure_hash in existing_hashes:
+            collisions.append(problem['id'])
+            logger.warning(f"Structure collision detected for problem {problem['id']}")
     
-    result = {
-        'test_samples': total_test,
-        'training_unique_hashes': len(training_hashes),
-        'collisions': collision_count,
-        'collision_rate': collision_rate,
-        'passed': collision_rate <= tolerance,
-        'collision_details': collisions[:10]  # Limit details for logging
-    }
+    if collisions:
+        logger.error(f"Found {len(collisions)} structure collisions in {dataset_name}")
+        return False, collisions
     
-    if result['passed']:
-        logger.info(f"Structure distinctness PASSED: {collision_count}/{total_test} collisions (rate={collision_rate:.4f})")
-    else:
-        logger.error(f"Structure distinctness FAILED: {collision_count}/{total_test} collisions (rate={collision_rate:.4f})")
-        
-    return result
+    logger.info(f"All {len(new_problems)} problems in {dataset_name} have distinct structures")
+    return True, []
 
 def verify_entropy_distribution_matching(
-    test_file: str,
-    training_files: List[str]
-) -> Dict[str, Any]:
+    test_problems: List[Dict],
+    train_problems: List[Dict]
+) -> Tuple[bool, Dict[str, float]]:
     """
     Verify that the entropy distribution of the test set matches the training set.
-    Uses a chi-square test for categorical distribution comparison.
+    Uses a simple Kolmogorov-Smirnov-like check on the distribution of entropy levels.
     
-    Args:
-        test_file: Path to the test set CSV
-        training_files: List of paths to training set CSVs
-        
     Returns:
-        Dict with distribution comparison results
+        Tuple of (match: bool, distribution_stats: Dict)
     """
-    # Load entropy distributions
-    def count_entropy_levels(file_path: str) -> Counter:
-        counts = Counter()
-        if not os.path.exists(file_path):
-            return counts
-            
-        with open(file_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                if 'entropy_level' in row and row['entropy_level']:
-                    counts[row['entropy_level']] += 1
-        return counts
+    if not test_problems or not train_problems:
+        logger.error("Cannot verify distribution matching with empty datasets")
+        return False, {}
+
+    # Count entropy levels in both sets
+    test_counts = Counter(p['entropy_level'] for p in test_problems)
+    train_counts = Counter(p['entropy_level'] for p in train_problems)
     
-    # Aggregate training counts
-    training_counts: Counter = Counter()
-    for tf in training_files:
-        training_counts += count_entropy_levels(tf)
-        
-    test_counts = count_entropy_levels(test_file)
+    total_test = len(test_problems)
+    total_train = len(train_problems)
     
-    if not training_counts or not test_counts:
-        raise ValueError("Could not load entropy distributions from files")
-        
-    # Normalize to proportions
-    total_train = sum(training_counts.values())
-    total_test = sum(test_counts.values())
+    # Calculate proportions
+    test_props = {level: count / total_test for level, count in test_counts.items()}
+    train_props = {level: count / total_train for level, count in train_counts.items()}
     
-    train_props = {k: v / total_train for k, v in training_counts.items()}
-    test_props = {k: v / total_test for k, v in test_counts.items()}
+    # Check if all levels present in test are also in train
+    all_levels = set(test_counts.keys()) | set(train_counts.keys())
     
-    # Get all unique levels
-    all_levels = set(training_counts.keys()) | set(test_counts.keys())
-    
-    # Chi-square test statistic
-    chi_sq = 0.0
-    df = 0
+    max_diff = 0.0
     for level in all_levels:
-        expected = train_props.get(level, 0) * total_test
-        observed = test_counts.get(level, 0)
-        if expected > 0:
-            chi_sq += ((observed - expected) ** 2) / expected
-            df += 1
-            
-    df = max(0, df - 1)  # Degrees of freedom adjustment
+        test_p = test_props.get(level, 0.0)
+        train_p = train_props.get(level, 0.0)
+        diff = abs(test_p - train_p)
+        max_diff = max(max_diff, diff)
     
-    # Approximate p-value using chi-square distribution (simple approximation)
-    # For exact p-value, we'd need scipy, but we can use a threshold on chi_sq/df
-    # A ratio close to 1 indicates good fit
-    chi_sq_df_ratio = chi_sq / df if df > 0 else 0.0
+    # Threshold: distributions are considered matching if max difference < 0.1
+    # This is a strict but reasonable threshold for synthetic data generation
+    threshold = 0.1
+    match = max_diff < threshold
     
-    # Heuristic: if ratio is < 3.0, distributions are reasonably similar
-    # (This is a simplified check; full chi-square would require scipy)
-    passed = chi_sq_df_ratio < 3.0
-    
-    result = {
-        'test_distribution': dict(test_counts),
-        'training_distribution': dict(training_counts),
-        'test_proportions': test_props,
-        'training_proportions': train_props,
-        'chi_square_statistic': chi_sq,
-        'degrees_of_freedom': df,
-        'chi_sq_df_ratio': chi_sq_df_ratio,
-        'passed': passed,
-        'method': 'chi-square_approximation'
+    stats = {
+        "test_distribution": test_props,
+        "train_distribution": train_props,
+        "max_difference": max_diff,
+        "threshold": threshold,
+        "match": match
     }
     
-    if result['passed']:
-        logger.info(f"Entropy distribution matching PASSED (chi_sq/df={chi_sq_df_ratio:.2f})")
+    if match:
+        logger.info(f"Entropy distributions match (max_diff={max_diff:.4f} < {threshold})")
     else:
-        logger.warning(f"Entropy distribution matching FAILED (chi_sq/df={chi_sq_df_ratio:.2f})")
-        
-    return result
+        logger.error(f"Entropy distributions do NOT match (max_diff={max_diff:.4f} >= {threshold})")
+    
+    return match, stats
 
 def run_verification(
-    test_file: str,
-    training_files: List[str],
-    output_log: str
-) -> Dict[str, Any]:
+    train_csv_path: str,
+    test_csv_path: str,
+    output_log_path: str
+) -> bool:
     """
-    Run all distinctness and distribution verifications.
+    Run full distinctness and distribution verification.
     
     Args:
-        test_file: Path to test set CSV
-        training_files: List of training set CSVs
-        output_log: Path to write JSON log
-        
+        train_csv_path: Path to training set CSV
+        test_csv_path: Path to test set CSV (Generalization Set)
+        output_log_path: Path to write verification log JSON
+    
     Returns:
-        Combined verification results
+        True if all verifications pass, False otherwise
     """
-    logger.info(f"Starting distinctness verification for {test_file}")
-    logger.info(f"Training files: {training_files}")
+    logger.info(f"Starting verification for train={train_csv_path}, test={test_csv_path}")
     
-    results = {}
+    # Load training hashes
+    existing_hashes = load_existing_hashes(train_csv_path)
     
-    # 1. Structure distinctness check
-    structure_result = verify_structure_distinctness(test_file, training_files)
-    results['structure_distinctness'] = structure_result
+    # Load test problems
+    test_problems = []
+    train_problems = []
     
-    # 2. Entropy distribution matching
-    try:
-        entropy_result = verify_entropy_distribution_matching(test_file, training_files)
-        results['entropy_distribution'] = entropy_result
-    except ValueError as e:
-        logger.error(f"Entropy distribution check failed: {e}")
-        results['entropy_distribution'] = {'error': str(e), 'passed': False}
+    if os.path.exists(test_csv_path):
+        with open(test_csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Parse premises and operators from JSON string if needed
+                try:
+                    premises = json.loads(row['premises']) if isinstance(row['premises'], str) else row['premises']
+                    operators = json.loads(row['operators']) if isinstance(row['operators'], str) else row['operators']
+                except (json.JSONDecodeError, KeyError):
+                    logger.warning(f"Skipping malformed row in test set: {row.get('id', 'unknown')}")
+                    continue
+                
+                test_problems.append({
+                    'id': row['id'],
+                    'premises': premises,
+                    'operators': operators,
+                    'entropy_level': row.get('entropy_level', 'unknown')
+                })
     
-    # Overall pass/fail
-    overall_passed = (
-        results['structure_distinctness']['passed'] and
-        results['entropy_distribution'].get('passed', False)
+    if os.path.exists(train_csv_path):
+        with open(train_csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                try:
+                    premises = json.loads(row['premises']) if isinstance(row['premises'], str) else row['premises']
+                    operators = json.loads(row['operators']) if isinstance(row['operators'], str) else row['operators']
+                except (json.JSONDecodeError, KeyError):
+                    continue
+                
+                train_problems.append({
+                    'id': row['id'],
+                    'premises': premises,
+                    'operators': operators,
+                    'entropy_level': row.get('entropy_level', 'unknown')
+                })
+    
+    logger.info(f"Loaded {len(test_problems)} test problems and {len(train_problems)} train problems")
+    
+    # 1. Verify Structure Distinctness
+    distinct, collisions = verify_structure_distinctness(
+        test_problems, 
+        existing_hashes, 
+        "test_set"
     )
-    results['overall_passed'] = overall_passed
+    
+    # 2. Verify Entropy Distribution Matching
+    distribution_match, dist_stats = verify_entropy_distribution_matching(
+        test_problems, 
+        train_problems
+    )
+    
+    # Compile results
+    result = {
+        "verification_status": "passed" if (distinct and distribution_match) else "failed",
+        "structure_distinctness": {
+            "passed": distinct,
+            "collisions": collisions,
+            "collision_count": len(collisions)
+        },
+        "entropy_distribution": {
+            "passed": distribution_match,
+            "stats": dist_stats
+        },
+        "config": {
+            "seed": config.seed,
+            "n_train": len(train_problems),
+            "n_test": len(test_problems)
+        }
+    }
     
     # Write log
-    os.makedirs(os.path.dirname(output_log) if os.path.dirname(output_log) else '.', exist_ok=True)
-    with open(output_log, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-        
-    logger.info(f"Verification log written to {output_log}")
+    os.makedirs(os.path.dirname(output_log_path) or '.', exist_ok=True)
+    with open(output_log_path, 'w', encoding='utf-8') as f:
+        json.dump(result, f, indent=2)
     
-    return results
+    logger.info(f"Verification log written to {output_log_path}")
+    
+    return distinct and distribution_match
 
 def main():
-    """CLI entry point for distinctness verification."""
-    parser = argparse.ArgumentParser(description='Verify test set distinctness and entropy distribution')
-    parser.add_argument('--test-set', required=True, help='Path to test set CSV')
-    parser.add_argument('--training-sets', nargs='+', required=True, help='Paths to training set CSVs')
-    parser.add_argument('--output-log', default='data/raw/test_distinctness_log.json', 
-                      help='Path to output JSON log')
-    parser.add_argument('--tolerance', type=float, default=0.0,
-                      help='Allowed collision rate (default 0.0)')
-                      
+    parser = argparse.ArgumentParser(description="Verify distinctness and distribution of test set")
+    parser.add_argument("--train-csv", required=True, help="Path to training set CSV")
+    parser.add_argument("--test-csv", required=True, help="Path to test set CSV")
+    parser.add_argument("--output-log", default="data/raw/test_distinctness_log.json", help="Path to output log JSON")
+    
     args = parser.parse_args()
     
-    try:
-        results = run_verification(args.test_set, args.training_sets, args.output_log)
-        
-        if not results['overall_passed']:
-            logger.error("Verification FAILED. Check logs for details.")
-            sys.exit(1)
-        else:
-            logger.info("Verification PASSED.")
-            sys.exit(0)
-            
-    except Exception as e:
-        logger.error(f"Verification failed with exception: {e}")
+    success = run_verification(args.train_csv, args.test_csv, args.output_log)
+    
+    if not success:
+        logger.error("Verification FAILED")
         sys.exit(1)
+    else:
+        logger.info("Verification PASSED")
+        sys.exit(0)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

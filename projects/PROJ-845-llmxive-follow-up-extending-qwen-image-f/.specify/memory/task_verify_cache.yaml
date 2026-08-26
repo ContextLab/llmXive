@@ -1,26 +1,3 @@
-T023:
-  c: false
-  h: 6c99be1600a4d56f683cff876e78d5c8e77388be47dc6a2fa0dd0711acbeba7c
-  r: "The required input file `data/processed/filtered_dataset.json` does not exist,\
-    \ and the provided `distill_loop.py` is truncated and lacks a complete training\
-    \ loop with KL\u2011divergence loss, Adam optimizer at 1e\u20114, and the specified\
-    \ early\u2011stopping logic (loss \u2264\u202F0.1, logging `convergence_epoch`).\
-    \ These missing pieces prevent the task from being fulfilled."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains no code, script, or documentation showing that early\u2011\
-    stopping logic was added to any training loop, nor any record of the epoch when\
-    \ a loss threshold is first met. Without such artifacts, the task requirement\
-    \ is not satisfied."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or logs showing that `ResourceMonitor` hooks were added to\
-    \ the training script, that RAM usage is capped at 7\u202FGB, that a 6\u2011hour\
-    \ wall\u2011clock limit is enforced, or that a specific error code is emitted\
-    \ on breach are present. The required artifact is missing, so the task is not\
-    \ satisfied."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -66,3 +43,13 @@ T034:
     that should generate the conditional markdown report does not exist. While the
     `docs/research_report.md` file is present and contains the correct conditional
     phrase, the absence of the script means the task is not fully satisfied.
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test output, or documentation was provided that implements\
+    \ the required hash\u2011based distinctness check or verifies that the generated\
+    \ logical structures have entropy distributions matching the specifications. The\
+    \ evidence consists only of the task description and project requirements, without\
+    \ any concrete artifact to evaluate. Implementer must supply the generator modifications\
+    \ (e.g., source file with hash verification logic) and accompanying validation\
+    \ results (e.g., logs, test reports) demonstrating distinctness and entropy matching."
