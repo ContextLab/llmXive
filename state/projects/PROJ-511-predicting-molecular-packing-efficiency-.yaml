@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-511-predicting-molecular-packing-efficiency-
-last_run_id: 2188e42e-59f7-4a8d-940a-7c7395fbfe23
+last_run_id: b1171541-872d-486c-bde3-eae9ebca0b82
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency
 title: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
-updated_at: '2026-08-25T07:05:11.532983Z'
+updated_at: '2026-08-26T15:07:22.671941Z'

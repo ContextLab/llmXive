@@ -1,6 +1,6 @@
 status: none
-intent: Crystallography Open Database organic crystal structures SMILES packing coefficient
-  RDKit python package dataset
+intent: Crystallography Open Database organic molecules SMILES packing coefficient
+  dataset python package
 required_fields:
 - cif_id
 - smiles
@@ -8,6 +8,6 @@ required_fields:
 - packing_coefficient
 - num_non_hydrogen_atoms
 - download_url
-cache_key: 4c564df4db82d77f66ba3264d2505d99bc0788e4d355ba005582322aeaaad336
-searched_at: '2026-08-23T13:41:15.310300+00:00'
+cache_key: e3ac9cd82c219c71e4b0b2e918c9c23749cd3fad0899bafbfaa30955850a5117
+searched_at: '2026-08-26T14:36:24.242543+00:00'
 retry_count: 1

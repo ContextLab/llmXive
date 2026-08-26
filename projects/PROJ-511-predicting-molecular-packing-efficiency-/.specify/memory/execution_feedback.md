@@ -7,33 +7,37 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/run_pipeline.py -> rc=1
-    INFO - Running step: /home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python code/download_cif.py
+    ing type, and better interoperability with other libraries)
+but was not found to be installed on your system.
+If this would cause problems for you,
+please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
+        
+  import pandas as pd
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/download_cif.py", line 302, in <module>
-    success = main()
-              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/download_cif.py", line 232, in main
-    raw_cif_dir = os.path.join(output_dir, "data", "raw_cif")
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen posixpath>", line 76, in join
-TypeError: expected str, bytes or os.PathLike object, not NoneType
-2026-08-23 13:40:38 - ERROR - Step code/download_cif.py raised CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python', 'code/download_cif.py']' returned non-zero exit status 1.
-2026-08-23 13:40:38 - ERROR - Pipeline failed at step: code/download_cif.py
-2026-08-23 13:40:38 - ERROR - Pipeline execution failed. Failed steps: ['code/download_cif.py']
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 429, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 401, in main
+    log_processing_statistics(success_count, failure_count, len(cif_files))
+TypeError: log_processing_statistics() missing 2 required positional arguments: 'start_time' and 'end_time'
+2026-08-26 14:35:32 - ERROR - Step code/parse_cif.py raised CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python', 'code/parse_cif.py']' returned non-zero exit status 1.
+2026-08-26 14:35:32 - ERROR - Pipeline failed at step: code/parse_cif.py
+2026-08-26 14:35:32 - ERROR - Pipeline execution failed. Failed steps: ['code/parse_cif.py']
 - python code/run_pipeline.py -> rc=1
-    INFO - Running step: /home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python code/download_cif.py
+    ing type, and better interoperability with other libraries)
+but was not found to be installed on your system.
+If this would cause problems for you,
+please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
+        
+  import pandas as pd
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/download_cif.py", line 302, in <module>
-    success = main()
-              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/download_cif.py", line 232, in main
-    raw_cif_dir = os.path.join(output_dir, "data", "raw_cif")
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen posixpath>", line 76, in join
-TypeError: expected str, bytes or os.PathLike object, not NoneType
-2026-08-23 13:40:39 - ERROR - Step code/download_cif.py raised CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python', 'code/download_cif.py']' returned non-zero exit status 1.
-2026-08-23 13:40:39 - ERROR - Pipeline failed at step: code/download_cif.py
-2026-08-23 13:40:39 - ERROR - Pipeline execution failed. Failed steps: ['code/download_cif.py']
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 429, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 401, in main
+    log_processing_statistics(success_count, failure_count, len(cif_files))
+TypeError: log_processing_statistics() missing 2 required positional arguments: 'start_time' and 'end_time'
+2026-08-26 14:35:33 - ERROR - Step code/parse_cif.py raised CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python', 'code/parse_cif.py']' returned non-zero exit status 1.
+2026-08-26 14:35:33 - ERROR - Pipeline failed at step: code/parse_cif.py
+2026-08-26 14:35:33 - ERROR - Pipeline execution failed. Failed steps: ['code/parse_cif.py']
 
 ## Declared deliverables still missing
 
@@ -43,6 +47,20 @@ TypeError: expected str, bytes or os.PathLike object, not NoneType
 - data/dataset_with_metrics.csv
 - data/features_matrix.npy
 - data/targets.npy
+
+## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
+
+One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
+
+**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
+
+**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
+
+### `log_processing_statistics` — defined in `code/error_handling.py`; called 1 way(s):
+
+- code/parse_cif.py: log_processing_statistics(success_count, failure_count, len(cif_files))
+
+Make `log_processing_statistics` in `code/error_handling.py` accept ALL of the above.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

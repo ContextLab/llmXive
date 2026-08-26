@@ -1,17 +1,17 @@
 """
-T016: Filter dataset records based on data quality criteria.
+Task T016: Filter dataset records based on SMILES validity and metric ranges.
 
 Reads: data/dataset_with_metrics.csv
 Writes: data/dataset_filtered.csv
 
-Filters out records where:
-1. SMILES is missing or invalid (empty string, NaN, or None)
-2. CAPE (Composition-Adjusted Packing Efficiency) is invalid (NaN, inf, or <= 0)
-3. Raw Packing Coefficient (PC) is invalid (NaN, inf, or not in [0, 1])
-
-This task ensures only high-quality, complete records proceed to downstream
-analysis and modeling.
+Logic:
+1. Remove rows where 'smiles' is null or empty.
+2. Remove rows where 'raw_pc' is not in [0, 1] or is NaN.
+3. Remove rows where 'cape' is NaN or infinite.
+4. Log counts of removed records and reasons.
+5. Assert final row count >= 500, else exit with error.
 """
+
 import os
 import sys
 import logging
@@ -19,195 +19,106 @@ import pandas as pd
 import numpy as np
 from typing import Tuple, Optional
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.insert(0, project_root)
-
-from utils import setup_logging
-from config import ensure_directories
-
+# Configure logging to stdout for pipeline visibility
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 logger = logging.getLogger(__name__)
 
-# Constants
-INPUT_FILE = os.path.join("data", "dataset_with_metrics.csv")
-OUTPUT_FILE = os.path.join("data", "dataset_filtered.csv")
+# Paths relative to project root
+INPUT_PATH = "data/dataset_with_metrics.csv"
+OUTPUT_PATH = "data/dataset_filtered.csv"
+MIN_ROWS = 500
 
-def validate_smiles(smiles: str) -> bool:
-    """
-    Check if SMILES string is valid and non-empty.
-
-    Args:
-        smiles: SMILES string to validate
-
-    Returns:
-        True if valid, False otherwise
-    """
-    if pd.isna(smiles) or smiles is None:
+def validate_smiles(smiles: Optional[str]) -> bool:
+    """Check if SMILES string is valid (non-null, non-empty)."""
+    if smiles is None:
         return False
-    smiles_str = str(smiles).strip()
-    if not smiles_str or smiles_str.lower() in ['nan', 'none', '']:
+    if not isinstance(smiles, str):
         return False
-    return True
+    return len(smiles.strip()) > 0
 
-def validate_numeric_metric(value: float, metric_name: str) -> bool:
-    """
-    Check if a numeric metric is valid (not NaN, not inf, positive).
-
-    Args:
-        value: Numeric value to validate
-        metric_name: Name of the metric for logging
-
-    Returns:
-        True if valid, False otherwise
-    """
+def validate_numeric_metric(value: float) -> bool:
+    """Check if a numeric value is finite (not NaN, not Inf)."""
     if pd.isna(value):
-        logger.debug(f"Invalid {metric_name}: NaN")
         return False
-    if not np.isfinite(value):
-        logger.debug(f"Invalid {metric_name}: not finite")
-        return False
-    if value <= 0:
-        logger.debug(f"Invalid {metric_name}: value <= 0 ({value})")
+    if np.isinf(value):
         return False
     return True
 
-def validate_raw_pc(value: float) -> bool:
-    """
-    Check if Raw Packing Coefficient is valid (not NaN, not inf, and in [0, 1]).
-
-    Args:
-        value: Numeric value to validate
-
-    Returns:
-        True if valid, False otherwise
-    """
-    if pd.isna(value):
-        logger.debug(f"Invalid Raw PC: NaN")
+def validate_raw_pc(pc: float) -> bool:
+    """Check if PC_raw is in the valid range [0, 1]."""
+    if not validate_numeric_metric(pc):
         return False
-    if not np.isfinite(value):
-        logger.debug(f"Invalid Raw PC: not finite")
-        return False
-    if value < 0 or value > 1:
-        logger.debug(f"Invalid Raw PC: out of range [0, 1] ({value})")
-        return False
-    return True
+    return 0.0 <= pc <= 1.0
 
-def filter_dataset(input_path: str, output_path: str) -> Tuple[int, int, dict]:
+def filter_dataset(input_path: str, output_path: str) -> Tuple[int, int, int, int]:
     """
-    Filter dataset based on SMILES and metric validity.
-
-    Args:
-        input_path: Path to input CSV
-        output_path: Path to output filtered CSV
-
-    Returns:
-        Tuple of (original_count, filtered_count, filter_reasons)
-    """
-    logger.info(f"Loading dataset from {input_path}")
+    Filter the dataset based on validity rules.
     
+    Returns:
+        Tuple of (total_rows, valid_rows, removed_smiles, removed_pc, removed_cape)
+    """
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
-
+    
+    logger.info(f"Loading dataset from {input_path}")
     df = pd.read_csv(input_path)
-    original_count = len(df)
-    logger.info(f"Loaded {original_count} records")
-
-    # Track filtering reasons
-    filter_reasons = {
-        'missing_smiles': 0,
-        'invalid_cape': 0,
-        'invalid_raw_pc': 0,
-        'multiple_issues': 0
-    }
-
-    # Identify rows to keep
-    keep_mask = pd.Series([True] * len(df), index=df.index)
-    reasons_mask = pd.Series([[] for _ in range(len(df))], index=df.index)
-
-    # Check SMILES validity
-    smiles_valid = df['smiles'].apply(validate_smiles)
-    missing_smiles_mask = ~smiles_valid
+    total_rows = len(df)
+    logger.info(f"Loaded {total_rows} rows.")
     
-    # Check CAPE validity
-    cape_valid = df['cape'].apply(lambda x: validate_numeric_metric(x, 'CAPE'))
-    invalid_cape_mask = ~cape_valid
+    # Track removal reasons
+    initial_mask = pd.Series([True] * len(df), index=df.index)
     
-    # Check Raw PC validity (must be in [0, 1])
-    raw_pc_valid = df['raw_pc'].apply(validate_raw_pc)
-    invalid_raw_pc_mask = ~raw_pc_valid
-
-    # Combine masks and track reasons
-    for idx in df.index:
-        reasons = []
-        if missing_smiles_mask.loc[idx]:
-            reasons.append('missing_smiles')
-        if invalid_cape_mask.loc[idx]:
-            reasons.append('invalid_cape')
-        if invalid_raw_pc_mask.loc[idx]:
-            reasons.append('invalid_raw_pc')
-        
-        if len(reasons) > 0:
-            keep_mask.loc[idx] = False
-            reasons_mask.loc[idx] = reasons
-
-    # Count reasons
-    for idx in df.index:
-        reasons = reasons_mask.loc[idx]
-        if len(reasons) == 1:
-            filter_reasons[reasons[0]] += 1
-        elif len(reasons) > 1:
-            filter_reasons['multiple_issues'] += 1
-
-    # Apply filter
-    filtered_df = df[keep_mask].reset_index(drop=True)
-    filtered_count = len(filtered_df)
-    removed_count = original_count - filtered_count
-
-    logger.info(f"Filtering complete:")
-    logger.info(f"  Original records: {original_count}")
-    logger.info(f"  Removed records: {removed_count}")
-    logger.info(f"  Remaining records: {filtered_count}")
-    logger.info(f"  Filter reasons:")
-    for reason, count in filter_reasons.items():
-        if count > 0:
-            logger.info(f"    {reason}: {count}")
-
-    # Ensure output directory exists
-    ensure_directories()
-
+    # 1. Filter invalid SMILES
+    smiles_mask = df['smiles'].apply(validate_smiles)
+    invalid_smiles_count = (~smiles_mask).sum()
+    logger.info(f"Removing {invalid_smiles_count} rows with invalid/missing SMILES.")
+    
+    # 2. Filter invalid PC_raw (must be in [0, 1])
+    pc_mask = df['raw_pc'].apply(validate_raw_pc)
+    invalid_pc_count = (~pc_mask).sum()
+    logger.info(f"Removing {invalid_pc_count} rows with invalid PC_raw (not in [0, 1] or NaN/Inf).")
+    
+    # 3. Filter invalid CAPE (must be finite)
+    cape_mask = df['cape'].apply(validate_numeric_metric)
+    invalid_cape_count = (~cape_mask).sum()
+    logger.info(f"Removing {invalid_cape_count} rows with invalid CAPE (NaN or Inf).")
+    
+    # Combine masks: keep only rows where ALL conditions are met
+    final_mask = smiles_mask & pc_mask & cape_mask
+    filtered_df = df[final_mask].reset_index(drop=True)
+    final_count = len(filtered_df)
+    
+    # Log summary
+    removed_count = total_rows - final_count
+    logger.info(f"Total rows removed: {removed_count}")
+    logger.info(f"Final dataset size: {final_count} rows.")
+    
+    if final_count < MIN_ROWS:
+        logger.error(f"Dataset size ({final_count}) is below the minimum threshold of {MIN_ROWS}.")
+        logger.error("Failing task T016 as per specification requirements.")
+        raise ValueError(f"Filtered dataset has {final_count} rows, which is less than the required minimum of {MIN_ROWS}.")
+    
     # Write output
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     filtered_df.to_csv(output_path, index=False)
-    logger.info(f"Filtered dataset written to {output_path}")
-
-    return original_count, filtered_count, filter_reasons
+    logger.info(f"Filtered dataset saved to {output_path}")
+    
+    return total_rows, final_count, invalid_smiles_count, invalid_pc_count, invalid_cape_count
 
 def main():
-    """Main entry point for filtering dataset."""
-    # Setup logging
-    setup_logging(level=logging.INFO)
-    
-    logger.info("Starting dataset filtering (T016)")
-    
+    """Main entry point for the filtering script."""
     try:
-        original_count, filtered_count, filter_reasons = filter_dataset(
-            INPUT_FILE, OUTPUT_FILE
-        )
-        
-        if filtered_count == 0:
-            logger.error("No records remaining after filtering!")
-            return 1
-        
-        if filtered_count < 500:
-            logger.error(f"Filtered dataset has only {filtered_count} records, which is less than the required 500!")
-            return 1
-        
-        logger.info(f"Successfully filtered dataset: {original_count} -> {filtered_count} records")
-        return 0
-        
+        logger.info("Starting T016: Filter Dataset")
+        total, valid, bad_smiles, bad_pc, bad_cape = filter_dataset(INPUT_PATH, OUTPUT_PATH)
+        logger.info("T016 completed successfully.")
+        logger.info(f"Summary: Total={total}, Valid={valid}, BadSMILES={bad_smiles}, BadPC={bad_pc}, BadCAPE={bad_cape}")
     except Exception as e:
-        logger.error(f"Error during filtering: {str(e)}", exc_info=True)
-        return 1
+        logger.error(f"T016 failed with error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1021/j100785a001
   verified_at: '2026-08-17T11:50:05.305071Z'
-- artifact_hash: 444213d3f183030040b6b439b5d13f555ffe808cd2e59246388c5ed870ae0735
+- artifact_hash: deb600e891a41639ac18220f9f29495eb2f6ff20cdd423e0d67df6d6d9e8d390
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +52,8 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-08-25T07:04:22.064748Z'
-- artifact_hash: 444213d3f183030040b6b439b5d13f555ffe808cd2e59246388c5ed870ae0735
+  verified_at: '2026-08-26T15:06:46.050178Z'
+- artifact_hash: deb600e891a41639ac18220f9f29495eb2f6ff20cdd423e0d67df6d6d9e8d390
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,4 +63,4 @@
   value: 10.1021/j100785a001
   verification_status: pending
   verified_against_url: https://doi.org/10.1021/j100785a001
-  verified_at: '2026-08-25T07:04:22.064748Z'
+  verified_at: '2026-08-26T15:06:46.050178Z'
