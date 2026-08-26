@@ -5,290 +5,236 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Ensure parent directory is in path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Ensure the parent directory is in the path for relative imports if running as script
+# However, standard practice in this project seems to be running from root with code/ in path
+# or using absolute imports from the package root. We will assume standard execution context.
+# The prompt implies we are extending this file.
 
-from utils.scoring import score_utterances_batch, aggregate_dialogue_scores, standardize_scores
-from utils.data_integrity import compute_file_checksum
-from utils.schema_validator import get_missing_fields, load_schema, validate_dataset_schema
+import pandas as pd
+
+# Import existing utilities from the project structure
+# Based on the API surface, we assume these exist in code/utils
+try:
+    from utils.data_integrity import compute_file_checksum
+except ImportError:
+    # Fallback if running directly without path setup, though unlikely in pipeline
+    pass
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/pipeline.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def ensure_directories():
-    """Create necessary directories for data and logs."""
-    dirs = [
-        'data/raw',
-        'data/processed',
-        'logs',
-        'data/interim'
-    ]
-    for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured directories: {dirs}")
+def ensure_directories(output_dir: Path) -> None:
+    """Ensure required output directories exist."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir.parent / "raw").mkdir(parents=True, exist_ok=True)
 
-def load_dataset_with_check(dataset_name: str, config_name: Optional[str] = None):
+def load_dataset_with_check(path: Path) -> pd.DataFrame:
     """
-    Load a dataset from Hugging Face with error handling.
-    Returns the dataset object or raises an error if not found.
+    Load a dataset from parquet or csv with basic checks.
+    This is a placeholder for the actual loading logic which might be in a utility.
+    Since T016 handles merging, we assume the input here is the merged or primary dataset.
     """
-    try:
-        from datasets import load_dataset
-        if config_name:
-            ds = load_dataset(dataset_name, config_name)
-        else:
-            ds = load_dataset(dataset_name)
-        logger.info(f"Successfully loaded dataset: {dataset_name}")
-        return ds
-    except Exception as e:
-        logger.error(f"Failed to load dataset {dataset_name}: {e}")
-        raise
-
-def validate_and_preprocess(dataset: Any, required_fields: List[str]) -> bool:
-    """
-    Validate that the dataset contains required fields.
-    Returns True if valid, False otherwise.
-    """
-    # Assuming dataset is a HuggingFace DatasetDict or Dataset
-    # We check the first split
-    if hasattr(dataset, 'keys'):
-        split_name = list(dataset.keys())[0]
-        ds = dataset[split_name]
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {path}")
+    
+    suffix = path.suffix.lower()
+    if suffix == '.parquet':
+        return pd.read_parquet(path)
+    elif suffix in ['.csv', '.tsv']:
+        return pd.read_csv(path, sep='\t' if suffix == '.tsv' else ',')
     else:
-        ds = dataset
+        raise ValueError(f"Unsupported file format: {suffix}")
 
-    if not ds.features:
-        logger.error("Dataset has no features defined.")
-        return False
-
-    missing = [f for f in required_fields if f not in ds.features]
+def validate_and_preprocess(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Basic validation and preprocessing.
+    Ensures required columns exist and handles basic types.
+    """
+    required_cols = ['user_id', 'dialogue_id', 'utterance', 'speaker']
+    missing = [c for c in required_cols if c not in df.columns]
     if missing:
-        logger.error(f"Missing required fields: {missing}")
-        return False
+        logger.warning(f"Missing columns in input dataset: {missing}. Attempting to proceed with available columns.")
     
-    logger.info(f"Validation passed. Found fields: {list(ds.features.keys())}")
-    return True
+    # Ensure string types for text columns
+    text_cols = ['utterance']
+    for col in text_cols:
+        if col in df.columns:
+            df[col] = df[col].astype(str)
+    
+    return df
 
-def extract_utterances(ds: Any) -> List[Dict[str, Any]]:
+def extract_utterances(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Extract utterances from the dataset into a list of dictionaries.
-    Expected structure: dialogue_id, user_id, utterances (list of {speaker, text})
+    Extract utterances and prepare for scoring.
+    This might involve grouping or flattening if data is nested.
+    Assuming flat structure for now based on typical parquet exports from HF datasets.
     """
-    utterances = []
+    # If the data is already flat (one row per utterance), this might be a pass-through
+    # or a renaming step.
+    return df.copy()
+
+def filter_dialogues(df: pd.DataFrame, output_dir: Path) -> pd.DataFrame:
+    """
+    Filter dialogues missing 'quality_rating' or chatbot utterances.
     
-    # Handle DatasetDict vs Dataset
-    if hasattr(ds, 'keys'):
-        splits = list(ds.keys())
+    Logic:
+    1. Exclude rows where 'quality_rating' is missing (NaN) or not present in the dataset.
+       Note: Per T016/T012, if the dataset was merged because HCI_P2 lacked fields,
+       we still need to ensure we only keep rows with a valid quality rating for analysis.
+    2. Identify 'chatbot' utterances. The 'speaker' column is used to identify the bot.
+       We assume 'chatbot', 'bot', 'assistant', or 'system' are valid bot identifiers.
+       We exclude dialogues that have NO chatbot utterances at all.
+    3. Log counts of excluded dialogues to 'data/raw/exclusions.log'.
+    4. Return the filtered dataframe.
+    """
+    if df.empty:
+        logger.warning("Input dataframe is empty. Returning empty dataframe.")
+        return df
+
+    original_count = len(df)
+    logger.info(f"Starting filtering on {original_count} rows.")
+
+    # 1. Filter for quality_rating
+    if 'quality_rating' not in df.columns:
+        logger.error("CRITICAL: 'quality_rating' column is missing. Cannot filter. Exiting.")
+        raise ValueError("Missing required column 'quality_rating'.")
+    
+    # Remove rows with NaN in quality_rating
+    pre_quality_count = len(df)
+    df = df.dropna(subset=['quality_rating'])
+    dropped_quality = pre_quality_count - len(df)
+    if dropped_quality > 0:
+        logger.info(f"Dropped {dropped_quality} rows due to missing 'quality_rating'.")
+    
+    # 2. Filter for chatbot utterances
+    # We need to identify dialogues that contain at least one chatbot utterance.
+    # First, identify bot speakers.
+    bot_keywords = ['chatbot', 'bot', 'assistant', 'system', 'ai']
+    
+    # Normalize speaker column to lower case for matching
+    if 'speaker' in df.columns:
+        df['speaker_lower'] = df['speaker'].astype(str).str.lower()
+        # Create a mask for bot utterances
+        bot_mask = df['speaker_lower'].apply(lambda x: any(k in x for k in bot_keywords))
+        
+        # Identify dialogue_ids that have at least one bot utterance
+        valid_dialogue_ids = df[bot_mask]['dialogue_id'].unique()
+        
+        # Filter the dataframe to keep only rows belonging to these dialogue_ids
+        pre_bot_count = len(df)
+        df = df[df['dialogue_id'].isin(valid_dialogue_ids)]
+        dropped_bot = pre_bot_count - len(df)
+        
+        if dropped_bot > 0:
+            logger.info(f"Dropped {dropped_bot} rows belonging to dialogues without chatbot utterances.")
     else:
-        splits = ['train'] # Default assumption if not a dict
-        ds = {'train': ds}
+        logger.warning("Column 'speaker' not found. Cannot filter by chatbot utterances. Proceeding with quality_rating filter only.")
 
-    for split_name, split_data in ds.items():
-        for i, row in enumerate(split_data):
-            # Normalize row to dict if it's a HuggingFace row object
-            if hasattr(row, 'to_dict'):
-                row_dict = row.to_dict()
-            else:
-                row_dict = row
+    # 3. Logging
+    final_count = len(df)
+    total_dropped = original_count - final_count
+    
+    log_entry = {
+        "task": "T017_FilterDialogues",
+        "input_rows": original_count,
+        "dropped_missing_quality_rating": dropped_quality,
+        "dropped_no_chatbot_utterances": dropped_bot,
+        "final_rows": final_count,
+        "exclusion_rate": total_dropped / original_count if original_count > 0 else 0
+    }
+    
+    log_path = output_dir.parent / "raw" / "exclusions.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(log_path, 'a') as f:
+        f.write(json.dumps(log_entry) + '\n')
+    
+    logger.info(f"Filtering complete. Final rows: {final_count}. Log written to {log_path}")
+    
+    if 'speaker_lower' in df.columns:
+        df = df.drop(columns=['speaker_lower'])
 
-            # Extract common fields
-            dialogue_id = row_dict.get('dialogue_id') or row_dict.get('id')
-            user_id = row_dict.get('user_id') or row_dict.get('author_id')
-            
-            # Handle utterances structure
-            # Assume 'dialogue' or 'utterances' or 'conversation' key
-            utterance_list = row_dict.get('dialogue') or row_dict.get('utterances') or row_dict.get('conversation')
-            
-            if not utterance_list:
-                logger.warning(f"Row {i} in {split_name} has no utterance list. Skipping.")
-                continue
-
-            processed_utterances = []
-            has_chatbot = False
-
-            for u_idx, u_item in enumerate(utterance_list):
-                # Handle dict or string
-                if isinstance(u_item, dict):
-                    speaker = u_item.get('speaker', u_item.get('author', 'unknown'))
-                    text = u_item.get('text', u_item.get('message', ''))
-                elif isinstance(u_item, str):
-                    # Assume even indices are user, odd are bot, or just generic
-                    speaker = 'unknown'
-                    text = u_item
-                else:
-                    continue
-
-                if not text.strip():
-                    continue
-
-                # Heuristic for chatbot identification if not explicit
-                # Common bot names: "bot", "assistant", "system", or if it's the second speaker
-                speaker_lower = speaker.lower()
-                is_chatbot = any(k in speaker_lower for k in ['bot', 'assistant', 'system', 'ai'])
-                if not is_chatbot and len(processed_utterances) > 0 and i % 2 != 0:
-                    # Fallback: assume alternating turns, odd index is bot if not specified
-                    is_chatbot = True
-
-                if is_chatbot:
-                    has_chatbot = True
-
-                processed_utterances.append({
-                    'speaker': speaker,
-                    'text': text,
-                    'is_chatbot': is_chatbot
-                })
-
-            if processed_utterances:
-                utterances.append({
-                    'dialogue_id': dialogue_id,
-                    'user_id': user_id,
-                    'utterances': processed_utterances,
-                    'has_chatbot': has_chatbot,
-                    'split': split_name
-                })
-
-    return utterances
-
-def filter_dialogues(utterances: List[Dict[str, Any]], min_quality: Optional[float] = None) -> List[Dict[str, Any]]:
-    """
-    Filter dialogues based on quality_rating and presence of chatbot utterances.
-    Logs counts of excluded dialogues.
-    """
-    included = []
-    excluded_quality = 0
-    excluded_no_chatbot = 0
-    excluded_both = 0
-    excluded_total = 0
-
-    logger.info(f"Starting filtering of {len(utterances)} dialogues.")
-
-    for item in utterances:
-        # Check for chatbot utterances
-        if not item.get('has_chatbot', False):
-            excluded_no_chatbot += 1
-            excluded_total += 1
-            continue
-
-        # Check for quality_rating if it exists in the item
-        # Note: In the merged dataset, quality_rating might be added later.
-        # Here we assume it's present in the raw data or passed in the item.
-        # If the task implies filtering based on a field that might be missing,
-        # we treat missing quality as exclusion if min_quality is set.
-        
-        quality = item.get('quality_rating')
-        
-        if min_quality is not None:
-            if quality is None or quality < min_quality:
-                if not item.get('has_chatbot', False):
-                    excluded_both += 1
-                else:
-                    excluded_quality += 1
-                excluded_total += 1
-                continue
-
-        included.append(item)
-
-    logger.info(f"Filtering complete.")
-    logger.info(f"  Total input: {len(utterances)}")
-    logger.info(f"  Excluded (no chatbot): {excluded_no_chatbot}")
-    if min_quality is not None:
-        logger.info(f"  Excluded (low/missing quality): {excluded_quality}")
-        logger.info(f"  Excluded (both): {excluded_both}")
-    logger.info(f"  Total excluded: {excluded_total}")
-    logger.info(f"  Included: {len(included)}")
-
-    return included
+    return df
 
 def main():
     """
-    Main execution flow for T017: Filtering logic.
-    This script assumes T015 (download) and T016 (merge) have run or are simulated.
-    For this specific task implementation, we focus on the filtering logic
-    applied to the merged data structure.
+    Main entry point for T017.
+    Expects the merged or primary dataset to be at:
+    data/processed/merged_dialogues.parquet OR data/processed/scored_dialogues.parquet
+    depending on the flow.
+    Based on T016, if HCI_P2 is full, it goes to scored_dialogues. If partial, merged_dialogues.
+    We check for the existence of the merged file first, then the scored file (if T016 skipped merge).
+    However, T017 is part of US1 which happens BEFORE T018 (scoring).
+    So we expect the input to be the raw/merged data BEFORE scoring.
+    
+    Input: data/processed/merged_dialogues.parquet (if merge happened)
+           OR data/raw/hci_p2/... (if no merge needed, but T016 says it saves to processed)
+    
+    Let's assume T016 produces 'data/processed/merged_dialogues.parquet' if merge occurred.
+    If no merge occurred (HCI_P2 full), T016 might have saved directly to 'data/processed/scored_dialogues.parquet'?
+    Wait, T018 is scoring. T017 is filtering.
+    The flow is: Download -> Merge (T016) -> Filter (T017) -> Score (T018).
+    
+    So input for T017 is the output of T016.
+    T016 output: 'data/processed/merged_dialogues.parquet' (if merge) or 'data/processed/scored_dialogues.parquet' (if no merge? No, that's T020).
+    Actually, T016 description says: "Save processed data to ... scored_dialogues.parquet (if HCI_P2 only)".
+    Wait, T016 says: "If status: full, DO NOT MERGE. Use HCI_P2 only."
+    And T016 deliverable: "scored_dialogues.parquet (if HCI_P2 only)".
+    This is confusing naming. T016 is "conditional merging".
+    If no merge, it likely just copies/renames the HCI_P2 data to the processed folder.
+    Let's look for 'data/processed/merged_dialogues.parquet' first. If not found, look for 'data/processed/scored_dialogues.parquet' (from T016's 'no merge' path).
+    Actually, T016 says: "Store all datasets separately...".
+    Let's assume the input to T017 is the unified dataframe available in 'data/processed/'.
+    We will try to load 'data/processed/merged_dialogues.parquet'. If not found, try 'data/processed/scored_dialogues.parquet' (assuming T016 put it there in the no-merge case).
     """
-    ensure_directories()
+    project_root = Path(__file__).resolve().parent.parent
+    processed_dir = project_root / "data" / "processed"
     
-    # Load schema for validation
-    schema_path = Path('contracts/dataset.schema.yaml')
-    if schema_path.exists():
-        schema = load_schema(schema_path)
-    else:
-        schema = None
-        logger.warning("No schema found at contracts/dataset.schema.yaml, skipping validation.")
-
-    # Simulate loading the merged dataset (from T016)
-    # In a real pipeline, this would load data/processed/merged_dialogues.parquet or similar
-    # For this task, we demonstrate the filtering logic on a loaded dataset.
-    # We will attempt to load if it exists, otherwise we create a mock to demonstrate the logic
-    # as per the instruction to implement the logic.
+    input_file = None
+    possible_inputs = [
+        processed_dir / "merged_dialogues.parquet",
+        processed_dir / "scored_dialogues.parquet" # In case T016 named it this even before scoring
+    ]
     
-    data_path = Path('data/processed/merged_dialogues.parquet')
-    if data_path.exists():
-        import pandas as pd
-        df = pd.read_parquet(data_path)
-        logger.info(f"Loaded merged data from {data_path}")
-    else:
-        logger.warning("Merged data not found. Creating a mock dataset to demonstrate filtering logic.")
-        # Create a mock dataset to ensure the code runs and demonstrates the logic
-        import pandas as pd
-        import numpy as np
-        np.random.seed(42)
-        n = 100
-        data = {
-            'dialogue_id': [f'd_{i}' for i in range(n)],
-            'user_id': [f'u_{i % 10}' for i in range(n)],
-            'quality_rating': np.random.choice([1, 2, 3, 4, 5], n),
-            'utterances': [
-                [
-                    {'speaker': 'user', 'text': 'Hello', 'is_chatbot': False},
-                    {'speaker': 'bot', 'text': 'Hi there', 'is_chatbot': True}
-                ] if i % 5 != 0 else [] # 20% have no chatbot
-                for i in range(n)
-            ],
-            'has_chatbot': [i % 5 != 0 for i in range(n)]
-        }
-        df = pd.DataFrame(data)
-        # Save mock for consistency
-        df.to_parquet(data_path)
-        logger.info(f"Created mock data at {data_path}")
-
-    # Convert dataframe to list of dicts for processing
-    # Assuming 'utterances' column is already a list of dicts or similar
-    utterances = df.to_dict('records')
-
-    # Apply filtering
-    # T017 Requirement: Exclude dialogues missing quality_rating or chatbot utterances
-    filtered_dialogues = filter_dialogues(utterances, min_quality=None) # Quality check is handled if field missing
-
-    # Save filtered results
-    output_path = Path('data/processed/scored_dialogues.parquet') # Placeholder for next step
-    # For this task, we save the filtered list to a JSON/Parquet to show it works
-    filtered_df = pd.DataFrame(filtered_dialogues)
+    for p in possible_inputs:
+        if p.exists():
+            input_file = p
+            break
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    filtered_df.to_parquet(output_path)
-    logger.info(f"Filtered data saved to {output_path}")
-
-    # Log exclusions to file
-    exclusion_log_path = Path('data/raw/exclusions.log')
-    with open(exclusion_log_path, 'w') as f:
-        f.write(f"Total input: {len(utterances)}\n")
-        f.write(f"Total output: {len(filtered_dialogues)}\n")
-        f.write(f"Excluded (no chatbot): {sum(1 for u in utterances if not u.get('has_chatbot', False))}\n")
-        f.write(f"Excluded (missing quality): {sum(1 for u in utterances if u.get('quality_rating') is None)}\n")
+    if not input_file:
+        # Fallback: Check raw directories if T016 didn't save to processed yet?
+        # T016 says: "Save processed data to ...". So it should be in processed.
+        logger.error("No input file found in data/processed/. T016 might not have completed.")
+        sys.exit(1)
     
-    logger.info(f"Exclusion log saved to {exclusion_log_path}")
-
-    return filtered_dialogues
+    logger.info(f"Loading input dataset from {input_file}")
+    df = load_dataset_with_check(input_file)
+    
+    # Preprocess
+    df = validate_and_preprocess(df)
+    
+    # Filter
+    df_filtered = filter_dialogues(df, processed_dir)
+    
+    # Save the filtered result
+    # Where should it go? T018 needs it.
+    # T018 says: "Implement batched inference... to score utterances."
+    # It likely loads the filtered data.
+    # Let's save it as 'data/processed/filtered_dialogues.parquet' or overwrite the input?
+    # T018 description doesn't specify the input filename, but T020 says "Save processed data to ... scored_dialogues.parquet".
+    # So T017 should output something that T018 can read.
+    # Let's save to 'data/processed/filtered_dialogues.parquet' to be safe, or overwrite 'merged_dialogues.parquet'.
+    # Given T016's ambiguity, let's overwrite the input file to keep the pipeline linear.
+    # Or better: Save to a specific filtered file and let T018 read that.
+    # Let's save to 'data/processed/filtered_dialogues.parquet'.
+    
+    output_file = processed_dir / "filtered_dialogues.parquet"
+    df_filtered.to_parquet(output_file, index=False)
+    logger.info(f"Filtered data saved to {output_file}")
 
 if __name__ == "__main__":
     main()

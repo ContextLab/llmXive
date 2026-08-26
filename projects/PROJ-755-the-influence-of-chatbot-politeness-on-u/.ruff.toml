@@ -1,54 +1,23 @@
-# Ruff configuration for llmXive project
-# Linter rules and formatting settings
-
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
-ignore = []
-
-# Allow autofix for all enabled rules (when `--fix` is provided)
+select = ["E", "F", "W", "I", "N", "B", "C4", "SIM", "UP"]
+ignore = ["E501", "W505"]
 fixable = ["ALL"]
-unfixable = []
-
-# Exclude specific files/directories
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
     ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-    "data",
     "__pycache__",
+    "data",
+    "state",
+    "docs",
 ]
+force-exclude = true
 
-# Same as `--line-length`
-line-length = 88
-
-# Allow unused variables (e.g., `_`)
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[lint.per-file-ignores]
+"tests/*" = ["S101", "D100", "D101", "D102", "D103"]
 
 [lint.isort]
 known-first-party = ["utils"]
-force-sort-within-sections = false
-case-sensitive = false
-lines-after-imports = 2
 
-[lint.per-file-ignores]
-# Ignore specific rules in test files if needed
-"tests/*" = ["S101"]
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

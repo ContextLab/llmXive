@@ -3,11 +3,12 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-politeness-study"
+name = "llmxive-politeness-study"
 version = "0.1.0"
-description = "The Influence of Chatbot Politeness on User-Perceived Quality"
-readme = "README.md"
+description = "Research on the influence of chatbot politeness on user-perceived quality"
 requires-python = ">=3.11"
+# Dependencies are managed in requirements.txt for this project structure
+# but listed here for tooling compatibility if needed
 dependencies = [
     "transformers",
     "datasets",
@@ -22,19 +23,13 @@ dependencies = [
     "evalue",
     "python-dotenv",
     "pyarrow",
-    "torch",
-]
-
-[project.optional-dependencies]
-dev = [
+    "parquet",
     "ruff",
     "black",
-    "pytest",
-    "pytest-cov",
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -49,13 +44,13 @@ exclude = '''
   | build
   | dist
   | data
-  | __pycache__
+  | state
+  | docs
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = "-v --tb=short"
+[tool.ruff]
+# Inherit settings from .ruff.toml if present, but we can override here if needed
+# This section is kept minimal as .ruff.toml handles the heavy lifting
+line-length = 100
+target-version = "py311"

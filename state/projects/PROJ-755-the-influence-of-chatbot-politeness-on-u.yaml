@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-755-the-influence-of-chatbot-politeness-on-u
-last_run_id: 831ac7ae-8b7a-465b-9f62-a45583479873
+last_run_id: 85825fa0-d4aa-48e1-aec6-82d149d7217f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u
 title: The Influence of Chatbot Politeness on User Trust
-updated_at: '2026-08-23T21:23:55.084192Z'
+updated_at: '2026-08-26T15:35:40.569737Z'

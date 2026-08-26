@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -20,53 +24,63 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
-venv/
-ENV/
-env/
+# PyInstaller
+*.manifest
+*.spec
 
-# IDEs
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.hypothesis
+.pytest_cache
+
+# Transient virtualenvs
+.venv
+venv
+ENV
+env
+
+# Environment variables
+.env
+
+# Data directories (Raw and Processed)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Model caches and large artifacts
+.cache
+models/
+*.pth
+*.pt
+*.bin
+*.h5
+*.onnx
+
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific data directories
-# Exclude raw data but keep .gitkeep for directory structure
-data/raw/*
-!data/raw/.gitkeep
-
-# Exclude processed data
-data/processed/*
-!data/processed/.gitkeep
-
-# Model caches (Hugging Face)
-.cache/
-~/.cache/huggingface/
-huggingface_hub/
-
 # Logs
 *.log
-logs/
 
-# Environment variables
-.env
-.env.local
-
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# R artifacts (if applicable)
+# R artifacts
 .Rhistory
 .RData
-.Rproj.user/
+
+# State tracking
+state/*.yaml
+!state/.gitkeep

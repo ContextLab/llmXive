@@ -1,0 +1,2 @@
+# This file ensures the data/interim directory is tracked by git.
+# Actual interim files should be ignored via .gitignore.

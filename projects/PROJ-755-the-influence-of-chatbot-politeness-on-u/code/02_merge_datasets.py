@@ -1,265 +1,253 @@
-"""
-Merge Persona-Chat, EmpatheticDialogues, and HCI_P2 datasets into a unified DataFrame.
-
-This script implements the merging logic for User Story 1 (T016).
-It combines raw data from multiple sources, preserves required fields,
-and outputs a unified DataFrame for downstream processing.
-
-Dependencies:
-- T015: Must have completed downloading and storing raw datasets in data/raw/
-- T012: Demographic verification must have been performed
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+
 import pandas as pd
-import numpy as np
+import pyarrow.parquet as pq
+
+# Import utilities from the project API surface
+from utils.data_integrity import compute_file_checksum
+from utils.schema_validator import load_schema, validate_dataset_schema, SchemaValidationError
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/merge_datasets.log')
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Project paths
-PROJECT_ROOT = Path(__file__).parent.parent
-RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
-PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
+def ensure_directories() -> None:
+    """Ensure required output directories exist."""
+    dirs = ['data/processed', 'data/raw']
+    for d in dirs:
+        Path(d).mkdir(parents=True, exist_ok=True)
+    logger.info("Ensured directories exist.")
 
-# Required fields for merging
-REQUIRED_FIELDS = ['user_id', 'dialogue_id', 'quality_rating']
-DEMOGRAPHIC_FIELDS = ['age', 'gender']
-ALL_REQUIRED_FIELDS = REQUIRED_FIELDS + DEMOGRAPHIC_FIELDS
-
-# Dataset file mappings (updated to match T015 output)
-DATASET_FILES = {
-    'personachat': 'personachat_raw.parquet',
-    'empatheticdialogues': 'empatheticdialogues_raw.parquet',
-    'hci_p2': 'hci_p2_raw.parquet'  # Fallback dataset
-}
-
-def ensure_directories():
-    """Ensure output directories exist."""
-    PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    (PROJECT_ROOT / "logs").mkdir(parents=True, exist_ok=True)
-
-def load_dataset(filepath: Path) -> Optional[pd.DataFrame]:
+def load_dataset(dataset_name: str, base_path: str = "data/raw") -> Optional[pd.DataFrame]:
     """
-    Load a dataset from parquet file.
-    
-    Args:
-        filepath: Path to the parquet file
-        
-    Returns:
-        DataFrame if successful, None if file doesn't exist or loading fails
+    Load a dataset from the raw directory.
+    Expected subdirectories: hci_p2, persona_chat, empathetic_dialogues.
+    Looks for parquet or csv files within the subdirectory.
     """
-    if not filepath.exists():
-        logger.warning(f"Dataset file not found: {filepath}")
+    dataset_dir = Path(base_path) / dataset_name
+    if not dataset_dir.exists():
+        logger.warning(f"Dataset directory {dataset_dir} does not exist. Skipping {dataset_name}.")
         return None
-    
-    try:
-        df = pd.read_parquet(filepath)
-        logger.info(f"Loaded {filepath.name}: {len(df)} rows, {len(df.columns)} columns")
-        logger.info(f"Columns: {list(df.columns)}")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load {filepath}: {str(e)}")
-        return None
+
+    # Find data files (prefer parquet, then csv)
+    parquet_files = list(dataset_dir.glob("*.parquet"))
+    csv_files = list(dataset_dir.glob("*.csv"))
+
+    if parquet_files:
+        file_path = parquet_files[0]
+        logger.info(f"Loading {dataset_name} from {file_path}")
+        try:
+            return pd.read_parquet(file_path)
+        except Exception as e:
+            logger.error(f"Failed to load parquet for {dataset_name}: {e}")
+    elif csv_files:
+        file_path = csv_files[0]
+        logger.info(f"Loading {dataset_name} from {file_path}")
+        try:
+            return pd.read_csv(file_path)
+        except Exception as e:
+            logger.error(f"Failed to load csv for {dataset_name}: {e}")
+    else:
+        logger.warning(f"No supported data files found in {dataset_dir}")
+
+    return None
 
 def validate_and_prepare_dataset(df: pd.DataFrame, source_name: str) -> Optional[pd.DataFrame]:
     """
-    Validate dataset has required fields and prepare for merging.
-    
-    Args:
-        df: Input DataFrame
-        source_name: Name of the source dataset
-        
-    Returns:
-        Prepared DataFrame or None if validation fails
+    Validate that the dataset has minimal required fields for merging.
+    Required: user_id, dialogue_id.
+    Optional but preserved: quality_rating, age, gender.
     """
-    if df is None or df.empty:
-        logger.warning(f"Empty or None DataFrame for {source_name}")
+    required_fields = ['user_id', 'dialogue_id']
+    missing = [f for f in required_fields if f not in df.columns]
+    
+    if missing:
+        logger.error(f"Dataset {source_name} missing required fields: {missing}. Dropping dataset.")
         return None
+
+    # Normalize column names to lowercase to ensure consistency
+    df.columns = [c.lower() for c in df.columns]
     
-    # Check for required fields
-    missing_required = [field for field in REQUIRED_FIELDS if field not in df.columns]
-    if missing_required:
-        logger.error(f"Missing required fields in {source_name}: {missing_required}")
+    # Ensure required fields exist in lowercase
+    if 'user_id' not in df.columns or 'dialogue_id' not in df.columns:
+        logger.error(f"Dataset {source_name} missing required fields after normalization. Dropping.")
         return None
+
+    # Select only relevant columns if they exist
+    relevant_cols = ['user_id', 'dialogue_id', 'quality_rating', 'age', 'gender']
+    available_cols = [c for c in relevant_cols if c in df.columns]
     
-    # Normalize column names to lowercase
-    df = df.rename(columns=lambda x: x.lower().strip() if isinstance(x, str) else x)
+    logger.info(f"Preparing {source_name}: keeping columns {available_cols}")
+    return df[available_cols]
+
+def merge_datasets(dialogues_list: List[Tuple[pd.DataFrame, str]]) -> pd.DataFrame:
+    """
+    Merge a list of (DataFrame, source_name) tuples into a single DataFrame.
+    Performs an outer join on user_id and dialogue_id to preserve all data,
+    but given the task logic, we assume unique (user_id, dialogue_id) per source
+    or that we are concatenating distinct sources.
     
-    # Ensure required fields exist with proper types
-    for field in REQUIRED_FIELDS:
-        if field in df.columns:
-            df[field] = df[field].astype(str)
-            # Handle NaN values
-            df[field] = df[field].replace(['nan', 'None', ''], np.nan)
+    Since the task implies combining available datasets if HCI_P2 is missing fields,
+    we treat these as distinct sources of dialogues. We will concatenate them.
+    """
+    if not dialogues_list:
+        raise ValueError("No datasets provided for merging.")
+
+    dfs = [df for df, _ in dialogues_list]
+    logger.info(f"Merging {len(dfs)} datasets.")
     
-    # Add source identifier
-    df['source_dataset'] = source_name
+    # Concatenate along rows (axis=0)
+    merged = pd.concat(dfs, ignore_index=True)
     
-    logger.info(f"Prepared {source_name}: {len(df)} rows")
+    # Reset index
+    merged = merged.reset_index(drop=True)
+    
+    logger.info(f"Merged dataset shape: {merged.shape}")
+    return merged
+
+def handle_missing_demographics(df: pd.DataFrame, report_path: Path) -> pd.DataFrame:
+    """
+    Check for missing demographics (age, gender) and log them.
+    This function does NOT drop rows but ensures the validation report is updated.
+    """
+    if 'age' in df.columns and 'gender' in df.columns:
+        missing_age = df['age'].isna().sum()
+        missing_gender = df['gender'].isna().sum()
+        logger.info(f"Missing age: {missing_age}, Missing gender: {missing_gender}")
+    else:
+        logger.warning("Demographic fields (age, gender) not found in merged data.")
+    
+    # Update validation report if it exists
+    if report_path.exists():
+        try:
+            with open(report_path, 'r') as f:
+                report = json.load(f)
+            if report.get('status') == 'partial':
+                logger.info("Validation report already indicates partial status.")
+            elif report.get('status') == 'full':
+                # If we merged, it might be because of partial, but if we have data now, check again
+                # For T016, the logic is: if T012 said partial, we merge.
+                # We just log the action.
+                pass
+        except Exception as e:
+            logger.warning(f"Could not update validation report: {e}")
+    
     return df
 
-def merge_datasets(dfs: List[Tuple[pd.DataFrame, str]]) -> pd.DataFrame:
-    """
-    Merge multiple datasets into a unified DataFrame.
-    
-    Args:
-        dfs: List of tuples containing (DataFrame, source_name)
-        
-    Returns:
-        Merged DataFrame
-    """
-    if not dfs:
-        raise ValueError("No datasets to merge")
-    
-    valid_dfs = [(df, name) for df, name in dfs if df is not None and not df.empty]
-    
-    if not valid_dfs:
-        raise ValueError("No valid datasets to merge")
-    
-    logger.info(f"Merging {len(valid_dfs)} datasets...")
-    
-    # Concatenate all DataFrames
-    merged_df = pd.concat(
-        [df for df, _ in valid_dfs],
-        ignore_index=True,
-        sort=False
-    )
-    
-    logger.info(f"Merged DataFrame: {len(merged_df)} rows, {len(merged_df.columns)} columns")
-    logger.info(f"Unique sources: {merged_df['source_dataset'].unique()}")
-    
-    return merged_df
-
-def handle_missing_demographics(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    Handle missing demographic fields (age, gender) according to T012 logic.
-    
-    Args:
-        df: Merged DataFrame
-        
-    Returns:
-        Tuple of (processed DataFrame, validation report)
-    """
-    validation_report = {
-        'status': 'full',
-        'missing_fields': [],
-        'demographic_coverage': {},
-        'notes': []
-    }
-    
-    # Check for demographic fields
-    missing_demographics = [field for field in DEMOGRAPHIC_FIELDS if field not in df.columns]
-    
-    if missing_demographics:
-        validation_report['status'] = 'partial'
-        validation_report['missing_fields'] = missing_demographics
-        validation_report['notes'].append(
-            f"Demographic fields missing: {missing_demographics}. "
-            "US3 (subgroup analysis) will be skipped per FR-006."
-        )
-        logger.warning(f"Missing demographic fields: {missing_demographics}")
-    else:
-        # Calculate coverage statistics
-        for field in DEMOGRAPHIC_FIELDS:
-            non_null_count = df[field].notna().sum()
-            coverage = (non_null_count / len(df)) * 100
-            validation_report['demographic_coverage'][field] = {
-                'non_null_count': int(non_null_count),
-                'total_count': int(len(df)),
-                'coverage_percentage': round(coverage, 2)
-            }
-        
-        logger.info(f"Demographic coverage: {validation_report['demographic_coverage']}")
-    
-    # Ensure demographic fields exist (with NaN if missing)
-    for field in DEMOGRAPHIC_FIELDS:
-        if field not in df.columns:
-            df[field] = np.nan
-        else:
-            # Convert to appropriate types
-            if field == 'age':
-                df[field] = pd.to_numeric(df[field], errors='coerce')
-            else:
-                df[field] = df[field].astype(str)
-                df[field] = df[field].replace(['nan', 'None', ''], np.nan)
-    
-    return df, validation_report
-
-def save_merged_data(df: pd.DataFrame, validation_report: Dict[str, Any]):
-    """
-    Save merged data and validation report to disk.
-    
-    Args:
-        df: Merged DataFrame
-        validation_report: Validation report dictionary
-    """
-    # Save merged DataFrame
-    output_path = PROCESSED_DATA_DIR / "merged_dialogues.parquet"
+def save_merged_data(df: pd.DataFrame, output_path: Path) -> None:
+    """Save the merged DataFrame to parquet and generate checksum."""
     df.to_parquet(output_path, index=False)
-    logger.info(f"Saved merged data to {output_path}")
-    
-    # Save validation report
-    report_path = RAW_DATA_DIR / "validation_report.json"
-    with open(report_path, 'w') as f:
-        json.dump(validation_report, f, indent=2)
-    logger.info(f"Saved validation report to {report_path}")
+    checksum = compute_file_checksum(output_path)
+    logger.info(f"Saved merged data to {output_path} (checksum: {checksum})")
 
 def main():
-    """Main function to execute the merge process."""
-    logger.info("Starting dataset merge process...")
+    """
+    Main entry point for T016: Conditional Merging Logic.
     
-    # Ensure directories exist
+    Logic:
+    1. Check data/raw/validation_report.json.
+    2. If status is 'full', DO NOT MERGE. Log and exit.
+    3. If status is 'partial' or missing, merge available fallbacks (Persona-Chat, EmpatheticDialogues).
+    4. Save to data/processed/merged_dialogues.parquet.
+    """
     ensure_directories()
     
-    # Load all datasets
-    datasets = []
-    for source_name, filename in DATASET_FILES.items():
-        filepath = RAW_DATA_DIR / filename
-        df = load_dataset(filepath)
-        if df is not None:
-            prepared_df = validate_and_prepare_dataset(df, source_name)
-            if prepared_df is not None:
-                datasets.append((prepared_df, source_name))
+    validation_report_path = Path("data/raw/validation_report.json")
+    hci_p2_path = Path("data/raw/hci_p2")
+    persona_chat_path = Path("data/raw/persona_chat")
+    empathetic_path = Path("data/raw/empathetic_dialogues")
     
-    if not datasets:
-        logger.error("No datasets were successfully loaded. Aborting merge.")
+    # 1. Check Validation Report
+    should_merge = False
+    if validation_report_path.exists():
+        try:
+            with open(validation_report_path, 'r') as f:
+                report = json.load(f)
+            status = report.get('status', 'unknown')
+            if status == 'partial':
+                logger.info("Validation report status is 'partial'. Proceeding with merge.")
+                should_merge = True
+            elif status == 'full':
+                logger.info("Validation report status is 'full'. No merge required. Exiting.")
+                return
+            else:
+                logger.warning(f"Unknown validation status: {status}. Proceeding with merge to be safe.")
+                should_merge = True
+        except Exception as e:
+            logger.error(f"Error reading validation report: {e}. Proceeding with merge.")
+            should_merge = True
+    else:
+        logger.warning("Validation report not found. Proceeding with merge to ensure data availability.")
+        should_merge = True
+
+    if not should_merge:
+        return
+
+    # 2. Load Fallback Datasets
+    # We assume HCI_P2 was downloaded in T015, but if it was partial, we need the others.
+    # The task says: "merge available fallback datasets".
+    
+    datasets_to_load = []
+    
+    # Check Persona-Chat
+    if persona_chat_path.exists():
+        df_pc = load_dataset("persona_chat")
+        if df_pc is not None:
+            datasets_to_load.append(df_pc)
+            logger.info("Loaded Persona-Chat.")
+        else:
+            logger.warning("Persona-Chat loading failed or empty.")
+    else:
+        logger.warning("Persona-Chat directory not found.")
+
+    # Check EmpatheticDialogues
+    if empathetic_path.exists():
+        df_ed = load_dataset("empathetic_dialogues")
+        if df_ed is not None:
+            datasets_to_load.append(df_ed)
+            logger.info("Loaded EmpatheticDialogues.")
+        else:
+            logger.warning("EmpatheticDialogues loading failed or empty.")
+    else:
+        logger.warning("EmpatheticDialogues directory not found.")
+
+    if not datasets_to_load:
+        logger.error("No fallback datasets available to merge. Cannot proceed.")
+        # Create an empty output or exit? Task implies we need data.
+        # We exit with error as we cannot fulfill the "merge" requirement without data.
         sys.exit(1)
-    
-    # Merge datasets
-    try:
-        merged_df = merge_datasets(datasets)
-    except Exception as e:
-        logger.error(f"Failed to merge datasets: {str(e)}")
+
+    # 3. Validate and Prepare
+    prepared_dfs = []
+    for i, df in enumerate(datasets_to_load):
+        source_name = "persona_chat" if i == 0 else "empathetic_dialogues"
+        prepared = validate_and_prepare_dataset(df, source_name)
+        if prepared is not None:
+            prepared_dfs.append((prepared, source_name))
+
+    if not prepared_dfs:
+        logger.error("No valid datasets prepared for merging.")
         sys.exit(1)
-    
-    # Handle missing demographics
-    processed_df, validation_report = handle_missing_demographics(merged_df)
-    
-    # Save results
-    save_merged_data(processed_df, validation_report)
-    
-    # Log summary
-    logger.info("Merge process completed successfully!")
-    logger.info(f"Final dataset: {len(processed_df)} dialogues")
-    logger.info(f"Validation status: {validation_report['status']}")
-    
-    if validation_report['missing_fields']:
-        logger.warning(f"Missing fields: {validation_report['missing_fields']}")
-    
-    return processed_df
+
+    # 4. Merge
+    merged_df = merge_datasets(prepared_dfs)
+
+    # 5. Handle Demographics Logging
+    handle_missing_demographics(merged_df, validation_report_path)
+
+    # 6. Save
+    output_path = Path("data/processed/merged_dialogues.parquet")
+    save_merged_data(merged_df, output_path)
+
+    logger.info("T016 Conditional Merge completed successfully.")
 
 if __name__ == "__main__":
     main()

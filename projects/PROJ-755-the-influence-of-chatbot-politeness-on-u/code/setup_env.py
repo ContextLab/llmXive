@@ -1,61 +1,62 @@
 """
-Environment setup script for the llmXive pipeline.
-
-Initializes the .env file if missing and validates required environment variables.
+Setup script for environment configuration management.
+Creates .env.example template and ensures .env file exists.
 """
+import os
 import sys
 from pathlib import Path
-from utils.env_config import (
-    EnvConfigError,
-    load_env_config,
-    get_hf_token,
-    validate_env_config,
-    ensure_env_file_exists
-)
+from utils.env_config import create_env_template, ensure_env_file_exists, validate_env_config, EnvConfigError
 
 
 def main():
-    """Main entry point for environment setup."""
+    """
+    Main entry point for environment setup.
+    
+    Actions:
+    1. Create .env.example template with HF_TOKEN placeholder.
+    2. Ensure .env file exists (copy from .env.example if missing).
+    3. Validate that required variables are present (optional check).
+    """
     print("Setting up environment configuration...")
     
+    # Define the template path (relative to project root)
+    # We place .env.example in code/ to keep project root clean, 
+    # but the script can run from anywhere if we resolve paths correctly.
+    project_root = Path(__file__).resolve().parent.parent
+    env_example_path = project_root / "code" / ".env.example"
+    env_file_path = project_root / "code" / ".env"
+    
+    # 1. Create .env.example template
+    print(f"Creating environment template at {env_example_path}...")
+    template_vars = {
+        "HF_TOKEN": "Hugging Face API Token (required for authenticated datasets)"
+    }
+    create_env_template(env_example_path, template_vars)
+    print(f"  -> Template created: {env_example_path}")
+    
+    # 2. Ensure .env file exists
+    print(f"Ensuring .env file exists at {env_file_path}...")
+    ensure_env_file_exists(env_file_path)
+    print(f"  -> .env file ready: {env_file_path}")
+    
+    # 3. Optional validation (warn if HF_TOKEN is missing)
+    print("Validating environment configuration...")
     try:
-        # Ensure .env file exists (creates from template if missing)
-        env_path = ensure_env_file_exists()
-        print(f"Environment file ensured at: {env_path}")
-        
-        # Load configuration
-        load_env_config()
-        
-        # Validate required variables
-        # Currently only HF_TOKEN is required for dataset downloads
-        required = ["HF_TOKEN"]
-        
-        # We validate but allow missing if we are just setting up
-        # The actual error will be raised when the dataset loader runs
-        try:
-            validate_env_config(required)
-            print("✓ All required environment variables are set.")
-        except EnvConfigError as e:
-            print(f"⚠ Warning: {e}")
-            print("  Please update your .env file with the missing values.")
-            print("  See .env.example for instructions.")
-            
-        # If HF_TOKEN is present, verify it's not the placeholder
-        token = get_hf_token()
-        if token and token == "YOUR_HF_TOKEN_HERE":
-            print("⚠ Warning: HF_TOKEN is still set to the placeholder value.")
-            print("  Please replace it with your actual token from huggingface.co.")
-            return 1
-            
-        print("Environment setup complete.")
-        return 0
-        
+        # We check if HF_TOKEN is set, but don't fail if it's missing (user might set it later)
+        # Instead, we just warn.
+        import os
+        hf_token = os.getenv("HF_TOKEN")
+        if not hf_token:
+            print("  [WARN] HF_TOKEN is not set. Data acquisition steps will fail until this is configured.")
+            print("         Please copy code/.env.example to code/.env and add your token.")
+        else:
+            print("  -> HF_TOKEN is configured.")
     except EnvConfigError as e:
-        print(f"Error during environment setup: {e}")
-        return 1
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        return 1
+        print(f"  [ERROR] {e}")
+        sys.exit(1)
+        
+    print("Environment setup complete.")
+    return 0
 
 
 if __name__ == "__main__":

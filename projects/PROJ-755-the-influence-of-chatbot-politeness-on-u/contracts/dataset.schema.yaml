@@ -1,72 +1,125 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Chatbot Politeness Dataset Schema"
-description: "Schema for the merged dataset containing dialogues, politeness scores, and user metadata."
-type: object
-properties:
-  fields:
+description: "Schema for validating the raw and processed dialogue datasets used in the politeness study."
+
+definitions:
+  User:
     type: object
-    description: "Definition of expected columns in the dataset."
+    properties:
+      user_id:
+        type: string
+        description: "Unique identifier for the user"
+      age:
+        type:
+          - integer
+          - "null"
+        description: "Age of the user, can be null if not provided"
+      gender:
+        type:
+          - string
+          - "null"
+        description: "Gender of the user, can be null if not provided"
+        enum:
+          - "Male"
+          - "Female"
+          - "Other"
+          - "Prefer not to say"
+          - "null"
+    required:
+      - user_id
+  
+  Utterance:
+    type: object
+    properties:
+      utterance_id:
+        type: string
+        description: "Unique identifier for the utterance"
+      dialogue_id:
+        type: string
+        description: "ID of the dialogue this utterance belongs to"
+      user_id:
+        type: string
+        description: "ID of the user who made this utterance"
+      text:
+        type: string
+        description: "The text content of the utterance"
+      speaker:
+        type: string
+        description: "Who made the utterance"
+        enum:
+          - "user"
+          - "chatbot"
+      timestamp:
+        type:
+          - string
+          - "null"
+        description: "Timestamp of the utterance, can be null"
+    required:
+      - utterance_id
+      - dialogue_id
+      - user_id
+      - text
+      - speaker
+  
+  Dialogue:
+    type: object
     properties:
       dialogue_id:
         type: string
-        description: "Unique identifier for the dialogue session."
-        required: true
-        data_type: "string"
+        description: "Unique identifier for the dialogue"
       user_id:
         type: string
-        description: "Unique identifier for the user."
-        required: true
-        data_type: "string"
+        description: "ID of the user involved in this dialogue"
       quality_rating:
-        type: number
-        description: "User-perceived quality rating of the dialogue."
-        required: true
-        data_type: "float"
-        constraints:
-          min: 1
-          max: 5
-      politeness_score:
-        type: number
-        description: "Mean politeness score for the dialogue (BERT-based)."
-        required: false
-        data_type: "float"
-      conversation_length:
-        type: integer
-        description: "Number of utterances in the dialogue."
-        required: false
-        data_type: "integer"
-      age:
-        type: integer
-        description: "Age of the user."
-        required: false
-        data_type: "integer"
-        constraints:
-          min: 10
-          max: 120
-      gender:
-        type: string
-        description: "Gender of the user."
-        required: false
-        data_type: "string"
-        allowed_values:
-          - "Male"
-          - "Female"
-          - "Non-binary"
-          - "Prefer not to say"
-          - "Other"
+        type:
+          - integer
+          - "null"
+        description: "Quality rating of the dialogue, can be null"
+        minimum: 1
+        maximum: 5
+      utterances:
+        type: array
+        description: "List of utterances in the dialogue"
+        items:
+          $ref: "#/definitions/Utterance"
+      metadata:
+        type: object
+        description: "Additional metadata about the dialogue"
+        properties:
+          source_dataset:
+            type: string
+            description: "Name of the source dataset"
+          conversation_length:
+            type:
+              - integer
+              - "null"
+            description: "Number of utterances in the dialogue"
     required:
       - dialogue_id
       - user_id
-      - quality_rating
+      - utterances
+
+type: object
+properties:
   metadata:
     type: object
     properties:
-      source_dataset:
-        type: string
-      processed_at:
-        type: string
-        format: date-time
       version:
         type: string
+        description: "Schema version"
+      generated_at:
+        type: string
+        description: "Timestamp when the dataset was generated"
+      source:
+        type: string
+        description: "Source of the dataset"
+  records:
+    type: array
+    description: "List of dialogue records"
+    items:
+      $ref: "#/definitions/Dialogue"
+
 required:
-  - fields
+  - records
+
+additionalProperties: false

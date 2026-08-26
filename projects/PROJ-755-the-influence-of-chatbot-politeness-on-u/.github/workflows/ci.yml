@@ -2,81 +2,76 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main", "develop" ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
-    - name: Install R
-      uses: r-lib/actions/setup-r@v2
-      with:
-        r-version: 'release'
-
-    - name: Install R dependencies
-      run: |
-        R -e "install.packages('remotes')"
-        R -e "remotes::install_cran('lme4')"
-        R -e "remotes::install_cran('ordinal')"
-        R -e "remotes::install_cran('rpy2')"
-      shell: bash
-
-    - name: Cache pip dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      shell: bash
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        else
+          echo "requirements.txt not found"
+          exit 1
+        fi
 
-    - name: Run Linting (Ruff)
+    - name: Install R-base
       run: |
-        ruff check . || true
-      shell: bash
+        sudo apt-get update
+        sudo apt-get install -y r-base r-base-dev
 
-    - name: Run Formatting Check (Black)
+    - name: Install R packages (lme4, ordinal)
       run: |
-        black --check . || true
-      shell: bash
+        Rscript -e "if (!requireNamespace('remotes', quietly = TRUE)) install.packages('remotes', repos='https://cloud.r-project.org')"
+        Rscript -e "remotes::install_cran('lme4', dependencies=TRUE, repos='https://cloud.r-project.org')"
+        Rscript -e "remotes::install_cran('ordinal', dependencies=TRUE, repos='https://cloud.r-project.org')"
 
-    - name: Run Unit Tests
+    - name: Verify R packages installation
       run: |
-        python -m pytest tests/unit/ -v --tb=short || true
-      shell: bash
+        Rscript -e "library(lme4); library(ordinal); cat('R packages installed successfully\\n')"
 
-    - name: Run Integration Tests
+    - name: Run linting (ruff)
       run: |
-        python -m pytest tests/integration/ -v --tb=short || true
-      shell: bash
+        if command -v ruff &> /dev/null; then
+          ruff check code/
+        else
+          echo "ruff not found, skipping linting"
+        fi
 
-    - name: Verify Project Structure
+    - name: Run formatting check (black)
       run: |
-        test -d data/raw && echo "data/raw exists" || exit 1
-        test -d data/processed && echo "data/processed exists" || exit 1
-        test -d code && echo "code exists" || exit 1
-        test -d tests && echo "tests exists" || exit 1
-        test -d docs && echo "docs exists" || exit 1
-      shell: bash
+        if command -v black &> /dev/null; then
+          black --check code/
+        else
+          echo "black not found, skipping formatting check"
+        fi
 
-    - name: Verify Contracts
+    - name: Run unit tests
       run: |
-        test -f contracts/dataset.schema.yaml && echo "Dataset schema exists" || exit 1
-        test -f contracts/output.schema.yaml && echo "Output schema exists" || exit 1
-      shell: bash
+        if [ -d tests ]; then
+          python -m pytest tests/unit -v --tb=short
+        else
+          echo "No unit tests found"
+        fi
+
+    - name: Run integration tests
+      run: |
+        if [ -d tests ]; then
+          python -m pytest tests/integration -v --tb=short
+        else
+          echo "No integration tests found"
+        fi

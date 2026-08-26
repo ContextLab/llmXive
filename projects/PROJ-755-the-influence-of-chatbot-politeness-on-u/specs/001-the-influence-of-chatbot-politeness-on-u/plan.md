@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project investigates the **statistical association** between linguistic politeness in chatbot responses and user-perceived quality (serving as a proxy for trust) using the **HCI_P2** dataset (the only verified source containing the required 1-5 quality rating). The technical approach involves downloading the HCI_P2 dataset, computing mean politeness scores per conversation using the `jfiedler/politeness-bert` model, and fitting a Cumulative Link Mixed-Effects Model (CLMM) to test the hypothesis while controlling for conversation length and user-level random effects. Robustness checks will employ an open-source lexicon-based classifier (`textstat`), and subgroup analyses will be conducted for age and gender where sample sizes permit. The plan explicitly addresses confounding via covariate adjustment and E-value sensitivity analysis.
+This project investigates the **statistical association** between linguistic politeness in chatbot responses and user-perceived quality (serving as a proxy for trust) using the **HCI_P2** dataset (the only verified source containing the required minimum quality rating). The technical approach involves downloading the HCI_P2 dataset, computing mean politeness scores per conversation using the `jfiedler/politeness-bert` model, and fitting a Cumulative Link Mixed-Effects Model (CLMM) to test the hypothesis while controlling for conversation length and user-level random effects. Robustness checks will employ an open-source lexicon-based classifier (`textstat`), and subgroup analyses will be conducted for age and gender where sample sizes permit. The plan explicitly addresses confounding via covariate adjustment and E-value sensitivity analysis.
 
 ## Technical Context
 
