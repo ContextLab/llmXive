@@ -1,37 +1,47 @@
-T015:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No coherence matrix files, validation logs, or test scripts were provided to\
-    \ demonstrate that `connectivity.py` actually produced coherence matrices for\
-    \ the 10\u201120 electrode system, nor any evidence that the output was checked\
-    \ for correctness. The required artifact is missing."
+  r: "No directory listing or other evidence was provided showing that the required\
+    \ folders (`code/`, `data/`, `state/`, `tests/`, `docs/`) actually exist or contain\
+    \ any files. Without concrete artifacts, we cannot confirm the project structure\
+    \ was created. The implementer must supply a file\u2011system snapshot or a manifest\
+    \ confirming these directories are present and non\u2011empty."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings) or documentation of their setup are present.
+    The required artifacts to demonstrate that ruff/flake8 linting and Black formatting
+    have been configured are missing.
 T016:
   c: false
   h: 2a1b0b7dfe1ce839d7062cb94463cd3115a749aec35d0bdd28e5991c06503c6a
   r: The required output files `data/results/network_metrics.csv` and `data/results/efficiency_check.json`
     are both missing, so the derivation cannot be validated and the deliverable JSON
     does not exist. The task therefore is not satisfied.
-T023a:
+T019:
   c: false
-  h: 3a0e875b8af2c3309afc463267f7381fa122ef84d108a157bcf6e489b0cd91cb
-  r: The required artifact `data/quality/download_report.json` is missing from the
-    repository, so the cognitive data quality check cannot be performed. The implementer
-    must create this JSON file with the appropriate validation information.
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., script, notebook, or result file) showing the Bonferroni/FDR
-    correction was provided; the evidence consists only of the task description and
-    project spec, with no concrete implementation or output demonstrating the correction
-    was applied. The required deliverable is missing.
-T027b:
+  h: 9b9ac586ba0685dea089227644f781a69ac0ffe0a8ac0ff9fdbfcb131b26d821
+  r: "The required `data/results/network_metrics.csv` file is missing, and there is\
+    \ no provided script, log, or other artifact demonstrating that the validation\
+    \ (checking for a `trace_id` column with SHA\u2011256 strings and handling the\
+    \ missing\u2011file case) was implemented. Without such evidence, the task\u2019\
+    s validation requirement is not satisfied."
+T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `power_analysis.json` file or code implementing the described halt\u2011\
-    check logic is present; without these artifacts we cannot confirm that the warning\
-    \ is logged for missing cognitive data or that the process exits with code\u202F\
-    1 for other under\u2011power reasons. The required implementation and data are\
-    \ missing."
+  r: No artifact (e.g., validation script, log, or report) was provided that checks
+    the `data/results/network_metrics.csv` (or similar) for the required columns and
+    data types. Consequently, there is no evidence that the schema validation against
+    the listed fields was performed. The implementer must supply a concrete validation
+    output or code that confirms the presence and correct types of all eight columns.
+T023:
+  c: false
+  h: 365454c512e967e23781cc5a7b12a6c1f46d92e953a3ada2ba9652dfd7b86597
+  r: "The required result file `data/results/correlation_results.csv` does not exist,\
+    \ and the provided `correlation.py` is truncated with no evidence that it actually\
+    \ computes Spearman correlations, applies multiple\u2011comparison correction,\
+    \ or writes the specified CSV columns. The task\u2019s core output is missing."
 T028:
   c: false
   h: 7ca9359bc84167b5d93993cb925d526266d5bcfbdf4646472ffffdf3c4822917
@@ -39,6 +49,15 @@ T028:
     \ so no `trace_id` column can be verified. The task cannot be considered completed\
     \ until the CSV file is present and contains a `trace_id` column with a valid\
     \ SHA\u2011256 hex string."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script, notebook, log, or report is provided that checks the `correlation_results.csv`
+    (or similar) for the required columns (`metric_name, outcome, spearman_r, p_value,
+    p_adjusted, n, trace_id`) and their data types. Consequently, there is no evidence
+    that the output schema validation task has been performed. The implementer must
+    supply a concrete validation artifact (e.g., a Python validation function, unit
+    test, or validation report) that demonstrates the schema check.
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

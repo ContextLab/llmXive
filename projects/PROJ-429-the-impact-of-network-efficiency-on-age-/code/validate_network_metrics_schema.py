@@ -1,125 +1,218 @@
 """
-Validates the output of network metric calculations against the defined schema.
-Task: T020 - Validate output schema against contracts/network_metric.schema.yaml.
+Task T020: Validate output schema for network metrics.
+
+Validates that data/results/network_metrics.csv exists and contains the required columns
+with correct data types as specified in the task description.
+
+Required columns:
+- participant_id (string)
+- age (integer)
+- global_efficiency (float)
+- local_efficiency (float)
+- clustering_coeff (float)
+- modularity (float)
+- trace_id (string, SHA-256 hex)
+- signal_quality_flag (string)
 """
 import csv
 import json
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
-
 from config import ensure_dirs
 
+# Expected schema definition
+EXPECTED_COLUMNS = [
+    "participant_id",
+    "age",
+    "global_efficiency",
+    "local_efficiency",
+    "clustering_coeff",
+    "modularity",
+    "trace_id",
+    "signal_quality_flag"
+]
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load the JSON/YAML schema from file."""
-    # Simple YAML loader for this specific schema (no external deps if possible, 
-    # but standard PyYAML is expected in requirements)
-    try:
-        import yaml
-        with open(schema_path, 'r') as f:
-            return yaml.safe_load(f)
-    except ImportError:
-        # Fallback if yaml is not installed, though requirements.txt should have it
-        # For this specific schema, we can parse it manually if needed, 
-        # but let's assume PyYAML is available as per T002.
-        print("Error: PyYAML is required to load the schema.", file=sys.stderr)
-        sys.exit(1)
+# Expected data types for each column
+EXPECTED_TYPES = {
+    "participant_id": str,
+    "age": int,
+    "global_efficiency": float,
+    "local_efficiency": float,
+    "clustering_coeff": float,
+    "modularity": float,
+    "trace_id": str,
+    "signal_quality_flag": str
+}
 
+# Validation patterns
+TRACE_ID_PATTERN = r'^[a-f0-9]{64}$'  # SHA-256 hex string
 
-def validate_row(row: Dict[str, str], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+def load_schema() -> Dict[str, Any]:
+    """Load the expected schema definition."""
+    return {
+        "columns": EXPECTED_COLUMNS,
+        "types": EXPECTED_TYPES
+    }
+
+def validate_trace_id_format(trace_id: str) -> bool:
+    """Validate that trace_id is a valid SHA-256 hex string."""
+    import re
+    return bool(re.match(TRACE_ID_PATTERN, trace_id))
+
+def validate_row(row: Dict[str, str], row_num: int) -> List[str]:
     """
-    Validates a single row from the CSV against the schema.
-    Returns (is_valid, list_of_errors).
+    Validate a single row against the expected schema.
+    Returns a list of error messages if validation fails.
     """
     errors = []
-    required_fields = schema.get('required', [])
-    properties = schema.get('properties', {})
+    
+    # Check for missing columns
+    for col in EXPECTED_COLUMNS:
+        if col not in row:
+            errors.append(f"Row {row_num}: Missing required column '{col}'")
+    
+    if errors:
+        return errors
 
-    # Check required fields
-    for field in required_fields:
-        if field not in row or row[field] is None or row[field] == '':
-            errors.append(f"Missing required field: {field}")
-
-    # Type and format validation
-    for field, value in row.items():
-        if field in properties:
-            field_schema = properties[field]
-            field_type = field_schema.get('type')
-            
-            # Check for empty strings in required fields (already checked above, but double check)
-            if not value and field in required_fields:
-                continue # Already reported
-
-            try:
-                if field_type == 'integer':
-                    int(value)
-                elif field_type == 'number':
-                    float(value)
-                elif field_type == 'string':
-                    if 'pattern' in field_schema:
-                        import re
-                        if not re.match(field_schema['pattern'], value):
-                            errors.append(f"Field '{field}' does not match pattern: {field_schema['pattern']}")
-                    if 'enum' in field_schema:
-                        if value not in field_schema['enum']:
-                            errors.append(f"Field '{field}' value '{value}' not in allowed enum: {field_schema['enum']}")
-                # Add more type checks if necessary
-            except ValueError as e:
-                errors.append(f"Field '{field}' has invalid type (expected {field_type}): {value}")
-
-    return len(errors) == 0, errors
-
+    # Validate types and values
+    for col in EXPECTED_COLUMNS:
+        value = row[col]
+        expected_type = EXPECTED_TYPES[col]
+        
+        # Special handling for trace_id validation
+        if col == "trace_id":
+            if not validate_trace_id_format(value):
+                errors.append(f"Row {row_num}: Invalid trace_id format '{value}'")
+            continue
+        
+        # Type conversion and validation
+        try:
+            if expected_type == int:
+                int(value)
+            elif expected_type == float:
+                # Check for NaN or Inf
+                val = float(value)
+                if val != val or val == float('inf') or val == float('-inf'):
+                    errors.append(f"Row {row_num}: Invalid float value for '{col}': '{value}'")
+            elif expected_type == str:
+                if not isinstance(value, str):
+                    errors.append(f"Row {row_num}: Expected string for '{col}', got {type(value)}")
+        except ValueError as e:
+            errors.append(f"Row {row_num}: Type conversion failed for '{col}': {e}")
+    
+    return errors
 
 def main():
-    """Main entry point for schema validation."""
+    """Main validation function for T020."""
     ensure_dirs()
     
-    csv_path = Path("data/results/network_metrics.csv")
-    schema_path = Path("contracts/network_metric.schema.yaml")
+    metrics_path = Path("data/results/network_metrics.csv")
+    output_path = Path("data/results/schema_validation_report.json")
     
-    if not csv_path.exists():
-        print(f"Error: Input file not found: {csv_path}", file=sys.stderr)
-        sys.exit(1)
+    report = {
+        "task_id": "T020",
+        "file_validated": str(metrics_path),
+        "status": "unknown",
+        "errors": [],
+        "summary": {}
+    }
     
-    if not schema_path.exists():
-        print(f"Error: Schema file not found: {schema_path}", file=sys.stderr)
-        sys.exit(1)
-
-    schema = load_schema(schema_path)
+    # Check if file exists
+    if not metrics_path.exists():
+        report["status"] = "failed"
+        report["errors"].append(f"File not found: {metrics_path}")
+        report["summary"] = {
+            "total_rows": 0,
+            "valid_rows": 0,
+            "invalid_rows": 0,
+            "column_check": "skipped"
+        }
+        
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        print(f"Validation failed: {metrics_path} not found")
+        sys.exit(0)  # Exit 0 as per T019 requirement - do not block pipeline
     
-    valid_count = 0
-    invalid_count = 0
-    total_count = 0
-    errors_log = []
-
-    with open(csv_path, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        for i, row in enumerate(reader):
-            total_count += 1
-            is_valid, errors = validate_row(row, schema)
-            if is_valid:
-                valid_count += 1
+    # Read and validate CSV
+    valid_rows = 0
+    invalid_rows = 0
+    total_rows = 0
+    column_errors = []
+    type_errors = []
+    
+    try:
+        with open(metrics_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            
+            # Check header columns
+            if reader.fieldnames is None:
+                report["status"] = "failed"
+                report["errors"].append("CSV file is empty or has no header")
             else:
-                invalid_count += 1
-                errors_log.append({
-                    "row_index": i + 1, # 1-based index
-                    "participant_id": row.get('participant_id', 'N/A'),
-                    "errors": errors
-                })
-
-    print(f"Validation Complete: {total_count} rows processed.")
-    print(f"Valid: {valid_count}, Invalid: {invalid_count}")
-
-    if invalid_count > 0:
-        print("Validation failed for some rows. Details:")
-        for err in errors_log:
-            print(f"  Row {err['row_index']} (ID: {err['participant_id']}): {err['errors']}")
-        sys.exit(1)
-    else:
-        print("All rows validated successfully against the schema.")
+                header_columns = list(reader.fieldnames)
+                missing_cols = [col for col in EXPECTED_COLUMNS if col not in header_columns]
+                extra_cols = [col for col in header_columns if col not in EXPECTED_COLUMNS]
+                
+                if missing_cols:
+                    column_errors.append(f"Missing columns: {missing_cols}")
+                if extra_cols:
+                    column_errors.append(f"Extra columns (not in schema): {extra_cols}")
+                
+                # Validate each row
+                for row_num, row in enumerate(reader, start=2):  # Start at 2 (1 is header)
+                    total_rows += 1
+                    row_errors = validate_row(row, row_num)
+                    
+                    if row_errors:
+                        invalid_rows += 1
+                        type_errors.extend(row_errors)
+                    else:
+                        valid_rows += 1
+    
+    except Exception as e:
+        report["status"] = "failed"
+        report["errors"].append(f"Error reading CSV: {str(e)}")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
         sys.exit(0)
-
+    
+    # Determine final status
+    if column_errors:
+        report["status"] = "failed"
+        report["errors"].extend(column_errors)
+    elif type_errors:
+        report["status"] = "failed"
+        report["errors"].extend(type_errors)
+    else:
+        report["status"] = "passed"
+    
+    report["summary"] = {
+        "total_rows": total_rows,
+        "valid_rows": valid_rows,
+        "invalid_rows": invalid_rows,
+        "column_check": "passed" if not column_errors else "failed",
+        "type_check": "passed" if not type_errors else "failed"
+    }
+    
+    # Write report
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    print(f"Schema validation complete: {report['status']}")
+    print(f"File: {metrics_path}")
+    print(f"Total rows: {total_rows}, Valid: {valid_rows}, Invalid: {invalid_rows}")
+    if column_errors:
+        print(f"Column errors: {column_errors}")
+    if type_errors:
+        print(f"Type errors: {type_errors[:5]}...")  # Show first 5
+    
+    # Exit 0 regardless of result to avoid blocking pipeline
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

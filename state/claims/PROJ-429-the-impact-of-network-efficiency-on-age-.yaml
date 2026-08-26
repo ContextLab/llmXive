@@ -955,3 +955,245 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T18:22:31Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: 10-second epochs used for resting-state analysis
+  claim_id: c_ae139b22
+  context: T014 and T004 reference spec.md v1.1 and docs/decisions/epoch_length.md
+    which explicitly mandate a 10s epoch length.
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline uses 10-second epochs as per spec.md v1.1.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T12:56:56Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Power analysis uses 1000 Monte Carlo iterations with seed 42
+  claim_id: c_f8180c1c
+  context: T027 specifies performing a Monte Carlo Power Simulation with 1000 iterations
+    and seed=42 to verify minimum power for effect size r=0.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis simulation uses 1000 iterations with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:57:22Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Network density sensitivity analysis sweeps 0.1 to 0.9 in steps of 0.1
+  claim_id: c_3566c735
+  context: T018a implements sensitivity analysis by re-running connectivity and metric
+    computation for network density thresholds sweeping a range from 0.1 to 0.9 in
+    steps of 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The network density sensitivity analysis sweeps thresholds from 0.1 to
+    0.9 in steps of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:57:43Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Epochs with SNR < 10dB flagged as low signal quality
+  claim_id: c_0905fd95
+  context: T006 step 5 states to flag SNR < 10dB, and T017 adds a signal_quality_flag
+    column with values 'Low Signal Quality' for SNR < 10dB.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Epochs_with_SNR_%3C_10dB_flagged_as_low_signal_quality
+  kind: magnitude
+  raw_text: Epochs with SNR less than 10dB are flagged as low signal quality.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:58:07Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Epochs with >50% artifacts rejected
+  claim_id: c_ad1498f1
+  context: T006 step 4 specifies to reject epochs with >50% artifacts during preprocessing.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Epochs_with_%3E50%25_artifacts_rejected
+  kind: magnitude
+  raw_text: Epochs with more than 50% artifacts are rejected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:58:36Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Data filtering requires age >= 18
+  claim_id: c_d8150c07
+  context: T005 Validation Logic step 2 states to filter for age >= 18.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data filtering requires participant age to be 18 or older.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:58:58Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Memory usage constrained to <6GB during ICA and filtering
+  claim_id: c_76018b73
+  context: T043 implements chunked streaming in preprocess.py to ensure memory usage
+    stays below 6GB during ICA and filtering.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_constrained_to_%3C6GB_during_ICA_and_filtering
+  kind: entity_fact
+  raw_text: Memory usage is constrained to stay below 6GB during ICA and filtering.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:59:18Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Bandpass filter range is 1-40 Hz
+  claim_id: c_c9ee5192
+  context: T006 step 1 specifies applying a 1-40 Hz filter using mne.filter.filter_data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bandpass filter range is 1-40 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:59:34Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_e534dabc
+  context: T002 specifies initializing a Python 3.11 project with virtualenv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:59:50Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: 'Uses TUH EEG corpus (accession ID: tuh_eeg) from PhysioNet'
+  claim_id: c_7eed6170
+  context: 'T005 implements download.py for PhysioNet/TUH access with accession ID:
+    ''tuh_eeg''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uses_TUH_EEG_corpus_(accession_ID:_tuh_eeg)_from_PhysioNet
+  kind: entity_fact
+  raw_text: The study uses the TUH EEG corpus from PhysioNet with accession ID 'tuh_eeg'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T13:00:46Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Cognitive instrument registry includes MMSE and MoCA
+  claim_id: c_7caf78e5
+  context: T025a creates a registry with a hardcoded list of valid instruments (MMSE,
+    MoCA).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cognitive_instrument_registry_includes_MMSE_and_MoCA
+  kind: entity_fact
+  raw_text: The cognitive instrument registry includes MMSE and MoCA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T13:01:23Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Minimum power requirement is 0.80
+  claim_id: c_dfcf5f07
+  context: "T027 implements power analysis to verify minimum power \u2265 0.80 for\
+    \ the target effect size r=0.3."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The study requires a minimum power of 0.80 for the target effect size.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T13:01:30Z'
+- artifact_path: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age/tasks.md
+  attempts: 1
+  canonical: Analysis considered underpowered if sample size < 85
+  claim_id: c_a991aaef
+  context: T027b states that if power analysis shows insufficient power due to sample
+    size N < 85, the system logs a warning and skips downstream tasks.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_considered_underpowered_if_sample_size_%3C_85
+  kind: magnitude
+  raw_text: The study considers the analysis underpowered if the sample size is less
+    than 85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T13:01:35Z'

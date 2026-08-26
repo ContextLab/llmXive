@@ -1,57 +1,95 @@
 """
-Unit tests for T027b: Halt Check logic.
+Unit tests for the halt_check module (T027b).
 """
 import json
 import tempfile
 from pathlib import Path
 import pytest
-import sys
-import os
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+from stats.halt_check import load_power_analysis, check_halt_conditions, write_status_file
 
-from stats.halt_check import check_halt_conditions, load_power_analysis
 
-def test_power_sufficient_proceeds():
-    """Test that sufficient power returns 0."""
-    results = {
-        "power_for_r03": 0.85,
-        "is_sufficient": True,
-        "mdes": 0.25,
-        "simulation_seed": 42,
-        "simulation_log_path": "logs/power_sim.log"
-    }
-    assert check_halt_conditions(results) == 0
+class TestLoadPowerAnalysis:
+    def test_load_valid_file(self):
+        """Test loading a valid power analysis JSON file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump({"power_for_r03": 0.85, "is_sufficient": True, "n": 100}, f)
+            temp_path = Path(f.name)
 
-def test_power_insufficient_low_n_critical():
-    """Test that critically low N (N < 15) returns 1."""
-    # MDES ~ 0.5 implies N ~ 31 (7.84 / 0.25). Wait, 7.84 / 0.5^2 = 31.
-    # To get N < 15, we need MDES > sqrt(7.84/15) ~ 0.72.
-    results = {
-        "power_for_r03": 0.10,
-        "is_sufficient": False,
-        "mdes": 0.80,  # High MDES -> Low N
-        "simulation_seed": 42,
-        "simulation_log_path": "logs/power_sim.log"
-    }
-    assert check_halt_conditions(results) == 1
+        try:
+            result = load_power_analysis(temp_path)
+            assert result["power_for_r03"] == 0.85
+            assert result["is_sufficient"] is True
+            assert result["n"] == 100
+        finally:
+            temp_path.unlink()
 
-def test_power_insufficient_missing_cognitive_proceeds():
-    """Test that missing cognitive data (N < 85) returns 0 with warning."""
-    # MDES ~ 0.35 implies N ~ 64 (7.84 / 0.35^2). This is < 85.
-    results = {
-        "power_for_r03": 0.40,
-        "is_sufficient": False,
-        "mdes": 0.35,
-        "simulation_seed": 42,
-        "simulation_log_path": "logs/power_sim.log"
-    }
-    assert check_halt_conditions(results) == 0
+    def test_load_missing_file(self):
+        """Test that FileNotFoundError is raised for missing file."""
+        with pytest.raises(FileNotFoundError):
+            load_power_analysis(Path("/nonexistent/path/power_analysis.json"))
 
-def test_missing_file_raises():
-    """Test that loading a missing file raises SystemExit."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        fake_path = Path(tmpdir) / 'nonexistent.json'
-        with pytest.raises(SystemExit):
-            load_power_analysis(fake_path)
+    def test_load_invalid_json(self):
+        """Test that JSONDecodeError is raised for invalid JSON."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            f.write("not valid json")
+            temp_path = Path(f.name)
+
+        try:
+            with pytest.raises(json.JSONDecodeError):
+                load_power_analysis(temp_path)
+        finally:
+            temp_path.unlink()
+
+
+class TestCheckHaltConditions:
+    def test_sufficient_power(self):
+        """Test that sufficient power returns False (continue)."""
+        results = {"power_for_r03": 0.85, "is_sufficient": True, "n": 100}
+        assert check_halt_conditions(results) is False
+
+    def test_insufficient_sample_size(self):
+        """Test that insufficient sample size returns True (halt)."""
+        results = {"power_for_r03": 0.60, "is_sufficient": False, "n": 50}
+        assert check_halt_conditions(results) is True
+
+    def test_low_power_with_adequate_sample(self):
+        """Test that low power with adequate sample returns True (halt)."""
+        results = {"power_for_r03": 0.60, "is_sufficient": False, "n": 100}
+        assert check_halt_conditions(results) is True
+
+    def test_boundary_sample_size(self):
+        """Test boundary condition at n=85."""
+        # n=84 should halt
+        results = {"power_for_r03": 0.60, "is_sufficient": False, "n": 84}
+        assert check_halt_conditions(results) is True
+
+        # n=85 should halt if power is low
+        results = {"power_for_r03": 0.60, "is_sufficient": False, "n": 85}
+        assert check_halt_conditions(results) is True
+
+        # n=85 with sufficient power should continue
+        results = {"power_for_r03": 0.85, "is_sufficient": True, "n": 85}
+        assert check_halt_conditions(results) is False
+
+    def test_override_sample_size(self):
+        """Test that sample_size parameter overrides value in results."""
+        results = {"power_for_r03": 0.60, "is_sufficient": False, "n": 100}
+        # Override n to 50, should halt
+        assert check_halt_conditions(results, sample_size=50) is True
+
+
+class TestWriteStatusFile:
+    def test_write_status_file(self):
+        """Test writing a status file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            status_path = Path(tmpdir) / "halt_status.json"
+            write_status_file(status_path, skip_cognitive=True, reason="Test reason")
+
+            assert status_path.exists()
+            with open(status_path, 'r') as f:
+                data = json.load(f)
+
+            assert data["skip_cognitive_tasks"] is True
+            assert data["reason"] == "Test reason"
+            assert "timestamp" in data

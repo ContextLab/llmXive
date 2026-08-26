@@ -4,8 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory listing or other evidence was provided showing that the required folders (`code/`, `data/`, `state/`, `tests/`, `docs/`) actually exist in the project. Without concrete artifacts, we cannot confirm the project structure was created. The implementer must supply a file‑system snapshot, manifest, or similar proof that these directories are present and non‑empty.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml with black settings) are present in the provided evidence, so the requirement to configure ruff/flake8 and black is not satisfied.
+- `T015` (rejected 1x): No coherence matrix files, validation logs, or test scripts were provided to demonstrate that `connectivity.py` actually produced coherence matrices for the 10‑20 electrode system, nor any evidence that the output was checked for correctness. The required artifact is missing.
+- `T018c` (rejected 1x): declared artifact(s) missing/empty/invalid: data/results/sensitivity_summary.json
+- `T027b` (rejected 1x): No `power_analysis.json` file or code implementing the described halt‑check logic is present; without these artifacts we cannot confirm that the warning is logged for missing cognitive data or that the process exits with code 1 for other under‑power reasons. The required implementation and data are missing.
 
 ## Required change
 

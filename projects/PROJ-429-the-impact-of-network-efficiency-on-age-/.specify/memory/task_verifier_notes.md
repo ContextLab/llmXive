@@ -2,6 +2,8 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T042a** — declared artifact(s) missing/empty/invalid: data/results/network_metrics.csv, schema.yaml
-- **T042b** — declared artifact(s) missing/empty/invalid: data/results/correlation_results.csv, schema.yaml
-- **T042c** — declared artifact(s) missing/empty/invalid: data/results/regression_results.csv, schema.yaml
+- **T001** — No directory listing or other evidence was provided showing that the required folders (`code/`, `data/`, `state/`, `tests/`, `docs/`) actually exist or contain any files. Without concrete artifacts, we cannot confirm the project structure was created. The implementer must supply a file‑system snapshot or a manifest confirming these directories are present and non‑empty.
+- **T003** — No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) or documentation of their setup are present. The required artifacts to demonstrate that ruff/flake8 linting and Black formatting have been configured are missing.
+- **T042d** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T019** — The required `data/results/network_metrics.csv` file is missing, and there is no provided script, log, or other artifact demonstrating that the validation (checking for a `trace_id` column with SHA‑256 strings and handling the missing‑file case) was implemented. Without such evidence, the task’s validation requirement is not satisfied.
+- **T020** — No artifact (e.g., validation script, log, or report) was provided that checks the `data/results/network_metrics.csv` (or similar) for the required columns and data types. Consequently, there is no evidence that the schema validation against the listed fields was performed. The implementer must supply a concrete validation output or code that confirms the presence and correct types of all eight columns.

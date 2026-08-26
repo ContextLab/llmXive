@@ -89,4 +89,4 @@ projects/PROJ-429-the-impact-of-network-efficiency-on-age-/
 | **Cognitive Registry** | FR-007 requires validation of tools. | Hardcoded check prevents invalid self-reported scores from skewing results. |
 | **Volume Conduction Correction** | Methodology requires robust connectivity. | Coherence is sensitive to field spread; Imaginary Coherence is required for valid graph metrics. |
 | **Power Analysis** | SC-002 requires simulation-based power check. | Static N assumptions are unreliable; simulation ensures study validity. |
-| **Batch Processing** | RAM constraints (GB). | Processing full corpus at once exceeds memory; batch processing (20 subjects) ensures feasibility. |
+| **Batch Processing** | RAM constraints (GB). | Processing full corpus at once exceeds memory; batch processing (a feasible subject cohort size) ensures feasibility. |

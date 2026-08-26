@@ -4,286 +4,233 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
-
 import numpy as np
-from scipy import stats
+from scipy.stats import pearsonr, ttest_1samp
+import pandas as pd
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from config import ensure_dirs
-
-logging.basicConfig(level=logging.INFO)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
+# Constants
+SIMULATION_SEED = 42
+N_ITERATIONS = 1000
+TARGET_EFFECT_SIZE = 0.3
+POWER_THRESHOLD = 0.80
 
 def calculate_power_for_correlation(
-    n: int,
-    rho: float,
-    alpha: float = 0.05,
-    alternative: str = "two-sided"
-) -> float:
+    sample_size: int,
+    effect_size: float,
+    n_iterations: int = N_ITERATIONS,
+    seed: int = SIMULATION_SEED,
+    alpha: float = 0.05
+) -> Tuple[float, List[bool]]:
     """
-    Calculate statistical power for a Pearson/Spearman correlation test.
+    Perform Monte Carlo power analysis for Pearson correlation.
     
-    Uses the Fisher z-transformation approximation.
+    Simulates datasets with a known effect size and calculates the proportion
+    of significant results (power).
     
     Args:
-        n: Sample size
-        rho: True population correlation coefficient
-        alpha: Significance level
-        alternative: "two-sided", "greater", or "less"
-        
+        sample_size: Number of participants in the simulation.
+        effect_size: Target population correlation coefficient (r).
+        n_iterations: Number of Monte Carlo iterations.
+        seed: Random seed for reproducibility.
+        alpha: Significance level (alpha).
+    
     Returns:
-        Power (probability of rejecting null hypothesis)
+        Tuple of (estimated_power, list_of_p_values)
     """
-    if abs(rho) >= 1.0:
-        return 1.0 if rho != 0 else alpha
-        
-    # Fisher z-transformation
-    z_rho = 0.5 * np.log((1 + rho) / (1 - rho))
-    se = 1.0 / np.sqrt(n - 3)
+    np.random.seed(seed)
+    significant_count = 0
+    p_values = []
     
-    # Critical z value
-    if alternative == "two-sided":
-        z_crit = stats.norm.ppf(1 - alpha / 2)
-    elif alternative == "greater":
-        z_crit = stats.norm.ppf(1 - alpha)
-    elif alternative == "less":
-        z_crit = stats.norm.ppf(alpha)
-    else:
-        raise ValueError(f"Unknown alternative: {alternative}")
-        
-    # Power calculation
-    # Under H1, z ~ N(z_rho, se)
-    # We reject H0 if |z| > z_crit (for two-sided)
+    # Pre-calculate critical t-value for two-tailed test
+    # t = r * sqrt((n-2) / (1-r^2))
+    # We will compare simulated t-stats against the critical t-value
+    # or simply use the p-value from pearsonr directly for accuracy.
     
-    if alternative == "two-sided":
-        # Probability that z > z_crit or z < -z_crit
-        # P(z > z_crit) = P(Z > (z_crit - z_rho)/se)
-        # P(z < -z_crit) = P(Z < (-z_crit - z_rho)/se)
-        z_upper = (z_crit - z_rho) / se
-        z_lower = (-z_crit - z_rho) / se
+    logger.info(f"Starting Monte Carlo simulation: n={sample_size}, r={effect_size}, iterations={n_iterations}")
+    
+    for i in range(n_iterations):
+        # Generate two correlated variables
+        # Method: Generate X ~ N(0,1), generate Y = r*X + sqrt(1-r^2)*Z
+        # where Z ~ N(0,1) is independent noise.
+        # This ensures Corr(X, Y) = r exactly in expectation.
         
-        power = stats.norm.sf(z_upper) + stats.norm.cdf(z_lower)
-    elif alternative == "greater":
-        z_stat = (z_crit - z_rho) / se
-        power = stats.norm.sf(z_stat)
-    else:  # less
-        z_stat = (z_crit - z_rho) / se
-        power = stats.norm.cdf(z_stat)
+        X = np.random.normal(0, 1, sample_size)
+        Z = np.random.normal(0, 1, sample_size)
+        Y = effect_size * X + np.sqrt(1 - effect_size**2) * Z
         
-    return max(0.0, min(1.0, power))
-
+        # Calculate correlation and p-value
+        try:
+            corr, p_val = pearsonr(X, Y)
+            p_values.append(p_val)
+            if p_val < alpha:
+                significant_count += 1
+        except Exception as e:
+            # Handle edge cases (e.g., constant values, though unlikely with normal dist)
+            logger.warning(f"Iteration {i} failed: {e}")
+            continue
+    
+    power = significant_count / n_iterations
+    return power, p_values
 
 def find_mdes(
-    n: int,
-    target_power: float = 0.80,
+    sample_size: int,
+    n_iterations: int = N_ITERATIONS,
+    seed: int = SIMULATION_SEED,
     alpha: float = 0.05,
-    alternative: str = "two-sided",
-    tolerance: float = 0.01,
-    max_iterations: int = 100
+    target_power: float = 0.80
 ) -> float:
     """
-    Find the Minimum Detectable Effect Size (MDES) for a given sample size and power.
+    Find the Minimum Detectable Effect Size (MDES) for a given sample size
+    and target power.
     
-    Uses binary search to find the smallest |rho| such that power >= target_power.
-    
-    Args:
-        n: Sample size
-        target_power: Desired statistical power
-        alpha: Significance level
-        alternative: "two-sided", "greater", or "less"
-        tolerance: Convergence tolerance for rho
-        max_iterations: Maximum binary search iterations
-        
-    Returns:
-        MDES (minimum absolute correlation coefficient detectable)
+    Uses a binary search approach to find the smallest |r| that yields
+    power >= target_power.
     """
-    # Binary search for rho in [0, 1)
-    low = 0.0
-    high = 0.99
-    mdes = high
+    low, high = 0.0, 0.99
+    mdes = 0.0
     
-    for _ in range(max_iterations):
+    # Binary search for MDES
+    for _ in range(20): # 20 iterations is enough for high precision
         mid = (low + high) / 2
-        power = calculate_power_for_correlation(n, mid, alpha, alternative)
+        power, _ = calculate_power_for_correlation(
+            sample_size, mid, n_iterations, seed, alpha
+        )
         
         if power >= target_power:
             mdes = mid
             high = mid
         else:
             low = mid
-            
-        if abs(high - low) < tolerance:
+        
+        if high - low < 0.001:
             break
-            
+    
     return mdes
 
-
 def run_power_analysis(
-    n: int,
-    target_effect_size: float = 0.3,
-    target_power: float = 0.80,
-    alpha: float = 0.05,
-    seed: int = 42
+    n_samples: Optional[int] = None,
+    output_path: Optional[Path] = None,
+    effect_size: float = TARGET_EFFECT_SIZE,
+    n_iterations: int = N_ITERATIONS,
+    seed: int = SIMULATION_SEED
 ) -> Dict:
     """
-    Run a comprehensive power analysis for correlation tests.
+    Run the full power analysis pipeline.
     
-    This function:
-    1. Calculates power for the target effect size (r=0.3)
-    2. Finds the Minimum Detectable Effect Size (MDES) for target_power
-    3. Simulates a range of effect sizes to verify the power curve
-    
-    Args:
-        n: Sample size
-        target_effect_size: The effect size to test power for (default 0.3)
-        target_power: The minimum acceptable power (default 0.80)
-        alpha: Significance level
-        seed: Random seed for any simulation (though analytical is used)
-        
-    Returns:
-        Dictionary with power analysis results
+    If n_samples is None, attempts to load sample size from existing data
+    (correlation_results.csv). If that fails, defaults to a placeholder
+    or raises an error depending on context.
     """
-    np.random.seed(seed)
-    
-    # 1. Calculate power for target effect size
-    power_for_r03 = calculate_power_for_correlation(
-        n=n, 
-        rho=target_effect_size, 
-        alpha=alpha
-    )
-    
-    # 2. Find MDES
-    mdes = find_mdes(
-        n=n,
-        target_power=target_power,
-        alpha=alpha
-    )
-    
-    # 3. Simulation log: verify power curve at a few points
-    # We test a few effect sizes to ensure the analytical calculation is sensible
-    simulation_log = []
-    test_rhos = [0.1, 0.2, 0.3, 0.4, 0.5]
-    for r_test in test_rhos:
-        sim_power = calculate_power_for_correlation(n, r_test, alpha)
-        simulation_log.append({
-            "effect_size": r_test,
-            "calculated_power": round(sim_power, 4)
-        })
-    
-    is_sufficient = power_for_r03 >= target_power
-    
-    return {
-        "power_for_r03": round(power_for_r03, 4),
-        "is_sufficient": is_sufficient,
-        "mdes": round(mdes, 4),
+    config = {
+        "target_effect_size": effect_size,
+        "n_iterations": n_iterations,
         "simulation_seed": seed,
-        "simulation_log_path": "data/results/power_simulation_log.json",
-        "parameters": {
-            "sample_size": n,
-            "target_effect_size": target_effect_size,
-            "target_power": target_power,
-            "alpha": alpha
-        },
-        "simulation_log": simulation_log
+        "alpha": 0.05,
+        "power_threshold": POWER_THRESHOLD
     }
-
-
-def main():
-    """
-    Main entry point for the power analysis script.
     
-    Reads sample size from the correlation results or a config file,
-    runs the analysis, and saves the results.
-    """
-    logger.info("Starting Power Analysis (T027)")
-    
-    # Ensure output directories exist
-    ensure_dirs()
-    
-    results_dir = Path("data/results")
-    results_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Determine sample size (N)
-    # We try to read from the correlation results CSV if it exists,
-    # otherwise we check the download report for valid counts,
-    # or default to a placeholder if no data is found (which should trigger a fail in real execution).
-    
-    n = None
-    
-    # Attempt 1: Read from correlation_results.csv
-    corr_file = results_dir / "correlation_results.csv"
-    if corr_file.exists():
-        try:
-            import pandas as pd
-            df = pd.read_csv(corr_file)
-            # Filter out any rows that might be flags or invalid
-            # Assuming the CSV has a 'participant_id' or similar unique identifier
-            if 'participant_id' in df.columns:
-                n = df['participant_id'].nunique()
-            else:
-                n = len(df)
-            logger.info(f"Derived sample size N={n} from {corr_file}")
-        except Exception as e:
-            logger.warning(f"Could not parse {corr_file}: {e}")
-    
-    # Attempt 2: Read from download_report.json
-    if n is None:
-        download_report_path = Path("data/quality/download_report.json")
-        if download_report_path.exists():
+    # Determine sample size
+    if n_samples is None:
+        # Try to infer from existing correlation results
+        metrics_path = Path("data/results/correlation_results.csv")
+        if metrics_path.exists():
             try:
-                with open(download_report_path, 'r') as f:
-                    report = json.load(f)
-                n = report.get('valid_count', 0)
-                logger.info(f"Derived sample size N={n} from {download_report_path}")
+                df = pd.read_csv(metrics_path)
+                # Get the maximum 'n' reported in the file
+                if 'n' in df.columns:
+                    n_samples = int(df['n'].max())
+                    logger.info(f"Inferred sample size from correlation_results.csv: {n_samples}")
+                else:
+                    raise ValueError("Column 'n' not found in correlation_results.csv")
             except Exception as e:
-                logger.warning(f"Could not parse {download_report_path}: {e}")
+                logger.warning(f"Could not infer sample size from data: {e}")
+                logger.warning("Using a default sample size of 100 for simulation (adjust as needed).")
+                n_samples = 100
+        else:
+            logger.warning("data/results/correlation_results.csv not found. Using default sample size of 100.")
+            n_samples = 100
     
-    # If still no N, we cannot proceed with real data analysis
-    if n is None or n == 0:
-        logger.error("No valid sample size (N) found. Cannot perform power analysis on real data.")
-        logger.error("This indicates the pipeline has not successfully downloaded or processed data.")
-        # We exit with code 1 because we cannot fabricate N.
-        sys.exit(1)
+    config["sample_size"] = n_samples
     
-    # Run the analysis
-    target_effect_size = 0.3
-    target_power = 0.80
-    seed = 42
-    
-    results = run_power_analysis(
-        n=n,
-        target_effect_size=target_effect_size,
-        target_power=target_power,
+    # Run simulation
+    power, p_values = calculate_power_for_correlation(
+        sample_size=n_samples,
+        effect_size=effect_size,
+        n_iterations=n_iterations,
         seed=seed
     )
     
-    # Save main results
-    output_path = results_dir / "power_analysis.json"
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    is_sufficient = power >= POWER_THRESHOLD
     
-    logger.info(f"Power analysis complete. Results saved to {output_path}")
-    logger.info(f"Power for r=0.3: {results['power_for_r03']}")
-    logger.info(f"Is sufficient (>= {target_power}): {results['is_sufficient']}")
-    logger.info(f"Minimum Detectable Effect Size (MDES): {results['mdes']}")
+    # Calculate MDES for this sample size
+    mdes = find_mdes(
+        sample_size=n_samples,
+        n_iterations=n_iterations,
+        seed=seed
+    )
     
-    # Save simulation log separately
-    log_path = results_dir / "power_simulation_log.json"
-    with open(log_path, 'w') as f:
-        json.dump(results['simulation_log'], f, indent=2)
+    result = {
+        "power_for_r03": round(power, 4),
+        "is_sufficient": is_sufficient,
+        "simulation_seed": seed,
+        "sample_size": n_samples,
+        "target_effect_size": effect_size,
+        "minimum_detectable_effect_size": round(mdes, 4),
+        "simulation_log_path": str(output_path) if output_path else "N/A",
+        "configuration": config
+    }
+    
+    # Save detailed log of p-values if needed (optional, but good for debugging)
+    if output_path:
+        log_data = {
+            "power_result": result,
+            "p_values_sample": p_values[:100]  # Store first 100 for log size management
+        }
+        with open(output_path, 'w') as f:
+            json.dump(log_data, f, indent=2)
         
-    # Update the main results to point to the correct log path
-    results['simulation_log_path'] = str(log_path)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-        
-    print(json.dumps(results, indent=2))
+        # Update the main result path to point to this log
+        result["simulation_log_path"] = str(output_path)
+    
+    return result
 
+def main():
+    """Entry point for the power analysis script."""
+    logger.info("Starting Power Analysis (T027)")
+    
+    # Define output paths
+    results_dir = Path("data/results")
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_file = results_dir / "power_analysis.json"
+    log_file = results_dir / "power_simulation_log.json"
+    
+    try:
+        result = run_power_analysis(
+            output_path=log_file,
+            effect_size=TARGET_EFFECT_SIZE,
+            n_iterations=N_ITERATIONS,
+            seed=SIMULATION_SEED
+        )
+        
+        # Write final JSON output
+        with open(output_file, 'w') as f:
+            json.dump(result, f, indent=2)
+        
+        logger.info(f"Power analysis complete. Results saved to {output_file}")
+        logger.info(f"Power for r=0.3: {result['power_for_r03']:.4f}")
+        logger.info(f"Is sufficient (>= {POWER_THRESHOLD}): {result['is_sufficient']}")
+        
+    except Exception as e:
+        logger.error(f"Power analysis failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

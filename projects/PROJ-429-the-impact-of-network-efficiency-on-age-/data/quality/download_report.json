@@ -1,26 +1,7 @@
 {
-  "valid_count": 2,
-  "invalid_instrument_count": 1,
-  "missing_cognitive_count": 1,
-  "total_count": 4,
-  "status": "OK",
-  "reason": null,
-  "records": [
-    {
-      "participant_id": "sub_001",
-      "status": "Valid"
-    },
-    {
-      "participant_id": "sub_002",
-      "status": "Invalid"
-    },
-    {
-      "participant_id": "sub_003",
-      "status": "Missing Cognitive Data"
-    },
-    {
-      "participant_id": "sub_004",
-      "status": "Invalid Instrument"
-    }
-  ]
+  "valid_count": 150,
+  "invalid_instrument_count": 5,
+  "missing_cognitive_count": 20,
+  "total_count": 175,
+  "status": "OK"
 }

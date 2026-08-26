@@ -1,0 +1,70 @@
+# Dataset Schema for Input Data Validation
+# Project: PROJ-429-the-impact-of-network-efficiency-on-age-
+# Task: T042d
+# Description: Defines the schema for input data validation including
+# participant metadata and signal quality flags.
+#
+# This schema is used by code/data/download.py to validate records
+# before processing.
+#
+# Fields:
+# - participant_id: Unique identifier for the subject (string)
+# - age: Age in years (integer, >= 18)
+# - cognitive_instrument: Name of the cognitive test used (string, must be in registry)
+# - cognitive_score: Score obtained on the cognitive test (float, nullable)
+# - signal_quality: SNR in dB or quality flag (float or string)
+
+schema:
+  type: object
+  required:
+    - participant_id
+    - age
+    - cognitive_instrument
+    - cognitive_score
+    - signal_quality
+  properties:
+    participant_id:
+      type: string
+      description: Unique identifier for the participant
+      pattern: "^[A-Za-z0-9_-]+$"
+    age:
+      type: integer
+      minimum: 18
+      description: Age of the participant in years
+    cognitive_instrument:
+      type: string
+      description: Name of the cognitive assessment instrument
+      enum:
+        - MMSE
+        - MoCA
+        - Missing
+        - Invalid
+    cognitive_score:
+      type: ["number", "null"]
+      description: Score obtained on the cognitive instrument
+      minimum: 0
+      nullable: true
+    signal_quality:
+      type: ["number", "string"]
+      description: Signal-to-Noise Ratio in dB or quality status string
+      nullable: true
+
+validation_rules:
+  - name: age_check
+    condition: "age >= 18"
+    error_message: "Participant age must be 18 or older"
+  - name: instrument_registry_check
+    condition: "cognitive_instrument in ['MMSE', 'MoCA'] or cognitive_instrument in ['Missing', 'Invalid']"
+    error_message: "Cognitive instrument must be in the valid registry or explicitly marked as Missing/Invalid"
+  - name: score_consistency
+    condition: "if cognitive_instrument in ['MMSE', 'MoCA'] and cognitive_instrument != 'Missing': cognitive_score must not be null"
+    error_message: "Cognitive score is required when a valid instrument is specified"
+
+metadata:
+  version: "1.0"
+  created_at: "2023-10-27"
+  updated_at: "2023-10-27"
+  author: "llmXive Pipeline"
+  references:
+    - "FR-007: Cognitive instrument validation"
+    - "T025a: Cognitive instrument registry"

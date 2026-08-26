@@ -1,6 +1,3 @@
-"""
-Validates that data/results/correlation_results.csv matches contracts/correlation_result.schema.yaml.
-"""
 import csv
 import json
 import sys
@@ -8,111 +5,140 @@ from pathlib import Path
 from typing import Dict, Any, List, Tuple
 from config import ensure_dirs
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load the JSON schema file."""
-    with open(schema_path, 'r') as f:
-        return json.load(f)
+def load_schema() -> Dict[str, Any]:
+    """
+    Load the expected schema for correlation_results.csv.
+    Defines column names, expected data types, and validation rules.
+    """
+    return {
+        "columns": [
+            {"name": "metric_name", "type": "str", "required": True},
+            {"name": "outcome", "type": "str", "required": True},
+            {"name": "spearman_r", "type": "float", "required": True},
+            {"name": "p_value", "type": "float", "required": True},
+            {"name": "p_adjusted", "type": "float", "required": True},
+            {"name": "n", "type": "int", "required": True},
+            {"name": "trace_id", "type": "str", "required": True}
+        ],
+        "path": "data/results/correlation_results.csv"
+    }
 
-def validate_row(row: Dict[str, str], schema: Dict[str, Any]) -> List[str]:
+def validate_row(row: Dict[str, str], schema: Dict[str, Any], row_num: int) -> List[str]:
     """
     Validate a single row against the schema.
     Returns a list of error messages (empty if valid).
     """
     errors = []
-    required_fields = schema.get('required', [])
-    properties = schema.get('properties', {})
+    columns_config = {col["name"]: col for col in schema["columns"]}
 
-    # Check required fields
-    for field in required_fields:
-        if field not in row or row[field] == '':
-            errors.append(f"Missing or empty required field: {field}")
+    # Check for missing columns
+    for col_name in columns_config:
+        if col_name not in row:
+            errors.append(f"Row {row_num}: Missing required column '{col_name}'")
 
-    # Type and format checks
-    for field, value in row.items():
-        if field not in properties:
-            errors.append(f"Unexpected field: {field}")
+    # Check for extra columns (optional strictness, but good for schema validation)
+    for col_name in row:
+        if col_name not in columns_config:
+            errors.append(f"Row {row_num}: Unexpected column '{col_name}'")
+
+    # Type and value validation for present columns
+    for col_name, col_config in columns_config.items():
+        if col_name not in row:
             continue
 
-        prop_def = properties[field]
-        expected_type = prop_def.get('type')
+        value = row[col_name]
+        expected_type = col_config["type"]
 
-        if expected_type == 'integer':
+        if expected_type == "str":
+            if not isinstance(value, str) or value == "":
+                errors.append(f"Row {row_num}: Column '{col_name}' must be a non-empty string")
+            # Specific check for trace_id format (SHA-256 hex string)
+            if col_name == "trace_id":
+                if len(value) != 64 or not all(c in '0123456789abcdef' for c in value.lower()):
+                    errors.append(f"Row {row_num}: Column 'trace_id' must be a valid 64-character SHA-256 hex string")
+
+        elif expected_type == "float":
             try:
-                int(value)
+                float_val = float(value)
+                if col_name in ["spearman_r", "p_value", "p_adjusted"] and (float_val != float_val): # NaN check
+                     errors.append(f"Row {row_num}: Column '{col_name}' cannot be NaN")
             except ValueError:
-                errors.append(f"Field '{field}' must be an integer, got: {value}")
-        elif expected_type == 'number':
+                errors.append(f"Row {row_num}: Column '{col_name}' must be a valid float, got '{value}'")
+
+        elif expected_type == "int":
             try:
-                float(value)
+                int_val = int(value)
+                if col_name == "n" and int_val < 0:
+                    errors.append(f"Row {row_num}: Column 'n' must be non-negative")
             except ValueError:
-                errors.append(f"Field '{field}' must be a number, got: {value}")
-        elif expected_type == 'string':
-            if not isinstance(value, str):
-                errors.append(f"Field '{field}' must be a string")
-            # Check pattern if defined (e.g., for trace_id)
-            if 'pattern' in prop_def:
-                import re
-                if not re.match(prop_def['pattern'], value):
-                    errors.append(f"Field '{field}' does not match pattern: {prop_def['pattern']}")
+                errors.append(f"Row {row_num}: Column '{col_name}' must be a valid integer, got '{value}'")
 
     return errors
 
-def main():
-    schema_path = Path("contracts/correlation_result.schema.yaml")
-    data_path = Path("data/results/correlation_results.csv")
-    
-    # Ensure directories exist for output
-    ensure_dirs()
+def main() -> int:
+    """
+    Main entry point to validate the correlation_results.csv schema.
+    Returns 0 on success, 1 on validation failure.
+    """
+    schema = load_schema()
+    file_path = Path(schema["path"])
 
-    if not schema_path.exists():
-        print(f"ERROR: Schema file not found: {schema_path}")
-        sys.exit(1)
+    if not file_path.exists():
+        print(f"Error: File not found: {file_path}")
+        return 1
 
-    if not data_path.exists():
-        print(f"WARNING: Data file not found: {data_path}. Skipping validation.")
-        # Exit 0 as this is a validation step that might run before data generation
-        sys.exit(0)
-
-    # Load schema (simple JSON/YAML loader assuming valid JSON for schema)
-    # The schema file is YAML, but for this simple structure we can load as JSON if valid, 
-    # or use a yaml loader. Since we can't guarantee PyYAML is installed without checking requirements,
-    # and the schema is simple, we'll try standard json first or implement a basic parser if needed.
-    # However, the schema file provided is YAML. Let's assume PyYAML is available as per T002 requirements.
-    try:
-        import yaml
-        with open(schema_path, 'r') as f:
-            schema = yaml.safe_load(f)
-    except ImportError:
-        # Fallback: basic manual parsing for this specific known schema structure if yaml is missing
-        # But T002 includes PyYAML in requirements.txt implicitly via standard data science stack or explicit.
-        # If strictly no yaml, we might fail. Let's assume yaml is available.
-        print("ERROR: PyYAML not installed. Cannot load schema.")
-        sys.exit(1)
-
-    errors = []
+    all_errors: List[str] = []
     row_count = 0
-    valid_count = 0
 
-    with open(data_path, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            row_count += 1
-            row_errors = validate_row(row, schema)
-            if row_errors:
-                errors.append(f"Row {row_count}: {row_errors}")
-            else:
-                valid_count += 1
+    try:
+        with open(file_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            
+            # Validate header columns
+            if reader.fieldnames is None:
+                print("Error: CSV file is empty or has no header.")
+                return 1
 
-    if errors:
-        print(f"Validation FAILED. {len(errors)} rows failed out of {row_count}.")
-        for err in errors[:10]: # Print first 10 errors
-            print(f"  {err}")
-        if len(errors) > 10:
-            print(f"  ... and {len(errors) - 10} more errors.")
-        sys.exit(1)
-    else:
-        print(f"Validation PASSED. All {row_count} rows are valid.")
-        sys.exit(0)
+            expected_cols = {col["name"] for col in schema["columns"]}
+            actual_cols = set(reader.fieldnames)
+            
+            missing_cols = expected_cols - actual_cols
+            extra_cols = actual_cols - expected_cols
+
+            if missing_cols:
+                all_errors.append(f"Header missing columns: {missing_cols}")
+            if extra_cols:
+                all_errors.append(f"Header has unexpected columns: {extra_cols}")
+
+            # Validate rows
+            for row_num, row in enumerate(reader, start=2): # Start at 2 because 1 is header
+                row_count += 1
+                row_errors = validate_row(row, schema, row_num)
+                all_errors.extend(row_errors)
+
+    except Exception as e:
+        print(f"Error reading CSV file: {e}")
+        return 1
+
+    if all_errors:
+        print(f"Validation FAILED for {file_path}:")
+        for err in all_errors[:20]: # Print first 20 errors
+            print(f"  - {err}")
+        if len(all_errors) > 20:
+            print(f"  ... and {len(all_errors) - 20} more errors")
+        return 1
+
+    if row_count == 0:
+        print(f"Warning: {file_path} exists but contains no data rows.")
+        # Depending on strictness, this might be a failure, but for schema validation,
+        # if the file exists and is empty, the schema is technically satisfied by the structure.
+        # However, T029 implies checking content types, so let's ensure it's not just empty if data is expected.
+        # Given the pipeline flow, if T023_run ran, there should be data.
+        # We will treat empty as a warning but return 0 if structure is correct.
+        return 0
+
+    print(f"Validation PASSED for {file_path}: {row_count} rows checked.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

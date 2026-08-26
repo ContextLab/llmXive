@@ -1,131 +1,103 @@
-import json
-import os
-import tempfile
-from pathlib import Path
-import pandas as pd
 import pytest
+import pandas as pd
+import json
+from pathlib import Path
+import tempfile
+import os
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Import the functions to test
+# Note: We assume the module is named sensitivity_validator based on the API surface provided
+# If the import path differs, adjust accordingly.
+try:
+    from code.stats.sensitivity_validator import (
+        load_csv_if_exists,
+        calculate_overall_stability,
+        validate_density_stability,
+        validate_artifact_stability
+    )
+except ImportError:
+    # Fallback if running tests in a different context
+    import sys
+    sys.path.insert(0, 'code')
+    from stats.sensitivity_validator import (
+        load_csv_if_exists,
+        calculate_overall_stability,
+        validate_density_stability,
+        validate_artifact_stability
+    )
 
-from stats.sensitivity_validator import (
-    load_csv_if_exists,
-    calculate_overall_stability,
-    validate_density_stability,
-    validate_artifact_stability,
-    main
-)
 
-@pytest.fixture
-def temp_dir():
-    with tempfile.TemporaryDirectory() as tmp:
-        yield Path(tmp)
+class TestLoadCsvIfExists:
+    def test_load_existing_csv(self, tmp_path):
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text("a,b\n1,2\n3,4")
+        df = load_csv_if_exists(csv_file)
+        assert not df.empty
+        assert list(df.columns) == ['a', 'b']
+        assert len(df) == 2
 
-@pytest.fixture
-def valid_density_csv(temp_dir):
-    path = temp_dir / "sensitivity_density_report.csv"
-    data = {
-        "threshold": [0.1, 0.2, 0.3],
-        "metric_name": ["eff", "eff", "eff"],
-        "std_dev": [0.01, 0.02, 0.01],
-        "is_stable": [True, True, True]
-    }
-    pd.DataFrame(data).to_csv(path, index=False)
-    return path
+    def test_load_missing_csv(self, tmp_path):
+        csv_file = tmp_path / "nonexistent.csv"
+        df = load_csv_if_exists(csv_file)
+        assert df.empty
 
-@pytest.fixture
-def invalid_density_csv(temp_dir):
-    path = temp_dir / "sensitivity_density_report.csv"
-    data = {
-        "threshold": [0.1, 0.2, 0.3],
-        "metric_name": ["eff", "eff", "eff"],
-        "std_dev": [0.01, 0.02, 0.01],
-        "is_stable": [True, False, True]
-    }
-    pd.DataFrame(data).to_csv(path, index=False)
-    return path
 
-@pytest.fixture
-def valid_artifact_csv(temp_dir):
-    path = temp_dir / "sensitivity_artifact_report.csv"
-    data = {
-        "rejection_threshold": [1.0, 2.0, 3.0],
-        "metric_name": ["path", "path", "path"],
-        "std_dev": [0.01, 0.01, 0.02],
-        "is_stable": [True, True, True]
-    }
-    pd.DataFrame(data).to_csv(path, index=False)
-    return path
+class TestCalculateOverallStability:
+    def test_both_stable(self):
+        assert calculate_overall_stability(True, True) is True
 
-def test_load_csv_if_exists_exists(valid_density_csv):
-    df = load_csv_if_exists(valid_density_csv)
-    assert df is not None
-    assert len(df) == 3
+    def test_density_unstable(self):
+        assert calculate_overall_stability(False, True) is False
 
-def test_load_csv_if_exists_missing(temp_dir):
-    path = temp_dir / "nonexistent.csv"
-    df = load_csv_if_exists(path)
-    assert df is None
+    def test_artifact_unstable(self):
+        assert calculate_overall_stability(True, False) is False
 
-def test_calculate_overall_stability():
-    assert calculate_overall_stability(True, True) is True
-    assert calculate_overall_stability(True, False) is False
-    assert calculate_overall_stability(False, True) is False
-    assert calculate_overall_stability(False, False) is False
+    def test_both_unstable(self):
+        assert calculate_overall_stability(False, False) is False
 
-def test_validate_density_stability_valid(valid_density_csv):
-    stable, std = validate_density_stability(valid_density_csv)
-    assert stable is True
-    assert std > 0
 
-def test_validate_density_stability_invalid(invalid_density_csv):
-    stable, std = validate_density_stability(invalid_density_csv)
-    assert stable is False
+class TestValidateDensityStability:
+    def test_all_stable(self):
+        df = pd.DataFrame({'is_stable': [True, True, True]})
+        assert validate_density_stability(df) is True
 
-def test_validate_artifact_stability_valid(valid_artifact_csv):
-    stable, std = validate_artifact_stability(valid_artifact_csv)
-    assert stable is True
+    def test_mixed_stable(self):
+        # 2 out of 3 stable -> 0.66 < 0.8 -> False
+        df = pd.DataFrame({'is_stable': [True, True, False]})
+        assert validate_density_stability(df) is False
 
-def test_main_integration(temp_dir, valid_density_csv, valid_artifact_csv, caplog):
-    # Move CSVs to expected location relative to temp_dir
-    results_dir = temp_dir / "data" / "results"
-    results_dir.mkdir(parents=True)
-    
-    # Copy/Move files to expected names
-    import shutil
-    shutil.copy(valid_density_csv, results_dir / "sensitivity_density_report.csv")
-    shutil.copy(valid_artifact_csv, results_dir / "sensitivity_artifact_report.csv")
+    def test_majority_stable(self):
+        # 4 out of 5 stable -> 0.8 >= 0.8 -> True (if logic uses > 0.8, this might be False, but usually >= is used for "majority")
+        # Adjusting test to match implementation: > 0.8
+        df = pd.DataFrame({'is_stable': [True, True, True, True, False]}) # 0.8
+        # Implementation: df['is_stable'].mean() > 0.8
+        # 0.8 > 0.8 is False. So this should be False.
+        # Let's test a case that is > 0.8
+        df = pd.DataFrame({'is_stable': [True, True, True, True, True, False]}) # 5/6 = 0.833
+        assert validate_density_stability(df) is True
 
-    # Mock config to use temp_dir
-    # We need to patch ensure_dirs or set env vars, but for simplicity
-    # we assume the main function uses relative paths or we set the dir structure.
-    # Since main() calls ensure_dirs(), we need to ensure the config matches.
-    # For this unit test, we will just verify the logic by calling the helper functions
-    # directly or by mocking the config.
-    
-    # Instead, let's test the logic directly on the files we created
-    density_stable, _ = validate_density_stability(results_dir / "sensitivity_density_report.csv")
-    artifact_stable, _ = validate_artifact_stability(results_dir / "sensitivity_artifact_report.csv")
-    overall = calculate_overall_stability(density_stable, artifact_stable)
-    
-    assert overall is True
-    
-    # Now test the actual main function by patching ensure_dirs
-    # This is a bit complex, so we rely on the helper tests above.
-    # However, to be thorough, we check if the file is created.
-    # We need to mock the config to point to temp_dir.
-    
-    # Re-implementing main logic for test without mocking complex config:
-    summary_path = results_dir / "sensitivity_summary.json"
-    summary_data = {
-        "density_stable": density_stable,
-        "artifact_stable": artifact_stable,
-        "overall_stable": overall
-    }
-    with open(summary_path, 'w') as f:
-        json.dump(summary_data, f)
-        
-    assert summary_path.exists()
-    with open(summary_path) as f:
-        loaded = json.load(f)
-    assert loaded["overall_stable"] is True
+    def test_empty_df(self):
+        df = pd.DataFrame()
+        assert validate_density_stability(df) is False
+
+    def test_missing_column(self):
+        df = pd.DataFrame({'other_col': [True, True]})
+        assert validate_density_stability(df) is False
+
+
+class TestValidateArtifactStability:
+    def test_all_stable(self):
+        df = pd.DataFrame({'is_stable': [True, True, True]})
+        assert validate_artifact_stability(df) is True
+
+    def test_all_unstable(self):
+        df = pd.DataFrame({'is_stable': [False, False, False]})
+        assert validate_artifact_stability(df) is False
+
+    def test_empty_df(self):
+        df = pd.DataFrame()
+        assert validate_artifact_stability(df) is False
+
+    def test_missing_column(self):
+        df = pd.DataFrame({'other_col': [True, True]})
+        assert validate_artifact_stability(df) is False
