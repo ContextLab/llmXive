@@ -1,9 +1,8 @@
 """
-Task T021: Apply Bonferroni correction to correlation results.
+T021: Apply Bonferroni correction for 6 bands (α = 0.0083).
+Flag significant results and write data/processed/correlations_corrected.csv.
 
-Reads raw correlations from code/06_correlations.py output,
-applies Bonferroni correction for 6 bands, flags significant results,
-and writes the corrected CSV.
+Dependencies: T020 (code/06_correlations.py) which produces data/interim/correlations_raw.csv.
 """
 import os
 import sys
@@ -11,62 +10,64 @@ import argparse
 import pandas as pd
 from pathlib import Path
 
-# Import from project config
-from config import bonferroni_correct, get_path, ensure_dirs
+# Import project config for path handling
+# Note: The existing config.py has a flexible get_path/ensure_dirs signature
+# that handles various call patterns. We import it directly.
+try:
+    from config import get_path, ensure_dirs
+except ImportError:
+    # Fallback for execution context where config is in parent directory
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from config import get_path, ensure_dirs
 
 
-def load_correlations(input_path: str) -> pd.DataFrame:
+def load_correlations():
     """
-    Load the raw correlations CSV produced by code/06_correlations.py.
-
-    Expected columns: 'band', 'r_value', 'p_value', 'n'
+    Load the raw correlations from data/interim/correlations_raw.csv.
+    Expects columns: band, r_value, p_value, n
     """
+    input_path = get_path("interim", "correlations_raw.csv")
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Correlations file not found: {input_path}")
-
-    df = pd.read_csv(input_path)
-
-    required_cols = {'band', 'r_value', 'p_value', 'n'}
-    if not required_cols.issubset(df.columns):
-        missing = required_cols - set(df.columns)
-        raise ValueError(f"Correlations file missing required columns: {missing}")
-
-    return df
+        raise FileNotFoundError(
+            f"Input file not found: {input_path}. "
+            "Please run code/06_correlations.py (T020) first."
+        )
+    return pd.read_csv(input_path)
 
 
-def apply_bonferroni_correction(df: pd.DataFrame) -> pd.DataFrame:
+def apply_bonferroni_correction(df, n_tests=6):
     """
     Apply Bonferroni correction to the p-values.
-
-    The correction is: corrected_p = raw_p * n_tests
-    For 6 bands, n_tests = 6.
-    Flags results as significant if corrected_p < 0.05.
-
-    Returns a new DataFrame with added columns:
-    - 'bonferroni_p': the corrected p-value
-    - 'significant': boolean flag
+    
+    Parameters:
+    -----------
+    df : pd.DataFrame
+        DataFrame containing 'p_value' column.
+    n_tests : int
+        Number of hypothesis tests performed (default 6 for 6 bands).
+        
+    Returns:
+    --------
+    pd.DataFrame
+        DataFrame with added columns: 'bonferroni_p_value', 'is_significant'
     """
+    # Calculate corrected p-value (clamped at 1.0)
     df = df.copy()
-
-    # Calculate corrected p-value
-    # Cap at 1.0 if correction pushes it above
-    df['bonferroni_p'] = df['p_value'] * 6.0
-    df['bonferroni_p'] = df['bonferroni_p'].clip(upper=1.0)
-
-    # Flag significance at alpha = 0.05
-    df['significant'] = df['bonferroni_p'] < 0.05
-
+    df['bonferroni_p_value'] = (df['p_value'] * n_tests).clip(upper=1.0)
+    
+    # Determine significance at alpha = 0.05 / 6 = 0.00833...
+    # The task description specifies alpha = 0.0083
+    alpha_threshold = 0.05 / n_tests
+    df['is_significant'] = df['bonferroni_p_value'] < alpha_threshold
+    
     return df
 
 
-def save_corrected_results(df: pd.DataFrame, output_path: str) -> None:
+def save_corrected_results(df, output_path):
     """
     Save the corrected correlations to a CSV file.
     """
-    # Ensure output directory exists
     ensure_dirs(output_path)
-
-    # Write to disk
     df.to_csv(output_path, index=False)
     print(f"Corrected correlations saved to: {output_path}")
 
@@ -76,55 +77,35 @@ def main():
         description="Apply Bonferroni correction to correlation results (T021)."
     )
     parser.add_argument(
-        "--input",
-        type=str,
-        default=None,
-        help="Path to raw correlations CSV. Defaults to project config path."
-    )
-    parser.add_argument(
         "--output",
         type=str,
         default=None,
-        help="Path to output corrected CSV. Defaults to project config path."
+        help="Path to save the corrected results. Defaults to data/processed/correlations_corrected.csv."
     )
     args = parser.parse_args()
 
-    # Determine input path
-    if args.input:
-        input_path = args.input
-    else:
-        # Default: read from code/06_correlations.py output location
-        # Based on task T020 description: data/interim/correlations_raw.csv
-        input_path = get_path("interim", "correlations_raw.csv")
-
     # Determine output path
     if args.output:
-        output_path = args.output
+        output_path = Path(args.output)
     else:
-        # Default: data/processed/correlations_corrected.csv (per task spec)
         output_path = get_path("processed", "correlations_corrected.csv")
 
-    print(f"Loading raw correlations from: {input_path}")
+    print("Loading raw correlations...")
     try:
-        df = load_correlations(input_path)
+        df = load_correlations()
     except FileNotFoundError as e:
         print(f"ERROR: {e}")
-        print("Make sure code/06_correlations.py has been run successfully.")
         sys.exit(1)
 
-    print(f"Loaded {len(df)} correlation records.")
+    print(f"Applying Bonferroni correction for {len(df)} tests (6 bands)...")
+    df_corrected = apply_bonferroni_correction(df, n_tests=6)
 
-    print("Applying Bonferroni correction (n_tests=6, alpha=0.05)...")
-    df_corrected = apply_bonferroni_correction(df)
-
-    # Count significant results
-    n_sig = df_corrected['significant'].sum()
-    print(f"Significant results after correction: {n_sig} / {len(df)}")
-
-    print(f"Saving corrected results to: {output_path}")
+    print(f"Saving results to {output_path}...")
     save_corrected_results(df_corrected, output_path)
 
-    print("Task T021 completed successfully.")
+    # Summary
+    sig_count = df_corrected['is_significant'].sum()
+    print(f"Analysis complete. Found {sig_count} significant correlations out of {len(df)} tests (α={0.05/6:.4f}).")
 
 
 if __name__ == "__main__":

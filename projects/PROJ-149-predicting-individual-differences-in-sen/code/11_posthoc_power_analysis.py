@@ -1,3 +1,12 @@
+"""
+Task T023: Post-hoc Power Analysis
+
+Performs post-hoc power analysis using statsmodels to determine the required
+sample size for a target R² of 0.10 with power >= 0.80, given the observed
+effect size from the modeling results.
+
+Appends the results to data/processed/model_results.json.
+"""
 import os
 import sys
 import json
@@ -5,196 +14,294 @@ import argparse
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-import numpy as np
-import pandas as pd
-from statsmodels.stats.power import TTestIndPower
+# Import config for paths
+# Note: We assume config.py is in the same directory or PYTHONPATH
+try:
+    from config import get_path, ensure_dirs
+except ImportError:
+    # Fallback for direct execution if config is not in path
+    sys.path.insert(0, str(Path(__file__).parent))
+    from config import get_path, ensure_dirs
 
-# Import config utilities
-from config import get_path, ensure_dirs
+import numpy as np
+
+# Attempt to import statsmodels
+try:
+    from statsmodels.stats.power import FTestPower
+    from statsmodels.stats.ftest import f_oneway
+    import scipy.stats as stats
+except ImportError:
+    print("ERROR: statsmodels is required for power analysis. Install with: pip install statsmodels")
+    sys.exit(1)
+
 
 def load_model_results() -> Optional[Dict[str, Any]]:
     """
-    Load model_results.json. Returns None if file not found or invalid.
+    Loads the model results from data/processed/model_results.json.
+    Returns None if the file does not exist.
     """
-    path = get_path("model_results")
-    if not path.exists():
-        print(f"Error: Model results file not found at {path}")
-        return None
-    
     try:
+        path = get_path("processed", "model_results.json")
+        if not os.path.exists(path):
+            print(f"Warning: Model results file not found at {path}")
+            return None
+        
         with open(path, 'r') as f:
-            data = json.load(f)
-        return data
-    except (json.JSONDecodeError, IOError) as e:
+            return json.load(f)
+    except Exception as e:
         print(f"Error loading model results: {e}")
         return None
 
-def perform_power_analysis(model_results: Dict[str, Any], alpha: float = 0.05) -> Dict[str, Any]:
+
+def calculate_effect_size_from_r2(r2: float, n_obs: int, n_predictors: int) -> float:
     """
-    Perform post-hoc power analysis for the linear regression model.
+    Calculates Cohen's f² effect size from R².
     
-    Uses the observed R2, sample size (n), and number of predictors (k)
-    to estimate the achieved power and the required sample size for 80% power.
+    Formula: f² = R² / (1 - R²)
     
-    For multiple regression, we approximate using the non-centrality parameter
-    derived from R2.
+    Args:
+        r2: The R² value from the model.
+        n_obs: Number of observations (not strictly needed for f² calculation itself, 
+               but useful for context).
+        n_predictors: Number of predictors (not strictly needed for f² calculation itself).
     
     Returns:
-        Dict with 'required_n', 'power', 'effect_size' (f2).
+        Cohen's f² effect size.
     """
-    n = model_results.get('n', 0)
-    if n == 0:
-        # Fallback if n not explicitly stored, try to infer from features if available
-        # But for this task, we assume n is in model_results or we can't compute.
-        # If missing, we might need to load features to count rows.
-        # Let's try to load features if n is missing.
-        features_path = get_path("features_clr")
-        if features_path.exists():
-            try:
-                df = pd.read_csv(features_path)
-                n = len(df)
-            except Exception:
-                pass
-        
-        if n == 0:
-            return {
-                "required_n": 0,
-                "power": 0.0,
-                "effect_size": 0.0,
-                "error": "Could not determine sample size"
-            }
-
-    r2 = model_results.get('test_r2', 0.0)
-    # Number of predictors (excluding intercept). 
-    # Usually derived from the number of features used in the model.
-    # We can estimate this from the features file columns if available, 
-    # or assume a standard number if not.
-    # Let's try to infer from features file.
-    k = 0
-    features_path = get_path("features_clr")
-    if features_path.exists():
-        try:
-            df = pd.read_csv(features_path)
-            # Columns: participant_id, median_rt, delta_rel, theta_rel, alpha_rel, low_beta_rel, high_beta_rel, gamma_rel
-            # Features are the rel power bands.
-            feature_cols = [c for c in df.columns if c not in ['participant_id', 'median_rt']]
-            k = len(feature_cols)
-        except Exception:
-            k = 6 # Default to 6 bands if file read fails
-
-    if k == 0:
-        k = 6 # Default fallback
-
-    # Effect size f2 = R2 / (1 - R2)
-    # Handle R2 = 1.0 to avoid division by zero
     if r2 >= 1.0:
-        f2 = 10.0 # Large effect
-    else:
-        f2 = r2 / (1.0 - r2)
+        # Avoid division by zero or infinity
+        return float('inf')
+    if r2 <= 0:
+        return 0.0
+    
+    f_squared = r2 / (1.0 - r2)
+    return f_squared
 
-    # Calculate power using non-central F distribution approximation
-    # We use statsmodels TTestIndPower as a proxy for the F-test power in regression
-    # by converting f2 to a non-centrality parameter or using the specific F-test power function if available.
-    # statsmodels.stats.power.FTestPower is the correct tool for ANOVA/Regression F-tests.
-    from statsmodels.stats.power import FTestPower
+
+def perform_power_analysis(
+    observed_r2: float, 
+    n_obs: int, 
+    n_predictors: int,
+    target_r2: float = 0.10,
+    target_power: float = 0.80,
+    alpha: float = 0.05
+) -> Dict[str, Any]:
+    """
+    Performs post-hoc power analysis.
     
-    f_test = FTestPower()
+    Calculates:
+    1. The observed effect size (f²) from the actual model R².
+    2. The power of the current study given the observed effect size and N.
+    3. The required sample size (required_n) to achieve target_power (0.80) 
+       for the target R² (0.10).
     
-    # Calculate non-centrality parameter (nct) for F-test: nct = f2 * k * n
-    # Actually, for regression F-test: nct = f2 * (n - 1) * k / (k + 1) ? 
-    # Standard formula: nct = f2 * N * k (where k is number of predictors) -> No.
-    # Correct nct for F-test in multiple regression: nct = f^2 * (u + v + 1) where u=k, v=n-k-1.
-    # Simplified: nct = f^2 * n * k (approx for large n).
-    # Let's use the direct method from statsmodels:
-    # power = f_test.solve_power(effect_size=f2, nobs1=n, alpha=alpha, df_num=k, df_denom=n-k-1)
+    Args:
+        observed_r2: The R² achieved in the current study.
+        n_obs: Current number of observations.
+        n_predictors: Number of predictors in the model.
+        target_r2: The target R² for power calculation (default 0.10).
+        target_power: Desired statistical power (default 0.80).
+        alpha: Significance level (default 0.05).
     
-    # However, FTestPower.solve_power expects 'effect_size' as Cohen's f2.
-    # nobs1 is the sample size.
-    # df_num = k (numerator df)
-    # df_denom = n - k - 1 (denominator df)
+    Returns:
+        Dictionary containing analysis results.
+    """
+    results = {}
+    
+    # 1. Calculate observed effect size (f²)
+    observed_f2 = calculate_effect_size_from_r2(observed_r2, n_obs, n_predictors)
+    results['observed_effect_size_f2'] = observed_f2
+    
+    # 2. Calculate current power based on observed effect size
+    # Using FTestPower for linear regression
+    # nobs = sample size
+    # effect = f2
+    # df_num = n_predictors (degrees of freedom for the model)
+    # df_denom = n_obs - n_predictors - 1 (degrees of freedom for error)
+    
+    df_num = n_predictors
+    df_denom = max(1, n_obs - n_predictors - 1)
+    
+    power_test = FTestPower()
+    
+    # Calculate power for the observed effect size
+    current_power = power_test.power(
+        effect_size=observed_f2,
+        df_num=df_num,
+        df_denom=df_denom,
+        alpha=alpha,
+        nobs1=n_obs
+    )
+    results['current_power'] = float(current_power)
+    
+    # 3. Calculate required N for target R² (0.10) and target power (0.80)
+    target_f2 = calculate_effect_size_from_r2(target_r2, 0, 0)
+    
+    # Solve for nobs
+    # We need to find n such that power(n, f2_target) >= target_power
+    # We can use the solve_power method
     
     try:
-        power = f_test.solve_power(
-            effect_size=f2, 
-            nobs1=n, 
-            alpha=alpha, 
-            df_num=k, 
-            df_denom=n - k - 1
+        required_n = power_test.solve_power(
+            effect_size=target_f2,
+            df_num=df_num,
+            df_denom=None, # Let it solve for denominator degrees of freedom
+            alpha=alpha,
+            power=target_power,
+            alternative='larger'
         )
-    except Exception:
-        power = 0.0
+        # solve_power returns total sample size (nobs)
+        if required_n is None or np.isnan(required_n) or np.isinf(required_n):
+            # If we can't solve it (e.g., effect size is too small for any N to achieve power)
+            # or if the required N is unreasonably large
+            results['required_n'] = None
+            results['required_n_note'] = "Could not calculate required N (effect size too small or calculation failed)"
+        else:
+            results['required_n'] = int(np.ceil(required_n))
+            results['required_n_note'] = f"Calculated for R²={target_r2}, Power={target_power}, Alpha={alpha}"
+    except Exception as e:
+        results['required_n'] = None
+        results['required_n_note'] = f"Calculation failed: {str(e)}"
+    
+    # Add metadata
+    results['target_r2'] = target_r2
+    results['target_power'] = target_power
+    results['alpha'] = alpha
+    results['n_predictors'] = n_predictors
+    results['analysis_type'] = "post_hoc"
+    
+    return results
 
-    # Calculate required N for 80% power
+
+def save_results(power_results: Dict[str, Any], model_results_path: str) -> bool:
+    """
+    Appends the power analysis results to the existing model_results.json file.
+    
+    Args:
+        power_results: Dictionary containing the power analysis results.
+        model_results_path: Path to the model_results.json file.
+    
+    Returns:
+        True if successful, False otherwise.
+    """
     try:
-        required_n = f_test.solve_power(
-            effect_size=f2, 
-            nobs1=None, 
-            alpha=alpha, 
-            df_num=k, 
-            df_denom=None, 
-            power=0.80
-        )
-    except Exception:
-        required_n = n # If calculation fails, assume current n is required
+        # Ensure directory exists
+        ensure_dirs(model_results_path)
+        
+        # Load existing results if file exists
+        if os.path.exists(model_results_path):
+            with open(model_results_path, 'r') as f:
+                existing_results = json.load(f)
+        else:
+            existing_results = {}
+        
+        # Append power analysis results
+        existing_results['post_hoc_power_analysis'] = power_results
+        
+        # Write back to file
+        with open(model_results_path, 'w') as f:
+            json.dump(existing_results, f, indent=2)
+        
+        print(f"Successfully appended power analysis results to {model_results_path}")
+        return True
+        
+    except Exception as e:
+        print(f"Error saving results: {e}")
+        return False
 
-    if required_n is None or np.isnan(required_n):
-        required_n = n
-
-    return {
-        "required_n": int(np.ceil(required_n)),
-        "power": float(power),
-        "effect_size": float(f2)
-    }
-
-def save_results(power_analysis: Dict[str, Any], output_path: Path) -> None:
-    """
-    Append power analysis results to model_results.json.
-    """
-    # Load existing results
-    if output_path.exists():
-        with open(output_path, 'r') as f:
-            existing_data = json.load(f)
-    else:
-        existing_data = {}
-
-    # Update with new results
-    existing_data['post_hoc_power_analysis'] = power_analysis
-
-    # Ensure directory exists
-    ensure_dirs(output_path.parent)
-
-    # Write back
-    with open(output_path, 'w') as f:
-        json.dump(existing_data, f, indent=2)
-
-    print(f"Post-hoc power analysis results saved to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Perform post-hoc power analysis")
-    parser.add_argument('--output', type=str, default=None, help='Output path for results (overrides default)')
+    """Main entry point for the post-hoc power analysis task."""
+    parser = argparse.ArgumentParser(description="Perform post-hoc power analysis for T023")
+    parser.add_argument(
+        '--target-r2', 
+        type=float, 
+        default=0.10, 
+        help='Target R² for power calculation (default: 0.10)'
+    )
+    parser.add_argument(
+        '--target-power', 
+        type=float, 
+        default=0.80, 
+        help='Target statistical power (default: 0.80)'
+    )
     args = parser.parse_args()
-
+    
+    print("Starting Post-Hoc Power Analysis (T023)...")
+    
     # Load model results
     model_results = load_model_results()
-    if model_results is None:
-        print("Failed to load model results. Exiting.")
+    if not model_results:
+        print("ERROR: Could not load model results. Exiting.")
+        sys.exit(1)
+    
+    # Extract necessary parameters
+    # We need R², number of observations, and number of predictors
+    # The model_results.json structure is expected to have:
+    # - test_r2 (or adjusted_r2)
+    # - We need to infer n_obs and n_predictors from the data used in modeling
+    
+    # Since we don't have direct access to the modeling script's internal variables,
+    # we need to load the features to count observations and predictors
+    try:
+        features_path = get_path("processed", "features.csv")
+        if not os.path.exists(features_path):
+            print(f"ERROR: Features file not found at {features_path}")
+            sys.exit(1)
+        
+        import pandas as pd
+        df = pd.read_csv(features_path)
+        
+        n_obs = len(df)
+        # Assume all columns except 'participant_id' and 'median_rt' are features
+        feature_cols = [col for col in df.columns if col not in ['participant_id', 'median_rt']]
+        n_predictors = len(feature_cols)
+        
+        if n_predictors == 0:
+            print("ERROR: No feature columns found in features.csv")
+            sys.exit(1)
+            
+        print(f"Loaded {n_obs} observations with {n_predictors} predictors.")
+        
+    except Exception as e:
+        print(f"ERROR: Could not load features to determine N and predictors: {e}")
+        sys.exit(1)
+    
+    # Get observed R²
+    # Prefer adjusted_r2 if available, otherwise test_r2
+    observed_r2 = model_results.get('adjusted_r2') or model_results.get('test_r2')
+    if observed_r2 is None:
+        print("ERROR: Could not find R² value in model results.")
+        sys.exit(1)
+    
+    print(f"Using observed R²: {observed_r2:.4f}")
+    
+    # Perform power analysis
+    power_analysis_results = perform_power_analysis(
+        observed_r2=observed_r2,
+        n_obs=n_obs,
+        n_predictors=n_predictors,
+        target_r2=args.target_r2,
+        target_power=args.target_power
+    )
+    
+    print("Power Analysis Results:")
+    print(f"  Observed Effect Size (f²): {power_analysis_results['observed_effect_size_f2']:.4f}")
+    print(f"  Current Power: {power_analysis_results['current_power']:.4f}")
+    if power_analysis_results['required_n']:
+        print(f"  Required N for R²={args.target_r2}, Power=0.80: {power_analysis_results['required_n']}")
+    else:
+        print(f"  Required N: {power_analysis_results['required_n_note']}")
+    
+    # Save results
+    model_results_path = get_path("processed", "model_results.json")
+    if save_results(power_analysis_results, model_results_path):
+        print("Task T023 completed successfully.")
+        sys.exit(0)
+    else:
+        print("Task T023 failed to save results.")
         sys.exit(1)
 
-    # Perform analysis
-    power_analysis = perform_power_analysis(model_results)
-
-    # Determine output path
-    if args.output:
-        output_path = Path(args.output)
-    else:
-        output_path = get_path("model_results")
-
-    # Save results
-    save_results(power_analysis, output_path)
-
-    print(f"Power: {power_analysis['power']:.4f}")
-    print(f"Required N for 80% power: {power_analysis['required_n']}")
-    print(f"Effect size (f2): {power_analysis['effect_size']:.4f}")
 
 if __name__ == "__main__":
     main()

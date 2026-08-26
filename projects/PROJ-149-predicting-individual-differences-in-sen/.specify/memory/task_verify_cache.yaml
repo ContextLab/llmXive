@@ -15,20 +15,14 @@ T010:
     \ writes the required `.fif` files. Moreover, the required `data/interim/exclusion_log.csv`\
     \ (and the `.fif` output directories) are absent from the repository. The task\u2019\
     s output artifacts are therefore missing or incomplete."
-T023:
+T031c:
   c: false
-  h: 08bdb69e445545bdca4e8601b5b770b3e4e6453dbf22fd9ebbc5aa7fd816af49
-  r: "The required output file `data/processed/model_results.json` is missing, so\
-    \ no post\u2011hoc power analysis results (required_n, power, effect_size) can\
-    \ be verified as appended. Without the file, the task\u2019s core requirement\
-    \ is not satisfied."
-T031:
-  c: false
-  h: 6ed94d5829cb6dfccb67b0269469078fa4ab626ada568acbb635fddf840a334e
-  r: "The repository contains `code/11_generate_report.py`, but the required output\
-    \ file `data/processed/final_report.md` is missing, and the script shown does\
-    \ not include any logic that writes a markdown report to that path. Without the\
-    \ generated report file, the task\u2019s core requirement is not satisfied."
+  h: 0b6c8bebab7409c390a95dccfb296212af6fa9f61c7e4b2bed3d23ac8e3c97ca
+  r: The `code/11c_write_report.py` file is present but its implementation is truncated
+    and contains unfinished functions (e.g., `load_metadata_count` ends with a `pass`
+    and no logic). Moreover, the required output file `data/processed/final_report.md`
+    does not exist, indicating the script has not successfully generated the final
+    report. The task therefore remains incomplete.
 T032:
   c: false
   h: 34857c223d77bcab7486dac7accd0b576d2daa0d92be8373d915ec294f99d761
@@ -36,14 +30,6 @@ T032:
     \ there is no evidence that the pipeline was run, resource usage was logged, or\
     \ the failure conditions were checked. Without this file the task\u2019s verification\
     \ requirements are not satisfied."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No test execution artifacts (e.g., pytest output, log files, or a report indicating
-    that `pytest tests/unit/` was run and passed) are present. Without such evidence,
-    we cannot confirm that the unit tests for the `utils/` helpers were actually executed.
-    The implementer must provide the test run results or a CI log showing the successful
-    execution of the unit tests.
 T035a:
   c: false
   h: 57a50f64ed7ccff841f123d2f8bedbe344d8e426320539ad1c21d5a3486ca87d
@@ -51,20 +37,10 @@ T035a:
     \ schema file `contracts/feature_schema.schema.yaml` is also missing, causing\
     \ the provided pytest to fail. Both artifacts must be created with valid, non\u2011\
     empty content for the task to be satisfied."
-T035b:
+T036a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No contract test files, schema definitions, or validation results for `model_results.json`,
-    `correlations_corrected.csv`, `non_linear_comparison.json`, or `permutation_results.json`
-    are present. The implementer provided only a textual description of the task and
-    specifications, but no actual artifacts demonstrating that the schemas were validated.
-    To satisfy the requirement, concrete test code (e.g., pytest or schemathesis contracts)
-    and the resulting pass/fail reports need to be added.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No test run output, logs, or pytest result files are present; the required artifact\
-    \ \u201Cevidence that the contract tests for `feature_schema` and `result_schema`\
-    \ were executed (e.g., pytest output, a passed/failed report, or generated test\
-    \ report files)\u201D is missing. The implementer has not provided any such evidence,\
-    \ so the task is not satisfied."
+  r: No test execution artifacts (e.g., pytest output, log file, or generated report)
+    are provided, and there is no evidence that the contract tests for `feature_schema`
+    and `result_schema` were actually run. The implementer must supply the pytest
+    run results or a summary confirming that all contract tests passed.

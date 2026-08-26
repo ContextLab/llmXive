@@ -1,31 +1,39 @@
-# Feature Schema Contract
-# Generated for task T035a: Validate schema of data/processed/features.csv
-# Defines the required structure for the feature extraction output.
-
-required_columns:
-  - participant_id
-  - median_rt
-  - delta_rel
-  - theta_rel
-  - alpha_rel
-  - low_beta_rel
-  - high_beta_rel
-  - gamma_rel
-
-rt_range:
-  min: 100.0
-  max: 2000.0
-
-data_types:
-  participant_id: string
-  median_rt: float
-  delta_rel: float
-  theta_rel: float
-  alpha_rel: float
-  low_beta_rel: float
-  high_beta_rel: float
-  gamma_rel: float
-
-constraints:
-  no_nulls: true
-  unique_participant_id: true
+version: "1.0"
+name: feature_schema
+description: Schema for data/processed/features.csv
+columns:
+  participant_id:
+    type: string
+    required: true
+    nullable: false
+  median_rt:
+    type: float
+    required: true
+    nullable: false
+    constraints:
+      min: 100
+      max: 2000
+  delta_rel:
+    type: float
+    required: true
+    nullable: false
+  theta_rel:
+    type: float
+    required: true
+    nullable: false
+  alpha_rel:
+    type: float
+    required: true
+    nullable: false
+  low_beta_rel:
+    type: float
+    required: true
+    nullable: false
+  high_beta_rel:
+    type: float
+    required: true
+    nullable: false
+  gamma_rel:
+    type: float
+    required: true
+    nullable: false

@@ -1,232 +1,174 @@
 """
-Configuration module for the EEG Sensory Processing Speed pipeline.
-Defines paths, parameters, and utility functions used across the project.
+Configuration for the EEG analysis pipeline.
 """
 import os
-import numpy as np
 from pathlib import Path
 
-# Project root
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_ROOT = PROJECT_ROOT / "data"
-CODE_ROOT = PROJECT_ROOT / "code"
+# Project Root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Constants
-EPSILON = 1e-9
+# Paths
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_INTERIM_DIR = PROJECT_ROOT / "data" / "interim"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+FIGURES_DIR = PROJECT_ROOT / "figures"
+
+# EEG Parameters
+BANDS = {
+    'delta': (1, 4),
+    'theta': (4, 8),
+    'alpha': (8, 13),
+    'low_beta': (13, 20),
+    'high_beta': (20, 30),
+    'gamma': (30, 40)
+}
+FILTER_PARAMS = {
+    'lowcut': 1,
+    'highcut': 40,
+    'notch': [50, 60]
+}
+ICA_PARAMS = {
+    'n_components': 0.95,
+    'random_state': 42
+}
+WINDOW_SIZE = 4  # seconds
 OVERLAP = 0.5
-WINDOW_SIZE = 2  # Overridden by Constitution Principle VI
-SEED = 42
+EPSILON = 1e-9
 POLY_DEGREE = 2
 
-# Band definitions (Hz)
-BAND_FREQS = {
-    "delta": (1, 4),
-    "theta": (4, 8),
-    "alpha": (8, 13),
-    "low_beta": (13, 20),
-    "high_beta": (20, 30),
-    "gamma": (30, 40)
+# Random Seed
+RANDOM_SEED = 42
+
+# Path Mapping Configuration
+# This dictionary maps logical names to absolute paths
+PATH_MAP = {
+    'raw': DATA_RAW_DIR,
+    'raw_data': DATA_RAW_DIR,
+    'interim': DATA_INTERIM_DIR,
+    'processed': DATA_PROCESSED_DIR,
+    'processed_data': DATA_PROCESSED_DIR,
+    'figures': FIGURES_DIR,
+    'data_raw': DATA_RAW_DIR,
+    'data_interim': DATA_INTERIM_DIR,
+    'data_processed': DATA_PROCESSED_DIR,
+    'behavioral_metrics': DATA_INTERIM_DIR / "behavioral_metrics.csv",
+    'model_results': DATA_PROCESSED_DIR / "model_results.json",
+    'features': DATA_PROCESSED_DIR / "features.csv",
 }
-
-# ICA parameters
-ICA_MAX_ITER = 200
-ICA_RANDOM_STATE = SEED
-
-# Preprocessing parameters
-FILTER_LOW = 1.0
-FILTER_HIGH = 40.0
-NOTCH_FREQS = [50, 60]  # Hz
-VARIANCE_THRESHOLD_SD = 3.0
-MAX_REJECTED_CHANNELS_RATIO = 0.30
-MIN_TRIALS_RATIO = 0.70
-MIN_EPOCH_DURATION_MINUTES = 2
-
-# Modeling parameters
-CV_FOLDS = 5
-TRAIN_TEST_SPLIT = 0.8
-
-# Paths map - supports various calling conventions
-# Keys are logical names, values are relative paths from PROJECT_ROOT
-PATHS = {
-    "data_raw": "data/raw",
-    "data_interim": "data/interim",
-    "data_processed": "data/processed",
-    "data": "data",
-    "raw_data": "data/raw",
-    "processed_data": "data/processed",
-    "interim": "data/interim",
-    "processed": "data/processed",
-    "features": "data/processed/features.csv",
-    "features_clr": "data/processed/features_clr.csv",
-    "model_results": "data/processed/model_results.json",
-    "correlations": "data/interim/correlations_raw.csv",
-    "correlations_corrected": "data/processed/correlations_corrected.csv",
-    "non_linear_comparison": "data/processed/non_linear_comparison.json",
-    "permutation_results": "data/processed/permutation_results.json",
-    "robustness_report": "data/processed/robustness_report.csv",
-    "sensitivity_report": "data/processed/sensitivity_report.csv",
-    "sensitivity_plot": "data/processed/sensitivity_plot.png",
-    "final_report": "data/processed/final_report.md",
-    "joined_metadata": "data/interim/joined_metadata.csv",
-    "behavioral_metrics": "data/interim/behavioral_metrics.csv",
-    "behavioral_exclusion_log": "data/interim/behavioral_exclusion_log.csv",
-    "eeg_psd": "data/interim/eeg_psd.csv",
-    "split_indices": "data/interim/split_indices.json",
-    "preprocessed_eeg": "data/interim/preprocessed_eeg",
-    "ica_cleaned_eeg": "data/interim/ica_cleaned_eeg",
-    "exclusion_log": "data/interim/exclusion_log.csv",
-    "manifest": "data/interim/data_source_manifest.json",
-    "feasibility_report": "data/processed/feasibility_report.md",
-    "verification_log": "data/processed/verification_log.json",
-}
-
-def get_epsilon():
-    """Return the epsilon value for numerical stability."""
-    return EPSILON
-
-def get_seed():
-    """Return the random seed."""
-    return SEED
-
-def get_band_freqs():
-    """Return the band frequency definitions."""
-    return BAND_FREQS
-
-def get_all_band_names():
-    """Return list of all band names."""
-    return list(BAND_FREQS.keys())
-
-def get_window_seconds():
-    """Return window size in seconds."""
-    return WINDOW_SIZE
-
-def get_overlap_seconds():
-    """Return overlap in seconds."""
-    return OVERLAP
-
-def get_min_epoch_duration_minutes():
-    """Return minimum epoch duration in minutes."""
-    return MIN_EPOCH_DURATION_MINUTES
-
-def get_cv_folds():
-    """Return number of CV folds."""
-    return CV_FOLDS
 
 def get_path(*args):
     """
-    Flexible path resolver supporting multiple calling conventions.
-
-    Conventions supported:
-    1. get_path("logical_key") -> resolves from PATHS map
-    2. get_path("logical_key", "subpath") -> resolves key, appends subpath
-    3. get_path("absolute_or_relative/path") -> returns Path object directly
-    4. get_path(base_dir, "relative/path") -> joins base_dir and relative path
-
-    Args:
-        *args: Variable length argument list.
-
-    Returns:
-        Path: Resolved path object.
+    Flexible path resolver.
+    
+    Accepts:
+    - get_path("key") -> returns PATH_MAP[key]
+    - get_path("key", "subpath") -> returns PATH_MAP[key] / subpath
+    - get_path("absolute/path") -> returns Path("absolute/path")
+    - get_path(Path_obj) -> returns Path_obj
+    
+    Handles the various calling conventions found in the project.
     """
     if not args:
-        raise ValueError("get_path() requires at least one argument.")
-
-    # Case 1: Single string argument
+        return PROJECT_ROOT
+    
     if len(args) == 1:
         arg = args[0]
-        if isinstance(arg, str):
-            # Check if it's a logical key
-            if arg in PATHS:
-                return PROJECT_ROOT / PATHS[arg]
-            # Otherwise treat as relative or absolute path
-            return PROJECT_ROOT / arg
-        elif isinstance(arg, Path):
+        if isinstance(arg, Path):
             return arg
-        else:
-            raise TypeError(f"Unsupported argument type: {type(arg)}")
-
-    # Case 2: Two arguments (base, relative)
-    if len(args) == 2:
-        base, relative = args
-        if isinstance(base, str) and base in PATHS:
-            base_path = PROJECT_ROOT / PATHS[base]
-        elif isinstance(base, (str, Path)):
-            base_path = PROJECT_ROOT / base if isinstance(base, str) else base
-        else:
-            base_path = PROJECT_ROOT / str(base) if base else PROJECT_ROOT
-
-        if isinstance(relative, str):
-            return base_path / relative
-        elif isinstance(relative, Path):
-            return base_path / relative
-        else:
-            return base_path / str(relative)
-
-    # Case 3: More than two arguments (unlikely, but handle gracefully)
-    # Treat first as base, rest as path components
-    base = args[0]
-    if isinstance(base, str) and base in PATHS:
-        base_path = PROJECT_ROOT / PATHS[base]
-    else:
-        base_path = PROJECT_ROOT / str(base) if base else PROJECT_ROOT
-
-    path_components = [str(a) for a in args[1:]]
-    return base_path / os.path.join(*path_components)
+        if isinstance(arg, str):
+            # Check if it's a key in PATH_MAP
+            if arg in PATH_MAP:
+                return PATH_MAP[arg]
+            # Check if it looks like an absolute or relative path string
+            if arg.startswith('/') or arg.startswith('./') or arg.startswith('../'):
+                return Path(arg)
+            # Fallback: treat as a relative path from root or key
+            # Try to find it in PATH_MAP keys first (case insensitive maybe?)
+            # If not found, assume it's a subpath of PROJECT_ROOT?
+            # Or maybe it's a key that wasn't in the map?
+            # Let's try to construct it relative to PROJECT_ROOT if it doesn't exist
+            p = Path(arg)
+            if p.is_absolute():
+                return p
+            # If it's a relative string, treat as subpath of root?
+            # But wait, some calls are get_path("processed", "file.csv")
+            # and some are get_path("data/processed/file.csv")
+            # If it contains '/', treat as relative path
+            if '/' in arg:
+                return PROJECT_ROOT / arg
+            return PATH_MAP.get(arg, PROJECT_ROOT / arg)
+    
+    elif len(args) >= 2:
+        # get_path("key", "subpath") or get_path(base_dir, subpath)
+        first = args[0]
+        rest = args[1:]
+        
+        base = None
+        if isinstance(first, Path):
+            base = first
+        elif isinstance(first, str):
+            if first in PATH_MAP:
+                base = PATH_MAP[first]
+            elif first.startswith('/') or first.startswith('./'):
+                base = Path(first)
+            else:
+                # Maybe it's a relative path string?
+                base = PROJECT_ROOT / first
+        
+        if base is None:
+            base = PROJECT_ROOT
+        
+        # Join the rest
+        for part in rest:
+            if isinstance(part, Path):
+                base = base / part
+            elif isinstance(part, str):
+                base = base / part
+        
+        return base
+    
+    return PROJECT_ROOT
 
 def ensure_dirs(*args):
     """
-    Flexible directory creator supporting multiple calling conventions.
-
-    Conventions supported:
-    1. ensure_dirs() -> does nothing (no-op)
-    2. ensure_dirs("path_string") -> creates directory at path
-    3. ensure_dirs(Path_object) -> creates directory at path
-    4. ensure_dirs(["path1", "path2"]) -> creates multiple directories
-    5. ensure_dirs(Path_object1, Path_object2) -> creates multiple directories
-
-    Args:
-        *args: Variable length argument list.
+    Flexible directory creator.
+    
+    Accepts:
+    - ensure_dirs() -> does nothing (or creates root?)
+    - ensure_dirs("path") -> creates PROJECT_ROOT / path
+    - ensure_dirs(Path_obj) -> creates Path_obj
+    - ensure_dirs(["path1", "path2"]) -> creates all
+    - ensure_dirs(path_obj, another_obj) -> creates all
     """
     if not args:
-        # No-op case
-        return None
-
-    # Flatten arguments if a list is passed
+        return
+    
     paths_to_create = []
+    
     for arg in args:
         if isinstance(arg, list):
             paths_to_create.extend(arg)
-        else:
+        elif isinstance(arg, Path):
             paths_to_create.append(arg)
-
-    for path in paths_to_create:
-        if isinstance(path, str):
-            # Check if it's a logical key first
-            if path in PATHS:
-                full_path = PROJECT_ROOT / PATHS[path]
+        elif isinstance(arg, str):
+            # Check if it's a key in PATH_MAP
+            if arg in PATH_MAP:
+                paths_to_create.append(PATH_MAP[arg])
+            elif '/' in arg or arg.startswith('.'):
+                paths_to_create.append(PROJECT_ROOT / arg)
             else:
-                full_path = PROJECT_ROOT / path
-        elif isinstance(path, Path):
-            full_path = path
-        else:
-            full_path = PROJECT_ROOT / str(path)
-
-        full_path.mkdir(parents=True, exist_ok=True)
-
-    # Return the last created path or None if no paths were created
-    return full_path if paths_to_create else None
-
-def bonferroni_correct(p_values, num_tests=None):
-    """
-    Apply Bonferroni correction to a list of p-values.
-
-    Args:
-        p_values: List or array of p-values.
-        num_tests: Number of tests (defaults to len(p_values)).
-
-    Returns:
-        List of corrected p-values.
-    """
-    if num_tests is None:
-        num_tests = len(p_values)
-    return [min(p * num_tests, 1.0) for p in p_values]
+                # Maybe a simple directory name?
+                paths_to_create.append(PROJECT_ROOT / arg)
+    
+    for p in paths_to_create:
+        if isinstance(p, str):
+            p = Path(p)
+        if not p.exists():
+            p.mkdir(parents=True, exist_ok=True)
+    
+    # Return the last one if needed for chaining, or None
+    # Some callers assign the result: output_dir = ensure_dirs(...)
+    # We can return the last path created or the first if only one.
+    if paths_to_create:
+        return paths_to_create[-1]
+    return None

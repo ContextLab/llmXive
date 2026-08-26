@@ -1,7 +1,7 @@
 """
 Task T032: Implement feasibility measurement script.
 Estimates RAM usage and runtime for the pipeline, logging results to a file.
-Does not abort execution; only records metrics.
+Performs a hard abort if estimated RAM > 7GB or estimated runtime > 6h.
 """
 import os
 import sys
@@ -12,7 +12,13 @@ from pathlib import Path
 
 # Import shared config utilities.
 # We use a tolerant get_path wrapper to handle various call signatures found in the codebase.
-from config import get_path as _get_path, ensure_dirs as _ensure_dirs, get_seed
+try:
+    from config import get_path as _get_path, ensure_dirs as _ensure_dirs, get_seed
+except ImportError:
+    # Fallback if config is not in path or fails
+    _get_path = None
+    _ensure_dirs = None
+    get_seed = None
 
 def safe_get_path(*args, **kwargs):
     """
@@ -21,6 +27,19 @@ def safe_get_path(*args, **kwargs):
     - get_path("processed", "file.json")
     - get_path(base_dir, "data/processed/file.json")
     """
+    if _get_path is None:
+        # Fallback logic if config import failed
+        # Try to reconstruct based on common patterns
+        if len(args) == 1:
+            return str(args[0])
+        elif len(args) == 2:
+            # If first is a known key, assume it's a subdir
+            if args[0] in ["interim", "processed", "raw", "data_raw", "features", "model_results", "correlations", "robustness", "sensitivity", "verification", "data/processed", "data/interim"]:
+                return str(Path(args[0]) / args[1])
+            else:
+                return str(Path(args[0]) / args[1])
+        return "data/processed/feasibility_metrics.log"
+
     try:
         # Try the standard signature first: get_path(name) or get_path(subdir, name)
         # The underlying config.py likely expects (name) or (subdir, name).
@@ -53,6 +72,27 @@ def safe_ensure_dirs(*args, **kwargs):
     - ensure_dirs([path])
     - ensure_dirs(path, mode)
     """
+    if _ensure_dirs is None:
+        # Fallback
+        paths_to_create = []
+        if len(args) == 0:
+            return None
+        elif len(args) == 1:
+            val = args[0]
+            if isinstance(val, list):
+                paths_to_create = val
+            else:
+                paths_to_create = [val]
+        else:
+            paths_to_create = list(args)
+
+        for p in paths_to_create:
+            if isinstance(p, Path):
+                p = str(p)
+            if isinstance(p, str):
+                os.makedirs(p, exist_ok=True)
+        return paths_to_create[0] if paths_to_create else None
+
     try:
         # Normalize args
         paths_to_create = []
@@ -125,6 +165,7 @@ def main():
     """
     Main entry point for T032.
     Estimates RAM and runtime, logs to data/processed/feasibility_metrics.log.
+    Performs a hard abort if thresholds are exceeded.
     """
     print("Starting feasibility measurement (T032)...")
     
@@ -145,11 +186,42 @@ def main():
         "status": "completed"
     }
     
-    # 4. Write to log file
+    # 4. Hard Abort Checks
+    # Thresholds: RAM > 7GB (7000 MB), Runtime > 6h (21600 s)
+    ram_threshold_mb = 7000
+    runtime_threshold_sec = 6 * 60 * 60  # 6 hours in seconds
+    
+    violation_reasons = []
+    if current_ram_mb > ram_threshold_mb:
+        violation_reasons.append(f"RAM usage {current_ram_mb:.2f} MB exceeds limit {ram_threshold_mb} MB.")
+    if estimated_runtime_sec > runtime_threshold_sec:
+        violation_reasons.append(f"Estimated runtime {estimated_runtime_sec:.2f} s exceeds limit {runtime_threshold_sec} s.")
+    
+    if violation_reasons:
+        print("⚠ FEASIBILITY VIOLATION DETECTED:")
+        for reason in violation_reasons:
+            print(f"  - {reason}")
+        metrics["status"] = "failed"
+        metrics["violation_reasons"] = violation_reasons
+        
+        # Ensure output directory exists
+        safe_ensure_dirs("data/processed")
+        output_path = safe_get_path("data/processed", "feasibility_metrics.log")
+        
+        try:
+            with open(output_path, 'w') as f:
+                f.write(json.dumps(metrics, indent=2))
+            print(f"Feasibility violation logged to {output_path}")
+        except Exception as e:
+            print(f"Warning: Could not write feasibility metrics: {e}")
+        
+        # Hard Abort: exit with code 1
+        sys.exit(1)
+    
+    # 5. Write to log file
     # Ensure the output directory exists
-    output_dir = "data/processed"
-    safe_ensure_dirs(output_dir)
-    output_path = safe_get_path(output_dir, "feasibility_metrics.log")
+    safe_ensure_dirs("data/processed")
+    output_path = safe_get_path("data/processed", "feasibility_metrics.log")
     
     try:
         with open(output_path, 'w') as f:
