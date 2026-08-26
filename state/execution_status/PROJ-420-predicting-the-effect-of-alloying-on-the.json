@@ -1,18 +1,16 @@
 {
   "project_id": "PROJ-420-predicting-the-effect-of-alloying-on-the",
   "ok": false,
-  "reason": "3 command(s) failed: python code/cli/download_cli.py --extract (rc=1); python code/modeling.py (rc=1); python code/analysis.py (rc=1); 1 declared deliverable(s) absent: data/processed/alloys_clean.parquet",
+  "reason": "1 command(s) failed: python code/main.py (rc=1)",
   "artifacts": [],
   "failures": [
-    "python code/cli/download_cli.py --extract -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/cli/download_cli.py\", line 67, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/cli/download_cli.py\", line 48, in main\n    logger = setup_logging(level=log_level)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: setup_logging() got an unexpected keyword argument 'level'",
-    "python code/modeling.py -> rc=1\n    ng-the-effect-of-alloying-on-the/code/modeling.py\", line 26, in load_features_and_target\n    data_path = config.data_processed / \"filtered_alloys.csv\"\n                ^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'Config' object has no attribute 'data_processed'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/modeling.py\", line 191, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/modeling.py\", l",
-    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/analysis.py\", line 10, in <module>\n    from compositional import ilr, ilr_inv\nImportError: cannot import name 'ilr' from 'compositional' (/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/.venv/lib/python3.11/site-packages/compositional/__init__.py)"
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py\", line 179, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py\", line 169, in main\n    generate_final_report(metrics_path, vif_path, importance_path, output_path)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py\", line 53, in generate_final_report\n    metrics = load_j"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-10T23:18:09Z"
+  "updated_at": "2026-08-26T21:59:11Z"
 }

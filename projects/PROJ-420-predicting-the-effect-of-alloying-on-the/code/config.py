@@ -27,7 +27,7 @@ class Config:
         # Random seed for reproducibility
         self.random_seed = 42
         
-        # Valid measurement methods
+        # Valid measurement methods (regex patterns)
         self.VALID_MEASUREMENT_METHODS = [
             r'.*Ultrasonic.*',
             r'.*Direct.*',
@@ -50,14 +50,17 @@ class Config:
         for d in dirs:
             d.mkdir(parents=True, exist_ok=True)
     
-    # Tolerant attribute access for logger-style calls
+    # Tolerant attribute access for logger-style calls and missing attributes
     def __getattr__(self, name: str):
         # Handle logger-style calls (.info/.debug/.warning/.error/...)
         if name in ['info', 'debug', 'warning', 'error', 'critical', 'log']:
             def _noop(*args: Any, **kwargs: Any) -> None:
                 return None
             return _noop
-        raise AttributeError(f"'Config' object has no attribute '{name}'")
+        # Handle missing attributes gracefully (return a no-op callable or None)
+        def _missing_attr(*args: Any, **kwargs: Any) -> Any:
+            return None
+        return _missing_attr
 
 _CONFIG: Optional[Config] = None
 

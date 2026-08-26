@@ -4,50 +4,27 @@
 
 These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
 
-- `python code/analysis.py`
-- `python code/cli/download_cli.py --extract`
-- `python code/modeling.py`
+- `python code/main.py`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python code/cli/download_cli.py --extract (rc=1); python code/modeling.py (rc=1); python code/analysis.py (rc=1); 1 declared deliverable(s) absent: data/processed/alloys_clean.parquet
+**Summary**: 1 command(s) failed: python code/main.py (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/cli/download_cli.py --extract -> rc=1
+- python code/main.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/cli/download_cli.py", line 67, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 179, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/cli/download_cli.py", line 48, in main
-    logger = setup_logging(level=log_level)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: setup_logging() got an unexpected keyword argument 'level'
-- python code/modeling.py -> rc=1
-    ng-the-effect-of-alloying-on-the/code/modeling.py", line 26, in load_features_and_target
-    data_path = config.data_processed / "filtered_alloys.csv"
-                ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'Config' object has no attribute 'data_processed'
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/modeling.py", line 191, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/modeling.py", line 185, in main
-    run_modeling_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/modeling.py", line 133, in run_modeling_pipeline
-    X, y = load_features_and_target()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/modeling.py", line 26, in load_features_and_target
-    data_path = config.data_processed / "filtered_alloys.csv"
-                ^^^^^^^^^^^^^^^^^^^^^
-AttributeError: 'Config' object has no attribute 'data_processed'. Did you mean: 'data_processed_dir'?
-- python code/analysis.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/analysis.py", line 10, in <module>
-    from compositional import ilr, ilr_inv
-ImportError: cannot import name 'ilr' from 'compositional' (/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/.venv/lib/python3.11/site-packages/compositional/__init__.py)
-
-## Declared deliverables still missing
-
-- data/processed/alloys_clean.parquet
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 169, in main
+    generate_final_report(metrics_path, vif_path, importance_path, output_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 53, in generate_final_report
+    metrics = load_json_safe(metrics_path)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 22, in load_json_safe
+    with open(path, 'r') as f:
+         ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/data/processed/model_metrics.json'
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -57,18 +34,22 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `setup_logging` — defined in `code/logging_config.py`; called 10 way(s):
+### `setup_logging` — defined in `code/logging_config.py`; called 14 way(s):
 
+- code/main.py: setup_logging(level="INFO")
 - code/main.py: setup_logging()
 - code/format_check.py: setup_logging()
-- code/logging_config.py: setup_logging()
 - code/validate_quickstart.py: logger = setup_logging(level="INFO")
-- code/memory_monitor.py: setup_logging(config)
 - code/memory_utils.py: setup_logging(config)
-- code/cli/download_cli.py: logger = setup_logging(level=log_level)
-- code/cli/clean_cli.py: logger = setup_logging(log_level=log_level)
+- code/memory_monitor.py: setup_logging(config)
+- code/logging_config.py: - setup_logging()
+- code/logging_config.py: - setup_logging(level="INFO")
+- code/logging_config.py: - setup_logging(log_level="INFO")
+- code/logging_config.py: - setup_logging(config)
 - code/data/download.py: setup_logging()
-- code/data/clean.py: setup_logging()
+- code/cli/download_cli.py: logger = setup_logging(level=args.log_level)
+- code/cli/model_cli.py: logger = setup_logging(level=args.log_level)
+- code/cli/clean_cli.py: logger = setup_logging(log_level=args.log_level)
 
 Make `setup_logging` in `code/logging_config.py` accept ALL of the above.
 
@@ -170,12 +151,13 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 ```
 
-## Declared deliverables NOT produced — make the run-book produce them
+## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
 
-- `data/processed/alloys_clean.parquet` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis.py` — IS a run-book command
-    - `code/data/_clean_logic.py` — NOT invoked by the run-book
-    - `code/data/clean.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/alloys_clean.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
+
+### `home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/data/processed/model_metrics.json`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/main.py`, `code/validate_quickstart.py`, `code/modeling.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/data/processed/model_metrics.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/main.py`, `code/validate_quickstart.py`, `code/modeling.py`.
