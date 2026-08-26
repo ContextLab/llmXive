@@ -6,5 +6,9 @@
   {
     "data_file": "data/raw/usgs_test_subset.json",
     "required": []
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-252-exploring-the-correlation-between-atmosp/data/processed/master_dataset.csv",
+    "required": []
   }
 ]

@@ -105,7 +105,7 @@ projects/PROJ-252-exploring-the-correlation-between-atmosp/
 - **Task**: Explicitly log the absence of global pressure data.
 
 ### Phase 1: Pre-processing
-- **Task**: Interpolate pressure grid to 1°.
+- **Task**: Interpolate pressure grid to a standardized resolution.
 - **Task**: Thin earthquake catalog to ensure temporal independence (one event per time interval per region).
 - **Task**: Calculate anomalies: Baseline (pre-event period), Event (t-48 to t).
 - **Task**: Define control windows as fixed-duration UTC intervals in non-event years.

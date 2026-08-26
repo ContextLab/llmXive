@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/mnemoraorg/usgs-global-earthquake-catalog/74442ca13e5c6b7ddd74408e8f3b68589252380d/20010101.csv?%2Fdatasets%2Fmnemoraorg%2Fusgs-global-earthquake-catalog%2Fresolve%2Fmain%2F20010101.csv=&etag=%226fb872350c8006343fe6231baf7dd876d817c6dd%22
   verified_at: '2026-07-06T21:59:01.865329Z'
-- artifact_hash: 24e74125201491409e9c7c7c325a21706499880e935d1673c44d787ce1eca178
+- artifact_hash: 991c2239110e755cf16022403741e923ba0f432320a74c911520c780d0fcf65d
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://earthquake.usgs.gov/fdsnws/event/1/query`
   verification_status: pending
   verified_against_url: https://earthquake.usgs.gov/fdsnws/event/1/query
-  verified_at: '2026-08-24T04:23:39.997005Z'
+  verified_at: '2026-08-26T19:51:54.019617Z'
