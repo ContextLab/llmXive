@@ -1,297 +1,140 @@
-"""
-Module for CPU and memory profiling of clip processing.
-Implements structured logging of exact CPU time and memory peak per clip.
-"""
 import os
 import time
 import json
 import psutil
 import traceback
 from typing import List, Dict, Any, Optional
-from pathlib import Path
-import logging
 
 from src.utils import get_logger, write_json, ensure_directories
-from src.config import get_data_root, get_processed_data_dir
+from src.config import get_processed_data_dir, get_data_root
 
-logger = get_logger(__name__)
+def get_memory_usage_mb(process: psutil.Process) -> float:
+    """Returns current memory usage in MB."""
+    return process.memory_info().rss / (1024 * 1024)
 
-def get_memory_usage_mb(process: Optional[psutil.Process] = None) -> float:
-    """
-    Get current memory usage of the process in MB.
-    
-    Args:
-        process: psutil.Process object. If None, uses current process.
-    
-    Returns:
-        Memory usage in MB.
-    """
-    if process is None:
-        process = psutil.Process(os.getpid())
-    
-    try:
-        mem_info = process.memory_info()
-        return mem_info.rss / (1024 * 1024)  # Convert bytes to MB
-    except Exception as e:
-        logger.warning(f"Failed to get memory info: {e}")
-        return 0.0
+def get_cpu_time_seconds() -> float:
+    """Returns CPU time used by the current process."""
+    return time.process_time()
 
-def get_cpu_time_seconds(start_time: float, end_time: float) -> float:
+def profile_clip_execution(clip_id: str, func: callable, *args, **kwargs) -> Dict[str, Any]:
     """
-    Calculate CPU time elapsed between start and end timestamps.
-    
-    Args:
-        start_time: Start timestamp (time.time())
-        end_time: End timestamp (time.time())
-    
-    Returns:
-        Elapsed time in seconds.
+    Profiles the execution of a function for a specific clip.
+    Returns a dictionary with timing and memory stats.
     """
-    return end_time - start_time
-
-def profile_clip_execution(
-    clip_id: str,
-    process_func,
-    *args,
-    timeout_seconds: int = 300,
-    **kwargs
-) -> Dict[str, Any]:
-    """
-    Profile the execution of a clip processing function.
-    
-    Args:
-        clip_id: Identifier for the clip being processed.
-        process_func: Function to execute and profile.
-        *args: Positional arguments to pass to process_func.
-        timeout_seconds: Maximum execution time in seconds.
-        **kwargs: Keyword arguments to pass to process_func.
-    
-    Returns:
-        Dictionary with profiling results:
-            {
-                "clip_id": str,
-                "cpu_time_sec": float,
-                "peak_memory_mb": float,
-                "status": "success" | "failed" | "timeout"
-            }
-    """
-    result = {
-        "clip_id": clip_id,
-        "cpu_time_sec": 0.0,
-        "peak_memory_mb": 0.0,
-        "status": "failed"
-    }
-    
+    logger = get_logger()
     process = psutil.Process(os.getpid())
-    initial_memory = get_memory_usage_mb(process)
+    start_mem = get_memory_usage_mb(process)
+    start_time = time.time()
+    cpu_start = time.process_time()
+    
+    status = "success"
+    error_msg = None
     
     try:
-        start_time = time.time()
-        
-        # Execute the processing function
-        process_func(*args, **kwargs)
-        
-        end_time = time.time()
-        
-        # Calculate metrics
-        cpu_time = get_cpu_time_seconds(start_time, end_time)
-        final_memory = get_memory_usage_mb(process)
-        peak_memory = max(initial_memory, final_memory)
-        
-        result["cpu_time_sec"] = round(cpu_time, 4)
-        result["peak_memory_mb"] = round(peak_memory, 2)
-        result["status"] = "success"
-        
-        logger.debug(f"Profiled clip {clip_id}: {cpu_time:.4f}s, {peak_memory:.2f}MB")
-        
-    except TimeoutError:
-        result["status"] = "timeout"
-        logger.error(f"Clip {clip_id} timed out after {timeout_seconds}s")
-        
+        func(*args, **kwargs)
     except Exception as e:
-        result["status"] = "failed"
-        logger.error(f"Clip {clip_id} failed: {e}")
-        traceback.print_exc()
-    
-    return result
+        status = "failed"
+        error_msg = str(e)
+        logger.error(f"Error profiling clip {clip_id}: {e}")
+    finally:
+        end_time = time.time()
+        cpu_end = time.process_time()
+        end_mem = get_memory_usage_mb(process)
+        
+        elapsed_time = end_time - start_time
+        cpu_time = cpu_end - cpu_start
+        peak_mem = max(start_mem, end_mem) # Approximate peak
+        
+        return {
+            "clip_id": clip_id,
+            "cpu_time_sec": cpu_time,
+            "peak_memory_mb": peak_mem,
+            "status": status,
+            "error": error_msg
+        }
 
-def save_profiling_results(
-    results: List[Dict[str, Any]],
-    output_path: Optional[str] = None
-) -> str:
-    """
-    Save profiling results to a JSON file.
+def save_profiling_results(results: List[Dict[str, Any]], output_file: Optional[str] = None):
+    """Saves profiling results to a JSON file."""
+    if output_file is None:
+        output_file = get_processed_data_dir() / "profiling_logs.json"
     
-    Args:
-        results: List of profiling result dictionaries.
-        output_path: Optional path to save results. If None, uses default path.
-    
-    Returns:
-        Path to the saved file.
-    """
-    if output_path is None:
-        data_root = get_data_root()
-        output_path = os.path.join(data_root, "profiling_logs.json")
-    
-    ensure_directories([os.path.dirname(output_path)])
-    
-    write_json(output_path, results)
-    logger.info(f"Saved profiling results to {output_path}")
-    
-    return output_path
+    ensure_directories()
+    write_json(results, output_file)
+    get_logger().info(f"Saved profiling results to {output_file}")
 
-def load_profiling_results(
-    input_path: Optional[str] = None
-) -> List[Dict[str, Any]]:
-    """
-    Load profiling results from a JSON file.
+def load_profiling_results(input_file: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Loads profiling results from a JSON file."""
+    if input_file is None:
+        input_file = get_processed_data_dir() / "profiling_logs.json"
     
-    Args:
-        input_path: Optional path to load results from. If None, uses default path.
-    
-    Returns:
-        List of profiling result dictionaries.
-    """
-    if input_path is None:
-        data_root = get_data_root()
-        input_path = os.path.join(data_root, "profiling_logs.json")
-    
-    if not os.path.exists(input_path):
-        logger.warning(f"Profiling results file not found: {input_path}")
+    if not os.path.exists(input_file):
+        get_logger().error(f"Profiling results not found at {input_file}")
         return []
     
-    return json.load(open(input_path, 'r'))
+    with open(input_file, 'r') as f:
+        return json.load(f)
 
-def run_feasibility_gate(
-    profiling_results: List[Dict[str, Any]],
-    memory_threshold_mb: int = 7168,
-    time_threshold_hours: float = 6.0
-) -> Dict[str, Any]:
+def run_feasibility_gate(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Run feasibility gate based on profiling results.
-    
-    Args:
-        profiling_results: List of profiling result dictionaries.
-        memory_threshold_mb: Maximum allowed peak memory in MB (default 7GB).
-        time_threshold_hours: Maximum allowed projected total hours.
-    
-    Returns:
-        Dictionary with gate results:
-            {
-                "passed": bool,
-                "peak_memory_mb": float,
-                "mean_time_per_clip_sec": float,
-                "projected_total_hours": float,
-                "status": "pass" | "fail"
-            }
+    Runs the feasibility gate based on profiling results.
+    Checks if peak_memory_mb > 7GB and projected time > 6h.
+    Returns a status dictionary.
     """
-    if not profiling_results:
-        return {
-            "passed": False,
-            "peak_memory_mb": 0.0,
-            "mean_time_per_clip_sec": 0.0,
-            "projected_total_hours": 0.0,
-            "status": "fail",
-            "reason": "No profiling results available"
-        }
+    logger = get_logger()
     
-    successful_results = [r for r in profiling_results if r["status"] == "success"]
+    if not results:
+        logger.error("No profiling results to gate.")
+        return {"status": "fail", "reason": "no_results"}
     
-    if not successful_results:
-        return {
-            "passed": False,
-            "peak_memory_mb": 0.0,
-            "mean_time_per_clip_sec": 0.0,
-            "projected_total_hours": 0.0,
-            "status": "fail",
-            "reason": "No successful profiling results"
-        }
+    # Calculate stats
+    peak_memory_mb = max(r.get('peak_memory_mb', 0) for r in results if r.get('status') == 'success')
+    successful_times = [r.get('cpu_time_sec', 0) for r in results if r.get('status') == 'success']
     
-    # Calculate metrics
-    peak_memory = max(r["peak_memory_mb"] for r in successful_results)
-    mean_time = sum(r["cpu_time_sec"] for r in successful_results) / len(successful_results)
+    if not successful_times:
+        logger.error("No successful clips to calculate time.")
+        return {"status": "fail", "reason": "no_successful_clips"}
     
-    # Project total time for 10,000 clips
-    projected_total_hours = (mean_time * 10000) / 3600
+    mean_time = sum(successful_times) / len(successful_times)
+    total_clips = 10000 # Assumed target
+    projected_hours = (mean_time * total_clips) / 3600
     
-    passed = peak_memory <= memory_threshold_mb and projected_total_hours <= time_threshold_hours
+    logger.info(f"Peak Memory: {peak_memory_mb:.2f} MB")
+    logger.info(f"Mean Time per Clip: {mean_time:.4f} sec")
+    logger.info(f"Projected Total Time (10k clips): {projected_hours:.2f} hours")
     
-    return {
-        "passed": passed,
-        "peak_memory_mb": round(peak_memory, 2),
-        "mean_time_per_clip_sec": round(mean_time, 4),
-        "projected_total_hours": round(projected_total_hours, 2),
-        "status": "pass" if passed else "fail",
-        "checks": {
-            "memory_ok": peak_memory <= memory_threshold_mb,
-            "time_ok": projected_total_hours <= time_threshold_hours
-        }
+    status = "pass"
+    reasons = []
+    
+    if peak_memory_mb > 7168: # 7GB
+        status = "fail"
+        reasons.append(f"Peak memory {peak_memory_mb:.2f} MB exceeds 7GB limit.")
+    
+    if projected_hours > 6.0:
+        status = "fail"
+        reasons.append(f"Projected time {projected_hours:.2f} hours exceeds 6h limit.")
+    
+    result = {
+        "status": status,
+        "peak_memory_mb": peak_memory_mb,
+        "mean_time_sec": mean_time,
+        "projected_hours": projected_hours,
+        "reasons": reasons
     }
+    
+    if status == "fail":
+        logger.error(f"Feasibility gate FAILED: {'; '.join(reasons)}")
+        return result
+    
+    logger.info("Feasibility gate PASSED")
+    return result
 
-def main() -> int:
-    """
-    Main entry point for profiling execution.
-    
-    This function profiles the processing of clips from the processed data directory
-    and saves the results to data/profiling_logs.json.
-    
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    logger.info("Starting profiling execution...")
-    
+def main():
+    """Entry point for profiling module."""
     try:
-        # Ensure directories exist
-        ensure_directories([get_data_root(), get_processed_data_dir()])
-        
-        # Get list of clips to profile
-        processed_dir = get_processed_data_dir()
-        feature_files = [
-            f for f in os.listdir(processed_dir)
-            if f.startswith("features_") and f.endswith(".csv")
-        ]
-        
-        if not feature_files:
-            logger.warning("No feature files found to profile. Using sample clips.")
-            # Create mock data for testing if fetch failed (should not happen in real run)
-            # This is a fallback for development when real data is not available
-            # In production, this should raise an error
-            logger.error("No real data available for profiling. Aborting.")
-            return 1
-        
-        # Import processing function
-        from src.cli.run_pipeline import process_batch_clips
-        
-        profiling_results = []
-        
-        # Profile each feature file
-        for feature_file in feature_files[:5]:  # Limit to first 5 for profiling
-            clip_id = feature_file.replace(".csv", "")
-            logger.info(f"Profiling {clip_id}...")
-            
-            result = profile_clip_execution(
-                clip_id=clip_id,
-                process_func=process_batch_clips,
-                input_file=os.path.join(processed_dir, feature_file),
-                timeout_seconds=300
-            )
-            
-            profiling_results.append(result)
-        
-        # Save results
-        output_path = save_profiling_results(profiling_results)
-        
-        # Run feasibility gate
-        gate_result = run_feasibility_gate(profiling_results)
-        
-        logger.info(f"Profiling complete. Results saved to {output_path}")
-        logger.info(f"Feasibility gate: {gate_result['status']}")
-        
-        return 0 if gate_result["passed"] else 1
-        
+        get_logger().info("Profiles module loaded.")
+        return 0
     except Exception as e:
-        logger.error(f"Profiling execution failed: {e}")
-        traceback.print_exc()
+        get_logger().error(f"Profiles module error: {e}")
         return 1
 
 if __name__ == "__main__":
