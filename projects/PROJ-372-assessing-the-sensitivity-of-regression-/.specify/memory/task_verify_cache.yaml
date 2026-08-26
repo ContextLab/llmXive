@@ -36,3 +36,42 @@ T003:
     \ or documentation showing that ruff and black have been set up for the project.\
     \ The provided artifacts relate only to a regression\u2011sensitivity feature\
     \ and do not address the required linting/formatting task."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw`, `data/processed`, `artifacts` directories
+    or a `.gitignore` file was provided; the claim lacks any tangible artifact to
+    verify the setup. The implementer must add the directory structure and a `.gitignore`
+    that excludes large files.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `src/ingestion/downloader.py` file or its contents were provided; without
+    the script we cannot verify that it uses `datasets.load_dataset(..., streaming=True)`
+    to fetch verified HuggingFace/UCI URLs. The required artifact is missing.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `src/ingestion/profiler.py` file or its contents were provided; thus we cannot\
+    \ verify that the script computes the condition number, Breusch\u2011Pagan statistic,\
+    \ and Cook\u2019s distance, nor that it handles datasets larger than 7\u202FGB\
+    \ by subsampling. The required artifact is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file was presented in `specs/001-sensitivity-regression-coefficients/`,\
+    \ and the specification still contains `[deferred]` placeholders for the sample\u2011\
+    size tiers. Without the document and the concrete tier values `[10, 25, 50, 75,\
+    \ 90]`, the task\u2019s requirement is not satisfied."
+T021:
+  c: false
+  h: 31ae8887cd82ce57ece70dc1a2e4bfa56d5a1ef73a2efb6bcae62f6f5e846d3d
+  r: The required artifact `tests/unit/test_resampling.py` does not exist in the repository,
+    so the unit test for singularity detection cannot be verified. The missing file
+    must be added with the specified test case.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `src/resampling/aggregator.py` file or any code implementing the calculation
+    of empirical standard deviation of regression coefficients per tier was presented.
+    Consequently, the required artifact is missing, so the task is not satisfied.

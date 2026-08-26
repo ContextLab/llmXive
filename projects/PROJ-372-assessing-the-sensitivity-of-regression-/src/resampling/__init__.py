@@ -1,18 +1,19 @@
 """
-Resampling module for subset generation and stability estimation.
+Resampling module for User Story 2.
 
-This module handles the generation of random observation subsets across
-defined sample size tiers and the fitting of OLS models to estimate
-coefficient stability.
-
-Public API:
-- run_resampling_experiment: Main entry point for the resampling pipeline.
+Provides functionality for generating random observation subsets,
+fitting OLS models, and computing empirical standard deviation of coefficients.
 """
-
 from .engine import run_resampling_experiment
-from .aggregator import calculate_coefficient_stability
+from .aggregator import (
+    calculate_empirical_sd,
+    load_resampling_results,
+    run_aggregation_pipeline
+)
 
 __all__ = [
-    "run_resampling_experiment",
-    "calculate_coefficient_stability",
+    'run_resampling_experiment',
+    'calculate_empirical_sd',
+    'load_resampling_results',
+    'run_aggregation_pipeline'
 ]

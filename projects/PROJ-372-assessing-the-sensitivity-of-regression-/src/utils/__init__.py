@@ -1,39 +1,49 @@
 """
-Utility module for the llmXive sensitivity analysis pipeline.
+Utility module for the regression sensitivity analysis pipeline.
 
-This package contains shared utilities for configuration, validation,
-logging, and checkpointing used across the ingestion, resampling,
-and analysis stages.
+This package provides shared utilities including:
+- Configuration management (loading datasets, seeds, sample size tiers)
+- Data validation and checksumming
+- Logging infrastructure
+- Checkpointing mechanisms
 """
 
 from .config import (
-    SAMPLE_SIZE_TIERS,
     load_config,
-    get_dataset_paths,
+    get_dataset_list,
     get_random_seed,
+    SAMPLE_SIZE_TIERS,
 )
 from .validation import (
-    compute_md5,
-    validate_file_exists,
+    compute_checksum,
     validate_checksum,
+    validate_dataframe,
 )
 from .logger import (
+    setup_logger,
     get_logger,
-    setup_logging,
 )
 from .checkpoint import (
     CheckpointManager,
+    load_checkpoint,
+    save_checkpoint,
 )
 
 __all__ = [
-    "SAMPLE_SIZE_TIERS",
+    # Config
     "load_config",
-    "get_dataset_paths",
+    "get_dataset_list",
     "get_random_seed",
-    "compute_md5",
-    "validate_file_exists",
+    "SAMPLE_SIZE_TIERS",
+    # Validation
+    "compute_checksum",
     "validate_checksum",
+    "validate_dataframe",
+    # Logging
+    "setup_logger",
     "get_logger",
-    "setup_logging",
+    # Checkpointing
     "CheckpointManager",
+    "load_checkpoint",
+    "save_checkpoint",
 ]

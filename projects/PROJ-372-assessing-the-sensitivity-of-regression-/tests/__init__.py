@@ -1,3 +1,1 @@
-"""
-Test suite for the llmXive automated science pipeline.
-"""
+# Tests package for llmXive sensitivity analysis project

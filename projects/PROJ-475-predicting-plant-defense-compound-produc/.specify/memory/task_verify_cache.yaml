@@ -1,31 +1,34 @@
 T010:
   c: false
-  h: b340424a701576431578677dcba800387dea494d3364f9bf10a665b78aaa4e3a
-  r: "The `code/data/ingestion.py` file is present but the implementation is truncated\
-    \ and never calls `mock_generator` when no verified URL is set, nor does it create\
-    \ the required `data/raw/genomic_vcf.json` file. The expected output file is missing,\
-    \ so the task\u2019s core requirement is not satisfied."
+  h: 8873cc1ff759281ed4f64a3c999513792ba64e537a2fcffa024b539d745649a8
+  r: "The repository contains `code/data/ingestion.py`, but the required output file\
+    \ `data/raw/genomic_vcf.json` is absent, indicating the ingestion logic was not\
+    \ executed or did not produce the specified artifact. The task also demands a\
+    \ verified\u2011URL check with fallback to mock generation and a post\u2011fetch\
+    \ disk\u2011usage check, which cannot be confirmed from the truncated code and\
+    \ the missing output. The missing `genomic_vcf.json` must be generated for the\
+    \ task to be considered complete."
 T011:
   c: false
-  h: 2c205ba3dc93d8ba019126fa0bc6df7a1e173e7e14cb32e9d3e42d66b478e23e
-  r: "The repository lacks the required `data/raw/env_data.json` file, and the provided\
-    \ `code/data/ingestion.py` focuses on genomic data (e.g., `fetch_genomic_data`)\
-    \ rather than implementing the \u201Cenv\u201D URL check, fetch, or mock\u2011\
-    generation logic described in the task. Consequently the core requirement is not\
-    \ satisfied."
+  h: 09e7866aee852e5e3eb667f728cacc18ed29a203a9db807f48f754d5716d1c37
+  r: "The repository contains `code/data/ingestion.py`, but the shown content does\
+    \ not include the required logic to check `config.verified_urls['env']`, fetch\
+    \ environmental data, generate mock data, write `data/raw/env_data.json`, or invoke\
+    \ T008 for disk\u2011space verification. Moreover, the expected output file `data/raw/env_data.json`\
+    \ is absent. The task therefore remains unfinished."
 T012:
   c: false
-  h: ce3d93ae9f4a7b3b73f92a360680da9d511a3b8c9688e22afd466107db8e6280
-  r: "The provided `code/data/ingestion.py` contains logic for genomic (and some environmental)\
-    \ data, not for fetching or generating defense compound profiles, and no function\
-    \ checks `config.verified_urls['compound']`. Moreover, the required output file\
-    \ `data/raw/compound_data.json` does not exist. The task\u2019s core requirement\
-    \ is therefore unmet."
+  h: 8095d4c63952e498b0a0f653f556e07a16ec7ced0136978b44d38ac54d55bdb8
+  r: "The repository contains `code/data/ingestion.py`, but the provided excerpt does\
+    \ not show the required logic for checking `config.verified_urls['compound']`,\
+    \ fetching compound data, falling back to the mock generator, or writing the result\
+    \ to `data/raw/compound_data.json`. Moreover, the expected output file `data/raw/compound_data.json`\
+    \ is absent from the disk. The task\u2019s core functional requirement and its\
+    \ output artifact are therefore not satisfied."
 T015:
   c: false
-  h: e57f5eadf87dcd051245e997eba8ec4ea21104030483ff26abef7fb1fdf61a77
-  r: "The required output file `data/processed/filtered.csv` does not exist, and the\
-    \ provided `preprocessing.py` is truncated before it can show the logic that writes\
-    \ the filtered CSV and logs exclusion decisions. Consequently the task\u2019s\
-    \ core requirements (per\u2011population missingness check, mean imputation, exclusion\
-    \ >20\u202F% and logging via `code/utils/logging.py`) are not demonstrably fulfilled."
+  h: 9c179e25e1d98281a5129bb5db9207e5e6842f9b5cbca5a7f158739879829d01
+  r: "The `code/data/preprocessing.py` file is truncated (ends mid\u2011statement)\
+    \ and does not contain the full logic to write `data/processed/filtered.csv` or\
+    \ to log exclusion decisions as required. Moreover, the expected output file `data/processed/filtered.csv`\
+    \ is absent. The task\u2019s core requirements are therefore not met."

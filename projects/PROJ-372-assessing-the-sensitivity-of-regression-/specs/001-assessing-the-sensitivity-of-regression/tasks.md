@@ -58,14 +58,14 @@
 
 - [X] T002 [P] Create `requirements.txt` at repository root containing: `pandas>=2.0`, `numpy>=1.24`, `scipy>=1.10`, `statsmodels>=0.14`, `scikit-learn>=1.2`, `pyyaml>=6.0`, `datasets>=2.14`, `pytest>=7.4`, `linearmodels>=4.3`, `ruff>=0.1.0`, `black>=23.0`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [~] T004 [P] Setup data directory structure (`data/raw`, `data/processed`, `artifacts`) and `.gitignore` for large files
+- [ ] T004 [P] Setup data directory structure (`data/raw`, `data/processed`, `artifacts`) and `.gitignore` for large files
 - [X] T005 [P] Implement utility module for checksumming (MD5) and validation in `src/utils/validation.py`
 - [X] T006 [P] Setup environment configuration management (loading dataset lists, random seeds) in `src/utils/config.py`
 - [X] T007 [P] Create base data models (Pydantic/TypedDict) for `DatasetProfile`, `StabilityResult`, `InteractionModel` in `src/models/data_models.py`
 - [X] T007a [P] **Define Sample Size Tiers**: Hardcode the 5 sample size tier percentages as `[10, 25, 50, 75, 90]` into `src/utils/config.py` as `SAMPLE_SIZE_TIERS` list. These values are fixed for this implementation cycle to satisfy FR-003.
 - [X] T008 [P] Configure error handling and logging infrastructure (structured logs to `artifacts/run.log`) in `src/utils/logger.py`
 - [X] T009 [P] Implement checkpoint mechanism (save/load JSON state) in `src/utils/checkpoint.py` defining the **schema** for checkpoint state that T024 and T037 will consume to prevent schema drift.
-- [~] T017 [P] **Define Sample Size Tiers and Research Rationale**: Generate `research.md` in `specs/001-sensitivity-regression-coefficients/` explicitly documenting the rationale for the fixed sample size tier percentages `[10, 25, 50, 75, 90]`. Replace any `[deferred]` placeholders in the spec with these concrete values. This task must complete before US2 tasks (T023+) begin.
+- [ ] T017 [P] **Define Sample Size Tiers and Research Rationale**: Generate `research.md` in `specs/001-sensitivity-regression-coefficients/` explicitly documenting the rationale for the fixed sample size tier percentages `[10, 25, 50, 75, 90]`. Replace any `[deferred]` placeholders in the spec with these concrete values. This task must complete before US2 tasks (T023+) begin.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,13 +86,13 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `downloader.py` in `src/ingestion/` to fetch datasets from verified HuggingFace/UCI URLs using `datasets.load_dataset(..., streaming=True)`
+- [ ] T012 [P] [US1] Implement `downloader.py` in `src/ingestion/` to fetch datasets from verified HuggingFace/UCI URLs using `datasets.load_dataset(..., streaming=True)`
 - [X] T013 [US1] Implement strict data loader in `src/ingestion/downloader.py` that raises on failure. **Clarification**: "NO synthetic fallback" means no generation of fake data. **Rule**: If dataset > 100k rows, subsample to 100k rows; do not generate synthetic data. Raise error only if download fails or data is invalid.
-- [~] T014 [US1] Implement `profiler.py` in `src/ingestion/` to compute Condition Number, Breusch-Pagan statistic, and Cook's Distance on the full dataset (or streamed sample if >7GB)
-- [ ] T015 [US1] Implement logic in `src/ingestion/profiler.py` to classify violation severity (Low/Medium/High) based on computed statistics and handle multicollinearity (condition number > 30)
-- [ ] T016 [US1] Implement subsampling logic in `src/ingestion/profiler.py` for datasets > 100k rows to ensure CPU feasibility. **Reference**: Compare subsampled BP stat against the BP stat computed on the largest available sample (full dataset or streamed sample if >7GB) to verify stability (<5% deviation).
-- [ ] T019 [US1] **Implement Streaming Aggregation Strategy** in `src/ingestion/profiler.py` to compute full-dataset violation metrics (BP, Cook's) via streaming aggregation for datasets > 7GB, ensuring FR-002 compliance.
-- [ ] T020 [P] [US1] Create `src/ingestion/__init__.py` to expose `ingest_and_profile` pipeline that outputs `DatasetProfile` JSON to `artifacts/profiles/`
+- [ ] T014 [US1] Implement `profiler.py` in `src/ingestion/` to compute Condition Number, Breusch-Pagan statistic, and Cook's Distance on the full dataset (or streamed sample if >7GB)
+- [X] T015 [US1] Implement logic in `src/ingestion/profiler.py` to classify violation severity (Low/Medium/High) based on computed statistics and handle multicollinearity (condition number > 30)
+- [X] T016 [US1] Implement subsampling logic in `src/ingestion/profiler.py` for datasets > 100k rows to ensure CPU feasibility. **Reference**: Compare subsampled BP stat against the BP stat computed on the largest available sample (full dataset or streamed sample if >7GB) to verify stability (<5% deviation).
+- [X] T019 [US1] **Implement Streaming Aggregation Strategy** in `src/ingestion/profiler.py` to compute full-dataset violation metrics (BP, Cook's) via streaming aggregation for datasets > 7GB, ensuring FR-002 compliance.
+- [X] T020 [P] [US1] Create `src/ingestion/__init__.py` to expose `ingest_and_profile` pipeline that outputs `DatasetProfile` JSON to `artifacts/profiles/`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,11 +111,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] **Depends: T017, T007a** Implement `engine.py` in `src/resampling/` to generate random subsets per dataset across 5 tiers (percentages defined in `src/utils/config.py` by T017/T007a).
-- [ ] T024 [US2] **Depends: T017, T007a** Implement robust OLS fitting loop in `src/resampling/engine.py` using `statsmodels` that catches singular matrix errors, skips invalid subsets, and logs warnings.
-- [ ] T025 [US2] **Depends: T017, T007a** Implement constraint check in `src/resampling/engine.py` to ensure subset size ≥ 10 × number of predictors before fitting.
+- [X] T023 [P] [US2] **Depends: T017, T007a** Implement `engine.py` in `src/resampling/` to generate random subsets per dataset across 5 tiers (percentages defined in `src/utils/config.py` by T017/T007a).
+- [X] T024 [US2] **Depends: T017, T007a** Implement robust OLS fitting loop in `src/resampling/engine.py` using `statsmodels` that catches singular matrix errors, skips invalid subsets, and logs warnings.
+- [X] T025 [US2] **Depends: T017, T007a** Implement constraint check in `src/resampling/engine.py` to ensure subset size ≥ 10 × number of predictors before fitting.
 - [ ] T026 [US2] **Depends: T023** Implement `aggregator.py` in `src/resampling/` to calculate empirical standard deviation of coefficients across the valid subsets per tier.
-- [ ] T035 [US2] **Depends: T026** **Convergence Logic**: Implement function in `src/resampling/aggregator.py` to explicitly compare coefficient SD from multiple subsets vs 200 subsets and calculate the Standard Error of the SD. Output the result to `artifacts/convergence.log`.
+- [X] T035 [US2] **Depends: T026** **Convergence Logic**: Implement function in `src/resampling/aggregator.py` to explicitly compare coefficient SD from multiple subsets vs 200 subsets and calculate the Standard Error of the SD. Output the result to `artifacts/convergence.log`.
 - [ ] T036 [US2] **Depends: T035** **Convergence Verification**: Verify that the Standard Error of the SD is < 5% when increasing from 150 to 200 subsets (SC-005) and log the result.
 - [ ] T027 [US2] **Depends: T023** Integrate checkpointing in `src/resampling/engine.py` to save intermediate results at regular intervals to prevent data loss on timeout.
 - [ ] T028 [US2] **Depends: T023** Create `src/resampling/__init__.py` to expose `run_resampling_experiment` pipeline that outputs `StabilityResult` CSV/JSON to `artifacts/stability/`.

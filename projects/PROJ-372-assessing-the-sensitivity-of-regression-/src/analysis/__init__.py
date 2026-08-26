@@ -1,24 +1,23 @@
 """
-Analysis module for assessing the sensitivity of regression coefficients
-to dataset subset selection.
+Analysis module for the llmXive automated science pipeline.
 
 This module implements User Story 3: Interaction Analysis and Sensitivity Visualization.
-It provides tools for meta-analysis, interaction modeling, and sensitivity sweeps.
+It provides tools for multiple regression with interaction terms, sensitivity sweeps,
+and visualization of stability curves.
+
+Exports:
+    - run_meta_analysis: Main pipeline entry point for meta-analysis.
+    - hlm_analysis: Module containing multiple regression and interaction logic.
+    - visualization: Module for generating sensitivity plots.
+    - report_generator: Module for generating final analysis reports.
 """
 
-from .hlm_analysis import (
-    run_meta_analysis,
-    perform_sensitivity_sweep,
-    calculate_interaction_effects,
-)
-from .visualizer import generate_stability_curves, plot_sensitivity_effects
-from .reporter import generate_final_report
+from .hlm_analysis import run_meta_analysis
+from . import visualization
+from . import report_generator
 
 __all__ = [
     "run_meta_analysis",
-    "perform_sensitivity_sweep",
-    "calculate_interaction_effects",
-    "generate_stability_curves",
-    "plot_sensitivity_effects",
-    "generate_final_report",
+    "visualization",
+    "report_generator",
 ]

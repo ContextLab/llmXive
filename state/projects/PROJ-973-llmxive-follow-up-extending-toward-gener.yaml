@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T22:13:35.745464Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-973-llmxive-follow-up-extending-toward-gener
-last_run_id: null
+last_run_id: 7ca89125-68d2-4152-b008-cdcaba4c2ff6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Toward Generalist Autonomous Research via Hypothesis-Tree
   Refinement"'
-updated_at: '2026-07-03T22:13:35.745464Z'
+updated_at: '2026-08-26T09:27:31.060806Z'

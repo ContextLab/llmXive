@@ -1,3 +1,1 @@
-"""
-Unit tests package for the sensitivity regression coefficients project.
-"""
+# Unit tests package
