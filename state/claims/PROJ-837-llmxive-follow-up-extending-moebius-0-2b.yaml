@@ -1436,3 +1436,229 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T16:39:32Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 0
+  canonical: verify statistical significance with p-value greater than 0.05
+  claim_id: c_414bb302
+  context: "T034 [US3] Verify FID difference \u22640.5 vs static baseline and statistical\
+    \ significance (p > 0.05)"
+  evidence:
+    entailment_evidence: Verify statistical significance with p-value greater than
+      0.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Verify_statistical_significance_with_p-value_greater_than_0.
+  kind: magnitude
+  raw_text: Verify statistical significance with p-value greater than 0.05
+  resolved_value: verify statistical significance with p-value greater than 0.05
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T00:39:45Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: generate random independent scores uniform distribution 1 to 5
+  claim_id: c_c6066641
+  context: 'T014a [US1] CI Mode: Generate data/annotations/decoupled_scores.csv with
+    columns [image_id, score, mode]. Logic: Generate scores using random independent
+    values (uniform distribution 1-5) strictly decoupled from synthetic mask metrics
+    (gradient/entropy) to satisfy FR-007 and avoid circularity.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scores using random independent values (uniform distribution
+    1-5) strictly decoupled from synthetic mask metrics
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:40:22Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: apply majority vote if standard deviation of scores exceeds 1.0
+  claim_id: c_d92e3be2
+  context: 'T014d [US1] Implement Participant Disagreement Logic: Calculate standard
+    deviation of scores per image. If std dev > 1.0, apply majority vote or flag for
+    exclusion as per spec edge cases.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_majority_vote_if_standard_deviation_of_scores_exceeds
+  kind: magnitude
+  raw_text: If standard deviation of scores per image is greater than 1.0, apply majority
+    vote or flag for exclusion
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:40:56Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: raise error if sample size is less than 50
+  claim_id: c_39d90223
+  context: T016 [US1] Add validation logic in code/data/annotator.py that raises an
+    error if sample size < 50 or if label independence check fails. Log result to
+    data/results/validation_log.txt.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_sample_size_is_less_than_50
+  kind: magnitude
+  raw_text: Raise an error if sample size is less than 50 or if label independence
+    check fails
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:41:45Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: gate blocked if Pearson correlation r is less than 0.7
+  claim_id: c_6e77e3c5
+  context: "T036a [US4] Research Mode Gate: Check if correlation r \u2265 0.7. If\
+    \ not, update data/results/proxy_validation.json with gate_status: BLOCKED and\
+    \ raise SystemExit with code 1."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gate_blocked_if_Pearson_correlation_r_is_less_than_0.7
+  kind: magnitude
+  raw_text: 'Check if Pearson correlation r is greater than or equal to 0.7; if not,
+    update proxy_validation.json with gate_status: BLOCKED'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:43:01Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: moebius tiny model has 15 million parameters or fewer
+  claim_id: c_8c809fdc
+  context: "T020 [P] [US2] Implement code/models/moebius_tiny.py (Simplified CPU version,\
+    \ \u226415M params total)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement moebius_tiny.py as a simplified CPU version with 15M parameters
+    or fewer total
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:43:20Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: gating head model has 5 million parameters or fewer
+  claim_id: c_44c10106
+  context: "T021 [US2] Implement code/models/gating_head.py (Lightweight conv head,\
+    \ \u22645M parameters) to output scalar complexity. Verification: Count parameters\
+    \ and fail if > 5M."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement gating_head.py as a lightweight conv head with 5M parameters
+    or fewer to output scalar complexity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:43:40Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: block deployment if permutation test p-value is less than or equal to
+    0.05
+  claim_id: c_ce83b025
+  context: "T025a [US2] Pre-Deployment Gate: Implement a validation step that checks\
+    \ the permutation test p-value. If p \u2264 0.05, block deployment and raise an\
+    \ error. This explicitly satisfies FR-008's requirement for a pre-deployment check."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Block_deployment_if_permutation_test_p-value_is_less_than_or
+  kind: magnitude
+  raw_text: Block deployment and raise an error if the permutation test p-value is
+    less than or equal to 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:44:17Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: mark status as underpowered if statistical power is less than 0.8
+  claim_id: c_b1e5c5da
+  context: "T030b [US3] Decision Gate: If power < 0.8, update data/results/power_analysis.json\
+    \ with status: UNDERPOWERED and continue execution to allow report generation.\
+    \ If power \u2265 0.8, proceed."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mark_status_as_underpowered_if_statistical_power_is_less_tha
+  kind: magnitude
+  raw_text: 'If statistical power is less than 0.8, update power_analysis.json with
+    status: UNDERPOWERED'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:44:58Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: verify latency reduction of 30 percent for low complexity regions
+  claim_id: c_73c8e801
+  context: "T033b [US3] Verify Target: Calculate latency reduction from latency_raw.csv.\
+    \ Verify \u226530% reduction for low-complexity regions. Update data/results/evaluation_report.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify latency reduction of 30% or greater for low-complexity regions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:44:58Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: verify FID difference is less than or equal to 0.5 versus static baseline
+  claim_id: c_89f8e780
+  context: "T034 [US3] Verify FID difference \u22640.5 vs static baseline and statistical\
+    \ significance (p > 0.05)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_FID_difference_is_less_than_or_equal_to_0.5_versus_st
+  kind: magnitude
+  raw_text: Verify FID difference is less than or equal to 0.5 versus static baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:45:37Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: use chunked processing to stay within 7GB RAM limit
+  claim_id: c_af12b943
+  context: T040 Performance optimization (chunked processing for FID/LPIPS to stay
+    within 7GB RAM)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_chunked_processing_to_stay_within_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: Process data in chunks to stay within 7GB RAM limit
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:46:13Z'

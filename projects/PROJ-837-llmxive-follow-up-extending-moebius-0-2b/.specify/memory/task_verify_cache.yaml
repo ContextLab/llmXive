@@ -1,9 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree, `plan.md`, or any files under `projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/`
-    were presented. The response only contains feature specifications and user stories,
-    not the required project structure. The required artifact is missing.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

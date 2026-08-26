@@ -1,34 +1,57 @@
 """
-Setup script to create project directories.
-"""
+Script to initialize the project directory structure for llmXive project PROJ-084.
 
+This script creates the required directories:
+- code/
+- data/raw/
+- data/processed/
+- data/results/
+- tests/
+
+It also creates .gitkeep files in data directories to ensure they are tracked by git.
+"""
 import os
 from pathlib import Path
 
+
 def main():
-    """Create all necessary project directories."""
-    project_root = Path(__file__).resolve().parent.parent
-
+    """Create the project directory structure."""
+    # Define the project root (current directory)
+    root = Path(".")
+    
+    # Define directories to create
     directories = [
-        project_root / "code",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "results",
-        project_root / "tests"
+        "code",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "tests",
     ]
+    
+    created_dirs = []
+    for dir_path in directories:
+        full_path = root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(dir_path)
+            print(f"Created directory: {full_path}")
+        else:
+            print(f"Directory already exists: {full_path}")
+    
+    # Create .gitkeep files in data directories to ensure they are tracked by git
+    data_dirs = ["data/raw", "data/processed", "data/results"]
+    for data_dir in data_dirs:
+        gitkeep_path = root / data_dir / ".gitkeep"
+        if not gitkeep_path.exists():
+            gitkeep_path.touch()
+            print(f"Created .gitkeep in: {gitkeep_path}")
+        else:
+            print(f".gitkeep already exists in: {gitkeep_path}")
+    
+    # Print summary
+    print("\nDirectory structure initialization complete.")
+    print("Created directories:", ", ".join(created_dirs) if created_dirs else "None (all existed)")
 
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
-
-    # Create __init__.py files
-    for directory in directories:
-        init_file = directory / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created {init_file}")
-
-    print("Directory setup complete.")
 
 if __name__ == "__main__":
     main()

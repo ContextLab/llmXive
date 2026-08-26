@@ -1,126 +1,99 @@
-# Dataset Schema Validation Contract
-# Defines the expected structure, types, and constraints for the cleaned reaction dataset
-# used throughout the ML predictive power assessment pipeline.
+# Dataset Schema Contract for USPTO Reaction Outcome Prediction
+# This schema defines the required structure for the processed dataset
+# used in the machine learning pipeline.
 #
-# This schema enforces:
-# - Required columns and their data types
-# - Fingerprint dimensionality constraints (ECFP4=2048, MACCS=167)
-# - Yield value ranges and formats
-# - SMILES string validity requirements
-# - Reaction class categorization
+# Expected columns and types for `data/processed/cleaned_reactions.parquet`
 
 schema_version: "1.0"
-dataset_name: "cleaned_reactions"
-description: "Schema for USPTO-derived reaction dataset with fingerprints and metadata"
+description: "Schema for the cleaned and fingerprinted USPTO reaction dataset"
 
-required_columns:
-  - name: "smiles"
-    type: "string"
-    description: "Standardized SMILES string for the reaction"
-    constraints:
-      - not_null: true
-      - valid_smiles: true
-      - min_length: 10
+columns:
+  - name: reaction_id
+    type: string
+    description: "Unique identifier for the reaction (e.g., USPTO ID)"
+    nullable: false
+    unique: true
 
-  - name: "yield"
-    type: "float"
-    description: "Reaction yield percentage (0-100)"
-    constraints:
-      - not_null: true
-      - min_value: 0.0
-      - max_value: 100.0
+  - name: reactants_smiles
+    type: string
+    description: "Standardized SMILES string for reactants (salt-free)"
+    nullable: false
+    pattern: "^[C-N-OPSHFGIVWYc-n-ospfhgivyw\\[\\]\\(\\)\\/\\\\=#@]+$"
 
-  - name: "reaction_class"
-    type: "string"
-    description: "Categorization of the reaction type"
-    constraints:
-      - not_null: true
-      - allowed_values:
-          - "substitution"
-          - "elimination"
-          - "addition"
-          - "oxidation"
-          - "reduction"
-          - "cross_coupling"
-          - "cycloaddition"
-          - "other"
+  - name: reagents_smiles
+    type: string
+    description: "Standardized SMILES string for reagents"
+    nullable: true
 
-  - name: "ecfp4_fingerprint"
-    type: "list"
-    description: "ECFP4 fingerprint vector (2048 bits)"
-    constraints:
-      - not_null: true
-      - length: 2048
-      - element_type: "integer"
-      - allowed_values: [0, 1]
+  - name: product_smiles
+    type: string
+    description: "Standardized SMILES string for the product"
+    nullable: false
 
-  - name: "maccs_fingerprint"
-    type: "list"
-    description: "MACCS keys fingerprint vector (167 bits)"
-    constraints:
-      - not_null: true
-      - length: 167
-      - element_type: "integer"
-      - allowed_values: [0, 1]
+  - name: reaction_class
+    type: string
+    description: "Reaction class label (e.g., 'Coupling', 'Substitution', 'Addition')"
+    nullable: false
+    allowed_values:
+      - "Coupling"
+      - "Substitution"
+      - "Addition"
+      - "Elimination"
+      - "Rearrangement"
+      - "Oxidation"
+      - "Reduction"
+      - "Other"
 
-  - name: "scaffold_group"
-    type: "string"
-    description: "Murcko scaffold grouping key for scaffold-aware splitting"
-    constraints:
-      - not_null: false  # Optional for initial ingestion, required for modeling
-      - min_length: 1
+  - name: yield_percent
+    type: float64
+    description: "Reaction yield as a percentage (0-100)"
+    nullable: false
+    min_value: 0.0
+    max_value: 100.0
 
-  - name: "source_id"
-    type: "string"
-    description: "Original reaction identifier from USPTO"
-    constraints:
-      - not_null: true
-      - unique: true
+  - name: ecfp4_fingerprint
+    type: binary
+    description: "ECFP4 fingerprint (2048 bits) as binary blob or list of integers"
+    nullable: false
+    fingerprint_type: "ECFP4"
+    dimension: 2048
 
-optional_columns:
-  - name: "reactants_smiles"
-    type: "string"
-    description: "SMILES of reactants separated by '.'"
-  
-  - name: "product_smiles"
-    type: "string"
-    description: "SMILES of the main product"
-  
-  - name: "reagents_smiles"
-    type: "string"
-    description: "SMILES of reagents separated by '.'"
-  
-  - name: "yield_range_min"
-    type: "float"
-    description: "Lower bound if yield was reported as a range"
-  
-  - name: "yield_range_max"
-    type: "float"
-    description: "Upper bound if yield was reported as a range"
-  
-  - name: "exclusion_reason"
-    type: "string"
-    description: "Reason for exclusion if record was filtered out"
+  - name: maccs_fingerprint
+    type: binary
+    description: "MACCS keys fingerprint (167 bits) as binary blob or list of integers"
+    nullable: false
+    fingerprint_type: "MACCS"
+    dimension: 167
 
-validation_rules:
-  - rule: "fingerprint_consistency"
-    description: "Ensure fingerprint lengths match expected dimensions"
-    implementation: "validate_fingerprint_dimensions"
-  
-  - rule: "yield_validity"
-    description: "Yield must be within 0-100 range"
-    implementation: "validate_column_schema"
-  
-  - rule: "smiles_validity"
-    description: "SMILES strings must be parseable by RDKit"
-    implementation: "validate_record_content"
-  
-  - rule: "reaction_class_consistency"
-    description: "Reaction class must be one of the allowed values"
-    implementation: "validate_column_schema"
+  - name: scaffold_id
+    type: string
+    description: "Murcko scaffold identifier for grouping"
+    nullable: true
+
+  - name: split_group
+    type: string
+    description: "Data split assignment: 'train', 'val', or 'test'"
+    nullable: true
+    allowed_values:
+      - "train"
+      - "val"
+      - "test"
+
+constraints:
+  - name: no_null_yields
+    description: "Yield values must be present for all reactions used in training"
+    check: "yield_percent is not null"
+
+  - name: valid_fingerprints
+    description: "Fingerprints must match expected dimensions"
+    check: "len(ecfp4_fingerprint) == 2048 AND len(maccs_fingerprint) == 167"
+
+  - name: valid_reaction_classes
+    description: "Reaction classes must be from the allowed set"
+    check: "reaction_class in allowed_values"
 
 metadata:
-  generated_by: "T007"
-  validation_tool: "utils.schema_validator"
-  expected_format: "parquet"
-  created_date: "2024"
+  source: "USPTO Dataset (DOI: 10.1021/acs.jcim.5b00246)"
+  preprocessing_version: "1.0"
+  generated_by: "code/preprocessing/ingest.py"
+  timestamp_format: "ISO8601"

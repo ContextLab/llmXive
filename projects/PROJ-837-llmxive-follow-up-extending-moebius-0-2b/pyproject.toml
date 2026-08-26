@@ -3,123 +3,39 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-moebius"
+name = "llmxive-moebius-dynamic"
 version = "0.1.0"
-description = "LLMXive follow-up: Extending Moebius 0.2B Lightweight Image Inpainting Framework"
-readme = "README.md"
+description = "Dynamic rank adjustment for Moebius 0.2B image inpainting"
 requires-python = ">=3.9"
-license = {text = "MIT"}
-authors = [
-    {name = "LLMXive Research Team"}
-]
 dependencies = [
     "torch>=2.0.0",
-    "scikit-learn>=1.3.0",
-    "Pillow>=9.0.0",
-    "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "scipy>=1.11.0",
-    "datasets>=2.14.0",
-    "lpips>=0.1.4",
-    "torchmetrics>=1.0.0",
     "torchvision>=0.15.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
+    "datasets>=2.14.0",
+    "scikit-learn>=1.3.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "pillow>=9.5.0",
+    "scipy>=1.11.0",
+    "lpips>=0.1.4",
+    "torchmetrics>=0.11.0",
+    "tqdm>=4.65.0"
 ]
 
 [tool.setuptools.packages.find]
-where = ["code"]
-# Note: We map the 'code' directory to the package root for imports
-# The project structure assumes imports like 'from config import ...'
-# which implies the 'code' directory is added to sys.path or treated as root.
-# However, for standard setuptools, we usually install the package.
-# Given the task constraints and the provided API surface (imports from 'config', 'data', etc.),
-# we treat 'code' as the source root.
+where = ["."]
+include = ["code*"]
 
-[tool.setuptools.package-dir]
-"" = "code"
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = ["E", "F", "W", "I"]
+ignore = []
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
-[tool.ruff]
-# Same as Black.
-line-length = 88
-target-version = "py39"
-
-# Assume 'code' is the source root for imports
-src = ["code"]
-
-[tool.ruff.lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "F403", # 'from module import *' used; unable to detect undefined names
-    "F405", # name may be undefined, or defined from star imports
-]
-
-# Allow autofix for all enabled rules (when `--fix` is provided)
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files from linting
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-# Per-file ignores
-per-file-ignores = {}
-
-[tool.ruff.lint.isort]
-known-first-party = ["config", "config_env", "data", "models", "utils", "eval", "training"]
-force-sort-within-sections = true
-lines-after-imports = 2
+target-version = ['py39']
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["code"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::UserWarning"
-]
+python_files = ["test_*.py"]
+addopts = "-v"

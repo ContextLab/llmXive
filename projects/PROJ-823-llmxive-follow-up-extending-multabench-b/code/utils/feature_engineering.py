@@ -25,7 +25,7 @@ def normalize_features(df: pd.DataFrame, method: str = "zscore") -> Tuple[pd.Dat
     # Identify numeric columns to normalize
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     
-    # Remove 'dataset_id' if present
+    # Remove 'dataset_id' if present (ensure it's not treated as numeric)
     if 'dataset_id' in numeric_cols:
         numeric_cols.remove('dataset_id')
     
@@ -45,6 +45,7 @@ def normalize_features(df: pd.DataFrame, method: str = "zscore") -> Tuple[pd.Dat
             mean_val = 0.0
             log_warning(f"Mean for {col} is NaN, using 0.0 for imputation.")
         
+        # Fill NaNs with mean
         col_data = col_data.fillna(mean_val)
         
         if method == "zscore":

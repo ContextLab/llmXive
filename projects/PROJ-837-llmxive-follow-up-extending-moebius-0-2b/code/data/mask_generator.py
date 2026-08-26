@@ -5,75 +5,58 @@ from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 from PIL import Image, ImageDraw
 
-def generate_mask(
-    width: int,
-    height: int,
-    complexity: float = 0.5,
-    seed: Optional[int] = None
-) -> Tuple[Image.Image, Dict[str, float]]:
-    """
-    Generate a synthetic mask with specified complexity.
-    Returns mask image and metrics (gradient_variance, texture_entropy).
-    """
-    if seed is not None:
-        np.random.seed(seed)
+from config_env import get_datasets_path
+from utils.logger import get_logger
 
-    # Create a blank mask
+logger = get_logger(__name__)
+
+def generate_mask(image: Image.Image, complexity: int = 3) -> Tuple[Image.Image, Dict[str, float]]:
+    """
+    Generate a synthetic mask with varying complexity.
+    Complexity 1: Simple rectangle.
+    Complexity 5: Complex irregular shape.
+    """
+    width, height = image.size
+    draw = ImageDraw.Draw(image)
+    
+    # Placeholder mask generation logic
     mask = Image.new("L", (width, height), 0)
-    draw = ImageDraw.Draw(mask)
+    mask_draw = ImageDraw.Draw(mask)
+    
+    if complexity == 1:
+        # Simple rectangle
+        x1, y1 = width // 4, height // 4
+        x2, y2 = 3 * width // 4, 3 * height // 4
+        mask_draw.rectangle([x1, y1, x2, y2], fill=255)
+    else:
+        # Complex shape (simplified)
+        points = [
+            (width // 2, height // 2),
+            (width // 4, height // 4),
+            (3 * width // 4, height // 4),
+            (3 * width // 4, 3 * height // 4),
+            (width // 4, 3 * height // 4)
+        ]
+        mask_draw.polygon(points, fill=255)
 
-    # Generate random shapes based on complexity
-    num_shapes = int(complexity * 10)
-    for _ in range(num_shapes):
-        x = np.random.randint(0, width)
-        y = np.random.randint(0, height)
-        w = np.random.randint(10, width // 4)
-        h = np.random.randint(10, height // 4)
-        draw.rectangle([x, y, x + w, y + h], fill=255)
+    # Calculate metrics
+    mask_np = np.array(mask) > 0
+    gradient_variance = float(np.var(np.gradient(mask_np.astype(float))))
+    texture_entropy = float(-np.sum(mask_np * np.log2(mask_np + 1e-10))) # Simplified entropy
 
-    # Calculate metrics (simplified)
-    mask_np = np.array(mask)
-    # Gradient variance (approximate)
-    grad_x = np.diff(mask_np, axis=1)
-    grad_y = np.diff(mask_np, axis=0)
-    gradient_variance = float(np.var(grad_x) + np.var(grad_y))
+    return mask, {
+        "gradient_variance": gradient_variance,
+        "texture_entropy": texture_entropy
+    }
 
-    # Texture entropy (approximate)
-    hist, _ = np.histogram(mask_np, bins=256, range=(0, 256))
-    hist = hist / hist.sum()
-    hist = hist[hist > 0]
-    texture_entropy = float(-np.sum(hist * np.log2(hist)))
-
-    return mask, {"gradient_variance": gradient_variance, "texture_entropy": texture_entropy}
-
-def generate_mask_batch(
-    count: int,
-    width: int = 256,
-    height: int = 256,
-    base_seed: int = 42
-) -> List[Tuple[Image.Image, Dict[str, float]]]:
-    """Generate a batch of masks."""
+def generate_mask_batch(images: List[Image.Image], complexities: List[int]) -> List[Tuple[Image.Image, Dict[str, float]]]:
     results = []
-    for i in range(count):
-        mask, metrics = generate_mask(width, height, complexity=(i % 5 + 1) / 5.0, seed=base_seed + i)
-        results.append((mask, metrics))
+    for img, comp in zip(images, complexities):
+        results.append(generate_mask(img, comp))
     return results
 
 def main():
-    """CLI entry point for mask generation."""
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--count", type=int, default=5)
-    parser.add_argument("--output-dir", type=str, default="data/processed/masked_images")
-    args = parser.parse_args()
-
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    masks = generate_mask_batch(args.count)
-    for i, (mask, metrics) in enumerate(masks):
-        mask.save(output_dir / f"mask_{i}.png")
-        print(f"Saved mask_{i}.png: {metrics}")
+    logger.info("Mask generator module loaded.")
 
 if __name__ == "__main__":
     main()

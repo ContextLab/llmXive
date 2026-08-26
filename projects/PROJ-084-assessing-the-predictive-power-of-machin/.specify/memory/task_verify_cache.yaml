@@ -24,11 +24,13 @@ T010:
     \ output file\u2014is therefore not satisfied."
 T014:
   c: false
-  h: a7531e2afe22ef6a6dfc853a8338d72956b9907121da32d52ecb324a3a023ad1
-  r: The provided `sanitize.py` defines helper functions but never loads `data/raw/uspto_raw.parquet`
-    nor applies `remove_salts` to the data, and the required parquet file is absent
-    from the repository. Consequently the script does not fulfill the stated requirement
-    of loading, sanitizing, and standardizing the USPTO reactions.
+  h: 358e297923a7fb61ef1e7ad6943c7a0de182ca20b0b41df0f4a987fd03ffbb97
+  r: "The `sanitize.py` file is present but only partially shown and does not demonstrate\
+    \ loading the parquet file or completing the sanitization pipeline (the code is\
+    \ truncated after \u201C# 3. Parse Yield\u201D). Moreover, the required input\
+    \ file `data/raw/uspto_raw.parquet` is missing, so the script cannot be executed\
+    \ as specified. The task\u2019s core requirement\u2014loading the USPTO parquet,\
+    \ sanitizing reactions, and standardizing them\u2014is therefore not satisfied."
 T019:
   c: false
   h: 619d7c3ec744dbda61e49b0d4009f418552b7af60da81e62b3c29f55551dffad
@@ -37,3 +39,41 @@ T019:
     Moreover, the required output file `data/raw/uspto_raw.parquet` is missing. The
     implementation does not fulfill the download, checksum verification, or Constitution
     Principle II gate check as specified.
+T022:
+  c: false
+  h: 25abafa42b5e41788765e68d6480a811f549ed2e0e2e3f1e55b56c8cf517097e
+  r: The provided `code/modeling/split.py` is truncated and does not contain a complete
+    implementation (e.g., the `assign_split` function is unfinished, there is no return
+    statement, and no code to write `split_indices.parquet`). Moreover, the required
+    output file `data/processed/split_indices.parquet` is missing from the repository.
+T023:
+  c: false
+  h: db94b828d3b2809799eb2aabefd8fb588376e3d0b1e547945532f5896bf481df
+  r: "The required `data/processed/split_indices.parquet` and the resulting `validation_set.parquet`\
+    \ are absent, and the provided `code/modeling/split.py` does not contain logic\
+    \ to read `split_indices.parquet` and write out a held\u2011out validation set\
+    \ as specified. The implementation instead defines a generic train/val/test splitter\
+    \ and is truncated, so the task\u2019s core requirement is unmet."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, scripts, or benchmark logs are provided that demonstrate\
+    \ the training pipeline runs on CPU only and uses batching to stay within a 7\u202F\
+    GB RAM ceiling. Without such artifacts, the requirement cannot be verified. The\
+    \ implementer must supply the actual training scripts (or a reproducible notebook),\
+    \ the CPU\u2011only execution settings, and memory\u2011usage measurements confirming\
+    \ the \u2264\u202F7\u202FGB limit."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or directories were presented at `data/results/best_models/`, and there
+    is no code or logs showing that the best model objects and their hyperparameter
+    configurations are being saved there. The required artifact (saved model files
+    and hyperparameter records) is missing, so the task is not satisfied.
+T030:
+  c: false
+  h: ab39ea1f432ee4ca454e13511e907ff980817575b515b77a35d4e27d9bd2625b
+  r: "The required integration test file `tests/integration/test_generalization.py`\
+    \ does not exist in the repository, so the task\u2019s deliverable is missing.\
+    \ The implementer must add a non\u2011empty test file that exercises the generalization\
+    \ analysis as specified."

@@ -8,116 +8,106 @@ import pytest
 import pandas as pd
 import numpy as np
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add code directory to path for imports
+code_dir = Path(__file__).parent.parent / "code"
+sys.path.insert(0, str(code_dir))
 
 from analysis.metadata_stats import (
-    load_dataset_list,
-    load_raw_tabular_data,
+    compute_sparsity_for_dataset,
+    compute_missingness_for_dataset,
+    compute_cardinality_for_dataset,
     compute_variance_for_dataset,
-    compute_feature_stats,
-    process_single_dataset,
-    save_summary_csv,
-    main
+    compute_sparsity,
+    save_summary_csv
 )
 
 @pytest.fixture
 def temp_data_dir():
     """Create a temporary directory for test data."""
     temp_dir = tempfile.mkdtemp()
-    raw_dir = Path(temp_dir) / "raw"
-    raw_dir.mkdir()
-    
-    # Create a mock dataset_list.json
-    dataset_list = {
-        "datasets": ["test_ds_1", "test_ds_2"]
-    }
-    with open(raw_dir / "dataset_list.json", 'w') as f:
-        json.dump(dataset_list, f)
-    
-    # Create mock CSV files
-    df1 = pd.DataFrame({
-        "num_col1": [1.0, 2.0, 3.0, 4.0, 5.0],
-        "num_col2": [10.0, 20.0, 30.0, 40.0, 50.0],
-        "cat_col": ["A", "B", "A", "C", "B"]
-    })
-    df1.to_csv(raw_dir / "test_ds_1.csv", index=False)
-    
-    df2 = pd.DataFrame({
-        "num_col1": [5.0, 5.0, 5.0, 5.0, 5.0], # Zero variance
-        "num_col2": [1.0, 2.0, 3.0, 4.0, 5.0],
-        "num_col3": [2.0, 4.0, 6.0, 8.0, 10.0]
-    })
-    df2.to_csv(raw_dir / "test_ds_2.csv", index=False)
-    
-    yield temp_dir
-    
-    # Cleanup
+    yield Path(temp_dir)
     shutil.rmtree(temp_dir)
 
+def test_compute_sparsity_for_dataset_with_zeros():
+    """Test sparsity calculation with a dataframe containing zeros."""
+    data = {
+        'A': [0, 0, 1, 2, 0],
+        'B': [0, 1, 2, 0, 0],
+        'C': [1, 2, 3, 4, 5] # No zeros
+    }
+    df = pd.DataFrame(data)
+    
+    # Total cells = 5 * 3 = 15
+    # Zeros = 2 (A) + 3 (B) + 0 (C) = 5
+    # Sparsity = 5/15 = 0.333...
+    sparsity = compute_sparsity_for_dataset(df)
+    assert abs(sparsity - (5/15)) < 1e-6
+
+def test_compute_sparsity_for_dataset_no_numerical():
+    """Test sparsity calculation with a dataframe containing only non-numerical columns."""
+    data = {
+        'A': ['a', 'b', 'c'],
+        'B': ['x', 'y', 'z']
+    }
+    df = pd.DataFrame(data)
+    
+    sparsity = compute_sparsity_for_dataset(df)
+    assert sparsity == 0.0
+
+def test_compute_sparsity_for_dataset_empty():
+    """Test sparsity calculation with an empty dataframe."""
+    df = pd.DataFrame()
+    sparsity = compute_sparsity_for_dataset(df)
+    assert sparsity == 0.0
+
+def test_compute_missingness_for_dataset():
+    """Test missingness calculation."""
+    data = {
+        'A': [1, np.nan, 3],
+        'B': [np.nan, np.nan, 6]
+    }
+    df = pd.DataFrame(data)
+    # Total = 6, Missing = 3, Rate = 0.5
+    missingness = compute_missingness_for_dataset(df)
+    assert missingness == 0.5
+
+def test_compute_cardinality_for_dataset():
+    """Test cardinality calculation."""
+    data = {
+        'A': ['x', 'x', 'y'], # 2 unique
+        'B': ['p', 'q', 'r']  # 3 unique
+    }
+    df = pd.DataFrame(data)
+    # Mean cardinality = (2 + 3) / 2 = 2.5
+    cardinality = compute_cardinality_for_dataset(df)
+    assert cardinality == 2.5
+
 def test_compute_variance_for_dataset():
-    """Test variance computation for a simple dataset."""
-    df = pd.DataFrame({
-        "a": [1, 2, 3, 4, 5],
-        "b": [10, 20, 30, 40, 50],
-        "c": ["x", "y", "z", "x", "y"]
-    })
-    
+    """Test variance calculation."""
+    data = {
+        'A': [1, 2, 3, 4, 5],
+        'B': [10, 20, 30, 40, 50]
+    }
+    df = pd.DataFrame(data)
+    # Variance of A: 2.5, Variance of B: 250.0 (sample variance by default)
+    # Mean variance = (2.5 + 250.0) / 2 = 126.25
     variance = compute_variance_for_dataset(df)
-    
-    assert "a" in variance
-    assert "b" in variance
-    assert "c" in variance
-    
-    # Variance of [1,2,3,4,5] is 2.5
-    assert abs(variance["a"] - 2.5) < 1e-5
-    # Variance of [10,20,30,40,50] is 250.0
-    assert abs(variance["b"] - 250.0) < 1e-5
-    # Non-numeric should be 0.0
-    assert variance["c"] == 0.0
+    # Allow small float tolerance
+    assert abs(variance - 126.25) < 0.01
 
-def test_compute_variance_zero_variance():
-    """Test variance computation when all values are the same."""
-    df = pd.DataFrame({
-        "a": [5, 5, 5, 5],
-        "b": [1, 2, 3, 4]
-    })
-    
-    variance = compute_variance_for_dataset(df)
-    
-    assert variance["a"] == 0.0
-    assert variance["b"] > 0.0
-
-def test_process_single_dataset(temp_data_dir):
-    """Test processing a single dataset from disk."""
-    # Temporarily override the RAW_DATA_DIR constant
-    import analysis.metadata_stats as ms
-    original_raw_dir = ms.RAW_DATA_DIR
-    ms.RAW_DATA_DIR = Path(temp_data_dir) / "raw"
-    
-    try:
-        result = process_single_dataset("test_ds_1")
-        assert result is not None
-        assert result["dataset_id"] == "test_ds_1"
-        assert "mean_variance" in result
-        assert result["mean_variance"] > 0
-    finally:
-        ms.RAW_DATA_DIR = original_raw_dir
-
-def test_save_summary_csv(temp_data_dir):
-    """Test saving summary CSV."""
+def test_save_summary_csv(tmp_path):
+    """Test saving results to CSV."""
     results = [
-        {"dataset_id": "ds1", "mean_variance": 2.5},
-        {"dataset_id": "ds2", "mean_variance": 10.0}
+        {"dataset_id": "ds1", "sparsity": 0.1},
+        {"dataset_id": "ds2", "sparsity": 0.2}
     ]
+    output_path = tmp_path / "test_output.csv"
     
-    output_path = Path(temp_data_dir) / "output_variance.csv"
-    save_summary_csv(results, output_path, "variance")
+    save_summary_csv(results, output_path, "sparsity")
     
     assert output_path.exists()
     df = pd.read_csv(output_path)
-    assert "dataset_id" in df.columns
-    assert "variance" in df.columns
+    assert list(df.columns) == ["dataset_id", "sparsity"]
     assert len(df) == 2
     assert df.iloc[0]["dataset_id"] == "ds1"
-    assert abs(df.iloc[0]["variance"] - 2.5) < 1e-5
+    assert df.iloc[0]["sparsity"] == 0.1

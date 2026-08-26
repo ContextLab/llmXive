@@ -83,13 +83,13 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/data/loader.py` to fetch Places365 subset from HuggingFace (`mit-places/Places365`) with checksum verification
+- [X] T012 [P] [US1] Implement `code/data/loader.py` to fetch Places365 subset from HuggingFace (`mit-places/Places365`) with checksum verification
 - [X] T013 [P] [US1] Implement `code/data/mask_generator.py` to create synthetic masks with varying complexity; record `gradient_variance` and `texture_entropy`
 - [X] T014 [US1] Implement `code/data/annotator.py` to provide CLI/JSON interface for crowdsourcing structure
  - [ ] T014a [US1] **CI Mode**: Generate `data/annotations/decoupled_scores.csv` with columns `[image_id, score, mode]`. Logic: Generate scores using **random independent values** (uniform distribution 1-5) strictly decoupled from synthetic mask metrics (gradient/entropy) to satisfy FR-007 and avoid circularity. {{claim:c_9f11c331}} (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604).
  - [ ] T014b [US1] **Research Mode**: Implement logic to load external human-annotated CSV. Validate schema and integrity.
  - [ ] T014c [US1] **Research Mode Ingestion**: Implement the specific mechanism to ingest, manage, and validate real human participant data for 'Research Mode' as required by FR-002.
- - [ ] T014d [US1] Implement **Participant Disagreement Logic**: Calculate standard deviation of scores per image. If std dev > 1.0, apply majority vote or flag for exclusion [UNRESOLVED-CLAIM: c_dbddd5f0 — status=not_enough_info] as per spec edge cases.
+ - [ ] T014d [US1] Implement **Participant Disagreement Logic**: Calculate standard deviation of scores per image. If std dev > 1.0, apply majority vote or flag for exclusion as per spec edge cases.
  - [ ] T014e [US1] **Flow Control**: If CI Mode, skip T015 (IR) and **explicitly log** "CI Mode: Single-Rater Simulation" to `data/results/validation_log.txt` to satisfy Constitution Principle VI auditability. If Research Mode, proceed to T015.
 - [ ] T015 [US1] Implement Inter-Rater Reliability calculation (Krippendorff's alpha) in `code/data/annotator.py` (Research Mode only)
 - [ ] T016 [US1] Add validation logic in `code/data/annotator.py` that raises an error if sample size < 50 or if label independence check fails. Log result to `data/results/validation_log.txt`.
@@ -103,7 +103,7 @@ Examples of foundational tasks (adjust based on your plan):
 
 **Goal**: Validate that synthetic mask metrics correlate with ground truth BEFORE training the gating mechanism.
 
-**Independent Test**: Compute Pearson correlation; flag if r < 0.7 (for human data) [UNRESOLVED-CLAIM: c_287cf03a — status=not_enough_info] or log expected behavior (CI mode).
+**Independent Test**: Compute Pearson correlation; flag if r < 0.7 (for human data) or log expected behavior (CI mode).
 
 ### Implementation for User Story 4
 

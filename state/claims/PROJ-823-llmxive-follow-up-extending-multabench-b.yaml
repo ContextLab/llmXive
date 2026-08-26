@@ -936,3 +936,221 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T04:08:02Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: sensitivity seeds are 123, 456, 789, 101112
+  claim_id: c_35f7cd23
+  context: 'Explicitly define and pin a set of sensitivity seeds in a SENSITIVITY_SEEDS
+    constant to ensure deterministic reproducibility across all runs. Specific Seeds:
+    SENSITIVITY_SEEDS = [, 123, 456, 789, 101112].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SENSITIVITY_SEEDS = [, 123, 456, 789, 101112]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:53:14Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: script completes within 60 minutes on sample datasets
+  claim_id: c_97e2e941
+  context: 'Independent Test: Verify script completes within 60 mins on a sample of
+    datasets, outputs valid parquet files, and no CUDA errors occur.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify script completes within 60 mins on a sample of datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:54:15Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: training loss converges within 10 epochs on CPU with memory usage under
+    7 GB
+  claim_id: c_9fc96880
+  context: 'Independent Test: Verify training loss converges on a single dataset within
+    10 epochs on CPU and memory usage < 7GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify training loss converges on a single dataset within 10 epochs on
+    CPU and memory usage < 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:54:33Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: total execution time within acceptable limits and peak memory usage under
+    thresholds
+  claim_id: c_8b190328
+  context: 'Goal: Verify total execution time is strictly within acceptable limits
+    and peak memory usage never exceeds acceptable thresholds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_execution_time_within_acceptable_limits_and_peak_memor
+  kind: entity_fact
+  raw_text: Total execution time is strictly within acceptable limits and peak memory
+    usage never exceeds acceptable thresholds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:54:57Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: perform Wilcoxon signed-rank test if Shapiro-Wilk p-value is less than
+    0.05
+  claim_id: c_708a8ca6
+  context: 'Normality Check: Perform Shapiro-Wilk test on diff. If p-value < 0.05,
+    perform Wilcoxon signed-rank test: scipy.stats.wilcoxon(diff).'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Perform Shapiro-Wilk test on diff. If p-value < 0.05, perform Wilcoxon
+    signed-rank test
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T00:54:57Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Wikidata Q5398901
+  claim_id: c_6fce55b2
+  context: 'Logic: {{claim:c_58bdc0cd}} (Wikidata Q5398901, https://www.wikidata.org/wiki/Q5398901)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q5398901
+  kind: entity_fact
+  raw_text: Wikidata Q5398901
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:55:18Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: SENSITIVITY_SEEDS list includes 123, 456, 789, 101112
+  claim_id: c_5b171463
+  context: 'Specific Seeds: SENSITIVITY_SEEDS = [, 123, 456, 789, 101112 ].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SENSITIVITY_SEEDS = [, 123, 456, 789, 101112]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:56:28Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Script completes within 60 mins on sample datasets
+  claim_id: c_95e06706
+  context: 'Independent Test: Verify script completes within 60 mins on a sample of
+    datasets, outputs valid parquet files, and no CUDA errors occur.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify script completes within 60 mins on a sample of datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:56:28Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Training loss converges within 10 epochs on CPU
+  claim_id: c_d4fb3efb
+  context: 'Independent Test: Verify training loss converges on a single dataset within
+    10 epochs on CPU and memory usage < 7GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify training loss converges on a single dataset within 10 epochs on
+    CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:56:49Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 7GB
+  claim_id: c_c7d8aa9a
+  context: Verify training loss converges on a single dataset within 10 epochs on
+    CPU and memory usage < 7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7GB
+  kind: magnitude
+  raw_text: Memory usage < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:57:15Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Total execution time within acceptable limits and peak memory usage within
+    thresholds
+  claim_id: c_cca4fb62
+  context: 'Goal: Verify total execution time is strictly within acceptable limits
+    and peak memory usage never exceeds acceptable thresholds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_execution_time_within_acceptable_limits_and_peak_memor
+  kind: entity_fact
+  raw_text: total execution time is strictly within acceptable limits and peak memory
+    usage never exceeds acceptable thresholds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:57:17Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Calculate statistical power given final sample size N
+  claim_id: c_3881b12d
+  context: Update code/analysis/correlation.py to calculate and report the statistical
+    power of the correlation analysis given the final sample size (N) after exclusions
+    (T032a, T045).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_statistical_power_given_final_sample_size_N
+  kind: entity_fact
+  raw_text: statistical power of the correlation analysis given the final sample size
+    (N) after exclusions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:58:05Z'

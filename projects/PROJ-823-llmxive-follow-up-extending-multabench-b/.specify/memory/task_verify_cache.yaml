@@ -7,53 +7,6 @@ T015:
     is missing, so the output cannot be verified against the required schema. Both
     the missing schema file and the incomplete implementation prevent the task from
     being considered fulfilled.
-T024a:
-  c: false
-  h: 9038d6d2aa22ad2cba8f495aadb51e868812322899c92b05d6bca430d4d60913
-  r: "The repository contains a partially\u2011implemented `metadata_stats.py` (no\
-    \ `compute_cardinality` that iterates over all datasets and writes a CSV), and\
-    \ the required output file `data/processed/metadata_stats_cardinality.csv` is\
-    \ absent. The task\u2019s core requirement\u2014producing a summary CSV with `[dataset_id,\
-    \ cardinality]` for every dataset\u2014is therefore not met."
-T024b:
-  c: false
-  h: ea248eba62bcf42be64daa326e461c49c9d404dbe91f9003b8171c23e5d7b038
-  r: "The repository contains a partial `metadata_stats.py` with helper functions\
-    \ (e.g., `compute_missingness_for_dataset`) but no top\u2011level `compute_missingness`\
-    \ that processes *all* datasets and writes the required `data/processed/metadata_stats_missingness.csv`.\
-    \ Moreover, the expected CSV file is absent from the project. The task\u2019s\
-    \ core output is therefore missing."
-T024c:
-  c: false
-  h: d28d1bbe32df9cd7df38e95a56a66e45b4e47ef6fcebc78a33f34f9a0302289f
-  r: "The repository contains a partially\u2011implemented `metadata_stats.py` that\
-    \ defines `compute_sparsity_for_dataset`, but it never aggregates sparsity across\
-    \ all datasets nor writes the required `data/processed/metadata_stats_sparsity.csv`.\
-    \ Moreover, the expected CSV file is absent from the project. The task\u2019s\
-    \ core output is missing, so the implementation is incomplete."
-T024d:
-  c: false
-  h: d403a686e6d0a0cb77a52e49bf470bce04c92026f11a3a71546a89de249d4673
-  r: The provided `metadata_stats.py` does not contain a `compute_variance` function
-    (the file is truncated before any such implementation) and the required output
-    file `data/processed/metadata_stats_variance.csv` is absent. Both the core function
-    and the summary CSV are missing, so the task is not satisfied.
-T024e:
-  c: false
-  h: 7cea4c7551dce136c3ab6b414f4979cfebfe6ec58166e3dd883e5e530f21fd89
-  r: "The required output file `data/processed/metadata_stats_summary.csv` is missing\
-    \ from the repository, so the task\u2019s core deliverable (a merged and sorted\
-    \ CSV containing the selected subset) was not produced. Without this artifact,\
-    \ the task\u2019s requirement is not satisfied."
-T024f:
-  c: false
-  h: 2bdfc0a3b9a70a8a5a9a82f35823910232471625d84a7e869905793f5555e3df
-  r: "The pipeline script `code/pipelines/normalize_tabular.py` is present, but the\
-    \ required output file `data/processed/normalized_tabular_features.parquet` does\
-    \ not exist. Without this Parquet artifact, the task\u2019s core requirement\u2014\
-    generating the normalized tabular features\u2014is unmet. The implementer must\
-    \ ensure the pipeline writes the normalized DataFrame to the specified Parquet\
-    \ path."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -123,13 +76,6 @@ T038:
     \ we cannot confirm that the required reporting for datasets lacking GPU\u2011\
     Tuned baselines was added. The implementer must supply the modified report (or\
     \ source files) showing the new \u201CData Availability Gap\u201D content."
-T045:
-  c: false
-  h: c4cfed36fa8366d800cb52d38e75dc0c40437b59d19e200b67fde5d187f24e6e
-  r: The required input `data/processed/metadata_stats_summary.csv` is absent, and
-    the expected output `data/artifacts/data_integrity_report.json` was not generated.
-    Without these files the pipeline cannot perform the integrity checks or produce
-    the required report.
 T049:
   c: false
   h: 626a3721fe18ba8c50a8144a61551a4ae4bbe37c01e06740d946580ac398ba31

@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-13T08:58:23Z",
+  "fetched_at": "2026-08-26T00:47:01Z",
   "field": "chemistry",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms",
       "target_n": 5
     },
-    "duration_seconds": 68.342,
-    "ended_at": "2026-08-13T08:58:23Z",
+    "duration_seconds": 45.02,
+    "ended_at": "2026-08-26T00:47:01Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "attention-based models for spectroscopic yield prediction"
+          "deep learning models for reaction yield prediction"
         ],
         [
           2,
-          "deep learning yield prediction from spectral data"
+          "spectroscopic data analysis in chemical synthesis"
         ],
         [
           3,
-          "neural networks for reaction yield estimation using spectroscopy"
+          "attention-based neural networks for chemical property estimation"
         ],
         [
           4,
-          "spectroscopic data-driven chemical yield modeling"
+          "machine learning prediction of reaction outcomes from spectra"
         ],
         [
           5,
-          "transformer architectures for chemical reaction yield"
+          "infrared and NMR spectroscopy for yield forecasting"
         ],
         [
           6,
-          "machine learning prediction of reaction yields from IR or NMR"
+          "graph neural networks with attention for reaction prediction"
         ],
         [
           7,
-          "data-driven yield prediction using spectroscopic fingerprints"
+          "quantitative structure-property relationship (QSPR) using spectroscopic inputs"
         ],
         [
           8,
-          "attention mechanisms in chemometrics for yield forecasting"
+          "computational prediction of chemical reaction efficiency"
         ],
         [
           9,
-          "predicting reaction outcomes from spectral inputs with deep learning"
+          "spectral fingerprinting for reaction yield estimation"
         ],
         [
           10,
-          "spectroscopic feature extraction for reaction yield regression"
+          "transformer models applied to chemical reaction datasets"
         ],
         [
           11,
-          "end-to-end yield prediction from raw spectroscopic signals"
+          "data-driven yield prediction from analytical chemistry data"
         ],
         [
           12,
-          "graph neural networks with attention for reaction yield"
+          "multi-modal learning for chemical reaction analysis"
         ],
         [
           13,
-          "quantitative structure-spectroscopy-property relationships"
+          "spectroscopic feature extraction for yield modeling"
         ],
         [
           14,
-          "spectral analysis for optimizing chemical reaction yields"
+          "AI-driven optimization of chemical reaction yields"
         ],
         [
           15,
-          "hybrid spectroscopic and computational yield prediction"
+          "self-attention mechanisms in molecular property prediction"
         ],
         [
           16,
-          "yield estimation from vibrational or electronic spectra"
+          "regression models for spectroscopic reaction data"
         ],
         [
           17,
-          "automated yield prediction using spectroscopic descriptors"
+          "automated yield prediction using spectral signatures"
         ],
         [
           18,
-          "attention-enhanced regression for chemical synthesis yields"
+          "attention mechanisms in chemoinformatics and spectroscopy"
         ],
         [
           19,
-          "deep learning models for spectroscopy-based reaction monitoring"
+          "machine learning for real-time reaction monitoring and yield"
         ],
         [
           20,
-          "reaction yield forecasting from multi-modal spectroscopic data"
+          "hybrid spectroscopic and structural models for yield prediction"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms chemistry": 0,
-        "attention-based models for spectroscopic yield prediction": 5
+        "deep learning models for reaction yield prediction": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "spectroscopic fingerprint yield prediction attention",
-      "NMR IR Raman yield regression transformer",
-      "spectral representation learning quantum chemical descriptor",
-      "reaction yield benchmark spectroscopic dataset evaluation",
-      "mechanistic pathway attention interpretability chemical kinetics"
+      "spectral yield prediction attention mechanism",
+      "NMR IR Raman yield regression deep learning",
+      "graph neural networks molecular property prediction spectroscopy",
+      "reaction yield benchmark dataset evaluation metrics",
+      "mechanistic interpretability attention weights chemical transformation"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,56 +115,56 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2407.17492"
+        "2603.29261"
       ]
     },
     "per_query_hit_count": {
-      "NMR IR Raman yield regression transformer": 3,
+      "NMR IR Raman yield regression deep learning": 3,
       "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms chemistry": 3,
-      "mechanistic pathway attention interpretability chemical kinetics": 3,
-      "reaction yield benchmark spectroscopic dataset evaluation": 3,
-      "spectral representation learning quantum chemical descriptor": 3,
-      "spectroscopic fingerprint yield prediction attention": 3
+      "graph neural networks molecular property prediction spectroscopy": 3,
+      "mechanistic interpretability attention weights chemical transformation": 3,
+      "reaction yield benchmark dataset evaluation metrics": 3,
+      "spectral yield prediction attention mechanism": 3
     },
     "relevance_judge": {
       "enabled": true,
-      "marginal_fallback_used": false,
+      "marginal_fallback_used": true,
       "rejected_count": 5,
       "rejections": [
         {
-          "primary_pointer": "1410.4506",
-          "rationale": "The paper focuses on astronomical spectroscopy for calibrating photometric redshifts in cosmology (LSST, DESI), which is an entirely different domain from the user's question about predicting chemical reaction yields using spectroscopic data in chemistry. This falls under the rejection rule for \"off-domain entirely\" and \"distinct construct sharing only homonym keywords\" (both use \"spectroscopic\" and \"redshift\" in different scientific contexts).",
-          "title": "Spectroscopic Needs for Calibration of LSST Photometric Redshifts"
+          "primary_pointer": "2105.04026",
+          "rationale": "The paper is a broad theoretical overview of deep learning mathematics and does not measure chemical reaction yields, spectroscopic data, or attention mechanisms in a chemistry context, failing to satisfy the criteria for same-mechanism evidence, domain-specific variables, or empirical baselines. While it mentions deep learning's success in physical problems generally, it lacks the specific empirical connection to the user's domain (chemistry) and variables (yields/spectroscopy) required for inc",
+          "title": "The Modern Mathematics of Deep Learning"
         },
         {
-          "primary_pointer": "1410.4498",
-          "rationale": "The paper focuses on astronomical spectroscopy for training photometric redshifts in cosmology (LSST, dark energy), which is an entirely different domain from the user's question about predicting chemical reaction yields using spectroscopic data in chemistry. This falls under the rejection rule for \"off-domain entirely\" where the shared keywords (\"spectroscopic,\" \"training,\" \"data\") refer to distinct constructs in unrelated scientific fields.",
-          "title": "Spectroscopic Needs for Training of LSST Photometric Redshifts"
+          "primary_pointer": "2306.11113",
+          "rationale": "The paper focuses on the theoretical limitations and improvement of evidential deep learning for uncertainty quantification in general datasets, without addressing the specific domain of chemical reaction yields, spectroscopic data, or the application of attention mechanisms for yield prediction. It fails to meet any inclusion criteria (a-f) as it does not study the relevant biological/chemical mechanism, variables, or empirical population, nor does it provide a foundational method specifically ",
+          "title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice"
         },
         {
-          "primary_pointer": "1803.10916",
-          "rationale": "The paper applies attention mechanisms to keyword spotting in audio signals, which is an entirely different domain (speech processing) from the user's question (predicting chemical reaction yields from spectroscopic data). While both use \"attention mechanisms,\" the underlying data types, physical observables, and scientific constructs are distinct, failing the \"off-domain entirely\" rejection rule.",
-          "title": "Attention-based End-to-End Models for Small-Footprint Keyword Spotting"
+          "primary_pointer": "2302.04143",
+          "rationale": "The paper is off-domain entirely, focusing on medical imaging (CT/CTA) and clinical outcomes for stroke treatment, whereas the user's question concerns chemical reaction yields and spectroscopic data in chemistry. Although both papers utilize attention mechanisms, the constructs, data types, and scientific domains are completely distinct, satisfying the rejection rule for \"off-domain entirely.\"",
+          "title": "Predicting Thrombectomy Recanalization from CT Imaging Using Deep Learning Models"
         },
         {
-          "primary_pointer": "2206.04801",
-          "rationale": "The paper focuses on relation prediction in knowledge graphs using attention mechanisms, which is a distinct domain from predicting chemical reaction yields from spectroscopic data. While both utilize \"attention mechanisms,\" the paper does not measure the same biological/chemical pathway, physical observable, or empirical population (spectroscopic data vs. graph entities), nor does it establish a baseline for the specific chemical prediction task, failing to meet criteria (a) through (f).",
-          "title": "Learning Attention-based Representations from Multiple Patterns for Relation Prediction in Knowledge Graphs"
+          "primary_pointer": "2301.00942",
+          "rationale": "The paper is a general educational resource on the theoretical connections between deep learning and computational physics, lacking any specific empirical study, dataset, or application to predicting chemical reaction yields from spectroscopic data. It fails to meet the criteria for inclusion as it does not measure the specific mechanism, variables, or domain required by the user's question, nor does it serve as a foundational method for this specific application.",
+          "title": "Deep Learning and Computational Physics (Lecture Notes)"
         },
         {
-          "primary_pointer": "1705.02544",
-          "rationale": "The paper focuses on predicting human eye fixation in visual scenes using computer vision, which is an entirely different domain (human attention in images) from the user's question about predicting chemical reaction yields from spectroscopic data. While both use the term \"attention,\" the paper addresses a distinct construct (visual saliency) rather than the chemical mechanism, spectroscopic variables, or reaction yield outcomes required for inclusion.",
-          "title": "Deep Visual Attention Prediction"
+          "primary_pointer": "2603.29261",
+          "rationale": "The paper focuses on predicting item price elasticity in retail economics using transactional data, which is an entirely different domain (economics/business) from the user's question about predicting chemical reaction yields from spectroscopic data (chemistry). It shares no measurable connection to the user's mechanism, variables, or empirical setting, falling under the \"Off-domain entirely\" rejection rule.",
+          "title": "Monodense Deep Neural Model for Determining Item Price Elasticity"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-13T08:57:14Z",
+    "started_at": "2026-08-26T00:46:16Z",
     "term_input": {
       "normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
       "raw": "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms chemistry"
@@ -185,7 +185,7 @@
           "primary_pointer": "1806.02690"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Guest Editorial: Special Topic on Data-enabled Theoretical Chemistry')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -201,7 +201,7 @@
           "primary_pointer": "1802.05745"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Model reduction in chemical dynamics: slow invariant manifolds, singular perturbations, thermodynamic estimates, and analysis of reaction graph')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -218,185 +218,173 @@
           "primary_pointer": "1110.5626"
         },
         "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This white paper summarizes the conclusions of the Snowmass White Paper \"Spectroscopic Needs for Imaging Dark Energy Experiments\" (arXiv:1309.5384) which are relevant to the calibration of LSST photometric redshifts; i.e., the accurate characterization of biases and uncertainties in photo-z's. Any significant miscalibration will lead to systematic errors in photo-z's, impacting nearly all extragalactic science with LSST. As existing deep redshift samples have failed to yield highly-secure redshifts for a systematic 20%-60% of their targets, it is a strong possibility that future deep spectroscopic samples will not solve the calibration problem on their own. The best options in this scenario are provided by cross-correlation methods that utilize clustering with objects from spectroscopic surveys (which need not be fully representative) to trace the redshift distribution of the full sample. For spectroscopy, the eBOSS survey would enable a basic calibration of LSST photometric redshifts, while the expected LSST-DESI overlap would be more than sufficient for an accurate calibration at z>0.2. A DESI survey of nearby galaxies conducted in bright time would enable accurate calibration down to z~0. The expanded areal coverage provided by the transfer of the DESI instrument (or duplication of it at the Blanco Telescope) would enable the best possible calibration from cross-correlations, in addition to other science gains.",
+          "claimed_abstract": "The spectral behavior of the difference between the resolvents of two realizations $\\tilde A_1$ and $\\tilde A_2$ of a second-order strongly elliptic symmetric differential operator $A$, defined by different Robin conditions $νu=b_1γ_0u$ and $νu=b_2γ_0u$, can in the case where all coefficients are $C^\\infty$ be determined by use of a general result by the author in 1984 on singular Green operators. We here treat the problem for nonsmooth $b_i$. Using a Krein resolvent formula, we show that if $b_1$ and $b_2$ are in $L_\\infty$, the s-numbers $s_j$ of $(\\tilde A_1 -λ)^{-1}-(\\tilde A_2 -λ)^{-1}$ satisfy $s_j j^{3/(n-1)}\\le C$ for all $j$; this improves a recent result for $A=-Δ$ by Behrndt et al., that $\\sum_js_j ^p<\\infty$ for $p>(n-1)/3$. A sharper estimate is obtained when $b_1$ and $b_2$ are in $C^ε$ for some $ε>0$, with jumps at a smooth hypersurface, namely that $s_j j^{3/(n-1)}\\to c$ for $j\\to \\infty$, with a constant $c$ defined from the principal symbol of $A$ and $b_2-b_1$.\n  As an auxiliary result we show that the usual principal spectral asymptotic estimate for pseudodifferential operators of negative order on a closed manifold extends to products of pseudodifferential operators interspersed with piecewise continuous functions.",
           "claimed_authors": [
-            "Samuel J. Schmidt",
-            "Jeffrey A. Newman",
-            "Alexandra Abate",
-            "the Spectroscopic Needs White Paper Team"
+            "Gerd Grubb"
           ],
-          "claimed_title": "Spectroscopic Needs for Calibration of LSST Photometric Redshifts",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1410.4506"
-        },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Spectroscopic Needs for Calibration of LSST Photometric Redshifts')",
-        "failed_at": "2026-08-13T08:57:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This white paper summarizes those conclusions of the Snowmass White Paper \"Spectroscopic Needs for Imaging Dark Energy Experiments\" (arXiv:1309.5384) which are relevant to the training of LSST photometric redshifts; i.e., the use of spectroscopic redshifts to improve algorithms and reduce photo-z errors. The larger and more complete the available training set is, the smaller the RMS error in photo-z estimates should be, increasing LSST's constraining power. Among the better US-based options for this work are the proposed MANIFEST fiber feed for the Giant Magellan Telescope or (with lower survey speed) the WFOS spectrograph on the Thirty Meter Telescope (TMT). Due to its larger field of view and higher multiplexing, the PFS spectrograph on Subaru would be able to obtain a baseline training sample faster than TMT; comparable performance could be achieved with a highly-multiplexed spectrograph on Gemini with at least a 20 arcmin diameter field of view.",
-          "claimed_authors": [
-            "Alexandra Abate",
-            "Jeffrey A. Newman",
-            "Samuel J. Schmidt",
-            "the Spectroscopic Needs White Paper team"
-          ],
-          "claimed_title": "Spectroscopic Needs for Training of LSST Photometric Redshifts",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1410.4498"
-        },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Spectroscopic Needs for Training of LSST Photometric Redshifts')",
-        "failed_at": "2026-08-13T08:57:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Model merging via Mixture-of-Experts (MoE) has emerged as a scalable solution for consolidating multiple task-specific models into a unified sparse architecture, where each expert is derived from a model fine-tuned on a distinct task. While effective for multi-task integration, this paradigm introduces a critical yet underexplored challenge: how to attribute and protect the intellectual property (IP) of individual experts after merging. We propose RouteMark, a framework for IP protection in merged MoE models through the design of expert routing fingerprints. Our key insight is that task-specific experts exhibit stable and distinctive routing behaviors under probing inputs. To capture these patterns, we construct expert-level fingerprints using two complementary statistics: the Routing Score Fingerprint (RSF), quantifying the intensity of expert activation, and the Routing Preference Fingerprint (RPF), characterizing the input distribution that preferentially activates each expert. These fingerprints are reproducible, task-discriminative, and lightweight to construct. For attribution and tampering detection, we introduce a similarity-based matching algorithm that compares expert fingerprints between a suspect and a reference (victim) model. Extensive experiments across diverse tasks and CLIP-based MoE architectures show that RouteMark consistently yields high similarity for reused experts and clear separation from unrelated ones. Moreover, it remains robust against both structural tampering (expert replacement, addition, deletion) and parametric tampering (fine-tuning, pruning, permutation), outperforming weight- and activation-based baseliness. Our work lays the foundation for RouteMark as a practical and broadly applicable framework for IP verification in MoE-based model merging.",
-          "claimed_authors": [
-            "Xin He",
-            "Junxi Shen",
-            "Zhenheng Tang",
-            "Xiaowen Chu",
-            "Bo Li",
-            "Ivor W. Tsang",
-            "Yew-Soon Ong"
-          ],
-          "claimed_title": "RouteMark: A Fingerprint for Intellectual Property Attribution in Routing-based Model Merging",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2508.01784"
-        },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='RouteMark: A Fingerprint for Intellectual Property Attribution in Routing-based Model Merging')",
-        "failed_at": "2026-08-13T08:57:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In this article I will describe how NMR techniques may be used to build simple quantum information processing devices, such as small quantum computers, and show how these techniques are related to more conventional NMR experiments.",
-          "claimed_authors": [
-            "J. A. Jones"
-          ],
-          "claimed_title": "NMR Quantum Computation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2000,
-          "primary_pointer": "quant-ph/0009002"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='NMR Quantum Computation')",
-        "failed_at": "2026-08-13T08:57:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "A review of progress in NMR quantum computing and a brief survey of the literature",
-          "claimed_authors": [
-            "Jonathan A. Jones"
-          ],
-          "claimed_title": "Quantum Computing with NMR",
+          "claimed_title": "Spectral asymptotics for Robin problems with a discontinuous coefficient",
           "claimed_venue": "arXiv",
           "claimed_year": 2010,
-          "primary_pointer": "1011.1382"
+          "primary_pointer": "1009.0997"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Quantum Computing with NMR')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Spectral asymptotics for Robin problems with a discontinuous coefficient')",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We report on the first optical characterization of both cubic and hexagonal SrMnO$_3$. Room-temperature Raman spectra collected by means of a micro-Raman spectrometer are shown. The spectrum of the cubic compound is characterized by weak and broad bands in agreement with group-theory which predicts no Raman-active phonons for this compound. On the other hand, the spectrum of the hexagonal compound shows six narrow peaks ascribed to one-phonon processes. A complete polarization analysis of the spectra collected from a single crystallite allows us to completely assign the symmetries of the six observed peaks. Atomic displacements for each phonon peaks are also proposed.",
+          "claimed_abstract": "Consider an elliptic self-adjoint pseudodifferential operator $A$ acting on $m$-columns of half-densities on a closed manifold $M$, whose principal symbol is assumed to have simple eigenvalues. We show that the spectrum of $A$ decomposes, up to an error with superpolynomial decay, into $m$ distinct series, each associated with one of the eigenvalues of the principal symbol of $A$. These spectral results are then applied to the study of propagation of singularities in hyperbolic systems. The key technical ingredient is the use of the carefully devised pseudodifferential projections introduced in the first part of this work, which decompose $L^2(M)$ into almost-orthogonal almost-invariant subspaces under the action of both $A$ and the hyperbolic evolution.",
           "claimed_authors": [
-            "A. Sacchetti",
-            "M. Baldini",
-            "P. Postorino",
-            "C. Martin",
-            "A. Maignan"
+            "Matteo Capoferri",
+            "Dmitri Vassiliev"
           ],
-          "claimed_title": "Raman spectroscopy on cubic and hexagonal SrMnO$_3$",
+          "claimed_title": "Invariant subspaces of elliptic systems II: spectral theory",
           "claimed_venue": "arXiv",
-          "claimed_year": 2005,
-          "primary_pointer": "cond-mat/0509468"
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14334"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Raman spectroscopy on cubic and hexagonal SrMnO$_3$')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Invariant subspaces of elliptic systems II: spectral theory')",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Unsupervised representation learning presents new opportunities for advancing Quantum Architecture Search (QAS) on Noisy Intermediate-Scale Quantum (NISQ) devices. QAS is designed to optimize quantum circuits for Variational Quantum Algorithms (VQAs). Most QAS algorithms tightly couple the search space and search algorithm, typically requiring the evaluation of numerous quantum circuits, resulting in high computational costs and limiting scalability to larger quantum circuits. Predictor-based QAS algorithms mitigate this issue by estimating circuit performance based on structure or embedding. However, these methods often demand time-intensive labeling to optimize gate parameters across many circuits, which is crucial for training accurate predictors. Inspired by the classical neural architecture search algorithm Arch2vec, we investigate the potential of unsupervised representation learning for QAS without relying on predictors. Our framework decouples unsupervised architecture representation learning from the search process, enabling the learned representations to be applied across various downstream tasks. Additionally, it integrates an improved quantum circuit graph encoding scheme, addressing the limitations of existing representations and enhancing search efficiency. This predictor-free approach removes the need for large labeled datasets. During the search, we employ REINFORCE and Bayesian Optimization to explore the latent representation space and compare their performance against baseline methods. We further validate our approach by executing the best-discovered MaxCut circuits on IBM's ibm_sherbrooke quantum processor, confirming that the architectures retain optimal performance even under real hardware noise. Our results demonstrate that the framework efficiently identifies high-performing quantum circuits with fewer search iterations.",
+          "claimed_abstract": "Predicting users' preferences based on their sequential behaviors in history is challenging and crucial for modern recommender systems. Most existing sequential recommendation algorithms focus on transitional structure among the sequential actions, but largely ignore the temporal and context information, when modeling the influence of a historical event to current prediction.\n  In this paper, we argue that the influence from the past events on a user's current action should vary over the course of time and under different context. Thus, we propose a Contextualized Temporal Attention Mechanism that learns to weigh historical actions' influence on not only what action it is, but also when and how the action took place. More specifically, to dynamically calibrate the relative input dependence from the self-attention mechanism, we deploy multiple parameterized kernel functions to learn various temporal dynamics, and then use the context information to determine which of these reweighing kernels to follow for each input. In empirical evaluations on two large public recommendation datasets, our model consistently outperformed an extensive set of state-of-the-art sequential recommendation methods.",
           "claimed_authors": [
-            "Yize Sun",
-            "Zixin Wu",
-            "Volker Tresp",
-            "Yunpu Ma"
+            "Jibang Wu",
+            "Renqin Cai",
+            "Hongning Wang"
           ],
-          "claimed_title": "Quantum Architecture Search with Unsupervised Representation Learning",
+          "claimed_title": "Déjà vu: A Contextualized Temporal Attention Mechanism for Sequential Recommendation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2401.11576"
+          "claimed_year": 2020,
+          "primary_pointer": "2002.00741"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Quantum Architecture Search with Unsupervised Representation Learning')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Déjà vu: A Contextualized Temporal Attention Mechanism for Sequential Recommendation')",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
           "claimed_authors": [
-            "Muthuraman Chidambaram",
-            "Yinfei Yang",
-            "Daniel Cer",
-            "Steve Yuan",
-            "Yun-Hsuan Sung",
-            "Brian Strope",
-            "Ray Kurzweil"
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
           ],
-          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_title": "The Modern Mathematics of Deep Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1810.12836"
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
         },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Identifying where quantum models may offer practical benefits in near term quantum machine learning (QML) requires moving beyond isolated algorithmic proposals toward systematic and empirical exploration across models, datasets, and hardware constraints. We introduce MerLin, an open-source framework designed as a discovery engine for photonic and hybrid quantum machine learning. MerLin integrates optimized strong simulation of linear optical circuits into standard PyTorch and scikit learn workflows, enabling end-to-end differentiable training of quantum layers.\n  MerLin is designed around systematic benchmarking and reproducibility. As an initial contribution, we reproduce eighteen state-of-the-art photonic and hybrid QML works spanning kernel methods, reservoir computing, convolutional and recurrent architectures, generative models, and modern training paradigms. These reproductions are released as reusable, modular experiments that can be directly extended and adapted, establishing a shared experimental baseline consistent with empirical benchmarking methodologies widely adopted in modern artificial intelligence.\n  By embedding photonic quantum models within established machine learning ecosystems, MerLin allows practitioners to leverage existing tooling for ablation studies, cross-modality comparisons, and hybrid classical-quantum workflows. The framework already implements hardware-aware features, allowing tests on available quantum hardware while enabling exploration beyond its current capabilities, positioning MerLin as a forward-looking co-design tool linking algorithms, benchmarks, and hardware.",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
           "claimed_authors": [
-            "Cassandre Notton",
-            "Benjamin Stott",
-            "Philippe Schoeb",
-            "Anthony Walsh",
-            "Grégoire Leboucher",
-            "Vincent Espitalier",
-            "Vassilis Apostolou",
-            "Louis-Félix Vigneux",
-            "Alexia Salavrakos",
-            "Jean Senellart"
+            "Deep Pandey",
+            "Qi Yu"
           ],
-          "claimed_title": "MerLin: A Discovery Engine for Photonic and Hybrid Quantum Machine Learning",
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.11092"
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='MerLin: A Discovery Engine for Photonic and Hybrid Quantum Machine Learning')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-08-26T00:46:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the generic deep image enhancement problem where an input image is transformed into a perceptually better-looking image. Recent methods for image enhancement consider the problem by performing style transfer and image restoration. The methods mostly fall into two categories: training data-based and training data-independent (deep internal learning methods). We perform image enhancement in the deep internal learning framework. Our Deep Internal Learning for Image Enhancement framework enhances content features and style features and uses contextual content loss for preserving image context in the enhanced image. We show results on both hazy and noisy image enhancement. To validate the results, we use structure similarity and perceptual error, which is efficient in measuring the unrealistic deformation present in the images. We show that the proposed framework outperforms the relevant state-of-the-art works for image enhancement.",
+          "claimed_authors": [
+            "Indra Deep Mastan",
+            "Shanmuganathan Raman"
+          ],
+          "claimed_title": "DILIE: Deep Internal Learning for Image Enhancement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.06469"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='DILIE: Deep Internal Learning for Image Enhancement')",
+        "failed_at": "2026-08-26T00:46:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurate uncertainty quantification is necessary to enhance the reliability of deep learning models in real-world applications. In the case of regression tasks, prediction intervals (PIs) should be provided along with the deterministic predictions of deep learning models. Such PIs are useful or \"high-quality\" as long as they are sufficiently narrow and capture most of the probability density. In this paper, we present a method to learn prediction intervals for regression-based neural networks automatically in addition to the conventional target predictions. In particular, we train two companion neural networks: one that uses one output, the target estimate, and another that uses two outputs, the upper and lower bounds of the corresponding PI. Our main contribution is the design of a novel loss function for the PI-generation network that takes into account the output of the target-estimation network and has two optimization objectives: minimizing the mean prediction interval width and ensuring the PI integrity using constraints that maximize the prediction interval probability coverage implicitly. Furthermore, we introduce a self-adaptive coefficient that balances both objectives within the loss function, which alleviates the task of fine-tuning. Experiments using a synthetic dataset, eight benchmark datasets, and a real-world crop yield prediction dataset showed that our method was able to maintain a nominal probability coverage and produce significantly narrower PIs without detriment to its target estimation accuracy when compared to those PIs generated by three state-of-the-art neural-network-based methods. In other words, our method was shown to produce higher-quality PIs.",
+          "claimed_authors": [
+            "Giorgio Morales",
+            "John W. Sheppard"
+          ],
+          "claimed_title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.06370"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation')",
+        "failed_at": "2026-08-26T00:46:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-08-26T00:46:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -451,74 +439,82 @@
           "primary_pointer": "2405.19595"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_abstract": "Evaluation methodologies for language models increasingly combine multiple signals, from automated metrics and LLM-as-judge ratings to human assessments and benchmark suite results. When these signals are aggregated via averaging, evaluation confidence can then substantially exceed the reliability of the weakest signal: a phenomenon we call trust inflation in evaluation. We argue that evaluation scores should be treated as epistemic claims with three properties: formality (human evaluation provides stronger evidence than an automated metric), scope (a benchmark result applies to the tested distribution, not universally), and validity windows (benchmark results expire as contamination accumulates and distributions shift). Several converging research traditions (chain-of-thought analysis, possibilistic logic, and algebraic theory) establish weakest-link aggregation as the conservative endpoint of a parameterized operator family controlled by a single pessimism parameter. Drawing on those traditions, and on concrete lessons from building an evaluation harness for agentic AI, we propose that evaluation results carry explicit metadata (formality tier, scope declaration, and expiration date) to make their epistemic status transparent. We illustrate the cost of mean aggregation on the public HELM leaderboard: across 54 frontier models on ten scenarios, the top-five models ranked by mean score and by weakest-link are completely disjoint.",
           "claimed_authors": [
-            "Tyler J. Richards",
-            "Adam E. Flanders",
-            "Errol Colak",
-            "Luciano M. Prevedello",
-            "Robyn L. Ball",
-            "Felipe Kitamura",
-            "John Mongan",
-            "Maryam Vazirabad",
-            "Hui-Ming Lin",
-            "Anne Kendell",
-            "Thanat Kanthawang",
-            "Salita Angkurawaranon",
-            "Emre Altinmakas",
-            "Hakan Dogan",
-            "Paulo Eduardo de Aguiar Kuriki",
-            "Arjuna Somasundaram",
-            "Christopher Ruston",
-            "Deniz Bulja",
-            "Naida Spahovic",
-            "Jennifer Sommer",
-            "Sirui Jiang",
-            "Eduardo Moreno Judice de Mattos Farina",
-            "Eduardo Caminha Nunes",
-            "Michael Brassil",
-            "Megan McNamara",
-            "Johanna Ortiz",
-            "Jacob Peoples",
-            "Vinson L. Uytana",
-            "Anthony Kam",
-            "Venkata N. S. Dola",
-            "Daniel Murphy",
-            "David Vu",
-            "Dataset Contributor Group",
-            "Dataset Annotator Group",
-            "Competition Data Notebook Group",
-            "Jason F. Talbott"
+            "Sankalp Gilda",
+            "Shlok Gilda"
           ],
-          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_title": "Position: Evaluation Scores Are Perishable Knowledge Claims",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.26191"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Position: Evaluation Scores Are Perishable Knowledge Claims')",
+        "failed_at": "2026-08-26T00:46:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating the quality and relevance of textual outputs from Large Language Models (LLMs) remains challenging and resource-intensive. Existing automated metrics often fail to capture the complexity and variability inherent in LLM-generated outputs. Moreover, these metrics typically rely on explicit reference standards, limiting their use mostly to domains with objective benchmarks. This work introduces a novel evaluation framework designed to approximate expert-level assessments of LLM-generated content. The proposed method employs pairwise comparisons of outputs by multiple LLMs, reducing biases from individual models. An Elo rating system is used to generate stable and interpretable rankings. Adjustable agreement thresholds, from full unanimity to majority voting, allow flexible control over evaluation confidence and coverage. The method's effectiveness is demonstrated through evaluating competency profiles extracted from scientific abstracts. Preliminary results show that automatically derived rankings correlate well with expert judgments, significantly reducing the need for extensive human intervention. By offering a scalable, consistent, and domain-agnostic evaluation layer, the framework supports more efficient and reliable quality assessments of LLM outputs across diverse applications.",
+          "claimed_authors": [
+            "Bertil Braun",
+            "Martin Forell"
+          ],
+          "claimed_title": "(Towards) Scalable Reliable Automated Evaluation with Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.28282"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='(Towards) Scalable Reliable Automated Evaluation with Large Language Models')",
+        "failed_at": "2026-08-26T00:46:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mechanistic interpretability research requires reliable tools for analyzing transformer internals across diverse architectures. Current approaches face a fundamental tradeoff: custom implementations like TransformerLens ensure consistent interfaces but require coding a manual adaptation for each architecture, introducing numerical mismatch with the original models, while direct HuggingFace access through NNsight preserves exact behavior but lacks standardization across models. To bridge this gap, we develop nnterp, a lightweight wrapper around NNsight that provides a unified interface for transformer analysis while preserving original HuggingFace implementations. Through automatic module renaming and comprehensive validation testing, nnterp enables researchers to write intervention code once and deploy it across 50+ model variants spanning 16 architecture families. The library includes built-in implementations of common interpretability methods (logit lens, patchscope, activation steering) and provides direct access to attention probabilities for models that support it. By packaging validation tests with the library, researchers can verify compatibility with custom models locally. nnterp bridges the gap between correctness and usability in mechanistic interpretability tooling.",
+          "claimed_authors": [
+            "Clément Dumas"
+          ],
+          "claimed_title": "nnterp: A Standardized Interface for Mechanistic Interpretability of Transformers",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2506.09162"
+          "primary_pointer": "2511.14465"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='nnterp: A Standardized Interface for Mechanistic Interpretability of Transformers')",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This chapter provides a pedagogical introduction and overview of spatial and temporal correlation and fluctuation effects resulting from the fundamentally stochastic kinetics underlying chemical reactions and the dynamics of populations or epidemics. After reviewing the assumptions and mean-field type approximations involved in the construction of chemical rate equations for uniform reactant densities, we first discuss spatial clustering in birth-death systems, where non-linearities are introduced through either density-limiting pair reactions, or equivalently via local imposition of finite carrying capacities. The competition of offspring production, death, and non-linear inhibition induces a population extinction threshold, which represents a non-equilibrium phase transition that separates active from absorbing states. This continuous transition is characterized by the universal scaling exponents of critical directed percolation clusters. Next we focus on the emergence of depletion zones in single-species annihilation processes and spatial population segregation with the associated reaction fronts in two-species pair annihilation. These strong (anti-)correlation effects are dynamically generated by the underlying stochastic kinetics. Finally, we address noise-induced and fluctuation-stabilized spatio-temporal patterns in basic predator-prey systems, exemplified by spreading activity fronts in the two-species Lotka-Volterra model as well as spiral structures in the May-Leonard variant of cyclically competing three-species systems akin to rock-paper-scissors games.",
+          "claimed_abstract": "Robust tooling and publicly available pre-trained models have helped drive recent advances in mechanistic interpretability for language models. However, similar progress in vision mechanistic interpretability has been hindered by the lack of accessible frameworks and pre-trained weights. We present Prisma (Access the codebase here: https://github.com/Prisma-Multimodal/ViT-Prisma), an open-source framework designed to accelerate vision mechanistic interpretability research, providing a unified toolkit for accessing 75+ vision and video transformers; support for sparse autoencoder (SAE), transcoder, and crosscoder training; a suite of 80+ pre-trained SAE weights; activation caching, circuit analysis tools, and visualization tools; and educational resources. Our analysis reveals surprising findings, including that effective vision SAEs can exhibit substantially lower sparsity patterns than language SAEs, and that in some instances, SAE reconstructions can decrease model loss. Prisma enables new research directions for understanding vision model internals while lowering barriers to entry in this emerging field.",
           "claimed_authors": [
-            "Uwe C. Täuber"
+            "Sonia Joseph",
+            "Praneet Suresh",
+            "Lorenz Hufe",
+            "Edward Stevinson",
+            "Robert Graham",
+            "Yash Vadi",
+            "Danilo Bzdok",
+            "Sebastian Lapuschkin",
+            "Lee Sharkey",
+            "Blake Aaron Richards"
           ],
-          "claimed_title": "Fluctuations and correlations in chemical reaction kinetics and population dynamics",
+          "claimed_title": "Prisma: An Open Source Toolkit for Mechanistic Interpretability in Vision and Video",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1807.01248"
+          "claimed_year": 2025,
+          "primary_pointer": "2504.19475"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Fluctuations and correlations in chemical reaction kinetics and population dynamics')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Prisma: An Open Source Toolkit for Mechanistic Interpretability in Vision and Video')",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       },
       {
@@ -535,23 +531,7 @@
           "primary_pointer": "2402.03855"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='Challenges in Mechanistically Interpreting Model Representations')",
-        "failed_at": "2026-08-13T08:57:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Mechanistic interpretability research requires reliable tools for analyzing transformer internals across diverse architectures. Current approaches face a fundamental tradeoff: custom implementations like TransformerLens ensure consistent interfaces but require coding a manual adaptation for each architecture, introducing numerical mismatch with the original models, while direct HuggingFace access through NNsight preserves exact behavior but lacks standardization across models. To bridge this gap, we develop nnterp, a lightweight wrapper around NNsight that provides a unified interface for transformer analysis while preserving original HuggingFace implementations. Through automatic module renaming and comprehensive validation testing, nnterp enables researchers to write intervention code once and deploy it across 50+ model variants spanning 16 architecture families. The library includes built-in implementations of common interpretability methods (logit lens, patchscope, activation steering) and provides direct access to attention probabilities for models that support it. By packaging validation tests with the library, researchers can verify compatibility with custom models locally. nnterp bridges the gap between correctness and usability in mechanistic interpretability tooling.",
-          "claimed_authors": [
-            "Clément Dumas"
-          ],
-          "claimed_title": "nnterp: A Standardized Interface for Mechanistic Interpretability of Transformers",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2511.14465"
-        },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mecha', candidate_title='nnterp: A Standardized Interface for Mechanistic Interpretability of Transformers')",
-        "failed_at": "2026-08-13T08:57:45Z",
+        "failed_at": "2026-08-26T00:46:43Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -559,30 +539,147 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Marvin Alberts",
-            "Oliver Schilter",
-            "Federico Zipoli",
-            "Nina Hartrampf",
-            "Teodoro Laino"
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
           ],
-          "title": "Unraveling Molecular Structure: A Multimodal Spectroscopic Dataset for Chemistry",
+          "title": "The Modern Mathematics of Deep Learning",
+          "topically_marginal": true,
           "venue": "arXiv",
-          "year": 2024
+          "year": 2021
         },
-        "primary_pointer": "2407.17492",
-        "summary": "Spectroscopic techniques are essential tools for determining the structure of molecules. Different spectroscopic techniques, such as Nuclear magnetic resonance (NMR), Infrared spectroscopy, and Mass Spectrometry, provide insight into the molecular structure, including the presence or absence of functional groups. Chemists leverage the complementary nature of the different methods to their advantage. However, the lack of a comprehensive multimodal dataset, containing spectra from a variety of spectroscopic techniques, has limited machine-learning approaches mostly to single-modality tasks for predicting molecular structures from spectra. Here we introduce a dataset comprising simulated $^1$H-NMR, $^{13}$C-NMR, HSQC-NMR, Infrared, and Mass spectra (positive and negative ion modes) for 790k molecules extracted from chemical reactions in patent data. This dataset enables the development of foundation models for integrating information from multiple spectroscopic modalities, emulating the approach employed by human experts. Additionally, we provide benchmarks for evaluating single-modality tasks such as structure elucidation, predicting the spectra for a target molecule, and functional group predictions. This dataset has the potential automate structure elucidation, streamlining the molecular discovery pipeline from synthesis to structure determination. The dataset and code for the benchmarks can be found at https://rxn4chemistry.github.io/multimodal-spectroscopic-dataset.",
+        "primary_pointer": "2105.04026",
+        "summary": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2407.17492",
+          "final_url": "https://arxiv.org/abs/2105.04026",
           "http_status": 200,
-          "pdf_sample_score": 0.2578,
-          "query_relevance_score": 0.5,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-13T08:57:45Z"
+          "verified_at": "2026-08-26T00:46:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Deep Pandey",
+            "Qi Yu"
+          ],
+          "title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.11113",
+        "summary": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.11113",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T00:46:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haoyue Zhang",
+            "Jennifer S. Polson",
+            "Eric J. Yang",
+            "Kambiz Nael",
+            "William Speier",
+            "Corey W. Arnold"
+          ],
+          "title": "Predicting Thrombectomy Recanalization from CT Imaging Using Deep Learning Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.04143",
+        "summary": "For acute ischemic stroke (AIS) patients with large vessel occlusions, clinicians must decide if the benefit of mechanical thrombectomy (MTB) outweighs the risks and potential complications following an invasive procedure. Pre-treatment computed tomography (CT) and angiography (CTA) are widely used to characterize occlusions in the brain vasculature. If a patient is deemed eligible, a modified treatment in cerebral ischemia (mTICI) score will be used to grade how well blood flow is reestablished throughout and following the MTB procedure. An estimation of the likelihood of successful recanalization can support treatment decision-making. In this study, we proposed a fully automated prediction of a patient's recanalization score using pre-treatment CT and CTA imaging. We designed a spatial cross attention network (SCANet) that utilizes vision transformers to localize to pertinent slices and brain regions. Our top model achieved an average cross-validated ROC-AUC of 77.33 $\\pm$ 3.9\\%. This is a promising result that supports future applications of deep learning on CT and CTA for the identification of eligible AIS patients for MTB.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.04143",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T00:46:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Deep Ray",
+            "Orazio Pinti",
+            "Assad A. Oberai"
+          ],
+          "title": "Deep Learning and Computational Physics (Lecture Notes)",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.00942",
+        "summary": "These notes were compiled as lecture notes for a course developed and taught at the University of the Southern California. They should be accessible to a typical engineering graduate student with a strong background in Applied Mathematics.\n  The main objective of these notes is to introduce a student who is familiar with concepts in linear algebra and partial differential equations to select topics in deep learning. These lecture notes exploit the strong connections between deep learning algorithms and the more conventional techniques of computational physics to achieve two goals. First, they use concepts from computational physics to develop an understanding of deep learning algorithms. Not surprisingly, many concepts in deep learning can be connected to similar concepts in computational physics, and one can utilize this connection to better understand these algorithms. Second, several novel deep learning algorithms can be used to solve challenging problems in computational physics. Thus, they offer someone who is interested in modeling a physical phenomena with a complementary set of tools.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.00942",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T00:46:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lakshya Garg",
+            "Sai Yaswanth",
+            "Deep Narayan Mishra",
+            "Karthik Kumaran",
+            "Anupriya Sharma",
+            "Mayank Uniyal"
+          ],
+          "title": "Monodense Deep Neural Model for Determining Item Price Elasticity",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.29261",
+        "summary": "Item Price Elasticity is used to quantify the responsiveness of consumer demand to changes in item prices, enabling businesses to create pricing strategies and optimize revenue management. Sectors such as store retail, e-commerce, and consumer goods rely on elasticity information derived from historical sales and pricing data. This elasticity provides an understanding of purchasing behavior across different items, consumer discount sensitivity, and demand elastic departments. This information is particularly valuable for competitive markets and resource-constrained businesses decision making which aims to maximize profitability and market share. Price elasticity also uncovers historical shifts in consumer responsiveness over time. In this paper, we model item-level price elasticity using large-scale transactional datasets, by proposing a novel elasticity estimation framework which has the capability to work in an absence of treatment control setting. We test this framework by using Machine learning based algorithms listed below, including our newly proposed Monodense deep neural network.\n  (1) Monodense-DL network -- Hybrid neural network architecture combining embedding, dense, and Monodense layers (2) DML -- Double machine learning setting using regression models (3) LGBM -- Light Gradient Boosting Model\n  We evaluate our model on multi-category retail data spanning millions of transactions using a back testing framework. Experimental results demonstrate the superiority of our proposed neural network model within the framework compared to other prevalent ML based methods listed above.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.29261",
+          "http_status": 200,
+          "pdf_sample_score": 0.31,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T00:46:49Z"
         }
       }
     ]
