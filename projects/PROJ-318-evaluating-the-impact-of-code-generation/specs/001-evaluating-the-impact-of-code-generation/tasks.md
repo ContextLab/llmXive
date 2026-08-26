@@ -1,6 +1,6 @@
 # Tasks: Evaluating the Impact of Code Generation Models on Code Documentation Completeness
 
-**Input**: Design documents from `/specs/001-eval-code-doc-completeness/`
+**Input**: Design documents from `/specs/001-evaluating-the-impact-of-code-generation/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -15,37 +15,37 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
+- **Single project**: `code/`, `code/utils/`, `data/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure: `code/`, `code/utils/`, `data/raw/`, `data/raw/repos/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `state/`, `logs/`
+- [ ] T001 Create project structure: `code/`, `code/utils/`, `data/raw/`, `data/raw/repos/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `state/`, `logs/` **AND verify directories exist via `ls` or marker files**
 - [ ] T001.5 [P] Fix spec.md FR-002 typo: change "codegen-mono" to "Salesforce/codegen-350M-mono" to eliminate ambiguity
-- [ ] T002 Initialize Python 3.10+ project with `requirements.txt` dependencies (`transformers`, `torch`, `bitsandbytes`, `sentence-transformers`, `docstring_parser`, `scipy`, `requests`, `pyyaml`, `pytest`) AND implement logic to handle CPU fallback (8-bit/full precision) if 4-bit quantization fails
+- [ ] T002 Initialize Python + project with `requirements.txt` dependencies (`transformers`, `torch`, `bitsandbytes`, `sentence-transformers`, `docstring_parser`, `scipy`, `requests`, `pyyaml`, `pytest`) **with strict -bit quantization enforcement (NO fallback to 8-bit/full precision)**
 - [ ] T003 [P] Create `.flake8` (max-line-length=88) and `pyproject.toml` (black settings) configuration files
 
 ---
@@ -61,9 +61,9 @@
 - [ ] T006 [P] Implement statistical testing utility (Wilcoxon) in `code/utils/stats.py`
 - [ ] T007 [P] Create base data models (MethodSignature, DocstringPair) and serialization logic in `code/utils/models.py`
 - [ ] T008 [P] Configure memory monitoring utility (reading `/proc/self/status`) and logging infrastructure in `code/utils/monitor.py`
-- [ ] T009 [P] Setup environment configuration management for model paths and rate-limit retries
-- [ ] T010 [P] Implement logic to load frozen `data/raw/repo_list.json` (top repositories) and validate list structure in `code/utils/repo_loader.py`
-- [ ] T011 [P] Implement model loader for `Salesforce/codegen-350M-mono` with 4-bit quantization and strict abort on deviation, verifying model name matches Constitution Principle VII exactly in `code/utils/model_loader.py`
+- [ ] T009 [P] Setup environment configuration management: Create `code/config.py` with a `Config` class defining model paths and rate-limit retries, and verify via `import config`
+- [ ] T010 [P] Implement logic to **create/freeze** `data/raw/repo_list.json` (A curated selection of top PyPI repositories.) via PyPI API, validate JSON structure, and ensure file exists before T015 runs
+- [ ] T011 [P] Implement model loader for `Salesforce/codegen-350M-mono` with **strict low-bit quantization (NO fallback)** and abort on failure, verifying model name matches Constitution Principle VII exactly in `code/utils/model_loader.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,10 +85,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement Git repository clone utility in `code/extract.py`
-- [ ] T016 [US1] Implement file walker to filter `.py` files in `code/extract.py`
+- [ ] T015 [US1] Implement Git repository clone utility in `code/utils/git_clone.py` and verify repo exists in `data/raw/repos/`
+- [ ] T016 [US1] Implement file walker to filter `.py` files (generator function) and verify via unit test returning list of .py files in `code/utils/file_walker.py`
 - [ ] T017 [US1] Integrate AST parser to extract public method signatures and docstrings in `code/extract.py`
-- [ ] T018 [US1] Implement logic to truncate method lists to **max [deferred]** per repository (fixed sample) and log counts in `code/extract.py`
+- [ ] T018 [US1] Implement logic to truncate method lists to **max [deferred]** per repository (fixed sample), log counts, and **verify output JSON row count <= 1000** in `code/extract.py`
 - [ ] T019 [US1] Implement JSON serialization and checksumming of raw data to `data/raw/repos/`, write SHA-256 to `data/checksums.json` AND record in `state/projects/PROJ-318-evaluating-the-impact-of-code-generation.yaml` in `code/extract.py`
 - [ ] T020 [US1] Add validation to ensure `human_docstring` is `null` (not empty string) when missing in `code/extract.py`
 
@@ -98,9 +98,9 @@
 
 ## Phase 4: User Story 2 - LLM Docstring Generation with Resource Constraints (Priority: P2)
 
-**Goal**: Load the `Salesforce/codegen-350M-mono` model in **4-bit** quantization and generate docstrings for the extracted methods with a **fixed temperature**, ensuring completion within 6 hours on CPU.
+**Goal**: Load the `Salesforce/codegen-350M-mono` model in **4-bit** quantization and generate docstrings for the **truncated list of up to 1,000 methods per repository** with a **fixed temperature**, ensuring completion within 6 hours on CPU.
 
-**Independent Test**: Run generation on a subset of **50** methods. Verify output file contains generated text, model loads in CPU mode (or 8-bit fallback), and memory stays **under 7 GB RAM** as monitored via `/proc/self/status`.
+**Independent Test**: Run generation on a subset of **50** methods. Verify output file contains generated text, model loads in CPU mode (strict 4-bit), and memory stays **under 7 GB RAM** as monitored via `/proc/self/status`.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -110,7 +110,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement docstring generation loop with a **fixed temperature of 0.2** reading from `data/raw/repos/*.json` in `code/generate.py`
+- [ ] T024 [US2] Implement docstring generation loop with a **fixed temperature** reading from the **truncated list (max [deferred] methods)** in `data/raw/repos/*.json` and writing to `data/processed/generation_results.json` **Wait for T019 completion**
 - [ ] T025 [US2] Integrate memory monitoring to abort if RAM > 7 GB, logging a specific `RAM_LIMIT_EXCEEDED` entry to `logs/monitor.log` and raising a `MemoryLimitException` in `code/generate.py`
 - [ ] T026 [US2] Implement batch processing to handle repositories sequentially to manage memory reading from `data/raw/repos/*.json` in `code/generate.py`
 - [ ] T027 [US2] Add logic to handle empty/whitespace generated docstrings (flag for review) reading from `data/raw/repos/*.json` in `code/generate.py`
@@ -122,10 +122,9 @@
 
 ## Phase 5: User Story 3 - Parameter Coverage Analysis and Statistical Comparison (Priority: P3)
 
-**Goal**: Calculate Parameter Coverage Scores, compute auxiliary semantic similarity, and perform Wilcoxon signed-rank test to determine statistical significance.
+**Goal**: Calculate Parameter Coverage Scores, compute auxiliary semantic similarity, and perform a Wilcoxon signed-rank test to determine statistical significance.
 
 **Independent Test**: Feed synthetic dataset of balanced perfect matches and mismatches; verify Wilcoxon p-value < 0.05 and coverage scores align with labels.
-
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T029 [P] [US3] Unit test for Parameter Coverage Score calculation edge cases (complex type hints) in `tests/unit/test_coverage.py`
@@ -138,7 +137,7 @@
 - [ ] T033 [P] [US3] Implement Parameter Coverage Score calculation: `(matched params / total AST params)` using AST-matching logic reading from `data/processed/results.json` in `code/analyze.py`
 - [ ] T034 [US3] Implement semantic similarity calculation using `sentence-transformers/all-MiniLM-L6-v2` as auxiliary metric reading from `data/processed/results.json` in `code/analyze.py`
 - [ ] T035 [US3] Implement Wilcoxon signed-rank test for paired Human vs. LLM scores reading from `data/processed/results.json` in `code/analyze.py`
-- [ ] T036 [US3] Add logic to log warning if dataset size < 30 but proceed with calculation reading from `data/processed/results.json` in `code/analyze.py`
+- [ ] T036 [US3] Add logic to **log a warning if total method pairs < 30 and proceed with the Wilcoxon test** reading from `data/processed/results.json` in `code/analyze.py`
 - [ ] T037 [US3] Generate final report with p-value, test statistic, and coverage rates to `data/processed/final_report.json` reading from `data/processed/results.json` in `code/analyze.py`
 - [ ] T038 [US3] Handle complex type hints (e.g., `List[Dict[str, Any]]`) as unmatched but non-crashing reading from `data/processed/results.json` in `code/analyze.py`
 
@@ -152,8 +151,8 @@
 
 - [ ] T039 [P] Update README.md with installation instructions and usage examples
 - [ ] T040 [P] Update quickstart.md with step-by-step execution guide
-- [ ] T041 Code cleanup and refactoring (specific: refactor `extract.py` to use single entry point)
-- [ ] T042 [P] Performance optimization: Verify total runtime < 6 hours including a **-minute safety buffer** on a fresh runner
+- [ ] T041 Code cleanup and refactoring: **Refactor `code/extract.py` to expose a `main()` function and remove global execution code**
+- [ ] T042 [P] Performance optimization: **Run the full pipeline on a fresh runner and record execution time in `logs/perf.log` to verify it is < 6 hours (including 15-minute safety buffer)**
 - [ ] T043 [P] Add unit tests for uncovered code paths identified by coverage report
 - [ ] T044 Run `python -m code.quickstart` and verify exit code 0
 - [ ] T045 Run `scripts/verify_repro.sh` and ensure `data/checksums.json` matches previous run
@@ -203,8 +202,8 @@ Task: "Unit test for AST parser skipping malformed files in tests/unit/test_ast_
 Task: "Unit test for null handling when no docstring exists in tests/unit/test_coverage.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement Git repository clone utility in code/extract.py"
-Task: "Implement file walker to filter .py files in code/extract.py"
+Task: "Implement Git repository clone utility in code/utils/git_clone.py"
+Task: "Implement file walker to filter .py files in code/utils/file_walker.py"
 ```
 
 ---
@@ -250,7 +249,8 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: Data flow must be respected: US1 (Extract) → US2 (Generate) → US3 (Analyze). Do not run US2 before US1 produces data.
-- **CRITICAL**: Model loading must explicitly handle CPU-only constraints and 4-bit quantization with abort on deviation.
+- **CRITICAL**: Model loading must strictly enforce 4-bit quantization with NO fallback to 8-bit/full precision.
 - **CRITICAL**: All data sources must be real; no synthetic fallbacks for data loading.
-- **CRITICAL**: Fixed sample size is a sufficient number of methods per repository to meet Spec's maximum limit ([deferred]).
-- **NOTE**: Plan.md 'Performance Goals' section currently states 'Fixed a set of methods each'. This is a known inconsistency with the Spec ([deferred] cap) and must be corrected in the next plan revision.
+- **CRITICAL**: Fixed sample size is capped at [deferred] methods per repository as per Spec (FR-001).
+- **NOTE**: Plan.md 'Performance Goals' section currently states 'Fixed equal number of methods each'. This is a known inconsistency with the Spec ([deferred] cap) and must be corrected in the next plan revision.
+- **NOTE**: Plan.md 'Constraints' section currently allows fallback to 8-bit/full precision. This is a known inconsistency with Constitution Principle VII and must be corrected in the next plan revision.

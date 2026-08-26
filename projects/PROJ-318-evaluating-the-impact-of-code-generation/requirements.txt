@@ -1,0 +1,11 @@
+transformers>=4.35.0
+torch>=2.0.0
+bitsandbytes>=0.41.0
+sentence-transformers>=2.2.0
+docstring_parser>=0.15
+scipy>=1.11.0
+requests>=2.31.0
+pyyaml>=6.0
+pytest>=7.4.0
+flake8>=6.1.0
+black>=23.12.0

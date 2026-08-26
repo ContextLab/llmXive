@@ -1,0 +1,15 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration files, scripts, or documentation were presented that define\
+    \ environment variables for model paths or implement rate\u2011limit retry logic.\
+    \ The claim lacks any tangible artifact, so the requirement is not satisfied."
+T010:
+  c: false
+  h: 4f987487ff3be341cfd5ae1f2744f405801e379d3fbde6360ea0c76e5090b290
+  r: "The `repo_loader.py` file is incomplete \u2013 it ends with a dangling line\
+    \ (`if not isinstance(entry[\"name\"], str) or`) that makes the module syntactically\
+    \ invalid, so the validation logic is not fully implemented. Moreover, the required\
+    \ data file `data/raw/repo_list.json` is absent, meaning the loader cannot actually\
+    \ load and validate any repository list. Both the missing JSON file and the broken\
+    \ code prevent the task from being genuinely satisfied."
