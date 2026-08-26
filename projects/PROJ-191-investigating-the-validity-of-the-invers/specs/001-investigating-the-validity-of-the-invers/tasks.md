@@ -41,9 +41,9 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization, pre-flight checks, and basic structure
+**Purpose**: Project initialization, pre‑flight checks, and basic structure
 
-- [ ] T001 Create the full project directory tree at the repository root: `projects/PROJ-191-investigating-the-validity-of-the-invers/` with sub‑directories (`code/`, `tests/`, `data/`, `docs/`, `code/data/`, `code/models/`, `code/inference/`, `code/robustness/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/contract/`, `tests/integration/`) **in a single atomic operation**.
+- [ ] T001 Create the full project directory tree at the repository root: `projects/PROJ-191-investigating-the-validity-of-the-invers/` with sub‑directories (`code/`, `tests/`, `data/`, `docs/`, `code/data/`, `code/models/`, `code/inference/`, `code/robustness/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/contract/`, `tests/integration/`) using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/{code/{data,models,inference,robustness,utils},tests/{unit,contract,integration},data/{raw,processed,results},docs}` in a single atomic operation.
 - [X] T002 Initialize a Python project and write pinned dependencies to `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`.
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools.
 
@@ -68,7 +68,7 @@
 
 **Goal**: Download raw force‑vs‑separation data from arXiv, convert to SI units, align on a common grid, and construct a full covariance matrix.
 
-**Independent Test**: Execute `code/data/download.py` and `code/data/harmonize.py` against the provided arXiv URLs; verify output is a single CSV/JSON file containing aligned force data, separation distances, and a valid positive‑definite full covariance matrix (or block-diagonal fallback) with no missing values in the microscopic separation distance range.
+**Independent Test**: Execute `code/data/download.py` and `code/data/harmonize.py` against the provided arXiv URLs; verify output is a single CSV/JSON file containing aligned force data, separation distances, and a valid positive‑definite **full** covariance matrix with no missing values in the microscopic separation distance range.
 
 ### Tests for User Story 1 (OPTIONAL)
 
@@ -78,29 +78,21 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013-VALIDATOR [US1] **Validator Implementation**: Implement `code/agents/validator.py` with a function `validate_reference(url: str, threshold: float = 0.7) -> bool`. This function MUST fetch the arXiv metadata, compute title-token-overlap, and return True/False. **Dependency**: None.
-- [ ] T013-DATA [US1] **Data Acquisition**: Implement `code/data/download.py` to **fetch** arXiv:2106.08611 and arXiv:2305.06325. **Logic**:
- 1. For each URL, invoke `validate_reference` (T013-VALIDATOR). If validation fails, raise `RuntimeError`.
- 2. Unpack tarballs to `data/raw/`.
- 3. **Run Count Check**: Count independent experimental runs found. **If len(runs) < 3 **:
- - **If** `config.py` allows fallback: Set `USE_BOOTSTRAP=true` in `data/processed/state.json` and log "Bootstrap fallback triggered: < 3 runs found".
- - **Else**: Raise `RuntimeError` with message "Primary path requires ≥3 runs. Only found {count}. Fallback disabled."
- 4. **Dependency**: Must run after T013-VALIDATOR.
-- [ ] T013-3RD-RUN [US1] **Third Run Fetch**: Implement logic in `code/data/download.py` to **fetch** arXiv:1909.03356 (if available) as the third independent run. **Logic**:
- 1. Invoke `validate_reference`. If validation fails or file missing, log warning but **do not halt** (as this is an optional third source to meet the count).
- 2. **Dependency**: Must run after T013-VALIDATOR.
-- [ ] T013-CHECK-THRESHOLD [US1] **Threshold Enforcement**: Re-evaluate run count after T013-3RD-RUN. **If** total runs < 3:
- - **If** `USE_BOOTSTRAP` was set (from T013-DATA): Proceed.
- - **Else**: Raise `RuntimeError` "Primary path requires ≥3 runs. Fallback not enabled."
- - **Output**: Final `state.json` with `USE_BOOTSTRAP` flag set correctly. **Dependency**: Must run after T013-DATA and T013-3RD-RUN.
-- [ ] T013-PARSE [US1] **Parser**: Implement logic in `code/data/parsers.py` to **parse** the raw CSV files extracted by T013-DATA and T013-3RD-RUN: read headers, map columns to force/separation/uncertainty fields, and construct the intermediate `HarmonizedDataset` structure. **Dependency**: Must run after T013-DATA and T013-3RD-RUN.
-- [X] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`. **Edge Case Logic**: Explicitly implement detection of non-overlapping separation ranges; if detected, **interpolate** missing points or **exclude** non-overlapping regions and **log a warning** as per spec edge cases. **Dependency**: Must run after T013-PARSE.
-- [ ] T015-COV [US1] **Covariance Construction**: Implement **full** covariance matrix construction in `code/data/harmonize.py` by parsing statistical uncertainties (`stat_err`) and systematic error budgets (`sys_err` or `systematic` fields). **Fallback Logic**:
- 1. If N (data points) <= 200: Construct full N×N covariance matrix.
- 2. If N > 200: **Automatically switch** to block-diagonal approximation with **bandwidth=20 ** (preserving local correlations as per Plan.md).
- 3. Verify the resulting matrix is positive-definite; if not, raise an error.
- 4. **Output**: Store as `data/processed/covariance_matrix.npy`. **Dependency**: Must run after T014.
-- [ ] T016 [US1] **Fallback Logic**: Implement logic to check the run count (from T013-CHECK-THRESHOLD). **If fewer than three independent runs are detected**, write `USE_BOOTSTRAP: true` to `data/processed/state.json`. **Crucial**: This task MUST run even if T015-COV succeeded with a fallback, ensuring the bootstrap flag is set correctly regardless of covariance strategy. **Dependency**: Must run after T013-CHECK-THRESHOLD.
+- [ ] T013-AGENT [US1] **Validator Invocation**: Implement logic in `code/agents/validator.py` to invoke the official **Reference‑Validator Agent** CLI (`reference-validator`) to verify arXiv:2106.08611 and arXiv:2305.06325. The agent must return success; otherwise raise `RuntimeError` with the agent's error message.
+- [ ] T013-DATA [US1] **Data Acquisition**: Implement `code/data/download.py` to **fetch** arXiv:2106.08611 and arXiv:2305.06325.
+  1. Call the Reference‑Validator Agent (T013‑AGENT). On failure, raise `RuntimeError`.
+  2. Unpack tarballs to `data/raw/`.
+  3. Scan for files matching `*_run*.csv` (or metadata `experiment_id`) to count independent experimental runs.
+  4. **If** `len(runs) < 3`: **log a warning** `"Insufficient runs (<3) for leave‑one‑out cross‑validation; robustness stage will use bootstrap fallback."` Continue execution; downstream robustness tasks will handle the fallback.
+  5. **If** `len(runs) >= 3`: proceed normally.
+- [ ] T013-PARSE [US1] **Parser**: Implement logic in `code/data/parsers.py` to parse the raw CSV files extracted by T013‑DATA: read headers, map columns to force, separation, and uncertainty fields, and construct intermediate `HarmonizedDataset` objects. **Dependency**: Runs after T013‑DATA.
+- [ ] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`. **Edge‑case handling**: Detect non‑overlapping separation ranges; interpolate missing points or exclude non‑overlapping regions and log a warning as required by the spec.
+- [ ] T015-COV [US1] **Covariance Construction**: Implement construction of a **full covariance matrix** in `code/data/harmonize.py` by combining statistical uncertainties and systematic error budgets.  
+  1. Where systematic correlations are provided, populate off‑diagonal entries accordingly.  
+  2. If only independent errors are available, the resulting matrix will be diagonal (still a full matrix).  
+  3. For subsampled datasets (see T027‑SUBSAMPLE), a **block‑diagonal approximation** is permitted to preserve local correlation structure.  
+  4. Verify the matrix is positive‑definite; raise an error if not.  
+  5. Output as `data/processed/covariance_matrix.npy`. **Dependency**: Runs after T014.
 
 **Checkpoint**: User Story 1 should now be fully functional and testable independently.
 
@@ -110,7 +102,7 @@
 
 **Goal**: Run `emcee` MCMC to estimate posteriors for α and λ, and `dynesty` nested sampling to compute Bayesian evidence for model comparison.
 
-**Independent Test**: Run `code/inference/mcmc.py` and `code/inference/nested.py` on the harmonized dataset; verify output includes posterior samples, Bayes factor, and Gelman‑Rubin < 1.01 within the 6‑hour limit.
+**Independent Test**: Run `code/inference/mcmc.py` and `code/inference/nested.py` on the harmonized dataset; verify output includes posterior samples, Bayes factor, and Gelman‑Rubin < 1.01 **after the full 5000‑step run** within the 6‑hour limit.
 
 ### Tests for User Story 2 (OPTIONAL)
 
@@ -123,24 +115,31 @@
 ### Implementation for User Story 2
 
 - [X] T021 [P] [US2] Implement Newtonian and Yukawa‑modified force models in `code/models/physics.py`.
-- [ ] T022 [US2] Implement log‑likelihood function using the covariance matrix from T015-COV (full or block-diagonal). Use Cholesky decomposition for numerical stability. **Dependency**: Must run after T015-COV.
-- [ ] T027-SUBSAMPLE [US2] **Feasibility Pilot**: Run a **pilot likelihood evaluation** on a **small subset** (e.g., 100 points) of the harmonized dataset to measure ops/sec. **Decision Logic**:
- 1. If estimated runtime for full dataset > 5.5 hours: Generate `data/processed/data_config.json` with `mode: "subsample"`, `subset_indices`: [random N points], and `covariance_bandwidth`: 20.
- 2. If estimated runtime < 5.5 hours: Generate `data/processed/data_config.json` with `mode: "full"`.
- 3. **Output**: `data/processed/data_config.json`. **Dependency**: Must run after T022.
-- [ ] T023 [US2] Implement `emcee` runner: Run a minimum of 5000 steps. **Crucial**: Continue running in batches of steps until the Gelman-Rubin statistic < 1.01 **OR** a configurable maximum step limit (`MAX_MCMC_STEPS` in `config.py`) is reached. **Time Limit**: Enforce a hard wall-clock time limit of hours. If approached, **log a warning** "TIME_LIMIT_REACHED", **attempt to reduce step count in batches**, but **DO NOT stop early** unless convergence is achieved or 5000 steps reached. If time limit is exceeded, **flag the result as `TIME_LIMITED`** but do not discard partial convergence data. **Input**: Read `data/processed/data_config.json` (T027) to determine if subsampling is required. **Dependency**: Must run after T022 and T027-SUBSAMPLE. <!-- ATOMIZE: requested -->
+- [ ] T022 [US2] Implement log‑likelihood function using the **full** covariance matrix from T015‑COV. Employ Cholesky decomposition for numerical stability. **Dependency**: Runs after T015‑COV.
+- [ ] T027-SUBSAMPLE [US2] **Feasibility & Subsampling**: Implement logic in `code/data/config.py` to decide whether to subsample based on an *estimated* runtime exceeding the 6‑hour limit.  
+  1. Estimate runtime using a simple heuristic (e.g., `runtime ≈ 0.001 s × N_points`).  
+  2. If estimated runtime > 6 h, set mode = "subsample" and select the first 2000 points (or the largest subset that keeps estimated runtime ≤ 6 h).  
+  3. Record the mode and selected indices in `data/processed/data_config.json`.  
+  4. When subsampling, the covariance matrix is stored as a **block‑diagonal** matrix (bandwidth = 20) to retain local correlation structure.  
+  5. If estimated runtime ≤ 6 h, mode = "full".  
+  6. **Output**: `data/processed/data_config.json`. **Dependency**: Runs after T022.
+- [ ] T023-MCMC [US2] **MCMC Execution**: Implement `emcee` runner in `code/inference/mcmc.py`.  
+  1. Run **exactly 5000 steps** with 100 walkers (as required by FR‑003).  
+  2. After completion compute the Gelman‑Rubin statistic; if `GR > 1.01` log a warning `"MCMC chains did not fully converge (GR = …)".` Do **not** truncate or reduce steps.  
+  3. Do **not** abort because of the 6‑hour wall‑clock limit; instead log `"TIME_LIMIT_REACHED"` if the limit is approached but continue to finish the 5000 steps.  
+  4. Store chains in `data/results/mcmc_chains.npy`. **Dependency**: Runs after T022 and T027‑SUBSAMPLE.
 - [X] T024 [US2] Implement `dynesty` nested sampler for both Newtonian and Yukawa models in `code/inference/nested.py`.
-- [ ] T025-INJECTION [US2] **Injection-Recovery Test**: Implement `code/robustness/injection.py`. **Logic**:
- 1. Generate simulated data with a known non-zero α and realistic noise.
- 2. Run a local inference instance (using T021/T022 logic, independent of T023).
- 3. **Calculate**: `distance = abs(injected_alpha - recovered_alpha_median)`.
- 4. **Determine Pass**: `SC005_PASS = (recovered_alpha_median within 95% CI of injected value)`.
- 5. **Output**: `data/results/injection_recovery_report.json` containing `injected_alpha`, `recovered_alpha_median`, `95% CI`, `distance`, and `SC005_PASS` (calculated boolean). **Dependency**: Must run after T021 and T022.
-- [ ] T026-NULL-SIM [US2] **Null-Simulation Test**: Implement `code/robustness/null_simulation.py`. **Logic**:
- 1. Generate simulated data where α=0 is true but systematic errors are present.
- 2. Run a local inference instance.
- 3. **Calculate**: `false_positive = (Bayes_factor_K > 3)`.
- 4. **Output**: `data/results/null_baseline_report.json` containing `true_alpha`, `recovered_alpha_median`, `bayes_factor_K`, `false_positive_detected`, and `SC002_BASELINE_PASS` (calculated boolean: true if false_positive rate is acceptable). **Dependency**: Must run after T021 and T022.
+- [ ] T025-INJECTION [US2] **Injection‑Recovery Test**: Implement `code/robustness/injection.py`.  
+  1. Generate synthetic data with a known non‑zero α and realistic noise using the full covariance matrix.  
+  2. Run a local inference instance (re‑using T021/T022 logic, independent of T023‑MCMC).  
+  3. Compute `distance = |injected_alpha – recovered_alpha_median|`.  
+  4. Determine pass: `SC005_PASS = (recovered_alpha_median within 95 % CI of injected value)`.  
+  5. Output `data/results/injection_recovery_report.json` with all metrics. **Dependency**: Runs after T021 and T022.
+- [ ] T026-NULL-SIM [US2] **Null‑Simulation Test**: Implement `code/robustness/null_simulation.py`.  
+  1. Generate synthetic data with α = 0 but realistic systematic errors.  
+  2. Run inference.  
+  3. Compute `false_positive = (Bayes_factor_K > 3)`.  
+  4. Output `data/results/null_baseline_report.json` with `true_alpha`, `recovered_alpha_median`, `bayes_factor_K`, `false_positive_detected`, and `SC002_BASELINE_PASS` (true if false‑positive rate is acceptable). **Dependency**: Runs after T021 and T022.
 
 **Checkpoint**: User Stories 1 & 2 should now work independently.
 
@@ -148,9 +147,9 @@
 
 ## Phase 5: User Story 3 - Robustness and Sensitivity Analysis (Priority: P3)
 
-**Goal**: Perform leave‑one‑experiment‑out cross-validation and systematic uncertainty inflation tests to ensure result stability.
+**Goal**: Perform leave‑one‑experiment‑out cross‑validation and systematic uncertainty inflation tests to ensure result stability.
 
-**Independent Test**: Run `code/robustness/cross_val.py` and `code/robustness/uncertainty.py`; verify Bayes factors and credible‑upper‑limit shifts stay < 15% across all iterations.
+**Independent Test**: Run `code/robustness/cross_val.py` and `code/robustness/uncertainty.py`; verify Bayes factors and credible‑upper‑limit shifts stay < 15 % across all iterations.
 
 ### Tests for User Story 3 (OPTIONAL)
 
@@ -159,15 +158,20 @@
 
 ### Implementation for User Story 3
 
-- [X] T030 [US3] Implement leave‑one‑experiment‑out cross‑validation loop in `code/robustness/cross_val.py`. **Conditional logic**:
- 1. If `USE_BOOTSTRAP` flag (from T013-CHECK-THRESHOLD) is false AND runs >= 3: Perform true leave-one-out (remove one run, re-infer).
- 2. If `USE_BOOTSTRAP` flag is true OR runs < 3: **Implement bootstrap resampling**: Sample N rows **with replacement** from the dataset. For each bootstrap sample, extract the corresponding block-diagonal covariance sub-matrix and re-infer. **Algorithm**: Use `numpy.random.choice` with `replace=True` to select indices; re-calculate mean and covariance for the sample.
- 3. Store each iteration's α upper‑limit (high percentile) for later analysis. **Dependency**: Must run after T013-CHECK-THRESHOLD.
-- [X] T031 [US3] Implement systematic uncertainty inflation test in `code/robustness/uncertainty.py`. **Parameter**: Read the inflation factor from `code/config.py`. Apply it to the covariance matrix. Verify the Bayes factor changes by a negligible amount (e.g., < 0.1 log-units). **Dependency**: Must run after T023.
+- [ ] T030 [US3] Implement leave‑one‑experiment‑out cross‑validation loop in `code/robustness/cross_val.py`.  
+  1. **Primary method**: If `runs ≥ 3`, iteratively omit one experimental run, recompute the harmonized dataset, and re‑run inference.  
+  2. **Fallback method**: If `runs < 3`, perform **row bootstrap resampling** with **N = 1000** samples (as stipulated in the plan). For each bootstrap sample, recompute the diagonal (or block‑diagonal) covariance and re‑run inference.  
+  3. Store each iteration's 95 % credible upper limit for α for later analysis. **Dependency**: Runs after T013‑DATA and T023‑MCMC.
+- [ ] T031 [US3] Implement systematic uncertainty inflation test in `code/robustness/uncertainty.py`. **Parameter**: Read inflation factor from `code/config.py`. Apply it multiplicatively to the covariance matrix. Verify that the Bayes factor changes by less than 0.1 log‑units; log the result. **Dependency**: Runs after T023‑MCMC.
 - [ ] T032 [US3] Implement parallel execution of robustness iterations using `multiprocessing`.
-- [ ] T033 [US3] Calculate the **coefficient of variation (CV)** of the credible‑upper‑limits (95th percentile) across all robustness iterations, where **CV = (standard deviation ÷ mean) × 100 **. Log the CV percentage; if **CV > 15%**, **log a warning and flag the result** (do NOT raise an error) to match the spec's intent to "assess stability" and "log" results. **Dependency**: Must run after T030.
-- [ ] T038 [US2/US3] **Single Source of Truth & SC-002 Verification**: Compute the Bayes‑factor comparison metric. **Check 1**: Compare the primary Bayes factor K against the null-simulation baseline from `data/results/null_baseline_report.json` (T026) to ensure the result is not a systematic artifact. **Check 2**: Compare K against the **Kass–Raftery scale** (K > 3 indicates substantial evidence for the Yukawa model). **Output**: Log the result for SC‑002 reporting, including an explicit PASS/FAIL status if K <= 3 (insufficient evidence) or if the baseline comparison fails (result is likely an artifact). **Dependency**: Must run after T026 and T033.
-- [ ] T039-REPORT [US2/US3] **Aggregation**: Aggregate the pass/fail status from T025 (SC-005) and T026 (SC-002) into a single summary artifact `data/results/validity_report.json`. Explicitly log the SC-005 status (recovered α within 95% CI) as a distinct field `SC005_PASS` and the SC-002 baseline status as `SC002_BASELINE_PASS`. Include the detailed metrics from the injection and null simulation reports. **Dependency**: Must run after T025, T026, and T038.
+- [ ] T033 [US3] Calculate the **coefficient of variation (CV)** of the credible‑upper‑limits (95th percentile) across all robustness iterations (`CV = (std / mean) × 100`). Log the CV; if `CV > 15 %` log a warning and flag the result (do not raise an error). **Dependency**: Runs after T030.
+- [ ] T038 [US2/US3] **Single Source of Truth & SC‑002 Verification**:  
+  1. Load Bayes factor `K` from the primary inference (`data/results/bayes_factor.json`).  
+  2. Load null‑simulation baseline statistics (`mean`, `std`) from `data/results/null_baseline_report.json`.  
+  3. Compute `SC002_KASS_RAFTERY_PASS = (K > 3)`.  
+  4. Compute `SC002_BASELINE_PASS = (K < baseline_mean + 2 × baseline_std)`.  
+  5. Log both pass/fail statuses. **Dependency**: Runs after T026‑NULL‑SIM, T033, and T023‑MCMC.
+- [ ] T039-REPORT [US2/US3] **Aggregation**: Aggregate the pass/fail status from T025 (SC‑005) and T038 (SC‑002) into a single summary artifact `data/results/validity_report.json`. Include fields `SC005_PASS`, `SC002_KASS_RAFTERY_PASS`, `SC002_BASELINE_PASS`, and embed the detailed metrics from the injection and null‑simulation reports. **Dependency**: Runs after T025, T026‑NULL‑SIM, and T038.
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -192,10 +196,10 @@
 - **Setup (Phase 1)**: No dependencies – can start immediately. **T001 must run first**.
 - **Foundational (Phase 2)**: Depends on Setup completion – BLOCKS all user stories.
 - **User Stories (Phase 3‑5)**: All depend on Foundational completion.
- - User Story 1 can start after Phase 2.
- - User Story 2 starts after Phase 2 **and** after the harmonized dataset from US 1 is available.
- - User Story 3 starts after Phase 2 **and** after inference results from US 2 are available.
-- **Polish (Phase 6)**: Depends on completion of all desired user stories.
+ - User Story 1 can start after Phase 2.
+ - User Story 2 starts after Phase 2 **and** after the harmonized dataset from US 1 is available.
+ - User Story 3 starts after Phase 2 **and** after inference results from US 2 are available.
+- **Polish (Phase 6)**: Depends on completion of all desired user stories.
 
 ### Within Each User Story
 
@@ -203,7 +207,7 @@
 - Models before services, services before endpoints, core implementation before integration, story complete before moving to next priority.
 - Parallel opportunities are indicated by the `[P]` tag where safe.
 
-### Parallel Example: User Story 1
+### Parallel Example: User Story 1
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
@@ -212,31 +216,31 @@ Task: "Contract test for data schema validation in tests/contract/test_harmonize
 Task: "Integration test for end‑to‑end download and harmonization in tests/integration/test_data_pipeline.py"
 
 # Launch implementation tasks (ordered where required):
-Task: "Implement code/agents/validator.py (T013-VALIDATOR)"
+Task: "Implement code/agents/validator.py (T013-AGENT)"
 Task: "Implement code/data/download.py to fetch arXiv:2106.08611, 2305.06325..."
 Task: "Parse raw tarball contents into HarmonizedDataset (T013-PARSE)..."
 Task: "Implement unit conversion and grid alignment in code/data/harmonize.py"
-Task: "Implement covariance construction with block-diagonal fallback (T015-COV)"
+Task: "Implement full covariance construction (T015-COV)"
 ```
 
 ---
 
 ## Implementation Strategy
 
-### MVP First (User Story 1 Only)
+### MVP First (User Story 1 Only)
 
-1. Complete Phase 1 (Setup).
-2. Complete Phase 2 (Foundational) – blocks all stories.
-3. Complete Phase 3 (User Story 1).
-4. **STOP and VALIDATE**: Test User Story 1 independently.
+1. Complete Phase 1 (Setup).
+2. Complete Phase 2 (Foundational) – blocks all stories.
+3. Complete Phase 3 (User Story 1).
+4. **STOP and VALIDATE**: Test User Story 1 independently.
 5. Deploy/demo if ready.
 
 ### Incremental Delivery
 
 1. Setup + Foundational → foundation ready.
-2. Add User Story 1 → test → demo (MVP!).
-3. Add User Story 2 → test → demo.
-4. Add User Story 3 → test → demo.
+2. Add User Story 1 → test → demo (MVP!).
+3. Add User Story 2 → test → demo.
+4. Add User Story 3 → test → demo.
 5. Each story adds value without breaking prior stories.
 
 ### Parallel Team Strategy
@@ -244,9 +248,9 @@ Task: "Implement covariance construction with block-diagonal fallback (T015-COV)
 - With multiple developers:
  1. Team finishes Setup + Foundational together.
  2. Once Foundational is done:
- - Dev A: User Story 1
- - Dev B: User Story 2
- - Dev C: User Story 3
+   - Dev A: User Story 1
+   - Dev B: User Story 2
+   - Dev C: User Story 3
  3. Stories integrate independently.
 
 ---
@@ -258,4 +262,4 @@ Task: "Implement covariance construction with block-diagonal fallback (T015-COV)
 - Each user story should be independently completable and testable.
 - Verify tests fail before implementing; commit after each logical group.
 - Stop at any checkpoint to validate story independently.
-- Avoid vague tasks, file conflicts, or cross‑story hidden dependencies.
+- Avoid vague tasks, file conflicts, or hidden cross‑story dependencies.

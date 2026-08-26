@@ -185,7 +185,7 @@ where $F_{Newton}(r)$ is the **experiment-specific calculated force** derived fr
 
 ## Compute Feasibility (CPU-First)
 
-- **Hardware**: GitHub Actions (2 CPU, 7 GB RAM).
+- **Hardware**: GitHub Actions (multiple CPU cores, several GB RAM).
 - **Strategy**:
  - `emcee` and `dynesty` are CPU-tractable for this problem size.
  - No GPU required.
@@ -193,7 +193,7 @@ where $F_{Newton}(r)$ is the **experiment-specific calculated force** derived fr
  - Runtime estimated at < 2 hours for MCMC + Nested Sampling, well within the 6-hour limit.
 - **Fallback Logic**:
  - Trigger: Memory > 6 GB or Runtime > 5 hours.
- - Action: Reduce walkers (e.g., 50) or steps (e.g., 2000) and re-run.
+ - Action: Reduce walkers or steps. and re-run.
 - **Decision**: No GPU escape hatch needed.
 
 ## Risk Management
