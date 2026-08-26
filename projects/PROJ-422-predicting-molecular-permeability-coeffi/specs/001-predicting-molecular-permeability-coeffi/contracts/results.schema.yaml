@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Results"
+type: object
+properties:
+  gnn_metrics:
+    type: object
+    properties:
+      rmse:
+        type: number
+      mae:
+        type: number
+      r2:
+        type: number
+    required:
+      - rmse
+      - mae
+      - r2
+  rf_metrics:
+    type: object
+    properties:
+      rmse:
+        type: number
+      mae:
+        type: number
+      r2:
+        type: number
+    required:
+      - rmse
+      - mae
+      - r2
+  rf_ablation_metrics:
+    type: object
+    properties:
+      rmse:
+        type: number
+      mae:
+        type: number
+      r2:
+        type: number
+    required:
+      - rmse
+      - mae
+      - r2
+  statistical_test:
+    type: object
+    properties:
+      p_value:
+        type: number
+      significant:
+        type: boolean
+      method:
+        type: string
+        enum: ["paired_t_test"]
+    required:
+      - p_value
+      - significant
+      - method
+  bias_check:
+    type: object
+    properties:
+      correlation_coefficient:
+        type: number
+      is_confounded:
+        type: boolean
+      bias_warning:
+        type: boolean
+        description: "True if |r| > 0.85, indicating high correlation (expected for proxy target)."
+    required:
+      - correlation_coefficient
+      - is_confounded
+      - bias_warning
+required:
+  - gnn_metrics
+  - rf_metrics
+  - rf_ablation_metrics
+  - statistical_test
+  - bias_check
+additionalProperties: false

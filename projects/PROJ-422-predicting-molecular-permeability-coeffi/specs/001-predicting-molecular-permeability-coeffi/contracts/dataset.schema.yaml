@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Molecule Dataset"
+type: object
+properties:
+  smiles:
+    type: string
+    description: "SMILES string of the molecule"
+  mol_valid:
+    type: boolean
+    description: "Whether the SMILES was successfully parsed"
+  mw:
+    type: number
+    description: "Molecular Weight"
+  logp:
+    type: number
+    description: "Calculated LogP"
+  tpsa:
+    type: number
+    description: "Topological Polar Surface Area"
+  hba:
+    type: integer
+    description: "Number of Hydrogen Bond Acceptors"
+  hbd:
+    type: integer
+    description: "Number of Hydrogen Bond Donors"
+  rotatable_bonds:
+    type: integer
+    description: "Number of Rotatable Bonds"
+  target:
+    type: number
+    description: "Experimental permeability or proxy target value"
+  polymer_type:
+    type:
+      - string
+      - "null"
+    description: "Polymer type for stratification (optional)"
+required:
+  - smiles
+  - mol_valid
+  - mw
+  - logp
+  - tpsa
+  - hba
+  - hbd
+  - rotatable_bonds
+  - target
+additionalProperties: false

@@ -1,0 +1,13 @@
+status: none
+intent: Polymer Gas Permeability Database SMILES permeability coefficients PubChem
+  python package dataset
+required_fields:
+- SMILES
+- permeability_coefficient
+- polymer_type
+- temperature
+- pressure
+- units
+cache_key: 6e8d5285b917862c9b08ab4712e64ba182238def41259b63fa71f4714997add4
+searched_at: '2026-08-26T18:31:20.899565+00:00'
+retry_count: 1
