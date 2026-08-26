@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T13:42:09.970211Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-041-evaluating-the-use-of-graph-neural-netwo
-last_run_id: ccbb594a-7454-49ca-839a-d46f458f97f2
+last_run_id: bd40eab9-0bf0-4b93-abee-c6c031b50ce2
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo
 title: Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network
   Traffic
-updated_at: '2026-08-23T15:19:05.938324Z'
+updated_at: '2026-08-26T06:57:19.642529Z'

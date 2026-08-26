@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-041-evaluating-the-use-of-graph-neural-netwo",
+  "tasks": [
+    {
+      "task_key": "T007a",
+      "reject_count": 1,
+      "last_reason": "No dataset files, download scripts, or checksum validation logs are present; the claim provides no tangible artifact confirming that the CTU dataset was downloaded from the canonical URL or that its checksum was verified. The required evidence is missing.",
+      "first_seen": "2026-08-26T06:57:17.110957+00:00",
+      "last_seen": "2026-08-26T06:57:17.110957+00:00"
+    },
+    {
+      "task_key": "T007b",
+      "reject_count": 1,
+      "last_reason": "No artifact (downloaded NF\u2011BoT\u2011IoT files, checksum file, or validation script/log) is present; the claim provides no evidence that the dataset was retrieved or that its checksum was verified. The required download and checksum validation steps are therefore missing.",
+      "first_seen": "2026-08-26T06:57:17.112108+00:00",
+      "last_seen": "2026-08-26T06:57:17.112108+00:00"
+    }
+  ],
+  "updated_at": "2026-08-26T06:57:17.112108+00:00"
+}

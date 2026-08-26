@@ -2668,3 +2668,224 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T15:19:05Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: graph construction end-to-end runtime target is 6 hours
+  claim_id: c_7b5fc5c6
+  context: 'Phase 6: Polish & Cross-Cutting Concerns ... T038b [P] Optimize graph
+    construction loop in code/data/preprocess.py to ensure end-to-end runtime < 6
+    hours'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T038b [P] Optimize graph construction loop in code/data/preprocess.py
+    to ensure end-to-end runtime < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:49:01Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Peak memory limit of 7GB
+  claim_id: c_e069db24
+  context: "Goal: Ingest raw NetFlow records, construct directed communication graphs,\
+    \ and verify memory safety (<7GB) and node limits (\u22645,000)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_limit_of_7GB
+  kind: magnitude
+  raw_text: The system targets a memory limit of less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:51:22Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Node limit of 5000
+  claim_id: c_07f81f64
+  context: "Goal: Ingest raw NetFlow records, construct directed communication graphs,\
+    \ and verify memory safety (<7GB) and node limits (\u22645,000)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system targets a node limit of 5,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:51:58Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN training set to 30 epochs
+  claim_id: c_0639f4eb
+  context: 'Implement a multi-layer Graph Convolutional Network (GCN). in `code/models/gcn.py`:
+    CPU-only, 30 epochs, early stopping (patience=5, delta=1e-4)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GCN model is configured to run for 30 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:52:33Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN early stopping patience set to 5
+  claim_id: c_05ceb814
+  context: 'Implement a multi-layer Graph Convolutional Network (GCN). in `code/models/gcn.py`:
+    CPU-only, 30 epochs, early stopping (patience=5, delta=1e-4)'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The GCN model uses early stopping with a patience of 5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T06:52:33Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN early stopping delta set to 0.0001
+  claim_id: c_72ba4143
+  context: 'Implement a multi-layer Graph Convolutional Network (GCN). in `code/models/gcn.py`:
+    CPU-only, 30 epochs, early stopping (patience=5, delta=1e-4)'
+  evidence:
+    asserted: '0.0001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The GCN model uses early stopping with a delta of 1e-4.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T06:52:34Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR threshold of 0.05
+  claim_id: c_dc9adef3
+  context: Write test skeleton for Benjamini-Hochberg correction in `tests/test_significance_tests.py`
+    (validates FDR < 0.05 threshold) [Depends on T031b]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Benjamini-Hochberg correction targets an FDR threshold of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:52:53Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Hypothesis set contains 7 comparisons
+  claim_id: c_742bdbc3
+  context: 'Comparisons: (1) GCN vs RF, (2) GCN vs XGB, (3-7) Top 5 features vs. null
+    baseline. **Output**: Write `data/results/hypothesis_set_definition.json` listing
+    the a fixed number of comparisons.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hypothesis set includes 7 comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:53:48Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Statistical justification for N less than 13 scenarios
+  claim_id: c_ed0687bd
+  context: 'Justification: Explicitly state that with N<13 scenarios, Wilcoxon has
+    insufficient power to detect differences, whereas Permutation Tests are robust
+    for small samples.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_justification_for_N_less_than_13_scenarios
+  kind: magnitude
+  raw_text: The statistical power justification cites a scenario count of less than
+    13.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:54:56Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Distinct pattern defined as 95% CI excluding 0
+  claim_id: c_c6f61fa4
+  context: 'A pattern is ''distinct'' if and only if the 95% CI for its rank difference
+    **excludes 0**. **Output**: Write `data/results/distinct_ranking.json` listing
+    only these statistically distinct patterns.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distinct_pattern_defined_as_95%25_CI_excluding_0
+  kind: entity_fact
+  raw_text: A pattern is defined as 'distinct' if the 95% CI for its rank difference
+    excludes 0.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:55:39Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Degree subsampling retains top 5000 nodes
+  claim_id: c_f4d69f6c
+  context: 'If LCC > 5000: Retain top 5000 nodes with highest degree centrality.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Degree_subsampling_retains_top_5000_nodes
+  kind: magnitude
+  raw_text: The degree-based subsampling retains the top 5,000 nodes with highest
+    degree centrality.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:56:35Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime limit of 6 hours
+  claim_id: c_284900c5
+  context: Optimize graph construction loop in `code/data/preprocess.py` to ensure
+    end-to-end runtime < 6 hours
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_limit_of_6_hours
+  kind: magnitude
+  raw_text: The system enforces an end-to-end runtime of less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:57:16Z'

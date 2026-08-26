@@ -1,0 +1,7 @@
+artifact_hashes:
+  raw_ctu_13_scenario_2:
+    checksum: b6563975322604356527537789406329
+    path: data/raw/Scenario2.zip
+    type: dataset
+    url: https://stratosphereips.org/datasets/ctu13/Scenario2.zip
+updated_at: "2023-10-27T10:00:00"

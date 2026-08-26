@@ -1,26 +1,11 @@
-T001:
+T009:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory hierarchy (`code/data`, `code/models`,\
-    \ `code/analysis`, `code/utils`, `data/raw`, `data/processed`, `data/results`,\
-    \ `tests`, `tests/integration`, `tests/unit`) is present; the implementer did\
-    \ not provide any file\u2011system listing, screenshots, or manifest confirming\
-    \ that these folders exist and are non\u2011empty. The task therefore remains\
-    \ unfinished."
-T007a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No dataset files, download scripts, or checksum validation logs are present;
-    the claim provides no tangible artifact confirming that the CTU dataset was downloaded
-    from the canonical URL or that its checksum was verified. The required evidence
-    is missing.
-T007b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (downloaded NF\u2011BoT\u2011IoT files, checksum file, or validation\
-    \ script/log) is present; the claim provides no evidence that the dataset was\
-    \ retrieved or that its checksum was verified. The required download and checksum\
-    \ validation steps are therefore missing."
+  h: ea76307b7ec1c778ba36011bf5caa3f722d08ee931aa7bd00430377fa2e5d922
+  r: "The repository contains a partially\u2011implemented `code/data/splits.py`,\
+    \ but the required output files (`data/processed/train_split.csv`, `data/processed/test_split.csv`,\
+    \ `data/processed/graph_train_split.graphml`) are absent, and the provided code\
+    \ snippet does not show the graph construction or validation steps nor any file\u2011\
+    writing logic. The task\u2019s core deliverables are therefore not present."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
