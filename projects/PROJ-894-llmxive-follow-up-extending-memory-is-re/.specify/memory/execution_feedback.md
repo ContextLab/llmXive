@@ -8,9 +8,8 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/analysis/sensitivity_analysis.py: self-declared fabricated metric — “…context here, we'll create a mock result                 # that reflec…”
-- code/analysis/sensitivity_analysis.py: self-declared fabricated metric — “…counts                 # and mock accuracy for demonstration (real accur…”
-- code/analysis/sensitivity_analysis.py: self-declared fabricated metric — “…# Mock accuracy (real accuracy requires LLM c…”
+- code/analysis/sensitivity_analysis.py: self-declared fabricated metric — “…this iteration to avoid empty/fake results.             logger.warning(…”
+- code/analysis/sensitivity_analysis.py: synthetic/fake INPUT data not authorized by the spec — “…the task implies we must generate synthetic sensitivity curves…”
 - code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec — “…rategy.  This script: 1. Generates a synthetic memory graph of varying…”
 - code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec — “…nx.DiGraph:     """     Generates a synthetic directed graph for bench…”
 
@@ -30,16 +29,16 @@ Every command exited 0 and the files were written — but the numbers in them ar
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
 - run-book command: `python code/runner.py --strategy Full --input data/processed/graphs/graph_clean.json --output data/processed/results/baseline_results.csv`
-  - script usage: `runner.py [-h] [--streaming] [--chunk-size CHUNK_SIZE]`
+  - script usage: `runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph`
   - argparse error: `runner.py: error: argument --strategy: invalid choice: 'Full' (choose from 'full', 'lazy', 'greedy')`
 - run-book command: `python code/runner.py --strategy Lazy --input data/processed/graphs/graph_clean.json --output data/processed/results/lazy_results.csv --threshold 0.7`
-  - script usage: `runner.py [-h] [--streaming] [--chunk-size CHUNK_SIZE]`
+  - script usage: `runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph`
   - argparse error: `runner.py: error: argument --strategy: invalid choice: 'Lazy' (choose from 'full', 'lazy', 'greedy')`
 - run-book command: `python code/runner.py --strategy Greedy --input data/processed/graphs/graph_clean.json --output data/processed/results/greedy_results.csv --topk 5`
-  - script usage: `runner.py [-h] [--streaming] [--chunk-size CHUNK_SIZE]`
+  - script usage: `runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph`
   - argparse error: `runner.py: error: argument --strategy: invalid choice: 'Greedy' (choose from 'full', 'lazy', 'greedy')`
 - run-book command: `python code/runner.py --strategy Lazy --input data/processed/graphs/graph_noise_42.json --output data/processed/results/lazy_noisy_results.csv --threshold 0.7`
-  - script usage: `runner.py [-h] [--streaming] [--chunk-size CHUNK_SIZE]`
+  - script usage: `runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph`
   - argparse error: `runner.py: error: argument --strategy: invalid choice: 'Lazy' (choose from 'full', 'lazy', 'greedy')`
 
 ## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
@@ -55,49 +54,46 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/sensitivity_analysis.py: self-declared fabricated metric — “…context here, we'll create a mock result                 # that reflec…”; code/analysis/sensitivity_analysis.py: self-declared fabricated metric — “…counts                 # and mock accuracy for demonstration (real accur…”; code/analysis/sensitivity_analysis.py: self-declared fabricated metric — “…# Mock accuracy (real accuracy requires LLM c…”; every produced artifact is gitignored (data/processed/stats_report.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/data_loader.py --download (rc=1); python code/runner.py --strategy Full --input data/processed/graphs/graph_clean.json --output data/processed/results/baseline_results.csv (rc=2); python code/runner.py --strategy Lazy --input data/processed/graphs/graph_clean.json --output data/processed/results/lazy_results.csv --threshold 0.7 (rc=2); 11 declared deliverable(s) absent: data/intermediate/graphs_raw.json; data/processed/baseline_results.csv; data/processed/correlation_results.json
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/sensitivity_analysis.py: self-declared fabricated metric — “…this iteration to avoid empty/fake results.             logger.warning(…”; code/analysis/sensitivity_analysis.py: synthetic/fake INPUT data not authorized by the spec — “…the task implies we must generate synthetic sensitivity curves…”; code/benchmark_full_traversal.py: synthetic/fake INPUT data not authorized by the spec — “…rategy.  This script: 1. Generates a synthetic memory graph of varying…”; every produced artifact is gitignored (data/processed/stats_report.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/data_loader.py --download (rc=1); python code/runner.py --strategy Full --input data/processed/graphs/graph_clean.json --output data/processed/results/baseline_results.csv (rc=2); python code/runner.py --strategy Lazy --input data/processed/graphs/graph_clean.json --output data/processed/results/lazy_results.csv --threshold 0.7 (rc=2); 10 declared deliverable(s) absent: data/intermediate/graphs_raw.json; data/processed/baseline_results.csv; data/processed/correlation_results.json
 
 ## Failing / missing run-book commands
 
 - python code/data_loader.py --download -> rc=1
-    _module_factory
-    raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
-
-The above exception was the direct cause of the following exception:
-
+    fetch mlabonne/locomo: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
+2026-08-26 10:24:33,050 - __main__ - ERROR - Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
+2026-08-26 10:24:33,050 - __main__ - ERROR - Failed to fetch dataset: Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 359, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 509, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 343, in main
-    tasks = fetch_locomo_dataset(subset=args.subset)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 67, in fetch_locomo_dataset
-    raise ValueError(f"Dataset fetch failed for both sources: {e} and {e2}") from e2
-ValueError: Dataset fetch failed for both sources: Dataset 'locomo/locomo-benchmark' doesn't exist on the Hub or cannot be accessed. and Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 466, in main
+    tasks = fetch_locomo_dataset("test")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 120, in fetch_locomo_dataset
+    raise ValueError(error_msg)
+ValueError: Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
 - python code/runner.py --strategy Full --input data/processed/graphs/graph_clean.json --output data/processed/results/baseline_results.csv -> rc=2
-    usage: runner.py [-h] [--streaming] [--chunk-size CHUNK_SIZE]
-                 [--timeout TIMEOUT] --strategy {full,lazy,greedy} --input
-                 INPUT --graph GRAPH --output OUTPUT [--threshold THRESHOLD]
-                 [--topk TOPK] [--subset SUBSET]
+    usage: runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph
+                 GRAPH --output OUTPUT [--threshold THRESHOLD] [--topk TOPK]
+                 [--timeout TIMEOUT] [--streaming] [--chunk-size CHUNK_SIZE]
+                 [--noisy]
 runner.py: error: argument --strategy: invalid choice: 'Full' (choose from 'full', 'lazy', 'greedy')
 - python code/runner.py --strategy Lazy --input data/processed/graphs/graph_clean.json --output data/processed/results/lazy_results.csv --threshold 0.7 -> rc=2
-    usage: runner.py [-h] [--streaming] [--chunk-size CHUNK_SIZE]
-                 [--timeout TIMEOUT] --strategy {full,lazy,greedy} --input
-                 INPUT --graph GRAPH --output OUTPUT [--threshold THRESHOLD]
-                 [--topk TOPK] [--subset SUBSET]
+    usage: runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph
+                 GRAPH --output OUTPUT [--threshold THRESHOLD] [--topk TOPK]
+                 [--timeout TIMEOUT] [--streaming] [--chunk-size CHUNK_SIZE]
+                 [--noisy]
 runner.py: error: argument --strategy: invalid choice: 'Lazy' (choose from 'full', 'lazy', 'greedy')
 - python code/runner.py --strategy Greedy --input data/processed/graphs/graph_clean.json --output data/processed/results/greedy_results.csv --topk 5 -> rc=2
-    usage: runner.py [-h] [--streaming] [--chunk-size CHUNK_SIZE]
-                 [--timeout TIMEOUT] --strategy {full,lazy,greedy} --input
-                 INPUT --graph GRAPH --output OUTPUT [--threshold THRESHOLD]
-                 [--topk TOPK] [--subset SUBSET]
+    usage: runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph
+                 GRAPH --output OUTPUT [--threshold THRESHOLD] [--topk TOPK]
+                 [--timeout TIMEOUT] [--streaming] [--chunk-size CHUNK_SIZE]
+                 [--noisy]
 runner.py: error: argument --strategy: invalid choice: 'Greedy' (choose from 'full', 'lazy', 'greedy')
 - python code/runner.py --strategy Lazy --input data/processed/graphs/graph_noise_42.json --output data/processed/results/lazy_noisy_results.csv --threshold 0.7 -> rc=2
-    usage: runner.py [-h] [--streaming] [--chunk-size CHUNK_SIZE]
-                 [--timeout TIMEOUT] --strategy {full,lazy,greedy} --input
-                 INPUT --graph GRAPH --output OUTPUT [--threshold THRESHOLD]
-                 [--topk TOPK] [--subset SUBSET]
+    usage: runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph
+                 GRAPH --output OUTPUT [--threshold THRESHOLD] [--topk TOPK]
+                 [--timeout TIMEOUT] [--streaming] [--chunk-size CHUNK_SIZE]
+                 [--noisy]
 runner.py: error: argument --strategy: invalid choice: 'Lazy' (choose from 'full', 'lazy', 'greedy')
 
 ## Declared deliverables still missing
@@ -109,9 +105,8 @@ runner.py: error: argument --strategy: invalid choice: 'Lazy' (choose from 'full
 - data/processed/greedy_results.csv
 - data/processed/lazy_results.csv
 - data/processed/noisy_baseline_results.csv
-- data/processed/noisy_greedy_results.csv
-- data/processed/noisy_lazy_results.csv
-- data/processed/sensitivity_analysis.csv
+- data/processed/report_data.json
+- data/processed/status_counts.json
 - data/processed/threshold_analysis.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -120,7 +115,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/intermediate/graphs_raw.json` is declared but was NOT written. Scripts referencing it:
     - `code/data_loader.py` — IS a run-book command
-    - `code/analysis/sensitivity_analysis.py` — NOT invoked by the run-book
+    - `code/strategies/noisy_baseline_runner.py` — NOT invoked by the run-book
     - `code/strategies/greedy_runner.py` — NOT invoked by the run-book
     - `code/strategies/baseline_runner.py` — NOT invoked by the run-book
     - `code/utils/verify_seeds.py` — NOT invoked by the run-book
@@ -131,17 +126,20 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/correlation_analysis.py` — NOT invoked by the run-book
     - `code/analysis/stats.py` — IS a run-book command
     - `code/analysis/threshold_analysis.py` — NOT invoked by the run-book
+    - `code/analysis/sensitivity_analysis.py` — NOT invoked by the run-book
+    - `code/analysis/power_analysis.py` — NOT invoked by the run-book
     - `code/strategies/noisy_baseline_runner.py` — NOT invoked by the run-book
-    - `code/strategies/baseline_runner.py` — NOT invoked by the run-book
-    - `code/utils/validate_results.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/baseline_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/correlation_results.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/correlation_analysis.py` — NOT invoked by the run-book
+    - `code/report/aggregate_results.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/correlation_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/graphs/graph_noise_42.json` is declared but was NOT written. Scripts referencing it:
     - `code/data_loader.py` — IS a run-book command
     - `code/strategies/noisy_lazy_runner.py` — NOT invoked by the run-book
     - `code/strategies/lazy_runner.py` — NOT invoked by the run-book
+    - `code/strategies/noisy_baseline_runner.py` — NOT invoked by the run-book
+    - `code/strategies/noisy_greedy_runner.py` — NOT invoked by the run-book
     - `code/utils/generate_audit_report.py` — NOT invoked by the run-book
     - `code/utils/verify_seeds.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/graphs/graph_noise_42.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
@@ -151,6 +149,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/correlation_analysis.py` — NOT invoked by the run-book
     - `code/analysis/stats.py` — IS a run-book command
     - `code/analysis/threshold_analysis.py` — NOT invoked by the run-book
+    - `code/analysis/power_analysis.py` — NOT invoked by the run-book
     - `code/strategies/greedy_runner.py` — NOT invoked by the run-book
     - `code/utils/validate_results.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/greedy_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
@@ -160,44 +159,31 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/correlation_analysis.py` — NOT invoked by the run-book
     - `code/analysis/stats.py` — IS a run-book command
     - `code/analysis/threshold_analysis.py` — NOT invoked by the run-book
+    - `code/analysis/sensitivity_analysis.py` — NOT invoked by the run-book
+    - `code/analysis/power_analysis.py` — NOT invoked by the run-book
     - `code/strategies/noisy_lazy_runner.py` — NOT invoked by the run-book
-    - `code/strategies/lazy_runner.py` — NOT invoked by the run-book
-    - `code/utils/validate_results.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/lazy_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/noisy_baseline_results.csv` is declared but was NOT written. Scripts referencing it:
     - `code/quickstart_validator.py` — NOT invoked by the run-book
     - `code/analysis/noisy_stats.py` — NOT invoked by the run-book
     - `code/analysis/correlation_analysis.py` — NOT invoked by the run-book
     - `code/analysis/stats.py` — IS a run-book command
-    - `code/analysis/threshold_analysis.py` — NOT invoked by the run-book
     - `code/strategies/noisy_baseline_runner.py` — NOT invoked by the run-book
     - `code/utils/validate_results.py` — NOT invoked by the run-book
+    - `code/report/categorize_status_counts.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/noisy_baseline_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/noisy_greedy_results.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/quickstart_validator.py` — NOT invoked by the run-book
-    - `code/analysis/noisy_stats.py` — NOT invoked by the run-book
-    - `code/analysis/correlation_analysis.py` — NOT invoked by the run-book
-    - `code/analysis/stats.py` — IS a run-book command
-    - `code/analysis/threshold_analysis.py` — NOT invoked by the run-book
-    - `code/utils/validate_results.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/noisy_greedy_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/noisy_lazy_results.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/quickstart_validator.py` — NOT invoked by the run-book
-    - `code/analysis/noisy_stats.py` — NOT invoked by the run-book
-    - `code/analysis/correlation_analysis.py` — NOT invoked by the run-book
-    - `code/analysis/stats.py` — IS a run-book command
-    - `code/analysis/threshold_analysis.py` — NOT invoked by the run-book
-    - `code/strategies/noisy_lazy_runner.py` — NOT invoked by the run-book
-    - `code/utils/validate_results.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/noisy_lazy_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/sensitivity_analysis.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/__init__.py` — NOT invoked by the run-book
-    - `code/analysis/sensitivity_analysis.py` — NOT invoked by the run-book
-    - `code/analysis/report_generator.py` — NOT invoked by the run-book
-    - `code/strategies/lazy.py` — NOT invoked by the run-book
-    - `code/strategies/sweep_runner.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/sensitivity_analysis.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/report_data.json` is declared but was NOT written. Scripts referencing it:
+    - `code/report/aggregate_results.py` — NOT invoked by the run-book
+    - `code/report/generate_report.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/report_data.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/status_counts.json` is declared but was NOT written. Scripts referencing it:
+    - `code/report/aggregate_results.py` — NOT invoked by the run-book
+    - `code/report/generate_report.py` — NOT invoked by the run-book
+    - `code/report/categorize_status_counts.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/status_counts.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/threshold_analysis.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/__init__.py` — NOT invoked by the run-book
     - `code/analysis/threshold_analysis.py` — NOT invoked by the run-book
+    - `code/report/aggregate_results.py` — NOT invoked by the run-book
+    - `code/report/generate_report.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/threshold_analysis.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

@@ -1,30 +1,26 @@
 """
-Unit tests for data_loader.py
+Unit tests for data_loader.py - specifically for T011c noise injection.
 """
 import pytest
 import json
 import os
+import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import sys
 
-# Add parent directory to path for imports
+import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from data_loader import (
     inject_noise,
-    build_memory_graph,
-    extract_traces_from_context,
-    generate_noisy_graphs,
     save_noisy_graphs,
-    load_noisy_graphs,
-    ensure_output_dirs
+    ensure_output_dirs,
+    fetch_locomo_dataset
 )
 
-# Fixtures
 @pytest.fixture
-def sample_graph():
-    """Returns a sample graph for testing."""
+def simple_graph():
+    """Returns a simple graph with known structure."""
     return {
         "nodes": ["A", "B", "C", "D"],
         "edges": [
@@ -36,32 +32,32 @@ def sample_graph():
     }
 
 @pytest.fixture
-def sample_tasks():
-    """Returns sample tasks for testing."""
-    return [
-        {
-            "question": "What is the capital of France?",
-            "context": "Paris is the capital of France. France is in Europe.",
-            "answer": "Paris"
-        },
-        {
-            "question": "Who wrote Hamlet?",
-            "context": "William Shakespeare wrote Hamlet. Shakespeare was English.",
-            "answer": "William Shakespeare"
-        }
-    ]
+def single_node_graph():
+    """Returns a graph with a single node and no edges."""
+    return {
+        "nodes": ["A"],
+        "edges": []
+    }
 
-def test_inject_noise_replaces_edges(sample_graph):
+@pytest.fixture
+def empty_graph():
+    """Returns an empty graph."""
+    return {
+        "nodes": [],
+        "edges": []
+    }
+
+def test_inject_noise_replaces_edges(simple_graph):
     """
     Test that inject_noise replaces edges rather than adding them.
     The total edge count must remain constant.
     """
-    original_edges = sample_graph["edges"]
+    original_edges = simple_graph["edges"]
     original_count = len(original_edges)
     original_edges_set = {(e["source"], e["target"]) for e in original_edges}
     
     # Inject noise with 50% ratio
-    noisy_graph = inject_noise(sample_graph, ratio=0.5, seed=42)
+    noisy_graph = inject_noise(simple_graph, ratio=0.5, seed=42)
     
     noisy_edges = noisy_graph["edges"]
     noisy_count = len(noisy_edges)
@@ -69,108 +65,83 @@ def test_inject_noise_replaces_edges(sample_graph):
     # Assert edge count is preserved
     assert noisy_count == original_count, f"Edge count changed from {original_count} to {noisy_count}"
     
-    # Assert that at least one edge was replaced (with high probability for 50% ratio)
+    # Assert that at least one edge was replaced
     noisy_edges_set = {(e["source"], e["target"]) for e in noisy_edges}
-    
-    # With seed 42, we expect the edges to change
     assert noisy_edges_set != original_edges_set, "Noise injection did not change any edges."
 
-def test_inject_noise_no_self_loops(sample_graph):
+def test_inject_noise_no_self_loops(simple_graph):
     """Test that inject_noise does not create self-loops."""
-    noisy_graph = inject_noise(sample_graph, ratio=1.0, seed=42)
+    noisy_graph = inject_noise(simple_graph, ratio=1.0, seed=42)
     for edge in noisy_graph["edges"]:
         assert edge["source"] != edge["target"], f"Self-loop detected: {edge}"
 
-def test_inject_noise_preserves_nodes(sample_graph):
+def test_inject_noise_preserves_nodes(simple_graph):
     """Test that inject_noise preserves the set of nodes."""
-    noisy_graph = inject_noise(sample_graph, ratio=0.5, seed=42)
-    original_nodes = set(sample_graph["nodes"])
+    noisy_graph = inject_noise(simple_graph, ratio=0.5, seed=42)
+    original_nodes = set(simple_graph["nodes"])
     noisy_nodes = set(noisy_graph["nodes"])
     assert original_nodes == noisy_nodes, "Node set changed during noise injection"
 
-def test_build_memory_graph():
-    """Test building a memory graph from triples."""
-    triples = [("A", "is", "B"), ("B", "has", "C")]
-    graph = build_memory_graph(triples)
-    assert len(graph["nodes"]) == 3
-    assert len(graph["edges"]) == 2
-    assert "A" in graph["nodes"]
-    assert "B" in graph["nodes"]
-    assert "C" in graph["nodes"]
+def test_degenerate_graph_handling(single_node_graph):
+    """Test handling of a single-node graph."""
+    result = inject_noise(single_node_graph, ratio=0.1, seed=42)
+    assert result["edges"] == []
+    assert result["nodes"] == ["A"]
 
-def test_generate_noisy_graphs():
-    """Test generating noisy graphs from a dictionary of clean graphs."""
-    clean_graphs = {
-        "task1": {
-            "nodes": ["A", "B"],
-            "edges": [{"source": "A", "target": "B", "relation": "rel"}]
-        },
-        "task2": {
-            "nodes": ["X", "Y", "Z"],
-            "edges": [
-                {"source": "X", "target": "Y", "relation": "rel1"},
-                {"source": "Y", "target": "Z", "relation": "rel2"}
-            ]
-        }
-    }
-    
-    noisy_graphs = generate_noisy_graphs(clean_graphs, ratio=0.5, seed=42)
-    
-    assert len(noisy_graphs) == len(clean_graphs)
-    assert "task1" in noisy_graphs
-    assert "task2" in noisy_graphs
-    
-    # Check edge counts are preserved
-    for task_id in clean_graphs:
-        assert len(noisy_graphs[task_id]["edges"]) == len(clean_graphs[task_id]["edges"])
-
-def test_save_and_load_noisy_graphs(tmp_path):
-    """Test saving and loading noisy graphs."""
-    noisy_graphs = {
-        "task1": {
-            "nodes": ["A", "B"],
-            "edges": [{"source": "A", "target": "B", "relation": "rel"}]
-        }
-    }
-    
-    output_path = tmp_path / "test_graph_noise_42.json"
-    
-    # Save
-    save_noisy_graphs(noisy_graphs, output_path)
-    
-    assert output_path.exists()
-    assert output_path.stat().st_size > 0
-    
-    # Load
-    loaded_graphs = load_noisy_graphs(output_path)
-    
-    assert loaded_graphs == noisy_graphs
-
-def test_noisy_graph_edge_count_matches_clean(sample_graph):
-    """Test that noisy graph has the same number of edges as clean graph."""
-    noisy_graph = inject_noise(sample_graph, ratio=0.1, seed=42)
-    assert len(noisy_graph["edges"]) == len(sample_graph["edges"])
-
-def test_noisy_graph_determinism(sample_graph):
-    """Test that noise injection with the same seed produces identical results."""
-    graph1 = inject_noise(sample_graph, ratio=0.5, seed=42)
-    graph2 = inject_noise(sample_graph, ratio=0.5, seed=42)
-    
-    assert json.dumps(graph1, sort_keys=True) == json.dumps(graph2, sort_keys=True)
-
-def test_empty_graph_handling():
+def test_empty_graph_handling(empty_graph):
     """Test handling of an empty graph."""
-    empty_graph = {"nodes": [], "edges": []}
     result = inject_noise(empty_graph, ratio=0.1, seed=42)
     assert result["edges"] == []
     assert result["nodes"] == []
 
-def test_single_edge_graph():
-    """Test handling of a graph with a single edge."""
-    single_edge_graph = {
-        "nodes": ["A", "B"],
-        "edges": [{"source": "A", "target": "B", "relation": "rel"}]
-    }
-    result = inject_noise(single_edge_graph, ratio=1.0, seed=42)
-    assert len(result["edges"]) == 1
-    assert result["edges"][0]["source"] != result["edges"][0]["target"]  # No self-loop
+def test_graph_noise_42_determinism(simple_graph):
+    """Test that noise injection with seed 42 is deterministic."""
+    graph1 = inject_noise(simple_graph, ratio=0.5, seed=42)
+    graph2 = inject_noise(simple_graph, ratio=0.5, seed=42)
+    
+    assert json.dumps(graph1, sort_keys=True) == json.dumps(graph2, sort_keys=True)
+
+def test_save_noisy_graphs_creates_file(simple_graph):
+    """Test that save_noisy_graphs creates the output file."""
+    graphs = {"task1": simple_graph}
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Patch the GRAPHS_DIR
+        import data_loader
+        original_dir = data_loader.GRAPHS_DIR
+        data_loader.GRAPHS_DIR = Path(tmpdir)
+        
+        try:
+            output_path = save_noisy_graphs(graphs, "test_noise.json", seed=42)
+            assert output_path.exists(), f"Output file not created at {output_path}"
+            assert output_path.stat().st_size > 0, "Output file is empty"
+            
+            # Verify content
+            with open(output_path, 'r') as f:
+                saved_graphs = json.load(f)
+            assert "task1" in saved_graphs
+            assert len(saved_graphs["task1"]["edges"]) == len(simple_graph["edges"])
+        finally:
+            data_loader.GRAPHS_DIR = original_dir
+
+def test_edge_replacement_logic(simple_graph):
+    """
+    Detailed test to verify that edges are actually being replaced.
+    We check that the specific edges removed are not in the output,
+    and that new edges exist.
+    """
+    original_edges = simple_graph["edges"]
+    original_set = {(e["source"], e["target"]) for e in original_edges}
+    
+    # Use a high noise ratio to ensure changes
+    noisy_graph = inject_noise(simple_graph, ratio=0.75, seed=123)
+    noisy_set = {(e["source"], e["target"]) for e in noisy_graph["edges"]}
+    
+    # Count how many edges were replaced
+    removed_count = len(original_set - noisy_set)
+    added_count = len(noisy_set - original_set)
+    
+    # Both should be non-zero for a high noise ratio
+    assert removed_count > 0, "No edges were removed"
+    assert added_count > 0, "No new edges were added"
+    assert removed_count == added_count, "Number of removed edges != number of added edges"

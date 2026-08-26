@@ -1,24 +1,21 @@
+"""
+Runner module for executing strategies on memory graphs.
+
+This module provides the core execution logic, including timeout handling,
+task loading, graph loading, and batch execution.
+"""
+
 import os
 import time
 import signal
 import logging
 import csv
 import json
-import argparse
 import sys
-import gc
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
-
-# Import strategies
-from strategies.full import run_full_strategy
-from strategies.lazy import run_lazy_strategy
-from strategies.greedy import run_greedy_strategy
-
-# Import data utilities
-from data_loader import load_graphs, load_noisy_graphs, stream_locomo_tasks
-from utils.time import get_current_time
-from config import get_model_path
+from typing import List, Dict, Any, Optional, Callable, Tuple
+from dataclasses import dataclass, asdict
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -26,322 +23,255 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@dataclass
+class TaskResult:
+    task_id: str
+    accuracy: float
+    nodes_visited: int
+    latency_ms: float
+    status: str
+    token_count: int
+    evidence_threshold: float = 0.0
+
 class TimeoutError(Exception):
+    """Custom timeout error for strategy execution."""
     pass
 
 class TimeoutHandler:
-    def __init__(self, timeout_seconds: int):
-        self.timeout_seconds = timeout_seconds
+    """
+    Context manager for enforcing a hard timeout on a block of code.
+    Uses signal.SIGALRM on Unix systems.
+    """
+    def __init__(self, duration: int = 1800):
+        self.duration = duration
         self.old_handler = None
 
-    def _handler(self, signum, frame):
-        raise TimeoutError(f"Task timed out after {self.timeout_seconds} seconds")
+    def _timeout_handler(self, signum, frame):
+        raise TimeoutError(f"Operation timed out after {self.duration} seconds")
 
     def __enter__(self):
-        self.old_handler = signal.signal(signal.SIGALRM, self._handler)
-        signal.alarm(self.timeout_seconds)
+        # Only set signal handler if we are in the main thread (Unix)
+        if os.name != 'nt' and hasattr(signal, 'SIGALRM'):
+            self.old_handler = signal.signal(signal.SIGALRM, self._timeout_handler)
+            signal.alarm(self.duration)
         return self
 
-    def __exit__(self, type, value, traceback):
-        signal.alarm(0)
-        if self.old_handler:
-            signal.signal(signal.SIGALRM, self.old_handler)
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if os.name != 'nt' and hasattr(signal, 'SIGALRM'):
+            signal.alarm(0)  # Cancel the alarm
+            if self.old_handler:
+                signal.signal(signal.SIGALRM, self.old_handler)
+        return False  # Don't suppress exceptions
 
-class TaskResult:
-    def __init__(self, task_id: str, strategy: str, accuracy: float, 
-                 nodes_visited: int, latency_ms: float, status: str, 
-                 extra_fields: Optional[Dict[str, Any]] = None):
-        self.task_id = task_id
-        self.strategy = strategy
-        self.accuracy = accuracy
-        self.nodes_visited = nodes_visited
-        self.latency_ms = latency_ms
-        self.status = status
-        self.extra_fields = extra_fields or {}
+def ensure_output_dirs(path: Path):
+    """Ensure the directory for the given path exists."""
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "task_id": self.task_id,
-            "strategy": self.strategy,
-            "accuracy": self.accuracy,
-            "nodes_visited": self.nodes_visited,
-            "latency_ms": self.latency_ms,
-            "status": self.status,
-            **self.extra_fields
-        }
-
-def ensure_output_dirs(output_path: str) -> None:
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-def load_tasks(input_path: str) -> List[Dict[str, Any]]:
-    """Load tasks from JSONL or JSON file."""
-    tasks = []
-    if input_path.endswith('.jsonl'):
-        with open(input_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.strip():
-                    tasks.append(json.loads(line))
-    elif input_path.endswith('.json'):
-        with open(input_path, 'r', encoding='utf-8') as f:
+def load_graph(graph_path: str) -> Any:
+    """
+    Load a graph from a JSON file.
+    Expected format: {"nodes": [...], "edges": [...]} or a serialized NetworkX graph structure.
+    Returns a NetworkX DiGraph or None if loading fails.
+    """
+    import networkx as nx
+    try:
+        with open(graph_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            if isinstance(data, list):
-                tasks = data
-            elif isinstance(data, dict):
-                tasks = [data]
-    else:
-        raise ValueError(f"Unsupported input format: {input_path}")
-    return tasks
+        
+        # Try to reconstruct NetworkX graph from JSON
+        # Assuming standard serialization: {"nodes": [...], "edges": [{"source": ..., "target": ..., "relation": ...}]}
+        G = nx.DiGraph()
+        
+        if 'nodes' in data:
+            for node in data['nodes']:
+                if isinstance(node, dict):
+                    G.add_node(node.get('id', node))
+                else:
+                    G.add_node(node)
+        
+        if 'edges' in data:
+            for edge in data['edges']:
+                if isinstance(edge, dict):
+                    src = edge.get('source')
+                    tgt = edge.get('target')
+                    if src and tgt:
+                        G.add_edge(src, tgt, **{k: v for k, v in edge.items() if k not in ['source', 'target']})
+                else:
+                    # Assume tuple format if not dict
+                    src, tgt = edge[0], edge[1]
+                    G.add_edge(src, tgt)
+        
+        logger.info(f"Loaded graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
+        return G
+    except Exception as e:
+        logger.error(f"Failed to load graph from {graph_path}: {e}")
+        return None
 
-def load_graph(graph_path: str, is_noisy: bool = False) -> Dict[str, Any]:
-    """Load graph data based on whether it's noisy or clean."""
-    if is_noisy:
-        return load_noisy_graphs(graph_path)
-    else:
-        return load_graphs(graph_path)
+def load_tasks(tasks_path: str) -> List[Dict[str, Any]]:
+    """
+    Load tasks from a JSON or JSONL file.
+    Returns a list of dictionaries.
+    """
+    tasks = []
+    try:
+        with open(tasks_path, 'r', encoding='utf-8') as f:
+            content = f.read().strip()
+            if not content:
+                return []
+            
+            if content.startswith('['):
+                # JSON list
+                tasks = json.loads(content)
+            else:
+                # JSONL
+                for line in content.split('\n'):
+                    if line.strip():
+                        tasks.append(json.loads(line))
+        
+        # Validate schema
+        for i, task in enumerate(tasks):
+            if 'task_id' not in task:
+                logger.warning(f"Task {i} missing 'task_id', using index")
+                task['task_id'] = f"task_{i}"
+            if 'question' not in task:
+                task['question'] = ""
+            if 'context' not in task:
+                task['context'] = ""
+            if 'answer' not in task:
+                task['answer'] = ""
+        
+        return tasks
+    except Exception as e:
+        logger.error(f"Failed to load tasks from {tasks_path}: {e}")
+        return []
 
-def run_task(task: Dict[str, Any], graph_data: Dict[str, Any], 
-             strategy: str, threshold: Optional[float] = None, 
-             topk: Optional[int] = None, timeout: int = 300) -> TaskResult:
-    """Execute a single task with the specified strategy."""
-    task_id = task.get('task_id', 'unknown')
-    context = task.get('context', '')
-    question = task.get('question', '')
-    ground_truth = task.get('answer', '')
+def run_task(
+    task: Dict[str, Any],
+    graph: Any,
+    strategy_func: Callable,
+    evaluate_func: Callable,
+    timeout_handler: TimeoutHandler
+) -> TaskResult:
+    """
+    Run a single task with the given strategy and evaluation function.
+    Wraps execution in the timeout handler.
+    """
+    return evaluate_func(task, graph, strategy_func, timeout_handler)
 
-    # Determine strategy function
+def run_batch(
+    tasks: List[Dict[str, Any]],
+    graph: Any,
+    strategy_func: Callable,
+    evaluate_func: Callable,
+    timeout_handler: TimeoutHandler,
+    strategy_kwargs: Optional[Dict] = None
+) -> List[TaskResult]:
+    """
+    Run a batch of tasks.
+    Note: The timeout handler is applied per task in evaluate_func.
+    """
+    results = []
+    logger.info(f"Starting batch execution of {len(tasks)} tasks")
+    
+    for i, task in enumerate(tasks):
+        logger.info(f"Processing task {i+1}/{len(tasks)}: {task.get('task_id', 'unknown')}")
+        try:
+            result = run_task(task, graph, strategy_func, evaluate_func, timeout_handler)
+            results.append(result)
+        except Exception as e:
+            logger.error(f"Critical error in task {task.get('task_id', i)}: {e}")
+            # Record a failure result
+            results.append(TaskResult(
+                task_id=task.get('task_id', f"task_{i}"),
+                accuracy=0.0,
+                nodes_visited=0,
+                latency_ms=0.0,
+                status="UNRESOLVED",
+                token_count=0,
+                evidence_threshold=0.0
+            ))
+    
+    logger.info(f"Batch execution completed. {len(results)} results recorded.")
+    return results
+
+def main():
+    """
+    CLI entry point for the runner.
+    Usage: python runner.py --strategy {full,lazy,greedy} --input GRAPH --tasks TASKS --output OUTPUT [--timeout TIMEOUT] [--topk TOPK]
+    """
+    import argparse
+    from strategies.full import run_full_strategy
+    from strategies.lazy import run_lazy_strategy
+    from strategies.greedy import run_greedy_strategy
+
+    parser = argparse.ArgumentParser(description="Strategy Execution Runner")
+    parser.add_argument('--strategy', type=str, required=True, choices=['full', 'lazy', 'greedy'], 
+                        help='Strategy to execute')
+    parser.add_argument('--input', type=str, required=True, help='Path to input graph JSON')
+    parser.add_argument('--tasks', type=str, required=True, help='Path to tasks JSONL/JSON')
+    parser.add_argument('--output', type=str, required=True, help='Path to output CSV')
+    parser.add_argument('--timeout', type=int, default=1800, help='Timeout in seconds')
+    parser.add_argument('--threshold', type=float, default=0.7, help='Evidence threshold for lazy strategy')
+    parser.add_argument('--topk', type=int, default=5, help='Top-k edges for greedy strategy')
+    
+    args = parser.parse_args()
+
+    # Map strategy name to function
     strategy_map = {
         'full': run_full_strategy,
         'lazy': run_lazy_strategy,
         'greedy': run_greedy_strategy
     }
+    strategy_func = strategy_map[args.strategy]
 
-    if strategy not in strategy_map:
-        raise ValueError(f"Unknown strategy: {strategy}")
+    # Load Data
+    graph = load_graph(args.input)
+    if graph is None:
+        raise ValueError("Failed to load graph")
+    
+    tasks = load_tasks(args.tasks)
+    if not tasks:
+        raise ValueError("No tasks loaded")
 
-    strategy_func = strategy_map[strategy]
+    # Initialize Timeout Handler
+    timeout_handler = TimeoutHandler(duration=args.timeout)
 
-    # Prepare strategy kwargs
-    strategy_kwargs = {
-        'question': question,
-        'context': context,
-        'ground_truth': ground_truth,
-        'graph_data': graph_data,
-        'task_id': task_id
-    }
+    # Define Evaluation Function specific to strategy
+    def evaluate_func(task, graph, strat_func, handler):
+        from strategies.greedy_runner import evaluate_task as greedy_eval
+        from strategies.lazy_runner import evaluate_task as lazy_eval
+        from strategies.baseline_runner import evaluate_task as baseline_eval
 
-    if strategy == 'lazy' and threshold is not None:
-        strategy_kwargs['threshold'] = threshold
-    elif strategy == 'greedy' and topk is not None:
-        strategy_kwargs['topk'] = topk
+        if args.strategy == 'greedy':
+            return greedy_eval(task, graph, strat_func, handler, topk=args.topk)
+        elif args.strategy == 'lazy':
+            return lazy_eval(task, graph, strat_func, handler, threshold=args.threshold)
+        else:
+            return baseline_eval(task, graph, strat_func, handler)
 
-    start_time = time.time()
-    status = "COMPLETED"
-    accuracy = 0.0
-    nodes_visited = 0
-    extra_fields = {}
-
-    try:
-        with TimeoutHandler(timeout):
-            result = strategy_func(**strategy_kwargs)
-            
-            if isinstance(result, dict):
-                accuracy = result.get('accuracy', 0.0)
-                nodes_visited = result.get('nodes_visited', 0)
-                status = result.get('status', 'COMPLETED')
-                extra_fields = {k: v for k, v in result.items() 
-                               if k not in ['accuracy', 'nodes_visited', 'status']}
-            else:
-                # Handle case where result might be a tuple or other format
-                if hasattr(result, 'accuracy'):
-                    accuracy = result.accuracy
-                if hasattr(result, 'nodes_visited'):
-                    nodes_visited = result.nodes_visited
-                if hasattr(result, 'status'):
-                    status = result.status
-
-    except TimeoutError:
-        status = "TIMEOUT"
-        logger.warning(f"Task {task_id} timed out")
-    except Exception as e:
-        logger.error(f"Error executing task {task_id}: {str(e)}")
-        status = "ERROR"
-        accuracy = 0.0
-        nodes_visited = 0
-
-    end_time = time.time()
-    latency_ms = (end_time - start_time) * 1000
-
-    return TaskResult(
-        task_id=task_id,
-        strategy=strategy,
-        accuracy=accuracy,
-        nodes_visited=nodes_visited,
-        latency_ms=latency_ms,
-        status=status,
-        extra_fields=extra_fields
+    # Run Batch
+    results = run_batch(
+        tasks=tasks,
+        graph=graph,
+        strategy_func=strategy_func,
+        evaluate_func=evaluate_func,
+        timeout_handler=timeout_handler,
+        strategy_kwargs={'threshold': args.threshold, 'topk': args.topk}
     )
 
-def run_batch(tasks: List[Dict[str, Any]], graph_data: Dict[str, Any],
-              strategy: str, output_path: str, threshold: Optional[float] = None,
-              topk: Optional[int] = None, timeout: int = 300,
-              streaming: bool = False, chunk_size: int = 10) -> None:
-    """Run a batch of tasks and save results to CSV."""
-    ensure_output_dirs(output_path)
-
-    # Define CSV fieldnames
-    fieldnames = ['task_id', 'strategy', 'accuracy', 'nodes_visited', 
-                 'latency_ms', 'status']
-    
-    # Add strategy-specific fields
-    if strategy == 'lazy':
-        fieldnames.append('evidence_threshold')
-    elif strategy == 'greedy':
-        fieldnames.append('topk')
-
-    results = []
-    processed_count = 0
-
-    for i, task in enumerate(tasks):
-        if streaming and i > 0 and i % chunk_size == 0:
-            gc.collect()
-            logger.info(f"Processed {i} tasks, forcing garbage collection")
-
-        result = run_task(task, graph_data, strategy, threshold, topk, timeout)
-        results.append(result.to_dict())
-        processed_count += 1
-
-        logger.info(f"Completed task {i+1}/{len(tasks)}: {result.task_id} - {result.status}")
-
-    # Write results to CSV
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    # Save Results
+    ensure_output_dirs(Path(args.output))
+    fieldnames = [
+        'task_id', 'accuracy', 'nodes_visited', 'latency_ms', 
+        'status', 'token_count', 'evidence_threshold'
+    ]
+    with open(args.output, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        
-        for result in results:
-            row = result.copy()
-            
-            # Format strategy-specific fields
-            if strategy == 'lazy' and 'evidence_threshold' not in row:
-                row['evidence_threshold'] = f"{threshold:.2f}" if threshold is not None else "0.00"
-            elif strategy == 'greedy' and 'topk' not in row:
-                row['topk'] = topk if topk is not None else 0
-            
-            writer.writerow(row)
-
-    logger.info(f"Saved {len(results)} results to {output_path}")
-
-def process_in_chunks_streaming(graph_data: Dict[str, Any], strategy: str,
-                                output_path: str, threshold: Optional[float] = None,
-                                topk: Optional[int] = None, timeout: int = 300,
-                                chunk_size: int = 10) -> None:
-    """Process tasks in streaming mode to handle large datasets."""
-    ensure_output_dirs(output_path)
+        for r in results:
+            writer.writerow(asdict(r))
     
-    # Define CSV fieldnames
-    fieldnames = ['task_id', 'strategy', 'accuracy', 'nodes_visited', 
-                 'latency_ms', 'status']
-    
-    if strategy == 'lazy':
-        fieldnames.append('evidence_threshold')
-    elif strategy == 'greedy':
-        fieldnames.append('topk')
+    logger.info(f"Results written to {args.output}")
 
-    # Open file for writing
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-
-        task_count = 0
-        for task_chunk in stream_locomo_tasks(chunk_size=chunk_size):
-            for task in task_chunk:
-                result = run_task(task, graph_data, strategy, threshold, topk, timeout)
-                row = result.to_dict()
-                
-                # Format strategy-specific fields
-                if strategy == 'lazy' and 'evidence_threshold' not in row:
-                    row['evidence_threshold'] = f"{threshold:.2f}" if threshold is not None else "0.00"
-                elif strategy == 'greedy' and 'topk' not in row:
-                    row['topk'] = topk if topk is not None else 0
-                
-                writer.writerow(row)
-                task_count += 1
-                logger.info(f"Processed task {task_count}: {result.task_id}")
-
-            # Force garbage collection after each chunk
-            gc.collect()
-
-    logger.info(f"Streamed and saved {task_count} results to {output_path}")
-
-def main():
-    parser = argparse.ArgumentParser(description='Run memory reconstruction strategies')
-    parser.add_argument('--strategy', type=str, required=True, 
-                      choices=['full', 'lazy', 'greedy'],
-                      help='Traversal strategy to use')
-    parser.add_argument('--input', type=str, required=True,
-                      help='Path to input tasks (JSONL or JSON)')
-    parser.add_argument('--graph', type=str, required=True,
-                      help='Path to graph data (JSON)')
-    parser.add_argument('--output', type=str, required=True,
-                      help='Path to output CSV file')
-    parser.add_argument('--threshold', type=float, default=0.7,
-                      help='Evidence threshold for lazy strategy')
-    parser.add_argument('--topk', type=int, default=5,
-                      help='Top-k edges for greedy strategy')
-    parser.add_argument('--timeout', type=int, default=300,
-                      help='Timeout in seconds per task')
-    parser.add_argument('--streaming', action='store_true',
-                      help='Use streaming mode for large datasets')
-    parser.add_argument('--chunk-size', type=int, default=10,
-                      help='Chunk size for streaming')
-    parser.add_argument('--noisy', action='store_true',
-                      help='Use noisy graph data')
-
-    args = parser.parse_args()
-
-    logger.info(f"Starting {args.strategy} strategy run")
-    logger.info(f"Input tasks: {args.input}")
-    logger.info(f"Graph data: {args.graph}")
-    logger.info(f"Output: {args.output}")
-
-    # Load graph data
-    try:
-        graph_data = load_graph(args.graph, is_noisy=args.noisy)
-        logger.info(f"Loaded graph with {len(graph_data)} tasks")
-    except Exception as e:
-        logger.error(f"Failed to load graph: {str(e)}")
-        sys.exit(1)
-
-    # Run batch or streaming
-    if args.streaming:
-        process_in_chunks_streaming(
-            graph_data=graph_data,
-            strategy=args.strategy,
-            output_path=args.output,
-            threshold=args.threshold,
-            topk=args.topk,
-            timeout=args.timeout,
-            chunk_size=args.chunk_size
-        )
-    else:
-        # Load tasks
-        try:
-            tasks = load_tasks(args.input)
-            logger.info(f"Loaded {len(tasks)} tasks")
-        except Exception as e:
-            logger.error(f"Failed to load tasks: {str(e)}")
-            sys.exit(1)
-
-        run_batch(
-            tasks=tasks,
-            graph_data=graph_data,
-            strategy=args.strategy,
-            output_path=args.output,
-            threshold=args.threshold,
-            topk=args.topk,
-            timeout=args.timeout
-        )
-
-    logger.info("Run completed successfully")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

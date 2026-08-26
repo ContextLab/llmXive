@@ -1,30 +1,61 @@
+T011a#1:
+  c: false
+  h: db248eecb6cc04c76b33e9856dd5a70a44a4e9da2c545f1e23091ec8f787a23a
+  r: "The provided `data_loader.py` uses the wrong dataset name (`mlabonne/locomo`\
+    \ instead of `locomo/locomo-benchmark`), never writes the fetched records to `data/raw/locomo.jsonl`\
+    \ (the file is missing), and lacks a complete config\u2011validation step and\
+    \ a top\u2011level execution that would raise an exception on download failure.\
+    \ The required output file does not exist, so the task is not satisfied."
+T011c:
+  c: false
+  h: dd1e7cf6eeadbc48e207df3b27d754d1582328225ef0d6efa16921721d71ae3c
+  r: The required output file `data/processed/graphs/graph_noise_42.json` does not
+    exist, and the shown portion of `code/data_loader.py` contains no code that calls
+    `inject_noise` or writes such a file. Consequently the verification test cannot
+    be satisfied. The implementation must generate the noisy graph and save it to
+    the specified path.
+T013:
+  c: false
+  h: f8ee05d1d535dbeb59151504412a67edc23fcbe6bd8abccafff84f34166036e6
+  r: "The required output file `data/processed/baseline_results.csv` is absent, and\
+    \ the referenced schema file `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/contracts/results.schema.yaml`\
+    \ is also missing. Without these artifacts the runner\u2019s logging, status mapping,\
+    \ and schema conformance cannot be verified."
 T013b:
   c: false
-  h: 9ea6f964bb734a1e06c2162371223d6a593fa57bcec6bce44d38eadd54a29cd1
-  r: "The required output file `data/processed/noisy_baseline_results.csv` does not\
-    \ exist, so the runner\u2019s logging of the required columns (including proper\
-    \ status mapping) cannot be verified. Additionally, the provided snippet of `code/runner.py`\
-    \ is truncated, leaving it unclear whether it implements the noisy\u2011graph\
-    \ execution and status handling as specified. The missing CSV is a concrete failure\
-    \ to meet the task\u2019s deliverable."
+  h: 8785df4d97e8ec6998b73e8b6164e9ee3be8ca15c11d088bcbc46afe881fdef5
+  r: "The repository contains a `code/runner.py` file, but it is incomplete (truncated)\
+    \ and does not show any logic that loads the synthetic noisy graphs, invokes the\
+    \ `TimeoutHandler` with a validated configurable duration, or writes results to\
+    \ `data/processed/noisy_baseline_results.csv`. The required CSV output file is\
+    \ absent, and the schema file `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/contracts/results.schema.yaml`\
+    \ is also missing. Consequently, the task\u2019s core requirements are not satisfied."
 T019a:
   c: false
-  h: b5354d8f94bbd12366b8935851576a62bb8756b0e2a4c71c73d9c35d87428f5a
-  r: "The required output file `data/processed/lazy_results.csv` is absent, so the\
-    \ runner\u2019s logging of the specified columns cannot be verified. Additionally,\
-    \ the provided snippet of `code/runner.py` is truncated and does not clearly show\
-    \ that it writes the required fields (including `evidence_threshold` with two\u2011\
-    decimal formatting) to that CSV. The missing CSV file must be generated for the\
-    \ task to be considered complete."
+  h: b98a544d62fd9d3e44f594b787155aa74f5c85cd3493472e87995e9efcfc4f2f
+  r: "The repository contains a `code/runner.py` but it never writes a `data/processed/lazy_results.csv`\
+    \ file, does not retrieve or log the `evidence_threshold` from T017, and lacks\
+    \ any validation of the timeout configuration. Moreover, the required schema file\
+    \ (`projects/\u2026/results.schema.yaml`) is missing, and the CSV output itself\
+    \ does not exist. These essential artifacts are absent, so the task is not fulfilled."
+T019b:
+  c: false
+  h: 573e8065d65a961edb079a4868d2ceb9c550766760fd7bd3591c702f1a2c5f10
+  r: "The `code/runner.py` file is present but truncated and does not show any logic\
+    \ that writes Greedy\u2011strategy results to `data/processed/greedy_results.csv`.\
+    \ Moreover, the required CSV file is missing from the repository. Without the\
+    \ output file (or code that creates it), the task\u2019s core requirement is not\
+    \ met."
 T039:
   c: false
-  h: 1cef26e26c0829937ff7fc617dd197a36f510301a662f1b8775f962286ae3da2
-  r: "The required data files `data/processed/graphs/graph_noise_42.json` and `data/processed/baseline_results.csv`\
-    \ are absent, and the provided `verify_seeds.py` script is truncated (ending mid\u2011\
-    function) so it does not demonstrably re\u2011run the noise injection and LLM\
-    \ inference, compare hashes, or write them to the state file. The state file still\
-    \ contains `null` hashes. These missing artifacts prevent the task from being\
-    \ satisfied."
+  h: 336f94babecdf33d293809555b99d16cb4190975ceeca89c2d14008e36dc6070
+  r: 'The required input files `data/processed/graphs/graph_noise_42.json` and `data/processed/baseline_results.csv`
+    are missing, so the script cannot compute the specified hash. Moreover, the provided
+    `verify_seeds.py` hashes files via raw bytes (`compute_file_hash`) instead of
+    serializing the JSON data with `json.dumps(..., sort_keys=True)` as required,
+    and the state file contains `graph_noise_42: null` rather than a stored hash.
+    These gaps mean the deterministic seed verification functionality is not fully
+    implemented.'
 T042:
   c: false
   h: 075a4075f4a74f58f77684da496eb853e6dacda150e2b9d334085c8e1d312939
@@ -55,12 +86,6 @@ T060c:
     are absent, and the script has not produced the expected `docs/research_report.md`.
     Without these files the script cannot generate the mandated report sections, so
     the task is not fulfilled.
-T061:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README file content or update is provided; the required artifact (`projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/README.md`
-    with the new pipeline instructions) is missing, so the task is not demonstrably
-    completed.
 T064:
   c: false
   h: 1acf7e5328e3520e24b3b022004f23eddb025e628fd7e1e564977aa3cc6210bd
@@ -68,3 +93,10 @@ T064:
     \ but the file is truncated and does not show the logic that writes `data/processed/status_counts.json`.\
     \ Moreover, the required `status_counts.json` output file is missing entirely,\
     \ so the task\u2019s core deliverable is not present."
+T070:
+  c: false
+  h: 9827ecc5811cafbb418c17c420bba4d10550a5a8e1ad48df870d6376fac08248
+  r: "The provided `code/data_loader.py` excerpt shows no `os.path.exists` or file\u2011\
+    size validation for `data/intermediate/graphs_raw.json` before calling `inject_noise`,\
+    \ and the required `data/intermediate/graphs_raw.json` file is absent. The task\u2019\
+    s core code change is missing, so the requirement is not satisfied."

@@ -1,7 +1,7 @@
 """
 Aggregate Results Data (T060a)
 
-This script aggregates results from statistical analyses (T024a, T024b, T025, T027, T028, T029)
+This script aggregates results from statistical analyses (T024a, T024b, T025, T027)
 and status counts (T064) into a single intermediate JSON file:
 data/processed/report_data.json
 
@@ -28,17 +28,17 @@ DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
 # Input file paths (matching the outputs of previous tasks)
 # T024a: Statistical Analysis (Clean)
-STAT_CLEAN_PATH = DATA_PROCESSED_DIR / "statistical_results_clean.json"
-# T024b: Statistical Analysis (Noisy)
+STAT_CLEAN_PATH = DATA_PROCESSED_DIR / "statistical_results.json"
+# T024b: Statistical Analysis (Noisy) - often merged into same file or separate
+# We check for both possibilities, but primarily look for the single file if T024a/24b merged
 STAT_NOISY_PATH = DATA_PROCESSED_DIR / "statistical_results_noisy.json"
+
 # T025: Point-Biserial Correlation
 CORRELATION_PATH = DATA_PROCESSED_DIR / "correlation_results.json"
+
 # T027: Threshold & Inflection Analysis
 THRESHOLD_PATH = DATA_PROCESSED_DIR / "threshold_analysis.json"
-# T028: Node Reduction Percentage
-REDUCTION_PATH = DATA_PROCESSED_DIR / "reduction_analysis.json"
-# T029: Accuracy Delta
-ACCURACY_DELTA_PATH = DATA_PROCESSED_DIR / "accuracy_delta.json"
+
 # T064: Status Counts (SC-005 evidence)
 STATUS_COUNTS_PATH = DATA_PROCESSED_DIR / "status_counts.json"
 
@@ -75,12 +75,17 @@ def aggregate_results() -> Dict[str, Any]:
     logger.info("Starting aggregation of results...")
 
     # Load all input files
+    # Note: T024a and T024b might produce one file 'statistical_results.json' containing both,
+    # or separate files. We handle the primary expected output from T024a/T024b logic.
+    # Based on T024a description: "Output: data/processed/statistical_results.json"
     stat_clean = load_json_file(STAT_CLEAN_PATH)
+    
+    # If T024b produced a separate file, load it. If not, we might need to parse the main one.
+    # For robustness, we try the specific noisy file first.
     stat_noisy = load_json_file(STAT_NOISY_PATH)
+    
     correlation = load_json_file(CORRELATION_PATH)
     threshold = load_json_file(THRESHOLD_PATH)
-    reduction = load_json_file(REDUCTION_PATH)
-    accuracy_delta = load_json_file(ACCURACY_DELTA_PATH)
     status_counts = load_json_file(STATUS_COUNTS_PATH)
 
     # Construct the aggregated report
@@ -92,10 +97,6 @@ def aggregate_results() -> Dict[str, Any]:
         },
         "correlation_analysis": correlation,
         "threshold_analysis": threshold,
-        "efficiency_analysis": {
-            "node_reduction": reduction,
-            "accuracy_delta": accuracy_delta
-        },
         "robustness_status_counts": status_counts,
         "metadata": {
             "generated_from": [
@@ -103,8 +104,6 @@ def aggregate_results() -> Dict[str, Any]:
                 str(STAT_NOISY_PATH.relative_to(PROJECT_ROOT)) if STAT_NOISY_PATH.exists() else None,
                 str(CORRELATION_PATH.relative_to(PROJECT_ROOT)) if CORRELATION_PATH.exists() else None,
                 str(THRESHOLD_PATH.relative_to(PROJECT_ROOT)) if THRESHOLD_PATH.exists() else None,
-                str(REDUCTION_PATH.relative_to(PROJECT_ROOT)) if REDUCTION_PATH.exists() else None,
-                str(ACCURACY_DELTA_PATH.relative_to(PROJECT_ROOT)) if ACCURACY_DELTA_PATH.exists() else None,
                 str(STATUS_COUNTS_PATH.relative_to(PROJECT_ROOT)) if STATUS_COUNTS_PATH.exists() else None
             ],
             "output_file": str(OUTPUT_PATH.relative_to(PROJECT_ROOT))
