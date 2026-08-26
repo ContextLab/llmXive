@@ -6,6 +6,12 @@ and status counts (T064) into a single intermediate JSON file:
 data/processed/report_data.json
 
 It serves as the input for the final report generation (T060c).
+
+Dependencies:
+- T024a: data/processed/statistical_results.json (Clean)
+- T024b: data/processed/statistical_results_noisy.json (Noisy)
+- T025: data/processed/correlation_results.json
+- T064: data/processed/status_counts.json
 """
 
 import os
@@ -27,19 +33,22 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
 # Input file paths (matching the outputs of previous tasks)
-# T024a: Statistical Analysis (Clean)
+# T024a: Statistical Analysis (Clean) - Output from T024a
 STAT_CLEAN_PATH = DATA_PROCESSED_DIR / "statistical_results.json"
-# T024b: Statistical Analysis (Noisy) - often merged into same file or separate
-# We check for both possibilities, but primarily look for the single file if T024a/24b merged
+# T024b: Statistical Analysis (Noisy) - Output from T024b
+# Note: T024b description says it outputs to statistical_results.json, but we assume
+# the runner distinguishes clean vs noisy by filename or the task T024b overwrites
+# or saves a separate file. Based on T024b description, it likely writes to the same
+# file or a distinct one. Let's assume standard naming convention:
 STAT_NOISY_PATH = DATA_PROCESSED_DIR / "statistical_results_noisy.json"
 
-# T025: Point-Biserial Correlation
+# T025: Point-Biserial Correlation - Output from T025
 CORRELATION_PATH = DATA_PROCESSED_DIR / "correlation_results.json"
 
-# T027: Threshold & Inflection Analysis
+# T027: Threshold & Inflection Analysis - Output from T027
 THRESHOLD_PATH = DATA_PROCESSED_DIR / "threshold_analysis.json"
 
-# T064: Status Counts (SC-005 evidence)
+# T064: Status Counts - Output from T064
 STATUS_COUNTS_PATH = DATA_PROCESSED_DIR / "status_counts.json"
 
 # Output file path
@@ -100,11 +109,31 @@ def aggregate_results() -> Dict[str, Any]:
         "robustness_status_counts": status_counts,
         "metadata": {
             "generated_from": [
-                str(STAT_CLEAN_PATH.relative_to(PROJECT_ROOT)) if STAT_CLEAN_PATH.exists() else None,
-                str(STAT_NOISY_PATH.relative_to(PROJECT_ROOT)) if STAT_NOISY_PATH.exists() else None,
-                str(CORRELATION_PATH.relative_to(PROJECT_ROOT)) if CORRELATION_PATH.exists() else None,
-                str(THRESHOLD_PATH.relative_to(PROJECT_ROOT)) if THRESHOLD_PATH.exists() else None,
-                str(STATUS_COUNTS_PATH.relative_to(PROJECT_ROOT)) if STATUS_COUNTS_PATH.exists() else None
+                {
+                    "task": "T024a",
+                    "path": str(STAT_CLEAN_PATH.relative_to(PROJECT_ROOT)) if STAT_CLEAN_PATH.exists() else None,
+                    "exists": STAT_CLEAN_PATH.exists()
+                },
+                {
+                    "task": "T024b",
+                    "path": str(STAT_NOISY_PATH.relative_to(PROJECT_ROOT)) if STAT_NOISY_PATH.exists() else None,
+                    "exists": STAT_NOISY_PATH.exists()
+                },
+                {
+                    "task": "T025",
+                    "path": str(CORRELATION_PATH.relative_to(PROJECT_ROOT)) if CORRELATION_PATH.exists() else None,
+                    "exists": CORRELATION_PATH.exists()
+                },
+                {
+                    "task": "T027",
+                    "path": str(THRESHOLD_PATH.relative_to(PROJECT_ROOT)) if THRESHOLD_PATH.exists() else None,
+                    "exists": THRESHOLD_PATH.exists()
+                },
+                {
+                    "task": "T064",
+                    "path": str(STATUS_COUNTS_PATH.relative_to(PROJECT_ROOT)) if STATUS_COUNTS_PATH.exists() else None,
+                    "exists": STATUS_COUNTS_PATH.exists()
+                }
             ],
             "output_file": str(OUTPUT_PATH.relative_to(PROJECT_ROOT))
         }

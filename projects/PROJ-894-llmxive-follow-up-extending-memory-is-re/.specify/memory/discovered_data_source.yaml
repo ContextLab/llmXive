@@ -1,11 +1,14 @@
 status: none
-intent: download LoCoMo benchmark dataset from HuggingFace as python package dataset
+intent: LoCoMo benchmark dataset HuggingFace Hub download via datasets python package
+  dataset
 required_fields:
 - task_id
+- graph_edges
+- source_node
+- target_node
+- ground_truth_path
 - question
 - answer
-- graph_edges
-- ground_truth_path
-cache_key: fae92c6f7a7bab1fe301e3645f63c28de7c019dee5399813db196970dcb65f63
-searched_at: '2026-08-26T10:25:17.106991+00:00'
+cache_key: cc112b4ee22d8c24946242d7c111698abfdfafc8a53896f5c90d174b45f1d72a
+searched_at: '2026-08-26T11:19:18.668730+00:00'
 retry_count: 1

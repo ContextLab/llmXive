@@ -60,8 +60,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data_loader.py --download -> rc=1
     fetch mlabonne/locomo: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
-2026-08-26 10:24:33,050 - __main__ - ERROR - Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
-2026-08-26 10:24:33,050 - __main__ - ERROR - Failed to fetch dataset: Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
+2026-08-26 11:17:17,500 - __main__ - ERROR - Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
+2026-08-26 11:17:17,500 - __main__ - ERROR - Failed to fetch dataset: Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/data_loader.py", line 509, in <module>
     main()

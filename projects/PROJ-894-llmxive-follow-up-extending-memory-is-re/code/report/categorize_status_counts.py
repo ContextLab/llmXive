@@ -26,7 +26,6 @@ logger = logging.getLogger(__name__)
 # Define the CSV files and their metadata
 # Format: (file_path, strategy_name, dataset_type)
 # These correspond to the outputs of T013, T013b, T019a, T019b
-# Note: We only include files that are expected to exist based on completed tasks.
 CSV_FILES: List[Tuple[str, str, str]] = [
     ("data/processed/baseline_results.csv", "Baseline", "Clean"),
     ("data/processed/noisy_baseline_results.csv", "Baseline", "Noisy"),

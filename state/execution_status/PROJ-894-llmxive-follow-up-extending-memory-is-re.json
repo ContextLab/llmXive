@@ -6,7 +6,7 @@
     "data/processed/stats_report.json"
   ],
   "failures": [
-    "python code/data_loader.py --download -> rc=1\n    fetch mlabonne/locomo: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.\n2026-08-26 10:24:33,050 - __main__ - ERROR - Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.\n2026-08-26 10:24:33,050 - __main__ - ERROR - Failed to fetch dataset: Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ",
+    "python code/data_loader.py --download -> rc=1\n    fetch mlabonne/locomo: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.\n2026-08-26 11:17:17,500 - __main__ - ERROR - Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.\n2026-08-26 11:17:17,500 - __main__ - ERROR - Failed to fetch dataset: Dataset fetch failed for all sources. Last error: Dataset 'mlabonne/locomo' doesn't exist on the Hub or cannot be accessed.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ",
     "python code/runner.py --strategy Full --input data/processed/graphs/graph_clean.json --output data/processed/results/baseline_results.csv -> rc=2\n    usage: runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph\n                 GRAPH --output OUTPUT [--threshold THRESHOLD] [--topk TOPK]\n                 [--timeout TIMEOUT] [--streaming] [--chunk-size CHUNK_SIZE]\n                 [--noisy]\nrunner.py: error: argument --strategy: invalid choice: 'Full' (choose from 'full', 'lazy', 'greedy')",
     "python code/runner.py --strategy Lazy --input data/processed/graphs/graph_clean.json --output data/processed/results/lazy_results.csv --threshold 0.7 -> rc=2\n    usage: runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph\n                 GRAPH --output OUTPUT [--threshold THRESHOLD] [--topk TOPK]\n                 [--timeout TIMEOUT] [--streaming] [--chunk-size CHUNK_SIZE]\n                 [--noisy]\nrunner.py: error: argument --strategy: invalid choice: 'Lazy' (choose from 'full', 'lazy', 'greedy')",
     "python code/runner.py --strategy Greedy --input data/processed/graphs/graph_clean.json --output data/processed/results/greedy_results.csv --topk 5 -> rc=2\n    usage: runner.py [-h] --strategy {full,lazy,greedy} --input INPUT --graph\n                 GRAPH --output OUTPUT [--threshold THRESHOLD] [--topk TOPK]\n                 [--timeout TIMEOUT] [--streaming] [--chunk-size CHUNK_SIZE]\n                 [--noisy]\nrunner.py: error: argument --strategy: invalid choice: 'Greedy' (choose from 'full', 'lazy', 'greedy')",
@@ -20,5 +20,5 @@
   "evidence": [
     "python code/data_loader.py --download"
   ],
-  "updated_at": "2026-08-26T10:24:41Z"
+  "updated_at": "2026-08-26T11:17:26Z"
 }

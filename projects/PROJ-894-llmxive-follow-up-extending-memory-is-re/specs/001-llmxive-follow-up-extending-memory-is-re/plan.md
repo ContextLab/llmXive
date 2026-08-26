@@ -13,7 +13,7 @@ This project extends the "Memory is Reconstructed, Not Retrieved" paradigm by im
 **Primary Dependencies**: `datasets` (HuggingFace), `pandas`, `scipy`, `networkx`, `pytest`, `llama-cpp-python` (conditional), `numpy`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`), JSON/CSV artifacts  
 **Testing**: `pytest` (unit tests for graph logic, integration tests for runners)  
-**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, ample RAM)  
 **Project Type**: Research pipeline / CLI tool  
 **Performance Goals**: Complete LoCoMo subset (n=[deferred]) within 6 hours; per-task timeout of sufficient duration; memory < 7GB.  
 **Constraints**: CPU-only execution; no GPU unless offloaded to Kaggle (not required for this statistical/graph analysis); strict reproducibility via pinned seeds.  
