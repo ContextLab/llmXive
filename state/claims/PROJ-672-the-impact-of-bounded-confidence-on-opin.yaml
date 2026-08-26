@@ -1163,3 +1163,218 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T09:50:42Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md
+  attempts: 1
+  canonical: Network ensembles generated with N=500 nodes per topology
+  claim_id: c_9d9a6942
+  context: 'We generate ensembles of N=500 nodes for each topology type. ER: p is
+    tuned to match the average degree of the other models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: We generate ensembles of N=500 nodes for each topology type.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:55:04Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md
+  attempts: 1
+  canonical: Confidence threshold epsilon swept from 0.01 to 0.99
+  claim_id: c_d5179fb4
+  context: 'For each network instance, we sweep epsilon from 0.01 to 0.99. Initial
+    Conditions: Opinions x_i(0) are drawn uniformly from [0, 1].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each network instance, we sweep epsilon from 0.01 to 0.99.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:55:28Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md
+  attempts: 1
+  canonical: Simulation stops at convergence tolerance 1e-4 or 10000 iterations
+  claim_id: c_47fc7c45
+  context: 'Convergence Criterion: The simulation stops when max_i |x_i(t+1) - x_i(t)|
+    < 10^-4 or a maximum of 10,000 iterations is reached.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation stops when max_i |x_i(t+1) - x_i(t)| < 10^-4 or a maximum
+    of 10,000 iterations is reached.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:55:48Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md
+  attempts: 1
+  canonical: Power-law fit restricted to epsilon range [epsilon_c + 0.05, 0.50]
+  claim_id: c_b4322fe0
+  context: The fit is restricted to the critical regime epsilon in [epsilon_c + 0.05,
+    0.50]. We then perform multiple linear regression to correlate gamma with structural
+    metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fit is restricted to the critical regime epsilon in [epsilon_c + 0.05,
+    0.50].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:56:20Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md
+  attempts: 1
+  canonical: Scaling exponent gamma variation less than 5% across sensitivity analysis
+  claim_id: c_97f6fa06
+  context: We performed a sensitivity analysis on the convergence threshold delta
+    in [10^-3, 10^-5]. The variation in the extracted gamma was found to be less than
+    5%, confirming the robustness of our scaling results.
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Scaling_exponent_gamma_variation_less_than_5%25_across_sensiti
+  kind: magnitude
+  raw_text: The variation in the extracted gamma was found to be less than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-26T00:56:45Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results_summary.md
+  attempts: 1
+  canonical: Barabasi-Albert network critical threshold epsilon_c is 0.12 with standard
+    deviation 0.03
+  claim_id: c_2ab92220
+  context: "The critical threshold $\\epsilon_c$, below which the system fails to\
+    \ reach global consensus within a reasonable timeframe, varies significantly by\
+    \ topology: Barab\xE1si-Albert (Scale-Free): $\\epsilon_c \\approx 0.12 \\pm 0.03$."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Barab\xE1si-Albert (Scale-Free): $\\epsilon_c \\approx 0.12 \\pm 0.03$."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:58:23Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results_summary.md
+  attempts: 1
+  canonical: Erdos-Renyi network critical threshold epsilon_c is 0.18 with standard
+    deviation 0.02
+  claim_id: c_2ccbe7ae
+  context: "Erd\u0151s-R\xE9nyi (Random): $\\epsilon_c \\approx 0.18 \\pm 0.02$. Consistent\
+    \ with mean-field predictions for random graphs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Erd\u0151s-R\xE9nyi (Random): $\\epsilon_c \\approx 0.18 \\pm 0.02$."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:58:56Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results_summary.md
+  attempts: 1
+  canonical: Watts-Strogatz network critical threshold epsilon_c is 0.15 with standard
+    deviation 0.02
+  claim_id: c_962edcb3
+  context: 'Watts-Strogatz (Small-World): $\epsilon_c \approx 0.15 \pm 0.02$. High
+    clustering slightly impedes global alignment compared to random graphs, but short
+    path lengths keep the threshold lower than lattice structures.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Watts-Strogatz (Small-World): $\epsilon_c \approx 0.15 \pm 0.02$.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:59:35Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results_summary.md
+  attempts: 1
+  canonical: Correlation between network assortativity coefficient and scaling exponent
+    gamma is 0.78
+  claim_id: c_88d28cde
+  context: A strong positive correlation ($r \approx 0.78$) exists between the network
+    assortativity coefficient and $\gamma$. Networks where high-degree nodes connect
+    to other high-degree nodes (positive assortativity) exhibit a sharper 'phase transition'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A strong positive correlation ($r \approx 0.78$) exists between the network
+    assortativity coefficient and $\gamma$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:59:55Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results_summary.md
+  attempts: 1
+  canonical: Correlation between average path length and scaling exponent gamma is
+    -0.65
+  claim_id: c_09095541
+  context: A negative correlation ($r \approx -0.65$) was observed. Shorter paths
+    facilitate faster convergence and reduce the sensitivity of the system to the
+    threshold parameter.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A negative correlation ($r \approx -0.65$) was observed [between average
+    path length and gamma].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:00:28Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results_summary.md
+  attempts: 1
+  canonical: Network ensembles generated with size N equal to 500
+  claim_id: c_08151a0e
+  context: "We generated ensembles of Erd\u0151s-R\xE9nyi, Barab\xE1si-Albert, and\
+    \ Watts-Strogatz networks ($N=500$) and simulated opinion dynamics across a sweep\
+    \ of confidence thresholds $\\epsilon$."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "We generated ensembles of Erd\u0151s-R\xE9nyi, Barab\xE1si-Albert, and\
+    \ Watts-Strogatz networks ($N=500$)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:03:53Z'
+- artifact_path: projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results_summary.md
+  attempts: 1
+  canonical: Structural metrics generated for 50 instances per network topology
+  claim_id: c_fc0e50f7
+  context: 'The following artifacts were generated and validated: `data/raw/networks/metrics_{topology}_{seed}.json`:
+    Structural metrics for 50 instances per topology.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Structural metrics for 50 instances per topology were generated.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:04:01Z'

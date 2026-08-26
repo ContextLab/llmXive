@@ -21,3 +21,9 @@ T015:
     \ check was added to the network\u2011generation routines or that disconnected\
     \ components are handled explicitly. Without such evidence the requirement cannot\
     \ be confirmed as satisfied."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No documentation files or updates in a `docs/` directory were provided; the claim
+    lacks any visible artifact showing an explanation of the methodology and results.
+    The required documentation is missing, so the task is not satisfied.
