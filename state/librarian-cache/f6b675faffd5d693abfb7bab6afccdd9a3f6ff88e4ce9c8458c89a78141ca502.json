@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-24T22:02:23Z",
+  "fetched_at": "2026-08-26T06:53:29Z",
   "field": "linguistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching Trillion-Parameter P\"",
       "target_n": 5
     },
-    "duration_seconds": 65.357,
-    "ended_at": "2026-07-24T22:02:23Z",
+    "duration_seconds": 63.132,
+    "ended_at": "2026-08-26T06:53:29Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "efficient scaling of trillion-parameter language models"
+          "scaling laws for trillion-parameter language models"
         ],
         [
           2,
-          "parameter-efficient large language model architectures"
+          "parameter-efficient scaling in large language models"
         ],
         [
           3,
-          "scaling laws for extreme-scale language models"
+          "context window expansion beyond parameter growth"
         ],
         [
           4,
-          "high-capacity language models with fixed parameter counts"
+          "long-context modeling without increasing model size"
         ],
         [
           5,
-          "context window expansion in trillion-scale models"
+          "sparse attention mechanisms for extended context"
         ],
         [
           6,
-          "long-context language model training strategies"
+          "linear attention scaling for trillion-token sequences"
         ],
         [
           7,
-          "sparse mixture of experts for trillion-parameter models"
-        ],
-        [
-          8,
           "memory-efficient inference for massive language models"
         ],
         [
+          8,
+          "extrapolating language model performance to extreme scales"
+        ],
+        [
           9,
-          "scaling compute versus scaling parameters in NLP"
+          "hierarchical retrieval augmented generation for long contexts"
         ],
         [
           10,
-          "architectural innovations for trillion-token models"
+          "compressing context in trillion-parameter networks"
         ],
         [
           11,
-          "long-horizon reasoning in large language models"
+          "dynamic context window management in LLMs"
         ],
         [
           12,
-          "extending context length without parameter growth"
+          "algorithmic improvements for long-range dependency modeling"
         ],
         [
           13,
-          "efficient attention mechanisms for long sequences"
+          "scaling sequence length vs scaling model parameters"
         ],
         [
           14,
-          "model compression techniques for trillion-parameter systems"
+          "efficient transformer architectures for extended horizons"
         ],
         [
           15,
-          "distributed training strategies for extreme-scale LLMs"
+          "extrapolation techniques for language model context limits"
         ],
         [
           16,
-          "hardware-efficient scaling of language models"
+          "sparse mixture of experts for trillion-scale models"
         ],
         [
           17,
-          "long-range dependency modeling in massive networks"
+          "long-range dependency handling in deep learning linguistics"
         ],
         [
           18,
-          "dynamic computation for trillion-parameter networks"
+          "optimizing inference for ultra-large language models"
         ],
         [
           19,
-          "scaling limits of transformer-based language models"
+          "context-aware scaling strategies for generative AI"
         ],
         [
           20,
-          "cost-effective scaling of large language models"
+          "theoretical limits of context length in neural language models"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "efficient scaling of trillion-parameter language models": 5,
-        "llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching Trillion-Parameter P\" linguistics": 0
+        "llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching Trillion-Parameter P\" linguistics": 0,
+        "scaling laws for trillion-parameter language models": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "model collapse catastrophic forgetting emergent abilities",
-      "Chomsky Universal Grammar poverty stimulus syntax",
-      "in-context learning few-shot prompting linguistic generalization",
-      "perplexity linguistic acceptability judgment corpus evaluation",
-      "scaling laws parameter efficiency computational linguistics"
+      "parameter efficiency language model scaling laws",
+      "trillion parameter model linguistic capability benchmarks",
+      "model collapse emergent behavior linguistic competence",
+      "perplexity linguistic generalization zero-shot evaluation",
+      "capacity scaling law linguistic reasoning theoretical limits"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,41 +115,30 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2503.21676"
+        "2402.04177"
       ]
     },
     "per_query_hit_count": {
-      "Chomsky Universal Grammar poverty stimulus syntax": 3,
-      "in-context learning few-shot prompting linguistic generalization": 3,
+      "capacity scaling law linguistic reasoning theoretical limits": 3,
       "llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching Trillion-Parameter P\" linguistics": 3,
-      "model collapse catastrophic forgetting emergent abilities": 3,
-      "perplexity linguistic acceptability judgment corpus evaluation": 3,
-      "scaling laws parameter efficiency computational linguistics": 3
+      "model collapse emergent behavior linguistic competence": 2,
+      "parameter efficiency language model scaling laws": 3,
+      "perplexity linguistic generalization zero-shot evaluation": 3,
+      "trillion parameter model linguistic capability benchmarks": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 2,
-      "rejections": [
-        {
-          "primary_pointer": "2412.16117",
-          "rationale": "The paper focuses on visual token pruning for video understanding, which is a distinct domain (computer vision/multimodal efficiency) from the user's question regarding linguistic scaling laws and parameter efficiency in text-based LLMs. It does not measure the same biological/algorithmic mechanism, share the same empirical population (linguistic data), or serve as a foundational reference for the specific \"Scaling the Horizon\" linguistic context, thus failing criteria (a) through (f).",
-          "title": "PruneVid: Visual Token Pruning for Efficient Video Large Language Models"
-        },
-        {
-          "primary_pointer": "2311.05741",
-          "rationale": "The paper focuses on the methodology of adapting LLMs to low-resource languages (tokenizer efficiency, data mixing) and does not address the specific mechanism of \"scaling the horizon\" (context window extension) or the theoretical limits of parameter scaling discussed in the user's referenced work. While both involve LLMs, the paper studies a distinct construct (multilingual adaptation) rather than the scaling laws or horizon-extension mechanisms central to the user's question, failing to meet c",
-          "title": "Efficiently Adapting Pretrained Language Models To New Languages"
-        }
-      ]
+      "rejected_count": 0,
+      "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-24T22:01:17Z",
+    "started_at": "2026-08-26T06:52:26Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"scaling the horizon, not the parameters: reaching trillion-parameter p\" linguistics",
       "raw": "llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching Trillion-Parameter P\" linguistics"
@@ -169,7 +158,7 @@
           "primary_pointer": "1602.00245"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
-        "failed_at": "2026-07-24T22:01:50Z",
+        "failed_at": "2026-08-26T06:52:54Z",
         "reason": "query_irrelevant"
       },
       {
@@ -186,7 +175,7 @@
           "primary_pointer": "1601.01126"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
-        "failed_at": "2026-07-24T22:01:50Z",
+        "failed_at": "2026-08-26T06:52:54Z",
         "reason": "query_irrelevant"
       },
       {
@@ -202,224 +191,46 @@
           "primary_pointer": "2606.14257"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
-        "failed_at": "2026-07-24T22:01:50Z",
+        "failed_at": "2026-08-26T06:52:54Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Explaining the behaviors of deep neural networks, usually considered as black boxes, is critical especially when they are now being adopted over diverse aspects of human life. Taking the advantages of interpretable machine learning (interpretable ML), this work proposes a novel tool called Catastrophic Forgetting Dissector (or CFD) to explain catastrophic forgetting in continual learning settings. We also introduce a new method called Critical Freezing based on the observations of our tool. Experiments on ResNet articulate how catastrophic forgetting happens, particularly showing which components of this famous network are forgetting. Our new continual learning algorithm defeats various recent techniques by a significant margin, proving the capability of the investigation. Critical freezing not only attacks catastrophic forgetting but also exposes explainability.",
+          "claimed_abstract": "Pretraining large language models (LLMs) is resource-intensive, often requiring months of training time even with high-end GPU clusters. There are two approaches of mitigating such computational demands: reusing smaller models to train larger ones (upcycling), and training computationally efficient models like mixture-of-experts (MoE). In this paper, we study the upcycling of LLMs to MoE models, of which the scaling behavior remains underexplored. Through extensive experiments, we identify empirical scaling laws that describe how performance depends on dataset size and model configuration. Particularly, we show that, while scaling these factors improves performance, there is a novel interaction term between the dense and upcycled training dataset that limits the efficiency of upcycling at large computational budgets. Based on these findings, we provide guidance to scale upcycling, and establish conditions under which upcycling outperforms from-scratch trainings within budget constraints.",
           "claimed_authors": [
-            "Giang Nguyen"
+            "Seng Pei Liew",
+            "Takuya Kato",
+            "Sho Takase"
           ],
-          "claimed_title": "Overcoming Catastrophic Forgetting by XAI",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2211.14177"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
-        "failed_at": "2026-07-24T22:01:50Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Catastrophic forgetting remains a severe hindrance to the broad application of artificial neural networks (ANNs), however, it continues to be a poorly understood phenomenon. Despite the extensive amount of work on catastrophic forgetting, we argue that it is still unclear how exactly the phenomenon should be quantified, and, moreover, to what degree all of the choices we make when designing learning systems affect the amount of catastrophic forgetting. We use various testbeds from the reinforcement learning and supervised learning literature to (1) provide evidence that the choice of which modern gradient-based optimization algorithm is used to train an ANN has a significant impact on the amount of catastrophic forgetting and show that-surprisingly-in many instances classical algorithms such as vanilla SGD experience less catastrophic forgetting than the more modern algorithms such as Adam. We empirically compare four different existing metrics for quantifying catastrophic forgetting and (2) show that the degree to which the learning systems experience catastrophic forgetting is sufficiently sensitive to the metric used that a change from one principled metric to another is enough to change the conclusions of a study dramatically. Our results suggest that a much more rigorous experimental methodology is required when looking at catastrophic forgetting. Based on our results, we recommend inter-task forgetting in supervised learning must be measured with both retention and relearning metrics concurrently, and intra-task forgetting in reinforcement learning must-at the very least-be measured with pairwise interference.",
-          "claimed_authors": [
-            "Dylan R. Ashley",
-            "Sina Ghiassian",
-            "Richard S. Sutton"
-          ],
-          "claimed_title": "Does the Adam Optimizer Exacerbate Catastrophic Forgetting?",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2102.07686"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Does the Adam Optimizer Exacerbate Catastrophic Forgetting?')",
-        "failed_at": "2026-07-24T22:01:50Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "When finetuning large language models for specialized tasks such as mathematical reasoning, models exhibit catastrophic forgetting, losing previously learned capabilities. We investigate this by finetuning Flan-T5-Base (250M parameters) on the DeepMind Mathematics dataset and measuring forgetting on MultiNLI. Math-only training improves mathematical accuracy from 3.1\\% to 12.0\\% but causes NLI accuracy to collapse from 81.0\\% to 16.5\\%--a 64.5 percentage point drop occurring within the first 1,000 training steps. We propose mixed training strategies that interleave mathematical and NLI examples during training. Our results demonstrate that mixed training completely eliminates catastrophic forgetting while maintaining equivalent mathematical performance: the balanced 1:1 ratio achieves 12.0\\% math accuracy (matching math-only) while preserving 86.2\\% NLI accuracy. We systematically explore mixing ratios from 1:1 to 15:1, finding that even minimal NLI exposure (6.2\\%) provides effective regularization. These findings demonstrate that specialization need not require forgetting general capabilities, with implications for scaling to larger models where mixed training may confer additional benefits beyond forgetting prevention.",
-          "claimed_authors": [
-            "John Graham Reynolds"
-          ],
-          "claimed_title": "Mitigating Catastrophic Forgetting in Mathematical Reasoning Finetuning through Mixed Training",
+          "claimed_title": "Scaling Laws for Upcycling Mixture-of-Experts Language Models",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2512.13706"
+          "primary_pointer": "2502.03009"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Mitigating Catastrophic Forgetting in Mathematical Reasoning Finetuning through Mixed Training')",
-        "failed_at": "2026-07-24T22:01:50Z",
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Scaling Laws for Upcycling Mixture-of-Experts Language Models')",
+        "failed_at": "2026-08-26T06:52:54Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Stabler proposes an implementation of the Chomskyan Minimalist Program, Chomsky 95 with Minimalist Grammars - MG, Stabler 97. This framework inherits a long linguistic tradition. But the semantic calculus is more easily added if one uses the Curry-Howard isomorphism. Minimalist Categorial Grammars - MCG, based on an extension of the Lambek calculus, the mixed logic, were introduced to provide a theoretically-motivated syntax-semantics interface, Amblard 07. In this article, we give full definitions of MG with algebraic tree descriptions and of MCG, and take the first steps towards giving a proof of inclusion of their generated languages.",
+          "claimed_abstract": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
           "claimed_authors": [
-            "Maxime Amblard"
+            "Berivan Isik",
+            "Natalia Ponomareva",
+            "Hussein Hazimeh",
+            "Dimitris Paparas",
+            "Sergei Vassilvitskii",
+            "Sanmi Koyejo"
           ],
-          "claimed_title": "Minimalist Grammars and Minimalist Categorial Grammars, definitions toward inclusion of generated languages",
+          "claimed_title": "Scaling Laws for Downstream Task Performance of Large Language Models",
           "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1108.5096"
+          "claimed_year": 2024,
+          "primary_pointer": "2402.04177"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Minimalist Grammars and Minimalist Categorial Grammars, definitions toward inclusion of generated languages')",
-        "failed_at": "2026-07-24T22:01:50Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "With a new deprivation (or poverty) function, in this paper, we theoretically study the changes in poverty with respect to the `global' mean and variance of the income distribution using Indian survey data. We show that when the income obeys a log-normal distribution, a rising mean income generally indicates a reduction in poverty while an increase in the variance of the income distribution increases poverty. This altruistic view for a developing economy, however, is not tenable anymore once the poverty index is found to follow a pareto distribution. Here although a rising mean income indicates a reduction in poverty, due to the presence of an inflexion point in the poverty function, there is a critical value of the variance below which poverty decreases with increasing variance while beyond this value, poverty undergoes a steep increase followed by a decrease with respect to higher variance. Following these results, we make quantitative predictions to correlate a developing with a developed economy.",
-          "claimed_authors": [
-            "Amit K Chattopadhyay",
-            "Sushanta K Mallick"
-          ],
-          "claimed_title": "Income Distribution Dependence of Poverty Measure: A Theoretical Analysis",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2005,
-          "primary_pointer": "physics/0507035"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Income Distribution Dependence of Poverty Measure: A Theoretical Analysis')",
-        "failed_at": "2026-07-24T22:01:50Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "A classical result by Floyd (\"On the non-existence of a phrase structure grammar for ALGOL 60\", 1962) states that the complete syntax of any sensible programming language cannot be described by the ordinary kind of formal grammars (Chomsky's ``context-free''). This paper uses grammars extended with conjunction and negation operators, known as conjunctive grammars and Boolean grammars, to describe the set of well-formed programs in a simple typeless procedural programming language. A complete Boolean grammar, which defines such concepts as declaration of variables and functions before their use, is constructed and explained. Using the Generalized LR parsing algorithm for Boolean grammars, a program can then be parsed in time $O(n^4)$ in its length, while another known algorithm allows subcubic-time parsing. Next, it is shown how to transform this grammar to an unambiguous conjunctive grammar, with square-time parsing. This becomes apparently the first specification of the syntax of a programming language entirely by a computationally feasible formal grammar.",
-          "claimed_authors": [
-            "Alexander Okhotin"
-          ],
-          "claimed_title": "Describing the syntax of programming languages using conjunctive and Boolean grammars",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2012.03538"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Describing the syntax of programming languages using conjunctive and Boolean grammars')",
-        "failed_at": "2026-07-24T22:01:50Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Despite the prevalence of tabular datasets, few-shot learning remains under-explored within this domain. Existing few-shot methods are not directly applicable to tabular datasets due to varying column relationships, meanings, and permutational invariance. To address these challenges, we propose FLAT-a novel approach to tabular few-shot learning, encompassing knowledge sharing between datasets with heterogeneous feature spaces. Utilizing an encoder inspired by Dataset2Vec, FLAT learns low-dimensional embeddings of datasets and their individual columns, which facilitate knowledge transfer and generalization to previously unseen datasets. A decoder network parametrizes the predictive target network, implemented as a Graph Attention Network, to accommodate the heterogeneous nature of tabular datasets. Experiments on a diverse collection of 118 UCI datasets demonstrate FLAT's successful generalization to new tabular datasets and a considerable improvement over the baselines.",
-          "claimed_authors": [
-            "Max Zhu",
-            "Katarzyna Kobalczyk",
-            "Andrija Petrovic",
-            "Mladen Nikolic",
-            "Mihaela van der Schaar",
-            "Boris Delibasic",
-            "Petro Lio"
-          ],
-          "claimed_title": "Tabular Few-Shot Generalization Across Heterogeneous Feature Spaces",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.10051"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Tabular Few-Shot Generalization Across Heterogeneous Feature Spaces')",
-        "failed_at": "2026-07-24T22:01:50Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In the realm of few-shot learning, foundation models like CLIP have proven effective but exhibit limitations in cross-domain robustness especially in few-shot settings. Recent works add text as an extra modality to enhance the performance of these models. Most of these approaches treat text as an auxiliary modality without fully exploring its potential to elucidate the underlying class visual features distribution. In this paper, we present a novel approach that leverages text-derived statistics to predict the mean and covariance of the visual feature distribution for each class. This predictive framework enriches the latent space, yielding more robust and generalizable few-shot learning models. We demonstrate the efficacy of incorporating both mean and covariance statistics in improving few-shot classification performance across various datasets. Our method shows that we can use text to predict the mean and covariance of the distribution offering promising improvements in few-shot learning scenarios.",
-          "claimed_authors": [
-            "Yassir Bendou",
-            "Vincent Gripon",
-            "Bastien Pasdeloup",
-            "Giulia Lioi",
-            "Lukas Mauch",
-            "Fabien Cardinaux",
-            "Ghouthi Boukli Hacene"
-          ],
-          "claimed_title": "Inferring Latent Class Statistics from Text for Robust Visual Few-Shot Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.14544"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Inferring Latent Class Statistics from Text for Robust Visual Few-Shot Learning')",
-        "failed_at": "2026-07-24T22:01:50Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The rapid expansion of the digital world has propelled sentiment analysis into a critical tool across diverse sectors such as marketing, politics, customer service, and healthcare. While there have been significant advancements in sentiment analysis for widely spoken languages, low-resource languages, such as Bangla, remain largely under-researched due to resource constraints. Furthermore, the recent unprecedented performance of Large Language Models (LLMs) in various applications highlights the need to evaluate them in the context of low-resource languages. In this study, we present a sizeable manually annotated dataset encompassing 33,606 Bangla news tweets and Facebook comments. We also investigate zero- and few-shot in-context learning with several language models, including Flan-T5, GPT-4, and Bloomz, offering a comparative analysis against fine-tuned models. Our findings suggest that monolingual transformer-based models consistently outperform other models, even in zero and few-shot scenarios. To foster continued exploration, we intend to make this dataset and our research tools publicly available to the broader research community.",
-          "claimed_authors": [
-            "Md. Arid Hasan",
-            "Shudipta Das",
-            "Afiyat Anjum",
-            "Firoj Alam",
-            "Anika Anjum",
-            "Avijit Sarker",
-            "Sheak Rashed Haider Noori"
-          ],
-          "claimed_title": "Zero- and Few-Shot Prompting with LLMs: A Comparative Study with Fine-tuned Models for Bangla Sentiment Analysis",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2308.10783"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Zero- and Few-Shot Prompting with LLMs: A Comparative Study with Fine-tuned Models for Bangla Sentiment Analysis')",
-        "failed_at": "2026-07-24T22:01:50Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large and Transformer-based language models perform outstandingly in various downstream tasks. However, there is limited understanding regarding how these models internalize linguistic knowledge, so various linguistic benchmarks have recently been proposed to facilitate syntactic evaluation of language models across languages. This paper introduces QFrCoLA (Quebec-French Corpus of Linguistic Acceptability Judgments), a normative binary acceptability judgments dataset comprising 25,153 in-domain and 2,675 out-of-domain sentences. Our study leverages the QFrCoLA dataset and seven other linguistic binary acceptability judgment corpora to benchmark seven language models. The results demonstrate that, on average, fine-tuned Transformer-based LM are strong baselines for most languages and that zero-shot binary classification large language models perform poorly on the task. However, for the QFrCoLA benchmark, on average, a fine-tuned Transformer-based LM outperformed other methods tested. It also shows that pre-trained cross-lingual LLMs selected for our experimentation do not seem to have acquired linguistic judgment capabilities during their pre-training for Quebec French. Finally, our experiment results on QFrCoLA show that our dataset, built from examples that illustrate linguistic norms rather than speakers' feelings, is similar to linguistic acceptability judgment; it is a challenging dataset that can benchmark LM on their linguistic judgment capabilities.",
-          "claimed_authors": [
-            "David Beauchemin",
-            "Richard Khoury"
-          ],
-          "claimed_title": "QFrCoLA: a Quebec-French Corpus of Linguistic Acceptability Judgments",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2508.16867"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='QFrCoLA: a Quebec-French Corpus of Linguistic Acceptability Judgments')",
-        "failed_at": "2026-07-24T22:01:50Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
-          "claimed_authors": [
-            "Leon Derczynski",
-            "Robert Gaizauskas"
-          ],
-          "claimed_title": "A Corpus-based Study of Temporal Signals",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1203.5066"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='A Corpus-based Study of Temporal Signals')",
-        "failed_at": "2026-07-24T22:01:50Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Neural language models have exhibited outstanding performance in a range of downstream tasks. However, there is limited understanding regarding the extent to which these models internalize syntactic knowledge, so that various datasets have recently been constructed to facilitate syntactic evaluation of language models across languages. In this paper, we introduce JCoLA (Japanese Corpus of Linguistic Acceptability), which consists of 10,020 sentences annotated with binary acceptability judgments. Specifically, those sentences are manually extracted from linguistics textbooks, handbooks and journal articles, and split into in-domain data (86 %; relatively simple acceptability judgments extracted from textbooks and handbooks) and out-of-domain data (14 %; theoretically significant acceptability judgments extracted from journal articles), the latter of which is categorized by 12 linguistic phenomena. We then evaluate the syntactic knowledge of 9 different types of Japanese language models on JCoLA. The results demonstrated that several models could surpass human performance for the in-domain data, while no models were able to exceed human performance for the out-of-domain data. Error analyses by linguistic phenomena further revealed that although neural language models are adept at handling local syntactic dependencies like argument structure, their performance wanes when confronted with long-distance syntactic dependencies like verbal agreement and NPI licensing.",
-          "claimed_authors": [
-            "Taiga Someya",
-            "Yushi Sugimoto",
-            "Yohei Oseki"
-          ],
-          "claimed_title": "JCoLA: Japanese Corpus of Linguistic Acceptability",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2309.12676"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='JCoLA: Japanese Corpus of Linguistic Acceptability')",
-        "failed_at": "2026-07-24T22:01:50Z",
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
+        "failed_at": "2026-08-26T06:52:54Z",
         "reason": "query_irrelevant"
       },
       {
@@ -437,45 +248,294 @@
           "primary_pointer": "2408.11029"
         },
         "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Scaling Law with Learning Rate Annealing')",
-        "failed_at": "2026-07-24T22:01:50Z",
+        "failed_at": "2026-08-26T06:52:54Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Deep neural networks exhibit empirical neural scaling laws, with error decreasing as a power law with increasing model or data size, across a wide variety of architectures, tasks, and datasets. This universality suggests that scaling laws may result from general properties of natural learning tasks. We develop a mathematical model intended to describe natural datasets using percolation theory. Two distinct criticality regimes emerge, each yielding optimal power-law neural scaling laws. These regimes, corresponding to power-law-distributed discrete subtasks and a dominant data manifold, can be associated with previously proposed theories of neural scaling, thereby grounding and unifying prior works. We test the theory by training regression models on toy datasets derived from percolation theory simulations. We suggest directions for quantitatively predicting language model scaling.",
+          "claimed_abstract": "Machine learning research depends on objectively interpretable, comparable, and reproducible algorithm benchmarks. We advocate the use of curated, comprehensive suites of machine learning tasks to standardize the setup, execution, and reporting of benchmarks. We enable this through software tools that help to create and leverage these benchmarking suites. These are seamlessly integrated into the OpenML platform, and accessible through interfaces in Python, Java, and R. OpenML benchmarking suites (a) are easy to use through standardized data formats, APIs, and client libraries; (b) come with extensive meta-information on the included datasets; and (c) allow benchmarks to be shared and reused in future studies. We then present a first, carefully curated and practical benchmarking suite for classification: the OpenML Curated Classification benchmarking suite 2018 (OpenML-CC18). Finally, we discuss use cases and applications which demonstrate the usefulness of OpenML benchmarking suites and the OpenML-CC18 in particular.",
           "claimed_authors": [
-            "Ari Brill"
+            "Bernd Bischl",
+            "Giuseppe Casalicchio",
+            "Matthias Feurer",
+            "Pieter Gijsbers",
+            "Frank Hutter",
+            "Michel Lang",
+            "Rafael G. Mantovani",
+            "Jan N. van Rijn",
+            "Joaquin Vanschoren"
           ],
-          "claimed_title": "Neural Scaling Laws Rooted in the Data Distribution",
+          "claimed_title": "OpenML Benchmarking Suites",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.03731"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='OpenML Benchmarking Suites')",
+        "failed_at": "2026-08-26T06:52:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A lively research field has recently emerged that uses experimental methods to probe the linguistic behavior of modern deep networks. While work in this tradition often reports intriguing results about the grammatical skills of deep nets, it is not clear what their implications for linguistic theorizing should be. As a consequence, linguistically-oriented deep net analysis has had very little impact on linguistics at large. In this chapter, I suggest that deep networks should be treated as theories making explicit predictions about the acceptability of linguistic utterances. I argue that, if we overcome some obstacles standing in the way of seriously pursuing this idea, we will gain a powerful new theoretical tool, complementary to mainstream algebraic approaches.",
+          "claimed_authors": [
+            "Marco Baroni"
+          ],
+          "claimed_title": "On the proper role of linguistically-oriented deep net analysis in linguistic theorizing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.08694"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='On the proper role of linguistically-oriented deep net analysis in linguistic theorizing')",
+        "failed_at": "2026-08-26T06:52:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present the LingOly benchmark, a novel benchmark for advanced reasoning abilities in large language models. Using challenging Linguistic Olympiad puzzles, we evaluate (i) capabilities for in-context identification and generalisation of linguistic patterns in very low-resource or extinct languages, and (ii) abilities to follow complex task instructions. The LingOly benchmark covers more than 90 mostly low-resource languages, minimising issues of data contamination, and contains 1,133 problems across 6 formats and 5 levels of human difficulty. We assess performance with both direct accuracy and comparison to a no-context baseline to penalise memorisation. Scores from 11 state-of-the-art LLMs demonstrate the benchmark to be challenging, and models perform poorly on the higher difficulty problems. On harder problems, even the top model only achieved 38.7% accuracy, a 24.7% improvement over the no-context baseline. Large closed models typically outperform open models, and in general, the higher resource the language, the better the scores. These results indicate, in absence of memorisation, true multi-step out-of-domain reasoning remains a challenge for current language models.",
+          "claimed_authors": [
+            "Andrew M. Bean",
+            "Simi Hellsten",
+            "Harry Mayne",
+            "Jabez Magomere",
+            "Ethan A. Chi",
+            "Ryan Chi",
+            "Scott A. Hale",
+            "Hannah Rose Kirk"
+          ],
+          "claimed_title": "LINGOLY: A Benchmark of Olympiad-Level Linguistic Reasoning Puzzles in Low-Resource and Extinct Languages",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2412.07942"
+          "primary_pointer": "2406.06196"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Neural Scaling Laws Rooted in the Data Distribution')",
-        "failed_at": "2026-07-24T22:01:50Z",
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='LINGOLY: A Benchmark of Olympiad-Level Linguistic Reasoning Puzzles in Low-Resource and Extinct Languages')",
+        "failed_at": "2026-08-26T06:52:54Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The workshop \"Mining Scientific Papers: Computational Linguistics and Bibliometrics\" (CLBib 2015), co-located with the 15th International Society of Scientometrics and Informetrics Conference (ISSI 2015), brought together researchers in Bibliometrics and Computational Linguistics in order to study the ways Bibliometrics can benefit from large-scale text analytics and sense mining of scientific papers, thus exploring the interdisciplinarity of Bibliometrics and Natural Language Processing (NLP). The goals of the workshop were to answer questions like: How can we enhance author network analysis and Bibliometrics using data obtained by text analytics? What insights can NLP provide on the structure of scientific writing, on citation networks, and on in-text citation analysis? This workshop is the first step to foster the reflection on the interdisciplinarity and the benefits that the two disciplines Bibliometrics and Natural Language Processing can drive from it.",
+          "claimed_abstract": "Emergent behavior arising in a joint human-robot system cannot be fully predicted based on an understanding of the individual agents. Typically, robot behavior is governed by algorithms that optimize a reward function that should quantitatively capture the joint system's goal. Although reward functions can be updated to better match human needs, this is no guarantee that no misalignment with the complex and variable human needs will occur. Algorithms may learn undesirable behavior when interacting with the human and the intrinsically unpredictable human-inhabited world, thereby producing further misalignment with human users or bystanders. As a result, humans might behave differently than anticipated, causing robots to learn differently and undesirable behavior to emerge. With this short paper, we state that to design for Human-Robot Interaction that mitigates such undesirable emergent behavior, we need to complement advancements in human-robot interaction algorithms with human factors knowledge and expertise. More specifically, we advocate a three-pronged approach that we illustrate using a particularly challenging example of safety-critical human-robot interaction: a driver interacting with a semi-automated vehicle. Undesirable emergent behavior should be mitigated by a combination of 1) including driver behavioral mechanisms in the vehicle's algorithms and reward functions, 2) model-based approaches that account for interaction-induced driver behavioral adaptations and 3) driver-centered interaction design that promotes driver engagement with the semi-automated vehicle, and the transparent communication of each agent's actions that allows mutual support and adaptation. We provide examples from recent empirical work in our group, in the hope this proves to be fruitful for discussing emergent human-robot interaction.",
           "claimed_authors": [
-            "Iana Atanassova",
-            "Marc Bertin",
-            "Philipp Mayr"
+            "Timo Melman",
+            "Niek Beckers",
+            "David Abbink"
           ],
-          "claimed_title": "Editorial for the First Workshop on Mining Scientific Papers: Computational Linguistics and Bibliometrics",
+          "claimed_title": "Mitigating undesirable emergent behavior arising between driver and semi-automated vehicle",
           "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1506.05402"
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16572"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Editorial for the First Workshop on Mining Scientific Papers: Computational Linguistics and Bibliometrics')",
-        "failed_at": "2026-07-24T22:01:50Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Mitigating undesirable emergent behavior arising between driver and semi-automated vehicle')",
+        "failed_at": "2026-08-26T06:52:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We explore how physical scale and population size shape the emergence of complex behaviors in open-ended ecological environments. In our setting, agents are unsupervised and have no explicit rewards or learning objectives but instead evolve over time according to reproduction, mutation, and selection. As they act, agents also shape their environment and the population around them in an ongoing dynamic ecology. Our goal is not to optimize a single high-performance policy, but instead to examine how behaviors emerge and evolve across large populations due to natural competition and environmental pressures. We use modern hardware along with a new multi-agent simulator to scale the environment and population to sizes much larger than previously attempted, reaching populations of over 60,000 agents, each with their own evolved neural network policy. We identify various emergent behaviors such as long-range resource extraction, vision-based foraging, and predation that arise under competitive and survival pressures. We examine how sensing modalities and environmental scale affect the emergence of these behaviors and find that some of them appear only in sufficiently large environments and populations, and that larger scales increase the stability and consistency of these emergent behaviors. While there is a rich history of research in evolutionary settings, our scaling results on modern hardware provide promising new directions to explore ecology as an instrument of machine learning in an era of increasingly abundant computational resources and efficient machine frameworks. Experimental code is available at https://github.com/jbejjani2022/ecological-emergent-behavior.",
+          "claimed_authors": [
+            "Joseph Bejjani",
+            "Chase Van Amburg",
+            "Chengrui Wang",
+            "Chloe Huangyuan Su",
+            "Sarah M. Pratt",
+            "Yasin Mazloumi",
+            "Naeem Khoshnevis",
+            "Sham M. Kakade",
+            "Kianté Brantley",
+            "Aaron Walsman"
+          ],
+          "claimed_title": "The Emergence of Complex Behavior in Large-Scale Ecological Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.18221"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='The Emergence of Complex Behavior in Large-Scale Ecological Environments')",
+        "failed_at": "2026-08-26T06:52:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-08-26T06:52:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, zero-shot learning (ZSL) emerged as an exciting topic and attracted a lot of attention. ZSL aims to classify unseen classes by transferring the knowledge from seen classes to unseen classes based on the class description. Despite showing promising performance, ZSL approaches assume that the training samples from all seen classes are available during the training, which is practically not feasible. To address this issue, we propose a more generalized and practical setup for ZSL, i.e., continual ZSL (CZSL), where classes arrive sequentially in the form of a task and it actively learns from the changing environment by leveraging the past experience. Further, to enhance the reliability, we develop CZSL for a single head continual learning setting where task identity is revealed during the training process but not during the testing. To avoid catastrophic forgetting and intransigence, we use knowledge distillation and storing and replay the few samples from previous tasks using a small episodic memory. We develop baselines and evaluate generalized CZSL on five ZSL benchmark datasets for two different settings of continual learning: with and without class incremental. Moreover, CZSL is developed for two types of variational autoencoders, which generates two types of features for classification: (i) generated features at output space and (ii) generated discriminative features at the latent space. The experimental results clearly indicate the single head CZSL is more generalizable and suitable for practical applications.",
+          "claimed_authors": [
+            "Chandan Gautam",
+            "Sethupathy Parameswaran",
+            "Ashish Mishra",
+            "Suresh Sundaram"
+          ],
+          "claimed_title": "Generalized Continual Zero-Shot Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.08508"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Generalized Continual Zero-Shot Learning')",
+        "failed_at": "2026-08-26T06:52:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the most impressive results of recent NLP history is the ability of pre-trained language models to solve new tasks in a zero-shot setting. To achieve this, NLP tasks are framed as natural language prompts, generating a response indicating the predicted output. Nonetheless, the performance in such settings often lags far behind its supervised counterpart, suggesting a large space for potential improvement. In this paper, we explore methods to utilize unlabeled data to improve zero-shot performance. Specifically, we take advantage of the fact that multiple prompts can be used to specify a single task, and propose to regularize prompt consistency, encouraging consistent predictions over this diverse set of prompts. Our method makes it possible to fine-tune the model either with extra unlabeled training data, or directly on test input at inference time in an unsupervised manner. In experiments, our approach outperforms the state-of-the-art zero-shot learner, T0 (Sanh et al., 2022), on 9 out of 11 datasets across 4 NLP tasks by up to 10.6 absolute points in terms of accuracy. The gains are often attained with a small number of unlabeled examples.",
+          "claimed_authors": [
+            "Chunting Zhou",
+            "Junxian He",
+            "Xuezhe Ma",
+            "Taylor Berg-Kirkpatrick",
+            "Graham Neubig"
+          ],
+          "claimed_title": "Prompt Consistency for Zero-Shot Task Generalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00049"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Prompt Consistency for Zero-Shot Task Generalization')",
+        "failed_at": "2026-08-26T06:52:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-08-26T06:52:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An analog communication channel typically achieves its full capacity when the distribution of inputs is discrete, composed of just K symbols, such as voltage levels or wavelengths. As the effective noise level goes to zero, for example by sending the same message multiple times, it is known that optimal codes become continuous. Here we derive a scaling law for the optimal number of symbols in this limit, finding a novel rational scaling exponent. The number of symbols in the optimal code grows as $\\log K \\sim I^{4/3}$, where the channel capacity I increases with decreasing noise. The same scaling applies to other problems equivalent to maximizing channel capacity over a continuous distribution.",
+          "claimed_authors": [
+            "Michael C. Abbott",
+            "Benjamin B. Machta"
+          ],
+          "claimed_title": "A scaling law from discrete to continuous solutions of channel capacity problems in the low-noise limit",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.09351"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='A scaling law from discrete to continuous solutions of channel capacity problems in the low-noise limit')",
+        "failed_at": "2026-08-26T06:52:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present CausalVLR (Causal Visual-Linguistic Reasoning), an open-source toolbox containing a rich set of state-of-the-art causal relation discovery and causal inference methods for various visual-linguistic reasoning tasks, such as VQA, image/video captioning, medical report generation, model generalization and robustness, etc. These methods have been included in the toolbox with PyTorch implementations under NVIDIA computing system. It not only includes training and inference codes, but also provides model weights. We believe this toolbox is by far the most complete visual-linguitic causal reasoning toolbox. We wish that the toolbox and benchmark could serve the growing research community by providing a flexible toolkit to re-implement existing methods and develop their own new causal reasoning methods. Code and models are available at https://github.com/HCPLab-SYSU/CausalVLR. The project is under active development by HCP-Lab's contributors and we will keep this document updated.",
+          "claimed_authors": [
+            "Yang Liu",
+            "Weixing Chen",
+            "Guanbin Li",
+            "Liang Lin"
+          ],
+          "claimed_title": "CausalVLR: A Toolbox and Benchmark for Visual-Linguistic Causal Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.17462"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scaling the Horizon, Not the Parameters: Reaching ', candidate_title='CausalVLR: A Toolbox and Benchmark for Visual-Linguistic Causal Reasoning')",
+        "failed_at": "2026-08-26T06:52:54Z",
         "reason": "query_irrelevant"
       }
     ],
     "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Seng Pei Liew",
+            "Takuya Kato",
+            "Sho Takase"
+          ],
+          "title": "Scaling Laws for Upcycling Mixture-of-Experts Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.03009",
+        "summary": "Pretraining large language models (LLMs) is resource-intensive, often requiring months of training time even with high-end GPU clusters. There are two approaches of mitigating such computational demands: reusing smaller models to train larger ones (upcycling), and training computationally efficient models like mixture-of-experts (MoE). In this paper, we study the upcycling of LLMs to MoE models, of which the scaling behavior remains underexplored. Through extensive experiments, we identify empirical scaling laws that describe how performance depends on dataset size and model configuration. Particularly, we show that, while scaling these factors improves performance, there is a novel interaction term between the dense and upcycled training dataset that limits the efficiency of upcycling at large computational budgets. Based on these findings, we provide guidance to scale upcycling, and establish conditions under which upcycling outperforms from-scratch trainings within budget constraints.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.03009",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T06:53:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Berivan Isik",
+            "Natalia Ponomareva",
+            "Hussein Hazimeh",
+            "Dimitris Paparas",
+            "Sergei Vassilvitskii",
+            "Sanmi Koyejo"
+          ],
+          "title": "Scaling Laws for Downstream Task Performance of Large Language Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.04177",
+        "summary": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.04177",
+          "http_status": 200,
+          "pdf_sample_score": 0.341,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T06:53:01Z"
+        }
+      },
       {
         "bibliographic_info": {
           "authors": [
@@ -499,59 +559,26 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-24T22:01:56Z"
+          "verified_at": "2026-08-26T06:53:01Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Nicolas Zucchet",
-            "Jörg Bornschein",
-            "Stephanie Chan",
-            "Andrew Lampinen",
-            "Razvan Pascanu",
-            "Soham De"
+            "Howe Tissue",
+            "Venus Wang",
+            "Lu Wang"
           ],
-          "title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "title": "Scaling Law with Learning Rate Annealing",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2024
         },
-        "primary_pointer": "2503.21676",
-        "summary": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+        "primary_pointer": "2408.11029",
+        "summary": "We find that the cross-entropy loss curves of neural language models empirically adhere to a scaling law with learning rate (LR) annealing over training steps: $$L(s) = L_0 + A\\cdot S_1^{-α} - C\\cdot S_2,$$ where $L(s)$ is the validation loss at step $s$, $S_1$ is the area under the LR curve, $S_2$ is the LR annealing area, and $L_0$, $A$, $C$, $α$ are constant parameters. This formulation takes into account two factors: (1) power-law scaling over data size, and (2) the additional loss reduction during LR annealing. Therefore, this formulation can describe the full loss curve at each step, rather than the single loss point at the end of training. Applying the scaling law with LR annealing and fitting only one or two training curves, we can accurately predict the loss at any given step across any learning rate scheduler (LRS). This approach significantly reduces computational cost in formulating scaling laws while providing more accuracy and expressiveness for training dynamics. Extensive experiments demonstrate that our findings hold across a range of hyper-parameters and model architectures, and our equation can extend to scaling effect of model sizes. Moreover, our formulation provides accurate theoretical verification and explanation for empirical results observed in numerous previous studies, particularly those focusing on LR schedule and annealing. We believe that this work is promising to enhance the understanding of LLM training dynamics while greatly democratizing scaling laws, and it can guide researchers in refining training strategies (e.g. critical LRS) for further LLMs.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2503.21676",
-          "http_status": 200,
-          "pdf_sample_score": 0.1978,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-24T22:02:00Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "David R. So",
-            "Wojciech Mańke",
-            "Hanxiao Liu",
-            "Zihang Dai",
-            "Noam Shazeer",
-            "Quoc V. Le"
-          ],
-          "title": "Primer: Searching for Efficient Transformers for Language Modeling",
-          "venue": "arXiv",
-          "year": 2021
-        },
-        "primary_pointer": "2109.08668",
-        "summary": "Large Transformer models have been central to recent advances in natural language processing. The training and inference costs of these models, however, have grown rapidly and become prohibitively expensive. Here we aim to reduce the costs of Transformers by searching for a more efficient variant. Compared to previous approaches, our search is performed at a lower level, over the primitives that define a Transformer TensorFlow program. We identify an architecture, named Primer, that has a smaller training cost than the original Transformer and other variants for auto-regressive language modeling. Primer's improvements can be mostly attributed to two simple modifications: squaring ReLU activations and adding a depthwise convolution layer after each Q, K, and V projection in self-attention.\n  Experiments show Primer's gains over Transformer increase as compute scale grows and follow a power law with respect to quality at optimal model sizes. We also verify empirically that Primer can be dropped into different codebases to significantly speed up training without additional tuning. For example, at a 500M parameter size, Primer improves the original T5 architecture on C4 auto-regressive language modeling, reducing the training cost by 4X. Furthermore, the reduced training cost means Primer needs much less compute to reach a target one-shot performance. For instance, in a 1.9B parameter configuration similar to GPT-3 XL, Primer uses 1/3 of the training compute to achieve the same one-shot performance as Transformer. We open source our models and several comparisons in T5 to help with reproducibility.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2109.08668",
+          "final_url": "https://arxiv.org/abs/2408.11029",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.6667,
@@ -559,7 +586,32 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-24T22:02:03Z"
+          "verified_at": "2026-08-26T06:53:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ari Brill"
+          ],
+          "title": "Neural Scaling Laws Rooted in the Data Distribution",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.07942",
+        "summary": "Deep neural networks exhibit empirical neural scaling laws, with error decreasing as a power law with increasing model or data size, across a wide variety of architectures, tasks, and datasets. This universality suggests that scaling laws may result from general properties of natural learning tasks. We develop a mathematical model intended to describe natural datasets using percolation theory. Two distinct criticality regimes emerge, each yielding optimal power-law neural scaling laws. These regimes, corresponding to power-law-distributed discrete subtasks and a dominant data manifold, can be associated with previously proposed theories of neural scaling, thereby grounding and unifying prior works. We test the theory by training regression models on toy datasets derived from percolation theory simulations. We suggest directions for quantitatively predicting language model scaling.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.07942",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T06:53:02Z"
         }
       }
     ]

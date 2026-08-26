@@ -1,10 +1,10 @@
 """
-Logger utility module for the llmXive science pipeline.
+Logger utility module for the llmXive research pipeline.
 
-Provides a centralized logging configuration loader and a
-factory function to retrieve configured logger instances.
+Provides a centralized `get_logger()` function that loads the logging
+configuration from `logging.conf` (located in the project root or code root)
+and returns a configured logger instance.
 """
-
 import logging
 import logging.config
 import os
@@ -18,30 +18,35 @@ def _get_config_path() -> Path:
     """
     Locate the logging.conf file.
 
-    Looks in the project root relative to the code directory,
-    or falls back to the current working directory.
+    Searches in the following order:
+    1. Relative to the current working directory (project root)
+    2. Relative to the code root (code/)
+    3. Relative to this module's directory (code/src/utils/)
+
+    Raises:
+        FileNotFoundError: If logging.conf is not found in any expected location.
     """
-    # Try relative to this file's location (code/src/utils/)
-    project_root = Path(__file__).resolve().parent.parent.parent
-    config_path = project_root / "logs" / "logging.conf"
+    possible_paths = [
+        Path.cwd() / "logging.conf",
+        Path.cwd() / "code" / "logging.conf",
+        Path(__file__).parent.parent / "logging.conf",
+    ]
 
-    if not config_path.exists():
-        # Fallback to common locations
-        fallback_paths = [
-            Path.cwd() / "logs" / "logging.conf",
-            Path.cwd() / "logging.conf",
-            project_root / "logging.conf",
-        ]
-        for fallback in fallback_paths:
-            if fallback.exists():
-                return fallback
+    for path in possible_paths:
+        if path.exists():
+            return path
 
-    return config_path
+    raise FileNotFoundError(
+        f"logging.conf not found. Expected locations: {possible_paths}"
+    )
 
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Retrieve a logger instance configured by logging.conf.
+    Get a logger instance configured via logging.conf.
+
+    This function ensures the logging configuration is loaded exactly once
+    and returns a logger with the specified name (or the root logger if None).
 
     Args:
         name: Optional name for the logger. If None, returns the root logger.
@@ -50,21 +55,17 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
         A configured logging.Logger instance.
 
     Raises:
-        FileNotFoundError: If logging.conf cannot be found.
-        ValueError: If the configuration file is invalid.
+        FileNotFoundError: If logging.conf is missing.
+        ValueError: If the logging configuration is invalid.
     """
     config_path = _get_config_path()
 
-    if not config_path.exists():
-        raise FileNotFoundError(
-            f"Logging configuration file not found at {config_path}. "
-            "Please ensure logs/logging.conf exists (Task T006a)."
-        )
-
     # Load configuration from file
     logging.config.fileConfig(
-        fname=str(config_path),
+        config_path,
         disable_existing_loggers=False,
     )
 
-    return logging.getLogger(name)
+    # Get and return the requested logger
+    logger = logging.getLogger(name)
+    return logger

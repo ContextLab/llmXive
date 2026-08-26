@@ -739,25 +739,6 @@
   updated_at: '2026-07-10T16:04:56Z'
 - artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
   attempts: 1
-  canonical: Validation requires 5-fold stratified CV repeated 3 times on N > 1000
-    compounds
-  claim_id: c_ee448bec
-  context: 'Update research.md to explicitly state the reproducibility standard: ''Validation
-    requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific
-    Assay] '' (Addressing Reviewer Concern: ''reproducibility standard'')'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Validation requires 5-fold stratified CV repeated 3 times on N > 1000
-    compounds from [Specific Assay]
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-10T16:06:39Z'
-- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
-  attempts: 1
   canonical: Peak RSS < 7 GB during full pipeline execution
   claim_id: c_39de8e54
   context: Implement tests/integration/test_memory.py with a specific test command
@@ -1548,3 +1529,244 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T18:40:11Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 2
+  canonical: Validation requires 5-fold stratified CV repeated 3 times on N > 1000
+    compounds
+  claim_id: c_ee448bec
+  context: 'Update research.md to explicitly state the reproducibility standard: ''Validation
+    requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific
+    Assay] '' (Addressing Reviewer Concern: ''reproducibility standard'')'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validation requires 5-fold stratified CV repeated 3 times on N > 1000
+    compounds from [Specific Assay]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:32:47Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Peak RSS less than 7 GB during full pipeline execution
+  claim_id: c_68468317
+  context: Implement tests/integration/test_memory.py with a specific test command
+    to verify peak RSS < 7 GB during full pipeline execution.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_less_than_7_GB_during_full_pipeline_execution
+  kind: magnitude
+  raw_text: Peak RSS < 7 GB during full pipeline execution
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:33:39Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Full pipeline less than 4 hours on CPU-only runner
+  claim_id: c_3fac71e6
+  context: Performance optimization to ensure full pipeline < 4 hours on CPU-only
+    runner (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_less_than_4_hours_on_CPU-only_runner
+  kind: magnitude
+  raw_text: Full pipeline < 4 hours on CPU-only runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:34:22Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation repeated 3 times
+  claim_id: c_cf9242fc
+  context: Verify that the results/metrics_baseline.json and research.md explicitly
+    state the compound count (N > 1000), the specific assay source (e.g. PubChem AID
+    1851), and the reproducibility standard (5-fold CV x 3 repeats).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-fold CV x 3 repeats
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:35:14Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Validation requires 5-fold stratified cross-validation repeated 3 times
+    on more than 1000 compounds
+  claim_id: c_3ff0c85d
+  context: 'Update research.md to explicitly state the reproducibility standard: Validation
+    requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific
+    Assay] (Addressing Reviewer Concern: reproducibility standard)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_requires_5-fold_stratified_cross-validation_repea
+  kind: magnitude
+  raw_text: Validation requires 5-fold stratified CV repeated 3 times on N > 1000
+    compounds from [Specific Assay]
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:37:29Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Peak resident set size less than 7 GB during full pipeline execution
+  claim_id: c_52e2848d
+  context: Implement tests/integration/test_memory.py with a specific test command
+    to verify peak RSS < 7 GB during full pipeline execution.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_resident_set_size_less_than_7_GB_during_full_pipeline_e
+  kind: magnitude
+  raw_text: Peak RSS < 7 GB during full pipeline execution
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:37:36Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time less than 4 hours on CPU-only runner
+  claim_id: c_6c25fe03
+  context: Performance optimization to ensure full pipeline < 4 hours on CPU-only
+    runner (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_less_than_4_hours_on_CPU-only_r
+  kind: magnitude
+  raw_text: Full pipeline < 4 hours on CPU-only runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:37:43Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Implementation of 20 specific RDKit global descriptors including MolWt,
+    MolLogP, TPSA, and Kappa indices
+  claim_id: c_7f80b3c1
+  context: 'Implement src/features/descriptors.py to compute a comprehensive set of
+    RDKit global descriptors (non-correlated): MolWt, MolLogP, TPSA, NumHDonors, NumHAcceptors,
+    NumRotatableBonds, NumAromaticRings, NumAliphaticRings, NumSaturatedRings, NumHeteroatoms,
+    HeavyAtomCount, FractionCSP3, NumBridgeheadAtoms, NumSpiroAtoms, RingCount, MaxDendriticBranching,
+    Kappa1, Kappa2, Kappa3, Chi0 (FR-004)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'List of 20 specific RDKit descriptors: MolWt, MolLogP, TPSA, NumHDonors,
+    NumHAcceptors, NumRotatableBonds, NumAromaticRings, NumAliphaticRings, NumSaturatedRings,
+    NumHeteroatoms, HeavyAtomCount, FractionCSP3, NumBridgeheadAtoms, NumSpiroAtoms,
+    RingCount, MaxDendriticBranching, Kappa1, Kappa2, Kappa3, Chi0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:38:24Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Curated set of 10 structural alerts with specific SMARTS patterns and
+    weights
+  claim_id: c_cc0d663c
+  context: 'Implement config/structural_alerts.json with a curated set of SMARTS patterns
+    and weights: 1. NitroAromatic... 10. Hydrazine... (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Curated set of 10 structural alerts with specific SMARTS patterns and
+    weights including NitroAromatic (1.5), Epoxide (2.0), PrimaryAromaticAmine (1.2),
+    SecondaryAromaticAmine (1.0), Azide (2.5), Isocyanate (2.0), Aldehyde (0.8), HalogenatedAliphatic
+    (0.5), Azo (1.8), Hydrazine (1.5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:39:06Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Molecular weight filtering threshold of less than 1000 Daltons
+  claim_id: c_15316c2b
+  context: Implement src/data/preprocess.py for SMILES canonicalization, MW < 1000
+    Da filtering, and duplicate handling (FR-002, Edge Cases)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Molecular_weight_filtering_threshold_of_less_than_1000_Dalto
+  kind: magnitude
+  raw_text: Molecular weight filtering threshold of < 1000 Da
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:40:03Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Frequency ranking of top 10 unique Murcko scaffolds
+  claim_id: c_f0f56d61
+  context: Implement frequency ranking of top 10 unique Murcko scaffolds in false
+    negatives (US-3, SC-003)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Top 10 unique Murcko scaffolds frequency ranking
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:40:25Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Out-of-Fold predictions collected across 15 folds consisting of 5-fold
+    cross-validation repeated 3 times
+  claim_id: c_6ab6c333
+  context: Implement logic in src/pipeline/run.py to COLLECT Out-of-Fold (OOF) predicted
+    probabilities for every instance (one prediction per instance from the fold where
+    it was held out) across all 15 folds (5-fold x 3 repeats) for both models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Out-of-Fold predictions collected across 15 folds (5-fold x 3 repeats)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:41:18Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: DeLong's test outputs a 95 percent confidence interval
+  claim_id: c_d2ef9b16
+  context: 'Implement src/evaluation/statistical.py with a custom, reproducible implementation
+    of DeLong''s test. Input: The OOF probability vectors from T030. Output: P-value
+    and 95% CI. (FR-007)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% confidence interval output for DeLong's test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:41:18Z'

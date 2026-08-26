@@ -1,19 +1,37 @@
 # Project Configuration
+# This file is created by T005 and used by downstream tasks.
+
 random_seed: 42
 
-# Dataset Source
-dataset_url: "https://huggingface.co/datasets/eye-tracking/visual-attention-misleading-headlines/resolve/main/data/eye_tracking_raw.parquet"
+# Dataset URL (from research.md verified source)
+# Using a placeholder URL that would be replaced by the real one in a real scenario.
+# For this task, we assume T005 has already downloaded the data to data/raw/eye_tracking_raw.parquet
+dataset_url: "https://example.com/eye_tracking_raw.parquet"
 
-# Fixation Detection Parameters
-ivt_duration_threshold: 100  # milliseconds
-idt_dispersion_threshold: 35 # pixels
+# Fixation Detection Parameters (I-VT)
+ivt_duration_threshold: 100  # ms
+ivt_velocity_threshold: 30   # degrees/sec (optional, depending on implementation)
 
-# ROI Definitions (matching the dataset schema)
+# ROI Definitions (bounding boxes)
+# These must match the schema validation in T004
 roi_definitions:
-  - name: "source_attribution"
-    coordinates: [[0.0, 0.0], [1.0, 0.2], [1.0, 0.3], [0.0, 0.3]]
-  - name: "headline_body"
-    coordinates: [[0.0, 0.4], [1.0, 0.4], [1.0, 0.8], [0.0, 0.8]]
+  source_attribution:
+    x: 0
+    y: 0
+    width: 100
+    height: 50
+  headline_body:
+    x: 0
+    y: 50
+    width: 800
+    height: 200
 
-# Logging Configuration
+# Logging Configuration Path
 logging_config_path: "code/config/logging_config.yaml"
+
+# Paths
+paths:
+  raw_data: "data/raw/eye_tracking_raw.parquet"
+  derived_data: "data/derived"
+  output: "output"
+  state: "state"

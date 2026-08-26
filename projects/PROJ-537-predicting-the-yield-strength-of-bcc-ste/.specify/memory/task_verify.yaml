@@ -1,6 +1,9 @@
-? 'T001 Create project directories: `code/`, `data/`, `data/raw/`, `data/intermediate/`,
-  `data/processed/`, `data/provenance/`, `data/results/`, `tests/`, `tests/unit/`,
-  `tests/integration/`, `tests/contract/`'
-: 2
-T003 [P] Configure linting (flake8/black) and formatting tools in `code/`: 2
-T004 [P] Setup Git hooks for pre-commit checks (seeds, imports): 2
+T001: 1
+T003: 1
+T004: 1
+T008: 1
+T017: 1
+T019: 1
+T020: 1
+T031: 1
+T032: 1

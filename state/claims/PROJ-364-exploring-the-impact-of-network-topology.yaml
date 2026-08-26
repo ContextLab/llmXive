@@ -1,21 +1,5 @@
 - artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
   attempts: 1
-  canonical: Streaming ingestion RAM usage under 7GB for 50 samples
-  claim_id: c_d97ab48f
-  context: 'Performance optimization: verify streaming ingestion keeps RAM < 7GB for
-    50 samples'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Verify streaming ingestion keeps RAM < 7GB for 50 samples
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-20T17:22:41Z'
-- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
-  attempts: 1
   canonical: PCA retains components explaining 95% variance
   claim_id: c_d17b44e3
   context: "Implement src/analysis/dimensionality.py to perform PCA on metrics, retaining\
@@ -626,27 +610,6 @@
   updated_at: '2026-07-20T17:28:45Z'
 - artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
   attempts: 1
-  canonical: R_lattice value sourced from DOI 10.1103/PhysRevB.93.045417
-  claim_id: c_d1a29223
-  context: 'Configure config.yaml with defaults: threshold:, seed: 42, statistical_override:
-    false. CRITICAL SUB-TASK: Fetch the R_lattice value from the literature source
-    cited in Plan Section 3 (DOI: 10.1103/PhysRevB.93.045417) and write the verified
-    numeric value to config.yaml under key R_lattice.'
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-    status: not_found
-  kind: citation
-  raw_text: 'Fetch the R_lattice value from the literature source cited in Plan Section
-    3 (DOI: 10.1103/PhysRevB.93.045417)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-20T17:30:04Z'
-- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
-  attempts: 1
   canonical: Erdos-Renyi graph metrics match theoretical expectations
   claim_id: c_562bf87c
   context: 'Independent Test: Run metric calculator on a synthetic Erdos-Renyi graph
@@ -974,21 +937,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T17:35:41Z'
-- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
-  attempts: 1
-  canonical: lattice_variance_threshold set to 0.05
-  claim_id: c_c81ec303
-  context: Also set lattice_variance_threshold to 0.05 in config.yaml for T025b.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Set lattice_variance_threshold to 0.05 in config.yaml for T025b.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-20T17:35:42Z'
 - artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
   attempts: 1
   canonical: Series-parallel resistance formula 1/R_total = 1/R_defect + 1/R_lattice
@@ -1466,3 +1414,398 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T17:43:01Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: R_lattice value sourced from DOI 10.1103/PhysRevB.93.045417
+  claim_id: c_bc6f0bce
+  context: 'CRITICAL SUB-TASK: Fetch the R_lattice value from the literature source
+    cited in Plan Section 3 (DOI: 10.1103/PhysRevB.93.045417) and write the verified
+    numeric value to config.yaml under key R_lattice.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Fetch the R_lattice value from the literature source cited in Plan Section
+    3 (DOI: 10.1103/PhysRevB.93.045417)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:54:30Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: 'Independent test result: graph has exactly 100 nodes'
+  claim_id: c_3642316c
+  context: 'Independent Test: Load a known sample dataset (500x500 pixel graphene
+    simulation with 100 known defects) and verify the resulting graph has exactly
+    100 nodes and edge density matches the threshold logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test verifies the resulting graph has exactly 100 nodes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:55:20Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis thresholds: baseline, 2.0x, and 2.5x'
+  claim_id: c_1a372db1
+  context: Implement src/analysis/sensitivity.py to repeat the full pipeline (T029-T033)
+    for thresholds x (baseline), 2.0x, and 2.5x the baseline (per FR-010/SC-005).
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The sensitivity analysis repeats the full pipeline for thresholds x, 2.0x,
+    and 2.5x the baseline
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T06:55:21Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Build fails if std_dev of correlation coefficient > 0.05
+  claim_id: c_04567c10
+  context: 'FAIL CONDITION: If std_dev > 0.05, the task MUST fail the build (exit
+    code 1) and log an error. This is a mandatory success criterion (SC-005).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Build_fails_if_std_dev_of_correlation_coefficient_%3E_0.05
+  kind: magnitude
+  raw_text: The build fails if the standard deviation of the correlation coefficient
+    across thresholds is greater than 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:56:40Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: 'Streaming ingestion RAM limit: 7GB for 50 samples'
+  claim_id: c_5add7b21
+  context: 'T039 Performance optimization: verify streaming ingestion keeps RAM <
+    7GB for 50 samples'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Streaming ingestion must keep RAM usage under 7GB for 50 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:57:23Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: 'Default threshold: 2.0nm (phonon MFP)'
+  claim_id: c_e2cd888f
+  context: 'Threshold: Default to 2.0nm (phonon MFP based) unless statistical override
+    is active.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default threshold is 2.0nm based on phonon mean free path
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:57:54Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: R_lattice value fetched from DOI 10.1103/PhysRevB.93.045417
+  claim_id: c_1697f560
+  context: 'T005 Configure config.yaml with defaults: threshold:, seed: 42, statistical_override:
+    false. CRITICAL SUB-TASK: Fetch the R_lattice value from the literature source
+    cited in Plan Section 3 (DOI: 10.1103/PhysRevB.93.045417)...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Fetch the R_lattice value from the literature source cited in Plan Section
+    3 (DOI: 10.1103/PhysRevB.93.045417) and write the verified numeric value to config.yaml
+    under key R_lattice.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:58:13Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 2
+  canonical: R_lattice value sourced from DOI 10.1103/PhysRevB.93.045417
+  claim_id: c_d1a29223
+  context: 'Configure config.yaml with defaults: threshold:, seed: 42, statistical_override:
+    false. CRITICAL SUB-TASK: Fetch the R_lattice value from the literature source
+    cited in Plan Section 3 (DOI: 10.1103/PhysRevB.93.045417) and write the verified
+    numeric value to config.yaml under key R_lattice.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 'Fetch the R_lattice value from the literature source cited in Plan Section
+    3 (DOI: 10.1103/PhysRevB.93.045417)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:59:30Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 2
+  canonical: lattice_variance_threshold set to 0.05
+  claim_id: c_c81ec303
+  context: Also set lattice_variance_threshold to 0.05 in config.yaml for T025b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set lattice_variance_threshold to 0.05 in config.yaml for T025b.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:59:36Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Graphene lattice constant set to 0.246
+  claim_id: c_db07e185
+  context: 'Implement src/data/materials.py with dictionary MATERIAL_CONSTANTS = {''graphene'':
+    {''lattice'': 0.246}, ''MoS2'': {''lattice'': ''representative lattice constant''}}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement src/data/materials.py with dictionary MATERIAL_CONSTANTS =
+    {''graphene'': {''lattice'': 0.246}}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:00:04Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: PCA components retaining 95% variance
+  claim_id: c_f014abc0
+  context: "Implement src/analysis/dimensionality.py to perform PCA on metrics, retaining\
+    \ components explaining \u226595% variance (Plan Section 4)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Retain components explaining \u226595% variance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:00:04Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 2
+  canonical: Streaming ingestion RAM usage under 7GB for 50 samples
+  claim_id: c_d97ab48f
+  context: 'Performance optimization: verify streaming ingestion keeps RAM < 7GB for
+    50 samples'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify streaming ingestion keeps RAM < 7GB for 50 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:00:04Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Sensitivity thresholds tested at 2.0x and 2.5x baseline
+  claim_id: c_7f9cf5c8
+  context: Implement src/analysis/sensitivity.py to repeat the full pipeline (T029-T033)
+    for thresholds x (baseline), 2.0x, and 2.5x the baseline (per FR-010/SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity tests use thresholds x (baseline), 2.0x, and 2.5x the baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:00:58Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Build failure if correlation std_dev exceeds 0.05
+  claim_id: c_bb0adda6
+  context: 'FAIL CONDITION: If std_dev > 0.05, the task MUST fail the build (exit
+    code 1) and log an error. This is a mandatory success criterion (SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Task MUST fail the build if std_dev > 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:00:59Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 0
+  canonical: Sensitivity analysis thresholds x, 2.0x, 2.5x
+  claim_id: c_a1abe21a
+  context: 'Task T034: Implement src/analysis/sensitivity.py to repeat the full pipeline
+    for thresholds x (baseline), 2.0x, and 2.5x the baseline.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The sensitivity analysis repeats the full pipeline for thresholds x, 2.0x,
+    and 2.5x the baseline.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T07:01:36Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: R_lattice value fetched from DOI 10.1103/PhysRevB.93.045417
+  claim_id: c_d101dad2
+  context: Task T005 requires fetching the R_lattice value from the literature source
+    cited in Plan Section 3 and writing the verified numeric value to config.yaml.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 'Fetch the R_lattice value from the literature source cited in Plan Section
+    3 (DOI: 10.1103/PhysRevB.93.045417) and write the verified numeric value to config.yaml
+    under key R_lattice.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:01:37Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: scipy.spatial.cKDTree used for O(N log N) edge creation
+  claim_id: c_ecedb15b
+  context: 'Task T015: Implement src/graphs/constructor.py using scipy.spatial.cKDTree
+    for O(N log N) edge creation within threshold.'
+  evidence:
+    entailment_evidence: cKDTree used for O(N log N) edge creation
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Scipy.spatial.cKDTree_used_for_O(N_log_N)_edge_creation
+  kind: entity_fact
+  raw_text: The implementation uses scipy.spatial.cKDTree for O(N log N) edge creation.
+  resolved_value: scipy.spatial.cKDTree used for O(N log N) edge creation
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T07:01:40Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Graphene lattice constant is 0.246
+  claim_id: c_cb9cb732
+  context: 'Task T009a: Implement src/data/materials.py with dictionary MATERIAL_CONSTANTS
+    = {''graphene'': {''lattice'': 0.246}...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MATERIAL_CONSTANTS dictionary includes a lattice constant of 0.246 for
+    graphene.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:05:57Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Streaming ingestion RAM limit 7GB for 50 samples
+  claim_id: c_27f2cc9e
+  context: 'Task T039: Performance optimization: verify streaming ingestion keeps
+    RAM < 7GB for 50 samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must verify streaming ingestion keeps RAM usage under 7GB
+    for 50 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:07:09Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis fails if std_dev > 0.05
+  claim_id: c_15ed3798
+  context: 'Task T034: FAIL CONDITION: If std_dev > 0.05, the task MUST fail the build
+    (exit code 1) and log an error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The build must fail if the standard deviation of the correlation coefficient
+    across thresholds exceeds 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:13:03Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: PCA retains components explaining 95% variance
+  claim_id: c_de04d180
+  context: "Task T030: Implement src/analysis/dimensionality.py to perform PCA on\
+    \ metrics, retaining components explaining \u226595% variance."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PCA_retains_components_explaining_95%25_variance
+  kind: magnitude
+  raw_text: PCA dimensionality reduction retains components explaining at least 95%
+    variance.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:13:49Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Default threshold 2.0nm based on phonon MFP
+  claim_id: c_e295a5f6
+  context: 'Notes: Default to 2.0nm (phonon MFP based) unless statistical override
+    is active.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default threshold is 2.0nm based on phonon MFP unless statistical
+    override is active.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T07:14:16Z'

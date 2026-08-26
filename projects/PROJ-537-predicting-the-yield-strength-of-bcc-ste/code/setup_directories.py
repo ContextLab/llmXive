@@ -1,39 +1,70 @@
+"""
+Setup script to create the required project directory structure.
+This script ensures all necessary directories for data, code, tests, and provenance exist.
+"""
 import os
 import sys
 from pathlib import Path
 
-def main():
-    """Create the standard project directory structure."""
-    base_dir = Path(__file__).resolve().parent.parent
-    
-    # Define the required directories relative to the project root
-    directories = [
-        "code",
-        "data",
-        "data/raw",
-        "data/intermediate",
-        "data/processed",
-        "data/provenance",
-        "data/results",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-    ]
-    
-    created_count = 0
-    for dir_name in directories:
-        target_path = base_dir / dir_name
-        if not target_path.exists():
-            target_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {target_path}")
-            created_count += 1
+# Define the required directory structure relative to the project root
+REQUIRED_DIRS = [
+    "code",
+    "data",
+    "data/raw",
+    "data/intermediate",
+    "data/processed",
+    "data/provenance",
+    "data/results",
+    "tests",
+    "tests/unit",
+    "tests/integration",
+    "tests/contract",
+]
+
+def create_directories(base_path: Path) -> None:
+    """
+    Create all required directories if they do not exist.
+
+    Args:
+        base_path: The root directory from which paths are resolved.
+    """
+    for dir_path in REQUIRED_DIRS:
+        full_path = base_path / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
         else:
-            # Ensure it is actually a directory, not a file
-            if not target_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {target_path}")
+            print(f"Directory already exists: {full_path}")
+
+def main() -> int:
+    """
+    Main entry point for the directory setup script.
+    """
+    # Determine the project root (assuming this script is in code/ or root)
+    # We look for the 'data' or 'tests' directory to find the root, or assume cwd is root.
+    # Based on the task, we assume the script is run from the project root or code/
+    current_file = Path(__file__).resolve()
     
-    print(f"Directory setup complete. Created {created_count} new directories.")
+    # If running from code/, go up one level to project root
+    if current_file.parent.name == "code":
+        project_root = current_file.parent.parent
+    else:
+        project_root = current_file.parent
+
+    print(f"Project root detected at: {project_root}")
+    create_directories(project_root)
+    
+    # Verify creation
+    missing = []
+    for dir_path in REQUIRED_DIRS:
+        if not (project_root / dir_path).exists():
+            missing.append(dir_path)
+    
+    if missing:
+        print(f"Error: Failed to create the following directories: {missing}", file=sys.stderr)
+        return 1
+    
+    print("All required directories created successfully.")
     return 0
 
 if __name__ == "__main__":

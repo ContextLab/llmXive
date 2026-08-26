@@ -1,62 +1,104 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Merged BCC Steel Dataset
-description: Schema for the merged experimental and DFT dataset used in yield strength prediction.
+title: Merged Dataset Schema
+description: |
+  Schema for the merged experimental and DFT dataset used in yield strength prediction.
+  This schema validates data produced by code/ingestion/merge_and_filter.py.
 type: object
 required:
-  - columns
+  - metadata
   - data
 properties:
-  columns:
-    type: array
-    description: List of column names in the dataset.
-    items:
-      type: string
-    minItems: 8
-    contains:
-      const: "yield_strength_MPa"
+  metadata:
+    type: object
+    required:
+      - version
+      - generated_at
+      - row_count
+      - source_experimental
+      - source_dft
+    properties:
+      version:
+        type: string
+        description: Schema version identifier
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      row_count:
+        type: integer
+        minimum: 20
+        description: Number of valid rows in the dataset (must be >= 20)
+      source_experimental:
+        type: string
+        description: URL or identifier of the experimental data source
+      source_dft:
+        type: string
+        description: Identifier of the DFT data source (e.g., Materials Project)
+      filtering_criteria:
+        type: object
+        properties:
+          space_group:
+            type: integer
+            description: Target space group (229 for BCC)
+          min_yield_strength:
+            type: number
+            nullable: true
+          max_yield_strength:
+            type: number
+            nullable: true
   data:
     type: array
-    description: List of records (rows) in the dataset.
     items:
       type: object
       required:
         - composition
         - yield_strength_MPa
+        - shear_modulus_GPa
       properties:
         composition:
           type: object
-          description: Chemical composition with element symbols as keys and atomic fractions as values.
+          description: Elemental composition as atomic fractions
           additionalProperties:
             type: number
             minimum: 0
             maximum: 1
         yield_strength_MPa:
           type: number
-          description: Yield strength in MPa.
           minimum: 0
+          description: Yield strength in Megapascals
+          nullable: false
         shear_modulus_GPa:
           type: number
-          description: Shear modulus in GPa from DFT.
           minimum: 0
+          description: Shear modulus in Gigapascals (from DFT)
+          nullable: false
         bulk_modulus_GPa:
           type: number
-          description: Bulk modulus in GPa from DFT.
           minimum: 0
+          description: Bulk modulus in Gigapascals (from DFT)
+          nullable: true
+        elastic_tensor:
+          type: array
+          description: Full 3x3x3x3 elastic tensor (flattened 21 independent components)
+          items:
+            type: number
+          nullable: true
         space_group:
           type: integer
-          description: Space group number.
-          minimum: 1
-          maximum: 230
-        dft_id:
+          description: Crystallographic space group number
+        structure_id:
           type: string
-          description: Materials Project ID or source identifier.
-        source:
-          type: string
-          description: Source of the experimental data (e.g., MatNavi, NIST).
-        uncertainty_flag:
-          type: boolean
-          description: True if the yield strength was derived from a range.
-  row_count:
-    type: integer
-    description: Total number of rows in the dataset.
-    minimum: 20
+          description: Unique identifier for the crystal structure
+        uncertainty_flags:
+          type: array
+          items:
+            type: string
+          description: Flags indicating data quality issues (e.g., 'range_value_used')
+        provenance:
+          type: object
+          properties:
+            experimental_source:
+              type: string
+            dft_query_id:
+              type: string
+additionalProperties: false

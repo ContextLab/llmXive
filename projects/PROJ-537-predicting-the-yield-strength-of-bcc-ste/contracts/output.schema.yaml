@@ -1,68 +1,153 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Model Evaluation Output
-description: Schema for the final model evaluation results including metrics and statistical tests.
+title: Model Output Schema
+description: |
+  Schema for the final model evaluation results produced by code/modeling/evaluate.py
+  and extended by code/interpretability/shap_analysis.py.
 type: object
 required:
   - metadata
-  - metrics
-  - statistical_significance
-  - interpretability
+  - baseline_model
+  - dft_enhanced_model
+  - statistical_analysis
+  - success_criteria
 properties:
   metadata:
     type: object
     required:
-      - timestamp
-      - model_type
-      - dataset_rows
+      - version
+      - generated_at
+      - dataset_path
+      - n_samples
+      - n_features
     properties:
-      timestamp:
+      version:
+        type: string
+      generated_at:
         type: string
         format: date-time
-      model_type:
+      dataset_path:
         type: string
-        enum:
-          - "RandomForest_Composition_Only"
-          - "RandomForest_Composition_DFT"
-      dataset_rows:
+      n_samples:
         type: integer
         minimum: 20
-  metrics:
+      n_features:
+        type: integer
+        minimum: 1
+      seed:
+        type: integer
+        default: 42
+  baseline_model:
     type: object
+    description: Results for composition-only Random Forest model
     required:
-      - r2
-      - mae
+      - model_type
+      - r2_mean
+      - r2_std
+      - mae_mean
+      - mae_std
+      - cv_folds
     properties:
-      r2:
-        type: number
-        description: Coefficient of determination.
-      mae:
-        type: number
-        description: Mean Absolute Error.
-      pearson_correlation_shear_yield:
-        type: number
-        description: Pearson correlation between Shear Modulus and Yield Strength (SC-001).
-  statistical_significance:
-    type: object
-    required:
-      - p_value
-      - power
-      - test_method
-    properties:
-      p_value:
-        type: number
-        description: P-value from paired t-test comparing models.
-      power:
-        type: number
-        description: Statistical power (1 - beta).
-      test_method:
+      model_type:
         type: string
-        enum:
-          - "paired_t_test"
-      is_significant:
-        type: boolean
-        description: True if p_value < 0.05.
+        const: "RandomForest"
+      r2_mean:
+        type: number
+        description: Mean R² score across CV folds
+      r2_std:
+        type: number
+      mae_mean:
+        type: number
+        description: Mean MAE across CV folds
+      mae_std:
+        type: number
+      cv_folds:
+        type: integer
+        minimum: 3
+      hyperparameters:
+        type: object
+        description: Best hyperparameters found during tuning
+  dft_enhanced_model:
+    type: object
+    description: Results for Random Forest with composition + DFT descriptors
+    required:
+      - model_type
+      - r2_mean
+      - r2_std
+      - mae_mean
+      - mae_std
+      - cv_folds
+    properties:
+      model_type:
+        type: string
+        const: "RandomForest"
+      r2_mean:
+        type: number
+      r2_std:
+        type: number
+      mae_mean:
+        type: number
+      mae_std:
+        type: number
+      cv_folds:
+        type: integer
+        minimum: 3
+      hyperparameters:
+        type: object
+  statistical_analysis:
+    type: object
+    description: Statistical comparison between models
+    required:
+      - paired_ttest
+      - statistical_power
+      - shear_yield_correlation
+    properties:
+      paired_ttest:
+        type: object
+        required:
+          - statistic
+          - p_value
+          - alternative
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+          alternative:
+            type: string
+            enum: ["two-sided", "greater", "less"]
+          significant_at_005:
+            type: boolean
+      statistical_power:
+        type: object
+        required:
+          - power
+          - effect_size
+          - is_sufficient
+        properties:
+          power:
+            type: number
+            minimum: 0
+            maximum: 1
+          effect_size:
+            type: number
+          is_sufficient:
+            type: boolean
+            description: True if power >= 0.8
+      shear_yield_correlation:
+        type: object
+        required:
+          - pearson_r
+          - p_value
+        properties:
+          pearson_r:
+            type: number
+          p_value:
+            type: number
   interpretability:
     type: object
+    description: SHAP and feature importance analysis results
     required:
       - top_features
       - shap_summary
@@ -70,17 +155,19 @@ properties:
     properties:
       top_features:
         type: array
-        description: Top 5 most important features.
         items:
           type: object
           properties:
-            feature:
+            feature_name:
               type: string
-            importance:
+            mean_abs_shap:
               type: number
+            rank:
+              type: integer
+        description: Top 5 features by mean absolute SHAP value
       shap_summary:
         type: object
-        description: Summary of SHAP values.
+        description: Summary statistics for SHAP values
       stability_analysis:
         type: object
         required:
@@ -90,10 +177,60 @@ properties:
         properties:
           sample_size_sweep_std:
             type: number
-            description: Std dev of feature importance across sample size sweep (FR-007).
+            description: Std dev of feature importance across n=10 to n=50 sweep
           bootstrap_std:
             type: number
-            description: Std dev of feature importance across 10 bootstrapped samples (FR-008).
+            description: Std dev across 10 bootstrapped samples
           is_stable:
             type: boolean
-            description: True if bootstrap_std < 0.05 for key DFT descriptors.
+            description: True if std_dev < 0.05 for key DFT descriptors
+  success_criteria:
+    type: object
+    description: Verification of all success criteria from spec
+    required:
+      - SC-001
+      - SC-002
+      - SC-003
+      - SC-004
+      - SC-005
+      - SC-006
+      - SC-007
+      - SC-008
+    properties:
+      SC-001:
+        type: boolean
+        description: Shear modulus and yield strength are significantly correlated
+      SC-002:
+        type: boolean
+        description: DFT-enhanced model outperforms baseline
+      SC-003:
+        type: boolean
+        description: Paired t-test shows significant improvement (p < 0.05)
+      SC-004:
+        type: boolean
+        description: Feature importance is stable across sample-size sweep
+      SC-005:
+        type: boolean
+        description: Feature importance is stable across bootstrap samples
+      SC-006:
+        type: boolean
+        description: Top features include DFT descriptors
+      SC-007:
+        type: boolean
+        description: Model is robust to sample size variations
+      SC-008:
+        type: boolean
+        description: Statistical power is sufficient (>= 0.8)
+  artifacts:
+    type: object
+    description: Paths to generated artifacts
+    properties:
+      model_baseline_path:
+        type: string
+      model_dft_path:
+        type: string
+      shap_values_path:
+        type: string
+      plots_directory:
+        type: string
+additionalProperties: false

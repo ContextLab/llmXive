@@ -1,5 +1,5 @@
 """
-Tests for the models package initialization.
+Tests to verify that the models package is correctly initialized.
 """
 import os
 import sys
@@ -7,26 +7,25 @@ from pathlib import Path
 import pytest
 
 def test_models_directory_exists():
-    """Verify that the models directory exists."""
-    # Assuming project root is one level up from code/tests
-    root = Path(__file__).resolve().parent.parent.parent
-    models_dir = root / "code" / "models"
-    # We don't assert existence here as T006 might not have run yet,
-    # but we verify the path logic is sound.
-    assert isinstance(models_dir, Path)
+    """Verify the models directory exists."""
+    models_dir = Path(__file__).parent.parent / "models"
+    assert models_dir.exists(), f"Models directory {models_dir} does not exist"
+    assert models_dir.is_dir(), f"{models_dir} is not a directory"
 
 def test_models_init_exists():
-    """Verify that models/__init__.py exists or can be created."""
-    root = Path(__file__).resolve().parent.parent.parent
-    init_file = root / "code" / "models" / "__init__.py"
-    # Check if it exists, if not, it's expected for early tasks
-    # This test file existence is the main deliverable for T003
-    pass
+    """Verify models/__init__.py exists."""
+    init_file = Path(__file__).parent.parent / "models" / "__init__.py"
+    assert init_file.exists(), f"models/__init__.py does not exist"
 
 def test_models_package_importable():
-    """Verify that the models package is importable."""
+    """Verify the models package can be imported."""
+    code_dir = Path(__file__).parent.parent
+    sys.path.insert(0, str(code_dir))
     try:
         import models
-        assert models is not None
-    except ImportError:
-        pass
+        assert hasattr(models, '__path__'), "models is not a package"
+    except ImportError as e:
+        pytest.fail(f"Failed to import models package: {e}")
+    finally:
+        if str(code_dir) in sys.path:
+            sys.path.remove(str(code_dir))

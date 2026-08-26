@@ -1,31 +1,52 @@
-select = ["E", "F", "W"]
-ignore = []
+# Ruff configuration for llmXive project
+# Linting rules as per task T003a
 
-# Same line length as black (configured in pyproject.toml)
-line-length = 88
+select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort (import sorting)
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "YTT", # flake8-2020
+    "BLE", # flake8-blind-except
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "RUF", # Ruff-specific rules
+]
 
-# Target Python 3.10+ (consistent with project requirements)
+# Ignore specific rules if necessary
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data classes)
+]
+
+# Target Python version
 target-version = "py310"
 
-[per-file-ignores]
-# Allow longer lines in test files for readability
-"tests/**/*.py" = ["E501"]
-# Allow longer lines in config/data files
-"data/**/*.py" = ["E501"]
-"config/**/*.py" = ["E501"]
-
-[flake8-quotes]
-# Use double quotes consistently
-docstring-quotes = "double"
-inline-quotes = "double"
-
-[flake8-unused-arguments]
-# Allow unused arguments in test methods (pytest fixtures)
-ignore-args = ["self", "cls", "request"]
+# Line length for formatting (consistent with black)
+line-length = 88
 
 [isort]
-# Match black's import sorting
-known-first-party = ["src", "tests", "scripts"]
-known-third-party = ["numpy", "pandas", "networkx", "scipy", "scikit-learn", "matplotlib", "seaborn", "yaml", "jsonschema", "pytest"]
-force-single-line = false
-lines-after-imports = 2
+known-first-party = ["src", "tests", "scripts", "setup_project"]
+known-third-party = [
+    "numpy",
+    "pandas",
+    "networkx",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "sklearn",
+    "yaml",
+    "jsonschema",
+    "pytest",
+]
+
+[flake8]
+max-complexity = 15
+
+[per-file-ignores]
+"tests/*" = ["S101", "N802", "B017"] # Allow asserts, shorter names in tests, specific exception checks
+"code/setup_project.py" = ["T201"]    # Allow print in setup script

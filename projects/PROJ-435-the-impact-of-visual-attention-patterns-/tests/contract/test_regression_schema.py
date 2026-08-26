@@ -39,7 +39,7 @@ def regression_results():
     Skips the test if the file does not exist (indicating the upstream task hasn't run yet).
     """
     if not OUTPUT_PATH.exists():
-        pytest.skip(f"Output file {OUTPUT_PATH} not found. Upstream task (T024/T027) may not have run.")
+        pytest.skip(f"Output file {OUTPUT_PATH} not found. Upstream task (T024) may not have run.")
     
     df = pd.read_csv(OUTPUT_PATH)
     return df

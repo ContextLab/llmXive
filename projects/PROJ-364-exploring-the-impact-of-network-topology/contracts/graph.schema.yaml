@@ -1,32 +1,63 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: TopologyGraph
-description: Schema for network topology objects representing defect interactions in 2D materials.
+description: Schema for NetworkX graph objects serialized to JSON, representing defect proximity networks in 2D materials.
 type: object
 required:
   - sample_id
-  - material_type
+  - metadata
   - nodes
   - edges
   - metrics
-  - metadata
 properties:
   sample_id:
     type: string
-    description: Unique identifier for the sample.
-  material_type:
-    type: string
-    description: Material name (e.g., 'graphene', 'MoS2').
-    enum:
-      - graphene
-      - MoS2
-      - hBN
-      - other
-  threshold_nm:
-    type: number
-    description: Distance threshold used for edge creation (in nm).
+    description: Unique identifier for the sample dataset.
+    pattern: "^[a-zA-Z0-9_-]+$"
+  metadata:
+    type: object
+    required:
+      - material_type
+      - threshold_distance
+      - node_count
+      - edge_count
+      - is_connected
+      - generated_at
+    properties:
+      material_type:
+        type: string
+        description: Material name (e.g., 'graphene', 'MoS2').
+      threshold_distance:
+        type: number
+        description: Distance threshold used for edge creation (nm).
+      node_count:
+        type: integer
+        description: Total number of nodes (defects) in the graph.
+        minimum: 0
+      edge_count:
+        type: integer
+        description: Total number of edges in the graph.
+        minimum: 0
+      is_connected:
+        type: boolean
+        description: Whether the graph is fully connected.
+      lcc_fraction:
+        type: ["number", "null"]
+        description: Fraction of nodes in the Largest Connected Component. Null if node_count is 0.
+        minimum: 0
+        maximum: 1
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of graph generation.
+      source_file:
+        type: string
+        description: Path to the source data file.
+      checksum:
+        type: string
+        description: SHA256 checksum of the source data.
   nodes:
     type: array
-    description: List of node objects representing defects.
+    description: List of node attributes.
     items:
       type: object
       required:
@@ -36,106 +67,70 @@ properties:
       properties:
         id:
           type: integer
-          description: Unique node identifier.
+          description: Unique node identifier (index).
         x:
           type: number
-          description: X coordinate in nm.
+          description: X coordinate of the defect (nm).
         y:
           type: number
-          description: Y coordinate in nm.
-        thermal_conductivity:
-          type: number
-          nullable: true
-          description: Local thermal conductivity if available.
+          description: Y coordinate of the defect (nm).
+        degree:
+          type: integer
+          description: Degree of the node (number of edges).
+          minimum: 0
   edges:
     type: array
-    description: List of edge objects representing proximity connections.
+    description: List of edges represented as pairs of node IDs.
     items:
-      type: object
-      required:
-        - source
-        - target
-        - distance_nm
-      properties:
-        source:
-          type: integer
+      type: array
+      minItems: 2
+      maxItems: 2
+      prefixItems:
+        - type: integer
           description: Source node ID.
-        target:
-          type: integer
+        - type: integer
           description: Target node ID.
-        distance_nm:
-          type: number
-          description: Euclidean distance between nodes in nm.
   metrics:
     type: object
     description: Calculated topological metrics.
     required:
-      - node_count
-      - edge_count
+      - clustering_coefficient
+      - average_path_length
       - density
-      - average_degree
     properties:
-      node_count:
-        type: integer
-        description: Total number of nodes.
-      edge_count:
-        type: integer
-        description: Total number of edges.
+      clustering_coefficient:
+        type: ["number", "null"]
+        description: Global clustering coefficient. Null if node_count < 3.
+        minimum: 0
+        maximum: 1
+      average_path_length:
+        type: ["number", "null"]
+        description: Average shortest path length on the LCC. Null if graph is disconnected or node_count < 2.
       density:
         type: number
-        description: Graph density (0.0 to 1.0).
-      average_degree:
-        type: number
-        description: Average degree of nodes.
-      global_clustering_coefficient:
-        type: number
-        nullable: true
-        description: Global clustering coefficient.
-      average_path_length:
-        type: number
-        nullable: true
-        description: Average shortest path length on LCC. Null if disconnected or zero defects.
-      is_connected:
-        type: boolean
-        description: True if the graph is fully connected.
-      lcc_fraction:
-        type: number
-        description: Fraction of nodes in the Largest Connected Component.
+        description: Graph density (edges / possible edges).
+        minimum: 0
+        maximum: 1
       percolation_threshold:
-        type: number
-        nullable: true
-        description: Critical distance d_c where LCC fraction exceeds threshold.
+        type: ["number", "null"]
+        description: Estimated critical distance d_c where LCC fraction exceeds threshold.
       degree_distribution:
         type: object
-        description: Histogram of degrees (key: degree, value: count).
+        description: Histogram of degrees. Keys are string representations of degrees.
         additionalProperties:
           type: integer
       zero_defect_flag:
         type: boolean
-        description: True if no defects were detected (perfect crystal).
-  metadata:
-    type: object
-    description: Additional metadata about the graph construction.
-    required:
-      - created_at
-      - source_file
-      - checksum
-    properties:
-      created_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of creation.
-      source_file:
-        type: string
-        description: Path to the source data file.
-      checksum:
-        type: string
-        description: SHA-256 checksum of the source data.
-      lattice_correction_applied:
+        description: True if node_count is 0 (perfect crystal scenario).
+      is_lcc_corrected:
         type: boolean
-        description: Whether lattice correction was applied to metrics.
-      r_lattice_nm:
-        type: number
-        nullable: true
-        description: Lattice constant used for correction (nm).
+        description: True if metrics were corrected using the lattice correction formula.
+      lattice_corrected_metrics:
+        type: ["object", "null"]
+        description: Object containing metrics after applying the series-parallel resistance correction.
+        properties:
+          corrected_clustering:
+            type: ["number", "null"]
+          corrected_path_length:
+            type: ["number", "null"]
 additionalProperties: false

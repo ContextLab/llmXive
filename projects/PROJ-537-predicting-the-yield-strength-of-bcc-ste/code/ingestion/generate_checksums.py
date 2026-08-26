@@ -3,62 +3,67 @@ import sys
 import logging
 from pathlib import Path
 
-# Add parent directory to path to allow relative imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from config import CONFIG
 from utils.checksums import generate_all_checksums
 from utils.logging import get_logger, log_provenance_event
 
+logger = get_logger(__name__)
+
 def main():
-    logger = get_logger(__name__)
-    logger.info("Starting checksum generation for data provenance")
+    """
+    Generate checksums for all raw and intermediate files and save to
+    data/provenance/checksums.txt.
 
-    # Define directories to scan for checksums
-    # Based on T001 and T017, we need checksums for raw and intermediate files
-    data_dirs = [
-        CONFIG.DATA_RAW_DIR,
-        CONFIG.DATA_INTERMEDIATE_DIR,
-    ]
+    This task fulfills T019: Generate `data/provenance/checksums.txt`
+    for all raw and intermediate files.
+    """
+    logger.info("Starting checksum generation for T019...")
 
-    all_checksums = {}
+    # Ensure the provenance directory exists
+    provenance_dir = Path(CONFIG.PROVENANCE_DIR)
+    provenance_dir.mkdir(parents=True, exist_ok=True)
 
-    for data_dir in data_dirs:
-        dir_path = Path(data_dir)
-        if not dir_path.exists():
-            logger.warning(f"Directory {data_dir} does not exist, skipping")
-            continue
+    # Define the files to checksum based on the pipeline outputs
+    # We scan the raw and intermediate directories for CSV/JSONL files
+    raw_dir = Path(CONFIG.RAW_DATA_DIR)
+    intermediate_dir = Path(CONFIG.INTERMEDIATE_DATA_DIR)
 
-        logger.info(f"Scanning directory: {dir_path}")
-        dir_checksums = generate_all_checksums(dir_path)
-        all_checksums.update(dir_checksums)
+    files_to_checksum = []
 
-    if not all_checksums:
-        logger.warning("No files found to checksum in data directories")
+    if raw_dir.exists():
+        for ext in ["*.csv", "*.jsonl", "*.json", "*.txt"]:
+            files_to_checksum.extend(raw_dir.glob(ext))
+
+    if intermediate_dir.exists():
+        for ext in ["*.csv", "*.jsonl", "*.json", "*.txt"]:
+            files_to_checksum.extend(intermediate_dir.glob(ext))
+
+    if not files_to_checksum:
+        logger.warning("No raw or intermediate files found to checksum.")
+        # Still create an empty or minimal checksum file to indicate completion
+        # but log the issue.
+        checksum_file = provenance_dir / "checksums.txt"
+        with open(checksum_file, "w") as f:
+            f.write("# No data files found to checksum.\n")
+        log_provenance_event("checksums_generated", status="empty", path=str(checksum_file))
         return
 
-    # Write checksums to the provenance file
-    checksum_file = Path(CONFIG.DATA_PROVENANCE_DIR) / "checksums.txt"
-    checksum_file.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Found {len(files_to_checksum)} files to checksum.")
 
-    with open(checksum_file, 'w') as f:
-        for filepath, checksum in sorted(all_checksums.items()):
+    # Generate checksums
+    checksums = generate_all_checksums(files_to_checksum)
+
+    # Write to the specific output file required by T019
+    output_path = provenance_dir / "checksums.txt"
+    with open(output_path, "w") as f:
+        for filepath, checksum in checksums.items():
+            # Format: <checksum>  <relative_path>
             f.write(f"{checksum}  {filepath}\n")
 
-    logger.info(f"Generated checksums for {len(all_checksums)} files")
-    logger.info(f"Checksums written to: {checksum_file}")
+    logger.info(f"Checksums written to {output_path}")
+    log_provenance_event("checksums_generated", status="success", path=str(output_path), count=len(checksums))
 
-    # Log provenance event
-    log_provenance_event(
-        event_type="checksum_generation",
-        artifact_path=str(checksum_file),
-        details={
-            "files_checksummed": len(all_checksums),
-            "source_directories": [str(d) for d in data_dirs if Path(d).exists()]
-        }
-    )
-
-    print(f"Successfully generated {checksum_file}")
+    print(f"Successfully generated checksums for {len(checksums)} files at {output_path}")
 
 if __name__ == "__main__":
     main()

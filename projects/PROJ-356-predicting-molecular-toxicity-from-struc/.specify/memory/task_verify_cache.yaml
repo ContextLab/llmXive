@@ -1,36 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required root project directory `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/`
-    is provided; the implementer did not show that the folder exists or contains any
-    files. The task remains undone.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/`\
-    \ being present (or containing any files) is provided. The task\u2019s sole requirement\
-    \ is to create that source folder, which is not demonstrated."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/`\
-    \ directory (or any files within it) is provided; without a visible, non\u2011\
-    empty test directory the task is not satisfied."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/`\
-    \ directory (or any files within it) was provided; without a visible, non\u2011\
-    empty directory the task is not satisfied. The implementer must create the specified\
-    \ data folder and show its presence."
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/`\
-    \ directory (or any files within it) is provided; the response contains only the\
-    \ task description and no actual artifact confirming the directory was created.\
-    \ The implementer must supply proof that the directory exists and is non\u2011\
-    empty."
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

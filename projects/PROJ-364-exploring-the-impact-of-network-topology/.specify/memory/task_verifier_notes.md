@@ -9,7 +9,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T006b** — declared artifact(s) missing/empty/invalid: src/utils/logger.py
 - **T007a** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T007b** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T007c** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T008a** — declared artifact(s) missing/empty/invalid: src/utils/checksum.py
-- **T008b** — declared artifact(s) missing/empty/invalid: tests/unit/test_checksum.py
-- **T009a** — The required file `src/data/materials.py` does not exist, so no dictionary or runtime reading of `R_lattice` from `config.yaml` is present. The task is therefore not satisfied.

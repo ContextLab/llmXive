@@ -89,7 +89,7 @@
 - [ ] T017 [US1] Write the final merged dataset to `data/intermediate/merged.csv` and verify row count ≥ 20; raise `ERR_INSUFFICIENT_DATA` if not
 - [X] T018 [US1] Add logging for API queries and failures to `data/provenance/dft_queries.jsonl`
 - [ ] T019 [US1] Generate `data/provenance/checksums.txt` for all raw and intermediate files
-- [~] T020 [US1] Update `state/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste.yaml` with artifact hashes
+- [ ] T020 [US1] Update `state/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste.yaml` with artifact hashes
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -131,14 +131,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T033 [P] [US3] Unit test for TreeSHAP calculation on small dataset in `tests/unit/test_shap.py`
-- [ ] T034 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_bootstrap.py`
+- [X] T033 [P] [US3] Unit test for TreeSHAP calculation on small dataset in `tests/unit/test_shap.py`
+- [X] T034 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_bootstrap.py`
 
 ### Implementation for User Story 3
 
-- [ ] T035 [US3] Implement `code/interpretability/shap_analysis.py` to calculate TreeSHAP values for the DFT-enhanced model
-- [ ] T036 [US3] Implement `code/interpretability/shap_analysis.py` to generate permutation importance rankings (highlighting DFT descriptors)
-- [ ] T037 [US3] Implement `code/interpretability/bootstrap_stability.py` to run **Bootstrap Stability analysis by re-sampling the REAL dataset** with a **sample-size sweep (n=10 to n=50)** and calculate standard deviation of feature importance across the sweep (FR-007/SC-004)
+- [X] T035 [US3] Implement `code/interpretability/shap_analysis.py` to calculate TreeSHAP values for the DFT-enhanced model
+- [X] T036 [US3] Implement `code/interpretability/shap_analysis.py` to generate permutation importance rankings (highlighting DFT descriptors)
+- [X] T037 [US3] Implement `code/interpretability/bootstrap_stability.py` to run **Bootstrap Stability analysis by re-sampling the REAL dataset** with a **sample-size sweep (n=10 to n=50)** and calculate standard deviation of feature importance across the sweep (FR-007/SC-004)
 - [ ] T038 [US3] Implement `code/interpretability/bootstrap_stability.py` to calculate standard deviation of feature importance across **10 bootstrapped samples** of the full dataset (FR-008/SC-005)
 - [ ] T039 [US3] Implement logic to check if std_dev of key DFT descriptors < 0.05 across the 10 bootstrapped samples (from T038) and report `is_stable` boolean (FR-008/SC-005)
 - [ ] T040 [US3] Generate plots (SHAP summary, stability distribution) and save to `data/results/`

@@ -53,18 +53,28 @@ T015:
     \ and other bounding boxes\u2014is missing."
 T018:
   c: false
-  h: 03b37e32981f01050f78df20606ba25afd84eaea335f00ede1fa4718c1855fa1
-  r: "The repository contains a `code/02_preprocess_gaze.py` file, but it is truncated\
-    \ and does not show the full implementation of data\u2011loss filtering, ROI mapping,\
-    \ or edge\u2011case handling, and the required output `data/derived/preprocessed_gaze.csv`\
-    \ (and the exclusion log) are absent. Without these artifacts the task\u2019s\
-    \ deliverables are not satisfied."
-T020:
+  h: 4a6347fca466a750f644eeb1767b9762dca9f4a945f92e80341da3b42e667bd0
+  r: The required output file `data/derived/preprocessed_gaze.csv` does not exist,
+    and the accompanying exclusion log is also absent. Without these artifacts the
+    preprocessing script has not demonstrably fulfilled its core requirement of producing
+    the cleaned gaze dataset and log.
+T023:
   c: false
-  h: b16b552bd50c30bf0d3765252607a5c2aa63d15725801054d91cfd3baef8a163
-  r: "The required file `tests/integration/test_mixed_effects_recovery.py` does not\
-    \ exist, so no integration test for coefficient recovery on synthetic data is\
-    \ present. The task\u2019s core deliverable is missing."
+  h: 6f815f6da40209bc1b6b87b1568faf6d9ec74863f3b081f00500d73c359e8532
+  r: The three required source files (`data/derived/preprocessed_gaze.csv`, `data/derived/empirical_outcomes.csv`,
+    and `data/derived/valence_scores.csv`) are all missing, so no merged dataset could
+    be produced. The task cannot be considered completed until these input files exist
+    and are merged as specified.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output files implementing a mixed\u2011effects\
+    \ regression with `statsmodels` are present; the claim consists only of a brief\
+    \ description without any actual artifact. Consequently the required regression\
+    \ model, interaction term, p\u2011values, or robustness checks are not provided.\
+    \ The next implementer must add the regression script (or notebook) that fits\
+    \ the specified three\u2011way interaction, outputs coefficient estimates, significance\
+    \ tests, and any diagnostic information."
 T030:
   c: false
   h: 97969afb6fd11006fdfe02724132e75522ce35ffa7753f183cc1fe045cb09565
@@ -72,14 +82,20 @@ T030:
     exist on disk, so the integration test for threshold sweep stability is missing.
     The task cannot be considered completed until this file is created with appropriate
     test code.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No reusable function or class implementing the refactored regression logic with\
+    \ a `fixation_duration_threshold` argument is present, nor any output showing\
+    \ the modeling pipeline (including Holm\u2011Bonferroni correction) and regression\
+    \ statistics. The required artifact is missing entirely."
 T033:
   c: false
-  h: 821430eebecffa42845bfd5976e748adad232fbb1d6eb56a3201ff338599bc8f
-  r: "The required input CSVs (`data/derived/preprocessed_gaze.csv`, `merged_dataset_full.csv`,\
-    \ `valence_scores.csv`) are missing, and the provided `code/robustness_sweep.py`\
-    \ is truncated (ends mid\u2011loop) with no evidence that it writes `robustness_report.csv`\
-    \ containing the required columns. Consequently the sweep cannot be executed nor\
-    \ produce the mandated output."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or output files were provided that perform the required robustness\
+    \ sweep over the 50\u202Fms, 100\u202Fms, and 150\u202Fms fixation\u2011duration\
+    \ thresholds. The task\u2019s acceptance criteria (executing the analysis for\
+    \ each threshold and reporting the results) are therefore not met."
 T039:
   c: false
   h: 50c1b5251ac8fd7c971ff125321081ef05d127d1459ea466c9ca99953ddb4d64
@@ -91,12 +107,12 @@ T039:
     \ the task\u2019s requirements are not satisfied."
 T040:
   c: false
-  h: 0ce498f3399aeb10bd61456a629543fb8030b9714ed5539b7b933e94fe9b9f32
-  r: "The required input `data/derived/preprocessed_gaze.csv` does not exist, so the\
-    \ script cannot compute the report, and no `output/data_quality_report.csv` is\
-    \ present. Additionally, the provided `code/02_data_quality_report.py` is truncated\
-    \ and does not show the final logic that writes the CSV. The task\u2019s core\
-    \ output is therefore missing."
+  h: de870823b16fe1b1022b7131a894bc278a56af3a8ced6b2db0049acab7666983
+  r: "The provided `code/02_data_quality_report.py` is truncated, contains a syntax\
+    \ error (`return exclusio`), and lacks the logic to compute participant counts\
+    \ or write `output/data_quality_report.csv`. Moreover, the required input file\
+    \ `data/derived/preprocessed_gaze.csv` is missing, so the script cannot perform\
+    \ the requested calculations. The task\u2019s core output is therefore not produced."
 T045:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

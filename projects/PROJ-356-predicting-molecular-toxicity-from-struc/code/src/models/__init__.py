@@ -1,3 +1,3 @@
 """
-Model implementations package.
+Model definitions package.
 """

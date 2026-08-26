@@ -1,3 +1,3 @@
 """
-Evaluation and metrics package.
+Evaluation metrics and statistical analysis package.
 """

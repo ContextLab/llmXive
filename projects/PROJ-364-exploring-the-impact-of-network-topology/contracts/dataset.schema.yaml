@@ -1,69 +1,54 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Defect Coordinate Dataset Schema
-description: |
-  Schema for defect coordinate data used in the network topology heat dissipation study.
-  Defines the structure for raw input datasets containing defect locations and material properties.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Defect Coordinate Dataset Schema"
+description: "Schema for defect coordinate data in 2D materials heat dissipation study."
+type: "object"
 required:
-  - sample_id
-  - x
-  - y
-  - material_type
-  - thermal_conductivity
+  - "$schema"
+  - "type"
+  - "properties"
 properties:
-  sample_id:
-    type: string
-    description: Unique identifier for the sample instance.
-    minLength: 1
-  x:
-    type: number
-    description: X-coordinate of the defect (in nanometers).
-    minimum: -10000
-    maximum: 10000
-  y:
-    type: number
-    description: Y-coordinate of the defect (in nanometers).
-    minimum: -10000
-    maximum: 10000
-  material_type:
-    type: string
-    description: |
-      Type of 2D material. Valid values include 'graphene', 'MoS2', 'hBN', etc.
-      Must match entries in src/data/materials.py.
-    enum:
-      - graphene
-      - MoS2
-      - hBN
-      - WSe2
-      - custom
-    minLength: 1
-  thermal_conductivity:
-    type: number
-    description: |
-      Thermal conductivity of the material in W/(m·K).
-      Must be a positive real number.
-    minimum: 0
-  metadata:
-    type: object
-    description: Optional metadata for the dataset entry.
+  $schema:
+    type: "string"
+    const: "http://json-schema.org/draft-07/schema#"
+  type:
+    type: "string"
+    const: "object"
+  properties:
+    type: "object"
     properties:
-      source:
-        type: string
-        description: Source of the data (e.g., 'experimental', 'simulation', 'literature').
-      timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of data creation.
-      notes:
-        type: string
-        description: Free-form notes about the sample.
-additionalProperties: true
+      sample_id:
+        type: "string"
+        description: "Unique identifier for the material sample."
+        minLength: 1
+      x:
+        type: "number"
+        description: "X-coordinate of the defect in nanometers (nm)."
+      y:
+        type: "number"
+        description: "Y-coordinate of the defect in nanometers (nm)."
+      material_type:
+        type: "string"
+        description: "Type of 2D material (e.g., 'graphene', 'MoS2')."
+        enum:
+          - "graphene"
+          - "MoS2"
+          - "hBN"
+          - "WS2"
+          - "WSe2"
+      thermal_conductivity:
+        type: "number"
+        description: "Thermal conductivity of the sample in W/(m·K)."
+        minimum: 0
+    required:
+      - "sample_id"
+      - "x"
+      - "y"
+      - "material_type"
+      - "thermal_conductivity"
+  additionalProperties: false
 examples:
-  - sample_id: "SAMPLE_001"
+  - sample_id: "sample_001"
     x: 12.5
-    y: 45.2
+    y: 34.2
     material_type: "graphene"
     thermal_conductivity: 5300.0
-    metadata:
-      source: "simulation"
-      timestamp: "2023-10-27T10:00:00Z"
