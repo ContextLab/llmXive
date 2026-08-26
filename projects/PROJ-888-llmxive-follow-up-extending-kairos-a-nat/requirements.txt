@@ -7,3 +7,6 @@ pyyaml==6.0.1
 pytest==8.2.1
 h5py==3.11.0
 arviz==0.18.0
+statsmodels==0.14.2
+simr==1.0.6
+psutil==5.9.8

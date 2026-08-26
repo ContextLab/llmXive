@@ -9,8 +9,9 @@ import numpy as np
 class QuantizationLevel(Enum):
     """Supported quantization levels (bits)."""
     LOW = 4
-    MEDIUM = 8
-    HIGH = 16
+    MEDIUM = 6
+    HIGH = 8
+    VERY_HIGH = 16
 
 @dataclass
 class DiscreteStateVector:
@@ -21,6 +22,20 @@ class DiscreteStateVector:
     values: List[int]
     bits: int
 
+    def __post_init__(self):
+        """Validate the vector immediately upon creation."""
+        if not isinstance(self.values, list):
+            raise TypeError("values must be a list of integers")
+        if not isinstance(self.bits, int):
+            raise TypeError("bits must be an integer")
+        
+        max_val = (1 << self.bits) - 1
+        for v in self.values:
+            if not isinstance(v, int):
+                raise TypeError(f"All values must be integers, got {type(v)}")
+            if v < 0 or v > max_val:
+                raise ValueError(f"Value {v} out of range [0, {max_val}] for {self.bits}-bit quantization")
+
 @dataclass
 class ErrorMetric:
     """
@@ -30,13 +45,15 @@ class ErrorMetric:
     p_value: Optional[float] = None
     horizon: int = 0
     confidence_interval: Optional[tuple] = None
+    mse_ratio: Optional[float] = None
+    cumulative_error_rate: Optional[float] = None
 
 def validate_quantization_level(level: Union[int, QuantizationLevel]) -> QuantizationLevel:
     """
     Validates and returns a QuantizationLevel enum.
     
     Args:
-        level: An integer (4, 8, 16) or a QuantizationLevel enum.
+        level: An integer (4, 6, 8, 16) or a QuantizationLevel enum.
     
     Returns:
         The corresponding QuantizationLevel enum.
@@ -47,10 +64,11 @@ def validate_quantization_level(level: Union[int, QuantizationLevel]) -> Quantiz
     if isinstance(level, QuantizationLevel):
         return level
     
-    if level in [4, 8, 16]:
+    valid_levels = [4, 6, 8, 16]
+    if level in valid_levels:
         return QuantizationLevel(level)
     
-    raise ValueError(f"Unsupported quantization level: {level}. Must be 4, 8, or 16.")
+    raise ValueError(f"Unsupported quantization level: {level}. Must be one of {valid_levels}.")
 
 def validate_state_vector_consistency(vector: List[int], bits: int) -> bool:
     """
@@ -58,13 +76,13 @@ def validate_state_vector_consistency(vector: List[int], bits: int) -> bool:
     
     Args:
         vector: List of integers.
-        bits: Bit depth (4, 8, 16).
+        bits: Bit depth (4, 6, 8, 16).
     
     Returns:
         True if valid, False otherwise.
     """
     max_val = (1 << bits) - 1
-    return all(0 <= v <= max_val for v in vector)
+    return all(isinstance(v, int) and 0 <= v <= max_val for v in vector)
 
 def clamp_to_bin(value: Union[int, float], bits: int) -> int:
     """
@@ -72,7 +90,7 @@ def clamp_to_bin(value: Union[int, float], bits: int) -> int:
     
     Args:
         value: The value to clamp.
-        bits: Bit depth (4, 8, 16).
+        bits: Bit depth (4, 6, 8, 16).
     
     Returns:
         The clamped integer value.
@@ -104,3 +122,38 @@ def calculate_mse(predicted: List[int], actual: List[int], bits: int) -> float:
     # Here we calculate raw MSE. Normalization can be applied externally.
     sq_errors = [(p - a) ** 2 for p, a in zip(predicted, actual)]
     return float(np.mean(sq_errors))
+
+def serialize_state_vector(vector: DiscreteStateVector) -> Dict[str, Any]:
+    """
+    Serializes a DiscreteStateVector to a dictionary for JSON storage.
+    
+    Args:
+        vector: The DiscreteStateVector to serialize.
+    
+    Returns:
+        A dictionary representation suitable for JSON.
+    """
+    return {
+        "values": vector.values,
+        "bits": vector.bits,
+        "type": "DiscreteStateVector"
+    }
+
+def deserialize_state_vector(data: Dict[str, Any]) -> DiscreteStateVector:
+    """
+    Deserializes a dictionary back into a DiscreteStateVector.
+    
+    Args:
+        data: The dictionary representation.
+    
+    Returns:
+        A DiscreteStateVector instance.
+    
+    Raises:
+        ValueError: If the data is missing required fields or has invalid type.
+    """
+    if data.get("type") != "DiscreteStateVector":
+        raise ValueError("Invalid data type for DiscreteStateVector")
+    if "values" not in data or "bits" not in data:
+        raise ValueError("Missing required fields 'values' or 'bits'")
+    return DiscreteStateVector(values=data["values"], bits=data["bits"])

@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project investigates how the minimum information density required for stable long-horizon forecasting in embodied agents scales as input modality shifts from continuous visual streams to sparse, discrete sensor streams. We will implement a reproducible pipeline to convert the `lerobot/libero_plus` dataset into discrete state vectors with configurable quantization (4, 6, 8, 16-bit), inject telemetry noise, and evaluate a CPU-only Kairos Hybrid Linear Temporal Attention model. The study will determine the stability threshold where the Total Mean Squared Error (MSE) of the discrete modality significantly exceeds the continuous baseline using Linear Mixed-Effects Models (LMM) and power analysis, strictly adhering to GitHub Actions Free Tier constraints (limited compute resources, 7GB RAM, 6h runtime).
+This project investigates how the minimum information density required for stable long-horizon forecasting in embodied agents scales as input modality shifts from continuous visual streams to sparse, discrete sensor streams. We will implement a reproducible pipeline to convert the `lerobot/libero_plus` dataset into discrete state vectors with configurable quantization (variable bit-widths)., inject telemetry noise, and evaluate a CPU-only Kairos Hybrid Linear Temporal Attention model. The study will determine the stability threshold where the Total Mean Squared Error (MSE) of the discrete modality significantly exceeds the continuous baseline using Linear Mixed-Effects Models (LMM) and power analysis, strictly adhering to GitHub Actions Free Tier constraints (limited compute resources, constrained RAM, 6h runtime).
 
 **Critical Methodological Adjustment**: To ensure scientific validity and CPU feasibility, the "Fair Baseline" will be a **frozen pre-trained continuous model** evaluated on **quantized ground truth** (derived from continuous data). The "Discrete" arm will fine-tune only the projection layer. This isolates the modality shift effect from training convergence artifacts and ensures the CPU budget is sufficient.
 
@@ -27,9 +27,9 @@ This project investigates how the minimum information density required for stabl
 - 1-bit degeneracy detection (exit code 1).
 **Scale/Scope**: 
 - Dataset: `lerobot/libero_plus` (subset sampled to fit RAM/time).
-- Horizons:, 500, 1000 steps.
-- Quantization:, 6, 8, 16-bit.
-- Factorial Design: 2x2 (Continuous/Discrete) x (Noise/NoNoise).
+- Horizons: a sufficient number of steps.
+- Quantization: Various bit-widths (e.g., low to medium precision).
+- Factorial Design: x (Continuous/Discrete) x (Noise/NoNoise).
 
 ## Constitution Check
 

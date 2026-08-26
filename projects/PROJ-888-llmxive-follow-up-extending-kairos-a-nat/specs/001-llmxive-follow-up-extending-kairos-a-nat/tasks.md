@@ -22,11 +22,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory: `projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/` (command: `mkdir -p`). **Verification**: Task must output a directory listing artifact confirming existence.
-- [ ] T001b [P] Create `code/` directory (command: `mkdir -p code`). **Verification**: Task must output a directory listing artifact confirming existence.
-- [ ] T001c [P] Create `tests/` directory (command: `mkdir -p tests`). **Verification**: Task must output a directory listing artifact confirming existence.
-- [ ] T001d [P] Create `data/`, `state/`, `docs/` directories (command: `mkdir -p data state docs`). **Verification**: Task must output a directory listing artifact confirming existence.
-- [X] T001e [P] Initialize `requirements.txt` with pinned versions: torch (CPU, pin to latest stable), numpy, pandas, datasets, scikit-learn, pyyaml, pytest, h5py, arviz (use `==` for exact pinning)
+- [ ] T001 [P] Initialize project structure: Create `projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/`, `code/`, `tests/`, `data/`, `state/`, `docs/` directories. **Verification**: Run `tree -L 2 > state/directory_listing.txt` and confirm file exists with non-zero size. <!-- SKIPPED: non-mapping output -->
+- [X] T001e [P] Initialize `requirements.txt` with pinned versions: torch (CPU, pin to latest stable), numpy, pandas, datasets, scikit-learn, pyyaml, pytest, h5py, arviz (use `==` for exact pinning), statsmodels, simr
 - [ ] T001f [P] Create `README.md` with project overview and quickstart instructions. **Verification**: Task must output a file existence check and first 5 lines of content.
 
 ---
@@ -38,13 +35,21 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. This phase includes shared infrastructure and data schemas only.
 **Ordering Note**: T004 (Config) must be completed before T005-T008.
 
-- [ ] T004 Create `code/config.py` for seeds, paths, quantization levels [4, 8, 12, 16] bits, and noise std devs. **Verification**: Task must output a config validation script run log.
+- [ ] T004 [P] Create `code/config.py` for seeds, paths, quantization levels [, 6, 8, 16] bits, and noise std devs. **Verification**: Run `code/utils/validate_config.py` and assert that all quantization levels [4, 6, 8, 16] exist in the config object.
 - [X] T005 [P] Implement resource monitoring utilities in `code/utils/monitor.py` (RAM, CPU, time tracking)
 - [X] T006 [P] Setup error handling and logging infrastructure in `code/utils/logging.py`
 - [X] T007 Create base data schemas and validation logic in `code/data/schema.py` (DiscreteStateVector, ErrorMetric)
-- [X] T008 Configure checkpointing mechanism for graceful exit at 6h limit in `code/utils/checkpoint.py`
+- [ ] T008 Configure checkpointing mechanism for graceful exit at h limit in `code/utils/checkpoint.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+---
+
+## Phase 0.5: Power Analysis (Pre-Study Requirement)
+
+**Purpose**: Determine sample size N before data collection to satisfy FR-009.
+
+- [ ] T004a [P] Implement `code/analysis/power_analysis.py` to perform a priori power analysis (using `simr` or manual simulation) targeting Cohen's d=0.5, Power=0.8. Output `results/power_analysis_report.json`. **Constraint**: Must run BEFORE any data collection or model training. **Verification**: Assert `results/power_analysis_report.json` exists with calculated N and a moderate effect size.
 
 ---
 
@@ -52,26 +57,26 @@
 
 **Goal**: Convert continuous LIBERO dataset into discrete, JSON-serialized state vectors with configurable quantization and noise injection.
 
-**Independent Test**: The pipeline can be tested by running the conversion script on a subset of LIBERO data, verifying that the output JSON files contain discrete integer values within the specified bit-depth ranges, and confirming that the total dataset size fits within the available RAM constraint.
+**Independent Test**: The pipeline can be tested by running the conversion script on a subset of LIBERO data, verifying that the output JSON files contain discrete integer values within the specified bit-depth ranges, and confirming that the total dataset size fits within the available RAM constraint. [UNRESOLVED-CLAIM: c_a98dff8d — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [P] [US1] Contract test for quantized JSON schema in `tests/contract/test_quantized_schema.py`: Implement function `test_quantized_schema_4bit` asserting `all(0 <= x <= 15 for x in data)`.
-- [X] T010 [P] [US1] Integration test for full download-quantize-noise pipeline in `tests/integration/test_data_pipeline.py`: Specify input subset size (N=50 episodes), output path `data/processed/test_subset.json`, and assert `output_file_size < 100MB` and `no NaN values`.
+- [ ] T009 [P] [US1] Contract test for quantized JSON schema in `tests/contract/test_quantized_schema.py`: Implement function `test_quantized_schema_4bit` asserting `all(0 <= x <= 15 for x in data)`.
+- [ ] T010 [P] [US1] Integration test for full download-quantize-noise pipeline in `tests/integration/test_data_pipeline.py`: Specify input subset size (N=50 episodes), output path `data/processed/test_subset.json`, and assert `output_file_size < 100MB` and `no NaN values`.
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/data/download_libero.py` to fetch HDF5 from verified HuggingFace URL (NO synthetic fallback). **Constraint**: MUST fetch only the N=50 episode subset to satisfy RAM constraints.
-- [X] T040a [US1] Implement header-only size validator in `code/main.py` (distinct step): MUST run AFTER T011 downloads the file. Validates full dataset size via header-only read to ensure < 7GB RAM constraint before processing.
-- [X] T040b [US1] Implement sample subset runner in `code/main.py` (distinct step): Run pipeline on a sample subset with logging after validation passes.
-- [X] T012 [US1] Implement `code/data/quantize.py` to convert HDF to discrete JSON vectors for quantization levels at varying bit precisions (per FR-001). **Constraint**: Ensure bin clamping. **Verification**: Assert output values are integers within [0, 2^bit_depth - 1] for the specific bit depth passed.
-- [X] T013 [US1] Implement `code/data/noise.py` to inject Gaussian noise (std dev within a low-to-moderate range) and clamp to valid discrete bins.
-- [ ] T015 [US1] Add validation logic to detect degenerate cases (e.g., 1-bit collapse) and flag as "Invalid Data". **Verification**: Task must output a test case for 1-bit collapse detection.
+- [ ] T014a [US1] Define interface for data pipeline components in `code/main.py` (Interface Definition): Define the signatures for download, quantize, and noise functions. **Ordering**: Must be implemented before T011-T013.
+- [ ] T011 [US1] Implement `code/data/download_libero.py` to fetch HDF5 from verified HuggingFace URL using `datasets.load_dataset(..., streaming=True)` to handle shards sequentially. **Constraint**: MUST stream data in chunks; MUST NOT load full dataset into RAM. **Constraint**: If fetch fails, raise an exception and exit with code 1. NO synthetic fallback. **Verification**: Assert peak RAM usage < 2GB during processing and chunk size consistency. [UNRESOLVED-CLAIM: c_bf3fba20 — status=not_enough_info]
+- [ ] T040a [US1] Implement header-only size validator in `code/main.py` (distinct step): MUST run AFTER T011 downloads the file. Validates full dataset size via header-only read to ensure < 7GB RAM constraint before processing.
+- [ ] T040b [US1] Implement sample subset runner in `code/main.py` (distinct step): Run pipeline on a sample subset with logging after validation passes.
+- [ ] T012 [US1] Implement `code/data/quantize.py` to convert HDF to discrete JSON vectors for quantization levels at varying bit precisions (per FR-001). **Constraint**: Ensure bin clamping. **Verification**: Assert output values are integers within [, 2^bit_depth - 1] for the specific bit depth passed.
+- [ ] T013 [US1] Implement `code/data/noise.py` to inject Gaussian noise with a standard deviation scaled proportionally to the quantization step applied to continuous data before quantization, and clamp to valid discrete bins. **Verification**: Assert noise injection matches formula and values remain within discrete bins.
+- [ ] T015 [US1] Implement `code/data/validator.py` to detect degenerate cases (e.g., 1-bit collapse) and raise an exception with exit code 1. **Verification**: Generate `tests/unit/test_1bit_collapse.py` that asserts the script exits with code 1 when 1-bit quantization is attempted.
 - [ ] T016 [US1] Add logging for quantization levels, noise seeds, and peak RAM usage per task
-- [ ] T043 [US1] Implement streaming chunk processor in `code/data/stream_loader.py` to handle LIBERO HDF5 shards sequentially without loading full dataset into RAM, adhering to the "STREAM real data" rule. **Constraint**: MUST use `h5py` streaming or `datasets.load_dataset(..., streaming=True)` pattern; MUST NOT fall back to synthetic data if stream fails. **Verification**: Assert chunked output integrity matches full dataset hash.
-- [X] T014 [US1] Implement `code/main.py` orchestration logic to coordinate download → quantize → noise pipeline with memory monitoring. **Definition First**: This task defines the interface and must be implemented before the components it coordinates. **Ordering**: Must be placed after T011-T013 in execution flow.
+- [ ] T014b [US1] Implement `code/main.py` orchestration logic to coordinate download → quantize → noise pipeline with memory monitoring. **Definition First**: This task implements the logic defined in T014a. **Ordering**: Must be placed after T011-T013.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -81,20 +86,21 @@
 
 **Goal**: Load pre-trained Kairos weights, replace visual encoder with fixed discrete projection, and execute training/inference on CPU-only environment.
 
-**Independent Test**: The model can be tested by initiating a training run with a fixed random seed, verifying that the loss trend shows convergence, confirming that the total training time is a target ≤ 4 hours (graceful exit if > 6h), and confirming that inference on a long sequence completes without CUDA errors or out-of-memory exceptions.
+**Independent Test**: The model can be tested by initiating a training run with a fixed random seed, verifying that the loss trend shows convergence, confirming that the total training time is a target ≤ 4 hours (graceful exit if > 6h), and confirming that inference on a long sequence completes without CUDA errors or out-of-memory exceptions. [UNRESOLVED-CLAIM: c_696940eb — status=not_enough_info]
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`: Implement function `test_model_output_shape` asserting that the output shape corresponds to the batch dimension, a sequence length, and the dimensionality.
-- [X] T041 [P] [US2] Integration test for CPU-only training loop in `tests/integration/test_cpu_training.py`
+- [ ] T017 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`: Implement function `test_model_output_shape` asserting that the output shape corresponds to the batch dimension, a sequence length, and the dimensionality.
+- [ ] T041 [P] [US2] Integration test for CPU-only training loop in `tests/integration/test_cpu_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Download, verify checksum, and cache pre-trained Kairos weights from verified HuggingFace repo to `data/models/kairos_base.pt`. **Pre-fetch Validation**: MUST validate file size before download to ensure < 7GB RAM constraint. **Subset Constraint**: Must fetch N=50 episode equivalent weights if available, or validate model size. **Fallback Strategy**: If fetch fails, initialize a random-weight adapter and train from scratch for a minimal number of epochs ONLY for the *continuous baseline* to ensure reproducibility. Fallback must run until MIN_EPOCHS=5 reached and convergence: loss change < 5% over 3 consecutive epochs, then flag output as UNTRAINED_BASELINE and EXCLUDE from the relative degradation metric calculation (FR-008) and final statistical analysis. Log the fallback trigger explicitly.
-- [ ] T019 [P] [US2] Implement `code/models/kairos_adapter.py` to load pre-trained weights from `data/models/kairos_base.pt` (T018) or initialize random weights if fallback triggered (baseline only), and replace visual encoder with fixed discrete projection
+- [ ] T018 [US2] Download, verify checksum, and cache pre-trained Kairos weights from verified HuggingFace repo to `data/models/kairos_base.pt`. **Pre-fetch Validation**: MUST validate file size before download to ensure < 7GB RAM constraint. **Constraint**: If fetch fails, raise an exception and exit with code 1. DO NOT train from scratch.
+- [ ] T019 [P] [US2] Implement `code/models/kairos_adapter.py` to load pre-trained weights from `data/models/kairos_base.pt` (T018) and replace visual encoder with fixed discrete projection
 - [ ] T020 [US2] Implement `code/models/training_loop.py` for CPU-only training with epoch checkpointing and 6h graceful exit. **Ordering**: Must precede inference tasks.
-- [ ] T021 [US2] Implement inference engine in `code/models/inference.py` for multiple time horizons including 250 and 500 steps prediction (per Constitution Principle VII and FR-004). **Ordering**: Must follow training.
+- [ ] T021 [US2] Implement inference engine in `code/models/inference.py` for multiple time horizons including short, medium, and long-term prediction steps (per Constitution Principle VII and FR-004). **Ordering**: Must follow training.
 - [ ] T022 [US2] Invoke and configure `code/utils/monitor.py` to enforce < 7GB RAM and log latency per step. **Strictly depends on T005 completion**.
+- [ ] T022b [US2] Implement aggregation logic to write `results/resource_profile.json` with keys `peak_ram_gb`, `total_time_h`, and `cpu_utilization_avg`. **Strictly depends on T022**.
 - [ ] T023 [US2] Add logic to detect and prevent CUDA/bitsandbytes errors (fail loudly if detected)
 - [ ] T024 [US2] Add logging for training convergence (epoch loss change < 5%) and inference latency
 - [ ] T044 [US2] Implement explicit "CPU-Only" assertion in `code/models/kairos_adapter.py` that raises `RuntimeError` if any CUDA device is detected or if `device="cuda"` is passed, ensuring strict adherence to the CPU constraint.
@@ -107,25 +113,26 @@
 
 **Goal**: Compute MSE, cumulative error growth, and perform statistical validation to identify minimum information density thresholds.
 
-**Independent Test**: The analysis can be tested by running the evaluation script on the model outputs, generating the error-vs-bandwidth curve, and verifying that the statistical tests (t-test/Wilcoxon) produce valid p-values and confidence intervals.
+**Independent Test**: The analysis can be tested by running the evaluation script on the model outputs, generating the error-vs-bandwidth curve, and verifying that the statistical tests (LMM) produce valid p-values and confidence intervals.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Contract test for error metric schema in `tests/contract/test_error_metrics.py`: Implement function `test_error_metrics_schema` asserting `keys include [mse, p_value, horizon]`.
-- [ ] T026 [P] [US3] Integration test for statistical analysis pipeline in `tests/integration/test_stability_analysis.py`: Specify running `paired t-test` (or Wilcoxon if Levene's fails), expected p-value range, and exact output path `data/results/stats.json`.
+- [ ] T025 [P] [US3] Contract test for error metric schema in `tests/contract/test_error_metrics.py`: Implement function `test_error_metrics_schema` asserting `keys include [mse, mse_ratio, cumulative_error_rate, p_value, horizon, is_significant, stability_claim_framing]`.
+- [ ] T026 [P] [US3] Integration test for statistical analysis pipeline in `tests/integration/test_stability_analysis.py`: Specify running LMM, expected p-value range, and exact output path `results/stats_results.json`.
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `code/analysis/run_baseline.py` to generate continuous visual-modality baseline run and save metrics to `data/results/baseline_metrics.json`. **Ordering**: Must precede metrics calculation.
-- [ ] T027 [US3] Implement `code/analysis/metrics.py` to calculate MSE normalized by state space dimensionality and cumulative error growth over multiple horizons (per Constitution Principle VII and FR-004). **Ordering**: Must follow baseline run (T033) and inference (T021).
-- [ ] T028 [US3] Implement `code/analysis/stats.py` to perform **paired t-test or Wilcoxon signed-rank test** as the **PRIMARY** and **ONLY** statistical validation method (per FR-005 and Constitution Principle VII). Perform statistical validation on multiple independent runs with different noise seeds (per FR-005). **Constraint**: Bayesian Hierarchical Modeling (BHM) is **explicitly forbidden** and must not be implemented.
-- [ ] T029a [US3] Implement sensitivity analysis sweep across **bit-width increments** 4, 8, 12, and 16 bits and report variation in headline error rates. **Constraint**: Include 12-bit as per Plan.md and Constitution.
-- [ ] T029b [US3] Identify and report the specific quantization threshold where `MSE_discrete > 1.2 * MSE_baseline` (using metrics from `data/results/baseline_metrics.json` generated by T033). **Strictly depends on T029a and T027**.
+- [ ] T033 [US3] Implement `code/analysis/run_baseline.py` to generate continuous visual-modality baseline run and save metrics to `results/baseline_metrics.json`. **Ordering**: Must precede metrics calculation.
+- [ ] T027 [US3] Implement `code/analysis/metrics.py` to calculate MSE normalized by state space dimensionality, cumulative error growth, and ErrorAccumulationRate (slope of MSE vs time) over multiple horizons (100, 500, 1000) (per Constitution Principle VII and FR-004). **Ordering**: Must follow baseline run (T033) and inference (T021).
+- [ ] T028 [US3] Implement `code/analysis/stats.py` to perform **Linear Mixed-Effects Model (LMM)** with 'episode_id' as a random effect and 'modality' as a fixed effect. Use block-bootstrap as a mandatory fallback if LMM fails. Perform statistical validation on multiple independent runs with different noise seeds (per FR-005). Output `results/stats_results.json`.
+- [ ] T029a [US3] Implement sensitivity analysis sweep across **bit-width increments** 6, 8, and 16 bits and report variation in headline error rates. **Constraint**: Include 6-bit as per FR-001.
+- [ ] T029b [US3] Identify and report the specific quantization threshold where the MSE ratio exceeds the **upper bound of the confidence interval** derived from the LMM results (using metrics from `results/stats_results.json`). **Strictly depends on T029a, T027, and T028**.
 - [ ] T030 [US3] Implement visualization to generate error-vs-bandwidth curve plot
 - [ ] T050 [US3] Implement visualization to generate threshold map visualization
 - [ ] T031 [US3] Add logic to explicitly frame stability claims as "relative degradation" against continuous baseline
 - [ ] T032 [US3] Add logging for p-values, confidence intervals, and stability boundary identification
-- [ ] T045 [US3] Implement Levene's test for equal variance check in `code/analysis/stats.py` before selecting t-test vs Wilcoxon, ensuring statistical validity of the chosen test method.
+- [ ] T032b [US3] Implement logic to generate the `stability_claim_framing` field in the final results JSON, ensuring it contains the numeric `mse_ratio` or `relative_degradation`. **Strictly depends on T029b**.
+- [ ] T045 [US3] Implement block-bootstrap method in `code/analysis/stats.py` as the mandatory fallback if LMM fails. **Constraint**: Do NOT implement t-test or Levene's test. The fallback must account for temporal autocorrelation. **Verification**: Assert that the bootstrap method produces valid confidence intervals when LMM is unavailable.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,6 +161,7 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **Power Analysis (Phase 0.5)**: Depends on Foundational (Phase 2) - BLOCKS data collection
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -205,17 +213,19 @@ Task: "Implement code/data/noise.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+3. Complete Phase 0.5: Power Analysis (Determine N)
+4. Complete Phase 3: User Story 1
+5. **STOP and VALIDATE**: Test User Story 1 independently
+6. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+2. Add Power Analysis → Determine N
+3. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+4. Add User Story 2 → Test independently → Deploy/Demo
+5. Add User Story 3 → Test independently → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -232,13 +242,17 @@ With multiple developers:
 
 ## Critical Ordering Notes
 
-- **T011 -> T014**: T014 (Orchestration) logically depends on T011-T013 being implemented.
+- **T014a -> T011**: T014a (Interface Definition) logically precedes T011-T013.
+- **T011 -> T014b**: T014b (Orchestration Logic) strictly depends on T011-T013 being implemented.
 - **T005 -> T022**: T022 (Integrate Monitor) strictly depends on T005 (Create Monitor) completion.
 - **T033 -> T027**: T027 (Metrics) strictly depends on T033 (Baseline) completion.
 - **T021 -> T027**: T027 (Metrics) strictly depends on T021 (Inference) completion.
-- **T029a/T027 -> T029b**: T029b (Threshold) strictly depends on T029a (Sweep) and T027 (Metrics).
-- **T011 -> T043**: T043 (Streaming) must be integrated with T011 (Download) to ensure data is streamed, not loaded entirely.
+- **T028 -> T029b**: T029b (Threshold) strictly depends on T028 (Stats/LMM), T029a (Sweep), and T027 (Metrics).
+- **T011 (Streaming)**: T011 now includes streaming logic; T043 has been merged into T011.
 - **T004 -> T005-T008**: T004 (Config) must be completed before T005-T008.
+- **T004a -> T011**: Power Analysis (T004a) must be completed before data download (T011) to determine N.
+- **T015**: T015 generates `tests/unit/test_1bit_collapse.py` as part of implementation.
+- **T045**: T045 implements block-bootstrap only; no t-test fallback.
 
 ---
 
@@ -254,14 +268,16 @@ With multiple developers:
 - **Data Hygiene**: All data loaders MUST fail loudly if real data fetch fails; NO synthetic fallbacks.
 - **Resource Constraints**: All training/inference tasks MUST enforce reasonable RAM and time limits via checkpointing.
 - **CPU-Only**: All model tasks MUST run on CPU without CUDA/bitsandbytes dependencies.
-- **Constitution VII & FR-004 Supremacy**: Error metrics MUST be normalized by state space dimensionality and calculated over **100, 250, and 500 steps**. The Plan's previous mention of removing the 1000-step horizon is overridden by FR-004 and Constitution Principle VII.
-- **FR-001 Supremacy**: Quantization levels MUST be **4-bit, 8-bit, 12-bit, and 16-bit**. The Plan's inclusion of 12-bit is retained; FR-001's "4/8/16" is interpreted as the minimum set, with 12-bit added per Plan.md scope.
-- **FR-005**: Statistical validation MUST use **paired t-test or Wilcoxon signed-rank test** as the primary method. **BHM is forbidden**.
+- **Constitution VII & FR-004 Supremacy**: Error metrics MUST be normalized by state space dimensionality and calculated over **100, 500, and 1000 steps**.
+- **FR-001 Supremacy**: Quantization levels MUST be **4-bit, 6-bit, 8-bit, and 16-bit**.
+- **FR-005**: Statistical validation MUST use **Linear Mixed-Effects Model (LMM)** or block-bootstrap.
 - **FR-008**: Stability claims MUST be framed as relative degradation against a continuous baseline.
 - **SC-001**: Sensitivity analysis MUST calculate and report the specific numerical threshold value where MSE exceeds the baseline increase (dynamic calculation).
-- **Task T018**: Fallback to training from scratch is allowed ONLY for the continuous baseline. For the discrete study, missing weights must cause a hard fail. Fallback must meet convergence criteria (MIN_EPOCHS=5, loss change < 5% over 3 epochs) and be excluded from relative degradation metrics.
+- **Task T018**: NO fallback to training from scratch. If weights missing, fail hard.
 - **Task T040a**: Must run AFTER T011 (Download) to ensure the file exists for header validation.
-- **Task T043**: Must ensure the `streaming=True` flag is used with `datasets` or `h5py` iteration to prevent OOM on large datasets.
+- **Task T011**: MUST use `streaming=True` with `datasets` or `h5py` iteration to prevent OOM on large datasets.
 - **Task T044**: Must raise an error immediately if `torch.cuda.is_available()` returns True and `device` is not explicitly forced to "cpu".
-- **Task T045**: Must log the result of Levene's test and the subsequent choice of statistical test (t-test vs Wilcoxon) in the final report.
-- **Task T029b**: Explicitly calculates threshold where `MSE_discrete > 1.2 * MSE_baseline` to resolve SC-001's "[deferred]" placeholder.
+- **Task T045**: Must log the result of the bootstrap method and the subsequent choice of statistical test (LMM vs Bootstrap) in the final report.
+- **Task T029b**: Explicitly calculates threshold where MSE ratio exceeds upper bound of 95% CI to resolve SC-001.
+- **Task T004a**: Must target Cohen's d=0.5 as per FR-009.
+- **Task T013**: Must use exact formula `std dev = 0.1 * quantization_step`.
