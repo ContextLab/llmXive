@@ -1,122 +1,91 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: CharacterAxis Schema
-description: |
-  JSON Schema defining the structure for CharacterAxis Coarse and Fine definitions
-  used in the ArcANE gene-regulation follow-up study.
-  
-  This file contains definitions for both:
-  1. CharacterAxis.Coarse: Broad psychological dimensions (e.g., Extraversion, Conscientiousness).
-  2. CharacterAxis.Fine: Specific, narrative-grounded behavioral observations.
-
-definitions:
-  CharacterAxis.Coarse:
+$schema: "http://json-schema.org/draft-07/schema#"
+title: CharacterAxis
+description: >
+  JSON Schema for Character Axis definitions in the ArcANE pipeline.
+  Defines both Coarse (broad psychological traits) and Fine (specific narrative behaviors) axes.
+type: object
+properties:
+  character:
+    type: string
+    description: The name of the character being analyzed.
+  coarse:
     type: object
-    description: |
-      Coarse-grained psychological axes representing broad trait dimensions.
-      These are abstract and not tied to specific plot points.
-    required:
-      - axis_name
-      - dimension_description
-      - scale_definition
-      - theoretical_basis
+    description: >
+      Coarse Axis: Broad, high-level psychological traits (e.g., Introversion, Conscientiousness).
+      Derived from general psychological frameworks or broad character archetypes.
     properties:
-      axis_name:
+      trait_name:
         type: string
-        description: Short name for the axis (e.g., "Extraversion").
-        minLength: 1
-        pattern: "^[A-Za-z0-9_\\s-]+$"
-      dimension_description:
+        description: The name of the broad trait (e.g., "Agreeableness").
+      definition:
         type: string
-        description: Detailed description of the psychological dimension.
-        minLength: 10
-      scale_definition:
+        description: A clear, high-level definition of the trait in the context of the character.
+      range:
         type: object
-        description: Defines the low and high ends of the spectrum.
-        required:
-          - low_endpoint
-          - high_endpoint
+        description: The scale of the trait.
         properties:
-          low_endpoint:
+          min_label:
             type: string
-            description: Description of the low end of the scale (e.g., "Introverted").
-            minLength: 5
-          high_endpoint:
+          max_label:
             type: string
-            description: Description of the high end of the scale (e.g., "Extraverted").
-            minLength: 5
-      theoretical_basis:
-        type: string
-        description: Citation or reference to the psychological theory supporting this axis.
-        minLength: 1
-      tags:
+        required:
+          - min_label
+          - max_label
+      indicators:
         type: array
-        description: Optional metadata tags.
         items:
           type: string
-        minItems: 0
+        description: List of general behavioral indicators for this coarse trait.
+    required:
+      - trait_name
+      - definition
+      - range
+      - indicators
+  fine:
+    type: object
+    description: >
+      Fine Axis: Specific, granular narrative behaviors or micro-decisions derived from independent observations.
+      These must be distinct from Coarse axes and grounded in specific plot points or dialogue.
+    properties:
+      behavior_name:
+        type: string
+        description: The specific name of the micro-behavior (e.g., "Hesitates before answering").
+      definition:
+        type: string
+        description: A precise definition of the behavior, explicitly tied to observable actions.
+      origin:
+        type: string
+        description: >
+          The specific narrative source or independent observation that led to this definition.
+          Must be distinct from the source used for Coarse axes to ensure independence (FR-001).
+      triggers:
+        type: array
+        items:
+          type: string
+        description: List of specific narrative triggers that elicit this behavior.
+      manifestation:
+        type: string
+        description: How this behavior manifests in the character's response or dialogue.
+    required:
+      - behavior_name
+      - definition
+      - origin
+      - triggers
+      - manifestation
+  metadata:
+    type: object
+    properties:
       created_at:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of creation.
-
-  CharacterAxis.Fine:
-    type: object
-    description: |
-      Fine-grained axes representing specific, observable behaviors or narrative moments.
-      These must be grounded in independent narrative observations and distinct from Coarse axes.
-    required:
-      - axis_name
-      - narrative_observation
-      - behavioral_indicator
-      - independence_source
-    properties:
-      axis_name:
+      source_version:
         type: string
-        description: Unique name for this fine-grained axis.
-        minLength: 1
-        pattern: "^[A-Za-z0-9_\\s-]+$"
-      narrative_observation:
-        type: string
-        description: |
-          The specific scene, quote, or narrative event that defines this axis.
-          Must be distinct from the abstract definition of Coarse axes.
-        minLength: 20
-      behavioral_indicator:
-        type: string
-        description: |
-          The specific behavioral manifestation being measured (e.g., "Initiates conversation with strangers").
-        minLength: 10
-      independence_source:
-        type: string
-        description: |
-          Reference to the source of independence (e.g., "Scene 3: The Marketplace").
-          Used to verify FR-001 compliance (independent narrative observations).
-        minLength: 5
-      related_coarse_axis:
-        type: string
-        description: Optional link to a Coarse axis name if there is a theoretical relationship.
-        minLength: 1
       validation_status:
         type: string
-        enum:
-          - pending
-          - validated
-          - rejected
-        description: Current validation state of this fine axis.
-        default: pending
-      created_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of creation.
-
-oneOf:
-  - $ref: "#/definitions/CharacterAxis.Coarse"
-  - $ref: "#/definitions/CharacterAxis.Fine"
-
-$id: https://llmxive.org/schemas/axis.schema.yaml
-type: object
-description: |
-  Root schema allowing either a Coarse or Fine axis object.
-  Validation logic in src/services/axis_generator.py will determine which specific
-  definition applies based on the context or a 'type' discriminator if added later.
-  For now, the consumer must know which definition to apply.
+        enum: ["pending", "validated", "rejected"]
+        description: Status of the semantic overlap validation (T012).
+required:
+  - character
+  - coarse
+  - fine
+additionalProperties: false

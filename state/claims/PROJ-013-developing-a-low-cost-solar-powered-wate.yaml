@@ -1,0 +1,134 @@
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: Simulation output efficiency between 0.0 and 0.8 for Aluminum single-slope;
+    runtime under 60 seconds on CPU
+  claim_id: c_81a303e9
+  context: "Independent Test for User Story 2: Run the simulation with fixed inputs\
+    \ (Aluminum, single-slope) and verify that output efficiency \u03B7 is between\
+    \ 0.0 and 0.8, and the simulation completes within 60 seconds on CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run the simulation with fixed inputs (Aluminum, single-slope) and verify\
+    \ that output efficiency \u03B7 is between 0.0 and 0.8, and the simulation completes\
+    \ within 60 seconds on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:36:13Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: Time-averaged thermal efficiency calculated over final 30 minutes of
+    transient simulation
+  claim_id: c_ee3f94f3
+  context: "Implement code/simulation.py: Calculate time-averaged thermal efficiency\
+    \ \u03B7 over the final 30 minutes of the transient simulation for every valid\
+    \ material-geometry combination."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate time-averaged thermal efficiency \u03B7 over the final 30 minutes\
+    \ of the transient simulation for every valid material-geometry combination."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:36:34Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "Mean efficiency 0.45 from Duffie & Beckman used as reference for \xB1\
+    10% warning threshold"
+  claim_id: c_24fdeac9
+  context: "Perform Secondary Check: Log if calculated efficiency \u03B7 falls within\
+    \ \xB110% of the mean efficiency (0.45) from Duffie & Beckman as a warning, but\
+    \ DO NOT exclude the data point based on this check alone."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Log if calculated efficiency \u03B7 falls within \xB110% of the mean\
+    \ efficiency (0.45) from Duffie & Beckman as a warning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:36:34Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "Batch simulation of 12 combinations (3 geometries \xD7 4 materials)\
+    \ completes in under 180 seconds on CPU"
+  claim_id: c_8bbdc1ee
+  context: "Run batch simulation for all material-geometry combinations (3 geometries\
+    \ \xD7 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU.\
+    \ Note: Angle sweep (0-80\xB0) is removed to respect Spec scope."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run batch simulation for all material-geometry combinations (3 geometries\
+    \ \xD7 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:36:56Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "Coefficient of determination R\xB2 calculated for linear fit to Pareto\
+    \ frontier points"
+  claim_id: c_82eedb62
+  context: "Implement code/optimization.py: Calculate the coefficient of determination\
+    \ (R\xB2) of a linear fit to the Pareto frontier points. Report this metric to\
+    \ confirm the trade-off nature (SC-003)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coefficient_of_determination_R%C2%B2_calculated_for_linear_fit_to
+  kind: entity_fact
+  raw_text: "Calculate the coefficient of determination (R\xB2) of a linear fit to\
+    \ the Pareto frontier points."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:37:25Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: "R\xB2 metric less than 0.95 indicates non-linear trade-off"
+  claim_id: c_5bdf94b4
+  context: "Validate the trade-off nature: Ensure the R\xB2 metric is < 0.95 to confirm\
+    \ a non-linear trade-off. If R\xB2 \u2265 0.95, log a warning that the frontier\
+    \ appears linear, but DO NOT fail the pipeline."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/R%C2%B2_metric_less_than_0.95_indicates_non-linear_trade-off
+  kind: magnitude
+  raw_text: "Ensure the R\xB2 metric is < 0.95 to confirm a non-linear trade-off."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:37:51Z'
+- artifact_path: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate/tasks.md
+  attempts: 1
+  canonical: Angle sweep range 0-80 degrees removed from simulation scope
+  claim_id: c_1d973bc4
+  context: "Run batch simulation for all material-geometry combinations (3 geometries\
+    \ \xD7 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU.\
+    \ Note: Angle sweep (0-80\xB0) is removed to respect Spec scope."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Angle sweep (0-80\xB0) is removed to respect Spec scope."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:38:13Z'

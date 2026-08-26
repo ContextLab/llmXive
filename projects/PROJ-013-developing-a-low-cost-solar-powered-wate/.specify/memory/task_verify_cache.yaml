@@ -1,0 +1,36 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `code/`, `data/`, or `tests/` directories were presented or listed in the\
+    \ provided evidence, so the required project structure does not exist. The implementer\
+    \ must create and show these three top\u2011level directories (with at least placeholder\
+    \ files) to satisfy the task."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.ruff.toml`, or a `black` configuration) were provided, nor any evidence
+    of a CI step invoking these tools. Without such artifacts, the task of configuring
+    ruff and black is not demonstrated as completed.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`data/raw/`, `data/processed/`, `data/plots/`) is presented
+    or referenced in the provided artifacts; without visible evidence of these folders,
+    the task requirement is not satisfied. The implementer must create and show the
+    three required directories in the repository.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.env` file, configuration script, or documentation supporting NASA POWER
+    API key management was provided; the claim lacks any tangible artifact demonstrating
+    that environment configuration management has been implemented. The required files
+    or code are missing.
+T012:
+  c: false
+  h: 2e27abccae734cf9cdcfe2bb1450e450720772158191e2503194045ab8ee9fc2
+  r: "The repository contains `data/raw/nist_materials.json` but the required checksum\
+    \ file `data/raw/nist_materials.json.sha256` is absent, and the provided `code/data_ingestion.py`\
+    \ snippet shows no logic that writes such a checksum (nor any fetching of live\
+    \ NIST data). The task\u2019s core output \u2013 a saved SHA256 checksum \u2013\
+    \ is therefore missing."

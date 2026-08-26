@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No `code/`, `data/`, or `tests/` directories were presented or listed in the provided evidence, so the required project structure does not exist. The implementer must create and show these three top‑level directories (with at least placeholder files) to satisfy the task.
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black settings, `.ruff.toml`, or a `black` configuration) were provided, nor any evidence of a CI step invoking these tools. Without such artifacts, the task of configuring ruff and black is not demonstrated as completed.
+- **T004** — No directory structure (`data/raw/`, `data/processed/`, `data/plots/`) is presented or referenced in the provided artifacts; without visible evidence of these folders, the task requirement is not satisfied. The implementer must create and show the three required directories in the repository.
+- **T007** — No `.env` file, configuration script, or documentation supporting NASA POWER API key management was provided; the claim lacks any tangible artifact demonstrating that environment configuration management has been implemented. The required files or code are missing.
+- **T012** — The repository contains `data/raw/nist_materials.json` but the required checksum file `data/raw/nist_materials.json.sha256` is absent, and the provided `code/data_ingestion.py` snippet shows no logic that writes such a checksum (nor any fetching of live NIST data). The task’s core output – a saved SHA256 checksum – is therefore missing.
+- **T015** — declared artifact(s) missing/empty/invalid: data/processed/materials.csv

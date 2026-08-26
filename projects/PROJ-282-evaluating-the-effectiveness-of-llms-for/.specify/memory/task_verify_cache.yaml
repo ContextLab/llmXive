@@ -48,3 +48,31 @@ T015:
     flow has not been documented or validated as specified. No evidence of the defined
     execution order, downstream task calls, schema validation, or adaptive batch sizing
     is provided. The implementer must create the JSON log file with the expected contents.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no updated `README.md` or any files under `docs/`; no evidence
+    of revised documentation is present. The required artifacts are missing, so the
+    documentation update task is not satisfied.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided only the task description and project spec but no concrete
+    artifacts such as a linting report, updated source files, or evidence that `ruff`
+    and `black` were run and all modules now contain type hints. Without these files
+    or a verification log, the requirement cannot be confirmed as satisfied.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No profiling logs, batch\u2011size tuning scripts, or GPU\u2011offload implementation\
+    \ were supplied; the claim lacks any concrete artifact (e.g., benchmark tables,\
+    \ modified inference/feature\u2011extraction code, or instructions for using a\
+    \ free Kaggle GPU) required to demonstrate the performance optimizations."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test files, code changes, or documentation were provided showing new unit
+    tests for the specified edge cases (large snippet truncation and malformed code
+    handling). The claim lacks any concrete artifacts (e.g., pytest files, test case
+    listings, or CI reports) that demonstrate the expanded coverage, so the requirement
+    is not satisfied.

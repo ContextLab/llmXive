@@ -1,4 +1,3 @@
-# Existing dependencies
 transformers
 scikit-learn
 pandas
@@ -11,5 +10,8 @@ sentence-transformers
 pytest
 radon
 statsmodels
-# New dependency for CPU check (torch is already implied by bitsandbytes/transformers)
-torch
+ruff
+black
+mypy
+types-requests
+types-PyYAML

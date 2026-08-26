@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/` directories)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (scipy, numpy, pandas, matplotlib, requests, beautifulsoup4, pyyaml, pytest)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (scipy, numpy, pandas, matplotlib, requests, beautifulsoup4, pyyaml, pytest)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -56,10 +56,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup data directory structure (`data/raw/`, `data/processed/`, `data/plots/`)
-- [ ] T005 [P] Implement utility helpers for logging, error handling, and path resolution in `code/utils.py`
-- [ ] T006 Create base configuration loader for API keys and simulation parameters in `code/config.py`
+- [X] T005 [P] Implement utility helpers for logging, error handling, and path resolution in `code/utils.py`
+- [X] T006 Create base configuration loader for API keys and simulation parameters in `code/config.py`
 - [ ] T007 Setup environment configuration management (`.env` support for NASA POWER keys)
-- [ ] T008 Implement `code/data_ingestion.py` helper: Fetch solar irradiance profiles from NASA POWER API for Sub-Saharan Africa; handle missing/zero data by defaulting to a representative average as per spec edge cases. **Prerequisite for T021.** (Blocking: Must complete before T021).
+- [X] T008 Implement `code/data_ingestion.py` helper: Fetch solar irradiance profiles from NASA POWER API for Sub-Saharan Africa; handle missing/zero data by defaulting to a representative average as per spec edge cases. **Prerequisite for T021.** (Blocking: Must complete before T021).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,15 +75,15 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. These tests verify specific function signatures and logic.
 
-- [ ] T009 [P] [US1] Unit test for cost function calculation in `tests/unit/test_data_ingestion.py`: Verify `calculate_cost` exists with signature `(materials: List[MaterialProfile], geometry: GeometryConfig) -> float` and asserts `calculate_cost` returns a float > 0 for valid inputs.
-- [ ] T010 [P] [US1] Contract test for material schema validation in `tests/unit/test_material_schema.py`: Verify `load_material_schema` exists with signature `(path: str) -> Schema` and asserts the schema loads correctly for the defined `MaterialProfile`.
+- [X] T009 [P] [US1] Unit test for cost function calculation in `tests/unit/test_data_ingestion.py`: Verify `calculate_cost` exists with signature `(materials: List[MaterialProfile], geometry: GeometryConfig) -> float` and asserts `calculate_cost` returns a float > 0 for valid inputs.
+- [X] T010 [P] [US1] Contract test for material schema validation in `tests/unit/test_material_schema.py`: Verify `load_material_schema` exists with signature `(path: str) -> Schema` and asserts the schema loads correctly for the defined `MaterialProfile`.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/data_ingestion.py`: Load thermal properties (conductivity, emissivity, specific heat, density) for Aluminum, Copper, Black-painted Steel, and Plastic from the **hardcoded JSON file** `data/raw/nist_materials.json`. Ensure keys match `data-model.md` (MaterialProfile): `thermal_conductivity`, `emissivity`, `specific_heat`, `density`. **Do NOT fetch live from NIST API.**
+- [X] T011 [US1] Implement `code/data_ingestion.py`: Load thermal properties (conductivity, emissivity, specific heat, density) for Aluminum, Copper, Black-painted Steel, and Plastic from the **hardcoded JSON file** `data/raw/nist_materials.json`. Ensure keys match `data-model.md` (MaterialProfile): `thermal_conductivity`, `emissivity`, `specific_heat`, `density`. **Do NOT fetch live from NIST API.**
 - [ ] T012 [US1] Implement `code/data_ingestion.py`: Fetch raw NIST data from the canonical source ONCE (if available) or use the hardcoded JSON, save to `data/raw/nist_materials.json`, and compute a SHA256 checksum of the resulting file. Save the checksum to `data/raw/nist_materials.json.sha256`. This ensures reproducibility for subsequent runs.
-- [ ] T013 [US1] Implement `code/data_ingestion.py`: Scrape current market prices for the 4 materials from `https://api.materialprices.example/v1/prices`. **Fallback**: If this fails, attempt to fetch a verified CSV from `https://raw.githubusercontent.com/.../material_prices.csv`. **Edge Case Handling**: If a price is unavailable after all attempts, **exclude** that material from the simulation, log a warning, and **add a `status` field** (e.g., "invalid_price") to the output CSV for that material to ensure traceability. **DO NOT** fallback to synthetic data.
-- [ ] T014 [US1] Implement cost function logic in `code/data_ingestion.py`: Calculate total cost $C$ for a specific geometry by summing (mass × price) for all components, ensuring all costs are strictly positive. **Strictly follow spec: $C = \sum (mass_i \times price_i)$ without additional complexity factors.**
+- [X] T013 [US1] Implement `code/data_ingestion.py`: Scrape current market prices for the 4 materials from ` Name or service not known)"))]. **Fallback**: If this fails, attempt to fetch a verified CSV from `. **Edge Case Handling**: If a price is unavailable after all attempts, **exclude** that material from the simulation, log a warning, and **add a `status` field** (e.g., "invalid_price") to the output CSV for that material to ensure traceability. **DO NOT** fallback to synthetic data.
+- [X] T014 [US1] Implement cost function logic in `code/data_ingestion.py`: Calculate total cost $C$ for a specific geometry by summing (mass × price) for all components, ensuring all costs are strictly positive. **Strictly follow spec: $C = \sum (mass_i \times price_i)$ without additional complexity factors.**
 - [ ] T015 [US1] Generate `data/processed/materials.csv` containing material_id, thermal properties, density, unit price, calculated cost, and a `status` field (e.g., "valid", "invalid_price").
 - [ ] T016 [US1] Validate that the output CSV contains no missing values for valid materials and that all costs are positive scalars.
 
@@ -111,7 +111,7 @@
 - [ ] T023 [US2] Implement `code/validation.py`: Perform **Primary Validation**: Check **Energy Balance Closure** (Input Energy = Output Energy + Losses). **If this check fails, exclude the data point from results.** This is the hard gate per the Plan.
 - [ ] T024 [US2] Implement `code/validation.py`: Perform **Secondary Check**: Log if calculated efficiency $\eta$ falls within ±10% of the mean efficiency (0.45) from Duffie & Beckman as a warning, but **DO NOT** exclude the data point based on this check alone.
 - [ ] T025 [US2] Generate `data/processed/simulation_results.csv` containing material_id, geometry_id, steady_state_efficiency, total_cost, and convergence_status. **Conditional: Only generate this file if T023 validation passes.**
-- [ ] T026 [US2] Run batch simulation for all material-geometry combinations (3 geometries × 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU. **Note: Angle sweep (0-80°) is removed to respect Spec scope.**
+- [ ] T026 [US2] Run batch simulation for all material-geometry combinations (3 geometries × 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU. **Note: Angle sweep (0-80°) is removed to respect Spec scope. **
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -162,8 +162,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -229,9 +229,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

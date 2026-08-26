@@ -9,31 +9,32 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can dynamically pruning and re-allocating decoupled capability pathways in a unified multimodal MoE architecture based on input semantic complexity significantly reduce inference latency and memory footprint on CPU-only devices without degrading task-specific accuracy?
+To what extent does the semantic complexity of multimodal inputs predict the minimal number of active MoE experts required to maintain task accuracy, and how can this relationship be leveraged to construct a hardware-agnostic adaptive inference protocol?
 
 ## Motivation
 
-Current unified multimodal models often incur unnecessary computational overhead for simple tasks by activating full generative pathways, creating a barrier to real-time deployment on edge devices. This research addresses the gap in adaptive inference strategies for lightweight MoE architectures, aiming to prove that complexity-aware routing can enable energy-efficient, low-latency multimodal AI on standard CPUs without sacrificing performance on low-complexity inputs.
+Unified multimodal models often activate their full capacity for simple inputs, incurring unnecessary latency and memory overhead that hinders real-time deployment on resource-constrained edge devices. This research addresses the lack of theoretical understanding regarding the correlation between input complexity and expert utilization in Mixture-of-Experts (MoE) architectures, aiming to establish a data-driven foundation for dynamic, hardware-agnostic inference routing that preserves accuracy while significantly reducing computational cost.
 
 ## Related work
 
 - [Lance: Unified Multimodal Modeling by Multi-Task Synergy](https://arxiv.org/abs/2605.18678) — Establishes the baseline dual-stream mixture-of-experts architecture and staged training paradigm that this project seeks to optimize via dynamic inference routing.
-- [A Survey on Multimodal Large Language Models](https://arxiv.org/abs/2306.13549) — Provides context on the current landscape of MLLMs and the general computational challenges associated with multimodal understanding and generation, highlighting the need for efficiency improvements.
-- [MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models](https://arxiv.org/abs/2306.13394) — Offers a standardized evaluation framework for assessing the accuracy and capabilities of multimodal models, which will be used to measure performance degradation during adaptive pruning.
+- [Do Understanding and Generation Fight? A Diagnostic Study of DPO for Unified Multimodal Models](https://arxiv.org/abs/2603.17044) — Provides diagnostic insights into the tension between understanding and generation capabilities within unified backbones, highlighting the potential for decoupled expert activation strategies.
+- [Unified Multimodal Understanding and Generation Models: Advances, Challenges, and Opportunities](https://arxiv.org/abs/2505.02567) — Reviews the independent evolution of understanding and generation domains, identifying the need for unified efficiency strategies that this project addresses through adaptive routing.
 
 ## Expected results
 
-We expect to demonstrate that for a significant portion of low-complexity inputs, dynamically disabling the generative pathway reduces CPU inference time by over 40% and memory usage by over 30%. The evidence will be considered sufficient if the adaptive model maintains at least 95% accuracy on specific task benchmarks compared to the full-model baseline, confirming that dynamic decoupling is viable for resource-constrained environments.
+We expect to find a strong monotonic relationship between input semantic complexity (measured via cross-modal attention entropy) and the minimum expert set size required to maintain >95% baseline accuracy. This evidence will confirm that a lightweight, complexity-aware router can dynamically reduce active parameters by 30-50% on low-complexity inputs without degrading performance, validating the feasibility of hardware-agnostic adaptive inference.
 
 ## Methodology sketch
 
-- Download and preprocess a subset of the LAION-2B dataset (filtered for low-resolution images) and Kinetics-400 (downscaled to 224x224) using standard HuggingFace `datasets` pipelines to ensure reproducibility on CPU.
-- Compute a semantic complexity score for each sample using a pre-trained, frozen CLIP model to generate text-image similarity metrics, creating a ground-truth distribution of input complexity.
-- Implement a lightweight "Router-Gate" mechanism (a small MLP) that takes input token entropy and task metadata as features to predict the optimal subset of MoE experts to activate, ensuring the router itself runs efficiently on CPU.
-- Load the pre-trained Lance weights (freezing all parameters) and instrument the inference loop to dynamically toggle between single-stream (understanding-only) and dual-stream (generation-enabled) modes based on the Router-Gate's confidence scores.
-- Execute a complexity-adaptive inference benchmark on a standard x86 or ARM CPU environment (simulating GHA free-tier constraints), recording inference latency (ms), CPU utilization (%), and peak memory footprint (GB) for both the adaptive and full-model baselines.
+- Download and preprocess a stratified subset of the LAION-2B (filtered for low-resolution images) and Kinetics-400 (downscaled to 224x224) datasets using HuggingFace `datasets` to ensure reproducibility within 7GB RAM limits.
+- Compute a semantic complexity score for each sample using a frozen, pre-trained CLIP model to generate cross-modal similarity metrics and attention entropy, establishing an independent ground-truth distribution of input difficulty.
+- Load pre-trained Lance weights (freezing all parameters) and instrument the inference loop to systematically disable specific expert pathways, recording the "accuracy cliff" point for each sample to determine the minimal expert set required.
+- Train a lightweight, CPU-optimized "Router-Gate" (a small MLP) using the computed complexity scores as targets to predict the minimal expert subset for new inputs, ensuring the router's own inference overhead is negligible.
+- Execute a complexity-adaptive inference benchmark on a standard x86 CPU environment (simulating GitHub Actions free-tier constraints), recording inference latency (ms), CPU utilization (%), and peak memory footprint (GB) for both the adaptive and full-model baselines.
 - Evaluate the adaptive model's performance using the MME benchmark tasks on the low-complexity subset, calculating accuracy retention rates to ensure no significant degradation occurs during pathway pruning.
-- Perform statistical analysis (paired t-tests) on the latency and memory metrics between the adaptive and baseline runs to determine the significance of the efficiency gains.
+- Perform statistical analysis (Spearman's rank correlation and paired t-tests) on the complexity scores, minimal expert counts, and efficiency metrics to determine the strength and significance of the relationship.
+- **Validation Independence Check**: The evaluation target (task accuracy on MME) is derived from a distinct dataset and task formulation than the predictor (input complexity derived from CLIP attention entropy), ensuring the validation is not circular.
 
 ## Duplicate-check
 
@@ -44,39 +45,41 @@ We expect to demonstrate that for a significant portion of low-complexity inputs
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-25T04:57:02Z
-**Outcome**: exhausted
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-26T12:50:41Z
+**Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "Lance: Unified Multimodal Modeling by Multi-Task Synergy" computer science
-**Verified citation count**: 3
+**Verified citation count**: 5
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "Lance: Unified Multimodal Modeling by Multi-Task Synergy" computer science | 0 |
-| 1 | unified multimodal large language models | 5 |
-| 2 | multi-task synergy in multimodal learning | 0 |
-| 3 | joint optimization for vision-language models | 0 |
-| 4 | cross-modal representation learning with LLMs | 0 |
-| 5 | multi-task learning for multimodal foundation models | 0 |
-| 6 | unified architectures for text and image understanding | 0 |
-| 7 | synergistic training strategies for multimodal AI | 0 |
-| 8 | integrated vision-language pre-training | 0 |
-| 9 | multi-objective optimization in multimodal transformers | 0 |
-| 10 | shared backbone architectures for diverse modalities | 0 |
-| 11 | holistic multimodal reasoning models | 0 |
-| 12 | concurrent learning of vision and language tasks | 0 |
-| 13 | unified generative models for multimodal data | 0 |
-| 14 | parameter-efficient multi-task multimodal fine-tuning | 0 |
-| 15 | cross-attention mechanisms in unified multimodal models | 0 |
-| 16 | end-to-end multimodal task integration | 0 |
-| 17 | multi-modal alignment via multi-task objectives | 0 |
-| 18 | scalable unified multimodal transformer architectures | 0 |
-| 19 | collaborative multi-task learning for computer vision and NLP | 0 |
-| 20 | unified embedding spaces for heterogeneous modalities | 0 |
+| 1 | unified multimodal learning architectures | 5 |
+| 2 | multi-task synergy in large language models | 0 |
+| 3 | joint multimodal representation learning | 0 |
+| 4 | cross-modal attention mechanisms | 0 |
+| 5 | multimodal foundation models | 0 |
+| 6 | unified vision-language pre-training | 0 |
+| 7 | multi-task learning for multimodal AI | 0 |
+| 8 | synergistic multimodal task optimization | 0 |
+| 9 | end-to-end multimodal modeling frameworks | 0 |
+| 10 | shared encoder-decoder multimodal systems | 0 |
+| 11 | large multimodal models (LMMs) | 0 |
+| 12 | unified architectures for vision and language | 0 |
+| 13 | multi-objective optimization in multimodal deep learning | 0 |
+| 14 | integrated multimodal reasoning | 0 |
+| 15 | heterogeneous data fusion in deep learning | 0 |
+| 16 | scalable multimodal transformer architectures | 0 |
+| 17 | multi-granularity multimodal alignment | 0 |
+| 18 | task-agnostic multimodal pre-training | 0 |
+| 19 | unified generative multimodal models | 0 |
+| 20 | cross-modal knowledge transfer in LLMs | 0 |
 
 ### Verified citations
 
 1. **Lance: Unified Multimodal Modeling by Multi-Task Synergy** (2026). Fengyi Fu, Mengqi Huang, Shaojin Wu, Yunsheng Jiang, Yufei Huo, et al.. arXiv. [2605.18678](https://arxiv.org/abs/2605.18678). PDF-sampled: No.
-2. **A Survey on Multimodal Large Language Models** (2023). Shukang Yin, Chaoyou Fu, Sirui Zhao, Ke Li, Xing Sun, et al.. arXiv. [2306.13549](https://arxiv.org/abs/2306.13549). PDF-sampled: No.
-3. **MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models** (2023). Chaoyou Fu, Peixian Chen, Yunhang Shen, Yulei Qin, Mengdan Zhang, et al.. arXiv. [2306.13394](https://arxiv.org/abs/2306.13394). PDF-sampled: No.
+2. **PixelBytes: Catching Unified Embedding for Multimodal Generation** (2024). Fabien Furfaro. arXiv. [2409.15512](https://arxiv.org/abs/2409.15512). PDF-sampled: No.
+3. **UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation** (2025). Yi Li, Haonan Wang, Qixiang Zhang, Boyu Xiao, Chenchang Hu, et al.. arXiv. [2505.10483](https://arxiv.org/abs/2505.10483). PDF-sampled: No.
+4. **Do Understanding and Generation Fight? A Diagnostic Study of DPO for Unified Multimodal Models** (2026). Abinav Rao, Sujan Rachuri. arXiv. [2603.17044](https://arxiv.org/abs/2603.17044). PDF-sampled: No.
+5. **Unified Multimodal Understanding and Generation Models: Advances, Challenges, and Opportunities** (2025). Shanshan Zhao, Xinjie Zhang, Jintao Guo, Jiakui Hu, Lunhao Duan, et al.. arXiv. [2505.02567](https://arxiv.org/abs/2505.02567). PDF-sampled: No.

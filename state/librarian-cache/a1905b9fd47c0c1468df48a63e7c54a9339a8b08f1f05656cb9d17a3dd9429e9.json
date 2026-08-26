@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-25T04:57:02Z",
+  "fetched_at": "2026-08-26T12:50:41Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task Synergy\"",
       "target_n": 5
     },
-    "duration_seconds": 54.524,
-    "ended_at": "2026-07-25T04:57:02Z",
+    "duration_seconds": 45.273,
+    "ended_at": "2026-08-26T12:50:41Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "unified multimodal large language models"
+          "unified multimodal learning architectures"
         ],
         [
           2,
-          "multi-task synergy in multimodal learning"
+          "multi-task synergy in large language models"
         ],
         [
           3,
-          "joint optimization for vision-language models"
+          "joint multimodal representation learning"
         ],
         [
           4,
-          "cross-modal representation learning with LLMs"
+          "cross-modal attention mechanisms"
         ],
         [
           5,
-          "multi-task learning for multimodal foundation models"
+          "multimodal foundation models"
         ],
         [
           6,
-          "unified architectures for text and image understanding"
+          "unified vision-language pre-training"
         ],
         [
           7,
-          "synergistic training strategies for multimodal AI"
+          "multi-task learning for multimodal AI"
         ],
         [
           8,
-          "integrated vision-language pre-training"
+          "synergistic multimodal task optimization"
         ],
         [
           9,
-          "multi-objective optimization in multimodal transformers"
+          "end-to-end multimodal modeling frameworks"
         ],
         [
           10,
-          "shared backbone architectures for diverse modalities"
+          "shared encoder-decoder multimodal systems"
         ],
         [
           11,
-          "holistic multimodal reasoning models"
+          "large multimodal models (LMMs)"
         ],
         [
           12,
-          "concurrent learning of vision and language tasks"
+          "unified architectures for vision and language"
         ],
         [
           13,
-          "unified generative models for multimodal data"
+          "multi-objective optimization in multimodal deep learning"
         ],
         [
           14,
-          "parameter-efficient multi-task multimodal fine-tuning"
+          "integrated multimodal reasoning"
         ],
         [
           15,
-          "cross-attention mechanisms in unified multimodal models"
+          "heterogeneous data fusion in deep learning"
         ],
         [
           16,
-          "end-to-end multimodal task integration"
+          "scalable multimodal transformer architectures"
         ],
         [
           17,
-          "multi-modal alignment via multi-task objectives"
+          "multi-granularity multimodal alignment"
         ],
         [
           18,
-          "scalable unified multimodal transformer architectures"
+          "task-agnostic multimodal pre-training"
         ],
         [
           19,
-          "collaborative multi-task learning for computer vision and NLP"
+          "unified generative multimodal models"
         ],
         [
           20,
-          "unified embedding spaces for heterogeneous modalities"
+          "cross-modal knowledge transfer in LLMs"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task Synergy\" computer science": 0,
-        "unified multimodal large language models": 5
+        "unified multimodal learning architectures": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "multi-task synergy unified multimodal learning",
-      "Lance multimodal foundation model pretraining",
-      "cross-modal representation alignment synergy",
-      "multi-task learning evaluation benchmark metrics",
-      "catastrophic interference multi-task transfer learning"
+      "multi-task synergy multimodal pretraining",
+      "Lance multimodal unified framework LLaVA",
+      "heterogeneous task interference gradient surgery",
+      "zero-shot transfer multimodal benchmark evaluation",
+      "parameter efficiency multi-task learning architecture"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,46 +115,36 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2306.13549"
+        "2505.10483"
       ]
     },
     "per_query_hit_count": {
-      "Lance multimodal foundation model pretraining": 3,
-      "catastrophic interference multi-task transfer learning": 1,
-      "cross-modal representation alignment synergy": 3,
+      "Lance multimodal unified framework LLaVA": 3,
+      "heterogeneous task interference gradient surgery": 3,
       "llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task Synergy\" computer science": 3,
-      "multi-task learning evaluation benchmark metrics": 1,
-      "multi-task synergy unified multimodal learning": 3
+      "multi-task synergy multimodal pretraining": 3,
+      "parameter efficiency multi-task learning architecture": 3,
+      "zero-shot transfer multimodal benchmark evaluation": 2
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 3,
+      "rejected_count": 1,
       "rejections": [
         {
-          "primary_pointer": "2403.09513",
-          "rationale": "The paper focuses on safety mechanisms (jailbreak defense) for Multimodal Large Language Models (MLLMs), whereas the user's question targets the extension of a specific unified modeling framework (\"Lance\") regarding multi-task synergy. There is no overlap in the core mechanism, variables, or empirical goals (model architecture/synergy vs. security/robustness), and the paper does not establish a baseline or foundational method for the specific \"Lance\" follow-up context.",
-          "title": "AdaShield: Safeguarding Multimodal Large Language Models from Structure-based Attack via Adaptive Shield Prompting"
-        },
-        {
-          "primary_pointer": "2502.00425",
-          "rationale": "The candidate paper focuses on quantization techniques for efficient inference of Multimodal Large Language Models (MLLMs), which is a deployment optimization problem, whereas the user's question targets \"Multi-Task Synergy\" and unified modeling architectures as proposed in the \"Lance\" paper. There is no overlap in the core mechanism (synergy vs. compression), variables, or empirical goals, and the paper does not serve as a foundational reference for the specific multi-task synergy framework the",
-          "title": "MQuant: Unleashing the Inference Potential of Multimodal Large Language Models via Full Static Quantization"
-        },
-        {
-          "primary_pointer": "2312.05434",
-          "rationale": "The paper focuses on a specific downstream application (harmful meme detection) using multimodal reasoning, whereas the user's question targets the foundational \"Unified Multimodal Modeling by Multi-Task Synergy\" framework and its extension. While both involve multimodal LLMs, the candidate paper does not address the core mechanism of multi-task synergy, the specific architecture of \"Lance,\" or the theoretical basis for extending such unified models, making it a distinct application rather than ",
-          "title": "Beneath the Surface: Unveiling Harmful Memes with Multimodal Reasoning Distilled from Large Language Models"
+          "primary_pointer": "2206.09242",
+          "rationale": "The paper focuses on a specific application domain (disaster prediction) and a distinct multimodal fusion architecture (GaLeNet) rather than the foundational \"Multi-Task Synergy\" mechanism or the specific \"Lance\" framework referenced in the user's question. While both involve multimodal learning, the candidate paper does not measure the same mechanism, establish a baseline for the specific \"Lance\" approach, or serve as a canonical reference for the \"Multi-Task Synergy\" concept in the way require",
+          "title": "GaLeNet: Multimodal Learning for Disaster Prediction, Management and Relief"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-25T04:56:08Z",
+    "started_at": "2026-08-26T12:49:56Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"lance: unified multimodal modeling by multi-task synergy\" computer science",
       "raw": "llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task Synergy\" computer science"
@@ -173,7 +163,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-25T04:56:36Z",
+        "failed_at": "2026-08-26T12:50:23Z",
         "reason": "query_irrelevant"
       },
       {
@@ -192,7 +182,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-25T04:56:36Z",
+        "failed_at": "2026-08-26T12:50:23Z",
         "reason": "query_irrelevant"
       },
       {
@@ -210,61 +200,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-25T04:56:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper studies the properties of solutions to multi-task shallow ReLU neural network learning problems, wherein the network is trained to fit a dataset with minimal sum of squared weights. Remarkably, the solutions learned for each individual task resemble those obtained by solving a kernel regression problem, revealing a novel connection between neural networks and kernel methods. It is known that single-task neural network learning problems are equivalent to a minimum norm interpolation problem in a non-Hilbertian Banach space, and that the solutions of such problems are generally non-unique. In contrast, we prove that the solutions to univariate-input, multi-task neural network interpolation problems are almost always unique, and coincide with the solution to a minimum-norm interpolation problem in a Sobolev (Reproducing Kernel) Hilbert Space. We also demonstrate a similar phenomenon in the multivariate-input case; specifically, we show that neural network learning problems with large numbers of tasks are approximately equivalent to an $\\ell^2$ (Hilbert space) minimization problem over a fixed kernel determined by the optimal neurons.",
-          "claimed_authors": [
-            "Julia Nakhleh",
-            "Joseph Shenouda",
-            "Robert D. Nowak"
-          ],
-          "claimed_title": "The Effects of Multi-Task Learning on ReLU Neural Network Functions",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2410.21696"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='The Effects of Multi-Task Learning on ReLU Neural Network Functions')",
-        "failed_at": "2026-07-25T04:56:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We propose a novel multi-modal and multi-task architecture for simultaneous low level gesture and surgical task classification in Robot Assisted Surgery (RAS) videos.Our end-to-end architecture is based on the principles of a long short-term memory network (LSTM) that jointly learns temporal dynamics on rich representations of visual and motion features, while simultaneously classifying activities of low-level gestures and surgical tasks. Our experimental results show that our approach is superior compared to an ar- chitecture that classifies the gestures and surgical tasks separately on visual cues and motion cues respectively. We train our model on a fixed random set of 1200 gesture video segments and use the rest 422 for testing. This results in around 42,000 gesture frames sampled for training and 14,500 for testing. For a 6 split experimentation, while the conventional approach reaches an Average Precision (AP) of only 29% (29.13%), our architecture reaches an AP of 51% (50.83%) for 3 tasks and 14 possible gesture labels, resulting in an improvement of 22% (21.7%). Our architecture learns temporal dynamics on rich representations of visual and motion features that compliment each other for classification of low-level gestures and surgical tasks. Its multi-task learning nature makes use of learned joint re- lationships and combinations of shared and task-specific representations. While benchmark studies focus on recognizing gestures that take place under specific tasks, we focus on recognizing common gestures that reoccur across different tasks and settings and significantly perform better compared to conventional architectures.",
-          "claimed_authors": [
-            "Duygu Sarikaya",
-            "Khurshid A. Guru",
-            "Jason J. Corso"
-          ],
-          "claimed_title": "Joint Surgical Gesture and Task Classification with Multi-Task and Multimodal Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1805.00721"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Joint Surgical Gesture and Task Classification with Multi-Task and Multimodal Learning')",
-        "failed_at": "2026-07-25T04:56:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In this paper, we argue about the importance of considering task interactions at multiple scales when distilling task information in a multi-task learning setup. In contrast to common belief, we show that tasks with high affinity at a certain scale are not guaranteed to retain this behaviour at other scales, and vice versa. We propose a novel architecture, namely MTI-Net, that builds upon this finding in three ways. First, it explicitly models task interactions at every scale via a multi-scale multi-modal distillation unit. Second, it propagates distilled task information from lower to higher scales via a feature propagation module. Third, it aggregates the refined task features from all scales via a feature aggregation unit to produce the final per-task predictions.\n  Extensive experiments on two multi-task dense labeling datasets show that, unlike prior work, our multi-task model delivers on the full potential of multi-task learning, that is, smaller memory footprint, reduced number of calculations, and better performance w.r.t. single-task learning. The code is made publicly available: https://github.com/SimonVandenhende/Multi-Task-Learning-PyTorch.",
-          "claimed_authors": [
-            "Simon Vandenhende",
-            "Stamatios Georgoulis",
-            "Luc Van Gool"
-          ],
-          "claimed_title": "MTI-Net: Multi-Scale Task Interaction Networks for Multi-Task Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2001.06902"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='MTI-Net: Multi-Scale Task Interaction Networks for Multi-Task Learning')",
-        "failed_at": "2026-07-25T04:56:36Z",
+        "failed_at": "2026-08-26T12:50:23Z",
         "reason": "query_irrelevant"
       },
       {
@@ -283,79 +219,218 @@
           "primary_pointer": "2411.15127"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='PRIMUS: Pretraining IMU Encoders with Multimodal Self-Supervision')",
-        "failed_at": "2026-07-25T04:56:37Z",
+        "failed_at": "2026-08-26T12:50:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Specialized foundation models are beginning to emerge in various medical subdomains, but pretraining methodologies and parametric scaling with the size of the pretraining dataset are rarely assessed systematically and in a like-for-like manner. This work focuses on foundation models for electrocardiography (ECG) data, one of the most widely captured physiological time series world-wide. We present a comprehensive assessment of pretraining methodologies, covering five different contrastive and non-contrastive self-supervised learning objectives for ECG foundation models, and investigate their scaling behavior with pretraining dataset sizes up to 11M input samples, exclusively from publicly available sources. Pretraining strategy has a meaningful and consistent impact on downstream performance, with contrastive predictive coding (slightly ahead of JEPA) yielding the most transferable representations across diverse clinical tasks. Scaling pretraining data continues to yield meaningful improvements up to 11M samples for most objectives. We also compare model architectures across all pretraining methodologies and find evidence for a clear superiority of structured state space models compared to transformers and CNN models. We hypothesize that the strong inductive biases of structured state space models, rather than pretraining scale alone, are the primary driver of effective ECG representation learning, with important implications for future foundation model development in this and potentially other physiological signal domains.",
+          "claimed_abstract": "We propose a novel multi-modal and multi-task architecture for simultaneous low level gesture and surgical task classification in Robot Assisted Surgery (RAS) videos.Our end-to-end architecture is based on the principles of a long short-term memory network (LSTM) that jointly learns temporal dynamics on rich representations of visual and motion features, while simultaneously classifying activities of low-level gestures and surgical tasks. Our experimental results show that our approach is superior compared to an ar- chitecture that classifies the gestures and surgical tasks separately on visual cues and motion cues respectively. We train our model on a fixed random set of 1200 gesture video segments and use the rest 422 for testing. This results in around 42,000 gesture frames sampled for training and 14,500 for testing. For a 6 split experimentation, while the conventional approach reaches an Average Precision (AP) of only 29% (29.13%), our architecture reaches an AP of 51% (50.83%) for 3 tasks and 14 possible gesture labels, resulting in an improvement of 22% (21.7%). Our architecture learns temporal dynamics on rich representations of visual and motion features that compliment each other for classification of low-level gestures and surgical tasks. Its multi-task learning nature makes use of learned joint re- lationships and combinations of shared and task-specific representations. While benchmark studies focus on recognizing gestures that take place under specific tasks, we focus on recognizing common gestures that reoccur across different tasks and settings and significantly perform better compared to conventional architectures.",
           "claimed_authors": [
-            "M A Al-Masud",
-            "Nils Strodthoff"
+            "Duygu Sarikaya",
+            "Khurshid A. Guru",
+            "Jason J. Corso"
           ],
-          "claimed_title": "Pretraining Strategies and Scaling for ECG Foundation Models: A Systematic Study",
+          "claimed_title": "Joint Surgical Gesture and Task Classification with Multi-Task and Multimodal Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.12241"
+          "claimed_year": 2018,
+          "primary_pointer": "1805.00721"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Pretraining Strategies and Scaling for ECG Foundation Models: A Systematic Study')",
-        "failed_at": "2026-07-25T04:56:37Z",
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Joint Surgical Gesture and Task Classification with Multi-Task and Multimodal Learning')",
+        "failed_at": "2026-08-26T12:50:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper addresses the challenges of learning representations for recipes and food images in the cross-modal retrieval problem. As the relationship between a recipe and its cooked dish is cause-and-effect, treating a recipe as a text source describing the visual appearance of a dish for learning representation, as the existing approaches, will create bias misleading image-and-recipe similarity judgment. Specifically, a food image may not equally capture every detail in a recipe, due to factors such as the cooking process, dish presentation, and image-capturing conditions. The current representation learning tends to capture dominant visual-text alignment while overlooking subtle variations that determine retrieval relevance. In this paper, we model such bias in cross-modal representation learning using causal theory. The causal view of this problem suggests ingredients as one of the confounder sources and a simple backdoor adjustment can alleviate the bias. By causal intervention, we reformulate the conventional model for food-to-recipe retrieval with an additional term to remove the potential bias in similarity judgment. Based on this theory-informed formulation, we empirically prove the oracle performance of retrieval on the Recipe1M dataset to be MedR=1 across the testing data sizes of 1K, 10K, and even 50K. We also propose a plug-and-play neural module, which is essentially a multi-label ingredient classifier for debiasing. New state-of-the-art search performances are reported on the Recipe1M dataset.",
+          "claimed_abstract": "Foundation models have reshaped the landscape of Remote Sensing (RS) by enhancing various image interpretation tasks. Pretraining is an active research topic, encompassing supervised and self-supervised learning methods to initialize model weights effectively. However, transferring the pretrained models to downstream tasks may encounter task discrepancy due to their formulation of pretraining as image classification or object discrimination tasks. In this study, we explore the Multi-Task Pretraining (MTP) paradigm for RS foundation models to address this issue. Using a shared encoder and task-specific decoder architecture, we conduct multi-task supervised pretraining on the SAMRS dataset, encompassing semantic segmentation, instance segmentation, and rotated object detection. MTP supports both convolutional neural networks and vision transformer foundation models with over 300 million parameters. The pretrained models are finetuned on various RS downstream tasks, such as scene classification, horizontal and rotated object detection, semantic segmentation, and change detection. Extensive experiments across 14 datasets demonstrate the superiority of our models over existing ones of similar size and their competitive performance compared to larger state-of-the-art models, thus validating the effectiveness of MTP.",
           "claimed_authors": [
-            "Qing Wang",
-            "Chong-Wah Ngo",
-            "Ee-Peng Lim"
+            "Di Wang",
+            "Jing Zhang",
+            "Minqiang Xu",
+            "Lin Liu",
+            "Dongsheng Wang",
+            "Erzhong Gao",
+            "Chengxi Han",
+            "Haonan Guo",
+            "Bo Du",
+            "Dacheng Tao",
+            "Liangpei Zhang"
           ],
-          "claimed_title": "Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2511.15201"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval')",
-        "failed_at": "2026-07-25T04:56:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
-          "claimed_authors": [
-            "Zhiyuan Ma",
-            "Jianjun Li",
-            "Guohui Li",
-            "Kaiyan Huang"
-          ],
-          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
+          "claimed_title": "MTP: Advancing Remote Sensing Foundation Model via Multi-Task Pretraining",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2410.12595"
+          "primary_pointer": "2403.13430"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
-        "failed_at": "2026-07-25T04:56:37Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='MTP: Advancing Remote Sensing Foundation Model via Multi-Task Pretraining')",
+        "failed_at": "2026-08-26T12:50:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Self-supervised learning has emerged as a powerful paradigm for learning visual representations without manual annotations, yet most methods still operate on a single modality and therefore miss the complementary structure available from heterogeneous sensors. We present Le MuMo JEPA, a self-supervised framework that learns unified representations from RGB images and aligned companion modalities. In our driving experiments, the second modality is camera-aligned LiDAR depth; we also evaluate RGB-thermal training and transfer on the Teledyne FLIR ADAS benchmark. Our approach extends LeJEPA to the multi-modal setting by learning fusion tokens that act as a latent bottleneck between modality-specific patch stems inside a shared transformer. Our default model employs a pruned fusion strategy: after an initial cross-modal attention layer, modality-specific tokens are dropped, forcing cross-modal information into the shared fusion-token grid as an efficient latent bottleneck before Sketched Isotropic Gaussian Regularization (SIGReg) is applied to the joint multimodal CLS embedding. On Waymo, Le MuMo JEPA gives the strongest performance-efficiency trade-off on downstream patch probes among the from-scratch multimodal baselines, improving CenterNet detection and dense depth while remaining competitive on segmentation. Under from-scratch training on nuScenes, Le MuMo JEPA remains the strongest model, and it also gives the best FLIR results, especially after Waymo-initialized fine-tuning. It also retains the best overall accuracy-efficiency balance in our study at substantially lower compute, memory, and estimated training time.",
+          "claimed_abstract": "LLaVA-Plus is a general-purpose multimodal assistant that expands the capabilities of large multimodal models. It maintains a skill repository of pre-trained vision and vision-language models and can activate relevant tools based on users' inputs to fulfill real-world tasks. LLaVA-Plus is trained on multimodal instruction-following data to acquire the ability to use tools, covering visual understanding, generation, external knowledge retrieval, and compositions. Empirical results show that LLaVA-Plus outperforms LLaVA in existing capabilities and exhibits new ones. It is distinct in that the image query is directly grounded and actively engaged throughout the entire human-AI interaction sessions, significantly improving tool use performance and enabling new scenarios.",
           "claimed_authors": [
-            "Ciem Cornelissen",
-            "Sam Leroux",
-            "Pieter Simoens"
+            "Shilong Liu",
+            "Hao Cheng",
+            "Haotian Liu",
+            "Hao Zhang",
+            "Feng Li",
+            "Tianhe Ren",
+            "Xueyan Zou",
+            "Jianwei Yang",
+            "Hang Su",
+            "Jun Zhu",
+            "Lei Zhang",
+            "Jianfeng Gao",
+            "Chunyuan Li"
           ],
-          "claimed_title": "Le MuMo JEPA: Multi-Modal Self-Supervised Representation Learning with Learnable Fusion Tokens",
+          "claimed_title": "LLaVA-Plus: Learning to Use Tools for Creating Multimodal Agents",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2603.24327"
+          "claimed_year": 2023,
+          "primary_pointer": "2311.05437"
         },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Le MuMo JEPA: Multi-Modal Self-Supervised Representation Learning with Learnable Fusion Tokens')",
-        "failed_at": "2026-07-25T04:56:37Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='LLaVA-Plus: Learning to Use Tools for Creating Multimodal Agents')",
+        "failed_at": "2026-08-26T12:50:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The emergence of unified multimodal understanding and generation models is rapidly attracting attention because of their ability to enhance instruction-following capabilities while minimizing model redundancy. However, there is a lack of a unified evaluation framework for these models, which would enable an elegant, simplified, and overall evaluation. Current models conduct evaluations on multiple task-specific benchmarks, but there are significant limitations, such as the lack of overall results, errors from extra evaluation models, reliance on extensive labeled images, benchmarks that lack diversity, and metrics with limited capacity for instruction-following evaluation. To tackle these challenges, we introduce UniEval, the first evaluation framework designed for unified multimodal models without extra models, images, or annotations. This facilitates a simplified and unified evaluation process. The UniEval framework contains a holistic benchmark, UniBench (supports both unified and visual generation models), along with the corresponding UniScore metric. UniBench includes 81 fine-grained tags contributing to high diversity. Experimental results indicate that UniBench is more challenging than existing benchmarks, and UniScore aligns closely with human evaluations, surpassing current metrics. Moreover, we extensively evaluated SoTA unified and visual generation models, uncovering new insights into Univeral's unique values.",
+          "claimed_authors": [
+            "Yi Li",
+            "Haonan Wang",
+            "Qixiang Zhang",
+            "Boyu Xiao",
+            "Chenchang Hu",
+            "Hualiang Wang",
+            "Xiaomeng Li"
+          ],
+          "claimed_title": "UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.10483"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation')",
+        "failed_at": "2026-08-26T12:50:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Browder-Novikov-Sullivan-Wall surgery theory investigates the homotopy types of manifolds, using a combination of algebra and topology. It is the aim of these notes to provide an introduction to the more algebraic aspects of the theory (such as the Wall surgery obstruction groups), without losing sight of the geometric motivation.",
+          "claimed_authors": [
+            "Andrew Ranicki"
+          ],
+          "claimed_title": "An introduction to algebraic surgery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2000,
+          "primary_pointer": "math/0008071"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='An introduction to algebraic surgery')",
+        "failed_at": "2026-08-26T12:50:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Attracted by team scale and function diversity, a heterogeneous multi-robot system (HMRS), where multiple robots with different functions and numbers are coordinated to perform tasks, has been widely used for complex and large-scale scenarios, including disaster search and rescue, site surveillance, and social security. However, due to the variety of the task requirements, it is challenging to accurately compose a robot team with appropriate sizes and functions to dynamically satisfy task needs while limiting the robot resource cost to a low level. To solve this problem, in this paper, a novel adaptive cooperation method, inner attention (innerATT), is developed to flexibly team heterogeneous robots to execute tasks as task types and environment change. innerATT is designed by integrating a novel attention mechanism into a multi-agent actor-critic reinforcement learning architecture. With an attention mechanism, robot capability will be analyzed to flexibly form teams to meet task requirements. Scenarios with different task variety (\"Single Task\", \"Double Task\", and \"Mixed Task\") were designed. The effectiveness of the innerATT was validated by its accuracy in flexible cooperation.",
+          "claimed_authors": [
+            "Chao Huang",
+            "Rui Liu"
+          ],
+          "claimed_title": "Robot Inner Attention Modeling for Task-Adaptive Teaming of Heterogeneous Multi Robots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.15482"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Robot Inner Attention Modeling for Task-Adaptive Teaming of Heterogeneous Multi Robots')",
+        "failed_at": "2026-08-26T12:50:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background Analyzing kinematic and video data can help identify potentially erroneous motions that lead to sub-optimal surgeon performance and safety-critical events in robot-assisted surgery.\n  Methods We develop a rubric for identifying task and gesture-specific Executional and Procedural errors and evaluate dry-lab demonstrations of Suturing and Needle Passing tasks from the JIGSAWS dataset. We characterize erroneous parts of demonstrations by labeling video data, and use distribution similarity analysis and trajectory averaging on kinematic data to identify parameters that distinguish erroneous gestures.\n  Results Executional error frequency varies by task and gesture, and correlates with skill level. Some predominant error modes in each gesture are distinguishable by analyzing error-specific kinematic parameters. Procedural errors could lead to lower performance scores and increased demonstration times but also depend on surgical style.\n  Conclusions This study provides insights into context-dependent errors that can be used to design automated error detection mechanisms and improve training and skill assessment.",
+          "claimed_authors": [
+            "Kay Hutchinson",
+            "Zongyu Li",
+            "Leigh A. Cantrell",
+            "Noah S. Schenkman",
+            "Homa Alemzadeh"
+          ],
+          "claimed_title": "Analysis of Executional and Procedural Errors in Dry-lab Robotic Surgery Experiments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.11962"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Analysis of Executional and Procedural Errors in Dry-lab Robotic Surgery Experiments')",
+        "failed_at": "2026-08-26T12:50:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: AI-driven prediction algorithms have the potential to enhance emergency medicine by enabling rapid and accurate decision-making regarding patient status and potential deterioration. However, the integration of multimodal data, including raw waveform signals, remains underexplored in clinical decision support. Methods: We present a dataset and benchmarking protocol designed to advance multimodal decision support in emergency care. Our models utilize demographics, biometrics, vital signs, laboratory values, and electrocardiogram (ECG) waveforms as inputs to predict both discharge diagnoses and patient deterioration. Results: The diagnostic model achieves area under the receiver operating curve (AUROC) scores above 0.8 for 609 out of 1,428 conditions, covering both cardiac (e.g., myocardial infarction) and non-cardiac (e.g., renal disease, diabetes) diagnoses. The deterioration model attains AUROC scores above 0.8 for 14 out of 15 targets, accurately predicting critical events such as cardiac arrest, mechanical ventilation, ICU admission, and mortality. Conclusions: Our study highlights the positive impact of incorporating raw waveform data into decision support models, improving predictive performance. By introducing a unique, publicly available dataset and baseline models, we provide a foundation for measurable progress in AI-driven decision support for emergency care.",
+          "claimed_authors": [
+            "Juan Miguel Lopez Alcaraz",
+            "Hjalmar Bouma",
+            "Nils Strodthoff"
+          ],
+          "claimed_title": "Enhancing clinical decision support with physiological waveforms -- a multimodal benchmark in emergency care",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.17856"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Enhancing clinical decision support with physiological waveforms -- a multimodal benchmark in emergency care')",
+        "failed_at": "2026-08-26T12:50:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-08-26T12:50:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper studies the properties of solutions to multi-task shallow ReLU neural network learning problems, wherein the network is trained to fit a dataset with minimal sum of squared weights. Remarkably, the solutions learned for each individual task resemble those obtained by solving a kernel regression problem, revealing a novel connection between neural networks and kernel methods. It is known that single-task neural network learning problems are equivalent to a minimum norm interpolation problem in a non-Hilbertian Banach space, and that the solutions of such problems are generally non-unique. In contrast, we prove that the solutions to univariate-input, multi-task neural network interpolation problems are almost always unique, and coincide with the solution to a minimum-norm interpolation problem in a Sobolev (Reproducing Kernel) Hilbert Space. We also demonstrate a similar phenomenon in the multivariate-input case; specifically, we show that neural network learning problems with large numbers of tasks are approximately equivalent to an $\\ell^2$ (Hilbert space) minimization problem over a fixed kernel determined by the optimal neurons.",
+          "claimed_authors": [
+            "Julia Nakhleh",
+            "Joseph Shenouda",
+            "Robert D. Nowak"
+          ],
+          "claimed_title": "The Effects of Multi-Task Learning on ReLU Neural Network Functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.21696"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='The Effects of Multi-Task Learning on ReLU Neural Network Functions')",
+        "failed_at": "2026-08-26T12:50:23Z",
         "reason": "query_irrelevant"
       },
       {
@@ -373,25 +448,25 @@
           "primary_pointer": "2106.09017"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Bridging Multi-Task Learning and Meta-Learning: Towards Efficient Training and Effective Adaptation')",
-        "failed_at": "2026-07-25T04:56:37Z",
+        "failed_at": "2026-08-26T12:50:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_abstract": "In this paper, we argue about the importance of considering task interactions at multiple scales when distilling task information in a multi-task learning setup. In contrast to common belief, we show that tasks with high affinity at a certain scale are not guaranteed to retain this behaviour at other scales, and vice versa. We propose a novel architecture, namely MTI-Net, that builds upon this finding in three ways. First, it explicitly models task interactions at every scale via a multi-scale multi-modal distillation unit. Second, it propagates distilled task information from lower to higher scales via a feature propagation module. Third, it aggregates the refined task features from all scales via a feature aggregation unit to produce the final per-task predictions.\n  Extensive experiments on two multi-task dense labeling datasets show that, unlike prior work, our multi-task model delivers on the full potential of multi-task learning, that is, smaller memory footprint, reduced number of calculations, and better performance w.r.t. single-task learning. The code is made publicly available: https://github.com/SimonVandenhende/Multi-Task-Learning-PyTorch.",
           "claimed_authors": [
-            "Ehsan Hallaji",
-            "Roozbeh Razavi-Far",
-            "Mehrdad Saif"
+            "Simon Vandenhende",
+            "Stamatios Georgoulis",
+            "Luc Van Gool"
           ],
-          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_title": "MTI-Net: Multi-Scale Task Interaction Networks for Multi-Task Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2207.02337"
+          "claimed_year": 2020,
+          "primary_pointer": "2001.06902"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
-        "failed_at": "2026-07-25T04:56:37Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Lance: Unified Multimodal Modeling by Multi-Task S', candidate_title='MTI-Net: Multi-Scale Task Interaction Networks for Multi-Task Learning')",
+        "failed_at": "2026-08-26T12:50:23Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -430,76 +505,125 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-25T04:56:36Z"
+          "verified_at": "2026-08-26T12:50:23Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Shukang Yin",
-            "Chaoyou Fu",
-            "Sirui Zhao",
-            "Ke Li",
-            "Xing Sun",
-            "Tong Xu",
-            "Enhong Chen"
+            "Fabien Furfaro"
           ],
-          "title": "A Survey on Multimodal Large Language Models",
+          "title": "PixelBytes: Catching Unified Embedding for Multimodal Generation",
           "venue": "arXiv",
-          "year": 2023
+          "year": 2024
         },
-        "primary_pointer": "2306.13549",
-        "summary": "Recently, Multimodal Large Language Model (MLLM) represented by GPT-4V has been a new rising research hotspot, which uses powerful Large Language Models (LLMs) as a brain to perform multimodal tasks. The surprising emergent capabilities of MLLM, such as writing stories based on images and OCR-free math reasoning, are rare in traditional multimodal methods, suggesting a potential path to artificial general intelligence. To this end, both academia and industry have endeavored to develop MLLMs that can compete with or even better than GPT-4V, pushing the limit of research at a surprising speed. In this paper, we aim to trace and summarize the recent progress of MLLMs. First of all, we present the basic formulation of MLLM and delineate its related concepts, including architecture, training strategy and data, as well as evaluation. Then, we introduce research topics about how MLLMs can be extended to support more granularity, modalities, languages, and scenarios. We continue with multimodal hallucination and extended techniques, including Multimodal ICL (M-ICL), Multimodal CoT (M-CoT), and LLM-Aided Visual Reasoning (LAVR). To conclude the paper, we discuss existing challenges and point out promising research directions. In light of the fact that the era of MLLM has only just begun, we will keep updating this survey and hope it can inspire more research. An associated GitHub link collecting the latest papers is available at https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models.",
+        "primary_pointer": "2409.15512",
+        "summary": "This report introduces PixelBytes Embedding, a novel approach for unified multimodal representation learning. Our method captures diverse inputs in a single, cohesive representation, enabling emergent properties for multimodal sequence generation, particularly for text and pixelated images. Inspired by state-of-the-art sequence models such as Image Transformers, PixelCNN, and Mamba-Bytes, PixelBytes aims to address the challenges of integrating different data types. We explore various model architectures, including Recurrent Neural Networks (RNNs), State Space Models (SSMs), and Attention-based models, focusing on bidirectional processing and our innovative PxBy embedding technique. Our experiments, conducted on a specialized PixelBytes Pok{é}mon dataset, demonstrate that bidirectional sequence models with PxBy embedding and convolutional layers can generate coherent multimodal sequences. This work contributes to the advancement of integrated AI models capable of understanding and generating multimodal data in a unified manner.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2306.13549",
-          "http_status": 200,
-          "pdf_sample_score": 0.2881,
-          "query_relevance_score": 0.8,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-25T04:56:43Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Chaoyou Fu",
-            "Peixian Chen",
-            "Yunhang Shen",
-            "Yulei Qin",
-            "Mengdan Zhang",
-            "Xu Lin",
-            "Jinrui Yang",
-            "Xiawu Zheng",
-            "Ke Li",
-            "Xing Sun",
-            "Yunsheng Wu",
-            "Rongrong Ji",
-            "Caifeng Shan",
-            "Ran He"
-          ],
-          "title": "MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models",
-          "venue": "arXiv",
-          "year": 2023
-        },
-        "primary_pointer": "2306.13394",
-        "summary": "Multimodal Large Language Model (MLLM) relies on the powerful LLM to perform multimodal tasks, showing amazing emergent abilities in recent studies, such as writing poems based on an image. However, it is difficult for these case studies to fully reflect the performance of MLLM, lacking a comprehensive evaluation. In this paper, we fill in this blank, presenting the first comprehensive MLLM Evaluation benchmark MME. It measures both perception and cognition abilities on a total of 14 subtasks. In order to avoid data leakage that may arise from direct use of public datasets for evaluation, the annotations of instruction-answer pairs are all manually designed. The concise instruction design allows us to fairly compare MLLMs, instead of struggling in prompt engineering. Besides, with such an instruction, we can also easily carry out quantitative statistics. A total of 30 advanced MLLMs are comprehensively evaluated on our MME, which not only suggests that existing MLLMs still have a large room for improvement, but also reveals the potential directions for the subsequent model optimization. The data are released at the project page https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models/tree/Evaluation.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2306.13394",
+          "final_url": "https://arxiv.org/abs/2409.15512",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.8,
+          "query_relevance_score": 1.0,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-25T04:56:45Z"
+          "verified_at": "2026-08-26T12:50:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yi Li",
+            "Haonan Wang",
+            "Qixiang Zhang",
+            "Boyu Xiao",
+            "Chenchang Hu",
+            "Hualiang Wang",
+            "Xiaomeng Li"
+          ],
+          "title": "UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.10483",
+        "summary": "The emergence of unified multimodal understanding and generation models is rapidly attracting attention because of their ability to enhance instruction-following capabilities while minimizing model redundancy. However, there is a lack of a unified evaluation framework for these models, which would enable an elegant, simplified, and overall evaluation. Current models conduct evaluations on multiple task-specific benchmarks, but there are significant limitations, such as the lack of overall results, errors from extra evaluation models, reliance on extensive labeled images, benchmarks that lack diversity, and metrics with limited capacity for instruction-following evaluation. To tackle these challenges, we introduce UniEval, the first evaluation framework designed for unified multimodal models without extra models, images, or annotations. This facilitates a simplified and unified evaluation process. The UniEval framework contains a holistic benchmark, UniBench (supports both unified and visual generation models), along with the corresponding UniScore metric. UniBench includes 81 fine-grained tags contributing to high diversity. Experimental results indicate that UniBench is more challenging than existing benchmarks, and UniScore aligns closely with human evaluations, surpassing current metrics. Moreover, we extensively evaluated SoTA unified and visual generation models, uncovering new insights into Univeral's unique values.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.10483",
+          "http_status": 200,
+          "pdf_sample_score": 0.2882,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T12:50:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abinav Rao",
+            "Sujan Rachuri"
+          ],
+          "title": "Do Understanding and Generation Fight? A Diagnostic Study of DPO for Unified Multimodal Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.17044",
+        "summary": "Unified multimodal models share a language model backbone for both understanding and generating images. Can DPO align both capabilities simultaneously? We present the first systematic study of this question, applying DPO to Janus-Pro at 1B and 7B parameters under seven training strategies and two post-hoc methods. The central finding is negative: generation quality resists DPO alignment across all tested conditions on this architecture. No method improves generation CLIPScore at 7B (|Delta| < 0.2, p > 0.5 at n=200 per seed, 3 seeds); at 1B, all methods degrade generation, and the result holds across preference data types (real-vs-generated and model-vs-model) and the data volumes tested (150-288 pairs). Gradient analysis reveals why: understanding and generation gradients are near-orthogonal (cos ~ 0) with ~11-14x magnitude imbalance driven by VQ token count asymmetry (576 generation tokens vs. ~30-100 text tokens). This imbalance is the dominant interference mechanism in multi-task DPO; magnitude-balancing yields directionally positive understanding deltas (+0.01-0.04 VQA, though individually not significant), but the generation gap persists regardless. We identify discrete VQ tokenization as a likely structural bottleneck -- supported by the generation DPO loss converging to ln(2) -- and provide practical guidance for practitioners working with VQ-based unified models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.17044",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T12:50:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shanshan Zhao",
+            "Xinjie Zhang",
+            "Jintao Guo",
+            "Jiakui Hu",
+            "Lunhao Duan",
+            "Minghao Fu",
+            "Yong Xien Chng",
+            "Guo-Hua Wang",
+            "Qing-Guo Chen",
+            "Zhao Xu",
+            "Weihua Luo",
+            "Kaifu Zhang"
+          ],
+          "title": "Unified Multimodal Understanding and Generation Models: Advances, Challenges, and Opportunities",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.02567",
+        "summary": "Recent years have seen remarkable progress in both multimodal understanding models and image generation models. Despite their respective successes, these two domains have evolved independently, leading to distinct architectural paradigms: While autoregressive-based architectures have dominated multimodal understanding, diffusion-based models have become the cornerstone of image generation. Recently, there has been growing interest in developing unified frameworks that integrate these tasks. The emergence of GPT-4o's new capabilities exemplifies this trend, highlighting the potential for unification. However, the architectural differences between the two domains pose significant challenges. To provide a clear overview of current efforts toward unification, we present a comprehensive survey aimed at guiding future research. First, we introduce the foundational concepts and recent advancements in multimodal understanding and text-to-image generation models. Next, we review existing unified models, categorizing them into three main architectural paradigms: diffusion-based, autoregressive-based, and hybrid approaches that fuse autoregressive and diffusion mechanisms. For each category, we analyze the structural designs and innovations introduced by related works. Additionally, we compile datasets and benchmarks tailored for unified models, offering resources for future exploration. Finally, we discuss the key challenges facing this nascent field, including tokenization strategy, cross-modal attention, and data. As this area is still in its early stages, we anticipate rapid advancements and will regularly update this survey. Our goal is to inspire further research and provide a valuable reference for the community. The references associated with this survey are available on GitHub (https://github.com/AIDC-AI/Awesome-Unified-Multimodal-Models).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.02567",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T12:50:29Z"
         }
       }
     ]

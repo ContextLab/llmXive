@@ -1,64 +1,54 @@
+"""
+Setup script for the llmXive data directory structure.
+Creates the required directories for raw, derived, gold standard data, and artifacts.
+"""
 import os
 from pathlib import Path
 import sys
 
+# Ensure the code directory is in the path for imports if running as script
+# Although this script is standalone, we ensure it runs from the project root context
 def setup_directories():
     """
-    Creates the required data directory structure for the llmXive project.
+    Creates the standard data directory structure required by the project.
     Directories created:
-      - data/raw/
-      - data/derived/
-      - data/gold_standard/
-      - artifacts/
+    - data/raw/
+    - data/derived/
+    - data/gold_standard/
+    - artifacts/
     
-    This ensures the project has the necessary folder hierarchy before
-    data processing or experiment execution begins.
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
     """
-    # Determine project root (assuming script is in code/ or code/scripts/)
-    # We look for the 'data' directory relative to the script location or root
-    script_path = Path(__file__).resolve()
-    # If the script is in code/, go up one level to project root
-    if script_path.name == 'setup_data_dirs.py' and script_path.parent.name == 'code':
-        project_root = script_path.parent.parent
-    else:
-        # Fallback: assume current directory is project root or parent
-        project_root = script_path.parent.parent if script_path.parent.name == 'code' else script_path.parent
+    base_dir = Path.cwd()
     
-    # If we are running from 'code/scripts/', project_root might be 'code'
-    # Let's ensure we are at the root where 'data' and 'artifacts' belong
-    # Standard convention: data/ and artifacts/ are at project root
-    
-    # Check if we are in a nested structure like code/scripts/
-    if script_path.parent.name == 'scripts':
-        project_root = script_path.parent.parent.parent
-    elif script_path.parent.name == 'code':
-        project_root = script_path.parent.parent
-    
-    data_root = project_root / "data"
-    artifacts_root = project_root / "artifacts"
-    
+    # Define the required directories relative to the project root
     directories = [
-        data_root / "raw",
-        data_root / "derived",
-        data_root / "gold_standard",
-        artifacts_root
+        base_dir / "data" / "raw",
+        base_dir / "data" / "derived",
+        base_dir / "data" / "gold_standard",
+        base_dir / "artifacts"
     ]
     
     created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
+    for dir_path in directories:
+        try:
+            # Create parent directories if they don't exist
+            dir_path.mkdir(parents=True, exist_ok=True)
+            # Create a .gitkeep file to ensure the directory is tracked by git
+            # This prevents empty directories from being ignored
+            gitkeep_path = dir_path / ".gitkeep"
+            if not gitkeep_path.exists():
+                gitkeep_path.touch()
             created_count += 1
-        else:
-            print(f"Directory already exists: {directory}")
+            print(f"Created/Verified directory: {dir_path}")
+        except OSError as e:
+            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
+            return False
     
-    if created_count == 0:
-        print("All required directories already exist.")
-    else:
-        print(f"Successfully created {created_count} new directories.")
-    
+    print(f"Successfully setup {created_count} data directories.")
     return True
 
 if __name__ == "__main__":
-    setup_directories()
+    success = setup_directories()
+    sys.exit(0 if success else 1)

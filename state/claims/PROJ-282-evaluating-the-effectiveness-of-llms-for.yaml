@@ -4041,3 +4041,142 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T05:13:58Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 arxiv id 2607.07974
+  claim_id: c_836e2602
+  context: Create src/data/feature_extractor.py::embed_target_snippets() to generate
+    embeddings for every snippet in data/processed/sampled_snippets.parquet using
+    sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974).
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974)
+    to generate embeddings for target snippets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T12:43:49Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: secondary ground-truth dataset sample size 100
+  claim_id: c_062b2e4b
+  context: "Acquire Independent Secondary Labeled Dataset: Download a vetted secondary\
+    \ ground-truth dataset (e.g., a curated subset of the 'CVE\u2011Annotated Code'\
+    \ corpus) containing exactly n=100 samples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download a vetted secondary ground-truth dataset containing exactly n=100
+    samples for independent re-labeling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:44:07Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: stratified sampling cap 5000 samples
+  claim_id: c_8c585fb7
+  context: "Add src/data/ingest.py::sample_stratified() to perform stratified sampling\
+    \ (\u2264 5 000 samples) by language AND vulnerability type (CWE category)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a stratified sampling cap of 5,000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:44:19Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: inference time threshold 4.32 seconds
+  claim_id: c_cf44438e
+  context: If any sample exceeds 4.32 s, abort and fall back to a smaller fallback
+    model; log fallback decisions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort inference if any sample exceeds 4.32 seconds and fall back to a
+    smaller model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:44:58Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: truncation limit 4096 tokens
+  claim_id: c_1033cdcd
+  context: Create src/models/truncation.py::truncate_if_needed(snippet) that checks
+    snippet length against the LLM context window (e.g., 4 096 tokens), truncates
+    to the first N tokens if necessary.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Truncate code snippets to the first 4,096 tokens if they exceed the LLM
+    context window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:45:15Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: reference set overlap threshold 5 percent
+  claim_id: c_db7c3fe4
+  context: Before downloading NVD, compare its CVE IDs against all IDs in the three
+    training datasets. Abort if overlap > 5 % and log to data/logs/reference_independence_check.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort the pipeline if the overlap between the NVD reference set and training
+    data exceeds 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:45:16Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: stratification bias threshold 5 percent
+  claim_id: c_c2c9ca3c
+  context: ensure proportional representation for BOTH language AND vulnerability
+    type and enforce the 5 000 cap; if bias > 5 % reduce sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce sample size if stratification bias exceeds 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:45:16Z'
+- artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: global runtime constraint 6 hours
+  claim_id: c_446d1c76
+  context: "Execute the aggregator. Verification: Assert total_runtime \u2264 6h in\
+    \ data/results/global_runtime_metrics.json."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Global_runtime_constraint_6_hours
+  kind: magnitude
+  raw_text: Verify total runtime is less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:45:37Z'

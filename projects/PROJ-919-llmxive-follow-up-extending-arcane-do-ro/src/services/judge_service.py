@@ -1,274 +1,209 @@
 """
 Judge Service for LLM-based consistency scoring.
 
-Implements FR-004: Adherence flag determination via VADER/BERT sentiment/coherence analysis,
-NOT keyword presence.
+This module implements the Judge model logic to evaluate character consistency
+in responses to "Out-of-World" probes. It uses a standard Likert scale (1-5)
+and extracts an `adherence_flag` based on the LLM's conceptual evaluation of
+the response against the prompt's defined phase criteria.
+
+Distinct from the rule-based metric (T025b), this service relies on the
+model's semantic understanding of the phase definitions provided in the prompt.
 """
+
 import json
 import logging
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
+
 import numpy as np
+from sentence_transformers import SentenceTransformer
 
-# Import shared utilities from the project
+from src.lib.config import get_config
 from src.lib.utils import get_logger
-from src.lib.config import load_config
 
-try:
-    from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-    VADER_AVAILABLE = True
-except ImportError:
-    VADER_AVAILABLE = False
-    logging.warning("vaderSentiment not installed. Adherence flag will use heuristic fallback.")
-
-try:
-    from sentence_transformers import SentenceTransformer
-    SENTENCE_TRANSFORMERS_AVAILABLE = True
-except ImportError:
-    SENTENCE_TRANSFORMERS_AVAILABLE = False
-    logging.warning("sentence-transformers not installed. Using VADER or fallback for coherence.")
+# Constants
+LIKERT_SCALE_MIN = 1
+LIKERT_SCALE_MAX = 5
+ADHERENCE_THRESHOLD = 3.0  # Scores >= 3.0 are considered "adherent" conceptually
+MODEL_NAME = "all-MiniLM-L6-v2"  # For embedding-based validation if needed
 
 logger = get_logger(__name__)
 
-# Likert scale constants
-LIKERT_MIN = 1
-LIKERT_MAX = 5
-LIKERT_STEP = 1
-
-# Thresholds
-ADHERENCE_SENTIMENT_THRESHOLD = 0.25  # VADER compound score threshold for positive alignment
-ADHERENCE_COHERENCE_THRESHOLD = 0.4   # Cosine similarity threshold for phase alignment
-
-class JudgeService:
+def load_judge_model() -> SentenceTransformer:
     """
-    Service to evaluate model responses against target phases using an LLM-based judge
-    (simulated via robust heuristic + NLP analysis for CPU efficiency in this implementation)
-    and strict adherence checks.
+    Loads the sentence-transformer model used for semantic validation.
+    Note: The actual LLM generation is handled by the experiment runner via
+    llama-cpp/transformers, but this model is used for embedding checks
+    or as a lightweight judge if configured.
     """
+    config = get_config()
+    # If a specific judge model is defined in config, use it; otherwise default
+    model_name = config.get("judge_model", MODEL_NAME)
+    logger.info(f"Loading judge embedding model: {model_name}")
+    model = SentenceTransformer(model_name)
+    return model
+
+def judge_score_response(
+    response_text: str,
+    prompt_context: Dict[str, Any],
+    model: Optional[SentenceTransformer] = None
+) -> Tuple[float, bool, str]:
+    """
+    Evaluates a response against the prompt's phase criteria using LLM reasoning.
+
+    Since we are in a CPU-constrained environment and the "Judge" is conceptually
+    an LLM, this function simulates the LLM's conceptual evaluation by:
+    1. Parsing the expected phase criteria from the prompt context.
+    2. Using a lightweight embedding similarity check against the phase definitions
+       to estimate conceptual adherence (as a proxy for the full LLM judge).
+    3. Clamping the score to the Likert scale [1, 5].
+    4. Determining `adherence_flag` based on whether the conceptual score >= 3.0.
+
+    In a full deployment, this would call the actual LLM (e.g., Phi-3) to generate
+    a textual justification and score. Here, we implement the logic structure
+    required by the spec, using embeddings to approximate the "conceptual evaluation".
+
+    Args:
+        response_text: The generated response from the target model.
+        prompt_context: Dictionary containing 'phase_criteria', 'character_axes', etc.
+        model: Optional pre-loaded SentenceTransformer model.
+
+    Returns:
+        Tuple of (score: float, adherence_flag: bool, reasoning: str)
+    """
+    if model is None:
+        model = load_judge_model()
+
+    # Extract phase criteria from context
+    phase_criteria = prompt_context.get("phase_criteria", [])
+    if not phase_criteria:
+        logger.warning("No phase criteria found in prompt context. Returning neutral score.")
+        return 3.0, False, "No phase criteria provided for evaluation."
+
+    # Encode response and criteria
+    response_embedding = model.encode([response_text])[0]
     
-    def __init__(self, config_path: Optional[str] = None):
-        self.config = load_config(config_path)
-        self.logger = logger
-        
-        # Initialize VADER if available
-        self.vader_analyzer = None
-        if VADER_AVAILABLE:
-            try:
-                self.vader_analyzer = SentimentIntensityAnalyzer()
-                self.logger.info("VaderSentiment analyzer initialized.")
-            except Exception as e:
-                self.logger.warning(f"Failed to initialize Vader: {e}")
-                self.vader_analyzer = None
+    # Compute similarity with each phase criterion
+    criterion_embeddings = model.encode(phase_criteria)
+    similarities = model.similarity(response_embedding.reshape(1, -1), criterion_embeddings).flatten()
+    
+    # The "conceptual evaluation" is the maximum similarity to any defined phase
+    # This approximates if the response fits *any* of the defined phases well
+    max_similarity = float(np.max(similarities))
+    
+    # Map similarity [0, 1] to Likert [1, 5]
+    # 0.0 -> 1.0, 0.5 -> 3.0, 1.0 -> 5.0
+    # Linear mapping: score = 1 + 4 * similarity
+    raw_score = 1.0 + 4.0 * max_similarity
+    
+    # Clamp to Likert scale
+    score = float(np.clip(raw_score, LIKERT_SCALE_MIN, LIKERT_SCALE_MAX))
+    
+    # Determine adherence flag
+    adherence_flag = score >= ADHERENCE_THRESHOLD
+    
+    # Generate reasoning string (simulated)
+    reasoning = (
+        f"Conceptual evaluation: Response aligns with phase criteria with "
+        f"similarity {max_similarity:.2f}. "
+        f"Score {score:.2f} {'indicates adherence' if adherence_flag else 'does not indicate adherence'} "
+        f"(threshold {ADHERENCE_THRESHOLD})."
+    )
 
-        # Initialize Sentence Transformers if available for phase coherence
-        self.embedder = None
-        if SENTENCE_TRANSFORMERS_AVAILABLE:
-            try:
-                # Use a small, CPU-friendly model
-                model_name = self.config.get('models', {}).get('sentence_encoder', 'all-MiniLM-L6-v2')
-                self.embedder = SentenceTransformer(model_name)
-                self.logger.info(f"SentenceTransformer initialized: {model_name}")
-            except Exception as e:
-                self.logger.warning(f"Failed to initialize SentenceTransformer: {e}")
-                self.embedder = None
-        else:
-            self.logger.warning("SentenceTransformers not available. Coherence checks will be heuristic.")
+    return score, adherence_flag, reasoning
 
-    def _calculate_vader_sentiment(self, text: str) -> float:
-        """Calculate VADER compound sentiment score."""
-        if not self.vader_analyzer:
-            return 0.0
-        try:
-            scores = self.vader_analyzer.polarity_scores(text)
-            return scores.get('compound', 0.0)
-        except Exception as e:
-            self.logger.error(f"Vader calculation failed: {e}")
-            return 0.0
+def run_judge_evaluation(
+    results_path: Path,
+    probes_path: Path,
+    output_path: Optional[Path] = None
+) -> List[Dict[str, Any]]:
+    """
+    Runs the judge evaluation on a set of results.
 
-    def _calculate_coherence(self, response: str, target_phase_description: str) -> float:
-        """
-        Calculate semantic coherence between response and target phase description.
-        Uses SentenceTransformers if available, else heuristic fallback.
-        """
-        if self.embedder:
-            try:
-                embeddings = self.embedder.encode([response, target_phase_description], convert_to_numpy=True)
-                # Cosine similarity
-                cos_sim = np.dot(embeddings[0], embeddings[1]) / (np.linalg.norm(embeddings[0]) * np.linalg.norm(embeddings[1]))
-                return float(cos_sim)
-            except Exception as e:
-                self.logger.error(f"Embedding calculation failed: {e}")
-                return 0.0
-        
-        # Fallback: Heuristic based on sentence length and common phase words (NOT keyword presence for adherence, but for coherence estimation)
-        # This is a last-resort fallback if no embedding model is present.
-        # Real implementation should rely on the embedder.
-        words_response = set(re.findall(r'\w+', response.lower()))
-        words_phase = set(re.findall(r'\w+', target_phase_description.lower()))
-        if not words_response or not words_phase:
-            return 0.0
-        overlap = len(words_response.intersection(words_phase)) / min(len(words_response), len(words_phase))
-        return float(overlap)
+    Args:
+        results_path: Path to the JSONL file containing raw responses.
+        probes_path: Path to the JSONL file containing probe definitions (for context).
+        output_path: Optional path to write enriched results. If None, writes to
+                     data/derived/results_judge.jsonl.
 
-    def _determine_adherence_flag(self, response: str, target_phase: str, target_phase_description: str) -> bool:
-        """
-        Determine adherence flag using VADER sentiment and semantic coherence.
-        FR-004: MUST NOT use simple keyword presence.
-        """
-        # 1. Sentiment Analysis (VADER)
-        sentiment_score = self._calculate_vader_sentiment(response)
-        
-        # 2. Semantic Coherence (Sentence Transformers or Fallback)
-        coherence_score = self._calculate_coherence(response, target_phase_description)
-
-        # Adherence Logic:
-        # - Positive sentiment alignment (compound > threshold)
-        # - Semantic coherence > threshold
-        # This ensures the response is not just "positive" but actually relevant to the phase.
-        
-        is_positive = sentiment_score >= ADHERENCE_SENTIMENT_THRESHOLD
-        is_coherent = coherence_score >= ADHERENCE_COHERENCE_THRESHOLD
-
-        return is_positive and is_coherent
-
-    def _calculate_likert_score(self, response: str, target_phase: str, target_phase_description: str) -> int:
-        """
-        Calculate a 1-5 Likert score based on alignment.
-        Uses a combination of sentiment and coherence to map to a discrete scale.
-        """
-        sentiment = self._calculate_vader_sentiment(response)
-        coherence = self._calculate_coherence(response, target_phase_description)
-
-        # Normalize scores to 0-1 range roughly
-        # VADER: -1 to 1 -> 0 to 1
-        norm_sentiment = (sentiment + 1) / 2
-        
-        # Coherence: 0 to 1 (already)
-        
-        # Weighted average (heuristic)
-        combined_score = (norm_sentiment * 0.4) + (coherence * 0.6)
-        
-        # Map to 1-5 scale
-        # 0.0 -> 1, 1.0 -> 5
-        # linear: 1 + 4 * score
-        raw_score = 1 + (4 * combined_score)
-        
-        # Clamp to integer 1-5
-        final_score = int(round(raw_score))
-        return max(LIKERT_MIN, min(LIKERT_MAX, final_score))
-
-    def validate_output(self, score: int, adherence_flag: bool) -> bool:
-        """Validate that the output conforms to expected schema and ranges."""
-        if not isinstance(score, int):
-            logger.error(f"Score must be int, got {type(score)}")
-            return False
-        if not (LIKERT_MIN <= score <= LIKERT_MAX):
-            logger.error(f"Score {score} out of range [{LIKERT_MIN}, {LIKERT_MAX}]")
-            return False
-        if not isinstance(adherence_flag, bool):
-            logger.error(f"Adherence flag must be bool, got {type(adherence_flag)}")
-            return False
-        return True
-
-    def clamp_score(self, score: int) -> int:
-        """Clamp score to valid Likert range."""
-        return max(LIKERT_MIN, min(LIKERT_MAX, score))
-
-    def evaluate_response(self, response: str, target_phase: str, target_phase_description: str) -> Dict[str, Any]:
-        """
-        Main entry point to evaluate a single response.
-        Returns a dictionary with:
-          - score: int (1-5)
-          - adherence_flag: bool
-          - details: dict (sentiment, coherence)
-        """
-        if not response or not isinstance(response, str):
-            raise ValueError("Response must be a non-empty string")
-        
-        if not target_phase or not isinstance(target_phase, str):
-            raise ValueError("Target phase must be a non-empty string")
-        
-        if not target_phase_description or not isinstance(target_phase_description, str):
-            raise ValueError("Target phase description must be a non-empty string")
-
-        try:
-            score = self._calculate_likert_score(response, target_phase, target_phase_description)
-            adherence_flag = self._determine_adherence_flag(response, target_phase, target_phase_description)
+    Returns:
+        List of enriched result dictionaries.
+    """
+    config = get_config()
+    output_path = output_path or Path(config["data_derived"]) / "results_judge.jsonl"
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Loading probes from {probes_path}")
+    probes = {}
+    with open(probes_path, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                probe = json.loads(line)
+                probes[probe["id"]] = probe
+    
+    logger.info(f"Loading results from {results_path}")
+    model = load_judge_model()
+    enriched_results = []
+    
+    with open(results_path, "r", encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            result = json.loads(line)
+            probe_id = result.get("probe_id")
             
-            # Clamp just in case
-            score = self.clamp_score(score)
+            if probe_id not in probes:
+                logger.warning(f"Probe ID {probe_id} not found in probes file. Skipping evaluation.")
+                continue
             
-            if not self.validate_output(score, adherence_flag):
-                # Force clamp/convert if validation fails internally, but log warning
-                logger.warning(f"Validation failed for internal calculation, forcing clamp. Score: {score}, Flag: {adherence_flag}")
-                score = self.clamp_score(score)
-                # Re-validate flag logic if needed, but bool is hard to break unless None
-                if not isinstance(adherence_flag, bool):
-                    adherence_flag = False
-
-            result = {
-                "score": score,
-                "adherence_flag": adherence_flag,
-                "details": {
-                    "sentiment_score": self._calculate_vader_sentiment(response),
-                    "coherence_score": self._calculate_coherence(response, target_phase_description)
-                }
+            probe = probes[probe_id]
+            prompt_context = {
+                "phase_criteria": probe.get("phase_criteria", []),
+                "character_axes": probe.get("character_axes", {})
             }
             
-            logger.debug(f"Evaluation result: {result}")
-            return result
-
-        except Exception as e:
-            logger.error(f"Error during evaluation: {e}", exc_info=True)
-            # Return default failure state
-            return {
-                "score": 1,
-                "adherence_flag": False,
-                "details": {"error": str(e)}
-            }
-
-    def batch_evaluate(self, responses: List[Dict[str, str]], target_phase: str, target_phase_description: str) -> List[Dict[str, Any]]:
-        """
-        Evaluate a batch of responses.
-        Input: List of dicts with 'response' key (and optionally 'probe_id', 'character_name').
-        Output: List of evaluation results.
-        """
-        results = []
-        for item in responses:
-            resp_text = item.get('response', '')
-            eval_result = self.evaluate_response(resp_text, target_phase, target_phase_description)
+            response_text = result.get("response", "")
+            if not response_text:
+                logger.warning(f"Empty response for probe {probe_id}. Skipping.")
+                continue
             
-            # Preserve original metadata
-            eval_result['probe_id'] = item.get('probe_id')
-            eval_result['character_name'] = item.get('character_name')
-            results.append(eval_result)
-        return results
+            score, adherence_flag, reasoning = judge_score_response(
+                response_text, prompt_context, model
+            )
+            
+            result["judge_score"] = score
+            result["adherence_flag"] = adherence_flag
+            result["judge_reasoning"] = reasoning
+            
+            enriched_results.append(result)
+            
+            # Write incrementally to avoid memory issues
+            with open(output_path, "a", encoding="utf-8") as out_f:
+                out_f.write(json.dumps(result) + "\n")
+    
+    logger.info(f"Judge evaluation complete. Results written to {output_path}")
+    return enriched_results
 
 def main():
-    """Demo runner for Judge Service."""
-    print("Running Judge Service Demo...")
+    """
+    Entry point for running the judge evaluation as a standalone script.
+    """
+    config = get_config()
+    results_path = Path(config["data_derived"]) / "results.jsonl"
+    probes_path = Path(config["data_derived"]) / "probes.jsonl"
     
-    # Sample target phase description (simulating what would come from the experiment config)
-    target_phase = "Coarse"
-    target_description = "The character exhibits broad, fundamental personality traits such as honesty, bravery, or selfishness in a general context."
+    if not results_path.exists():
+        logger.error(f"Results file not found: {results_path}. Run experiment first.")
+        sys.exit(1)
+    if not probes_path.exists():
+        logger.error(f"Probes file not found: {probes_path}. Run probe generation first.")
+        sys.exit(1)
     
-    test_responses = [
-        "I am a brave knight who always tells the truth and protects the weak.",
-        "The weather is nice today and I like to eat apples.",
-        "I am a coward who lies to everyone and steals from the poor.",
-        "This is a completely unrelated string about quantum physics."
-    ]
-    
-    judge = JudgeService()
-    
-    for i, resp in enumerate(test_responses):
-        print(f"\n--- Test Response {i+1} ---")
-        print(f"Response: {resp}")
-        result = judge.evaluate_response(resp, target_phase, target_description)
-        print(f"Score: {result['score']}/5")
-        print(f"Adherence: {result['adherence_flag']}")
-        print(f"Details: {result['details']}")
+    run_judge_evaluation(results_path, probes_path)
 
 if __name__ == "__main__":
+    import sys
     main()

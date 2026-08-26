@@ -1,9 +1,10 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Human Annotation Calibration Schema
-description: >
-  Schema for human annotations used to calibrate the Judge model.
-  Each record represents a ground truth evaluation of a character's response
-  to a specific scenario.
+# Calibration Schema for Human Annotations
+# Used for Judge model calibration against ground truth
+# Task: T009b - Define calibration.schema.yaml
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HumanAnnotation"
+description: "Schema for human annotation data used in Judge model calibration"
 type: object
 required:
   - character
@@ -13,27 +14,35 @@ required:
 properties:
   character:
     type: string
-    description: >
-      The name or identifier of the character being evaluated.
-      Must match the character identifier used in the experiment configuration.
+    description: "Name of the character being evaluated"
     minLength: 1
+    maxLength: 100
   scenario:
     type: string
-    description: >
-      The text of the "Out-of-World" scenario prompt presented to the character.
-      This serves as the context for the ground truth evaluation.
-    minLength: 1
+    description: "The out-of-world scenario prompt presented to the character"
+    minLength: 10
+    maxLength: 1000
   ground_truth_score:
-    type: integer
-    description: >
-      The human-annotated consistency score on a standard Likert scale (e.g., 1-5).
-      1 = Not consistent, 5 = Highly consistent with character arc.
-    minimum: 1
-    maximum: 5
+    type: number
+    description: "Human-annotated score representing moral alignment (1.0 to 5.0)"
+    minimum: 1.0
+    maximum: 5.0
   ground_truth_phase:
     type: string
-    description: >
-      The narrative phase or character arc stage referenced by the annotation.
-      Examples: 'Inciting Incident', 'Climax', 'Resolution', 'Internal Conflict'.
-    minLength: 1
+    description: "The moral phase assigned by human annotators"
+    enum:
+      - "pre-moral"
+      - "emerging-conscience"
+      - "conflicted"
+      - "principled"
+      - "self-sacrificing"
 additionalProperties: false
+
+# Array schema for the dataset
+$defs:
+  HumanAnnotationDataset:
+    type: array
+    items:
+      $ref: "#"
+    minItems: 1
+    description: "Array of human annotation samples for calibration"

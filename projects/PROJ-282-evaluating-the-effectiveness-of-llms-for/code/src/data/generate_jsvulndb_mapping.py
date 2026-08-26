@@ -1,146 +1,106 @@
-"""
-Task T011a: Map JSVulnDB Schema to BigVul-Like Schema.
-
-This script generates the mapping definition required to transform JSVulnDB
-raw fields into the standard ground-truth schema (CodeSnippet) used by the pipeline.
-
-It outputs a JSON file `data/logs/jsvulndb_mapping.json` containing the field
-mapping rules and a sample transformation logic description.
-
-The mapping is designed to align JSVulnDB's specific JSON structure with the
-BigVul-like schema (code, label, language, cwe_id, file_name, line_number).
-"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List
 
-# Import project utilities
 from src.utils.logger import get_logger, log_stage_start, log_stage_complete, log_stage_failure
-from src.utils.config import get_project_root
 
-logger = get_logger(__name__)
+# The target schema (BigVul-like) expected for the unified dataset.
+# Based on T007b (CodeSnippet) and standard vulnerability datasets:
+# - snippet_id: Unique identifier (string)
+# - language: Programming language (string, e.g., "JavaScript")
+# - code: The source code snippet (string)
+# - ground_truth_label: Binary label (0 = safe, 1 = vulnerable)
+# - cwe_id: Common Weakness Enumeration ID (string or int)
+# - vulnerability_type: Human-readable category name (string)
+# - source_file: Original file path (string)
+# - line_number: Line number in original file (int)
+# - description: Optional description of the vulnerability (string)
 
-# JSVulnDB Source Field Assumptions (based on standard JSVulnDB JSON structure)
-# Source: https://github.com/BigVul/JSVulnDB or similar repository structure
-# Typical fields in JSVulnDB JSON entries:
-# - "id": unique identifier
-# - "filename": path to the file
-# - "line": line number of the vulnerability
-# - "code": the actual code snippet
-# - "cwe": CWE ID (e.g., "CWE-79")
-# - "type": vulnerability type (e.g., "XSS", "SQLi")
-# - "description": text description
+JSVULNDB_TO_BIGVUL_MAPPING = {
+    "jsvulndb_id": "snippet_id",
+    "language": "language",
+    "code": "code",
+    "vulnerable": "ground_truth_label",
+    "cwe": "cwe_id",
+    "category": "vulnerability_type",
+    "file": "source_file",
+    "line": "line_number",
+    "description": "description"
+}
 
-# Target Schema (BigVul-like / CodeSnippet):
-# - code (str)
-# - ground_truth_label (int: 1 for vulnerable, 0 for safe)
-# - language (str: "javascript")
-# - cwe_category (str: e.g., "CWE-79")
-# - file_name (str)
-# - line_number (int)
-
-JSVULNDB_TO_BIGVUL_MAPPING: Dict[str, Any] = {
-    "description": "Mapping from JSVulnDB raw JSON fields to the unified CodeSnippet schema.",
-    "source_dataset": "JSVulnDB",
-    "target_schema": "CodeSnippet (BigVul-like)",
-    "field_mappings": {
-        "code": {
-            "source_field": "code",
-            "transformation": "Direct copy. Ensure no None values.",
-            "target_type": "str"
-        },
-        "ground_truth_label": {
-            "source_field": "None (Implicit)",
-            "transformation": "Constant value 1 (JSVulnDB is a vulnerability dataset, all entries are vulnerable).",
-            "target_type": "int",
-            "default_value": 1
-        },
-        "language": {
-            "source_field": "None (Implicit)",
-            "transformation": "Constant value 'javascript'.",
-            "target_type": "str",
-            "default_value": "javascript"
-        },
-        "cwe_category": {
-            "source_field": "cwe",
-            "transformation": "Extract numeric ID if prefixed with 'CWE-' (e.g., 'CWE-79' -> 'CWE-79'). Normalize to uppercase.",
-            "target_type": "str"
-        },
-        "file_name": {
-            "source_field": "filename",
-            "transformation": "Direct copy.",
-            "target_type": "str"
-        },
-        "line_number": {
-            "source_field": "line",
-            "transformation": "Convert to integer. Handle potential string inputs.",
-            "target_type": "int"
-        }
-    },
-    "validation_rules": [
-        "All 'code' fields must be non-empty strings.",
-        "All 'cwe' fields must match the pattern 'CWE-\\d+'.",
-        "All 'line' fields must be positive integers."
-    ],
-    "example_transformation": {
-        "input": {
-            "id": "12345",
-            "filename": "example.js",
-            "line": "42",
-            "code": "eval(userInput);",
-            "cwe": "CWE-94",
-            "type": "Code Injection"
-        },
-        "output": {
-            "code": "eval(userInput);",
-            "ground_truth_label": 1,
-            "language": "javascript",
-            "cwe_category": "CWE-94",
-            "file_name": "example.js",
-            "line_number": 42
-        }
-    }
+# Specific mapping notes for JSVulnDB quirks
+MAPPING_NOTES = {
+    "vulnerable": "JSVulnDB uses boolean or 0/1. Target is integer 0 or 1.",
+    "cwe": "JSVulnDB may store CWE as 'CWE-123' or just '123'. Target should be standardized string 'CWE-XXX' or int.",
+    "category": "JSVulnDB categories must be normalized to match BigVul's taxonomy (e.g., 'SQL Injection', 'XSS').",
+    "line": "JSVulnDB line numbers might be 0-indexed or 1-indexed. Target is 1-indexed."
 }
 
 def generate_mapping_document() -> Dict[str, Any]:
     """
-    Generates the complete mapping document including metadata and rules.
+    Generates a comprehensive mapping document describing how JSVulnDB fields
+    map to the project's unified ground-truth schema (BigVul-like).
     """
-    logger.info("Generating JSVulnDB to BigVul mapping document.")
-    return JSVULNDB_TO_BIGVUL_MAPPING
+    return {
+        "source_dataset": "JSVulnDB",
+        "target_schema": "BigVul-Like (Unified CodeSnippet)",
+        "field_mappings": JSVULNDB_TO_BIGVUL_MAPPING,
+        "transformation_rules": {
+            "ground_truth_label": {
+                "source_type": "boolean/int",
+                "target_type": "int",
+                "logic": "Convert True/1 to 1, False/0 to 0."
+            },
+            "cwe_id": {
+                "source_type": "string/int",
+                "target_type": "string",
+                "logic": "Ensure format 'CWE-XXXX'. If raw int, prepend 'CWE-'."
+            },
+            "vulnerability_type": {
+                "source_type": "string",
+                "target_type": "string",
+                "logic": "Map JSVulnDB categories to standard BigVul categories."
+            }
+        },
+        "notes": MAPPING_NOTES
+    }
 
 def write_mapping_json(mapping_doc: Dict[str, Any], output_path: Path) -> None:
     """
-    Writes the mapping document to the specified JSON path.
+    Writes the mapping document to a JSON file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(mapping_doc, f, indent=2, ensure_ascii=False)
-    logger.info(f"Mapping document written to {output_path}")
+        json.dump(mapping_doc, f, indent=2)
 
-def main():
+def main() -> int:
     """
-    Main entry point for Task T011a.
+    Main entry point for T011a: Map JSVulnDB Schema to BigVul-Like Schema.
     """
-    log_stage_start(logger, "T011a", "Map JSVulnDB Schema to BigVul-Like Schema")
-    
+    logger = get_logger("T011a_mapping")
+    log_stage_start(logger, "Mapping JSVulnDB schema to BigVul-like schema")
+
     try:
-        project_root = get_project_root()
-        output_path = project_root / "data" / "logs" / "jsvulndb_mapping.json"
-        
-        # Generate the mapping document
+        # Determine output path based on project config
+        # Assuming standard project structure: data/logs/
+        project_root = Path(__file__).resolve().parents[3]
+        logs_dir = project_root / "data" / "logs"
+        output_file = logs_dir / "jsvulndb_mapping.json"
+
         mapping_doc = generate_mapping_document()
-        
-        # Write to disk
-        write_mapping_json(mapping_doc, output_path)
-        
-        log_stage_complete(logger, "T011a", f"Mapping saved to {output_path}")
+        write_mapping_json(mapping_doc, output_file)
+
+        log_stage_complete(
+            logger,
+            "Mapping document generated successfully",
+            artifact_path=str(output_file)
+        )
         return 0
-        
+
     except Exception as e:
-        log_stage_failure(logger, "T011a", str(e))
+        log_stage_failure(logger, f"Failed to generate mapping: {str(e)}")
         return 1
 
 if __name__ == "__main__":

@@ -1,15 +1,31 @@
-transformers
-scikit-learn
-pandas
-tree-sitter
-networkx
-requests
-pyyaml
-bitsandbytes
-sentence-transformers
-pytest
-radon
-statsmodels
-huggingface_hub
-pydantic
-torch
+# Core Data & ML
+transformers>=4.35.0
+torch>=2.0.0
+sentence-transformers>=2.2.0
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=12.0.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+pyyaml>=6.0
+
+# Code Analysis
+tree-sitter>=0.20.0
+tree-sitter-languages>=1.9.0
+radon>=6.0.0
+bandit>=1.7.0
+
+# Utilities
+requests>=2.31.0
+tqdm>=4.65.0
+pydantic>=2.0.0
+networkx>=3.1.0
+
+# Testing & Linting
+pytest>=7.4.0
+ruff>=0.1.0
+black>=23.0.0
+pre-commit>=3.5.0
+
+# Hardware Detection
+psutil>=5.9.0

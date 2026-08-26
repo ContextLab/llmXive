@@ -74,9 +74,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/download.py` (FR-001): Fetch Navigation Error Corpus from Zenodo URL. **CRITICAL**: If the Zenodo URL is missing or invalid, generate a synthetic EEG/trajectory dataset for local testing purposes only, log a clear warning, and proceed. Do NOT halt the pipeline. Verify checksum and cache in `data/raw/` if real data is available. <!-- FAILED: unspecified -->
+- [ ] T010 [US1] Implement `code/download.py` (FR-001): Fetch Navigation Error Corpus from Zenodo URL. **CRITICAL**: If the Zenodo URL is missing or invalid, generate a synthetic EEG/trajectory dataset for local testing purposes only, log a clear warning, and proceed. Do NOT halt the pipeline. Verify checksum and cache in `data/raw/` if real data is available. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T011 [US1] Implement `code/preprocess.py` (FR-002): Apply bandpass and line-frequency notch filters to raw EEG data.
-- [ ] T012 [US1] Implement `code/preprocess.py` (FR-002): Run ICA to remove ocular/muscular artifacts; log components removed to `data/preprocessing.yaml`.
+- [ ] T012 [US1] Implement `code/preprocess.py` (FR-002): Run ICA to remove ocular/muscular artifacts; log components removed to `data/preprocessing.yaml`. <!-- FAILED: unspecified -->
 - [X] T013 [US1] Implement `code/preprocess.py` (FR-003): Calculate directional error magnitude (angular deviation in degrees) for each error event using heading vs. optimal path vectors.
 - [X] T014 [US1] Implement `code/preprocess.py` (FR-004): Extract MFN epochs (-200ms to 800ms), baseline-correct (-200ms to 0ms), and compute **MEAN Amplitude** (average of samples in 200-400ms window) at FCz, Cz, Fz as the PRIMARY metric per plan.md. Compute Peak (most negative) amplitude as a secondary metric only.
 - [X] T015 [US1] Implement `code/analysis.py` (FR-005): Fit Linear Mixed-Effects Model (MFN ~ error_magnitude + (1|participant)) using `statsmodels`.
@@ -90,7 +90,7 @@
 
 - [X] T019 [P] [US1] Unit test `tests/test_preprocess.py::test_angular_deviation_handles_zero_vectors`: Verify that `calculate_angular_deviation` logs a warning and returns `None` when input vectors are zero-length.
 - [X] T020 [P] [US1] Unit test `tests/test_preprocess.py::test_mfn_extraction_mean_vs_peak`: Verify that `extract_mfn_features` returns a `mean_amplitude` value that is the average of the window and a `peak_amplitude` value that is the minimum, ensuring both are calculated correctly.
-- [ ] T021 [P] [US1] Integration test `tests/test_integration.py::test_full_preprocessing_pipeline_subset`: Run the full preprocessing pipeline on a synthetic subset (N=5) and verify that `data/processed/` contains epoch files and `data/preprocessing.yaml` is populated with filter/ICA parameters.
+- [ ] T021 [P] [US1] Integration test `tests/test_integration.py::test_full_preprocessing_pipeline_subset`: Run the full preprocessing pipeline on a synthetic subset (N=5) and verify that `data/processed/` contains epoch files and `data/preprocessing.yaml` is populated with filter/ICA parameters. <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,7 +112,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T026 [P] [US2] Unit test `tests/test_analysis.py::test_threshold_filtering_logic`: Verify that filtering events with `threshold=10` correctly excludes events with `error_magnitude < 10`.
-- [ ] T027 [P] [US2] Integration test `tests/test_integration.py::test_sensitivity_sweep_output_format`: Run the sensitivity sweep on a subset and verify that `results/diagnostics/sensitivity_summary.csv` contains exactly 4 rows (one per threshold) with valid columns for `threshold`, `correlation`, and `p_value`.
+- [ ] T027 [P] [US2] Integration test `tests/test_integration.py::test_sensitivity_sweep_output_format`: Run the sensitivity sweep on a subset and verify that `results/diagnostics/sensitivity_summary.csv` contains exactly 4 rows (one per threshold) with valid columns for `threshold`, `correlation`, and `p_value`. <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,7 +128,7 @@
 
 - [X] T028 [US3] Implement `code/analysis.py` (FR-007): Calculate Variance Inflation Factors (VIF) for all behavioral predictors; flag if VIF ≥ 5.
 - [X] T029 [US3] Implement `code/analysis.py` (FR-008): Apply Bonferroni correction to p-values across tested electrodes (FCz, Cz, Fz).
-- [~] T030 [US3] Implement `code/analysis.py`: Generate diagnostic report in `results/diagnostics/validation_report.md` including VIF values, corrected p-values, and the exact phrase "associational" in the Conclusion section.
+- [ ] T030 [US3] Implement `code/analysis.py`: Generate diagnostic report in `results/diagnostics/validation_report.md` including VIF values, corrected p-values, and the exact phrase "associational" in the Conclusion section.
 - [X] T031 [US3] Implement `code/analysis.py`: Ensure the final report explicitly states the family-wise error rate control method used.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
@@ -144,10 +144,10 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [~] T034 [P] [Polish] Update `README.md` with execution instructions and dependency list
+- [ ] T034 [P] [Polish] Update `README.md` with execution instructions and dependency list
 - [X] T035 [P] [Polish] Add `requirements.txt` with pinned versions
-- [~] T036 [Polish] Run full pipeline on N=5 subset to verify < 10 mins runtime
-- [~] T037 [Polish] Verify `results/diagnostics/feasibility_report.json` shows < 7GB RAM usage
+- [ ] T036 [Polish] Run full pipeline on N=5 subset to verify < 10 mins runtime
+- [ ] T037 [Polish] Verify `results/diagnostics/feasibility_report.json` shows < 7GB RAM usage
 - [~] T038 [P] [Polish] Final review: Ensure all artifacts (plots, tables, reports) are generated in correct directories
 - [~] T039 [P] [Polish] Run `pytest` on all test modules to ensure **[deferred]** pass rate
 

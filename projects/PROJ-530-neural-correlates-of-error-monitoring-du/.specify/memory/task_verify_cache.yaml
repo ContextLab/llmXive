@@ -14,11 +14,11 @@ T012:
     and the YAML log) are missing, so the task is not genuinely fulfilled.
 T018:
   c: false
-  h: 0288f90f1dd7ce2f46ccfd43b67642067ba350c75b3ed02cde96ba91a29a36ff
-  r: The `results/diagnostics/feasibility_report.json` file does not exist, and the
-    provided `code/analysis.py` excerpt shows no logic for saving a model summary
-    to `results/models/` or for recording runtime/memory metrics and raising `FeasibilityError`
-    when limits are exceeded. The required artifacts and behavior are missing.
+  h: d219d6c3244a591b8ac9603b8808e3696488d74cf276c56bce9dd7ce6431b9e9
+  r: The `results/diagnostics/feasibility_report.json` file is absent, and the provided
+    portion of `code/analysis.py` shows no logic for measuring runtime/memory, saving
+    a model summary to `results/models/`, or raising `FeasibilityError` based on the
+    specified thresholds. The required artifacts and behavior are therefore missing.
 T021:
   c: false
   h: 06d73eb9c860469102ef318df7e9596ffd7f209b38d380ae02cdca64b1bca51c
@@ -28,11 +28,11 @@ T021:
     \ otherwise). The task\u2019s verification conditions are therefore not met."
 T025:
   c: false
-  h: 423240b3061c05b29b4fd9357632263722b21b64e45840b6efa174e05c459dcc
-  r: The `results/diagnostics/sensitivity_summary.csv` file does not exist, and the
-    provided `code/analysis.py` excerpt shows no implementation that writes sensitivity
-    results to that path (the file is truncated before any such logic). Consequently,
-    the required artifact is missing and the task is not fulfilled.
+  h: f79dc03e1405dc7b8a9abf0bf28c124a9b0b498ab7081ab0ca01d2dc267e4bd8
+  r: "The required output file `results/diagnostics/sensitivity_summary.csv` does\
+    \ not exist, and the provided `code/analysis.py` snippet shows no logic that writes\
+    \ sensitivity results to that path unconditionally. The implementation of the\
+    \ sensitivity\u2011sweep output is missing, so the task is not fulfilled."
 T027:
   c: false
   h: 9f56ed895f94bd3a796d63829be8759c3cbe0b25c1dd22a55ec97bd250f1be82
@@ -41,3 +41,32 @@ T027:
     from the repository (and the test code appears truncated). Without this output
     file, the test cannot verify the required format, so the task is not genuinely
     completed.
+T030:
+  c: false
+  h: 6cced1571eba3b33da704ac1649c1a3be4067a3319f4d19b7a44fb64b3b13e13
+  r: "The required `results/diagnostics/validation_report.md` file does not exist,\
+    \ and the provided `code/analysis.py` (truncated) contains no logic that writes\
+    \ a diagnostic report with VIF values, corrected p\u2011values, or a Conclusion\
+    \ section containing the word \u201Cassociational\u201D. The task\u2019s deliverable\
+    \ is therefore missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` file was provided; there is no evidence that execution
+    instructions or a dependency list were added to the repository. The required artifact
+    is missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, runtime measurements, or output artifacts (e.g., correlation\
+    \ results, model summary, or plots) are provided to demonstrate that the full\
+    \ pipeline was run on a 5\u2011participant subset and completed in under 10\u202F\
+    minutes. The claim lacks any concrete evidence of the required analysis or timing,\
+    \ so the task is not satisfied."
+T037:
+  c: false
+  h: ab4395a2cfc485800aa4efb21ea2357a3dc2fc75810ae0115de731b998f7d430
+  r: "The required artifact `results/diagnostics/feasibility_report.json` does not\
+    \ exist in the repository, so there is no content to verify that RAM usage is\
+    \ under 7\u202FGB. The task cannot be considered satisfied until the file is present\
+    \ and contains the appropriate RAM usage information."

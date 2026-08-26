@@ -1,53 +1,48 @@
 import os
 from pathlib import Path
+import logging
 
 def create_project_directories():
     """
-    Creates the necessary directory structure for the project.
-    Specifically targets the data directories required for T002:
+    Create the required directory structure for the project.
+    Specifically creates:
     - projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/
     - projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/processed/
     
-    Also ensures other standard directories exist if they don't (based on T003/T008 context).
+    Returns:
+        bool: True if all directories were created successfully.
     """
-    project_root = Path("projects/PROJ-530-neural-correlates-of-error-monitoring-du")
+    base_path = Path("projects/PROJ-530-neural-correlates-of-error-monitoring-du")
+    data_raw = base_path / "data" / "raw"
+    data_processed = base_path / "data" / "processed"
     
-    # Define the specific paths required by T002
-    data_raw = project_root / "data" / "raw"
-    data_processed = project_root / "data" / "processed"
+    directories = [data_raw, data_processed]
     
-    # Additional directories to ensure a complete project structure (T003/T008 context)
-    results_models = project_root / "results" / "models"
-    results_figures = project_root / "results" / "figures"
-    results_diagnostics = project_root / "results" / "diagnostics"
-    code_dir = project_root / "code"
-    tests_dir = project_root / "tests"
-    state_dir = project_root / "state"
+    logger = logging.getLogger(__name__)
     
-    all_dirs = [
-        data_raw,
-        data_processed,
-        results_models,
-        results_figures,
-        results_diagnostics,
-        code_dir,
-        tests_dir,
-        state_dir
-    ]
-    
-    created_count = 0
-    for directory in all_dirs:
-        if not directory.exists():
+    success = True
+    for directory in directories:
+        try:
             directory.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {directory}")
-        else:
-            # Verify they are actually directories, not files
-            if not directory.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {directory}")
+            logger.info(f"Directory created: {directory}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {directory}: {e}")
+            success = False
+            
+    return success
+
+def main():
+    """Entry point for directory creation script."""
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
     
-    print(f"Directory setup complete. {created_count} new directories created.")
-    return True
+    logger.info("Starting directory creation for PROJ-530...")
+    if create_project_directories():
+        logger.info("Directory creation completed successfully.")
+    else:
+        logger.error("Directory creation failed.")
+        return 1
+    return 0
 
 if __name__ == "__main__":
-    create_project_directories()
+    exit(main())

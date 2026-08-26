@@ -4,7 +4,6 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-import logging
 
 from src.lib.config import get_config
 from src.lib.utils import get_logger
@@ -14,10 +13,10 @@ logger = get_logger(__name__)
 def ensure_derived_directory() -> Path:
     """Ensure the data/derived directory exists."""
     config = get_config()
-    derived_path = Path(config["data"]["derived"])
-    derived_path.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured derived directory exists: {derived_path}")
-    return derived_path
+    derived_dir = Path(config.data_dir) / "derived"
+    derived_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured derived directory exists at {derived_dir}")
+    return derived_dir
 
 def compute_file_checksum(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
@@ -27,73 +26,73 @@ def compute_file_checksum(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def write_probes_to_jsonl(probes: List[Dict[str, Any]], output_file: Optional[Path] = None) -> Path:
+def write_probes_to_jsonl(probes: List[Dict[str, Any]], output_path: Optional[Path] = None) -> Path:
     """
-    Write a list of probe dictionaries to a JSONL file.
+    Write a list of validated probe dictionaries to a JSONL file.
     
     Args:
-        probes: List of probe dictionaries.
-        output_file: Optional specific output path. If None, uses default config path.
+        probes: List of probe records (each a dict).
+        output_path: Optional specific path. If None, uses default derived/probes.jsonl.
         
     Returns:
         Path to the written file.
     """
-    if output_file is None:
-        ensure_derived_directory()
-        config = get_config()
-        output_file = Path(config["data"]["derived"]) / "probes.jsonl"
-    else:
-        output_file.parent.mkdir(parents=True, exist_ok=True)
+    if output_path is None:
+        derived_dir = ensure_derived_directory()
+        output_path = derived_dir / "probes.jsonl"
+    
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Writing {len(probes)} probes to {output_path}")
+    
+    with open(output_path, "w", encoding="utf-8") as f:
+        for idx, probe in enumerate(probes):
+            # Ensure probe has required metadata
+            if "timestamp" not in probe:
+                probe["timestamp"] = datetime.utcnow().isoformat()
+            if "index" not in probe:
+                probe["index"] = idx
+            
+            f.write(json.dumps(probe, ensure_ascii=False) + "\n")
+    
+    # Compute and log checksum
+    checksum = compute_file_checksum(output_path)
+    logger.info(f"Written {len(probes)} probes to {output_path} (SHA-256: {checksum[:16]}...)")
+    
+    return output_path
 
-    logger.info(f"Writing {len(probes)} probes to {output_file}")
-    
-    with open(output_file, "w", encoding="utf-8") as f:
-        for probe in probes:
-            # Ensure consistent JSON formatting for reproducibility
-            json_line = json.dumps(probe, ensure_ascii=False, sort_keys=True)
-            f.write(json_line + "\n")
-    
-    checksum = compute_file_checksum(output_file)
-    logger.info(f"Probes written successfully. File checksum: {checksum}")
-    
-    return output_file
-
-def read_probes_from_jsonl(input_file: Path) -> List[Dict[str, Any]]:
+def read_probes_from_jsonl(input_path: Path) -> List[Dict[str, Any]]:
     """
     Read probes from a JSONL file.
     
     Args:
-        input_file: Path to the JSONL file.
+        input_path: Path to the JSONL file.
         
     Returns:
         List of probe dictionaries.
     """
-    if not input_file.exists():
-        logger.error(f"Probes file not found: {input_file}")
+    if not input_path.exists():
+        logger.warning(f"Probes file not found: {input_path}")
         return []
     
     probes = []
-    with open(input_file, "r", encoding="utf-8") as f:
-        for line_num, line in enumerate(f, 1):
+    with open(input_path, "r", encoding="utf-8") as f:
+        for line in f:
             line = line.strip()
-            if not line:
-                continue
-            try:
-                probe = json.loads(line)
-                probes.append(probe)
-            except json.JSONDecodeError as e:
-                logger.warning(f"Skipping invalid JSON at line {line_num}: {e}")
+            if line:
+                probes.append(json.loads(line))
     
-    logger.info(f"Read {len(probes)} probes from {input_file}")
+    logger.info(f"Read {len(probes)} probes from {input_path}")
     return probes
 
 def verify_probes_checksum(file_path: Path, expected_checksum: str) -> bool:
     """
-    Verify the checksum of a probes file.
+    Verify the checksum of a probes file against an expected value.
     
     Args:
-        file_path: Path to the file.
-        expected_checksum: Expected SHA-256 checksum.
+        file_path: Path to the probes file.
+        expected_checksum: Expected SHA-256 hex string.
         
     Returns:
         True if checksum matches, False otherwise.
@@ -107,115 +106,81 @@ def verify_probes_checksum(file_path: Path, expected_checksum: str) -> bool:
         logger.info(f"Checksum verified for {file_path}")
         return True
     else:
-        logger.error(f"Checksum mismatch for {file_path}. Expected: {expected_checksum}, Got: {actual_checksum}")
+        logger.error(f"Checksum mismatch for {file_path}: expected {expected_checksum}, got {actual_checksum}")
         return False
 
-def get_probes_summary(file_path: Path) -> Dict[str, Any]:
+def get_probes_summary(probes: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Generate a summary of the probes in a file.
+    Generate a summary of the probes list.
     
     Args:
-        file_path: Path to the JSONL file.
+        probes: List of probe dictionaries.
         
     Returns:
         Dictionary with summary statistics.
     """
-    if not file_path.exists():
-        return {"error": f"File not found: {file_path}"}
-    
-    probes = read_probes_from_jsonl(file_path)
-    
     if not probes:
-        return {"count": 0, "error": "No probes found"}
+        return {
+            "count": 0,
+            "characters": [],
+            "valid_count": 0,
+            "invalid_count": 0
+        }
     
-    # Calculate basic statistics
-    total_count = len(probes)
-    valid_count = sum(1 for p in probes if p.get("valid", False))
-    invalid_count = total_count - valid_count
+    characters = set()
+    valid_count = 0
+    invalid_count = 0
     
-    # Count by character
-    character_counts = {}
     for probe in probes:
-        char_name = probe.get("character", "unknown")
-        character_counts[char_name] = character_counts.get(char_name, 0) + 1
-    
-    # Count by status
-    status_counts = {}
-    for probe in probes:
-        status = probe.get("status", "unknown")
-        status_counts[status] = status_counts.get(status, 0) + 1
+        char = probe.get("character", "unknown")
+        characters.add(char)
+        
+        status = probe.get("character_status", "unknown")
+        if status == "valid":
+            valid_count += 1
+        elif status == "invalid":
+            invalid_count += 1
     
     return {
-        "total_count": total_count,
+        "count": len(probes),
+        "characters": sorted(list(characters)),
         "valid_count": valid_count,
-        "invalid_count": invalid_count,
-        "character_counts": character_counts,
-        "status_counts": status_counts,
-        "file_path": str(file_path),
-        "checksum": compute_file_checksum(file_path)
+        "invalid_count": invalid_count
     }
 
 def main():
     """
-    Main function to demonstrate probes writer functionality.
-    Creates sample probes and writes them to the derived directory.
+    Main entry point for the probes writer script.
+    Demonstrates writing probes to data/derived/probes.jsonl.
     """
-    logger.info("Starting probes writer demonstration")
+    # Example usage: This would typically be called by the probe generation pipeline
+    # For now, we demonstrate the writer functionality with a sample structure
+    # In a real run, this would be populated by generate_probes_batch()
     
-    # Ensure directory exists
-    output_dir = ensure_derived_directory()
-    output_file = output_dir / "probes.jsonl"
-    
-    # Create sample probes for demonstration
     sample_probes = [
         {
-            "id": "probe_001",
-            "character": "Alice",
-            "scenario": "Alice finds herself in a completely alien environment with no gravity.",
-            "coarse_axes": ["Curiosity", "Resilience"],
-            "fine_axes": ["Detailed observation of surroundings", "Adaptation to physical constraints"],
-            "valid": True,
-            "status": "generated",
-            "similarity_score": 0.15,
-            "timestamp": datetime.now().isoformat()
+            "character": "Sherlock Holmes",
+            "probe_text": "You are in a silent library where books whisper secrets. What do you do?",
+            "source_axes": {"coarse": "deductive_reasoning", "fine": "observational_detail"},
+            "semantic_distance": 0.85,
+            "character_status": "valid"
         },
         {
-            "id": "probe_002",
-            "character": "Bob",
-            "scenario": "Bob must negotiate a peace treaty with an advanced AI civilization.",
-            "coarse_axes": ["Diplomacy", "Logic"],
-            "fine_axes": ["Structured argumentation", "Empathy for non-human perspectives"],
-            "valid": True,
-            "status": "generated",
-            "similarity_score": 0.22,
-            "timestamp": datetime.now().isoformat()
-        },
-        {
-            "id": "probe_003",
-            "character": "Charlie",
-            "scenario": "Charlie discovers a hidden library containing the history of a lost civilization.",
-            "coarse_axes": ["Curiosity", "Preservation"],
-            "fine_axes": ["Systematic cataloging", "Respect for ancient knowledge"],
-            "valid": True,
-            "status": "generated",
-            "similarity_score": 0.18,
-            "timestamp": datetime.now().isoformat()
+            "character": "Sherlock Holmes",
+            "probe_text": "A mysterious fog rolls in, carrying voices of the past. How do you react?",
+            "source_axes": {"coarse": "deductive_reasoning", "fine": "observational_detail"},
+            "semantic_distance": 0.78,
+            "character_status": "valid"
         }
     ]
     
-    # Write probes to file
-    written_file = write_probes_to_jsonl(sample_probes, output_file)
+    logger.info("Running probes writer demonstration...")
+    output_path = write_probes_to_jsonl(sample_probes)
     
-    # Verify the file was written correctly
-    summary = get_probes_summary(written_file)
-    logger.info(f"Probes summary: {json.dumps(summary, indent=2)}")
+    summary = get_probes_summary(read_probes_from_jsonl(output_path))
+    logger.info(f"Probes summary: {summary}")
     
-    # Read back and verify
-    read_probes = read_probes_from_jsonl(written_file)
-    logger.info(f"Successfully read back {len(read_probes)} probes")
-    
-    logger.info("Probes writer demonstration completed successfully")
-    return written_file
+    return output_path
 
 if __name__ == "__main__":
     main()
