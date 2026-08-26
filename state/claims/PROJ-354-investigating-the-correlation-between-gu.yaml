@@ -70,3 +70,255 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T11:21:40Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/docs/README.md
+  attempts: 1
+  canonical: analysis employs ILR transformation for compositional data
+  claim_id: c_9413e305
+  context: The analysis employs rigorous statistical methods including Isometric Log-Ratio
+    (ILR) transformation for compositional data, Lasso/Ridge regularized linear models,
+    and comprehensive sensitivity analyses.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_employs_ILR_transformation_for_compositional_data
+  kind: entity_fact
+  raw_text: The analysis employs Isometric Log-Ratio (ILR) transformation for compositional
+    data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:16:34Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/docs/README.md
+  attempts: 1
+  canonical: pipeline handles datasets >14GB within 7GB RAM
+  claim_id: c_af783ea1
+  context: Streaming-based pipeline for handling large datasets (>14GB) within constrained
+    memory (7GB RAM)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/pipeline_handles_datasets_%3E14GB_within_7GB_RAM
+  kind: magnitude
+  raw_text: The pipeline handles large datasets greater than 14GB within constrained
+    memory of 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:17:00Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/docs/README.md
+  attempts: 1
+  canonical: cognitive scores include Field ID 20400 and 20002
+  claim_id: c_17db2aaf
+  context: 'Field IDs: Microbiome: Configured in code/config.py; Cognitive: 20400
+    (Fluid Intelligence), 20002 (Neuroticism)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cognitive assessment scores used in the study include Field ID 20400 (Fluid
+    Intelligence) and Field ID 20002 (Neuroticism).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:17:22Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/docs/README.md
+  attempts: 1
+  canonical: Bayesian-multiplicative zero-replacement alpha 1e-6
+  claim_id: c_b13b09c8
+  context: Bayesian-multiplicative zero-replacement (alpha=1e-6)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bayesian-multiplicative zero-replacement was performed with an alpha value
+    of 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:17:46Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/README.md
+  attempts: 1
+  canonical: handles 14 GB datasets within 7 GB RAM constraints
+  claim_id: c_de95c116
+  context: 'Key Features: Streaming Data Processing: Handles >14GB datasets within
+    7GB RAM constraints'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handles >14GB datasets within 7GB RAM constraints
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:17:52Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: handle datasets larger than 14GB within 7GB RAM limits
+  claim_id: c_992ceb34
+  context: 'Phase 2: Foundational (Blocking Prerequisites) task T006.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Handle_datasets_larger_than_14GB_within_7GB_RAM_limits
+  kind: entity_fact
+  raw_text: Implement streaming/batch data loader utilities in code/utils/streaming.py
+    to handle >14GB datasets within 7GB RAM limits
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:24:44Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: power gate pass criteria requires calculated power greater than or equal
+    to 0.8
+  claim_id: c_1a73e5ac
+  context: 'Phase 2: Foundational task T019 description regarding power analysis gate
+    criteria.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_gate_pass_criteria_requires_calculated_power_greater_t
+  kind: magnitude
+  raw_text: Report MUST contain (1) calculated power, (2) required sample size, (3)
+    explicit pass/fail statement where PASS = calculated power >= 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:25:18Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: exclude recent antibiotic users and participants missing data types from
+    cohort
+  claim_id: c_07f99ced
+  context: 'Phase 3: User Story 1 task T013 description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_recent_antibiotic_users_and_participants_missing_dat
+  kind: entity_fact
+  raw_text: 'Implement code/preprocess.py to filter cohort: exclude recent antibiotic
+    users and participants missing either data type'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:25:46Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: apply Bayesian-multiplicative zero-replacement with prior alpha equal
+    to 1e-6
+  claim_id: c_879699a4
+  context: 'Phase 3: User Story 1 task T014 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bayesian-multiplicative zero-replacement using the zCompositions
+    library with prior alpha=1e-6 to raw microbiome counts to handle zero counts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:26:58Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: derive Age_Group variable using threshold Age greater than or equal to
+    AGE_GROUP_CUTOFF
+  claim_id: c_16e70ddf
+  context: 'Phase 3: User Story 1 task T015.5 description.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Derive_Age_Group_variable_using_threshold_Age_greater_than_o
+  kind: magnitude
+  raw_text: Derive Age_Group categorical variable from continuous age in code/preprocess.py
+    where Age >= code/config.py.AGE_GROUP_CUTOFF
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:27:19Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Age Group clinical threshold is 65 years
+  claim_id: c_11f066ef
+  context: Notes section regarding Age Group Definition in task T015.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Age Group Definition uses a clinical threshold of Age >= 65
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:28:10Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: fit Lasso-regularized linear models with age sex BMI diet activity and
+    medication covariates
+  claim_id: c_429b1800
+  context: 'Phase 4: User Story 2 task T020a description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fit_Lasso-regularized_linear_models_with_age_sex_BMI_diet_ac
+  kind: entity_fact
+  raw_text: Fit Lasso-regularized linear models for main effects with covariates (age,
+    sex, BMI, diet, activity, medication)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:29:23Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: measure interaction p-values against primary results in interaction significance
+    comparison
+  claim_id: c_bcb2dea2
+  context: 'Phase 5: User Story 3 task T030b description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Measure_interaction_p-values_against_primary_results_in_inte
+  kind: causal
+  raw_text: Generate report comparing interaction significance to primary effects
+    explicitly measuring interaction p-values against primary results
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:29:25Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: report count of taxa with adjusted p-value less than threshold
+  claim_id: c_7d3c80a4
+  context: 'Phase 5: User Story 3 task T029 description regarding threshold sweep
+    sensitivity analysis.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_count_of_taxa_with_adjusted_p-value_less_than_thresho
+  kind: magnitude
+  raw_text: Report 'headline association rate' (count of taxa with adj-p < threshold)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T22:29:53Z'

@@ -1,9 +1,3 @@
-"""
-Environment configuration management for credentials.
-
-Handles loading UK Biobank tokens from environment variables or secure keyring,
-validating credentials, and initializing the configuration state.
-"""
 import os
 import logging
 from pathlib import Path
@@ -11,257 +5,208 @@ from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 import keyring
 
-from .logging import ConfigError, get_logger
-
-# Logger instance
-logger = get_logger(__name__)
-
-# Constants
-ENV_FILE_PATH = ".env"
-UK_BIOBANK_TOKEN_SERVICE = "llmXive.uk_biobank"
-UK_BIOBANK_TOKEN_USER = "api_token"
-UK_BIOBANK_API_KEY_SERVICE = "llmXive.uk_biobank_api"
-UK_BIOBANK_API_KEY_USER = "api_key"
+# Configure logging for this module
+logger = logging.getLogger(__name__)
 
 def load_dotenv_file(env_path: Optional[Path] = None) -> bool:
     """
-    Load environment variables from a .env file if it exists.
-
+    Load environment variables from a .env file.
+    
     Args:
         env_path: Path to the .env file. Defaults to project root .env.
-
+        
     Returns:
-        True if file was loaded, False if not found.
+        bool: True if loaded successfully, False otherwise.
     """
     if env_path is None:
-        env_path = Path.cwd() / ENV_FILE_PATH
-
+        # Default to project root .env
+        env_path = Path(__file__).parent.parent.parent / ".env"
+    
     if not env_path.exists():
-        logger.debug(f"No .env file found at {env_path}")
+        logger.warning(f".env file not found at {env_path}. "
+                     "Ensure you have copied code/.env.example to code/.env and filled it.")
         return False
-
-    logger.info(f"Loading environment variables from {env_path}")
+    
     try:
-        load_dotenv(dotenv_path=env_path, override=True)
+        load_dotenv(env_path)
+        logger.info(f"Loaded environment variables from {env_path}")
         return True
     except Exception as e:
         logger.error(f"Failed to load .env file: {e}")
-        raise ConfigError(f"Failed to load .env file: {e}") from e
+        return False
 
-def get_token_from_env(var_name: str = "UK_BIOBANK_TOKEN") -> Optional[str]:
+def get_token_from_env(var_name: str) -> Optional[str]:
     """
-    Retrieve a token directly from the environment variable.
-
+    Retrieve a token from environment variables.
+    
     Args:
-        var_name: The environment variable name.
-
+        var_name: The name of the environment variable.
+        
     Returns:
         The token string if found, None otherwise.
     """
     token = os.getenv(var_name)
     if token:
-        logger.debug(f"Token found in environment variable {var_name}")
-        # Mask for logging safety
-        masked = token[:4] + "..." + token[-4:] if len(token) > 8 else "***"
-        logger.debug(f"Token loaded (masked): {masked}")
-    return token
+        logger.debug(f"Found {var_name} in environment variables")
+        return token
+    logger.debug(f"{var_name} not found in environment variables")
+    return None
 
-def get_token_from_keyring(service: str = UK_BIOBANK_TOKEN_SERVICE, user: str = UK_BIOBANK_TOKEN_USER) -> Optional[str]:
+def get_token_from_keyring(service_name: str, username: str = "ukb_user") -> Optional[str]:
     """
     Retrieve a token from the system keyring.
-
+    
     Args:
-        service: The service name for keyring lookup.
-        user: The username/key for the credential.
-
+        service_name: The name of the service in the keyring.
+        username: The username associated with the credential.
+        
     Returns:
         The token string if found, None otherwise.
     """
     try:
-        token = keyring.get_password(service, user)
+        token = keyring.get_password(service_name, username)
         if token:
-            logger.debug(f"Token found in keyring for {service}/{user}")
-        return token
+            logger.debug(f"Found token in keyring for service: {service_name}")
+            return token
+        logger.debug(f"No token found in keyring for service: {service_name}")
+        return None
     except Exception as e:
         logger.warning(f"Failed to retrieve token from keyring: {e}")
         return None
 
-def set_token_to_keyring(token: str, service: str = UK_BIOBANK_TOKEN_SERVICE, user: str = UK_BIOBANK_TOKEN_USER) -> None:
+def set_token_to_keyring(service_name: str, username: str = "ukb_user", token: str = "") -> bool:
     """
-    Store a token securely in the system keyring.
-
+    Store a token in the system keyring.
+    
     Args:
+        service_name: The name of the service in the keyring.
+        username: The username associated with the credential.
         token: The token to store.
-        service: The service name.
-        user: The username/key.
+        
+    Returns:
+        bool: True if successful, False otherwise.
     """
     try:
-        keyring.set_password(service, user, token)
-        logger.info(f"Token securely stored in keyring for {service}/{user}")
+        keyring.set_password(service_name, username, token)
+        logger.info(f"Token stored securely in keyring for service: {service_name}")
+        return True
     except Exception as e:
         logger.error(f"Failed to store token in keyring: {e}")
-        raise ConfigError(f"Failed to store token in keyring: {e}") from e
+        return False
 
-def get_uk_biobank_token() -> str:
+def get_uk_biobank_token(service_name: Optional[str] = None) -> Optional[str]:
     """
-    Retrieve the UK Biobank token with priority: Env > Keyring > Error.
-
+    Retrieve the UK Biobank access token.
+    
+    Priority:
+    1. Environment variable UKB_ACCESS_TOKEN
+    2. System keyring
+    
+    Args:
+        service_name: Optional keyring service name. Defaults to 'llmXive-ukb'.
+        
     Returns:
-        The UK Biobank token string.
-
-    Raises:
-        ConfigError: If no token is found in environment or keyring.
+        The token string if found, None otherwise.
     """
-    # 1. Check Environment Variable
-    token = get_token_from_env("UK_BIOBANK_TOKEN")
+    if service_name is None:
+        service_name = os.getenv("UKB_KEYRING_SERVICE_NAME", "llmXive-ukb")
+    
+    # Try environment variable first
+    token = get_token_from_env("UKB_ACCESS_TOKEN")
     if token:
         return token
+    
+    # Try keyring
+    token = get_token_from_keyring(service_name)
+    return token
 
-    # 2. Check Keyring
-    token = get_token_from_keyring()
-    if token:
-        return token
-
-    # 3. Fail loudly
-    error_msg = (
-        "UK Biobank token not found. "
-        "Please set the 'UK_BIOBANK_TOKEN' environment variable "
-        "or store it in your system keyring using the setup script."
-    )
-    logger.error(error_msg)
-    raise ConfigError(error_msg)
-
-def get_uk_biobank_api_key() -> str:
+def get_uk_biobank_api_key() -> Optional[str]:
     """
-    Retrieve the UK Biobank API key (if separate from token) with priority: Env > Keyring > Error.
-
+    Retrieve the UK Biobank application key.
+    
+    Priority:
+    1. Environment variable UKB_APP_KEY
+    
     Returns:
-        The API key string.
-
-    Raises:
-        ConfigError: If no key is found.
+        The API key string if found, None otherwise.
     """
-    key = get_token_from_env("UK_BIOBANK_API_KEY")
-    if key:
-        return key
+    return get_token_from_env("UKB_APP_KEY")
 
-    key = get_token_from_keyring(service=UK_BIOBANK_API_KEY_SERVICE, user=UK_BIOBANK_API_KEY_USER)
-    if key:
-        return key
-
-    error_msg = (
-        "UK Biobank API key not found. "
-        "Please set the 'UK_BIOBANK_API_KEY' environment variable "
-        "or store it in your system keyring."
-    )
-    logger.error(error_msg)
-    raise ConfigError(error_msg)
-
-def validate_credentials() -> Dict[str, bool]:
+def validate_credentials() -> Dict[str, Any]:
     """
-    Validate that all required credentials are present and accessible.
-
+    Validate that necessary credentials are present.
+    
     Returns:
-        A dictionary mapping credential names to their validation status (True/False).
+        Dict containing validation status and details.
     """
-    results = {
-        "uk_biobank_token": False,
-        "uk_biobank_api_key": False
+    result = {
+        "valid": False,
+        "token_present": False,
+        "api_key_present": False,
+        "message": ""
     }
+    
+    token = get_uk_biobank_token()
+    api_key = get_uk_biobank_api_key()
+    
+    result["token_present"] = token is not None
+    result["api_key_present"] = api_key is not None
+    
+    if result["token_present"] and result["api_key_present"]:
+        result["valid"] = True
+        result["message"] = "All credentials present."
+    else:
+        missing = []
+        if not result["token_present"]:
+            missing.append("UKB_ACCESS_TOKEN")
+        if not result["api_key_present"]:
+            missing.append("UKB_APP_KEY")
+        result["message"] = f"Missing credentials: {', '.join(missing)}. " \
+                          "Please update your .env file or set environment variables."
+    
+    return result
 
-    try:
-        get_uk_biobank_token()
-        results["uk_biobank_token"] = True
-        logger.info("UK Biobank token validation: PASSED")
-    except ConfigError:
-        logger.warning("UK Biobank token validation: FAILED")
-
-    try:
-        get_uk_biobank_api_key()
-        results["uk_biobank_api_key"] = True
-        logger.info("UK Biobank API key validation: PASSED")
-    except ConfigError:
-        logger.warning("UK Biobank API key validation: FAILED")
-
-    return results
-
-def init_config() -> Dict[str, Any]:
+def init_config() -> bool:
     """
-    Initialize the configuration by loading .env and validating credentials.
-
+    Initialize configuration by loading .env and validating credentials.
+    
     Returns:
-        Configuration dictionary with status and retrieved secrets (masked).
-
-    Raises:
-        ConfigError: If critical credentials are missing.
+        bool: True if initialization successful, False otherwise.
     """
-    # Load .env if present
+    # Load .env file
     load_dotenv_file()
-
-    # Validate
+    
+    # Validate credentials
     validation = validate_credentials()
-
-    config = {
-        "initialized": True,
-        "validation": validation,
-        "status": "ready" if all(validation.values()) else "missing_credentials"
-    }
-
-    if config["status"] == "missing_credentials":
-        logger.warning("Configuration initialized but some credentials are missing.")
+    
+    if validation["valid"]:
+        logger.info("Configuration initialized successfully.")
+        return True
     else:
-        logger.info("Configuration initialized successfully with all credentials present.")
+        logger.warning(f"Configuration validation failed: {validation['message']}")
+        return False
 
-    return config
-
-def main() -> None:
+def main():
     """
-    CLI entry point for credential management and validation.
+    Main entry point for testing configuration management.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="UK Biobank Credential Manager")
-    parser.add_argument(
-        "--validate",
-        action="store_true",
-        help="Validate current credentials without modifying state."
-    )
-    parser.add_argument(
-        "--set-token",
-        type=str,
-        help="Set the UK Biobank token in the keyring (prompts for value if not provided)."
-    )
-    parser.add_argument(
-        "--env-file",
-        type=str,
-        default=None,
-        help="Path to .env file (default: ./env)."
-    )
-
-    args = parser.parse_args()
-
-    if args.env_file:
-        load_dotenv_file(Path(args.env_file))
-
-    if args.set_token:
-        token = args.set_token
-        if not token:
-            import getpass
-            token = getpass.getpass("Enter UK Biobank Token: ")
-        set_token_to_keyring(token)
-        logger.info("Token set successfully.")
-    elif args.validate:
+    print("Initializing UK Biobank configuration...")
+    success = init_config()
+    
+    if success:
+        print("✓ Configuration valid.")
         validation = validate_credentials()
-        if all(validation.values()):
-            print("All credentials valid.")
-        else:
-            print("Some credentials missing.")
-            print(validation)
+        print(f"  - Token present: {validation['token_present']}")
+        print(f"  - API Key present: {validation['api_key_present']}")
     else:
-        # Default: Just init and report status
-        config = init_config()
-        print(f"Config Status: {config['status']}")
-        print(f"Validation: {config['validation']}")
+        print("✗ Configuration invalid.")
+        validation = validate_credentials()
+        print(f"  - Message: {validation['message']}")
+        print("\nAction required:")
+        print("  1. Copy code/.env.example to code/.env")
+        print("  2. Fill in your UK Biobank credentials")
+        print("  3. Or set environment variables: UKB_ACCESS_TOKEN, UKB_APP_KEY")
+        print("  4. Or use keyring to store credentials securely")
 
 if __name__ == "__main__":
     main()

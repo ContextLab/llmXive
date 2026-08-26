@@ -15,3 +15,24 @@ T021:
     \ would perform Benjamini\u2011Hochberg correction and write the results. Without\
     \ the parquet file containing adjusted p\u2011values, the task\u2019s deliverable\
     \ is not satisfied."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation showing that any cleanup or refactoring was\
+    \ performed were provided; the only evidence is the original feature specification,\
+    \ which does not contain the required refactored artifacts. Consequently, the\
+    \ task\u2019s requirement for code cleanup and refactoring is not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, benchmark logs, or documentation were provided showing that any streaming\
+    \ logic was implemented or that its RAM usage stays below 7\u202FGB. The only\
+    \ artifacts shown relate to data download/preprocessing and statistical analysis,\
+    \ not to performance optimization, so the required evidence is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing that `quickstart.md` was executed or validated is present;\
+    \ there are no logs, screenshots, or generated results confirming end\u2011to\u2011\
+    end reproducibility. The required evidence of running the quickstart validation\
+    \ is missing."

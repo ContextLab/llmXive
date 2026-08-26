@@ -1,41 +1,100 @@
-# Gut Microbiome-Cognitive Correlation Study (PROJ-354)
+# Gut Microbiome-Cognitive Correlation Study
 
-## Project Structure
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This project follows the llmXive automated science pipeline structure:
+## Overview
 
-- `code/`: Source code for data download, preprocessing, analysis, and visualization.
-- `data/`: Raw and processed datasets.
- - `raw/`: Unprocessed data from UK Biobank (not included in repo).
- - `processed/`: Intermediate and final processed data artifacts (ILR coordinates, etc.).
-- `results/`: Output artifacts from analysis and validation.
- - `power/`: Power analysis reports.
- - `associations/`: Statistical association results.
- - `sensitivity/`: Sensitivity analysis reports.
- - `plots/`: Generated visualizations.
- - `validation/`: Validation reports.
-- `tests/`: Unit and integration tests.
-- `specs/`: Feature specifications and design documents.
+This project investigates the correlation between gut microbiome composition (16S rRNA sequencing data) and cognitive assessment scores using UK Biobank data. The analysis employs rigorous statistical methods including Isometric Log-Ratio (ILR) transformation for compositional data, Lasso/Ridge regularized linear models, and comprehensive sensitivity analyses.
+
+## Key Features
+
+- **Streaming Data Processing**: Handles >14GB datasets within 7GB RAM constraints [UNRESOLVED-CLAIM: c_de95c116 — status=not_enough_info]
+- **Compositional Data Analysis**: Bayesian-multiplicative zero-replacement and ILR transformation
+- **Regularized Regression**: Lasso and Ridge models with confounder control
+- **Multiple Testing Correction**: Benjamini-Hochberg procedure
+- **Sensitivity Analysis**: Over-control bias, threshold sweeps, model comparison
+- **Validation Gates**: Power analysis and citation validation before proceeding
 
 ## Quick Start
 
-1. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-2. Configure environment variables (e.g., UK Biobank token) as per `code/config.py`.
+# Configure UK Biobank token
+export UK_BIOBANK_TOKEN="your_token_here"
 
-3. Run the preprocessing pipeline:
- ```bash
- python code/preprocess.py
- ```
+# Run the pipeline
+python code/download.py
+python code/preprocess.py
+python code/analysis.py
+python code/visualize.py
 
-4. Run the analysis:
- ```bash
- python code/analysis.py
- ```
+# Run tests
+pytest tests/
+```
+
+For detailed instructions, see [quickstart.md](quickstart.md).
+
+## Project Structure
+
+```
+.
+├── code/ # Core implementation
+├── data/ # Data storage
+│ ├── raw/ # Raw downloaded data
+│ └── processed/ # Processed data
+├── results/ # Analysis results
+│ ├── associations/ # Statistical results
+│ ├── plots/ # Visualizations
+│ ├── sensitivity/ # Sensitivity analysis
+│ ├── power/ # Power analysis
+│ └── validation/ # Validation reports
+├── tests/ # Test suite
+├── docs/ # Documentation
+├── requirements.txt # Dependencies
+└── quickstart.md # Quick start guide
+```
+
+## Methodology
+
+1. **Data Download**: Streaming fetch from UK Biobank with checksumming
+2. **Preprocessing**:
+ - Cohort filtering (antibiotic exclusion, missing data)
+ - Bayesian-multiplicative zero-replacement (alpha=1e-6)
+ - Genus-level aggregation
+ - ILR transformation
+3. **Statistical Analysis**:
+ - Regularized linear models (Lasso/Ridge)
+ - Confounder adjustment (age, sex, BMI, diet, activity, medication)
+ - Benjamini-Hochberg correction
+ - Age-interaction analysis
+4. **Sensitivity Analysis**:
+ - Over-control bias assessment
+ - Threshold sweep analysis
+ - Model selection comparison
+
+## Validation Gates
+
+- **Power Gate**: Ensures study is adequately powered (power >= 0.8)
+- **Citation Gate**: Validates cognitive instrument citations
+- **Data Integrity**: Checksumming and PII masking throughout
+
+## Documentation
+
+- [Quick Start Guide](quickstart.md) - Getting started
+- [API Reference](docs/API.md) - Module documentation
+- [Project Documentation](docs/README.md) - Detailed methodology
+
+## Requirements
+
+See [requirements.txt](requirements.txt) for full dependency list.
 
 ## License
 
-[License Information]
+MIT License - see LICENSE file for details.
+
+## Contributing
+
+See CONTRIBUTING.md for development guidelines.

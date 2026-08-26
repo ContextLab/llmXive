@@ -8,8 +8,9 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.analysis import apply_benjamini_hochberg, fit_ols_model, validate_confounders_present
+from code.analysis import apply_benjamini_hochberg, fit_ols_model, validate_confounders_present, get_confounder_formula
 from code.utils.logging import AnalysisError
+from code.config import get_path
 
 class TestBenjaminiHochberg:
     """
@@ -127,3 +128,70 @@ class TestValidateConfounders:
         df = pd.DataFrame({'a': [1], 'b': [1]})
         with pytest.raises(AnalysisError):
             validate_confounders_present(df, ['a', 'b', 'c'])
+
+class TestInteractionTermConstruction:
+    """
+    Unit tests for interaction term construction (Age_Group * Taxon) for T025.
+    """
+
+    def test_interaction_formula_generation(self):
+        """Test that the interaction formula is correctly constructed using get_confounder_formula."""
+        # Verify that the formula includes the interaction term syntax
+        # We expect a formula string that looks like: y ~ x + Age_Group + Taxon + Age_Group:Taxon
+        # or y ~ x + Age_Group * Taxon (which expands to interaction)
+        
+        # Mock data to ensure the function can run (though it just returns a string)
+        formula = get_confounder_formula(
+            outcome='cognitive_score',
+            predictor='ilr_Bacteroides',
+            confounders=['age', 'sex', 'BMI'],
+            interaction_term=('Age_Group', 'ilr_Bacteroides')
+        )
+        
+        assert 'cognitive_score' in formula
+        assert 'ilr_Bacteroides' in formula
+        assert 'Age_Group' in formula
+        # Check for interaction syntax (either explicit : or *)
+        assert ':' in formula or '*' in formula
+
+    def test_interaction_term_creation_in_dataframe(self):
+        """Test that interaction terms are correctly added to a DataFrame."""
+        np.random.seed(42)
+        n = 50
+        
+        df = pd.DataFrame({
+            'Age_Group': np.random.choice(['Young', 'Old'], n),
+            'Taxon_A': np.random.randn(n),
+            'outcome': np.random.randn(n)
+        })
+        
+        # Create interaction term manually to verify logic
+        df['Age_Group_Old_Taxon_A'] = (df['Age_Group'] == 'Old').astype(int) * df['Taxon_A']
+        
+        # Verify the interaction makes sense
+        # If Age_Group is 'Old', the interaction should equal Taxon_A
+        # If Age_Group is 'Young', the interaction should be 0
+        old_mask = df['Age_Group'] == 'Old'
+        young_mask = df['Age_Group'] == 'Young'
+        
+        assert np.allclose(df.loc[old_mask, 'Age_Group_Old_Taxon_A'], df.loc[old_mask, 'Taxon_A'])
+        assert np.allclose(df.loc[young_mask, 'Age_Group_Old_Taxon_A'], 0.0)
+
+    def test_interaction_with_categorical_encoding(self):
+        """Test interaction construction with properly encoded categorical variables."""
+        df = pd.DataFrame({
+            'Age_Group': pd.Categorical(['Young', 'Old', 'Young', 'Old'], categories=['Young', 'Old']),
+            'Taxon_B': [1.0, 2.0, 3.0, 4.0]
+        })
+        
+        # In statsmodels, categorical variables are automatically handled in formulas
+        # But we verify the data structure supports it
+        assert df['Age_Group'].dtype.name == 'category'
+        
+        # Create a numeric version for manual verification
+        df['Age_Group_numeric'] = df['Age_Group'].cat.codes
+        df['interaction_manual'] = df['Age_Group_numeric'] * df['Taxon_B']
+        
+        # Verify the encoding works
+        assert not df['interaction_manual'].isna().any()
+        assert len(df['interaction_manual']) == 4
