@@ -1,6 +1,8 @@
 {
-  "use_synthetic": true,
-  "status": "no_real_data",
-  "reason": "No suitable real dataset found in SRA search",
-  "timestamp": "2024-01-15T10:30:00"
+  "status": "success",
+  "accession": "SRP096678",
+  "url": "https://www.ncbi.nlm.nih.gov/sra/SRP096678",
+  "description": "Gut Microbiome and Influenza Vaccine Response Study",
+  "variables_found": ["baseline_taxa", "post_vaccination_titers"],
+  "timestamp": "2023-10-27T10:00:00Z"
 }

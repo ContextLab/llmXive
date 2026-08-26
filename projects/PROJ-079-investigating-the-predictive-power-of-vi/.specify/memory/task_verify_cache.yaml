@@ -1,0 +1,47 @@
+T012:
+  c: false
+  h: 1e6297556c243b883f1d65251728266fcd3436ed7573bbf73793f66a5151f8de
+  r: "The `fetch_viral_genomes` function in `src/download.py` is a stub that raises\
+    \ `NotImplementedError`, so no real NCBI Virus API query, FASTA parsing, or dict\
+    \ output is produced. Moreover, the required `data/manifest_v1.json` file does\
+    \ not exist, and the manifest generation logic does not compute SHA\u2011256 checksums\
+    \ or follow the exact key schema. The task\u2019s core functionality and manifest\
+    \ output are missing."
+T013:
+  c: false
+  h: 304720ebd37465bf7773f84da7c502874512b9813c2174e8044ce65b48cb84b1
+  r: "The `fetch_geo_data` function is still a stub that raises `NotImplementedError`,\
+    \ so no GEO download or parsing occurs, and no dictionary of sample\u2011to\u2011\
+    strain accessions is produced. Moreover, the required `data/manifest_v2.json`\
+    \ file does not exist (and the manifest generation code leaves the `checksums`\
+    \ field empty). Both the core function and the manifest output are missing, so\
+    \ the task is not satisfied."
+T017:
+  c: false
+  h: 7831e9417d8ba4bef374b0992595d1dff6ccb7385d24338cf7cae416f59ac68c
+  r: "The required file `src/preprocess.py` does not exist, so the `filter_samples`\
+    \ function cannot be present or verified. Consequently the task\u2019s implementation\
+    \ is missing."
+T025:
+  c: true
+  h: 67ce292da3ebebe4e1fb6a0da4de9021980494e9d6819bea0489492bae935411
+  r: "The repository contains `tests/integration/test_model_training.py` (\u22489\u202F\
+    KB) with a defined `test_training_and_eval()` function that runs the full training/evaluation\
+    \ pipeline and checks for the creation of `data/artifacts/metrics.json`. The required\
+    \ test file is present and implements the verification step; the absence of the\
+    \ metrics file itself is expected until the pipeline is executed."
+T037:
+  c: false
+  h: 93437e2466c1cab3078420f21953244686f20ef358393613eff3e4e635f28af3
+  r: "The integration test file `tests/integration/test_viz_generation.py` exists,\
+    \ but the required plot files `data/artifacts/plots/coefficients.png` and `data/artifacts/plots/pdp_top5.png`\
+    \ are missing, so the test cannot verify their existence and non\u2011emptiness.\
+    \ The missing plot artifacts must be generated (and be non\u2011empty) for the\
+    \ task to be complete."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `README.md` or `quickstart.md` files are present in the provided\
+    \ evidence, and there is no commit log showing the required changes. The task\u2019\
+    s deliverables (installation instructions, usage examples, data requirements,\
+    \ and a 5\u2011minute quickstart guide) are therefore missing."

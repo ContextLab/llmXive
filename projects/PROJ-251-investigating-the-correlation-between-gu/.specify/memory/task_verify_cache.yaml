@@ -32,6 +32,12 @@ T019:
     \ zero\u2011variance taxa exclusion was presented. Without any code or output\
     \ demonstrating that taxa with zero variance are identified and removed, the requirement\
     \ is not satisfied."
+T019a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, script, or data file was provided that performs or demonstrates
+    conversion of the OTU table to relative abundances, nor any output showing the
+    normalized values. The required artifact for task T019a is missing.
 T020c:
   c: false
   h: dc7e450c6caf7975ca25579925d4656ca9e615bca44fafb2757c9687081d7dba

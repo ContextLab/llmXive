@@ -4,144 +4,133 @@ import logging
 import pandas as pd
 from pathlib import Path
 import psutil
-
-from utils.config import get_raw_path, get_processed_path, get_use_synthetic_data, get_min_sample_size
-from utils.logging_config import get_logger, log_exclusion_count, log_sample_size, log_error_context
+from typing import Tuple, Optional
+from utils.logging_config import get_logger, log_error_context
+from utils.config import get_min_sample_size, get_use_synthetic_data, get_raw_path, get_processed_path
 
 logger = get_logger(__name__)
 
 class InsufficientSampleSizeError(Exception):
-    """Raised when the filtered dataset has fewer subjects than the minimum required."""
+    """Raised when the final merged dataset has fewer subjects than required."""
     pass
 
 def estimate_memory_footprint(df: pd.DataFrame) -> float:
-    """Estimate memory footprint of a DataFrame in MB."""
+    """Estimates memory usage of a DataFrame in MB."""
     return df.memory_usage(deep=True).sum() / (1024 * 1024)
 
-def merge_otu_serology(otu_path: Path, serology_path: Path) -> pd.DataFrame:
+def merge_otu_serology(otu_path: Path, serology_path: Path, min_n: int, use_synthetic: bool) -> pd.DataFrame:
     """
-    Merge OTU table and serology metadata on subject_id.
-    Filters out rows where titer_baseline or titer_post are truly missing (NaN).
-    Keeps '0' or 'ND' (if parsed as string) values as they are valid.
+    Merges OTU table and serology metadata on subject_id.
+    
+    Logic:
+    1. Merge datasets on 'subject_id'.
+    2. Filter out subjects where titer_baseline OR titer_post is truly missing (NaN/Null).
+       Do NOT filter out valid '0' or 'ND' (Not Detected) values unless they are actual NaNs.
+    3. Verify microbiome taxon columns are not truly missing (NaN) for retained subjects.
+       '0' abundance is valid.
+    4. Count subjects (N).
+    5. If N < min_n AND use_synthetic is False, raise InsufficientSampleSizeError.
+    6. Return the filtered DataFrame.
     """
     logger.info(f"Loading OTU table from: {otu_path}")
     otu_df = pd.read_csv(otu_path)
     
     logger.info(f"Loading serology metadata from: {serology_path}")
     sero_df = pd.read_csv(serology_path)
-
-    # Ensure subject_id is string for consistent merging
-    otu_df['subject_id'] = otu_df['subject_id'].astype(str)
-    sero_df['subject_id'] = sero_df['subject_id'].astype(str)
-
-    # Merge on subject_id
-    merged = pd.merge(otu_df, sero_df, on='subject_id', how='inner')
     
-    initial_count = len(merged)
-    logger.info(f"Merged dataset size: {initial_count} subjects")
-
-    # Filter out subjects where titer_baseline OR titer_post is truly NaN
-    # We check for pd.isna() which catches NaN, None, but NOT '0' or 'ND' (strings)
-    # If 'ND' was converted to NaN by read_csv, we need to handle it, 
-    # but standard CSV loading keeps 'ND' as string unless na_values is specified.
-    # Assuming standard CSV where 'ND' is a string or 0 is a number.
+    # Check for required columns
+    if 'subject_id' not in otu_df.columns or 'subject_id' not in sero_df.columns:
+        raise ValueError("Both datasets must contain 'subject_id' column.")
     
-    # Check for NaN specifically
-    mask_baseline_na = merged['titer_baseline'].isna()
-    mask_post_na = merged['titer_post'].isna()
-    mask_invalid = mask_baseline_na | mask_post_na
-
-    invalid_count = mask_invalid.sum()
-    if invalid_count > 0:
-        logger.warning(f"Removing {invalid_count} subjects with missing titer values (NaN).")
-        log_exclusion_count("missing_titer_nan", invalid_count)
+    # Merge on subject_id (inner join to keep only matched subjects)
+    merged_df = pd.merge(otu_df, sero_df, on='subject_id', how='inner')
+    logger.info(f"Post-merge count: {len(merged_df)} subjects")
     
-    merged = merged[~mask_invalid]
+    # Filter out rows where titer_baseline OR titer_post is NaN (truly missing)
+    # We use pd.notna() to keep 0s and other valid values
+    initial_count = len(merged_df)
+    merged_df = merged_df[pd.notna(merged_df['titer_baseline']) & pd.notna(merged_df['titer_post'])]
+    excluded_count = initial_count - len(merged_df)
+    if excluded_count > 0:
+        logger.info(f"Excluded {excluded_count} subjects due to missing titer values (NaN).")
     
-    final_count = len(merged)
-    logger.info(f"Dataset size after titer filtering: {final_count} subjects")
-
-    return merged
+    # Identify taxon columns (all columns except subject_id and titer columns)
+    # Assuming serology columns are strictly 'subject_id', 'titer_baseline', 'titer_post'
+    # and potentially 'log_titer' if already processed, but T011d happens before T021 in strict flow?
+    # The task description says: Input: otutable.csv, serology.csv.
+    # We need to filter out rows where microbiome taxon columns are NaN.
+    # Let's assume taxon columns are everything not in the known serology list.
+    known_serology_cols = ['subject_id', 'titer_baseline', 'titer_post']
+    taxon_cols = [col for col in merged_df.columns if col not in known_serology_cols]
+    
+    # Filter out rows where any taxon column is NaN
+    # '0' is valid, only NaN is invalid
+    if taxon_cols:
+        initial_taxo_count = len(merged_df)
+        # Drop rows where any of the taxon columns are NaN
+        merged_df = merged_df.dropna(subset=taxon_cols)
+        excluded_taxo_count = initial_taxo_count - len(merged_df)
+        if excluded_taxo_count > 0:
+            logger.info(f"Excluded {excluded_taxo_count} subjects due to missing microbiome data (NaN).")
+    
+    final_n = len(merged_df)
+    logger.info(f"Final subject count after filtering: {final_n}")
+    
+    if final_n < min_n:
+        if not use_synthetic:
+            error_msg = f"Insufficient sample size (N < {min_n}) in final dataset. Found {final_n}."
+            logger.error(error_msg)
+            # Log to error log file as requested
+            error_log_path = Path(get_raw_path().parent) / "results" / "error_log.txt"
+            error_log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(error_log_path, 'a') as f:
+                f.write(f"{error_msg}\n")
+            raise InsufficientSampleSizeError(error_msg)
+        else:
+            logger.warning(f"Synthetic data mode: Sample size {final_n} is below {min_n}, but proceeding.")
+    
+    return merged_df
 
 def main():
     """
     Main entry point for T011d: Merge Microbiome and Serology.
-    Handles both real data (T011a) and synthetic data (T011b) paths.
+    Determines input files based on config (real vs synthetic) and writes output.
     """
-    use_synthetic = get_use_synthetic_data()
-    min_samples = get_min_sample_size()
-    
-    raw_path = get_raw_path()
-    processed_path = get_processed_path()
-
-    # Determine input files based on synthetic flag
-    if use_synthetic:
-        otu_file = raw_path / "synthetic_otutable.csv"
-        sero_file = raw_path / "synthetic_serology.csv"
-        source_type = "synthetic"
-    else:
-        otu_file = raw_path / "otutable.csv"
-        sero_file = raw_path / "serology.csv"
-        source_type = "real"
-
-    # Verify input files exist
-    if not otu_file.exists():
-        error_msg = f"Input OTU file not found: {otu_file}"
-        logger.error(error_msg)
-        log_error_context("T011d", error_msg)
-        sys.exit(1)
-    
-    if not sero_file.exists():
-        error_msg = f"Input Serology file not found: {sero_file}"
-        logger.error(error_msg)
-        log_error_context("T011d", error_msg)
-        sys.exit(1)
-
     try:
-        # Perform merge and filter
-        merged_df = merge_otu_serology(otu_file, sero_file)
+        raw_path = Path(get_raw_path())
+        processed_path = Path(get_processed_path())
+        processed_path.mkdir(parents=True, exist_ok=True)
         
-        # Check sample size
-        final_n = len(merged_df)
-        log_sample_size(final_n)
-        
-        if final_n < min_samples and not use_synthetic:
-            error_msg = f"Insufficient sample size (N={final_n} < {min_samples}) in final dataset for real data."
-            logger.error(error_msg)
-            log_exclusion_count("insufficient_sample_size", 1)
-            
-            # Log to error log file specifically as requested
-            error_log_path = processed_path.parent / "results" / "error_log.txt"
-            error_log_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(error_log_path, 'a') as f:
-                f.write(f"{datetime.now()}: {error_msg}\n")
-            
-            raise InsufficientSampleSizeError(error_msg)
+        use_synthetic = get_use_synthetic_data()
+        min_n = get_min_sample_size()
         
         if use_synthetic:
-            logger.info(f"Synthetic data used. Sample size N={final_n}. Proceeding.")
+            otu_file = raw_path / "synthetic_otutable.csv"
+            sero_file = raw_path / "synthetic_serology.csv"
+            logger.info("Using synthetic data sources.")
         else:
-            logger.info(f"Real data used. Sample size N={final_n}. Proceeding.")
-
-        # Ensure output directory exists
-        processed_path.mkdir(parents=True, exist_ok=True)
+            otu_file = raw_path / "otutable.csv"
+            sero_file = raw_path / "serology.csv"
+            logger.info("Using real data sources.")
+        
+        if not otu_file.exists():
+            raise FileNotFoundError(f"OTU table not found: {otu_file}")
+        if not sero_file.exists():
+            raise FileNotFoundError(f"Serology metadata not found: {sero_file}")
+        
+        merged_df = merge_otu_serology(otu_file, sero_file, min_n, use_synthetic)
+        
         output_file = processed_path / "cleared_with_diversity.csv"
-
-        # Write output
         merged_df.to_csv(output_file, index=False)
         logger.info(f"Successfully wrote merged dataset to: {output_file}")
+        logger.info(f"Final dataset shape: {merged_df.shape}")
         
-        # Log memory usage
-        mem_mb = estimate_memory_footprint(merged_df)
-        logger.info(f"Final dataset memory footprint: {mem_mb:.2f} MB")
-
-    except InsufficientSampleSizeError:
+    except InsufficientSampleSizeError as e:
+        logger.error(f"Pipeline failed: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during merge: {e}")
-        log_error_context("T011d", str(e))
+        log_error_context(logger, e)
         sys.exit(1)
 
 if __name__ == "__main__":
-    from datetime import datetime
     main()

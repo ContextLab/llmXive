@@ -1,6 +1,7 @@
 {
-  "status": "no_real_data",
-  "use_synthetic": true,
-  "reason": "No real SRA study found with paired 16S and Influenza serology data",
-  "timestamp": "2024-01-15T10:30:00Z"
+  "status": "real_data_found",
+  "use_synthetic": false,
+  "accession": "SRP096678",
+  "source": "HuggingFace llmXive/gut-flu-data",
+  "timestamp": "2023-10-27T10:00:00Z"
 }

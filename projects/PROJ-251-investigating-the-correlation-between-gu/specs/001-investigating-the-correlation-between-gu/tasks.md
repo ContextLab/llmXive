@@ -141,7 +141,7 @@
  - *Logic*: Filter out taxa with zero variance (all values identical, e.g., all 0) across all subjects BEFORE normalization/CLR to avoid division by zero or undefined statistics. **Note: This is a pre-processing optimization on raw data.**
  - *Output*: `data/processed/cleared_with_diversity.csv` (**Append** a column `zero_variance_removed` or update the file by removing columns; subsequent tasks read this updated file).
 
-- [~] T019a [US1] **Normalize to Relative Abundance**.
+- [ ] T019a [US1] **Normalize to Relative Abundance**.
  - *Input*: `data/processed/cleared_with_diversity.csv` (output of T019).
  - *Dependency*: T019 must complete first.
  - *Logic*: Sum abundances per subject and divide each taxon by the sum.

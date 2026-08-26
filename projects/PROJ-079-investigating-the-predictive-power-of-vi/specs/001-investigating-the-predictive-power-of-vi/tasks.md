@@ -77,16 +77,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [US1] Contract test: Create `tests/contract/test_dataset_schema.py` with function `test_schema_validates(merged_df)` asserting columns match `spec.md` FR-004.
-- [ ] T011 [US1] Integration test: Create `tests/integration/test_data_pipeline.py` with function `test_e2e_download_merge()` verifying end-to-end download and merge produces `data/processed/merged_dataset.csv`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T011 [US1] Integration test: Create `tests/integration/test_data_pipeline.py` with function `test_e2e_download_merge()` verifying end-to-end download and merge produces `data/processed/merged_dataset.csv`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement `src/download.py` function `fetch_viral_genomes(accessions: list) -> list[dict]` that queries NCBI Virus API, parses FASTA, returns list of dicts with keys: "accession", "sequence", "family". Log warnings for missing accessions per FR-013. **Generate `data/manifest_v1.json` with keys: "accessions" (list), "source" (NCBI Virus), "timestamp" (ISO8601), "version" (database release), "checksums" (SHA-256 of file bytes). Do NOT append to existing files.**
-- [~] T013 [US1] Implement `src/download.py` function `fetch_geo_data(accessions: list) -> dict` that downloads GEO series matrix files, parses "virus_strain_accession" metadata column, returns dict mapping sample_id to strain_accession. **Generate `data/manifest_v2.json` with keys: "accessions" (list), "source" (GEO), "timestamp" (ISO8601), "version" (GEO release), "checksums" (SHA-256 of file bytes). Abort if >10% missing per FR-014.**
+- [ ] T013 [US1] Implement `src/download.py` function `fetch_geo_data(accessions: list) -> dict` that downloads GEO series matrix files, parses "virus_strain_accession" metadata column, returns dict mapping sample_id to strain_accession. **Generate `data/manifest_v2.json` with keys: "accessions" (list), "source" (GEO), "timestamp" (ISO8601), "version" (GEO release), "checksums" (SHA-256 of file bytes). Abort if >10% missing per FR-014.**
 - [ ] T014 [US1] Implement `src/preprocess.py` function `normalize_counts(counts_matrix: pd.DataFrame) -> pd.DataFrame` using `rpy2` to call `edgeR::calcNormFactors`, returning a normalized matrix. Save to `data/processed/normalized_counts.csv`.
 - [ ] T015 [US1] Implement `src/preprocess.py` function `map_isg_genes(species: str, gene_list: list) -> list` that uses Ensembl Compara v109 API (**endpoint:) to map human ISG set to orthologs for non-human species. **Fallback: If API fails or returns no orthologs, exclude the specific sample from ISG calculation (mark as 'response_unknown') and log reason. DO NOT abort globally.** Return list of Ensembl IDs. Save mapping to `data/processed/ortholog_map.csv`.
 - [ ] T016 [US1] Implement `src/preprocess.py` function `calculate_isg_score(normalized_counts: pd.DataFrame, isg_genes: list) -> pd.Series` that computes the first principal component (PCA) of the ISG gene columns. **Safety net: Verify ISG gene columns exist in normalized_counts; ABORT with fatal error if ISG set is empty or PCA fails.** Save scores to `data/processed/isg_scores.csv`.
-- [~] T017 [US1] Implement `src/preprocess.py` function `filter_samples(merged_df: pd.DataFrame) -> pd.DataFrame` that removes rows with missing strain links and ensures >=30 samples remain. Abort if <30 per FR-013.
+- [ ] T017 [US1] Implement `src/preprocess.py` function `filter_samples(merged_df: pd.DataFrame) -> pd.DataFrame` that removes rows with missing strain links and ensures >=30 samples remain. Abort if <30 per FR-013.
 - [ ] T018 [US1] Implement `src/features.py` function `extract_sequence_features(fasta_path: str) -> dict` calculating: CAI (using codon usage table), GC_content (global and 3-region), kmer_freqs (k=3, 4 ONLY), and Repeat Density. **Mandatory: Restrict k-mer extraction to k=3 and k=4 ONLY as per Plan.md Methodological Adjustments to ensure CPU feasibility and Debiased Lasso validity.** Return dict of floats.
 - [ ] T018b [US1] Implement `src/features.py` function `extract_kmer_k5k6(fasta_path: str) -> dict` calculating k-mer frequencies for k=5 and k=6. **Mandatory: Extract k=5 and k=6 features. If memory constraints prevent completion, ABORT the pipeline with a fatal error to prevent silent data loss. Do NOT return an empty dict.** Return dict of floats.
 - [ ] T018c [US1] Implement `src/features.py` function `calculate_host_codon_bias(counts_matrix: pd.DataFrame, host_species: str) -> pd.DataFrame` that calculates host codon usage bias as a covariate. Save to `data/processed/host_codon_bias.csv`. <!-- ATOMIZE: requested -->
@@ -109,7 +109,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T024 [US2] Contract test: Create `tests/contract/test_model_output_schema.py` with function `test_model_schema_validates(model_output)` asserting keys match `spec.md` FR-007.
-- [~] T025 [US2] Integration test: Create `tests/integration/test_model_training.py` with function `test_training_and_eval()` verifying model training and evaluation produce `data/artifacts/metrics.json`.
+- [X] T025 [US2] Integration test: Create `tests/integration/test_model_training.py` with function `test_training_and_eval()` verifying model training and evaluation produce `data/artifacts/metrics.json`.
 
 ### Implementation for User Story 2
 
@@ -137,7 +137,7 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T036 [US3] Contract test: Create `tests/contract/test_viz_schema.py` with function `test_viz_schema_validates(plot_files)` asserting files exist and have correct dimensions.
-- [~] T037 [US3] Integration test: Create `tests/integration/test_viz_generation.py` with function `test_viz_generation()` verifying plot generation produces `data/artifacts/plots/coefficients.png` and `data/artifacts/plots/pdp_top5.png`. **Verify files exist and are non-empty.**
+- [ ] T037 [US3] Integration test: Create `tests/integration/test_viz_generation.py` with function `test_viz_generation()` verifying plot generation produces `data/artifacts/plots/coefficients.png` and `data/artifacts/plots/pdp_top5.png`. **Verify files exist and are non-empty.**
 
 ### Implementation for User Story 3
 
@@ -154,7 +154,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T042 [P] Update `README.md` with installation instructions, usage examples, and data requirements. Update `quickstart.md` with a 5-minute run guide. Commit changes.
+- [ ] T042 [P] Update `README.md` with installation instructions, usage examples, and data requirements. Update `quickstart.md` with a 5-minute run guide. Commit changes.
 - [~] T043a [P] Run `pytest --cov` on `src/` and `tests/`.
 - [~] T043b [P] Verify coverage report exists and indicates >80% line coverage for src/ modules.
 - [ ] T044 Profile `src/main.py`. Optimize loops and I/O. Add caching for expensive operations. **Verify total runtime < 4 hours on the 2-core GitHub Actions runner.** Log timing in `data/artifacts/timing.log`. **Note: Spec FR-011 assumes 8-core, but implementation targets 2-core; this task verifies on the actual target.**

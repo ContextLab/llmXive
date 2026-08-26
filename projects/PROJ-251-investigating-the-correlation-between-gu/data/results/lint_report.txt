@@ -1,23 +1,12 @@
-============================================================
-LINTING AND FORMATTING REPORT
-============================================================
+Linting Report for /project_root/code
+==================================================
 
-Timestamp: PROJ-251-investigating-the-correlation-between-gu
+Ruff Exit Code: 0
+All checks passed!
 
---- RUFF CHECK ---
-Ruff check result: PASSED
-Exit code: 0
-Output: All checks passed!
+Black Exit Code: 0
+All done! ✨
 
---- BLACK FORMAT ---
-Black format result: PASSED
-Exit code: 0
-Output: All done! ✨ 🍰 ✨
-14 files left unchanged.
+1 file would be left unchanged.
 
-============================================================
-SUMMARY
-============================================================
-Ruff check: PASSED
-Black format: PASSED
-Overall status: SUCCESS
+Overall Status: SUCCESS

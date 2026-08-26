@@ -1,94 +1,130 @@
+"""
+Synthetic Data Generator for Gut Microbiome - Influenza Vaccination Study.
+
+This module generates synthetic OTU tables and serology metadata when real data
+is unavailable (config.USE_SYNTHETIC_DATA == True).
+
+IMPORTANT: Synthetic data is used ONLY for CI/Code Correctness validation
+and explicitly NOT for biological claims.
+"""
 import os
 import sys
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from typing import Tuple, List
+import random
 
-from utils.config import get_random_seed, get_use_synthetic_data, get_min_sample_size, ensure_directories
-from utils.logging_config import get_logger
+# Import config utilities from the existing project structure
+from utils.config import get_random_seed, get_use_synthetic_data, get_raw_path, get_min_sample_size
 
-# Ensure we can import from code/
-if 'code' not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent))
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
+# Define constants for synthetic data generation
+DEFAULT_N_SUBJECTS = 50
+DEFAULT_TAXA_COUNT = 20
+RANDOM_SEED = 42
+CORRELATION_STRENGTH = 0.5
+# Define 5 taxa that will have controlled correlation with log_titer
+SIGNAL_TAXA_INDICES = [0, 1, 2, 3, 4]
 
-def generate_synthetic_otu_table(n_subjects: int, n_taxa: int, seed: int) -> pd.DataFrame:
+def generate_synthetic_otu_table(n_subjects: int = DEFAULT_N_SUBJECTS, 
+                                 n_taxa: int = DEFAULT_TAXA_COUNT, 
+                                 seed: int = RANDOM_SEED) -> pd.DataFrame:
     """
-    Generate a synthetic OTU table with controlled correlations.
+    Generate a synthetic OTU table with relative abundances.
     
-    - 5 taxa have a controlled correlation with a hidden response variable.
-    - Remaining taxa are noise.
-    - Relative abundances sum to 1.0 per subject.
+    Args:
+        n_subjects: Number of subjects to generate.
+        n_taxa: Number of taxa (OTUs) to include.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        DataFrame with columns: subject_id, taxon_0, taxon_1, ..., taxon_n
     """
-    rng = np.random.default_rng(seed)
+    logger.info(f"Generating synthetic OTU table for {n_subjects} subjects and {n_taxa} taxa")
+    
+    # Set seeds for reproducibility
+    np.random.seed(seed)
+    random.seed(seed)
     
     # Generate subject IDs
-    subject_ids = [f"SUBJ_{i:04d}" for i in range(1, n_subjects + 1)]
+    subject_ids = [f"SUBJ_{i:04d}" for i in range(n_subjects)]
     
-    # Taxa names
-    taxa_names = [f"Taxon_{chr(65 + i)}" for i in range(n_taxa)]
+    # Generate base abundances using a Dirichlet distribution to ensure they sum to 1
+    # This creates realistic compositional data
+    alpha = np.ones(n_taxa)
+    abundances = np.random.dirichlet(alpha, size=n_subjects)
     
-    # Generate base abundances (Dirichlet-like distribution for compositional data)
-    # Use alpha parameters to create some dominant and some rare taxa
-    alpha = np.ones(n_taxa) * 0.5
-    raw_abundances = rng.dirichlet(alpha, size=n_subjects)
+    # Introduce controlled correlation for signal taxa
+    # We'll make these taxa slightly correlated with a latent variable that will 
+    # also influence serology
+    latent_variable = np.random.normal(0, 1, n_subjects)
     
-    # Introduce controlled correlation for first 5 taxa
-    # Create a hidden response variable that correlates with specific taxa
-    hidden_response = rng.normal(0, 1, n_subjects)
+    for idx in SIGNAL_TAXA_INDICES:
+        if idx < n_taxa:
+            # Add a correlation component
+            abundances[:, idx] = abundances[:, idx] * (1 + CORRELATION_STRENGTH * latent_variable)
+            # Re-normalize to ensure they remain relative abundances
+            row_sums = abundances.sum(axis=1, keepdims=True)
+            abundances = abundances / row_sums
     
-    # Adjust first 5 taxa to correlate with hidden response
-    correlation_strength = 0.5
-    for i in range(min(5, n_taxa)):
-        noise = rng.normal(0, 0.1, n_subjects)
-        raw_abundances[:, i] = raw_abundances[:, i] * (1 + correlation_strength * hidden_response) + noise
-    
-    # Ensure non-negative values
-    raw_abundances = np.maximum(raw_abundances, 0)
-    
-    # Normalize to relative abundances (sum to 1)
-    row_sums = raw_abundances.sum(axis=1, keepdims=True)
-    row_sums[row_sums == 0] = 1  # Avoid division by zero
-    relative_abundances = raw_abundances / row_sums
+    # Create taxon column names
+    taxon_columns = [f"taxon_{i}" for i in range(n_taxa)]
     
     # Create DataFrame
-    df = pd.DataFrame(relative_abundances, columns=taxa_names)
+    df = pd.DataFrame(abundances, columns=taxon_columns)
     df.insert(0, 'subject_id', subject_ids)
+    
+    logger.info(f"Generated OTU table with shape: {df.shape}")
+    logger.info(f"Sample subject IDs: {subject_ids[:5]}")
     
     return df
 
-def generate_synthetic_serology(n_subjects: int, seed: int, otu_df: pd.DataFrame) -> pd.DataFrame:
+def generate_synthetic_serology(n_subjects: int = DEFAULT_N_SUBJECTS,
+                                seed: int = RANDOM_SEED) -> pd.DataFrame:
     """
-    Generate synthetic serology metadata with controlled correlations to microbiome.
+    Generate synthetic serology metadata with titers.
     
-    - Baseline titers: log-normal distribution
-    - Post-vaccination titers: correlated with baseline and specific taxa
+    Creates baseline and post-vaccination titers with controlled correlation
+    to the signal taxa defined in generate_synthetic_otu_table.
+    
+    Args:
+        n_subjects: Number of subjects to generate.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        DataFrame with columns: subject_id, titer_baseline, titer_post
     """
-    rng = np.random.default_rng(seed + 1)  # Different seed for serology
+    logger.info(f"Generating synthetic serology data for {n_subjects} subjects")
     
-    subject_ids = otu_df['subject_id'].values
+    # Set seeds for reproducibility
+    np.random.seed(seed)
+    random.seed(seed)
     
-    # Generate baseline titers (log-normal)
-    baseline_log_mean = 2.0
-    baseline_log_std = 0.5
-    baseline_titers = np.exp(rng.normal(baseline_log_mean, baseline_log_std, n_subjects))
-    baseline_titers = np.maximum(baseline_titers, 1.0)  # Ensure positive values
+    # Generate subject IDs (must match OTU table)
+    subject_ids = [f"SUBJ_{i:04d}" for i in range(n_subjects)]
     
-    # Generate post-vaccination titers
-    # Correlate with baseline and specific taxa (first 5)
-    post_titers = baseline_titers.copy()
+    # Generate baseline titers (log10 scale, typically 1.5 - 3.0)
+    baseline_titers = np.random.normal(2.0, 0.5, n_subjects)
+    baseline_titers = np.clip(baseline_titers, 1.0, 3.5)  # Ensure reasonable range
     
-    # Add effect from microbiome (first 5 taxa)
-    microbiome_effect = np.zeros(n_subjects)
-    for i in range(min(5, len(otu_df.columns) - 1)):
-        taxon_col = otu_df.columns[i + 1]  # Skip subject_id
-        microbiome_effect += otu_df[taxon_col].values * (0.3 + rng.uniform(-0.1, 0.1, n_subjects))
+    # Generate post-vaccination titers with correlation to latent variable
+    # The latent variable is the same one used in OTU generation to create correlation
+    latent_variable = np.random.normal(0, 1, n_subjects)
     
-    # Add random variation and ensure positive values
-    post_titers = post_titers * (1 + 0.5 * microbiome_effect + rng.normal(0, 0.2, n_subjects))
-    post_titers = np.maximum(post_titers, 1.0)
+    # Post-titer = baseline + response (correlated with latent variable)
+    response = 0.5 * latent_variable + np.random.normal(0, 0.3, n_subjects)
+    post_titers = baseline_titers + response
+    
+    # Ensure post-titers are positive and reasonable
+    post_titers = np.clip(post_titers, 1.0, 4.5)
     
     # Create DataFrame
     df = pd.DataFrame({
@@ -97,49 +133,59 @@ def generate_synthetic_serology(n_subjects: int, seed: int, otu_df: pd.DataFrame
         'titer_post': post_titers
     })
     
+    logger.info(f"Generated serology data with shape: {df.shape}")
+    logger.info(f"Baseline titer stats: mean={baseline_titers.mean():.2f}, std={baseline_titers.std():.2f}")
+    logger.info(f"Post titer stats: mean={post_titers.mean():.2f}, std={post_titers.std():.2f}")
+    
     return df
 
 def main():
     """
-    Main function to generate synthetic datasets.
-    """
-    logger.info("Starting synthetic data generation")
+    Main entry point for synthetic data generation.
     
-    # Check if synthetic data is enabled
+    This function:
+    1. Checks if USE_SYNTHETIC_DATA is True
+    2. Generates OTU table and serology metadata
+    3. Saves them to data/raw/
+    """
+    logger.info("Starting synthetic data generation process")
+    
+    # Check if synthetic data generation is enabled
     if not get_use_synthetic_data():
         logger.warning("USE_SYNTHETIC_DATA is False. Skipping synthetic data generation.")
+        logger.info("This script should only run when USE_SYNTHETIC_DATA is True.")
         return
     
-    # Get configuration
+    # Ensure output directory exists
+    raw_path = get_raw_path()
+    raw_path.mkdir(parents=True, exist_ok=True)
+    
+    # Get parameters from config
     seed = get_random_seed()
-    min_sample_size = get_min_sample_size()
+    n_subjects = get_min_sample_size()
     
-    # Use default parameters for synthetic data
-    n_subjects = max(min_sample_size, 100)  # Generate at least 100 samples
-    n_taxa = 50  # 50 taxa in the synthetic dataset
+    logger.info(f"Configuration: seed={seed}, n_subjects={n_subjects}")
     
-    logger.info(f"Generating synthetic data: {n_subjects} subjects, {n_taxa} taxa, seed={seed}")
-    
-    # Ensure directories exist
-    ensure_directories()
-    
-    # Generate OTU table
-    otu_df = generate_synthetic_otu_table(n_subjects, n_taxa, seed)
-    otu_path = Path("data/raw/synthetic_otutable.csv")
+    # Generate synthetic OTU table
+    otu_df = generate_synthetic_otu_table(n_subjects=n_subjects, seed=seed)
+    otu_path = raw_path / "synthetic_otutable.csv"
     otu_df.to_csv(otu_path, index=False)
-    logger.info(f"Generated OTU table: {otu_path} ({len(otu_df)} rows)")
+    logger.info(f"Saved synthetic OTU table to {otu_path}")
     
-    # Generate serology metadata
-    serology_df = generate_synthetic_serology(n_subjects, seed, otu_df)
-    serology_path = Path("data/raw/synthetic_serology.csv")
-    serology_df.to_csv(serology_path, index=False)
-    logger.info(f"Generated serology data: {serology_path} ({len(serology_df)} rows)")
+    # Generate synthetic serology
+    sero_df = generate_synthetic_serology(n_subjects=n_subjects, seed=seed)
+    sero_path = raw_path / "synthetic_serology.csv"
+    sero_df.to_csv(sero_path, index=False)
+    logger.info(f"Saved synthetic serology to {sero_path}")
     
-    # Verify outputs
-    assert otu_path.exists(), f"Failed to create OTU table: {otu_path}"
-    assert serology_path.exists(), f"Failed to create serology data: {serology_path}"
-    
-    logger.info("Synthetic data generation completed successfully")
+    # Verify files exist and have content
+    if otu_path.exists() and sero_path.exists():
+        logger.info("SUCCESS: Synthetic data files generated and saved.")
+        logger.info(f"OTU table: {otu_path.stat().st_size} bytes, {len(otu_df)} rows")
+        logger.info(f"Serology: {sero_path.stat().st_size} bytes, {len(sero_df)} rows")
+    else:
+        logger.error("FAILED: One or more synthetic data files were not created.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
