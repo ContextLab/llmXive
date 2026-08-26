@@ -8,9 +8,8 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T005** — declared artifact(s) missing/empty/invalid: src/utils/io.py
 - **T006** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T008** — declared artifact(s) missing/empty/invalid: src/utils/seed.py
-- **T033a** — declared artifact(s) missing/empty/invalid: src/analysis/dft_setup.py, data/reference/literature_db.json
-- **T013** — No code changes or files were presented for `src/ingestion/load_*.py`; thus there is no evidence that provenance‑filtering logic was added or that any fallback mechanism was removed. The required artifact (the updated ingestion scripts) is missing.
-- **T013b** — declared artifact(s) missing/empty/invalid: src/ingestion/merge_spectra.py, data/processed/fingerprints.parquet
-- **T015** — declared artifact(s) missing/empty/invalid: src/ingestion/merge_spectra.py
-- **T016** — declared artifact(s) missing/empty/invalid: src/ingestion/merge_spectra.py, data/results/class_balance_report.json
-- **T017** — The required `data/checksums.json` file does not exist, and the `state/projects/PROJ-088-predicting-reaction-mechanisms-from-spec.yaml` file is also missing, so no checksums were recorded nor was the `artifact_hashes` map updated. The task therefore has not been fulfilled.
+- **T033a** — declared artifact(s) missing/empty/invalid: src/research/fetch_literature_modes.py, data/reference/literature_vibrational_modes.json
+- **T011** — declared artifact(s) missing/empty/invalid: src/ingestion/load_nist.py
+- **T012** — declared artifact(s) missing/empty/invalid: src/ingestion/load_pubchem.py
+- **T013c** — declared artifact(s) missing/empty/invalid: src/ingestion/bin_mapping.py, data/reference/bin_mapping.json
+- **T013b** — declared artifact(s) missing/empty/invalid: src/ingestion/merge_spectra.py, data/reference/bin_mapping.json, data/processed/fingerprints.parquet

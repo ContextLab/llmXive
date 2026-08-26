@@ -1,191 +1,105 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Training and Analysis Output Schema
-description: >
-  Schema for model training reports, metrics, and feature importance analysis.
-  Enforces associational framing (no causal claims) and statistical significance reporting.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Training and Analysis Output Schema"
+description: "Schema for model training reports and analysis outputs."
 type: object
 required:
-  - metadata
-  - training_results
-  - metrics
-  - feature_importance
-properties:
-  metadata:
-    type: object
-    required:
-      - model_type
-      - version
-      - timestamp
-      - seed_info
-      - data_checksum
-    properties:
-      model_type:
-        type: string
-        enum:
-          - Random Forest
-          - XGBoost
-        description: Type of model trained
-      version:
-        type: string
-        description: Model version identifier
-      timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of model training completion
-      seed_info:
+  - report_metadata
+  - model_performance
+  - feature_analysis
+
+report_metadata:
+  type: object
+  properties:
+    generated_at:
+      type: string
+      format: date-time
+    model_type:
+      type: string
+      enum:
+        - "RandomForest"
+        - "XGBoost"
+    cross_validation_folds:
+      type: integer
+      minimum: 2
+    seed:
+      type: integer
+    data_source_provenance:
+      type: string
+      enum:
+        - "kinetic_studies"
+        - "validated_intermediate"
+      description: "The provenance of the data used for training"
+
+model_performance:
+  type: object
+  properties:
+    mean_accuracy:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+    std_accuracy:
+      type: number
+      minimum: 0.0
+    per_class_metrics:
+      type: object
+      properties:
+        SN1:
+          $ref: "#/definitions/class_metrics"
+        SN2:
+          $ref: "#/definitions/class_metrics"
+        E1:
+          $ref: "#/definitions/class_metrics"
+    confusion_matrix:
+      type: array
+      items:
+        type: array
+        items:
+          type: integer
+
+feature_analysis:
+  type: object
+  properties:
+    top_features:
+      type: array
+      items:
         type: object
-        required:
-          - random_seed
-          - seed_hash
         properties:
-          random_seed:
+          bin_id:
             type: integer
-          seed_hash:
-            type: string
-            description: Hash of the seed context for reproducibility
-      data_checksum:
-        type: string
-        description: SHA-256 checksum of the input dataset used for training
-      runtime_metrics:
-        type: object
-        properties:
-          total_time_seconds:
+          importance_score:
             type: number
-          peak_memory_gb:
+          p_value:
             type: number
-          cautions:
-            type: array
-            items:
-              type: string
-            description: List of runtime warnings or resource limit alerts
-  training_results:
-    type: object
-    required:
-      - cross_validation_folds
-      - stratification_info
-    properties:
-      cross_validation_folds:
-        type: integer
-        minimum: 2
-        description: Number of CV folds used (e.g., 5)
-      stratification_info:
-        type: object
-        required:
-          - enabled
-          - class_distribution
-        properties:
-          enabled:
+          is_significant:
             type: boolean
-          class_distribution:
-            type: object
-            additionalProperties:
-              type: integer
-            description: Sample counts per class in the full dataset
-      disjointness_verified:
-        type: boolean
-        description: True if strict disjoint training/test folds were enforced
-  metrics:
+    stability_variance:
+      type: array
+      items:
+        type: object
+        properties:
+          bin_id:
+            type: integer
+          variance:
+            type: number
+          is_stable:
+            type: boolean
+
+definitions:
+  class_metrics:
     type: object
-    required:
-      - mean_accuracy
-      - std_accuracy
-      - per_class_f1
-      - confusion_matrix
     properties:
-      mean_accuracy:
+      precision:
         type: number
         minimum: 0.0
         maximum: 1.0
-      std_accuracy:
+      recall:
         type: number
         minimum: 0.0
-      per_class_f1:
-        type: object
-        additionalProperties:
-          type: number
-        description: F1 scores for each class (SN1, SN2, E1)
-      confusion_matrix:
-        type: array
-        items:
-          type: array
-          items:
-            type: integer
-        description: Confusion matrix as a 2D list
-      cautionary_notes:
-        type: array
-        items:
-          type: string
-        description: >
-          Explicit notes framing results as associational.
-          Must not contain causal language (cause, drive, determine).
-  feature_importance:
-    type: object
-    required:
-      - top_features
-      - stability_analysis
-      - statistical_significance
-    properties:
-      top_features:
-        type: array
-        items:
-          type: object
-          required:
-            - bin_id
-            - mean_importance
-            - std_importance
-          properties:
-            bin_id:
-              type: integer
-            mean_importance:
-              type: number
-            std_importance:
-              type: number
-      stability_analysis:
-        type: object
-        required:
-          - variance_report_path
-          - method
-        properties:
-          variance_report_path:
-            type: string
-          method:
-            type: string
-            description: Method used for stability calculation (e.g., "fold_variance")
-      statistical_significance:
-        type: object
-        required:
-          - permutation_test_results_path
-          - correction_method
-          - significant_bins
-        properties:
-          permutation_test_results_path:
-            type: string
-          correction_method:
-            type: string
-            enum:
-              - Benjamini-Hochberg
-              - Bonferroni
-          significant_bins:
-            type: array
-            items:
-              type: integer
-            description: List of bin IDs with adjusted p-value < 0.05
-  validation:
-    type: object
-    properties:
-      literature_match_rate:
+        maximum: 1.0
+      f1_score:
         type: number
-        description: Percentage of top features matching literature/DFT modes
-      causal_language_audit:
-        type: object
-        required:
-          - passed
-          - forbidden_terms_found
-        properties:
-          passed:
-            type: boolean
-          forbidden_terms_found:
-            type: array
-            items:
-              type: string
-            description: List of causal terms detected (should be empty)
+        minimum: 0.0
+        maximum: 1.0
+      support:
+        type: integer
+        minimum: 0

@@ -1,3 +1,3 @@
 """
-Analysis modules for spectroscopic data interpretation, DFT validation, and statistical significance testing.
+Analysis module for spectroscopic data interpretation and validation.
 """

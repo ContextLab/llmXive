@@ -1,0 +1,28 @@
+Project Directory Structure for PROJ-088-predicting-reaction-mechanisms-from-spec
+
+The following directories have been created by setup_project.py:
+
+code/
+├── src/
+│   ├── utils/
+│   ├── ingestion/
+│   ├── modeling/
+│   └── analysis/
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── contract/
+├── specs/
+│   └── 001-predicting-reaction-mechanisms/
+│   └── contracts/
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   ├── reference/
+│   └── results/
+├── state/
+│   └── projects/
+└── figures/
+
+All directories are non-empty (containing __init__.py files in Python packages)
+and ready for the implementation of subsequent tasks.

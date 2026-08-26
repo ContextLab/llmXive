@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create project directory structure: `src/`, `tests/`, `specs/001-predicting-reaction-mechanisms/`, `data/`, `state/projects/`
 - [ ] T001b [P] Create `__init__.py` files for all `src/` and `tests/` subdirectories to establish Python packages
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy, pyscf)
+- [X] T002 Initialize a Python project with `requirements.txt` (scikit-learn, xgboost, pandas, numpy, datasets, pyyaml, pytest, pubchempy, psi4)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -58,10 +58,18 @@
 
 - [X] T004 Setup `src/utils/logging.py` for warning/flagging logic (edge case handling)
 - [ ] T005 [P] Implement `src/utils/io.py` for checksum generation and file I/O helpers (Principle III)
-- [ ] T006 Create base schema definitions in `specs/contracts/` (dataset.schema.yaml, output.schema.yaml)
+- [ ] T006 Create base schema definitions in `specs/contracts/` (dataset.schema.yaml, output.schema.yaml). **CRITICAL**: This schema MUST explicitly define the 'provenance' field structure. **Exact Schema Snippet to Implement**:
+ ```yaml
+ provenance:
+ type: string
+ enum:
+ - "kinetic_studies"
+ - "validated_intermediate"
+ ```
+ **Logic**: The 'provenance' field must be a string enum containing ONLY these two values. Any data source providing other values or missing this field must be handled by the ingestion logic (T011/T012) by excluding the row. **Produces**: `specs/contracts/dataset.schema.yaml`.
 - [X] T007 [P] Setup `src/ingestion/__init__.py` and `src/modeling/__init__.py` package structures
 - [ ] T008 Configure random seed pinning utility in `src/utils/seed.py` (Reproducibility Principle I)
-- [ ] T033a [Foundational] Create `src/analysis/dft_setup.py` and `data/reference/literature_db.json` to support dynamic literature cross-reference and local DFT calculations (FR-010 prerequisite). Note: This task sets up the infrastructure but does not execute the heavy calculation yet.
+- [ ] T033a [Foundational] Create `src/research/fetch_literature_modes.py` to programmatically fetch known functional group frequencies (e.g., carbonyl, C-H stretch) from NIST WebBook and SDBS public APIs. **Produces**: `data/reference/literature_vibrational_modes.json`. This task replaces manual research with an executable script. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,12 +90,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `src/ingestion/load_nist.py` to fetch NIST WebBook JSONL (cm-1); MUST parse the 'provenance' field to distinguish 'kinetic studies' from 'product structure' labels; EXCLUDE rows where provenance is not 'kinetic studies' or 'validated intermediates' with NO fallback to synthetic or product-structure data; strict URL validation.
-- [ ] T012 [P] [US1] Implement `src/ingestion/load_pubchem.py` to fetch PubChem Parquet subsets (NMR chemical shift ranges); MUST parse the 'provenance' field to distinguish 'kinetic studies' from 'product structure' labels; EXCLUDE rows where provenance is not 'kinetic studies' or 'validated intermediates' with NO fallback to synthetic or product-structure data; strict URL validation.
-- [ ] T013 [US1] Implement strict provenance filtering logic in `src/ingestion/load_*.py` to EXCLUDE rows where the 'provenance' field indicates labels inferred solely from product structure (FR-008). **CRITICAL**: This task must enforce NO fallback mechanism. If kinetic data is missing, the row is dropped. (Overrides Plan's "fallback" text to align with Spec FR-008).
-- [ ] T013b [US1] Implement `src/ingestion/merge_spectra.py` to merge the filtered IR (NIST) and NMR (PubChem) datasets into a single unified binned 'Spectral Fingerprint' vector. **Sequential**: This task depends on T011 and T012 completing. It must perform the binning (FR-001) during the merge step to avoid creating an intermediate 'unbinned' artifact. Output: `data/processed/fingerprints.parquet`.
+- [ ] T011 [P] [US1] Implement `src/ingestion/load_nist.py` to fetch NIST WebBook JSONL (cm-1). **CRITICAL**: Parse the 'provenance' field. **Logic**: If `provenance` is missing, ambiguous, or not exactly 'kinetic_studies' or 'validated_intermediate', **EXCLUDE the row**. Do not attempt fallback. Strict URL validation.
+- [ ] T012 [P] [US1] Implement `src/ingestion/load_pubchem.py` to fetch PubChem Parquet subsets (NMR chemical shift ranges). **CRITICAL**: Parse the 'provenance' field. **Logic**: If `provenance` is missing, ambiguous, or not exactly 'kinetic_studies' or 'validated_intermediate', **EXCLUDE the row**. Do not attempt fallback. Strict URL validation.
+- [ ] T013c [US1] Implement `src/ingestion/bin_mapping.py` to generate `data/reference/bin_mapping.json`. **Sequential**: Must run before T013b. This file MUST explicitly define: 'Bins [variable range]: IR (linear interpolation)', 'Bins: NMR -12 ppm (linear interpolation)'.
+- [ ] T013b [US1] Implement `src/ingestion/merge_spectra.py` to merge filtered IR (NIST) and NMR (PubChem) datasets. **Sequential**: Depends on T011, T012, T013c. **Logic**: Apply linear interpolation using `data/reference/bin_mapping.json` to create fixed-dimensional vectors. Output: `data/processed/fingerprints.parquet`.
 - [ ] T015 [US1] Add outlier detection in `src/ingestion/merge_spectra.py` to exclude spectra with extreme variance or missing frequency ranges.
-- [ ] T016 [US1] Implement class balance validation in `src/ingestion/merge_spectra.py`. MUST calculate the max/min sample ratio for classes {SN1, SN2, E1} and write the result to `data/results/class_balance_report.json` (SC-005). Flag classes with <50 samples as "under-sampled" but ensure the metric is recorded.
+- [ ] T016a [US1] Implement `src/ingestion/metrics.py` to calculate class balance metrics (max/min ratio) for classes {SN1, SN2, E1}. **Produces**: Intermediate metrics object.
+- [ ] T016b [US1] Implement `src/ingestion/reporting.py` to write `data/results/class_balance_report.json` (SC-005) using metrics from T016a.
+- [ ] T016c [US1] Implement `src/ingestion/gates.py` to evaluate `data/results/class_balance_report.json`. **Logic**: If `max/min > 2` or any class < 50 samples, write `data/results/class_balance_gate.json` with status "FAIL" and raise a blocking error. **Sequential**: Runs after T016b.
 - [ ] T017 [US1] Calculate checksums for all downloaded datasets and record them in `data/checksums.json` AND update `state/projects/PROJ-088-predicting-reaction-mechanisms-from-spec.yaml` `artifact_hashes` map. **Sequential**: Must run after T011/T012 complete to avoid race conditions.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -96,7 +106,7 @@
 
 ## Phase 4: User Story 2 - Model Training and Cross-Validation (Priority: P2)
 
-**Goal**: Train Random Forest and XGBoost models with stratified 5-fold CV, ensuring no data leakage and strict associational reporting.
+**Goal**: Train Random Forest and XGBoost classifiers with stratified k-fold CV, ensuring no data leakage and strict associational reporting.
 
 **Independent Test**: Run `src/modeling/train.py`; verify JSON report contains mean accuracy, std dev, and per-class F1-scores derived strictly from disjoint folds.
 
@@ -107,14 +117,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `src/modeling/train.py` with Random Forest classifier and stratified k-fold cross-validation (FR-002)
-- [ ] T021 [P] [US2] Implement `src/modeling/train.py` with XGBoost classifier and stratified 5-fold cross-validation (FR-002)
+- [ ] T020 [P] [US2] Implement `src/modeling/train.py` to train BOTH Random Forest and XGBoost classifiers using **Source-Stratified** k-fold cross-validation. **Algorithm**: Group data by 'data_source', then perform stratified split on 'mechanism_label' within each group to ensure disjoint source sets across folds. This single task handles both models.
 - [ ] T022 [US2] Implement `src/modeling/metrics.py` to calculate accuracy, F1, and confusion matrices (SC-001)
-- [ ] T023 [US2] Add logic to `src/modeling/train.py` to enforce strict disjoint training/test folds (no leakage)
-- [ ] T024 [US2] Implement `src/utils/report.py` to generate JSON reports with explicit "associational" framing (FR-006) AND include a built-in filter to exclude causal terms ("cause", "drive", "determine", etc.) during generation.
-- [ ] T025 [US2] Add logic to `src/utils/report.py` to exclude causal terms ("cause", "drive", "determine", etc.) (FR-006) - integrated into T024.
-- [ ] T025b [US2] Implement `src/utils/audit.py` to run a regex audit against generated reports to verify the absence of forbidden causal words and output `data/results/causal_language_audit.json` (FR-006 Independent Test). **Sequential**: Runs after T024.
-- [ ] T026 [US2] Add runtime and memory logging to `src/modeling/train.py` to verify <6h runtime and <7GB RAM (FR-005, SC-004)
+- [ ] T024a [US2] Implement `src/utils/reporting.py` to generate JSON reports with explicit "associational" framing (FR-006). **CRITICAL**: Include a built-in filter to exclude causal terms ("cause", "drive", "determine", etc.) during generation.
+- [ ] T024b [US2] Implement `src/utils/audit.py` to perform regex audit on generated reports for forbidden causal words and output `data/results/causal_language_audit.json` (FR-006 Independent Test). **Sequential**: Runs after T024a.
+- [ ] T026 [US2] Add runtime and memory logging to `src/modeling/train.py` to verify <6h runtime and <7GB RAM (FR-005, SC-004). Output logs to `data/results/runtime_metrics.json`.
+- [ ] T026b [US2] Implement `src/utils/efficiency_gate.py` to read `data/results/runtime_metrics.json`, compare against 6h/7GB thresholds (SC-004), and write `data/results/efficiency_gate.json` with a PASS/FAIL status. If FAIL, raise an error to stop the pipeline. **Sequential**: Runs after T026.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,7 +130,7 @@
 
 ## Phase 5: User Story 3 - Feature Importance and Statistical Significance (Priority: P3)
 
-**Goal**: Extract feature importance, run per-bin permutation tests with BH correction, and validate top features against literature/DFT.
+**Goal**: Extract feature importance, run per-bin permutation tests with BH correction, and validate top features against literature.
 
 **Independent Test**: Run `src/analysis/permutation.py`; verify per-bin p-values are generated, BH correction is applied, and p-value < 0.05 is reported.
 
@@ -134,13 +142,12 @@
 ### Implementation for User Story 3
 
 - [ ] T029 [P] [US3] Implement `src/analysis/importance.py` to extract and rank feature importance scores from RF/XGBoost (FR-003)
-- [ ] T030 [US3] Calculate the variance of feature importance scores across the 5 CV folds. Output a CSV file `data/results/stability_variance.csv` with columns: `bin_id, fold_1_score,..., fold_5_score, sample_variance` (SC-002).
-- [ ] T031a [US3] Implement a 'stratified bin sampling' strategy to reduce the permutation count (e.g., sample top 50 bins or reduce N per bin) to ensure the total permutations fit within the 6-hour runtime (FR-005). Output: `data/results/sampling_strategy.json`.
-- [ ] T031 [US3] Implement `src/analysis/permutation.py` to run a **per-bin** permutation test (N=200 for the top 50 bins selected by T031a) across the CV folds to assess statistical significance for each spectral bin (FR-004, Plan Complexity). Output the raw p-values for each bin. **Sequential**: Depends on T031a.
-- [ ] T031b [US3] Save the per-bin p-values generated by T031 to `data/results/per_bin_p_values.json` for downstream BH correction. **Sequential**: Depends on T031.
-- [ ] T032 [US3] Implement Benjamini-Hochberg correction in `src/analysis/importance.py` using the per-bin p-values from T031b to identify significant bins (FR-007).
-- [ ] T033b [US3] Execute the DFT calculation (using `pyscf` from T033a) OR perform the literature lookup (using `pubchempy`) to generate `data/reference/reference_vibrational_modes.json`. This task must produce the reference artifact required by T033. If DFT fails or is infeasible, this task MUST fall back to the literature lookup and generate the reference artifact from literature data.
-- [ ] T033 [US3] Implement `src/analysis/validation.py` to map top bins to known vibrational modes using `pubchempy` and the reference artifact from T033b (FR-010). **Fallback**: If the DFT path in T033b was not used (i.e., literature-only mode), strictly switch to 'Literature-Only' validation mode. **Match Rate Definition**: Calculate match rate as '% of top model bins matching literature peaks within ±10 cm-1 tolerance'. **Sequential**: Depends on T033b.
+- [ ] T030 [US3] Calculate the variance of feature importance scores across the 5 CV folds. Output a CSV file `data/results/stability_variance.csv` with columns: `bin_id, fold_1_score,..., fold_5_score, sample_variance` (SC-002). **Verification**: Add a check to ensure variance is calculated and reported; if variance > threshold, flag as unstable.
+- [ ] T031 [US3] Implement `src/analysis/permutation.py` to run a **per-bin** permutation test (N=200) across the CV folds to assess statistical significance for **all spectral bins** (FR-004). **Constraint**: MUST use CPU-optimized vectorized operations (numpy/scipy) to complete within 6h. Do NOT offload to GPU. Output raw p-values for all bins to `data/results/per_bin_p_values.json`.
+- [ ] T032 [US3] Implement Benjamini-Hochberg correction in `src/analysis/importance.py` using the p-values from T031. **CRITICAL**: Apply BH correction to the **full set** of bins to control the False Discovery Rate (FDR). Output `data/results/significant_bins.json`.
+- [ ] T033b [US3] Implement `src/analysis/dft_validation.py` to generate `data/reference/reference_vibrational_modes.json`. **Method**: Use `Psi` library with a `BLYP` basis set. **Logic**: Generate input files for a representative set of unique molecular fragments. from the dataset, run DFT calculations to get vibrational modes. **Fallback**: If DFT fails, perform literature lookup and set `confidence_level: low` in the output JSON.
+- [ ] T033c [US3] Implement `src/utils/schema_validator.py` to validate the schema of `data/reference/reference_vibrational_modes.json` (from T033b) and `data/reference/bin_mapping.json` (from T013c) before T033 consumes them. **Sequential**: Runs after T033b and T013c.
+- [ ] T033 [US3] Implement `src/analysis/validation.py` to map top bins to known vibrational modes using `pubchempy`, `data/reference/literature_vibrational_modes.json` (from T033a), `data/reference/reference_vibrational_modes.json` (from T033b), and `data/reference/bin_mapping.json` (from T013c) (FR-010). **Match Rate Definition**: Calculate match rate as '% of top model bins matching literature peaks within ±10 cm-1 tolerance' (using BOTH T033a and T033b sources). **Sequential**: Depends on T033a, T033b, T013c, T033c.
 - [ ] T034 [US3] Implement `src/analysis/validation.py` to verify top features are not proxies for product structure (FR-009) using **Partial Dependence Conditioning** as the specific method to decouple product structure effects.
 - [ ] T035 [US3] Add logic to handle "marginally significant" p-values (e.g., 0.051) explicitly in reports (Edge Case)
 - [ ] T036 [US3] Generate visualization helper in `src/analysis/validation.py` to map top bins back to frequency ranges (e.g., carbonyl stretch)
@@ -158,7 +165,7 @@
 - [ ] T039 [P] Code cleanup and refactoring (remove unused imports, optimize memory usage)
 - [ ] T040 [P] Additional unit tests for edge cases (missing labels, noisy spectra) in `tests/unit/`
 - [ ] T041 Validate `quickstart.md` executes successfully on a fresh runner
-- [ ] T042 Verify all causal language is removed from generated reports (manual audit + automated check via T025b)
+- [ ] T042 Verify all causal language is removed from generated reports (manual audit + automated check via T024b)
 
 ---
 
@@ -251,14 +258,17 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Integrity**: Never use synthetic fallbacks; if real data fetch fails, the task must fail loudly.
-- **Causal Language**: Strictly enforce FR-006 in all report generation logic (T024, T025b).
+- **Data Integrity**: Never use synthetic fallbacks; if real data fetch fails or provenance is missing, the task must exclude the row and fail loudly.
+- **Causal Language**: Strictly enforce FR-006 in all report generation logic (T024a/T024b).
 - **Streaming**: For large datasets, use `streaming=True` in `datasets` library to stay within RAM limits.
-- **Provenance Parsing**: T011/T012 must explicitly parse 'provenance' metadata to satisfy FR-008.
-- **No Fallback**: T011-T013 must strictly exclude non-kinetic labels with NO fallback mechanism (Spec overrides Plan).
-- **Merge Step**: T013b is critical to unify IR/NMR into the 512-bin fingerprint and perform binning atomically.
-- **Permutation Test**: T031a defines a sampling strategy to ensure T031 (per-bin test) fits the 6h runtime; T031b saves p-values; T032 performs BH correction.
+- **Provenance Parsing**: T011/T012 must explicitly parse 'provenance' metadata to satisfy FR-008. If missing, EXCLUDE.
+- **Merge Step**: T013b is critical to unify IR/NMR into the -bin fingerprint using linear interpolation defined in T013c.
+- **Permutation Test**: T031 implements full permutation on a substantial number of bins using CPU-optimized vectorized operations. T032 applies correction to the full set.
 - **Stability Reporting**: T030 calculates variance and outputs CSV directly.
-- **DFT Fallback**: T033b handles the DFT/Literature generation; T033 defines the match rate for the final output.
+- **Literature Validation**: T033a generates the static reference JSON. T033b generates the DFT reference JSON. T033c validates T033b. T033 consumes BOTH T033a and T033b.
 - **State Update**: T017 must update the project state YAML file AND write `data/checksums.json`.
 - **Partial Dependence**: T034 explicitly mandates Partial Dependence Conditioning for FR-009.
+- **Bin Mapping**: T013c defines the exact bin-to-frequency mapping required for validation.
+- **Efficiency Gate**: Tb enforces the 6h/7GB limit as a hard gate.
+- **Class Balance Gate**: T016c enforces the max/min <= 2 threshold as a hard gate.
+- **Source-Stratified CV**: T020 ensures batch effects are controlled via groupby-stratify logic.

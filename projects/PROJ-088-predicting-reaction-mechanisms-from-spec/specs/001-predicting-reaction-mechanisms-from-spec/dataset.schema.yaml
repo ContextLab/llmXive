@@ -1,117 +1,84 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Spectral Fingerprint Dataset Schema
-description: >
-  Schema for the unified spectral fingerprint dataset derived from
-  NIST IR and PubChem NMR data. Enforces strict provenance filtering
-  (kinetic studies only) and binned feature representation.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reaction Mechanism Spectroscopic Dataset Schema"
+description: "Schema for the unified dataset containing IR and NMR spectroscopic data with reaction mechanism labels."
 type: object
 required:
   - metadata
-  - data
-properties:
-  metadata:
+  - records
+
+metadata:
+  type: object
+  properties:
+    version:
+      type: string
+      description: "Schema version"
+    generated_at:
+      type: string
+      format: date-time
+      description: "Timestamp of generation"
+    source:
+      type: string
+      description: "Primary data source (e.g., 'NIST', 'PubChem', 'Merged')"
+    provenance:
+      type: string
+      description: "Origin of the data provenance"
+      enum:
+        - "kinetic_studies"
+        - "validated_intermediate"
+      # CRITICAL: The 'provenance' field must be strictly one of these two values.
+      # Any data row with a missing, ambiguous, or different value must be excluded
+      # during ingestion (T011/T012).
+
+records:
+  type: array
+  items:
     type: object
     required:
-      - version
-      - created_at
-      - source_datasets
-      - provenance_filter
-      - checksum
+      - spectrum_id
+      - mechanism_label
+      - ir_spectrum
+      - nmr_spectrum
+      - provenance
+      - data_source
     properties:
-      version:
+      spectrum_id:
         type: string
-        description: Schema version identifier (e.g., "1.0.0")
-      created_at:
+        description: "Unique identifier for the spectrum"
+      mechanism_label:
         type: string
-        format: date-time
-        description: ISO 8601 timestamp of dataset creation
-      source_datasets:
+        description: "Reaction mechanism classification"
+        enum:
+          - "SN1"
+          - "SN2"
+          - "E1"
+      ir_spectrum:
         type: array
         items:
-          type: string
-        description: List of source dataset identifiers (e.g., "NIST-WebBook", "PubChem-NMR")
-      provenance_filter:
-        type: object
-        required:
-          - allowed_categories
-          - excluded_categories
-        properties:
-          allowed_categories:
-            type: array
-            items:
-              type: string
-            description: Allowed provenance categories (e.g., "kinetic studies", "validated intermediates")
-          excluded_categories:
-            type: array
-            items:
-              type: string
-            description: Explicitly excluded categories (e.g., "product structure")
-      checksum:
+          type: number
+        description: "Binned IR spectrum intensity values (cm-1)"
+      nmr_spectrum:
+        type: array
+        items:
+          type: number
+        description: "Binned NMR spectrum intensity values (ppm)"
+      provenance:
         type: string
-        description: SHA-256 checksum of the raw input files used to generate this dataset
-  data:
-    type: array
-    description: List of spectral fingerprint records
-    items:
-      type: object
-      required:
-        - sample_id
-        - fingerprint
-        - label
-        - provenance
-        - metadata
-      properties:
-        sample_id:
-          type: string
-          description: Unique identifier for the sample (e.g., NIST ID or PubChem CID)
-        fingerprint:
-          type: array
-          items:
+        description: "Source verification status"
+        enum:
+          - "kinetic_studies"
+          - "validated_intermediate"
+        # Enforcement: Rows with provenance not in this list are excluded.
+      data_source:
+        type: string
+        description: "Original database source"
+        enum:
+          - "NIST"
+          - "PubChem"
+      metadata:
+        type: object
+        description: "Additional optional metadata"
+        properties:
+          temperature:
             type: number
-          minItems: 512
-          maxItems: 512
-          description: >
-            Binned spectral fingerprint vector (512 bins).
-            IR and NMR data merged and normalized into this fixed-size vector.
-        label:
-          type: string
-          enum:
-            - SN1
-            - SN2
-            - E1
-          description: Reaction mechanism class label derived strictly from kinetic provenance
-        provenance:
-          type: string
-          description: The specific provenance category of the source data (must be in allowed_categories)
-        metadata:
-          type: object
-          required:
-            - source
-            - original_id
-          properties:
-            source:
-              type: string
-              enum:
-                - NIST
-                - PubChem
-              description: Origin of the spectral data
-            original_id:
-              type: string
-              description: Original identifier in the source dataset
-            frequency_range:
-              type: object
-              properties:
-                min:
-                  type: number
-                max:
-                  type: number
-              description: Frequency range covered by the spectrum (cm-1 for IR, ppm for NMR)
-        validation:
-          type: object
-          properties:
-            has_nan:
-              type: boolean
-              description: Flag indicating if any NaN values exist in the fingerprint
-            is_outlier:
-              type: boolean
-              description: Flag indicating if the sample was flagged as an outlier
+          solvent:
+            type: string

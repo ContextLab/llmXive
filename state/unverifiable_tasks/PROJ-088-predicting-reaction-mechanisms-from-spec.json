@@ -1,0 +1,55 @@
+{
+  "project_id": "PROJ-088-predicting-reaction-mechanisms-from-spec",
+  "tasks": [
+    {
+      "task_key": "T001a",
+      "reject_count": 1,
+      "last_reason": "No evidence of the required directories (`src/`, `tests/`, `specs/001-predicting-reaction-mechanisms/`, `data/`, `state/projects/`) is provided; the claim lacks any artifact listing or screenshots confirming their existence. The implementer must supply a directory listing or similar proof that these folders have been created and are non\u2011empty.",
+      "first_seen": "2026-08-26T10:14:27.270954+00:00",
+      "last_seen": "2026-08-26T10:14:27.270954+00:00"
+    },
+    {
+      "task_key": "T001b",
+      "reject_count": 1,
+      "last_reason": "No `__init__.py` files were presented or listed for any of the subdirectories under `src/` or `tests/`; without concrete evidence of these files existing, the requirement cannot be considered satisfied. The implementer must add and show the `__init__.py` files in every subdirectory of both `src/` and `tests/`.",
+      "first_seen": "2026-08-26T10:14:27.271829+00:00",
+      "last_seen": "2026-08-26T10:14:27.271829+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) or setup scripts are present in the provided evidence, so the requirement to configure ruff/flake8 and Black has not been demonstrated. The implementer must add the appropriate config files and ensure they are non\u2011empty and correctly set up.",
+      "first_seen": "2026-08-26T10:14:27.284441+00:00",
+      "last_seen": "2026-08-26T10:14:27.284441+00:00"
+    },
+    {
+      "task_key": "T005",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/utils/io.py",
+      "first_seen": "2026-08-26T10:14:27.285250+00:00",
+      "last_seen": "2026-08-26T10:14:27.285250+00:00"
+    },
+    {
+      "task_key": "T006",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-08-26T10:14:27.285998+00:00",
+      "last_seen": "2026-08-26T10:14:27.285998+00:00"
+    },
+    {
+      "task_key": "T008",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/utils/seed.py",
+      "first_seen": "2026-08-26T10:14:27.286739+00:00",
+      "last_seen": "2026-08-26T10:14:27.286739+00:00"
+    },
+    {
+      "task_key": "T033a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/research/fetch_literature_modes.py, data/reference/literature_vibrational_modes.json",
+      "first_seen": "2026-08-26T10:14:27.287539+00:00",
+      "last_seen": "2026-08-26T10:14:27.287539+00:00"
+    }
+  ],
+  "updated_at": "2026-08-26T10:14:27.287539+00:00"
+}

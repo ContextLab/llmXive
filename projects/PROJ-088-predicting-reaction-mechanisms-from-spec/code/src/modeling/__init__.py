@@ -1,3 +1,3 @@
 """
-Machine learning model training, evaluation, and metrics modules.
+Modeling module for training and evaluating machine learning models.
 """

@@ -1,3 +1,3 @@
 """
-llmXive Automated Science Pipeline - Source Root
+llmXive Research Pipeline - Source Package
 """

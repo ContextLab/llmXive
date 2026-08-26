@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T13:37:06.000752Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-088-predicting-reaction-mechanisms-from-spec
-last_run_id: d9c6e7f0-293f-438b-a93e-d8abf60475ed
+last_run_id: 5f38415e-2512-407f-9882-e74e3712e074
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-088-predicting-reaction-mechanisms-from-spec/specs/001-predicting-reaction-mechanisms-from-spec
 title: Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning
-updated_at: '2026-08-23T17:53:12.958198Z'
+updated_at: '2026-08-26T10:14:27.292364Z'

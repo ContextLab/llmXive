@@ -1,12 +1,13 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmxive-proj-088"
 version = "0.1.0"
 description = "Predicting Reaction Mechanisms from Spectroscopic Data"
-requires-python = ">=3.11"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
     "scikit-learn",
     "xgboost",
@@ -14,19 +15,20 @@ dependencies = [
     "numpy",
     "datasets",
     "pyyaml",
-    "pytest",
     "pubchempy",
-    "pyscf",
+    "psi4",
+    "pytest",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py39']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -35,15 +37,22 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | data
 )/
 '''
 
 [tool.ruff]
 line-length = 88
-target-version = "py311"
-src = ["code/src", "code/tests"]
+target-version = "py39"
+# Extend exclude to match black
+extend-exclude = [
+    "data",
+    "state",
+    "specs"
+]
 
 [tool.pytest.ini_options]
-testpaths = ["code/tests"]
-pythonpath = ["code"]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"

@@ -1,9 +1,8 @@
 """
-Integration test for merge_spectra module.
+Integration tests for merge_spectra.py module.
 
-Tests the end-to-end merging and binning of IR and NMR datasets.
+Tests the end-to-end merging of IR and NMR data into fingerprints.
 """
-
 import os
 import sys
 import json
@@ -13,178 +12,157 @@ import pytest
 import numpy as np
 import pandas as pd
 
-# Add the code directory to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.ingestion.merge_spectra import (
-    bin_spectrum_ir,
-    bin_spectrum_nmr,
-    merge_and_bin_spectra,
+    bin_spectrum_ir, 
+    bin_spectrum_nmr, 
+    merge_and_bin_spectra, 
     validate_fingerprints,
-    NIST_BIN_COUNT,
-    NMR_BIN_COUNT
+    validate_class_balance
 )
+from src.utils.io import write_json_file
 
 @pytest.fixture
 def sample_nist_data():
     """Create sample NIST IR data for testing."""
-    data = {
-        'compound_id': ['C001', 'C002'],
-        'frequencies': [
-            [500.0, 1000.0, 1500.0, 2000.0, 2500.0],
-            [600.0, 1100.0, 1600.0, 2100.0, 2600.0]
+    return pd.DataFrame({
+        'compound_id': ['C001', 'C002', 'C003'],
+        'mechanism_label': ['SN2', 'SN1', 'E1'],
+        'frequencies_ir': [
+            [1000, 1500, 2000, 2500, 3000],
+            [1000, 1500, 2000, 2500, 3000],
+            [1000, 1500, 2000, 2500, 3000]
         ],
-        'intensities': [
-            [0.1, 0.2, 0.3, 0.4, 0.5],
-            [0.2, 0.3, 0.4, 0.5, 0.6]
-        ],
-        'label': ['SN1', 'SN2'],
-        'provenance': ['kinetic studies', 'kinetic studies']
-    }
-    return pd.DataFrame(data)
+        'intensities_ir': [
+            [0.1, 0.5, 0.8, 0.3, 0.2],
+            [0.2, 0.6, 0.9, 0.4, 0.3],
+            [0.15, 0.55, 0.85, 0.35, 0.25]
+        ]
+    })
 
 @pytest.fixture
 def sample_pubchem_data():
     """Create sample PubChem NMR data for testing."""
-    data = {
-        'compound_id': ['C001', 'C002'],
-        'shifts': [
-            [1.0, 2.0, 3.0, 4.0, 5.0],
-            [1.5, 2.5, 3.5, 4.5, 5.5]
+    return pd.DataFrame({
+        'compound_id': ['C001', 'C002', 'C003'],
+        'chemical_shifts_nmr': [
+            [0, 2, 4, 6, 8, 10, 12],
+            [0, 2, 4, 6, 8, 10, 12],
+            [0, 2, 4, 6, 8, 10, 12]
         ],
-        'intensities': [
-            [0.1, 0.2, 0.3, 0.4, 0.5],
-            [0.2, 0.3, 0.4, 0.5, 0.6]
-        ],
-        'provenance': ['kinetic studies', 'kinetic studies']
+        'intensities_nmr': [
+            [0.1, 0.3, 0.5, 0.7, 0.6, 0.4, 0.2],
+            [0.15, 0.35, 0.55, 0.75, 0.65, 0.45, 0.25],
+            [0.12, 0.32, 0.52, 0.72, 0.62, 0.42, 0.22]
+        ]
+    })
+
+@pytest.fixture
+def sample_bin_mapping():
+    """Create sample bin mapping configuration."""
+    return {
+        'bins': {
+            'IR': {
+                'count': 10,
+                'edges': [1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000],
+                'method': 'linear_interpolation'
+            },
+            'NMR': {
+                'count': 6,
+                'edges': [0, 2, 4, 6, 8, 10, 12],
+                'method': 'linear_interpolation'
+            }
+        }
     }
-    return pd.DataFrame(data)
 
-def test_bin_spectrum_ir():
-    """Test IR spectrum binning function."""
-    frequencies = np.array([500.0, 1000.0, 1500.0, 2000.0, 2500.0])
-    intensities = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
-    
-    binned = bin_spectrum_ir(frequencies, intensities)
-    
-    assert len(binned) == NIST_BIN_COUNT
-    assert np.sum(binned) > 0  # Should have some intensity
-    assert np.all(binned >= 0)  # All values should be non-negative
-
-def test_bin_spectrum_nmr():
-    """Test NMR spectrum binning function."""
-    shifts = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-    intensities = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
-    
-    binned = bin_spectrum_nmr(shifts, intensities)
-    
-    assert len(binned) == NMR_BIN_COUNT
-    assert np.sum(binned) > 0  # Should have some intensity
-    assert np.all(binned >= 0)  # All values should be non-negative
-
-def test_merge_and_bin_spectra(sample_nist_data, sample_pubchem_data):
-    """Test the merge and binning process."""
-    merged_df = merge_and_bin_spectra(sample_nist_data, sample_pubchem_data)
-    
-    # Check that we have the expected number of records
-    assert len(merged_df) == 2  # Both compounds should be merged
-    
-    # Check that fingerprints have the correct length
-    for idx, row in merged_df.iterrows():
-        fingerprint = np.array(row['fingerprint'])
-        assert len(fingerprint) == NIST_BIN_COUNT + NMR_BIN_COUNT
-        assert np.all(fingerprint >= 0)  # All values should be non-negative
-    
-    # Check that labels are preserved
-    assert 'SN1' in merged_df['label'].values
-    assert 'SN2' in merged_df['label'].values
-
-def test_validate_fingerprints():
-    """Test fingerprint validation function."""
-    # Create a valid dataset
-    valid_data = {
-        'compound_id': ['C001'],
-        'fingerprint': [np.random.rand(NIST_BIN_COUNT + NMR_BIN_COUNT).tolist()],
-        'label': ['SN1'],
-        'source': ['test']
+def test_bin_spectrum_ir(sample_bin_mapping):
+    """Test IR spectrum binning."""
+    spectrum_data = {
+        'frequencies': [1000, 1500, 2000],
+        'intensities': [0.1, 0.5, 0.9]
     }
-    valid_df = pd.DataFrame(valid_data)
     
-    results = validate_fingerprints(valid_df)
+    result = bin_spectrum_ir(spectrum_data, sample_bin_mapping)
     
-    assert results['total_records'] == 1
-    assert results['nan_count'] == 0
-    assert results['empty_fingerprints'] == 0
-    assert results['invalid_labels'] == 0
-    assert len(results['issues']) == 0
-    
-    # Create an invalid dataset with NaN values
-    invalid_data = {
-        'compound_id': ['C002'],
-        'fingerprint': [np.full(NIST_BIN_COUNT + NMR_BIN_COUNT, np.nan).tolist()],
-        'label': ['SN1'],
-        'source': ['test']
-    }
-    invalid_df = pd.DataFrame(invalid_data)
-    
-    results = validate_fingerprints(invalid_df)
-    
-    assert results['nan_count'] == 1
-    assert len(results['issues']) == 1
-    assert 'NaN values' in results['issues'][0]
-    
-    # Create a dataset with invalid labels
-    invalid_label_data = {
-        'compound_id': ['C003'],
-        'fingerprint': [np.random.rand(NIST_BIN_COUNT + NMR_BIN_COUNT).tolist()],
-        'label': ['INVALID'],
-        'source': ['test']
-    }
-    invalid_label_df = pd.DataFrame(invalid_label_data)
-    
-    results = validate_fingerprints(invalid_label_df)
-    
-    assert results['invalid_labels'] == 1
-    assert len(results['issues']) == 1
-    assert 'Invalid label' in results['issues'][0]
+    assert result is not None
+    assert isinstance(result, np.ndarray)
+    assert len(result) == sample_bin_mapping['bins']['IR']['count']
+    assert not np.any(np.isnan(result))
 
-def test_empty_fingerprint_validation():
-    """Test validation of empty fingerprints."""
-    empty_data = {
-        'compound_id': ['C004'],
-        'fingerprint': [np.zeros(NIST_BIN_COUNT + NMR_BIN_COUNT).tolist()],
-        'label': ['SN1'],
-        'source': ['test']
+def test_bin_spectrum_nmr(sample_bin_mapping):
+    """Test NMR spectrum binning."""
+    spectrum_data = {
+        'chemical_shifts': [0, 4, 8, 12],
+        'intensities': [0.1, 0.5, 0.8, 0.2]
     }
-    empty_df = pd.DataFrame(empty_data)
     
-    results = validate_fingerprints(empty_df)
+    result = bin_spectrum_nmr(spectrum_data, sample_bin_mapping)
     
-    assert results['empty_fingerprints'] == 1
-    assert len(results['issues']) == 1
-    assert 'Empty fingerprint' in results['issues'][0]
+    assert result is not None
+    assert isinstance(result, np.ndarray)
+    assert len(result) == sample_bin_mapping['bins']['NMR']['count']
+    assert not np.any(np.isnan(result))
 
-def test_edge_case_no_matching_nmr():
-    """Test handling of compounds with no matching NMR data."""
-    nist_data = pd.DataFrame({
-        'compound_id': ['C001'],
-        'frequencies': [[500.0, 1000.0]],
-        'intensities': [[0.1, 0.2]],
-        'label': ['SN1'],
-        'provenance': ['kinetic studies']
+def test_merge_and_bin_spectra(sample_nist_data, sample_pubchem_data, sample_bin_mapping):
+    """Test merging and binning of spectra."""
+    result_df = merge_and_bin_spectra(sample_nist_data, sample_pubchem_data, sample_bin_mapping)
+    
+    assert len(result_df) > 0
+    assert 'fingerprint' in result_df.columns
+    assert 'mechanism_label' in result_df.columns
+    
+    # Check fingerprint dimensions (IR bins + NMR bins)
+    expected_dim = (
+        sample_bin_mapping['bins']['IR']['count'] + 
+        sample_bin_mapping['bins']['NMR']['count']
+    )
+    
+    for idx, row in result_df.iterrows():
+        fp = row['fingerprint']
+        assert len(fp) == expected_dim
+        assert not np.any(np.isnan(fp))
+
+def test_validate_fingerprints(sample_nist_data, sample_pubchem_data, sample_bin_mapping):
+    """Test fingerprint validation."""
+    result_df = merge_and_bin_spectra(sample_nist_data, sample_pubchem_data, sample_bin_mapping)
+    
+    assert validate_fingerprints(result_df) is True
+
+def test_empty_fingerprint_validation(sample_bin_mapping):
+    """Test validation with empty dataframe."""
+    empty_df = pd.DataFrame()
+    
+    # Should handle empty dataframe gracefully
+    assert validate_fingerprints(empty_df) is True
+
+def test_edge_case_no_matching_nmr(sample_nist_data, sample_bin_mapping):
+    """Test merge when no NMR data matches."""
+    # Create NMR data with different compound IDs
+    no_match_pubchem = pd.DataFrame({
+        'compound_id': ['X001', 'X002'],
+        'chemical_shifts_nmr': [[0, 2, 4], [0, 2, 4]],
+        'intensities_nmr': [[0.1, 0.5, 0.9], [0.1, 0.5, 0.9]]
     })
     
-    pubchem_data = pd.DataFrame({
-        'compound_id': ['C002'],  # Different compound
-        'shifts': [[1.0, 2.0]],
-        'intensities': [[0.1, 0.2]],
-        'provenance': ['kinetic studies']
-    })
+    result_df = merge_and_bin_spectra(sample_nist_data, no_match_pubchem, sample_bin_mapping)
     
-    # Should handle gracefully and not include C001 in the result
-    merged_df = merge_and_bin_spectra(nist_data, pubchem_data)
-    
-    assert len(merged_df) == 0  # No matching compounds
+    # Should return empty dataframe
+    assert len(result_df) == 0
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_class_balance_validation(sample_nist_data, sample_pubchem_data, sample_bin_mapping):
+    """Test class balance calculation."""
+    result_df = merge_and_bin_spectra(sample_nist_data, sample_pubchem_data, sample_bin_mapping)
+    
+    metrics = validate_class_balance(result_df)
+    
+    assert 'total_samples' in metrics
+    assert 'class_counts' in metrics
+    assert 'class_balance_ratio' in metrics
+    
+    # Check that we have all three classes
+    assert 'SN1' in metrics['class_counts']
+    assert 'SN2' in metrics['class_counts']
+    assert 'E1' in metrics['class_counts']

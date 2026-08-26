@@ -1,161 +1,152 @@
 """
-Seed pinning utility for reproducible experiments (Reproducibility Principle I).
-
-This module provides functions to set and verify random seeds across
-Python's random, NumPy, and other relevant libraries to ensure
-reproducible results in machine learning experiments.
+Seed pinning utility for reproducibility (Principle I).
+Ensures deterministic behavior across Python, NumPy, and random modules.
 """
-
 import os
 import random
 import hashlib
 from typing import Optional, Dict, Any, List
 import numpy as np
+
 from .logging import log_info, log_warning, log_error
 
-# Default seed for experiments
+# Default seed constant for the project
 DEFAULT_SEED = 42
 
-
 def get_default_seed() -> int:
-    """Return the default seed value used across experiments."""
+    """
+    Returns the default seed constant.
+    Can be overridden by environment variable PROJECT_SEED.
+    """
+    env_seed = os.environ.get("PROJECT_SEED")
+    if env_seed is not None:
+        try:
+            return int(env_seed)
+        except ValueError:
+            log_warning(f"Invalid PROJECT_SEED environment variable: {env_seed}. Using default {DEFAULT_SEED}.")
+            return DEFAULT_SEED
     return DEFAULT_SEED
-
 
 def set_seed(seed: Optional[int] = None) -> int:
     """
-    Set random seeds for reproducibility across all relevant libraries.
-
+    Sets the random seed for Python's random, NumPy, and (optionally) other libraries.
+    
     Args:
-        seed: The seed value to use. If None, uses DEFAULT_SEED.
-
+        seed: The seed value. If None, uses get_default_seed().
+        
     Returns:
         The seed value that was set.
     """
     if seed is None:
-        seed = DEFAULT_SEED
-
-    # Set seed for Python's random module
+        seed = get_default_seed()
+    
+    # Set seed for Python random
     random.seed(seed)
-
+    
     # Set seed for NumPy
     np.random.seed(seed)
-
-    # Set environment variable for TensorFlow/PyTorch if available
-    os.environ['PYTHONHASHSEED'] = str(seed)
-
-    # Log the seed setting
+    
+    # Set seed for Python hash (if needed for reproducibility in specific contexts)
+    # Note: PYTHONHASHSEED must be set at startup, so we log a warning if it's not set
+    if "PYTHONHASHSEED" not in os.environ:
+        log_warning(
+            "PYTHONHASHSEED is not set. For full reproducibility, run with: "
+            f"PYTHONHASHSEED={seed} python ..."
+        )
+    
     log_info(f"Random seed set to: {seed}")
-
     return seed
-
 
 def get_seed_hash(seed: int) -> str:
     """
-    Generate a hash representation of a seed for experiment identification.
-
+    Generates a SHA-256 hash of the seed for experiment identification.
+    
     Args:
-        seed: The seed value to hash.
-
+        seed: The seed integer.
+        
     Returns:
-        A hexadecimal hash string of the seed.
+        Hex digest of the seed hash.
     """
     return hashlib.sha256(str(seed).encode()).hexdigest()[:16]
 
-
-def verify_seed_consistency(seeds: List[int], expected_seed: int) -> bool:
+def verify_seed_consistency(seed: int, experiment_id: str) -> bool:
     """
-    Verify that all provided seeds match the expected seed.
-
+    Verifies that the current environment's seed matches the expected seed.
+    
     Args:
-        seeds: List of seed values to check.
-        expected_seed: The expected seed value.
-
+        seed: The expected seed value.
+        experiment_id: Identifier for the experiment (for logging).
+        
     Returns:
-        True if all seeds match the expected seed, False otherwise.
+        True if consistent, False otherwise.
     """
-    if not seeds:
-        log_warning("No seeds provided for verification")
+    # Check random state consistency
+    set_seed(seed)
+    test_val_1 = random.random()
+    
+    set_seed(seed)
+    test_val_2 = random.random()
+    
+    if abs(test_val_1 - test_val_2) > 1e-10:
+        log_error(f"Seed consistency check failed for experiment {experiment_id}")
         return False
-
-    all_match = all(seed == expected_seed for seed in seeds)
-
-    if not all_match:
-        log_warning(f"Seed inconsistency detected. Expected {expected_seed}, got {seeds}")
-
-    return all_match
-
+    
+    log_info(f"Seed consistency verified for experiment {experiment_id}")
+    return True
 
 class SeedContext:
     """
-    Context manager for temporary seed setting with automatic restoration.
-
-    Usage:
-        with SeedContext(123):
-            # Code that needs specific seed
-            pass
-        # Seed restored to original value
+    Context manager for temporary seed setting.
+    Restores the previous state upon exit.
     """
-
-    def __init__(self, seed: int):
-        """
-        Initialize the seed context.
-
-        Args:
-            seed: The seed value to use within the context.
-        """
-        self.seed = seed
-        self.original_random_state = random.getstate()
-        self.original_numpy_state = np.random.get_state()
-        self.original_hash_seed = os.environ.get('PYTHONHASHSEED')
-
+    def __init__(self, seed: Optional[int] = None):
+        self.seed = seed if seed is not None else get_default_seed()
+        self._original_random_state = None
+        self._original_np_state = None
+    
     def __enter__(self):
-        """Set the seed when entering the context."""
+        # Save current states
+        self._original_random_state = random.getstate()
+        self._original_np_state = np.random.get_state()
+        
+        # Set new seed
         set_seed(self.seed)
-        return self
-
+        return self.seed
+    
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Restore the original seed state when exiting the context."""
-        random.setstate(self.original_random_state)
-        np.random.set_state(self.original_numpy_state)
-        if self.original_hash_seed is not None:
-            os.environ['PYTHONHASHSEED'] = self.original_hash_seed
-        elif 'PYTHONHASHSEED' in os.environ:
-            del os.environ['PYTHONHASHSEED']
-
-        log_info("Seed context exited, original state restored")
+        # Restore original states
+        random.setstate(self._original_random_state)
+        np.random.set_state(self._original_np_state)
+        log_info("Seed context exited, original state restored.")
         return False
 
-
-def generate_experiment_id(seed: Optional[int] = None, prefix: str = "exp") -> str:
+def generate_experiment_id(seed: Optional[int] = None) -> str:
     """
-    Generate a unique experiment ID based on the seed and timestamp.
-
+    Generates a unique experiment ID based on the seed and timestamp.
+    
     Args:
-        seed: The seed value to use. If None, uses DEFAULT_SEED.
-        prefix: Prefix for the experiment ID.
-
+        seed: Optional seed value. If None, uses default.
+        
     Returns:
-        A unique experiment ID string.
+        A string experiment ID.
     """
     if seed is None:
-        seed = DEFAULT_SEED
-
+        seed = get_default_seed()
+    
     seed_hash = get_seed_hash(seed)
-    timestamp = os.urandom(8).hex()
-
-    return f"{prefix}_{seed_hash}_{timestamp}"
-
+    timestamp = os.urandom(8).hex()[:8]
+    return f"exp_{seed_hash}_{timestamp}"
 
 def get_environment_seeds() -> Dict[str, Any]:
     """
-    Get the current state of all random number generator seeds.
-
+    Captures the current state of all random number generators.
+    
     Returns:
-        Dictionary containing current seed states for various libraries.
+        Dictionary containing current seed states.
     """
     return {
-        'python_random': random.getstate()[1][0],
-        'numpy_random': np.random.get_state()[1][0],
-        'python_hash_seed': os.environ.get('PYTHONHASHSEED', 'not_set'),
+        "random": random.getstate(),
+        "numpy": np.random.get_state(),
+        "python_seed": os.environ.get("PYTHONHASHSEED", "not_set"),
+        "project_seed": os.environ.get("PROJECT_SEED", get_default_seed())
     }
