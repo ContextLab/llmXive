@@ -16,6 +16,15 @@ T019a:
     \ that it writes the required fields (including `evidence_threshold` with two\u2011\
     decimal formatting) to that CSV. The missing CSV file must be generated for the\
     \ task to be considered complete."
+T039:
+  c: false
+  h: 1cef26e26c0829937ff7fc617dd197a36f510301a662f1b8775f962286ae3da2
+  r: "The required data files `data/processed/graphs/graph_noise_42.json` and `data/processed/baseline_results.csv`\
+    \ are absent, and the provided `verify_seeds.py` script is truncated (ending mid\u2011\
+    function) so it does not demonstrably re\u2011run the noise injection and LLM\
+    \ inference, compare hashes, or write them to the state file. The state file still\
+    \ contains `null` hashes. These missing artifacts prevent the task from being\
+    \ satisfied."
 T042:
   c: false
   h: 075a4075f4a74f58f77684da496eb853e6dacda150e2b9d334085c8e1d312939
@@ -24,3 +33,38 @@ T042:
     \ (e.g., hash values or a reproducibility report) that the script was executed\
     \ twice with matching SHA\u2011256 hashes. The task\u2019s core verification step\
     \ is therefore not satisfied."
+T060a:
+  c: false
+  h: 3d2809ca39128a993b198cab0af41338846fd852e08e4e75a02b18beec58ed87
+  r: "The repository contains `code/report/aggregate_results.py`, but the script is\
+    \ truncated and does not show the logic that writes `data/processed/report_data.json`.\
+    \ Moreover, the required output file `data/processed/report_data.json` is absent.\
+    \ The task\u2019s core deliverable \u2013 a generated JSON aggregating all specified\
+    \ results \u2013 is therefore missing."
+T060b:
+  c: false
+  h: ab254468fe9bef9d56641beea69225cd72729f2b5a302548865596065792e266
+  r: "The required output file `data/processed/limitation_text.md` is missing, and\
+    \ the provided script is truncated before any code that writes the formatted limitations\
+    \ to that path, so the task\u2019s core output requirement is not satisfied."
+T060c:
+  c: false
+  h: 8652f3b2494d067a0aecd8c42f7d566569952707ce352d6eab2a00fcc7cfa406
+  r: The repository contains `code/report/generate_report.py`, but the required input
+    files `data/processed/report_data.json` and `data/processed/limitation_text.md`
+    are absent, and the script has not produced the expected `docs/research_report.md`.
+    Without these files the script cannot generate the mandated report sections, so
+    the task is not fulfilled.
+T061:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README file content or update is provided; the required artifact (`projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/README.md`
+    with the new pipeline instructions) is missing, so the task is not demonstrably
+    completed.
+T064:
+  c: false
+  h: 1acf7e5328e3520e24b3b022004f23eddb025e628fd7e1e564977aa3cc6210bd
+  r: "The repository contains the `code/report/categorize_status_counts.py` script,\
+    \ but the file is truncated and does not show the logic that writes `data/processed/status_counts.json`.\
+    \ Moreover, the required `status_counts.json` output file is missing entirely,\
+    \ so the task\u2019s core deliverable is not present."

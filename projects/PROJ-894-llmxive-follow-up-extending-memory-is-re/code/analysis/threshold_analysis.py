@@ -1,12 +1,10 @@
 """
-Threshold & Inflection Analysis for LLMXive Memory Reconstruction.
+Threshold & Inflection Analysis for LLM Memory Reconstruction Study.
 
-This module implements a binning algorithm to identify the inflection point
-where mean accuracy drops below 95% of the baseline accuracy.
+Implements adaptive/quantile-based binning to identify the inflection point
+where heuristic strategy accuracy drops below 95% of the baseline.
 
-Outputs:
-    data/processed/threshold_analysis.json: Contains inflection_point, 
-    correlation_coefficient, and trend_summary.
+Requires real execution results from T013 (baseline), T019a (lazy), T019b (greedy).
 """
 import json
 import csv
@@ -15,38 +13,16 @@ import argparse
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
+from scipy import stats
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants
-BASELINE_ACCURACY_THRESHOLD = 0.95
-MIN_BIN_SIZE = 3
-OUTPUT_PATH = Path("data/processed/threshold_analysis.json")
-BASELINE_RESULTS_PATH = Path("data/processed/baseline_results.csv")
-LAZY_RESULTS_PATH = Path("data/processed/lazy_results.csv")
-GREEDY_RESULTS_PATH = Path("data/processed/greedy_results.csv")
-NOISY_BASELINE_PATH = Path("data/processed/noisy_baseline_results.csv")
-NOISY_LAZY_PATH = Path("data/processed/noisy_lazy_results.csv")
-NOISY_GREEDY_PATH = Path("data/processed/noisy_greedy_results.csv")
-
 def load_results_from_csv(file_path: Path) -> List[Dict[str, Any]]:
-    """
-    Load results from a CSV file.
-    
-    Args:
-        file_path: Path to the CSV file.
-        
-    Returns:
-        List of dictionaries containing task results.
-    """
+    """Load results from a CSV file into a list of dictionaries."""
     if not file_path.exists():
-        logger.warning(f"File not found: {file_path}. Skipping.")
-        return []
+        raise FileNotFoundError(f"Results file not found: {file_path}")
     
     results = []
     with open(file_path, 'r', newline='', encoding='utf-8') as f:
@@ -54,246 +30,364 @@ def load_results_from_csv(file_path: Path) -> List[Dict[str, Any]]:
         for row in reader:
             # Convert numeric fields
             try:
-                row['accuracy'] = float(row.get('accuracy', 0))
-                row['nodes_visited'] = int(row.get('nodes_visited', 0))
-                row['latency_ms'] = float(row.get('latency_ms', 0))
-                results.append(row)
-            except (ValueError, TypeError) as e:
-                logger.warning(f"Skipping malformed row in {file_path}: {e}")
+                row['accuracy'] = float(row['accuracy'])
+                row['nodes_visited'] = int(row['nodes_visited'])
+                row['latency_ms'] = float(row['latency_ms'])
+            except (ValueError, KeyError) as e:
+                logger.warning(f"Skipping row due to conversion error: {e}")
                 continue
+            results.append(row)
     
-    logger.info(f"Loaded {len(results)} results from {file_path}")
     return results
 
-def calculate_baseline_accuracy(results: List[Dict[str, Any]]) -> float:
-    """
-    Calculate the mean accuracy from baseline results.
+def calculate_baseline_accuracy(baseline_results: List[Dict[str, Any]]) -> float:
+    """Calculate the mean accuracy of the baseline strategy."""
+    if not baseline_results:
+        raise ValueError("Baseline results list is empty")
     
-    Args:
-        results: List of baseline task results.
-        
-    Returns:
-        Mean accuracy as a float.
-    """
-    if not results:
-        logger.error("No baseline results provided. Cannot calculate mean accuracy.")
-        raise ValueError("Baseline results cannot be empty.")
-    
-    accuracies = [r['accuracy'] for r in results]
-    mean_acc = np.mean(accuracies)
-    logger.info(f"Calculated baseline mean accuracy: {mean_acc:.4f}")
-    return mean_acc
+    accuracies = [r['accuracy'] for r in baseline_results]
+    return float(np.mean(accuracies))
 
 def perform_bin_analysis(
-    results: List[Dict[str, Any]], 
-    baseline_mean_acc: float
-) -> Tuple[Optional[int], float, str]:
+    strategy_results: List[Dict[str, Any]],
+    baseline_accuracy: float,
+    alpha: float = 0.05
+) -> Dict[str, Any]:
     """
-    Perform binning analysis to find the inflection point.
+    Perform quantile-based binning and statistical significance testing.
     
-    Bins are created based on 'nodes_visited' counts. We look for the first bin
-    where the mean accuracy drops below 95% of the baseline mean accuracy.
+    Steps:
+    1. Bin data by nodes_visited using quantiles to ensure n >= 3 per bin.
+    2. Calculate mean accuracy per bin.
+    3. Identify the first bin where mean accuracy < 95% of baseline.
+    4. Perform statistical test (t-test or Wilcoxon) on the trend.
+    5. Return inflection point only if trend is significant (p < 0.05).
     
     Args:
-        results: List of task results (lazy, greedy, or noisy variants).
-        baseline_mean_acc: The mean accuracy of the baseline strategy.
-        
+        strategy_results: List of result dictionaries with 'accuracy' and 'nodes_visited'.
+        baseline_accuracy: Mean accuracy of the baseline strategy.
+        alpha: Significance level for statistical tests.
+    
     Returns:
-        Tuple of (inflection_point, correlation_coefficient, trend_summary).
-        inflection_point: The nodes_visited count where accuracy dropped below threshold.
-        correlation_coefficient: Pearson correlation between nodes_visited and accuracy.
-        trend_summary: A string describing the overall trend.
+        Dictionary with analysis results.
     """
-    if not results:
-        return None, 0.0, "No data available for analysis."
-
-    # Sort results by nodes_visited
-    sorted_results = sorted(results, key=lambda x: x['nodes_visited'])
+    if len(strategy_results) < 3:
+        return {
+            "inflection_point": None,
+            "correlation_coefficient": None,
+            "trend_summary": "INSUFFICIENT_DATA",
+            "is_significant": False,
+            "p_value": None,
+            "error": "Dataset too small to form valid bins (n < 3)"
+        }
     
-    nodes_list = [r['nodes_visited'] for r in sorted_results]
-    acc_list = [r['accuracy'] for r in sorted_results]
-
-    # Calculate Pearson correlation
-    if len(nodes_list) > 1 and len(acc_list) > 1:
-        try:
-            correlation = np.corrcoef(nodes_list, acc_list)[0, 1]
-            if np.isnan(correlation):
-                correlation = 0.0
-        except Exception as e:
-            logger.warning(f"Correlation calculation failed: {e}")
-            correlation = 0.0
-    else:
-        correlation = 0.0
-
-    # Create bins based on nodes_visited
-    # Strategy: Group by unique nodes_visited values, but ensure min_bin_size
-    # If a unique value has < min_bin_size, merge with neighbors?
-    # Simplified approach for this specific task:
-    # 1. Get unique node counts
-    # 2. Form bins of consecutive unique counts such that each bin has >= MIN_BIN_SIZE tasks
+    # Extract data
+    nodes = np.array([r['nodes_visited'] for r in strategy_results])
+    accuracies = np.array([r['accuracy'] for r in strategy_results])
     
-    unique_nodes = sorted(list(set(nodes_list)))
-    bins = []
-    current_bin_nodes = []
-    current_bin_accs = []
+    # Sort by nodes_visited for binning
+    sort_indices = np.argsort(nodes)
+    nodes_sorted = nodes[sort_indices]
+    accuracies_sorted = accuracies[sort_indices]
     
-    for node_val in unique_nodes:
-        # Get all accuracies for this node count
-        indices = [i for i, n in enumerate(nodes_list) if n == node_val]
-        vals = [acc_list[i] for i in indices]
-        
-        if len(current_bin_nodes) == 0:
-            current_bin_nodes = [node_val]
-            current_bin_accs = vals
+    # Determine number of bins
+    # Ensure at least 3 bins if possible, but respect n >= 3 per bin constraint
+    n_samples = len(nodes_sorted)
+    min_bin_size = 3
+    max_bins = n_samples // min_bin_size
+    
+    if max_bins < 2:
+        return {
+            "inflection_point": None,
+            "correlation_coefficient": None,
+            "trend_summary": "INSUFFICIENT_DATA",
+            "is_significant": False,
+            "p_value": None,
+            "error": f"Cannot form sufficient bins: {n_samples} samples < {min_bin_size * 2} required"
+        }
+    
+    # Use quantile-based binning
+    # Create bin edges based on quantiles to ensure roughly equal distribution
+    n_bins = max(2, min(max_bins, 5))  # Limit to 5 bins to avoid over-fragmentation
+    
+    # Calculate quantile edges
+    quantiles = np.linspace(0, 1, n_bins + 1)
+    bin_edges = np.quantile(nodes_sorted, quantiles)
+    
+    # Ensure unique edges to avoid empty bins
+    bin_edges = np.unique(bin_edges)
+    if len(bin_edges) < 3:
+        # Fallback to fewer bins
+        n_bins = len(bin_edges) - 1
+        if n_bins < 2:
+            return {
+                "inflection_point": None,
+                "correlation_coefficient": None,
+                "trend_summary": "INSUFFICIENT_DATA",
+                "is_significant": False,
+                "p_value": None,
+                "error": "Could not form valid bins after edge deduplication"
+            }
+    
+    # Assign bins
+    bin_indices = np.digitize(nodes_sorted, bin_edges[1:-1])
+    
+    # Process bins
+    bin_data = []
+    for i in range(n_bins):
+        # Get indices for this bin
+        if i == 0:
+            indices = np.where(bin_indices == i)[0]
         else:
-            # Check if adding this group keeps us >= MIN_BIN_SIZE? 
-            # Actually, the constraint is per bin. 
-            # If the current bin has >= MIN_BIN_SIZE, we can close it and start a new one.
-            if len(current_bin_accs) >= MIN_BIN_SIZE:
-                # Save current bin
-                bins.append({
-                    'nodes': current_bin_nodes,
-                    'accuracies': current_bin_accs,
-                    'mean_nodes': np.mean(current_bin_nodes),
-                    'mean_acc': np.mean(current_bin_accs)
-                })
-                current_bin_nodes = [node_val]
-                current_bin_accs = vals
-            else:
-                # Add to current bin
-                current_bin_nodes.append(node_val)
-                current_bin_accs.extend(vals)
-    
-    # Don't forget the last bin
-    if current_bin_accs:
-        bins.append({
-            'nodes': current_bin_nodes,
-            'accuracies': current_bin_accs,
-            'mean_nodes': np.mean(current_bin_nodes),
-            'mean_acc': np.mean(current_bin_accs)
+            indices = np.where((bin_indices >= i) & (bin_indices <= i + 1))[0]
+        
+        if len(indices) < min_bin_size:
+            # Merge with previous bin if this one is too small
+            if bin_data:
+                # Merge logic: extend the previous bin's range
+                bin_data[-1]['indices'] = np.concatenate([bin_data[-1]['indices'], indices])
+                bin_data[-1]['mean_accuracy'] = float(np.mean(accuracies_sorted[bin_data[-1]['indices']]))
+                bin_data[-1]['median_nodes'] = float(np.median(nodes_sorted[bin_data[-1]['indices']]))
+            continue
+        
+        bin_data.append({
+            'indices': indices,
+            'mean_accuracy': float(np.mean(accuracies_sorted[indices])),
+            'median_nodes': float(np.median(nodes_sorted[indices]))
         })
-
-    logger.info(f"Created {len(bins)} bins for analysis.")
     
+    if len(bin_data) < 2:
+        return {
+            "inflection_point": None,
+            "correlation_coefficient": None,
+            "trend_summary": "INSUFFICIENT_DATA",
+            "is_significant": False,
+            "p_value": None,
+            "error": "Merging resulted in too few bins"
+        }
+    
+    # Calculate threshold: 95% of baseline
+    threshold = baseline_accuracy * 0.95
+    
+    # Find inflection point
     inflection_point = None
-    threshold_value = baseline_mean_acc * BASELINE_ACCURACY_THRESHOLD
+    trend_data = []
     
-    for i, bin_data in enumerate(bins):
-        if bin_data['mean_acc'] < threshold_value:
-            inflection_point = int(bin_data['mean_nodes'])
-            logger.info(f"Inflection point found at bin {i}: nodes={inflection_point}, mean_acc={bin_data['mean_acc']:.4f} (threshold={threshold_value:.4f})")
+    for i, bin_info in enumerate(bin_data):
+        trend_data.append({
+            'bin_index': i,
+            'median_nodes': bin_info['median_nodes'],
+            'mean_accuracy': bin_info['mean_accuracy']
+        })
+        
+        if inflection_point is None and bin_info['mean_accuracy'] < threshold:
+            inflection_point = bin_info['median_nodes']
             break
     
-    if inflection_point is None:
-        logger.info(f"No inflection point found. All bins maintained accuracy >= {threshold_value:.4f}")
+    # Statistical significance test
+    # Prepare data for testing: compare first half vs second half of trend
+    # Or test if the trend is significantly negative
+    first_half_accs = [b['mean_accuracy'] for b in bin_data[:len(bin_data)//2]]
+    second_half_accs = [b['mean_accuracy'] for b in bin_data[len(bin_data)//2:]]
+    
+    is_significant = False
+    p_value = None
+    
+    if len(first_half_accs) >= 3 and len(second_half_accs) >= 3:
+        # Check normality
+        _, p_normal_first = stats.normaltest(first_half_accs) if len(first_half_accs) >= 8 else (0, 1)
+        _, p_normal_second = stats.normaltest(second_half_accs) if len(second_half_accs) >= 8 else (0, 1)
+        
+        use_ttest = (p_normal_first > alpha and p_normal_second > alpha) and len(first_half_accs) == len(second_half_accs)
+        
+        try:
+            if use_ttest:
+                stat, p_val = stats.ttest_ind(first_half_accs, second_half_accs)
+            else:
+                # Wilcoxon signed-rank test (paired) or Mann-Whitney U (unpaired)
+                if len(first_half_accs) == len(second_half_accs):
+                    stat, p_val = stats.wilcoxon(first_half_accs, second_half_accs)
+                else:
+                    stat, p_val = stats.mannwhitneyu(first_half_accs, second_half_accs, alternative='less')
+            
+            p_value = float(p_val)
+            # Check if the second half is significantly lower than the first
+            # We expect a negative trend, so we check if the difference is significant
+            if p_value < alpha:
+                # Verify direction: second half should be lower
+                if np.mean(second_half_accs) < np.mean(first_half_accs):
+                    is_significant = True
+        except Exception as e:
+            logger.warning(f"Statistical test failed: {e}")
+            is_significant = False
+            p_value = None
+    
+    # Calculate correlation coefficient (Spearman for monotonic relationship)
+    try:
+        corr, _ = stats.spearmanr(
+            [b['median_nodes'] for b in bin_data],
+            [b['mean_accuracy'] for b in bin_data]
+        )
+        correlation_coefficient = float(corr)
+    except Exception:
+        correlation_coefficient = None
     
     # Determine trend summary
-    if not bins:
-        trend_summary = "Insufficient data to determine trend."
-    elif len(bins) == 1:
-        trend_summary = "Single bin data: no trend analysis possible."
-    else:
-        first_bin_acc = bins[0]['mean_acc']
-        last_bin_acc = bins[-1]['mean_acc']
-        if last_bin_acc < first_bin_acc:
-            trend_summary = "Negative trend: Accuracy decreases as nodes visited increases."
-        elif last_bin_acc > first_bin_acc:
-            trend_summary = "Positive trend: Accuracy increases as nodes visited increases."
+    if correlation_coefficient is not None:
+        if correlation_coefficient < -0.5:
+            trend_summary = "Strong negative correlation"
+        elif correlation_coefficient < -0.2:
+            trend_summary = "Moderate negative correlation"
+        elif correlation_coeffion_coefficient > 0.5:
+            trend_summary = "Strong positive correlation"
+        elif correlation_coefficient > 0.2:
+            trend_summary = "Moderate positive correlation"
         else:
-            trend_summary = "Flat trend: Accuracy remains stable across node counts."
-
-    return inflection_point, correlation, trend_summary
+            trend_summary = "Weak or no correlation"
+    else:
+        trend_summary = "Correlation could not be calculated"
+    
+    # Only report inflection point if significant
+    if not is_significant:
+        inflection_point = None
+        trend_summary = f"{trend_summary} (not statistically significant, p={p_value:.4f})"
+    
+    return {
+        "inflection_point": inflection_point,
+        "correlation_coefficient": correlation_coefficient,
+        "trend_summary": trend_summary,
+        "is_significant": is_significant,
+        "p_value": p_value,
+        "bins": trend_data,
+        "threshold_used": threshold
+    }
 
 def analyze_strategy(
     strategy_name: str,
-    results_path: Path,
-    baseline_mean_acc: float
+    results_file: Path,
+    baseline_accuracy: float
 ) -> Dict[str, Any]:
-    """
-    Analyze a specific strategy and return results.
+    """Analyze a specific strategy against the baseline."""
+    logger.info(f"Analyzing {strategy_name} strategy from {results_file}")
     
-    Args:
-        strategy_name: Name of the strategy (e.g., 'lazy', 'greedy').
-        results_path: Path to the strategy's results CSV.
-        baseline_mean_acc: Baseline mean accuracy.
+    try:
+        results = load_results_from_csv(results_file)
+        if not results:
+            return {
+                "strategy": strategy_name,
+                "error": "No valid results found in file"
+            }
         
-    Returns:
-        Dictionary containing analysis results for this strategy.
-    """
-    results = load_results_from_csv(results_path)
+        analysis = perform_bin_analysis(results, baseline_accuracy)
+        analysis['strategy'] = strategy_name
+        analysis['sample_size'] = len(results)
+        return analysis
     
-    if not results:
+    except FileNotFoundError as e:
+        logger.error(f"File not found for {strategy_name}: {e}")
         return {
             "strategy": strategy_name,
-            "status": "skipped",
-            "reason": "No data found"
+            "error": f"File not found: {results_file}"
         }
-    
-    inflection_point, correlation, trend = perform_bin_analysis(results, baseline_mean_acc)
-    
-    return {
-        "strategy": strategy_name,
-        "status": "completed",
-        "inflection_point": inflection_point,
-        "correlation_coefficient": round(correlation, 4),
-        "trend_summary": trend,
-        "total_tasks": len(results),
-        "baseline_mean_accuracy": round(baseline_mean_acc, 4)
-    }
+    except Exception as e:
+        logger.error(f"Error analyzing {strategy_name}: {e}")
+        return {
+            "strategy": strategy_name,
+            "error": str(e)
+        }
 
 def main():
-    """
-    Main entry point for threshold and inflection analysis.
-    """
+    """Main entry point for threshold analysis."""
     parser = argparse.ArgumentParser(description="Threshold & Inflection Analysis")
-    parser.add_argument("--baseline", type=str, default=str(BASELINE_RESULTS_PATH),
-                        help="Path to baseline results CSV")
-    parser.add_argument("--output", type=str, default=str(OUTPUT_PATH),
-                        help="Path for output JSON")
+    parser.add_argument(
+        '--baseline',
+        type=Path,
+        default=Path("data/processed/baseline_results.csv"),
+        help="Path to baseline results CSV"
+    )
+    parser.add_argument(
+        '--lazy',
+        type=Path,
+        default=Path("data/processed/lazy_results.csv"),
+        help="Path to lazy strategy results CSV"
+    )
+    parser.add_argument(
+        '--greedy',
+        type=Path,
+        default=Path("data/processed/greedy_results.csv"),
+        help="Path to greedy strategy results CSV"
+    )
+    parser.add_argument(
+        '--output',
+        type=Path,
+        default=Path("data/processed/threshold_analysis.json"),
+        help="Path to output JSON file"
+    )
+    
     args = parser.parse_args()
-
-    output_path = Path(args.output)
-    baseline_path = Path(args.baseline)
-
+    
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Load baseline results
-    logger.info(f"Loading baseline results from {baseline_path}")
-    baseline_results = load_results_from_csv(baseline_path)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
     
-    if not baseline_results:
-        logger.error("Baseline results are empty or missing. Cannot proceed.")
-        raise ValueError("Cannot perform analysis without baseline data.")
-
-    baseline_mean_acc = calculate_baseline_accuracy(baseline_results)
-
-    # Define strategies to analyze
-    strategies = [
-        ("lazy", LAZY_RESULTS_PATH),
-        ("greedy", GREEDY_RESULTS_PATH),
-        ("noisy_baseline", NOISY_BASELINE_PATH),
-        ("noisy_lazy", NOISY_LAZY_PATH),
-        ("noisy_greedy", NOISY_GREEDY_PATH)
-    ]
-
-    analysis_results = {
-        "baseline_mean_accuracy": round(baseline_mean_acc, 4),
-        "threshold_percentage": BASELINE_ACCURACY_THRESHOLD,
-        "strategies": []
+    # Load baseline
+    try:
+        baseline_results = load_results_from_csv(args.baseline)
+        baseline_accuracy = calculate_baseline_accuracy(baseline_results)
+        logger.info(f"Baseline accuracy: {baseline_accuracy:.4f}")
+    except Exception as e:
+        logger.error(f"Failed to load baseline: {e}")
+        # Create error output
+        output = {
+            "error": f"Failed to load baseline: {e}",
+            "baseline_accuracy": None,
+            "strategies": {}
+        }
+        with open(args.output, 'w') as f:
+            json.dump(output, f, indent=2)
+        return 1
+    
+    # Analyze strategies
+    results = {
+        "baseline_accuracy": baseline_accuracy,
+        "strategies": {}
     }
-
-    for name, path in strategies:
-        logger.info(f"Analyzing strategy: {name}")
-        result = analyze_strategy(name, path, baseline_mean_acc)
-        analysis_results["strategies"].append(result)
-
-    # Write output
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(analysis_results, f, indent=2)
     
-    logger.info(f"Analysis complete. Results saved to {output_path}")
-    print(f"Threshold analysis complete. Output: {output_path}")
+    # Analyze Lazy
+    lazy_analysis = analyze_strategy("lazy", args.lazy, baseline_accuracy)
+    results["strategies"]["lazy"] = lazy_analysis
+    
+    # Analyze Greedy
+    greedy_analysis = analyze_strategy("greedy", args.greedy, baseline_accuracy)
+    results["strategies"]["greedy"] = greedy_analysis
+    
+    # Determine overall inflection point (use the most conservative)
+    # If either has a significant inflection, report it
+    overall_inflection = None
+    overall_significant = False
+    overall_p_value = None
+    
+    for strategy_name, analysis in results["strategies"].items():
+        if "error" not in analysis and analysis.get("is_significant"):
+            if overall_inflection is None or (analysis.get("inflection_point") is not None and 
+                                              analysis["inflection_point"] < overall_inflection):
+                overall_inflection = analysis["inflection_point"]
+                overall_significant = True
+                overall_p_value = analysis.get("p_value")
+    
+    results["overall"] = {
+        "inflection_point": overall_inflection,
+        "is_significant": overall_significant,
+        "p_value": overall_p_value
+    }
+    
+    # Save results
+    with open(args.output, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Threshold analysis complete. Results saved to {args.output}")
+    logger.info(f"Overall inflection point: {overall_inflection} (significant: {overall_significant})")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

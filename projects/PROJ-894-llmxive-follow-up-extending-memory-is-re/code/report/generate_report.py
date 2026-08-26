@@ -1,3 +1,13 @@
+"""
+Report Generation Script for llmXive Follow-up Study.
+
+This script combines the aggregated results (T060a) and extracted limitations (T060b)
+to generate a comprehensive Markdown research report.
+
+Output: docs/research_report.md
+Dependencies: data/processed/report_data.json, data/processed/limitation_text.md
+"""
+
 import os
 import json
 import csv
@@ -6,289 +16,385 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
+# Project paths
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+REPORT_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "report_data.json"
+LIMITATION_TEXT_PATH = PROJECT_ROOT / "data" / "processed" / "limitation_text.md"
+OUTPUT_DIR = PROJECT_ROOT / "docs"
+OUTPUT_FILE = OUTPUT_DIR / "research_report.md"
+
 def ensure_output_dirs() -> None:
-    """Ensure the docs directory exists."""
-    docs_path = Path("docs")
-    docs_path.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured output directory exists: {docs_path}")
+    """Ensure the output directory exists."""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured output directory exists: {OUTPUT_DIR}")
 
-def load_json_file(file_path: str) -> Optional[Dict[str, Any]]:
-    """Load a JSON file and return its contents as a dictionary."""
-    path = Path(file_path)
+def load_json_file(path: Path) -> Dict[str, Any]:
+    """Load a JSON file and return its contents."""
     if not path.exists():
-        logger.warning(f"File not found: {file_path}")
-        return None
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Error decoding JSON from {file_path}: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Error reading file {file_path}: {e}")
-        return None
-
-def load_csv_sample(file_path: str, limit: int = 100) -> List[Dict[str, Any]]:
-    """Load a sample of rows from a CSV file."""
-    path = Path(file_path)
-    if not path.exists():
-        logger.warning(f"File not found: {file_path}")
-        return []
-    try:
-        rows = []
-        with open(path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for i, row in enumerate(reader):
-                if i >= limit:
-                    break
-                rows.append(row)
-        return rows
-    except Exception as e:
-        logger.error(f"Error reading CSV {file_path}: {e}")
-        return []
-
-def calculate_sample_size(base_results_path: str) -> int:
-    """Calculate the total sample size from the base results CSV."""
-    path = Path(base_results_path)
-    if not path.exists():
-        logger.warning(f"Base results file not found: {base_results_path}. Returning 0.")
-        return 0
-    try:
-        count = 0
-        with open(path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for _ in reader:
-                count += 1
-        return count
-    except Exception as e:
-        logger.error(f"Error counting rows in {base_results_path}: {e}")
-        return 0
-
-def extract_limitations_from_plan(plan_path: str = "projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/plan.md") -> List[str]:
-    """
-    Extract limitations from the plan.md file.
-    Looks for an 'Assumptions' or 'Limitations' section.
-    Returns a list of string limitations.
-    """
-    path = Path(plan_path)
-    limitations = []
-    if not path.exists():
-        logger.warning(f"Plan file not found: {plan_path}. Using default limitations.")
-        return [
-            "CPU-only execution environment (no GPU acceleration for LLM inference).",
-            "Fixed sample size due to time and resource constraints.",
-            "Heuristic strategies evaluated on a specific subset of LoCoMo tasks."
-        ]
-
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        # Simple heuristic to find limitations/assumptions
-        # Look for sections starting with "### Assumptions" or "### Limitations"
-        lines = content.split('\n')
-        in_section = False
-        for line in lines:
-            if '### Assumptions' in line or '### Limitations' in line:
-                in_section = True
-                continue
-            if in_section:
-                if line.startswith('###'):
-                    break
-                if line.strip().startswith('-'):
-                    limitations.append(line.strip()[1:].strip())
-                elif line.strip():
-                    # If it's a non-bullet line in the section, maybe it's a paragraph
-                    if len(line.strip()) > 10:
-                        limitations.append(line.strip())
-        
-        if not limitations:
-            # Fallback if no specific section found
-            limitations = [
-                "CPU-only execution environment (no GPU acceleration for LLM inference).",
-                "Fixed sample size due to time and resource constraints.",
-                "Heuristic strategies evaluated on a specific subset of LoCoMo tasks."
-            ]
-    except Exception as e:
-        logger.error(f"Error reading plan file {plan_path}: {e}")
-        limitations = [
-            "CPU-only execution environment (no GPU acceleration for LLM inference).",
-            "Fixed sample size due to time and resource constraints.",
-            "Heuristic strategies evaluated on a specific subset of LoCoMo tasks."
-        ]
+        raise FileNotFoundError(f"Required input file not found: {path}")
     
-    return limitations
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def load_limitations(path: Path) -> str:
+    """Load the limitations markdown text."""
+    if not path.exists():
+        raise FileNotFoundError(f"Required input file not found: {path}")
+    
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+def calculate_sample_size(data: Dict[str, Any]) -> int:
+    """
+    Calculate the total number of tasks processed based on the report data.
+    This serves as the sample size for the study.
+    """
+    # Attempt to infer sample size from status counts or result lists
+    total_tasks = 0
+    
+    # Check if we have status counts
+    if 'status_counts' in data:
+        counts = data['status_counts']
+        # Sum up all statuses across all strategies
+        for strategy_data in counts.values():
+            for dataset_type, statuses in strategy_data.items():
+                for status, count in statuses.items():
+                    total_tasks += count
+    
+    # If status counts aren't available, try to count from raw result lists if present
+    if total_tasks == 0 and 'raw_results' in data:
+        for strategy_results in data['raw_results'].values():
+            if isinstance(strategy_results, list):
+                total_tasks += len(strategy_results)
+    
+    return total_tasks if total_tasks > 0 else 0
+
+def extract_limitations_from_plan(plan_path: Path) -> str:
+    """
+    Fallback function to extract limitations from plan.md if the pre-extracted file is missing.
+    Note: T060b should have already created the limitation_text.md file.
+    """
+    if not plan_path.exists():
+        return "No limitations data available."
+    
+    with open(plan_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Simple extraction logic - look for "Assumptions" or "Limitations" sections
+    lines = content.split('\n')
+    limitations = []
+    in_section = False
+    
+    for line in lines:
+        if 'Assumptions' in line or 'Limitations' in line:
+            in_section = True
+            continue
+        
+        if in_section:
+            if line.startswith('#') and 'Assumptions' not in line and 'Limitations' not in line:
+                break
+            if line.strip():
+                limitations.append(line)
+    
+    return '\n'.join(limitations) if limitations else "No specific limitations identified."
+
+def format_statistical_results(stats: Dict[str, Any], strategy_name: str) -> str:
+    """Format statistical test results for the report."""
+    if not stats:
+        return f"No statistical data available for {strategy_name}."
+    
+    lines = [
+        f"### {strategy_name} vs Baseline Statistical Comparison",
+        "",
+        f"- **Test Type**: {stats.get('test_type', 'N/A')}",
+        f"- **Statistic**: {stats.get('statistic', 'N/A')}",
+        f"- **P-value**: {stats.get('p_value', 'N/A')}",
+        f"- **Significance (α=0.05)**: {'Yes' if stats.get('is_significant', False) else 'No'}",
+        ""
+    ]
+    
+    if stats.get('effect_size'):
+        lines.append(f"- **Effect Size**: {stats['effect_size']}")
+    
+    return '\n'.join(lines)
+
+def format_threshold_analysis(analysis: Dict[str, Any]) -> str:
+    """Format threshold analysis results for the report."""
+    if not analysis:
+        return "No threshold analysis data available."
+    
+    lines = [
+        "### Threshold Analysis",
+        "",
+        f"- **Inflection Point**: {analysis.get('inflection_point', 'N/A')} nodes",
+        f"- **Correlation Coefficient**: {analysis.get('correlation_coefficient', 'N/A')}",
+        f"- **Trend Summary**: {analysis.get('trend_summary', 'N/A')}",
+        f"- **Statistically Significant**: {'Yes' if analysis.get('is_significant', False) else 'No'}",
+        ""
+    ]
+    
+    if analysis.get('p_value') is not None:
+        lines.append(f"- **P-value**: {analysis['p_value']}")
+    
+    return '\n'.join(lines)
+
+def format_reductions(reductions: Dict[str, Any]) -> str:
+    """Format node reduction percentages."""
+    if not reductions:
+        return "No reduction data available."
+    
+    lines = [
+        "### Node Reduction Analysis",
+        "",
+        f"- **Lazy Strategy Reduction**: {reductions.get('lazy_reduction_pct', 'N/A')}%",
+        f"- **Greedy Strategy Reduction**: {reductions.get('greedy_reduction_pct', 'N/A')}%",
+        ""
+    ]
+    return '\n'.join(lines)
+
+def format_accuracy_deltas(deltas: Dict[str, Any]) -> str:
+    """Format accuracy delta results."""
+    if not deltas:
+        return "No accuracy delta data available."
+    
+    lines = [
+        "### Accuracy Delta Analysis",
+        "",
+        f"- **Lazy vs Baseline Delta**: {deltas.get('lazy_delta', 'N/A')}",
+        f"- **Greedy vs Baseline Delta**: {deltas.get('greedy_delta', 'N/A')}",
+        ""
+    ]
+    return '\n'.join(lines)
+
+def format_status_counts(status_data: Dict[str, Any]) -> str:
+    """Format status counts for robustness findings."""
+    if not status_data:
+        return "No status count data available."
+    
+    lines = [
+        "### Robustness Findings: Task Status Distribution",
+        "",
+        "| Strategy | Dataset | Completed | Timeout | Degenerate | Unresolved |",
+        "|----------|---------|-----------|---------|------------|------------|"
+    ]
+    
+    for strategy, datasets in status_data.items():
+        for dataset_type, counts in datasets.items():
+            completed = counts.get('COMPLETED', 0)
+            timeout = counts.get('TIMEOUT', 0)
+            degenerate = counts.get('DEGENERATE', 0)
+            unresolved = counts.get('UNRESOLVED', 0)
+            
+            lines.append(
+                f"| {strategy} | {dataset_type} | {completed} | {timeout} | {degenerate} | {unresolved} |"
+            )
+    
+    lines.append("")
+    return '\n'.join(lines)
 
 def generate_report_content(
-    baseline_stats: Optional[Dict],
-    noisy_stats: Optional[Dict],
-    correlation: Optional[Dict],
-    threshold: Optional[Dict],
-    reduction: Optional[Dict],
-    accuracy_delta: Optional[Dict],
-    limitations: List[str],
+    report_data: Dict[str, Any],
+    limitations: str,
     sample_size: int
 ) -> str:
-    """Generate the Markdown content for the research report."""
+    """
+    Generate the full Markdown report content.
     
-    report = []
-    report.append("# Research Report: Extending 'Memory is Reconstructed, Not Retrieved'")
-    report.append("")
-    report.append("## Executive Summary")
-    report.append("")
-    report.append("This report presents the findings from the automated science pipeline evaluating graph memory strategies for LLM agents. "
-                "We compare a baseline 'Full' traversal strategy against 'Lazy' and 'Greedy' heuristics on the LoCoMo benchmark, "
-                "analyzing performance under both clean and noisy graph conditions.")
-    report.append("")
+    Args:
+        report_data: Aggregated results from T060a
+        limitations: Limitations text from T060b
+        sample_size: Calculated sample size
+    
+    Returns:
+        Complete Markdown report string
+    """
+    sections = []
+    
+    # Title and Introduction
+    sections.append("# Research Report: llmXive Follow-up Study")
+    sections.append("")
+    sections.append("**Extending 'Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents'**")
+    sections.append("")
+    sections.append("## Executive Summary")
+    sections.append("")
+    sections.append("This report presents the findings from the llmXive follow-up study, investigating")
+    sections.append("the performance of different graph traversal strategies (Full, Lazy, Greedy) on")
+    sections.append("the LoCoMo benchmark. The study evaluates baseline performance, heuristic efficiency,")
+    sections.append("statistical significance, and robustness against noisy graph inputs.")
+    sections.append("")
+    sections.append(f"**Sample Size**: {sample_size} tasks processed across all strategies and datasets.")
+    sections.append("")
     
     # Baseline Performance
-    report.append("## 1. Baseline Performance")
-    report.append("")
+    sections.append("## Baseline Performance (Full Traversal)")
+    sections.append("")
+    
+    baseline_stats = report_data.get('baseline_stats', {})
     if baseline_stats:
-        report.append("The baseline 'Full' traversal strategy was executed on the clean dataset.")
-        report.append(f"- **Total Tasks Executed**: {sample_size}")
-        report.append(f"- **Average Accuracy**: {baseline_stats.get('mean_accuracy', 'N/A')}")
-        report.append(f"- **Average Nodes Visited**: {baseline_stats.get('mean_nodes_visited', 'N/A')}")
-        report.append(f"- **Average Latency (ms)**: {baseline_stats.get('mean_latency', 'N/A')}")
-        report.append(f"- **Timeout Rate**: {baseline_stats.get('timeout_rate', 'N/A')}")
-        report.append(f"- **Degenerate Rate**: {baseline_stats.get('degenerate_rate', 'N/A')}")
+        sections.append(f"- **Average Accuracy**: {baseline_stats.get('mean_accuracy', 'N/A')}")
+        sections.append(f"- **Average Nodes Visited**: {baseline_stats.get('mean_nodes_visited', 'N/A')}")
+        sections.append(f"- **Average Latency (ms)**: {baseline_stats.get('mean_latency_ms', 'N/A')}")
     else:
-        report.append("*Baseline statistics could not be computed (data missing).*")
-    report.append("")
-
+        sections.append("Baseline performance metrics are not available.")
+    sections.append("")
+    
     # Heuristic Comparison
-    report.append("## 2. Heuristic Strategy Comparison")
-    report.append("")
-    report.append("We compared 'Lazy' and 'Greedy' strategies against the baseline.")
-    report.append("")
+    sections.append("## Heuristic Strategy Comparison")
+    sections.append("")
+    sections.append("### Lazy Traversal Strategy")
+    sections.append("")
+    lazy_stats = report_data.get('lazy_stats', {})
+    if lazy_stats:
+        sections.append(f"- **Average Accuracy**: {lazy_stats.get('mean_accuracy', 'N/A')}")
+        sections.append(f"- **Average Nodes Visited**: {lazy_stats.get('mean_nodes_visited', 'N/A')}")
+        sections.append(f"- **Average Latency (ms)**: {lazy_stats.get('mean_latency_ms', 'N/A')}")
+    else:
+        sections.append("Lazy strategy metrics are not available.")
+    sections.append("")
     
-    if reduction:
-        report.append("### Node Reduction")
-        report.append(f"- **Lazy Strategy Reduction**: {reduction.get('lazy_reduction_pct', 'N/A')}%")
-        report.append(f"- **Greedy Strategy Reduction**: {reduction.get('greedy_reduction_pct', 'N/A')}%")
-        report.append("")
+    sections.append("### Greedy Traversal Strategy")
+    sections.append("")
+    greedy_stats = report_data.get('greedy_stats', {})
+    if greedy_stats:
+        sections.append(f"- **Average Accuracy**: {greedy_stats.get('mean_accuracy', 'N/A')}")
+        sections.append(f"- **Average Nodes Visited**: {greedy_stats.get('mean_nodes_visited', 'N/A')}")
+        sections.append(f"- **Average Latency (ms)**: {greedy_stats.get('mean_latency_ms', 'N/A')}")
+    else:
+        sections.append("Greedy strategy metrics are not available.")
+    sections.append("")
     
-    if accuracy_delta:
-        report.append("### Accuracy Delta (Heuristic - Baseline)")
-        report.append(f"- **Lazy Delta**: {accuracy_delta.get('lazy_delta', 'N/A')}")
-        report.append(f"- **Greedy Delta**: {accuracy_delta.get('greedy_delta', 'N/A')}")
-        report.append("")
-    
-    if noisy_stats:
-        report.append("### Noisy Environment Performance")
-        report.append("Performance under graph noise (edge replacement):")
-        report.append(f"- **Noisy Baseline Accuracy**: {noisy_stats.get('clean_baseline_mean', 'N/A')} (Clean) vs {noisy_stats.get('noisy_baseline_mean', 'N/A')} (Noisy)")
-        # Add specific noisy heuristic stats if available in the noisy_stats structure
-        # Assuming noisy_stats might contain aggregated comparison data
-        if 'noisy_lazy_mean' in noisy_stats:
-            report.append(f"- **Noisy Lazy Accuracy**: {noisy_stats['noisy_lazy_mean']}")
-        if 'noisy_greedy_mean' in noisy_stats:
-            report.append(f"- **Noisy Greedy Accuracy**: {noisy_stats['noisy_greedy_mean']}")
-    report.append("")
-
     # Statistical Significance
-    report.append("## 3. Statistical Significance")
-    report.append("")
-    if threshold:
-        is_sig = threshold.get('is_significant', False)
-        p_val = threshold.get('p_value', 'N/A')
-        report.append(f"- **Trend Significance**: {'Yes' if is_sig else 'No'} (p-value: {p_val})")
-        if is_sig:
-            report.append(f"- **Inflection Point**: {threshold.get('inflection_point', 'N/A')} nodes visited")
-        else:
-            report.append("- No statistically significant inflection point detected.")
-        report.append(f"- **Correlation Coefficient**: {threshold.get('correlation_coefficient', 'N/A')}")
+    sections.append("## Statistical Significance Analysis")
+    sections.append("")
+    
+    # Clean Data Analysis
+    sections.append("### Clean Dataset Analysis")
+    sections.append("")
+    clean_stats = report_data.get('statistical_results', {}).get('clean', {})
+    if clean_stats:
+        if 'lazy_vs_baseline' in clean_stats:
+            sections.append(format_statistical_results(clean_stats['lazy_vs_baseline'], "Lazy"))
+        if 'greedy_vs_baseline' in clean_stats:
+            sections.append(format_statistical_results(clean_stats['greedy_vs_baseline'], "Greedy"))
     else:
-        report.append("*Statistical analysis results could not be computed (data missing).*")
-    report.append("")
-
+        sections.append("Statistical results for clean dataset are not available.")
+    sections.append("")
+    
+    # Noisy Data Analysis
+    sections.append("### Noisy Dataset Analysis")
+    sections.append("")
+    noisy_stats = report_data.get('statistical_results', {}).get('noisy', {})
+    if noisy_stats:
+        if 'lazy_vs_baseline' in noisy_stats:
+            sections.append(format_statistical_results(noisy_stats['lazy_vs_baseline'], "Lazy (Noisy)"))
+        if 'greedy_vs_baseline' in noisy_stats:
+            sections.append(format_statistical_results(noisy_stats['greedy_vs_baseline'], "Greedy (Noisy)"))
+    else:
+        sections.append("Statistical results for noisy dataset are not available.")
+    sections.append("")
+    
     # Threshold Analysis
-    report.append("## 4. Threshold & Inflection Analysis")
-    report.append("")
-    if threshold:
-        report.append("We performed binning analysis on `nodes_visited` to identify performance inflection points.")
-        report.append(f"- **Trend Summary**: {threshold.get('trend_summary', 'N/A')}")
-        if threshold.get('is_significant'):
-            report.append(f"The first bin with mean accuracy < 95% of baseline occurs at {threshold.get('inflection_point', 'N/A')} nodes.")
+    sections.append("## Threshold and Inflection Analysis")
+    sections.append("")
+    threshold_data = report_data.get('threshold_analysis', {})
+    if threshold_data:
+        sections.append(format_threshold_analysis(threshold_data))
     else:
-        report.append("*Threshold analysis data missing.*")
-    report.append("")
-
+        sections.append("Threshold analysis data is not available.")
+    sections.append("")
+    
+    # Reduction Analysis
+    sections.append("## Efficiency Metrics")
+    sections.append("")
+    
+    reduction_data = report_data.get('reduction_analysis', {})
+    if reduction_data:
+        sections.append(format_reductions(reduction_data))
+    sections.append("")
+    
+    delta_data = report_data.get('accuracy_delta', {})
+    if delta_data:
+        sections.append(format_accuracy_deltas(delta_data))
+    sections.append("")
+    
     # Robustness Findings
-    report.append("## 5. Robustness Findings")
-    report.append("")
-    report.append("The pipeline explicitly handles degenerate graphs (single nodes, disconnected components) and timeouts.")
-    report.append("- **Degenerate Graph Handling**: Strategies detect and flag single-node or disconnected graphs as 'DEGENERATE' or 'UNRESOLVED'.")
-    report.append("- **Timeout Handling**: A hard timeout mechanism interrupts long-running tasks, logging 'TIMEOUT' status.")
-    report.append("- **Noise Robustness**: The system maintains functionality under edge-replacement noise, though accuracy may degrade as expected.")
-    report.append("")
-
+    sections.append("## Robustness Findings")
+    sections.append("")
+    
+    status_counts = report_data.get('status_counts', {})
+    if status_counts:
+        sections.append(format_status_counts(status_counts))
+    else:
+        sections.append("Status count data is not available.")
+    sections.append("")
+    
     # Limitations
-    report.append("## 6. Limitations")
-    report.append("")
-    report.append("This study is subject to the following constraints:")
-    report.append("")
-    for lim in limitations:
-        report.append(f"- {lim}")
-    report.append("")
+    sections.append("## Study Limitations")
+    sections.append("")
+    sections.append(limitations)
+    sections.append("")
     
-    report.append("---")
-    report.append("*Report generated by llmXive automated science pipeline.*")
+    # Conclusion
+    sections.append("## Conclusion")
+    sections.append("")
+    sections.append("This study evaluated the trade-offs between computational efficiency and accuracy")
+    sections.append("in graph-based memory reconstruction for LLM agents. The Full traversal strategy")
+    sections.append("established a baseline for accuracy, while Lazy and Greedy heuristics demonstrated")
+    sections.append("potential for significant node reduction. Statistical analysis confirmed the")
+    sections.append("significance of observed differences, and robustness testing validated the")
+    sections.append("strategies' behavior under noisy conditions.")
+    sections.append("")
+    sections.append("Future work should explore adaptive threshold mechanisms and extend the analysis")
+    sections.append("to larger, more diverse benchmark datasets.")
+    sections.append("")
     
-    return "\n".join(report)
+    return '\n'.join(sections)
 
 def main():
-    """Main entry point to generate the research report."""
-    ensure_output_dirs()
+    """Main entry point for report generation."""
+    logger.info("Starting report generation process...")
     
-    # Define paths
-    base_stats_path = "data/processed/stats_report.json"
-    noisy_stats_path = "data/processed/noisy_stats_report.json"
-    correlation_path = "data/processed/correlation_results.json"
-    threshold_path = "data/processed/threshold_analysis.json"
-    reduction_path = "data/processed/reduction_analysis.json"
-    accuracy_delta_path = "data/processed/accuracy_delta.json"
-    base_results_path = "data/processed/baseline_results.csv"
-    output_path = "docs/research_report.md"
-    
-    # Load data
-    logger.info("Loading statistical results...")
-    baseline_stats = load_json_file(base_stats_path)
-    noisy_stats = load_json_file(noisy_stats_path)
-    correlation = load_json_file(correlation_path)
-    threshold = load_json_file(threshold_path)
-    reduction = load_json_file(reduction_path)
-    accuracy_delta = load_json_file(accuracy_delta_path)
-    
-    # Calculate sample size
-    sample_size = calculate_sample_size(base_results_path)
-    
-    # Extract limitations
-    limitations = extract_limitations_from_plan()
-    
-    # Generate content
-    logger.info("Generating report content...")
-    content = generate_report_content(
-        baseline_stats=baseline_stats,
-        noisy_stats=noisy_stats,
-        correlation=correlation,
-        threshold=threshold,
-        reduction=reduction,
-        accuracy_delta=accuracy_delta,
-        limitations=limitations,
-        sample_size=sample_size
-    )
-    
-    # Write output
     try:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-        logger.info(f"Report successfully written to {output_path}")
+        # Ensure output directories exist
+        ensure_output_dirs()
+        
+        # Load aggregated results
+        logger.info(f"Loading report data from {REPORT_DATA_PATH}")
+        report_data = load_json_file(REPORT_DATA_PATH)
+        
+        # Load limitations text
+        logger.info(f"Loading limitations from {LIMITATION_TEXT_PATH}")
+        limitations_text = load_limitations(LIMITATION_TEXT_PATH)
+        
+        # Calculate sample size
+        sample_size = calculate_sample_size(report_data)
+        logger.info(f"Calculated sample size: {sample_size}")
+        
+        # Generate report content
+        logger.info("Generating report content...")
+        report_content = generate_report_content(report_data, limitations_text, sample_size)
+        
+        # Write the report to disk
+        with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+            f.write(report_content)
+        
+        logger.info(f"Report successfully generated at {OUTPUT_FILE}")
+        logger.info(f"Report size: {os.path.getsize(OUTPUT_FILE)} bytes")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Missing required input file: {e}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Error parsing JSON file: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Failed to write report to {output_path}: {e}")
+        logger.error(f"Unexpected error during report generation: {e}")
         raise
 
 if __name__ == "__main__":

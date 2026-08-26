@@ -1,0 +1,8 @@
+# State file for PROJ-894-llmxive-follow-up-extending-memory-is-re
+# Tracks artifact hashes for reproducibility verification (T039)
+
+artifact_hashes:
+  graph_noise_42: null
+  baseline_results: null
+last_updated: null
+verification_status: pending
