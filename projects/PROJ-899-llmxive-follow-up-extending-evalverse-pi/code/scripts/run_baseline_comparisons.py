@@ -6,19 +6,10 @@ from src.models.evaluate import main as evaluate_main
 from src.utils import setup_logging
 
 def main():
-    """
-    Script to run T019: Baseline Comparisons.
-    """
-    setup_logging()
-    logger = logging.getLogger(__name__)
-    logger.info("Running Baseline Comparisons (T019)...")
-    
-    try:
-        evaluate_main()
-        logger.info("Baseline comparisons completed.")
-    except Exception as e:
-        logger.error(f"Error running baseline comparisons: {e}")
-        sys.exit(1)
+    """Wrapper to run T019 baseline comparisons."""
+    logger = setup_logging("run_baseline_comparisons")
+    logger.info("Running baseline comparisons (T019)...")
+    evaluate_main()
 
 if __name__ == "__main__":
     main()

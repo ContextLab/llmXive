@@ -1,37 +1,28 @@
-"""
-Script to run T022: Batch processing logic for US2 timing profiling.
-
-This script invokes the batch processing pipeline and writes
-data/processed/batch_stats.json as required by T022.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
-
-# Add code directory to path
-code_root = Path(__file__).parent.parent
-sys.path.insert(0, str(code_root))
-
 from src.cli.run_pipeline import main as batch_processing_main
 from src.utils import setup_logging
 
 def main():
-    """Entry point for running batch processing."""
-    setup_logging(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    
-    logger.info("Running T022: Batch processing logic")
+    """
+    Wrapper script to run the US2 batch processing task.
+    """
+    logger = setup_logging()
+    logger.info("Starting US2 Batch Processing (T022)...")
     
     try:
-        result = batch_processing_main()
-        if result == 0:
-            logger.info("T022 completed successfully")
+        batch_processing_main()
+        logger.info("US2 Batch Processing completed successfully.")
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Batch processing failed with exit code %d", e.code)
+            sys.exit(e.code)
         else:
-            logger.error(f"T022 failed with exit code {result}")
-            sys.exit(result)
+            sys.exit(0)
     except Exception as e:
-        logger.error(f"T022 failed with exception: {e}")
+        logger.exception("Unhandled exception in batch processing")
         sys.exit(1)
 
 if __name__ == "__main__":

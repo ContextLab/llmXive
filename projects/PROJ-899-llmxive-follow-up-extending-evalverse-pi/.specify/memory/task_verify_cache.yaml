@@ -13,22 +13,6 @@ T021:
   r: "The required artifact `tests/unit/test_profiles.py` does not exist in the repository,\
     \ so no unit test for the memory profiling logic is present. The task\u2019s core\
     \ deliverable is missing."
-T022#1:
-  c: false
-  h: a2153976c3ad093b2de5656e9d37d2824fa033a39fc59a9c36f5797c13896817
-  r: The repository lacks the required input file `data/processed/scores.csv` and
-    the expected output `data/processed/batch_stats.json`. Moreover, `src/cli/run_pipeline.py`
-    is truncated and does not contain a complete implementation that reads the scores,
-    processes N clips, and writes aggregated timing statistics to the JSON file. The
-    existing code only sketches clip handling and never writes the required `batch_stats.json`.
-T023b:
-  c: false
-  h: 19e43a8120058d3436554c67ee365c31b1c5aedf1221da4004809acaa4d98acc
-  r: "The provided `src/data/profiles.py` does not produce the required JSON schema\
-    \ (it logs `clip_path`, `memory_mb`, `time_seconds`, `cpu_time_seconds`, etc.,\
-    \ instead of `clip_id`, `cpu_time_sec`, `peak_memory_mb`, `status`) and the `save_profiling_results`\
-    \ function is incomplete. Moreover, the expected output file `data/profiling_logs.json`\
-    \ is missing. The implementation therefore fails to meet the task\u2019s specifications."
 T024:
   c: false
   h: 585d0ff5bb4fd36b32e33239096751cd53a350cec93b89ac15ea183d3b25437d

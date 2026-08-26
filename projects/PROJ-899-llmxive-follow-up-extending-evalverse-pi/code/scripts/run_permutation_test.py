@@ -10,18 +10,22 @@ from src.models.metrics import main
 from src.utils import setup_logging
 
 def main_wrapper():
-    """Wrapper for script execution with logging setup."""
-    setup_logging()
-    logger = logging.getLogger(__name__)
-    
+    """
+    Wrapper script for T020: Permutation-based multiple-comparison correction.
+    """
+    # Setup logging
+    logger = setup_logging("run_permutation_test")
+    logger.info("Starting permutation test (T020)")
+
     try:
-        logger.info("Running T020: Permutation-based multiple-comparison correction")
         result = main()
-        if result is not None:
-            logger.info(f"Successfully processed {len(result)} dimensions")
-        return 0
+        if result == 0:
+            logger.info("Permutation test completed successfully")
+        else:
+            logger.error("Permutation test failed")
+        return result
     except Exception as e:
-        logger.error(f"Permutation test failed: {e}", exc_info=True)
+        logger.exception(f"Permutation test failed with exception: {e}")
         return 1
 
 if __name__ == "__main__":

@@ -1,234 +1,194 @@
-"""
-Audio Feature Extraction Module for EvalVerse Dataset.
-
-This module implements the extraction of audio features (Spectral Centroid,
-Zero-Crossing Rate) from video clips using Librosa. It handles missing
-audio tracks gracefully by flagging them and returning NaN-filled vectors,
-adhering to the constraint of not returning zero vectors for missing data.
-
-Output: data/processed/features_audio.csv
-"""
 import os
 import sys
 import logging
-import json
-from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
-
 import numpy as np
-import librosa
 import pandas as pd
-
-# Add project root to path for imports if running as script
-if __package__ is None:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import librosa
+from pathlib import Path
+from typing import Tuple, List, Dict, Any, Optional
 
 from src.config import get_processed_data_dir, get_raw_data_dir
-from src.utils import setup_logging, get_logger, ensure_directories
+from src.utils import setup_logging, get_logger, ensure_directories, write_csv
 
 # Constants
-TARGET_SAMPLE_RATE = 22050
+SAMPLE_RATE = 22050
+N_BINS = 128
 HOP_LENGTH = 512
-N_BINS = 128  # As per task requirement
-FEATURE_VECTOR_LENGTH = N_BINS + 1  # Centroid (1) + ZCR (1) + Centroid stats (N_BINS - 1)? 
-# Actually, task says: spectral_centroid (n_bins=128) and zero_crossing_rate.
-# librosa.feature.spectral_centroid returns shape (1, n_frames) if n_bins is not used, 
-# but with n_bins it returns (n_bins, n_frames).
-# librosa.feature.zero_crossing_rate returns (1, n_frames).
-# We will aggregate these per clip to a single vector.
-# Strategy: Compute mean and std for each feature across frames to get a fixed-length vector per clip.
-# Spectral Centroid: shape (128, n_frames) -> mean(128), std(128) = 256 features?
-# Or just mean across frames for each bin? 
-# Let's follow a standard approach: Mean and Std of the feature vector across time.
-# Spectral Centroid (128 bins) -> 128 means + 128 stds = 256
-# ZCR (1 channel) -> 1 mean + 1 std = 2
-# Total = 258 features.
-# However, task says "feature_vector" is a flattened array string.
-# Let's compute: 
-# 1. Spectral Centroid (128 bins): Mean over time -> 128 values.
-# 2. Zero Crossing Rate: Mean over time -> 1 value.
-# This is simpler and standard for clip-level representation.
-# Total length = 129.
 
-FEATURE_LENGTH = N_BINS + 1  # 128 centroids + 1 zcr mean
+logger = get_logger(__name__)
 
-logger = setup_logging()
-
-def load_clip_audio(clip_id: str, raw_data_dir: Path) -> Optional[Tuple[np.ndarray, int]]:
+def extract_audio_features(audio_path: str) -> Tuple[np.ndarray, bool]:
     """
-    Loads audio from a clip. Returns (audio, sr) or None if missing/failed.
-    """
-    # Expected file pattern: raw_data_dir / {clip_id}.mp3 or .wav
-    # EvalVerse usually has audio embedded or separate. 
-    # We assume the raw data directory contains the audio files or we extract from video.
-    # Since T012 (Optical) likely processes video files, we assume video files exist here.
-    # Librosa can load video files directly.
+    Extract audio features (Spectral Centroid and Zero-Crossing Rate) from an audio file.
     
-    possible_extensions = ['.mp4', '.avi', '.mov', '.mkv', '.mp3', '.wav']
-    audio_path = None
-    
-    for ext in possible_extensions:
-        path = raw_data_dir / f"{clip_id}{ext}"
-        if path.exists():
-            audio_path = path
-            break
-    
-    if audio_path is None:
-        logger.warning(f"Audio file not found for clip {clip_id} in {raw_data_dir}")
-        return None
-
-    try:
-        y, sr = librosa.load(str(audio_path), sr=TARGET_SAMPLE_RATE, mono=True)
-        return y, sr
-    except Exception as e:
-        logger.warning(f"Failed to load audio for clip {clip_id}: {e}")
-        return None
-
-def extract_audio_features(y: np.ndarray, sr: int) -> np.ndarray:
-    """
-    Extracts spectral centroid and zero-crossing rate from audio.
-    Returns a flattened feature vector.
-    """
-    # Spectral Centroid: shape (128, n_frames)
-    spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr, n_bins=N_BINS)
-    
-    # Zero Crossing Rate: shape (1, n_frames)
-    zcr = librosa.feature.zero_crossing_rate(y)
-
-    # Aggregate to clip-level: Mean over frames
-    # Centroid: 128 values
-    centroid_mean = np.mean(spectral_centroid, axis=1)
-    
-    # ZCR: 1 value
-    zcr_mean = np.mean(zcr)
-
-    # Combine
-    feature_vector = np.concatenate([centroid_mean, [zcr_mean]])
-    return feature_vector
-
-def process_clip(clip_id: str, dimension: str, raw_data_dir: Path) -> Dict[str, Any]:
-    """
-    Processes a single clip: extracts audio features or flags missing data.
-    """
-    audio_data = load_clip_audio(clip_id, raw_data_dir)
-    
-    if audio_data is None:
-        # Missing audio: return NaN-filled vector
-        logger.warning(f"Missing audio for clip {clip_id}, marking as missing_data_flag=True")
-        return {
-            "clip_id": clip_id,
-            "dimension": dimension,
-            "feature_vector": ",".join([str(np.nan)] * FEATURE_LENGTH),
-            "missing_data_flag": True
-        }
-
-    try:
-        y, sr = audio_data
-        features = extract_audio_features(y, sr)
+    Args:
+        audio_path: Path to the audio file.
         
-        # Ensure no NaNs in valid extraction (unless audio is silent, but librosa handles that)
-        if np.any(np.isnan(features)):
-            logger.warning(f"NaN detected in extracted features for {clip_id}, marking as missing")
-            return {
-                "clip_id": clip_id,
-                "dimension": dimension,
-                "feature_vector": ",".join([str(np.nan)] * FEATURE_LENGTH),
-                "missing_data_flag": True
-            }
-
-        return {
-            "clip_id": clip_id,
-            "dimension": dimension,
-            "feature_vector": ",".join(map(str, features)),
-            "missing_data_flag": False
-        }
-    except Exception as e:
-        logger.error(f"Error extracting features for {clip_id}: {e}")
-        return {
-            "clip_id": clip_id,
-            "dimension": dimension,
-            "feature_vector": ",".join([str(np.nan)] * FEATURE_LENGTH),
-            "missing_data_flag": True
-        }
-
-def batch_process_clips(clips: List[Dict[str, str]], raw_data_dir: Path) -> List[Dict[str, Any]]:
+    Returns:
+        Tuple of (feature_vector, missing_data_flag).
+        - feature_vector: 1D numpy array of features.
+        - missing_data_flag: True if audio could not be processed, False otherwise.
     """
-    Processes a list of clips.
+    try:
+        if not os.path.exists(audio_path):
+            logger.warning(f"Audio file not found: {audio_path}")
+            return None, True
+
+        # Load audio
+        y, sr = librosa.load(audio_path, sr=SAMPLE_RATE, mono=True)
+        
+        if y.size == 0:
+            logger.warning(f"Empty audio file: {audio_path}")
+            return None, True
+
+        # Extract Spectral Centroid
+        # librosa.feature.spectral_centroid returns shape (1, n_frames)
+        spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr, n_fft=2048, hop_length=HOP_LENGTH)
+        
+        # Extract Zero-Crossing Rate
+        # librosa.feature.zero_crossing_rate returns shape (1, n_frames)
+        zcr = librosa.feature.zero_crossing_rate(y, hop_length=HOP_LENGTH)
+
+        # Aggregate features (mean over frames)
+        # We take the mean to get a single value per feature type per clip
+        # For a more robust vector, we could use more statistics (std, max, etc.), 
+        # but the task specifies "spectral centroid, zero-crossing rate".
+        # To match the "feature_vector" requirement as a flattened array string,
+        # we will create a vector of these two values. 
+        # If the task implies per-frame features, the vector would be huge. 
+        # Given the context of "dimensional viability" and correlation with human scores,
+        # a clip-level summary (mean) is standard.
+        # However, to ensure a "vector" as requested, let's create a small fixed-size vector
+        # representing the clip's audio characteristics.
+        
+        # Let's extract a few statistics to make it a proper "vector"
+        # Mean Centroid, Std Centroid, Mean ZCR, Std ZCR
+        mean_sc = np.mean(spectral_centroid)
+        std_sc = np.std(spectral_centroid)
+        mean_zcr = np.mean(zcr)
+        std_zcr = np.std(zcr)
+        
+        feature_vector = np.array([mean_sc, std_sc, mean_zcr, std_zcr])
+        
+        return feature_vector, False
+
+    except Exception as e:
+        logger.error(f"Error processing audio {audio_path}: {e}")
+        return None, True
+
+def process_audio_clips(metadata_df: pd.DataFrame, raw_data_dir: str) -> pd.DataFrame:
+    """
+    Process a batch of audio clips based on metadata.
+    
+    Args:
+        metadata_df: DataFrame containing clip_id, dimension, and file path info.
+        raw_data_dir: Directory containing the raw audio files.
+        
+    Returns:
+        DataFrame with columns [clip_id, dimension, feature_vector, missing_data_flag].
     """
     results = []
-    for clip in clips:
-        clip_id = clip.get("clip_id")
-        dimension = clip.get("dimension", "unknown")
-        if not clip_id:
-            continue
-        result = process_clip(clip_id, dimension, raw_data_dir)
-        results.append(result)
-    return results
-
-def save_audio_features(results: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Saves results to CSV.
-    """
-    ensure_directories([output_path.parent])
-    df = pd.DataFrame(results)
-    # Ensure column order
-    df = df[["clip_id", "dimension", "feature_vector", "missing_data_flag"]]
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved audio features to {output_path} with {len(df)} rows")
-
-def load_scores_for_audio_extraction() -> List[Dict[str, str]]:
-    """
-    Loads the preprocessed scores to determine which clips/dimensions to process.
-    Reads from data/processed/scores.csv (output of T042).
-    """
-    scores_path = get_processed_data_dir() / "scores.csv"
-    if not scores_path.exists():
-        raise FileNotFoundError(f"Scores file not found at {scores_path}. Run T042 first.")
     
-    df = pd.read_csv(scores_path)
-    # We need to process every row (clip, dimension) as a distinct unit for feature extraction
-    # or group by clip if features are clip-level. 
-    # The task output requires [clip_id, dimension, ...].
-    # So we iterate rows.
-    return df.to_dict(orient='records')
+    # Ensure raw data dir exists
+    if not os.path.exists(raw_data_dir):
+        logger.error(f"Raw data directory not found: {raw_data_dir}")
+        raise FileNotFoundError(f"Raw data directory not found: {raw_data_dir}")
 
-def main() -> None:
+    for idx, row in metadata_df.iterrows():
+        clip_id = row['clip_id']
+        dimension = row['dimension']
+        
+        # Assume audio files are named {clip_id}.wav or similar in the raw dir
+        # We need to locate the actual file. 
+        # Strategy: Look for files matching clip_id in the raw directory
+        found_file = None
+        for ext in ['.wav', '.mp3', '.flac', '.ogg']:
+            candidate = os.path.join(raw_data_dir, f"{clip_id}{ext}")
+            if os.path.exists(candidate):
+                found_file = candidate
+                break
+        
+        if not found_file:
+            # If not found by exact name, maybe it's in a subdirectory or named differently.
+            # For now, we assume the metadata points to a relative path or we construct it.
+            # If the metadata has a 'file_path' column, use that.
+            if 'file_path' in row:
+                found_file = os.path.join(raw_data_dir, row['file_path'])
+            else:
+                logger.warning(f"Could not locate audio file for clip_id: {clip_id}")
+                # Create a NaN-filled vector as per constraint
+                # We need a fixed length. Let's use 4 as defined in extract_audio_features.
+                nan_vector = np.full(4, np.nan)
+                results.append({
+                    'clip_id': clip_id,
+                    'dimension': dimension,
+                    'feature_vector': nan_vector,
+                    'missing_data_flag': True
+                })
+                continue
+
+        feature_vector, missing_flag = extract_audio_features(found_file)
+        
+        if missing_flag or feature_vector is None:
+            # Create a NaN-filled vector of the same length as a valid vector would be
+            # Since we don't know the exact length if it failed before creation, 
+            # we assume the standard length (4) or try to infer from a successful run.
+            # To be safe, we'll use a standard length of 4.
+            nan_vector = np.full(4, np.nan)
+            results.append({
+                'clip_id': clip_id,
+                'dimension': dimension,
+                'feature_vector': nan_vector,
+                'missing_data_flag': True
+            })
+        else:
+            results.append({
+                'clip_id': clip_id,
+                'dimension': dimension,
+                'feature_vector': feature_vector,
+                'missing_data_flag': False
+            })
+
+    return pd.DataFrame(results)
+
+def main():
     """
     Main entry point for audio feature extraction.
+    Reads metadata from processed scores (T042 output) and extracts audio features.
+    Outputs to data/processed/features_audio.csv.
     """
-    logger.info("Starting Audio Feature Extraction (T013)")
+    setup_logging()
     
+    processed_dir = get_processed_data_dir()
     raw_data_dir = get_raw_data_dir()
-    output_dir = get_processed_data_dir()
-    output_path = output_dir / "features_audio.csv"
     
-    # Ensure directories exist
-    ensure_directories([output_dir])
+    scores_file = os.path.join(processed_dir, 'scores.csv')
+    output_file = os.path.join(processed_dir, 'features_audio.csv')
     
-    # Load input data
-    try:
-        clips_data = load_scores_for_audio_extraction()
-        logger.info(f"Loaded {len(clips_data)} clip-dimension pairs for processing.")
-    except FileNotFoundError as e:
-        logger.error(str(e))
+    if not os.path.exists(scores_file):
+        logger.error(f"Input file not found: {scores_file}")
         sys.exit(1)
     
-    if not clips_data:
-        logger.warning("No clips found to process.")
-        # Create empty file with headers
-        df = pd.DataFrame(columns=["clip_id", "dimension", "feature_vector", "missing_data_flag"])
-        df.to_csv(output_path, index=False)
-        return
-
-    # Process
-    results = batch_process_clips(clips_data, raw_data_dir)
+    logger.info(f"Loading metadata from {scores_file}")
+    df = pd.read_csv(scores_file)
     
-    # Save
-    save_audio_features(results, output_path)
+    # Ensure required columns exist
+    required_cols = ['clip_id', 'dimension']
+    if not all(col in df.columns for col in required_cols):
+        logger.error(f"Input file missing required columns: {required_cols}")
+        sys.exit(1)
     
-    # Summary
-    missing_count = sum(1 for r in results if r["missing_data_flag"])
-    logger.info(f"Extraction complete. Total: {len(results)}, Missing: {missing_count}")
+    logger.info(f"Processing {len(df)} clips for audio features...")
+    results_df = process_audio_clips(df, raw_data_dir)
+    
+    # Convert feature_vector to string representation for CSV storage
+    results_df['feature_vector'] = results_df['feature_vector'].apply(lambda x: ','.join(map(str, x)))
+    
+    logger.info(f"Saving results to {output_file}")
+    ensure_directories(output_file)
+    results_df.to_csv(output_file, index=False)
+    
+    logger.info("Audio feature extraction completed.")
 
 if __name__ == "__main__":
     main()
