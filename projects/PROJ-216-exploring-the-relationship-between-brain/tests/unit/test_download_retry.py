@@ -22,7 +22,7 @@ class TestDownloadRetryLogic:
     """Tests for the retry mechanism in download_dataset."""
 
     @patch('download.time.sleep')
-    @patch('download.openneuro.download_dataset')
+    @patch('download.cli.download')
     def test_retry_logic_on_failure(self, mock_download, mock_sleep):
         """
         Verify that the function attempts to download exactly 3 times
@@ -45,7 +45,7 @@ class TestDownloadRetryLogic:
         assert mock_sleep.call_count == 2
 
     @patch('download.time.sleep')
-    @patch('download.openneuro.download_dataset')
+    @patch('download.cli.download')
     def test_exponential_backoff_timing(self, mock_download, mock_sleep):
         """
         Verify that the sleep duration follows exponential backoff (2^attempt).
@@ -63,7 +63,7 @@ class TestDownloadRetryLogic:
         assert mock_sleep.call_args_list[0][0][0] == 2.0
         assert mock_sleep.call_args_list[1][0][0] == 4.0
 
-    @patch('download.openneuro.download_dataset')
+    @patch('download.cli.download')
     def test_success_on_first_attempt(self, mock_download):
         """Verify that if the first attempt succeeds, no retries occur."""
         mock_download.return_value = True
@@ -73,7 +73,7 @@ class TestDownloadRetryLogic:
         mock_download.assert_called_once()
 
     @patch('download.time.sleep')
-    @patch('download.openneuro.download_dataset')
+    @patch('download.cli.download')
     def test_success_on_second_attempt(self, mock_download, mock_sleep):
         """Verify that if the second attempt succeeds, only one retry occurs."""
         # First call fails, second call succeeds
@@ -87,7 +87,7 @@ class TestDownloadRetryLogic:
         assert mock_sleep.call_count == 1
 
     @patch('download.time.sleep')
-    @patch('download.openneuro.download_dataset')
+    @patch('download.cli.download')
     def test_max_retries_parameter_respected(self, mock_download, mock_sleep):
         """Verify that the max_retries parameter limits the number of attempts."""
         mock_download.side_effect = Exception("Always fails")

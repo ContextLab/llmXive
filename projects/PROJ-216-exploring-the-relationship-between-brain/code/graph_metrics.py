@@ -5,292 +5,344 @@ import logging
 import numpy as np
 import networkx as nx
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
-import csv
+from typing import Dict, List, Tuple, Optional, Any
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Attempt to import community (python-louvain) for modularity
+try:
+    import community
+    HAS_COMMUNITY = True
+except ImportError:
+    HAS_COMMUNITY = False
+    logging.warning("community (python-louvain) package not found. Modularity calculations will fail unless dependency is installed.")
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants
-DATA_DIR = Path("data")
-PROCESSED_DIR = DATA_DIR / "processed"
-INTERIM_DIR = DATA_DIR / "interim"
-
-# Schaefer Atlas Configuration (200 ROIs)
-SCHAEFER_200_URL = "https://raw.githubusercontent.com/ThomasYeoLab/CBIG/v1.0.1/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/Schaefer2018_200Parcels_17Networks_order.txt"
-# Note: In a real environment, this would be downloaded or cached.
-# For this implementation, we assume the atlas is available or generated if missing.
-# The actual parcellation file content is not hardcoded here to save space,
-# but the function handles loading it.
-
-def load_preprocessed_subjects() -> List[str]:
+def load_preprocessed_subjects(input_dir: str) -> List[Dict[str, Any]]:
     """
-    Scans the processed directory for preprocessed subject directories.
-    Returns a list of subject IDs.
+    Scans the input directory for preprocessed subject data (e.g., time series files).
+    Returns a list of dicts with subject_id and path to the time series.
     """
-    if not PROCESSED_DIR.exists():
-        logger.error(f"Processed directory {PROCESSED_DIR} does not exist.")
-        return []
-    
     subjects = []
-    for item in PROCESSED_DIR.iterdir():
-        if item.is_dir() and item.name.startswith("sub-"):
-            # Check for existence of a preprocessed NIfTI file (e.g., sub-XX_desc-preproc_bold.nii.gz)
-            nifti_files = list(item.glob("*_desc-preproc_bold.nii.gz"))
-            if nifti_files:
-                subjects.append(item.name)
-            else:
-                # Fallback: if no specific desc, check for any bold.nii.gz
-                any_bold = list(item.glob("*bold.nii.gz"))
-                if any_bold:
-                    subjects.append(item.name)
-    return sorted(subjects)
+    input_path = Path(input_dir)
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input directory {input_dir} does not exist.")
+    
+    # Assuming preprocessed data is stored as .npy or .csv time series per subject
+    # or a specific naming convention like subj_XXX_time_series.npy
+    for f in input_path.iterdir():
+        if f.suffix in ['.npy', '.csv'] and 'time_series' in f.name.lower():
+            # Infer subject ID from filename or a sidecar JSON if available
+            # For this implementation, we assume the filename format: subj_XXX_time_series.npy
+            subj_id = f.stem.replace('_time_series', '')
+            subjects.append({
+                "subject_id": subj_id,
+                "time_series_path": str(f)
+            })
+    return subjects
 
-def scan_preprocessed_directory() -> List[Path]:
+def scan_preprocessed_directory(input_dir: str) -> List[str]:
     """
-    Returns a list of paths to preprocessed NIfTI files.
+    Helper to scan directory for valid subject files.
     """
-    subjects = load_preprocessed_subjects()
-    paths = []
-    for sub in subjects:
-        sub_dir = PROCESSED_DIR / sub
-        # Look for the preprocessed file
-        nifti = next(sub_dir.glob("*_desc-preproc_bold.nii.gz"), None)
-        if not nifti:
-            nifti = next(sub_dir.glob("*bold.nii.gz"), None)
-        if nifti:
-            paths.append(nifti)
-        else:
-            logger.warning(f"No preprocessed NIfTI found for {sub}")
-    return paths
+    return [f.name for f in Path(input_dir).iterdir() if f.is_file() and f.suffix in ['.npy', '.csv']]
 
-def get_schaefer_atlas(n_rois: int = 200) -> np.ndarray:
+def get_schaefer_atlas(atlas_name: str = "Schaefer200") -> np.ndarray:
     """
-    Loads or generates the Schaefer atlas parcellation.
-    For this implementation, if the real atlas file is missing,
-    we generate a synthetic parcellation mask that matches the ROI count
-    to allow the graph metric logic to run.
-    In a full pipeline, this would download the real atlas.
+    Loads or fetches the Schaefer atlas parcellation mask.
+    Returns a 1D array of labels corresponding to voxels/regions.
+    In a real pipeline, this would fetch from nilearn or a local path.
+    For this task, we assume the atlas is available or generate a valid placeholder
+    if strictly necessary for the graph logic (though the task demands real data).
     
-    Returns a 1D array of length (n_rois * n_rois) representing the atlas labels
-    (simplified for this context as we need a mapping, but nilearn handles the actual parcellation).
-    Actually, nilearn's parcellation functions return time series.
-    We will assume the time series extraction is done elsewhere or mock it here if needed.
-    However, the task is about Modularity. We need a correlation matrix as input.
-    So we need to simulate the extraction of time series if real data isn't there,
-    OR assume the correlation matrix is passed in.
-    
-    The task says: "Run the script on a mock matrix".
-    So we will focus on the modularity calculation functions.
+    Since T022a handles acquiring the atlas, we expect it to be in data/external.
     """
-    # Placeholder for actual atlas loading logic
-    # In a real scenario:
-    # from nilearn import datasets
-    # atlas = datasets.fetch_atlas_schaefer_2018(n_rois=n_rois, yeo_networks=17)
-    # return atlas['maps']
+    # Check for real atlas file first
+    possible_paths = [
+        Path("data/external/Schaefer200_7Networks.nii.gz"),
+        Path("data/external/Schaefer200_7Networks_labels.npy")
+    ]
     
-    logger.info(f"Using Schaefer {n_rois} ROI atlas (simulated for modularity calc).")
-    return np.arange(n_rois)
+    for p in possible_paths:
+        if p.exists():
+            logger.info(f"Loading Schaefer atlas from {p}")
+            if p.suffix == '.npy':
+                return np.load(p)
+            elif p.suffix == '.gz' or p.suffix == '.nii':
+                # In a full pipeline, use nilearn to load and average time series
+                # Here we return a dummy label array if the file exists but we can't load it easily
+                # In a real scenario, we would raise an error if nilearn is missing
+                try:
+                    from nilearn import image, masking
+                    # Placeholder logic: assume we have a way to get labels
+                    # This part is dependent on the full preprocessing pipeline
+                    raise NotImplementedError("Full atlas loading requires nilearn and preprocessing setup.")
+                except ImportError:
+                    raise RuntimeError("nilearn required to load NIfTI atlas.")
+    
+    # If not found, we must NOT generate synthetic data per constraints.
+    # However, for the purpose of this specific task (T025) which focuses on the
+    # modularity algorithm logic, we assume the time series (N x Regions) is passed
+    # directly or the atlas is already loaded by the caller.
+    # If this function is called and no real atlas exists, we raise.
+    raise FileNotFoundError(f"Schaefer atlas not found at expected paths. Run T022a.")
 
 def generate_correlation_matrix(time_series: np.ndarray) -> np.ndarray:
     """
-    Computes the Pearson correlation matrix from a time series.
-    time_series shape: (n_rois, n_timepoints)
-    Returns: (n_rois, n_rois) correlation matrix.
+    Computes the Pearson correlation matrix from a time series array.
+    time_series shape: (time_points, regions)
+    Returns: (regions, regions) symmetric correlation matrix.
     """
     if time_series.ndim != 2:
-        raise ValueError(f"Time series must be 2D, got {time_series.ndim}D")
+        raise ValueError("Time series must be 2D (time, regions).")
     
-    corr_matrix = np.corrcoef(time_series)
-    # Handle NaNs (e.g., constant time series)
+    # Compute correlation
+    corr_matrix = np.corrcoef(time_series.T)
+    
+    # Handle NaNs (if constant time series exist)
     corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
+    
     # Ensure symmetry
-    corr_matrix = (corr_matrix + corr_matrix.T) / 2
-    np.fill_diagonal(corr_matrix, 0.0) # Remove self-loops
+    corr_matrix = (corr_matrix + corr_matrix.T) / 2.0
+    np.fill_diagonal(corr_matrix, 1.0)
+    
     return corr_matrix
 
 def compute_global_efficiency(corr_matrix: np.ndarray) -> float:
     """
-    Computes global efficiency using networkx.
-    Converts correlation matrix to a graph (thresholding or full).
-    For this implementation, we use the absolute value of correlations as weights.
+    Computes global efficiency using NetworkX.
     """
-    G = nx.from_numpy_array(np.abs(corr_matrix))
+    if not HAS_COMMUNITY:
+         # We still need networkx for efficiency, but modularity needs community
+         pass
+    
+    G = nx.from_numpy_array(corr_matrix)
+    # Global efficiency is 1/L where L is average shortest path length
+    # For weighted graphs, we use weights. Correlation can be negative,
+    # but for efficiency we often use absolute value or threshold.
+    # Standard approach: use 1 - |r| as distance or just |r| as weight.
+    # Here we use 1 - r as distance (assuming r > 0).
+    # If negative correlations exist, we might take absolute value.
+    # Simple approach: convert correlation to distance: d = 1 - r
+    # But we must handle r=1 -> d=0.
+    
+    # Reconstruct graph with weights = 1 - correlation (distance)
+    # Or use correlation as weight and use nx.global_efficiency which handles weights?
+    # nx.global_efficiency uses edge weights as distances.
+    # So we need to convert correlation to distance.
+    
+    # Let's create a graph where weight = 1 - r (if r > 0)
+    # But for simplicity in this snippet, we assume we use the correlation as weight
+    # and nx.global_efficiency will compute sum(1/d_ij) / (n*(n-1))
+    # Actually, nx.global_efficiency expects weights to be distances.
+    # So we pass 1 - r as weight.
+    
+    # Create a new graph for distance
+    G_dist = nx.Graph()
+    n = corr_matrix.shape[0]
+    for i in range(n):
+        for j in range(i+1, n):
+            w = corr_matrix[i, j]
+            if w > 0: # Only positive correlations as edges
+                dist = 1.0 - w
+                if dist == 0: dist = 0.001 # Avoid division by zero
+                G_dist.add_edge(i, j, weight=dist)
+    
     try:
-        eff = nx.global_efficiency(G)
-        return float(eff)
+        eff = nx.global_efficiency(G_dist)
     except nx.NetworkXError:
-        return 0.0
+        eff = 0.0
+    return float(eff)
 
 def compute_clustering_coefficient(corr_matrix: np.ndarray) -> float:
     """
     Computes the average clustering coefficient.
     """
-    G = nx.from_numpy_array(np.abs(corr_matrix))
-    try:
-        cc = nx.average_clustering(G)
-        return float(cc)
-    except nx.NetworkXError:
+    G = nx.from_numpy_array(corr_matrix)
+    # Convert to unweighted for clustering coefficient (standard)
+    # Or use weighted version? nx.clustering supports weight.
+    # We'll use unweighted for standard clustering coefficient.
+    G_unw = nx.Graph()
+    n = corr_matrix.shape[0]
+    for i in range(n):
+        for j in range(i+1, n):
+            if corr_matrix[i, j] > 0.2: # Threshold
+                G_unw.add_edge(i, j)
+    
+    if len(G_unw.nodes) == 0:
         return 0.0
+    return float(nx.average_clustering(G_unw))
 
 def compute_modularity_louvain(corr_matrix: np.ndarray, resolution: float = 1.0) -> float:
     """
-    Computes modularity using the Louvain algorithm with a specific resolution.
-    
-    Args:
-        corr_matrix: Correlation matrix (n x n).
-        resolution: Resolution parameter for Louvain.
-        
-    Returns:
-        Modularity score (float).
+    Computes modularity using the Louvain algorithm (python-louvain).
+    Resolution parameter controls the size of communities.
     """
-    # Convert to graph. We use the correlation values as weights.
-    # We assume the matrix is symmetric and zero-diagonal.
+    if not HAS_COMMUNITY:
+        raise RuntimeError("The 'community' (python-louvain) package is required for modularity calculation.")
+    
+    # Create a graph from the correlation matrix
     G = nx.from_numpy_array(corr_matrix)
     
-    # Remove self-loops if any (though we set diag to 0)
-    G.remove_edges_from(nx.selfloop_edges(G))
+    # Remove negative edges for Louvain (it typically assumes positive weights)
+    # Or convert to positive weights. We'll keep only positive correlations.
+    G_pos = nx.Graph()
+    n = corr_matrix.shape[0]
+    for i in range(n):
+        for j in range(i+1, n):
+            w = corr_matrix[i, j]
+            if w > 0:
+                G_pos.add_edge(i, j, weight=w)
     
-    if G.number_of_nodes() == 0:
+    if G_pos.number_of_edges() == 0:
         return 0.0
-        
+    
     try:
-        # Use the community module
-        import community as community_louvain
-        partition = community_louvain.best_partition(G, resolution=resolution)
-        modularity = community_louvain.modularity(partition, G)
+        partition = community.best_partition(G_pos, resolution=resolution)
+        modularity = community.modularity(partition, G_pos, resolution=resolution)
         return float(modularity)
-    except ImportError:
-        logger.warning("python-louvain not installed. Using networkx approximation or fallback.")
-        # Fallback if community is not installed: networkx has a simple modularity function
-        # but it requires a partition. We can try to generate one or return 0.
-        # For robustness, we raise an error if the preferred library is missing.
-        raise RuntimeError("The 'community' (python-louvain) package is required for modularity calculation.")
     except Exception as e:
-        logger.error(f"Error computing modularity: {e}")
-        return 0.0
+        logger.error(f"Error computing modularity with resolution {resolution}: {e}")
+        raise
 
 def compute_modularity_with_resolution_sweep(corr_matrix: np.ndarray, 
-                                             resolutions: Optional[List[float]] = None) -> Dict[str, float]:
+                                             min_res: float = 0.5, 
+                                             max_res: float = 2.0, 
+                                             steps: int = 10) -> Tuple[float, float]:
     """
-    Computes modularity across a range of resolution parameters to find stability.
-    Returns a dictionary mapping resolution to modularity score.
-    If the best partition cannot be found for a resolution, it skips that one.
+    Implements modularity calculation with a resolution parameter sweep fallback.
+    If the default resolution (1.0) fails or yields suboptimal results, it sweeps
+    across a range.
     
-    Args:
-        corr_matrix: Correlation matrix.
-        resolutions: List of resolution parameters to test. Defaults to [0.5, 1.0, 1.5, 2.0].
-        
-    Returns:
-        Dict: {resolution: modularity_score}
+    Returns: (best_modularity, best_resolution)
     """
-    if resolutions is None:
-        resolutions = [0.5, 1.0, 1.5, 2.0]
+    if not HAS_COMMUNITY:
+        raise RuntimeError("The 'community' (python-louvain) package is required for modularity calculation.")
     
-    results = {}
+    best_mod = -1.0
+    best_res = 1.0
+    
+    # Define the resolution range
+    resolutions = np.linspace(min_res, max_res, steps)
+    
     for res in resolutions:
         try:
             mod = compute_modularity_louvain(corr_matrix, resolution=res)
-            results[f"res_{res}"] = mod
+            if mod > best_mod:
+                best_mod = mod
+                best_res = res
         except Exception as e:
-            logger.warning(f"Failed to compute modularity for resolution {res}: {e}")
-            results[f"res_{res}"] = None
+            logger.warning(f"Failed at resolution {res}: {e}")
+            continue
     
-    return results
+    if best_mod < 0:
+        # If all failed, return 0
+        return 0.0, 1.0
+    
+    return best_mod, best_res
 
-def compute_graph_metrics(subject_id: str, corr_matrix: np.ndarray) -> Dict[str, Any]:
+def compute_graph_metrics(subject_data: Dict[str, Any], corr_matrix: np.ndarray) -> Dict[str, float]:
     """
     Computes all graph metrics for a subject.
     """
-    metrics = {
-        "subject_id": subject_id,
-        "global_efficiency": compute_global_efficiency(corr_matrix),
-        "clustering_coefficient": compute_clustering_coefficient(corr_matrix),
-        "modularity_louvain_res1": compute_modularity_louvain(corr_matrix, resolution=1.0),
-        "modularity_sweep": compute_modularity_with_resolution_sweep(corr_matrix)
-    }
+    metrics = {}
+    
+    # Global Efficiency
+    try:
+        metrics['global_efficiency'] = compute_global_efficiency(corr_matrix)
+    except Exception as e:
+        logger.error(f"Failed to compute global efficiency: {e}")
+        metrics['global_efficiency'] = 0.0
+    
+    # Clustering Coefficient
+    try:
+        metrics['clustering_coefficient'] = compute_clustering_coefficient(corr_matrix)
+    except Exception as e:
+        logger.error(f"Failed to compute clustering coefficient: {e}")
+        metrics['clustering_coefficient'] = 0.0
+    
+    # Modularity with Resolution Sweep (T025 implementation)
+    try:
+        mod_val, res_val = compute_modularity_with_resolution_sweep(corr_matrix)
+        metrics['modularity_louvain'] = mod_val
+        metrics['modularity_resolution'] = res_val
+    except Exception as e:
+        logger.error(f"Failed to compute modularity: {e}")
+        metrics['modularity_louvain'] = 0.0
+        metrics['modularity_resolution'] = 1.0
+    
     return metrics
 
-def write_validation_log(metrics: List[Dict[str, Any]], log_path: Path) -> None:
+def write_validation_log(anomalies: List[Dict[str, Any]], log_path: str):
     """
-    Writes validation logs for graph metrics.
+    Writes validation anomalies to a log file.
     """
     with open(log_path, 'w') as f:
-        for m in metrics:
-            f.write(json.dumps(m) + '\n')
+        json.dump(anomalies, f, indent=2)
 
 def main():
     """
-    Main entry point for running graph metrics computation.
-    This script will:
-    1. Load preprocessed subjects (or mock data if none exist).
-    2. Generate or load correlation matrices.
-    3. Compute modularity and other metrics.
-    4. Save results to data/processed/graph_metrics.csv (aggregated later)
-       and logs for modularity verification.
+    Main entry point for the graph metrics pipeline.
+    Expects:
+      --input: directory with preprocessed time series
+      --atlas: name of atlas (e.g., Schaefer200)
+      --output: output CSV path
     """
-    logger.info("Starting Graph Metrics Computation (Modularity Focus)")
+    parser = argparse.ArgumentParser(description="Compute graph metrics from preprocessed fMRI data.")
+    parser.add_argument("--input", required=True, help="Directory containing preprocessed time series")
+    parser.add_argument("--atlas", default="Schaefer200", help="Atlas name")
+    parser.add_argument("--output", required=True, help="Output CSV path")
+    args = parser.parse_args()
     
-    # Ensure output directories exist
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    
-    subjects = load_preprocessed_subjects()
-    
-    # If no real subjects found, we MUST create a mock scenario to verify the code works
-    # as per the task requirement: "Run the script on a mock matrix"
+    # 1. Load subjects
+    subjects = load_preprocessed_subjects(args.input)
     if not subjects:
-        logger.info("No preprocessed subjects found. Generating mock data for verification.")
-        subjects = ["sub-mock-001"]
-        # Create a mock directory structure
-        sub_dir = PROCESSED_DIR / subjects[0]
-        sub_dir.mkdir(exist_ok=True)
-        # We don't need a real NIfTI if we are mocking the matrix directly in the logic below
-        # But to be consistent with the pipeline, we might create a dummy file or just skip loading.
-        # The task says "Run the script on a mock matrix", so we will simulate the matrix generation.
+        logger.error("No subjects found in input directory.")
+        sys.exit(1)
+    
+    # 2. Load Atlas (if needed for parcellation, but here we assume time series are already parcellated)
+    # If the input is voxel-wise, we would need to apply the atlas here.
+    # Assuming input is already parcellated time series (N_regions, T).
     
     all_metrics = []
     
-    for sub in subjects:
-        logger.info(f"Processing {sub}")
-        
-        # Simulate time series or load real one
-        # For this task, we will generate a random correlation matrix if real data is missing
-        # to ensure the modularity function is tested.
-        # In a real run, we would extract time series from the NIfTI.
-        
-        # Mock Time Series: 200 ROIs, 200 time points
-        np.random.seed(42) # Reproducibility
-        n_rois = 200
-        n_timepoints = 200
-        mock_ts = np.random.randn(n_rois, n_timepoints)
-        
-        # Generate correlation matrix
-        corr_mat = generate_correlation_matrix(mock_ts)
-        
-        # Compute metrics
-        metrics = compute_graph_metrics(sub, corr_mat)
-        all_metrics.append(metrics)
-        
-        logger.info(f"  Modularity (res=1.0): {metrics['modularity_louvain_res1']}")
+    for subj in subjects:
+        logger.info(f"Processing subject: {subj['subject_id']}")
+        try:
+            # Load time series
+            ts_path = subj['time_series_path']
+            if ts_path.endswith('.npy'):
+                ts = np.load(ts_path)
+            elif ts_path.endswith('.csv'):
+                ts = np.loadtxt(ts_path, delimiter=',')
+            else:
+                continue
+            
+            # Generate Correlation Matrix
+            corr_mat = generate_correlation_matrix(ts)
+            
+            # Compute Metrics
+            metrics = compute_graph_metrics(subj, corr_mat)
+            metrics['subject_id'] = subj['subject_id']
+            all_metrics.append(metrics)
+            
+        except Exception as e:
+            logger.error(f"Error processing subject {subj['subject_id']}: {e}")
+            continue
     
-    # Save results to a temporary JSON for verification
-    output_file = PROCESSED_DIR / "graph_metrics_raw.json"
-    with open(output_file, 'w') as f:
-        json.dump(all_metrics, f, indent=2)
+    # 3. Write Output
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Graph metrics saved to {output_file}")
-    
-    # Verify modularity score is generated (not None)
-    for m in all_metrics:
-        if m.get('modularity_louvain_res1') is None:
-            logger.error(f"Modularity score is None for {m['subject_id']}")
-            sys.exit(1)
-    
-    logger.info("Modularity calculation successful for all subjects.")
+    if all_metrics:
+        keys = all_metrics[0].keys()
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=keys)
+            writer.writeheader()
+            writer.writerows(all_metrics)
+        logger.info(f"Metrics written to {output_path}")
+    else:
+        logger.warning("No metrics computed. Output file not created.")
 
 if __name__ == "__main__":
     main()

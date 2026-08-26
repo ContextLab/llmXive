@@ -24,6 +24,12 @@ T025:
   r: The required output file `data/processed/graph_metrics.csv` does not exist, so
     the aggregation step has not been delivered. No artifact can be inspected to verify
     correct columns or content.
+T026:
+  c: false
+  h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2
+  r: The required file `data/processed/graph_metrics.csv` does not exist, so the aggregation
+    of graph metrics into the specified CSV with the required columns cannot be verified.
+    The task remains unfinished.
 T032:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2
