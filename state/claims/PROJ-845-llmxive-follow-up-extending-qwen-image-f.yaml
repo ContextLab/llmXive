@@ -1954,3 +1954,442 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T15:53:05Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 0
+  canonical: convergence loss threshold 0.1
+  claim_id: c_aca63b2c
+  context: Early stopping when loss <= 0.1, logging of convergence_epoch.
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: loss <= 0.1
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T09:12:56Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: torch version 2.3.0 cpu
+  claim_id: c_b629a8f2
+  context: requirements.txt containing pinned versions of torch==2.3.0+cpu, transformers==4.41.2,
+    scikit-learn, scipy, pandas, numpy, pyyaml, python-sat.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.3.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:13:15Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: transformers version 4.41.2
+  claim_id: c_8d28afc6
+  context: requirements.txt containing pinned versions of torch==2.3.0+cpu, transformers==4.41.2,
+    scikit-learn, scipy, pandas, numpy, pyyaml, python-sat.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.41.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:13:31Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: default seed value 42
+  claim_id: c_10fdfac7
+  context: 'Config dataclass containing seed: int = 42, max_ram_gb: float = 7.0, max_runtime_hours:
+    float = 6.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'seed: int = 42'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:14:08Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: maximum RAM limit 7.0 GB
+  claim_id: c_635a81e4
+  context: 'Config dataclass containing seed: int = 42, max_ram_gb: float = 7.0, max_runtime_hours:
+    float = 6.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'max_ram_gb: float = 7.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:14:36Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: maximum runtime limit 6.0 hours
+  claim_id: c_ac418629
+  context: 'Config dataclass containing seed: int = 42, max_ram_gb: float = 7.0, max_runtime_hours:
+    float = 6.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'max_runtime_hours: float = 6.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:15:05Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: target sample size 1000 per subset
+  claim_id: c_5f6fdf9a
+  context: calculate the statistical power of the planned ANOVA and t-tests given
+    the target sample sizes (N=1000 per subset, N_test=500) and an assumed effect
+    size (e.g., Cohen's f = 0.25).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=1000 per subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:15:19Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: target test set size 500
+  claim_id: c_32dad93f
+  context: calculate the statistical power of the planned ANOVA and t-tests given
+    the target sample sizes (N=1000 per subset, N_test=500) and an assumed effect
+    size (e.g., Cohen's f = 0.25).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N_test=500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:15:53Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: assumed effect size Cohen's f 0.25
+  claim_id: c_d594de7f
+  context: calculate the statistical power of the planned ANOVA and t-tests given
+    the target sample sizes (N=1000 per subset, N_test=500) and an assumed effect
+    size (e.g., Cohen's f = 0.25).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen's f = 0.25
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:16:42Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: statistical power threshold 0.80
+  claim_id: c_1230fb6a
+  context: If the power is < 0.80, this task MUST trigger T066-ADJUST.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power < 0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:16:42Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: minimum generalization set size 500
+  claim_id: c_2f59e3d0
+  context: Implement generate_generalization_set() in code/generators/logic_generator.py
+    to produce N_test >= 500 problems.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N_test >= 500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:16:43Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: low entropy pattern threshold 3 operators
+  claim_id: c_fa09fd7b
+  context: 'If operator_count < 3: Use Pattern A (Low Entropy).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: operator_count < 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:16:43Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: low entropy probability distribution 0.8 0.15 0.05
+  claim_id: c_aafa1066
+  context: Pattern A uses a fixed sequence of operators (e.g., ["AND", "OR", "NOT"])
+    with a deterministic probability distribution (e.g., probs = [, 0.15, 0.05]).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: probs = [0.8, 0.15, 0.05]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:17:27Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: high entropy probability distribution 0.33 0.33 0.33
+  claim_id: c_1e2f92e5
+  context: Pattern B uses a randomized operator selection with uniform probability
+    (e.g., probs = [0.33, 0.33, 0.33]).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: probs = [0.33, 0.33, 0.33]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:17:28Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: student model parameter count less than 100 million
+  claim_id: c_d3f2db01
+  context: Create code/models/student.py defining a DistilBERT-base-uncased-like transformer
+    (< 100 M parameters) suitable for CPU inference.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Student_model_parameter_count_less_than_100_million
+  kind: magnitude
+  raw_text: DistilBERT-base-uncased-like transformer (< 100 M parameters)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:19:15Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: RAM usage constraint 7 GB
+  claim_id: c_6db40f9b
+  context: Execute a CPU-only distillation process where a <100 M-parameter student
+    model learns from teacher traces, strictly adhering to hardware constraints (RAM
+    < 7 GB).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM < 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:19:16Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: low entropy trace threshold 0.3
+  claim_id: c_af1baaee
+  context: Verify that trace entropy for Low-Entropy problems is < 0.3 and for High-Entropy
+    problems is > 0.7 based on FR-009 definitions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: trace entropy for Low-Entropy problems is < 0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:19:16Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: high entropy trace threshold 0.7
+  claim_id: c_71650e3a
+  context: Verify that trace entropy for Low-Entropy problems is < 0.3 and for High-Entropy
+    problems is > 0.7 based on FR-009 definitions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: trace entropy for High-Entropy problems is > 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:19:17Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: learning rate 0.0001
+  claim_id: c_e5e51b6f
+  context: 'Configuration: Optimizer=Adam, Learning Rate=1e-4, Batch Size=16, Early
+    Stopping (patience=3, min_delta=1e-4), no mixed-precision.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Learning Rate=1e-4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:19:36Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: batch size 16
+  claim_id: c_18c90434
+  context: 'Configuration: Optimizer=Adam, Learning Rate=1e-4, Batch Size=16, Early
+    Stopping (patience=3, min_delta=1e-4), no mixed-precision.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 1 4 16 64 256 1024 4096
+      source_id: '2507.07101'
+      url: https://arxiv.org/abs/2507.07101
+      value: '16'
+    filled: true
+  kind: numeric
+  raw_text: Batch Size=16
+  resolved_value: '16'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T09:20:06Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: early stopping patience 3
+  claim_id: c_205d3b17
+  context: 'Configuration: Optimizer=Adam, Learning Rate=1e-4, Batch Size=16, Early
+    Stopping (patience=3, min_delta=1e-4), no mixed-precision.'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: patience=3
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T09:20:11Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: early stopping min delta 0.0001
+  claim_id: c_de5eeaf5
+  context: 'Configuration: Optimizer=Adam, Learning Rate=1e-4, Batch Size=16, Early
+    Stopping (patience=3, min_delta=1e-4), no mixed-precision.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: min_delta=1e-4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:20:42Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: maximum total runtime 6 hours
+  claim_id: c_cc37f79e
+  context: Run quickstart.md validation and end-to-end pipeline test on GitHub Actions
+    free-tier runner; ensure total wall-clock time < 6 h and RAM < 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: total wall-clock time < 6 h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:20:43Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: training subset size constant 1000
+  claim_id: c_822d6afa
+  context: Update code/config.py to define explicit constants N_TRAIN_PER_SUBSET =
+    1000 and N_TEST_SET = 500
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N_TRAIN_PER_SUBSET = 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:21:18Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: test set size constant 500
+  claim_id: c_2003ad43
+  context: Update code/config.py to define explicit constants N_TRAIN_PER_SUBSET =
+    1000 and N_TEST_SET = 500
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N_TEST_SET = 500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:21:54Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/specs/001-llmxive-follow-up-extending-qwen-image-f/tasks.md
+  attempts: 1
+  canonical: causal claim threshold corrected p-value 0.05
+  claim_id: c_69d37764
+  context: 'IF corrected_p_value < 0.05: State "Findings are causal regarding the
+    effect of entropy on performance within the synthetic domain."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: corrected_p_value < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T09:21:55Z'

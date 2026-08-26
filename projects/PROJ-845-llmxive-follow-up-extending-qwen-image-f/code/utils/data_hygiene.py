@@ -120,7 +120,9 @@ def main():
     
     if not existing_files:
         logger.warning("No CSV files found in data/raw/. Did the generator run?")
-        return
+        # We still raise to ensure the pipeline fails if data is missing,
+        # as per the "Fail loudly" constraint.
+        raise FileNotFoundError("No dataset CSV files found in data/raw/. Prerequisite generation tasks must complete first.")
         
     logger.info(f"Found {len(existing_files)} CSV files to checksum.")
     

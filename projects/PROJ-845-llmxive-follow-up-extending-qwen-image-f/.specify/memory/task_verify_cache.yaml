@@ -1,3 +1,11 @@
+T023:
+  c: false
+  h: 6c99be1600a4d56f683cff876e78d5c8e77388be47dc6a2fa0dd0711acbeba7c
+  r: "The required input file `data/processed/filtered_dataset.json` does not exist,\
+    \ and the provided `distill_loop.py` is truncated and lacks a complete training\
+    \ loop with KL\u2011divergence loss, Adam optimizer at 1e\u20114, and the specified\
+    \ early\u2011stopping logic (loss \u2264\u202F0.1, logging `convergence_epoch`).\
+    \ These missing pieces prevent the task from being fulfilled."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
