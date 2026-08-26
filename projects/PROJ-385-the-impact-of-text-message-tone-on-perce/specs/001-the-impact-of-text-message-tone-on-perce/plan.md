@@ -23,7 +23,7 @@ The project must (1) generate a fully crossed stimulus set varying emoji count, 
 **Project Type**: Research pipeline (CLI scripts + notebooks)  
 **Performance Goals**: Full end‑to‑end run ≤ 6 h, ≤ 7 GB RAM, ≤ 14 GB disk  
 **Constraints**: CPU‑only; no GPU or CUDA usage (Principle VII)  
-**Scale/Scope**: 60 participants × multiple relationship contexts × fully crossed stimulus variants → a modest number of rating rows well within limits.
+**Scale/Scope**: A diverse cohort of participants across multiple relationship contexts and fully crossed stimulus variants → a modest number of rating rows well within limits.
 
 ## Constitution Check
 | Principle | Check |

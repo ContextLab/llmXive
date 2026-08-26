@@ -1,19 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Stimulus Schema
+description: >
+  Schema for validating the generated stimuli CSV file (data/raw/stimuli.csv).
+  Ensures all required columns exist with correct types and constraints.
 type: object
 properties:
   id:
-    type: integer
+    type: string
+    description: Unique identifier for the stimulus
+    pattern: "^stim_[0-9]+$"
   text:
     type: string
+    description: The actual text message content
+    minLength: 1
   emoji_count:
     type: integer
+    description: Number of emojis in the text
+    minimum: 0
   punctuation_type:
     type: string
+    description: Type of ending punctuation used
+    enum:
+      - period
+      - exclamation
+      - question
+      - none
   length_category:
     type: string
+    description: Categorization of message length
+    enum:
+      - short
+      - medium
+      - long
   scenario_id:
-    type: integer
+    type: string
+    description: ID of the scenario this stimulus belongs to
+    pattern: "^scn_[0-9]+$"
   cue_intensity:
     type: number
+    description: Calculated cue intensity score
+    minimum: 0.0
+    maximum: 1.0
 required:
   - id
   - text
@@ -22,3 +49,4 @@ required:
   - length_category
   - scenario_id
   - cue_intensity
+additionalProperties: false

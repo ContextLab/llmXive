@@ -1,149 +1,248 @@
-#!/usr/bin/env python
 """
-Simulation‑based power analysis for the Linear Mixed Model (LMM).
+run_power_analysis.py
+---------------------
 
-This script generates a large number of synthetic datasets, fits the LMM to each,
-and estimates statistical power for detecting the interaction of interest.
-The results are written to ``data/processed/power_analysis_results.json`` and
-contain the fields ``estimated_power`` (float) and ``target_N`` (int).
+This script performs a simulation‑based power analysis for the linear mixed‑effects
+model (LMM) used in the project.  It generates synthetic datasets for a range of
+sample sizes (number of participants), fits a mixed‑effects model to each dataset,
+and estimates the statistical power to detect the interaction between cue intensity
+and relationship context.
 
-The implementation re‑uses the simulation and modelling utilities defined in
-``code/09_power_analysis.py``. Because module names that start with a digit
-cannot be imported via the normal ``import`` syntax, the module is loaded
-dynamically with ``importlib``.
+The resulting JSON file, written to ``data/processed/power_analysis_results.json``,
+contains three keys required by the verification step:
+
+* ``estimated_power`` – the estimated power at the *target* sample size.
+* ``target_N`` – the smallest number of participants that achieves at least
+  80 % power (the conventional threshold).
+* ``method`` – a short description of the approach used.
+
+The script can be executed directly::
+
+    $ python code/run_power_analysis.py
+
+It relies only on the project's public API (``config``) and on standard scientific
+Python libraries that are already declared in ``code/requirements.txt``.
 """
 
 import json
 import logging
 from pathlib import Path
-import importlib.util
+from typing import Dict, List
+
 import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
 
 # Project utilities
 from config import get_processed_data_dir
 
 # ----------------------------------------------------------------------
-# Helper to load a module whose filename begins with a digit
-# ----------------------------------------------------------------------
-def _load_numeric_module(module_filename: str):
-    """
-    Load a Python module whose file name starts with a digit (e.g. ``09_power_analysis.py``).
-
-    Returns the loaded module object.
-    """
-    module_path = Path(__file__).with_name(module_filename)
-    spec = importlib.util.spec_from_file_location(module_filename.rstrip(".py"), module_path)
-    if spec is None or spec.loader is None:
-        raise ImportError(f"Cannot load module from {module_path}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-# Load the power‑analysis utilities
-_pa_mod = _load_numeric_module("09_power_analysis.py")
-simulate_data = getattr(_pa_mod, "simulate_data")
-run_lmm = getattr(_pa_mod, "run_lmm")
-# Optional helpers – use if they exist, otherwise fall back to simple logic
-estimate_power = getattr(_pa_mod, "estimate_power", None)
-find_required_n = getattr(_pa_mod, "find_required_n", None)
-
-# ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-N_SIMULATIONS = 2000          # number of synthetic datasets to generate
-ALPHA = 0.05                  # significance threshold
-TARGET_POWER = 0.80           # desired power
+LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+logger = logging.getLogger(__name__)
+
+# Desired power threshold and significance level
+POWER_TARGET = 0.80
+ALPHA = 0.05
+
+# Simulation parameters
+MIN_PARTICIPANTS = 40          # inclusive lower bound
+MAX_PARTICIPANTS = 120         # inclusive upper bound
+STEP_PARTICIPANTS = 10
+REPS_PER_N = 300               # number of simulated datasets per N
 RANDOM_SEED = 42
 
-np.random.seed(RANDOM_SEED)
+# Fixed effect coefficients (chosen to reflect a medium effect size)
+BETA_INTERCEPT = 3.0
+BETA_CUE = 0.5                 # main effect of cue intensity
+BETA_CONTEXT = 0.3             # main effect of relationship context (binary)
+BETA_INTERACTION = 0.4         # interaction we aim to detect
+
+# Number of observations per participant (stimuli)
+TRIALS_PER_PARTICIPANT = 20
 
 # ----------------------------------------------------------------------
-# Main analysis
+# Helper functions
+# ----------------------------------------------------------------------
+
+
+def simulate_dataset(num_participants: int, rng: np.random.Generator) -> pd.DataFrame:
+    """
+    Simulate a single dataset for ``num_participants`` participants.
+
+    Returns a ``pandas.DataFrame`` with columns:
+        - participant_id : int
+        - cue_intensity   : float (continuous, centred)
+        - context         : int   (0 = friend, 1 = acquaintance)
+        - rating          : float (dependent variable)
+    """
+    rows: List[Dict] = []
+
+    # Random intercept for each participant
+    participant_intercepts = rng.normal(loc=0.0, scale=0.5, size=num_participants)
+
+    for pid in range(num_participants):
+        intercept = participant_intercepts[pid]
+
+        # Generate cue intensity values (standardised)
+        cue = rng.normal(loc=0.0, scale=1.0, size=TRIALS_PER_PARTICIPANT)
+
+        # Randomly assign context (binary)
+        context = rng.integers(low=0, high=2, size=TRIALS_PER_PARTICIPANT)
+
+        # Linear predictor
+        mu = (
+            BETA_INTERCEPT
+            + intercept
+            + BETA_CUE * cue
+            + BETA_CONTEXT * context
+            + BETA_INTERACTION * cue * context
+        )
+
+        # Add residual noise
+        rating = mu + rng.normal(loc=0.0, scale=1.0, size=TRIALS_PER_PARTICIPANT)
+
+        for c, ctx, r in zip(cue, context, rating):
+            rows.append(
+                {
+                    "participant_id": pid,
+                    "cue_intensity": c,
+                    "context": ctx,
+                    "rating": r,
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def fit_lmm(df: pd.DataFrame) -> float:
+    """
+    Fit a mixed‑effects model with a random intercept for participant
+    and return the two‑sided p‑value for the interaction term
+    (cue_intensity:context).
+
+    The model formula is:
+
+        rating ~ cue_intensity * context + (1 | participant_id)
+
+    Returns:
+        p_value (float) – p‑value for the interaction term.
+    """
+    # Convert context to categorical for proper interaction handling
+    df = df.copy()
+    df["context"] = df["context"].astype("category")
+
+    # Using statsmodels' mixed linear model via formula API
+    model = smf.mixedlm(
+        "rating ~ cue_intensity * context",
+        df,
+        groups=df["participant_id"],
+    )
+    result = model.fit(reml=False)  # use ML for Wald tests
+
+    # The interaction term appears as 'cue_intensity:context[T.1]' in the params
+    term_name = "cue_intensity:context[T.1]"
+    if term_name not in result.pvalues:
+        raise KeyError(f"Interaction term '{term_name}' not found in model results.")
+
+    return float(result.pvalues[term_name])
+
+
+def estimate_power_for_n(num_participants: int, rng: np.random.Generator) -> float:
+    """
+    Estimate statistical power for a given number of participants by
+    simulating ``REPS_PER_N`` datasets and fitting the model to each.
+
+    Power is defined as the proportion of simulations where the interaction
+    p‑value is below ``ALPHA``.
+    """
+    significant = 0
+    for _ in range(REPS_PER_N):
+        df = simulate_dataset(num_participants, rng)
+        p_val = fit_lmm(df)
+        if p_val < ALPHA:
+            significant += 1
+    power = significant / REPS_PER_N
+    logger.debug(
+        "N=%d → power=%.3f (based on %d reps)", num_participants, power, REPS_PER_N
+    )
+    return power
+
+
+def perform_power_analysis() -> Dict:
+    """
+    Run the full power analysis across a range of sample sizes and
+    return a dictionary ready for JSON serialisation.
+
+    The dictionary contains:
+        - estimated_power : power at the discovered target N
+        - target_N        : smallest N achieving POWER_TARGET
+        - method          : description string
+    """
+    rng = np.random.default_rng(RANDOM_SEED)
+
+    # Scan sample sizes in ascending order
+    target_n = None
+    estimated_power_at_target = None
+
+    for n in range(MIN_PARTICIPANTS, MAX_PARTICIPANTS + 1, STEP_PARTICIPANTS):
+        power = estimate_power_for_n(n, rng)
+        if power >= POWER_TARGET:
+            target_n = n
+            estimated_power_at_target = power
+            logger.info(
+                "Achieved target power (%.2f) at N=%d with estimated power %.3f",
+                POWER_TARGET,
+                n,
+                power,
+            )
+            break
+        else:
+            logger.info(
+                "N=%d → power=%.3f (below target %.2f)", n, power, POWER_TARGET
+            )
+
+    # Fallback: if never reached the target, report the highest N examined
+    if target_n is None:
+        target_n = MAX_PARTICIPANTS
+        estimated_power_at_target = estimate_power_for_n(target_n, rng)
+        logger.warning(
+            "Target power %.2f not reached; using max N=%d with power %.3f",
+            POWER_TARGET,
+            target_n,
+            estimated_power_at_target,
+        )
+
+    results = {
+        "estimated_power": round(estimated_power_at_target, 3),
+        "target_N": target_n,
+        "method": "simulation (mixed effects model, Wald test)",
+    }
+    return results
+
+
+# ----------------------------------------------------------------------
+# Main entry point
 # ----------------------------------------------------------------------
 def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    logger = logging.getLogger(__name__)
-
-    logger.info("Starting simulation‑based power analysis")
-    logger.info(f"Generating {N_SIMULATIONS:,} synthetic datasets")
-
-    p_values = []
-    for i in range(N_SIMULATIONS):
-        # 1. Simulate a synthetic dataset
-        synthetic_df = simulate_data()
-        # 2. Fit the LMM and obtain a result dictionary
-        result = run_lmm(synthetic_df)
-
-        # The LMM helper is expected to return a mapping that contains the
-        # p‑value for the interaction term.  The exact key name varies across
-        # implementations; we try a few common possibilities.
-        p_val = (
-            result.get("p_value_interaction")
-            or result.get("interaction_p")
-            or result.get("p_value")
-        )
-        if p_val is None:
-            raise KeyError("LMM result does not contain a p‑value for the interaction term")
-        p_values.append(p_val)
-
-        if (i + 1) % 200 == 0:
-            logger.info(f"Processed {i + 1:,} simulations")
-
-    # ------------------------------------------------------------------
-    # Estimate empirical power
-    # ------------------------------------------------------------------
-    significant = [p < ALPHA for p in p_values]
-    estimated_power = np.mean(significant)
-    logger.info(f"Estimated power (α={ALPHA}): {estimated_power:.4f}")
-
-    # ------------------------------------------------------------------
-    # Determine required sample size (target_N)
-    # ------------------------------------------------------------------
-    if find_required_n is not None:
-        # The helper is expected to accept the desired power and the current
-        # estimated power (or effect size) and return an integer N.
-        try:
-            target_N = find_required_n(target_power=TARGET_POWER, current_power=estimated_power)
-        except Exception as exc:  # pragma: no cover
-            logger.warning(
-                "find_required_n raised an exception (%s); falling back to simple scaling", exc
-            )
-            target_N = None
-    else:
-        target_N = None
-
-    if target_N is None:
-        # Simple proportional scaling as a fallback:
-        #   power ∝ sqrt(N)  →  N_target = N_current * (target_power / estimated_power)^2
-        # We approximate N_current as the number of participants used in the
-        # simulation.  The simulation function does not expose this directly, so
-        # we assume a default of 80 participants (the typical size for the study).
-        N_current = 80
-        if estimated_power == 0:
-            target_N = int(1e6)  # arbitrarily large if power is zero
-        else:
-            target_N = int(np.ceil(N_current * (TARGET_POWER / estimated_power) ** 2))
-        logger.info(
-            "Target N estimated via proportional scaling (fallback): %d", target_N
-        )
-    else:
-        logger.info("Target N estimated via find_required_n helper: %d", target_N)
-
-    # ------------------------------------------------------------------
-    # Persist results
-    # ------------------------------------------------------------------
-    results = {
-        "estimated_power": float(estimated_power),
-        "target_N": int(target_N),
-        "num_simulations": N_SIMULATIONS,
-        "significant_fraction": float(np.mean(significant)),
-    }
-
-    processed_dir = get_processed_data_dir()
+    """
+    Execute the power analysis and write the JSON results to the processed
+    data directory.
+    """
+    processed_dir: Path = get_processed_data_dir()
     processed_dir.mkdir(parents=True, exist_ok=True)
-    out_path = processed_dir / "power_analysis_results.json"
-    out_path.write_text(json.dumps(results, indent=2))
-    logger.info("Power analysis results written to %s", out_path)
+
+    output_path = processed_dir / "power_analysis_results.json"
+
+    logger.info("Starting simulation‑based power analysis...")
+    results = perform_power_analysis()
+
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
+
+    logger.info("Power analysis completed. Results written to %s", output_path)
+
 
 if __name__ == "__main__":
     main()

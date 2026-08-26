@@ -2222,3 +2222,368 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T18:37:12Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: estimated_power >= 0.80
+  claim_id: c_95eb671a
+  context: Validation step T091-Check runs a script that exits with error if estimated_power
+    < 0.80.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/estimated_power_%3E=_0.80
+  kind: magnitude
+  raw_text: The power analysis results must have an estimated_power of at least 0.80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T13:59:11Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: target_N >= 60
+  claim_id: c_b60c6217
+  context: Validation step T091-Check runs a script that exits with error if target_N
+    < 60.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/target_N_%3E=_60
+  kind: magnitude
+  raw_text: The power analysis results must have a target_N of at least 60 participants.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:00:01Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: real_ratings N >= 60
+  claim_id: c_99673ba5
+  context: "Automated verification T015b-VerifyData checks that data/raw/real_ratings.csv\
+    \ has N\u226560 unique participants."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/real_ratings_N_%3E=_60
+  kind: magnitude
+  raw_text: The real ratings dataset must contain at least 60 unique participants.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:00:26Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: benchmark runtime <= 21600 seconds
+  claim_id: c_9e669b21
+  context: Benchmark task T058 fails if total_duration_seconds > 21600.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/benchmark_runtime_%3C=_21600_seconds
+  kind: magnitude
+  raw_text: The benchmark full pipeline must complete in no more than 21600 seconds
+    (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:00:54Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: pipeline runtime <= 6 hours
+  claim_id: c_8a2e5bb5
+  context: "Phase N+2 documentation states the pipeline must complete \u2264\u202F\
+    6\u202Fhours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline overall must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:01:15Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: stimulus variance component < 0.001 triggers warning
+  claim_id: c_16648470
+  context: Task T023a logs a warning if stimulus variance component <0.001.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/stimulus_variance_component_%3C_0.001_triggers_warning
+  kind: magnitude
+  raw_text: A stimulus variance component less than 0.001 triggers a warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:01:57Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: df_Satterthwaite > 0
+  claim_id: c_2bc14897
+  context: Test T021b-Verify asserts that df_Satterthwaite > 0 in the Satterthwaite
+    summary file.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/df_Satterthwaite_%3E_0
+  kind: magnitude
+  raw_text: The Satterthwaite LMM summary must contain a df_Satterthwaite value greater
+    than 0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:02:34Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: 0 < p-value < 1
+  claim_id: c_b56a2ffa
+  context: "Test T021b-Verify checks that p\u2011values are plausible (0 < p < 1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Satterthwaite LMM p-values must be between 0 and 1 (exclusive).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:02:54Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis executes three LMM runs
+  claim_id: c_4d4c38ef
+  context: "Task T028 re\u2011executes the LMM for each of the three cue\u2011intensity\
+    \ definitions."
+  evidence:
+    entailment_evidence: Sensitivity analysis executes three LMM runs
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_executes_three_LMM_runs
+  kind: entity_fact
+  raw_text: "The sensitivity analysis runs the LMM three times (for Equal, Emoji\u2011\
+    Dominant, and Punctuation\u2011Dominant cue\u2011intensity schemes)."
+  resolved_value: sensitivity analysis executes three LMM runs
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T14:02:57Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "real ratings dataset has \u2265 60 unique participants"
+  claim_id: c_7fa02acc
+  context: "Automated verification step T015b-VerifyData checks that data/raw/real_ratings.csv\
+    \ includes N\u226560 unique participants."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_ratings_dataset_has_%E2%89%A5_60_unique_participants
+  kind: magnitude
+  raw_text: The real ratings dataset contains at least 60 unique participants.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:04:01Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "pipeline benchmark duration \u2264 21600 seconds"
+  claim_id: c_25d5e346
+  context: Benchmark task T058 runs the full pipeline in mock mode and fails if total_duration_seconds
+    > 21600.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_benchmark_duration_%E2%89%A4_21600_seconds
+  kind: magnitude
+  raw_text: The full pipeline benchmark duration must be less than or equal to 21600
+    seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:04:19Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: df_Satterthwaite > 0 and 0 < p < 1 in Satterthwaite LMM summary
+  claim_id: c_4436359c
+  context: Test T021b-Verify asserts that the Satterthwaite summary file has df_Satterthwaite
+    greater than zero and p-values within the (0,1) interval.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Satterthwaite LMM summary contains a positive degrees of freedom (df_Satterthwaite
+    > 0) and p-values between 0 and 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:04:39Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis executes three LMM runs
+  claim_id: c_6539a187
+  context: "Tasks T027 and T028 describe re\u2011executing the LMM for three weighting\
+    \ schemes and logging three runs."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_executes_three_LMM_runs
+  kind: entity_fact
+  raw_text: "The sensitivity analysis runs the LMM three times, once for each cue\
+    \ intensity weighting scheme (Equal, Emoji\u2011Dominant, Punctuation\u2011Dominant)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:05:10Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "identical SHA\u2011256 hashes across runs for analysis_results.json\
+    \ and sensitivity_report.md"
+  claim_id: c_0346dc9a
+  context: "Verification tasks T035 and T042 compare SHA\u2011256 hashes of the output\
+    \ files across two executions to confirm reproducibility."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Deterministic pipeline outputs produce identical SHA\u2011256 hashes\
+    \ for analysis_results.json and sensitivity_report.md across two runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:05:27Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: primary cue intensity weights emoji 0.4 punctuation 0.3 length 0.3
+  claim_id: c_1283465f
+  context: "JSON file defines four cue\u2011intensity weighting schemes with numeric\
+    \ weights."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Primary: {emoji: 0.4, punctuation: 0.3, length: 0.3}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:06:28Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: equal cue intensity weights emoji 0.33 punctuation 0.33 length 0.33
+  claim_id: c_bfb02585
+  context: "JSON file defines four cue\u2011intensity weighting schemes with numeric\
+    \ weights."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Equal: {emoji: 0.33, punctuation: 0.33, length: 0.33}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:06:46Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: punctuation dominant cue intensity weights emoji 0.2 punctuation 0.6
+    length 0.2
+  claim_id: c_2904723b
+  context: "JSON file defines four cue\u2011intensity weighting schemes with numeric\
+    \ weights."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Punctuation\u2011Dominant: {emoji: 0.2, punctuation: 0.6, length: 0.2}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:07:14Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: power analysis results JSON contains estimated_power target_N method
+    keys
+  claim_id: c_0ac50449
+  context: Power analysis results are written to data/processed/power_analysis_results.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_results_JSON_contains_estimated_power_target
+  kind: entity_fact
+  raw_text: JSON includes `estimated_power`, `target_N`, and `method`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:07:41Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: pipeline benchmark must not exceed 21600 seconds
+  claim_id: c_3a1f9c45
+  context: Benchmark full pipeline (`--benchmark --mode mock`) outputs total_duration_seconds
+    and fails if exceeds limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benchmark full pipeline fails if >21600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:07:41Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: pipeline must complete within 6 hours
+  claim_id: c_29c2329a
+  context: "Documentation states the pipeline must complete \u2264\u202F6\u202Fhours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "pipeline must complete \u2264\u202F6\u202Fhours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:08:07Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: lmm satterthwaite summary file contains df_Satterthwaite column
+  claim_id: c_0f2be022
+  context: Primary LMM script outputs data/results/lmm_summary_satterthwaite.csv and
+    verification checks column existence.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lmm_satterthwaite_summary_file_contains_df_Satterthwaite_col
+  kind: entity_fact
+  raw_text: File data/results/lmm_summary_satterthwaite.csv contains column df_Satterthwaite.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T14:08:32Z'

@@ -4,7 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T010a` (rejected 1x): The contract test file and `data/raw/stimuli.csv` exist, but the required `stimulus.schema.yaml` is missing, so the test cannot load the schema and will fail when run with pytest. The missing schema file must be added (and correctly referenced) for the task to be satisfied.
+- `T090` (rejected 1x): The required artifact `data/processed/cue_intensity_weights.json` does not exist, so the cue‑intensity weighting schemes have not been defined or stored as specified. The task therefore remains unfinished.
+- `T091` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/power_analysis_results.json
+- `T093` (rejected 1x): declared artifact(s) missing/empty/invalid: data/manifest.json
+- `T050` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/stimuli.csv, data/checksums.json
 
 ## Required change
 

@@ -1,0 +1,72 @@
+name: Check Real Data Presence
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  check-real-data:
+    name: Verify Real Ratings Data
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Check for real ratings file
+        id: check_file
+        run: |
+          FILE_PATH="data/raw/real_ratings.csv"
+          if [ ! -f "$FILE_PATH" ]; then
+            echo "file_exists=false" >> $GITHUB_OUTPUT
+            echo "::error::Real ratings file not found: $FILE_PATH"
+            echo "Pipeline ABORTED: Real data file 'data/raw/real_ratings.csv' is missing."
+            echo "This task requires real participant data. Please ensure data collection has been completed and the file is present."
+            exit 1
+          else
+            echo "file_exists=true" >> $GITHUB_OUTPUT
+            echo "Real ratings file found: $FILE_PATH"
+          fi
+
+      - name: Validate file is not empty
+        if: steps.check_file.outputs.file_exists == 'true'
+        run: |
+          FILE_PATH="data/raw/real_ratings.csv"
+          if [ ! -s "$FILE_PATH" ]; then
+            echo "::error::Real ratings file is empty: $FILE_PATH"
+            exit 1
+          fi
+          echo "File size check passed."
+
+      - name: Basic schema validation
+        if: steps.check_file.outputs.file_exists == 'true'
+        run: |
+          FILE_PATH="data/raw/real_ratings.csv"
+          # Check for required columns
+          REQUIRED_COLS="participant_id,stimulus_id,relationship_context,emotional_support_rating,cue_intensity"
+          HEADER=$(head -n 1 "$FILE_PATH")
+          
+          for col in $REQUIRED_COLS; do
+            if ! echo "$HEADER" | grep -q "$col"; then
+              echo "::error::Required column '$col' missing from $FILE_PATH"
+              exit 1
+            fi
+          done
+          echo "Schema validation passed."
+
+      - name: Success
+        if: success()
+        run: |
+          echo "Real data check passed. Pipeline can proceed."
