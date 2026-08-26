@@ -1,64 +1,64 @@
 import logging
 import sys
 from pathlib import Path
-
 from utils.logging import get_logger, configure_root_logger
 from utils.config import get_project_root
 
-
-def create_directories(logger: logging.Logger) -> None:
+def create_directories() -> None:
     """
-    Create the required directory structure for data storage.
+    Create and verify the required directory structure for the project.
     
-    This function creates:
+    Requirements:
     - data/raw/
     - data/processed/
+    - state/projects/
+    - state/pending/
     
-    Args:
-        logger: Logger instance for logging operations.
+    Verifies creation immediately after execution.
     """
+    logger = get_logger(__name__)
     project_root = get_project_root()
-    data_root = project_root / "data"
     
-    raw_dir = data_root / "raw"
-    processed_dir = data_root / "processed"
+    # Define the directories to create relative to project root
+    directories = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "state" / "projects",
+        project_root / "state" / "pending",
+    ]
     
-    # Create directories with exist_ok=True to avoid errors if they already exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Creating required directory structure...")
     
-    logger.info(f"Created directory: {raw_dir}")
-    logger.info(f"Created directory: {processed_dir}")
+    for directory in directories:
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created/verified directory: {directory}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {directory}: {e}")
+            raise
     
-    # Verification step as per requirements
-    assert raw_dir.is_dir(), f"Failed to create directory: {raw_dir}"
-    assert processed_dir.is_dir(), f"Failed to create directory: {processed_dir}"
+    # Verification step: Assert existence immediately
+    logger.info("Verifying directory creation...")
     
-    logger.info("Directory structure verification passed.")
+    assert project_root.joinpath("data", "raw").is_dir(), "Verification failed: data/raw does not exist"
+    assert project_root.joinpath("data", "processed").is_dir(), "Verification failed: data/processed does not exist"
+    assert project_root.joinpath("state", "projects").is_dir(), "Verification failed: state/projects does not exist"
+    assert project_root.joinpath("state", "pending").is_dir(), "Verification failed: state/pending does not exist"
+    
+    logger.info("All required directories verified successfully.")
 
-
-def main() -> int:
-    """
-    Main entry point for the directory creation script.
-    
-    Returns:
-        int: 0 on success, 1 on failure.
-    """
+def main() -> None:
+    """Entry point for directory setup script."""
     configure_root_logger()
     logger = get_logger(__name__)
     
     try:
-        logger.info("Starting directory creation process.")
-        create_directories(logger)
-        logger.info("Directory creation process completed successfully.")
-        return 0
-    except AssertionError as e:
-        logger.error(f"Directory verification failed: {e}")
-        return 1
+        create_directories()
+        logger.info("Directory setup completed successfully.")
+        sys.exit(0)
     except Exception as e:
-        logger.error(f"Unexpected error during directory creation: {e}")
-        return 1
-
+        logger.error(f"Directory setup failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

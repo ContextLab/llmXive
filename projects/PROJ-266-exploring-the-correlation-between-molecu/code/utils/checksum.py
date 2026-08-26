@@ -14,6 +14,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
+import yaml
+
 from utils.logging import get_logger
 from utils.config import get_project_root
 
@@ -79,8 +81,6 @@ def write_checksums_to_pending(checksums: List[Dict[str, Any]], pending_path: Pa
         checksums: List of checksum records.
         pending_path: Path to the pending checksums file.
     """
-    import yaml
-
     pending_path.parent.mkdir(parents=True, exist_ok=True)
 
     record = {

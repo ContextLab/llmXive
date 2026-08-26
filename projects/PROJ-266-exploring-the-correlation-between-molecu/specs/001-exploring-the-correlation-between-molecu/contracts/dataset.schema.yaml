@@ -1,41 +1,7 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Caco-2 Permeability Dataset Schema"
-description: "Schema for the Caco-2 permeability dataset retrieved from ChEMBL and preprocessed."
-type: "object"
-properties:
-  smiles:
-    type: "string"
-    description: "SMILES string representing the molecular structure."
-    minLength: 1
-  logPapp:
-    type: "number"
-    description: "Apparent permeability coefficient (log Papp) in cm/s."
-  mw:
-    type: "number"
-    description: "Molecular weight in g/mol."
-  psa:
-    type: "number"
-    description: "Polar Surface Area in Å²."
-  assay_id:
-    type: "string"
-    description: "Unique identifier for the assay from ChEMBL."
-  protocol_metadata:
-    type: "object"
-    description: "Metadata regarding the experimental protocol."
-    properties:
-      lab_id:
-        type: "string"
-        description: "Identifier for the laboratory or source."
-      temperature:
-        type: "number"
-        description: "Temperature at which the assay was conducted (°C)."
-      passage:
-        type: "string"
-        description: "Cell passage number used in the assay."
-    required:
-      - lab_id
-      - temperature
-      - passage
+$schema: http://json-schema.org/draft-07/schema#
+title: Caco-2 Permeability Dataset Schema
+description: Schema for the Caco-2 permeability dataset retrieved from ChEMBL.
+type: object
 required:
   - smiles
   - logPapp
@@ -43,3 +9,37 @@ required:
   - psa
   - assay_id
   - protocol_metadata
+properties:
+  smiles:
+    type: string
+    description: Canonical SMILES string of the molecule.
+    minLength: 1
+  logPapp:
+    type: number
+    description: Apparent permeability coefficient (log Papp) in cm/s.
+  mw:
+    type: number
+    description: Molecular weight in g/mol.
+  psa:
+    type: number
+    description: Polar surface area in Å².
+  assay_id:
+    type: string
+    description: Unique ChEMBL assay identifier.
+  protocol_metadata:
+    type: object
+    description: Metadata regarding the assay protocol.
+    required:
+      - lab_id
+      - temperature
+      - passage
+    properties:
+      lab_id:
+        type: string
+        description: Identifier for the laboratory or source of the assay.
+      temperature:
+        type: number
+        description: Assay temperature in Celsius.
+      passage:
+        type: string
+        description: Cell passage number or range used in the assay.

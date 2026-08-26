@@ -1,3 +1,18 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no tangible evidence (e.g., directory listings, screenshots,\
+    \ or created files) that the `code/`, `tests/`, and `data/` folders actually exist.\
+    \ Without such artifacts, we cannot verify that the required `os.makedirs` calls\
+    \ were executed. The implementer must supply proof that the three directories\
+    \ were created and are non\u2011empty."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`
+    with Black settings, or equivalent) are present in the provided evidence, so the
+    requirement to configure flake8/black is not satisfied. The task lacks the necessary
+    artifact demonstrating that linting and formatting tools have been set up.
 T006:
   c: false
   h: 9914aae3ece5fb48343f57249c7f1395fe8fe5d86fea31a1482bcaab2398bc8b
@@ -6,13 +21,20 @@ T006:
     \ section to `research.md`, and the shown code contains a typo (`DEFAULT_DEVIA`)\
     \ that would raise a `NameError` if a YAML parse error occurs. Consequently the\
     \ script does not fully meet the task\u2019s functional requirement."
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., script output, log, or file system listing) was provided showing
+    that the four directories were created and the assertions passed; thus the requirement
+    cannot be confirmed.
 T008b:
-  c: true
-  h: e704fa8e447d74c0a043b8eecbe14bf29bf784859c119a653048168e656a5841
-  r: "The `code/utils/checksum.py` file exists, is non\u2011empty, and defines functions\
-    \ that compute SHA\u2011256 checksums for files under `data/` and write a YAML\
-    \ record to `state/pending/checksums.yaml`. The pending file\u2019s absence is\
-    \ expected until the script is run, not a sign of missing implementation."
+  c: false
+  h: 3ce19ea0ddb23f61ab3842d23ac7f244b4ee58fcd9c34d96ddffcefc295597f4
+  r: The `code/utils/checksum.py` file is truncated (it ends abruptly after `if` in
+    `scan_and_register_data_files`) and does not contain the full logic to compute
+    checksums for files in `data/` and write them to `state/pending/checksums.yaml`.
+    Consequently, the required pending YAML file is also absent. The implementation
+    must be completed and verified to produce the pending checksums file.
 T008d:
   c: true
   h: d974da252bf6da54549fe47a2bff38b765fc42114be092df21dff90595ff0687
@@ -20,6 +42,23 @@ T008d:
     required file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`
     is present with the exact content `artifact_hashes: {}` as specified. No missing
     or placeholder artifacts remain.'
+T009:
+  c: false
+  h: ac65bd2006559582687fc62eb0c3ce04ae47cd29de45e655550c4b1ac69b5ac5
+  r: "The repository lacks the required output files \u2013 `data/raw/chembl_raw.csv`,\
+    \ `state/pending/checksums.yaml`, and the schema file referenced in the task.\
+    \ Moreover, the provided `code/data/retrieval.py` is truncated and does not show\
+    \ CSV generation, protocol_metadata serialization, or invocation of the checksum\
+    \ utility, so the core functionality is not demonstrated. The task therefore remains\
+    \ unfinished."
+T010:
+  c: false
+  h: 7fdd775a483d23f7cfff40c90939f1ff2af57fa438895da55e3c0f115e147de6
+  r: "The `code/data/preprocessing.py` file is truncated and does not contain the\
+    \ logic to filter records, write `data/processed/filtered_data.csv`, or call the\
+    \ checksum utility. Moreover, the required input file `data/raw/chembl_raw.csv`,\
+    \ the output CSV, and the checksum YAML (`state/pending/checksums.yaml`) are all\
+    \ missing. The task\u2019s core requirements are therefore not satisfied."
 T012:
   c: false
   h: f51f1d793bb1533dc0191d164e8a3bf7af5882b0341a702c5448465f5bd3bc7f
@@ -28,12 +67,3 @@ T012:
     schema file `specs/001-molecular-flexibility-permeability/contracts/dataset.schema.yaml`
     is absent. Both the test implementation and the schema it must validate against
     are missing, so the task is not fulfilled.
-T023b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the `specs/001-molecular-flexibility-permeability/research.md`\
-    \ file was provided, nor any grep output showing the word \u201Cassociational\u201D\
-    . Without the file content, we cannot confirm that the required wording was added\
-    \ throughout the text and figure captions. The implementer must supply the updated\
-    \ `research.md` (or grep results) containing the term \u201Cassociational\u201D\
-    ."

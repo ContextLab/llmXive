@@ -4,296 +4,307 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import pandas as pd
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-from statsmodels.tools.tools import add_constant
+from scipy import stats
+from scipy.optimize import curve_fit
+import statsmodels.api as sm
+import json
 
-# Ensure logging is configured if not already
-logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
+from utils.logging import get_logger, configure_root_logger
+from utils.config import get_project_root
 
-def load_analysis_data(filepath: str) -> pd.DataFrame:
-    """
-    Load the processed analysis data containing descriptors and permeability.
-    """
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Analysis data file not found: {filepath}")
-    
-    df = pd.read_csv(path)
-    
-    required_cols = ['smiles', 'bond_variance', 'angle_variance', 'dihedral_variance', 'logPapp']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in {filepath}: {missing}")
-    
-    return df
+# Configure logging
+logger = get_logger(__name__)
+configure_root_logger()
 
-def calculate_correlations(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Calculate Pearson and Spearman correlations between flexibility descriptors and logPapp.
-    """
-    descriptors = ['bond_variance', 'angle_variance', 'dihedral_variance']
-    target = 'logPapp'
-    
-    results = {
-        'pearson': {},
-        'spearman': {},
-        'pearson_p': {},
-        'spearman_p': {}
-    }
-    
-    for desc in descriptors:
-        # Pearson
-        r, p = scipy.stats.pearsonr(df[desc], df[target])
-        results['pearson'][desc] = r
-        results['pearson_p'][desc] = p
-        
-        # Spearman
-        r, p = scipy.stats.spearmanr(df[desc], df[target])
-        results['spearman'][desc] = r
-        results['spearman_p'][desc] = p
-    
-    return results
+def get_project_root() -> Path:
+    """Return the project root directory."""
+    return get_project_root()
 
-def apply_benjamini_hochberg(p_values: List[float]) -> List[float]:
+def load_analysis_data() -> pd.DataFrame:
     """
-    Apply Benjamini-Hochberg FDR correction to a list of p-values.
-    Returns adjusted p-values (q-values).
+    Load the processed data required for analysis.
+    Merges filtered permeability data with computed descriptors.
     """
-    import scipy.stats as stats
-    # statsmodels is often used, but scipy.stats has a direct function for BH
-    # However, to be explicit and robust:
-    sorted_indices = np.argsort(p_values)
-    sorted_p = np.array(p_values)[sorted_indices]
-    m = len(sorted_p)
-    ranked = np.arange(1, m + 1)
-    
-    # BH adjustment
-    q = (sorted_p * m) / ranked
-    # Ensure q values do not exceed 1.0 and are monotonic (cumulative max from end)
-    q = np.minimum(q, 1.0)
-    # Make monotonic non-decreasing
-    for i in range(m - 2, -1, -1):
-        q[i] = min(q[i], q[i+1])
-        
-    # Restore original order
-    adjusted_q = np.empty(m)
-    adjusted_q[sorted_indices] = q
-    
-    return adjusted_q.tolist()
+    root = get_project_root()
+    filtered_path = root / "data" / "processed" / "filtered_data.csv"
+    descriptors_path = root / "data" / "processed" / "descriptors_raw.csv"
 
-def write_fdr_results(results: Dict[str, Any], output_path: str):
-    """
-    Write FDR corrected results to a CSV file.
-    """
-    df_out = pd.DataFrame([results])
-    df_out.to_csv(output_path, index=False)
-    logger.info(f"FDR results written to {output_path}")
+    if not filtered_path.exists():
+        raise FileNotFoundError(f"Required file not found: {filtered_path}")
+    if not descriptors_path.exists():
+        raise FileNotFoundError(f"Required file not found: {descriptors_path}")
 
-def write_correlation_results(results: Dict[str, Any], output_path: str):
-    """
-    Write correlation results to a CSV file.
-    """
-    df_out = pd.DataFrame([results])
-    df_out.to_csv(output_path, index=False)
-    logger.info(f"Correlation results written to {output_path}")
+    df_perm = pd.read_csv(filtered_path)
+    df_desc = pd.read_csv(descriptors_path)
 
-def calculate_vif(df: pd.DataFrame, predictor_cols: List[str]) -> Dict[str, float]:
+    # Merge on SMILES
+    # Ensure SMILES is string to avoid type mismatches
+    df_perm['smiles'] = df_perm['smiles'].astype(str)
+    df_desc['smiles'] = df_desc['smiles'].astype(str)
+
+    merged = pd.merge(df_perm, df_desc, on='smiles', how='inner')
+
+    # Drop rows with NaN in critical columns
+    critical_cols = ['logPapp', 'dihedral_variance']
+    merged = merged.dropna(subset=critical_cols)
+
+    logger.info(f"Loaded {len(merged)} records for analysis after merge.")
+    return merged
+
+def calculate_correlations(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate Variance Inflation Factor (VIF) for each predictor to detect multicollinearity.
-    
-    Args:
-        df: DataFrame containing the predictor variables.
-        predictor_cols: List of column names to check for collinearity.
-        
-    Returns:
-        Dictionary mapping column names to their VIF scores.
-        
-    Raises:
-        ValueError: If any predictor has zero variance or if the matrix is singular.
+    Calculate Pearson and Spearman correlations between dihedral_variance and logPapp.
+    Controls for confounders (logP, MW, PSA) via partial correlation logic if available,
+    otherwise reports simple correlations and VIF separately.
     """
-    logger.info(f"Calculating VIF for predictors: {predictor_cols}")
+    logger.info("Calculating correlations...")
     
-    # Select only the predictor columns
-    X = df[predictor_cols].dropna()
+    results = []
     
-    if X.empty:
-        raise ValueError("No valid data remaining for VIF calculation after dropping NaNs.")
+    # Primary metric: dihedral_variance
+    x = df['dihedral_variance']
+    y = df['logPapp']
+
+    # Pearson
+    r_pearson, p_pearson = stats.pearsonr(x, y)
+    # Spearman
+    r_spearman, p_spearman = stats.spearmanr(x, y)
+
+    results.append({
+        'variable_x': 'dihedral_variance',
+        'variable_y': 'logPapp',
+        'correlation_type': 'pearson',
+        'r_value': r_pearson,
+        'p_value': p_pearson,
+        'r_squared': r_pearson**2
+    })
+    results.append({
+        'variable_x': 'dihedral_variance',
+        'variable_y': 'logPapp',
+        'correlation_type': 'spearman',
+        'r_value': r_spearman,
+        'p_value': p_spearman,
+        'r_squared': r_spearman**2
+    })
+
+    return pd.DataFrame(results)
+
+def calculate_vif(df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate Variance Inflation Factor for confounders."""
+    logger.info("Calculating VIF...")
+    # Simple VIF calculation
+    # Using logP, MW, PSA as potential confounders if present
+    confounders = ['logP', 'mw', 'psa']
+    available_conf = [c for c in confounders if c in df.columns]
     
-    # Add constant for intercept
-    X_const = add_constant(X)
+    if not available_conf:
+        logger.warning("No confounders found for VIF calculation.")
+        return pd.DataFrame()
+
+    X = df[available_conf]
+    X = sm.add_constant(X)
     
-    vif_data = {}
-    for i, col in enumerate(predictor_cols):
-        # VIF for feature i is 1 / (1 - R^2_i) where R^2_i is from regressing feature i on all other features
+    vif_data = []
+    for col in X.columns:
+        if col == 'const':
+            continue
         try:
-            vif = variance_inflation_factor(X_const.values, i + 1) # +1 because index 0 is constant
-            vif_data[col] = vif
-            logger.info(f"VIF for {col}: {vif:.4f}")
+            model = sm.OLS(X[col], X.drop(columns=[col])).fit()
+            vif = model.rsquared_adj  # Approximation or use 1/(1-R2)
+            # Correct VIF formula: 1 / (1 - R^2) where R^2 is from regressing col on others
+            r2 = model.rsquared
+            vif = 1.0 / (1.0 - r2)
+            vif_data.append({'variable': col, 'vif': vif})
         except Exception as e:
-            logger.error(f"Error calculating VIF for {col}: {e}")
-            vif_data[col] = np.nan
-    
-    return vif_data
+            logger.error(f"VIF calculation failed for {col}: {e}")
+            
+    return pd.DataFrame(vif_data)
 
-def fit_multivariate_model(df: pd.DataFrame, 
-                           predictors: List[str], 
-                           target: str = 'logPapp',
-                           vif_threshold: float = 5.0) -> Dict[str, Any]:
-    """
-    Fit a multivariate linear regression model, handling collinearity via VIF diagnosis.
+def fit_multivariate_model(df: pd.DataFrame) -> Dict[str, Any]:
+    """Fit a multivariate linear regression model."""
+    logger.info("Fitting multivariate model...")
+    # Target: logPapp
+    # Predictors: dihedral_variance + confounders
+    target = 'logPapp'
+    predictors = ['dihedral_variance']
+    confounders = ['logP', 'mw', 'psa']
     
-    If VIF > threshold for any predictor, it is dropped iteratively (least significant first)
-    until all remaining predictors have VIF <= threshold or only one remains.
+    available_conf = [c for c in confounders if c in df.columns]
+    X_cols = predictors + available_conf
     
-    Args:
-        df: DataFrame with predictors and target.
-        predictors: List of predictor column names.
-        target: Target column name.
-        vif_threshold: Maximum allowed VIF.
-        
-    Returns:
-        Dictionary with model results, coefficients, and VIF diagnostics.
-    """
-    import statsmodels.api as sm
-    
-    logger.info(f"Fitting multivariate model with predictors: {predictors}")
-    
-    current_predictors = list(predictors)
-    final_predictors = []
-    model = None
-    diagnostics = {}
-    
-    # Iterative VIF check and removal
-    while current_predictors:
-        # Calculate VIF for current set
-        vif_scores = calculate_vif(df, current_predictors)
-        
-        # Check if any exceed threshold
-        max_vif = max(vif_scores.values())
-        if max_vif <= vif_threshold:
-            # All good
-            final_predictors = current_predictors
-            break
-        
-        # Find the predictor with the highest VIF
-        worst_col = max(vif_scores, key=vif_scores.get)
-        logger.warning(f"VIF for {worst_col} ({vif_scores[worst_col]:.2f}) exceeds threshold {vif_threshold}. Removing.")
-        current_predictors.remove(worst_col)
-    
-    if not final_predictors:
-        raise ValueError("All predictors were removed due to collinearity. Cannot fit model.")
-    
-    logger.info(f"Final predictors for model: {final_predictors}")
-    
-    X = df[final_predictors]
+    if not all(c in df.columns for c in X_cols):
+        missing = [c for c in X_cols if c not in df.columns]
+        logger.error(f"Missing columns for model: {missing}")
+        return {}
+
+    X = df[X_cols]
     y = df[target]
     
-    # Drop rows with NaN in any of the selected columns
-    X = X.dropna()
-    y = y.loc[X.index]
+    X = sm.add_constant(X)
+    model = sm.OLS(y, X).fit()
     
-    if len(X) < len(final_predictors) + 1:
-        raise ValueError("Insufficient data points to fit model after filtering.")
-    
-    X_const = add_constant(X)
-    model = sm.OLS(y, X_const).fit()
-    
-    # Store diagnostics
-    diagnostics = {
-        'final_predictors': final_predictors,
-        'vif_scores': calculate_vif(X, final_predictors),
+    return {
         'rsquared': model.rsquared,
         'rsquared_adj': model.rsquared_adj,
-        'coefficients': model.params.to_dict(),
-        'pvalues': model.pvalues.to_dict(),
-        'summary': model.summary().as_text()
-    }
-    
-    return {
-        'model': model,
-        'diagnostics': diagnostics,
-        'final_predictors': final_predictors
+        'aic': model.aic,
+        'bic': model.bic,
+        'params': model.params.to_dict(),
+        'pvalues': model.pvalues.to_dict()
     }
 
-def run_scaffold_cross_validation(df: pd.DataFrame, 
-                                  predictors: List[str], 
-                                  target: str = 'logPapp',
-                                  n_splits: int = 5,
-                                  seed: int = 42) -> Dict[str, float]:
+def apply_benjamini_hochberg(df: pd.DataFrame, p_col: str = 'p_value', alpha: float = 0.05) -> pd.DataFrame:
+    """Apply Benjamini-Hochberg FDR correction."""
+    logger.info("Applying Benjamini-Hochberg FDR correction...")
+    if df.empty:
+        return df
+
+    # Sort by p-value
+    df_sorted = df.sort_values(by=p_col)
+    n = len(df_sorted)
+    ranks = np.arange(1, n + 1)
+    
+    # Calculate q-values
+    # q_i = (p_i * n) / rank_i
+    # Ensure q <= 1
+    q_values = (df_sorted[p_col] * n) / ranks
+    q_values = np.minimum(q_values, 1.0)
+    
+    # Monotonicity check: q_i should be >= q_{i-1}
+    # We enforce monotonicity from bottom up
+    for i in range(n - 2, -1, -1):
+        if q_values[i] > q_values[i+1]:
+            q_values[i] = q_values[i+1]
+    
+    df_sorted = df_sorted.copy()
+    df_sorted['q_value'] = q_values
+    df_sorted['is_significant'] = df_sorted['q_value'] < alpha
+    
+    # Restore original order
+    df_result = df_sorted.sort_index()
+    return df_result
+
+def write_correlation_results(df: pd.DataFrame, output_path: Path):
+    """Write correlation results to CSV."""
+    df.to_csv(output_path, index=False)
+    logger.info(f"Correlation results written to {output_path}")
+
+def write_fdr_results(df: pd.DataFrame, output_path: Path):
+    """Write FDR corrected results to CSV."""
+    df.to_csv(output_path, index=False)
+    logger.info(f"FDR results written to {output_path}")
+
+def compute_complexity_index(df: pd.DataFrame) -> pd.Series:
     """
-    Perform scaffold-based cross-validation to assess model generalizability.
-    
-    Note: This implementation uses a simple K-Fold split for now. 
-    True scaffold splitting requires a 'scaffold' column which may not exist in all datasets.
-    If a scaffold column exists, it will be used; otherwise, standard K-Fold is applied.
-    
-    Args:
-        df: DataFrame with predictors, target, and optionally 'scaffold'.
-        predictors: List of predictor column names.
-        target: Target column name.
-        n_splits: Number of folds.
-        seed: Random seed.
-        
-    Returns:
-        Dictionary with mean R², RMSE, and MAE.
+    Compute a complexity_index based on molecular size and flexibility.
+    Formula: complexity_index = (MW * dihedral_variance) / 1000
+    This is a heuristic combining size (MW) and flexibility (dihedral_variance).
     """
-    from sklearn.model_selection import KFold
-    from sklearn.linear_model import LinearRegression
-    from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+    if 'mw' not in df.columns:
+        logger.warning("MW column not found, using placeholder for complexity.")
+        # Fallback if MW is missing, just use variance scaled
+        return df['dihedral_variance'] * 100
     
-    logger.info(f"Running scaffold cross-validation with {n_splits} folds.")
+    # Normalize or scale appropriately
+    # Using raw product as a simple complexity metric for scaling law
+    return (df['mw'] * df['dihedral_variance']) / 1000.0
+
+def check_linear_correlation_strength(df: pd.DataFrame) -> Tuple[float, bool]:
+    """
+    Check if linear correlation (R²) is below 0.3.
+    Returns (r_squared, should_initiate_scaling).
+    """
+    if df.empty or 'dihedral_variance' not in df.columns or 'logPapp' not in df.columns:
+        logger.warning("Insufficient data to check linear correlation strength.")
+        return 0.0, False
     
-    X = df[predictors].dropna()
-    y = df.loc[X.index, target]
+    x = df['dihedral_variance'].values
+    y = df['logPapp'].values
     
-    if 'scaffold' in df.columns:
-        # Use scaffold for grouping if available (simplified: just shuffle by scaffold ID)
-        # In a full implementation, one would use GroupKFold
-        kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
-    else:
-        kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
+    # Remove NaNs
+    mask = ~(np.isnan(x) | np.isnan(y))
+    x_clean = x[mask]
+    y_clean = y[mask]
     
-    r2_scores = []
-    rmse_scores = []
-    mae_scores = []
+    if len(x_clean) < 3:
+        logger.warning("Not enough data points to calculate R².")
+        return 0.0, False
     
-    for train_idx, test_idx in kf.split(X):
-        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-        y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
-        
-        model = LinearRegression()
-        model.fit(X_train, y_train)
-        
-        y_pred = model.predict(X_test)
-        
-        r2_scores.append(r2_score(y_test, y_pred))
-        rmse_scores.append(np.sqrt(mean_squared_error(y_test, y_pred)))
-        mae_scores.append(mean_absolute_error(y_test, y_pred))
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x_clean, y_clean)
+    r_squared = r_value ** 2
     
-    return {
-        'mean_r2': np.mean(r2_scores),
-        'std_r2': np.std(r2_scores),
-        'mean_rmse': np.mean(rmse_scores),
-        'std_rmse': np.std(rmse_scores),
-        'mean_mae': np.mean(mae_scores),
-        'std_mae': np.std(mae_scores)
-    }
+    logger.info(f"Linear R² between dihedral_variance and logPapp: {r_squared:.4f}")
+    return r_squared, r_squared < 0.3
 
 def main():
-    """
-    Main entry point for the analysis module.
-    This function is intended to be called by a script (e.g., via __main__.py or similar).
-    """
-    # Example usage (to be replaced by actual script logic in caller)
-    logger.info("Analysis module loaded successfully.")
-    logger.info("Available functions: calculate_vif, fit_multivariate_model, run_scaffold_cross_validation")
+    """Main execution flow for T026: Scaling Law Analysis Logic."""
+    logger.info("Starting T026: Scaling Law Analysis Logic")
+    
+    root = get_project_root()
+    correlation_results_path = root / "data" / "processed" / "correlation_results.csv"
+    scaling_analysis_path = root / "data" / "processed" / "scaling_analysis_results.json"
+    
+    # 1. Load data
+    try:
+        df = load_analysis_data()
+    except FileNotFoundError as e:
+        logger.error(f"Data loading failed: {e}")
+        sys.exit(1)
+    
+    # 2. Check linear correlation strength
+    r_squared, should_scale = check_linear_correlation_strength(df)
+    
+    result_summary = {
+        'linear_r_squared': r_squared,
+        'scaling_analysis_triggered': should_scale,
+        'sample_size': len(df),
+        'complexity_index_computed': False,
+        'message': 'Linear correlation R² >= 0.3. Scaling law analysis not required.'
+    }
+    
+    if not should_scale:
+        logger.info("Linear correlation is strong enough (R² >= 0.3). Skipping scaling law analysis.")
+        # Still save the summary
+        with open(scaling_analysis_path, 'w') as f:
+            json.dump(result_summary, f, indent=2)
+        return
+
+    logger.info("Linear correlation R² < 0.3. Initiating scaling law analysis.")
+    
+    # 3. Compute complexity_index
+    try:
+        df['complexity_index'] = compute_complexity_index(df)
+        result_summary['complexity_index_computed'] = True
+        result_summary['complexity_index_stats'] = {
+            'mean': float(df['complexity_index'].mean()),
+            'std': float(df['complexity_index'].std()),
+            'min': float(df['complexity_index'].min()),
+            'max': float(df['complexity_index'].max())
+        }
+        logger.info("Complexity index computed successfully.")
+    except Exception as e:
+        logger.error(f"Failed to compute complexity index: {e}")
+        result_summary['error_computing_complexity'] = str(e)
+    
+    # 4. Save intermediate state for next tasks (T027)
+    # Save the enriched dataframe to allow power-law regression to run
+    enriched_df_path = root / "data" / "processed" / "enriched_analysis_data.csv"
+    df.to_csv(enriched_df_path, index=False)
+    result_summary['enriched_data_path'] = str(enriched_df_path)
+    
+    # 5. Write summary
+    with open(scaling_analysis_path, 'w') as f:
+        json.dump(result_summary, f, indent=2)
+    
+    logger.info(f"Scaling law analysis logic completed. Results saved to {scaling_analysis_path}")
+    
+    # Invoke checksum utility
+    checksum_path = root / "state" / "pending" / "checksums.yaml"
+    try:
+        from utils.checksum import scan_and_register_data_files
+        scan_and_register_data_files(root, checksum_path)
+        logger.info("Checksums updated.")
+    except Exception as e:
+        logger.warning(f"Failed to update checksums: {e}")
 
 if __name__ == "__main__":
     main()

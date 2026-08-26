@@ -1,4 +1,1 @@
-"""
-Data directory placeholder.
-Raw and processed data will be stored here.
-"""
+# Data package marker for data/
