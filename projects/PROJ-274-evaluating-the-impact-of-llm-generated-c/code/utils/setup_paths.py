@@ -1,47 +1,34 @@
-"""
-Utility to ensure all required project directories exist before logging or file I/O.
-This resolves the FileNotFoundError issues seen in the execution logs.
-"""
 import os
 import sys
 from pathlib import Path
 
-# Define the project root relative to this file (assuming code/utils/setup_paths.py)
-# Project structure:
-# PROJ-274...
-#   code/
-#     utils/
-#       setup_paths.py
-#   data/
-#     raw/
-#     processed/
-#     reports/
-#     logs/
-#   state/
-#   specs/
-
 def ensure_project_dirs():
-    """Creates all necessary directories for the project if they don't exist."""
-    # Determine the project root: parent of 'code'
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
-
-    dirs_to_create = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "reports",
-        project_root / "data" / "logs",
-        project_root / "state",
-        project_root / "specs" / "001-evaluating-the-impact-of-llm-generated-c",
-        project_root / "config",
+    """
+    Ensure all required project directories exist.
+    Called by various scripts to guarantee paths are ready.
+    """
+    project_root = Path(__file__).resolve().parent.parent.parent
+    dirs = [
+        project_root / 'code',
+        project_root / 'data',
+        project_root / 'data' / 'raw',
+        project_root / 'data' / 'processed',
+        project_root / 'data' / 'reports',
+        project_root / 'tests',
+        project_root / 'tests' / 'unit',
+        project_root / 'tests' / 'integration',
+        project_root / 'tests' / 'contract',
+        project_root / 'specs',
+        project_root / 'state',
+        project_root / 'config',
+        project_root / 'contracts'
     ]
 
-    for dir_path in dirs_to_create:
-        dir_path.mkdir(parents=True, exist_ok=True)
-    
-    return project_root
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+
+    return str(project_root)
 
 if __name__ == "__main__":
     root = ensure_project_dirs()
-    print(f"Ensured project directories under: {root}")
+    print(f"Project directories ensured at: {root}")

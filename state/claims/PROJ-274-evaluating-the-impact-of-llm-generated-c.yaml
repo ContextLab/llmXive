@@ -3454,3 +3454,677 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T10:37:46Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Apply 15 percent tolerance on Lines of Code and Cyclomatic Complexity
+  claim_id: c_471bbf16
+  context: "Logic: Filter for high-quality docs (T021c), then apply \xB115% tolerance\
+    \ on LOC and CC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter for high-quality docs (T021c), then apply \xB115% tolerance on\
+    \ LOC and CC."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:51:48Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Require 3 out of 4 documentation sections
+  claim_id: c_9c4969f4
+  context: "Criteria: Presence of Setup, API, and Architecture sections (\u2265 3/4\
+    \ sections)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Presence of Setup, API, and Architecture sections (\u2265 3/4 sections)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:51:48Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Trigger stop-loss intervention at 2700 seconds
+  claim_id: c_180c93e2
+  context: 'Implement ''Stop-Loss'' intervention logic: If task time > 2700s (45 min),
+    trigger moderator intervention, flag record as ''failed'', set intervention_status
+    = ''stop_loss'', and record max_time = 2700.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If task time > 2700s (45 min), trigger moderator intervention, flag record
+    as 'failed', set intervention_status = 'stop_loss', and record max_time = 2700.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:52:15Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback to local model on 300 seconds latency
+  claim_id: c_0b7c2170
+  context: 'Configuration: load_in_4bit=True. Trigger: HTTP 5xx or latency > 300s.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Trigger: HTTP 5xx or latency > 300s.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:52:37Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Execution time limit of 6 hours and RAM limit of 7 GB
+  claim_id: c_f27d7111
+  context: 'CRITICAL: Check for existence of state/research_validated.lock (created
+    by T071b) at runtime; abort if missing. Verification: Assert execution time <
+    6 hours and RAM < 7GB via data/reports/resource_log.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify execution time < 6 hours and RAM < 7GB via data/reports/resource_log.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:52:38Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: RAM limit of 7 GB
+  claim_id: c_b379eb7b
+  context: 'CRITICAL: Check for existence of state/research_validated.lock (created
+    by T071b) at runtime; abort if missing. Verification: Assert execution time <
+    6 hours and RAM < 7GB via data/reports/resource_log.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify execution time < 6 hours and RAM < 7GB via data/reports/resource_log.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:52:39Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback to local model on 300 seconds timeout
+  claim_id: c_11fb3947
+  context: 'Logic: HTTP xx (400-499) -> Hard Fail. HTTP 5xx (500-599) or timeout >
+    300s -> Fallback to local model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HTTP 5xx (500-599) or timeout > 300s -> Fallback to local model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:53:13Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 2
+  canonical: Final report limitations of 15 to 20 participants
+  claim_id: c_a95c6a78
+  context: Ensure the final report includes limitations (N=15-20).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the final report includes limitations (N=15-20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:53:54Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Data freshness check of 24 hours
+  claim_id: c_30987109
+  context: 'Data Freshness Check: Verify data/raw/llm_docs/, data/raw/repo_selection_rubric.json,
+    and state/run_metadata.json are from the current run session (modification time
+    < 24 hours).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify data/raw/llm_docs/, data/raw/repo_selection_rubric.json, and state/run_metadata.json
+    are from the current run session (modification time < 24 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:53:54Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Data freshness check of 1 hour
+  claim_id: c_a91c76f6
+  context: 'Data Freshness Check: Verify repo_selection_rubric.json is from the current
+    run session (modification time < 1 hour).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify repo_selection_rubric.json is from the current run session (modification
+    time < 1 hour).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:53:55Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Jaccard similarity threshold of 0.7 for tokenized titles
+  claim_id: c_46cf1e55
+  context: "Calculate Jaccard similarity of tokenized titles; threshold \u2265 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Threshold \u2265 0.7 for Jaccard similarity of tokenized titles."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:54:18Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: High-quality documentation requires at least 3 of 4 sections
+  claim_id: c_7477be1c
+  context: "Criteria: Presence of Setup, API, and Architecture sections (\u2265 3/4\
+    \ sections)."
+  evidence:
+    candidates:
+    - - ''
+      - 4.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/High-quality_documentation_requires_at_least_3_of_4_sections
+  kind: magnitude
+  raw_text: "Presence of Setup, API, and Architecture sections (\u2265 3/4 sections)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-26T00:54:45Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: 15% tolerance applied to Lines of Code and Cyclomatic Complexity
+  claim_id: c_c8047569
+  context: "Filter for high-quality docs (T021c), then apply \xB115% tolerance on\
+    \ LOC and CC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply \xB115% tolerance on LOC and CC."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:54:46Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Stop-loss intervention triggered at 2700 seconds
+  claim_id: c_7899c193
+  context: If task time > 2700s (45 min), trigger moderator intervention, flag record
+    as 'failed', set `intervention_status` = 'stop_loss', and record `max_time` =
+    2700.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If task time > 2700s (45 min), trigger moderator intervention.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:54:47Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback to local model triggered by 5xx error or 300s latency
+  claim_id: c_081616ba
+  context: 'Trigger: HTTP 5xx or latency > 300s.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_local_model_triggered_by_5xx_error_or_300s_laten
+  kind: entity_fact
+  raw_text: HTTP 5xx or latency > 300s triggers fallback to local model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:55:19Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Analysis execution constrained to 6 hours and 7GB RAM
+  claim_id: c_2a03f4fa
+  context: 'Verification: Assert execution time < 6 hours and RAM < 7GB via `data/reports/resource_log.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution time < 6 hours and RAM < 7GB via data/reports/resource_log.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:55:20Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback to local model for 5xx errors or 300s timeout
+  claim_id: c_6bc35c9b
+  context: HTTP 5xx (500-599) or timeout > 300s -> Fallback to local model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HTTP 5xx (500-599) or timeout > 300s -> Fallback to local model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:55:20Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Final report limitations specify sample size between 15 and 20
+  claim_id: c_dd05db70
+  context: Ensure the final report includes limitations (N=15-20).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Final report includes limitations (N=15-20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:55:58Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Stratified randomization to LLM, Human, and None conditions
+  claim_id: c_efb56892
+  context: 'T014b [S] [Phase 1] Implement the Participant Assignment Logic and Randomization
+    Mechanism... Logic: Stratified randomization to LLM/Human/None conditions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratified_randomization_to_LLM,_Human,_and_None_conditions
+  kind: entity_fact
+  raw_text: Stratified randomization to LLM/Human/None conditions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:57:40Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: High-quality documentation requires at least 3 of 4 specific sections
+    (Setup, API, Architecture)
+  claim_id: c_1cf50550
+  context: "T021c [P] [Phase 2] Implement 'high-quality human documentation' rubric...\
+    \ Criteria: Presence of Setup, API, and Architecture sections (\u2265 3/4 sections)."
+  evidence:
+    candidates:
+    - - ''
+      - 4.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/High-quality_documentation_requires_at_least_3_of_4_specific
+  kind: magnitude
+  raw_text: "Presence of Setup, API, and Architecture sections (\u2265 3/4 sections)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-26T00:57:42Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Apply 15% tolerance on Lines of Code and Cyclomatic Complexity
+  claim_id: c_6c63b8f8
+  context: "T021d [S] [Phase 2] Implement repository filtering logic... Logic: Filter\
+    \ for high-quality docs (T021c), then apply \xB115% tolerance on LOC and CC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply \xB115% tolerance on LOC and CC."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:57:42Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Trigger moderator intervention if task time exceeds 2700 seconds (45
+    minutes)
+  claim_id: c_d6917a2d
+  context: 'T018 [US1] Implement ''Stop-Loss'' intervention logic: If task time >
+    2700s (45 min), trigger moderator intervention...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If task time > 2700s (45 min), trigger moderator intervention.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:57:43Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Use TheBloke/phi-2-GGUF as fallback model
+  claim_id: c_5874a3ce
+  context: 'T028 [US2] Implement fallback logic to local CPU-optimized model. Model
+    Path: TheBloke/phi-2-GGUF (or equivalent quantized repo).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `TheBloke/phi-2-GGUF` (or equivalent quantized repo) as fallback model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:58:03Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback to local model triggered by HTTP 5xx or latency exceeding 300
+    seconds
+  claim_id: c_ec5b6d85
+  context: 'T028 [US2] Implement fallback logic... Trigger: HTTP 5xx or latency >
+    300s.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fallback trigger: HTTP 5xx or latency > 300s.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:58:25Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify execution time under 6 hours and RAM usage under 7GB
+  claim_id: c_927f1979
+  context: 'T036b-exec [GATE] [Phase 6] Execute T036b-logic... Verification: Assert
+    execution time < 6 hours and RAM < 7GB via data/reports/resource_log.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify execution time < 6 hours and RAM < 7GB via data/reports/resource_log.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:58:26Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback to local model on HTTP 5xx errors or timeouts exceeding 300
+    seconds
+  claim_id: c_871abc48
+  context: 'T055 [P] Implement hard fail on real data fetch... Logic: HTTP xx (400-499)
+    -> Hard Fail. HTTP 5xx (500-599) or timeout > 300s -> Fallback to local model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HTTP 5xx (500-599) or timeout > 300s -> Fallback to local model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:58:27Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Final report must include limitations regarding sample size of 15 to
+    20
+  claim_id: c_80aba0e7
+  context: T080 [P] Ensure the final report includes limitations (N=15-20).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the final report includes limitations (N=15-20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:58:27Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify data artifacts are from current run session with modification
+    time under 24 hours
+  claim_id: c_fbc5f680
+  context: 'T075b [US1] Execute real onboarding experiment... Data Freshness Check:
+    Verify data/raw/llm_docs/, data/raw/repo_selection_rubric.json, and state/run_metadata.json
+    are from the current run session (modification time < 24 hours).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify data artifacts are from the current run session (modification time
+    < 24 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T00:58:28Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Participant records file contains at least 15 unique records
+  claim_id: c_7b398122
+  context: 'Verification: Assert file exists and contains at least 15 unique participant
+    records.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participant_records_file_contains_at_least_15_unique_records
+  kind: magnitude
+  raw_text: Assert file exists and contains at least 15 unique participant records.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:11:55Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Jaccard similarity threshold for tokenized titles is 0.7
+  claim_id: c_c3f77d27
+  context: "Calculate Jaccard similarity of tokenized titles; threshold \u2265 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Threshold \u2265 0.7 for Jaccard similarity of tokenized titles."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:11:55Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Documentation quality rubric requires at least 3 of 4 sections
+  claim_id: c_fafbdde1
+  context: "Criteria: Presence of Setup, API, and Architecture sections (\u2265 3/4\
+    \ sections)."
+  evidence:
+    candidates:
+    - - ''
+      - 4.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Documentation_quality_rubric_requires_at_least_3_of_4_sectio
+  kind: magnitude
+  raw_text: "Presence of Setup, API, and Architecture sections (\u2265 3/4 sections)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-26T01:11:58Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Repository selection applies 15 percent tolerance on LOC and CC
+  claim_id: c_cb94bfa5
+  context: "Logic: Filter for high-quality docs (T021c), then apply \xB115% tolerance\
+    \ on LOC and CC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply \xB115% tolerance on LOC and CC."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:11:58Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Stop-loss intervention triggered at 2700 seconds
+  claim_id: c_43f3dcab
+  context: 'Implement ''Stop-Loss'' intervention logic: If task time > 2700s (45 min),
+    trigger moderator intervention.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If task time > 2700s (45 min), trigger moderator intervention.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:11:59Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Max time recorded as 2700 for failed records
+  claim_id: c_0487fe05
+  context: set max_time = 2700.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set max_time = 2700 for flagged records.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:12:06Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback triggered at 300 seconds latency
+  claim_id: c_770d693e
+  context: 'Trigger: HTTP 5xx or latency > 300s.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Latency > 300s triggers fallback to local CPU-optimized model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:12:07Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Analysis execution must complete in under 6 hours using less than 7GB
+    RAM
+  claim_id: c_ff072d09
+  context: 'Verification: Assert execution time < 6 hours and RAM < 7GB via data/reports/resource_log.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_execution_must_complete_in_under_6_hours_using_less
+  kind: magnitude
+  raw_text: Execute execution time < 6 hours and RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:12:16Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Final report includes limitations for sample size 15 to 20
+  claim_id: c_4eb2cc87
+  context: Ensure the final report includes limitations (N=15-20).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the final report includes limitations (N=15-20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:12:16Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Repository selection data must be less than 1 hour old
+  claim_id: c_6abf074c
+  context: Verify repo_selection_rubric.json is from the current run session (modification
+    time < 1 hour).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repository_selection_data_must_be_less_than_1_hour_old
+  kind: magnitude
+  raw_text: Verify data freshness with modification time < 1 hour.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:12:30Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Documentation and selection data must be less than 24 hours old
+  claim_id: c_185eef36
+  context: Verify data/raw/llm_docs/, data/raw/repo_selection_rubric.json, and state/run_metadata.json
+    are from the current run session (modification time < 24 hours).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Documentation_and_selection_data_must_be_less_than_24_hours
+  kind: magnitude
+  raw_text: Verify data freshness with modification time < 24 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:12:32Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Timeout fallback triggered after 300 seconds
+  claim_id: c_5da35df6
+  context: HTTP 5xx (500-599) or timeout > 300s -> Fallback to local model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Timeout > 300s triggers fallback to local model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T01:12:33Z'

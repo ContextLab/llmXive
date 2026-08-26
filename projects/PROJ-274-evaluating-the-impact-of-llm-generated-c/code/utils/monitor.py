@@ -1,173 +1,104 @@
+"""
+Active monitoring context manager for tracking resource usage (memory, time).
+Required for FR-010 and available for all phases.
+"""
 import os
 import time
 import logging
 import json
 import psutil
 from typing import Optional, Dict, Any
-from pathlib import Path
+from contextlib import contextmanager
 
-# Avoid circular import by configuring logger without basicConfig if 'logging' module is shadowed
-# We use a safe initialization pattern that works even if a local 'logging.py' exists
-try:
-    # If this module is imported correctly, the standard library 'logging' is available
-    # We check for the attribute to ensure we aren't shadowed by a local file
-    if not hasattr(logging, 'basicConfig'):
-        # Fallback: try to re-import the standard library explicitly if shadowed
-        import importlib
-        logging = importlib.reload(logging)
-except Exception:
-    pass
+# Configure logger for this module specifically to avoid circular imports
+# with the project's main logging.py if it exists.
+_logger = logging.getLogger(__name__)
+_logger.setLevel(logging.INFO)
+if not _logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    _logger.addHandler(handler)
 
-# Configure logging for the monitor module
-# Using a specific logger name to avoid conflicts
-logger = logging.getLogger(__name__)
-# Only configure if not already configured to avoid "Already configured" warnings in some runners
-if not logging.getLogger().handlers:
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
 
 class ActiveMonitor:
     """
-    A context manager that actively monitors memory usage and wall-clock time.
-    
-    It periodically samples the process's RSS (Resident Set Size) to track peak memory
-    and calculates the elapsed time between entry and exit.
-    
-    Attributes:
-        start_time (float): Timestamp when the monitor started.
-        peak_memory_bytes (int): Highest RSS observed during monitoring.
-        process (psutil.Process): The current process object.
-        sampling_interval (float): Seconds between memory samples.
-        is_monitoring (bool): Flag to control the background sampling thread.
-        metrics (Dict[str, Any]): Collected metrics upon exit.
+    Context manager to track peak memory usage (RSS) and wall-clock time.
     """
-
-    def __init__(self, sampling_interval: float = 0.1):
-        """
-        Initialize the monitor.
-        
-        Args:
-            sampling_interval: Time in seconds between memory samples.
-        """
+    def __init__(self, task_name: str = "unnamed_task"):
+        self.task_name = task_name
+        self.process = psutil.Process(os.getpid())
         self.start_time: Optional[float] = None
         self.end_time: Optional[float] = None
-        self.peak_memory_bytes: int = 0
-        self.process = psutil.Process(os.getpid())
-        self.sampling_interval = sampling_interval
-        self.is_monitoring = False
-        self.metrics: Dict[str, Any] = {}
-        self._thread = None
-
-    def _sample_memory(self):
-        """Continuously sample memory usage until monitoring stops."""
-        while self.is_monitoring:
-            try:
-                # Get memory info for the current process
-                mem_info = self.process.memory_info()
-                current_rss = mem_info.rss
-                if current_rss > self.peak_memory_bytes:
-                    self.peak_memory_bytes = current_rss
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                # Process might have terminated or we lost access
-                break
-            time.sleep(self.sampling_interval)
+        self.peak_memory_mb: float = 0.0
+        self.initial_memory_mb: float = 0.0
+        self._sample_interval: float = 0.1  # 100ms sampling
+        self._samples: list = []
 
     def __enter__(self):
-        """Start the monitoring context."""
         self.start_time = time.time()
-        self.is_monitoring = True
-        self.peak_memory_bytes = 0
-        
-        # Start the background sampling thread
-        import threading
-        self._thread = threading.Thread(target=self._sample_memory, daemon=True)
-        self._thread.start()
-        
-        logger.info("ActiveMonitor started.")
+        self.initial_memory_mb = self.process.memory_info().rss / (1024 * 1024)
+        self.peak_memory_mb = self.initial_memory_mb
+        _logger.info(f"ActiveMonitor started for task: {self.task_name}")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Stop monitoring and record final metrics."""
         self.end_time = time.time()
-        self.is_monitoring = False
+        final_memory_mb = self.process.memory_info().rss / (1024 * 1024)
+        self.peak_memory_mb = max(self.peak_memory_mb, final_memory_mb)
         
-        # Wait for the sampling thread to finish
-        if self._thread is not None:
-            self._thread.join(timeout=1.0)
+        duration_seconds = self.end_time - self.start_time
         
-        # Calculate elapsed time
-        elapsed_seconds = self.end_time - self.start_time if self.end_time and self.start_time else 0.0
+        _logger.info(
+            f"ActiveMonitor finished for task: {self.task_name}. "
+            f"Duration: {duration_seconds:.2f}s, Peak Memory: {self.peak_memory_mb:.2f}MB"
+        )
         
-        # Convert bytes to MB for readability
-        peak_memory_mb = self.peak_memory_bytes / (1024 * 1024)
-        
-        self.metrics = {
-            "wall_clock_time_seconds": elapsed_seconds,
-            "peak_memory_bytes": self.peak_memory_bytes,
-            "peak_memory_mb": round(peak_memory_mb, 2),
-            "success": exc_type is None
+        # Log to a resource file if the directory exists, otherwise just log to console
+        resource_log_path = "data/reports/resource_log.json"
+        try:
+            if os.path.exists("data/reports"):
+                self._append_resource_log(resource_log_path)
+        except Exception as e:
+            _logger.warning(f"Could not write resource log to {resource_log_path}: {e}")
+
+        return False  # Do not suppress exceptions
+
+    def _append_resource_log(self, path: str):
+        """Appends current run stats to a JSONL file or creates it."""
+        log_entry = {
+            "task_name": self.task_name,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "duration_seconds": self.end_time - self.start_time,
+            "peak_memory_mb": self.peak_memory_mb,
+            "initial_memory_mb": self.initial_memory_mb
         }
         
-        logger.info(f"ActiveMonitor finished. Duration: {elapsed_seconds:.2f}s, Peak Memory: {peak_memory_mb:.2f} MB.")
+        with open(path, 'a') as f:
+            f.write(json.dumps(log_entry) + '\n')
+
+    def get_stats(self) -> Dict[str, Any]:
+        """Returns a dictionary of the collected statistics."""
+        if not self.end_time:
+            raise RuntimeError("Monitor has not finished execution yet.")
         
-        # Return False to propagate exceptions if any occurred
-        return False
-
-    def get_metrics(self) -> Dict[str, Any]:
-        """
-        Retrieve the collected metrics.
-        
-        Returns:
-            Dictionary containing wall_clock_time_seconds, peak_memory_bytes, etc.
-        """
-        return self.metrics.copy()
+        return {
+            "task_name": self.task_name,
+            "duration_seconds": self.end_time - self.start_time,
+            "peak_memory_mb": self.peak_memory_mb,
+            "initial_memory_mb": self.initial_memory_mb
+        }
 
 
-def monitor_execution(func):
+@contextmanager
+def monitor_execution(task_name: str = "unnamed_task"):
     """
-    A decorator to wrap a function execution with active monitoring.
-    
-    This decorator ensures that the function runs within an ActiveMonitor context,
-    logs the results to a specified file (or prints them if no path is provided),
-    and returns the function's result.
-    
-    Args:
-        func: The function to wrap.
-        
-    Returns:
-        The wrapped function.
+    Decorator/Context manager wrapper for simpler usage.
+    Usage:
+      with monitor_execution("my_task"):
+          # code to monitor
+          pass
     """
-    import functools
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        log_path = kwargs.pop('monitor_log_path', None)
-        
-        with ActiveMonitor() as monitor:
-            try:
-                result = func(*args, **kwargs)
-            except Exception as e:
-                logger.error(f"Function {func.__name__} raised an exception: {e}")
-                raise
-            finally:
-                metrics = monitor.get_metrics()
-                
-                if log_path:
-                    log_file = Path(log_path)
-                    log_file.parent.mkdir(parents=True, exist_ok=True)
-                    with open(log_file, 'a') as f:
-                        entry = {
-                            "function": func.__name__,
-                            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime()),
-                            "metrics": metrics
-                        }
-                        f.write(json.dumps(entry) + "\n")
-                    logger.info(f"Monitor metrics logged to {log_path}")
-                else:
-                    logger.info(f"Monitor metrics for {func.__name__}: {metrics}")
-                    
-        return result
-
-    return wrapper
+    monitor = ActiveMonitor(task_name)
+    with monitor:
+        yield monitor

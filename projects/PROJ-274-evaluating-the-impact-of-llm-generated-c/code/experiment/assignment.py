@@ -4,172 +4,165 @@ import random
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+import sys
+import hashlib
 
-# Ensure consistent logging configuration to avoid circular imports or missing handlers
-# We configure a basic handler if none exists, but do not override existing root config if it has handlers
-if not logging.getLogger().handlers:
+# Ensure project paths are set up correctly relative to the project root
+# This handles the case where the script is run from the project root
+# or from a subdirectory.
+def _setup_logging():
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
     )
-logger = logging.getLogger(__name__)
+    return logging.getLogger(__name__)
 
-# Constants for conditions
-CONDITIONS = ['LLM', 'Human', 'None']
+logger = _setup_logging()
 
-def load_participant_list(input_path: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_participant_list(input_path: str) -> List[Dict[str, Any]]:
     """
-    Loads the list of recruited participants from a JSON file.
+    Loads the participant list from a JSON file.
     
     Args:
-        input_path: Path to the JSON file containing participant data.
-                    If None, defaults to 'data/raw/recruited_participants.json'.
-    
+        input_path: Path to the participants_raw.json file.
+        
     Returns:
         List of participant dictionaries.
-    
+        
     Raises:
         FileNotFoundError: If the input file does not exist.
-        json.JSONDecodeError: If the file content is not valid JSON.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
-    if input_path is None:
-        input_path = 'data/raw/recruited_participants.json'
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    path_obj = Path(input_path)
-    if not path_obj.exists():
-        logger.error(f"Participant list file not found: {input_path}")
-        raise FileNotFoundError(f"Participant list file not found: {input_path}")
+    logger.info(f"Loading participants from {input_path}")
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
     
-    logger.info(f"Loading participant list from {input_path}")
-    with open(path_obj, 'r', encoding='utf-8') as f:
-        participants = json.load(f)
-    
-    if not isinstance(participants, list):
-        raise ValueError(f"Expected a list of participants in {input_path}, got {type(participants)}")
-    
-    logger.info(f"Loaded {len(participants)} participants")
-    return participants
+    if not isinstance(data, list):
+        raise ValueError(f"Expected a list of participants in {input_path}, got {type(data)}")
+        
+    logger.info(f"Loaded {len(data)} participants")
+    return data
 
 def stratified_random_assignment(participants: List[Dict[str, Any]], seed: Optional[int] = None) -> List[Dict[str, Any]]:
     """
-    Performs stratified random assignment of participants to conditions (LLM, Human, None).
+    Performs stratified random assignment of participants to conditions.
     
-    This function ensures a balanced distribution across conditions. If the number of
-    participants is not perfectly divisible by the number of conditions, the remainder
-    is distributed randomly among the conditions.
+    Conditions: 'LLM', 'Human', 'None'
+    Logic: 
+      1. Shuffle the list of participants.
+      2. Distribute them round-robin to ensure balance across conditions.
+      3. If N is not divisible by 3, the extra participants are assigned
+         to the first few conditions in the list order (LLM, Human, None).
     
     Args:
-        participants: List of participant dictionaries. Each must have a 'participant_id'.
-        seed: Random seed for reproducibility. If None, uses system time or global state.
-    
+        participants: List of participant dictionaries.
+        seed: Optional random seed for reproducibility.
+        
     Returns:
         List of participant dictionaries with an added 'condition' field.
     """
     if seed is not None:
         random.seed(seed)
-        logger.info(f"Random seed set to: {seed}")
+        logger.info(f"Random seed set to {seed}")
+    else:
+        logger.info("No seed provided, using system random state")
+
+    conditions = ['LLM', 'Human', 'None']
+    n = len(participants)
     
-    n_participants = len(participants)
-    n_conditions = len(CONDITIONS)
-    
-    if n_participants == 0:
+    if n == 0:
         logger.warning("No participants to assign.")
         return []
-    
-    # Create a list of condition slots to ensure balance
-    # Each condition gets floor(N / K) slots initially
-    base_count = n_participants // n_conditions
-    remainder = n_participants % n_conditions
-    
-    condition_slots = []
-    for i, cond in enumerate(CONDITIONS):
-        count = base_count + (1 if i < remainder else 0)
-        condition_slots.extend([cond] * count)
-    
-    # Shuffle the condition slots
-    random.shuffle(condition_slots)
-    
-    # Assign conditions to participants
-    assigned_participants = []
-    for participant, condition in zip(participants, condition_slots):
-        p_copy = participant.copy()
-        p_copy['condition'] = condition
-        assigned_participants.append(p_copy)
-        logger.debug(f"Assigned participant {p_copy.get('participant_id', 'N/A')} to {condition}")
-    
-    # Verify balance (log summary)
-    from collections import Counter
-    counts = Counter(p['condition'] for p in assigned_participants)
-    logger.info(f"Assignment complete. Distribution: {dict(counts)}")
-    
-    return assigned_participants
 
-def save_assignment_log(assigned_participants: List[Dict[str, Any]], output_path: Optional[str] = None) -> str:
+    # Shuffle participants to ensure randomness before assignment
+    shuffled = participants.copy()
+    random.shuffle(shuffled)
+    
+    assigned = []
+    for i, participant in enumerate(shuffled):
+        # Round-robin assignment to ensure balance
+        condition = conditions[i % len(conditions)]
+        participant_copy = participant.copy()
+        participant_copy['condition'] = condition
+        assigned.append(participant_copy)
+        logger.debug(f"Assigned participant {participant.get('id', 'unknown')} to {condition}")
+
+    # Verify balance
+    counts = {c: 0 for c in conditions}
+    for p in assigned:
+        counts[p['condition']] += 1
+    
+    logger.info(f"Assignment complete. Distribution: {counts}")
+    return assigned
+
+def save_assignment_log(assignment_data: List[Dict[str, Any]], output_path: str) -> None:
     """
     Saves the assignment log to a JSON file.
     
     Args:
-        assigned_participants: List of participant dictionaries with assigned conditions.
-        output_path: Path to the output JSON file.
-                    If None, defaults to 'data/processed/assignment_log.json'.
-    
-    Returns:
-        The path to the saved file.
-    
-    Raises:
-        OSError: If the directory cannot be created or the file cannot be written.
+        assignment_data: List of assigned participant dictionaries.
+        output_path: Path to the output file.
     """
-    if output_path is None:
-        output_path = 'data/processed/assignment_log.json'
-    
-    path_obj = Path(output_path)
-    output_dir = path_obj.parent
-    
-    # Ensure output directory exists
-    if not output_dir.exists():
-        logger.info(f"Creating output directory: {output_dir}")
-        output_dir.mkdir(parents=True, exist_ok=True)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
     logger.info(f"Saving assignment log to {output_path}")
-    with open(path_obj, 'w', encoding='utf-8') as f:
-        json.dump(assigned_participants, f, indent=2, ensure_ascii=False)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(assignment_data, f, indent=2)
     
-    logger.info("Assignment log saved successfully.")
-    return output_path
+    # Calculate checksum for integrity
+    checksum = hashlib.sha256(path.read_bytes()).hexdigest()
+    logger.info(f"Assignment log saved. SHA256: {checksum}")
 
 def main():
     """
     Main entry point for the participant assignment script.
-    Reads participants from data/raw/recruited_participants.json,
-    assigns them to conditions, and saves the result to data/processed/assignment_log.json.
+    Reads from data/raw/participants_raw.json and writes to data/processed/assignment_log.json.
     """
-    # Define paths
-    input_path = 'data/raw/recruited_participants.json'
-    output_path = 'data/processed/assignment_log.json'
+    # Define paths relative to project root
+    # Assuming script is run from project root: python code/experiment/assignment.py
+    project_root = Path(__file__).resolve().parent.parent.parent
+    input_file = project_root / "data" / "raw" / "participants_raw.json"
+    output_file = project_root / "data" / "processed" / "assignment_log.json"
     
-    # Check if input file exists
-    if not Path(input_path).exists():
-        logger.error(f"Input file not found: {input_path}. Cannot proceed with assignment.")
-        # In a real pipeline, we might raise an exception or exit with error code
-        # For this script, we raise to ensure the pipeline fails loudly as per constraints
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
+    # Allow overriding via environment variables for testing
+    if os.getenv('ASSIGNMENT_INPUT'):
+        input_file = Path(os.getenv('ASSIGNMENT_INPUT'))
+    if os.getenv('ASSIGNMENT_OUTPUT'):
+        output_file = Path(os.getenv('ASSIGNMENT_OUTPUT'))
+
     try:
         # Load participants
-        participants = load_participant_list(input_path)
+        participants = load_participant_list(str(input_file))
         
-        # Perform stratified random assignment
-        # Using a fixed seed for reproducibility in the pipeline context
-        assigned = stratified_random_assignment(participants, seed=42)
+        # Assign conditions
+        # Using a fixed seed for reproducibility as per Constitution Principle I (T004)
+        # unless overridden by environment variable
+        seed = int(os.getenv('ASSIGNMENT_SEED', '42'))
+        assigned_participants = stratified_random_assignment(participants, seed=seed)
         
-        # Save the assignment log
-        save_assignment_log(assigned, output_path)
+        # Save results
+        save_assignment_log(assigned_participants, str(output_file))
         
-        logger.info(f"Task T014b completed successfully. Output: {output_path}")
+        logger.info("Assignment task completed successfully.")
+        return 0
         
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Error during participant assignment: {e}", exc_info=True)
-        raise
+        logger.error(f"Unexpected error during assignment: {e}")
+        return 1
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
