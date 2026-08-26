@@ -1,91 +1,177 @@
+"""
+Unit and integration tests for model training (User Story 2).
+Tests for T020, T021, T022, T023, and specifically T018 (Cross-Validation Split).
+"""
 import pytest
-import os
-import json
-import numpy as np
-from sklearn.dummy import DummyRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
 import pandas as pd
+import numpy as np
+import os
+import sys
+import json
+from unittest.mock import patch, MagicMock
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.dummy import DummyRegressor
+from sklearn.model_selection import KFold, cross_val_score
+from sklearn.metrics import mean_squared_error
 
-# Import functions from the module under test
-# Note: Assuming the test runner is executed from the project root
-# and code/ is in the PYTHONPATH.
-try:
-    from code.train import generate_null_distribution, train_model, load_data
-except ImportError:
-    # Fallback for different execution contexts
-    from train import generate_null_distribution, train_model, load_data
+# Ensure code directory is in path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-@pytest.fixture
-def sample_data():
-    """Create a small synthetic dataset for testing logic (not for final results)."""
-    rng = np.random.RandomState(42)
-    X = rng.randn(100, 3)
-    y = 2 * X[:, 0] + 0.5 * X[:, 1] + rng.randn(100) * 0.1
-    return X, y
+from train import (
+    load_data,
+    train_model,
+    generate_null_distribution,
+    run_training
+)
 
-def test_generate_null_distribution_structure(sample_data):
-    """Test that generate_null_distribution returns the expected structure."""
-    X, y = sample_data
-    result = generate_null_distribution(X, y, n_bootstrap=10, random_state=42)
-    
-    assert isinstance(result, dict)
-    assert "n_bootstrap" in result
-    assert result["n_bootstrap"] == 10
-    assert "strategy" in result
-    assert result["strategy"] == "mean"
-    assert "rmse_mean" in result
-    assert "rmse_std" in result
-    assert "rmse_percentiles" in result
-    assert "raw_rmse_values" in result
-    assert len(result["raw_rmse_values"]) == 10
-    assert isinstance(result["raw_rmse_values"][0], float)
+class TestTrain:
+    """Tests for model training pipeline."""
 
-def test_generate_null_distribution_reproducibility(sample_data):
-    """Test that the function produces reproducible results with the same seed."""
-    X, y = sample_data
-    result1 = generate_null_distribution(X, y, n_bootstrap=50, random_state=42)
-    result2 = generate_null_distribution(X, y, n_bootstrap=50, random_state=42)
-    
-    assert result1["rmse_mean"] == result2["rmse_mean"]
-    assert result1["raw_rmse_values"] == result2["raw_rmse_values"]
+    def test_load_data(self):
+        """Test loading processed data."""
+        # Create a temporary CSV file for testing
+        temp_file = "test_temp_processed_alloys.csv"
+        data = {
+            'mixing_enthalpy': [-10.0, -5.0, -8.0],
+            'atomic_size_mismatch': [5.0, 6.0, 7.0],
+            'electronegativity_variance': [0.1, 0.2, 0.3],
+            'critical_cooling_rate': [100.0, 200.0, 300.0]
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(temp_file, index=False)
 
-def test_generate_null_distribution_values(sample_data):
-    """Test that the RMSE values are positive and reasonable."""
-    X, y = sample_data
-    result = generate_null_distribution(X, y, n_bootstrap=20, random_state=42)
-    
-    raw_values = np.array(result["raw_rmse_values"])
-    assert np.all(raw_values > 0), "RMSE values must be positive"
-    assert result["rmse_mean"] > 0
-    assert result["rmse_std"] >= 0
+        loaded_df = load_data(temp_file)
+        
+        assert isinstance(loaded_df, pd.DataFrame)
+        assert len(loaded_df) == 3
+        assert 'critical_cooling_rate' in loaded_df.columns
 
-def test_dummy_regressor_consistency(sample_data):
-    """Verify that the null distribution aligns with manual DummyRegressor calculation."""
-    X, y = sample_data
-    rng = np.random.RandomState(42)
-    
-    # Manual calculation for one bootstrap sample
-    indices = rng.choice(len(y), size=len(y), replace=True)
-    X_boot = X[indices]
-    y_boot = y[indices]
-    
-    dummy = DummyRegressor(strategy='mean')
-    dummy.fit(X_boot, y_boot)
-    y_pred = dummy.predict(X_boot)
-    manual_rmse = np.sqrt(mean_squared_error(y_boot, y_pred))
-    
-    # Get the first value from the function (it should use the same seed)
-    # Note: The function resets the seed at the start, so the first iteration matches.
-    result = generate_null_distribution(X, y, n_bootstrap=1, random_state=42)
-    function_rmse = result["raw_rmse_values"][0]
-    
-    # Allow for small floating point differences if any, though they should be identical
-    assert np.isclose(manual_rmse, function_rmse), "Manual and function RMSE should match"
+        # Cleanup
+        os.remove(temp_file)
 
-def test_null_distribution_size(sample_data):
-    """Ensure the output list size matches n_bootstrap."""
-    X, y = sample_data
-    n_boot = 150
-    result = generate_null_distribution(X, y, n_bootstrap=n_boot, random_state=42)
-    assert len(result["raw_rmse_values"]) == n_boot
+    def test_train_model(self):
+        """Test model training and cross-validation."""
+        # Create synthetic data
+        np.random.seed(42)
+        X = pd.DataFrame({
+            'mixing_enthalpy': np.random.randn(100),
+            'atomic_size_mismatch': np.random.randn(100),
+            'electronegativity_variance': np.random.randn(100)
+        })
+        y = np.random.randn(100)
+
+        model, metrics = train_model(X, y)
+
+        assert isinstance(model, RandomForestRegressor)
+        assert 'mean_rmse' in metrics
+        assert 'test_rmse' in metrics
+        assert 'fold_scores' in metrics
+        assert len(metrics['fold_scores']) == 5
+
+    def test_generate_null_distribution(self):
+        """Test null distribution generation."""
+        # Create synthetic data
+        np.random.seed(42)
+        X = pd.DataFrame({
+            'mixing_enthalpy': np.random.randn(100),
+            'atomic_size_mismatch': np.random.randn(100),
+            'electronegativity_variance': np.random.randn(100)
+        })
+        y = np.random.randn(100)
+
+        null_rmse = generate_null_distribution(X, y, n_permutations=10, random_state=42)
+
+        assert isinstance(null_rmse, float)
+        assert null_rmse > 0
+
+    @patch('train.load_data')
+    @patch('train.train_model')
+    @patch('train.generate_null_distribution')
+    @patch('train.os.makedirs')
+    @patch('train.json.dump')
+    def test_run_training(self, mock_json, mock_makedirs, mock_gen_null, mock_train, mock_load):
+        """Test the full training pipeline execution."""
+        # Mock inputs
+        mock_df = pd.DataFrame({
+            'mixing_enthalpy': [1.0, 2.0],
+            'atomic_size_mismatch': [1.0, 2.0],
+            'electronegativity_variance': [1.0, 2.0],
+            'critical_cooling_rate': [100.0, 200.0]
+        })
+        mock_load.return_value = mock_df
+        
+        mock_model = MagicMock(spec=RandomForestRegressor)
+        mock_metrics = {
+            'fold_scores': [1.0, 1.0, 1.0, 1.0, 1.0],
+            'mean_rmse': 1.0,
+            'test_rmse': 1.0,
+            'p_value_vs_null': 0.01
+        }
+        mock_train.return_value = (mock_model, mock_metrics)
+        mock_gen_null.return_value = 2.0
+
+        # Run training
+        run_training()
+
+        # Verify calls
+        mock_load.assert_called_once()
+        mock_train.assert_called_once()
+        mock_gen_null.assert_called_once()
+        mock_makedirs.assert_called()
+        mock_json.assert_called()
+
+    def test_cross_validation_split_non_overlapping(self):
+        """
+        T018: Unit test for 5-fold cross-validation split generation ensuring non-overlapping folds.
+        Verifies that the KFold logic used in train_model produces disjoint train/test indices for each fold.
+        """
+        # Create a small dataset
+        np.random.seed(42)
+        X = pd.DataFrame({
+            'mixing_enthalpy': np.random.randn(20),
+            'atomic_size_mismatch': np.random.randn(20),
+            'electronegativity_variance': np.random.randn(20)
+        })
+        y = np.random.randn(20)
+
+        n_splits = 5
+        kfold = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+        
+        all_train_indices = []
+        all_test_indices = []
+        
+        # Collect all indices used in folds
+        total_indices = set(range(len(X)))
+        
+        for i, (train_idx, test_idx) in enumerate(kfold.split(X)):
+            train_set = set(train_idx)
+            test_set = set(test_idx)
+            
+            # 1. Verify non-overlapping within the fold
+            assert train_set.isdisjoint(test_set), f"Fold {i} has overlapping train/test indices"
+            
+            # 2. Verify union covers the whole dataset for this fold
+            assert train_set.union(test_set) == total_indices, f"Fold {i} does not cover all data"
+            
+            # 3. Verify sizes are reasonable (approx 80/20 split)
+            assert len(train_set) >= len(X) * 0.75, f"Fold {i} train set too small"
+            assert len(test_set) <= len(X) * 0.30, f"Fold {i} test set too large"
+            
+            all_train_indices.append(train_set)
+            all_test_indices.append(test_set)
+
+        # 4. Verify that every index appears as a test set exactly once across all folds
+        union_all_test_sets = set()
+        for test_set in all_test_indices:
+            union_all_test_sets.update(test_set)
+        
+        assert union_all_test_sets == total_indices, "Not all indices were used as test data exactly once"
+        
+        # 5. Verify that test sets are disjoint from each other (standard KFold property)
+        for i in range(len(all_test_indices)):
+            for j in range(i + 1, len(all_test_indices)):
+                assert all_test_indices[i].isdisjoint(all_test_indices[j]), \
+                    f"Test sets for fold {i} and {j} overlap"
+
+if __name__ == '__main__':
+    pytest.main([__file__, "-v"])

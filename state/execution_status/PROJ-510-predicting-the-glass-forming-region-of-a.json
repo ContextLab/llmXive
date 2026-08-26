@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-510-predicting-the-glass-forming-region-of-a",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/ingestion.py (rc=1); python code/features.py (rc=1); python code/train.py (rc=1); 1 declared deliverable(s) absent: data/processed/processed_alloys.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py\", line 5, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/features.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/train.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analyze.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py\", line 9, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-26T16:51:15Z"
+}

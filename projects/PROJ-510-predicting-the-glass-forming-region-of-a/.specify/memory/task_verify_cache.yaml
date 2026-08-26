@@ -1,10 +1,10 @@
-T016:
+T001b:
   c: false
-  h: bd504fc12dc365d86a9bc8cea6cf9c7a7b9f90fb2b89a964401baaa149e83223
-  r: "The provided `code/features.py` is incomplete (truncated, lacks any tolerance\u2011\
-    based validation logic and does not contain code to write a DataFrame to `data/processed/processed_alloys.csv`).\
-    \ Moreover, the required output file `data/processed/processed_alloys.csv` is\
-    \ absent from the repository."
+  h: b38aff8bec1db6ba982aee9432cc1855db8cd37ffb61a9d4b9dd374074f0719f
+  r: The listed source files (__init__.py, utils.py, ingestion.py, features.py, train.py,
+    analyze.py) exist and contain code, but the required `requirements.txt` file is
+    missing from the provided artifacts. Without that file the requested project structure
+    is incomplete.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

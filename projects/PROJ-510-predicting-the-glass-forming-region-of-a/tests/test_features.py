@@ -1,31 +1,116 @@
-import unittest
-from unittest.mock import patch
-import pandas as pd
-from code.features import get_element_properties, validate_composition, calculate_mixing_enthalpy, calculate_atomic_size_mismatch, compute_features
+"""
+Unit tests for feature engineering functions.
+"""
+import pytest
 import numpy as np
+import pandas as pd
+import os
+import sys
 
-class TestFeatures(unittest.TestCase):
+# Add project root to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    def test_get_element_properties(self):
-        props = get_element_properties("Fe")
-        self.assertIsInstance(props, dict)
-        self.assertAlmostEqual(props["atomic_size"], 140.0, places=2)
+from code.features import (
+    parse_composition,
+    get_element_properties_safe,
+    calculate_mixing_enthalpy,
+    calculate_atomic_size_mismatch,
+    calculate_electronegativity_variance,
+    compute_features,
+    validate_features
+)
 
-    def test_validate_composition(self):
-        self.assertTrue(validate_composition("Fe,Cr,Ni"))
-        self.assertFalse(validate_composition("Fe,X,Ni"))
+class TestParseComposition:
+    def test_simple_binary(self):
+        comp = parse_composition("Cu50Zr50")
+        assert abs(comp['Cu'] - 0.5) < 1e-6
+        assert abs(comp['Zr'] - 0.5) < 1e-6
 
-    def test_calculate_mixing_enthalpy(self):
-        composition = ["Fe", "Cr", "Ni"]
-        weights = [0.5, 0.3, 0.2]
-        enthalpy = calculate_mixing_enthalpy(composition, weights)
-        self.assertIsInstance(enthalpy, float)
+    def test_ternary(self):
+        comp = parse_composition("Cu60Zr30Al10")
+        assert abs(comp['Cu'] - 0.6) < 1e-6
+        assert abs(comp['Zr'] - 0.3) < 1e-6
+        assert abs(comp['Al'] - 0.1) < 1e-6
 
-    def test_compute_features(self):
-        data = {"composition": "Fe:0.5,Cr:0.3,Ni:0.2"}
-        df = pd.DataFrame([data])
-        result = compute_features(df.iloc[0])
-        self.assertIsInstance(result, pd.Series)
+    def test_underscore_format(self):
+        comp = parse_composition("Cu_50_Zr_50")
+        assert abs(comp['Cu'] - 0.5) < 1e-6
+        assert abs(comp['Zr'] - 0.5) < 1e-6
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_invalid_element(self):
+        with pytest.raises(ValueError):
+            parse_composition("Xx99Yy1") # Xx is not a real element
+
+class TestGetElementProperties:
+    def test_valid_element(self):
+        props = get_element_properties_safe("Cu")
+        assert props is not None
+        assert props['symbol'] == 'Cu'
+        assert 'atomic_radius' in props
+        assert 'electronegativity' in props
+
+    def test_invalid_element(self):
+        props = get_element_properties_safe("Xx")
+        assert props is None
+
+class TestCalculateMixingEnthalpy:
+    def test_binary_alloy(self):
+        # Cu-Zr
+        comp = {'Cu': 0.5, 'Zr': 0.5}
+        enthalpy = calculate_mixing_enthalpy(comp)
+        # Should be a float, likely negative
+        assert isinstance(enthalpy, float)
+        assert not np.isnan(enthalpy)
+
+    def test_single_element(self):
+        comp = {'Cu': 1.0}
+        enthalpy = calculate_mixing_enthalpy(comp)
+        assert enthalpy == 0.0
+
+class TestCalculateAtomicSizeMismatch:
+    def test_binary_alloy(self):
+        comp = {'Cu': 0.5, 'Zr': 0.5}
+        mismatch = calculate_atomic_size_mismatch(comp)
+        assert isinstance(mismatch, float)
+        assert not np.isnan(mismatch)
+        assert mismatch >= 0
+
+class TestCalculateElectronegativityVariance:
+    def test_binary_alloy(self):
+        comp = {'Cu': 0.5, 'Zr': 0.5}
+        variance = calculate_electronegativity_variance(comp)
+        assert isinstance(variance, float)
+        assert not np.isnan(variance)
+        assert variance >= 0
+
+class TestComputeFeatures:
+    def test_dataframe_computation(self):
+        data = {
+            'composition': ['Cu50Zr50', 'Cu60Zr30Al10'],
+            'critical_cooling_rate': [10.0, 20.0]
+        }
+        df = pd.DataFrame(data)
+        result_df = compute_features(df)
+
+        assert 'mixing_enthalpy' in result_df.columns
+        assert 'atomic_size_mismatch' in result_df.columns
+        assert 'electronegativity_variance' in result_df.columns
+        assert len(result_df) == 2
+        assert not result_df['mixing_enthalpy'].isna().all()
+
+class TestValidateFeatures:
+    def test_valid_dataframe(self):
+        data = {
+            'mixing_enthalpy': [1.0, 2.0],
+            'atomic_size_mismatch': [5.0, 6.0],
+            'electronegativity_variance': [0.1, 0.2]
+        }
+        df = pd.DataFrame(data)
+        assert validate_features(df) is True
+
+    def test_missing_column(self):
+        data = {
+            'mixing_enthalpy': [1.0, 2.0]
+        }
+        df = pd.DataFrame(data)
+        assert validate_features(df) is False

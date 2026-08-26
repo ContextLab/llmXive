@@ -1,54 +1,126 @@
 """
-Unit and integration tests for analysis and sensitivity.
+Unit and integration tests for analysis and sensitivity (User Story 3).
+Tests for T028, T029, T031, T032.
 """
 import pytest
 import pandas as pd
 import numpy as np
-from code.analyze import analyze_feature_importance, run_sensitivity_analysis
+import os
+import sys
+import json
+from unittest.mock import patch, MagicMock
+from sklearn.ensemble import RandomForestRegressor
 
+# Ensure code directory is in path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-def test_analyze_feature_importance_structure():
-    """Test that feature importance analysis returns expected structure."""
-    # Create mock data
-    data = {
-        "mixing_enthalpy": np.random.rand(100),
-        "atomic_size_mismatch": np.random.rand(100),
-        "electronegativity_variance": np.random.rand(100),
-        "critical_cooling_rate": np.random.rand(100) * 100
-    }
-    df = pd.DataFrame(data)
+from analyze import (
+    load_model_and_data,
+    analyze_feature_importance,
+    run_sensitivity_analysis,
+    run_analysis
+)
 
-    # Mock model (RandomForestRegressor)
-    from sklearn.ensemble import RandomForestRegressor
-    model = RandomForestRegressor(n_estimators=5, random_state=42)
-    model.fit(df[["mixing_enthalpy", "atomic_size_mismatch", "electronegativity_variance"]], df["critical_cooling_rate"])
+class TestAnalyze:
+    """Tests for analysis pipeline."""
 
-    importance_results = analyze_feature_importance(model, df)
-    assert "feature_importance" in importance_results
-    assert "p_values" in importance_results
-    assert len(importance_results["feature_importance"]) == 3
+    def test_load_model_and_data(self):
+        """Test loading model and data."""
+        # Create temporary files
+        model_file = "test_temp_model.pkl"
+        data_file = "test_temp_data.csv"
+        
+        # Create dummy model
+        model = RandomForestRegressor()
+        import pickle
+        with open(model_file, 'wb') as f:
+            pickle.dump(model, f)
 
+        # Create dummy data
+        data = {
+            'mixing_enthalpy': [1.0, 2.0, 3.0],
+            'atomic_size_mismatch': [1.0, 2.0, 3.0],
+            'electronegativity_variance': [1.0, 2.0, 3.0],
+            'critical_cooling_rate': [100.0, 200.0, 300.0]
+        }
+        pd.DataFrame(data).to_csv(data_file, index=False)
 
-def test_run_sensitivity_analysis_thresholds():
-    """Test sensitivity analysis across specified thresholds."""
-    # Create mock data
-    data = {
-        "mixing_enthalpy": np.random.rand(100),
-        "atomic_size_mismatch": np.random.rand(100),
-        "electronegativity_variance": np.random.rand(100),
-        "critical_cooling_rate": np.random.rand(100) * 100
-    }
-    df = pd.DataFrame(data)
+        loaded_model, loaded_data = load_model_and_data(model_file, data_file)
 
-    from sklearn.ensemble import RandomForestRegressor
-    model = RandomForestRegressor(n_estimators=5, random_state=42)
-    model.fit(df[["mixing_enthalpy", "atomic_size_mismatch", "electronegativity_variance"]], df["critical_cooling_rate"])
+        assert isinstance(loaded_model, RandomForestRegressor)
+        assert isinstance(loaded_data, pd.DataFrame)
+        assert len(loaded_data) == 3
 
-    thresholds = [50, 100, 150]
-    results = run_sensitivity_analysis(model, df, thresholds)
+        # Cleanup
+        os.remove(model_file)
+        os.remove(data_file)
 
-    assert len(results) == len(thresholds)
-    for res in results:
-        assert "threshold" in res
-        assert "metric_type" in res
-        assert "value" in res
+    def test_analyze_feature_importance(self):
+        """Test feature importance analysis."""
+        # Create synthetic data
+        X = pd.DataFrame({
+            'mixing_enthalpy': np.random.randn(100),
+            'atomic_size_mismatch': np.random.randn(100),
+            'electronegativity_variance': np.random.randn(100)
+        })
+        y = np.random.randn(100)
+
+        model = RandomForestRegressor(random_state=42)
+        model.fit(X, y)
+
+        importance_results = analyze_feature_importance(model, X, y, n_permutations=5, random_state=42)
+
+        assert isinstance(importance_results, dict)
+        assert 'importance_ranking' in importance_results
+        assert 'p_values' in importance_results
+        assert len(importance_results['importance_ranking']) == 3
+
+    def test_run_sensitivity_analysis(self):
+        """Test sensitivity analysis across thresholds."""
+        # Create synthetic data
+        X = pd.DataFrame({
+            'mixing_enthalpy': np.random.randn(100),
+            'atomic_size_mismatch': np.random.randn(100),
+            'electronegativity_variance': np.random.randn(100)
+        })
+        y = np.random.randn(100) * 100 + 100 # Shift to positive range
+
+        model = RandomForestRegressor(random_state=42)
+        model.fit(X, y)
+
+        thresholds = [50, 100, 150]
+        sensitivity_results = run_sensitivity_analysis(model, X, y, thresholds)
+
+        assert isinstance(sensitivity_results, dict)
+        assert 'threshold_values' in sensitivity_results
+        assert 'f1_scores' in sensitivity_results
+        assert len(sensitivity_results['threshold_values']) == 3
+        assert len(sensitivity_results['f1_scores']) == 3
+
+    @patch('analyze.load_model_and_data')
+    @patch('analyze.analyze_feature_importance')
+    @patch('analyze.run_sensitivity_analysis')
+    @patch('analyze.json.dump')
+    @patch('analyze.os.makedirs')
+    def test_run_analysis(self, mock_makedirs, mock_json, mock_sens, mock_imp, mock_load):
+        """Test the full analysis pipeline execution."""
+        # Mock inputs
+        mock_model = MagicMock(spec=RandomForestRegressor)
+        mock_data = pd.DataFrame({'a': [1, 2]})
+        mock_load.return_value = (mock_model, mock_data)
+        
+        mock_imp.return_value = {'importance_ranking': ['x'], 'p_values': [0.01]}
+        mock_sens.return_value = {'threshold_values': [50], 'f1_scores': [0.8]}
+
+        # Run analysis
+        run_analysis()
+
+        # Verify calls
+        mock_load.assert_called_once()
+        mock_imp.assert_called_once()
+        mock_sens.assert_called_once()
+        mock_makedirs.assert_called()
+        mock_json.assert_called()
+
+if __name__ == '__main__':
+    pytest.main([__file__, "-v"])

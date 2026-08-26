@@ -5,6 +5,6 @@ requests
 pyyaml
 datasets
 mendeleev
+scipy
+pydantic
 pytest
-flake8
-black
