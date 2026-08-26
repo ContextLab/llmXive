@@ -6,9 +6,7 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T016b** — declared artifact(s) missing/empty/invalid: data/processed/cleaned_microbiome_sleep.csv
 - **T017b** — declared artifact(s) missing/empty/invalid: data/processed/ingestion_report.json
 - **T020c** — declared artifact(s) missing/empty/invalid: data/processed/diversity_results.csv
-- **T025b** — declared artifact(s) missing/empty/invalid: data/processed/correlation_results.csv
 - **T031c** — declared artifact(s) missing/empty/invalid: data/processed/reports/blocked_report.md
 - **T016** — declared artifact(s) missing/empty/invalid: data/processed/cleaned_microbiome_sleep.csv, data/processed/checksums.json, state/projects/PROJ-087-investigating-the-correlation-between-gu.yaml
 - **T017** — The required artifact `data/processed/ingestion_report.json` does not exist, so the task’s requirement of logging the exclusion metrics cannot be satisfied. The missing file must be created and contain the specified keys.
 - **T020a** — The required input `data/processed/cleaned_microbiome_sleep.csv` does not exist, nor does the expected output `data/processed/diversity_results.csv`. Moreover, the provided `src/diversity.py` is truncated and does not show a complete implementation of chunked alpha‑diversity calculation, file‑existence checks, or CSV writing. The task’s deliverables are therefore missing.
-- **T024** — declared artifact(s) missing/empty/invalid: data/processed/correlation_results.csv

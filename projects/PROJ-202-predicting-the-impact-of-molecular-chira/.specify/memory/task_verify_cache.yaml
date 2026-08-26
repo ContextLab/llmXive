@@ -36,3 +36,10 @@ T010:
     the repository, so the contract test for data download validity is missing. The
     task cannot be considered completed until this file is added with appropriate
     test code.
+T011:
+  c: false
+  h: f4a77bb11684212c160a3cc376d8bd713bb4759d4b6c69f034e3c4176d3085d7
+  r: The required artifact `tests/integration/test_docking_time.py` does not exist
+    in the repository, so the integration test for the docking execution time limit
+    is missing. The task cannot be considered completed until this file is added with
+    appropriate test code.

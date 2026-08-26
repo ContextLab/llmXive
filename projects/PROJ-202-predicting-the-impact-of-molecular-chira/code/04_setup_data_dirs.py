@@ -1,60 +1,72 @@
 """
-Task T004: Setup data directory structure.
+Data Directory Setup Script.
 
-Creates the required directory hierarchy for the project's data artifacts:
-- data/raw: For raw, unprocessed data fetched from external sources.
-- data/processed: For cleaned, transformed, and analysis-ready data.
-- data/interim: For intermediate data files generated during processing steps.
+Creates the required directory structure for the molecular chirality project
+and places .gitkeep files to ensure the directories are tracked by git.
 
-This script ensures that all necessary directories exist and contains
-empty .gitkeep files to preserve the directory structure in version control.
+This script fulfills task T004: Setup data directory structure.
 """
-
 import os
 from pathlib import Path
 
 
 def setup_data_directories():
     """
-    Create the standard data directory structure and .gitkeep files.
+    Create the standard project data directory structure.
 
-    Directories created relative to the project root:
-    - data/raw
-    - data/processed
-    - data/interim
+    Creates the following directories relative to the project root:
+    - data/raw: For original, unprocessed data sources
+    - data/processed: For cleaned, aggregated, and analysis-ready data
+    - data/interim: For intermediate data transformations
 
-    Returns:
-        bool: True if all directories were created/successfully verified.
+    Also ensures .gitkeep files exist in each directory to preserve
+    directory structure in version control.
     """
-    project_root = Path(__file__).resolve().parent.parent
-    data_root = project_root / "data"
+    # Determine project root based on script location
+    # Assuming this script is in code/04_setup_data_dirs.py
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
 
-    directories = [
-        data_root / "raw",
-        data_root / "processed",
-        data_root / "interim",
+    # Define data directories
+    data_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "interim",
+        # Also ensure logs directory exists for T008
+        project_root / "data" / "logs",
+        # Ensure figures directory exists for output plots
+        project_root / "figures",
     ]
 
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        gitkeep_path = directory / ".gitkeep"
+    created_count = 0
+    for dir_path in data_dirs:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Created directory: {dir_path}")
+        else:
+            print(f"Directory already exists: {dir_path}")
+
+        # Create .gitkeep file to ensure directory is tracked
+        gitkeep_path = dir_path / ".gitkeep"
         if not gitkeep_path.exists():
             gitkeep_path.touch()
-            print(f"Created: {gitkeep_path}")
+            print(f"Created .gitkeep in: {dir_path}")
         else:
-            print(f"Already exists: {gitkeep_path}")
+            print(f".gitkeep already exists in: {dir_path}")
 
+    print(f"\nSetup complete. Created/verified {created_count} new directories.")
     return True
 
 
 def main():
     """Entry point for the script."""
-    print("Setting up data directory structure...")
+    print("Starting data directory setup...")
     success = setup_data_directories()
     if success:
-        print("Data directory setup complete.")
+        print("Data directory structure is ready.")
     else:
-        print("Data directory setup failed.")
+        print("Failed to set up data directory structure.")
         exit(1)
 
 

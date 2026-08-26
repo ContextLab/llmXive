@@ -1,2 +1,2 @@
-# This directory stores raw, unprocessed data downloaded from external sources (e.g., AlphaFold PDBs, FlavorDB/ChEMBL SMILES).
-# Files here are immutable and must not be modified directly.
+# This directory stores raw data downloaded from external sources (FlavorDB, ChEMBL, AlphaFold).
+# Do not modify files here; they are the source of truth for the pipeline.

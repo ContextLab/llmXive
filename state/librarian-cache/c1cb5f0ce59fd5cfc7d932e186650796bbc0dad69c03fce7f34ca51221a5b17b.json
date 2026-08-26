@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-03T18:55:37Z",
+  "fetched_at": "2026-08-26T03:41:04Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Knowledge Boundary in A\"",
       "target_n": 5
     },
-    "duration_seconds": 51.803,
-    "ended_at": "2026-08-03T18:55:37Z",
+    "duration_seconds": 35.179,
+    "ended_at": "2026-08-26T03:41:04Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -23,75 +23,75 @@
         ],
         [
           3,
-          "out-of-distribution generalization in foundation models"
+          "out-of-distribution knowledge discovery in LLMs"
         ],
         [
           4,
-          "knowledge boundary evolution in AI systems"
+          "extending the frontier of machine-learned knowledge"
         ],
         [
           5,
-          "extending model capabilities beyond supervised learning"
+          "dynamic knowledge boundary expansion in AI"
         ],
         [
           6,
-          "search-based knowledge discovery in LLMs"
+          "LLM inference beyond memorized patterns"
         ],
         [
           7,
-          "emergent reasoning beyond explicit training"
+          "generative model exploration of unknown concepts"
         ],
         [
           8,
-          "pushing the limits of teachable knowledge in neural networks"
+          "unsupervised knowledge boundary shifting in transformers"
         ],
         [
           9,
-          "unsupervised knowledge expansion in language models"
+          "emergent reasoning in large language models"
         ],
         [
           10,
-          "inference-time search for novel knowledge acquisition"
+          "open-ended search in generative AI systems"
         ],
         [
           11,
-          "dynamic knowledge boundary adaptation in generative AI"
+          "discovering novel knowledge via LLM prompting"
         ],
         [
           12,
-          "learning from search trajectories in large models"
+          "limits of static training data in language models"
         ],
         [
           13,
-          "meta-learning for expanding model knowledge frontiers"
+          "adaptive knowledge acquisition in foundation models"
         ],
         [
           14,
-          "automated reasoning beyond fixed training corpora"
+          "extrapolation beyond training corpus in NLP"
         ],
         [
           15,
-          "self-improving language models via search"
+          "LLM-driven hypothesis generation for unknown domains"
         ],
         [
           16,
-          "knowledge boundary shifting in transformer architectures"
+          "bridging the gap between learned and unlearned knowledge"
         ],
         [
           17,
-          "search-driven generalization in deep learning"
+          "iterative knowledge boundary refinement in AI agents"
         ],
         [
           18,
-          "extrapolating beyond the training distribution in LLMs"
+          "search mechanisms for uncharted conceptual spaces"
         ],
         [
           19,
-          "iterative knowledge refinement through external search"
+          "meta-learning for knowledge boundary evolution"
         ],
         [
           20,
-          "beyond-curriculum learning in artificial intelligence"
+          "transcending training set limitations in generative models"
         ]
       ],
       "original_term": "",
@@ -102,11 +102,11 @@
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "knowledge boundary expansion LLM generalization limits",
-      "out-of-distribution reasoning LLM zero-shot transfer",
-      "unsupervised knowledge discovery emergent capabilities",
-      "test-time scaling inference compute extrapolation",
-      "model collapse data contamination training distribution shift"
+      "knowledge boundary LLM training data saturation",
+      "LLMXive knowledge cutoff extrapolation",
+      "test-time compute reasoning beyond training",
+      "out-of-distribution generalization frontier evaluation",
+      "memorization versus reasoning knowledge acquisition"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -124,12 +124,12 @@
       ]
     },
     "per_query_hit_count": {
-      "knowledge boundary expansion LLM generalization limits": 3,
+      "LLMXive knowledge cutoff extrapolation": 3,
+      "knowledge boundary LLM training data saturation": 3,
       "llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Knowledge Boundary in A\" computer science": 3,
-      "model collapse data contamination training distribution shift": 3,
-      "out-of-distribution reasoning LLM zero-shot transfer": 3,
-      "test-time scaling inference compute extrapolation": 3,
-      "unsupervised knowledge discovery emergent capabilities": 3
+      "memorization versus reasoning knowledge acquisition": 2,
+      "out-of-distribution generalization frontier evaluation": 3,
+      "test-time compute reasoning beyond training": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -149,7 +149,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-03T18:54:45Z",
+    "started_at": "2026-08-26T03:40:29Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"search beyond what can be taught: evolving the knowledge boundary in a\" computer science",
       "raw": "llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Knowledge Boundary in A\" computer science"
@@ -168,7 +168,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       },
       {
@@ -187,7 +187,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       },
       {
@@ -205,283 +205,111 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_abstract": "The composition of training data, governed by the diversity of sources and their mixing strategy, is a cornerstone of Large Language Model (LLM) pre-training. Online Data Mixing (ODM), the technique of adaptively adjusting data mixtures during training, has emerged as a promising direction to improve efficiency. However, existing methods are constrained by their reliance on a singular optimization perspective, which fundamentally overlooks the need for complex LLM pre-training to consider the dynamic data composition from multiple dimensions. To overcome this limitation, we introduce the Holistic Data Scheduler (HDS), a novel online data mixing framework. HDS formulates the data scheduling challenge as a reinforcement learning problem in a continuous control space and leverages the Soft Actor-Critic (SAC) algorithm for its stability and sample efficiency in exploring the high-dimensional policy space. At the core of HDS lies a novel multi-objective, holistic reward function that integrates three critical perspectives: a data-driven reward for quality, a loss-driven reward capturing inter-domain influence, and a model-driven reward based on weight norms. To validate our design and determine its optimal configuration, we conducted systematic experiments on LLMs of various sizes. On The Pile benchmark, HDS reaches the final validation perplexity of the next best method with 44% fewer training iterations. Furthermore, it achieves a 7.2% improvement on the MMLU 0-shot task along with consistent gains on other benchmarks, showcasing its ability to enhance both training efficiency and final model capability.",
           "claimed_authors": [
-            " PSBC LLM Team",
-            " Huawei LLM Team",
-            "Ruihan Long",
-            "Junjie Wu",
-            "Tianan Zhang",
-            "Duo Zhang",
-            "Yaozong Wu",
-            "Jinbin Fu",
-            "Chang Liu",
-            "Zhentao Tang",
-            "Wenshuang Yang",
-            "Xin Wang",
-            "Zhihao Song",
-            "Ning Huang",
-            "Wenjing Xu",
-            "Shuai Zong",
-            "Shupei Sun",
-            "Sen Wang",
-            "Jing Hu",
-            "Bin Wang",
-            "Xinyu Wang",
-            "Junkui Ju",
-            "Zequn Ding",
-            "Jie Ran",
-            "Man Luo",
-            "Shixiong Kai",
-            "Linkai Hou",
-            "Kaichao Liang",
-            "Hu Zhao",
-            "Yang Zhao",
-            "Shucheng Lin",
-            "Wei Yu",
-            "Chenghan Jiang",
-            "Jingjing Ding",
-            "Jiahui Zhang",
-            "Tian Jin",
-            "Yuhang Zhang",
-            "Dong Guo",
-            "Wei Sun",
-            "Jun Xie",
-            "Jianwei Li",
-            "Lei Cao",
-            "Pei Li",
-            "Jiabin Li",
-            "Jia Yuan",
-            "Rui Yuan",
-            "Jing Zhu",
-            "Mingxuan Yuan",
-            "Zhangcheng Lv",
-            "Xin Jiang",
-            "Xiuhong Fei",
-            "Xiaozhe Ren",
-            "Yulong Li",
-            "Zhipeng Zhang",
-            "Hang Wang",
-            "Zhaohui Xu",
-            "Rui Zhao",
-            "Yibo He",
-            "Xinzhuang Niu"
+            "Chenhao Dang",
+            "Jing Ma",
+            "Mingjie Liao"
           ],
-          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_title": "Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2606.05868"
+          "primary_pointer": "2606.24133"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning')",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs), such as ChatGPT and GPT4, are making new waves in the field of natural language processing and artificial intelligence, due to their emergent ability and generalizability. However, LLMs are black-box models, which often fall short of capturing and accessing factual knowledge. In contrast, Knowledge Graphs (KGs), Wikipedia and Huapu for example, are structured knowledge models that explicitly store rich factual knowledge. KGs can enhance LLMs by providing external knowledge for inference and interpretability. Meanwhile, KGs are difficult to construct and evolving by nature, which challenges the existing methods in KGs to generate new facts and represent unseen knowledge. Therefore, it is complementary to unify LLMs and KGs together and simultaneously leverage their advantages. In this article, we present a forward-looking roadmap for the unification of LLMs and KGs. Our roadmap consists of three general frameworks, namely, 1) KG-enhanced LLMs, which incorporate KGs during the pre-training and inference phases of LLMs, or for the purpose of enhancing understanding of the knowledge learned by LLMs; 2) LLM-augmented KGs, that leverage LLMs for different KG tasks such as embedding, completion, construction, graph-to-text generation, and question answering; and 3) Synergized LLMs + KGs, in which LLMs and KGs play equal roles and work in a mutually beneficial way to enhance both LLMs and KGs for bidirectional reasoning driven by both data and knowledge. We review and summarize existing efforts within these three frameworks in our roadmap and pinpoint their future research directions.",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
           "claimed_authors": [
-            "Shirui Pan",
-            "Linhao Luo",
-            "Yufei Wang",
-            "Chen Chen",
-            "Jiapu Wang",
-            "Xindong Wu"
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
           ],
-          "claimed_title": "Unifying Large Language Models and Knowledge Graphs: A Roadmap",
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2306.08302"
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
         },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Unifying Large Language Models and Knowledge Graphs: A Roadmap')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The rapid expansion of e-commerce platforms generates vast amounts of unstructured product data, creating significant challenges for information retrieval, recommendation systems, and data analytics. Knowledge Graphs (KGs) offer a structured, interpretable format to organize such data, yet constructing product-specific KGs remains a complex and manual process. This paper introduces a fully automated, AI agent-driven framework for constructing product knowledge graphs directly from unstructured product descriptions. Leveraging Large Language Models (LLMs), our method operates in three stages using dedicated agents: ontology creation and expansion, ontology refinement, and knowledge graph population. This agent-based approach ensures semantic coherence, scalability, and high-quality output without relying on predefined schemas or handcrafted extraction rules. We evaluate the system on a real-world dataset of air conditioner product descriptions, demonstrating strong performance in both ontology generation and KG population. The framework achieves over 97\\% property coverage and minimal redundancy, validating its effectiveness and practical applicability. Our work highlights the potential of LLMs to automate structured knowledge extraction in retail, providing a scalable path toward intelligent product data integration and utilization.",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
           "claimed_authors": [
-            "Dimitar Peshevski",
-            "Riste Stojanov",
-            "Dimitar Trajanov"
+            "Deepesh Data",
+            "Suhas Diggavi"
           ],
-          "claimed_title": "AI Agent-Driven Framework for Automated Product Knowledge Graph Construction in E-Commerce",
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2511.11017"
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='AI Agent-Driven Framework for Automated Product Knowledge Graph Construction in E-Commerce')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_abstract": "We consider the reversible exclusion process with reservoirs on arbitrary networks. We characterize the spectral gap, mixing time, and mixing window of the process, in terms of certain simple statistics of the underlying network. Among other consequences, we establish a non-conservative analogue of Aldous's spectral gap conjecture, and we show that cutoff occurs if and only if the product condition is satisfied. We illustrate this by providing explicit cutoffs on discrete lattices of arbitrary dimensions and boundary conditions, which substantially generalize recent one-dimensional results. We also obtain cutoff phenomena in relative entropy, Hilbert norm, separation distance and supremum norm. Our proof exploits negative dependence in a novel, simple way to reduce the understanding of the whole process to that of single-site marginals. We believe that this approach will find other applications.",
           "claimed_authors": [
-            "Dinithi Dissanayake",
-            "Suranga Nanayakkara"
+            "Justin Salez"
           ],
-          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_title": "Universality of cutoff for exclusion with reservoirs",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16021"
+          "claimed_year": 2022,
+          "primary_pointer": "2201.03463"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Universality of cutoff for exclusion with reservoirs')",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_abstract": "Knowledge Tracing (KT) is to trace the knowledge of students as they solve a sequence of problems represented by their related skills. This involves abstract concepts of students' states of knowledge and the interactions between those states and skills. Therefore, a KT model is designed to predict whether students will give correct answers and to describe such abstract concepts. However, existing methods either give relatively low prediction accuracy or fail to explain those concepts intuitively. In this paper, we propose a new model called Knowledge Query Network (KQN) to solve these problems. KQN uses neural networks to encode student learning activities into knowledge state and skill vectors, and models the interactions between the two types of vectors with the dot product. Through this, we introduce a novel concept called \\textit{probabilistic skill similarity} that relates the pairwise cosine and Euclidean distances between skill vectors to the odds ratios of the corresponding skills, which makes KQN interpretable and intuitive.\n  On four public datasets, we have carried out experiments to show the following: 1. KQN outperforms all the existing KT models based on prediction accuracy. 2. The interaction between the knowledge state and skills can be visualized for interpretation. 3. Based on probabilistic skill similarity, a skill domain can be analyzed with clustering using the distances between the skill vectors of KQN. 4. For different values of the vector space dimensionality, KQN consistently exhibits high prediction accuracy and a strong positive correlation between the distance matrices of the skill vectors.",
           "claimed_authors": [
-            "Zhen Ye",
-            "Zeqian Ju",
-            "Haohe Liu",
-            "Xu Tan",
-            "Jianyi Chen",
-            "Yiwen Lu",
-            "Peiwen Sun",
-            "Jiahao Pan",
-            "Weizhen Bian",
-            "Shulin He",
-            "Wei Xue",
-            "Qifeng Liu",
-            "Yike Guo"
+            "Jinseok Lee",
+            "Dit-Yan Yeung"
           ],
-          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_title": "Knowledge Query Network: How Knowledge Interacts with Skills",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2404.14700"
+          "claimed_year": 2019,
+          "primary_pointer": "1908.02146"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Knowledge Query Network: How Knowledge Interacts with Skills')",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Zero-shot cross-lingual knowledge transfer enables the multilingual pretrained language model (mPLM), finetuned on a task in one language, make predictions for this task in other languages. While being broadly studied for natural language understanding tasks, the described setting is understudied for generation. Previous works notice a frequent problem of generation in a wrong language and propose approaches to address it, usually using mT5 as a backbone model. In this work, we test alternative mPLMs, such as mBART and NLLB-200, considering full finetuning and parameter-efficient finetuning with adapters. We find that mBART with adapters performs similarly to mT5 of the same size, and NLLB-200 can be competitive in some cases. We also underline the importance of tuning learning rate used for finetuning, which helps to alleviate the problem of generation in the wrong language.",
+          "claimed_abstract": "We introduce basic statistical methods for the extrapolation of stationary random fields. For square integrable fields, we set out basics of the kriging extrapolation techniques. For (non--Gaussian) stable fields, which are known to be heavy tailed, we describe further extrapolation methods and discuss their properties. Two of them can be seen as direct generalizations of kriging.",
           "claimed_authors": [
-            "Nadezhda Chirkova",
-            "Sheng Liang",
-            "Vassilina Nikoulina"
+            "Evgeny Spodarev",
+            "Elena Shmileva",
+            "Stefan Roth"
           ],
-          "claimed_title": "Empirical study of pretrained multilingual language models for zero-shot cross-lingual knowledge transfer in generation",
+          "claimed_title": "Extrapolation of Stationary Random Fields",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2310.09917"
+          "claimed_year": 2013,
+          "primary_pointer": "1306.6205"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Empirical study of pretrained multilingual language models for zero-shot cross-lingual knowledge transfer in generation')",
-        "failed_at": "2026-08-03T18:55:13Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This work has been submitted to the IEEE for possible publication. Copyright may be transferred without notice, after which this version may no longer be accessible. Unsupervised skill discovery seeks to acquire different useful skills without extrinsic reward via unsupervised Reinforcement Learning (RL), with the discovered skills efficiently adapting to multiple downstream tasks in various ways. However, recent advanced skill discovery methods struggle to well balance state exploration and skill diversity, particularly when the potential skills are rich and hard to discern. In this paper, we propose \\textbf{Co}ntrastive dyna\\textbf{m}ic \\textbf{S}kill \\textbf{D}iscovery \\textbf{(ComSD)}\\footnote{Code and videos: https://github.com/liuxin0824/ComSD} which generates diverse and exploratory unsupervised skills through a novel intrinsic incentive, named contrastive dynamic reward. It contains a particle-based exploration reward to make agents access far-reaching states for exploratory skill acquisition, and a novel contrastive diversity reward to promote the discriminability between different skills. Moreover, a novel dynamic weighting mechanism between the above two rewards is proposed to balance state exploration and skill diversity, which further enhances the quality of the discovered skills. Extensive experiments and analysis demonstrate that ComSD can generate diverse behaviors at different exploratory levels for multi-joint robots, enabling state-of-the-art adaptation performance on challenging downstream tasks. It can also discover distinguishable and far-reaching exploration skills in the challenging tree-like 2D maze.",
-          "claimed_authors": [
-            "Xin Liu",
-            "Yaran Chen",
-            "Dongbin Zhao"
-          ],
-          "claimed_title": "ComSD: Balancing Behavioral Quality and Diversity in Unsupervised Skill Discovery",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2309.17203"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='ComSD: Balancing Behavioral Quality and Diversity in Unsupervised Skill Discovery')",
-        "failed_at": "2026-08-03T18:55:13Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Generative models have revolutionized the process of materials discovery, yet they often fail to satisfy underlying physical causality. Through an analysis of Large Language Models (LLMs) augmented with knowledge graphs derived from current literature, we uncover a phenomenon termed contextual tunneling, where models \"over-anchor\" on narrow, retrieved evidence while suppressing global physical reasoning. To address this problem, we introduce ARIA, a causal-aware framework that conditions knowledge use on mechanistic completeness. ARIA routes each query through a three-tier cascade: (i) direct causal reasoning when complete evidence chains of Process-Structure-Property (PSP) are available, (ii) physics-informed analogical transfer for sparse or novel material systems, and (iii) explicit parametric fallback when external evidence is incomplete. As a proof of concept, we construct a Knowledge Graph (KG) containing 2,839 extracted PSP relations from peer-reviewed articles in the materials literature and evaluate ARIA on forward prediction and inverse design tasks for two-dimensional (2D) materials. ARIA mitigates contextual tunneling, improves over unaugmented and naive KG-augmented baselines, and provides further gains when an online literature search is used for evidence enrichment. Crucially, ARIA produces auditable causal traces, enabling physically grounded and trustworthy AI-assisted materials discovery.",
-          "claimed_authors": [
-            "Yi Cao",
-            "Liaoyaqi Wang",
-            "Jieneng Chen",
-            "Benjamin Van Durme",
-            "Alan Yuille",
-            "Paulette Clancy"
-          ],
-          "claimed_title": "ARIA: A Causal-Aware Framework for Rescuing LLM Reasoning in Trustworthy Materials Discovery",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2606.22375"
-        },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='ARIA: A Causal-Aware Framework for Rescuing LLM Reasoning in Trustworthy Materials Discovery')",
-        "failed_at": "2026-08-03T18:55:13Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We introduce the problem of robust subgroup discovery, i.e., finding a set of interpretable descriptions of subsets that 1) stand out with respect to one or more target attributes, 2) are statistically robust, and 3) non-redundant. Many attempts have been made to mine either locally robust subgroups or to tackle the pattern explosion, but we are the first to address both challenges at the same time from a global modelling perspective. First, we formulate the broad model class of subgroup lists, i.e., ordered sets of subgroups, for univariate and multivariate targets that can consist of nominal or numeric variables, including traditional top-1 subgroup discovery in its definition. This novel model class allows us to formalise the problem of optimal robust subgroup discovery using the Minimum Description Length (MDL) principle, where we resort to optimal Normalised Maximum Likelihood and Bayesian encodings for nominal and numeric targets, respectively. Second, finding optimal subgroup lists is NP-hard. Therefore, we propose SSD++, a greedy heuristic that finds good subgroup lists and guarantees that the most significant subgroup found according to the MDL criterion is added in each iteration. In fact, the greedy gain is shown to be equivalent to a Bayesian one-sample proportion, multinomial, or t-test between the subgroup and dataset marginal target distributions plus a multiple hypothesis testing penalty. Furthermore, we empirically show on 54 datasets that SSD++ outperforms previous subgroup discovery methods in terms of quality, generalisation on unseen data, and subgroup list size.",
-          "claimed_authors": [
-            "Hugo Manuel Proença",
-            "Peter Grünwald",
-            "Thomas Bäck",
-            "Matthijs van Leeuwen"
-          ],
-          "claimed_title": "Robust subgroup discovery",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2103.13686"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Robust subgroup discovery')",
-        "failed_at": "2026-08-03T18:55:13Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Scaling test-time compute has emerged as a key ingredient for enabling large language models (LLMs) to solve difficult problems, but comes with high latency and inference cost. We introduce sleep-time compute, which allows models to \"think\" offline about contexts before queries are presented: by anticipating what queries users might ask and pre-computing useful quantities, we can significantly reduce the compute requirements at test-time. To demonstrate the efficacy of our method, we create modified versions of two reasoning tasks - Stateful GSM-Symbolic and Stateful AIME. We find that sleep-time compute can reduce the amount of test-time compute needed to achieve the same accuracy by ~ 5x on Stateful GSM-Symbolic and Stateful AIME and that by scaling sleep-time compute we can further increase accuracy by up to 13% on Stateful GSM-Symbolic and 18% on Stateful AIME. Furthermore, we introduce Multi-Query GSM-Symbolic, which extends GSM-Symbolic by including multiple related queries per context. By amortizing sleep-time compute across related queries about the same context using Multi-Query GSM-Symbolic, we can decrease the average cost per query by 2.5x. We then conduct additional analysis to understand when sleep-time compute is most effective, finding the predictability of the user query to be well correlated with the efficacy of sleep-time compute. Finally, we conduct a case-study of applying sleep-time compute to a realistic agentic SWE task.",
-          "claimed_authors": [
-            "Kevin Lin",
-            "Charlie Snell",
-            "Yu Wang",
-            "Charles Packer",
-            "Sarah Wooders",
-            "Ion Stoica",
-            "Joseph E. Gonzalez"
-          ],
-          "claimed_title": "Sleep-time Compute: Beyond Inference Scaling at Test-time",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.13171"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Sleep-time Compute: Beyond Inference Scaling at Test-time')",
-        "failed_at": "2026-08-03T18:55:13Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Existing safety assurance research has primarily focused on training-phase alignment to instill safe behaviors into LLMs. However, recent studies have exposed these methods' susceptibility to diverse jailbreak attacks. Concurrently, inference scaling has significantly advanced LLM reasoning capabilities but remains unexplored in the context of safety assurance. Addressing this gap, our work pioneers inference scaling for robust and effective LLM safety against emerging threats. We reveal that conventional inference scaling techniques, despite their success in reasoning tasks, perform poorly in safety contexts, even falling short of basic approaches like Best-of-N Sampling. We attribute this inefficiency to a newly identified challenge, the exploration--efficiency dilemma, arising from the high computational overhead associated with frequent process reward model (PRM) evaluations. To overcome this dilemma, we propose SAFFRON, a novel inference scaling paradigm tailored explicitly for safety assurance. Central to our approach is the introduction of a multifurcation reward model (MRM) that significantly reduces the required number of reward model evaluations. To operationalize this paradigm, we further propose: (i) a partial supervision training objective for MRM, (ii) a conservative exploration constraint to prevent out-of-distribution explorations, and (iii) a Trie-based key--value caching strategy that facilitates cache sharing across sequences during tree search. Extensive experiments validate the effectiveness of our method. Additionally, we publicly release our trained multifurcation reward model (Saffron-1) and the accompanying token-level safety reward dataset (Safety4M) to accelerate future research in LLM safety. Our code, model, and data are publicly available at https://github.com/q-rz/saffron , and our project homepage is at https://q-rz.github.io/p/saffron .",
-          "claimed_authors": [
-            "Ruizhong Qiu",
-            "Gaotang Li",
-            "Tianxin Wei",
-            "Jingrui He",
-            "Hanghang Tong"
-          ],
-          "claimed_title": "Saffron-1: Safety Inference Scaling",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2506.06444"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Saffron-1: Safety Inference Scaling')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Extrapolation of Stationary Random Fields')",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       },
       {
@@ -510,79 +338,144 @@
           "primary_pointer": "2512.23675"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='End-to-End Test-Time Training for Long Context')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Linqi Song",
-            "Suhas Diggavi"
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
           ],
-          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1907.02664"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-08-03T18:55:13Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We present a data model describing the structure of spectrophotometric datasets with spectral and temporal coordinates and associated metadata. This data model may be used to represent spectra, time series data, segments of SED (Spectral Energy Distributions) and other spectral or temporal associations.",
-          "claimed_authors": [
-            "Jonathan McDowell",
-            "Doug Tody",
-            "Tamas Budavari",
-            "Markus Dolensky",
-            "Inga Kamp",
-            "Kelly McCusker",
-            "Pavlos Protopapas",
-            "Arnold Rots",
-            "Randy Thompson",
-            "Frank Valdes",
-            "Petr Skoda",
-            "Bruno Rino",
-            "Sebastien Derriere",
-            "Jesus Salgado",
-            "Omar Laurino",
-            "the IVOA Data Access Layer",
-            "Data Model Working Groups"
-          ],
-          "claimed_title": "IVOA Recommendation: Spectrum Data Model 1.1",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1204.3055"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
-        "failed_at": "2026-08-03T18:55:13Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Data contamination poses a significant threat to the reliable evaluation of Large Language Models (LLMs). This issue arises when benchmark samples may inadvertently appear in training sets, compromising the validity of reported performance. While detection methods have been developed for the pre-training and Supervised Fine-Tuning stages, a critical research gap exists for the increasingly significant phase of Reinforcement Learning (RL) post-training. As RL post-training becomes pivotal for advancing LLM reasoning, the absence of specialized contamination detection methods in this paradigm presents a critical vulnerability. To address this, we conduct the first systematic study of data detection within RL post-training scenario and propose Self-Critique. Our method is motivated by a key observation: after RL phase, the output entropy distribution of LLMs tends to collapse into highly specific and sparse modes. Self-Critique probes for the underlying policy collapse, i.e., the model's convergence to a narrow reasoning path, which causes this entropy reduction. To facilitate this research, we also introduce RL-MIA, a benchmark constructed to simulate this specific contamination scenario. Extensive experiments show that Self-Critique significantly outperforms baseline methods across multiple models and contamination tasks, achieving an AUC improvement of up to 30%. Whereas existing methods are close to a random guess for RL-phase contamination, our method makes detection possible.",
-          "claimed_authors": [
-            "Yongding Tao",
-            "Tian Wang",
-            "Yihong Dong",
-            "Huanyu Liu",
-            "Kechi Zhang",
-            "Xiaolong Hu",
-            "Ge Li"
-          ],
-          "claimed_title": "Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models",
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2510.09259"
+          "primary_pointer": "2504.16021"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models')",
-        "failed_at": "2026-08-03T18:55:13Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-08-26T03:40:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deploying models on target domain data subject to distribution shift requires adaptation. Test-time training (TTT) emerges as a solution to this adaptation under a realistic scenario where access to full source domain data is not available, and instant inference on the target domain is required. Despite many efforts into TTT, there is a confusion over the experimental settings, thus leading to unfair comparisons. In this work, we first revisit TTT assumptions and categorize TTT protocols by two key factors. Among the multiple protocols, we adopt a realistic sequential test-time training (sTTT) protocol, under which we develop a test-time anchored clustering (TTAC) approach to enable stronger test-time feature learning. TTAC discovers clusters in both source and target domains and matches the target clusters to the source ones to improve adaptation. When source domain information is strictly absent (i.e. source-free) we further develop an efficient method to infer source domain distributions for anchored clustering. Finally, self-training~(ST) has demonstrated great success in learning from unlabeled data and we empirically figure out that applying ST alone to TTT is prone to confirmation bias. Therefore, a more effective TTT approach is introduced by regularizing self-training with anchored clustering, and the improved model is referred to as TTAC++. We demonstrate that, under all TTT protocols, TTAC++ consistently outperforms the state-of-the-art methods on five TTT datasets, including corrupted target domain, selected hard samples, synthetic-to-real adaptation and adversarially attacked target domain. We hope this work will provide a fair benchmarking of TTT methods, and future research should be compared within respective protocols.",
+          "claimed_authors": [
+            "Yongyi Su",
+            "Xun Xu",
+            "Tianrui Li",
+            "Kui Jia"
+          ],
+          "claimed_title": "Revisiting Realistic Test-Time Training: Sequential Inference and Adaptation by Anchored Clustering Regularized Self-Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.10856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Revisiting Realistic Test-Time Training: Sequential Inference and Adaptation by Anchored Clustering Regularized Self-Training')",
+        "failed_at": "2026-08-26T03:40:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A reliable evaluation method is essential for building a robust out-of-distribution (OOD) detector. Current robustness evaluation protocols for OOD detectors rely on injecting perturbations to outlier data. However, the perturbations are unlikely to occur naturally or not relevant to the content of data, providing a limited assessment of robustness. In this paper, we propose Evaluation-via-Generation for OOD detectors (EvG), a new protocol for investigating the robustness of OOD detectors under more realistic modes of variation in outliers. EvG utilizes a generative model to synthesize plausible outliers, and employs MCMC sampling to find outliers misclassified as in-distribution with the highest confidence by a detector. We perform a comprehensive benchmark comparison of the performance of state-of-the-art OOD detectors using EvG, uncovering previously overlooked weaknesses.",
+          "claimed_authors": [
+            "Sangwoong Yoon",
+            "Jinwon Choi",
+            "Yonghyeon Lee",
+            "Yung-Kyun Noh",
+            "Frank Chongwoo Park"
+          ],
+          "claimed_title": "Evaluating Out-of-Distribution Detectors Through Adversarial Generation of Outliers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.10940"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Evaluating Out-of-Distribution Detectors Through Adversarial Generation of Outliers')",
+        "failed_at": "2026-08-26T03:40:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We expect the generalization error to improve with more samples from a similar task, and to deteriorate with more samples from an out-of-distribution (OOD) task. In this work, we show a counter-intuitive phenomenon: the generalization error of a task can be a non-monotonic function of the number of OOD samples. As the number of OOD samples increases, the generalization error on the target task improves before deteriorating beyond a threshold. In other words, there is value in training on small amounts of OOD data. We use Fisher's Linear Discriminant on synthetic datasets and deep networks on computer vision benchmarks such as MNIST, CIFAR-10, CINIC-10, PACS and DomainNet to demonstrate and analyze this phenomenon. In the idealistic setting where we know which samples are OOD, we show that these non-monotonic trends can be exploited using an appropriately weighted objective of the target and OOD empirical risk. While its practical utility is limited, this does suggest that if we can detect OOD samples, then there may be ways to benefit from them. When we do not know which samples are OOD, we show how a number of go-to strategies such as data-augmentation, hyper-parameter optimization, and pre-training are not enough to ensure that the target generalization error does not deteriorate with the number of OOD samples in the dataset.",
+          "claimed_authors": [
+            "Ashwin De Silva",
+            "Rahul Ramesh",
+            "Carey E. Priebe",
+            "Pratik Chaudhari",
+            "Joshua T. Vogelstein"
+          ],
+          "claimed_title": "The Value of Out-of-Distribution Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.10967"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='The Value of Out-of-Distribution Data')",
+        "failed_at": "2026-08-26T03:40:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine learning (ML) systems in natural language processing (NLP) face significant challenges in generalizing to out-of-distribution (OOD) data, where the test distribution differs from the training data distribution. This poses important questions about the robustness of NLP models and their high accuracy, which may be artificially inflated due to their underlying sensitivity to systematic biases. Despite these challenges, there is a lack of comprehensive surveys on the generalization challenge from an OOD perspective in text classification. Therefore, this paper aims to fill this gap by presenting the first comprehensive review of recent progress, methods, and evaluations on this topic. We furth discuss the challenges involved and potential future research directions. By providing quick access to existing work, we hope this survey will encourage future research in this area.",
+          "claimed_authors": [
+            "Linyi Yang",
+            "Yaoxiao Song",
+            "Xuan Ren",
+            "Chenyang Lyu",
+            "Yidong Wang",
+            "Lingqiao Liu",
+            "Jindong Wang",
+            "Jennifer Foster",
+            "Yue Zhang"
+          ],
+          "claimed_title": "Out-of-Distribution Generalization in Text Classification: Past, Present, and Future",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.14104"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Out-of-Distribution Generalization in Text Classification: Past, Present, and Future')",
+        "failed_at": "2026-08-26T03:40:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the past two decades, PKAW has provided a forum for researchers and practitioners to discuss the state-of-the-arts in the area of knowledge acquisition and machine intelligence (MI, also Artificial Intelligence, AI). PKAW2022 will continue the above focus and welcome the contributions on the multi-disciplinary approach of human and big data-driven knowledge acquisition, as well as AI techniques and applications.",
+          "claimed_authors": [
+            "Qing Liu",
+            "Wenli Yang",
+            "Shiqing Wu"
+          ],
+          "claimed_title": "Proceedings of Principle and practice of data and Knowledge Acquisition Workshop 2022 (PKAW 2022)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.03888"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Proceedings of Principle and practice of data and Knowledge Acquisition Workshop 2022 (PKAW 2022)')",
+        "failed_at": "2026-08-26T03:40:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the advances in large language models (LLMs), how they use their knowledge for reasoning is not yet well understood. In this study, we propose a method that deconstructs complex real-world questions into a graph, representing each question as a node with predecessors of background knowledge needed to solve the question. We develop the DepthQA dataset, deconstructing questions into three depths: (i) recalling conceptual knowledge, (ii) applying procedural knowledge, and (iii) analyzing strategic knowledge. Based on a hierarchical graph, we quantify forward discrepancy, a discrepancy in LLM performance on simpler sub-problems versus complex questions. We also measure backward discrepancy where LLMs answer complex questions but struggle with simpler ones. Our analysis shows that smaller models exhibit more discrepancies than larger models. Distinct patterns of discrepancies are observed across model capacity and possibility of training data memorization. Additionally, guiding models from simpler to complex questions through multi-turn interactions improves performance across model sizes, highlighting the importance of structured intermediate steps in knowledge reasoning. This work enhances our understanding of LLM reasoning and suggests ways to improve their problem-solving abilities.",
+          "claimed_authors": [
+            "Miyoung Ko",
+            "Sue Hyun Park",
+            "Joonsuk Park",
+            "Minjoon Seo"
+          ],
+          "claimed_title": "Hierarchical Deconstruction of LLM Reasoning: A Graph-Based Framework for Analyzing Knowledge Utilization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.19502"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Search Beyond What Can Be Taught: Evolving the Kno', candidate_title='Hierarchical Deconstruction of LLM Reasoning: A Graph-Based Framework for Analyzing Knowledge Utilization')",
+        "failed_at": "2026-08-26T03:40:57Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -608,13 +501,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2504.19565",
           "http_status": 200,
-          "pdf_sample_score": 0.3059,
+          "pdf_sample_score": 0.3098,
           "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-03T18:55:19Z"
+          "verified_at": "2026-08-26T03:41:03Z"
         }
       },
       {
@@ -644,7 +537,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-03T18:55:23Z"
+          "verified_at": "2026-08-26T03:41:03Z"
         }
       },
       {
@@ -675,7 +568,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-03T18:55:24Z"
+          "verified_at": "2026-08-26T03:41:03Z"
         }
       }
     ]

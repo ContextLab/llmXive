@@ -4,14 +4,12 @@ import json
 import logging
 import math
 import argparse
-import yaml
 import pandas as pd
-import numpy as np
+import yaml
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
 
-# Import logging setup from sibling module
+# Import logging configuration
 from logging_config import setup_logging
 
 # Constants
@@ -19,438 +17,302 @@ PROJECT_ROOT = Path(__file__).parent.parent
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 ARTIFACTS_LOGS_DIR = PROJECT_ROOT / "artifacts" / "logs"
-SCHEMAS_DIR = PROJECT_ROOT / "specs" / "001-visual-attention-recall" / "contracts"
+SCHEMA_PATH = PROJECT_ROOT / "specs" / "001-visual-attention-recall" / "contracts" / "dataset.schema.yaml"
 
-# Ensure directories exist
+# Ensure output directories exist
 DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 ARTIFACTS_LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Setup logging
-logger = setup_logging("preprocessing")
+logger = None
 
-def load_manifest(manifest_path: Optional[Path] = None) -> Dict[str, Any]:
+def setup_logger():
+    global logger
+    logger = setup_logging("preprocessing", str(ARTIFACTS_LOGS_DIR / "preprocessing.log"))
+    return logger
+
+def load_manifest(manifest_path):
     """Load the dataset manifest file."""
-    if manifest_path is None:
-        manifest_path = DATA_RAW_DIR / "manifest.json"
-    
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest not found at {manifest_path}")
-    
+    if not os.path.exists(manifest_path):
+        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
     with open(manifest_path, 'r') as f:
         return json.load(f)
 
-def validate_variables(manifest: Dict[str, Any], required_vars: List[str]) -> None:
-    """Validate that required variables are present in the manifest."""
-    available_vars = manifest.get('variables', {}).keys()
-    missing = [var for var in required_vars if var not in available_vars]
-    
+def validate_variables(manifest, required_vars):
+    """Check if required variables are present in the manifest."""
+    missing = []
+    for var in required_vars:
+        if var not in manifest.get('variables', {}):
+            missing.append(var)
     if missing:
-        logger.error(f"Missing required variables: {missing}")
-        raise ValueError(f"Missing required variables: {missing}")
-    
-    logger.info(f"Validated presence of required variables: {required_vars}")
+        raise ValueError(f"Missing required variables in manifest: {missing}")
+    return True
 
-def extract_geometry_metadata(manifest: Dict[str, Any]) -> Dict[str, float]:
-    """Extract screen width, viewing distance, and sampling rate from manifest."""
-    geometry = manifest.get('geometry', {})
-    
-    if not geometry:
-        logger.error("Missing geometry metadata in manifest.")
-        raise ValueError("Missing geometry metadata. Cannot calibrate I-VT threshold.")
-    
-    required_geo_keys = ['screen_width_pixels', 'viewing_distance_mm', 'sampling_rate_hz']
-    missing_geo = [k for k in required_geo_keys if k not in geometry]
-    
-    if missing_geo:
-        logger.error(f"Missing geometry fields: {missing_geo}")
-        raise ValueError(f"Missing geometry metadata. Cannot calibrate I-VT threshold.")
-    
-    return {
-        'screen_width_pixels': float(geometry['screen_width_pixels']),
-        'viewing_distance_mm': float(geometry['viewing_distance_mm']),
-        'sampling_rate_hz': float(geometry['sampling_rate_hz'])
-    }
+def extract_geometry_metadata(manifest):
+    """Extract screen width, viewing distance, and sampling rate."""
+    geo = manifest.get('geometry', {})
+    required_geo = ['screen_width_pixels', 'viewing_distance_mm', 'sampling_rate_hz']
+    missing = [k for k in required_geo if k not in geo]
+    if missing:
+        raise ValueError(f"Missing geometry metadata: {missing}")
+    return geo
 
-def calculate_ivt_threshold(geometry: Dict[str, float]) -> float:
-    """Calculate I-VT velocity threshold in degrees per second."""
-    # Standard heuristic: 30 degrees/second for I-VT
-    # Can be refined based on specific experimental setup if needed
-    return 30.0
+def calculate_ivt_threshold(geo, min_fixation_ms=100):
+    """Calculate I-VT velocity threshold based on geometry."""
+    # Simplified calculation: velocity = distance / time
+    # Assume a saccade of 1 degree visual angle
+    # 1 degree at distance D (mm) = 2 * D * tan(0.5 * deg) mm
+    viewing_dist_mm = geo['viewing_distance_mm']
+    deg_to_rad = math.pi / 180.0
+    saccade_dist_mm = 2 * viewing_dist_mm * math.tan(0.5 * deg_to_rad)
+    saccade_time_sec = min_fixation_ms / 1000.0
+    velocity_mm_per_sec = saccade_dist_mm / saccade_time_sec
+    # Convert to pixels per second (assuming screen width corresponds to FOV)
+    # This is a heuristic; real implementation would use screen FOV calibration
+    screen_width = geo['screen_width_pixels']
+    # Assume 60 degrees horizontal FOV for estimation
+    fov_deg = 60
+    pixels_per_degree = screen_width / fov_deg
+    velocity_pixels_per_sec = velocity_mm_per_sec * (pixels_per_degree / (viewing_dist_mm * math.tan(0.5 * deg_to_rad)))
+    return velocity_pixels_per_sec
 
-def extract_fixations_ivt(
-    eye_tracking_df: pd.DataFrame, 
-    threshold_deg_s: float, 
-    min_duration_ms: float = 100.0
-) -> pd.DataFrame:
+def extract_fixations_ivt(data, threshold, min_duration_ms=100):
     """
     Extract fixations using I-VT algorithm.
-    
-    Args:
-        eye_tracking_df: DataFrame with columns 'x', 'y', 'timestamp' (ms)
-        threshold_deg_s: Velocity threshold in degrees per second
-        min_duration_ms: Minimum fixation duration in ms
-        
-    Returns:
-        DataFrame of fixations with columns: start_time, end_time, duration_ms, avg_x, avg_y
+    data: DataFrame with 'x', 'y', 'timestamp' columns
+    threshold: velocity threshold in pixels/sec
+    min_duration_ms: minimum fixation duration in ms
     """
-    if eye_tracking_df.empty:
-        return pd.DataFrame(columns=['start_time', 'end_time', 'duration_ms', 'avg_x', 'avg_y', 'participant_id', 'trial_id', 'stimulus_id'])
-    
+    if data.empty:
+        return pd.DataFrame()
+
     # Sort by timestamp
-    eye_tracking_df = eye_tracking_df.sort_values('timestamp').reset_index(drop=True)
-    
-    # Calculate velocity (degrees per second)
-    # Assuming coordinates are in pixels, need to convert to degrees
-    # This is a simplified conversion; in reality, screen size and distance matter
-    # For this implementation, we assume a standard conversion factor or use pixel-based velocity
-    # and convert later if needed. Here we use a simplified pixel-based velocity threshold.
-    
-    # Calculate velocity between consecutive samples
-    eye_tracking_df['dx'] = eye_tracking_df['x'].diff()
-    eye_tracking_df['dy'] = eye_tracking_df['y'].diff()
-    eye_tracking_df['dt'] = eye_tracking_df['timestamp'].diff()
-    
-    # Avoid division by zero
-    eye_tracking_df['dt'] = eye_tracking_df['dt'].replace(0, np.nan)
-    eye_tracking_df['velocity'] = np.sqrt(eye_tracking_df['dx']**2 + eye_tracking_df['dy']**2) / (eye_tracking_df['dt'] / 1000.0)  # pixels per second
-    
-    # Convert threshold from deg/s to pixels/s (simplified: assume 1 deg = 50 pixels)
-    # In a real implementation, this would use screen geometry
-    pixel_threshold = threshold_deg_s * 50.0
-    
-    # Identify fixations (velocity below threshold)
-    eye_tracking_df['is_fixation'] = eye_tracking_df['velocity'] < pixel_threshold
-    
-    # Group consecutive fixation samples
-    eye_tracking_df['fixation_group'] = (eye_tracking_df['is_fixation'] != eye_tracking_df['is_fixation'].shift()).cumsum()
-    fixation_groups = eye_tracking_df[eye_tracking_df['is_fixation']].groupby('fixation_group')
-    
+    data = data.sort_values('timestamp').reset_index(drop=True)
+
     fixations = []
-    for group_id, group_df in fixation_groups:
-        if len(group_df) < 2:
+    current_fix = None
+    sample_rate = 1000  # Assume 1000 Hz if not provided, or derive from data
+
+    for i in range(len(data)):
+        row = data.iloc[i]
+        if i == 0:
+            current_fix = {
+                'start_idx': i,
+                'end_idx': i,
+                'start_time': row['timestamp'],
+                'end_time': row['timestamp'],
+                'points': [row]
+            }
             continue
-            
-        start_time = group_df['timestamp'].iloc[0]
-        end_time = group_df['timestamp'].iloc[-1]
-        duration_ms = end_time - start_time
-        
-        if duration_ms < min_duration_ms:
-            continue
-        
-        avg_x = group_df['x'].mean()
-        avg_y = group_df['y'].mean()
-        
-        # Get participant, trial, stimulus info from the first row of the group
-        participant_id = group_df['participant_id'].iloc[0] if 'participant_id' in group_df.columns else None
-        trial_id = group_df['trial_id'].iloc[0] if 'trial_id' in group_df.columns else None
-        stimulus_id = group_df['stimulus_id'].iloc[0] if 'stimulus_id' in group_df.columns else None
-        
-        fixations.append({
-            'start_time': start_time,
-            'end_time': end_time,
-            'duration_ms': duration_ms,
-            'avg_x': avg_x,
-            'avg_y': avg_y,
-            'participant_id': participant_id,
-            'trial_id': trial_id,
-            'stimulus_id': stimulus_id
+
+        prev_row = data.iloc[i-1]
+        dt_ms = row['timestamp'] - prev_row['timestamp']
+        if dt_ms <= 0:
+            dt_ms = 1  # Avoid division by zero
+
+        # Calculate velocity
+        dx = row['x'] - prev_row['x']
+        dy = row['y'] - prev_row['y']
+        distance = math.sqrt(dx*dx + dy*dy)
+        velocity = distance / (dt_ms / 1000.0)  # pixels per second
+
+        if velocity < threshold:
+            # Still in fixation
+            current_fix['end_idx'] = i
+            current_fix['end_time'] = row['timestamp']
+            current_fix['points'].append(row)
+        else:
+            # Saccade detected, end current fixation if valid
+            duration_ms = current_fix['end_time'] - current_fix['start_time']
+            if duration_ms >= min_duration_ms:
+                fixations.append(current_fix)
+            # Start new fixation
+            current_fix = {
+                'start_idx': i,
+                'end_idx': i,
+                'start_time': row['timestamp'],
+                'end_time': row['timestamp'],
+                'points': [row]
+            }
+
+    # Don't forget the last fixation
+    if current_fix:
+        duration_ms = current_fix['end_time'] - current_fix['start_time']
+        if duration_ms >= min_duration_ms:
+            fixations.append(current_fix)
+
+    # Convert to DataFrame
+    if not fixations:
+        return pd.DataFrame()
+
+    result = []
+    for f in fixations:
+        result.append({
+            'participant_id': f['points'][0].get('participant_id', ''),
+            'trial_id': f['points'][0].get('trial_id', ''),
+            'fixation_start': f['start_time'],
+            'fixation_end': f['end_time'],
+            'duration_ms': f['end_time'] - f['start_time'],
+            'center_x': sum(p['x'] for p in f['points']) / len(f['points']),
+            'center_y': sum(p['y'] for p in f['points']) / len(f['points'])
         })
-    
-    return pd.DataFrame(fixations)
+    return pd.DataFrame(result)
 
-def map_stimulus_valence(
-    trials_df: pd.DataFrame, 
-    valence_map: Dict[str, float]
-) -> pd.DataFrame:
-    """
-    Map stimulus IDs to valence scores.
-    
-    Args:
-        trials_df: DataFrame with 'stimulus_id' column
-        valence_map: Dictionary mapping stimulus_id -> valence score
-        
-    Returns:
-        DataFrame with added 'valence' column
-    """
-    if 'stimulus_id' not in trials_df.columns:
-        raise ValueError("trials_df must contain 'stimulus_id' column")
-    
-    # Map valence, raising error for unmapped IDs
-    unmapped = set(trials_df['stimulus_id'].unique()) - set(valence_map.keys())
-    if unmapped:
-        logger.error(f"Unmapped stimulus IDs: {unmapped}")
-        raise KeyError(f"Unmapped stimulus IDs found: {unmapped}")
-    
-    trials_df = trials_df.copy()
-    trials_df['valence'] = trials_df['stimulus_id'].map(valence_map)
-    
-    # Check for any NaNs after mapping
-    if trials_df['valence'].isnull().any():
-        unmapped_after = trials_df[trials_df['valence'].isnull()]['stimulus_id'].unique()
-        logger.error(f"Unmapped stimulus IDs after mapping: {unmapped_after}")
-        raise KeyError(f"Unmapped stimulus IDs after mapping: {unmapped_after}")
-    
-    return trials_df
+def map_stimulus_valence(data, stimulus_map):
+    """Map stimulus IDs to valence values."""
+    if not stimulus_map:
+        raise ValueError("Stimulus map is empty")
 
-def merge_stai_scores(
-    trials_df: pd.DataFrame, 
-    stai_df: pd.DataFrame, 
-    participant_col: str = 'participant_id'
-) -> pd.DataFrame:
-    """
-    Merge STAI scores and filter participants without scores.
-    
-    Args:
-        trials_df: DataFrame with participant IDs
-        stai_df: DataFrame with participant IDs and STAI scores
-        participant_col: Name of the participant ID column
-        
-    Returns:
-        DataFrame with STAI scores merged and participants without scores removed
-    """
-    if participant_col not in stai_df.columns or participant_col not in trials_df.columns:
-        raise ValueError(f"Participant column '{participant_col}' not found in one of the dataframes")
-    
-    if 'STAI_score' not in stai_df.columns:
-        raise ValueError("STAI_score column not found in stai_df")
-    
-    # Merge
-    merged = trials_df.merge(
-        stai_df[[participant_col, 'STAI_score']], 
-        on=participant_col, 
-        how='left'
-    )
-    
-    # Filter out participants without STAI scores
-    before_count = len(merged)
-    merged = merged.dropna(subset=['STAI_score'])
-    after_count = len(merged)
-    
-    if before_count != after_count:
-        logger.warning(f"Filtered out {before_count - after_count} participants without STAI scores")
-    
-    return merged.reset_index(drop=True)
+    # Assume data has 'stimulus_id' column
+    if 'stimulus_id' not in data.columns:
+        raise KeyError("stimulus_id column not found in data")
 
-def filter_trials(
-    trials_df: pd.DataFrame, 
-    eye_tracking_df: pd.DataFrame,
-    max_missing_frames_pct: float = 0.5,
-    max_blink_duration_ms: Optional[float] = None
-) -> pd.DataFrame:
-    """
-    Filter trials based on missing data and blink duration.
-    
-    Args:
-        trials_df: DataFrame with trial information
-        eye_tracking_df: DataFrame with eye tracking data including blink markers
-        max_missing_frames_pct: Maximum allowed percentage of missing frames
-        max_blink_duration_ms: Maximum allowed blink duration in ms
-        
-    Returns:
-        Filtered DataFrame of trials
-    """
-    if 'trial_id' not in trials_df.columns:
-        raise ValueError("trials_df must contain 'trial_id' column")
-    
-    filtered_trials = []
-    
-    for trial_id, trial_group in trials_df.groupby('trial_id'):
-        # Get eye tracking data for this trial
-        trial_eye_data = eye_tracking_df[eye_tracking_df['trial_id'] == trial_id] if 'trial_id' in eye_tracking_df.columns else pd.DataFrame()
-        
-        # Check for missing frames (simplified: assume missing if no data or large gaps)
-        if trial_eye_data.empty:
-            logger.debug(f"Trial {trial_id}: No eye tracking data, excluding")
-            continue
-        
-        # Calculate missing frames percentage (simplified)
-        # In a real implementation, this would compare expected vs actual frames
-        total_expected_frames = len(trial_group)  # Assuming trials_df has one row per frame
-        actual_frames = len(trial_eye_data)
-        
-        if total_expected_frames > 0:
-            missing_pct = 1.0 - (actual_frames / total_expected_frames)
-            if missing_pct > max_missing_frames_pct:
-                logger.debug(f"Trial {trial_id}: Missing frames {missing_pct:.2%} > {max_missing_frames_pct:.2%}, excluding")
-                continue
-        
-        # Check blink duration if data available
-        if max_blink_duration_ms is not None and 'blink_duration_ms' in trial_eye_data.columns:
-            max_blink = trial_eye_data['blink_duration_ms'].max()
-            if max_blink > max_blink_duration_ms:
-                logger.debug(f"Trial {trial_id}: Max blink {max_blink}ms > {max_blink_duration_ms}ms, excluding")
-                continue
-        
-        filtered_trials.append(trial_id)
-    
-    filtered_df = trials_df[trials_df['trial_id'].isin(filtered_trials)].reset_index(drop=True)
-    logger.info(f"Filtered trials: {len(trials_df)} -> {len(filtered_df)}")
-    
-    return filtered_df
+    # Map valence
+    data['valence'] = data['stimulus_id'].map(stimulus_map)
+    unmapped = data[data['valence'].isnull()]
+    if not unmapped.empty:
+        raise KeyError(f"Unmapped stimulus IDs found: {unmapped['stimulus_id'].unique()}")
+    return data
 
-def load_schema(schema_path: Optional[Path] = None) -> Dict[str, Any]:
-    """Load the analysis CSV schema."""
-    if schema_path is None:
-        schema_path = SCHEMAS_DIR / "dataset.schema.yaml"
-    
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema not found at {schema_path}")
-    
+def merge_stai_scores(data, stai_data):
+    """Merge STAI scores with trial data."""
+    if stai_data is None or stai_data.empty:
+        logger.warning("STAI data is empty, proceeding without trait anxiety scores.")
+        data['trait_anxiety'] = 0  # Default or handle appropriately
+        return data
+
+    # Assume stai_data has 'participant_id' and 'STAI_score'
+    if 'participant_id' not in stai_data.columns or 'STAI_score' not in stai_data.columns:
+        raise KeyError("STAI data missing required columns")
+
+    data = data.merge(stai_data[['participant_id', 'STAI_score']], on='participant_id', how='left')
+    data.rename(columns={'STAI_score': 'trait_anxiety'}, inplace=True)
+
+    missing_stai = data[data['trait_anxiety'].isnull()]
+    if not missing_stai.empty:
+        logger.warning(f"Excluding {len(missing_stai)} trials for participants missing STAI scores.")
+        data = data.dropna(subset=['trait_anxiety'])
+
+    return data
+
+def filter_trials(data, max_missing_pct=0.5, blink_threshold_ms=200):
+    """Filter trials with excessive missing data or blinks."""
+    if data.empty:
+        return data
+
+    # Filter by missing data (assuming 'missing_frames' column exists or calculate)
+    # Here we assume data has a 'missing_frames' and 'total_frames' column
+    if 'missing_frames' in data.columns and 'total_frames' in data.columns:
+        data['missing_pct'] = data['missing_frames'] / data['total_frames']
+        data = data[data['missing_pct'] <= max_missing_pct]
+
+    # Filter by blink duration (assuming 'blink_duration_ms' column exists)
+    if 'blink_duration_ms' in data.columns:
+        data = data[data['blink_duration_ms'] <= blink_threshold_ms]
+
+    return data.reset_index(drop=True)
+
+def load_schema(schema_path):
+    """Load the dataset schema definition."""
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def validate_against_schema(df: pd.DataFrame, schema: Dict[str, Any]) -> None:
-    """Validate DataFrame against the schema."""
+def validate_against_schema(df, schema):
+    """Validate DataFrame against the schema definition."""
     required_columns = schema.get('required_columns', [])
     column_types = schema.get('column_types', {})
-    
-    # Check required columns
-    missing_cols = [col for col in required_columns if col not in df.columns]
+
+    missing_cols = [c for c in required_columns if c not in df.columns]
     if missing_cols:
         raise ValueError(f"Missing required columns: {missing_cols}")
-    
-    # Check column types (simplified)
+
     for col, expected_type in column_types.items():
         if col in df.columns:
-            actual_type = str(df[col].dtype)
-            # Simple type mapping
-            type_map = {
-                'int64': 'integer',
-                'float64': 'float',
-                'object': 'string',
-                'bool': 'boolean'
-            }
-            if expected_type not in ['integer', 'float', 'string', 'boolean']:
-                continue  # Skip unknown types
-            
-            if type_map.get(actual_type) != expected_type:
-                logger.warning(f"Column {col} has type {actual_type}, expected {expected_type}")
-    
-    # Check for null values in required columns
+            if expected_type == 'numeric' and not pd.api.types.is_numeric_dtype(df[col]):
+                raise TypeError(f"Column {col} should be numeric")
+            elif expected_type == 'string' and not pd.api.types.is_string_dtype(df[col]):
+                raise TypeError(f"Column {col} should be string")
+
+    # Check for nulls in required columns
     for col in required_columns:
         if df[col].isnull().any():
             raise ValueError(f"Column {col} contains null values")
-    
-    logger.info("Schema validation passed")
 
-def generate_analysis_csv(
-    trials_df: pd.DataFrame,
-    fixations_df: pd.DataFrame,
-    output_path: Optional[Path] = None
-) -> None:
-    """
-    Generate the final analysis-ready CSV.
-    
-    Args:
-        trials_df: Processed trials DataFrame with valence and STAI
-        fixations_df: Extracted fixations DataFrame
-        output_path: Path for output CSV (default: data/processed/analysis.csv)
-    """
-    if output_path is None:
-        output_path = DATA_PROCESSED_DIR / "analysis.csv"
-    
-    # Merge trials with fixation data
-    # Aggregate fixation data per trial
-    fixation_agg = fixations_df.groupby('trial_id').agg({
-        'duration_ms': ['mean', 'std', 'sum', 'count'],
-        'avg_x': 'mean',
-        'avg_y': 'mean'
-    }).reset_index()
-    
-    fixation_agg.columns = ['trial_id', 'fixation_duration_mean_ms', 'fixation_duration_std_ms', 
-                            'total_fixation_duration_ms', 'fixation_count', 'avg_x', 'avg_y']
-    
-    # Merge with trials
-    analysis_df = trials_df.merge(fixation_agg, on='trial_id', how='left')
-    
-    # Fill NaN for trials with no fixations
-    analysis_df['fixation_duration_mean_ms'] = analysis_df['fixation_duration_mean_ms'].fillna(0)
-    analysis_df['fixation_duration_std_ms'] = analysis_df['fixation_duration_std_ms'].fillna(0)
-    analysis_df['total_fixation_duration_ms'] = analysis_df['total_fixation_duration_ms'].fillna(0)
-    analysis_df['fixation_count'] = analysis_df['fixation_count'].fillna(0)
-    analysis_df['avg_x'] = analysis_df['avg_x'].fillna(0)
-    analysis_df['avg_y'] = analysis_df['avg_y'].fillna(0)
-    
-    # Select and order columns per schema
-    schema = load_schema()
-    required_columns = schema.get('required_columns', [])
-    
-    # Ensure all required columns are present
-    for col in required_columns:
-        if col not in analysis_df.columns:
-            logger.warning(f"Required column {col} not found, adding as NaN (will fail validation)")
-            analysis_df[col] = np.nan
-    
-    # Select columns
-    final_columns = [col for col in required_columns if col in analysis_df.columns]
-    # Add any extra columns from the schema that are optional
-    optional_columns = [col for col in analysis_df.columns if col not in final_columns]
-    final_columns.extend(optional_columns)
-    
-    analysis_df = analysis_df[final_columns]
-    
+    return True
+
+def generate_analysis_csv(df, output_path):
+    """Generate the final analysis-ready CSV with schema validation."""
     # Validate against schema
-    validate_against_schema(analysis_df, schema)
-    
+    schema = load_schema(SCHEMA_PATH)
+    validate_against_schema(df, schema)
+
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
     # Save to CSV
-    analysis_df.to_csv(output_path, index=False)
-    logger.info(f"Analysis CSV generated: {output_path} ({len(analysis_df)} rows)")
+    df.to_csv(output_path, index=False)
+    logger.info(f"Analysis-ready CSV saved to: {output_path}")
+    return True
 
 def main():
     """Main entry point for preprocessing pipeline."""
-    parser = argparse.ArgumentParser(description="Preprocess RSVP dataset for analysis")
-    parser.add_argument('--manifest', type=str, help='Path to manifest file')
-    parser.add_argument('--min-fixation-ms', type=float, default=100.0, help='Minimum fixation duration in ms')
-    parser.add_argument('--output', type=str, help='Path for output CSV')
+    parser = argparse.ArgumentParser(description="Preprocess RSVP eye-tracking data")
+    parser.add_argument('--manifest', type=str, required=True, help='Path to dataset manifest JSON')
+    parser.add_argument('--eye-data', type=str, required=True, help='Path to eye-tracking data CSV')
+    parser.add_argument('--stimuli', type=str, required=True, help='Path to stimulus mapping JSON')
+    parser.add_argument('--stai', type=str, default=None, help='Path to STAI scores CSV')
+    parser.add_argument('--output', type=str, default=str(DATA_PROCESSED_DIR / "analysis.csv"), help='Output CSV path')
+    parser.add_argument('--min-fixation-ms', type=int, default=100, help='Minimum fixation duration in ms')
     args = parser.parse_args()
-    
+
+    setup_logger()
     logger.info("Starting preprocessing pipeline")
-    
-    try:
-        # Load manifest
-        manifest = load_manifest(Path(args.manifest) if args.manifest else None)
-        
-        # Validate required variables
-        required_vars = ['eye_tracking', 'valence', 'recall', 'STAI']
-        validate_variables(manifest, required_vars)
-        
-        # Extract geometry metadata
-        geometry = extract_geometry_metadata(manifest)
-        
-        # Calculate I-VT threshold
-        ivt_threshold = calculate_ivt_threshold(geometry)
-        
-        # Load data files (simplified for this implementation)
-        # In a real implementation, these would be loaded from data/raw/
-        trials_df = pd.read_csv(DATA_RAW_DIR / "trials.csv")
-        eye_tracking_df = pd.read_csv(DATA_RAW_DIR / "eye_tracking.csv")
-        stai_df = pd.read_csv(DATA_RAW_DIR / "STAI_scores.csv")
-        valence_map = pd.read_csv(DATA_RAW_DIR / "stimulus_valence_map.csv").set_index('stimulus_id')['valence'].to_dict()
-        
-        # Extract fixations
-        fixations_df = extract_fixations_ivt(
-            eye_tracking_df, 
-            threshold_deg_s=ivt_threshold, 
-            min_duration_ms=args.min_fixation_ms
-        )
-        
-        # Map stimulus valence
-        trials_df = map_stimulus_valence(trials_df, valence_map)
-        
-        # Merge STAI scores
-        trials_df = merge_stai_scores(trials_df, stai_df)
-        
-        # Filter trials
-        trials_df = filter_trials(trials_df, eye_tracking_df)
-        
-        # Generate analysis CSV
-        generate_analysis_csv(trials_df, fixations_df, Path(args.output) if args.output else None)
-        
-        logger.info("Preprocessing pipeline completed successfully")
-        
-    except Exception as e:
-        logger.error(f"Preprocessing pipeline failed: {str(e)}")
-        raise
+
+    # Load manifest
+    manifest = load_manifest(args.manifest)
+    logger.info("Manifest loaded")
+
+    # Validate variables
+    required_vars = ['eye_tracking', 'valence', 'recall', 'STAI']
+    validate_variables(manifest, required_vars)
+    logger.info("Variables validated")
+
+    # Extract geometry
+    geo = extract_geometry_metadata(manifest)
+    threshold = calculate_ivt_threshold(geo, args.min_fixation_ms)
+    logger.info(f"I-VT threshold calculated: {threshold:.2f} px/sec")
+
+    # Load eye data
+    eye_data = pd.read_csv(args.eye_data)
+    logger.info(f"Loaded eye data: {len(eye_data)} rows")
+
+    # Extract fixations
+    fixations = extract_fixations_ivt(eye_data, threshold, args.min_fixation_ms)
+    logger.info(f"Extracted {len(fixations)} fixations")
+
+    # Load stimulus mapping
+    with open(args.stimuli, 'r') as f:
+        stimulus_map = json.load(f)
+
+    # Map valence
+    fixations = map_stimulus_valence(fixations, stimulus_map)
+    logger.info("Stimulus valence mapped")
+
+    # Load and merge STAI
+    stai_data = None
+    if args.stai and os.path.exists(args.stai):
+        stai_data = pd.read_csv(args.stai)
+    fixations = merge_stai_scores(fixations, stai_data)
+    logger.info("STAI scores merged")
+
+    # Filter trials
+    fixations = filter_trials(fixations)
+    logger.info(f"Trials filtered. Final count: {len(fixations)}")
+
+    # Generate output
+    generate_analysis_csv(fixations, args.output)
+    logger.info("Preprocessing pipeline completed successfully")
 
 if __name__ == "__main__":
     main()

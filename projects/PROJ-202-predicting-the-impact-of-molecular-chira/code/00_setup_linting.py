@@ -1,86 +1,109 @@
+"""
+Script to verify linting and formatting configuration.
+This script checks if ruff and black are configured correctly
+and runs them to ensure the project adheres to style guidelines.
+"""
 import os
 import sys
 import subprocess
 from pathlib import Path
 
-def check_config_files():
-    """Verify that ruff and black configuration files exist."""
-    base_dir = Path(__file__).parent
-    ruff_config = base_dir / ".ruff.toml"
-    black_config = base_dir / ".black.toml"
 
-    if not ruff_config.exists():
-        print("Error: .ruff.toml not found in code directory.")
+def check_config_files():
+    """Check if required configuration files exist."""
+    code_root = Path(__file__).parent
+    required_files = [
+        ".ruff.toml",
+        ".flake8",
+        "pyproject.toml",
+    ]
+
+    missing = []
+    for file_name in required_files:
+        file_path = code_root / file_name
+        if not file_path.exists():
+            missing.append(file_path)
+
+    if missing:
+        print(f"ERROR: Missing configuration files: {missing}")
         return False
-    if not black_config.exists():
-        print("Error: .black.toml not found in code directory.")
-        return False
-    
-    print("Configuration files found.")
+
+    print("✓ All configuration files found.")
     return True
 
+
 def run_ruff_check():
-    """Run ruff check on the code directory."""
-    base_dir = Path(__file__).parent
+    """Run ruff to check for linting issues."""
+    code_root = Path(__file__).parent
     try:
         result = subprocess.run(
-            ["ruff", "check", str(base_dir)],
+            ["ruff", "check", "."],
+            cwd=code_root,
             capture_output=True,
             text=True,
-            check=False
+            timeout=60,
         )
         if result.returncode == 0:
-            print("Ruff check passed: No issues found.")
+            print("✓ Ruff check passed: No linting issues found.")
             return True
         else:
-            print("Ruff check failed:")
+            print("✗ Ruff check failed:")
             print(result.stdout)
             print(result.stderr)
             return False
     except FileNotFoundError:
-        print("Error: 'ruff' command not found. Please install it via pip.")
+        print("WARNING: 'ruff' not found in PATH. Please install it.")
         return False
+    except subprocess.TimeoutExpired:
+        print("ERROR: Ruff check timed out.")
+        return False
+
 
 def run_black_check():
-    """Run black --check on the code directory."""
-    base_dir = Path(__file__).parent
+    """Run black to check formatting."""
+    code_root = Path(__file__).parent
     try:
         result = subprocess.run(
-            ["black", "--check", str(base_dir)],
+            ["black", "--check", "."],
+            cwd=code_root,
             capture_output=True,
             text=True,
-            check=False
+            timeout=60,
         )
         if result.returncode == 0:
-            print("Black check passed: Code is formatted correctly.")
+            print("✓ Black check passed: Code is properly formatted.")
             return True
         else:
-            print("Black check failed: Code needs formatting.")
+            print("✗ Black check failed:")
             print(result.stdout)
             print(result.stderr)
             return False
     except FileNotFoundError:
-        print("Error: 'black' command not found. Please install it via pip.")
+        print("WARNING: 'black' not found in PATH. Please install it.")
+        return False
+    except subprocess.TimeoutExpired:
+        print("ERROR: Black check timed out.")
         return False
 
+
 def main():
-    """Main entry point for linting configuration verification."""
-    print("Verifying linting configuration...")
+    """Main entry point for linting setup verification."""
+    print("=== Linting Configuration Verification ===\n")
+
     if not check_config_files():
         sys.exit(1)
 
-    print("\nRunning Ruff check...")
+    print("\n--- Running Linting Checks ---")
     ruff_ok = run_ruff_check()
-
-    print("\nRunning Black check...")
     black_ok = run_black_check()
 
     if ruff_ok and black_ok:
-        print("\nAll linting checks passed.")
+        print("\n✓ All linting and formatting checks passed.")
         sys.exit(0)
     else:
-        print("\nSome linting checks failed.")
+        print("\n✗ Some checks failed. Please fix the issues above.")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -1,268 +1,474 @@
 # Model Output Schema Validation Contract
 # Defines the structure for model results JSON and power analysis output
-# Used by code/validate_schemas.py for runtime validation
+# Used by code/validate_schemas.py to verify artifacts before downstream consumption
+#
+# This schema validates:
+# 1. artifacts/logs/model_results.json - Mixed-effects model fitting results
+# 2. artifacts/logs/power_analysis.json - Monte Carlo power analysis results
+#
+# Dependencies: data-model artifact locked (T006 completed)
 
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Visual Attention Recall Model Output"
-description: "Schema for mixed-effects model results and power analysis output"
+version: "1.0.0"
+description: "Schema for model output artifacts in the Visual Attention Recall study"
+last_updated: "2024-01-15"
 
-definitions:
-  model_results:
-    type: object
-    description: "Results from the mixed-effects logistic regression"
-    required:
-      - model_formula
-      - convergence_status
-      - fixed_effects
-      - random_effects
-      - likelihood_ratio_test
-      - diagnostics
-    properties:
-      model_formula:
-        type: string
-        description: "The R-style formula used for the model"
-        example: "recall ~ fixation_duration * valence * trait_anxiety + (1|participant) + (1|stimulus_id)"
-      
-      convergence_status:
-        type: string
-        enum: ["OK", "WARNING", "FAILED"]
-        description: "Convergence status of the optimization"
-      
-      fixed_effects:
-        type: object
-        description: "Fixed effects coefficients and statistics"
-        required:
-          - coefficients
-          - standard_errors
-          - z_values
-          - p_values
-        properties:
-          coefficients:
-            type: object
-            additionalProperties:
+# Schema for model_results.json
+model_results_schema:
+  type: object
+  required:
+    - metadata
+    - model_specification
+    - convergence_status
+    - fixed_effects
+    - random_effects
+    - likelihood_ratio_test
+    - diagnostics
+  properties:
+    metadata:
+      type: object
+      required:
+        - timestamp
+        - software_version
+        - dataset_version
+        - random_seed
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: "ISO 8601 timestamp of model execution"
+        software_version:
+          type: string
+          description: "Python and statsmodels versions used"
+        dataset_version:
+          type: string
+          description: "Version identifier for the analysis dataset"
+        random_seed:
+          type: integer
+          description: "Random seed used for reproducibility"
+
+    model_specification:
+      type: object
+      required:
+        - formula
+        - link_function
+        - optimizer
+        - random_effects_structure
+      properties:
+        formula:
+          type: string
+          description: "R-style formula string for the mixed-effects model"
+          pattern: "^recall~"
+        link_function:
+          type: string
+          enum: ["logit"]
+          description: "Link function used in GLMM"
+        optimizer:
+          type: string
+          description: "Optimizer algorithm used for fitting"
+        random_effects_structure:
+          type: string
+          description: "Description of random effects structure"
+
+    convergence_status:
+      type: object
+      required:
+        - converged
+        - message
+        - iterations
+      properties:
+        converged:
+          type: boolean
+          description: "Whether the model converged successfully"
+        message:
+          type: string
+          description: "Convergence message from the optimizer"
+        iterations:
+          type: integer
+          description: "Number of iterations until convergence or max_iter"
+        status_code:
+          type: integer
+          description: "Numeric status code from the optimizer"
+
+    fixed_effects:
+      type: object
+      required:
+        - coefficients
+        - standard_errors
+        - z_values
+        - p_values
+        - confidence_intervals
+      properties:
+        coefficients:
+          type: object
+          additionalProperties:
+            type: number
+          description: "Fixed effect coefficient estimates"
+        standard_errors:
+          type: object
+          additionalProperties:
+            type: number
+          description: "Standard errors for fixed effects"
+        z_values:
+          type: object
+          additionalProperties:
+            type: number
+          description: "Z-statistics for fixed effects"
+        p_values:
+          type: object
+          additionalProperties:
+            type: number
+          description: "P-values for fixed effects"
+        confidence_intervals:
+          type: object
+          additionalProperties:
+            type: array
+            items:
               type: number
-            description: "Map of term name to coefficient value"
-          standard_errors:
-            type: object
-            additionalProperties:
+            minItems: 2
+            maxItems: 2
+          description: "95% confidence intervals [lower, upper] for fixed effects"
+
+    random_effects:
+      type: object
+      required:
+        - participant_variance
+        - stimulus_variance
+        - residual_variance
+        - correlation_matrix
+      properties:
+        participant_variance:
+          type: number
+          minimum: 0
+          description: "Variance of random intercept for participant"
+        stimulus_variance:
+          type: number
+          minimum: 0
+          description: "Variance of random intercept for stimulus"
+        residual_variance:
+          type: number
+          minimum: 0
+          description: "Residual variance (for GLMM, this is the dispersion parameter)"
+        correlation_matrix:
+          type: object
+          description: "Correlation matrix for random effects if applicable"
+
+    likelihood_ratio_test:
+      type: object
+      required:
+        - chi2_statistic
+        - df_difference
+        - p_value
+        - full_model_loglik
+        - reduced_model_loglik
+      properties:
+        chi2_statistic:
+          type: number
+          description: "Chi-squared statistic from the likelihood ratio test"
+        df_difference:
+          type: integer
+          description: "Difference in degrees of freedom between models"
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "P-value from the likelihood ratio test"
+        full_model_loglik:
+          type: number
+          description: "Log-likelihood of the full model"
+        reduced_model_loglik:
+          type: number
+          description: "Log-likelihood of the reduced model (without interaction)"
+
+    diagnostics:
+      type: object
+      required:
+        - overdispersion
+        - dispersion_ratio
+      properties:
+        overdispersion:
+          type: string
+          enum: ["OK", "WARNING", "CRITICAL"]
+          description: "Status of overdispersion check"
+        dispersion_ratio:
+          type: number
+          description: "Ratio of Pearson chi2 to degrees of freedom"
+        vif_values:
+          type: object
+          additionalProperties:
+            type: number
+          description: "Variance Inflation Factors for fixed effects"
+
+# Schema for power_analysis.json
+power_analysis_schema:
+  type: object
+  required:
+    - metadata
+    - simulation_parameters
+    - results
+    - power_estimate
+  properties:
+    metadata:
+      type: object
+      required:
+        - timestamp
+        - software_version
+        - method
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: "ISO 8601 timestamp of power analysis execution"
+        software_version:
+          type: string
+          description: "Python and scipy versions used"
+        method:
+          type: string
+          enum: ["Monte Carlo"]
+          description: "Method used for power analysis"
+
+    simulation_parameters:
+      type: object
+      required:
+        - iterations
+        - alpha
+        - sample_size
+        - effect_size
+        - variance_components
+      properties:
+        iterations:
+          type: integer
+          minimum: 100
+          description: "Number of Monte Carlo iterations"
+        alpha:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Significance level (Type I error rate)"
+        sample_size:
+          type: object
+          required:
+            - n_participants
+            - n_trials_per_participant
+          properties:
+            n_participants:
+              type: integer
+              minimum: 1
+              description: "Number of participants in simulation"
+            n_trials_per_participant:
+              type: integer
+              minimum: 1
+              description: "Average number of trials per participant"
+        effect_size:
+          type: object
+          required:
+            - interaction_coefficient
+          properties:
+            interaction_coefficient:
               type: number
-            description: "Map of term name to standard error"
-          z_values:
-            type: object
-            additionalProperties:
-              type: number
-            description: "Map of term name to z-statistic"
-          p_values:
-            type: object
-            additionalProperties:
+              description: "Target effect size for the interaction term"
+        variance_components:
+          type: object
+          required:
+            - participant_intercept
+            - stimulus_intercept
+            - residual
+          properties:
+            participant_intercept:
               type: number
               minimum: 0
-              maximum: 1
-            description: "Map of term name to p-value"
-      
-      random_effects:
-        type: object
-        description: "Random effects variance components"
-        required:
-          - participant_variance
-          - stimulus_variance
-          - residual_variance
-        properties:
-          participant_variance:
-            type: number
-            minimum: 0
-            description: "Variance of the random intercept for participant"
-          stimulus_variance:
-            type: number
-            minimum: 0
-            description: "Variance of the random intercept for stimulus"
-          residual_variance:
-            type: number
-            minimum: 0
-            description: "Residual variance (for GLMM, often derived)"
-      
-      likelihood_ratio_test:
-        type: object
-        description: "LRT comparing full model vs reduced model (without interaction)"
-        required:
-          - chi_square
-          - df
-          - p_value
-          - significant_at_alpha
-        properties:
-          chi_square:
-            type: number
-            description: "Chi-square statistic for the test"
-          df:
-            type: integer
-            minimum: 0
-            description: "Degrees of freedom"
-          p_value:
-            type: number
-            minimum: 0
-            maximum: 1
-            description: "P-value of the test"
-          significant_at_alpha:
-            type: boolean
-            description: "Whether p < alpha (default 0.05)"
-      
-      diagnostics:
-        type: object
-        description: "Model diagnostics and overdispersion check"
-        required:
-          - overdispersion_factor
-          - overdispersion_status
-        properties:
-          overdispersion_factor:
-            type: number
-            minimum: 0
-            description: "Ratio of Pearson chi-square to degrees of freedom"
-          overdispersion_status:
-            type: string
-            enum: ["OK", "WARNING", "CRITICAL"]
-            description: "Status based on overdispersion factor thresholds"
-      
-      metadata:
-        type: object
-        required:
-          - timestamp
-          - sample_size
-          - n_participants
-          - n_stimuli
-          - n_trials
-        properties:
-          timestamp:
-            type: string
-            format: date-time
-            description: "ISO 8601 timestamp of model execution"
-          sample_size:
-            type: integer
-            minimum: 1
-            description: "Total number of observations used"
-          n_participants:
-            type: integer
-            minimum: 1
-            description: "Number of unique participants"
-          n_stimuli:
-            type: integer
-            minimum: 1
-            description: "Number of unique stimuli"
-          n_trials:
-            type: integer
-            minimum: 1
-            description: "Number of trials after filtering"
+              description: "Simulated participant intercept variance"
+            stimulus_intercept:
+              type: number
+              minimum: 0
+              description: "Simulated stimulus intercept variance"
+            residual:
+              type: number
+              minimum: 0
+              description: "Simulated residual variance"
 
-  power_analysis:
-    type: object
-    description: "Monte Carlo power analysis results"
-    required:
-      - simulation_parameters
-      - results
-      - conclusion
-    properties:
-      simulation_parameters:
-        type: object
-        required:
-          - n_iterations
-          - alpha_level
-          - true_effect_size
-          - variance_components
-        properties:
-          n_iterations:
-            type: integer
-            minimum: 100
-            description: "Number of Monte Carlo iterations"
-          alpha_level:
-            type: number
-            minimum: 0
-            maximum: 1
-            description: "Significance threshold (alpha)"
-          true_effect_size:
-            type: number
-            description: "The effect size used in the simulation (e.g., interaction coefficient)"
-          variance_components:
-            type: object
-            required:
-              - participant_variance
-              - stimulus_variance
-              - residual_variance
-            properties:
-              participant_variance:
-                type: number
-                minimum: 0
-              stimulus_variance:
-                type: number
-                minimum: 0
-              residual_variance:
-                type: number
-                minimum: 0
-      
-      results:
-        type: object
-        required:
-          - achieved_power
-          - confidence_interval
-          - convergence_rate
-        properties:
-          achieved_power:
-            type: number
-            minimum: 0
-            maximum: 1
-            description: "Proportion of simulations where H0 was rejected"
-          confidence_interval:
-            type: object
-            required:
-              - lower
-              - upper
-              - level
-            properties:
-              lower:
-                type: number
-              upper:
-                type: number
-              level:
-                type: number
-                description: "Confidence level (e.g., 0.95)"
-          convergence_rate:
-            type: number
-            minimum: 0
-            maximum: 1
-            description: "Proportion of bootstrap samples that converged"
-      
-      conclusion:
-        type: object
-        required:
-          - sufficient_power
-          - recommended_sample_size
-        properties:
-          sufficient_power:
-            type: boolean
-            description: "Whether achieved power meets the threshold (e.g., >= 0.80)"
-          recommended_sample_size:
-            type: integer
-            minimum: 1
-            description: "Estimated sample size needed for 80% power if current is insufficient"
-      
-      metadata:
-        type: object
-        required:
-          - timestamp
-          - seed
-        properties:
-          timestamp:
-            type: string
-            format: date-time
-          seed:
-            type: integer
-            description: "Random seed used for reproducibility"
+    results:
+      type: object
+      required:
+        - significant_count
+        - convergence_count
+        - convergence_rate
+      properties:
+        significant_count:
+          type: integer
+          minimum: 0
+          description: "Number of iterations where p < alpha for interaction"
+        convergence_count:
+          type: integer
+          minimum: 0
+          description: "Number of iterations where model converged"
+        convergence_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Proportion of iterations that converged"
 
-# Root schema for the combined output file
-type: object
-properties:
-  model_results:
-    $ref: "#/definitions/model_results"
-  power_analysis:
-    $ref: "#/definitions/power_analysis"
-required:
-  - model_results
-  - power_analysis
+    power_estimate:
+      type: object
+      required:
+        - achieved_power
+        - standard_error
+        - ci_lower
+        - ci_upper
+      properties:
+        achieved_power:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Estimated statistical power (1 - beta)"
+        standard_error:
+          type: number
+          minimum: 0
+          description: "Standard error of the power estimate"
+        ci_lower:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Lower bound of 95% CI for power"
+        ci_upper:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Upper bound of 95% CI for power"
+
+# Validation rules and constraints
+validation_rules:
+  - rule: "fixed_effects_keys_match"
+    description: "Keys in coefficients, standard_errors, z_values, p_values, and confidence_intervals must be identical"
+    type: structural
+  - rule: "p_values_range"
+    description: "All p-values must be between 0 and 1"
+    type: range
+  - rule: "variance_non_negative"
+    description: "All variance components must be non-negative"
+    type: range
+  - rule: "power_range"
+    description: "Power estimate must be between 0 and 1"
+    type: range
+  - rule: "convergence_rate_valid"
+    description: "Convergence rate must be between 0 and 1"
+    type: range
+  - rule: "chi2_non_negative"
+    description: "Chi-squared statistic must be non-negative"
+    type: range
+  - rule: "loglik_ordering"
+    description: "Full model log-likelihood must be >= reduced model log-likelihood"
+    type: logical
+
+# Example output structure (for reference)
+example_model_results:
+  metadata:
+    timestamp: "2024-01-15T10:30:00Z"
+    software_version: "Python 3.11.0, statsmodels 0.14.0"
+    dataset_version: "v1.0"
+    random_seed: 42
+  model_specification:
+    formula: "recall ~ fixation_duration * valence * trait_anxiety + (1|participant) + (1|stimulus_id)"
+    link_function: "logit"
+    optimizer: "bobyqa"
+    random_effects_structure: "(1|participant) + (1|stimulus_id)"
+  convergence_status:
+    converged: true
+    message: "Convergence: OK"
+    iterations: 245
+    status_code: 0
+  fixed_effects:
+    coefficients:
+      Intercept: -0.5
+      fixation_duration: 0.3
+      valence: 0.2
+      trait_anxiety: -0.15
+      fixation_duration:valence: 0.05
+      fixation_duration:trait_anxiety: -0.08
+      valence:trait_anxiety: -0.03
+      fixation_duration:valence:trait_anxiety: 0.02
+    standard_errors:
+      Intercept: 0.1
+      fixation_duration: 0.05
+      valence: 0.05
+      trait_anxiety: 0.06
+      fixation_duration:valence: 0.02
+      fixation_duration:trait_anxiety: 0.03
+      valence:trait_anxiety: 0.02
+      fixation_duration:valence:trait_anxiety: 0.01
+    z_values:
+      Intercept: -5.0
+      fixation_duration: 6.0
+      valence: 4.0
+      trait_anxiety: -2.5
+      fixation_duration:valence: 2.5
+      fixation_duration:trait_anxiety: -2.67
+      valence:trait_anxiety: -1.5
+      fixation_duration:valence:trait_anxiety: 2.0
+    p_values:
+      Intercept: 0.0
+      fixation_duration: 0.0
+      valence: 0.0
+      trait_anxiety: 0.012
+      fixation_duration:valence: 0.012
+      fixation_duration:trait_anxiety: 0.008
+      valence:trait_anxiety: 0.134
+      fixation_duration:valence:trait_anxiety: 0.046
+    confidence_intervals:
+      Intercept: [-0.696, -0.304]
+      fixation_duration: [0.202, 0.398]
+      valence: [0.102, 0.298]
+      trait_anxiety: [-0.268, -0.032]
+      fixation_duration:valence: [0.011, 0.089]
+      fixation_duration:trait_anxiety: [-0.138, -0.022]
+      valence:trait_anxiety: [-0.069, 0.003]
+      fixation_duration:valence:trait_anxiety: [0.001, 0.039]
+  random_effects:
+    participant_variance: 0.45
+    stimulus_variance: 0.12
+    residual_variance: 1.0
+    correlation_matrix: null
+  likelihood_ratio_test:
+    chi2_statistic: 6.18
+    df_difference: 1
+    p_value: 0.013
+    full_model_loglik: -1250.5
+    reduced_model_loglik: -1253.6
+  diagnostics:
+    overdispersion: "OK"
+    dispersion_ratio: 1.05
+    vif_values:
+      Intercept: 1.0
+      fixation_duration: 1.2
+      valence: 1.15
+      trait_anxiety: 1.25
+      fixation_duration:valence: 1.3
+      fixation_duration:trait_anxiety: 1.35
+      valence:trait_anxiety: 1.18
+      fixation_duration:valence:trait_anxiety: 1.4
+
+example_power_analysis:
+  metadata:
+    timestamp: "2024-01-15T11:00:00Z"
+    software_version: "Python 3.11.0, scipy 1.11.0"
+    method: "Monte Carlo"
+  simulation_parameters:
+    iterations: 1000
+    alpha: 0.05
+    sample_size:
+      n_participants: 50
+      n_trials_per_participant: 100
+    effect_size:
+      interaction_coefficient: 0.02
+    variance_components:
+      participant_intercept: 0.45
+      stimulus_intercept: 0.12
+      residual: 1.0
+  results:
+    significant_count: 620
+    convergence_count: 985
+    convergence_rate: 0.985
+  power_estimate:
+    achieved_power: 0.62
+    standard_error: 0.015
+    ci_lower: 0.591
+    ci_upper: 0.649

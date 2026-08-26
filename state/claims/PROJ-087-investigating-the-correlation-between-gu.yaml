@@ -272,3 +272,82 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T17:57:46Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Ingestion pipeline output verification criteria
+  claim_id: c_873a0a52
+  context: 'Independent Test: The pipeline can be tested by running the ingestion
+    script and verifying that the output CSV contains only rows where antibiotic_use_last_3m
+    is false/null and sleep_efficiency/sleep_duration_hours are not null.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ingestion_pipeline_output_verification_criteria
+  kind: entity_fact
+  raw_text: The pipeline can be tested by running the ingestion script and verifying
+    that the output CSV contains only rows where antibiotic_use_last_3m is false/null
+    and sleep_efficiency/sleep_duration_hours are not null.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:44:11Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Spearman correlation analysis verification method
+  claim_id: c_e0a36ed1
+  context: 'Independent Test: The analysis script can be tested on a small, synthetic
+    dataset with known correlation coefficients to verify that the calculated Spearman
+    r-values and adjusted p-values match expected mathematical results.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman_correlation_analysis_verification_method
+  kind: entity_fact
+  raw_text: The analysis script can be tested on a small, synthetic dataset with known
+    correlation coefficients to verify that the calculated Spearman r-values and adjusted
+    p-values match expected mathematical results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:44:59Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Visualization module verification criteria
+  claim_id: c_57528039
+  context: 'Independent Test: The visualization module can be tested by generating
+    a plot file and verifying that the output image file exists, contains the correct
+    axis labels, and displays the regression line.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Visualization_module_verification_criteria
+  kind: entity_fact
+  raw_text: The visualization module can be tested by generating a plot file and verifying
+    that the output image file exists, contains the correct axis labels, and displays
+    the regression line.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:45:37Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: 'Data processing resource constraints: 7GB RAM, 6 hours CPU'
+  claim_id: c_e03152c3
+  context: 'CRITICAL: All data processing must run within 7GB RAM and 6 hours on CPU-only
+    runner. Use chunked processing if needed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All data processing must run within 7GB RAM and 6 hours on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:46:20Z'

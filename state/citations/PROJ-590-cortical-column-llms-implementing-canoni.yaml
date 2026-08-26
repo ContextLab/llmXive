@@ -1,4 +1,4 @@
-- artifact_hash: 32dfd7f35b7073e01a630060bf71f098d390c1a89207b41d7a05707210abf3f4
+- artifact_hash: e4a375cd85896125976adbe7a45ddd37cf5a83048757643f0bbc8f705d10217d
   artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-23T12:53:08.028891Z'
+  verified_at: '2026-08-26T04:11:19.143623Z'

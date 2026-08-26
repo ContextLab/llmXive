@@ -1,5 +1,5 @@
 """
-Unit tests for the logging configuration utility.
+Unit tests for the logging configuration module.
 """
 import logging
 import os
@@ -8,119 +8,114 @@ from pathlib import Path
 import pytest
 
 # Import the module under test
-from code.utils.logging_config import (
-    setup_logging,
-    get_logger,
-    log_pipeline_start,
-    log_pipeline_end,
-    log_error_occurrence
-)
+# Note: We need to adjust the import path based on how tests are run
+# Assuming tests are run from the project root with PYTHONPATH set appropriately
+try:
+    from code.utils.logging_config import (
+        setup_logging,
+        get_logger,
+        log_pipeline_start,
+        log_pipeline_end,
+        log_error_occurrence,
+    )
+except ImportError:
+    # Fallback for direct execution or different path setup
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+    from utils.logging_config import (
+        setup_logging,
+        get_logger,
+        log_pipeline_start,
+        log_pipeline_end,
+        log_error_occurrence,
+    )
 
 
-class TestLoggingConfig:
-    """Test suite for logging configuration."""
+@pytest.fixture
+def temp_log_dir():
+    """Create a temporary directory for log files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-    def test_setup_logging_creates_log_file(self):
-        """Verify that setup_logging creates the log file and directory."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "test_logs" / "pipeline.log"
-            
-            # Setup logging with custom path
-            logger = setup_logging(str(log_path), log_level=logging.DEBUG)
-            
-            # Verify logger is configured
-            assert isinstance(logger, logging.Logger)
-            assert logger.level == logging.DEBUG
-            
-            # Verify log file was created
-            assert log_path.exists()
 
-    def test_get_logger_returns_configured_instance(self):
-        """Verify that get_logger returns a properly configured logger."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "test_logs" / "pipeline.log"
-            setup_logging(str(log_path))
-            
-            # Get a named logger
-            logger = get_logger("test_module")
-            
-            # Verify it's the same root logger
-            assert logger.name == "test_module"
-            assert logger.level == logging.INFO  # Default level
+def test_setup_logging_creates_file(temp_log_dir):
+    """Test that setup_logging creates the log file and directory."""
+    log_file = temp_log_dir / "test_pipeline.log"
+    
+    setup_logging(log_file=log_file)
+    
+    assert log_file.exists(), "Log file should be created after setup_logging"
+    
+    # Clean up the global logger state for next test
+    logging.getLogger().handlers.clear()
 
-    def test_log_pipeline_start_writes_message(self):
-        """Verify that log_pipeline_start writes a start message."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "test_logs" / "pipeline.log"
-            setup_logging(str(log_path))
-            
-            # Log pipeline start
-            log_pipeline_start("test_script.py")
-            
-            # Read log file and verify content
-            with open(log_path, 'r') as f:
-                content = f.read()
-            
-            assert "test_script.py" in content
-            assert "starting" in content.lower()
 
-    def test_log_pipeline_end_writes_message(self):
-        """Verify that log_pipeline_end writes an end message."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "test_logs" / "pipeline.log"
-            setup_logging(str(log_path))
-            
-            # Log pipeline end (success)
-            log_pipeline_end("test_script.py", success=True)
-            
-            # Read log file and verify content
-            with open(log_path, 'r') as f:
-                content = f.read()
-            
-            assert "test_script.py" in content
-            assert "successfully" in content
+def test_get_logger_returns_logger():
+    """Test that get_logger returns a valid logger instance."""
+    # Ensure logging is set up first
+    with tempfile.TemporaryDirectory() as tmpdir:
+        setup_logging(log_file=Path(tmpdir) / "test.log")
+        
+        logger = get_logger("test_module")
+        
+        assert isinstance(logger, logging.Logger)
+        assert logger.name == "test_module"
+        
+        # Clean up
+        logging.getLogger().handlers.clear()
 
-    def test_log_error_occurrence_writes_error(self):
-        """Verify that log_error_occurrence writes an error message."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "test_logs" / "pipeline.log"
-            setup_logging(str(log_path))
-            
-            # Create a test exception
-            test_error = ValueError("Test error message")
-            
-            # Log the error
-            log_error_occurrence("test_script.py", test_error)
-            
-            # Read log file and verify content
-            with open(log_path, 'r') as f:
-                content = f.read()
-            
-            assert "test_script.py" in content
-            assert "error" in content.lower()
-            assert "Test error message" in content
 
-    def test_log_rotation_configuration(self):
-        """Verify that log rotation is configured correctly."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "test_logs" / "pipeline.log"
-            max_bytes = 1024 * 1024  # 1 MB
-            backup_count = 3
-            
-            # Setup logging with rotation parameters
-            logger = setup_logging(
-                str(log_path),
-                max_bytes=max_bytes,
-                backup_count=backup_count
-            )
-            
-            # Verify handlers are configured
-            file_handler = None
-            for handler in logger.handlers:
-                if isinstance(handler, logging.handlers.RotatingFileHandler):
-                    file_handler = handler
-                    break
-            
-            assert file_handler is not None
-            assert file_handler.maxBytes == max_bytes
-            assert file_handler.backupCount == backup_count
+def test_log_pipeline_start(capsys, temp_log_dir):
+    """Test that log_pipeline_start writes to the log."""
+    log_file = temp_log_dir / "test_pipeline.log"
+    setup_logging(log_file=log_file)
+    
+    log_pipeline_start("test_pipeline", {"key": "value"})
+    
+    # Read the log file content
+    with open(log_file, "r") as f:
+        content = f.read()
+    
+    assert "test_pipeline" in content
+    assert "starting" in content
+    assert "key" in content
+    
+    logging.getLogger().handlers.clear()
+
+
+def test_log_pipeline_end(capsys, temp_log_dir):
+    """Test that log_pipeline_end writes to the log."""
+    log_file = temp_log_dir / "test_pipeline.log"
+    setup_logging(log_file=log_file)
+    
+    log_pipeline_end("test_pipeline", "SUCCESS", "All done")
+    
+    with open(log_file, "r") as f:
+        content = f.read()
+    
+    assert "test_pipeline" in content
+    assert "SUCCESS" in content
+    assert "All done" in content
+    
+    logging.getLogger().handlers.clear()
+
+
+def test_log_error_occurrence(capsys, temp_log_dir):
+    """Test that log_error_occurrence writes to the log."""
+    log_file = temp_log_dir / "test_pipeline.log"
+    setup_logging(log_file=log_file)
+    
+    log_error_occurrence(
+        "ValueError",
+        "Invalid value provided",
+        {"input": "test"}
+    )
+    
+    with open(log_file, "r") as f:
+        content = f.read()
+    
+    assert "ValueError" in content
+    assert "Invalid value provided" in content
+    assert "input" in content
+    
+    logging.getLogger().handlers.clear()

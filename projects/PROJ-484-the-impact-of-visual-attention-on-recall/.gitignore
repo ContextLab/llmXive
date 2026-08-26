@@ -1,8 +1,8 @@
-# Data and artifacts (generated)
+# Data and artifacts - generated during execution
 data/
 artifacts/
 
-# Python cache and bytecode
+# Python cache and compiled files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -29,20 +29,19 @@ venv/
 ENV/
 env/
 
-# IDE and editor files
+# IDE and Editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Environment variables (secrets)
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
 .env
 
 # Logs
-*.log
-artifacts/logs/
-
-# OS specific
-.DS_Store
-Thumbs.db
+artifacts/logs/*.log

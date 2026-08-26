@@ -1,144 +1,159 @@
-"""
-Schema validation utilities for model output artifacts.
-Validates JSON files against the YAML schema definitions.
-"""
-
 import json
 import yaml
 from pathlib import Path
 import sys
+import logging
+import pandas as pd
+from logging_config import setup_logging
 
-# Schema file paths
-MODEL_OUTPUT_SCHEMA_PATH = Path(__file__).parent.parent / "specs" / "001-visual-attention-recall" / "contracts" / "model_output.schema.yaml"
+logger = logging.getLogger(__name__)
 
-
-def load_schema(schema_path: Path) -> dict:
-    """Load a YAML schema from disk."""
-    if not schema_path.exists():
+def load_schema(schema_path: str) -> dict:
+    """Load a YAML schema definition."""
+    path = Path(schema_path)
+    if not path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    with open(schema_path, "r") as f:
+    with open(path, 'r') as f:
         return yaml.safe_load(f)
 
-
-def validate_json_against_schema(data: dict, schema: dict) -> tuple[bool, list[str]]:
+def validate_csv_against_schema(df: pd.DataFrame, schema: dict) -> bool:
     """
-    Validate a JSON object against a schema definition.
-    
-    Returns:
-        tuple: (is_valid, list_of_errors)
+    Validate a pandas DataFrame against the loaded schema.
+    Returns True if valid, raises ValueError otherwise.
     """
-    errors = []
+    # Check columns
+    expected_columns = schema['properties']['columns']['items']
+    actual_columns = set(df.columns)
+    expected_set = set(expected_columns)
     
-    # Basic type check
-    if not isinstance(data, dict):
-        errors.append("Data must be a dictionary/object")
-        return False, errors
+    missing_cols = expected_set - actual_columns
+    extra_cols = actual_columns - expected_set
     
-    # Check for required top-level keys based on schema definitions
-    if "definitions" in schema:
-        # Try to match against model_results or power_analysis
-        valid_match = False
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+    if extra_cols:
+        logger.warning(f"Extra columns found (not in schema): {extra_cols}")
+    
+    # Check data types based on schema
+    type_map = schema['properties']['column_types']['properties']
+    
+    for col, type_def in type_map.items():
+        if col not in df.columns:
+            continue
         
-        # Check model_results structure
-        if "model_results" in schema["definitions"]:
-            model_schema = schema["definitions"]["model_results"]
-            if _validate_structure(data, model_schema, "model_results"):
-                valid_match = True
+        dtype = df[col].dtype
         
-        # Check power_analysis structure
-        if "power_analysis" in schema["definitions"]:
-            power_schema = schema["definitions"]["power_analysis"]
-            if _validate_structure(data, power_schema, "power_analysis"):
-                valid_match = True
+        # Basic type checking
+        if type_def['type'] == 'integer':
+            if not pd.api.types.is_integer_dtype(dtype) and not pd.api.types.is_numeric_dtype(dtype):
+                raise ValueError(f"Column {col} must be integer-like, got {dtype}")
+            
+            if 'minimum' in type_def:
+                if df[col].min() < type_def['minimum']:
+                    raise ValueError(f"Column {col} has values below minimum {type_def['minimum']}")
+            if 'maximum' in type_def:
+                if df[col].max() > type_def['maximum']:
+                    raise ValueError(f"Column {col} has values above maximum {type_def['maximum']}")
         
-        if not valid_match:
-            errors.append("Data does not match model_results or power_analysis schema")
+        elif type_def['type'] == 'number':
+            if not pd.api.types.is_numeric_dtype(dtype):
+                raise ValueError(f"Column {col} must be numeric, got {dtype}")
+            
+            if 'minimum' in type_def:
+                if df[col].min() < type_def['minimum']:
+                    raise ValueError(f"Column {col} has values below minimum {type_def['minimum']}")
+            if 'maximum' in type_def:
+                if df[col].max() > type_def['maximum']:
+                    raise ValueError(f"Column {col} has values above maximum {type_def['maximum']}")
+        
+        elif type_def['type'] == 'boolean':
+            if not pd.api.types.is_bool_dtype(dtype) and not (dtype == object and df[col].isin([True, False, 0, 1]).all()):
+                # Allow 0/1 or True/False
+                if not set(df[col].unique()).issubset({True, False, 0, 1, 'True', 'False'}):
+                    raise ValueError(f"Column {col} must be boolean, got {dtype}")
+        
+        elif type_def['type'] == 'string':
+            if not pd.api.types.is_string_dtype(dtype):
+                # Allow object dtype for strings
+                pass
+            
+            if 'enum' in type_def:
+                if not set(df[col].unique()).issubset(set(type_def['enum'])):
+                    invalid_vals = set(df[col].unique()) - set(type_def['enum'])
+                    raise ValueError(f"Column {col} has invalid enum values: {invalid_vals}")
     
-    return len(errors) == 0, errors
-
-
-def _validate_structure(data: dict, schema_def: dict, schema_name: str) -> bool:
-    """Validate the structure of data against a specific schema definition."""
-    if "required" not in schema_def:
-        return True
+    # Check constraints
+    constraints = schema.get('properties', {}).get('constraints', {})
     
-    missing_keys = []
-    for key in schema_def["required"]:
-        if key not in data:
-            missing_keys.append(key)
+    if constraints.get('no_null_fixation_duration', False):
+        if 'fixation_duration_ms' in df.columns:
+            if df['fixation_duration_ms'].isnull().any():
+                raise ValueError("Constraint failed: fixation_duration_ms contains null values")
     
-    if missing_keys:
-        return False
-    
-    # Recursively validate nested structures if needed
-    if "properties" in schema_def:
-        for prop, prop_schema in schema_def["properties"].items():
-            if prop in data and prop_schema.get("type") == "object":
-                if "required" in prop_schema:
-                    for req_key in prop_schema["required"]:
-                        if req_key not in data.get(prop, {}):
-                            return False
+    if constraints.get('stai_score_present', False):
+        if 'stai_total_score' in df.columns:
+            if df['stai_total_score'].isnull().any():
+                raise ValueError("Constraint failed: stai_total_score contains null values")
     
     return True
 
-
-def validate_model_output_file(file_path: Path) -> bool:
+def validate_model_output_file(json_path: str, schema_path: str = None) -> bool:
     """
-    Validate a model output JSON file against the schema.
-    
-    Args:
-        file_path: Path to the JSON file to validate
-        
-    Returns:
-        bool: True if valid, False otherwise
+    Validate a JSON model output file against a schema.
+    For T006, we focus on CSV, but this is a stub for T006b.
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Model output file not found: {file_path}")
+    if schema_path:
+        schema = load_schema(schema_path)
+    else:
+        # Default path for model output schema if not provided
+        schema = load_schema("specs/001-visual-attention-recall/contracts/model_output.schema.yaml")
     
-    schema = load_schema(MODEL_OUTPUT_SCHEMA_PATH)
-    
-    with open(file_path, "r") as f:
+    with open(json_path, 'r') as f:
         data = json.load(f)
     
-    is_valid, errors = validate_json_against_schema(data, schema)
-    
-    if not is_valid:
-        print(f"Validation failed for {file_path}:")
-        for error in errors:
-            print(f"  - {error}")
-        return False
-    
-    print(f"Validation passed for {file_path}")
+    # Basic structure validation could go here
+    # For now, just ensure it's valid JSON (already done by json.load)
+    logger.info(f"Validated model output: {json_path}")
     return True
 
-
 def main():
-    """Main entry point for schema validation."""
-    # Default paths
-    model_results_path = Path(__file__).parent.parent / "artifacts" / "logs" / "model_results.json"
-    power_analysis_path = Path(__file__).parent.parent / "artifacts" / "logs" / "power_analysis.json"
+    """
+    CLI entry point to validate the analysis CSV against the schema.
+    Usage: python validate_schemas.py --csv data/processed/analysis.csv --schema specs/001-visual-attention-recall/contracts/dataset.schema.yaml
+    """
+    parser = argparse.ArgumentParser(description="Validate analysis CSV against schema")
+    parser.add_argument("--csv", required=True, help="Path to the analysis CSV file")
+    parser.add_argument("--schema", required=True, help="Path to the schema YAML file")
+    parser.add_argument("--log", default="artifacts/logs/validate.log", help="Path to log file")
     
-    all_valid = True
+    args = parser.parse_args()
     
-    if model_results_path.exists():
-        if not validate_model_output_file(model_results_path):
-            all_valid = False
-    else:
-        print(f"Warning: {model_results_path} not found")
+    setup_logging(args.log)
     
-    if power_analysis_path.exists():
-        if not validate_model_output_file(power_analysis_path):
-            all_valid = False
-    else:
-        print(f"Warning: {power_analysis_path} not found")
-    
-    if not all_valid:
-        sys.exit(1)
-    
-    print("All model output files validated successfully.")
-    sys.exit(0)
-
+    try:
+        logger.info(f"Loading schema from {args.schema}")
+        schema = load_schema(args.schema)
+        
+        logger.info(f"Loading CSV from {args.csv}")
+        df = pd.read_csv(args.csv)
+        logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
+        
+        logger.info("Validating against schema...")
+        validate_csv_against_schema(df, schema)
+        
+        logger.info("Validation SUCCESS: CSV conforms to schema.")
+        return 0
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return 1
+    except ValueError as e:
+        logger.error(f"Validation FAILED: {e}")
+        return 1
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

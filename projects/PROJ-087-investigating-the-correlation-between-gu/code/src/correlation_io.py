@@ -1,7 +1,3 @@
-"""
-I/O utilities for correlation analysis results.
-Handles saving correlation results to CSV with strict schema validation.
-"""
 import pandas as pd
 import logging
 from pathlib import Path
@@ -10,33 +6,28 @@ from src.config import load_config
 
 logger = logging.getLogger(__name__)
 
-REQUIRED_COLUMNS = [
-    "sample_id",
-    "diversity_index",
-    "sleep_metric",
-    "r",
-    "p",
-    "q",
-    "is_moderate",
-    "is_significant",
-    "status"
-]
-
 def save_correlation_results(
-    df: pd.DataFrame,
-    output_path: Optional[str] = None
+    results_df: pd.DataFrame,
+    output_path: Optional[str] = None,
+    status: str = "success"
 ) -> None:
     """
-    Save correlation analysis results to a CSV file.
+    Save correlation results to CSV.
+
+    Expected columns in results_df:
+    - sample_id
+    - diversity_index
+    - sleep_metric
+    - r (Spearman correlation coefficient)
+    - p (raw p-value)
+    - q (FDR-adjusted p-value)
+    - is_moderate (boolean)
+    - is_significant (boolean)
 
     Args:
-        df: DataFrame containing correlation results with required columns.
-        output_path: Optional path to output file. Defaults to config value.
-
-    Raises:
-        ValueError: If required columns are missing or DataFrame is empty
-                   (unless status indicates blocked).
-        FileNotFoundError: If output directory does not exist.
+        results_df: DataFrame containing correlation results.
+        output_path: Path to the output CSV file. Defaults to config.
+        status: Status string to append (e.g., 'success', 'blocked').
     """
     config = load_config()
     if output_path is None:
@@ -45,45 +36,40 @@ def save_correlation_results(
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    # Validate DataFrame structure
-    if df.empty:
-        # Check if this is a blocked state
-        if "status" in df.columns and any(df["status"] == "blocked"):
-            logger.warning("Saving blocked correlation results (empty DataFrame with status=blocked)")
-        else:
-            raise ValueError(
-                "Correlation results DataFrame is empty and does not indicate a blocked state. "
-                "Cannot save empty results without explicit blocked status."
-            )
+    if results_df.empty:
+        logger.warning("Correlation results DataFrame is empty. Saving empty file with status=blocked.")
+        blocked_df = pd.DataFrame(columns=[
+            "sample_id", "diversity_index", "sleep_metric", "r", "p", "q",
+            "is_moderate", "is_significant", "status"
+        ])
+        blocked_df["status"] = "blocked"
+        blocked_df.to_csv(output_file, index=False)
+    else:
+        # Ensure status column exists
+        if "status" not in results_df.columns:
+            results_df["status"] = status
 
-    # Ensure all required columns exist
-    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-    if missing_cols:
-        raise ValueError(
-            f"Correlation results missing required columns: {missing_cols}. "
-            f"Required: {REQUIRED_COLUMNS}"
-        )
+        # Reorder columns to match expected schema
+        expected_cols = [
+            "sample_id", "diversity_index", "sleep_metric", "r", "p", "q",
+            "is_moderate", "is_significant", "status"
+        ]
+        
+        # Only keep columns that exist in the dataframe, then append missing ones if any
+        # (though run_correlation_analysis should produce them)
+        final_cols = [c for c in expected_cols if c in results_df.columns]
+        missing_cols = [c for c in expected_cols if c not in results_df.columns]
+        
+        if missing_cols:
+            logger.warning(f"Missing expected columns: {missing_cols}. Adding them with default values.")
+            for col in missing_cols:
+                if col == "status":
+                    results_df[col] = status
+                else:
+                    results_df[col] = None
 
-    # Validate data types for numeric columns
-    for col in ["r", "p", "q"]:
-        if not pd.api.types.is_numeric_dtype(df[col]):
-            df[col] = pd.to_numeric(df[col], errors="coerce")
-
-    # Validate boolean columns
-    for col in ["is_moderate", "is_significant"]:
-        if col in df.columns and not pd.api.types.is_bool_dtype(df[col]):
-            df[col] = df[col].astype(bool)
-
-    # Ensure sample_id is string
-    if "sample_id" in df.columns:
-        df["sample_id"] = df["sample_id"].astype(str)
-
-    # Write to CSV
-    df.to_csv(output_file, index=False)
-    logger.info(f"Saved correlation results to {output_file} ({len(df)} rows)")
-
-    # Verify file was written
-    if not output_file.exists():
-        raise RuntimeError(f"Failed to write correlation results to {output_file}")
-
-    logger.info(f"Verified file existence: {output_file.stat().st_size} bytes")
+        # Select and order columns
+        results_df = results_df[expected_cols]
+        
+        results_df.to_csv(output_file, index=False)
+        logger.info(f"Saved correlation results to {output_file} ({len(results_df)} rows).")

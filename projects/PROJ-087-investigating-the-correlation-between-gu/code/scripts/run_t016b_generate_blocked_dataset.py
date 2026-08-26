@@ -1,8 +1,10 @@
 """
 T016b: Generate Blocked Cleaned Dataset.
+Triggered automatically when T012a (Data Feasibility Check) or T012d (Schema Verification) fails.
 
-This script is triggered when the data feasibility check (T012a) or schema verification (T012d) fails.
-It creates a placeholder CSV file with the required schema but indicates the dataset is blocked.
+This script creates a placeholder CSV file with the expected schema but marks the dataset as blocked.
+It ensures that downstream tasks (T020a, T025, T031) have a file to reference, even if the data pipeline
+could not proceed due to missing real data sources.
 
 Output: data/processed/cleaned_microbiome_sleep.csv
 """
@@ -12,11 +14,10 @@ import logging
 import json
 from pathlib import Path
 from datetime import datetime
+import pandas as pd
 
-# Add code root to path to allow imports if run from project root
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add parent directory to path to allow imports if run as script
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.config import load_config
 
@@ -27,106 +28,80 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def generate_blocked_cleaned_dataset(output_path: str, reason: str = "No verified data source found"):
+def generate_blocked_cleaned_dataset(output_dir: str, reason: str = "No verified data source found") -> Path:
     """
-    Generates a CSV file with the required schema but empty rows, indicating the dataset is blocked.
+    Generate a blocked cleaned dataset CSV with the required schema.
     
     Args:
-        output_path: Path to the output CSV file.
-        reason: The reason for the block.
+        output_dir: Directory to save the CSV file.
+        reason: The reason for the block status.
+        
+    Returns:
+        Path to the generated CSV file.
+        
+    Raises:
+        RuntimeError: If the output directory cannot be created.
     """
-    logger.info(f"Generating blocked cleaned dataset at {output_path}")
-    
-    # Define the required columns
+    # Define the required columns based on task description
     columns = [
-        "sample_id", 
-        "age", 
-        "bmi", 
-        "antibiotic_use_last_3m", 
-        "sleep_efficiency", 
-        "sleep_duration_hours", 
-        "shannon", 
-        "simpson", 
-        "observed_otus"
+        'sample_id',
+        'age',
+        'bmi',
+        'antibiotic_use_last_3m',
+        'sleep_efficiency',
+        'sleep_duration_hours',
+        'shannon',
+        'simpson',
+        'observed_otus'
     ]
     
-    # Ensure the directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Create an empty DataFrame with the correct schema and a 'status' column
+    df = pd.DataFrame(columns=columns + ['status', 'block_reason'])
     
-    # Create the CSV with headers only and a status column indicating blocked
-    # We add a 'status' column to the data if needed, but the task specifies specific columns.
-    # However, to be clear it's blocked, we might add a row with the reason or just headers.
-    # The task says: "empty rows".
-    # Let's write the headers and a comment or just the headers.
-    # To make it a valid CSV that can be read but has no data:
+    # Add the blocked status to every row (though there are none)
+    # The file will be empty of data rows but have the correct header
+    # We will add a single comment row or just rely on the header + metadata file
+    # Per spec: "empty rows" -> 0 data rows.
     
-    import pandas as pd
+    # Ensure output directory exists
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    # Create an empty DataFrame with the specified columns
-    df = pd.DataFrame(columns=columns)
+    csv_path = output_path / "cleaned_microbiome_sleep.csv"
     
-    # Add a 'status' column to the dataframe to indicate it is blocked?
-    # The task description says: "Columns must be: sample_id, age, bmi..."
-    # It does not explicitly list 'status' in the column list, but the file content must indicate blocked.
-    # We will add a 'status' column to be explicit, or just rely on the file existence and empty rows.
-    # Let's check the task description again: "Create `data/processed/cleaned_microbiome_sleep.csv` with `status: "blocked"`, `reason: "..."`, and empty rows."
-    # This implies the file might need a row with these fields or metadata.
-    # However, standard CSVs are tabular. If we add a row with "blocked", it might break downstream parsing if they expect data types.
-    # A safer approach for a "blocked" dataset in a pipeline that expects data:
-    # 1. Create the file with headers.
-    # 2. Optionally add a single row with status="blocked" and reason="..." and NaN for others?
-    # 3. Or just empty.
+    # Write the CSV with the header only (no data rows)
+    # We include the status and reason in the header or a separate metadata file?
+    # The task says: "Create ... with status: 'blocked', reason: '...', and empty rows."
+    # Best practice: Write header + 0 rows, and ensure the ingestion_report.json (T017b) carries the reason.
+    # However, to be explicit in the CSV as requested, we can add a row with NA values and status.
+    # But "empty rows" usually implies 0 data rows. Let's stick to 0 data rows but ensure the file exists.
+    # The "status" and "reason" are primarily for the ingestion report, but if we must put them in CSV:
+    # We will write the header, and 0 rows. The existence of the file with this schema signals the block.
     
-    # Let's look at T017b which generates the JSON report. This CSV is the "dataset".
-    # If the dataset is blocked, it has 0 rows.
-    # I will write the headers only. The "status" and "reason" are likely metadata for the pipeline state,
-    # which is handled by the ingestion_report.json (T017b).
-    # But to be safe and explicit as per "Create ... with status: blocked", I will add a single row
-    # where status is 'blocked' and reason is populated, if the schema allows.
-    # The schema list does NOT include 'status' or 'reason'.
-    # Therefore, I will strictly follow the column list and produce an empty file (headers only).
-    # The "status: blocked" requirement is satisfied by the file's existence in the blocked state logic
-    # and the companion ingestion_report.json.
+    df.to_csv(csv_path, index=False)
     
-    # Wait, the task says: "Create ... with `status: "blocked"`, `reason: "..."`, and empty rows."
-    # This might mean the file content should reflect this.
-    # If I can't add columns, I can't put 'status' in a row.
-    # Maybe I should add the columns? "Columns must be: ..." usually implies an exact schema.
-    # If I add 'status', I violate "Columns must be...".
-    # I will stick to the exact columns and produce an empty CSV. The "blocked" nature is inferred
-    # from the pipeline state and the ingestion_report.json.
+    logger.info(f"Generated blocked dataset at {csv_path} with {len(df)} rows.")
+    logger.info(f"Reason for block: {reason}")
     
-    df.to_csv(output_path, index=False)
-    
-    # Write a companion metadata file or just rely on the report?
-    # The task says "Create ... with status...".
-    # Let's assume the "status" is a property of the file in the context of the pipeline,
-    # or perhaps the task implies I should add a row.
-    # Let's re-read carefully: "Create `data/processed/cleaned_microbiome_sleep.csv` with `status: "blocked"`, `reason: "No verified data source found"`, and empty rows."
-    # This is ambiguous. It could mean "Create a file that represents a blocked state".
-    # Given the strict column list, I will create the empty CSV.
-    # To be extra safe, I will add a comment line at the top? No, CSV parsers hate that.
-    # I will create the empty CSV and ensure the ingestion report is generated by T017b.
-    
-    logger.info(f"Successfully created blocked dataset at {output_path} with {len(df)} rows.")
+    return csv_path
 
 def main():
+    """Main entry point for T016b."""
     config = load_config()
-    output_path = config.get('DATA_PROCESSED_DIR', 'data/processed') + '/cleaned_microbiome_sleep.csv'
+    output_dir = config.get('OUTPUT_DIR', 'data/processed')
+    reason = config.get('BLOCK_REASON', "No verified data source found")
     
-    # If T012a or T012d failed, we generate this.
-    # The reason is passed or default.
-    reason = "No verified data source found"
+    logger.info(f"Starting T016b: Generate Blocked Cleaned Dataset")
+    logger.info(f"Output directory: {output_dir}")
+    logger.info(f"Block reason: {reason}")
     
-    generate_blocked_cleaned_dataset(output_path, reason)
-    
-    # Also ensure the ingestion report is generated if not already?
-    # T017b handles the JSON report. This task is specifically for the CSV.
-    # But let's make sure the directory exists.
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info("T016b Blocked Dataset Generation Complete.")
+    try:
+        csv_path = generate_blocked_cleaned_dataset(output_dir, reason)
+        logger.info(f"SUCCESS: Blocked dataset created at {csv_path}")
+        return 0
+    except Exception as e:
+        logger.error(f"FAILED: Could not generate blocked dataset: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,2 +1,2 @@
-# This directory stores intermediate data files used during the pipeline execution (e.g., prepared receptor files, temporary docking grids).
-# Files here may be deleted after the pipeline completes.
+# This directory stores intermediate data files used during pipeline execution.
+# Temporary files that may be cleaned up after successful pipeline runs.
