@@ -1,0 +1,17 @@
+status: none
+intent: Eco-Director cellular automaton simulation dataset python package benchmark
+required_fields:
+- time_step
+- agent_id
+- agent_state
+- position_x
+- position_y
+- neighborhood_radius
+- memory_depth
+- rule_parameters
+- latency_ms
+- cpu_usage_percent
+- memory_usage_mb
+cache_key: 97d2ac9f65bc6ecc0142423bd043d24c5db7953e9875043414f663229b7c3861
+searched_at: '2026-08-26T04:34:55.492443+00:00'
+retry_count: 1

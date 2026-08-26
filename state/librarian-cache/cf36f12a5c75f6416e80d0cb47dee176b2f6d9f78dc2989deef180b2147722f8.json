@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-25T15:43:23Z",
+  "fetched_at": "2026-08-26T04:28:14Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,105 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\"",
       "target_n": 5
     },
-    "duration_seconds": 57.35,
-    "ended_at": "2026-07-25T15:43:23Z",
+    "duration_seconds": 60.058,
+    "ended_at": "2026-08-26T04:28:14Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "procedural content generation for open-world games"
+          "infinite procedural generation with large language models"
         ],
         [
           2,
-          "generative AI for dynamic game environments"
+          "LLM-driven open world game environments"
         ],
         [
           3,
-          "large language models for non-player character behavior"
+          "dynamic narrative generation in interactive fiction"
         ],
         [
           4,
-          "infinite game world generation algorithms"
+          "versatile agent interactions in simulated worlds"
         ],
         [
           5,
-          "interactive narrative generation with LLMs"
+          "large language models for non-player character behavior"
         ],
         [
           6,
-          "scalable procedural storytelling systems"
+          "generative AI for endless game content creation"
         ],
         [
           7,
-          "AI-driven open-ended game mechanics"
+          "context-aware dialogue systems in virtual worlds"
         ],
         [
           8,
-          "real-time environment synthesis using transformer models"
+          "adaptive storytelling using transformer models"
         ],
         [
           9,
-          "versatile interaction systems in virtual worlds"
+          "LLM-based procedural content generation for games"
         ],
         [
           10,
-          "context-aware procedural game content"
+          "emergent gameplay through natural language processing"
         ],
         [
           11,
-          "generative agents for persistent game worlds"
+          "scalable world simulation with foundation models"
         ],
         [
           12,
-          "dynamic world state management with language models"
+          "interactive narrative engines powered by LLMs"
         ],
         [
           13,
-          "automated quest and dialogue generation in games"
+          "autonomous agents with versatile interaction capabilities"
         ],
         [
           14,
-          "neural network approaches to game level design"
+          "language model integration in game development pipelines"
         ],
         [
           15,
-          "emergent gameplay through generative AI"
+          "infinite quest generation using generative AI"
         ],
         [
           16,
-          "large-scale virtual world simulation with AI"
+          "semantic world modeling for interactive simulations"
         ],
         [
           17,
-          "natural language interfaces for game world interaction"
+          "LLMs for real-time game environment adaptation"
         ],
         [
           18,
-          "adaptive game content generation frameworks"
+          "generative design of interactive virtual spaces"
         ],
         [
           19,
-          "multimodal generative models for game assets and logic"
+          "natural language interfaces for game world manipulation"
         ],
         [
           20,
-          "self-expanding game worlds using deep learning"
+          "reinforcement learning with large language model policies"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" computer science": 0,
-        "procedural content generation for open-world games": 5
+        "LLM-driven open world game environments": 3,
+        "infinite procedural generation with large language models": 4,
+        "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" computer science": 0
       },
-      "total_queries_issued": 1
+      "total_queries_issued": 2
     },
     "extracted_queries": [
-      "generative world models procedural content synthesis",
-      "LLMXive infinite environment benchmark evaluation",
-      "open-world reinforcement learning interaction diversity",
-      "emergent behavior large language model agents",
-      "simulation grounding agent-environment feedback loops"
+      "procedural content generation LLM environment synthesis",
+      "infinite procedural world large language model benchmark",
+      "emergent behavior open-ended LLM agent simulation",
+      "LLM agent evaluation dynamic environment interaction metrics",
+      "training data contamination synthetic world generation leakage"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -124,17 +125,17 @@
       ]
     },
     "per_query_hit_count": {
-      "LLMXive infinite environment benchmark evaluation": 3,
-      "emergent behavior large language model agents": 3,
-      "generative world models procedural content synthesis": 3,
+      "LLM agent evaluation dynamic environment interaction metrics": 3,
+      "emergent behavior open-ended LLM agent simulation": 3,
+      "infinite procedural world large language model benchmark": 2,
       "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" computer science": 3,
-      "open-world reinforcement learning interaction diversity": 3,
-      "simulation grounding agent-environment feedback loops": 3
+      "procedural content generation LLM environment synthesis": 3,
+      "training data contamination synthetic world generation leakage": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 3,
+      "rejected_count": 6,
       "rejections": [
         {
           "primary_pointer": "2107.12524",
@@ -147,14 +148,29 @@
           "title": "Generating Lode Runner Levels by Learning Player Paths with LSTMs"
         },
         {
-          "primary_pointer": "2107.12506",
-          "rationale": "The paper focuses on rhythm game chart generation and pattern recognition, which is a distinct application domain from the user's question regarding \"Infinite Worlds with Versatile Interactions\" (a specific framework for generative world models and interactive environments). There is no overlap in the biological, physical, algorithmic, or social mechanisms being studied, nor does it share the specific empirical population or canonical vocabulary cluster required for inclusion under rules (a) thr",
-          "title": "TaikoNation: Patterning-focused Chart Generation for Rhythm Action Games"
+          "primary_pointer": "2311.04589",
+          "rationale": "The paper proposes a specific architecture (TEAL) for multi-modal tokenization and generation, which does not address the user's specific question about extending the \"Infinite Worlds with Versatile Interactions\" (llmXive) framework or its follow-up research. While both fall under the broad domain of Large Language Models, the candidate paper lacks any measurable connection to the specific mechanism, variables, or empirical setting of the llmXive project, failing to satisfy criteria (a) through ",
+          "title": "TEAL: Tokenize and Embed ALL for Multi-modal Large Language Models"
+        },
+        {
+          "primary_pointer": "2207.14140",
+          "rationale": "The paper focuses on using NEAT and Reinforcement Learning to play a specific 2D game (\"Flappy Bird\") for algorithm testing, which is a distinct construct from the user's question about extending the \"Infinite Worlds with Versatile Interactions\" (llmXive) framework for Large Language Models. While both involve AI agents, the candidate paper does not address the specific mechanism, domain (LLM-based world generation), or variables of the llmXive system, failing to meet the criteria for same-mecha",
+          "title": "Playing a 2D Game Indefinitely using NEAT and Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2606.27068",
+          "rationale": "The paper focuses on \"parametric open-source games\" and \"program equilibria\" in game theory, which is a distinct theoretical construct from the user's query regarding \"Infinite Worlds with Versatile Interactions\" (a specific computer science framework likely related to procedural generation or simulation environments). While both involve \"open-source\" or \"interaction\" concepts, the paper does not measure the same mechanism, domain, or variables as the user's specific follow-up research, nor does",
+          "title": "Parametric Open Source Games"
+        },
+        {
+          "primary_pointer": "2512.21309",
+          "rationale": "The paper focuses on a specific engineering optimization (plan reuse for latency reduction) in LLM-driven agents, which does not align with the user's question about extending the \"Infinite Worlds with Versatile Interactions\" framework or its specific mechanisms. There is no evidence that this paper measures the same biological/algorithmic mechanism, establishes a baseline for the \"Infinite Worlds\" domain, or serves as a foundational reference for that specific research line, failing all inclusi",
+          "title": "A Plan Reuse Mechanism for LLM-Driven Agent"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-25T15:42:26Z",
+    "started_at": "2026-08-26T04:27:14Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"infinite worlds with versatile interactions\" computer science",
       "raw": "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" computer science"
@@ -173,7 +189,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
@@ -192,7 +208,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
@@ -210,7 +226,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
@@ -232,7 +248,7 @@
           "primary_pointer": "2007.06108"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
@@ -253,7 +269,7 @@
           "primary_pointer": "2107.12524"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Ensemble Learning For Mega Man Level Generation')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
@@ -270,219 +286,132 @@
           "primary_pointer": "2107.12533"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Toward Co-creative Dungeon Generation via Transfer Learning')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_abstract": "Video generation models are increasingly used as world simulators for tasks like driving and robotic manipulation. What matters in these settings is not whether a single video looks right, but whether the model's output changes when its input changes. We test this by giving a model two prompts describing the same scene with one physical detail varied, and checking whether the two videos diverge the way physics predicts. The wording difference between the prompts is small by design, since only one variable is changed, but the correct physical difference is not. A model that misses this can still produce two videos that each look plausible individually, and existing benchmarks score videos one at a time and cannot detect this failure. We introduce What-If World, 319 such prompt pairs built on real frames from nuScenes and DROID, organized by a taxonomy of six physical variables shared across driving and manipulation. Each pair is scored with APEO, a four-part rubric checking whether each video follows its prompt (Adherence), is physically consistent (Physics), preserves the shared scene (Environment), and ends in the correct difference (Outcome). Across nine state-of-the-art models, no system exceeds 52% on the paired score, and open-source models cluster near 28%. Every model tested fails on a large fraction of causal interventions, indicating substantial room before these models can reliably support action-conditioned simulation or model-based planning. Where models do score well, performance appears to track the visual prominence of the intervention rather than the tractability of its underlying physics. Some visually subtle interventions score as low as 14.2%, while visually pronounced ones reach 40.4%.",
           "claimed_authors": [
-            "Sina Mohseni",
-            "Jeremy E. Block",
-            "Eric D. Ragan"
+            "Kunlin Cai",
+            "Rui Song",
+            "Jinghuai Zhang",
+            "Kaiyuan Zhang",
+            "Pranav Bodapati",
+            "Alicia Yu",
+            "Fnu Suya",
+            "Mohammad Rostami",
+            "Jiaqi Ma",
+            "Yuan Tian"
           ],
-          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1801.05075"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
-        "failed_at": "2026-07-25T15:42:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "As the number of installed meters in buildings increases, there is a growing number of data time-series that could be used to develop data-driven models to support and optimize building operation. However, building data sets are often characterized by errors and missing values, which are considered, by the recent research, among the main limiting factors on the performance of the proposed models. Motivated by the need to address the problem of missing data in building operation, this work presents a data-driven approach to fill these gaps. In this study, three different autoencoder neural networks are trained to reconstruct missing short-term indoor environment data time-series in a data set collected in an office building in Aachen, Germany. This consisted of a four year-long monitoring campaign in and between the years 2014 and 2017, of 84 different rooms. The models are applicable for different time-series obtained from room automation, such as indoor air temperature, relative humidity and $CO_{2}$ data streams. The results prove that the proposed methods outperform classic numerical approaches and they result in reconstructing the corresponding variables with average RMSEs of 0.42 °C, 1.30 % and 78.41 ppm, respectively.",
-          "claimed_authors": [
-            "Antonio Liguori",
-            "Romana Markovic",
-            "Thi Thu Ha Dam",
-            "Jérôme Frisch",
-            "Christoph van Treeck",
-            "Francesco Causone"
-          ],
-          "claimed_title": "Indoor environment data time-series reconstruction using autoencoder neural networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2009.08155"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Indoor environment data time-series reconstruction using autoencoder neural networks')",
-        "failed_at": "2026-07-25T15:42:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We introduce SECQUE, a comprehensive benchmark for evaluating large language models (LLMs) in financial analysis tasks. SECQUE comprises 565 expert-written questions covering SEC filings analysis across four key categories: comparison analysis, ratio calculation, risk assessment, and financial insight generation. To assess model performance, we develop SECQUE-Judge, an evaluation mechanism leveraging multiple LLM-based judges, which demonstrates strong alignment with human evaluations. Additionally, we provide an extensive analysis of various models' performance on our benchmark. By making SECQUE publicly available, we aim to facilitate further research and advancements in financial AI.",
-          "claimed_authors": [
-            "Noga Ben Yoash",
-            "Meni Brief",
-            "Oded Ovadia",
-            "Gil Shenderovitz",
-            "Moshik Mishaeli",
-            "Rachel Lemberg",
-            "Eitam Sheetrit"
-          ],
-          "claimed_title": "SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.04596"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities')",
-        "failed_at": "2026-07-25T15:42:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Reinforcement learning (RL) research has demonstrated success in both physical and simulated domains; however, the predominant methodology remains rooted in simulations. The predominance of simulations makes translating research to physical reality uncertain for both algorithms and researchers. We propose a physical platform that is designed to simplify the transition. In this paper, we present the Open Ant: a physical variant of the commonly used Gymnasium Ant environment, along with a simulation. We demonstrate that competent walking policies can be learned from scratch in approximately one hour directly from the physical robot's experience for two substantially different RL algorithms: SARSA($λ$) and Soft Actor-Critic (SAC). Separately, we show policies that were learned in simulation transfer to reality. We also examine how well the platform supports a nimble experimental ecosystem. Specifically, we observe the speed with which new users from diverse backgrounds achieve their first success with the platform, and how easily the platform can be repaired and updated when hardware issues arise. Both the hardware design and software are available as open-source on GitHub for ease of customization. In summary, we advocate for the use of the Open Ant for RL researchers who frequently use simulated environments, so they can more easily include robot experiments in their evaluations.",
-          "claimed_authors": [
-            "Elena Sorina Lupu",
-            "Patrick Spieler",
-            "Khurram Javed",
-            "Kris De Asis",
-            "John D. Martin",
-            "Martha Steenstrup",
-            "Joseph Modayil"
-          ],
-          "claimed_title": "The Open Ant: A Robot Platform for Reinforcement Learning Research",
+          "claimed_title": "What-If World: A Causal Benchmark for General World Models in Embodied Scenarios",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2607.18488"
+          "primary_pointer": "2605.27589"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='The Open Ant: A Robot Platform for Reinforcement Learning Research')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='What-If World: A Causal Benchmark for General World Models in Embodied Scenarios')",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_abstract": "We propose a new benchmark corpus to be used for measuring progress in statistical language modeling. With almost one billion words of training data, we hope this benchmark will be useful to quickly evaluate novel language modeling techniques, and to compare their contribution when combined with other advanced techniques. We show performance of several well-known types of language models, with the best results achieved with a recurrent neural network based language model. The baseline unpruned Kneser-Ney 5-gram model achieves perplexity 67.6; a combination of techniques leads to 35% reduction in perplexity, or 10% reduction in cross-entropy (bits), over that baseline.\n  The benchmark is available as a code.google.com project; besides the scripts needed to rebuild the training/held-out data, it also makes available log-probability values for each word in each of ten held-out data sets, for each of the baseline n-gram models.",
           "claimed_authors": [
-            "Abdul Wahab",
-            "Raksha Kumaraswamy",
-            "Martha White"
+            "Ciprian Chelba",
+            "Tomas Mikolov",
+            "Mike Schuster",
+            "Qi Ge",
+            "Thorsten Brants",
+            "Phillipp Koehn",
+            "Tony Robinson"
           ],
-          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_title": "One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.3005"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale learner-task interaction data are crucial for intelligent educational systems but are costly to collect and constrained by privacy and learner engagement. Learner simulators play a critical role in simulating scalable learner behavior without the need for continuous involvement of real learners. However, existing methods are predominantly \\textbf{individual-centric}, pairing a simulator with each learner to iteratively infer latent knowledge states from dense interaction histories, which is both data- and computation-intensive, and fragile in cold-start scenarios. We propose a \\textbf{cohort-aware roll-call simulation paradigm} that first constructs cohort-level proficiency priors and refines individual learner states through a small number of targeted diagnostic queries. Based on this paradigm, we introduce \\textbf{Edu-Theater}, an LLM-powered agent system that performs cohort-aware learner simulation via a teacher agent and retrospective roll-call probing over learner logs. Edu-Theater enables scalable future behavior simulation without the need for dense per-learner histories. Experiments on two real-world datasets demonstrate that Edu-Theater achieves higher simulation accuracy with significantly fewer LLM calls, producing synthetic data that enhances downstream applications such as adaptive testing.",
+          "claimed_authors": [
+            "Weibo Gao",
+            "Qi Liu",
+            "Linan Yue",
+            "Zheng Zhang",
+            "Yichao Du",
+            "Fangzhou Yao",
+            "Ao Yu",
+            "Zhenya Huang",
+            "Shijin Wang"
+          ],
+          "claimed_title": "Edu-Theater: A Data-Efficient Agent Framework for Scalable Learner Behavior Simulation through Staging Roll-Call",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2602.12375"
+          "primary_pointer": "2606.15225"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Edu-Theater: A Data-Efficient Agent Framework for Scalable Learner Behavior Simulation through Staging Roll-Call')",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Designing effective task sequences is crucial for curriculum reinforcement learning (CRL), where agents must gradually acquire skills by training on intermediate tasks. A key challenge in CRL is to identify tasks that promote exploration, yet are similar enough to support effective transfer. While recent approach suggests comparing tasks via their Structural Causal Models (SCMs), the method requires access to ground-truth causal structures, an unrealistic assumption in most RL settings. In this work, we propose Causal-Paced Deep Reinforcement Learning (CP-DRL), a curriculum learning framework aware of SCM differences between tasks based on interaction data approximation. This signal captures task novelty, which we combine with the agent's learnability, measured by reward gain, to form a unified objective. Empirically, CP-DRL outperforms existing curriculum methods on the Point Mass benchmark, achieving faster convergence and higher returns. CP-DRL demonstrates reduced variance with comparable final returns in the Bipedal Walker-Trivial setting, and achieves the highest average performance in the Infeasible variant. These results indicate that leveraging causal relationships between tasks can improve the structure-awareness and sample efficiency of curriculum reinforcement learning. We provide the full implementation of CP-DRL to facilitate the reproduction of our main results at https://github.com/Cho-Geonwoo/CP-DRL.",
+          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
           "claimed_authors": [
-            "Geonwoo Cho",
-            "Jaegyun Im",
-            "Doyoon Kim",
-            "Sundong Kim"
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
           ],
-          "claimed_title": "Causal-Paced Deep Reinforcement Learning",
+          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2507.02910"
+          "claimed_year": 2013,
+          "primary_pointer": "1311.5108"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Causal-Paced Deep Reinforcement Learning')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs) have achieved success in acting as agents, which interact with environments through tools such as search engines. However, LLMs are optimized for language generation instead of tool use during training or alignment, limiting their effectiveness as agents. To resolve this problem, previous work has first collected interaction trajectories between LLMs and environments, using only trajectories that successfully finished the task to fine-tune smaller models, making fine-tuning data scarce and acquiring it both difficult and costly. Discarding failed trajectories also leads to significant wastage of data and resources and limits the possible optimization paths during fine-tuning. In this paper, we argue that unsuccessful trajectories offer valuable insights, and LLMs can learn from these trajectories through appropriate quality control and fine-tuning strategies. By simply adding a prefix or suffix that tells the model whether to generate a successful trajectory during training, we improve model performance by a large margin on mathematical reasoning, multi-hop question answering, and strategic question answering tasks. We further analyze the inference results and find that our method provides a better trade-off between valuable information and errors in unsuccessful trajectories. To our knowledge, we are the first to demonstrate the value of negative trajectories and their application in agent-tunning scenarios. Our findings offer guidance for developing better agent-tuning methods and low-resource data usage techniques.",
+          "claimed_abstract": "Agent-based models have historically served as tools for generative explanation, constructing testbeds in which candidate micro-level behavioral rules can be tested for their capacity to produce observed macro-level phenomena. The integration of Large Language Models into agent-based simulation has expanded what these models can represent, but it has also introduced an unexamined shift in how users engage them. We argue that current generative agent-based models (GABMs) inherit the dominant interaction metaphor of conversational LLM interfaces - a question-answer pattern that positions users as consumers of system output rather than explorers of a possibility space. In the context of policy, where problems are wicked and ground truth is unknowable in advance, this metaphor produces a trust deficit that cannot be resolved through improved model accuracy alone. We open a design space we call human-simulation interaction, and argue that warranted trust requires interaction metaphors that restore the exploratory capacity simulation has historically supported.",
           "claimed_authors": [
-            "Renxi Wang",
-            "Haonan Li",
-            "Xudong Han",
-            "Yixuan Zhang",
-            "Timothy Baldwin"
+            "Huanxing Chen"
           ],
-          "claimed_title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents",
+          "claimed_title": "Human-Simulation Interaction: From Prediction to Exploration in LLM Agent Simulations for Policy",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.11651"
+          "claimed_year": 2026,
+          "primary_pointer": "2608.07496"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Human-Simulation Interaction: From Prediction to Exploration in LLM Agent Simulations for Policy')",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "As Large Language Models (LLMs) have become integral to both research and daily operations, rigorous evaluation is crucial. This assessment is important not only for individual tasks but also for understanding their societal impact and potential risks. Despite extensive efforts to examine LLMs from various perspectives, there is a noticeable lack of multi-agent AI models specifically designed to evaluate the performance of different LLMs. To address this gap, we introduce a novel multi-agent AI model that aims to assess and compare the performance of various LLMs. Our model consists of eight distinct AI agents, each responsible for retrieving code based on a common description from different advanced language models, including GPT-3.5, GPT-3.5 Turbo, GPT-4, GPT-4 Turbo, Google Bard, LLAMA, and Hugging Face. Our developed model utilizes the API of each language model to retrieve code for a given high-level description. Additionally, we developed a verification agent, tasked with the critical role of evaluating the code generated by its counterparts. We integrate the HumanEval benchmark into our verification agent to assess the generated code's performance, providing insights into their respective capabilities and efficiencies. Our initial results indicate that the GPT-3.5 Turbo model's performance is comparatively better than the other models. This preliminary analysis serves as a benchmark, comparing their performances side by side. Our future goal is to enhance the evaluation process by incorporating the Massively Multitask Benchmark for Python (MBPP) benchmark, which is expected to further refine our assessment. Additionally, we plan to share our developed model with twenty practitioners from various backgrounds to test our model and collect their feedback for further improvement.",
+          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
           "claimed_authors": [
-            "Zeeshan Rasheed",
-            "Muhammad Waseem",
-            "Kari Systä",
-            "Pekka Abrahamsson"
+            "Taiyu Zhang",
+            "Xuesong Zhang",
+            "Robbe Cools",
+            "Adalberto L. Simeone"
           ],
-          "claimed_title": "Large Language Model Evaluation Via Multi AI Agents: Preliminary results",
+          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2404.01023"
+          "primary_pointer": "2409.01907"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Large Language Model Evaluation Via Multi AI Agents: Preliminary results')",
-        "failed_at": "2026-07-25T15:42:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In their recent Nature Human Behaviour paper, \"Emergent analogical reasoning in large language models,\" (Webb, Holyoak, and Lu, 2023) the authors argue that \"large language models such as GPT-3 have acquired an emergent ability to find zero-shot solutions to a broad range of analogy problems.\" In this response, we provide counterexamples of the letter string analogies. In our tests, GPT-3 fails to solve simplest variations of the original tasks, whereas human performance remains consistently high across all modified versions. Zero-shot reasoning is an extraordinary claim that requires extraordinary evidence. We do not see that evidence in our experiments. To strengthen claims of humanlike reasoning such as zero-shot reasoning, it is important that the field develop approaches that rule out data memorization.",
-          "claimed_authors": [
-            "Damian Hodel",
-            "Jevin West"
-          ],
-          "claimed_title": "Response: Emergent analogical reasoning in large language models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2308.16118"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Response: Emergent analogical reasoning in large language models')",
-        "failed_at": "2026-07-25T15:42:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "There is little research concerning comparisons and combination of System Dynamics Simulation (SDS) and Agent Based Simulation (ABS). ABS is a paradigm used in many levels of abstraction, including those levels covered by SDS. We believe that the establishment of frameworks for the choice between these two simulation approaches would contribute to the simulation research. Hence, our work aims for the establishment of directions for the choice between SDS and ABS approaches for immune system-related problems. Previously, we compared the use of ABS and SDS for modelling agents' behaviour in an environment with nomovement or interactions between these agents. We concluded that for these types of agents it is preferable to use SDS, as it takes up less computational resources and produces the same results as those obtained by the ABS model. In order to move this research forward, our next research question is: if we introduce interactions between these agents will SDS still be the most appropriate paradigm to be used? To answer this question for immune system simulation problems, we will use, as case studies, models involving interactions between tumour cells and immune effector cells. Experiments show that there are cases where SDS and ABS can not be used interchangeably, and therefore, their comparison is not straightforward.",
-          "claimed_authors": [
-            "Grazziela P. Figueredo",
-            "Uwe Aickelin"
-          ],
-          "claimed_title": "Comparing System Dynamics and Agent-Based Simulation for Tumour Growth and its Interactions with Effector Cells",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1108.3235"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Comparing System Dynamics and Agent-Based Simulation for Tumour Growth and its Interactions with Effector Cells')",
-        "failed_at": "2026-07-25T15:42:59Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Agents offer a new and exciting way of understanding the world of work. In this paper we describe the development of agent-based simulation models, designed to help to understand the relationship between people management practices and retail performance. We report on the current development of our simulation models which includes new features concerning the evolution of customers over time. To test the features we have conducted a series of experiments dealing with customer pool sizes, standard and noise reduction modes, and the spread of customers' word of mouth. To validate and evaluate our model, we introduce new performance measure specific to retail operations. We show that by varying different parameters in our model we can simulate a range of customer experiences leading to significant differences in performance measures. Ultimately, we are interested in better understanding the impact of changes in staff behavior due to changes in store management practices. Our multi-disciplinary research team draws upon expertise from work psychologists and computer scientists. Despite the fact we are working within a relatively novel and complex domain, it is clear that intelligent agents offer potential for fostering sustainable organizational capabilities in the future.",
-          "claimed_authors": [
-            "Peer-Olaf Siebers",
-            "Uwe Aickelin",
-            "Helen Celia",
-            "Chris Clegg"
-          ],
-          "claimed_title": "Simulating Customer Experience and Word Of Mouth in Retail - A Case Study",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1003.3784"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Simulating Customer Experience and Word Of Mouth in Retail - A Case Study')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       },
       {
@@ -502,42 +431,88 @@
           "primary_pointer": "2111.01484"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='ArchABM: an agent-based simulator of human interaction with the built environment. $CO_2$ and viral load analysis for indoor air quality')",
-        "failed_at": "2026-07-25T15:42:59Z",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluation methodologies for language models increasingly combine multiple signals, from automated metrics and LLM-as-judge ratings to human assessments and benchmark suite results. When these signals are aggregated via averaging, evaluation confidence can then substantially exceed the reliability of the weakest signal: a phenomenon we call trust inflation in evaluation. We argue that evaluation scores should be treated as epistemic claims with three properties: formality (human evaluation provides stronger evidence than an automated metric), scope (a benchmark result applies to the tested distribution, not universally), and validity windows (benchmark results expire as contamination accumulates and distributions shift). Several converging research traditions (chain-of-thought analysis, possibilistic logic, and algebraic theory) establish weakest-link aggregation as the conservative endpoint of a parameterized operator family controlled by a single pessimism parameter. Drawing on those traditions, and on concrete lessons from building an evaluation harness for agentic AI, we propose that evaluation results carry explicit metadata (formality tier, scope declaration, and expiration date) to make their epistemic status transparent. We illustrate the cost of mean aggregation on the public HELM leaderboard: across 54 frontier models on ten scenarios, the top-five models ranked by mean score and by weakest-link are completely disjoint.",
+          "claimed_authors": [
+            "Sankalp Gilda",
+            "Shlok Gilda"
+          ],
+          "claimed_title": "Position: Evaluation Scores Are Perishable Knowledge Claims",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.26191"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Position: Evaluation Scores Are Perishable Knowledge Claims')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative modeling has been used frequently in synthetic data generation. Fairness and privacy are two big concerns for synthetic data. Although Recent GAN [\\cite{goodfellow2014generative}] based methods show good results in preserving privacy, the generated data may be more biased. At the same time, these methods require high computation resources. In this work, we design a fast, fair, flexible and private data generation method. We show the effectiveness of our method theoretically and empirically. We show that models trained on data generated by the proposed method can perform well (in inference stage) on real application scenarios.",
+          "claimed_authors": [
+            "Weijie Xu",
+            "Jinjin Zhao",
+            "Francis Iannacci",
+            "Bo Wang"
+          ],
+          "claimed_title": "FFPDG: Fast, Fair and Private Data Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.00161"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='FFPDG: Fast, Fair and Private Data Generation')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Insufficient training data is a major bottleneck for most deep learning practices, not least in medical imaging where data is difficult to collect and publicly available datasets are scarce due to ethics and privacy. This work investigates the use of synthetic images, created by generative adversarial networks (GANs), as the only source of training data. We demonstrate that for this application, it is of great importance to make use of multiple GANs to improve the diversity of the generated data, i.e. to sufficiently cover the data distribution. While a single GAN can generate seemingly diverse image content, training on this data in most cases lead to severe over-fitting. We test the impact of ensembled GANs on synthetic 2D data as well as common image datasets (SVHN and CIFAR-10), and using both DCGANs and progressively growing GANs. As a specific use case, we focus on synthesizing digital pathology patches to provide anonymized training data.",
+          "claimed_authors": [
+            "Gabriel Eilertsen",
+            "Apostolia Tsirikoglou",
+            "Claes Lundström",
+            "Jonas Unger"
+          ],
+          "claimed_title": "Ensembles of GANs for synthetic training data generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.11797"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Ensembles of GANs for synthetic training data generation')",
+        "failed_at": "2026-08-26T04:27:45Z",
         "reason": "query_irrelevant"
       }
     ],
     "verified_citations": [
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Matthew Guzdial",
-            "Devi Acharya",
-            "Max Kreminski",
-            "Michael Cook",
-            "Mirjam Eladhari",
-            "Antonios Liapis",
-            "Anne Sullivan"
-          ],
-          "title": "Tabletop Roleplaying Games as Procedural Content Generators",
-          "venue": "arXiv",
-          "year": 2020
-        },
-        "primary_pointer": "2007.06108",
-        "summary": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2007.06108",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-25T15:43:04Z"
-        }
-      },
       {
         "bibliographic_info": {
           "authors": [
@@ -556,12 +531,12 @@
           "final_url": "https://arxiv.org/abs/2107.12533",
           "http_status": 200,
           "pdf_sample_score": 0.1694,
-          "query_relevance_score": 0.5,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-25T15:43:07Z"
+          "verified_at": "2026-08-26T04:27:51Z"
         }
       }
     ]
