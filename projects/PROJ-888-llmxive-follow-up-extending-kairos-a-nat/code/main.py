@@ -1,3 +1,15 @@
+"""
+code/main.py: Orchestration interface for the llmXive data pipeline.
+
+This module defines the contract and dependencies for the data pipeline:
+1. Download (T011)
+2. Derive (T012a)
+3. Noise Injection (T013)
+4. Quantization (T012)
+
+It ensures the correct ordering and interfaces are established before
+the implementation of the specific pipeline stages.
+"""
 import os
 import sys
 import time
@@ -5,164 +17,314 @@ import json
 import logging
 import traceback
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Dict, Any, List, Optional, Callable, Tuple
+from dataclasses import dataclass, field
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from data.download_libero import download_libero_subset
-from data.quantize import quantize_dataset
-from data.noise import inject_noise
-from utils.logging import get_logger, DataFetchError, QuantizationError, log_resource_snapshot, log_metric
+# Local imports from project structure
+from config import ensure_dirs, set_seed, get_config_summary, DATA_DIR, LOGS_DIR, RESULTS_DIR
+from utils.logging import get_logger, LlmXiveError, log_metric
 from utils.monitor import ResourceMonitor, get_peak_memory_mb, format_bytes
-from config import DATA_DIR, OUTPUT_DIR, SUBSET_SIZE, QUANTIZATION_LEVEL, NOISE_STD, RAM_LIMIT_GB
+from utils.checkpoint import CheckpointManager, get_checkpoint_manager
+from data.schema import QuantizationLevel, DiscreteStateVector
+from data.validation import validate_dataset_for_degeneracy, DegeneracyError
 
-logger = get_logger(__name__)
+# Placeholder imports for pipeline stages (to be implemented in T011, T012a, T013, T012)
+# These are imported conditionally or via a factory pattern to avoid circular dependencies
+# during the initial orchestration definition.
+try:
+    from data.download_libero import download_libero_subset
+    DOWNLOAD_FN: Optional[Callable] = download_libero_subset
+except ImportError:
+    DOWNLOAD_FN = None
+    logging.getLogger(__name__).warning("download_libero not yet implemented (T011)")
 
-def validate_header_size(hdf5_path: str, limit_gb: float = RAM_LIMIT_GB) -> bool:
+try:
+    from data.velocity_deriver import derive_velocity_fields
+    DERIVE_FN: Optional[Callable] = derive_velocity_fields
+except ImportError:
+    DERIVE_FN = None
+    logging.getLogger(__name__).warning("velocity_deriver not yet implemented (T012a)")
+
+try:
+    from data.noise import inject_noise
+    NOISE_FN: Optional[Callable] = inject_noise
+except ImportError:
+    NOISE_FN = None
+    logging.getLogger(__name__).warning("noise not yet implemented (T013)")
+
+try:
+    from data.quantize import quantize_dataset
+    QUANTIZE_FN: Optional[Callable] = quantize_dataset
+except ImportError:
+    QUANTIZE_FN = None
+    logging.getLogger(__name__).warning("quantize not yet implemented (T012)")
+
+
+@dataclass
+class PipelineConfig:
+    """Configuration container for the data pipeline."""
+    seed: int
+    quantization_bits: int  # Must be in [4, 6, 8, 16]
+    noise_std_dev: float
+    subset_size: int
+    input_hdf5_path: Optional[str] = None
+    output_json_path: Optional[str] = None
+    skip_download: bool = False
+    skip_derive: bool = False
+    skip_noise: bool = False
+    skip_quantize: bool = False
+    validate_degeneracy: bool = True
+
+
+def validate_header_size(file_path: str) -> Dict[str, Any]:
     """
-    T040a: Validate dataset size via header-only read to ensure it fits in RAM.
-    Returns True if valid, raises ResourceLimitExceeded if too large.
+    Validates the header of a potential HDF5 file to estimate size.
+    This is a utility for T040 to check dataset size before full load.
     """
-    from utils.logging import ResourceLimitExceeded
     import h5py
-
-    logger.info(f"Validating header size for {hdf5_path} against limit {limit_gb}GB")
+    logger = get_logger(__name__)
+    
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found for header validation: {file_path}")
     
     try:
-        # Open in read-only mode, header only logic (h5py reads headers automatically)
-        with h5py.File(hdf5_path, 'r') as f:
-            # Estimate size roughly based on dataset attributes or just file size if available
-            # For H5, we can check the file size on disk as a proxy, but strict header check
-            # implies we don't load data.
-            file_size_bytes = os.path.getsize(hdf5_path)
-            file_size_gb = file_size_bytes / (1024 ** 3)
+        with h5py.File(file_path, 'r') as f:
+            # Basic header info
+            num_groups = len(f.keys())
+            size_estimate = 0
+            for key in f.keys():
+                if isinstance(f[key], h5py.Group):
+                    num_groups += len(f[key].keys())
+                else:
+                    size_estimate += f[key].size * 4 # Approx float32
             
-            log_metric("input_file_size_gb", file_size_gb)
-            logger.info(f"Input file size: {format_bytes(file_size_bytes)} ({file_size_gb:.2f} GB)")
-            
-            if file_size_gb > limit_gb:
-                raise ResourceLimitExceeded(
-                    f"Input dataset {hdf5_path} ({file_size_gb:.2f} GB) exceeds RAM limit ({limit_gb} GB)"
-                )
-            
-            return True
-    except FileNotFoundError:
-        logger.error(f"Validation failed: File not found at {hdf5_path}")
-        raise
+            return {
+                "file": file_path,
+                "valid": True,
+                "num_groups": num_groups,
+                "estimated_bytes": size_estimate,
+                "estimated_mb": size_estimate / (1024 * 1024)
+            }
     except Exception as e:
-        logger.error(f"Validation failed: {str(e)}")
-        raise
+        logger.error(f"Header validation failed: {e}")
+        return {
+            "file": file_path,
+            "valid": False,
+            "error": str(e)
+        }
 
-def run_pipeline(
-    input_path: str,
-    output_path: str,
-    quantization_level: str = QUANTIZATION_LEVEL,
-    noise_std: float = NOISE_STD,
-    subset_size: int = SUBSET_SIZE
-) -> Dict[str, Any]:
+
+def run_pipeline(config: PipelineConfig) -> Dict[str, Any]:
     """
-    T040b: Sample subset runner.
-    Executes the full pipeline: Quantize -> Noise -> Save JSON.
-    Includes memory monitoring and logging.
-    """
-    logger.info(f"Starting pipeline run for subset size {subset_size}")
-    logger.info(f"Quantization: {quantization_level}, Noise Std: {noise_std}")
+    Executes the data pipeline in the correct order:
+    1. Download (if not skipped)
+    2. Derive Velocity (if not skipped)
+    3. Inject Noise (if not skipped)
+    4. Quantize (if not skipped)
     
+    Returns a summary of the run.
+    """
+    logger = get_logger(__name__)
+    start_time = time.time()
+    results = {
+        "config": get_config_summary(config.seed),
+        "steps": [],
+        "status": "running",
+        "peak_memory_mb": 0
+    }
+
+    # Initialize monitoring
     monitor = ResourceMonitor()
     monitor.start()
-    
-    start_time = time.time()
-    
+
     try:
-        # 1. Quantize
-        logger.info(f"Step 1: Quantizing dataset from {input_path}")
-        quantized_data = quantize_dataset(
-            input_path=input_path,
-            quantization_level=quantization_level,
-            subset_size=subset_size
-        )
-        log_metric("quantization_step_duration", time.time() - start_time)
-        
-        # 2. Inject Noise
-        logger.info("Step 2: Injecting noise")
-        noisy_data = inject_noise(
-            data=quantized_data,
-            std_dev=noise_std,
-            quantization_level=quantization_level
-        )
-        log_metric("noise_injection_step_duration", time.time() - start_time)
-        
-        # 3. Save Output
-        logger.info(f"Step 3: Saving output to {output_path}")
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        with open(output_path, 'w') as f:
-            json.dump(noisy_data, f, indent=2)
-        
-        end_time = time.time()
-        total_duration = end_time - start_time
-        
-        peak_ram = get_peak_memory_mb()
-        log_metric("total_pipeline_duration_seconds", total_duration)
-        log_metric("peak_memory_mb", peak_ram)
-        log_resource_snapshot("pipeline_complete")
-        
-        logger.info(f"Pipeline completed successfully in {total_duration:.2f}s. Peak RAM: {peak_ram:.2f}MB")
-        
-        return {
-            "status": "success",
-            "output_path": output_path,
-            "duration_seconds": total_duration,
-            "peak_memory_mb": peak_ram,
-            "records_processed": len(noisy_data) if isinstance(noisy_data, list) else 0
-        }
+        # Step 1: Download
+        if not config.skip_download:
+            if DOWNLOAD_FN is None:
+                raise LlmXiveError("Download function not implemented (T011).")
+            logger.info("Step 1: Downloading LIBERO subset...")
+            download_result = DOWNLOAD_FN(
+                subset_size=config.subset_size,
+                output_path=config.input_hdf5_path or str(DATA_DIR / "raw" / "libero_subset.h5")
+            )
+            results["steps"].append({
+                "step": "download",
+                "status": "success",
+                "output": download_result.get("output_path", "unknown")
+            })
+            config.input_hdf5_path = download_result.get("output_path")
+        else:
+            logger.info("Step 1: Skipped (Download)")
+            results["steps"].append({"step": "download", "status": "skipped"})
+
+        # Step 2: Derive Velocity
+        if not config.skip_derive:
+            if DERIVE_FN is None:
+                raise LlmXiveError("Derive function not implemented (T012a).")
+            logger.info("Step 2: Deriving velocity fields...")
+            # Assuming derive returns a modified dataset or path
+            derive_result = DERIVE_FN(
+                input_path=config.input_hdf5_path,
+                output_path=str(Path(config.input_hdf5_path).parent / "libero_velocity.h5")
+            )
+            results["steps"].append({
+                "step": "derive",
+                "status": "success",
+                "output": derive_result.get("output_path")
+            })
+            # Update input for next step if output differs
+            config.input_hdf5_path = derive_result.get("output_path")
+
+        # Step 3: Inject Noise
+        if not config.skip_noise:
+            if NOISE_FN is None:
+                raise LlmXiveError("Noise function not implemented (T013).")
+            logger.info("Step 3: Injecting noise...")
+            noise_result = NOISE_FN(
+                input_path=config.input_hdf5_path,
+                output_path=str(Path(config.input_hdf5_path).parent / "libero_noisy.h5"),
+                std_dev=config.noise_std_dev,
+                seed=config.seed
+            )
+            results["steps"].append({
+                "step": "noise",
+                "status": "success",
+                "output": noise_result.get("output_path")
+            })
+            config.input_hdf5_path = noise_result.get("output_path")
+
+        # Step 4: Quantize
+        if not config.skip_quantize:
+            if QUANTIZE_FN is None:
+                raise LlmXiveError("Quantize function not implemented (T012).")
+            logger.info("Step 4: Quantizing to discrete vectors...")
+            
+            # Validate bit depth
+            try:
+                q_level = QuantizationLevel(config.quantization_bits)
+            except ValueError:
+                raise LlmXiveError(f"Invalid quantization level: {config.quantization_bits}. Must be 4, 6, 8, or 16.")
+
+            quantize_result = QUANTIZE_FN(
+                input_path=config.input_hdf5_path,
+                output_path=config.output_json_path or str(RESULTS_DIR / "discrete_vectors.json"),
+                bit_depth=config.quantization_bits,
+                seed=config.seed
+            )
+            results["steps"].append({
+                "step": "quantize",
+                "status": "success",
+                "output": quantize_result.get("output_path")
+            })
+            final_output = quantize_result.get("output_path")
+
+            # Step 5: Validation (T015 logic embedded here for orchestration)
+            if config.validate_degeneracy:
+                logger.info("Step 5: Validating for degeneracy...")
+                try:
+                    validate_dataset_for_degeneracy(final_output, q_level)
+                    results["steps"].append({"step": "validation", "status": "success"})
+                except DegeneracyError as e:
+                    results["steps"].append({"step": "validation", "status": "failed", "error": str(e)})
+                    raise e
+
+        results["status"] = "completed"
         
     except Exception as e:
-        logger.error(f"Pipeline failed: {str(e)}")
-        traceback.print_exc()
+        results["status"] = "failed"
+        results["error"] = str(e)
+        logger.error(f"Pipeline failed: {traceback.format_exc()}")
         raise
+    finally:
+        monitor.stop()
+        peak_mem = get_peak_memory_mb()
+        results["peak_memory_mb"] = peak_mem
+        results["duration_seconds"] = time.time() - start_time
+        log_metric("pipeline_duration", results["duration_seconds"])
+        log_metric("pipeline_peak_memory_mb", peak_mem)
+
+    return results
+
 
 def main():
     """
-    Main entry point for the orchestration logic.
+    Main entry point for the orchestration interface.
+    Parses arguments (or uses defaults) and runs the pipeline.
+    Outputs a validation log confirming the interface definition.
     """
-    # Ensure output directory exists
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    logger = get_logger(__name__)
+    logger.info("Starting llmXive Data Pipeline Orchestration (T014a)")
     
-    # Define paths
-    raw_data_path = os.path.join(DATA_DIR, "libero_subset.h5")
-    processed_output_path = os.path.join(OUTPUT_DIR, "processed_subset.json")
+    # Ensure directories exist
+    ensure_dirs()
+
+    # Default configuration for validation run
+    config = PipelineConfig(
+        seed=42,
+        quantization_bits=8,
+        noise_std_dev=0.01,
+        subset_size=50,
+        skip_download=False,
+        skip_derive=False,
+        skip_noise=False,
+        skip_quantize=False,
+        validate_degeneracy=True
+    )
+
+    # Log interface definition
+    interface_log = {
+        "task_id": "T014a",
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "interface_definition": {
+            "download": "download_libero.download_libero_subset",
+            "derive": "velocity_deriver.derive_velocity_fields",
+            "noise": "noise.inject_noise",
+            "quantize": "quantize.quantize_dataset",
+            "validation": "validation.validate_dataset_for_degeneracy"
+        },
+        "execution_order": ["download", "derive", "noise", "quantize", "validation"],
+        "dependencies": {
+            "T011": "download_libero.py",
+            "T012a": "velocity_deriver.py",
+            "T013": "noise.py",
+            "T012": "quantize.py",
+            "T015": "validation.py"
+        },
+        "status": "Interface defined and ready for implementation"
+    }
+
+    # Write validation log
+    log_path = LOGS_DIR / "interface_validation.log"
+    with open(log_path, 'w') as f:
+        json.dump(interface_log, f, indent=2)
     
-    logger.info("Starting llmXive Data Pipeline Orchestration")
-    
-    try:
-        # Step 1: Validate Header Size (T040a)
-        # This runs AFTER download (T011)
-        if not os.path.exists(raw_data_path):
-            logger.warning(f"Raw data not found at {raw_data_path}. Skipping validation.")
-            # In a real run, we might download here if T011 hasn't run, 
-            # but per task order, we assume T011 ran.
-            raise FileNotFoundError(f"Input data not found: {raw_data_path}")
-        
-        validate_header_size(raw_data_path)
-        
-        # Step 2: Run Pipeline (T040b)
-        result = run_pipeline(
-            input_path=raw_data_path,
-            output_path=processed_output_path,
-            quantization_level=QUANTIZATION_LEVEL,
-            noise_std=NOISE_STD,
-            subset_size=SUBSET_SIZE
-        )
-        
-        print(json.dumps(result, indent=2))
+    logger.info(f"Interface validation log written to {log_path}")
+    print(f"Interface validation log written to {log_path}")
+
+    # If dependencies are missing, we still validate the interface structure
+    # but we cannot run the full pipeline.
+    missing_deps = []
+    if DOWNLOAD_FN is None: missing_deps.append("T011 (download_libero)")
+    if DERIVE_FN is None: missing_deps.append("T012a (velocity_deriver)")
+    if NOISE_FN is None: missing_deps.append("T013 (noise)")
+    if QUANTIZE_FN is None: missing_deps.append("T012 (quantize)")
+
+    if missing_deps:
+        logger.warning(f"Missing dependencies (expected for T014a): {missing_deps}")
+        print(f"Pipeline skipped execution due to missing dependencies: {missing_deps}")
         return 0
-        
+
+    # Run pipeline if all dependencies are present
+    try:
+        results = run_pipeline(config)
+        logger.info(f"Pipeline completed: {results['status']}")
+        print(f"Pipeline completed: {results['status']}")
+        return 0
     except Exception as e:
-        logger.critical(f"Orchestration failed: {str(e)}")
+        logger.error(f"Pipeline execution failed: {e}")
+        print(f"Pipeline execution failed: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

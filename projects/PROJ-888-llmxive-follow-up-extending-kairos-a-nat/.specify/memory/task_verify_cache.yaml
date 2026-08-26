@@ -1,25 +1,25 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/`,\
-    \ `code/`, `tests/`, `data/`, `state/`, `docs/` directories or the `state/directory_listing.txt`\
-    \ file is present. The implementer must create the specified directory hierarchy\
-    \ and generate a non\u2011empty `state/directory_listing.txt` via `tree -L 2`."
 T001f:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md file or its contents were provided; consequently there is no file
-    existence check nor the first five lines of the document to verify. The required
-    artifact is missing.
+  r: No `README.md` content was provided; the required file is absent (or its contents
+    are not shown), so we cannot verify that it contains the header `# llmXive follow-up`
+    nor that the first five lines match the specification. The implementer must supply
+    the actual README file with the correct header and lines.
 T004:
   c: false
-  h: 1b34f7d141bfbe91a2f04f3c63213a034839b646d55f2d18aa673e1ff1abbb18
-  r: "The required `code/config.py` file does not exist, so there is no configuration\
-    \ object defining seeds, paths, quantization levels, or noise std devs. Consequently\
-    \ `code/utils/validate_config.py` cannot import `QUANTIZATION_LEVELS` or `validate_config`,\
-    \ and the verification step cannot succeed. The missing config file must be added\
-    \ with the specified fields and include the required quantization levels [4,\u202F\
-    6,\u202F8,\u202F16]."
+  h: 6501af0b0c49f9831c2315914dcc9a1737bc5c94438da91a374b958d57e3951d
+  r: The required `code/config.py` file does not exist, so the validation script cannot
+    import the needed constants and cannot run to produce `logs/config_validation.log`.
+    Consequently the verification step is unmet. The missing configuration file (and
+    resulting log) must be added for the task to be considered complete.
+T004a:
+  c: false
+  h: 7be7186e62e69a4eb351afe61b7c3e8d666b1ff8f30f5fb14d3bedc93c620d49
+  r: "The repository contains a partially implemented `code/analysis/power_analysis.py`,\
+    \ but the script does not show any execution logic that runs the calculation for\
+    \ Cohen\u2019s\u202Fd\u202F=\u202F0.5, Power\u202F=\u202F0.8, writes `results/power_analysis_report.json`,\
+    \ or prints the computed N. Moreover, the required JSON output file is missing\
+    \ from the `results/` directory. The task therefore remains unfinished."
 T010:
   c: true
   h: 26e7ec9aa99c8b21f3590bc2c7d93db4590ff5d011f123b25caf120160fd00f1

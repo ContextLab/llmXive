@@ -579,247 +579,271 @@
   updated_at: '2026-08-02T04:26:43Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: power analysis targets Cohen's d=0.5 and Power=0.8
-  claim_id: c_a580917b
-  context: Implement code/analysis/power_analysis.py to perform a priori power analysis
-    (using simr or manual simulation) targeting Cohen's d=0.5, Power=0.8.
+  canonical: Fetch N=50 episodes from LIBERO dataset
+  claim_id: c_e5509170
+  context: 'T011 [US1] Implement code/data/download_libero.py to fetch HDF5 from verified
+    HuggingFace URL (NO synthetic fallback). Constraint: MUST fetch only the N=50
+    episode subset to satisfy RAM constraints.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The power analysis targets a Cohen's d of 0.5 and Power of 0.8.
+  raw_text: The task must fetch a subset of N=50 episodes from the LIBERO dataset.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:44:16Z'
+  updated_at: '2026-08-26T05:41:13Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: dataset size constraint less than 7GB RAM
-  claim_id: c_26f45d4c
-  context: Validates full dataset size via header-only read to ensure < 7GB RAM constraint
-    before processing.
+  canonical: Power analysis uses Cohen's d=0.5 and Power=0.8
+  claim_id: c_b1e7d464
+  context: T004a [P] Implement code/analysis/power_analysis.py to perform LMM-based
+    power simulation (using simr logic) for Cohen's d=0.5, Power=0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis simulation uses a Cohen's d effect size of 0.5 and
+    a target power of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T05:43:15Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Gaussian noise std dev equals 0.1 * quantization_step
+  claim_id: c_16c28749
+  context: T013 [US1] Implement code/data/noise.py to inject Gaussian noise (std dev
+    = 0.1 * quantization_step) into continuous states BEFORE quantization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gaussian noise is injected with a standard deviation equal to 0.1 times
+    the quantization step.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T05:43:56Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Velocity derivation tolerance less than 1e-4
+  claim_id: c_a0a3c74d
+  context: 'T012a [US1] Implement code/data/velocity_deriver.py to perform finite
+    differencing on continuous position data... Verification: Assert output velocity
+    fields match continuous ground truth derivation within tolerance < 1e-4.'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Dataset_size_constraint_less_than_7GB_RAM
+    source_url: https://en.wikipedia.org/wiki/Velocity_derivation_tolerance_less_than_1e-4
   kind: magnitude
-  raw_text: The dataset size constraint is less than 7GB RAM.
+  raw_text: Velocity fields must match continuous ground truth derivation within a
+    tolerance of less than 1e-4.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:45:41Z'
+  updated_at: '2026-08-26T05:45:18Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
-  attempts: 2
-  canonical: training time target less than or equal to 4 hours
-  claim_id: c_7ea537f8
-  context: "confirming that the total training time is a target \u2264 4 hours (graceful\
-    \ exit if > 6h)"
+  attempts: 1
+  canonical: Training target 4 hours, graceful exit at 6 hours
+  claim_id: c_4a6448f4
+  context: "Independent Test: The model can be tested by... confirming that the total\
+    \ training time is a target \u2264 4 hours (graceful exit if > 6h)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training run must complete within a target of 4 hours, with a graceful
+    exit if it exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T05:46:45Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Model weights file size less than 7GB
+  claim_id: c_9b0fb678
+  context: 'T018 [US2] Download, verify checksum, and cache pre-trained Kairos weights...
+    Constraint: MUST validate file size before download to ensure < 7GB RAM constraint.'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Training_time_target_less_than_or_equal_to_4_hours
+    source_url: https://en.wikipedia.org/wiki/Model_weights_file_size_less_than_7GB
   kind: magnitude
-  raw_text: Training time target is less than or equal to 4 hours with graceful exit
-    if greater than 6 hours.
+  raw_text: The model weights file size must be validated to ensure it is less than
+    7GB.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:46:39Z'
+  updated_at: '2026-08-26T05:47:46Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: training graceful exit limit 6 hours
-  claim_id: c_a3e1192e
-  context: "confirming that the total training time is a target \u2264 4 hours (graceful\
-    \ exit if > 6h)"
+  canonical: Fallback baseline MIN_EPOCHS=5, loss change < 5% over 3 epochs
+  claim_id: c_69add812
+  context: T018b [US2] ...train for MIN_EPOCHS=5, and verify convergence (loss change
+    < 5% over 3 consecutive epochs).
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The training graceful exit limit is 6 hours.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-26T05:47:56Z'
-- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
-  attempts: 1
-  canonical: peak RAM usage constraint during data processing less than 2GB
-  claim_id: c_0b8e3d91
-  context: 'Verification: Assert peak RAM usage < 2GB during processing and chunk
-    size consistency.'
-  evidence:
-    candidates_found: 1
+    candidates_found: 0
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_constraint_during_data_processing_less_than_2
+    source_url: https://en.wikipedia.org/wiki/Fallback_baseline_MIN_EPOCHS=5,_loss_change_%3C_5%25_over_3_epoc
   kind: magnitude
-  raw_text: The peak RAM usage constraint during data processing is less than 2GB.
+  raw_text: The fallback baseline training requires a minimum of 5 epochs and verifies
+    convergence if loss change is less than 5% over 3 consecutive epochs.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:48:59Z'
+  updated_at: '2026-08-26T05:48:35Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: output file size constraint for test subset less than 100MB
-  claim_id: c_5e8b8159
-  context: assert output_file_size < 100MB and no NaN values.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Output_file_size_constraint_for_test_subset_less_than_100MB
-  kind: magnitude
-  raw_text: The output file size constraint for the test subset is less than 100MB.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-26T05:50:05Z'
-- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
-  attempts: 1
-  canonical: quantization levels 4, 6, 8, and 16 bits
-  claim_id: c_557a9719
-  context: Create code/config.py for seeds, paths, quantization levels [, 6, 8, 16]
-    bits, and noise std devs.
+  canonical: Error metrics calculated over 100, 500, and 1000 steps
+  claim_id: c_1d009c33
+  context: 'Critical Ordering Notes: Horizons: T021 and T027 MUST use horizons 100,
+    500, and 1000 steps.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The quantization levels used are 4, 6, 8, and 16 bits.
+  raw_text: Error metrics must be calculated over time horizons of 100, 500, and 1000
+    steps.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:50:52Z'
+  updated_at: '2026-08-26T05:49:11Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: noise standard deviation is 0.1 times quantization step
-  claim_id: c_1a6624be
-  context: 'Task T013: Must use exact formula std dev = 0.1 * quantization_step.'
+  canonical: Stability threshold where Total MSE ratio exceeds 95% CI upper bound
+    for null hypothesis
+  claim_id: c_acb7c415
+  context: T029b [US3] Identify and report the specific quantization threshold where
+    the Total MSE ratio (Discrete/Continuous) exceeds the upper bound of the 95% confidence
+    interval for the null hypothesis (ratio=1).
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The noise standard deviation is calculated as 0.1 times the quantization
-    step.
+  raw_text: The stability threshold is identified where the Total MSE ratio exceeds
+    the upper bound of the 95% confidence interval for the null hypothesis (ratio=1).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:51:31Z'
+  updated_at: '2026-08-26T05:49:32Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: error metrics calculated over horizons of 100, 500, and 1000 steps
-  claim_id: c_ec9088ff
-  context: Error metrics MUST be normalized by state space dimensionality and calculated
-    over 100, 500, and 1000 steps.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Error metrics are calculated over horizons of 100, 500, and 1000 steps.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-26T05:52:06Z'
-- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
-  attempts: 1
-  canonical: sensitivity analysis sweeps across bit-width increments 6, 8, and 16
-    bits
-  claim_id: c_d67639bc
-  context: Implement sensitivity analysis sweep across bit-width increments 6, 8,
-    and 16 bits and report variation in headline error rates.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The sensitivity analysis sweeps across bit-width increments of 6, 8, and
-    16 bits.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-26T05:53:12Z'
-- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
-  attempts: 1
-  canonical: statistical validation uses Linear Mixed-Effects Model LMM
-  claim_id: c_ec50da09
-  context: Perform statistical validation on multiple independent runs with different
-    noise seeds (per FR-005). Output results/stats_results.json.
+  canonical: LMM with episode_id random effect and modality fixed effect
+  claim_id: c_00b6ab3e
+  context: T028 [US3] Implement code/analysis/stats.py to perform Linear Mixed-Effects
+    Model (LMM) as the PRIMARY validation method... Use 'episode_id' as a random effect
+    and 'modality' as a fixed effect.
   evidence:
     fill:
       channel: wikidata
-      conflicts:
-      - channel: wikidata
-        source_id: Q59901484
-        url: https://www.wikidata.org/wiki/Q59901484
-        value: Linear Mixed-Effects Model
-      quote: linear mixed-effects model
-      source_id: Q120282163
-      url: https://www.wikidata.org/wiki/Q120282163
-      value: linear mixed-effects model
+      conflicts: []
+      quote: 'P238: LMM'
+      source_id: Q1431949
+      url: https://www.wikidata.org/wiki/Q1431949
+      value: LMM
     filled: true
   kind: entity_fact
-  raw_text: The statistical validation uses a Linear Mixed-Effects Model (LMM).
-  resolved_value: linear mixed-effects model
+  raw_text: Statistical validation must use a Linear Mixed-Effects Model (LMM) with
+    'episode_id' as a random effect and 'modality' as a fixed effect.
+  resolved_value: LMM
   resolver: fill:wikidata
   source_hash: null
   source_type: external
   status: verified
-  updated_at: '2026-08-26T05:53:37Z'
+  updated_at: '2026-08-26T05:49:54Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: block-bootstrap method is mandatory fallback if LMM fails
-  claim_id: c_6007c77a
-  context: Use block-bootstrap as a mandatory fallback if LMM fails.
+  canonical: Reported metric is Total MSE
+  claim_id: c_e75d458e
+  context: 'T027 [US3] ...Constraint: MUST NOT subtract a theoretical ''Quantization
+    Noise Floor''; report Total MSE as the primary comparison metric. Normalization
+    by state space dimensionality is allowed for internal calculation but the reported
+    metric for thresholding must be Total MSE.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Block-bootstrap_method_is_mandatory_fallback_if_LMM_fails
+    source_url: https://en.wikipedia.org/wiki/Reported_metric_is_Total_MSE
   kind: entity_fact
-  raw_text: The block-bootstrap method is the mandatory fallback if the LMM fails.
+  raw_text: The reported metric for thresholding must be Total MSE, not normalized
+    by state space dimensionality.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:54:44Z'
+  updated_at: '2026-08-26T05:50:42Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: threshold identification compares MSE ratio against upper bound of 95%
-    confidence interval
-  claim_id: c_6497c64b
-  context: Identify and report the specific quantization threshold where the MSE ratio
-    exceeds the upper bound of the confidence interval derived from the LMM results.
+  canonical: Sensitivity analysis includes 6-bit quantization
+  claim_id: c_d7fc0b96
+  context: 'T029a [US3] ...Constraint: Include 6-bit as per Spec FR-006 and SC-005.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The threshold identification compares the MSE ratio against the upper
-    bound of the 95% confidence interval.
+  raw_text: Sensitivity analysis must include the 6-bit quantization level.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:54:44Z'
+  updated_at: '2026-08-26T05:51:26Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: 'Pipeline test: discrete integers within bit-depth ranges and RAM constraint
-    fit for LIBERO subset'
-  claim_id: c_a98dff8d
-  context: Independent Test for User Story 1 describes the verification criteria for
-    the data construction pipeline.
+  canonical: Integration test input subset size N=50
+  claim_id: c_f84c7143
+  context: T010 [P] [US1] Integration test for full download-quantize-noise pipeline...
+    Specify input subset size (N=50 episodes)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The integration test for the data pipeline specifies an input subset size
+    of N=50 episodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T05:51:51Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Integration test output file size less than 100MB
+  claim_id: c_ac136bf7
+  context: T010 [P] [US1] ...and assert output_file_size < 100MB and no NaN values.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Integration_test_output_file_size_less_than_100MB
+  kind: magnitude
+  raw_text: The integration test for the data pipeline asserts that the output file
+    size is less than 100MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T05:52:56Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Pipeline verification on LIBERO subset with bit-depth constraints
+  claim_id: c_b5a9e700
+  context: Independent Test for User Story 1
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Pipeline_test:_discrete_integers_within_bit-depth_ranges_and
+    source_url: https://en.wikipedia.org/wiki/Pipeline_verification_on_LIBERO_subset_with_bit-depth_constr
   kind: entity_fact
   raw_text: The pipeline can be tested by running the conversion script on a subset
     of LIBERO data, verifying that the output JSON files contain discrete integer
@@ -830,31 +854,30 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:57:02Z'
+  updated_at: '2026-08-26T05:57:01Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: Peak RAM usage constraint < 2GB during data download processing
-  claim_id: c_bf3fba20
-  context: Verification step for task T011 which implements the download of the LIBERO
-    dataset.
+  canonical: Quantized schema test asserting values between 0 and 15 for 4-bit depth
+  claim_id: c_e1a1f5b2
+  context: Tests for User Story 1, Contract test for quantized JSON schema
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_constraint_%3C_2GB_during_data_download_process
-  kind: entity_fact
-  raw_text: Assert peak RAM usage < 2GB during processing and chunk size consistency.
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement function test_quantized_schema_4bit asserting all(0 <= x <=
+    15 for x in data).
   resolved_value: null
-  resolver: resolve_entity_fact
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:58:06Z'
+  updated_at: '2026-08-26T05:57:27Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: Integration test subset size N=50 episodes with output file size < 100MB
-  claim_id: c_4fa8ee2c
-  context: Independent Test for User Story 1 defines the parameters for the full download-quantize-noise
-    pipeline integration test.
+  canonical: Integration test asserting 50 episode subset yields under 100MB output
+    with no NaN values
+  claim_id: c_9098b7fe
+  context: Tests for User Story 1, Integration test for full download-quantize-noise
+    pipeline
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -865,53 +888,64 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T05:59:20Z'
+  updated_at: '2026-08-26T05:58:32Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: Pre-download validation for file size to ensure < 7GB RAM constraint
-  claim_id: c_c705be17
-  context: Constraint for task T040a (header-only size validator) and T018 (download
-    weights) to prevent OOM.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Pre-download_validation_for_file_size_to_ensure_%3C_7GB_RAM_co
-  kind: entity_fact
-  raw_text: Validate file size before download to ensure < 7GB RAM constraint before
-    processing.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-26T06:00:42Z'
-- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
-  attempts: 1
-  canonical: Power analysis targets Cohen's d=0.5 and Power=0.8
-  claim_id: c_fdaeaff8
-  context: Task T004a requires implementing a priori power analysis with these specific
-    statistical targets.
+  canonical: Data fetch restricted to 50 episode subset for RAM constraints
+  claim_id: c_17756eb9
+  context: Implementation for User Story 1, T011 task description
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Targeting Cohen's d=0.5, Power=0.8.
+  raw_text: MUST fetch only the N=50 episode subset to satisfy RAM constraints.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T06:03:58Z'
+  updated_at: '2026-08-26T05:59:08Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: "CPU-only training test: convergence, \u2264 4h target time, > 6h graceful\
-    \ exit, no CUDA errors"
-  claim_id: c_696940eb
-  context: Independent Test for User Story 2 defines the success criteria for CPU-only
-    model training and inference.
+  canonical: Velocity derivation tolerance threshold of 1e-4
+  claim_id: c_a8cde9a0
+  context: Implementation for User Story 1, T012a task description
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert output velocity fields match continuous ground truth derivation
+    within tolerance < 1e-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T05:59:08Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Gaussian noise injection with standard deviation equal to 0.1 times quantization
+    step
+  claim_id: c_45506140
+  context: Implementation for User Story 1, T013 task description
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/noise.py to inject Gaussian noise (std dev = 0.1 *
+    quantization_step) into continuous states.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T05:59:48Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Training target 4 hours with graceful exit at 6 hours
+  claim_id: c_543d6d63
+  context: Independent Test for User Story 2
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/CPU-only_training_test:_convergence,_%E2%89%A4_4h_target_time,_%3E_6h_
+    source_url: https://en.wikipedia.org/wiki/Training_target_4_hours_with_graceful_exit_at_6_hours
   kind: entity_fact
   raw_text: "The model can be tested by initiating a training run with a fixed random\
     \ seed, verifying that the loss trend shows convergence, confirming that the total\
@@ -923,110 +957,196 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T06:05:32Z'
+  updated_at: '2026-08-26T06:00:30Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: Error metrics calculated over horizons 100, 500, and 1000 steps
-  claim_id: c_8515ac8c
-  context: Task T027 requires calculating specific error metrics over these time horizons
-    per Constitution Principle VII and FR-004.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Calculate MSE normalized by state space dimensionality, cumulative error
-    growth, and ErrorAccumulationRate (slope of MSE vs time) over multiple horizons
-    (100, 500, 1000).
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-26T06:05:58Z'
-- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
-  attempts: 1
-  canonical: Statistical validation uses Linear Mixed-Effects Model (LMM) with episode_id
-    random effect and modality fixed effect
-  claim_id: c_b1091bd6
-  context: Task T028 specifies the statistical method and model structure for stability
-    analysis.
+  canonical: Model weight download validation for under 7GB RAM constraint
+  claim_id: c_344e8028
+  context: Implementation for User Story 2, T018 task description
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Statistical_validation_uses_Linear_Mixed-Effects_Model_(LMM)
+    source_url: https://en.wikipedia.org/wiki/Model_weight_download_validation_for_under_7GB_RAM_constrain
   kind: entity_fact
-  raw_text: Implement `code/analysis/stats.py` to perform Linear Mixed-Effects Model
-    (LMM) with 'episode_id' as a random effect and 'modality' as a fixed effect.
+  raw_text: MUST validate file size before download to ensure < 7GB RAM constraint.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T06:07:11Z'
+  updated_at: '2026-08-26T06:01:03Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: Sensitivity analysis across bit-width increments 6, 8, and 16 bits
-  claim_id: c_e7806612
-  context: Task T029a requires a sensitivity analysis sweep across these specific
-    quantization levels.
+  canonical: Memory monitoring enforcing under 7GB RAM limit
+  claim_id: c_b5b5c1b2
+  context: Implementation for User Story 2, T022 task description
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_monitoring_enforcing_under_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: Invoke and configure code/utils/monitor.py to enforce < 7GB RAM and log
+    latency per step.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:05:12Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: CPU-only training with graceful exit mechanism
+  claim_id: c_8e914d57
+  context: Implementation for User Story 2, T020 task description
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU-only_training_with_graceful_exit_mechanism
+  kind: entity_fact
+  raw_text: Implement code/models/training_loop.py for CPU-only training with epoch
+    checkpointing and a graceful exit mechanism.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:05:45Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Statistical analysis using Linear Mixed-Effects Model with LMM output
+    path
+  claim_id: c_0a8d1985
+  context: Tests for User Story 3, Integration test for statistical analysis pipeline
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_using_Linear_Mixed-Effects_Model_with_L
+  kind: entity_fact
+  raw_text: Specify running Linear Mixed-Effects Model (LMM), expected p-value range,
+    and exact output path data/results/stats.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:06:35Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Baseline initialization parameters matching discrete arm
+  claim_id: c_c75c2faf
+  context: Implementation for User Story 3, T033 task description
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_initialization_parameters_matching_discrete_arm
+  kind: entity_fact
+  raw_text: Assert initialization parameters (mean/std) match the discrete arm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:07:52Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Reporting Total MSE without subtracting quantization noise floor
+  claim_id: c_f0e19c35
+  context: Implementation for User Story 3, T027 task description
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reporting_Total_MSE_without_subtracting_quantization_noise_f
+  kind: entity_fact
+  raw_text: MUST NOT subtract a theoretical 'Quantization Noise Floor'; report Total
+    MSE as the primary comparison metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:08:34Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Statistical validation across multiple independent runs
+  claim_id: c_2eb52f46
+  context: Implementation for User Story 3, T028 task description
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_validation_across_multiple_independent_runs
+  kind: entity_fact
+  raw_text: Perform statistical validation on multiple independent runs with different
+    noise seeds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T06:09:13Z'
+- artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
+  attempts: 1
+  canonical: Threshold identification where MSE ratio exceeds 95% CI upper bound for
+    null hypothesis
+  claim_id: c_1d4bc8ec
+  context: Implementation for User Story 3, T029b task description
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Report variation in headline error rates across bit-width increments 6,
-    8, and 16 bits.
+  raw_text: Identify and report the specific quantization threshold where the Total
+    MSE ratio (Discrete/Continuous) exceeds the upper bound of the 95% confidence
+    interval for the null hypothesis (ratio=1).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T06:07:57Z'
+  updated_at: '2026-08-26T06:09:30Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: Threshold identified where MSE ratio exceeds upper bound of 95% confidence
-    interval
-  claim_id: c_6ce93e52
-  context: Task T029b requires identifying a specific stability threshold based on
-    statistical results.
+  canonical: Quantization bit-widths set to 4, 6, 8, and 16
+  claim_id: c_9e71c441
+  context: Critical Ordering Notes section
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Identify and report the specific quantization threshold where the MSE
-    ratio exceeds the upper bound of the confidence interval derived from the LMM
-    results.
+  raw_text: Ta MUST use bit-widths 4, 6, 8, and 16.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T06:07:57Z'
+  updated_at: '2026-08-26T06:10:01Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: 'Noise injection formula: std dev = 0.1 * quantization_step'
-  claim_id: c_bc26ada8
-  context: Task T013 specifies the exact formula for Gaussian noise injection before
-    quantization.
+  canonical: Threshold calculation using 95% CI upper bound instead of hardcoded 1.2
+    multiplier
+  claim_id: c_5a37628b
+  context: Critical Ordering Notes section
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Noise injection must use exact formula std dev = 0.1 * quantization_step.
+  raw_text: T029b MUST use the 95% CI upper bound for the null hypothesis, not a hardcoded
+    1.2 multiplier.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T06:08:30Z'
+  updated_at: '2026-08-26T06:10:24Z'
 - artifact_path: projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/specs/001-llmxive-follow-up-extending-kairos-a-nat/tasks.md
   attempts: 1
-  canonical: Quantization levels are 4-bit, 6-bit, 8-bit, and 16-bit
-  claim_id: c_b303cdd4
-  context: FR-001 Supremacy note mandates these specific quantization levels for the
-    study.
+  canonical: Fallback baseline convergence criteria of 5 epochs and 5% loss change
+    over 3 epochs
+  claim_id: c_e687a172
+  context: Notes section, Task T018/T018b
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Quantization levels MUST be 4-bit, 6-bit, 8-bit, and 16-bit.
+  raw_text: Fallback must meet convergence criteria (MIN_EPOCHS=5, loss change < 5%
+    over 3 epochs) and be excluded from relative degradation metrics.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-26T06:09:12Z'
+  updated_at: '2026-08-26T06:10:52Z'
