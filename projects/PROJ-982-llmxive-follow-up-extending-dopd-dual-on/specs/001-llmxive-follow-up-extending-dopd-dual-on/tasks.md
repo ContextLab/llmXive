@@ -26,10 +26,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create root directories: `code/`, `specs/`, `tests/`, `data/`, `docs/`
-- [ ] T001b [P] Create `code/env/`, `code/agents/`, `code/training/`, `code/analysis/` directories
-- [ ] T001c [P] Create `code/tests/` and `docs/` directories
-- [ ] T001d [P] Create `data/raw/` and `data/processed/` directories
+- [X] T001 [P] Initialize Project Directory Structure: Create root directories `code/`, `specs/`, `tests/`, `data/`, `docs/` and subdirectories `code/env/`, `code/agents/`, `code/training/`, `code/analysis/`, `code/tests/`, `data/raw/`, `data/processed/`
 
 ---
 
@@ -39,14 +36,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Implement `code/env/__init__.py` package initialization
-- [ ] T006 [P] Implement `code/agents/__init__.py` package initialization
-- [ ] T007 [P] Implement `code/training/__init__.py` package initialization
-- [ ] T008 [P] Implement `code/analysis/__init__.py` package initialization
-- [ ] T009 [P] Setup `code/tests/conftest.py` with strict seed pinning fixtures
-- [ ] T010 [P] Implement `code/utils/seeding.py` for deterministic random state management
-- [ ] T011a [P] Initialize `requirements.txt` with core dependencies: gymnasium, numpy, pandas, scipy
-- [ ] T011b [P] Initialize `requirements.txt` with dev dependencies: pytest, ruff, black
+- [X] T005 [P] Implement `code/env/__init__.py` package initialization
+- [X] T006 [P] Implement `code/agents/__init__.py` package initialization
+- [X] T007 [P] Implement `code/training/__init__.py` package initialization
+- [X] T008 [P] Implement `code/analysis/__init__.py` package initialization
+- [X] T009 [P] Setup `code/tests/conftest.py` with strict seed pinning fixtures
+- [X] T010 [P] Implement `code/utils/seeding.py` for deterministic random state management
+- [X] T011 [P] Initialize `requirements.txt` with core dependencies (gymnasium, numpy, pandas, scipy) and dev dependencies (pytest, ruff, black)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,18 +56,18 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/env/privilege_mdp.py`: Define discrete grid-world with hidden state `H` and observable `O`, enforcing max grid dimension constraint (RAM < 7GB) per FR-008 and ensuring `H` is strictly masked from Student observations per FR-001
-- [ ] T013 [US1] Implement `code/env/privilege_mdp.py`: Define transition logic where `H` dictates optimal action to ensure Student fails without it
-- [ ] T014 [US1] Implement `code/agents/teacher.py`: Create Oracle policy with full state access `(O, H)`
-- [ ] T015 [US1] Implement `code/agents/student.py`: Create Tabular Q-table agent with partial state access `O`
+- [X] T012 [US1] Implement `code/env/privilege_mdp.py`: Define discrete grid-world with hidden state `H` and observable `O`, enforcing max grid dimension 10x10 (RAM < 7GB) per FR-008 and ensuring `H` is strictly masked from Student observations via projection function `O = state[:, 0:2]` per FR-001
+- [X] T013 [US1] Implement `code/env/privilege_mdp.py`: Define transition logic where `H` dictates optimal action to ensure Student fails without it
+- [X] T014 [US1] Implement `code/agents/teacher.py`: Create Oracle policy with full state access `(O, H)`
+- [X] T015 [US1] Implement `code/agents/student.py`: Create Tabular Q-table agent with partial state access `O`
 
 ### Tests for User Story 1
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T016 [P] [US1] Contract test: Add test function `test_teacher_student_observation_spaces` to `code/tests/test_env.py` verifying Teacher observes `(O, H)` and Student observes only `O`
-- [ ] T017 [P] [US1] Contract test: Add test function `test_optimal_action_dependency` to `code/tests/test_env.py` verifying optimal action depends on `H` and asserting `reward_student_masked < reward_teacher`
-- [ ] T018 [P] [US1] Reproducibility test: Add test function `test_seed_consistency` to `code/tests/test_env.py` verifying state distribution consistency across multiple seeds
+- [X] T016 [P] [US1] Contract test: Add test function `test_teacher_student_observation_spaces` to `code/tests/test_env.py` verifying Teacher observes `(O, H)` and Student observes only `O`
+- [X] T017 [P] [US1] Contract test: Add test function `test_optimal_action_dependency` to `code/tests/test_env.py` verifying optimal action depends on `H` and asserting `reward_student_masked < reward_teacher`
+- [X] T018 [P] [US1] Reproducibility test: Add test function `test_seed_consistency` to `code/tests/test_env.py` verifying state distribution consistency across multiple seeds
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -85,25 +81,24 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement `code/analysis/generalization_test.py`: Masked evaluation logic to remove `H` during inference
-- [ ] T020 [US2] Implement `code/analysis/generalization_test.py`: Calculate performance drop metric: `(acc_unmasked - acc_masked) / R_max`
-- [ ] T021 [US2] Implement `code/training/uniform_distillation.py`: Fixed-weight distillation loss logic
-- [ ] T022a [US2] Implement `code/agents/baseline_estimator.py`: Compute `V_baseline(s)` as the state-value of a random policy per FR-002
-- [ ] T022 [US2] Implement `code/training/dopd_distillation.py`: Calculate Teacher advantage gap (Q(s,a) - V_baseline(s)) using output from T022a
-- [ ] T023 [US2] Implement `code/training/dopd_distillation.py`: Implement min-max normalization for low dynamic range gaps per FR-002
-- [ ] T024 [US2] Implement `code/training/dopd_distillation.py`: Dynamic weighting logic for distillation loss vs. self-supervision
-- [ ] T025 [US2] Implement `code/utils/logging.py`: Log training accuracy, convergence steps, and action entropy per FR-006
-- [ ] T026 [US2] Implement `code/training/dopd_distillation.py`: Masked evaluation logic to remove `H` during inference (moved from Phase 4 start to follow training logic)
-- [ ] T027 [US2] Implement `code/training/dopd_distillation.py`: Calculate performance drop metric (moved from Phase 4 start to follow training logic)
-- [ ] T028 [US2] Add safety checks for sparse self-supervision signals (division-by-zero prevention) per Edge Cases
+- [X] T028 [US2] Implement `code/training/dopd_distillation.py`: Add epsilon-guarded division (epsilon=1e-8) to prevent ZeroDivisionError when self-supervision signal is sparse or zero per Edge Cases and FR-002
+- [X] T022a [US2] Implement `code/agents/baseline_estimator.py`: Simulate random policy over 1000 steps using Monte Carlo estimation to generate state trajectories and compute state-value function `V_baseline(s)` per FR-002
+- [X] T022 [US2] [Depends: T022a] Implement `code/training/dopd_distillation.py`: Calculate Teacher advantage gap (Q(s,a) - V_baseline(s)) using output from T022a per FR-002
+- [X] T023 [US2] Implement `code/training/dopd_distillation.py`: Measure dynamic range of advantage gap (max - min) over a sliding window; if dynamic range < 0.1, trigger min-max normalization switch per FR-002
+- [X] T024 [US2] Implement `code/training/dopd_distillation.py`: Dynamic weighting logic for distillation loss vs. self-supervision
+- [X] T021 [US2] Implement `code/training/uniform_distillation.py`: Fixed-weight distillation loss logic
+- [X] T025 [US2] Implement `code/utils/logging.py`: Log training accuracy, convergence steps, and action entropy per FR-006
+- [X] T019 [US2] Implement `code/analysis/generalization_test.py`: Masked evaluation logic to remove `H` during inference
+- [X] T020 [US2] Implement `code/analysis/generalization_test.py`: Calculate performance drop metric: `(acc_unmasked - acc_masked) / R_max`
 
 ### Tests for User Story 2
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T029 [P] [US2] Integration test: Verify Uniform regime mimics Teacher actions regardless of advantage in `code/tests/test_dopd.py`
-- [ ] T030 [P] [US2] Integration test: Verify DOPD regime switches weighting when advantage gap < 0.1 per FR-002
-- [ ] T031 [P] [US2] Integration test: Verify DOPD Student shows higher entropy/self-correction when Teacher advantage is low
+- [X] T029 [P] [US2] Integration test: Verify Uniform regime mimics Teacher actions regardless of advantage in `code/tests/test_dopd.py`
+- [X] T030 [P] [US2] Integration test: Verify DOPD regime switches weighting when advantage gap < 0.1 per FR-002
+- [X] T031 [P] [US2] Integration test: Verify DOPD Student shows higher entropy/self-correction when Teacher advantage is low
+- [X] T028_test [P] [US2] Unit test: Verify epsilon-guarded division prevents ZeroDivisionError in `code/tests/test_dopd.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -117,22 +112,19 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `code/analysis/stats.py`: Execute one-tailed Mann-Whitney U test (H0: mean(DOPD) <= mean(Uniform)) on accuracy logs per FR-005
-- [ ] T033 [US3] Implement `code/analysis/stats.py`: Calculate effect size and log exploratory status if < 0.5 per FR-005
-- [ ] T034 [US3] Implement `code/analysis/stats.py`: Compute Coefficient of Variation (CV) for reproducibility per SC-005
-- [ ] T035 [US3] Create `code/scripts/run_experiment.py`: Orchestrate 50 independent seeds, logging to `data/raw/`
-- [ ] T036 [US3] Create `code/scripts/aggregate_results.py`: Aggregate logs and generate `data/processed/` metrics
-- [ ] T037 [US3] Ensure evaluation uses distinct seeds from training per FR-007 (Configuration)
-- [ ] T038 [US3] Create `code/scripts/run_experiment.py`: Implement explicit loop for 50 seeds and verify count >= 50 per FR-005 (Refined T035)
-- [ ] T039 [US3] Implement `code/analysis/stats.py`: Calculate and compare convergence steps between DOPD and Uniform regimes per SC-003
+- [X] T035 [US3] Create `code/scripts/run_experiment.py`: Orchestrate 50 independent seeds with distinct training/test seeds (using `seed_train` and `seed_test = seed_train + offset`), verify `seed_train != seed_test`, and log to `data/raw/`, ensuring count >= 50 per FR-005 & FR-007
+- [X] T036 [US3] Create `code/scripts/aggregate_results.py`: Aggregate logs and generate `data/processed/` metrics
+- [X] T032 [US3] Implement `code/analysis/stats.py`: Execute one-tailed Mann-Whitney U test (H0: mean(DOPD) <= mean(Uniform)) on accuracy logs per FR-005
+- [X] T033 [US3] Implement `code/analysis/stats.py`: Calculate effect size; if effect size < 0.5, log entry "Study is exploratory" and write to `data/processed/` per FR-005
+- [X] T039 [US3] Implement `code/analysis/stats.py`: Calculate and compare convergence steps between DOPD and Uniform regimes per SC-003
 
 ### Tests for User Story 3
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T040 [P] [US3] Contract test: Verify Mann-Whitney U test output format (p-value, direction) in `code/tests/test_stats.py`
-- [ ] T041 [P] [US3] Integration test: Verify distinct random seeds for training vs. evaluation per FR-007
-- [ ] T046 [P] [US3] Contract test: Add test function `test_seed_separation` to `code/tests/test_stats.py` asserting `seed_train != seed_test` per FR-007
+- [X] T040 [P] [US3] Contract test: Verify Mann-Whitney U test output format (p-value, direction) in `code/tests/test_stats.py`
+- [X] T041 [P] [US3] Integration test: Verify distinct random seeds for training vs. evaluation per FR-007
+- [X] T060 [P] [US3] Contract test: Add test function `test_seed_separation` to `code/tests/test_stats.py` asserting `seed_train != seed_test` per FR-007
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,19 +134,17 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T042 [P] Log and report Coefficient of Variation (CV) metric to `data/processed/reproducibility_metrics.json` per SC-005
-- [ ] T043 [P] Implement checksumming utility in `code/utils/checksum.py` to generate hashes for artifacts
-- [ ] T044 [P] Create `code/scripts/record_hashes.py` to invoke checksum utility and record hashes in `state/projects/...yaml` per Constitution Principle III & V
-- [ ] T045 [P] Refactor logging to structured JSON format for easier parsing
-- [ ] T046 [P] Remove unused imports and dead code from all modules
-- [ ] T047 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T053 [P] Profile simulation speed to verify the performance constraint for 50 seeds per Plan Performance Goals
-- [ ] T054 [P] Optimize simulation loop to meet temporal constraints if profiling fails
-- [ ] T055 [P] Implement CV calculation logic in `code/analysis/stats.py` (consolidated from T034)
-- [ ] T056 [P] Generate final reproducibility report JSON at `data/processed/reproducibility_metrics.json` linking CV calculation to artifact per SC-005
-- [ ] T057 [P] Additional unit tests for edge cases (noise signal `H`, sparse rewards)
-- [ ] T058 [P] Run `quickstart.md` validation
-- [ ] T059 [P] Verify all artifacts checksummed and versioned per Constitution Principle V
+- [X] T055 [P] Calculate and Report CV: Implement Coefficient of Variation (CV) calculation in `code/analysis/stats.py` and generate final reproducibility report JSON at `data/processed/reproducibility_metrics.json` linking CV calculation to artifact per SC-005
+- [X] T043 [P] Implement checksumming utility in `code/utils/checksum.py` to generate hashes for artifacts
+- [X] T044 [P] Create `code/scripts/record_hashes.py` to invoke checksum utility and record hashes in `state/projects/...yaml` per Constitution Principle III & V
+- [X] T045 [P] Refactor logging to structured JSON format for easier parsing
+- [X] T062 [P] Remove unused imports and dead code from all modules
+- [X] T047 [P] Documentation updates in `docs/` and `README.md`
+- [X] T053 [P] Profile simulation speed to verify the performance constraint for 50 seeds per Plan Performance Goals
+- [X] T054 [P] Optimize simulation loop to meet temporal constraints if profiling fails
+- [X] T057 [P] Additional unit tests for edge cases (noise signal `H`, sparse rewards)
+- [X] T058 [P] Run `quickstart.md` validation
+- [X] T059 [P] Verify all artifacts checksummed and versioned per Constitution Principle V
 
 ---
 
@@ -165,8 +155,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -234,9 +224,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

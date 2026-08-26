@@ -89,7 +89,7 @@ As a researcher, I need to run a statistical comparison (Mann-Whitney U test) of
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The drop in generalization accuracy for the Uniform regime (when privileged signal is masked) is measured against the drop in generalization accuracy for the DOPD regime (See US-2).
-- **SC-002**: The statistical significance (p-value) of the difference in mean generalization accuracy between DOPD and Uniform regimes is measured against a fixed alpha threshold of 0.05. (See US-3).
+- **SC-002**: The statistical significance (p-value) of the difference in mean generalization accuracy between DOPD and Uniform regimes is measured against a conventional alpha threshold. (See US-3).
 - **SC-003**: The convergence steps required for DOPD to reach a stable policy are measured against the convergence steps of the Uniform regime to determine computational efficiency (See US-2).
 - **SC-004**: The action entropy of the Student policy during training is measured against a baseline of random action to verify that DOPD encourages exploration/self-correction when the advantage gap is low (See US-2).
 - **SC-005**: The reproducibility of results is measured by running the experiment with multiple independent random seeds; the coefficient of variation (CV) of generalization accuracy is calculated and reported.
