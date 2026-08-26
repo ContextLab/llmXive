@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GeometryConfig"
+description: "Schema for solar still geometry configurations."
+type: "object"
+properties:
+  geometry_id:
+    type: "string"
+    description: "Unique identifier for the geometry."
+  type:
+    type: "string"
+    description: "Type of geometry."
+    enum:
+      - "flat-plate"
+      - "single-slope"
+      - "double-slope"
+  inclination_angle:
+    type: "number"
+    description: "Inclination angle in degrees."
+    minimum: 0.0
+    maximum: 90.0
+  surface_area:
+    type: "number"
+    description: "Surface area in m²."
+    minimum: 0.0
+  effective_projected_area:
+    type: "number"
+    description: "Effective projected area in m²."
+    minimum: 0.0
+  view_factor:
+    type: "number"
+    description: "Angle-dependent view factor (0.0-1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  convective_coeff:
+    type: "number"
+    description: "Convective heat transfer coefficient in W/m²·K."
+    minimum: 0.0
+  fabrication_complexity_factor:
+    type: "number"
+    description: "Cost multiplier for labor/sealing based on geometry complexity."
+    minimum: 1.0
+required:
+  - geometry_id
+  - type
+  - inclination_angle
+  - surface_area
+  - effective_projected_area
+  - view_factor
+  - convective_coeff
+  - fabrication_complexity_factor
+additionalProperties: false

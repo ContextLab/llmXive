@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: flesh_out_complete
+current_stage: analyzed
 failed_stage: null
 field: energy
 human_escalation_reason: null
 id: PROJ-013-developing-a-low-cost-solar-powered-wate
-last_run_id: b5585a02-abe1-43a3-85f5-94ab7c4503c7
+last_run_id: 90eee750-d36f-4188-aebe-59afc23513b7
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-013-developing-a-low-cost-solar-powered-wate/specs/001-developing-a-low-cost-solar-powered-wate
 title: Developing a Low-Cost Solar-Powered Water Purification System
-updated_at: '2026-07-27T07:43:40.507559Z'
+updated_at: '2026-08-26T08:10:02.278153Z'
