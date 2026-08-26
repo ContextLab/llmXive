@@ -1,87 +1,80 @@
-"""
-save_processed_data.py
-Saves the final processed dataset to data/processed/cleaned_316L.csv
-and updates state.yaml with the new file hash.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
-
 from preprocess import preprocess_data
 from utils import setup_logging, compute_file_hash, load_state, update_state
 
-# Configure logging
-logger = setup_logging("save_processed_data")
-
-def save_dataset(df, output_path: Path):
-    """Saves the dataframe to a CSV file."""
+def save_dataset(df, output_path):
+    """
+    Saves the processed DataFrame to a CSV file at the specified output path.
+    
+    Args:
+        df (pd.DataFrame): The processed dataset to save.
+        output_path (Path): The destination path for the CSV file.
+    
+    Raises:
+        FileNotFoundError: If the directory for output_path does not exist.
+        IOError: If the file cannot be written.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
-    logger.info(f"Dataset saved to {output_path}")
+    logging.info(f"Dataset saved to {output_path}")
 
 def main():
     """
-    Main entry point for saving processed data.
-    1. Loads raw data and preprocesses it (calling existing preprocess_data).
-    2. Saves the result to data/processed/cleaned_316L.csv.
-    3. Computes the SHA-256 hash of the new file.
-    4. Updates state.yaml with the new artifact hash.
+    Main entry point for the save processed data script.
+    1. Loads raw data.
+    2. Preprocesses data (normalization, cleaning, feature engineering).
+    3. Saves the result to data/processed/cleaned_316L.csv.
+    4. Computes the SHA-256 hash of the new file.
+    5. Updates state.yaml with the new artifact hash.
     """
-    # Define paths
-    project_root = Path(__file__).resolve().parent.parent
-    raw_data_dir = project_root / "data" / "raw"
-    processed_dir = project_root / "data" / "processed"
-    output_file = processed_dir / "cleaned_316L.csv"
-    state_file = project_root / "state.yaml"
-
-    # Ensure output directory exists
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
-    # 1. Preprocess data
-    # Note: This relies on the logic implemented in T014/T016 which loads from data/raw/
-    # and performs cleaning, normalization, and feature engineering.
-    logger.info("Starting data preprocessing...")
+    logger = setup_logging()
     
-    try:
-        # We assume preprocess_data handles loading from the raw directory 
-        # defined in the project structure or environment.
-        # If preprocess_data expects specific arguments, they should be passed here.
-        # Based on the API surface, it seems to operate on the project root context.
-        df_clean = preprocess_data(project_root)
-    except Exception as e:
-        logger.error(f"Preprocessing failed: {e}")
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    raw_data_path = project_root / "data" / "raw" / "316L_LPBF_dataset.csv"
+    output_path = project_root / "data" / "processed" / "cleaned_316L.csv"
+    state_path = project_root / "state.yaml"
+
+    if not raw_data_path.exists():
+        logger.error(f"Raw data file not found at {raw_data_path}. Run download_data.py first.")
         sys.exit(1)
 
-    # 2. Save the dataset
-    logger.info(f"Saving processed dataset to {output_file}...")
-    save_dataset(df_clean, output_file)
-
-    # 3. Compute file hash
-    file_hash = compute_file_hash(output_file)
-    logger.info(f"File hash computed: {file_hash}")
-
-    # 4. Update state.yaml
-    if state_file.exists():
-        state = load_state(state_file)
-        # Update the artifact entry for the cleaned dataset
-        # Assuming the key in state.yaml is 'cleaned_dataset' or similar
-        # If the key doesn't exist, we create it.
-        artifact_key = "cleaned_316L"
-        if "artifacts" not in state:
-            state["artifacts"] = {}
+    try:
+        # Preprocess the data
+        # Note: preprocess_data handles loading, cleaning, normalization, and EV calculation
+        df_processed = preprocess_data(raw_data_path)
         
-        state["artifacts"][artifact_key] = {
-            "path": str(output_file.relative_to(project_root)),
-            "hash": file_hash,
-            "version": state.get("artifacts", {}).get(artifact_key, {}).get("version", 1) + 1
-        }
-        
-        update_state(state_file, state)
-        logger.info(f"State updated for {artifact_key}")
-    else:
-        logger.warning(f"State file {state_file} not found. Skipping state update.")
+        if df_processed is None or df_processed.empty:
+            logger.error("Preprocessing resulted in an empty dataset. Aborting save.")
+            sys.exit(1)
 
-    logger.info("Process completed successfully.")
+        # Save to CSV
+        save_dataset(df_processed, output_path)
+
+        # Compute hash of the saved file
+        file_hash = compute_file_hash(output_path)
+        logger.info(f"Computed SHA-256 hash for {output_path}: {file_hash}")
+
+        # Update state.yaml
+        if state_path.exists():
+            state = load_state(state_path)
+            state = update_state(state, "cleaned_316L.csv", str(output_path), file_hash)
+            # Re-save state
+            import yaml
+            with open(state_path, 'w') as f:
+                yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+            logger.info(f"Updated state.yaml with new hash for cleaned_316L.csv")
+        else:
+            logger.warning(f"state.yaml not found at {state_path}. Skipping state update.")
+
+        logger.info("Task T018 completed successfully.")
+
+    except Exception as e:
+        logger.error(f"Error during T018 execution: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

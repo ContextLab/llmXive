@@ -5,103 +5,124 @@ from pathlib import Path
 from typing import List, Tuple, Optional
 import pandas as pd
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Expected columns for the features dataset
-METRIC_COLUMNS = ['cc', 'halstead', 'loc']
-TARGET_COLUMN = 'is_buggy'
-REQUIRED_COLUMNS = ['file_path'] + METRIC_COLUMNS + [TARGET_COLUMN]
-
-def validate_no_nan_in_metrics(df: pd.DataFrame, metric_columns: Optional[List[str]] = None) -> Tuple[bool, List[str]]:
+def validate_no_nan_in_metrics(df: pd.DataFrame, metric_columns: List[str]) -> Tuple[bool, List[str]]:
     """
-    Validates that there are no NaN values in the specified metric columns.
+    Validates that no NaN values exist in the specified metric columns of the DataFrame.
     
     Args:
-        df: The DataFrame containing the metrics.
-        metric_columns: List of column names to check. Defaults to METRIC_COLUMNS.
+        df: The pandas DataFrame containing the metrics.
+        metric_columns: List of column names to check for NaN values (e.g., 'cc', 'halstead', 'loc').
         
     Returns:
-        Tuple of (is_valid, list_of_invalid_columns).
-        is_valid is True if no NaNs are found in the specified columns.
+        A tuple (is_valid, missing_columns) where:
+            - is_valid: True if no NaN values are found in the specified columns.
+            - missing_columns: A list of column names that contained NaN values.
+            
+    Raises:
+        ValueError: If the DataFrame is empty or if metric columns are missing.
     """
-    if metric_columns is None:
-        metric_columns = METRIC_COLUMNS
+    if df.empty:
+        raise ValueError("The input DataFrame is empty. Cannot validate NaN values.")
+        
+    missing_cols = []
     
-    invalid_columns = []
     for col in metric_columns:
         if col not in df.columns:
-            logger.error(f"Required column '{col}' is missing from DataFrame.")
-            invalid_columns.append(col)
-            continue
+            raise ValueError(f"Required metric column '{col}' not found in DataFrame. Available columns: {list(df.columns)}")
         
-        if df[col].isna().any():
-            nan_count = df[col].isna().sum()
-            logger.error(f"Column '{col}' contains {nan_count} NaN values.")
-            invalid_columns.append(col)
+        nan_count = df[col].isna().sum()
+        if nan_count > 0:
+            missing_cols.append(col)
+            logger.warning(f"Found {nan_count} NaN values in column '{col}'.")
         else:
-            logger.info(f"Column '{col}' validation passed: No NaN values found.")
+            logger.info(f"Column '{col}' contains no NaN values.")
     
-    return len(invalid_columns) == 0, invalid_columns
+    is_valid = len(missing_cols) == 0
+    return is_valid, missing_cols
 
-def validate_schema_and_metrics(df: pd.DataFrame) -> bool:
+def validate_schema_and_metrics(df: pd.DataFrame, output_path: Path) -> bool:
     """
-    Validates the DataFrame schema (required columns) and checks for NaNs in metrics.
+    Performs comprehensive validation on the features DataFrame before saving.
+    Checks for:
+    1. Required columns existence.
+    2. No NaN values in metric columns.
+    3. No infinite values.
+    4. Positive values for LOC and CC (logical constraints).
     
     Args:
-        df: The DataFrame to validate.
+        df: The pandas DataFrame to validate.
+        output_path: The intended output path (used for logging context).
         
     Returns:
         True if validation passes, False otherwise.
+        
+    Raises:
+        ValueError: If validation fails.
     """
-    # Check schema
-    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Schema validation failed. Missing columns: {missing_cols}")
-        return False
+    required_columns = ['file_path', 'cc', 'halstead', 'loc', 'is_buggy']
+    metric_columns = ['cc', 'halstead', 'loc']
     
-    logger.info("Schema validation passed.")
+    # Check required columns
+    missing_required = [col for col in required_columns if col not in df.columns]
+    if missing_required:
+        raise ValueError(f"Missing required columns: {missing_required}")
     
-    # Check for NaNs in metrics
-    is_valid, invalid_cols = validate_no_nan_in_metrics(df)
+    # Check for NaN in metrics
+    is_valid, nan_cols = validate_no_nan_in_metrics(df, metric_columns)
     if not is_valid:
-        logger.error(f"Metric validation failed. Columns with NaN: {invalid_cols}")
-        return False
-    
+        raise ValueError(f"Validation failed: NaN values found in columns: {nan_cols}. "
+                         "The dataset must be cleaned before saving.")
+                         
+    # Check for infinite values
+    for col in metric_columns:
+        if df[col].isin([float('inf'), float('-inf')]).any():
+            raise ValueError(f"Validation failed: Infinite values found in column '{col}'.")
+            
+    # Logical constraints (optional but recommended)
+    if (df['loc'] < 0).any():
+        logger.warning("Found negative LOC values. This may indicate parsing errors.")
+    if (df['cc'] < 0).any():
+        logger.warning("Found negative Cyclomatic Complexity values. This may indicate parsing errors.")
+        
+    logger.info(f"Validation passed for {len(df)} rows. Ready to save to {output_path}.")
     return True
 
 def main():
     """
-    Main entry point for standalone execution.
+    Entry point for the validation script.
     Expects the path to the features CSV as the first argument.
+    If valid, it prints success. If invalid, it exits with code 1.
     """
     if len(sys.argv) < 2:
-        print("Usage: python -m src.validate_metrics <path_to_features.csv>")
+        print("Usage: python code/src/validate_metrics.py <path_to_features_csv>")
         sys.exit(1)
-    
+        
     csv_path = Path(sys.argv[1])
     if not csv_path.exists():
-        logger.error(f"File not found: {csv_path}")
+        print(f"Error: File not found: {csv_path}")
         sys.exit(1)
-    
-    logger.info(f"Loading data from {csv_path}...")
+        
+    logger.info(f"Loading and validating {csv_path}...")
     try:
         df = pd.read_csv(csv_path)
     except Exception as e:
-        logger.error(f"Failed to load CSV: {e}")
+        print(f"Error reading CSV: {e}")
         sys.exit(1)
-    
-    logger.info(f"Loaded {len(df)} rows.")
-    
-    if validate_schema_and_metrics(df):
-        logger.info("Validation successful: No NaN values in metric columns.")
+        
+    try:
+        validate_schema_and_metrics(df, csv_path)
+        print("SUCCESS: Validation passed. No NaN values found in metric columns.")
         sys.exit(0)
-    else:
-        logger.error("Validation failed: NaN values detected or schema mismatch.")
+    except ValueError as e:
+        print(f"FAILURE: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

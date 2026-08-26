@@ -1,127 +1,164 @@
 import java.io.*;
-import java.util.*;
 import java.nio.file.*;
+import java.util.*;
 import java.util.regex.*;
 
-public class HalsteadCalc {
+/**
+ * Halstead Complexity Metrics Calculator for Java Files.
+ *
+ * This program reads a Java source file, tokenizes it to identify
+ * operators and operands, and calculates Halstead metrics.
+ *
+ * Usage: java HalsteadCalc <filename>
+ * Output: Prints metrics in a parseable format:
+ *         HALSTEAD: volume=<double>, n1=<int>, n2=<int>, N1=<int>, N2=<int>
+ *
+ * If the file cannot be parsed (syntax error), it prints:
+ *         HALSTEAD: ERROR=<message>
+ */
+public class halstead_calc {
+
+    // Operators in Java
+    private static final Set<String> OPERATORS = new HashSet<>(Arrays.asList(
+        // Arithmetic
+        "+", "-", "*", "/", "%",
+        // Relational
+        "==", "!=", "<", ">", "<=", ">=",
+        // Logical
+        "&&", "||", "!",
+        // Bitwise
+        "&", "|", "^", "~", "<<", ">>", ">>>",
+        // Assignment
+        "=", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", ">>>=",
+        // Increment/Decrement
+        "++", "--",
+        // Ternary
+        "?", ":",
+        // Scope/Access
+        ".", "::",
+        // Cast
+        "(", // treated as operator for grouping context
+        ")",
+        // Array access
+        "[", "]",
+        // Lambda
+        "->",
+        // instanceof
+        "instanceof"
+    ));
+
+    // Keywords that act as operands (identifiers that are not operators)
+    private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList(
+        "abstract", "assert", "boolean", "break", "byte", "case", "catch",
+        "char", "class", "const", "continue", "default", "do", "double",
+        "else", "enum", "extends", "final", "finally", "float", "for",
+        "goto", "if", "implements", "import", "instanceof", "int", "interface",
+        "long", "native", "new", "package", "private", "protected", "public",
+        "return", "short", "static", "strictfp", "super", "switch", "synchronized",
+        "this", "throw", "throws", "transient", "try", "void", "volatile", "while"
+    ));
+
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.err.println("Usage: java -jar halstead_calc.jar <java_file>");
+            System.err.println("Usage: java halstead_calc <filename>");
             System.exit(1);
         }
 
-        String filePath = args[0];
+        String filename = args[0];
         try {
-            Map<String, Double> metrics = calculateHalstead(filePath);
-            System.out.println("operators: " + metrics.get("operators"));
-            System.out.println("operands: " + metrics.get("operands"));
-            System.out.println("volume: " + metrics.get("volume"));
-            System.out.println("length: " + metrics.get("length"));
-            System.out.println("difficulty: " + metrics.get("difficulty"));
-            System.out.println("effort: " + metrics.get("effort"));
-            System.out.println("bugs: " + metrics.get("bugs"));
+            String content = new String(Files.readAllBytes(Paths.get(filename)));
+            Map<String, Double> metrics = calculateHalstead(content);
+            System.out.printf("HALSTEAD: volume=%.4f, n1=%d, n2=%d, N1=%d, N2=%d%n",
+                    metrics.get("volume"),
+                    (int)metrics.get("n1"),
+                    (int)metrics.get("n2"),
+                    (int)metrics.get("N1"),
+                    (int)metrics.get("N2"));
+        } catch (IOException e) {
+            System.out.println("HALSTEAD: ERROR=IO_ERROR: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Error processing file: " + e.getMessage());
-            System.exit(1);
+            System.out.println("HALSTEAD: ERROR=PARSE_ERROR: " + e.getMessage());
         }
     }
 
-    public static Map<String, Double> calculateHalstead(String filePath) throws IOException {
-        String content = new String(Files.readAllBytes(Paths.get(filePath)));
+    public static Map<String, Double> calculateHalstead(String code) {
+        Map<String, Double> result = new HashMap<>();
         
-        // Simple tokenizer for Java (excluding comments and strings)
-        // This is a basic implementation; a full parser would be more robust
-        content = removeComments(content);
-        content = removeStrings(content);
+        // Tokenize
+        List<String> tokens = tokenize(code);
         
-        List<String> tokens = tokenize(content);
-        
-        Map<String, Integer> operatorCounts = new HashMap<>();
-        Map<String, Integer> operandCounts = new HashMap<>();
-        
-        // Define operators (simplified set)
-        Set<String> operators = new HashSet<>(Arrays.asList(
-            "+", "-", "*", "/", "%", "<", ">", "<=", ">=", "==", "!=", 
-            "&&", "||", "!", "=", "+=", "-=", "*=", "/=", "%=", 
-            "++", "--", "&", "|", "^", "~", "<<", ">>", ">>>",
-            "?", ":", ".", "(", ")", "{", "}", "[", "]", ";", ","
-        ));
-        
+        // Separate operators and operands
+        Map<String, Integer> uniqueOperators = new HashMap<>();
+        Map<String, Integer> uniqueOperands = new HashMap<>();
+        int totalOperators = 0;
+        int totalOperands = 0;
+
         for (String token : tokens) {
-            if (operators.contains(token)) {
-                operatorCounts.put(token, operatorCounts.getOrDefault(token, 0) + 1);
-            } else if (!token.isEmpty()) {
-                // Assume everything else is an operand
-                operandCounts.put(token, operandCounts.getOrDefault(token, 0) + 1);
+            if (isOperator(token)) {
+                uniqueOperators.put(token, uniqueOperators.getOrDefault(token, 0) + 1);
+                totalOperators++;
+            } else if (isOperand(token)) {
+                uniqueOperands.put(token, uniqueOperands.getOrDefault(token, 0) + 1);
+                totalOperands++;
             }
         }
-        
-        int n1 = operatorCounts.size(); // Number of unique operators
-        int n2 = operandCounts.size();  // Number of unique operands
-        
-        int N1 = 0; // Total operators
-        for (int count : operatorCounts.values()) N1 += count;
-        
-        int N2 = 0; // Total operands
-        for (int count : operandCounts.values()) N2 += count;
-        
-        int N = N1 + N2; // Program length
-        
-        double volume = 0;
-        if (N > 0) {
-            volume = N * Math.log2(n1 + n2);
+
+        int n1 = uniqueOperators.size(); // Number of unique operators
+        int n2 = uniqueOperands.size();  // Number of unique operands
+        int N1 = totalOperators;         // Total number of operators
+        int N2 = totalOperands;          // Total number of operands
+
+        double n = n1 + n2;
+        double N = N1 + N2;
+        double volume = 0.0;
+
+        if (n > 0 && N > 0) {
+            volume = N * Math.log2(n);
         }
-        
-        int estimatedLength = n1 * Math.log2(n1) + n2 * Math.log2(n2);
-        double difficulty = 0;
-        if (n2 > 0) {
-            difficulty = (double) n1 / 2 * (double) N2 / n2;
-        }
-        
-        double effort = difficulty * volume;
-        double bugs = Math.pow(volume, 1.0/3.0) / 30.0;
-        
-        Map<String, Double> result = new HashMap<>();
-        result.put("operators", (double) N1);
-        result.put("operands", (double) N2);
+
+        result.put("n1", (double)n1);
+        result.put("n2", (double)n2);
+        result.put("N1", (double)N1);
+        result.put("N2", (double)N2);
         result.put("volume", volume);
-        result.put("length", (double) N);
-        result.put("difficulty", difficulty);
-        result.put("effort", effort);
-        result.put("bugs", bugs);
-        
+
         return result;
-    }
-
-    private static String removeComments(String code) {
-        // Remove single-line comments
-        code = code.replaceAll("//.*", "");
-        // Remove multi-line comments
-        code = code.replaceAll("/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/", "");
-        return code;
-    }
-
-    private static String removeStrings(String code) {
-        // Remove string literals
-        code = code.replaceAll("\"[^\"\\\\]*(\\\\.[^\"\\\\]*)*\"", "\"\"");
-        // Remove char literals
-        code = code.replaceAll("'[^'\\\\]*(\\\\.[^'\\\\]*)*'", "''");
-        return code;
     }
 
     private static List<String> tokenize(String code) {
         List<String> tokens = new ArrayList<>();
-        // Simple regex tokenizer
-        // Matches operators, identifiers, numbers, and symbols
-        Pattern pattern = Pattern.compile(
-            "[+\\-*/%<>=!&|^~?:;.,()\\[\\]{}]+" +
-            "|[a-zA-Z_][a-zA-Z0-9_]*" +
-            "|[0-9]+(\\.[0-9]+)?"
-        );
+        // Regex to match operators, identifiers, literals, and punctuation
+        // This is a simplified tokenizer. For robust parsing, a full parser is needed.
+        // We handle multi-character operators first by order of checking.
+        
+        String regex = "(?s)(//.*|/\\*[\\s\\S]*?\\*/|\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)*'|\\d+\\.?\\d*|[a-zA-Z_][a-zA-Z0-9_]*|\\{\\}|[{}()\\[\\];,]|\\+\\+|--|\\+=|-=|\\*=|/=|%=|&=|\\|=|\\^=|<<=|>>=|>>>=|==|!=|<=|>=|&&|\\|\\||->|::|\\?|:|\\.|\\(|\\)|\\[|\\]|\\+|-|\\*|/|%|<|>|!|&|\\||\\^|~|<<|>>|>>>|=|;|,|\\{|\\})";
+        
+        Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(code);
+        
         while (matcher.find()) {
-            tokens.add(matcher.group());
+            String token = matcher.group();
+            if (token != null && !token.trim().isEmpty() && !token.startsWith("//") && !token.startsWith("/*")) {
+                tokens.add(token);
+            }
         }
+        
         return tokens;
+    }
+
+    private static boolean isOperator(String token) {
+        return OPERATORS.contains(token);
+    }
+
+    private static boolean isOperand(String token) {
+        // Literals (numbers, strings, chars) are operands
+        if (token.matches("\".*\"") || token.matches("\'.*\'") || token.matches("\\d+\\.?\\d*")) {
+            return true;
+        }
+        // Identifiers that are not keywords are operands (variables, types, etc.)
+        if (token.matches("[a-zA-Z_][a-zA-Z0-9_]*") && !KEYWORDS.contains(token)) {
+            return true;
+        }
+        return false;
     }
 }

@@ -1,111 +1,103 @@
+"""
+Configuration and execution logic for linting (ruff/flake8) and formatting (black).
+"""
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-def run_command(cmd, cwd=None):
-    """Run a shell command and return the result."""
+def run_command(cmd: list[str], description: str) -> bool:
+    """
+    Execute a shell command and print output.
+    Returns True if successful, False otherwise.
+    """
+    print(f"Running: {description}...")
     try:
         result = subprocess.run(
             cmd,
-            shell=True,
-            cwd=cwd,
             check=True,
-            capture_output=True,
-            text=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            cwd=Path(__file__).parent
         )
-        return result
+        if result.stdout:
+            print(result.stdout)
+        print(f"✅ {description} completed successfully.")
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"Command failed: {e}")
-        print(f"stdout: {e.stdout}")
-        print(f"stderr: {e.stderr}")
-        return None
-
-def check_linting(root_dir):
-    """Run ruff check on the project."""
-    cmd = "ruff check ."
-    result = run_command(cmd, cwd=root_dir)
-    if result is None:
-        print("Linting check failed or ruff is not installed.")
+        print(f"❌ {description} failed with code {e.returncode}.")
+        if e.stdout:
+            print(e.stdout)
         return False
-    if result.returncode == 0:
-        print("Linting check passed.")
-        return True
-    else:
-        print("Linting issues found:")
-        print(result.stdout)
+    except FileNotFoundError:
+        print(f"❌ Command not found. Please ensure {' '.join(cmd[:2])} is installed.")
         return False
 
-def check_formatting(root_dir):
-    """Run black --check on the project."""
-    cmd = "black --check ."
-    result = run_command(cmd, cwd=root_dir)
-    if result is None:
-        print("Formatting check failed or black is not installed.")
-        return False
-    if result.returncode == 0:
-        print("Formatting check passed.")
-        return True
+def check_linting() -> bool:
+    """
+    Run linters (ruff check and flake8) without fixing.
+    Returns True if no issues found.
+    """
+    success = True
+    # Try ruff first
+    if run_command(["ruff", "check", "."], "Ruff Check"):
+        pass
     else:
-        print("Formatting issues found.")
-        return False
+        # Fallback to flake8 if ruff not found or fails configuration
+        if not run_command(["flake8", "."], "Flake8 Check"):
+            success = False
+    return success
 
-def fix_linting(root_dir):
-    """Run ruff check --fix on the project."""
-    cmd = "ruff check --fix ."
-    result = run_command(cmd, cwd=root_dir)
-    if result is None:
-        print("Auto-fixing linting failed or ruff is not installed.")
-        return False
-    if result.returncode == 0:
-        print("Linting auto-fix completed successfully.")
-        return True
-    else:
-        print("Linting auto-fix encountered issues.")
-        print(result.stdout)
-        return False
+def check_formatting() -> bool:
+    """
+    Run formatter (black) in check mode.
+    Returns True if formatting is correct.
+    """
+    return run_command(["black", "--check", "."], "Black Check")
 
-def fix_formatting(root_dir):
-    """Run black on the project to format code."""
-    cmd = "black ."
-    result = run_command(cmd, cwd=root_dir)
-    if result is None:
-        print("Auto-formatting failed or black is not installed.")
-        return False
-    if result.returncode == 0:
-        print("Code formatted successfully.")
-        return True
-    else:
-        print("Formatting encountered issues.")
-        print(result.stdout)
-        return False
+def fix_linting() -> bool:
+    """
+    Run linters with auto-fix enabled (ruff fix).
+    """
+    # Ruff can fix some issues automatically
+    return run_command(["ruff", "check", ".", "--fix"], "Ruff Fix")
+
+def fix_formatting() -> bool:
+    """
+    Run formatter (black) to fix formatting issues.
+    """
+    return run_command(["black", "."], "Black Format")
 
 def main():
-    """Main entry point for linting and formatting tools."""
-    root_dir = Path(__file__).resolve().parent.parent
-    print(f"Running tools for project at: {root_dir}")
+    """
+    Main entry point for linting and formatting tasks.
+    Usage:
+      python code/linting_config.py check   -> Check only
+      python code/linting_config.py fix     -> Fix issues
+    """
+    if len(sys.argv) < 2:
+        print("Usage: python code/linting_config.py [check|fix]")
+        sys.exit(1)
 
-    if len(sys.argv) > 1:
-        action = sys.argv[1]
-        if action == "check":
-            lint_ok = check_linting(root_dir)
-            fmt_ok = check_formatting(root_dir)
-            if lint_ok and fmt_ok:
-                print("All checks passed.")
-                sys.exit(0)
-            else:
-                print("Some checks failed.")
-                sys.exit(1)
-        elif action == "fix":
-            fix_linting(root_dir)
-            fix_formatting(root_dir)
-            print("Fix commands executed.")
+    mode = sys.argv[1].lower()
+
+    if mode == "check":
+        lint_ok = check_linting()
+        fmt_ok = check_formatting()
+        if lint_ok and fmt_ok:
+            print("\n🎉 All checks passed!")
             sys.exit(0)
         else:
-            print(f"Unknown action: {action}")
+            print("\n⚠️ Issues found. Run 'python code/linting_config.py fix' to attempt auto-fixes.")
             sys.exit(1)
+    elif mode == "fix":
+        print("Attempting to fix issues...")
+        fix_linting()
+        fix_formatting()
+        print("\nFixes applied. Please run 'check' again to verify.")
     else:
-        print("Usage: python linting_config.py [check|fix]")
+        print(f"Unknown mode: {mode}")
         sys.exit(1)
 
 if __name__ == "__main__":

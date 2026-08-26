@@ -52,3 +52,53 @@ T016:
     was added, that specific graph IDs are logged, or that failed graphs are excluded
     from the final dataset is present. The required artifact (updated generation script
     with logging and exclusion logic) is missing.
+T021:
+  c: false
+  h: a49779407967efb620629c5cabaacb167bffd2032e95b9b5e38d916b46bee9b3
+  r: "The repository lacks the required `data/raw/networks.csv` file, so the dependent\
+    \ data cannot be loaded. Moreover, the provided `code/simulate_oscillators.py`\
+    \ snippet does not contain any call to `solve_ivp` (or a wrapper) that runs the\
+    \ integration for\u202FT=200 with driving active only for\u202F0\u2013100 using\
+    \ RK45/DOP853, and the file is truncated before any such implementation could\
+    \ be verified. Both the essential data file and the specified integration logic\
+    \ are missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or result files were supplied that perform the required\
+    \ fitting of\u202F`E(t) = A\xB7exp(-\u03BBt)\xB7cos(\u03C9t+\u03C6)+C` to the\
+    \ post\u2011transient region (t\u202F>\u202F100) and enforce an R\xB2\u202F\u2265\
+    \u202F0.95 pass/fail check. The claim lacks any concrete artifact (e.g., Python\
+    \ function, fitting output, R\xB2 values) to verify the implementation."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, tests, or documentation implementing the required fit\u2011validation\
+    \ (R\xB2\u202F\u2265\u202F0.95) or resonance detection (flagging negative decay\
+    \ rates) is present; the only material shown is a unrelated feature specification\
+    \ for network generation and simulation, with no concrete artifacts to verify\
+    \ the claimed functionality. The task therefore lacks the necessary implementation\
+    \ evidence."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, scripts, or results related to \u201Cconvergence testing\u201D\
+    \ are present in the provided evidence. Without any artifact (e.g., a test script,\
+    \ output logs, or documentation) we cannot confirm that the required convergence\
+    \ testing was implemented or that it meets the specifications. The implementer\
+    \ must supply the actual implementation and its verification output."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or output files were provided that compute Laplacian eigenvalues
+    for a ring graph or compare them to the analytical solution. Without such artifacts,
+    the claimed validation cannot be verified. The implementer must supply the implementation
+    (e.g., a script or notebook) and the resulting validation results (e.g., printed
+    eigenvalues, error metrics, or a plot) to satisfy the task.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided showing that error handling for\
+    \ non\u2011convergence was added, that graph IDs are logged when this occurs,\
+    \ or that such graphs are excluded from downstream analysis. The required artifact\
+    \ is missing."

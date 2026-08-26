@@ -1,1 +1,2 @@
-# This directory holds trained model artifacts (.pkl).
+# This directory stores trained model artifacts
+# Ensure .gitkeep is present to track the directory in git

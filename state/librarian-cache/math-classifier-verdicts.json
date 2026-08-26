@@ -51,6 +51,10 @@
     "classified_at": "2026-06-24T18:40:18Z",
     "verdict": false
   },
+  "PROJ-030-predicting-crystal-structures-from-molec::1.6.0": {
+    "classified_at": "2026-08-26T16:20:19Z",
+    "verdict": false
+  },
   "PROJ-033-predicting-material-properties-from-comp::1.6.0": {
     "classified_at": "2026-06-28T14:45:06Z",
     "verdict": false

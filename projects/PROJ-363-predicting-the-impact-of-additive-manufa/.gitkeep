@@ -1,10 +1,2 @@
-# Placeholder file to ensure the project directory structure exists.
-# This directory was created as part of task T001b to satisfy the
-# requirement for a specific subdirectory structure for this project.
-#
-# Structure:
-# projects/
-#   PROJ-363-predicting-the-impact-of-additive-manufa/
-#     (future feature specs, local configs, or project-specific artifacts)
-#
-# This file prevents the directory from being empty in version control.
+# Placeholder to ensure the project subdirectory exists.
+# This directory structure is required by the project plan.

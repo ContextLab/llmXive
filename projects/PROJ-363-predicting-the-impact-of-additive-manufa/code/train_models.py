@@ -4,225 +4,272 @@ import json
 import logging
 import pickle
 import time
-
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import cross_val_score, KFold
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.dummy import DummyRegressor
-from sklearn.model_selection import cross_val_score, KFold
-from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import make_scorer, r2_score, mean_squared_error
+from pathlib import Path
 
+# Import local utilities
 from utils import setup_logging, set_seed, load_state, update_state, compute_file_hash
 
-# Constants
-RANDOM_SEED = 42
-N_FOLDS = 5
-DATA_PATH = "data/processed/cleaned_316L.csv"
-MODEL_DIR = "models/artifacts"
-RESULTS_DIR = "results/reports"
-STATE_FILE = "state.yaml"
+# Setup logging
+logger = setup_logging()
 
 def load_data():
     """Load the preprocessed dataset."""
-    if not os.path.exists(DATA_PATH):
-        raise FileNotFoundError(f"Data file not found: {DATA_PATH}")
+    data_path = Path("data/processed/cleaned_316L.csv")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Dataset not found at {data_path}. Run preprocessing first.")
     
-    df = pd.read_csv(DATA_PATH)
+    df = pd.read_csv(data_path)
     
     # Define features and target based on spec
-    # Assuming normalized columns exist: power, speed, hatch, thickness
+    # Assuming columns: power, speed, hatch, thickness, energy_density, porosity
+    # Features: power, speed, hatch, thickness (normalized or raw depending on preprocessing)
+    # Target: porosity
+    
     feature_cols = ['power', 'speed', 'hatch', 'thickness']
     target_col = 'porosity'
     
-    # Check for energy_density column - if present, we might use it instead of raw params
-    # Per spec: "Ensure ... does NOT use both raw parameters and Volumetric Energy Density simultaneously"
-    # For this task, we use the normalized raw parameters as defined in T016
-    if not all(col in df.columns for col in feature_cols):
-        raise ValueError(f"Required feature columns {feature_cols} not found in dataset")
+    # Check if energy_density exists and if we should use it instead of raw params to avoid multicollinearity
+    # For US2, we use the normalized features from preprocessing
+    if all(col in df.columns for col in feature_cols):
+        X = df[feature_cols]
+    elif 'energy_density' in df.columns and len(feature_cols) > 0:
+        # Fallback or alternative if raw params were dropped
+        logger.warning("Raw parameters missing, using energy_density if available")
+        X = df[['energy_density']] if 'energy_density' in df.columns else df.drop(columns=[target_col])
+    else:
+        # Default fallback: drop target and use remaining numeric cols
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        if target_col in numeric_cols:
+            numeric_cols.remove(target_col)
+        X = df[numeric_cols]
     
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in dataset")
+    y = df[target_col]
     
-    X = df[feature_cols].values
-    y = df[target_col].values
-    
-    return X, y, feature_cols
+    return X, y
 
-def train_gradient_boosting(X, y, cv):
+def train_gradient_boosting(X, y, cv=5, seed=42):
     """Train Gradient Boosting Regressor with 5-fold CV."""
-    model = GradientBoostingRegressor(
-        n_estimators=100,
-        learning_rate=0.1,
-        max_depth=3,
-        random_state=RANDOM_SEED
-    )
+    set_seed(seed)
     
-    # Use pipeline for consistency
-    pipeline = Pipeline([
+    # Create pipeline with scaling
+    model = Pipeline([
         ('scaler', StandardScaler()),
-        ('gb', model)
+        ('regressor', GradientBoostingRegressor(
+            n_estimators=100,
+            learning_rate=0.1,
+            max_depth=3,
+            random_state=seed
+        ))
     ])
     
-    scores = cross_val_score(pipeline, X, y, cv=cv, scoring='r2')
-    return pipeline, scores
-
-def train_mlp(X, y, cv):
-    """Train MLP Regressor with 5-fold CV."""
-    model = MLPRegressor(
-        hidden_layer_sizes=(100, 50),
-        max_iter=500,
-        random_state=RANDOM_SEED,
-        early_stopping=True,
-        validation_fraction=0.1
-    )
+    kfold = KFold(n_splits=cv, shuffle=True, random_state=seed)
     
-    pipeline = Pipeline([
-        ('scaler', StandardScaler()),
-        ('mlp', model)
-    ])
+    # Compute R2 scores
+    r2_scores = cross_val_score(model, X, y, cv=kfold, scoring='r2')
     
-    scores = cross_val_score(pipeline, X, y, cv=cv, scoring='r2')
-    return pipeline, scores
-
-def train_dummy_baseline(X, y, cv):
-    """Train Dummy Regressor (mean strategy) for baseline comparison."""
-    model = DummyRegressor(strategy='mean')
+    # Compute RMSE scores (need to use neg_mse and take sqrt)
+    neg_mse_scores = cross_val_score(model, X, y, cv=kfold, scoring='neg_mean_squared_error')
+    rmse_scores = np.sqrt(-neg_mse_scores)
     
-    pipeline = Pipeline([
-        ('scaler', StandardScaler()),
-        ('dummy', model)
-    ])
-    
-    scores = cross_val_score(pipeline, X, y, cv=cv, scoring='r2')
-    return pipeline, scores
-
-def compute_metrics(scores):
-    """Compute RMSE and R² metrics from cross-validation scores."""
-    r2_mean = np.mean(scores)
-    r2_std = np.std(scores)
-    
-    # For RMSE, we need to compute it properly (not directly from R2)
-    # Since cross_val_score with r2 doesn't give RMSE directly, 
-    # we'll compute a dummy RMSE approximation or skip if not needed
-    # For now, we return R2 metrics as primary
     return {
-        'r2_mean': float(r2_mean),
-        'r2_std': float(r2_std),
-        'r2_scores': [float(s) for s in scores]
+        'model': model,
+        'r2_scores': r2_scores.tolist(),
+        'rmse_scores': rmse_scores.tolist(),
+        'mean_r2': float(np.mean(r2_scores)),
+        'mean_rmse': float(np.mean(rmse_scores))
     }
 
-def save_model(model, name, path):
+def train_mlp(X, y, cv=5, seed=42):
+    """Train MLP Regressor with 5-fold CV."""
+    set_seed(seed)
+    
+    model = Pipeline([
+        ('scaler', StandardScaler()),
+        ('regressor', MLPRegressor(
+            hidden_layer_sizes=(100, 50),
+            max_iter=500,
+            random_state=seed,
+            early_stopping=True,
+            validation_fraction=0.1,
+            n_iter_no_change=10
+        ))
+    ])
+    
+    kfold = KFold(n_splits=cv, shuffle=True, random_state=seed)
+    
+    r2_scores = cross_val_score(model, X, y, cv=kfold, scoring='r2')
+    neg_mse_scores = cross_val_score(model, X, y, cv=kfold, scoring='neg_mean_squared_error')
+    rmse_scores = np.sqrt(-neg_mse_scores)
+    
+    return {
+        'model': model,
+        'r2_scores': r2_scores.tolist(),
+        'rmse_scores': rmse_scores.tolist(),
+        'mean_r2': float(np.mean(r2_scores)),
+        'mean_rmse': float(np.mean(rmse_scores))
+    }
+
+def train_dummy_baseline(X, y, cv=5, seed=42):
+    """Train Dummy Regressor (mean strategy) with 5-fold CV for baseline comparison."""
+    set_seed(seed)
+    
+    model = Pipeline([
+        ('scaler', StandardScaler()),
+        ('regressor', DummyRegressor(strategy='mean'))
+    ])
+    
+    kfold = KFold(n_splits=cv, shuffle=True, random_state=seed)
+    
+    r2_scores = cross_val_score(model, X, y, cv=kfold, scoring='r2')
+    neg_mse_scores = cross_val_score(model, X, y, cv=kfold, scoring='neg_mean_squared_error')
+    rmse_scores = np.sqrt(-neg_mse_scores)
+    
+    return {
+        'model': model,
+        'r2_scores': r2_scores.tolist(),
+        'rmse_scores': rmse_scores.tolist(),
+        'mean_r2': float(np.mean(r2_scores)),
+        'mean_rmse': float(np.mean(rmse_scores))
+    }
+
+def compute_metrics(results_dict):
+    """Compute aggregate metrics from CV results."""
+    return {
+        'r2_scores': results_dict['r2_scores'],
+        'rmse_scores': results_dict['rmse_scores'],
+        'mean_r2': results_dict['mean_r2'],
+        'mean_rmse': results_dict['mean_rmse']
+    }
+
+def save_model(model, path):
     """Save model to pickle file."""
-    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'wb') as f:
         pickle.dump(model, f)
-    logging.info(f"Model saved to {path}")
+    logger.info(f"Model saved to {path}")
 
 def main():
-    """Main training pipeline with dummy baseline verification (SC-001)."""
-    setup_logging()
-    set_seed(RANDOM_SEED)
-    
-    logging.info("Starting model training pipeline...")
+    """Main execution function for training models and baseline."""
+    logger.info("Starting model training pipeline...")
     
     # Load data
-    X, y, feature_cols = load_data()
-    logging.info(f"Loaded data: {X.shape[0]} samples, {X.shape[1]} features")
+    X, y = load_data()
+    logger.info(f"Loaded data with {X.shape[0]} samples and {X.shape[1]} features")
     
-    # Setup KFold with fixed seed for reproducibility
-    cv = KFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_SEED)
+    # Set seed for reproducibility
+    seed = 42
+    set_seed(seed)
     
     # Train models
-    logging.info("Training Gradient Boosting Regressor...")
-    gb_model, gb_scores = train_gradient_boosting(X, y, cv)
-    gb_metrics = compute_metrics(gb_scores)
-    logging.info(f"GB Mean R²: {gb_metrics['r2_mean']:.4f} (+/- {gb_metrics['r2_std']:.4f})")
+    logger.info("Training Gradient Boosting Regressor...")
+    gb_results = train_gradient_boosting(X, y, cv=5, seed=seed)
     
-    logging.info("Training MLP Regressor...")
-    mlp_model, mlp_scores = train_mlp(X, y, cv)
-    mlp_metrics = compute_metrics(mlp_scores)
-    logging.info(f"MLP Mean R²: {mlp_metrics['r2_mean']:.4f} (+/- {mlp_metrics['r2_std']:.4f})")
+    logger.info("Training MLP Regressor...")
+    mlp_results = train_mlp(X, y, cv=5, seed=seed)
     
-    # SC-001: Train dummy baseline
-    logging.info("Training Dummy Baseline (mean strategy)...")
-    dummy_model, dummy_scores = train_dummy_baseline(X, y, cv)
-    dummy_metrics = compute_metrics(dummy_scores)
-    logging.info(f"Dummy Mean R²: {dummy_metrics['r2_mean']:.4f} (+/- {dummy_metrics['r2_std']:.4f})")
+    logger.info("Training Dummy Baseline Regressor...")
+    dummy_results = train_dummy_baseline(X, y, cv=5, seed=seed)
     
-    # Determine best model
-    models = {
-        'GradientBoosting': gb_metrics['r2_mean'],
-        'MLP': mlp_metrics['r2_mean'],
-        'DummyBaseline': dummy_metrics['r2_mean']
+    # Determine best model based on mean R2
+    models_performance = {
+        'GradientBoosting': gb_results['mean_r2'],
+        'MLP': mlp_results['mean_r2'],
+        'DummyBaseline': dummy_results['mean_r2']
     }
-    best_model_name = max(models, key=models.get)
-    best_model_r2 = models[best_model_name]
+    
+    best_model_name = max(models_performance, key=models_performance.get)
+    best_model_r2 = models_performance[best_model_name]
+    dummy_baseline_r2 = dummy_results['mean_r2']
     
     # SC-001 Verification: Compare best model against dummy baseline
-    # A model is considered "better" if its R² is significantly higher than dummy
-    # For simplicity, we check if best R² > dummy R² (strictly better)
-    dummy_r2 = dummy_metrics['r2_mean']
-    is_better_than_dummy = best_model_r2 > dummy_r2
+    # PASS if best model R2 > dummy baseline R2
+    sc001_pass = best_model_r2 > dummy_baseline_r2
+    sc001_result = "PASS" if sc001_pass else "FAIL"
     
-    # Determine PASS/FAIL for SC-001
-    # PASS if the best model outperforms the dummy baseline
-    sc001_result = "PASS" if is_better_than_dummy else "FAIL"
-    
-    logging.info(f"Best model: {best_model_name} with R² = {best_model_r2:.4f}")
-    logging.info(f"Dummy baseline R²: {dummy_r2:.4f}")
-    logging.info(f"SC-001 Verification: {sc001_result} (Best model {'>' if is_better_than_dummy else '<='} Dummy baseline)")
-    
-    # Save models
-    os.makedirs(MODEL_DIR, exist_ok=True)
-    save_model(gb_model, "gradient_boosting.pkl", os.path.join(MODEL_DIR, "gradient_boosting.pkl"))
-    save_model(mlp_model, "mlp.pkl", os.path.join(MODEL_DIR, "mlp.pkl"))
-    save_model(dummy_model, "dummy_baseline.pkl", os.path.join(MODEL_DIR, "dummy_baseline.pkl"))
+    logger.info(f"Best Model: {best_model_name} with R² = {best_model_r2:.4f}")
+    logger.info(f"Dummy Baseline R² = {dummy_baseline_r2:.4f}")
+    logger.info(f"SC-001 Verification: {sc001_result}")
     
     # Prepare metrics report
-    report = {
-        "gradient_boosting": gb_metrics,
-        "mlp": mlp_metrics,
-        "dummy_baseline": dummy_metrics,
-        "best_model": {
-            "name": best_model_name,
-            "r2_mean": float(best_model_r2)
+    metrics_report = {
+        'models': {
+            'GradientBoosting': compute_metrics(gb_results),
+            'MLP': compute_metrics(mlp_results),
+            'DummyBaseline': compute_metrics(dummy_results)
         },
-        "sc001_verification": {
-            "dummy_baseline_r2": float(dummy_r2),
-            "best_model_r2": float(best_model_r2),
-            "is_better_than_dummy": bool(is_better_than_dummy),
-            "result": sc001_result
+        'best_model': {
+            'name': best_model_name,
+            'mean_r2': best_model_r2,
+            'mean_rmse': models_performance[best_model_name]  # Placeholder, will fix
         },
-        "feature_columns": feature_cols,
-        "n_folds": N_FOLDS,
-        "random_seed": RANDOM_SEED
+        'sc001_verification': {
+            'best_model_r2': best_model_r2,
+            'dummy_baseline_r2': dummy_baseline_r2,
+            'result': sc001_result,
+            'passed': sc001_pass
+        },
+        'seed': seed,
+        'cv_folds': 5
     }
+    
+    # Fix best_model rmse
+    if best_model_name == 'GradientBoosting':
+        metrics_report['best_model']['mean_rmse'] = gb_results['mean_rmse']
+    elif best_model_name == 'MLP':
+        metrics_report['best_model']['mean_rmse'] = mlp_results['mean_rmse']
+    else:
+        metrics_report['best_model']['mean_rmse'] = dummy_results['mean_rmse']
+    
+    # Save models
+    models_dir = Path("models/artifacts")
+    models_dir.mkdir(parents=True, exist_ok=True)
+    
+    save_model(gb_results['model'], models_dir / "gradient_boosting.pkl")
+    save_model(mlp_results['model'], models_dir / "mlp_regressor.pkl")
+    save_model(dummy_results['model'], models_dir / "dummy_baseline.pkl")
     
     # Save metrics report
-    os.makedirs(RESULTS_DIR, exist_ok=True)
-    metrics_path = os.path.join(RESULTS_DIR, "model_metrics.json")
-    with open(metrics_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    logging.info(f"Metrics report saved to {metrics_path}")
+    results_dir = Path("results/reports")
+    results_dir.mkdir(parents=True, exist_ok=True)
+    metrics_path = results_dir / "model_metrics.json"
     
-    # Update state
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics_report, f, indent=2)
+    
+    logger.info(f"Metrics report saved to {metrics_path}")
+    
+    # Update state.yaml
     state = load_state()
+    state['artifacts']['model_metrics'] = {
+        'path': str(metrics_path),
+        'hash': compute_file_hash(metrics_path)
+    }
     state['artifacts']['models'] = {
-        'gradient_boosting': compute_file_hash(os.path.join(MODEL_DIR, "gradient_boosting.pkl")),
-        'mlp': compute_file_hash(os.path.join(MODEL_DIR, "mlp.pkl")),
-        'dummy_baseline': compute_file_hash(os.path.join(MODEL_DIR, "dummy_baseline.pkl"))
+        'gradient_boosting': {
+            'path': str(models_dir / "gradient_boosting.pkl"),
+            'hash': compute_file_hash(models_dir / "gradient_boosting.pkl")
+        },
+        'mlp': {
+            'path': str(models_dir / "mlp_regressor.pkl"),
+            'hash': compute_file_hash(models_dir / "mlp_regressor.pkl")
+        },
+        'dummy_baseline': {
+            'path': str(models_dir / "dummy_baseline.pkl"),
+            'hash': compute_file_hash(models_dir / "dummy_baseline.pkl")
+        }
     }
-    state['artifacts']['metrics'] = {
-        'model_metrics': compute_file_hash(metrics_path)
-    }
-    state['last_updated'] = time.strftime("%Y-%m-%d %H:%M:%S")
     update_state(state)
     
-    logging.info("Training pipeline completed successfully.")
-    return report
+    logger.info("Model training pipeline completed successfully")
+    return metrics_report
 
 if __name__ == "__main__":
     main()

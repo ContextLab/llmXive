@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.15563",
+  "judged_at": "2026-08-26T16:20:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting crystal structures from molecular fingerprints chemistry",
+  "rationale": "The paper focuses on privacy-preserving machine learning in the healthcare domain, which is entirely off-domain from the user's question regarding crystal structure prediction in chemistry. It shares no measurable connection to the specific mechanism (structure prediction), variables (molecular fingerprints), or empirical population (crystalline materials) required by the user's research question.",
+  "relevant": false
+}

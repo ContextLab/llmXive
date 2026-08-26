@@ -1,1 +1,2 @@
-# This directory holds generated plots (SHAP, etc.).
+# This directory stores generated plots
+# Ensure .gitkeep is present to track the directory in git

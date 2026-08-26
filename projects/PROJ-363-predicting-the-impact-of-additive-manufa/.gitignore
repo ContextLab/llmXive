@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data (Ignore raw large files, keep processed if small enough or git-lfs)
+data/raw/*.csv
+data/raw/*.zip
+data/raw/*.tar.gz
+models/artifacts/*.pkl
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db

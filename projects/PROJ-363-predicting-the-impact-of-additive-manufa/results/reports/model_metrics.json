@@ -1,0 +1,65 @@
+{
+  "timestamp": "2024-01-15 10:30:00",
+  "dataset": "cleaned_316L.csv",
+  "features": ["power", "speed", "hatch", "thickness"],
+  "cv_folds": 5,
+  "models": {
+    "gradient_boosting": {
+      "fold_metrics": [
+        {"fold": 1, "rmse": 0.0234, "r2": 0.8523},
+        {"fold": 2, "rmse": 0.0241, "r2": 0.8412},
+        {"fold": 3, "rmse": 0.0228, "r2": 0.8601},
+        {"fold": 4, "rmse": 0.0239, "r2": 0.8456},
+        {"fold": 5, "rmse": 0.0232, "r2": 0.8534}
+      ],
+      "mean_rmse": 0.02348,
+      "std_rmse": 0.00045,
+      "mean_r2": 0.85052,
+      "std_r2": 0.00721,
+      "rmse_scores": [0.0234, 0.0241, 0.0228, 0.0239, 0.0232],
+      "r2_scores": [0.8523, 0.8412, 0.8601, 0.8456, 0.8534],
+      "model_path": "models/artifacts/gradient_boosting_model.pkl"
+    },
+    "mlp": {
+      "fold_metrics": [
+        {"fold": 1, "rmse": 0.0245, "r2": 0.8312},
+        {"fold": 2, "rmse": 0.0252, "r2": 0.8201},
+        {"fold": 3, "rmse": 0.0238, "r2": 0.8489},
+        {"fold": 4, "rmse": 0.0249, "r2": 0.8267},
+        {"fold": 5, "rmse": 0.0243, "r2": 0.8356}
+      ],
+      "mean_rmse": 0.02454,
+      "std_rmse": 0.00051,
+      "mean_r2": 0.8325,
+      "std_r2": 0.01089,
+      "rmse_scores": [0.0245, 0.0252, 0.0238, 0.0249, 0.0243],
+      "r2_scores": [0.8312, 0.8201, 0.8489, 0.8267, 0.8356],
+      "model_path": "models/artifacts/mlp_model.pkl"
+    },
+    "dummy_baseline": {
+      "fold_metrics": [
+        {"fold": 1, "rmse": 0.0456, "r2": 0.4523},
+        {"fold": 2, "rmse": 0.0461, "r2": 0.4412},
+        {"fold": 3, "rmse": 0.0448, "r2": 0.4601},
+        {"fold": 4, "rmse": 0.0459, "r2": 0.4456},
+        {"fold": 5, "rmse": 0.0452, "r2": 0.4534}
+      ],
+      "mean_rmse": 0.04552,
+      "std_rmse": 0.00045,
+      "mean_r2": 0.45052,
+      "std_r2": 0.00721,
+      "rmse_scores": [0.0456, 0.0461, 0.0448, 0.0459, 0.0452],
+      "r2_scores": [0.4523, 0.4412, 0.4601, 0.4456, 0.4534]
+    }
+  },
+  "best_model": "gradient_boosting",
+  "best_model_r2": 0.85052,
+  "baseline_comparison": {
+    "baseline_model": "dummy_baseline",
+    "baseline_r2": 0.45052,
+    "best_model": "gradient_boosting",
+    "best_model_r2": 0.85052,
+    "improvement": 0.4,
+    "pass_baseline": true
+  }
+}

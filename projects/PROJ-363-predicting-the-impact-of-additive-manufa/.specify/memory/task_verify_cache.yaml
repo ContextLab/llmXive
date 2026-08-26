@@ -30,6 +30,14 @@ T008:
     \ was provided; the evidence contains only the task description and user stories,\
     \ with no actual code or files to verify that the configuration management was\
     \ implemented. The required artifacts are missing."
+T009:
+  c: false
+  h: 06c7e06a7b8daf312b631fc345ca3b847d47859f707f79204ce74e649476661a
+  r: "The required `contracts/dataset.schema.yaml` file is missing, so the test cannot\
+    \ load a schema to validate against. Moreover, the `cleaned_data` fixture in `tests/contract/test_dataset_schema.py`\
+    \ uses a hard\u2011coded dummy DataFrame instead of loading `data/processed/cleaned_316L.csv`,\
+    \ meaning the CSV is never actually validated. Both issues must be fixed for the\
+    \ contract test to be genuine."
 T013:
   c: false
   h: 3707f95c95501483f45429889e8324c825ef983b3ddc83d9159e97300ed2a66d
@@ -38,3 +46,37 @@ T013:
     \ a `state.yaml`. Moreover, the required `state.yaml` file is missing entirely,\
     \ so the script cannot update it as specified. The implementer must add the checksum\
     \ logic and create/update `state.yaml` after a successful download."
+T017:
+  c: false
+  h: 3aa7946ef6ef486aabd02748790e602917c62ffe55f66a15ef2561807b78af19
+  r: The provided `code/preprocess.py` does not contain any logic to load `contracts/dataset.schema.yaml`
+    or perform contract validation, and the required `contracts/dataset.schema.yaml`
+    file is absent from the repository. Both the validation step and the schema file
+    are missing, so the task is not fulfilled.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.pkl` model files for the Gradient Boosting and MLP models are present in
+    `models/artifacts/`; the evidence does not show any saved artifacts, only the
+    task description. The required saved model artifacts are missing.
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test file, script, or test results were supplied; there is no evidence\
+    \ that a test exercising permutation importance with exactly 1,000 permutations\
+    \ was created or that it produces a valid score distribution. The required artifact\
+    \ is missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test file or code verifying the bootstrap confidence\u2011interval\
+    \ calculation is present; the evidence provided contains only the high\u2011level\
+    \ specification and no concrete test implementation or results. The required artifact\
+    \ (a runnable unit test) is missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README or usage instruction files were presented in the `docs/` directory;\
+    \ the only evidence shown relates to feature specifications and user stories,\
+    \ not the required documentation updates. The task\u2019s deliverable (updated\
+    \ documentation) is missing."

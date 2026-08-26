@@ -1,84 +1,89 @@
-# Quick Start Guide
+# Quickstart Guide: Code Complexity vs Bug Prediction Pipeline
 
-This guide provides instructions to set up and run the code complexity and bug prediction pipeline for the llmXive project **PROJ-038**.
+This guide provides instructions to set up and run the automated research pipeline for exploring the relationship between code complexity metrics and bug prediction accuracy.
 
 ## Prerequisites
 
-- Python 3.11+ installed
-- `defects4j` CLI tool (installed via `setup_cli.sh`)
-- PMD (Java static analysis tool) (installed via `setup_cli.sh`)
-- Sufficient disk space (~10GB+) and RAM (7GB+) for data ingestion
+- **Python 3.11+** installed on your system.
+- **Java JDK 11+** (required for PMD and custom Halstead calculation).
+- **Git** installed and available in PATH.
+- Sufficient disk space (~10GB) and RAM (minimum 8GB recommended).
 
-## Setup
+## Step 1: Clone and Setup Environment
 
-1. **Clone the repository** and navigate to the project root.
-
-2. **Initialize the Python environment**:
+1. Navigate to the project root directory.
+2. Create a Python virtual environment:
  ```bash
- python3.11 -m venv venv
- source venv/bin/activate
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-
-3. **Install Python dependencies**:
+3. Install Python dependencies:
  ```bash
- pip install --upgrade pip
  pip install -r code/requirements.txt
  ```
 
-4. **Install system tools** (Defects4J and PMD):
- ```bash
- chmod +x code/setup_cli.sh
-./code/setup_cli.sh
- ```
- *Note: This script installs `defects4j` and `pmd` and verifies their availability.*
+## Step 2: Install System Tools
 
-5. **Verify environment setup**:
- Ensure `defects4j --version` and `pmd --version` return valid version strings.
-
-## Running the Pipeline
-
-The entire pipeline is orchestrated by `run_pipeline.sh`. This script executes the following stages in order:
-1. **Ingest**: Downloads a subset of Defects4J projects.
-2. **Metrics**: Calculates Cyclomatic Complexity, Halstead Volume, and LOC.
-3. **Labeling**: Maps bug-introduction commits to file-level labels.
-4. **Validation**: Ensures no NaN values in the resulting dataset.
-5. **Analysis**: Computes correlations and trains baseline models.
-6. **Reporting**: Generates final JSON reports and visualizations.
-
-To run the full pipeline:
+Run the setup script to install required CLI tools (Defects4J and PMD):
 
 ```bash
-chmod +x code/run_pipeline.sh
-./code/run_pipeline.sh
+bash code/setup_cli.sh
 ```
 
-### Output Artifacts
+This script verifies the installation of:
+- `defects4j` (for bug dataset access)
+- `pmd` (for Cyclomatic Complexity calculation)
 
-Upon successful completion, the following files will be generated in the `code/data/` and `code/data/results/` directories:
+Ensure both commands return valid version numbers:
+```bash
+defects4j --version
+pmd --version
+```
 
-- `code/data/processed/features.csv`: The main feature matrix with metrics and bug labels.
-- `code/data/results/correlation_report.json`: Statistical correlation analysis results.
-- `code/data/results/baseline_metrics.json`: Model performance metrics (ROC-AUC, F1).
-- `code/data/results/feature_importance_ranking.json`: Ranked feature importance.
-- `code/data/results/statistical_significance_report.json`: Paired permutation test results.
-- `code/results/final_report.md`: Comprehensive summary of findings.
+## Step 3: Configure Paths (Optional)
+
+If your tools are installed in non-standard locations, set the following environment variables before running the pipeline:
+
+```bash
+export DEFECTS4J_HOME=/path/to/defects4j
+export PMD_HOME=/path/to/pmd
+```
+
+## Step 4: Run the Pipeline
+
+Execute the main orchestration script:
+
+```bash
+bash code/run_pipeline.sh
+```
+
+### Pipeline Stages
+The script executes the following stages in order:
+1. **Ingest**: Downloads a subset of Defects4J projects (limited by RAM).
+2. **Metrics**: Calculates LOC, Cyclomatic Complexity (CC), and Halstead Volume.
+3. **Labeling**: Cross-references commits to label buggy files.
+4. **Validation**: Ensures no NaN values and validates schema.
+5. **Analysis**: Computes correlations and trains baseline models.
+6. **Modeling**: Runs statistical significance tests (Paired Permutation).
+7. **Reporting**: Generates final JSON and Markdown reports.
+
+## Step 5: Verify Outputs
+
+Upon successful completion, check the `code/data/results/` directory for:
+- `features.csv`: The processed dataset with metrics and labels.
+- `correlation_report.json`: Point-Biserial and Spearman correlation results.
+- `baseline_metrics.json`: Model performance (ROC-AUC, F1) across folds.
+- `statistical_significance_report.json`: Permutation test p-values.
+- `final_report.md`: Comprehensive summary of findings.
 
 ## Troubleshooting
 
-- **Memory Errors**: The pipeline enforces a 7GB RAM limit. If you encounter memory errors, ensure no other heavy processes are running, or reduce the subset size in `code/src/config.py`.
-- **Defects4J Errors**: Ensure the `DEFECTS4J_HOME` environment variable is correctly set if the CLI fails to locate the installation.
-- **PMD Errors**: Verify that Java 11+ is installed and the `pmd` binary is in your `PATH`.
-
-## Testing
-
-Run the test suite to verify individual components:
-
-```bash
-pytest code/tests/ -v
-```
+- **Memory Errors**: The pipeline automatically limits data ingestion based on available RAM. If you encounter errors, reduce the `MAX_MEMORY_BYTES` in `code/src/config.py`.
+- **Defects4J Issues**: Ensure `DEFECTS4J_HOME` is set correctly and `defects4j` is in your PATH.
+- **Java Errors**: Verify that `java` and `javac` are accessible and compatible with the project requirements.
 
 ## Next Steps
 
-- Review `code/results/final_report.md` for insights.
-- Analyze the `features.csv` for specific project patterns.
-- Extend `code/src/analysis.py` for additional statistical tests.
+- Review `specs/001-code-complexity-bug-prediction/methodology_rationale.md` for statistical justification.
+- Examine `code/data/results/final_report.md` for detailed analysis.
+- Extend `code/src/modeling.py` to test additional algorithms.

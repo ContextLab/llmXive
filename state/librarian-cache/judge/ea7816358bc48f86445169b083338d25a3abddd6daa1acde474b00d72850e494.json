@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1302.1059",
+  "judged_at": "2026-08-26T16:20:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting crystal structures from molecular fingerprints chemistry",
+  "rationale": "The paper is a review of the chemistry and crystal structures of topological insulators but does not address the specific mechanism of \"predicting\" structures from \"molecular fingerprints,\" nor does it establish a baseline or methodology for that predictive task. It falls under the rejection rule for \"distinct construct sharing only homonym keywords\" (sharing \"crystal structure\" and \"chemistry\" but lacking the predictive modeling or fingerprinting component central to the user's question).",
+  "relevant": false
+}

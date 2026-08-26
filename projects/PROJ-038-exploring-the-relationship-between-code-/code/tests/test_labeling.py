@@ -8,7 +8,7 @@ import os
 # Ensure src is in path
 sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from src.labeling import detect_class_imbalance, label_all_bugs
+from src.labeling import detect_class_imbalance, label_all_bugs, get_bug_introduction_commit, get_files_changed_in_commit
 
 @pytest.fixture
 def mock_defects4j_setup():
@@ -98,3 +98,37 @@ class TestLabelAllBugs:
         assert labels["src/main/java/com/example/Lang.java"] is True
         assert labels["src/main/java/com/example/Util.java"] is False
         assert has_imbalance is False
+
+    def test_labeling_maps_commit_to_1(self, sample_java_files_map):
+        """
+        Unit test to verify bug-introduction commit mapping.
+        Specifically tests that a commit changing a specific file results in that file
+        being mapped to is_buggy=1 (True).
+        """
+        # We need to mock the internal functions that interact with Defects4J
+        with patch('src.labeling.get_bug_introduction_commit') as mock_get_commit, \
+             patch('src.labeling.get_files_changed_in_commit') as mock_get_files:
+            
+            # Setup: The commit for bug ID '1' is 'abc123'
+            mock_get_commit.return_value = "abc123"
+            
+            # Setup: The commit 'abc123' changed exactly one file in our map
+            changed_files = {"src/main/java/com/example/Lang.java"}
+            mock_get_files.return_value = changed_files
+            
+            # Execute: Label the files
+            labels, has_imbalance = label_all_bugs("Lang", ["1"], sample_java_files_map)
+            
+            # Verify: The mapping logic correctly assigned True to the changed file
+            assert labels["src/main/java/com/example/Lang.java"] is True, \
+                "The file changed in the bug-introduction commit must be mapped to is_buggy=1"
+            
+            # Verify: Unchanged files remain False
+            assert labels["src/main/java/com/example/Util.java"] is False, \
+                "Files not in the commit must remain is_buggy=0"
+            assert labels["src/test/java/com/example/LangTest.java"] is False, \
+                "Files not in the commit must remain is_buggy=0"
+            
+            # Verify: The project is not imbalanced because we have at least one buggy file
+            assert has_imbalance is False, \
+                "Project with at least one buggy file should not be imbalanced"

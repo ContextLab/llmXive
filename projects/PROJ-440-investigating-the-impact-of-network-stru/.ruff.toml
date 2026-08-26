@@ -1,0 +1,6 @@
+# Extend the main pyproject.toml configuration if needed, or use as standalone.
+# For this project, we use [tool.ruff] in pyproject.toml, but this file
+# ensures ruff can be invoked directly with specific overrides if necessary.
+extend = "pyproject.toml"
+line-length = 88
+target-version = "py39"

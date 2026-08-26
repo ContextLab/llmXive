@@ -58,8 +58,8 @@
 
 - [ ] T004 Create `contracts/dataset.schema.yaml` defining required columns (power, speed, hatch, thickness, porosity) and types
 - [X] T005 [P] Implement `code/utils.py` with helper functions for logging, seed setting, and state hash updating
-- [ ] T006 [P] Setup `code/` directory structure with `__init__.py` and placeholder files for data, models, and results
-- [ ] T007 Create `state/` directory and initial `state.yaml` for artifact versioning
+- [ ] T006 [P] Setup `code/` directory structure with `__init__.py` and placeholder files for data, models, and results <!-- FAILED: unspecified -->
+- [X] T007 Create `state/` directory and initial `state.yaml` for artifact versioning
 - [ ] T008 Configure environment configuration management (`.env` example and loading logic in `utils.py`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -75,18 +75,18 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/download_data.py` to fetch the verified 316L LPBF dataset from Zenodo (ID: - placeholder for actual ID, use specific URL like `), verify material type is 316L, and save to `data/raw/`.
-- [ ] T013 [US1] Implement `code/download_data.py` checksum logic (SHA-256) and update `state.yaml` after download.
+- [X] T013 [US1] Implement `code/download_data.py` checksum logic (SHA-256) and update `state.yaml` after download.
 - [X] T014 [US1] Implement `code/preprocess.py` to load raw data, map column synonyms (e.g., "P" -> "laser_power"), and implement fallback logic: FIRST check if a 'VolumetricEnergyDensity' (or similar) column exists; if present, use it. If not, check raw parameters; filter rows where scan_speed <= 0, hatch_spacing <= 0, or layer_thickness <= 0. Assign sentinel value -1.0 for missing raw parameters if Ev is used.
 - [X] T015 [US1] Implement `code/preprocess.py` to detect "Degenerate Dataset" (zero porosity variance). If detected, raise a specific "Degenerate Dataset" error and halt execution (do not filter).
 - [X] T016 [US1] Implement `code/preprocess.py` to normalize input features (power, speed, hatch, thickness) to [0, 1] and calculate `VolumetricEnergyDensity` for valid rows where raw parameters are available.
-- [~] T017 [US1] Implement `code/preprocess.py` contract validation step: Load `contracts/dataset.schema.yaml` and exit if validation fails.
-- [ ] T018 [US1] Save final processed dataset to `data/processed/cleaned_316L.csv` and update `state.yaml` with the new hash.
+- [ ] T017 [US1] Implement `code/preprocess.py` contract validation step: Load `contracts/dataset.schema.yaml` and exit if validation fails.
+- [X] T018 [US1] Save final processed dataset to `data/processed/cleaned_316L.csv` and update `state.yaml` with the new hash.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Contract tests ensure data integrity before modeling. These tasks depend on implementation tasks and CANNOT run in parallel with them.
 
-- [~] T009 [US1] Contract test: Validate `data/processed/cleaned_316L.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_dataset_schema.py` (Depends on T018)
+- [ ] T009 [US1] Contract test: Validate `data/processed/cleaned_316L.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_dataset_schema.py` (Depends on T018)
 - [X] T010 [US1] Unit test: Verify median imputation logic with synthetic missing data in `tests/unit/test_preprocessing.py` (Depends on T014)
 - [X] T011 [US1] Unit test: Verify normalization scaling to [0, 1] range in `tests/unit/test_preprocessing.py` (Depends on T016) <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 17:
@@ -105,19 +105,19 @@
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `code/train_models.py` to load `data/processed/cleaned_316L.csv` (Depends on T018), split into features (X) and target (y).
+- [X] T021 [US2] Implement `code/train_models.py` to load `data/processed/cleaned_316L.csv` (Depends on T018), split into features (X) and target (y).
 - [X] T022 [US2] Implement `code/train_models.py` to train a Gradient Boosting Regressor using 5-fold CV, ensuring no GPU usage.
 - [X] T023 [US2] Implement `code/train_models.py` to train a Multi-Layer Perceptron (MLP) Regressor using 5-fold CV, ensuring CPU-only execution and fixed seed.
 - [X] T024 [US2] Implement `code/train_models.py` to compute RMSE and R² for each of the 5 folds and the aggregate mean performance.
-- [~] T025 [US2] Save trained Gradient Boosting and MLP models to `models/artifacts/` (`.pkl` format).
-- [ ] T026 [US2] Save performance metrics (RMSE, R² per fold, mean) to `results/reports/model_metrics.json`.
-- [~] T027 [US2] Update `state.yaml` with hashes of model artifacts and metrics report.
-- [ ] T027b [US2] Verify SC-001: Explicitly compute a dummy regressor baseline (e.g., `DummyRegressor` with strategy='mean') on the same 5-fold CV splits, compare the best model's mean R² against the dummy baseline, and log the result (PASS/FAIL) in `results/reports/model_metrics.json`.
+- [ ] T025 [US2] Save trained Gradient Boosting and MLP models to `models/artifacts/` (`.pkl` format).
+- [X] T026 [US2] Save performance metrics (RMSE, R² per fold, mean) to `results/reports/model_metrics.json`.
+- [X] T027 [US2] Update `state.yaml` with hashes of model artifacts and metrics report.
+- [X] T027b [US2] Verify SC-001: Explicitly compute a dummy regressor baseline (e.g., `DummyRegressor` with strategy='mean') on the same 5-fold CV splits, compare the best model's mean R² against the dummy baseline, and log the result (PASS/FAIL) in `results/reports/model_metrics.json`.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T019 [P] [US2] Unit test: Verify 5-fold CV splits are reproducible with fixed seed in `tests/unit/test_training.py`
-- [ ] T020 [P] [US2] Unit test: Verify CPU-only execution constraint (no CUDA device assignment) in `tests/unit/test_training.py`
+- [X] T020 [P] [US2] Unit test: Verify CPU-only execution constraint (no CUDA device assignment) in `tests/unit/test_training.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (models trained and evaluated).
 
@@ -131,14 +131,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/analyze_explainability.py` to load the best performing model (from `models/artifacts/`) (Depends on T025) and the processed dataset.
-- [ ] T031 [US3] Implement `code/analyze_explainability.py` to calculate SHAP values and generate a summary plot saved to `results/plots/shap_summary.png`.
-- [ ] T032 [US3] Implement `code/analyze_explainability.py` to perform Permutation Importance with exactly 1,000 permutations to determine feature significance.
-- [ ] T033b [US3] Implement `code/analyze_explainability.py` to perform bootstrap resampling with exactly 1,000 iterations to calculate 95% Bootstrap Confidence Intervals for SHAP values.
-- [ ] T033 [US3] Implement `code/analyze_explainability.py` to calculate p-values from the bootstrap distribution and identify statistically significant parameters (p < 0.05).
-- [ ] T034 [US3] Ensure `code/analyze_explainability.py` does NOT use both raw parameters and Volumetric Energy Density simultaneously as inputs (avoid multicollinearity).
+- [X] T030 [US3] Implement `code/analyze_explainability.py` to load the best performing model (from `models/artifacts/`) (Depends on T025) and the processed dataset. <!-- ATOMIZE: requested -->
+- [X] T031 [US3] Implement `code/analyze_explainability.py` to calculate SHAP values and generate a summary plot saved to `results/plots/shap_summary.png`.
+- [X] T032 [US3] Implement `code/analyze_explainability.py` to perform Permutation Importance with exactly 1,000 permutations to determine feature significance.
+- [X] T033b [US3] Implement `code/analyze_explainability.py` to perform bootstrap resampling with exactly 1,000 iterations to calculate 95% Bootstrap Confidence Intervals for SHAP values.
+- [X] T033 [US3] Implement `code/analyze_explainability.py` to calculate p-values from the bootstrap distribution and identify statistically significant parameters (p < 0.05).
+- [X] T034 [US3] Ensure `code/analyze_explainability.py` does NOT use both raw parameters and Volumetric Energy Density simultaneously as inputs (avoid multicollinearity).
 - [ ] T035 [US3] Save statistical significance report (feature importance, p-values, CIs) to `results/reports/significance_report.json`.
-- [ ] T036 [US3] Update `state.yaml` with hashes of plots and statistical reports.
+- [X] T036 [US3] Update `state.yaml` with hashes of plots and statistical reports.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 

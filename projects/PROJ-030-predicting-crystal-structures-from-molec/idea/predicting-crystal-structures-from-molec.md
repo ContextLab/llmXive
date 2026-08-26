@@ -9,35 +9,80 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can machine learning models trained on molecular fingerprints accurately predict crystallographic parameters (lattice parameters and space group) from molecular structure alone, bypassing explicit quantum mechanical calculations?
+To what extent does molecular structure alone determine crystallographic parameters (lattice parameters and space group), and which molecular features carry the most predictive signal for solid-state packing?
 
 ## Motivation
 
-Crystal structure prediction is a bottleneck in materials discovery due to the high computational cost of density functional theory (DFT) or molecular dynamics simulations. If molecular fingerprints—cheap to compute—can serve as effective proxies for crystal packing information, this would enable rapid screening of candidate molecules for specific material properties. This project addresses the gap in understanding the information content of standard chemical descriptors regarding solid-state arrangements.
+Crystal structure prediction is a major bottleneck in materials discovery, typically requiring expensive quantum mechanical calculations like density functional theory (DFT). If standard molecular fingerprints can capture sufficient information about intermolecular forces to predict solid-state packing, it would enable rapid, low-cost screening of vast chemical spaces. This project addresses the fundamental gap in understanding how much 3D crystallographic information is encoded in 2D topological descriptors.
 
 ## Related work
 
-- [Open Babel: An open chemical toolbox (2011)](https://doi.org/10.1186/1758-2946-3-33) — Provides the open-source software infrastructure required to convert molecular structures into the fingerprints necessary for model training.
-- [Crystal Structure and Chemistry of Topological Insulators (2013)](http://arxiv.org/abs/1302.1059v1) — Illustrates the critical dependence of electronic and physical properties on precise crystal structure definitions, motivating the need for accurate prediction.
-- [Aromatics and Cyclic Molecules in Molecular Clouds: A New Dimension of Interstellar Organic Chemistry (2021)](http://arxiv.org/abs/2103.09608v1) — Demonstrates the utility of molecular representations in identifying complex chemical systems, though applied in an astrochemical context rather than solid-state prediction.
+- [Crystal structure prediction using the Minima Hopping method (2010)](https://arxiv.org/abs/1007.2003) — Establishes the standard computational baseline for crystal structure prediction using global optimization, highlighting the high cost that this project aims to bypass.
+- [Crystal Growth of a New 8H Perovskite Sr8Os6.3O24 Exhibiting High TC Ferromagnetism (2021)](https://arxiv.org/abs/2103.06305) — Demonstrates the critical link between specific crystal structures and emergent functional properties, motivating the need for accurate, efficient structure prediction methods.
+- [DOME: Recommendations for supervised machine learning validation in biology (2020)](https://arxiv.org/abs/2006.16189) — Provides a rigorous framework for validating machine learning models in scientific domains, guiding the design of robust evaluation metrics and preventing overfitting in this chemistry context.
 
 ## Expected results
 
-We expect to find that specific fingerprint types (e.g., ECFP) correlate with space group symmetry classes better than others, achieving moderate classification accuracy (e.g., >60% on top-3 predictions). The regression of lattice parameters will show higher error margins, confirming that global molecular topology captures symmetry better than precise geometric dimensions without explicit 3D coordinates.
+We expect to find that molecular fingerprints (specifically ECFP4) contain significant predictive signal for space group symmetry classes but struggle with precise lattice parameter regression due to the loss of 3D geometric information. The study will identify specific molecular substructures (e.g., hydrogen bond donors, aromatic rings) that correlate strongly with specific packing motifs, providing interpretable insights into structure-property relationships.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the organic subset of the Crystallography Open Database (COD) via `wget` from https://www.crystallography.net/cod/ (filter for CIF files < 500MB total to fit 14GB SSD).
-- **Feature Engineering**: Use Open Babel (referencing the provided literature) to parse CIF files into SMILES and generate 2048-bit ECFP4 fingerprints.
-- **Data Splitting**: Randomly split the dataset into 80% training and 20% testing, ensuring no molecular scaffold leakage between sets.
-- **Model Training**: Train scikit-learn Random Forest and Gradient Boosting classifiers for space group prediction on the GitHub Actions runner (CPU-only, 7GB RAM limit).
-- **Hyperparameter Tuning**: Perform a grid search over 5 tree depths and 3 estimator counts, limiting runtime to 2 hours per fold.
-- **Regression Task**: Train Ridge Regression models to predict unit cell volume and lattice parameters from fingerprints.
-- **Statistical Validation**: Evaluate classification using Accuracy and F1-score; evaluate regression using R-squared and Mean Absolute Error (MAE).
-- **Feasibility Check**: If training exceeds 6 hours, reduce dataset size to 10,000 random samples to ensure completion within the GHA job limit.
+- **Data Acquisition**: Download the organic subset of the Crystallography Open Database (COD) via `wget` (filtering for CIF files < 500MB total to fit the 14GB SSD constraint).
+- **Feature Engineering**: Use Open Babel to parse CIF files, extract canonical SMILES, and generate 2048-bit ECFP4 fingerprints; simultaneously extract ground-truth lattice parameters and space groups.
+- **Data Splitting**: Perform a scaffold-based split (80% train, 20% test) using the Bemis-Murcko scaffold algorithm to ensure no molecular scaffolds leak between training and testing sets.
+- **Model Training**: Train scikit-learn Random Forest and Gradient Boosting classifiers for space group prediction and Ridge Regression models for lattice parameter volume on the CPU-only GitHub Actions runner.
+- **Feature Importance Analysis**: Utilize permutation importance and SHAP values to identify which fingerprint bits (molecular substructures) contribute most to prediction accuracy.
+- **Statistical Validation**: Evaluate classification using Accuracy and F1-score (macro-averaged); evaluate regression using R-squared and Mean Absolute Error (MAE).
+- **Independence Check**: Ensure validation targets (crystallographic parameters) are measured independently from the input fingerprints (2D topology), as the fingerprints are derived solely from molecular connectivity while the targets are derived from 3D X-ray diffraction data.
+- **Feasibility Check**: If training exceeds 6 hours, reduce the dataset to 10,000 random samples or limit the number of trees in the ensemble to ensure completion within the GHA job limit.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in input context.
 - Closest match: N/A (No prior ideas submitted in this session).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-26T16:20:48Z
+**Outcome**: success_after_expansion
+**Original term**: Predicting Crystal Structures from Molecular Fingerprints chemistry
+**Verified citation count**: 8
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting Crystal Structures from Molecular Fingerprints chemistry | 0 |
+| 1 | crystal structure prediction from molecular descriptors | 2 |
+| 2 | machine learning crystal structure prediction | 5 |
+| 3 | molecular fingerprint to crystal lattice mapping | 0 |
+| 4 | data-driven crystal structure prediction | 0 |
+| 5 | QSAR models for polymorph prediction | 0 |
+| 6 | crystal structure prediction using molecular representations | 0 |
+| 7 | deep learning for crystal structure determination | 0 |
+| 8 | molecular graph neural networks for crystal prediction | 0 |
+| 9 | predicting polymorph stability from molecular features | 0 |
+| 10 | structure-property relationships in crystallography | 0 |
+| 11 | computational crystal structure prediction algorithms | 0 |
+| 12 | molecular encoding for crystal phase prediction | 0 |
+| 13 | supervised learning for crystal structure classification | 0 |
+| 14 | inverse crystal structure design from molecular properties | 0 |
+| 15 | molecular similarity and crystal packing prediction | 0 |
+| 16 | crystal structure prediction using random forests | 0 |
+| 17 | generative models for crystal structure prediction | 0 |
+| 18 | feature-based crystal structure prediction | 0 |
+| 19 | molecular descriptor analysis for solid-state properties | 0 |
+| 20 | automated crystal structure prediction from chemical formulas | 0 |
+
+### Verified citations
+
+1. **Crystal Structure and Chemistry of Topological Insulators** (2013). R. J. Cava, Huiwen Ji, M. K. Fuccillo, Q. D. Gibson, Y. S. Hor. arXiv. [1302.1059](https://arxiv.org/abs/1302.1059). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+2. **Crystal structure prediction using the Minima Hopping method** (2010). Maximilian Amsler, Stefan Goedecker. arXiv. [1007.2003](https://arxiv.org/abs/1007.2003). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+3. **Crystal Growth of a New 8H Perovskite Sr8Os6.3O24 Exhibiting High TC Ferromagnetism** (2021). Gohil S. Thakur, Thomas Doert, Shrikant Mohitkar, Walter Schnelle, Claudia Felser, et al.. arXiv. [2103.06305](https://arxiv.org/abs/2103.06305). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+4. **Changing Data Sources in the Age of Machine Learning for Official Statistics** (2023). Cedric De Boom, Michael Reusens. arXiv. [2306.04338](https://arxiv.org/abs/2306.04338). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+5. **DOME: Recommendations for supervised machine learning validation in biology** (2020). Ian Walsh, Dmytro Fishman, Dario Garcia-Gasulla, Tiina Titma, Gianluca Pollastri, et al.. arXiv. [2006.16189](https://arxiv.org/abs/2006.16189). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+6. **Learning Curves for Decision Making in Supervised Machine Learning: A Survey** (2022). Felix Mohr, Jan N. van Rijn. arXiv. [2201.12150](https://arxiv.org/abs/2201.12150). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+7. **Active learning for data streams: a survey** (2023). Davide Cacciarelli, Murat Kulahci. arXiv. [2302.08893](https://arxiv.org/abs/2302.08893). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+8. **Privacy-preserving machine learning for healthcare: open challenges and future perspectives** (2023). Alejandro Guerra-Manzanares, L. Julian Lechuga Lopez, Michail Maniatakos, Farah E. Shamout. arXiv. [2303.15563](https://arxiv.org/abs/2303.15563). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*

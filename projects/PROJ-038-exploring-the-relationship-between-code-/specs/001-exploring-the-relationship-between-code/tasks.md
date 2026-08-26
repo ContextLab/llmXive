@@ -28,7 +28,7 @@
 - [ ] T000b [S] Process the Amendment Request (AMEND-001-STATS). This task simulates the ratification workflow by updating `constitution.md` or `spec.md` to reflect the approved deviation, unblocking statistical tasks. **Prerequisite**: T000a. **Deliverable**: Updated `constitution.md` or `spec.md` with ratified amendment.
 - [ ] T001a [P] Create project directory structure: `code/`, `code/src/`, `code/tests/`, `code/data/raw/`, `code/data/processed/`, `code/data/results/`, `specs/001-exploring-the-relationship-between-code/`.
 - [X] T001b [P] Create empty skeleton files: `code/src/__init__.py`, `code/tests/__init__.py`, `code/run_pipeline.sh`, `code/requirements.txt`, `code/pyproject.toml`.
-- [ ] T001c [P] Initialize Python 3.11 virtual environment. <!-- FAILED: unspecified -->
+- [ ] T001c [P] Initialize Python 3.11 virtual environment. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [X] T002a [P] Create `code/requirements.txt` with pinned versions: `pandas==2.1.0`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `tree-sitter==0.20.0`, `tree-sitter-java==0.20.0`, `pytest==7.4.0`. (Note: `defects4j` CLI and PMD are installed separately in T002c/T002d and are NOT included in this file as they are system tools).
 - [X] T002b [P] Configure `code/pyproject.toml` with project metadata, entry points for scripts, and dependency groups.
 - [X] T002c [P] Create `code/setup_cli.sh` script to install `defects4j` CLI tool via `apt` or `wget`, verifying availability via `defects4j --version`. **[FR-001]**
@@ -68,19 +68,19 @@
 - [ ] T014b [US1] Implement Python wrapper script for PMD CLI integration to calculate Cyclomatic Complexity for every Java file. **Exact CLI**: `pmd -f xml -d <dir> -rulesets rulesets/java/complexity.xml` (PMD v7.0.0). Parse `<violation>` tags. Validate that files parse without syntax errors before proceeding. **[FR-002]** **Depends on T013.**
 - [ ] T014c [US1] Implement Python wrapper script for the custom JavaParser-based script (`code/src/metrics/halstead_calc.py`) to calculate Halstead Volume for every Java file. **Build**: `javac code/src/metrics/halstead_calc.java`. **Run**: `java -jar code/src/metrics/halstead_calc.jar <file>`. Parse output for Halstead metrics. Validate that files parse without syntax errors before proceeding. **[FR-002]** **Depends on T013.**
 - [ ] T015 [US1] Implement `code/src/labeling.py` logic to cross-reference commits with file changes to set `is_buggy` flag. **Input**: Defects4J commit hash. **Output**: binary label. **Logic**: Map bug-introduction commits to file-level labels. **[FR-003]**
-- [ ] T016 [US1] Implement exclusion logic in `code/src/ingest.py` for generated code/non-Java files with logging. **[FR-001]**
+- [X] T016 [US1] Implement exclusion logic in `code/src/ingest.py` for generated code/non-Java files with logging. **[FR-001]**
 - [ ] T018 [US1] Add validation step to ensure no NaN values in metric columns before saving CSV. **This step MUST run before T017 to ensure the final artifact meets the acceptance criteria.** **[FR-001]**
-- [ ] T017 [US1] Generate `code/data/processed/features.csv` with columns: `file_path`, `cc`, `halstead`, `loc`, `is_buggy`. **[FR-001]**
-- [ ] T019 [US1] Implement memory monitoring in `code/src/ingest.py` and `code/src/metrics.py` to log current RAM usage every 100 files, ensuring the process stays within the memory limit and fails gracefully if exceeded. **[SC-005]**
+- [X] T017 [US1] Generate `code/data/processed/features.csv` with columns: `file_path`, `cc`, `halstead`, `loc`, `is_buggy`. **[FR-001]**
+- [X] T019 [US1] Implement memory monitoring in `code/src/ingest.py` and `code/src/metrics.py` to log current RAM usage every 100 files, ensuring the process stays within the memory limit and fails gracefully if exceeded. **[SC-005]**
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Write these tests AFTER implementation to verify the logic
 
-- [ ] T010a [P] [US1] Unit test `test_cc_returns_int` in `code/tests/test_metrics.py` (mock Java file input).
-- [ ] T010b [P] [US1] Unit test `test_halstead_returns_float` in `code/tests/test_metrics.py` (mock Java file input).
-- [ ] T011a [P] [US1] Unit test `test_labeling_maps_commit_to_1` in `code/tests/test_labeling.py` (verify bug-introduction commit mapping).
-- [ ] T012a [P] [US1] Integration test `test_pipeline_shape` in `code/tests/test_pipeline.py` (verify `features.csv` shape and content).
+- [X] T010a [P] [US1] Unit test `test_cc_returns_int` in `code/tests/test_metrics.py` (mock Java file input).
+- [X] T010b [P] [US1] Unit test `test_halstead_returns_float` in `code/tests/test_metrics.py` (mock Java file input).
+- [X] T011a [P] [US1] Unit test `test_labeling_maps_commit_to_1` in `code/tests/test_labeling.py` (verify bug-introduction commit mapping).
+- [X] T012a [P] [US1] Integration test `test_pipeline_shape` in `code/tests/test_pipeline.py` (verify `features.csv` shape and content).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,8 +94,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/src/analysis.py` to compute Point-Biserial and Spearman correlations with p-values. **[FR-004]**
-- [ ] T022 [US2] Implement `code/src/modeling.py` to train Logistic Regression with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score. **[FR-005]**
+- [X] T021 [P] [US2] Implement `code/src/analysis.py` to compute Point-Biserial and Spearman correlations with p-values. **[FR-004]**
+- [X] T022 [US2] Implement `code/src/modeling.py` to train Logistic Regression with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score. **[FR-005]**
 - [ ] T023 [US2] Implement `code/src/modeling.py` to train Random Forest with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score. **[FR-005]**
 - [ ] T023a [US2] Implement `code/src/modeling.py` to train a 'Full Metric Set' Random Forest model specifically for the comparison in FR-006, ensuring it uses the same folds as the 'Single Best' model. **[FR-005]**
 - [ ] T024 [US2] Implement aggregation logic to calculate mean ROC-AUC and F-score with standard deviation across multiple folds. **Formula**: Calculate mean per fold, then average across the 10 repeats, then report the grand mean and standard deviation of the 10 repeat-means. **Deliverable**: Generate `code/data/results/baseline_metrics.json`. **[FR-005]** **[SC-002]**

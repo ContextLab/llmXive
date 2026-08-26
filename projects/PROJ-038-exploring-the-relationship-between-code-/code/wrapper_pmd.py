@@ -2,317 +2,251 @@ import os
 import sys
 import json
 import argparse
+import logging
 import subprocess
 import tempfile
-import logging
-import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 def get_pmd_path() -> str:
     """
-    Retrieve the PMD binary path from environment variable or default.
+    Retrieve the PMD binary path from environment or default locations.
     Raises FileNotFoundError if PMD is not found.
     """
-    pmd_path = os.environ.get('PMD_PATH', 'pmd')
-    if not shutil.which(pmd_path):
-        # Try common locations if not in PATH
-        candidates = [
-            '/usr/local/bin/pmd',
-            '/opt/pmd/bin/pmd',
-            os.path.expanduser('~/.local/bin/pmd')
-        ]
-        for candidate in candidates:
-            if os.path.exists(candidate):
-                pmd_path = candidate
-                break
+    pmd_path = os.environ.get('PMD_PATH')
+    if pmd_path:
+        if not os.path.exists(pmd_path):
+            raise FileNotFoundError(f"PMD binary not found at specified path: {pmd_path}")
+        return pmd_path
+    
+    # Default locations to search
+    default_paths = [
+        '/usr/bin/pmd',
+        '/usr/local/bin/pmd',
+        '/opt/pmd/bin/pmd',
+        'pmd' # relies on PATH
+    ]
+    
+    for path in default_paths:
+        if os.path.exists(path) or shutil.which(path):
+            return path
+    
+    raise FileNotFoundError(
+        "PMD binary not found. Please install PMD or set the PMD_PATH environment variable."
+    )
+
+def load_file_list(file_paths: List[str]) -> List[Path]:
+    """
+    Load and validate a list of file paths.
+    Returns a list of Path objects for existing Java files.
+    """
+    valid_files = []
+    for fp in file_paths:
+        path = Path(fp)
+        if path.exists() and path.suffix == '.java':
+            valid_files.append(path)
         else:
-            raise FileNotFoundError(
-                f"PMD binary not found. Please set PMD_PATH environment variable "
-                f"or ensure 'pmd' is in your PATH."
-            )
-    return pmd_path
+            logger.warning(f"Skipping invalid or non-Java file: {fp}")
+    return valid_files
 
-def load_file_list(file_list_path: str) -> List[str]:
+def validate_java_syntax(file_path: Path) -> bool:
     """
-    Load a list of file paths from a JSON or text file.
-    Supports both JSON arrays and newline-delimited text files.
+    Validate that a Java file parses without syntax errors using PMD.
+    This acts as a pre-check before calculating complexity.
+    Returns True if valid, False otherwise.
     """
-    path = Path(file_list_path)
-    if not path.exists():
-        raise FileNotFoundError(f"File list not found: {file_list_path}")
+    pmd_cmd = [
+        get_pmd_path(),
+        'check',
+        '-f', 'text',
+        '-R', 'rulesets/java/quickstart.xml', # Quick check rule set
+        str(file_path)
+    ]
+    
+    try:
+        result = subprocess.run(
+            pmd_cmd,
+            capture_output=True,
+            text=True,
+            timeout=30 # Timeout for single file validation
+        )
+        # If return code is 0, no violations (including syntax errors) found
+        # If return code is 1, violations found (might be syntax or style)
+        # If return code is 2, error occurred (e.g., parse error)
+        if result.returncode == 2:
+            logger.error(f"Syntax error in {file_path}: {result.stderr}")
+            return False
+        return True
+    except subprocess.TimeoutExpired:
+        logger.error(f"Timeout validating syntax for {file_path}")
+        return False
+    except Exception as e:
+        logger.error(f"Error validating syntax for {file_path}: {e}")
+        return False
 
-    if path.suffix == '.json':
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            if isinstance(data, list):
-                return data
-            elif isinstance(data, dict) and 'files' in data:
-                return data['files']
-            else:
-                raise ValueError(f"Invalid JSON structure in {file_list_path}")
-    else:
-        # Assume text file with one path per line
-        with open(path, 'r', encoding='utf-8') as f:
-            return [line.strip() for line in f if line.strip() and not line.startswith('#')]
-
-def save_results(results: List[Dict[str, Any]], output_path: str) -> None:
-    """
-    Save results to a JSON file.
-    """
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {output_path}")
-
-def calculate_cc_single_file(file_path: str, pmd_bin: str) -> Optional[int]:
+def calculate_cc_single_file(file_path: Path) -> Optional[int]:
     """
     Calculate Cyclomatic Complexity for a single Java file using PMD CLI.
     
-    Args:
-        file_path: Path to the Java file
-        pmd_bin: Path to PMD binary
-        
-    Returns:
-        Cyclomatic Complexity value (int) or None if parsing fails
-        
-    Raises:
-        subprocess.CalledProcessError: If PMD command fails
-        ValueError: If file cannot be parsed by PMD
+    Exact CLI: pmd -f xml -d <dir> -rulesets rulesets/java/complexity.xml
+    We adapt this to run on a single file by passing the file path as the directory 
+    or using the 'check' command with specific rules.
+    
+    Since PMD 7.0.0 'check' is the primary command, we use:
+    pmd check -f xml -R rulesets/java/complexity.xml <file>
+    
+    Parses <violation> tags for CyclomaticComplexity.
     """
-    # Validate file exists and is Java
-    if not os.path.isfile(file_path):
-        logger.warning(f"File not found: {file_path}")
-        return None
-        
-    if not file_path.endswith('.java'):
-        logger.warning(f"Not a Java file: {file_path}")
-        return None
-
+    pmd_path = get_pmd_path()
+    ruleset = 'rulesets/java/complexity.xml'
+    
+    # Construct command
+    # Note: For single file, we can pass the file directly to 'check'
+    cmd = [
+        pmd_path,
+        'check',
+        '-f', 'xml',
+        '-R', ruleset,
+        str(file_path)
+    ]
+    
     try:
-        # Run PMD CLI to get XML output
-        # Using ruleset for complexity: rulesets/java/complexity.xml
-        cmd = [
-            pmd_bin,
-            '-f', 'xml',
-            '-d', file_path,
-            '-R', 'rulesets/java/complexity.xml',
-            '-no-cache'
-        ]
-        
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=60,
-            check=True
+            timeout=60
         )
         
+        if result.returncode not in (0, 1):
+            # Return code 2 usually indicates a parse error or internal error
+            logger.warning(f"PMD execution failed for {file_path}: {result.stderr}")
+            return None
+
         # Parse XML output
-        xml_output = result.stdout
+        # We need to find <violation ... rule="CyclomaticComplexity" ...>
+        import xml.etree.ElementTree as ET
         
-        # Check for parsing errors in PMD output
-        if 'error' in xml_output.lower() and 'parse' in xml_output.lower():
-            logger.warning(f"PMD parse error for {file_path}")
-            return None
-            
-        # Parse XML to find Cyclomatic Complexity violations
         try:
-            root = ET.fromstring(xml_output)
+            root = ET.fromstring(result.stdout)
         except ET.ParseError:
-            logger.warning(f"Invalid XML output from PMD for {file_path}")
+            logger.warning(f"Failed to parse PMD XML output for {file_path}")
             return None
-            
-        # Look for CyclomaticComplexity violations
-        # PMD v7+ uses different structure, but we'll handle both
+        
+        # PMD XML structure: <pmd> ... <file> ... <violation> ... </file> ... </pmd>
+        # We look for violations with rule name "CyclomaticComplexity"
         cc_value = None
         
-        # Search for violations with rule name containing 'CyclomaticComplexity'
         for violation in root.iter('violation'):
-            rule = violation.get('rule', '')
-            if 'CyclomaticComplexity' in rule or 'cyclomatic' in rule.lower():
-                # Extract the complexity value from attributes
-                # PMD usually includes 'violation' text or attributes with the value
-                msg = violation.text or ''
-                
-                # Try to extract number from message like "CyclomaticComplexity=5"
+            if violation.get('rule') == 'CyclomaticComplexity':
+                # The value is often in the 'externalInfoUrl' or as text, 
+                # but PMD usually puts the metric value in the 'msg' attribute or as text content.
+                # In PMD 7, the complexity value is often in the 'msg' attribute or as text.
+                # Let's check the text content or attributes.
+                msg = violation.get('msg', '')
+                # Example msg: "CyclomaticComplexity is 15"
+                # We need to extract the number.
                 import re
-                match = re.search(r'CyclomaticComplexity[=:]\s*(\d+)', msg)
+                match = re.search(r'\d+', msg)
                 if match:
-                    cc_value = int(match.group(1))
+                    cc_value = int(match.group())
                     break
-                    
-                # Alternative: check attributes
-                if 'complexity' in violation.attrib:
-                    try:
-                        cc_value = int(violation.attrib['complexity'])
-                        break
-                    except (ValueError, TypeError):
-                        pass
+                
+                # Fallback: check if the value is in the element text
+                if violation.text and violation.text.strip().isdigit():
+                    cc_value = int(violation.text.strip())
+                    break
         
-        # If no violation found, complexity might be 1 (default for simple methods)
-        # But we need to be careful - PMD might not report if below threshold
-        # Default threshold is usually 10, so we might miss low complexity values
-        # For now, return None if not found to indicate "not measured"
-        if cc_value is None:
-            logger.debug(f"No CyclomaticComplexity violation found for {file_path}")
-            return None
-            
         return cc_value
-        
-    except subprocess.TimeoutExpired:
-        logger.error(f"PMD timeout for file: {file_path}")
-        raise
-    except subprocess.CalledProcessError as e:
-        logger.error(f"PMD failed for {file_path}: {e.stderr}")
-        # Check if it's a parse error vs other error
-        if 'parse' in e.stderr.lower() or 'syntax' in e.stderr.lower():
-            logger.warning(f"Parse error for {file_path}, skipping")
-            return None
-        raise
 
-def calculate_cc_batch(file_list: List[str], pmd_bin: str, batch_size: int = 50) -> List[Dict[str, Any]]:
+    except subprocess.TimeoutExpired:
+        logger.error(f"Timeout calculating CC for {file_path}")
+        return None
+    except Exception as e:
+        logger.error(f"Error calculating CC for {file_path}: {e}")
+        return None
+
+def calculate_cc_batch(file_paths: List[Path]) -> Dict[str, int]:
     """
-    Calculate Cyclomatic Complexity for multiple files.
-    
-    Args:
-        file_list: List of Java file paths
-        pmd_bin: Path to PMD binary
-        batch_size: Number of files to process in each batch
+    Calculate Cyclomatic Complexity for a batch of Java files.
+    Returns a dictionary mapping file path (str) to CC (int).
+    """
+    results = {}
+    for file_path in file_paths:
+        # Validate syntax first
+        if not validate_java_syntax(file_path):
+            logger.warning(f"Skipping {file_path} due to syntax errors.")
+            continue
         
-    Returns:
-        List of dictionaries with file_path and cc values
-    """
-    results = []
-    failed = 0
+        cc = calculate_cc_single_file(file_path)
+        if cc is not None:
+            results[str(file_path)] = cc
+        else:
+            logger.warning(f"Could not calculate CC for {file_path}")
     
-    for i, file_path in enumerate(file_list):
-        if (i + 1) % 100 == 0:
-            logger.info(f"Processing file {i + 1}/{len(file_list)}")
-            
-        try:
-            cc = calculate_cc_single_file(file_path, pmd_bin)
-            results.append({
-                'file_path': file_path,
-                'cc': cc,
-                'status': 'success' if cc is not None else 'no_violation'
-            })
-        except Exception as e:
-            logger.error(f"Error processing {file_path}: {str(e)}")
-            results.append({
-                'file_path': file_path,
-                'cc': None,
-                'status': 'error',
-                'error': str(e)
-            })
-            failed += 1
-            
-    logger.info(f"Batch complete: {len(results)} files processed, {failed} errors")
     return results
 
-def calculate_cc_for_directory(dir_path: str, pmd_bin: str, output_path: str) -> None:
+def calculate_cc_for_directory(directory: Path, output_file: Optional[Path] = None) -> Dict[str, int]:
     """
-    Calculate Cyclomatic Complexity for all Java files in a directory.
-    
-    Args:
-        dir_path: Directory to scan for Java files
-        pmd_bin: Path to PMD binary
-        output_path: Path to save results JSON
+    Traverse a directory, find all Java files, and calculate CC.
+    If output_file is provided, saves results as JSON.
     """
-    dir_path = Path(dir_path)
-    if not dir_path.exists():
-        raise FileNotFoundError(f"Directory not found: {dir_path}")
-        
-    # Find all Java files
-    java_files = list(dir_path.rglob('*.java'))
-    logger.info(f"Found {len(java_files)} Java files in {dir_path}")
+    java_files = list(directory.rglob('*.java'))
+    logger.info(f"Found {len(java_files)} Java files in {directory}")
     
-    if not java_files:
-        logger.warning("No Java files found in directory")
-        save_results([], output_path)
-        return
-        
-    # Process files
-    results = calculate_cc_batch(
-        [str(f) for f in java_files],
-        pmd_bin,
-        batch_size=50
-    )
+    results = calculate_cc_batch(java_files)
     
-    # Save results
-    save_results(results, output_path)
+    if output_file:
+        with open(output_file, 'w') as f:
+            json.dump(results, f, indent=2)
+        logger.info(f"Results saved to {output_file}")
+    
+    return results
+
+def save_results(results: Dict[str, int], output_path: str) -> None:
+    """
+    Save results to a JSON file.
+    """
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Results saved to {output_path}")
 
 def main():
-    """Main entry point for PMD wrapper script."""
-    parser = argparse.ArgumentParser(
-        description='Calculate Cyclomatic Complexity for Java files using PMD'
-    )
-    parser.add_argument(
-        '--input', '-i',
-        required=True,
-        help='Input: JSON file with file list OR directory path'
-    )
-    parser.add_argument(
-        '--output', '-o',
-        required=True,
-        help='Output JSON file path for results'
-    )
-    parser.add_argument(
-        '--pmd-path',
-        default=None,
-        help='Path to PMD binary (default: use PMD_PATH env or PATH)'
-    )
-    parser.add_argument(
-        '--verbose', '-v',
-        action='store_true',
-        help='Enable verbose logging'
-    )
+    parser = argparse.ArgumentParser(description='Calculate Cyclomatic Complexity using PMD')
+    parser.add_argument('--input', type=str, required=True, help='Input file or directory path')
+    parser.add_argument('--output', type=str, required=True, help='Output JSON file path')
+    parser.add_argument('--validate', action='store_true', help='Validate Java syntax before calculation')
     
     args = parser.parse_args()
     
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+    input_path = Path(args.input)
+    
+    if input_path.is_file():
+        if input_path.suffix != '.java':
+            logger.error("Input file must be a .java file")
+            sys.exit(1)
         
-    try:
-        # Determine PMD path
-        pmd_bin = args.pmd_path if args.pmd_path else get_pmd_path()
-        logger.info(f"Using PMD binary: {pmd_bin}")
+        if args.validate and not validate_java_syntax(input_path):
+            logger.error("Input file has syntax errors")
+            sys.exit(1)
         
-        # Check if input is a file list or directory
-        input_path = Path(args.input)
-        if input_path.is_file():
-            # Load file list
-            file_list = load_file_list(args.input)
-            logger.info(f"Loaded {len(file_list)} files from {args.input}")
-            
-            # Process batch
-            results = calculate_cc_batch(file_list, pmd_bin)
-            save_results(results, args.output)
-            
-        elif input_path.is_dir():
-            # Process directory
-            calculate_cc_for_directory(args.input, pmd_bin, args.output)
-            
-        else:
-            raise ValueError(f"Input must be a file or directory: {args.input}")
-            
-        logger.info("PMD wrapper completed successfully")
-        
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+        results = {str(input_path): calculate_cc_single_file(input_path)}
+    elif input_path.is_dir():
+        results = calculate_cc_for_directory(input_path, Path(args.output))
+    else:
+        logger.error("Input path does not exist")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+    
+    # Filter out None values if any
+    clean_results = {k: v for k, v in results.items() if v is not None}
+    save_results(clean_results, args.output)
 
 if __name__ == '__main__':
     main()
