@@ -3170,3 +3170,827 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T17:03:41Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: NOAA Global Summary is a verified direct CSV source
+  claim_id: c_6bcf74e2
+  context: '1. NOAA Global Summary (URL: `) - Verified direct CSV'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_Global_Summary_is_a_verified_direct_CSV_source
+  kind: entity_fact
+  raw_text: NOAA Global Summary is a verified direct CSV source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:29:25Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: UK National Grid Load is a verified direct CSV source
+  claim_id: c_d91f1dbf
+  context: '3. UK National Grid Load (URL: `https://www.nationalgrideso.com/document/174276/download`)
+    - Verified direct CSV'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UK_National_Grid_Load_is_a_verified_direct_CSV_source
+  kind: entity_fact
+  raw_text: UK National Grid Load is a verified direct CSV source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:30:08Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: UK National Grid Load dataset resampled to hourly frequency
+  claim_id: c_67e704c2
+  context: Add logic to resample ONLY the UK National Grid Load dataset to a consistent
+    frequency (hourly) before stationarity testing (US1-AC3).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UK_National_Grid_Load_dataset_resampled_to_hourly_frequency
+  kind: entity_fact
+  raw_text: The UK National Grid Load dataset is resampled to a consistent frequency
+    of hourly.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:30:29Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: 1000 shuffled versions generated per time series
+  claim_id: c_7276813a
+  context: Implement shuffling (permutation) logic in `src/data/preprocessing.py`
+    to generate and store NUM_NULL_PER_SERIES (1000) shuffled versions for every real
+    time series to create a null distribution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of shuffled versions generated for every time series is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:30:57Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic series generated with Hurst exponents 0.5, 0.7, 0.8, 0.9
+  claim_id: c_f4182e88
+  context: Implement `src/synthesis/generators.py` to generate fractional Gaussian
+    noise (fGn) or ARFIMA processes with Hurst exponents in the set `{0.5, 0.7, 0.8,
+    0.9}` and mean=0 (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic series are generated with Hurst exponents in the set {0.5, 0.7,
+    0.8, 0.9}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:31:22Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Mean of generated synthetic series is 0
+  claim_id: c_7faf3024
+  context: Implement `src/synthesis/generators.py` to generate fractional Gaussian
+    noise (fGn) or ARFIMA processes with Hurst exponents in the set `{0.5, 0.7, 0.8,
+    0.9}` and mean=0 (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean of generated synthetic series is 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:31:49Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: ARFIMA generation uses arch or statsmodels library
+  claim_id: c_2141ed0b
+  context: 'Constraint: Must use `arch` or `statsmodels` for ARFIMA generation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ARFIMA_generation_uses_arch_or_statsmodels_library
+  kind: entity_fact
+  raw_text: Synthetic series generation uses the `arch` or `statsmodels` library for
+    ARFIMA generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:32:23Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic series lengths include 5000 and 10000
+  claim_id: c_64ca491d
+  context: 'Sample Sizes: Must include exactly: [a range of values spanning from low
+    to high], [a moderate quantity], 5000, 10000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic series lengths include values of 5000 and 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:32:48Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic series minimum length is 1000
+  claim_id: c_16cb4ca1
+  context: 'Constraint: Do NOT generate series with length < 1000.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_series_minimum_length_is_1000
+  kind: magnitude
+  raw_text: Synthetic series are not generated with a length less than 1000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:33:54Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic mean verification threshold is 0.01
+  claim_id: c_b7418348
+  context: Add logic to verify generated series mean is within 0.01 of 0 and Hurst
+    is within 0.05 of target (US2-AC1..4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The verification of synthetic ground truth checks that the mean is within
+    0.01 of 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:34:27Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic Hurst verification threshold is 0.05
+  claim_id: c_de707797
+  context: Add logic to verify generated series mean is within 0.01 of 0 and Hurst
+    is within 0.05 of target (US2-AC1..4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The verification of synthetic ground truth checks that the Hurst exponent
+    is within 0.05 of the target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:34:53Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Total dataset size limit is 7GB
+  claim_id: c_14087f0a
+  context: If estimated total > 7GB, raise `ValueError` with message "Total dataset
+    size exceeds 7GB RAM limit. Aborting."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_dataset_size_limit_is_7GB
+  kind: entity_fact
+  raw_text: The total dataset size limit is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:36:07Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Datasets with fewer than 25 points are skipped
+  claim_id: c_64fa0259
+  context: 'Add edge case handling: skip datasets < 25 points with a warning log (Edge
+    Case 1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_fewer_than_25_points_are_skipped
+  kind: magnitude
+  raw_text: Datasets with fewer than 25 points are skipped.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:37:07Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Theoretical VIF approximation formula is N^(2H-1)
+  claim_id: c_1785b221
+  context: "Calculate the theoretical VIF (VIF_theoretical \u2248 N^(2H-1)) from the\
+    \ Hurst exponent to validate the mechanism."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The theoretical VIF approximation is VIF_theoretical \u2248 N^(2H-1)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:38:56Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit is 6 hours
+  claim_id: c_34f6ef73
+  context: If runtime > 6h, exit with code 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runtime must not exceed 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:39:19Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Memory usage limit is 7 GB
+  claim_id: c_0102c228
+  context: 'Code cleanup and refactoring for memory efficiency (ensure < 7 GB RAM
+    usage; **Constraint**: No streaming/sampling fallback logic allowed per FR-001).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_is_7_GB
+  kind: magnitude
+  raw_text: Memory usage must be less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:39:47Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Significance level alpha is 0.05
+  claim_id: c_1e0bbbf1
+  context: 'Implement `src/utils/config.py` with explicit global constants: ... `ALPHA
+    = 0.05` (float)...'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: ". The significance level for a study is chosen before data collection,\
+        \ and is typically set to 5% or much lower\u2014depending on the field of\
+        \ study."
+      source_id: Statistical significance
+      url: https://en.wikipedia.org/wiki/Statistical_significance
+      value: 5%
+    filled: true
+  kind: numeric
+  raw_text: The significance level alpha is 0.05.
+  resolved_value: 5%
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T18:40:00Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Random seed is 42
+  claim_id: c_baaecba2
+  context: 'Implement `src/utils/config.py` with explicit global constants: `SEED
+    = 42` (int)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:40:28Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Maximum lag for ACF computation is 20
+  claim_id: c_e3eb449c
+  context: 'Implement `src/utils/config.py` with explicit global constants: ... `MAX_LAG
+    = 20` (int).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum lag for ACF computation is 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:40:46Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Number of null permutations per series is 1000
+  claim_id: c_cf5b1a00
+  context: 'Implement `src/utils/config.py` with explicit global constants: ... `NUM_NULL_PER_SERIES
+    = 1000` (int, hardcoded constant for Constitution Principle VII compliance)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of null permutations per series is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:41:05Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Generate 1000 shuffled versions per real time series for null distribution
+  claim_id: c_97ca39de
+  context: Task T019a details the implementation of shuffling logic, specifying the
+    exact loop count required.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 1000 shuffled versions for every real time series to create a
+    null distribution as mandated by Constitution Principle VII.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:44:08Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Generate 1000 shuffled versions per synthetic series for null distribution
+  claim_id: c_539c7dab
+  context: Task T019b details the implementation of shuffling logic for synthetic
+    data, specifying the exact loop count required.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 1000 shuffled versions for every synthetic series to create a
+    null distribution as mandated by Constitution Principle VII.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:44:36Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Verify synthetic series mean within 0.01 of 0 and Hurst within 0.05 of
+    target
+  claim_id: c_a1cc67d3
+  context: Task T032 describes the logic to verify synthetic ground truth against
+    known input parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that generated synthetic series mean is within 0.01 of 0 and Hurst
+    is within 0.05 of target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:44:53Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Verify synthetic series Hurst within 0.05 of target
+  claim_id: c_1d716171
+  context: Task T032 describes the logic to verify synthetic ground truth against
+    known input parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that generated synthetic series Hurst is within 0.05 of target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:45:14Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 2
+  canonical: Synthetic series lengths include 5000 and 10000
+  claim_id: c_1ea84315
+  context: Task T027 specifies the sample sizes for the N-variation grid, explicitly
+    listing 5000 and 10000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic series with lengths including exactly 5000 and 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:45:35Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic series length must be at least 1000
+  claim_id: c_2a87c25a
+  context: Task T027 includes a constraint forbidding the generation of series with
+    length less than 1000.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_series_length_must_be_at_least_1000
+  kind: magnitude
+  raw_text: Do NOT generate synthetic series with length less than 1000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:46:07Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Calculate slope per 0.1 unit increase in Hurst exponent
+  claim_id: c_e3d7c64d
+  context: Task T037a_impl describes a mandatory step to calculate the slope per 0.1
+    unit increase in Hurst exponent for the regression model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate slope_per_01_unit as the change in error rate per 0.1 unit increase
+    in Hurst exponent.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:46:32Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Calculate slope_per_01_unit as slope multiplied by 0.1
+  claim_id: c_c2152c44
+  context: Task T037a_impl specifies the logic to calculate slope_per_01_unit as slope
+    * 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate slope_per_01_unit by multiplying slope by 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:47:00Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Pipeline terminates if runtime exceeds 6 hours
+  claim_id: c_f5da8e8a
+  context: Task T040 outlines performance validation logic requiring the pipeline
+    to exit with code 1 if runtime exceeds 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Terminate pipeline execution if total runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:47:23Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Memory usage must be less than 7 GB
+  claim_id: c_28b351e6
+  context: Task T043 specifies a constraint for code cleanup and refactoring to ensure
+    memory usage is under 7 GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_must_be_less_than_7_GB
+  kind: magnitude
+  raw_text: Ensure memory usage remains below 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:47:53Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Calculate theoretical VIF using N^(2H-1)
+  claim_id: c_42d743e9
+  context: Task T037a_impl mandates calculating the theoretical VIF using the specific
+    formula involving N and H.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute theoretical VIF using the approximation VIF_theoretical \u2248\
+    \ N^(2H-1) from the Hurst exponent."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:48:20Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: UK National Grid Load dataset resampled to hourly frequency
+  claim_id: c_a25c9d0e
+  context: Task T018a specifies the rule to resample ONLY the UK National Grid Load
+    dataset to hourly frequency.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UK_National_Grid_Load_dataset_resampled_to_hourly_frequency
+  kind: entity_fact
+  raw_text: The UK National Grid Load dataset must be resampled to a consistent frequency
+    of hourly.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:48:45Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Skip datasets with fewer than 25 points
+  claim_id: c_4f011aef
+  context: Task T020 specifies edge case handling to skip datasets with length less
+    than 25.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_fewer_than_25_points
+  kind: magnitude
+  raw_text: Skip datasets with fewer than 25 points with a warning log.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:49:55Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Validate downloaded files have at least 25 points
+  claim_id: c_94464740
+  context: Task T048 specifies data validation logic requiring a point count >= 25
+    before saving.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_downloaded_files_have_at_least_25_points
+  kind: magnitude
+  raw_text: Validate that downloaded files have a point count greater than or equal
+    to 25.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:51:05Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Verify rejection rate within Clopper-Pearson CI for H=0.5 data
+  claim_id: c_bbdb2889
+  context: Task T029 describes a baseline validity test gate requiring the rejection
+    rate to be within the Clopper-Pearson CI.
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Verify rejection rate is within the Clopper-Pearson confidence interval
+    of the nominal significance level for H=0.5 data.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T18:51:05Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Run one-sample t-tests on H=0.5 synthetic data with mean=0
+  claim_id: c_dc6b2361
+  context: Task T029 implementation details specify running t-tests on data with H=0.5
+    and mean=0.
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Run one-sample t-tests on H=0.5 synthetic data with mean=0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T18:51:06Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 4
+  canonical: Generate synthetic series with Hurst exponents 0.5, 0.7, 0.8, 0.9
+  claim_id: c_47679511
+  context: Task T026 specifies the implementation of generators for specific Hurst
+    exponent values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic fGn or ARFIMA processes with Hurst exponents in the
+    set {0.5, 0.7, 0.8, 0.9}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:51:32Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Calculate ACF up to max lag 20
+  claim_id: c_420312be
+  context: Task T009b defines the function signature for computing ACF with a default
+    max_lag of 20.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate ACF up to a maximum lag of 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:51:50Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Store ACF vector for lags 0-20
+  claim_id: c_9eead4ec
+  context: Task T010_shuffled specifies the output schema for shuffled metrics including
+    ACF vector for lags 0-20.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Store ACF vector for lags 0-20 in metrics output.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:52:11Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Use fixed seed 42
+  claim_id: c_463e722a
+  context: Task T005 defines the global constant SEED as 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed seed of 42 for global constants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:52:41Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Use alpha value 0.05
+  claim_id: c_38d4e015
+  context: Task T005 defines the global constant ALPHA as 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use an alpha value of 0.05 for global constants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:53:03Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Use max lag 20
+  claim_id: c_a701f723
+  context: Task T005 defines the global constant MAX_LAG as 20.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a maximum lag of 20 for global constants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:53:24Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Use 1000 null permutations per series
+  claim_id: c_f327920b
+  context: Task T005 defines the global constant NUM_NULL_PER_SERIES as 1000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 1000 null permutations per series as a hardcoded constant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:53:46Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Verify rejection rate within Clopper-Pearson CI at standard confidence
+    level
+  claim_id: c_89043328
+  context: Task T029 describes the calculation of the rejection rate and its comparison
+    against the Clopper-Pearson CI.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_rejection_rate_within_Clopper-Pearson_CI_at_standard
+  kind: entity_fact
+  raw_text: Verify the rejection rate is within the Clopper-Pearson binomial confidence
+    interval at a standard confidence level.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:54:35Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Calculate theoretical VIF using N^(alpha) where alpha depends on H
+  claim_id: c_5b36e8e5
+  context: Task T031 describes the logic to calculate theoretical VIF for synthetic
+    series.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_theoretical_VIF_using_N%5E(alpha)_where_alpha_depend
+  kind: entity_fact
+  raw_text: "Calculate the theoretical VIF using the approximation VIF_theoretical\
+    \ \u2248 N^(\u03B1), where \u03B1 is a scaling exponent determined by the Hurst\
+    \ parameter H."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:55:32Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 2
+  canonical: Calculate theoretical VIF using N^(2H-1)
+  claim_id: c_0075762b
+  context: Task T037a_impl specifies the formula for theoretical VIF calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate the theoretical VIF using the approximation VIF_theoretical\
+    \ \u2248 N^(2H-1) from the Hurst exponent."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T18:55:51Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Verify empirical Hurst exponent within 0.05 of target
+  claim_id: c_9155a243
+  context: Task T057 describes requirements for verifying synthetic data, including
+    checking the empirical Hurst exponent.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Verify that the empirical Hurst exponent (via DFA) is within 0.05 of the
+    target.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T18:55:52Z'

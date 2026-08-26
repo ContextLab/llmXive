@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T17:39:26.225813Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-369-evaluating-the-robustness-of-statistical
-last_run_id: adaaf038-a146-47da-99f0-746b2f48e473
+last_run_id: 4a5e1fbe-3e87-480c-be14-7c78fa5295d2
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical
 title: Evaluating the Robustness of Statistical Methods to Non-Independence in Publicly
   Available Time Series
-updated_at: '2026-08-24T02:16:49.623870Z'
+updated_at: '2026-08-26T18:41:05.672608Z'

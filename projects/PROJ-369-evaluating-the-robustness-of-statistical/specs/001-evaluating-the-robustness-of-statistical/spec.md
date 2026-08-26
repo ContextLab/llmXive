@@ -97,7 +97,7 @@ The system MUST apply one-sample t-tests and F-tests to the synthetic (ground-tr
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The observed type I error rate for standard tests on synthetic data (H=0.5, mean=0) is measured against the nominal significance level (α=0.05) to verify the baseline validity of the testing framework. (See US-3)
-- **SC-002**: The relationship between the Hurst exponent and the observed type I error inflation is measured against the theoretical expectation that higher dependence leads to higher error rates. The slope of the regression line is measured, and its statistical significance (p < 0.05) is reported. The magnitude of the slope is reported as the change in error rate per 0.1 unit increase in Hurst exponent. (See US-3)
+- **SC-002**: The relationship between the Hurst exponent and the observed type I error inflation is measured against the theoretical expectation that higher dependence leads to higher error rates. The slope of the regression line is measured, and its statistical significance (p < 0.05) is reported. The magnitude of the slope is reported as the change in error rate per unit increase in Hurst exponent. (See US-3)
 - **SC-003**: The magnitude of error inflation (observed rate minus nominal rate) is measured across multiple datasets to quantify the practical impact of non-independence. (See US-3)
 - **SC-004**: The computational runtime of the full pipeline (ingestion, quantification, numerous tests, regression) is measured against the 6-hour limit for a single GitHub Actions free-tier job. The full pipeline must complete in ≤ 6 hours on a standard GitHub Actions runner. (See US-1, US-2, US-3)
 
