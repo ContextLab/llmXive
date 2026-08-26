@@ -1,0 +1,5 @@
+'|configuration default image pixel size':
+  quote: "RMSE(\u2193) 32.336 18.962 34.441 28.580"
+  source_id: '2603.25384'
+  url: https://arxiv.org/abs/2603.25384
+  value: '128'

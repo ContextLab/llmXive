@@ -4,9 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence of the required directories (`code/`, `code/data/`, `code/models/`, `code/train/`, `code/explain/`) was provided; the response contains only the task description and specifications, with no artifact listing or verification that the directories exist. The implementer must create and show the directory structure.
-- `T001b` (rejected 1x): No evidence was provided that the required directories (`data/`, `data/raw/`, `data/processed/`, `data/explainability/`) actually exist on disk; the submission contains only the task description and no file‑system artifacts. The implementer must create and show these directories (e.g., a directory listing or screenshot) to satisfy the requirement.
-- `T001c` (rejected 1x): No directory structure (`tests/`, `tests/unit/`, `tests/contract/`, `tests/integration/`) is presented or described in the provided evidence, so we cannot confirm that the required test directories were actually created. The implementer must supply proof (e.g., a file tree listing or screenshots) showing these directories exist.
+- `T009` (rejected 1x): No `research.md` file was presented in the evidence, nor any excerpt showing the required sections (Introduction, Methodology, Resolution Limits, Results, Discussion). Without the artifact itself, we cannot confirm that it exists or contains the specified structure. The implementer must provide the actual `research.md` file located at `projects/PROJ-266-machine-learning-prediction-of-fracture-/` with the five required sections.
 
 ## Required change
 

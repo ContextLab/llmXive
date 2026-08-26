@@ -1,1 +1,1 @@
-# Integration tests package
+# Integration tests package for fracture toughness prediction project

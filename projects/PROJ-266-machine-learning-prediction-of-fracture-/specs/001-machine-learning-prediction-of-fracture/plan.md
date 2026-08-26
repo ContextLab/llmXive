@@ -23,7 +23,7 @@ The approach involves ingesting images (synthetic or user-provided), preprocessi
 **Project Type**: Data Science / Research Pipeline
 **Performance Goals**: Complete full training and evaluation pipeline within 6 hours on CPU-only hardware.
 **Constraints**: No GPU usage; no CUDA dependencies; memory footprint < 7GB; strict stratification by alloy family.
-**Scale/Scope**: Target a sufficiently large sample size of synthetically generated images to reduce overfitting variance; 5 training seeds; Multiple images for attribution.
+**Scale/Scope**: Target a sufficiently large sample size of synthetically generated images to reduce overfitting variance; training seeds; Multiple images for attribution.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

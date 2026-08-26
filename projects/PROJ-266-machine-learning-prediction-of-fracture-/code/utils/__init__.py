@@ -1,3 +1,3 @@
 """
-Utility functions, configuration, and logging.
+Utility functions for configuration, logging, metrics, and statistics.
 """

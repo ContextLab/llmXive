@@ -25,12 +25,3 @@ T006a:
     were presented; without these concrete schema definitions the requirement to create
     base data contracts is not satisfied. The next implementer must add the `contracts/`
     folder containing the specified schema files with appropriate content.
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file was presented in the evidence, nor any excerpt showing
-    the required sections (Introduction, Methodology, Resolution Limits, Results,
-    Discussion). Without the artifact itself, we cannot confirm that it exists or
-    contains the specified structure. The implementer must provide the actual `research.md`
-    file located at `projects/PROJ-266-machine-learning-prediction-of-fracture-/`
-    with the five required sections.

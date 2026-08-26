@@ -1771,3 +1771,2026 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T06:50:18Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces at least 2000 images
+  claim_id: c_17da371e
+  context: "Task T005 requires implementing a generator to produce \u22652,000 images,\
+    \ correcting a prior spec assumption of \u2265500."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images
+  kind: magnitude
+  raw_text: "The synthetic microstructure generator logic produces \u22652,000 images\
+    \ with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:20:46Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: target sample size is 2000 images replacing 500
+  claim_id: c_0363bd8e
+  context: "Task T005d and T005e document the deviation from the spec's \u2265500\
+    \ assumption to \u22652,000 to reduce variance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The target sample size for the dataset is \u22652,000 images, replacing\
+    \ the original specification of \u2265500."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:20:47Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generator benchmark uses seed 42
+  claim_id: c_99499582
+  context: Task T005c specifies executing the benchmark script with seed 42.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Seed 42
+      source_id: '2411.15484'
+      url: https://arxiv.org/abs/2411.15484
+      value: '42'
+    filled: true
+  kind: numeric
+  raw_text: The synthetic generator uses seed 42 for the benchmark script.
+  resolved_value: '42'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T23:21:13Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses python 3.11
+  claim_id: c_8e3e26fa
+  context: Task T002 specifies initializing the project with Python 3.11.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project initializes with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:21:34Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: torch version 2.1.0+cpu
+  claim_id: c_88d305c0
+  context: Task T002 lists exact pinned versions including torch==2.1.0+cpu.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses torch version 2.1.0+cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:21:54Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.2
+  claim_id: c_613cf85a
+  context: Task T002 lists exact pinned versions including scikit-learn==1.3.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scikit-learn version 1.3.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:22:11Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: opencv-python-headless version 4.8.1.78
+  claim_id: c_42b1af32
+  context: Task T002 lists exact pinned versions including opencv-python-headless==4.8.1.78.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses opencv-python-headless version 4.8.1.78.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:22:30Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pandas version 2.1.3
+  claim_id: c_19678224
+  context: Task T002 lists exact pinned versions including pandas==2.1.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pandas version 2.1.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:23:08Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.2
+  claim_id: c_f04a74b9
+  context: Task T002 lists exact pinned versions including numpy==1.26.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses numpy version 1.26.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:23:43Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.2
+  claim_id: c_b7db783d
+  context: Task T002 lists exact pinned versions including matplotlib==3.8.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses matplotlib version 3.8.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:23:48Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: captum version 0.7.0
+  claim_id: c_e9dfeabb
+  context: Task T002 lists exact pinned versions including captum==0.7.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses captum version 0.7.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:23:52Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.3
+  claim_id: c_781e6684
+  context: Task T002 lists exact pinned versions including pytest==7.4.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pytest version 7.4.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:23:58Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: black version 23.12.1
+  claim_id: c_37ff7fff
+  context: Task T002 lists exact pinned versions including black==23.12.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses black version 23.12.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:24:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: ruff version 0.1.8
+  claim_id: c_598a341f
+  context: Task T002 lists exact pinned versions including ruff==0.1.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses ruff version 0.1.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:24:10Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: cnn architecture has 3 blocks
+  claim_id: c_a3477cd6
+  context: Task T020 specifies implementing a 3-block CNN architecture.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CNN model architecture consists of 3 blocks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:24:17Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: permutation test uses 10000 permutations
+  claim_id: c_8f636db2
+  context: Task T025a defines the Permutation Test function with n_perm=10000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Permutation Test uses n_perm=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:24:21Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: permutation test replaces wilcoxon due to n=5
+  claim_id: c_4f311aae
+  context: Task T025d documents that the Wilcoxon test is insufficient for N=5, justifying
+    the use of the Permutation Test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Permutation Test replaces the Wilcoxon signed-rank test due to a sample
+    size of N=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:24:28Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation uses rotation 10 degrees
+  claim_id: c_fdbc1e17
+  context: "Task T043 defines the augmentation strategy including rotation \xB110\xB0\
+    ."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses rotation of \xB1\
+    10\xB0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:24:33Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation uses gaussian noise sigma 0.01
+  claim_id: c_48494901
+  context: "Task T043 defines the augmentation strategy including Gaussian noise \u03C3\
+    =0.01."
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses Gaussian noise with\
+    \ \u03C3=0.01."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T23:24:34Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation uses brightness jitter 10 percent
+  claim_id: c_38ce98c7
+  context: "Task T043 defines the augmentation strategy including brightness jitter\
+    \ \xB110%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses brightness jitter\
+    \ of \xB110%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:24:34Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: validation checks mean iou greater than 0.5
+  claim_id: c_9d310b3c
+  context: Task T046 specifies a validation script that checks `mean_iou > 0.5`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_checks_mean_iou_greater_than_0.5
+  kind: magnitude
+  raw_text: The validation script checks that the mean IoU is greater than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:25:15Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap ci uses 1000 boots and alpha 0.05
+  claim_id: c_f4ec03f8
+  context: Task T034a defines the function `bootstrap_ci` with `n_boot=1000` and `alpha=0.05`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap confidence interval utility uses n_boot=1000 and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:25:19Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit is 21600 seconds
+  claim_id: c_0c94ea70
+  context: "Task T047c verifies that the total pipeline runtime is \u2264 21600 seconds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runtime constraint requires execution within 6 hours (21600
+    seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:25:23Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: unit tests require over 80 percent coverage
+  claim_id: c_3826ed77
+  context: Task T052 specifies running pytest to achieve >80% coverage.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_require_over_80_percent_coverage
+  kind: magnitude
+  raw_text: The unit tests for stats.py must achieve greater than 80% coverage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:25:28Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires cpu only ci with 7gb ram
+  claim_id: c_d670a05b
+  context: Notes section specifies the critical constraint of running on CPU-only
+    CI with 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_requires_cpu_only_ci_with_7gb_ram
+  kind: entity_fact
+  raw_text: The project must be executable on CPU-only CI with 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:25:36Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: default batch size is 32
+  claim_id: c_d199c7bb
+  context: Task T007 defines the CONFIG dictionary with `batch_size` defaulting to
+    32.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defaults to a batch size of 32.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:25:43Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: default split seed is 42
+  claim_id: c_922acc8d
+  context: Task T007 defines the CONFIG dictionary with `split_seed` defaulting to
+    42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defaults to a split seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:25:50Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: black line length is 88
+  claim_id: c_22d2accc
+  context: Task T003 configures `[tool.black]` with `line-length=88`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Black linting uses a line-length of 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:25:57Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: black targets python 3.11
+  claim_id: c_de7b571f
+  context: Task T003 configures `[tool.black]` with `target-version=['py311']`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets Python 3.11 for Black formatting.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:26:04Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: ruff ignores rule e501
+  claim_id: c_eb18f612
+  context: Task T003 configures `[tool.ruff]` with `ignore=['E501']`.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P528: E501.'
+      source_id: Q841437
+      url: https://www.wikidata.org/wiki/Q841437
+      value: E501.
+    filled: true
+  kind: entity_fact
+  raw_text: Ruff linting ignores rule E501.
+  resolved_value: E501.
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T23:26:12Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: augmentation pipeline uses Gaussian noise sigma 0.01
+  claim_id: c_513b60e6
+  context: "Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)."
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses Gaussian noise with\
+    \ \u03C3=0.01."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T23:27:08Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces 2000 images
+  claim_id: c_bfa850cc
+  context: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic microstructure generator logic produces \u22652,000 images."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:27:16Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces physics-informed K_IC values
+  claim_id: c_6ed6af5d
+  context: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_physics-informed
+  kind: entity_fact
+  raw_text: The synthetic microstructure generator produces physics-informed K_IC
+    values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:27:52Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: dataset schema includes resolution_um in pixels per micrometer
+  claim_id: c_35151e05
+  context: "Extend synthetic generator (code/data/synthetic_gen.py) to embed metadata\
+    \ schema: magnification, resolution_um (pixels/\u03BCm), section_thickness_um\
+    \ (for TEM simulation), and preparation_protocol (SEM/TEM flags) into JSON sidecar\
+    \ files."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_schema_includes_resolution_um_in_pixels_per_micromet
+  kind: entity_fact
+  raw_text: "The dataset schema includes the field 'resolution_um' measured in pixels/\u03BC\
+    m."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:27:57Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: minimum resolvable feature size computed using Rayleigh criterion
+  claim_id: c_53b0b8c9
+  context: Implement calculate_resolution_limit utility in code/utils/metrics.py to
+    compute minimum resolvable feature size (Rayleigh criterion) based on resolution_um
+    metadata from T031.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_resolvable_feature_size_computed_using_Rayleigh_crit
+  kind: entity_fact
+  raw_text: The minimum resolvable feature size is computed based on the Rayleigh
+    criterion.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:28:11Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stratified split uses seed 42
+  claim_id: c_2518e8ca
+  context: Implement stratified split logic in code/data/preprocess.py (seed 42, steel/Al/Ti
+    stratification).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified split uses a seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:28:20Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: CNN architecture consists of 3 blocks
+  claim_id: c_a5ba44b8
+  context: Implement 3-block CNN architecture (Conv-ReLU-BN-MaxPool) in code/models/cnn.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CNN architecture consists of 3 blocks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:28:26Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Permutation Test uses 10000 permutations
+  claim_id: c_a2a61782
+  context: 'Implement Permutation Test function in code/train/stats.py: Function permutation_test(cnn_mae,
+    baseline_mae, n_perm=10000) returning statistic and p_value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Permutation Test uses 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:28:33Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Permutation Test replaces Wilcoxon test for sample size 5
+  claim_id: c_ec62a65c
+  context: 'Function permutation_test(cnn_mae, baseline_mae, n_perm=10000) returning
+    statistic and p_value. Note: Substitutes Wilcoxon (FR-005) due to N=5; documented
+    as authorized deviation in research.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Permutation Test replaces the Wilcoxon signed-rank test due to a sample
+    size of N=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:28:34Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: InputXGrad used instead of Grad-CAM for regression
+  claim_id: c_a9086bda
+  context: 'Document rationale: Update research.md (Section: Methodology) to explain
+    why InputXGrad (Integrated Gradients) is used instead of Grad-CAM (FR-006/007),
+    citing Plan''s ''Spec Contradiction Note'' and regression task limitations.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/InputXGrad_used_instead_of_Grad-CAM_for_regression
+  kind: entity_fact
+  raw_text: InputXGrad is used instead of Grad-CAM because Grad-CAM is undefined for
+    regression tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:28:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation pipeline uses rotation plus or minus 10 degrees
+  claim_id: c_36717bb4
+  context: "Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses rotation of \xB1\
+    10\xB0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:28:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation pipeline uses brightness jitter plus or minus 10 percent
+  claim_id: c_f969e0ba
+  context: "Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses brightness jitter\
+    \ of \xB110%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:28:42Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stability validation checks mean IoU greater than 0.5
+  claim_id: c_9aef2f7b
+  context: 'Implement validation script in code/explain/validate.py: Script loads
+    stability_report.json, validates against attribution_schema.schema.yaml, and checks
+    mean_iou > 0.5.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_validation_checks_mean_IoU_greater_than_0.5
+  kind: magnitude
+  raw_text: The stability validation script checks that mean IoU is greater than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:29:46Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap confidence interval uses 1000 samples
+  claim_id: c_9b9ee3f5
+  context: 'Implement bootstrap CI utility in code/utils/stats.py: Function bootstrap_ci(data,
+    n_boot=1000, alpha=0.05) returning (lower, upper).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap confidence interval utility uses 1,000 bootstrap samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:30:08Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap confidence interval uses alpha 0.05
+  claim_id: c_f2368bb9
+  context: 'Implement bootstrap CI utility in code/utils/stats.py: Function bootstrap_ci(data,
+    n_boot=1000, alpha=0.05) returning (lower, upper).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap confidence interval utility uses an alpha level of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:30:25Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: full pipeline runtime constraint is 21600 seconds
+  claim_id: c_3f04e577
+  context: "Verify constraint: Check data/benchmarks/pipeline_runtime.json and confirm\
+    \ total_time_seconds \u2264 21600 (6h)."
+  evidence:
+    entailment_evidence: Full pipeline runtime constraint is 21600 seconds
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_constraint_is_21600_seconds
+  kind: entity_fact
+  raw_text: The full pipeline runtime constraint is a maximum of 21,600 seconds (6
+    hours).
+  resolved_value: full pipeline runtime constraint is 21600 seconds
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T23:30:28Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: unit tests for stats.py achieve 80 percent coverage
+  claim_id: c_3ec02436
+  context: 'Unit tests: Write unit tests for code/utils/stats.py in tests/unit/test_stats.py.
+    Test Cases: test_bootstrap_ci_returns_tuple, test_bootstrap_ci_confidence_level.
+    Verification: Run pytest tests/unit/test_stats.py and achieve >80% coverage.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_for_stats.py_achieve_80_percent_coverage
+  kind: magnitude
+  raw_text: The unit tests for code/utils/stats.py must achieve greater than 80% coverage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:30:49Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_c263094c
+  context: Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project is initialized with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:31:09Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires torch 2.1.0+cpu
+  claim_id: c_a3ec74f3
+  context: 'Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions: torch==2.1.0+cpu.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires torch version 2.1.0+cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:31:27Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires scikit-learn 1.3.2
+  claim_id: c_9791415a
+  context: 'Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions: scikit-learn==1.3.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires scikit-learn version 1.3.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:31:45Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires opencv-python-headless 4.8.1.78
+  claim_id: c_4b06331c
+  context: 'Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions: opencv-python-headless==4.8.1.78.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires opencv-python-headless version 4.8.1.78.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:31:59Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires pandas 2.1.3
+  claim_id: c_2d937356
+  context: 'Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions: pandas==2.1.3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pandas version 2.1.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:32:20Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires numpy 1.26.2
+  claim_id: c_424d7d3e
+  context: 'Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions: numpy==1.26.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires numpy version 1.26.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:32:47Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires matplotlib 3.8.2
+  claim_id: c_74b6abb7
+  context: 'Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions: matplotlib==3.8.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires matplotlib version 3.8.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:33:03Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires captum 0.7.0
+  claim_id: c_b9cfd5fa
+  context: 'Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions: captum==0.7.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires captum version 0.7.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:33:18Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires pytest 7.4.3
+  claim_id: c_373c16b0
+  context: 'Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions: pytest==7.4.3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pytest version 7.4.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:33:32Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires black 23.12.1
+  claim_id: c_d2151aa1
+  context: 'Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions: black==23.12.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires black version 23.12.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:33:54Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project requires ruff 0.1.8
+  claim_id: c_88a8dca9
+  context: 'Initialize Python 3.11 project with code/requirements.txt containing exact
+    pinned versions: ruff==0.1.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires ruff version 0.1.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:34:16Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces at least 2000 images
+  claim_id: c_4842ca0d
+  context: "T005 [P] Implement synthetic microstructure generator logic in `code/data/synthetic_gen.py`\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Plan-driven correction to Spec's \u2265500; see Plan 'Spec Assumption\
+    \ Correction' note"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:35:27Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: spec assumed 500 images plan corrected to 2000 images to reduce variance
+  claim_id: c_76bce2ff
+  context: "T005d [P] Validate dataset size assumption: Write a script to verify generator\
+    \ output \u22652,000 images and document the deviation from spec's \u2265500 in\
+    \ `research.md` (Section: Resolution Limits). **Verification**: `research.md`\
+    \ contains explicit text: \"Spec assumed \u2265500; Plan corrected to \u22652,000\
+    \ to reduce variance.\""
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Plan corrected to \u22652,000 to reduce variance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:35:28Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: permutation test used instead of wilcoxon due to sample size of 5
+  claim_id: c_c7e057f4
+  context: 'T025d [US2] Document statistical justification: Update `research.md` (Section:
+    Methodology) to explicitly state why Permutation Test replaces Wilcoxon (N=5 insufficient
+    for Wilcoxon assumptions). **Verification**: `research.md` contains text: "Permutation
+    Test used instead of Wilcoxon due to small sample size (N=5)."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Test used instead of Wilcoxon due to small sample size (N=5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:35:45Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: inputxgrad used because grad-cam is undefined for regression
+  claim_id: c_6fa67d41
+  context: 'T042b [US3] Document rationale: Update `research.md` (Section: Methodology)
+    to explain why InputXGrad (Integrated Gradients) is used instead of Grad-CAM (FR-006/007),
+    citing Plan''s ''Spec Contradiction Note'' and regression task limitations. **Verification**:
+    `research.md` contains text: "InputXGrad used as Grad-CAM is undefined for regression."'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inputxgrad_used_because_grad-cam_is_undefined_for_regression
+  kind: entity_fact
+  raw_text: InputXGrad used as Grad-CAM is undefined for regression
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:36:15Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: permutation test with 10000 permutations
+  claim_id: c_1aa02265
+  context: 'T025e [P] Update spec.md: Amend "FR-005" in `spec.md` to replace "Wilcoxon
+    signed-rank test" with "Permutation Test (n_perm=10000)" and update "SC-002" accordingly.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Test (n_perm=10000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:36:32Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: target sample size is 2000 images
+  claim_id: c_7219099b
+  context: "T005e [P] Update spec.md: Amend the \"Assumptions\" section in `spec.md`\
+    \ to explicitly state the target sample size is \u22652,000 images, replacing\
+    \ the original \u2265500."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "target sample size is \u22652,000 images"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:36:32Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: reduce cnn epochs to maximum sufficient for convergence
+  claim_id: c_e3812818
+  context: 'T051 [P] Performance optimization: Vectorize GLCM extraction using `skimage.feature.greycomatrix`
+    batch processing; reduce CNN epochs to minimum required for convergence (target:
+    maximum epochs sufficient for convergence).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reduce_cnn_epochs_to_maximum_sufficient_for_convergence
+  kind: entity_fact
+  raw_text: maximum epochs sufficient for convergence
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:37:06Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pipeline runtime total time seconds less than or equal to 21600
+  claim_id: c_11505d11
+  context: "T047c [P] Verify constraint: Check `data/benchmarks/pipeline_runtime.json`\
+    \ and confirm `total_time_seconds` \u2264 21600 (6h). **Verification**: Exit 0\
+    \ if \u2264 6h, exit 1 if > 6h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_total_time_seconds_less_than_or_equal_to_21
+  kind: magnitude
+  raw_text: "total_time_seconds \u2264 21600 (6h)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:37:22Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: mean iou greater than 0.5
+  claim_id: c_698f7248
+  context: 'T046 [US3] Implement validation script in `code/explain/validate.py`:
+    Script loads `stability_report.json`, validates against `attribution_schema.schema.yaml`,
+    and checks `mean_iou > 0.5`. Exits 0 on success, 1 on failure.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_iou_greater_than_0.5
+  kind: magnitude
+  raw_text: mean_iou > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:37:51Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: unit tests achieve more than 80 percent coverage
+  claim_id: c_bf161636
+  context: 'T052 [P] Unit tests: Write unit tests for `code/utils/stats.py` in `tests/unit/test_stats.py`.
+    **Test Cases**: `test_bootstrap_ci_returns_tuple`, `test_bootstrap_ci_confidence_level`.
+    **Verification**: Run `pytest tests/unit/test_stats.py` and achieve >80% coverage.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_achieve_more_than_80_percent_coverage
+  kind: magnitude
+  raw_text: achieve >80% coverage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-26T23:38:18Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: augmentation strategy includes rotation 10 degrees gaussian noise 0.01
+    brightness jitter 10 percent
+  claim_id: c_39fdc126
+  context: "T043 [US3] Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Augmentation strategy includes rotation \xB110\xB0, Gaussian noise \u03C3\
+    =0.01, brightness jitter \xB110%"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T23:38:50Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces at least 2000 images
+  claim_id: c_a29ca626
+  context: "T005 [P] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Generates images and K_IC values with \u22652,000 images (Plan-driven\
+    \ correction to Spec's \u2265500)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:39:14Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: spec assumed 500 images plan corrected to 2000 to reduce variance
+  claim_id: c_04c14272
+  context: "T005d [P] Validate dataset size assumption: Write a script to verify generator\
+    \ output \u22652,000 images and document the deviation from spec's \u2265500 in\
+    \ research.md (Section: Resolution Limits). Verification: research.md contains\
+    \ explicit text: 'Spec assumed \u2265500; Plan corrected to \u22652,000 to reduce\
+    \ variance.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Spec assumed \u2265500; Plan corrected to \u22652,000 to reduce variance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:39:14Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: permutation test used instead of wilcoxon due to sample size 5
+  claim_id: c_cb7bed75
+  context: 'T025d [US2] Document statistical justification: Update research.md (Section:
+    Methodology) to explicitly state why Permutation Test replaces Wilcoxon (N=5 insufficient
+    for Wilcoxon assumptions). Verification: research.md contains text: ''Permutation
+    Test used instead of Wilcoxon due to small sample size (N=5).'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Test used instead of Wilcoxon due to small sample size (N=5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:39:15Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: permutation test with 10000 permutations
+  claim_id: c_6a3281a6
+  context: 'T025a [US2] Implement Permutation Test function in code/train/stats.py:
+    Function permutation_test(cnn_mae, baseline_mae, n_perm=10000) returning statistic
+    and p_value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Test with n_perm=10000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:39:33Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: inputxgrad used because grad-cam is undefined for regression
+  claim_id: c_1f1eede3
+  context: 'T042b [US3] Document rationale: Update research.md (Section: Methodology)
+    to explain why InputXGrad (Integrated Gradients) is used instead of Grad-CAM (FR-006/007),
+    citing Plan''s ''Spec Contradiction Note'' and regression task limitations. Verification:
+    research.md contains text: ''InputXGrad used as Grad-CAM is undefined for regression.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inputxgrad_used_because_grad-cam_is_undefined_for_regression
+  kind: entity_fact
+  raw_text: InputXGrad used as Grad-CAM is undefined for regression
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:39:35Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pipeline runtime must be less than or equal to 21600 seconds
+  claim_id: c_d3a23acb
+  context: "T047c [P] Verify constraint: Check data/benchmarks/pipeline_runtime.json\
+    \ and confirm total_time_seconds \u2264 21600 (6h). Verification: Exit 0 if \u2264\
+    \ 6h, exit 1 if > 6h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_must_be_less_than_or_equal_to_21600_seconds
+  kind: magnitude
+  raw_text: "Pipeline runtime must be \u2264 21600 seconds (6h)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:39:57Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: unit tests for stats module must achieve greater than 80 percent coverage
+  claim_id: c_f4fe60aa
+  context: 'T052 [P] Unit tests: Write unit tests for code/utils/stats.py in tests/unit/test_stats.py.
+    Test Cases: test_bootstrap_ci_returns_tuple, test_bootstrap_ci_confidence_level.
+    Verification: Run pytest tests/unit/test_stats.py and achieve >80% coverage.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_for_stats_module_must_achieve_greater_than_80_per
+  kind: magnitude
+  raw_text: Unit tests for code/utils/stats.py must achieve >80% coverage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:40:22Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stability threshold requires mean intersection over union greater than
+    0.5
+  claim_id: c_cf865ae9
+  context: 'T046 [US3] Implement validation script in code/explain/validate.py: Script
+    loads stability_report.json, validates against attribution_schema.schema.yaml,
+    and checks mean_iou > 0.5.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_threshold_requires_mean_intersection_over_union_gr
+  kind: magnitude
+  raw_text: Stability threshold requires mean IoU > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:40:48Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap ci utility uses 1000 bootstraps and alpha 0.05
+  claim_id: c_9975f373
+  context: 'T034a [US2] Implement bootstrap CI utility in code/utils/stats.py: Function
+    bootstrap_ci(data, n_boot=1000, alpha=0.05) returning (lower, upper).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap CI utility uses n_boot=1000 and alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:41:02Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project dependencies include torch 2.1.0 cpu scikit-learn 1.3.2 opencv
+    4.8.1.78 pandas 2.1.3 numpy 1.26.2 matplotlib 3.8.2 captum 0.7.0 pytest 7.4.3
+    black 23.12.1 ruff 0.1.8
+  claim_id: c_51036236
+  context: 'T002 [P] Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: torch==2.1.0+cpu, scikit-learn==1.3.2, opencv-python-headless==4.8.1.78,
+    pandas==2.1.3, numpy==1.26.2, matplotlib==3.8.2, captum==0.7.0, pytest==7.4.3,
+    black==23.12.1, ruff==0.1.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project uses torch==2.1.0+cpu, scikit-learn==1.3.2, opencv-python-headless==4.8.1.78,
+    pandas==2.1.3, numpy==1.26.2, matplotlib==3.8.2, captum==0.7.0, pytest==7.4.3,
+    black==23.12.1, ruff==0.1.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:41:21Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: seed 42 used for stratified split and generator benchmark
+  claim_id: c_f2c55739
+  context: 'T014 [US1] Implement stratified split logic in code/data/preprocess.py
+    (seed 42, steel/Al/Ti stratification). T005c [P] Run generator benchmark: Execute
+    python code/utils/benchmark_gen.py with seed 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seed 42 is used for stratified split and generator benchmark
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:41:40Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: CNN model achieved R-squared of 0.85 and MAE of 4.2 MPa sqrt(m) on 2,000-image
+    synthetic dataset
+  claim_id: c_85a62288
+  context: Baseline Performance section describing metrics averaged over 5 seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initial training on the 2,000-image synthetic dataset yielded the following
+    preliminary metrics (averaged over 5 seeds): CNN Model: R^2 approx 0.85, MAE approx
+    4.2 MPa sqrt(m).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:42:54Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Linear regression baseline achieved R-squared of 0.65 and MAE of 7.1
+    MPa sqrt(m)
+  claim_id: c_b8054dfa
+  context: Baseline Performance section comparing CNN to hand-crafted features.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Linear Regression (Hand-crafted features): R^2 approx 0.65, MAE approx
+    7.1 MPa sqrt(m).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:43:33Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: InputXGrad stability testing showed mean IoU of 0.72 under 10 degree
+    rotation and 0.01 noise
+  claim_id: c_e81c0829
+  context: Stability Analysis section reporting robustness of attribution method.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stability testing via InputXGrad heatmaps across augmented views (rotation
+    +/- 10 degrees, noise sigma=0.01) showed a mean Intersection-over-Union (IoU)
+    of 0.72.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:43:47Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: SEM resolution limit is 1 to 5 nm
+  claim_id: c_17f53e26
+  context: Sample Preparation Protocol section distinguishing between SEM and TEM
+    capabilities.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SEM (Scanning Electron Microscopy) resolution limited to ~1-5 nm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:44:24Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: TEM resolution limit is 0.1 nm
+  claim_id: c_202ac76f
+  context: Sample Preparation Protocol section distinguishing between SEM and TEM
+    capabilities.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TEM (Transmission Electron Microscopy) resolution ~0.1 nm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:45:01Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: TEM sample preparation requires 100 nm thick electron-transparent lamellae
+  claim_id: c_ab5be41a
+  context: Sample Preparation Protocol section describing TEM requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TEM requires electron-transparent lamellae ~100 nm thickness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:45:31Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Rayleigh criterion formula for minimum resolvable feature size is 0.61
+    lambda divided by NA
+  claim_id: c_bd5387e6
+  context: Imaging Resolution and Feature Detectability section defining the resolution
+    limit formula.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.61'
+      source_id: Optical resolution
+      url: https://en.wikipedia.org/wiki/Optical_resolution
+      value: '0.61'
+    filled: true
+  kind: numeric
+  raw_text: Per the Rayleigh criterion, the minimum resolvable feature size (d_min)
+    is determined by d_min = 0.61 lambda / NA.
+  resolved_value: '0.61'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T23:45:40Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Permutation test with 10,000 permutations was used for statistical validation
+  claim_id: c_9495b1aa
+  context: Statistical Validation section explaining the choice of test for small
+    sample sizes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A Permutation Test with n=10,000 was utilized instead of the Wilcoxon
+    signed-rank test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:45:56Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Dataset size used in study is 2,000 images
+  claim_id: c_0066438c
+  context: Note on Sample Size section explaining the correction from 500 to 2,000
+    images.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 655,451 object instances for 15 categories across 2,806
+      source_id: '1905.12886'
+      url: https://arxiv.org/abs/1905.12886
+      value: 2,806
+    filled: true
+  kind: numeric
+  raw_text: The study utilizes a dataset size of >= 2,000 images.
+  resolved_value: 2,806
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T23:46:20Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces >= 2000 images with physics-informed K_IC
+    values
+  claim_id: c_c63f5a48
+  context: "Task T005: Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u22652,000 images (Plan-driven correction to Spec's \u2265500; see\
+    \ Plan 'Spec Assumption Correction' note) with physics-informed K_IC values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic microstructure generator is implemented to produce \u2265\
+    2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:14Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses Python 3.11 and torch 2.1.0+cpu
+  claim_id: c_887700f1
+  context: 'Task T002: Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: torch==2.1.0+cpu...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11 with torch version 2.1.0+cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:32Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses scikit-learn 1.3.2
+  claim_id: c_da15492c
+  context: 'Task T002: Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: ...scikit-learn==1.3.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scikit-learn version 1.3.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:33Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses opencv-python-headless 4.8.1.78
+  claim_id: c_6ef6be4a
+  context: 'Task T002: Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: ...opencv-python-headless==4.8.1.78...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses opencv-python-headless version 4.8.1.78.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:34Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses pandas 2.1.3
+  claim_id: c_67099354
+  context: 'Task T002: Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: ...pandas==2.1.3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pandas version 2.1.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:34Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses numpy 1.26.2
+  claim_id: c_1e83bf3c
+  context: 'Task T002: Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: ...numpy==1.26.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses numpy version 1.26.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:35Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses matplotlib 3.8.2
+  claim_id: c_2e8c203b
+  context: 'Task T002: Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: ...matplotlib==3.8.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses matplotlib version 3.8.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:36Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses captum 0.7.0
+  claim_id: c_8c62be1d
+  context: 'Task T002: Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: ...captum==0.7.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses captum version 0.7.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:36Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses pytest 7.4.3
+  claim_id: c_8f038f40
+  context: 'Task T002: Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: ...pytest==7.4.3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pytest version 7.4.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:37Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses black 23.12.1
+  claim_id: c_094eb772
+  context: 'Task T002: Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: ...black==23.12.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses black version 23.12.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:38Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: project uses ruff 0.1.8
+  claim_id: c_95f580e4
+  context: 'Task T002: Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: ...ruff==0.1.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses ruff version 0.1.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:47:38Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: default image size is 128x128 pixels
+  claim_id: c_e9d8eb15
+  context: 'Task T007: Implement configuration management in code/utils/config.py:
+    Define a Python dictionary CONFIG with keys ... image_size (tuple, default (128,
+    128))...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "RMSE(\u2193) 32.336 18.962 34.441 28.580"
+      source_id: '2603.25384'
+      url: https://arxiv.org/abs/2603.25384
+      value: '128'
+    filled: true
+  kind: numeric
+  raw_text: The configuration defaults for image size are (128, 128) pixels.
+  resolved_value: '128'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T23:48:13Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: default split seed is 42
+  claim_id: c_3e397906
+  context: 'Task T007: Implement configuration management in code/utils/config.py:
+    Define a Python dictionary CONFIG with keys split_seed (int, default 42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration default for split seed is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:48:14Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stratified split uses seed 42
+  claim_id: c_aeaad071
+  context: 'Task T014: Implement stratified split logic in code/data/preprocess.py
+    (seed 42, steel/Al/Ti stratification).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified split logic uses seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:48:36Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: CNN model has 3 blocks
+  claim_id: c_381d0cfa
+  context: 'Task T020: Implement 3-block CNN architecture (Conv-ReLU-BN-MaxPool) in
+    code/models/cnn.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CNN model architecture consists of 3 blocks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:48:37Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Permutation Test uses 10000 permutations
+  claim_id: c_366ba398
+  context: 'Task T025a: Implement Permutation Test function in code/train/stats.py:
+    Function permutation_test(cnn_mae, baseline_mae, n_perm=10000)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Permutation Test uses 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:48:37Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: N=5 insufficient for Wilcoxon assumptions
+  claim_id: c_d887da26
+  context: 'Task T025d: Document statistical justification: Update research.md...
+    to explicitly state why Permutation Test replaces Wilcoxon (N=5 insufficient for
+    Wilcoxon assumptions).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical justification states that N=5 is insufficient for Wilcoxon
+    assumptions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:48:57Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation includes rotation +/- 10 degrees
+  claim_id: c_13a9ca17
+  context: "Task T043: Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The augmentation strategy includes rotation of \xB110 degrees."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:49:39Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation includes Gaussian noise sigma 0.01
+  claim_id: c_b8fdb1af
+  context: "Task T043: Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The augmentation strategy includes Gaussian noise with sigma of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:50:08Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: augmentation includes brightness jitter +/- 10%
+  claim_id: c_8d9fd7a1
+  context: "Task T043: Implement augmentation pipeline for stability testing in code/explain/stability.py\
+    \ (Strategy: rotation \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter\
+    \ \xB110%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The augmentation strategy includes brightness jitter of \xB110%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:50:09Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stability validation requires mean IoU > 0.5
+  claim_id: c_80ea0fbc
+  context: 'Task T046: Implement validation script in code/explain/validate.py...
+    and checks mean_iou > 0.5.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/stability_validation_requires_mean_IoU_%3E_0.5
+  kind: magnitude
+  raw_text: The stability validation script checks for a mean IoU greater than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:50:10Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap CI uses 1000 samples
+  claim_id: c_0a421d9d
+  context: 'Task T034a: Implement bootstrap CI utility in code/utils/stats.py: Function
+    bootstrap_ci(data, n_boot=1000, alpha=0.05)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap confidence interval utility uses 1,000 bootstrap samples
+    by default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:50:31Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: bootstrap CI uses alpha 0.05
+  claim_id: c_4fa42306
+  context: 'Task T034a: Implement bootstrap CI utility in code/utils/stats.py: Function
+    bootstrap_ci(data, n_boot=1000, alpha=0.05)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap confidence interval utility uses an alpha of 0.05 by default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:50:49Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pipeline runtime <= 21600 seconds
+  claim_id: c_0f7f0afa
+  context: "Task T047c: Verify constraint: Check data/benchmarks/pipeline_runtime.json\
+    \ and confirm total_time_seconds \u2264 21600 (6h)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/pipeline_runtime_%3C=_21600_seconds
+  kind: entity_fact
+  raw_text: The pipeline runtime constraint is a maximum of 6 hours (21,600 seconds).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:51:10Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: unit test coverage > 80% for code/utils/stats.py
+  claim_id: c_2cc39344
+  context: 'Task T052: Unit tests: Write unit tests for code/utils/stats.py in tests/unit/test_stats.py...
+    Verification: Run pytest tests/unit/test_stats.py and achieve >80% coverage.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/unit_test_coverage_%3E_80%25_for_code/utils/stats.py
+  kind: magnitude
+  raw_text: The target unit test coverage for code/utils/stats.py is greater than
+    80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:51:28Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: system runs on CPU-only CI with 7GB RAM
+  claim_id: c_6415c119
+  context: 'Notes: Critical Constraint: All tasks must be executable on CPU-only CI
+    (cores, 7GB RAM) within 6 hours.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_runs_on_CPU-only_CI_with_7GB_RAM
+  kind: entity_fact
+  raw_text: The system is designed to run on CPU-only CI with 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:51:47Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: initial spec assumed 500 images
+  claim_id: c_50514f61
+  context: "Task T005: ... (Plan-driven correction to Spec's \u2265500; see Plan 'Spec\
+    \ Assumption Correction' note)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial spec assumed a sample size of 500 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:52:21Z'
