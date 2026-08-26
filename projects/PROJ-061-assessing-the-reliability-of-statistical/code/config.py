@@ -3,66 +3,68 @@ import json
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 
-# Project Root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Random Seed Configuration
+RANDOM_SEED: int = 42
 
-# Random Seed
-RANDOM_SEED = 42
+# Bootstrap Configuration
+BOOTSTRAP_ITERATIONS: int = 1000
 
-# Bootstrap Iterations
-BOOTSTRAP_ITERATIONS = 1000
+# Validation Thresholds
+VALIDITY_THRESHOLD: float = 0.1  # Default threshold for bootstrap variance check
 
-# Dataset Configuration (Populated by T004a)
-DATASET_LIST = [
-    {"id": "iris", "source": "uci", "type": "continuous", "url": "https://archive.ics.uci.edu/ml/datasets/iris"},
-    {"id": "wine", "source": "uci", "type": "continuous", "url": "https://archive.ics.uci.edu/ml/datasets/wine"},
-    {"id": "breast_cancer", "source": "uci", "type": "binary", "url": "https://archive.ics.uci.edu/ml/datasets/breast+cancer+wisconsin+(diagnostic)"},
-    {"id": "heart_disease", "source": "uci", "type": "binary", "url": "https://archive.ics.uci.edu/ml/datasets/heart+disease"},
-    {"id": "diabetes", "source": "uci", "type": "binary", "url": "https://archive.ics.uci.edu/ml/datasets/diabetes"},
-    {"id": "boston_housing", "source": "uci", "type": "continuous", "url": "https://archive.ics.uci.edu/ml/datasets/housing"},
-    {"id": "concrete", "source": "uci", "type": "continuous", "url": "https://archive.ics.uci.edu/ml/datasets/Concrete+Compressive+Strength"},
-    {"id": "yacht", "source": "uci", "type": "continuous", "url": "https://archive.ics.uci.edu/ml/datasets/yacht+hydrodynamics"},
-    {"id": "bank", "source": "uci", "type": "binary", "url": "https://archive.ics.uci.edu/ml/datasets/bank+marketing"},
-    {"id": "credit_giving", "source": "uci", "type": "binary", "url": "https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data)"}
-]
+# Significance Thresholds for Sensitivity Analysis
+THRESHOLDS: List[float] = [0.01, 0.05, 0.10]
 
-# Violation Sweep Configuration (T021b)
-VIOLATION_SWEEP_CONFIG = {
-    "heavy_tailed": {
-        "param_name": "df",
-        "values": [3.0, 5.0, 10.0, 30.0],  # Degrees of freedom (lower = heavier tails)
-        "description": "Degrees of freedom for t-distribution noise injection"
-    },
-    "ar1_autocorrelation": {
-        "param_name": "rho",
-        "values": [0.2, 0.4, 0.6, 0.8],
-        "description": "AR(1) coefficient for autocorrelation injection"
-    },
-    "effect_size_heterogeneity": {
-        "param_name": "mixing_ratio",
-        "values": [0.1, 0.2, 0.3, 0.4],
-        "description": "Mixing ratio for sub-population injection (T021 spec: 0.2 default, 1.5 SD separation)"
-    }
+# Violation Sweep Configuration
+VIOLATION_SWEEP_CONFIG: Dict[str, List[float]] = {
+    "ar_coefficients": [0.0, 0.3, 0.5],
+    "contamination_rates": [0.0, 0.1, 0.3],
+    "separation_values": [0.0, 1.0, 1.5]
 }
 
-# Thresholds for Sensitivity Analysis (US3)
-THRESHOLDS = [0.01, 0.05, 0.10]
+# Dataset Configuration: Specific list of 10 diverse public datasets
+# Continuous (3): iris, wine, wine_quality_red
+# Count (3): concrete, airfoil, yacht
+# Binary (4): breast_cancer, heart_disease, pima, ionosphere
+DATASET_LIST: List[Dict[str, Any]] = [
+    {"id": "iris", "source": "openml", "outcome_type": "continuous", "url": "https://data.openml.org/datasets/1"},
+    {"id": "wine", "source": "openml", "outcome_type": "continuous", "url": "https://data.openml.org/datasets/13"},
+    {"id": "wine_quality_red", "source": "openml", "outcome_type": "continuous", "url": "https://data.openml.org/datasets/28"},
+    {"id": "concrete", "source": "openml", "outcome_type": "count", "url": "https://data.openml.org/datasets/125"},
+    {"id": "airfoil", "source": "openml", "outcome_type": "count", "url": "https://data.openml.org/datasets/154"},
+    {"id": "yacht", "source": "openml", "outcome_type": "count", "url": "https://data.openml.org/datasets/184"},
+    {"id": "breast_cancer", "source": "openml", "outcome_type": "binary", "url": "https://data.openml.org/datasets/53"},
+    {"id": "heart_disease", "source": "openml", "outcome_type": "binary", "url": "https://data.openml.org/datasets/141"},
+    {"id": "pima", "source": "openml", "outcome_type": "binary", "url": "https://data.openml.org/datasets/150"},
+    {"id": "ionosphere", "source": "openml", "outcome_type": "binary", "url": "https://data.openml.org/datasets/146"}
+]
 
-def ensure_directories():
-    """Create required directory structure if it doesn't exist."""
+def ensure_directories() -> None:
+    """Create necessary project directories if they do not exist."""
     dirs = [
-        PROJECT_ROOT / "data" / "raw",
-        PROJECT_ROOT / "data" / "processed",
-        PROJECT_ROOT / "data" / "results",
-        PROJECT_ROOT / "code",
-        PROJECT_ROOT / "tests"
+        "code", "tests", "tests/unit", "tests/integration", "tests/contract",
+        "data/raw", "data/processed", "data/results", "docs"
     ]
     for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    # Ensure __init__.py files exist
-    for d in [PROJECT_ROOT / "code", PROJECT_ROOT / "tests"]:
-        (d / "__init__.py").touch()
+        Path(d).mkdir(parents=True, exist_ok=True)
+
+def get_dataset_config() -> List[Dict[str, Any]]:
+    """Return the list of dataset configurations."""
+    return DATASET_LIST
+
+# Verification logic to ensure the list contains exactly 3 continuous, 3 count, and 4 binary datasets
+def verify_dataset_distribution() -> bool:
+    """Verify the distribution of dataset types in DATASET_LIST."""
+    counts = {"continuous": 0, "count": 0, "binary": 0}
+    for ds in DATASET_LIST:
+        outcome = ds.get("outcome_type")
+        if outcome in counts:
+            counts[outcome] += 1
+    return counts["continuous"] == 3 and counts["count"] == 3 and counts["binary"] == 4
 
 if __name__ == "__main__":
     ensure_directories()
-    print("Directories ensured.")
+    if not verify_dataset_distribution():
+        raise ValueError("Dataset distribution verification failed!")
+    print("Dataset configuration verified successfully.")
+    print(f"Continuous: {counts['continuous']}, Count: {counts['count']}, Binary: {counts['binary']}")

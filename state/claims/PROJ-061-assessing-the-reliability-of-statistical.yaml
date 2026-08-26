@@ -272,23 +272,6 @@
   updated_at: '2026-07-14T11:20:46Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Theoretical power calculation for two-sample t-test with Cohen's d of
-    0.5
-  claim_id: c_0ab7e1ce
-  context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5).
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:24:02Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
   canonical: Skip datasets with N less than 30
   claim_id: c_3a824d5f
   context: T015 [US1] Add validation logic to skip datasets with N < 30 and log insufficient
@@ -402,23 +385,6 @@
     N first.
   resolved_value: null
   resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:26:26Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
-  canonical: Full pipeline run on 10 diverse datasets
-  claim_id: c_5b009e6f
-  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
-    list) covering continuous, count, binary outcomes.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
-    count, binary outcomes.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
@@ -1444,3 +1410,771 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T12:27:08Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 0
+  canonical: Full pipeline run on 10 diverse datasets
+  claim_id: c_dd608e16
+  context: T034 Run full pipeline on 10 diverse datasets (from T004a list) covering
+    continuous, count, binary outcomes.
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Run full pipeline on 10 diverse datasets covering continuous, count, binary
+    outcomes
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T03:04:00Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: 'Select 10 diverse public datasets: 3 continuous, 3 count, 4 binary'
+  claim_id: c_821786ba
+  context: T004a Select and list 10 diverse public datasets (continuous, count, binary)
+    from UCI/OpenML satisfying FR-001 and Constitution Principle VII.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use the following hardcoded IDs to guarantee the balanced distribution:
+    Continuous (3): iris, wine, wine_quality_red; Count (3): concrete, airfoil, yacht;
+    Binary (4): breast_cancer, heart_disease, pima, ionosphere'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:04:32Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic test recovery rate must match true power within 5 percent
+  claim_id: c_6a700179
+  context: 'T031a Implement code/power_empirical.py synthetic test mode logic: Load
+    synthetic data from T030, run bootstrap, verify recovery rate matches true power
+    within 5% (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify recovery rate matches true power within 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:04:32Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Retry synthetic ground truth test 3 times with incremented seeds if failing
+  claim_id: c_a29af648
+  context: 'T031b Logic: Run the test. If the recovery rate is not within 5%, retry
+    with seeds [SEED + 1, SEED + 2, SEED + 3] up to 3 times.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry with seeds [SEED + 1, SEED + 2, SEED + 3] up to 3 times if recovery
+    rate is not within 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:04:54Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap iterations set to 1000
+  claim_id: c_88ce7984
+  context: 'T013 Implement code/power_empirical.py: Bootstrap simulation engine. Constraint:
+    Set BOOTSTRAP_ITERATIONS=1000 in code/config.py and enforce minimum 1000 iterations
+    in code.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set BOOTSTRAP_ITERATIONS=1000 in code/config.py and enforce minimum 1000
+    iterations in code
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:05:20Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Theoretical power calculation uses Cohen's d of 0.5
+  claim_id: c_1a965674
+  context: 'T012 Implement code/power_theory.py: Theoretical power calculation for
+    two-sample t-test (Cohen''s d = 0.5) using statsmodels'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical power calculation for two-sample t-test using Cohen's d =
+    0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:07:27Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Skip datasets with sample size less than 30
+  claim_id: c_2d36654d
+  context: T015 Add validation logic to skip datasets with N < 30, log 'insufficient
+    sample size', and do not process further.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_sample_size_less_than_30
+  kind: magnitude
+  raw_text: Skip datasets with N < 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:09:17Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: 'Default heterogeneity parameters: mixing ratio 0.2, separation 1.5 standard
+    deviations'
+  claim_id: c_5544f04d
+  context: 'T021 Effect size heterogeneity via mixing two sub-populations with configurable
+    parameters (default: mixing_ratio=0.2, separation=1.5 standard deviations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default mixing ratio is 0.2 and separation is 1.5 standard deviations
+    for effect size heterogeneity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:09:49Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: AR coefficients tested at 0.3 and 0.5
+  claim_id: c_ae0f63d0
+  context: 'T021b-Config Specific Parameters: AR coefficients: [, 0.3, 0.5]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: AR coefficients parameter list includes 0.3 and 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:10:44Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Contamination rates tested at 0.1 and 0.3
+  claim_id: c_d9aa1392
+  context: 'T021b-Config Specific Parameters: Contamination rates (heavy-tail): [,
+    0.1, 0.3]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Contamination rates (heavy-tail) parameter list includes 0.1 and 0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:11:22Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Separation values tested at 1.0 and 1.5
+  claim_id: c_a4c545bf
+  context: 'T021b-Config Specific Parameters: Separation values (heterogeneity): [,
+    1.0, 1.5]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Separation values (heterogeneity) parameter list includes 1.0 and 1.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:12:16Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap iterations set to 1000 for all sweeps
+  claim_id: c_8c7aa0b1
+  context: 'T021b-Config Iteration Count: Enforce BOOTSTRAP_ITERATIONS=1000 for all
+    sweeps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce BOOTSTRAP_ITERATIONS=1000 for all sweeps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:13:00Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit is 6 hours
+  claim_id: c_de3805db
+  context: 'Phase 6 Goal: Validate the bootstrap methodology and ensure the pipeline
+    meets the 6-hour runtime constraint on CPU-only hardware.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimated total runtime must not exceed 6 hours on CPU-only hardware
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:13:44Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Error raised if estimated runtime exceeds 6 hours
+  claim_id: c_c867937d
+  context: T032 If estimated total runtime > 6 hours, raise RuntimeError with message
+    'Estimated runtime exceeds 6-hour limit; implement subsampling (T032b) or optimize.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated total runtime > 6 hours, raise RuntimeError
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:13:44Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: 10 diverse public datasets selected from UCI/OpenML
+  claim_id: c_536e5dce
+  context: T004a [P] Select and list 10 diverse public datasets (continuous, count,
+    binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select and list 10 diverse public datasets (continuous, count, binary)
+    from UCI/OpenML
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:15:16Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: 3 continuous, 3 count, and 4 binary datasets from UCI/OpenML
+  claim_id: c_b67b94db
+  context: 'Specific List: Use the following hardcoded IDs to guarantee the balanced
+    distribution: Continuous (3): iris, wine, wine_quality_red Count (3): concrete,
+    airfoil, yacht Binary (4): breast_cancer, heart_disease, pima, ionosphere'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use the following hardcoded IDs to guarantee the balanced distribution:
+    Continuous (3): iris, wine, wine_quality_red; Count (3): concrete, airfoil, yacht;
+    Binary (4): breast_cancer, heart_disease, pima, ionosphere'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:15:16Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: BOOTSTRAP_ITERATIONS set to 1000
+  claim_id: c_ae6e0c53
+  context: 'T005 [P] Implement code/config.py: Centralized configuration for random
+    seeds (fixed), dataset lists (from T004a), and hyperparameters (including BOOTSTRAP_ITERATIONS=1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The framework includes hyperparameters including BOOTSTRAP_ITERATIONS=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:15:48Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Recovery rate matches true power within 5 percent
+  claim_id: c_0ebaa2d8
+  context: 'T031a [P] Implement code/power_empirical.py synthetic test mode logic:
+    Load synthetic data from T030, run bootstrap, verify recovery rate matches true
+    power within 5% (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify recovery rate matches true power within 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:15:48Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Retry up to 3 times with specific seeds
+  claim_id: c_4124a616
+  context: 'T031b [Validation] Logic: Run the test. If the recovery rate is not within
+    5%, retry with seeds [SEED + 1, SEED + 2, SEED + 3] up to 3 times.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry with seeds [SEED + 1, SEED + 2, SEED + 3] up to 3 times
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:16:15Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 2
+  canonical: Theoretical power calculation for two-sample t-test with Cohen's d of
+    0.5
+  claim_id: c_0ab7e1ce
+  context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
+    for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:19:19Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap iterations enforced to minimum 1000
+  claim_id: c_4d6ef3c8
+  context: 'T013 [US1] Implement code/power_empirical.py: Bootstrap simulation engine.
+    Constraint: Set BOOTSTRAP_ITERATIONS=1000 in code/config.py and enforce minimum
+    1000 iterations in code.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce minimum 1000 iterations in code
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:19:56Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Datasets with sample size less than 30 skipped
+  claim_id: c_5d014afe
+  context: T015 [US1] Add validation logic to skip datasets with N < 30, log insufficient
+    sample size, and do not process further.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_sample_size_less_than_30_skipped
+  kind: magnitude
+  raw_text: Skip datasets with N < 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:19:59Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Effect size heterogeneity with mixing ratio 0.2 and separation 1.5 standard
+    deviations
+  claim_id: c_fc8ab5e3
+  context: 'T021 [P] [US2] Implement code/perturbations.py: Injection modules for:
+    ... 3. Effect size heterogeneity via mixing two sub-populations with configurable
+    parameters (default: mixing_ratio=0.2, separation=1.5 standard deviations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect size heterogeneity via mixing two sub-populations with configurable
+    parameters (default: mixing_ratio=0.2, separation=1.5 standard deviations)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:20:35Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: AR coefficients set to 0.3 and 0.5
+  claim_id: c_859546df
+  context: 'T021b-Config [US2] Specific Parameters: AR coefficients: [, 0.3, 0.5]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'AR coefficients: 0.3, 0.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:21:16Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Contamination rates set to 0.1 and 0.3
+  claim_id: c_ee8268ac
+  context: 'T021b-Config [US2] Specific Parameters: Contamination rates (heavy-tail):
+    [, 0.1, 0.3]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Contamination rates (heavy-tail): 0.1, 0.3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:21:43Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Separation values set to 1.0 and 1.5 standard deviations
+  claim_id: c_334c9855
+  context: 'T021b-Config [US2] Specific Parameters: Separation values (heterogeneity):
+    [, 1.0, 1.5]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Separation values (heterogeneity): 1.0, 1.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:22:30Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap iterations enforced to 1000 for all sweeps
+  claim_id: c_24fb01ba
+  context: 'T021b-Config [US2] Iteration Count: Enforce BOOTSTRAP_ITERATIONS=1000
+    for all sweeps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce BOOTSTRAP_ITERATIONS=1000 for all sweeps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:22:30Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Dry-run on dataset with largest N to estimate runtime
+  claim_id: c_4cfd7ef6
+  context: 'T032 [Validation] Profile and Enforce Runtime: Run a dry-run on the dataset
+    with the largest N from the T004a list to estimate total runtime.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dry-run_on_dataset_with_largest_N_to_estimate_runtime
+  kind: magnitude
+  raw_text: Run a dry-run on the dataset with the largest N from the T004a list to
+    estimate total runtime
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:23:40Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Runtime error raised if estimated runtime exceeds 6 hours
+  claim_id: c_c7bf0588
+  context: T032 [Validation] If estimated total runtime > 6 hours, raise RuntimeError
+    with message Estimated runtime exceeds 6-hour limit; implement subsampling (T032b)
+    or optimize.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated total runtime > 6 hours, raise RuntimeError
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:23:41Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Full pipeline run on 10 diverse datasets
+  claim_id: c_5b009e6f
+  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
+    list) covering continuous, count, binary outcomes.
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
+    count, binary outcomes.
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T03:23:41Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 0
+  canonical: Execute full pipeline on 10 diverse datasets (continuous, count, binary)
+  claim_id: c_b2e36870
+  context: T034 [Validation] Run full pipeline on 10 diverse datasets (from T004a
+    list) covering continuous, count, binary outcomes.
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Run full pipeline on 10 diverse datasets covering continuous, count, binary
+    outcomes
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T03:24:52Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: 'Select 10 diverse public datasets: 3 continuous (iris, wine, wine_quality_red),
+    3 count (concrete, airfoil, yacht), 4 binary (breast_cancer, heart_disease, pima,
+    ionosphere)'
+  claim_id: c_38138e15
+  context: 'T004a [P] Select and list 10 diverse public datasets (continuous, count,
+    binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII. Specific
+    List: Use the following hardcoded IDs...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use the following hardcoded IDs to guarantee the balanced distribution:
+    Continuous (3): iris, wine, wine_quality_red; Count (3): concrete, airfoil, yacht;
+    Binary (4): breast_cancer, heart_disease, pima, ionosphere'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:24:52Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: 'Dataset list composition: 3 continuous, 3 count, 4 binary'
+  claim_id: c_9051b0bb
+  context: 'Verification: Add a check to confirm the list contains exactly 3 continuous,
+    3 count, and 4 binary datasets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The list contains exactly 3 continuous, 3 count, and 4 binary datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:25:34Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Enforce minimum 1000 bootstrap iterations
+  claim_id: c_fb60efda
+  context: 'T013 [US1] Implement code/power_empirical.py: Bootstrap simulation engine.
+    Constraint: Set BOOTSTRAP_ITERATIONS=1000 in code/config.py and enforce minimum
+    1000 iterations in code.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set BOOTSTRAP_ITERATIONS=1000 in code/config.py and enforce minimum 1000
+    iterations in code
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:25:34Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Skip datasets with sample size less than 30
+  claim_id: c_e8972ab2
+  context: T015 [US1] Add validation logic to skip datasets with N < 30, log 'insufficient
+    sample size', and do not process further.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_sample_size_less_than_30
+  kind: magnitude
+  raw_text: Skip datasets with N < 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:25:37Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Verify recovery rate matches true power within 5% margin
+  claim_id: c_aa45ae24
+  context: 'T031a [P] Implement code/power_empirical.py synthetic test mode logic:
+    Load synthetic data from T030, run bootstrap, verify recovery rate matches true
+    power within 5% (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify recovery rate matches true power within 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:25:37Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Retry synthetic validation up to 3 times with incremented seeds if recovery
+    rate fails 5% threshold
+  claim_id: c_740c50bf
+  context: 'T031b [Validation] Execute the Synthetic Ground Truth test (T031a)...
+    Logic: Run the test. If the recovery rate is not within 5%, retry with seeds [SEED
+    + 1, SEED + 2, SEED + 3] up to 3 times.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry with seeds [SEED + 1, SEED + 2, SEED + 3] up to 3 times if recovery
+    rate is not within 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:25:37Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: 'Default effect size heterogeneity parameters: mixing ratio 0.2, separation
+    1.5 standard deviations'
+  claim_id: c_0946c821
+  context: 'T021 [P] [US2] Implement code/perturbations.py... 3. Effect size heterogeneity
+    via mixing two sub-populations with configurable parameters (default: mixing_ratio=0.2,
+    separation=1.5 standard deviations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default mixing ratio is 0.2 and separation is 1.5 standard deviations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:26:12Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: AR coefficient parameter list includes 0.3 and 0.5
+  claim_id: c_7f3e901e
+  context: 'T021b-Config [US2] Define parameter lists for violation magnitudes in
+    code/config.py... AR coefficients: [, 0.3, 0.5]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use AR coefficients: 0.3, 0.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:26:52Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Contamination rate parameter list includes 0.1 and 0.3
+  claim_id: c_fb64a430
+  context: 'T021b-Config [US2] Define parameter lists for violation magnitudes in
+    code/config.py... Contamination rates (heavy-tail): [, 0.1, 0.3]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use contamination rates: 0.1, 0.3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:27:40Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Separation value parameter list includes 1.0 and 1.5
+  claim_id: c_ff1a3030
+  context: 'T021b-Config [US2] Define parameter lists for violation magnitudes in
+    code/config.py... Separation values (heterogeneity): [, 1.0, 1.5]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use separation values: 1.0, 1.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:28:20Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Enforce 1000 bootstrap iterations for all violation sweeps
+  claim_id: c_cb0a86cd
+  context: 'T021b-Config [US2] ... Iteration Count: Enforce BOOTSTRAP_ITERATIONS=1000
+    for all sweeps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce BOOTSTRAP_ITERATIONS=1000 for all sweeps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:28:20Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Theoretical power calculation assumes Cohen's d of 0.5
+  claim_id: c_89d752ef
+  context: 'T012 [P] [US1] Implement code/power_theory.py: Theoretical power calculation
+    for two-sample t-test (Cohen''s d = 0.5) using statsmodels'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical power calculation uses Cohen's d = 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:30:27Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime constraint is 6 hours on CPU-only hardware
+  claim_id: c_f6bdd86a
+  context: 'Phase 6: Validation & Synthetic Ground Truth ... ensure the pipeline meets
+    the 6-hour runtime constraint on CPU-only hardware.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimated total runtime must not exceed 6 hours on CPU-only hardware
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:30:27Z'
