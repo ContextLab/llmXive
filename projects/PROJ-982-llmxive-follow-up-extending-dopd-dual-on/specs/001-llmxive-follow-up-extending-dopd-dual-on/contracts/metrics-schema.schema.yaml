@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Metrics Schema"
+description: "Schema for aggregated training and evaluation metrics."
+type: "object"
+properties:
+  seed:
+    type: "integer"
+    description: "Random seed for the episode."
+  regime:
+    type: "string"
+    enum: ["uniform", "dopd"]
+    description: "Training regime used."
+  final_q_table_size:
+    type: "integer"
+    description: "Size of the Q-table at the end of training."
+  convergence_step:
+    type: "integer"
+    description: "Step where policy stabilized."
+  action_entropy_mean:
+    type: "number"
+    description: "Average entropy during training."
+  accuracy_unmasked:
+    type: "number"
+    description: "Accuracy on test set with H visible."
+  accuracy_masked:
+    type: "number"
+    description: "Accuracy on test set with H hidden."
+  drop:
+    type: "number"
+    description: "Performance drop (accuracy_unmasked - accuracy_masked) / R_max."
+required:
+  - seed
+  - regime
+  - final_q_table_size
+  - convergence_step
+  - action_entropy_mean
+  - accuracy_unmasked
+  - accuracy_masked
+  - drop
+additionalProperties: false

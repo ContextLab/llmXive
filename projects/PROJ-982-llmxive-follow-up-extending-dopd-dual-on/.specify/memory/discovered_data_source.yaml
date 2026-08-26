@@ -1,0 +1,48 @@
+status: verified
+kind: pypi_package
+ref: minigrid
+access_python: "import gymnasium as gym\nimport minigrid\nimport numpy as np\n\n#\
+  \ create a simple MiniGrid environment that follows the Gymnasium API\nenv = gym.make('MiniGrid-Empty-5x5-v0')\n\
+  obs, info = env.reset(seed=42)\n\nrecords = []\nstate_id = 0\nwhile True:\n    #\
+  \ sample a random action\n    action = env.action_space.sample()\n    next_obs,\
+  \ reward, terminated, truncated, info = env.step(action)\n    done = terminated\
+  \ or truncated\n\n    # privileged full state (grid encoding) \u2013 this is the\
+  \ hidden information\n    full_state = None\n    if hasattr(env.unwrapped, 'grid')\
+  \ and hasattr(env.unwrapped.grid, 'encode'):\n        full_state = env.unwrapped.grid.encode()\n\
+  \n    # example privileged variable (agent direction) if present in info\n    privileged_variable\
+  \ = info.get('direction')\n\n    record = {\n        'state_id': state_id,\n   \
+  \     'full_state': full_state,\n        'student_observation': obs,\n        'teacher_observation':\
+  \ full_state,\n        'privileged_variable': privileged_variable,\n        'action':\
+  \ action,\n        'reward': reward,\n        'next_state': next_obs,\n        'done':\
+  \ done,\n        'seed': env.unwrapped._seed if hasattr(env.unwrapped, '_seed')\
+  \ else None,\n    }\n    records.append(record)\n    if done:\n        break\n \
+  \   obs = next_obs\n    state_id += 1\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"\
+  FIELDS=state_id,full_state,student_observation,teacher_observation,privileged_variable,action,reward,next_state,done,seed\"\
+  )"
+record_count: 98
+sample_fields:
+- state_id
+- full_state
+- student_observation
+- teacher_observation
+- privileged_variable
+- action
+- reward
+- next_state
+- done
+- seed
+field_coverage: 1.0
+required_fields:
+- state_id
+- full_state
+- student_observation
+- teacher_observation
+- privileged_variable
+- action
+- reward
+- next_state
+- done
+- seed
+intent: MiniGrid gymnasium hidden privileged state gridworld environment python package
+  dataset
+cache_key: 797d2fc271103b5d9c5985b40bb66556944ee51a9176a3645dfbb15deab80199

@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MDP State Schema"
+description: "Schema for the full and observable state of the discrete MDP environment."
+type: "object"
+properties:
+  full_state:
+    type: "object"
+    description: "Complete state including hidden variable."
+    properties:
+      x:
+        type: "integer"
+        minimum: 0
+        description: "X coordinate on the grid."
+      y:
+        type: "integer"
+        minimum: 0
+        description: "Y coordinate on the grid."
+      h:
+        type: "integer"
+        description: "Hidden privileged variable (e.g., 0 or 1)."
+    required:
+      - x
+      - y
+      - h
+  observable_state:
+    type: "object"
+    description: "Projected state visible to the Student agent."
+    properties:
+      x:
+        type: "integer"
+        minimum: 0
+      y:
+        type: "integer"
+        minimum: 0
+    required:
+      - x
+      - y
+  action:
+    type: "integer"
+    minimum: 0
+    maximum: 3
+    description: "Action taken (0:Up, 1:Down, 2:Left, 3:Right)."
+  reward:
+    type: "number"
+    description: "Immediate reward received."
+required:
+  - full_state
+  - observable_state
+  - action
+  - reward
+additionalProperties: false

@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Log Schema"
+description: "Schema for per-step training logs (JSONL format)."
+type: "object"
+properties:
+  seed:
+    type: "integer"
+    description: "Random seed for the run."
+  regime:
+    type: "string"
+    enum:
+      - "uniform"
+      - "dopd"
+    description: "Training regime used."
+  step:
+    type: "integer"
+    minimum: 0
+    description: "Training step index."
+  episode:
+    type: "integer"
+    minimum: 0
+    description: "Episode index."
+  loss:
+    type: "number"
+    description: "Distillation loss value."
+  entropy:
+    type: "number"
+    description: "Policy entropy at this step."
+  expected_advantage_gap:
+    type: "number"
+    nullable: true
+    description: "Noisy signal value (expected advantage marginalized over H). Null for Uniform regime."
+  reward:
+    type: "number"
+    description: "Cumulative reward for the episode."
+required:
+  - seed
+  - regime
+  - step
+  - episode
+  - loss
+  - entropy
+  - reward
+additionalProperties: false

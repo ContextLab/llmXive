@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Result Summary Schema"
+description: "Schema for aggregated results per seed and regime."
+type: "object"
+properties:
+  seed:
+    type: "integer"
+    description: "Random seed."
+  regime:
+    type: "string"
+    enum:
+      - "uniform"
+      - "dopd"
+    description: "Training regime."
+  train_accuracy:
+    type: "number"
+    description: "Average reward during training."
+  test_accuracy_masked:
+    type: "number"
+    description: "Average reward during evaluation with hidden state masked."
+  convergence_step:
+    type: "integer"
+    minimum: 0
+    description: "Step where policy stabilized."
+  p_value:
+    type: "number"
+    nullable: true
+    description: "P-value from Mann-Whitney U test (only in aggregate file)."
+  effect_size:
+    type: "number"
+    nullable: true
+    description: "Cliff's Delta or similar effect size."
+required:
+  - seed
+  - regime
+  - train_accuracy
+  - test_accuracy_masked
+  - convergence_step
+additionalProperties: false
