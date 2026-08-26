@@ -1,30 +1,31 @@
 ## Research-question validation
 
-### Phenomenon‑vs‑method check
+### Phenomenon-vs-method check
 
-**Verdict**: concern  
-The document does not state an explicit research question; it only outlines a design goal. Without a clear question we cannot verify that the inquiry is about a substantive phenomenon rather than a method implementation.
+**Verdict**: pass
+
+The question asks about the causal relationship between the adoption of specific clean-energy technologies and downstream socioeconomic metrics (cost burden, disposable income) in a defined population. It is framed as an empirical inquiry into real-world outcomes rather than a benchmark of a specific algorithm's performance or computational efficiency.
 
 ### Circularity check
 
-**Verdict**: concern  
-No predictor or outcome variable is identified, so we cannot assess whether the proposed relationship would be circular (e.g., derived from the same data source).
+**Verdict**: pass
+
+The predictor (adoption of solar/microgrid technology) is derived from self-reported installation status or utility records, while the predicted variables (energy cost burden, disposable income) are calculated from household expenditure and income data. These are distinct data streams where the predictor represents an intervention event, and the outcomes represent financial states, avoiding mechanical derivation from a single primary signal.
 
 ### Triviality check
 
-**Verdict**: concern  
-Because the intended question is absent, we cannot judge whether either a positive or null result would be informative. A well‑posed question is needed to evaluate triviality.
+**Verdict**: pass
 
-### Question‑narrowing check
+Both a positive and a null result would be scientifically informative: a positive result would provide causal evidence for energy justice policy, while a null result (or negative result) would challenge the assumption that technology deployment alone solves poverty, highlighting the need for complementary financial or structural interventions.
 
-**Verdict**: concern  
-The current framing focuses on “developing novel solutions” and “technical design,” which are implementation‑oriented goals rather than a domain‑level inquiry about the underlying energy‑inequity phenomenon.
+### Question-narrowing check
+
+**Verdict**: pass
+
+The question explicitly names a domain relationship (technology adoption → socioeconomic outcomes) rather than an implementation constraint (e.g., "Can a specific dataset processing pipeline handle X within Y time?"). It focuses on the "what" and "how much" of the phenomenon, leaving the specific causal inference methods (PSM, DiD) as tools rather than the subject of the question itself.
 
 ### Overall verdict
 
-**Verdict**: validator_revise  
-The idea lacks a concrete research question, making all four checks indeterminate. A defensible reframing is required that isolates a substantive scientific relationship independent of any particular implementation detail.
+**Verdict**: validated
 
-[REVISED]What impact do affordable clean‑energy technologies (e.g., solar home systems, community microgrids) have on household energy consumption, cost burden, and socioeconomic outcomes in low‑income communities?[/REVISED]
-
-Reframing the project around this question shifts the focus from building a solution to empirically investigating the causal relationship between technology adoption and energy equity, enabling all validation checks to be meaningfully addressed.
+All four checks pass, confirming that the research question targets a substantive, non-circular, and non-trivial phenomenon in the energy domain. The question is well-framed to guide the subsequent methodology without being constrained by implementation details or logical fallacies.

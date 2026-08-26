@@ -9,3 +9,15 @@
   verification_status: mismatch
   verified_against_url: https://github.com/llmXive/energy-20250704-001
   verified_at: '2026-04-29T04:37:43.391102Z'
+- artifact_hash: d6089a5a17466c71954378c1717a33ffa5b48fa22d6c20b60103b4baa8ba56d5
+  artifact_path: projects/PROJ-007-energy-systems/specs/002-energy-systems/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: U.S. Energy Information Administration - EIA - Independent Statistics
+    and Analysis
+  kind: url
+  value: https://www.eia.gov/consumption/residential/data/2020/`
+  verification_status: pending
+  verified_against_url: https://www.eia.gov/consumption/residential/data/2020/
+  verified_at: '2026-08-26T13:43:21.384003Z'

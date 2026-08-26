@@ -1,3 +1,11 @@
 {"event": "diff_pollution_purge", "ts": "2026-05-15T12:35:01Z", "deleted_paths": ["projects/PROJ-007-energy-systems/specs/001-energy-systems/spec.md"], "prior_stage": "planned", "new_stage": "flesh_out_complete", "reason": "polluted by unified-diff content; deleted, rolled back per spec 010 fix", "run_id": "94ebb5c6-41c1-4b77-acf6-79e88ecf5bf4"}
 {"at": "2026-06-16T09:36:28.095564+00:00", "from_stage": "flesh_out_complete", "last_run_id": "6cd92c87-5130-4b35-bb32-cd1d0ce098db", "to_stage": "flesh_out_in_progress"}
 {"at": "2026-07-28T16:23:18.096335+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "962dd2af-ae8f-40f2-89e7-8f44ee318fce", "to_stage": "flesh_out_complete"}
+{"at": "2026-08-26T13:26:27.432892+00:00", "from_stage": "flesh_out_complete", "last_run_id": "4da7ad64-1d66-4169-8238-5470deb855c6", "to_stage": "validated"}
+{"at": "2026-08-26T13:26:42.156862+00:00", "from_stage": "validated", "last_run_id": "0cc55004-de55-4e16-8e8f-b131185a9bf3", "to_stage": "project_initialized"}
+{"at": "2026-08-26T13:27:12.278817+00:00", "from_stage": "project_initialized", "last_run_id": "b125aaff-3ec3-4dc3-badd-dda8cd66b1c1", "to_stage": "specified"}
+{"at": "2026-08-26T13:28:34.527858+00:00", "from_stage": "specified", "last_run_id": "a4d02ecf-a7e0-42e6-9c58-2b4962549efe", "to_stage": "clarified"}
+{"at": "2026-08-26T13:43:34.802730+00:00", "from_stage": "clarified", "last_run_id": "22cf62b9-30ff-4cc4-b061-d596af33b522", "to_stage": "planned"}
+{"at": "2026-08-26T13:49:36.878206+00:00", "from_stage": "planned", "last_run_id": "eaa66c2c-3d6c-4b4f-ba7b-24b66b0c5d2e", "to_stage": "tasked"}
+{"at": "2026-08-26T13:57:23.534499+00:00", "from_stage": "tasked", "last_run_id": "fd3ed27b-8720-44e1-ad6a-a5d88c3a61a4", "to_stage": "analyzed"}
+{"at": "2026-08-26T14:07:41.366808+00:00", "from_stage": "analyzed", "last_run_id": "1129e804-4dbd-468b-b0d8-ad890074c068", "to_stage": "in_progress"}

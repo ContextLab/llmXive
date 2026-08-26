@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for the final causal inference output."
+type: "object"
+properties:
+  method:
+    type: "string"
+    description: "Methodology used (PSM, DiD, or Skipped_DiD_Data_Unavailable)."
+    enum: ["PSM", "DiD", "Skipped_DiD_Data_Unavailable"]
+  att_estimate:
+    type: "number"
+    description: "Average Treatment Effect on the Treated (on log(energy_cost))."
+  p_value:
+    type: "number"
+    description: "Two-tailed p-value."
+    minimum: 0
+    maximum: 1
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+  caliper_used:
+    type: "number"
+    description: "Propensity score caliper value."
+  balance_status:
+    type: "boolean"
+    description: "True if all SMD <= 0.1."
+  sample_size_treated:
+    type: "integer"
+    description: "Number of treated units in final sample."
+    minimum: 0
+  sample_size_control:
+    type: "integer"
+    description: "Number of control units in final sample."
+    minimum: 0
+required:
+  - method
+  - att_estimate
+  - p_value
+  - ci_lower
+  - ci_upper
+  - balance_status
+  - sample_size_treated
+  - sample_size_control
+additionalProperties: false

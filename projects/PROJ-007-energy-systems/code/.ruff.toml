@@ -1,0 +1,25 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in pydantic)
+    "C901", # too complex (temporarily relaxed for analysis logic)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # allow asserts in tests
+
+[format]
+# Use double quotes for strings, consistent with Black
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

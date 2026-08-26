@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Household Data Schema"
+description: "Schema for the processed household dataset used in PSM and causal inference."
+type: "object"
+properties:
+  household_id:
+    type: "string"
+    description: "Unique identifier for the household."
+  income:
+    type: "number"
+    description: "Annual household income in USD."
+    minimum: 0
+  energy_cost:
+    type: "number"
+    description: "Annual energy expenditure in USD."
+    minimum: 0
+  log_energy_cost:
+    type: "number"
+    description: "Natural log of energy cost (Primary Causal Outcome)."
+  energy_cost_burden:
+    type: "number"
+    description: "Energy cost burden (Cost/Income) - Descriptive Only."
+  housing_type:
+    type: "string"
+    description: "Type of dwelling."
+    enum: ["single-family", "multi-unit", "mobile-home", "other"]
+  location:
+    type: "string"
+    description: "Census tract or ZIP code."
+  treatment:
+    type: "integer"
+    description: "Binary treatment indicator (1=adopted, 0=control)."
+    enum: [0, 1]
+  propensity_score:
+    type: "number"
+    description: "Estimated probability of treatment."
+    minimum: 0
+    maximum: 1
+  home_value:
+    type: "number"
+    description: "Estimated home value in USD."
+    minimum: 0
+  home_value_change:
+    type: "number"
+    description: "Change in home value (if longitudinal data exists)."
+    minimum: -1000000
+  weight:
+    type: "number"
+    description: "Survey weight."
+    minimum: 0
+required:
+  - household_id
+  - income
+  - energy_cost
+  - housing_type
+  - location
+  - treatment
+  - log_energy_cost
+additionalProperties: false

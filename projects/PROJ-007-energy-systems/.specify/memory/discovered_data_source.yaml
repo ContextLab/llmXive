@@ -1,0 +1,19 @@
+status: none
+intent: download EIA RECS and ACS microdata merged low income census tract python
+  package dataset
+required_fields:
+- household_id
+- census_tract
+- median_income
+- low_income_flag
+- treatment_flag_solar_microgrid
+- solar_installation_flag
+- microgrid_installation_flag
+- energy_cost
+- energy_cost_burden
+- disposable_income
+- home_value
+- home_value_appreciation
+cache_key: b44098b7e355203aafd2601d07cabb8f73dabc9b3bcc96633fcee35f4f40cd85
+searched_at: '2026-08-26T13:36:06.166686+00:00'
+retry_count: 1
