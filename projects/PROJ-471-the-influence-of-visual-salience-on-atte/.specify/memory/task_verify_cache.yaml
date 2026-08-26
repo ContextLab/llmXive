@@ -1,3 +1,17 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence (e.g., directory listing, screenshots, or script output) was provided
+    to show that the required directories (`code/`, `data/raw`, `data/interim`, `data/processed`,
+    `tests/unit`, `tests/integration`, `docs/`) actually exist. Without concrete proof,
+    the task cannot be considered completed.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black\
+    \ settings, `.ruff.toml`, CI workflow modifications) are present, and the provided\
+    \ project excerpt contains no such artifacts. The implementer\u2019s claim lacks\
+    \ any tangible evidence that ruff and black have been set up."
 T006:
   c: false
   h: d673fe0ffde8e179aee23d0bb0dcc33ff6e7b3cbaa6066921f180dbf846ec3d9
@@ -29,12 +43,6 @@ T019:
     in the repository, so the task of providing a unit test for parsing a mock fixation
     file is not satisfied. The implementation of `eye_tracking.py` is present, but
     without the corresponding test artifact the requirement remains unmet.
-T020c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec.md` or `plan.md` files showing the removal of FR\u2011008 and the updated\
-    \ user stories are provided, nor any evidence that FR\u2011008 is explicitly excluded\
-    \ in the plan. The required document edits cannot be confirmed."
 T021:
   c: false
   h: d44122d1d074e3ab34863b38ad32ef2b2ee40687dafd40978d55317241a040ec
@@ -64,12 +72,6 @@ T030b:
     \ not demonstrate iterating over `data/raw` images or writing the required `data/interim/low_level_features.csv`.\
     \ Moreover, the expected CSV output file is absent from the project. The task\u2019\
     s primary deliverable\u2014a populated low\u2011level features CSV\u2014is missing."
-T030e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No edited `spec.md` or `plan.md` files were presented; there is no evidence\
-    \ that FR\u2011009 was removed from the functional requirements list or that the\
-    \ plan now explicitly notes its exclusion. The required artifacts are missing."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -93,12 +95,20 @@ T035:
     \ null results were recorded and explicitly linked to \u201Ctheories of attentional\
     \ control hierarchy.\u201D Consequently, the core requirement of task T035 (logging\
     \ null results with theoretical linkage) is missing."
-T037:
+T037a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md or docs/ files were presented for inspection, and there is no evidence
-    that any documentation was actually updated. The required artifacts are missing,
-    so the task cannot be considered fulfilled.
+  r: No updated `README.md` file was provided; the claim lacks any artifact showing
+    installation steps, data acquisition protocol, or execution commands, which are
+    the explicit deliverables of task T037a. The required README content is missing.
+T037b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No documentation files or updates were presented; there is no evidence that\
+    \ the `docs/` directory now contains a data protocol or processing details as\
+    \ required. The implementer must add the appropriate markdown (or other) files\
+    \ to `docs/` describing dataset acquisition, salience map generation, eye\u2011\
+    tracking preprocessing, and analysis steps."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -65,3 +65,553 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T17:56:47Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Dataset streaming threshold 7GB
+  claim_id: c_b7e3e3d1
+  context: 'T012 [US1] Implement code/ingestion/download_data.py to fetch a specific
+    dataset via datasets.load_dataset (streaming=False for local cache). Streaming
+    Logic: If the dataset size exceeds 7GB, switch to streaming=True automatically.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_streaming_threshold_7GB
+  kind: entity_fact
+  raw_text: If the dataset size exceeds 7GB, switch to streaming=True automatically.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:51:22Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: RAM limit 7GB
+  claim_id: c_bcffe382
+  context: 'Independent Test: Run ingestion on a subset of images; verify multiple
+    .npy/.png maps generated with matching resolution; confirm no CUDA errors and
+    RAM < 7GB; verify metadata includes generation method.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_limit_7GB
+  kind: magnitude
+  raw_text: RAM limit must be less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:51:55Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Mean salience threshold 0.01
+  claim_id: c_64fdad78
+  context: 'T013a [US1] GBVS Fallback (Runtime Logic)... Validation Metrics: 1) Map
+    dimensions must match input; 2) Map must have non-zero variance; 3) Mean salience
+    value must be > 0.01.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_salience_threshold_0.01
+  kind: magnitude
+  raw_text: Mean salience value must be greater than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:52:23Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Batch timeout threshold 15 minutes
+  claim_id: c_1c6ed34c
+  context: 'T014 [US1] Add memory AND CPU time monitoring to salience_gen.py... Track
+    Batch Timeouts: Increment a batch_timeout_count variable if a batch exceeds 15
+    minutes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Batch timeout count increments if a batch exceeds 15 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:52:46Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: RAM warning threshold 6.5GB
+  claim_id: c_28a84395
+  context: T014 [US1]... Log warnings if > 6.5GB or > 5.5 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Warnings are logged if RAM exceeds 6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:53:07Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Job time warning threshold 5.5 hours
+  claim_id: c_a70202f7
+  context: T014 [US1]... Log warnings if > 6.5GB or > 5.5 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Warnings are logged if cumulative job time exceeds 5.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:53:29Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: GBVS fallback frequency threshold 10%
+  claim_id: c_c1afb28c
+  context: 'T018a [US1]... Constraint: If fallback (GBVS) frequency > 10% of total
+    images, HALT the pipeline...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline halts if GBVS fallback frequency exceeds 10% of total images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:53:29Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: VIF threshold 5
+  claim_id: c_4dc3334d
+  context: 'T030 [US3] VIF Calculation and Hard Gate... Action: If VIF > 5, write
+    data/interim/vif_gate_flag.json containing the reason VIF > 5: Multicollinearity
+    detected and raise a RuntimeError to halt the pipeline.'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Pipeline halts if VIF is greater than 5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T11:53:29Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Power threshold 0.8
+  claim_id: c_deb51c20
+  context: 'T029c [US3] Enforce Power Gate: Implement logic to halt the pipeline if
+    T029a reports power < 0.8.'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Pipeline halts if statistical power is less than 0.8.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T11:53:29Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Assumed effect size 0.5
+  claim_id: c_3bea03aa
+  context: 'T029a [US3] LMM Power Analysis... Assumption: Use a medium effect size
+    (d=0.5) for the pilot simulation if no pilot data exists.'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: A medium effect size of d=0.5 is assumed for pilot simulation if no pilot
+    data exists.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T11:53:29Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Sample size threshold 30
+  claim_id: c_6b4678ca
+  context: 'T029b [US3] Fallback Descriptive Stats... Trigger: Activated by T029a
+    failure or N < 30 check.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_threshold_30
+  kind: magnitude
+  raw_text: Descriptive statistics are generated if N is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:54:22Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Dataset checksum OpenNeuro ds003123
+  claim_id: c_012d6423
+  context: T043 [P] Implement code/ingestion/verify_real_source.py to confirm that
+    the dataset downloaded in T012 matches the canonical OpenNeuro ds003123 checksum...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_checksum_OpenNeuro_ds003123
+  kind: entity_fact
+  raw_text: The dataset downloaded must match the canonical OpenNeuro ds003123 checksum.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:54:41Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Cumulative job time limit 21600 seconds
+  claim_id: c_4cbeb2cb
+  context: T042 [P]... assert that ram_peak_gb < 7.0 and cumulative_job_time_seconds
+    + (batch_timeout_count * 15 * 60) < 21600 (6 hours).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cumulative_job_time_limit_21600_seconds
+  kind: magnitude
+  raw_text: Cumulative job time plus batch timeout penalty must be less than 21600
+    seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:55:04Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: Error code DATA_MISSING_001
+  claim_id: c_c4fd4ff7
+  context: 'T051 [US1] No Synthetic Fallback Enforcement... raise a RuntimeError with
+    error code DATA_MISSING_001 and message DATA_MISSING_001: Real data fetch failed
+    to halt the build.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Error_code_DATA_MISSING_001
+  kind: entity_fact
+  raw_text: The error code DATA_MISSING_001 is raised if real data fetch fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:55:31Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md
+  attempts: 1
+  canonical: FDR method Benjamini-Hochberg
+  claim_id: c_7aa0a3a5
+  context: 'T031 [US3] Apply FDR correction to all p-values (FR-006)... Method: Benjamini-Hochberg.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The classical Bonferroni method is easy to understand but should not
+        be used since it is overly conservative. There are online calculators to correct
+        for multiple comparisons using the more modern Holm-Bonferroni method or the
+        Benjamini-Hochberg procedure.
+      source_id: Multiple comparisons problem
+      url: https://en.wikipedia.org/wiki/Multiple_comparisons_problem
+      value: Benjamini-Hochberg procedure
+    filled: true
+  kind: entity_fact
+  raw_text: FDR correction is applied using the Benjamini-Hochberg method.
+  resolved_value: Benjamini-Hochberg procedure
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T11:55:44Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 0
+  canonical: pipeline halts if power less than 0.8
+  claim_id: c_3b20f8ef
+  context: 'Gate: If power < 0.8, the pipeline halts and writes data/interim/power_gate_flag.json
+    (T029c).'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline halts if statistical power is less than 0.8.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T11:58:27Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: pipeline switches to streaming if dataset size exceeds 7GB
+  claim_id: c_23766c62
+  context: 'Streaming: The pipeline automatically switches to streaming=True if the
+    estimated dataset size exceeds 7GB to comply with RAM constraints (T012).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_switches_to_streaming_if_dataset_size_exceeds_7GB
+  kind: entity_fact
+  raw_text: The pipeline automatically switches to 'streaming=True' if the estimated
+    dataset size exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:58:54Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: dataset source is OpenNeuro ds003123
+  claim_id: c_25895f9a
+  context: 'Source: OpenNeuro (ds003123)'
+  evidence:
+    entailment_evidence: Dataset source is OpenNeuro ds003123
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_is_OpenNeuro_ds003123
+  kind: entity_fact
+  raw_text: The primary source for the dataset is OpenNeuro (ds003123).
+  resolved_value: dataset source is OpenNeuro ds003123
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T11:58:56Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: DeepGaze II used as primary method for salience map generation
+  claim_id: c_819cd79c
+  context: 'Primary Method: DeepGaze II (CPU-only mode).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DeepGaze_II_used_as_primary_method_for_salience_map_generati
+  kind: entity_fact
+  raw_text: DeepGaze II is used as the primary method for salience map generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:59:21Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: GBVS used as fallback if DeepGaze II fails on high-contrast image
+  claim_id: c_c57c1ff4
+  context: 'Fallback Method: GBVS (Graph-Based Visual Saliency). Trigger: Activated
+    only if DeepGaze II fails on a specific high-contrast image.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GBVS_used_as_fallback_if_DeepGaze_II_fails_on_high-contrast
+  kind: entity_fact
+  raw_text: GBVS (Graph-Based Visual Saliency) is used as a fallback method if DeepGaze
+    II fails on a specific high-contrast image.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T11:59:41Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: GBVS maps excluded from primary success count
+  claim_id: c_b34a8523
+  context: 'Exclusion: GBVS maps are excluded from the primary success count (SC-001)
+    but logged separately in data/processed/salience_stats.json (T013b).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GBVS_maps_excluded_from_primary_success_count
+  kind: entity_fact
+  raw_text: GBVS maps are excluded from the primary success count.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:00:22Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: pipeline halts if GBVS fallback frequency exceeds 10%
+  claim_id: c_e645edae
+  context: 'Success Criteria: A map is valid only if generated by DeepGaze II. If
+    GBVS fallback frequency > 10%, the pipeline halts and writes data/interim/invalid_fallback_flag.json
+    (T018c).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline halts if GBVS fallback frequency exceeds 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:00:22Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: YOLOv8 used for face segmentation with COCO face class
+  claim_id: c_82c0238b
+  context: 'Face Segmentation: code/processing/segmentation.py uses YOLOv8 (COCO face
+    class) to generate semantic masks.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLOv8_used_for_face_segmentation_with_COCO_face_class
+  kind: entity_fact
+  raw_text: YOLOv8 is used for face segmentation using the COCO face class.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:01:08Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: medium effect size d=0.5 assumed if pilot data missing
+  claim_id: c_15221ec6
+  context: 'Power Analysis: code/analysis/lmm_power.py runs a simulation-based power
+    analysis (using simr). If pilot data is missing, a medium effect size (d=0.5)
+    is assumed.'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline assumes a medium effect size (d=0.5) if pilot data is missing
+    for power analysis.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T12:01:08Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: pipeline halts if VIF greater than 5
+  claim_id: c_cc6ce124
+  context: 'Gate: If VIF > 5, the pipeline halts and writes data/interim/vif_gate_flag.json
+    (T030).'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline halts if the Variance Inflation Factor (VIF) is greater than
+    5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T12:01:08Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied to p-values
+  claim_id: c_3eeb3e48
+  context: 'FDR Correction: code/analysis/robustness.py applies Benjamini-Hochberg
+    correction to p-values (T031).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_to_p-values
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg correction is applied to p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:01:49Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: results include 'correlational only' if any p-value less than 0.05
+  claim_id: c_c70870ea
+  context: 'Disclaimer: If any p-value < 0.05, the final data/processed/results.json
+    includes the exact phrase ''correlational only'' (T049b, T036).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Results_include_%27correlational_only%27_if_any_p-value_less_tha
+  kind: magnitude
+  raw_text: The final results file includes the phrase 'correlational only' if any
+    p-value is less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:02:34Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: total cumulative job time must not exceed 6 hours
+  claim_id: c_d9277096
+  context: 'Compute Budget: Total cumulative job time must not exceed 6 hours (T042).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total cumulative job time must not exceed 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:02:49Z'
+- artifact_path: projects/PROJ-471-the-influence-of-visual-salience-on-atte/docs/data_protocol.md
+  attempts: 1
+  canonical: peak RAM usage must remain below 7GB
+  claim_id: c_a41b784a
+  context: 'Memory Limit: Peak RAM must remain below 7GB (T014, T042).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_must_remain_below_7GB
+  kind: entity_fact
+  raw_text: Peak RAM usage must remain below 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T12:03:21Z'

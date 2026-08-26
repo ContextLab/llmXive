@@ -1,23 +1,19 @@
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "UP", # pyupgrade
-    "N",  # pep8-naming
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "C901", # too complex (handled by separate check if needed)
-]
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP", "RUF"]
+ignore = ["E501", "E731", "E741"]
+fixable = ["ALL"]
+unfixable = []
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]  # Allow unused imports in init files for re-exports
+"__init__.py" = ["F401"]
+"tests/*" = ["S101", "ARG"]
 
 [format]
-# Match Black's default line length
 line-length = 88
-target-version = "py311"
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true

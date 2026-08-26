@@ -1,4 +1,19 @@
-# The Influence of Visual Salience on Attentional Bias in Moral Judgements
+"""
+Utility script to regenerate README.md from a template if needed.
+Currently, README.md is maintained manually but this script provides
+a reference for the expected content structure.
+"""
+import os
+from pathlib import Path
+
+def main():
+    readme_path = Path("README.md")
+    if readme_path.exists():
+        print("README.md already exists. Skipping generation.")
+        print("To update, edit README.md manually or remove the file to regenerate.")
+        return
+
+    template = """# The Influence of Visual Salience on Attentional Bias in Moral Judgements
 
 **Project ID**: PROJ-471
 **Status**: Active Research Pipeline
@@ -17,29 +32,29 @@ This project implements an automated science pipeline to investigate how visual 
 ## Installation
 
 1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd PROJ-471-the-influence-of-visual-salience-on-atte
- ```
+   ```bash
+   git clone <repository-url>
+   cd PROJ-471-the-influence-of-visual-salience-on-atte
+   ```
 
 2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\\Scripts\\activate
+   ```
 
 3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 4. **Configure environment variables**:
- Create a `.env` file in the project root based on `.env.example`:
- ```bash
- HF_TOKEN=your_huggingface_token_here
- DATA_PATH=./data
- SEED=42
- ```
+   Create a `.env` file in the project root based on `.env.example`:
+   ```bash
+   HF_TOKEN=your_huggingface_token_here
+   DATA_PATH=./data
+   SEED=42
+   ```
 
 ## Data Acquisition Protocol
 
@@ -145,22 +160,22 @@ All outputs are written to the `data/` directory:
 ```
 .
 ├── code/
-│ ├── ingestion/ # Data download and salience generation
-│ ├── processing/ # Eye-tracking parsing and alignment
-│ ├── analysis/ # Statistical modeling and robustness checks
-│ ├── utils/ # Logging, versioning, validation
-│ ├── config.py # Project configuration
-│ └── data_models.py # Data structures
+│   ├── ingestion/       # Data download and salience generation
+│   ├── processing/      # Eye-tracking parsing and alignment
+│   ├── analysis/        # Statistical modeling and robustness checks
+│   ├── utils/           # Logging, versioning, validation
+│   ├── config.py        # Project configuration
+│   └── data_models.py   # Data structures
 ├── data/
-│ ├── raw/ # Downloaded dataset
-│ ├── interim/ # Intermediate processing artifacts
-│ └── processed/ # Final analysis outputs
+│   ├── raw/             # Downloaded dataset
+│   ├── interim/         # Intermediate processing artifacts
+│   └── processed/       # Final analysis outputs
 ├── tests/
-│ ├── unit/ # Unit tests
-│ └── integration/ # End-to-end pipeline tests
-├── specs/ # Design documents and SCR records
+│   ├── unit/            # Unit tests
+│   └── integration/     # End-to-end pipeline tests
+├── specs/               # Design documents and SCR records
 ├── requirements.txt
-├──.env.example
+├── .env.example
 └── README.md
 ```
 
@@ -175,3 +190,10 @@ All outputs are written to the `data/` directory:
 ## License
 
 Research code for academic use. See LICENSE for details.
+"""
+
+    readme_path.write_text(template)
+    print(f"README.md created at {readme_path.resolve()}")
+
+if __name__ == "__main__":
+    main()

@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Salience Map Generation (Priority: P1)
 
-The researcher downloads the "Moral Foundations Eye-Tracking Dataset" (OpenNeuro ds00XXXX), extracts the 200 stimulus images, and generates pixel-wise computational salience maps using the DeepGaze II model for every image.
+The researcher downloads the "Moral Foundations Eye-Tracking Dataset" (OpenNeuro dsXXXX), extracts the 200 stimulus images, and generates pixel-wise computational salience maps using the DeepGaze II model for every image.
 
 **Why this priority**: This is the foundational data preparation step. Without successfully computing salience maps that align with the stimulus images, no correlation analysis with eye-tracking data can occur. It establishes the predictor variable required for the entire study.
 
