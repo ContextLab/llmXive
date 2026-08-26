@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists
+# This file ensures the data/processed directory is tracked by git.
+# Place cleaned and processed datasets here.

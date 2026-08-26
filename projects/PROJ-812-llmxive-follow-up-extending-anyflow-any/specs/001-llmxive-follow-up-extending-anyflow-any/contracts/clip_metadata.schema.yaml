@@ -12,12 +12,12 @@ properties:
     description: "Local path to the 16-frame clip"
   frame_count:
     type: integer
-    description: "Number of frames in the clip (always 16)"
+    description: "Number of frames in the clip (fixed duration)"
     minimum: 16
     maximum: 16
   fps:
     type: integer
-    description: "Frames per second (always 30)"
+    description: "Frames per second (fixed frame rate)"
     minimum: 30
     maximum: 30
   has_cut:

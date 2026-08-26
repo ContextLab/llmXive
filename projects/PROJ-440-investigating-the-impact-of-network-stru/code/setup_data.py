@@ -2,21 +2,35 @@ import os
 import sys
 import json
 from pathlib import Path
-from code.utils.checksums import setup_data_directories, generate_checksum_file
+
+# Import the setup function from setup_directories
+# Note: We assume this file is run from the project root or code/ directory
+# Adjust import path if necessary
+try:
+    from code.setup_directories import setup_directories
+    from code.utils.checksums import setup_data_directories, generate_checksum_file
+except ImportError:
+    # Fallback for direct execution or different import context
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from code.setup_directories import setup_directories
+    from code.utils.checksums import setup_data_directories, generate_checksum_file
 
 def main():
     """
-    Main function to set up data directories and generate checksums.
+    Main entry point to initialize the project data structure.
+    Calls setup_directories to create folders and setup_data_directories 
+    to initialize checksum tracking if needed.
     """
-    base_path = Path(__file__).resolve().parent.parent
-    data_dir = base_path / "data"
+    print("Initializing project data structure...")
     
-    # Create directories
-    setup_data_directories(str(data_dir))
+    # 1. Create directory structure
+    setup_directories()
     
-    # Generate checksum file
-    checksum_file = data_dir / "checksums.json"
-    generate_checksum_file(str(data_dir), str(checksum_file))
+    # 2. Initialize checksum infrastructure (creates state/checksums.json if missing)
+    # This ensures the 'state/' directory is ready for artifact tracking
+    setup_data_directories()
+    
+    print("Project data structure initialization complete.")
 
 if __name__ == "__main__":
     main()

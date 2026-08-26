@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the clip."
   source:
     type: string
-    enum: ["UCF101", "DAVIS"]
+    enum: ["UCF101", "MovieNet"]
     description: "Source dataset."
   file_path:
     type: string

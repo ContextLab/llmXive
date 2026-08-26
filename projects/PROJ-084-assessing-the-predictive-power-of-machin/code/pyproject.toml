@@ -1,9 +1,5 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "llmxive-proj-084"
+name = "ml-reaction-predictor"
 version = "0.1.0"
 description = "Assessing the Predictive Power of Machine Learning for Organic Reaction Outcomes"
 requires-python = ">=3.11"
@@ -18,55 +14,88 @@ dependencies = [
 ]
 
 [tool.ruff]
-# Target Python version
+# Same as Black.
+line-length = 88
+indent-width = 4
 target-version = "py311"
 
-# Line length for formatting
-line-length = 88
+[tool.ruff.lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "W", "N", "B", "UP"]
+ignore = []
 
-# Enable specific lint rules
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files to match project structure if needed (e.g. generated data)
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data", # Exclude data directory from linting
 ]
 
-# Ignore specific rules if needed
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in ML)
-]
+# Per-file-ignores
+per-file-ignores = {}
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
 
 [tool.black]
-# Line length
 line-length = 88
-# Target version
-target-version = ["py311"]
-# Exclude common directories
-extend-exclude = '''
-(
-    __pycache__
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
     | \.git
+    | \.hg
     | \.mypy_cache
-    | \.pytest_cache
+    | \.nox
+    | \.pants\.d
+    | \.pytype
+    | \.ruff_cache
+    | \.svn
+    | \.tox
+    | \.venv
+    | __pypackages__
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
+    | venv
     | data
-)
+)/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-markers = [
-    "unit: Unit tests",
-    "integration: Integration tests",
-    "contract: Contract tests",
-]
+pythonpath = ["code"]
+addopts = "-v"

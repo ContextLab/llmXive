@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ground Truth Annotation Schema"
+description: "Schema for the manual (simulated) continuity scores."
+type: object
+properties:
+  ClipID:
+    type: string
+    description: "Unique identifier for the video clip."
+  Score:
+    type: number
+    description: "Temporal continuity score between 0.0 and 1.0."
+    minimum: 0.0
+    maximum: 1.0
+  AnnotatorID:
+    type: string
+    description: "Simulated annotator ID."
+  Rubric:
+    type: string
+    description: "Fixed rubric description."
+    const: "5-point Likert scale for motion continuity"
+required:
+  - ClipID
+  - Score
+  - AnnotatorID
+  - Rubric
+additionalProperties: false

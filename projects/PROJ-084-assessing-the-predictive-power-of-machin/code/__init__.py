@@ -1,2 +1,3 @@
-# Mark code directory as a package
-pass
+"""
+llmXive Project - Code Package
+"""

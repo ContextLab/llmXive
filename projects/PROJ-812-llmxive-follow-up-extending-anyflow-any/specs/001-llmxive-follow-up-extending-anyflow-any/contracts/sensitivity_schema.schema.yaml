@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Report Schema"
+description: "Schema for the threshold and resolution sweep results."
+type: object
+properties:
+  Threshold:
+    type: number
+    description: "Classification threshold value."
+  BaselineN:
+    type: integer
+    description: "Baseline resolution (Euler steps)."
+  FalsePositiveRate:
+    type: number
+    description: "Rate of false positives at this threshold."
+    minimum: 0.0
+    maximum: 1.0
+  FalseNegativeRate:
+    type: number
+    description: "Rate of false negatives at this threshold."
+    minimum: 0.0
+    maximum: 1.0
+  Accuracy:
+    type: number
+    description: "Overall accuracy."
+    minimum: 0.0
+    maximum: 1.0
+required:
+  - Threshold
+  - BaselineN
+  - FalsePositiveRate
+  - FalseNegativeRate
+  - Accuracy
+additionalProperties: false

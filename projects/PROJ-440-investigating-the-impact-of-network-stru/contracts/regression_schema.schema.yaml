@@ -1,13 +1,15 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Regression Results Schema"
-description: |
-  Schema defining the structure for data/analysis/regression_results.json.
-  This file contains the output of the PLS regression analysis correlating
-  topological metrics with energy dissipation rates.
+$schema: http://json-schema.org/draft-07/schema#
+title: Regression Analysis Results Schema
+description: >
+  Schema defining the structure of regression analysis results for the 
+  'Investigating the Impact of Network Structure on Energy Dissipation in Driven Oscillators' project.
+  This file corresponds to data/analysis/regression_results.json.
+  It captures PLS regression coefficients, VIP scores, PCA loadings, corrected p-values,
+  and metadata regarding the analysis pipeline, including null model validation and sensitivity analysis.
 type: object
 required:
   - metadata
-  - pca_analysis
+  - pca_loadings
   - pls_results
   - null_model_validation
   - sensitivity_analysis
@@ -15,240 +17,197 @@ required:
 properties:
   metadata:
     type: object
-    description: "Run metadata and configuration"
+    description: Analysis execution metadata
     required:
       - timestamp
-      - software_versions
-      - input_files
-      - parameters
+      - version
+      - source_files
+      - excluded_count
     properties:
       timestamp:
         type: string
         format: date-time
-        description: "ISO 8601 timestamp of the analysis run"
-      software_versions:
+        description: ISO 8601 timestamp of analysis execution
+      version:
+        type: string
+        description: Schema version (e.g., "1.0.0")
+      source_files:
         type: object
-        properties:
-          python:
-            type: string
-          numpy:
-            type: string
-          scipy:
-            type: string
-          scikit-learn:
-            type: string
-          pandas:
-            type: string
-      input_files:
-        type: object
-        description: "Paths to input data files used"
+        required:
+          - networks_csv
+          - energy_decay_csv
         properties:
           networks_csv:
             type: string
-            description: "Path to data/raw/networks.csv"
+            description: Path to the source network metrics file (data/raw/networks.csv)
           energy_decay_csv:
             type: string
-            description: "Path to data/processed/energy_decay.csv"
-      parameters:
-        type: object
-        description: "Key analysis parameters"
-        properties:
-          n_components:
-            type: integer
-            description: "Number of PLS components used"
-          vif_threshold:
-            type: number
-            description: "VIF threshold for multicollinearity check"
-          significance_level:
-            type: number
-            description: "Significance level for hypothesis testing"
-          n_permutations:
-            type: integer
-            description: "Number of permutations for null model"
+            description: Path to the source energy decay file (data/processed/energy_decay.csv)
+      excluded_count:
+        type: integer
+        minimum: 0
+        description: Number of resonant instances excluded from analysis
+      analysis_method:
+        type: string
+        enum: ["PLS", "PCR"]
+        description: The regression method used (PLS as per Plan's Statistical Rigor)
+      rationale:
+        type: string
+        description: Justification for method choice (e.g., handling collinearity)
 
-  pca_analysis:
+  pca_loadings:
     type: object
-    description: "PCA results for handling collinearity in topological metrics"
+    description: PCA loadings for topological metrics on principal components
     required:
-      - explained_variance_ratio
-      - cumulative_variance
-      - loadings
-      - interpretation
+      - components
+      - variance_explained
     properties:
-      explained_variance_ratio:
-        type: array
-        items:
-          type: number
-        description: "Variance explained by each principal component"
-      cumulative_variance:
-        type: array
-        items:
-          type: number
-        description: "Cumulative variance explained by components"
-      loadings:
+      components:
         type: object
-        description: "Loadings of original metrics on principal components"
-        properties:
-          PC1:
-            type: object
-            description: "Loadings for PC1"
-            additionalProperties:
-              type: number
-          PC2:
-            type: object
-            description: "Loadings for PC2"
-            additionalProperties:
-              type: number
+        description: Mapping of component names to metric loadings
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: number
+            description: Loading value for a specific metric on this component
+      variance_explained:
+        type: array
+        items:
+          type: number
+          minimum: 0
+          maximum: 1
+        description: Fraction of variance explained by each component
       interpretation:
         type: string
-        description: "Physical interpretation of PC1 and PC2 (e.g., local clustering vs global connectivity)"
+        description: Physical interpretation of PC1 and PC2 (e.g., "local clustering" vs "global connectivity")
 
   pls_results:
     type: object
-    description: "Partial Least Squares Regression results"
+    description: PLS Regression results
     required:
       - coefficients
       - vip_scores
       - p_values
-      - corrected_p_values
-      - model_performance
-      - selected_predictors
+      - p_values_corrected
+      - vif_flags
+      - significant_predictors
     properties:
       coefficients:
-        type: object
-        description: "PLS regression coefficients for each predictor"
-        additionalProperties:
+        type: array
+        items:
           type: number
+        description: PLS regression coefficients for each predictor
       vip_scores:
-        type: object
-        description: "Variable Importance in Projection scores for each predictor"
-        additionalProperties:
+        type: array
+        items:
           type: number
+        description: Variable Importance in Projection (VIP) scores
       p_values:
-        type: object
-        description: "Raw p-values for each coefficient"
-        additionalProperties:
+        type: array
+        items:
           type: number
-      corrected_p_values:
-        type: object
-        description: "Bonferroni or Holm-Bonferroni corrected p-values"
-        additionalProperties:
+          minimum: 0
+          maximum: 1
+        description: Raw p-values for coefficients
+      p_values_corrected:
+        type: array
+        items:
           type: number
-      model_performance:
-        type: object
-        description: "Model fit statistics"
-        properties:
-          r_squared_train:
-            type: number
-            description: "R-squared on training set"
-          r_squared_test:
-            type: number
-            description: "R-squared on test set (if cross-validated)"
-          rmse:
-            type: number
-            description: "Root Mean Square Error"
-          cross_val_score:
-            type: array
-            items:
+          minimum: 0
+          maximum: 1
+        description: Bonferroni or Holm-Bonferroni corrected p-values
+      vif_flags:
+        type: array
+        items:
+          type: object
+          required:
+            - metric
+            - vif_value
+            - flagged
+          properties:
+            metric:
+              type: string
+            vif_value:
               type: number
-            description: "Cross-validation scores"
-      selected_predictors:
+            flagged:
+              type: boolean
+              description: True if VIF > 5
+      significant_predictors:
         type: array
         items:
           type: string
-        description: "List of predictors with corrected p-value < significance_level"
-      rationale:
-        type: string
-        description: "Rationale for choosing PLS over PCR, referencing Plan requirements"
+        description: List of predictor names with corrected p-value < 0.05
 
   null_model_validation:
     type: object
-    description: "Permutation test results for null model validation"
+    description: Results from the permutation test null model validation
     required:
-      - observed_statistic
+      - method
+      - observed_correlation
       - null_distribution_mean
-      - null_distribution_std
-      - percentile_observed
-      - p_value_permutation
+      - null_distribution_percentiles
+      - p_value
       - conclusion
     properties:
-      observed_statistic:
+      method:
+        type: string
+        description: Description of the permutation test methodology
+      observed_correlation:
         type: number
-        description: "Observed R-squared or correlation from real data"
+        description: Correlation observed in the real data
       null_distribution_mean:
         type: number
-        description: "Mean of R-squared values from permuted data"
-      null_distribution_std:
+        description: Mean of the null distribution (should be ~0)
+      null_distribution_percentiles:
+        type: object
+        required:
+          - p_95
+          - p_99
+        properties:
+          p_95:
+            type: number
+          p_99:
+            type: number
+      p_value:
         type: number
-        description: "Standard deviation of null distribution"
-      percentile_observed:
-        type: number
-        description: "Percentile of observed statistic in null distribution"
-      p_value_permutation:
-        type: number
-        description: "Fraction of null samples >= observed statistic"
+        description: Empirical p-value from the permutation test
       conclusion:
         type: string
-        description: "Statement on whether observed correlation exceeds null expectation"
+        description: Pass/fail status relative to the Plan's requirements
 
   sensitivity_analysis:
     type: object
-    description: "Results of sensitivity analysis on significance thresholds"
+    description: Results from sweeping significance thresholds
     required:
-      - thresholds_tested
-      - significant_predictors_count
+      - thresholds
+      - significant_counts
       - variance_report
     properties:
-      thresholds_tested:
+      thresholds:
         type: array
         items:
           type: number
-        description: "List of significance thresholds swept (e.g., [0.01, 0.05, 0.1])"
-      significant_predictors_count:
+        description: List of significance thresholds tested (e.g., [0.01, 0.05, 0.1])
+      significant_counts:
         type: array
         items:
           type: integer
-        description: "Count of significant predictors at each threshold"
+        description: Number of significant predictors for each threshold
       variance_report:
         type: string
-        description: "Summary of variance in significant predictor counts across thresholds"
+        description: Textual report on the stability of results across thresholds
 
   diagnostics:
     type: object
-    description: "Diagnostic information and exclusions"
-    required:
-      - vif_checks
-      - excluded_instances
-      - total_samples
-      - final_samples
+    description: Additional diagnostic information
     properties:
-      vif_checks:
-        type: object
-        description: "VIF values for each predictor and flags for high collinearity"
-        properties:
-          metrics:
-            type: object
-            additionalProperties:
-              type: number
-            description: "VIF value for each metric"
-          flagged:
-            type: array
-            items:
-              type: string
-            description: "List of metric names with VIF > threshold"
-      excluded_instances:
-        type: object
-        description: "Counts of excluded data points"
-        properties:
-          resonant:
-            type: integer
-            description: "Number of instances excluded due to resonant status"
-          other:
-            type: integer
-            description: "Other exclusion reasons"
-      total_samples:
-        type: integer
-        description: "Total number of samples before filtering"
-      final_samples:
-        type: integer
-        description: "Number of samples used in final analysis"
+      vif_check_passed:
+        type: boolean
+        description: True if no metrics exceeded VIF > 5 (or flagged appropriately)
+      power_check_status:
+        type: string
+        enum: ["passed", "warning", "failed"]
+        description: Status of the power limitation check (samples >= 10 * predictors)
+      notes:
+        type: string
+        description: Any additional notes or warnings

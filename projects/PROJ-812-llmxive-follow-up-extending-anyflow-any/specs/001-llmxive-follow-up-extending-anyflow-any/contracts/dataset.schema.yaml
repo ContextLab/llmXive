@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the video clip."
   source:
     type: "string"
-    description: "Source dataset name (e.g., 'UCF101', 'Kinetics')."
+    description: "Source dataset name (e.g., 'UCF101', 'MovieNet')."
   type:
     type: "string"
     enum:

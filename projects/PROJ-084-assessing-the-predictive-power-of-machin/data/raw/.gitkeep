@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists
+# This file ensures the data/raw directory is tracked by git.
+# Place raw downloaded datasets here.

@@ -1,12 +1,11 @@
 status: none
-intent: UCF101 Kinetics DAVIS video clip dataset with continuity scores download python
-  package dataset
+intent: pytorchvideo dataset loaders for UCF101 Kinetics DAVIS python package dataset
 required_fields:
 - video_id
-- video_url
-- local_path
+- video_filepath
 - continuity_score
-- source_dataset
-cache_key: 040f01e0f9ac819f58a257646aef38b4158e0857239c41977f8249906fef7317
-searched_at: '2026-08-23T19:29:11.364734+00:00'
+- frame_count
+- fps
+cache_key: 013533bc0f3040a9297189dd2317fed0e531077fd43ca2c8e0a65877a518e22b
+searched_at: '2026-08-26T22:12:47.909382+00:00'
 retry_count: 1

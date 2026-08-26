@@ -1,2 +1,3 @@
-# Mark tests directory as a package
-pass
+"""
+llmXive Project - Tests Package
+"""

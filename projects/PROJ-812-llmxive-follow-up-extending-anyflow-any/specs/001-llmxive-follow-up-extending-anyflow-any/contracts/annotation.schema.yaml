@@ -19,14 +19,19 @@ properties:
   annotator_id:
     type: string
     description: "Identifier for the human annotator."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp of annotation."
   status:
     type: string
-    enum: ["valid", "discarded_ambiguous"]
-    description: "Status of the annotation. 'discarded_ambiguous' if annotators differed by >1 point."
+    enum: ["valid", "adjudicated", "discarded_ambiguous"]
+    description: "Annotation status after possible third‑expert adjudication."
 required:
   - clip_id
   - score
   - rubric_score
   - annotator_id
+  - timestamp
   - status
 additionalProperties: false

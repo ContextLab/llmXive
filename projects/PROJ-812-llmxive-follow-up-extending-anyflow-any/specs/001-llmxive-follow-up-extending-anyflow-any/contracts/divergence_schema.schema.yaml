@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Divergence Metric Schema"
+description: "Schema for the flow-map divergence scores output by the analysis pipeline."
+type: object
+properties:
+  ClipID:
+    type: string
+    description: "Unique identifier for the video clip."
+  Divergence:
+    type: number
+    description: "Mean squared error normalized by latent dimension D."
+    minimum: 0.0
+  BaselineN:
+    type: integer
+    description: "Number of Euler steps used for the baseline."
+    enum: [500, 200, 100]
+  Kurtosis:
+    type: number
+    description: "Kurtosis of the divergence trajectory."
+  Clustering:
+    type: number
+    description: "Temporal clustering metric."
+  Status:
+    type: string
+    description: "Status of the computation."
+    enum: ["Success", "Error", "Skipped"]
+required:
+  - ClipID
+  - Divergence
+  - BaselineN
+  - Status
+additionalProperties: false

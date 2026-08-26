@@ -1,64 +1,75 @@
 # Quickstart: llmXive follow-up: extending "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil"
 
 ## Prerequisites
-*   Python 3.11+
-*   Access to Hugging Face (for dataset downloads)
-*   7GB+ RAM, 2+ CPU cores
-*   ~15GB disk space
+- Python 3.11+
+- Git
+- Internet access (to download HF datasets)
+- 2 CPU cores, ≤ 7 GB RAM (GitHub Actions free tier)
 
 ## Installation
 
-1.  **Clone and Setup Environment**
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/code
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
+```bash
+git clone <repo-url>
+cd projects/PROJ-812-llmxive-follow-up-extending-anyflow-any
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r code/requirements.txt
+```
 
-2.  **Verify Dependencies**
-    ```bash
-    python -c "import torch; import onnxruntime; import cv2; print('All dependencies OK')"
-    ```
+## Annotation Step (Human‑Generated Ground Truth)
 
-## Data Preparation
+1. **External Annotation**: Use a tool like Label Studio or Google Forms to collect scores from **two** independent annotators for the curated clips. Export the results as a CSV.
+2. **Ingest Annotations**: Run the ingestion script to load the external CSV:
 
-1.  **Download Datasets**
-    Run the download script to fetch UCF101 and Kinetics-400 subsets.
-    ```bash
-    python data/download.py --source ucf101,kinetics-400 --output ../data/raw
-    ```
-    *Note: This will download ~2GB of data. Checksums are verified automatically.*
+   ```bash
+   python code/annotation/collect_annotations.py --input-csv external_annotations.csv --clip-dir data/raw/video_clips/
+   ```
 
-2.  **Manual Annotation (Required)**
-    Run the annotation tool to generate ground truth scores.
-    ```bash
-    python data/annotate.py --input ../data/raw --output ../data/annotations/continuity_scores.csv
-    ```
-    *Follow the on-screen prompts to assign scores (1-5) to each clip. Ensure inter-annotator agreement is checked. The system will automatically oversample to ensure N>=500 valid clips.*
+3. **Validate & Adjudicate**: Validate inter‑annotator agreement and resolve disagreements:
 
-## Execution
+   ```bash
+   python code/annotation/validate_annotations.py data/raw/ground_truth.csv
+   python code/annotation/adjudicate.py data/raw/ground_truth.csv
+   ```
 
-1.  **Run Full Pipeline**
-    Execute the main pipeline script. This performs:
-    *   Pre-flight runtime check (FR-009)
-    *   Divergence computation (CPU-only)
-    *   Correlation and sensitivity analysis (with IPW for natural distribution)
-    ```bash
-    python main.py --config config.yaml
-    ```
+   - If Cohen’s κ < 0.81 the pipeline aborts.
+   - Disagreements are automatically forwarded to `annotation/adjudicate.py` for a third expert.
 
-2.  **Output Artifacts**
-    Results will be saved to `../data/processed/`:
-    *   `divergence_metrics.csv`: Per-clip metrics.
-    *   `correlation_results.csv`: Statistical tests (includes `source_code_hash`).
-    *   `sensitivity_report.csv`: Threshold analysis.
-    *   `variance_report.csv`: Variance check.
+   The resulting immutable CSV `data/raw/ground_truth.csv` is checksummed before any further processing.
 
-## Troubleshooting
+## Running the Full Pipeline
 
-*   **Runtime Exceeds 5.5 Hours**: The script will automatically reduce Euler steps to N=200 and re-run. If this still fails, the script will halt with a "Feasibility Error".
-*   **Low Variance**: If `variance_report.csv` shows variance < 0.05 (and not bimodal), the pipeline halts. Re-check annotation rubric.
-*   **ONNX Loading Error**: Ensure `onnxruntime` is installed for CPU (`onnxruntime` not `onnxruntime-gpu`).
-*   **Insufficient Samples**: If the final valid sample count < 500, the system will attempt to fetch and annotate replacements automatically.
+The orchestrator enforces strict phase ordering:
+
+```bash
+python code/main.py
+```
+
+This will:
+
+1. Verify all external URLs (`utils/reference_validator.py`).  
+2. Download & stratify a representative set of video clips (`download_and_stratify.py`).  
+3. Generate `data/checksums.json`.  
+4. Load the AnyFlow ONNX model (`load_onnx.py`).  
+5. Compute divergence metrics (`compute_divergence.py`).  
+6. Perform control analysis, Fisher r‑to‑z test, correlation/IPW, logistic regression, and sensitivity sweeps.  
+7. Run the synthetic‑subset validation (`synthetic_validation_subset.py`).  
+8. Produce `results/final_report.md` and all CSV/JSON artifacts.
+
+## Expected Outputs
+- `data/processed/divergence_scores.csv`  
+- `data/processed/sensitivity_report.csv`  
+- `data/processed/variance_report.csv`  
+- `data/processed/control_analysis.json`  
+- `results/final_report.md` (includes explicit associational framing)
+
+## Runtime & Resources
+- **Estimated wall‑time**: 4–5 h on the free‑tier runner (≤ 6 h budget).  
+- **Peak RAM**: < 7 GB (streaming).  
+- **GPU**: Not required; all code runs on CPU.  
+
+## Verification
+```bash
+pytest tests/
+```
+All tests include contract validation (`test_contracts.py`) against the YAML schemas in `contracts/`.

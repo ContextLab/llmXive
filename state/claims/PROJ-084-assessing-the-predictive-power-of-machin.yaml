@@ -63,3 +63,19 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-08T18:48:23Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP4 fingerprint dimension is 2048 and MACCS fingerprint dimension is
+    167
+  claim_id: c_6a68e433
+  context: Unit test for fingerprint dimensionality (ECFP4=2048, MACCS=167) in tests/unit/test_fingerprints.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ECFP4=2048, MACCS=167
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T23:03:17Z'

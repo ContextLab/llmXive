@@ -1,59 +1,20 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the required directories (`code/`, `data/raw/`,\
-    \ `data/processed/`, `data/results/`, `tests/`) actually exist on disk; the response\
-    \ contains only the task description and no file\u2011system listing or screenshots\
-    \ showing those folders. The implementer must create the directories (and optionally\
-    \ include a brief directory tree) to satisfy the task."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
-    settings, `.ruff.toml`, or a `pre-commit` config) were provided or referenced,
-    so there is no evidence that ruff and black have been set up in the `code/` directory.
-    The required artifacts are missing.
-T010:
-  c: false
-  h: 8a279e3ee4047ea1d7c112fa98e0dacd54f3b9a32bea756948e7d7d3bef3a97b
-  r: "The provided `scaffold.py` only defines helper functions and a placeholder `main()`\
-    \ that does nothing; it never reads `cleaned_reactions.parquet` nor writes `scaffold_groups.parquet`.\
-    \ Moreover, both the required input parquet file and the expected output parquet\
-    \ file are absent from the repository. The task\u2019s core requirement\u2014\
-    to generate scaffold grouping keys from the sanitized reactions and produce the\
-    \ output file\u2014is therefore not satisfied."
-T014:
-  c: false
-  h: 358e297923a7fb61ef1e7ad6943c7a0de182ca20b0b41df0f4a987fd03ffbb97
-  r: "The `sanitize.py` file is present but only partially shown and does not demonstrate\
-    \ loading the parquet file or completing the sanitization pipeline (the code is\
-    \ truncated after \u201C# 3. Parse Yield\u201D). Moreover, the required input\
-    \ file `data/raw/uspto_raw.parquet` is missing, so the script cannot be executed\
-    \ as specified. The task\u2019s core requirement\u2014loading the USPTO parquet,\
-    \ sanitizing reactions, and standardizing them\u2014is therefore not satisfied."
-T019:
-  c: false
-  h: 619d7c3ec744dbda61e49b0d4009f418552b7af60da81e62b3c29f55551dffad
-  r: The provided `download.py` contains only placeholder logic, raises a `FileNotFoundError`
-    instead of performing a real download, and leaves the expected MD5 checksum empty.
-    Moreover, the required output file `data/raw/uspto_raw.parquet` is missing. The
-    implementation does not fulfill the download, checksum verification, or Constitution
-    Principle II gate check as specified.
 T022:
   c: false
-  h: 25abafa42b5e41788765e68d6480a811f549ed2e0e2e3f1e55b56c8cf517097e
-  r: The provided `code/modeling/split.py` is truncated and does not contain a complete
-    implementation (e.g., the `assign_split` function is unfinished, there is no return
-    statement, and no code to write `split_indices.parquet`). Moreover, the required
-    output file `data/processed/split_indices.parquet` is missing from the repository.
+  h: 3518bd623fc103fce56c168b71f95f4327dadbc5a8c7b52192503b7c52e403f7
+  r: "The provided `code/modeling/split.py` is only a partial implementation (truncated\
+    \ and lacking the logic to actually write the train/val/test indices to `data/processed/split_indices.parquet`).\
+    \ Moreover, the required output file `data/processed/split_indices.parquet` does\
+    \ not exist. The task\u2019s core requirement\u2014producing a parquet file with\
+    \ the split indices\u2014is therefore unmet."
 T023:
   c: false
-  h: db94b828d3b2809799eb2aabefd8fb588376e3d0b1e547945532f5896bf481df
-  r: "The required `data/processed/split_indices.parquet` and the resulting `validation_set.parquet`\
-    \ are absent, and the provided `code/modeling/split.py` does not contain logic\
-    \ to read `split_indices.parquet` and write out a held\u2011out validation set\
-    \ as specified. The implementation instead defines a generic train/val/test splitter\
-    \ and is truncated, so the task\u2019s core requirement is unmet."
+  h: 43ad88df651d543efc0b4bb6dace42b6cd8f7eccfca6881b08679234317bdb2c
+  r: "The repository lacks the required `data/processed/split_indices.parquet` and\
+    \ the resulting `data/processed/validation_set.parquet` files, and the provided\
+    \ `code/modeling/split.py` (truncated) only defines a scaffold\u2011based split\
+    \ function\u2014it does not contain code that reads the split indices and writes\
+    \ the held\u2011out validation set. The core functionality and output files the\
+    \ task demands are absent."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,3 +38,9 @@ T030:
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ The implementer must add a non\u2011empty test file that exercises the generalization\
     \ analysis as specified."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` file or its contents were provided; therefore we cannot confirm\
+    \ that quickstart instructions and dependency\u2011installation steps were added\
+    \ as required. The artifact is missing."

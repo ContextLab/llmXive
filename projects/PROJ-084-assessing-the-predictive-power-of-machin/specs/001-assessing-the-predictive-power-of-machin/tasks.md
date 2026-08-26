@@ -83,12 +83,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Implement `code/preprocessing/download.py`: Download USPTO dataset from canonical source DOI ``, verify checksum against canonical manifest, and perform Constitution Principle II (Verified Accuracy) gate check before saving to `data/raw/uspto_raw.parquet` (FR-001, Constitution II) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T014 [US1] Implement `code/preprocessing/sanitize.py`: Load USPTO parquet from `data/raw/uspto_raw.parquet`, remove salts, standardize reactions using RDKit (FR-002)
+- [ ] T019 [US1] Implement `code/preprocessing/download.py`: Download USPTO dataset from canonical source DOI ``, verify checksum against canonical manifest, and perform Constitution Principle II (Verified Accuracy) gate check before saving to `data/raw/uspto_raw.parquet` (FR-001, Constitution II) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Implement `code/preprocessing/sanitize.py`: Load USPTO parquet from `data/raw/uspto_raw.parquet`, remove salts, standardize reactions using RDKit (FR-002) <!-- FAILED: unspecified -->
 - [X] T015 [US1] Implement `code/preprocessing/sanitize.py`: Handle yield parsing (ranges vs. single values) and exclude malformed entries with logging (Edge Cases)
 - [X] T016 [US1] Implement `code/preprocessing/fingerprints.py`: Generate ECFP and MACCS vectors for all reactants/reagents (FR-003)
 - [ ] T017 [US1] Implement `code/preprocessing/ingest.py`: Orchestrate sanitization, fingerprinting, and save to `data/processed/cleaned_reactions.parquet` (FR-001)
-- [ ] T018 [US1] Add logging for exclusion reasons and data quality metrics (SC-005) in `code/preprocessing/ingest.py` and generate `data/results/data_quality_report.json` <!-- FAILED: unspecified -->
+- [ ] T018 [US1] Add logging for exclusion reasons and data quality metrics (SC-005) in `code/preprocessing/ingest.py` and generate `data/results/data_quality_report.json` <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [ ] T010 [US1] Implement `code/preprocessing/scaffold.py`: Generate Murcko scaffold grouping keys from sanitized reactions in `data/processed/cleaned_reactions.parquet` using `rdkit.Chem.Scaffolds` to produce `data/processed/scaffold_groups.parquet` (FR-004, Constitution VI) <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (clean dataset generated)
@@ -134,10 +134,10 @@
 ### Implementation for User Story 3
 
 - [ ] T031 [US3] Implement `code/modeling/evaluate.py`: Compute per-reaction-class R² and RMSE metrics (FR-007, SC-002)
-- [ ] T032 [US3] Implement `code/modeling/evaluate.py`: Compute permutation importance for Random Forest (FR-008)
+- [ ] T032 [US3] Implement `code/modeling/evaluate.py`: Compute permutation importance for Random Forest (FR-008) <!-- FAILED: unspecified -->
 - [ ] T033 [US3] Implement `code/modeling/evaluate.py`: Map top fingerprint bits to molecular substructures and **reaction centers** using `rdkit.Chem.rdFMCS` to identify the Maximum Common Substructure between reactants and products; the reaction center is defined as the atoms/bonds in reactants/products NOT present in the MCS. Aggregate importance across bits mapping to the same substructure (FR-008, SC-003)
 - [ ] T034 [US3] Generate final `data/results/final_report.json` containing all metrics, split ratios, and feature importance (FR-006, FR-007, FR-008)
-- [ ] T035 [US3] Validate that all metrics meet Success Criteria (SC-001: R² ≥ 0.40, SC-002: Gap ≤ 0.10, SC-003: Substructure frequency >80% in the held-out validation set from T023, SC-005: Exclusion fraction measured from `data/results/data_quality_report.json`). Explicitly calculate the percentage of high-yield reactions in the validation set containing the top substructures and write this value to `data/results/final_report.json` under key `sc003_substructure_frequency` (FR-006, FR-007, FR-008, SC-001, SC-002, SC-003, SC-005)
+- [ ] T035 [US3] Validate that all metrics meet Success Criteria (SC-001: R² ≥ 0.40, SC-002: Gap ≤ 0.10, SC-003: Substructure frequency >80% in the held-out validation set from T023, SC-005: Exclusion fraction measured from `data/results/data_quality_report.json`). Explicitly calculate the percentage of high-yield reactions in the validation set containing the top substructures and write this value to `data/results/final_report.json` under key `sc003_substructure_frequency` (FR-006, FR-007, FR-008, SC-001, SC-002, SC-003, SC-005) <!-- FAILED: unspecified -->
 
 **Checkpoint**: All user stories should now be independently functional and results aggregated
 
@@ -148,10 +148,10 @@
 **Purpose**: Improvements that affect multiple user stories and final validation
 
 - [ ] T036 [P] Update `README.md` with quickstart instructions and dependency installation
-- [ ] T037 Code cleanup: Run `ruff check --fix` and `black` on `code/` directory
-- [ ] T038 Performance optimization: Ensure full pipeline runs within 6 hours on 2-CPU runner
-- [ ] T039 [P] Run full test suite (`pytest`) to ensure all contract and unit tests pass
-- [ ] T040 Run `quickstart.md` validation to ensure reproducibility from scratch
+- [~] T037 Code cleanup: Run `ruff check --fix` and `black` on `code/` directory
+- [~] T038 Performance optimization: Ensure full pipeline runs within 6 hours on 2-CPU runner
+- [~] T039 [P] Run full test suite (`pytest`) to ensure all contract and unit tests pass
+- [~] T040 Run `quickstart.md` validation to ensure reproducibility from scratch
 
 ---
 

@@ -1,99 +1,119 @@
-# Dataset Schema Contract for USPTO Reaction Outcome Prediction
-# This schema defines the required structure for the processed dataset
-# used in the machine learning pipeline.
+# Dataset Schema Validation Contract
+# This file defines the expected schema for the cleaned reaction dataset
+# used in the USPTO machine learning predictive power assessment.
 #
-# Expected columns and types for `data/processed/cleaned_reactions.parquet`
+# Validated by: code/utils/schema_validator.py
+# Referenced by: T011 (Contract Test), T017 (Ingestion Pipeline)
 
-schema_version: "1.0"
-description: "Schema for the cleaned and fingerprinted USPTO reaction dataset"
+version: "1.0"
+schema_type: "dataset"
+description: >
+  Schema for the cleaned and processed USPTO reaction dataset.
+  Contains standardized SMILES, parsed yields, and fingerprint vectors.
 
-columns:
-  - name: reaction_id
-    type: string
-    description: "Unique identifier for the reaction (e.g., USPTO ID)"
-    nullable: false
-    unique: true
+required_columns:
+  - name: "reaction_id"
+    type: "string"
+    description: "Unique identifier for the reaction (e.g., from original dataset)"
+    constraints:
+      - "non-null"
+      - "unique"
 
-  - name: reactants_smiles
-    type: string
+  - name: "smiles_reactants"
+    type: "string"
     description: "Standardized SMILES string for reactants (salt-free)"
-    nullable: false
-    pattern: "^[C-N-OPSHFGIVWYc-n-ospfhgivyw\\[\\]\\(\\)\\/\\\\=#@]+$"
+    constraints:
+      - "non-null"
+      - "valid_smiles"
 
-  - name: reagents_smiles
-    type: string
-    description: "Standardized SMILES string for reagents"
-    nullable: true
+  - name: "smiles_reagents"
+    type: "string"
+    description: "Standardized SMILES string for reagents (salt-free)"
+    constraints:
+      - "non-null"
+      - "valid_smiles"
 
-  - name: product_smiles
-    type: string
-    description: "Standardized SMILES string for the product"
-    nullable: false
+  - name: "smiles_product"
+    type: "string"
+    description: "Standardized SMILES string for product"
+    constraints:
+      - "non-null"
+      - "valid_smiles"
 
-  - name: reaction_class
-    type: string
-    description: "Reaction class label (e.g., 'Coupling', 'Substitution', 'Addition')"
-    nullable: false
-    allowed_values:
-      - "Coupling"
-      - "Substitution"
-      - "Addition"
-      - "Elimination"
-      - "Rearrangement"
-      - "Oxidation"
-      - "Reduction"
-      - "Other"
+  - name: "yield_value"
+    type: "float"
+    description: "Parsed reaction yield as a percentage (0.0 - 100.0)"
+    constraints:
+      - "non-null"
+      - "range: [0.0, 100.0]"
 
-  - name: yield_percent
-    type: float64
-    description: "Reaction yield as a percentage (0-100)"
-    nullable: false
-    min_value: 0.0
-    max_value: 100.0
+  - name: "reaction_class"
+    type: "string"
+    description: "Reaction class label (e.g., 'amide_formation', 'suzuki')"
+    constraints:
+      - "non-null"
+      - "from_predefined_list"
 
-  - name: ecfp4_fingerprint
-    type: binary
-    description: "ECFP4 fingerprint (2048 bits) as binary blob or list of integers"
-    nullable: false
-    fingerprint_type: "ECFP4"
-    dimension: 2048
+  - name: "ecfp4_fingerprint"
+    type: "array"
+    description: "ECFP4 fingerprint vector (2048 bits)"
+    constraints:
+      - "non-null"
+      - "length: 2048"
+      - "dtype: uint8"
+      - "values: [0, 1]"
 
-  - name: maccs_fingerprint
-    type: binary
-    description: "MACCS keys fingerprint (167 bits) as binary blob or list of integers"
-    nullable: false
-    fingerprint_type: "MACCS"
-    dimension: 167
+  - name: "maccs_fingerprint"
+    type: "array"
+    description: "MACCS keys fingerprint vector (167 bits)"
+    constraints:
+      - "non-null"
+      - "length: 167"
+      - "dtype: uint8"
+      - "values: [0, 1]"
 
-  - name: scaffold_id
-    type: string
-    description: "Murcko scaffold identifier for grouping"
-    nullable: true
+  - name: "scaffold_group"
+    type: "string"
+    description: "Murcko scaffold grouping key"
+    constraints:
+      - "nullable"
+      - "valid_scaffold_key"
 
-  - name: split_group
-    type: string
-    description: "Data split assignment: 'train', 'val', or 'test'"
-    nullable: true
-    allowed_values:
-      - "train"
-      - "val"
-      - "test"
+  - name: "exclusion_reason"
+    type: "string"
+    description: "Reason for exclusion if record was filtered (null if kept)"
+    constraints:
+      - "nullable"
 
-constraints:
-  - name: no_null_yields
-    description: "Yield values must be present for all reactions used in training"
-    check: "yield_percent is not null"
+optional_columns:
+  - name: "original_yield_raw"
+    type: "string"
+    description: "Original raw yield string before parsing (for auditing)"
 
-  - name: valid_fingerprints
-    description: "Fingerprints must match expected dimensions"
-    check: "len(ecfp4_fingerprint) == 2048 AND len(maccs_fingerprint) == 167"
+  - name: "processing_timestamp"
+    type: "string"
+    description: "ISO 8601 timestamp of when the record was processed"
 
-  - name: valid_reaction_classes
-    description: "Reaction classes must be from the allowed set"
-    check: "reaction_class in allowed_values"
+validation_rules:
+  fingerprint_dimensions:
+    ecfp4: 2048
+    maccs: 167
+
+  yield_range:
+    min: 0.0
+    max: 100.0
+
+  required_reaction_parts:
+    - "reactants"
+    - "product"
+
+file_format:
+  primary: "parquet"
+  supported:
+    - "parquet"
+    - "csv"
 
 metadata:
-  source: "USPTO Dataset (DOI: 10.1021/acs.jcim.5b00246)"
-  preprocessing_version: "1.0"
-  generated_by: "code/preprocessing/ingest.py"
-  timestamp_format: "ISO8601"
+  source: "USPTO"
+  processing_pipeline: "code/preprocessing/ingest.py"
+  created_by: "T007"

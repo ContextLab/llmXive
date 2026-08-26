@@ -1,0 +1,28 @@
+# Ruff configuration file
+# Complements the pre-commit hook settings
+line-length = 88
+target-version = "py39"
+
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in tests/factories)
+]
+
+[lint.isort]
+force-single-line = true
+known-first-party = ["code"]
+
+[lint.per-file-ignores]
+# Ignore specific errors in test files if necessary
+"tests/*" = ["S101"] # Allow assert in tests

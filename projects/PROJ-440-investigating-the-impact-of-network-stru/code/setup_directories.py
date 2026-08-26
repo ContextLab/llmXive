@@ -3,34 +3,31 @@ from pathlib import Path
 
 def setup_directories():
     """
-    Creates the required directory structure for the project.
-    Implements T001a: Create directory structure.
+    Create the required directory structure for the project.
+    Creates: code/, data/, data/raw/, data/processed/, data/analysis/,
+             tests/, contracts/, state/
     """
-    base_path = Path(".")
+    base_dir = Path(__file__).resolve().parent.parent
     
-    # Define the required directory paths relative to the project root
     directories = [
-        "code",
-        "data",
-        "data/raw",
-        "data/processed",
-        "data/analysis",
-        "tests",
-        "contracts",
-        "state"
+        base_dir / "code",
+        base_dir / "data",
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "data" / "analysis",
+        base_dir / "tests",
+        base_dir / "contracts",
+        base_dir / "state",
     ]
     
     created_count = 0
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
             created_count += 1
-        # Note: We do not recreate if exists to avoid unnecessary noise,
-        # but the existence of the directory satisfies the task requirement.
+        else:
+            print(f"Directory already exists: {directory}")
     
-    print(f"Directory structure verified/created. {created_count} new directories created.")
+    print(f"Directory setup complete. {created_count} new directories created.")
     return True
-
-if __name__ == "__main__":
-    setup_directories()

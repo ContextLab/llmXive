@@ -1,0 +1,2 @@
+# This file ensures the data/results directory is tracked by git.
+# Place model outputs, reports, and metrics here.
