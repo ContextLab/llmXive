@@ -74,30 +74,22 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
 
 def setup_logging(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Tolerant logging setup accepting various call shapes.
-
-    Accepts:
-      - setup_logging()
-      - setup_logging(level="INFO")
-      - setup_logging(log_level="DEBUG")
-      - setup_logging(config)
-    """
-    # Extract level from various possible keys
-    level = kwargs.get("level") or kwargs.get("log_level")
+    """Tolerant logging setup that accepts any call shape.
     
-    # If a config object was passed as the first arg, extract level from it
-    if args and not level:
-        config_arg = args[0]
-        if hasattr(config_arg, 'get'):
-            level = config_arg.get('log_level', 'INFO')
-        elif hasattr(config_arg, 'log_level'):
-            level = config_arg.log_level
-        
-    # Create and return logger (level is ignored in our tolerant logger)
+    Supports:
+    - setup_logging()
+    - setup_logging(level="INFO")
+    - setup_logging(log_level="INFO")
+    - setup_logging(config)
+    """
+    # Extract level from various possible kwargs
+    level = kwargs.get('level') or kwargs.get('log_level')
+    if level:
+        # Just log it, don't enforce anything
+        get_logger().log("setup_logging", level=str(level))
     return get_logger()
 
 
-def log_with_extra(msg: str, extra: dict, level: str = "INFO") -> None:
-    """Log a message with extra context."""
-    logger = get_logger()
-    logger.log("log_with_extra", message=msg, extra=extra, level=level)
+def log_with_extra(*args: Any, **kwargs: Any) -> None:
+    """Tolerant logging with extra parameters."""
+    get_logger().log("log_with_extra", **kwargs)

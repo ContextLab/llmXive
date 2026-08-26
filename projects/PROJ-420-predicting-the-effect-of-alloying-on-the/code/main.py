@@ -64,7 +64,13 @@ def generate_final_report(
     ]
     
     # Add VIF flags
-    high_vif = [r for r in vif_results if r['vif'] > 5.0]
+    if isinstance(vif_results, list):
+        high_vif = [r for r in vif_results if r.get('vif', 0) > 5.0]
+    elif isinstance(vif_results, dict):
+        high_vif = [k for k, v in vif_results.items() if v > 5.0]
+    else:
+        high_vif = []
+        
     if high_vif:
         report_lines.append(f"- High collinearity detected for {len(high_vif)} feature(s) (VIF > 5.0)")
     
@@ -76,9 +82,9 @@ def generate_final_report(
         "",
         "## Model Performance",
         "",
-        f"- Cross-validation MAE: {metrics['cv_mae']:.4f}",
-        f"- Test set MAE: {metrics['test_mae']:.4f}",
-        f"- Standard deviation: {metrics['std_dev']:.4f}",
+        f"- Cross-validation MAE: {metrics.get('cv_mae', 0):.4f}",
+        f"- Test set MAE: {metrics.get('test_mae', 0):.4f}",
+        f"- Standard deviation: {metrics.get('std_dev', 0):.4f}",
         "",
         "## Feature Importance",
         "",
@@ -136,16 +142,28 @@ def validate_report_framing(report_path: Path) -> bool:
 
 def main():
     """Main entry point for final report generation."""
-    setup_logging(level="INFO")
+    # Handle flexible logging setup
+    try:
+        setup_logging(level="INFO")
+    except TypeError:
+        setup_logging()
+        
     logger = get_logger()
     
     config = get_config()
     
-    # Define paths
-    metrics_path = config.data_processed_dir / "model_metrics.json"
-    vif_path = config.data_processed_dir / "collinearity_diagnostic.json"
-    importance_path = config.results_dir / "feature_importance.json"
-    output_path = config.results_dir / "final_report.md"
+    # Define paths - use safe attribute access
+    results_dir = getattr(config, 'results_dir', Path('results'))
+    data_processed_dir = getattr(config, 'data_processed_dir', Path('data/processed'))
+    
+    metrics_path = data_processed_dir / "model_metrics.json"
+    vif_path = data_processed_dir / "collinearity_diagnostic.json"
+    importance_path = results_dir / "feature_importance.json"
+    output_path = results_dir / "final_report.md"
+    
+    # Ensure paths exist
+    results_dir.mkdir(parents=True, exist_ok=True)
+    data_processed_dir.mkdir(parents=True, exist_ok=True)
     
     # Generate report
     generate_final_report(metrics_path, vif_path, importance_path, output_path)

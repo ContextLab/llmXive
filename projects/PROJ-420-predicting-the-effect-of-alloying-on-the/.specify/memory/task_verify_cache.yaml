@@ -1,3 +1,21 @@
+T014:
+  c: false
+  h: dc995f972425f645f30b08c05c2c144194b598347f1b8fcb32646f8594abced5
+  r: The `clean.py` file is present but the visible portion stops before the core
+    of `apply_independence_filter`; it does not show the required inference steps
+    (setting `measurement_method`, marking it as inferred) nor the specific exclusion
+    reasons `'missing_measurement_method'` or `'inference_failed'`. Additionally,
+    the required `data/logs/exclusion_log.txt` does not exist. The implementer must
+    complete the function with the exact inference logic and ensure the correct log
+    entries are written.
+T015:
+  c: false
+  h: 18089ecf6a1af3e8768b5d6d1c9008f6d566aac7a5a69a4fba83b0726cf9a6d4
+  r: The repository lacks the required `data/logs/exclusion_log.txt` and the output
+    `data/processed/alloys_clean.parquet`, and the shown portion of `code/data/clean.py`
+    does not contain the final orchestration steps (reading the log, checking row
+    count, halting on <50, and saving the parquet file). These essential artifacts
+    are missing, so the task is not genuinely completed.
 T016:
   c: true
   h: eaafccad8ad32f1cc7b1cefe53c0b134cca9c771fc3100e4e980f7bc34c696ef
@@ -5,20 +23,37 @@ T016:
     \ function that writes (or creates) `exclusion_log.txt` in the logs directory,\
     \ adding a CSV header if needed and appending rows in the required `step,count,reason`\
     \ format. No placeholder or stub code is present, satisfying the task\u2019s specification."
-T023c:
+T021:
   c: false
-  h: d1b6fdec8d745e294e81811bcd965a9c34c7fac51fe83fa60cb4d7a2389b3299
-  r: "The required `data/processed/model_metrics.json` file does not exist, and the\
-    \ provided `code/modeling.py` excerpt shows no implementation of test\u2011set\
-    \ MAE computation, CV\u2011MAE threshold checking, warning logging, or atomic\
-    \ JSON writing as specified. The task\u2019s core functionality is therefore missing."
-T024:
+  h: e1381f381fab212498101b0f122361634d073e13afc99a0f1e1329331bd094cf
+  r: "The `train_random_forest_with_cv` function implements repeated 5\u2011fold CV\
+    \ and computes MAE and residual\u2011based confidence intervals, but the code\
+    \ never writes these metrics to `results/model_metrics.json`. Moreover, the required\
+    \ `results/model_metrics.json` file is absent from the repository. The missing\
+    \ file/write step must be added for the task to be considered complete."
+T025:
   c: false
-  h: 791013ab07fc255cb3352d523543ebd762c5d8674e60d9340ee1f1d2ee5a43f3
-  r: The repository lacks the required `models/rf_model.pkl` file, and the provided
-    excerpt of `code/modeling.py` does not show any serialization logic (e.g., `os.makedirs('models',
-    exist_ok=True)` and `joblib.dump(model, 'models/rf_model.pkl', compress=3, protocol=3)`).
-    Without evidence that the model is saved as specified, the task is not fulfilled.
+  h: e1381f381fab212498101b0f122361634d073e13afc99a0f1e1329331bd094cf
+  r: "The `evaluate_model_on_test` function is truncated and does not show the required\
+    \ 80/20 split, MAE computation, logging, or JSON saving. Moreover, the expected\
+    \ output file `results/model_metrics.json` is absent from the repository. The\
+    \ task\u2019s deliverables are therefore not present."
+T027a:
+  c: false
+  h: 6144de8a0b6a8066452fb3076e50f6076c2dec56fa225f58ea774288cbcef3e3
+  r: The `code/analysis.py` file contains a partial implementation of permutation
+    importance but does not include code to save the results to `results/feature_importance.json`,
+    and the file is truncated. The required output file `results/feature_importance.json`
+    and the schema file `specs/001-predict-poissons-ratio/contracts/feature_importance.schema.yaml`
+    are both missing. The task therefore remains unfinished.
+T028:
+  c: false
+  h: 8b7c36cf7531726172abee806762e4bcf7f3b18a27fee0236245e24a61e0b68e
+  r: "The provided `code/analysis.py` contains only permutation\u2011importance logic\
+    \ and does not implement any Variance Inflation Factor calculation for the raw\
+    \ atomic fractions, nor does it write a `results/collinearity_diagnostic.json`\
+    \ file. The required JSON output is missing entirely. The task therefore remains\
+    \ unfinished."
 T029:
   c: false
   h: 23094fad1671b21d3c210a8dc34e355bdf6f29bfa496eb45bac98e36d3a3f112
@@ -42,20 +77,3 @@ T030b:
     contains no code that applies the regex `r'(associat|correlat)[^\n]*not causal'`
     to the report or asserts a Pass/Fail boolean in a pytest test. Both the artifact
     and the validation logic are missing.
-T032:
-  c: false
-  h: 858ecbcfceb690a236e315e7b54134448f77c7a95ec387e7241d1497884e96e3
-  r: The quickstart guide does not list the exact command `python code/cli/model_cli.py`
-    (it lists other scripts instead) and the required `code/cli/model_cli.py` file
-    is missing entirely. Additionally, the extraction step includes an extra `--extract`
-    flag, deviating from the exact command line the task specifies. These gaps mean
-    the documentation and CLI interface are not fully updated as required.
-T045:
-  c: false
-  h: 9b9c10eb13ffb7e1186f3096f707548fe8dad1e6ac543bac1c49c2115dfea379
-  r: The `code/cli/download_cli.py` script exists and provides a `--extract` flag,
-    but it imports `run_extraction` from `data_extraction` (or `code.data_extraction`)
-    instead of the required `code/data/_download_logic.py`, which is missing entirely.
-    Additionally, `docs/quickstart.md` does not reference this CLI entry point, contradicting
-    the requirement that it be callable as documented. The missing `_download_logic.py`
-    file and incorrect import prevent the task from being genuinely completed.

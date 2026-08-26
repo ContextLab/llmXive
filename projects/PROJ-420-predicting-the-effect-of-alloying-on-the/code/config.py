@@ -1,4 +1,6 @@
-"""Configuration management for the alloy prediction project."""
+"""
+Configuration management for the project.
+"""
 import os
 import json
 import re
@@ -6,80 +8,73 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 from logging_config import get_logger
 
+logger = get_logger(__name__)
 
 class Config:
-    """Configuration class with tolerant attribute access."""
+    """Project configuration with tolerant attribute access."""
     
-    def __init__(self, config_path: Optional[str] = None):
-        self.config_path = config_path or "data/config.json"
-        self.logger = get_logger()
-        self._config = self._load_config()
-        
-        # Set default paths
-        self.data_dir = Path(self._config.get("data_dir", "data"))
+    def __init__(self):
+        self.project_root = Path(__file__).parent.parent
+        self.code_dir = self.project_root / "code"
+        self.data_dir = self.project_root / "data"
         self.data_raw_dir = self.data_dir / "raw"
         self.data_processed_dir = self.data_dir / "processed"
         self.data_logs_dir = self.data_dir / "logs"
-        self.models_dir = Path(self._config.get("models_dir", "models"))
-        self.results_dir = Path(self._config.get("results_dir", "results"))
+        self.models_dir = self.project_root / "models"
+        self.results_dir = self.project_root / "results"
+        self.specs_dir = self.project_root / "specs"
         
-        # Data paths (tolerant aliases)
-        self.data_raw = self.data_raw_dir
-        self.data_processed = self.data_processed_dir
-        self.data_logs = self.data_logs_dir
+        # Random seed for reproducibility
+        self.random_seed = 42
         
-        # Validation settings
-        self.random_seed = self._config.get("random_seed", 42)
-        self.valid_measurement_methods = self._config.get(
-            "valid_measurement_methods", 
-            r"(?i)(ultrasonic|direct|resonant|impulse)"
-        )
+        # Valid measurement methods
+        self.VALID_MEASUREMENT_METHODS = [
+            r'.*Ultrasonic.*',
+            r'.*Direct.*',
+            r'.*Resonant.*',
+            r'.*Impulse.*'
+        ]
         
-    def _load_config(self) -> Dict[str, Any]:
-        """Load configuration from file or return defaults."""
-        config_path = Path(self.config_path)
-        if config_path.exists():
-            try:
-                with open(config_path, 'r') as f:
-                    return json.load(f)
-            except (json.JSONDecodeError, IOError):
-                self.logger.log("config_load_warning", message="Using default config")
-        return {}
+        # Ensure directories exist
+        self._ensure_directories()
     
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get a config value by key."""
-        return self._config.get(key, default)
+    def _ensure_directories(self):
+        """Create all required directories."""
+        dirs = [
+            self.data_raw_dir,
+            self.data_processed_dir,
+            self.data_logs_dir,
+            self.models_dir,
+            self.results_dir
+        ]
+        for d in dirs:
+            d.mkdir(parents=True, exist_ok=True)
     
-    def __getattr__(self, name: str) -> Any:
-        """Tolerant attribute access - return no-op for unknown attributes."""
-        # Return existing attributes first
-        if hasattr(super(), name):
-            return super().__getattribute__(name)
-        
-        # For unknown attributes, return a no-op callable
-        def _noop(*args: Any, **kwargs: Any) -> Any:
-            return None
-        return _noop
+    # Tolerant attribute access for logger-style calls
+    def __getattr__(self, name: str):
+        # Handle logger-style calls (.info/.debug/.warning/.error/...)
+        if name in ['info', 'debug', 'warning', 'error', 'critical', 'log']:
+            def _noop(*args: Any, **kwargs: Any) -> None:
+                return None
+            return _noop
+        raise AttributeError(f"'Config' object has no attribute '{name}'")
 
+_CONFIG: Optional[Config] = None
 
-_CONFIG_INSTANCE: Optional[Config] = None
-
-
-def get_config(config_path: Optional[str] = None) -> Config:
+def get_config() -> Config:
     """Get or create the global config instance."""
-    global _CONFIG_INSTANCE
-    if _CONFIG_INSTANCE is None:
-        _CONFIG_INSTANCE = Config(config_path)
-    return _CONFIG_INSTANCE
-
+    global _CONFIG
+    if _CONFIG is None:
+        _CONFIG = Config()
+    return _CONFIG
 
 def main():
-    """Main entry point for config module."""
+    """Entry point for config module."""
     config = get_config()
-    print(f"Config loaded: {config.config_path}")
-    print(f"Data directories: {config.data_dir}")
-    return config
-
+    print(f"Project root: {config.project_root}")
+    print(f"Data directory: {config.data_dir}")
+    print(f"Models directory: {config.models_dir}")
+    print(f"Results directory: {config.results_dir}")
 
 if __name__ == "__main__":
     main()
