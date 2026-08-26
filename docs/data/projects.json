@@ -28655,7 +28655,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-08-26T16:33:01.640216+00:00",
+  "generated_at": "2026-08-26T16:46:46.215378+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -28916,6 +28916,21 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-511-predicting-molecular-packing-efficiency-",
           "project_id": "PROJ-511-predicting-molecular-packing-efficiency-",
           "title": "Predicting Molecular Packing Efficiency in Crystals from SMILES Representations"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-385-the-impact-of-text-message-tone-on-perce",
+          "project_id": "PROJ-385-the-impact-of-text-message-tone-on-perce",
+          "title": "The Impact of Text Message Tone on Perceived Emotional Support"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-414-investigating-the-relationship-between-b",
+          "project_id": "PROJ-414-investigating-the-relationship-between-b",
+          "title": "Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Musical Improvisation Skill"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-429-the-impact-of-network-efficiency-on-age-",
+          "project_id": "PROJ-429-the-impact-of-network-efficiency-on-age-",
+          "title": "The Impact of Network Efficiency on Age-Related Changes in Resting-State EEG"
         }
       ],
       "inputs": [
@@ -28960,6 +28975,21 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-511-predicting-molecular-packing-efficiency-",
           "project_id": "PROJ-511-predicting-molecular-packing-efficiency-",
           "title": "Predicting Molecular Packing Efficiency in Crystals from SMILES Representations"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-385-the-impact-of-text-message-tone-on-perce",
+          "project_id": "PROJ-385-the-impact-of-text-message-tone-on-perce",
+          "title": "The Impact of Text Message Tone on Perceived Emotional Support"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-414-investigating-the-relationship-between-b",
+          "project_id": "PROJ-414-investigating-the-relationship-between-b",
+          "title": "Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Musical Improvisation Skill"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-429-the-impact-of-network-efficiency-on-age-",
+          "project_id": "PROJ-429-the-impact-of-network-efficiency-on-age-",
+          "title": "The Impact of Network Efficiency on Age-Related Changes in Resting-State EEG"
         }
       ],
       "inputs": [
