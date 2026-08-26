@@ -13,7 +13,7 @@ This project implements a symbolic-latent planner to extend the Geometric Action
 **Primary Dependencies**: `pybullet` (physics simulation), `diff-taichi` (differentiable solver), `torch` (GFM encoder/decoder, CPU mode), `scipy`/`statsmodels` (statistical tests), `numpy`/`pandas` (data handling).  
 **Storage**: Local filesystem (`data/raw`, `data/generated`, `data/results`); **JSONL format only** (no Parquet).  
 **Testing**: `pytest` (unit/integration), `pytest-cov` (coverage), custom validation scripts for topology hashing.  
-**Target Platform**: GitHub Actions x86_64 runner (2 CPU cores, ~7 GB RAM).  
+**Target Platform**: GitHub Actions x_64 runner (2 CPU cores, ~7 GB RAM).  
 **Project Type**: Research/Scientific Computing (CLI-driven pipeline).  
 **Performance Goals**: Complete 300 trials (approx. 10 steps each) within 6 hours; inference latency < 300ms per step (CPU).  
 **Constraints**: No GPU/CUDA; frozen GFM weights; strict topology isolation from training data; constraint satisfaction ≥ 95%.  

@@ -22,7 +22,18 @@
   verification_status: pending
   verified_against_url: https://github.com/astral-sh/ruff-pre-commit
   verified_at: '2026-08-22T07:01:01.829149Z'
-- artifact_hash: 96b7ae1dd88888de78842ac50e538ccca857e1c8165fcd964cd5a1fb6bdc9a4c
+- artifact_hash: b0c93d6442ca1fd8e43e3eb9dc0b228a447b33c7786dfc3f09613d1f98322b87
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-08-26T04:13:19.760051Z'
+- artifact_hash: 5ec6a76ce844929c980d30dbfb0bec2dddee849f870b9a762f6f8db71b63a86d
   artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -32,4 +43,15 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-25T02:28:23.560690Z'
+  verified_at: '2026-08-26T04:16:26.362607Z'
+- artifact_hash: 5ec6a76ce844929c980d30dbfb0bec2dddee849f870b9a762f6f8db71b63a86d
+  artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2111.01007] Projected GANs Converge Faster'
+  kind: url
+  value: https://arxiv.org/abs/2111.01007
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2111.01007
+  verified_at: '2026-08-26T04:16:26.362607Z'

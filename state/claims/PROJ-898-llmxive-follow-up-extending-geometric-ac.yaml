@@ -984,3 +984,692 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T01:44:53Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Per-step latency less than 300 milliseconds
+  claim_id: c_34eaf6cd
+  context: 'T020b [US2] [SC-005] **Validate Per-Step Latency Assumption**. **Logic**:
+    3. **Verify** that per-step latency is **< 300 milliseconds** (Spec Assumption).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-step_latency_less_than_300_milliseconds
+  kind: magnitude
+  raw_text: Verify that per-step latency is < 300 milliseconds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:57:48Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Projected total time less than 6 hours
+  claim_id: c_ed3631c4
+  context: T020b [US2] [SC-005] **Validate Per-Step Latency Assumption**. ... 5. **Verify**
+    projected time **< 6 hours**.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: time from 5 days to less than 3 hours given the same computational resources.
+      source_id: '2111.01007'
+      url: https://arxiv.org/abs/2111.01007
+      value: 3 hours
+    filled: true
+  kind: magnitude
+  raw_text: Verify projected time < 6 hours
+  resolved_value: 3 hours
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T03:58:44Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Symbolic MSE less than or equal to 1.5 times baseline MSE
+  claim_id: c_e0e4d11d
+  context: "T019c [US2] ... **Verify** that symbolic MSE is **\u2264 1.5x baseline\
+    \ MSE**."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Symbolic_MSE_less_than_or_equal_to_1.5_times_baseline_MSE
+  kind: magnitude
+  raw_text: "Verify that symbolic MSE is \u2264 1.5x baseline MSE"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T03:59:22Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Constraint satisfaction rate greater than or equal to 95 percent
+  claim_id: c_22b67553
+  context: T025-validate-experiment [US3] ... Assert that constraint satisfaction
+    is >= 95% AND the decoder ratio <= 1.5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Constraint_satisfaction_rate_greater_than_or_equal_to_95_per
+  kind: magnitude
+  raw_text: Assert that constraint satisfaction is >= 95%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:00:25Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Mock data contains exactly 5 entries
+  claim_id: c_20cd66f8
+  context: 'T009-mock [US1] ... **Output**: `data/generated/mock_topology_data.json`
+    containing exactly 5 entries with valid topology hashes conforming to the contract.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate mock data containing exactly 5 entries
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:01:12Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Trial count set to 100
+  claim_id: c_d169b1ff
+  context: 'T007a [P] Create `code/config.yaml` defining experiment parameters: ...
+    `trial_count` (100)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: trial_count is 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:02:27Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: MAX_TASKS default value is 150
+  claim_id: c_1afdfa8a
+  context: T007a [P] ... `MAX_TASKS` (integer, default 150, max tasks to generate
+    before subset selection).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_TASKS default is 150
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:03:04Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Solver input perturbation epsilon 1e-6
+  claim_id: c_3c2f2817
+  context: T014b-fd-verify [US2] ... Perturb solver input parameters by $\epsilon
+    = 10^{-6}$ and measure change in constraint violation loss...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perturb solver input parameters by epsilon equals 10 to the negative 6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:03:36Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: 'Retry mechanism: initial 1s, multiplier 2, max 5 retries'
+  claim_id: c_6a3feb4a
+  context: 'T011 [US1] ... recovery mechanism (retry with exponential backoff: initial=1s,
+    multiplier=2, max=5 retries)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initial retry delay is 1 second with multiplier 2 and max 5 retries
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:04:09Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Success frames window at least equal to simulation FPS
+  claim_id: c_cda77919
+  context: T021b [US2] ... for **every frame** in a window of `success_frames >= int(config.sim_fps)`
+    (approx 1 second).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_frames_window_at_least_equal_to_simulation_FPS
+  kind: magnitude
+  raw_text: success_frames must be greater than or equal to config.sim_fps
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:04:49Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 0
+  canonical: Projected total time for a series of trials must be less than 3 hours
+  claim_id: c_88a48c64
+  context: T020b [US2] [SC-005] **Validate Per-Step Latency Assumption**. ... 5. **Verify**
+    projected time **< 3 hours (2111.01007, https://arxiv.org/abs/2111.01007) hours**.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: time from 5 days to less than 3 hours given the same computational resources.
+      source_id: '2111.01007'
+      url: https://arxiv.org/abs/2111.01007
+      value: 3 hours
+    filled: true
+  kind: magnitude
+  raw_text: Verify projected time < 3 hours (2111.01007, https://arxiv.org/abs/2111.01007)
+    hours
+  resolved_value: 3 hours
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T04:06:13Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Per-step latency must be less than 300 milliseconds
+  claim_id: c_f2f4f1c7
+  context: 'T020b [US2] [SC-005] **Validate Per-Step Latency Assumption**. **Logic**:
+    ... 3. **Verify** that per-step latency is **< 300 milliseconds** (Spec Assumption).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-step_latency_must_be_less_than_300_milliseconds
+  kind: magnitude
+  raw_text: Verify that per-step latency is < 300 milliseconds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:06:19Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Censored trials counted as failures in McNemar's test
+  claim_id: c_0f264778
+  context: 'T024a-select [US3] ... **CRITICAL HANDLING OF CENSORED DATA**: Trials
+    with `timeout=true` or `infeasible=true` MUST be counted as **0 (failure)** in
+    the McNemar''s test success rate matrix...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trials with timeout=true or infeasible=true MUST be counted as 0 (failure)
+    in the McNemar's test success rate matrix
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:06:53Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Constraint satisfaction rate must be at least 95% and decoder ratio at
+    most 1.5
+  claim_id: c_84b12dd5
+  context: T025-validate-experiment [US3] ... Assert that constraint satisfaction
+    is >= 95% AND the decoder ratio <= 1.5.
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Constraint_satisfaction_rate_must_be_at_least_95%25_and_decode
+  kind: magnitude
+  raw_text: Assert that constraint satisfaction is >= 95% AND the decoder ratio <=
+    1.5
+  resolved_value: Constraint satisfaction rate must be at least 95% and decoder ratio
+    at most 1.5
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T04:06:56Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Symbolic decoder MSE must be less than or equal to 1.5 times baseline
+    MSE
+  claim_id: c_98107a0f
+  context: "T019c [US2] ... **Verify** that symbolic MSE is **\u2264 1.5x baseline\
+    \ MSE**."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Symbolic_decoder_MSE_must_be_less_than_or_equal_to_1.5_times
+  kind: magnitude
+  raw_text: "Verify that symbolic MSE is \u2264 1.5x baseline MSE"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:06:59Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Generate mock data with exactly 5 entries
+  claim_id: c_2d443306
+  context: 'T009-mock [US1] ... **Output**: `data/generated/mock_topology_data.json`
+    containing exactly 5 entries with valid topology hashes conforming to the contract.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate Mock Data ... containing exactly 5 entries with valid topology
+    hashes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:07:46Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Retry mechanism with initial 1s delay, multiplier 2, and max 5 retries
+  claim_id: c_13d4fc66
+  context: 'T011 [US1] ... recovery mechanism (retry with exponential backoff: initial=1s,
+    multiplier=2, max=5 retries)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'retry with exponential backoff: initial=1s, multiplier=2, max=5 retries'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:08:15Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Trial count default set to 100
+  claim_id: c_24f16e7d
+  context: 'T007a [P] Create `code/config.yaml` defining experiment parameters: ...
+    `trial_count` (100)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: trial_count (100)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:08:15Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Maximum tasks to generate before subset selection is 150
+  claim_id: c_154ab2b6
+  context: 'T007a [P] Create `code/config.yaml` defining experiment parameters: ...
+    `MAX_TASKS` (integer, default 150, max tasks to generate before subset selection).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_TASKS (integer, default 150, max tasks to generate before subset selection)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:08:48Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Finite difference check perturbs input parameters by 10 to the power
+    of negative 6
+  claim_id: c_e9f074a6
+  context: "T014b-fd-verify [US2] ... Perturb solver input parameters by $\epsilon\
+    \ = 10^{-6}$ and measure change in constraint violation loss..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perturb solver input parameters by \u03B5 = 10\u207B\u2076"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:09:33Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 0
+  canonical: Verify projected time is less than 3 hours
+  claim_id: c_a31e7ea7
+  context: T020b [US2] [SC-005] **Validate Per-Step Latency Assumption**. ... 4. **Calculate**
+    projected total time for a series of trials (10 steps each). 5. **Verify** projected
+    time **< 3 hours (2111.01007, https://arxiv.org/abs/2111.01007) hours**.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: time from 5 days to less than 3 hours given the same computational resources.
+      source_id: '2111.01007'
+      url: https://arxiv.org/abs/2111.01007
+      value: 3 hours
+    filled: true
+  kind: magnitude
+  raw_text: Verify projected time < 3 hours (2111.01007, https://arxiv.org/abs/2111.01007)
+    hours.
+  resolved_value: 3 hours
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T04:10:32Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Verify per-step latency is less than 300 milliseconds
+  claim_id: c_d4810288
+  context: 'T020b [US2] [SC-005] **Validate Per-Step Latency Assumption**. **Logic**:
+    1. Run a small subset of trials on the symbolic pipeline. 2. Measure per-step
+    latency. 3. **Verify** that per-step latency is **< 300 milliseconds** (Spec Assumption).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_per-step_latency_is_less_than_300_milliseconds
+  kind: magnitude
+  raw_text: Verify that per-step latency is < 300 milliseconds (Spec Assumption).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:10:37Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Verify symbolic MSE is less than or equal to 1.5 times baseline MSE
+  claim_id: c_bf2d7826
+  context: "T019c [US2] [Depends on T019b-symbolic-mse, T022b-baseline-mse] **Calculate\
+    \ Baseline Decoder Error and Ratio Check**. ... 4. **Verify** that symbolic MSE\
+    \ is **\u2264 1.5x baseline MSE**."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_symbolic_MSE_is_less_than_or_equal_to_1.5_times_basel
+  kind: magnitude
+  raw_text: "Verify that symbolic MSE is \u2264 1.5x baseline MSE."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:10:41Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Count trials with timeout or infeasible flags as failures in McNemar's
+    test
+  claim_id: c_5400b19d
+  context: 'T024a-select [US3] ... **CRITICAL HANDLING OF CENSORED DATA**: Trials
+    with `timeout=true` or `infeasible=true` MUST be counted as **0 (failure)** in
+    the McNemar''s test success rate matrix, even though they are excluded from the
+    latency distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trials with timeout=true or infeasible=true MUST be counted as 0 (failure)
+    in the McNemar's test success rate matrix.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:10:41Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Verify collision flag is 0 and distance to target is less than 5cm for
+    at least 1 second
+  claim_id: c_219fec6e
+  context: 'T021b [US2] [SC-001] ... **Logic**: For each trial, verify that `collision_flag
+    == 0` AND `distance to target object center < 5cm` for **every frame** in a window
+    of `success_frames >= int(config.sim_fps)` (approx 1 second).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_collision_flag_is_0_and_distance_to_target_is_less_th
+  kind: magnitude
+  raw_text: Verify that collision_flag == 0 AND distance to target object center <
+    5cm for every frame in a window of success_frames >= int(config.sim_fps) (approx
+    1 second).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:11:49Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Perturb solver input parameters by 10 to the power of negative 6
+  claim_id: c_5b601174
+  context: 'T014b-fd-verify [US2] ... **Logic**: Perturb solver input parameters by
+    $\epsilon = 10^{-6}$ and measure change in constraint violation loss to verify
+    gradient flow through the solver, stopping at the decoder input.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perturb solver input parameters by epsilon = 10^-6 and measure change
+    in constraint violation loss to verify gradient flow through the solver.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:12:59Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: 'Retry with exponential backoff: initial 1s, multiplier 2, max 5 retries'
+  claim_id: c_d04f9e22
+  context: 'T011 [US1] Implement error handling for physics simulation failures ...
+    recovery mechanism (retry with exponential backoff: initial=1s, multiplier=2,
+    max=5 retries)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Retry with exponential backoff: initial=1s, multiplier=2, max=5 retries.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:13:00Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Check if projected time exceeds 6 hours
+  claim_id: c_5b4a6b6c
+  context: T023-feasibility-pilot [US3] ... 3. **Calculate** projected total time
+    for full experiment. 4. **Check** if projected time > 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check if projected time > 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:13:00Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 2
+  canonical: Generate exactly 5 mock topology data entries
+  claim_id: c_7a406593
+  context: 'T009-mock [US1] [P] **Generate Mock Data for Early Solver Testing**. ...
+    **Output**: `data/generated/mock_topology_data.json` containing exactly 5 entries
+    with valid topology hashes conforming to the contract.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate mock topology data containing exactly 5 entries with valid topology
+    hashes conforming to the contract.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:13:00Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 0
+  canonical: Projected total time less than 3 hours
+  claim_id: c_ef73facb
+  context: 'T020b [US2] [SC-005] **Validate Per-Step Latency Assumption**. **Logic**:
+    ... 5. **Verify** projected time **< 3 hours (2111.01007, https://arxiv.org/abs/2111.01007)
+    hours**.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: time from 5 days to less than 3 hours given the same computational resources.
+      source_id: '2111.01007'
+      url: https://arxiv.org/abs/2111.01007
+      value: 3 hours
+    filled: true
+  kind: magnitude
+  raw_text: Verify projected time < 3 hours
+  resolved_value: 3 hours
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T04:13:40Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 3
+  canonical: Generate at least 100 unique manipulation tasks
+  claim_id: c_9ee25f88
+  context: T009-gen-unified [US1] [Depends on T008-manifest-gen, T009-gen-impl] **Generate**
+    a set of **at least 100 unique manipulation tasks** (FR-001, US-1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_100_unique_manipulation_tasks
+  kind: magnitude
+  raw_text: Generate a set of at least 100 unique manipulation tasks
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:13:46Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Per-step latency less than 300 milliseconds
+  claim_id: c_2d175853
+  context: 'T020b [US2] [SC-005] **Validate Per-Step Latency Assumption**. **Logic**:
+    1. Run a small subset of trials on the symbolic pipeline. 2. Measure per-step
+    latency. 3. **Verify** that per-step latency is **< 300 milliseconds** (Spec Assumption).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-step_latency_less_than_300_milliseconds
+  kind: magnitude
+  raw_text: Verify that per-step latency is < 300 milliseconds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:13:47Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Symbolic MSE less than or equal to 1.5 times baseline MSE
+  claim_id: c_9135816a
+  context: "T019c [US2] [Depends on T019b-symbolic-mse, T022b-baseline-mse] **Calculate\
+    \ Baseline Decoder Error and Ratio Check**. ... 4. **Verify** that symbolic MSE\
+    \ is **\u2264 1.5x baseline MSE**."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Symbolic_MSE_less_than_or_equal_to_1.5_times_baseline_MSE
+  kind: magnitude
+  raw_text: "Verify that symbolic MSE is \u2264 1.5x baseline MSE"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:13:50Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Generate exactly 5 mock data entries
+  claim_id: c_1bc2b009
+  context: 'T009-mock [US1] [P] **Generate Mock Data for Early Solver Testing**. ...
+    **Output**: `data/generated/mock_topology_data.json` containing exactly 5 entries
+    with valid topology hashes conforming to the contract.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly 5 entries with valid topology hashes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:14:35Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Success requires 1 second of collision-free target proximity
+  claim_id: c_f4cd1991
+  context: 'T021b [US2] [SC-001] [Depends on T021c, T022a] ... **Logic**: For each
+    trial, verify that `collision_flag == 0` AND `distance to target object center
+    < 5cm` for **every frame** in a window of `success_frames >= int(config.sim_fps)`
+    (approx 1 second).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Success requires success_frames >= int(config.sim_fps) (approx 1 second)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:15:02Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Verify zero overlap of topology hashes against manifest
+  claim_id: c_33156b9b
+  context: 'T009-verify-overlap [US1] [Depends on T008-manifest-gen, T009-gen-unified]
+    **Verify** zero overlap against `data/raw/training-topology-manifest.json`. ...
+    **Logic**: Verify that none of the topology hashes exist in the manifest.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_zero_overlap_of_topology_hashes_against_manifest
+  kind: entity_fact
+  raw_text: Verify that none of the topology hashes exist in the manifest
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:15:46Z'
+- artifact_path: projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/specs/001-llmxive-follow-up-extending-geometric-ac/tasks.md
+  attempts: 1
+  canonical: Distance to target object center less than 5cm
+  claim_id: c_561c6567
+  context: 'T021b [US2] [SC-001] [Depends on T021c, T022a] ... **Logic**: For each
+    trial, verify that `collision_flag == 0` AND `distance to target object center
+    < 5cm` for **every frame** in a window of `success_frames >= int(config.sim_fps)`
+    (approx 1 second).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distance_to_target_object_center_less_than_5cm
+  kind: magnitude
+  raw_text: Distance to target object center must be < 5cm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T04:16:26Z'

@@ -1,6 +1,6 @@
 # Pre-commit configuration for llmXive project
-# Install with: pip install pre-commit && pre-commit install
-# Run manually: pre-commit run --all-files
+# Automatically runs linters and formatters on staged files
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -8,29 +8,52 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
-      - id: check-json
       - id: check-added-large-files
-        args: ['--maxkb=10240'] # 10MB limit
+        args: ['--maxkb=1024']
       - id: check-merge-conflict
-      - id: debug-statements
+      - id: detect-private-key
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
+    rev: v0.1.6
     hooks:
       # Run the linter
       - id: ruff
         args: [--fix]
-      # Run the formatter (replaces black)
+      # Run the formatter
       - id: ruff-format
 
-  - repo: local
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
     hooks:
-      - id: check-requirements
-        name: Check requirements.txt
-        entry: python -c "import tomllib; open('requirements.txt')"
-        language: system
-        pass_filenames: false
-        always_run: true
-        # Note: Actual requirements check happens in CI or setup scripts
-        # This is a placeholder to ensure the file exists
-        args: []
+      - id: black
+        language_version: python3.10
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort (python)
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-r, -c, pyproject.toml]
+        # Exclude test files and generated data
+        exclude: |
+          (?x)^(
+              tests/|
+              data/|
+              __pycache__/
+          )$
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-PyYAML
+          - types-requests
+          - numpy
+        args: [--ignore-missing-imports, --no-strict-optional]
+        exclude: tests/

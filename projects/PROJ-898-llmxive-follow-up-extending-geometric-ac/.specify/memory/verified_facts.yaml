@@ -1,6 +1,5 @@
-'|hypothesi null rejection state status':
-  quote: "The omnibus F ANOVA test results above indicate significant differences\
-    \ between the days time-wait (P-Value =0.000 < 0.05, \u03B1 =0.05)."
-  source_id: Omnibus test
-  url: https://en.wikipedia.org/wiki/Omnibus_test
-  value: '0.000'
+'|hour projected time verify':
+  quote: time from 5 days to less than 3 hours given the same computational resources.
+  source_id: '2111.01007'
+  url: https://arxiv.org/abs/2111.01007
+  value: 3 hours

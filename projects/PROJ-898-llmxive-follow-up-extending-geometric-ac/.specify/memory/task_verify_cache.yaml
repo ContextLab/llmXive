@@ -5,6 +5,33 @@ T001a:
     any of its contents were presented; the claim provides no tangible artifact to
     confirm the required project root structure exists. The task therefore remains
     unverified and incomplete.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented that the required `code/`, `data/`, and `tests/` directories
+    actually exist or contain any files; the only provided material is a feature specification,
+    not the filesystem artifacts. The implementer must create those three directories
+    (with at least placeholder content) and show them in the repository.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `.gitkeep` files in `data/raw`, `data/generated`, or `data/results`
+    is provided; the artifact list is empty, so the required files are missing.
+T003:
+  c: false
+  h: 7c5bb6bdf41d8a9d420d028b1f6114c1805dacb7791e30e518b1e7e5805ad13d
+  r: "The `ruff.toml` file is present and appears correctly configured, but the required\
+    \ `.pre-commit-config.yaml` file is missing entirely, so the task of creating\
+    \ both artifacts is not fulfilled. The next implementer must add a valid `.pre-commit-config.yaml`\
+    \ defining the desired pre\u2011commit hooks."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `.gitkeep` files were presented as evidence; without
+    visible `data/raw`, `data/generated`, `data/results` folders (each containing
+    a `.gitkeep`), we cannot confirm the task was actually completed. The implementer
+    must provide the filesystem layout or a listing showing the required directories
+    and placeholder files.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

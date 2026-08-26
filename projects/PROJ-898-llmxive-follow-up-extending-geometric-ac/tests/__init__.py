@@ -1,5 +1,2 @@
-"""
-llmXive Automated Science Pipeline - Tests Module.
-
-This package contains the test suite for the project.
-"""
+# llmXive Research Pipeline - Tests Module
+# This package contains unit and integration tests for the research pipeline.

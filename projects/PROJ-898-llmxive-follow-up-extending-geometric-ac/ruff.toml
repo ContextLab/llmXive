@@ -1,14 +1,10 @@
 # Ruff configuration for llmXive project
+# Enforces consistent style, linting, and formatting rules
+
 [lint]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F", "I", "N", "W", "D", "UP", "B", "C4", "SIM"]
-ignore = [
-  "D100", # Missing docstring in public module
-  "D104", # Missing docstring in public package
-  "D203", # 1 blank line required before class docstring (conflicts with D211)
-  "D213", # Multi-line docstring summary should start at the second line (conflicts with D212)
-  "E501", # Line too long (handled by black)
-]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = []
 
 # Allow autofix for all enabled rules
 fixable = ["ALL"]
@@ -16,47 +12,36 @@ unfixable = []
 
 # Exclude a few files/directories
 exclude = [
-  ".bzr",
-  ".direnv",
-  ".eggs",
-  ".git",
-  ".git-rewrite",
-  ".hg",
-  ".mypy_cache",
-  ".nox",
-  ".pants.d",
-  ".pytype",
-  ".ruff_cache",
-  ".svn",
-  ".tox",
-  ".venv",
-  "__pypackages__",
-  "_build",
-  "buck-out",
-  "build",
-  "dist",
-  "node_modules",
-  "venv",
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    "data",
+    "venv",
+    ".eggs",
+    "*.egg-info",
 ]
 
-# Same as Black
+# Same as Black line length
 line-length = 88
 
-# Assume Python 3.10 (compatible with torch 2.0)
-target-version = "py310"
+# Allow unused variables for test files
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [lint.per-file-ignores]
 # Ignore import sorting in __init__.py files
-"__init__.py" = ["I"]
-# Ignore docstring requirements in tests
-"tests/**" = ["D"]
+"__init__.py" = ["F401"]
+# Ignore some rules in test files
+"tests/*" = ["S101", "ARG001"]
 
 [lint.isort]
-known-first-party = ["code", "tests"]
+known-first-party = ["code"]
 force-sort-within-sections = false
+combine-as-imports = true
 
 [format]
-# Same as Black
+# Use Black-compatible formatting
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
