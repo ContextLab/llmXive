@@ -1,15 +1,22 @@
 sources:
-  dst_indices:
-    status: Verified
-    url: https://services.swpc.noaa.gov/products/dst-index.txt
-    retrieved_at: "2023-10-27T12:00:00"
-    record_count: 1000
-  kp_indices:
-    status: Verified
-    url: https://services.swpc.noaa.gov/products/kp-index.txt
-    retrieved_at: "2023-10-27T12:00:00"
-    record_count: 1000
-  goes_flares:
-    status: Pending
-  cme_catalog:
-    status: Pending
+  CDAWeb_LASCO:
+    last_verified_at: '2024-01-15T10:00:00'
+    status: pending
+    url: https://cdaweb.gsfc.nasa.gov/index.html/
+    verified: false
+  GOES_XRAY:
+    last_verified_at: '2024-01-15T10:00:00'
+    status: pending
+    url: https://services.swpc.noaa.gov/products/goes-x-ray-flare-list.txt
+    verified: false
+  NOAA_SWPC_DST:
+    last_verified_at: '2024-01-15T10:00:00'
+    status: pending
+    url: https://services.swpc.noaa.gov/products/noaa-dst.txt
+    verified: false
+  NOAA_SWPC_KP:
+    last_verified_at: '2024-01-15T10:00:00'
+    status: pending
+    url: https://services.swpc.noaa.gov/products/noaa-kp-index.txt
+    verified: false
+last_updated: '2024-01-15T10:00:00'

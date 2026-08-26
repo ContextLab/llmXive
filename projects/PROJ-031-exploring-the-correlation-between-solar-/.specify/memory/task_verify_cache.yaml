@@ -1,3 +1,19 @@
+T011b:
+  c: false
+  h: 96be40b71a08e2d53926e5ac5af4b5c93d51275c6cf5390b78cb737901989939
+  r: "The provided `code/ingest.py` excerpt shows no implementation of the required\
+    \ date\u2011range check (min/max date logic, warning logging, or setting a `data_limitation`\
+    \ flag). Moreover, the required `results/metrics.json` file does not exist, so\
+    \ the flag cannot be recorded. Both the validation step and the metrics output\
+    \ are missing."
+T013:
+  c: false
+  h: fa30d58514c9e89608ad1613aaf3e6360bb9d3f6ad6142f9d8f1d57fd37dbf55
+  r: "The repository contains `code/ingest.py`, but the visible portion shows no logic\
+    \ for downloading NOAA SWPC Dst indices or writing them to `data/raw/dst_indices.csv`.\
+    \ Moreover, the required output file `data/raw/dst_indices.csv` is absent, and\
+    \ the referenced schema file is also missing. The task\u2019s core requirement\u2014\
+    producing the Dst CSV file\u2014is not met."
 T017:
   c: false
   h: 006d26f1325ba3f913ce5e0304a3179aea7923d3f8de95aa7cb41f83ddcda5a6

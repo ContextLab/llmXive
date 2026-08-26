@@ -2192,3 +2192,1035 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T13:56:43Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Streaming implementation avoids loading entire raw file into memory
+  claim_id: c_3b9e2861
+  context: 'T063 [US1] **Streaming Implementation**: Refactored `code/ingest.py` to
+    use `requests` with `stream=True` and chunked processing for all large file downloads.
+    **Constraint**: The implementation never loaded the entire raw file into memory
+    at once.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_implementation_avoids_loading_entire_raw_file_into
+  kind: entity_fact
+  raw_text: The implementation never loaded the entire raw file into memory at once.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:21:14Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Univariate models computed if Variance Inflation Factor exceeds 5
+  claim_id: c_2bc4a28a
+  context: 'T024 [US2] Implemented Variance Inflation Factor (VIF) calculation. If
+    VIF > 5: Computed separate univariate models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, separate univariate models were computed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:21:14Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split defined as Train 2010-2020 and Test 2021-2023
+  claim_id: c_c4b964d1
+  context: T068 [US3] Implemented the strict time-series split logic in `code/analysis.py`
+    to isolate Train (2010-2020) and Test (2021-2023) sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The time-series split logic uses Train: 2010-2020 and Test: 2021-2023.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:21:50Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Download window enforced from 2010-01-01 to 2023-12-31
+  claim_id: c_a09c9364
+  context: 'T011 [US1] Implemented `code/ingest.py` to download GOES X-ray flare lists,
+    SOHO/LASCO CME data, and Dst indices from NOAA SWPC/CDAWeb. **Constraint**: Explicitly
+    enforced a download window spanning **2010-01-01 to 2023-12-31**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The download window was explicitly enforced to span 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:22:19Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Solar events matched within 3-day window to Dst minima
+  claim_id: c_8d20292d
+  context: "T014 [US1] Implemented `code/align.py` to identify Dst minima (storms)\
+    \ independently, then match preceding solar events within \u22643-day window"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Events were matched within a \u22643-day window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:22:19Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Analysis subset filtered for distinct minima separated by 24 hours recovery
+  claim_id: c_73d075d7
+  context: "T016b [US1] Implemented logic to filter non-recurrent storms from the\
+    \ primary dataset to create a derived `data/processed/analysis_subset.csv`. **Filtering\
+    \ Rule**: Only include distinct minima separated by \u226524 hours of recovery."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Distinct minima were separated by \u226524 hours of recovery for the\
+    \ analysis subset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:22:20Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: System verifies NOAA SWPC definition document URL reachability
+  claim_id: c_a95bff4b
+  context: 'T076 [US3] **Threshold Justification**: Implemented strict citation logic
+    in `code/analysis.py` for the NOAA SWPC definition document. The system now verifies
+    the URL ` is reachable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_verifies_NOAA_SWPC_definition_document_URL_reachabili
+  kind: entity_fact
+  raw_text: The system verifies the NOAA SWPC definition document URL is reachable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:23:11Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Warning logged if sample size less than 30 in power analysis
+  claim_id: c_47cc2f83
+  context: T025 [US2] Performed post-hoc power analysis using a pre-specified effect
+    size r=0.30; logged warning if N < 30.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_sample_size_less_than_30_in_power_analysis
+  kind: magnitude
+  raw_text: A warning was logged if N < 30 during power analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:24:26Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Piecewise regression used as fallback if R squared less than 0.1
+  claim_id: c_dc9ede54
+  context: "T026 [US2] Implemented non-linear (piecewise) model testing using `scipy.optimize.curve_fit`\
+    \ with a custom piecewise linear function. If R\xB2 < 0.1, calculated the improvement\
+    \ in fit and reported `piecewise_r2_improvement` in `results/metrics.json`."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Piecewise regression was used as a fallback for R\xB2 < 0.1."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T08:24:26Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Download window spans 2010-01-01 to 2023-12-31
+  claim_id: c_08ed8a71
+  context: 'Implemented code/ingest.py to download GOES X-ray flare lists, SOHO/LASCO
+    CME data, and Dst indices from NOAA SWPC/CDAWeb. Constraint: Explicitly enforced
+    a download window spanning 2010-01-01 to 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly enforced a download window spanning 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:30:07Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split logic uses Train 2010-2020 and Test 2021-2023
+  claim_id: c_c80ddb9a
+  context: 'Implemented a unit test in tests/unit/test_thresholds.py to verify the
+    strict time-series split logic (Train: 2010-2020, Test: 2021-2023) and ensure
+    no data leakage occurs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implemented a unit test in tests/unit/test_thresholds.py to verify the
+    strict time-series split logic (Train: 2010-2020, Test: 2021-2023).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:30:34Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Citation logic for NOAA SWPC definition document implemented
+  claim_id: c_690885f8
+  context: Implemented strict citation logic in code/analysis.py for the NOAA SWPC
+    definition document. The system now verifies the URL is reachable.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_logic_for_NOAA_SWPC_definition_document_implemented
+  kind: entity_fact
+  raw_text: Implemented strict citation logic in code/analysis.py for the NOAA SWPC
+    definition document.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:31:10Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: download window 2010-01-01 to 2023-12-31
+  claim_id: c_61127f81
+  context: 'T011 [US1] Implemented code/ingest.py to download GOES X-ray flare lists,
+    SOHO/LASCO CME data, and Dst indices from NOAA SWPC/CDAWeb. Constraint: Explicitly
+    enforced a download window spanning 2010-01-01 to 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly enforced a download window spanning 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:31:51Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: profiler timing threshold 6h RAM threshold 7GB
+  claim_id: c_5a6f1919
+  context: T006c [P] [Foundational] Configured config/profiler_config.yaml defining
+    timing thresholds (6h) and RAM thresholds (7GB) for validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Profiler_timing_threshold_6h_RAM_threshold_7GB
+  kind: entity_fact
+  raw_text: Configured config/profiler_config.yaml defining timing thresholds (6h)
+    and RAM thresholds (7GB) for validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:32:29Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: align solar events within 3-day window
+  claim_id: c_f02e257a
+  context: "T014 [US1] Implemented code/align.py to identify Dst minima (storms) independently,\
+    \ then match preceding solar events within \u22643-day window"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Match preceding solar events within \u22643-day window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:32:30Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: filter non-recurrent storms 24 hours recovery
+  claim_id: c_f1bf4244
+  context: "T016b [US1] Implemented logic to filter non-recurrent storms from the\
+    \ primary dataset to create a derived data/processed/analysis_subset.csv. Filtering\
+    \ Rule: Only include distinct minima separated by \u226524 hours of recovery."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Only include distinct minima separated by \u226524 hours of recovery."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:32:30Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: power analysis warning N less than 30
+  claim_id: c_1add0668
+  context: T025 [US2] Performed post-hoc power analysis using a pre-specified effect
+    size r=0.30; logged warning if N < 30.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_warning_N_less_than_30
+  kind: magnitude
+  raw_text: Logged warning if N < 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:34:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: VIF threshold 5 univariate models
+  claim_id: c_3c53efc1
+  context: 'T024 [US2] Implemented Variance Inflation Factor (VIF) calculation. If
+    VIF > 5: Computed separate univariate models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If VIF > 5: Computed separate univariate models.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:34:33Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: piecewise model R2 threshold 0.1
+  claim_id: c_bf080703
+  context: "T026 [US2] Implemented non-linear (piecewise) model testing using scipy.optimize.curve_fit\
+    \ with a custom piecewise linear function. If R\xB2 < 0.1, calculated the improvement\
+    \ in fit and reported piecewise_r2_improvement in results/metrics.json."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "If R\xB2 < 0.1, calculated the improvement in fit."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T08:34:34Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: time-series split Train 2010-2020 Test 2021-2023
+  claim_id: c_3e3362a9
+  context: 'T032c [US3] Implemented a unit test in tests/unit/test_thresholds.py to
+    verify the strict time-series split logic (Train: 2010-2020, Test: 2021-2023)
+    and ensure no data leakage occurs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implemented a unit test in tests/unit/test_thresholds.py to verify the
+    strict time-series split logic (Train: 2010-2020, Test: 2021-2023).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:34:34Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: NOAA SWPC definition document citation logic
+  claim_id: c_ff85863e
+  context: 'T076 [US3] Threshold Justification: Implemented strict citation logic
+    in code/analysis.py for the NOAA SWPC definition document. The system now verifies
+    the URL is reachable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_SWPC_definition_document_citation_logic
+  kind: entity_fact
+  raw_text: Implemented strict citation logic in code/analysis.py for the NOAA SWPC
+    definition document.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:34:38Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: verify_cdaweb_source performs HEAD request to SOHO/LASCO CME catalog
+    URL
+  claim_id: c_78624b4c
+  context: 'T071 [P] [Foundational] **Explicit CDAWeb URL Verification**: Implemented
+    `verify_cdaweb_source()` function in `code/ingest.py` that performs a HEAD request
+    to the specific SOHO/LASCO CME catalog URL before any data download.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_cdaweb_source_performs_HEAD_request_to_SOHO/LASCO_CME
+  kind: entity_fact
+  raw_text: Implemented `verify_cdaweb_source()` function in `code/ingest.py` that
+    performs a HEAD request to the specific SOHO/LASCO CME catalog URL before any
+    data download.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:37:45Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: download window enforced from 2010-01-01 to 2023-12-31
+  claim_id: c_7a19010c
+  context: 'T011 [US1] Implemented `code/ingest.py` to download GOES X-ray flare lists,
+    SOHO/LASCO CME data, and Dst indices from NOAA SWPC/CDAWeb. **Constraint**: Explicitly
+    enforced a download window spanning **2010-01-01 to 2023-12-31**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly enforced a download window spanning 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:37:46Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: align.py matches preceding solar events within 3-day window of Dst minima
+  claim_id: c_5c643d52
+  context: "T014 [US1] Implemented `code/align.py` to identify Dst minima (storms)\
+    \ independently, then match preceding solar events within \u22643-day window"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implemented `code/align.py` to identify Dst minima (storms) independently,\
+    \ then match preceding solar events within \u22643-day window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:37:46Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: filter non-recurrent storms by distinct minima separated by 24 hours
+    of recovery
+  claim_id: c_63276dea
+  context: "T016b [US1] Implemented logic to filter non-recurrent storms from the\
+    \ primary dataset to create a derived `data/processed/analysis_subset.csv`. **Filtering\
+    \ Rule**: Only include distinct minima separated by \u226524 hours of recovery."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filtering Rule: Only include distinct minima separated by \u226524 hours\
+    \ of recovery."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:37:47Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: compute Spearman rank correlation for log-transformed flare flux to Dst
+    and CME speed to Dst
+  claim_id: c_e7199236
+  context: "T022 [US2] Implemented `code/analysis.py` to compute Spearman rank correlation\
+    \ (log-transformed flare flux\u2192Dst and CME speed\u2192Dst) with p-values."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Spearman_rank_correlation_for_log-transformed_flare
+  kind: entity_fact
+  raw_text: "Implemented `code/analysis.py` to compute Spearman rank correlation (log-transformed\
+    \ flare flux\u2192Dst and CME speed\u2192Dst) with p-values."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:38:10Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: if VIF > 5 computed separate univariate models and selected one with
+    higher absolute correlation
+  claim_id: c_4814e18e
+  context: 'T024 [US2] Implemented Variance Inflation Factor (VIF) calculation. If
+    VIF > 5: Computed separate univariate models. Selected the univariate model with
+    the higher absolute correlation coefficient as the primary report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If VIF > 5: Computed separate univariate models. Selected the univariate
+    model with the higher absolute correlation coefficient as the primary report.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:38:11Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: if R2 < 0.1 calculated piecewise fit improvement and reported in metrics.json
+  claim_id: c_2746423b
+  context: "T026 [US2] Implemented non-linear (piecewise) model testing using `scipy.optimize.curve_fit`\
+    \ with a custom piecewise linear function. If R\xB2 < 0.1, calculated the improvement\
+    \ in fit and reported `piecewise_r2_improvement` in `results/metrics.json`."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "If R\xB2 < 0.1, calculated the improvement in fit and reported `piecewise_r2_improvement`\
+    \ in `results/metrics.json`."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T08:38:11Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: time-series split logic isolates Train 2010-2020 and Test 2021-2023 sets
+  claim_id: c_cad6445e
+  context: T068 [US3] Implemented the strict time-series split logic in `code/analysis.py`
+    to isolate Train (2010-2020) and Test (2021-2023) sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implemented the strict time-series split logic in `code/analysis.py` to
+    isolate Train (2010-2020) and Test (2021-2023) sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:38:37Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: system verifies NOAA SWPC definition document URL reachability and halts
+    if unreachable
+  claim_id: c_2baf53cf
+  context: 'T076 [US3] **Threshold Justification**: Implemented strict citation logic
+    in `code/analysis.py` for the NOAA SWPC definition document. The system now verifies
+    the URL ` is reachable. If unreachable, the pipeline raises a `DataFetchError`
+    and halts, ensuring no generic fallback citation is used, thus preserving the
+    ''Verified Accuracy'' principle.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P856: https://www.url.edu'
+      source_id: Q24576
+      url: https://www.wikidata.org/wiki/Q24576
+      value: https://www.url.edu
+    filled: true
+  kind: entity_fact
+  raw_text: The system now verifies the URL ` is reachable. If unreachable, the pipeline
+    raises a `DataFetchError` and halts, ensuring no generic fallback citation is
+    used, thus preserving the 'Verified Accuracy' principle.
+  resolved_value: https://www.url.edu
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T08:38:46Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Implemented VIF calculation with fallback to univariate models if VIF
+    exceeds 5
+  claim_id: c_1d6bfd33
+  context: 'Phase 4: User Story 2 - Statistical Correlation Analysis. Task T024 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implemented Variance Inflation Factor (VIF) calculation. If VIF > 5:
+    Computed separate univariate models. Selected the univariate model with the higher
+    absolute correlation coefficient as the primary report.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:41:48Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Minimum Detectable Effect Size calculated using statsmodels.stats.power.tt_solve_power
+  claim_id: c_9d35f5df
+  context: 'Phase 4: User Story 2 - Statistical Correlation Analysis. Task T067 description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_Detectable_Effect_Size_calculated_using_statsmodels.
+  kind: entity_fact
+  raw_text: Ensured the post-hoc power analysis explicitly calculated the Minimum
+    Detectable Effect Size (MDES) using statsmodels.stats.power.tt_solve_power.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:42:16Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split implemented with Train set 2010-2020 and Test set 2021-2023
+  claim_id: c_57739c30
+  context: 'Phase 3: User Story 3 - Threshold Identification. Task T068 description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implemented strict time-series split logic in code/analysis.py to isolate
+    Train (2010-2020) and Test (2021-2023) sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:42:16Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: NOAA SWPC definition document cited via Wikidata Q24576
+  claim_id: c_e3cdc5ef
+  context: 'Phase N: Polish & Cross-Cutting Concerns. Task T076 description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_SWPC_definition_document_cited_via_Wikidata_Q24576
+  kind: entity_fact
+  raw_text: Implemented strict citation logic in code/analysis.py for the NOAA SWPC
+    definition document. (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:42:18Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Applied Bonferroni correction to hypothesis tests
+  claim_id: c_e476965f
+  context: T025a [US1] Applied multiple comparison correction (Bonferroni) to all
+    hypothesis tests and recorded the method name in results/metrics.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Applied_Bonferroni_correction_to_hypothesis_tests
+  kind: entity_fact
+  raw_text: Applied multiple comparison correction (Bonferroni) to all hypothesis
+    tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:43:55Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split Train 2010-2020 Test 2021-2023
+  claim_id: c_368da291
+  context: 'T032c [US3] Implemented a unit test in tests/unit/test_thresholds.py to
+    verify the strict time-series split logic (Train: 2010-2020, Test: 2021-2023)
+    and ensure no data leakage occurs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implemented strict time-series split logic with Train: 2010-2020 and
+    Test: 2021-2023.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:44:21Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: NOAA SWPC definition Wikidata Q24576 citation
+  claim_id: c_ce785d18
+  context: T076 [US3] Implemented strict citation logic in code/analysis.py for the
+    NOAA SWPC definition document. {{claim:c_2baf53cf}} (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_SWPC_definition_Wikidata_Q24576_citation
+  kind: entity_fact
+  raw_text: Implemented strict citation logic for the NOAA SWPC definition document
+    associated with Wikidata Q24576.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:44:39Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Solar flare data download window 2010-2023
+  claim_id: c_42be40a1
+  context: 'T011 [US1] Implemented code/ingest.py to download GOES X-ray flare lists...
+    Constraint: Explicitly enforced a download window spanning 2010-01-01 to 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download window for solar eruption data was enforced from 2010-01-01 to
+    2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:45:19Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Download window spans 2010-01-01 to 2023-12-31
+  claim_id: c_0a3d88c9
+  context: 'Constraint: Explicitly enforced a download window spanning 2010-01-01
+    to 2023-12-31. If the current date is after 2023, truncated the download at 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project implemented a download window spanning 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:47:26Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Warning logged if sample size N < 30
+  claim_id: c_a68bfacf
+  context: Performed post-hoc power analysis using a pre-specified effect size r=0.30;
+    logged warning if N < 30.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_sample_size_N_%3C_30
+  kind: magnitude
+  raw_text: The project logged a warning if the sample size N was less than 30 during
+    power analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:48:18Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: 'Time-series split: Train 2010-2020, Test 2021-2023'
+  claim_id: c_377470cf
+  context: 'Implemented a unit test in tests/unit/test_thresholds.py to verify the
+    strict time-series split logic (Train: 2010-2020, Test: 2021-2023) and ensure
+    no data leakage occurs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project implemented a strict time-series split with a Train set covering
+    2010-2020 and a Test set covering 2021-2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:48:41Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Severe storms defined as Dst <= significant negative threshold
+  claim_id: c_f98a4905
+  context: "Implemented threshold identification for severe storms (Dst \u2264 significant\
+    \ negative threshold) by filtering for severe storm events and analyzing CME speeds."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Severe_storms_defined_as_Dst_%3C=_significant_negative_thresho
+  kind: magnitude
+  raw_text: The project filtered for severe storm events defined by Dst less than
+    or equal to a significant negative threshold.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:49:26Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: 'Profiling thresholds: 6h timing, 7GB RAM'
+  claim_id: c_d1c2eef5
+  context: Configured config/profiler_config.yaml defining timing thresholds (6h)
+    and RAM thresholds (7GB) for validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project configured profiling thresholds for validation at 6 hours
+    for timing and 7GB for RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:49:43Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Execution time <= 6h, RAM <= 7GB
+  claim_id: c_0342363d
+  context: "Performance optimization (ensure execution \u22646h, RAM \u22647GB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project ensured execution time remained within 6 hours and RAM usage
+    within 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:50:04Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Threshold justification cited NOAA SWPC (Wikidata Q24576)
+  claim_id: c_d3911bed
+  context: Implemented strict citation logic in code/analysis.py for the NOAA SWPC
+    definition document. (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threshold_justification_cited_NOAA_SWPC_(Wikidata_Q24576)
+  kind: entity_fact
+  raw_text: The project used the NOAA SWPC definition document for threshold justification,
+    citing Wikidata Q24576.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:50:20Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to all hypothesis tests
+  claim_id: c_5e069077
+  context: T025a [US1] Added logging for data quality metrics (counts of missing CME
+    speeds, flares, etc.)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Bonferroni
+      source_id: Q87892954
+      url: https://www.wikidata.org/wiki/Q87892954
+      value: Bonferroni
+    filled: true
+  kind: entity_fact
+  raw_text: Applied multiple comparison correction (Bonferroni) to all hypothesis
+    tests and recorded the method name in results/metrics.json.
+  resolved_value: Bonferroni
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T08:50:47Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split logic isolated Train 2010-2020 and Test 2021-2023
+  claim_id: c_137472e1
+  context: T068 [US3] Implemented the strict time-series split logic in code/analysis.py
+    to isolate Train (2010-2020) and Test (2021-2023) sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implemented strict time-series split logic in code/analysis.py to isolate
+    Train (2010-2020) and Test (2021-2023) sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:50:48Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Strict citation logic implemented for NOAA SWPC definition document Wikidata
+    Q24576
+  claim_id: c_680771bb
+  context: T076 [US3] Implemented strict citation logic in code/analysis.py for the
+    NOAA SWPC definition document. {{claim:c_2baf53cf}} (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Strict_citation_logic_implemented_for_NOAA_SWPC_definition_d
+  kind: entity_fact
+  raw_text: Implemented strict citation logic in code/analysis.py for the NOAA SWPC
+    definition document (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:50:50Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to hypothesis tests
+  claim_id: c_8d180685
+  context: T025a [US1] Applied multiple comparison correction (Bonferroni (Wikidata
+    Q87892954, https://www.wikidata.org/wiki/Q87892954)) to all hypothesis tests and
+    recorded the method name in results/metrics.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_hypothesis_tests
+  kind: entity_fact
+  raw_text: Applied multiple comparison correction (Bonferroni) to all hypothesis
+    tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:52:53Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Power limitation warning triggered for N less than 30
+  claim_id: c_01a3ebd7
+  context: T025 [US2] Performed post-hoc power analysis using a pre-specified effect
+    size r=0.30; logged warning if N < 30.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_limitation_warning_triggered_for_N_less_than_30
+  kind: magnitude
+  raw_text: Triggered a power limitation warning if sample size N < 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:53:52Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split defined as Train 2010-2020 and Test 2021-2023
+  claim_id: c_442fcd93
+  context: 'T032c [US3] Implemented a unit test in tests/unit/test_thresholds.py to
+    verify the strict time-series split logic (Train: 2010-2020, Test: 2021-2023)
+    and ensure no data leakage occurs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implemented time-series split with Train set 2010-2020 and Test set 2021-2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:54:13Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Data download window 2010-01-01 to 2023-12-31
+  claim_id: c_85c9c47e
+  context: 'T011 [US1] Implemented code/ingest.py to download GOES X-ray flare lists...
+    Constraint: Explicitly enforced a download window spanning 2010-01-01 to 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download window spanned from 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:54:38Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Filtering rule required 24 hours recovery between minima
+  claim_id: c_ebe8cd34
+  context: "T016b [US1] Implemented logic to filter non-recurrent storms... Filtering\
+    \ Rule: Only include distinct minima separated by \u226524 hours of recovery."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filtering rule required distinct minima separated by 24 hours or more
+    of recovery.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:55:07Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 5 triggered univariate model selection
+  claim_id: c_98eed311
+  context: 'T024 [US2] Implemented Variance Inflation Factor (VIF) calculation. If
+    VIF > 5: Computed separate univariate models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Linear regression model selection triggered separate univariate models
+    if Variance Inflation Factor (VIF) exceeded 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:55:47Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Dataset verified to span 2010-01-01 to 2023-12-31
+  claim_id: c_a97aeb3b
+  context: T032a [US3] Verified the dataset contains events spanning 2010-01-01 to
+    2023-12-31 and logged a warning if incomplete.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verified the dataset contains events spanning 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:56:07Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Citation logic implemented for NOAA SWPC definition
+  claim_id: c_1c79ae8a
+  context: T076 [US3] Implemented strict citation logic in code/analysis.py for the
+    NOAA SWPC definition document. {{claim:c_2baf53cf}} (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_logic_implemented_for_NOAA_SWPC_definition
+  kind: entity_fact
+  raw_text: Citation logic implemented for the NOAA SWPC definition document.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T08:56:33Z'

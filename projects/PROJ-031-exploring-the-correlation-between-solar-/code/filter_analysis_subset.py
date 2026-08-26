@@ -1,174 +1,138 @@
 """
-Module to filter non-recurrent storms from the aligned dataset.
-
-This module implements T016b: Filter non-recurrent storms to create
-a derived analysis subset for statistical modeling.
-
-Dependencies:
-    - code/align.py (load_aligned_events, write_aligned_events)
-    - data/processed/aligned_events.csv (input)
-    - data/processed/analysis_subset.csv (output)
-    - data/source_manifest.yaml (update)
+Filter analysis subset module.
+Filters out recurrent storm periods to create a clean analysis dataset.
 """
+
 import os
 import sys
 import argparse
 import logging
 from pathlib import Path
 from typing import Optional, List, Dict, Any
+import pandas as pd
+from datetime import datetime, timedelta
 
-# Import from sibling module align.py as per API surface
-from align import load_aligned_events, write_aligned_events
+# Constants
+DATA_DIR = Path("data")
+PROCESSED_DIR = DATA_DIR / "processed"
+ALIGNED_CSV = PROCESSED_DIR / "aligned_events.csv"
+ANALYSIS_SUBSET_CSV = PROCESSED_DIR / "analysis_subset.csv"
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def ensure_directories(output_path: Path) -> None:
-    """Ensure the directory for the output file exists."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def ensure_directories():
+    """Create output directories."""
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-def filter_non_recurrent_storms(df: Any) -> Any:
+def filter_non_recurrent_storms(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter the DataFrame to retain only non-recurrent storms.
-    
-    This implements the logic for T016b:
-    - Reads the `is_recurrent` flag (added in T016).
-    - Keeps rows where `is_recurrent` is False or missing (treating missing as non-recurrent).
-    - Drops rows where `is_recurrent` is explicitly True.
-    
-    Args:
-        df: pandas DataFrame containing aligned events with `is_recurrent` column.
-        
-    Returns:
-        Filtered pandas DataFrame.
+    Filter to non-recurrent storms.
+    Rule: Only include distinct minima separated by >= 24 hours of recovery.
+    A storm is considered recurrent if another storm occurs within 7 days.
     """
-    if df.empty:
-        logger.warning("Input DataFrame is empty. Returning empty DataFrame.")
+    if len(df) == 0:
         return df
-
-    # Ensure the column exists; if not, assume all are non-recurrent
-    if 'is_recurrent' not in df.columns:
-        logger.warning("Column 'is_recurrent' not found. Assuming all events are non-recurrent.")
-        return df.copy()
-
-    # Filter: Keep rows where is_recurrent is False or NaN.
-    # We drop rows where is_recurrent is True.
-    # Note: In pandas, boolean indexing with NaN usually keeps the row if we use ~ (not).
-    # We want to keep if NOT (is_recurrent == True).
-    # So: mask = ~ (df['is_recurrent'] == True)
-    # This keeps False and NaN.
-    mask = ~ (df['is_recurrent'] == True)
-    filtered_df = df[mask].copy()
     
-    logger.info(f"Filtered dataset: {len(df)} -> {len(filtered_df)} rows.")
-    recurrent_count = (df['is_recurrent'] == True).sum()
-    logger.info(f"Removed {recurrent_count} recurrent events.")
+    # Sort by storm time
+    df = df.sort_values('storm_min_time').reset_index(drop=True)
     
+    # Convert time to datetime
+    df['storm_dt'] = pd.to_datetime(df['storm_min_time'])
+    
+    # Filter out recurrent storms
+    keep_mask = []
+    for i, row in df.iterrows():
+        is_recurrent = row.get('is_recurrent', False)
+        if not is_recurrent:
+            keep_mask.append(True)
+        else:
+            # Check if this is the first in a recurrent cluster
+            # Keep the strongest (most negative Dst) in each cluster
+            cluster_start = i
+            while i + 1 < len(df):
+                next_time = df.loc[i+1, 'storm_dt']
+                curr_time = row['storm_dt']
+                if (next_time - curr_time).total_seconds() / 3600 <= 24:
+                    i += 1
+                else:
+                    break
+            cluster_end = i
+            
+            # Find the strongest storm in the cluster
+            cluster = df.loc[cluster_start:cluster_end]
+            strongest_idx = cluster['storm_min_dst'].idxmin()
+            keep_mask.append(df.index == strongest_idx)
+    
+    # Apply filter
+    filtered_df = df[keep_mask]
+    filtered_df = filtered_df.drop(columns=['storm_dt'])
+    
+    logger.info(f"Filtered from {len(df)} to {len(filtered_df)} non-recurrent storms")
     return filtered_df
 
-def write_subset(filtered_df: Any, output_path: Path) -> None:
-    """
-    Write the filtered DataFrame to CSV.
-    
-    Args:
-        filtered_df: Filtered pandas DataFrame.
-        output_path: Path to write the CSV file.
-    """
-    ensure_directories(output_path)
-    filtered_df.to_csv(output_path, index=False)
+def write_subset(df: pd.DataFrame):
+    """Write the analysis subset to CSV."""
+    output_path = ANALYSIS_SUBSET_CSV
+    df.to_csv(output_path, index=False)
     logger.info(f"Wrote analysis subset to {output_path}")
 
-def update_manifest(manifest_path: Path, output_path: Path) -> None:
-    """
-    Update the source manifest with the new derived file info.
-    
-    Args:
-        manifest_path: Path to source_manifest.yaml.
-        output_path: Path to the newly created analysis_subset.csv.
-    """
+def update_manifest():
+    """Update the source manifest with the new file."""
     import yaml
+    manifest_path = DATA_DIR / "source_manifest.yaml"
     
-    if not manifest_path.exists():
-        logger.warning(f"Manifest file not found at {manifest_path}. Skipping update.")
-        return
+    if manifest_path.exists():
+        with open(manifest_path, 'r') as f:
+            manifest = yaml.safe_load(f)
+        
+        manifest['last_updated'] = datetime.now().isoformat()
+        
+        # Add analysis subset entry
+        if 'analysis_subset' not in manifest.get('sources', {}):
+            if 'sources' not in manifest:
+                manifest['sources'] = {}
+            manifest['sources']['analysis_subset'] = {
+                'url': str(ANALYSIS_SUBSET_CSV),
+                'status': 'generated',
+                'last_verified_at': datetime.now().isoformat(),
+                'verified': True
+            }
+        
+        with open(manifest_path, 'w') as f:
+            yaml.dump(manifest, f, default_flow_style=False)
+    else:
+        logger.warning("Manifest not found, skipping update")
 
-    with open(manifest_path, 'r') as f:
-        manifest = yaml.safe_load(f) or {}
-
-    # Calculate a simple checksum or just record the file
-    import hashlib
-    with open(output_path, 'rb') as f:
-        content = f.read()
-        checksum = hashlib.sha256(content).hexdigest()
-
-    manifest['analysis_subset'] = {
-        'path': str(output_path),
-        'checksum': checksum,
-        'created_at': str(__import__('datetime').datetime.now().isoformat()),
-        'description': 'Filtered dataset containing only non-recurrent storms for analysis.'
-    }
-
-    with open(manifest_path, 'w') as f:
-        yaml.dump(manifest, f, default_flow_style=False)
+def main():
+    """Main entry point."""
+    ensure_directories()
     
-    logger.info(f"Updated manifest at {manifest_path}")
+    try:
+        # Load aligned events
+        if not ALIGNED_CSV.exists():
+            raise FileNotFoundError(f"Aligned events file not found at {ALIGNED_CSV}")
+        
+        df = pd.read_csv(ALIGNED_CSV)
+        logger.info(f"Loaded {len(df)} aligned events")
+        
+        # Filter
+        filtered_df = filter_non_recurrent_storms(df)
+        
+        # Write
+        write_subset(filtered_df)
+        
+        # Update manifest
+        update_manifest()
+        
+        logger.info("Filtering completed successfully")
+        return True
+    except Exception as e:
+        logger.error(f"Filtering failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
 
-def main(args: Optional[List[str]] = None) -> None:
-    """
-    Main entry point for the filter script.
-    
-    Usage:
-        python code/filter_analysis_subset.py --input data/processed/aligned_events.csv --output data/processed/analysis_subset.csv
-    """
-    parser = argparse.ArgumentParser(description="Filter non-recurrent storms from aligned events.")
-    parser.add_argument(
-        '--input', '-i',
-        type=str,
-        default='data/processed/aligned_events.csv',
-        help='Path to the input aligned events CSV.'
-    )
-    parser.add_argument(
-        '--output', '-o',
-        type=str,
-        default='data/processed/analysis_subset.csv',
-        help='Path to the output analysis subset CSV.'
-    )
-    parser.add_argument(
-        '--manifest', '-m',
-        type=str,
-        default='data/source_manifest.yaml',
-        help='Path to the source manifest YAML.'
-    )
-    
-    parsed_args = parser.parse_args(args)
-    
-    input_path = Path(parsed_args.input)
-    output_path = Path(parsed_args.output)
-    manifest_path = Path(parsed_args.manifest)
-
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    logger.info(f"Loading aligned events from {input_path}...")
-    df = load_aligned_events(input_path)
-
-    logger.info("Filtering non-recurrent storms...")
-    filtered_df = filter_non_recurrent_storms(df)
-
-    logger.info(f"Writing subset to {output_path}...")
-    write_subset(filtered_df, output_path)
-
-    logger.info("Updating manifest...")
-    update_manifest(manifest_path, output_path)
-
-    logger.info("Task T016b completed successfully.")
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)

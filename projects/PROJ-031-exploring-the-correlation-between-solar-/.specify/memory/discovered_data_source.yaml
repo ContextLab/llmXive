@@ -1,19 +1,19 @@
 status: none
-intent: download GOES X-ray flare catalog SOHO LASCO CME list NOAA Dst index python
+intent: NOAA SWPC GOES X-ray flare and SOHO LASCO CME catalogs with Dst index python
   package dataset
 required_fields:
 - storm_timestamp
-- dst_min
-- dst_min_time
+- dst_minimum_value
+- dst_minimum_time
 - flare_class
 - flare_peak_flux
 - flare_start_time
 - flare_end_time
+- flare_peak_time
+- cme_start_time
 - cme_speed
 - cme_width
-- cme_first_observed_time
-- solar_match_flag
-- missing_flare_flag
-cache_key: 71aafa52afc81d059889847df095ba18fbf77fc203ea37a51a80aa6b9f1ebd6f
-searched_at: '2026-08-24T13:25:50.993666+00:00'
+- cme_acceleration
+cache_key: 30e09beba1eae5e031f427ba29bb185b212e164bbff4c7c55bc4a6a5451b15a5
+searched_at: '2026-08-26T08:19:47.365156+00:00'
 retry_count: 1

@@ -1,64 +1,43 @@
-# Quickstart Guide for PROJ-031
+# Quickstart Guide
 
-This guide outlines the steps to run the full pipeline for exploring the correlation between solar flare characteristics and geomagnetic storm intensities.
+This guide explains how to run the Solar Flare - Geomagnetic Storm Correlation Pipeline.
 
 ## Prerequisites
 
 - Python 3.11+
-- Dependencies installed via `pip install -r requirements.txt`
+- pip
 
-## Execution Steps
+## Installation
 
-Run the following commands in order to execute the full pipeline:
+```bash
+pip install -r requirements.txt
+```
 
-1. **Ingest Data**: Download GOES, CME, Dst, and Kp data.
- ```bash
- python code/ingest.py
- ```
+## Running the Pipeline
 
-2. **Align Events**: Match solar events with geomagnetic storms.
- ```bash
- python code/align.py
- ```
+Execute the full pipeline:
 
-3. **Validate Alignment**: Check schema compliance.
- ```bash
- python code/validate.py data/processed/aligned_events.csv contracts/aligned_event.schema.yaml
- ```
+```bash
+python code/main.py
+```
 
-4. **Filter Analysis Subset**: Remove recurrent storms for clean analysis.
- ```bash
- python code/filter_analysis_subset.py
- ```
+This will:
+1. Verify data sources
+2. Ingest GOES, Dst, and Kp data
+3. Align solar events with geomagnetic storms
+4. Filter non-recurrent storms
+5. Perform correlation analysis
 
-5. **Run Analysis**: Compute correlations and regression models.
- ```bash
- python code/analysis.py
- ```
+## Output Files
 
-6. **Log Quality Metrics**: Record data quality stats.
- ```bash
- python code/log_data_quality.py
- ```
+- `data/processed/aligned_events.csv`: All aligned events
+- `data/processed/analysis_subset.csv`: Non-recurrent storm subset for analysis
+- `results/metrics.json`: Correlation metrics and analysis results
 
-7. **Profile Pipeline**: Measure execution time and memory.
- ```bash
- python code/profiler.py
- ```
+## Validation
 
-## Expected Outputs
+Validate the aligned events:
 
-After successful execution, the following files should be present:
-
-- `data/raw/dst_indices.csv`
-- `data/raw/kp_indices.csv`
-- `data/processed/aligned_events.csv`
-- `data/processed/analysis_subset.csv`
-- `results/metrics.json`
-- `results/figures/` (plots)
-
-## Troubleshooting
-
-- **Missing Data Files**: Ensure `code/ingest.py` has network access to NOAA/CDAWeb.
-- **Schema Validation Errors**: Check `contracts/` for updated schemas.
-- **Memory Errors**: The pipeline is designed to stream data; ensure sufficient RAM or reduce dataset size if testing locally.
+```bash
+python code/validate.py data/processed/aligned_events.csv contracts/aligned_event.schema.yaml
+```

@@ -1,17 +1,3 @@
-"""
-Data Ingestion Module for Solar and Geomagnetic Data.
-
-Downloads GOES X-ray flare lists, CME catalog data, Dst indices, and Kp indices
-from NOAA SWPC and CDAWeb. Implements streaming for large files and fail-loud
-behavior for data fetch errors.
-
-Dependencies:
-- requests (for HTTP downloads)
-- yaml (for manifest handling)
-- pandas (for CSV processing)
-
-This module MUST NOT use HuggingFace datasets or synthetic data generation.
-"""
 import os
 import sys
 import csv
@@ -19,317 +5,321 @@ import io
 import requests
 import json
 import logging
-from datetime import datetime
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Iterator, Tuple
-
-# Project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DIR = DATA_DIR / "raw"
-PROCESSED_DIR = DATA_DIR / "processed"
-LOGS_DIR = PROJECT_ROOT / "logs"
-MANIFEST_PATH = DATA_DIR / "source_manifest.yaml"
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional, List, Tuple, Iterator
+import hashlib
 
 # Configure logging
-os.makedirs(LOGS_DIR, exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(LOGS_DIR / 'ingest.log', mode='a'),
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/ingest.log', mode='a')
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Data fetch error class
 class DataFetchError(Exception):
-    """Raised when a real data fetch fails."""
+    """Custom exception for data fetching failures."""
     pass
 
 def ensure_directories():
-    """Create required data directories."""
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    """Create necessary directories for data and logs."""
+    dirs = ['data/raw', 'data/processed', 'logs', 'results', 'state/projects']
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
 
-def log_message(msg: str, level: str = "info"):
-    """Log a message at the specified level."""
-    getattr(logger, level)(msg)
+def log_message(msg: str, level: str = 'INFO'):
+    """Log a message with the specified level."""
+    if level == 'ERROR':
+        logger.error(msg)
+    elif level == 'WARNING':
+        logger.warning(msg)
+    else:
+        logger.info(msg)
 
-def load_manifest() -> Dict[str, Any]:
-    """Load the source manifest from disk."""
+def load_manifest(manifest_path: str = 'data/source_manifest.yaml') -> Dict[str, Any]:
+    """Load the source manifest YAML file."""
     import yaml
-    if not MANIFEST_PATH.exists():
-        raise FileNotFoundError(
-            f"Manifest file missing at {MANIFEST_PATH}. "
-            "Pipeline cannot proceed without a valid source manifest."
-        )
-    with open(MANIFEST_PATH, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+    if not os.path.exists(manifest_path):
+        return {"sources": {}}
+    with open(manifest_path, 'r') as f:
+        return yaml.safe_load(f) or {"sources": {}}
 
-def save_manifest(data: Dict[str, Any]) -> None:
-    """Atomically save the manifest to disk."""
+def save_manifest(data: Dict[str, Any], manifest_path: str = 'data/source_manifest.yaml'):
+    """Save the source manifest YAML file."""
     import yaml
-    import tempfile
-    temp_fd, temp_path = tempfile.mkstemp(suffix='.yaml')
+    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+    with open(manifest_path, 'w') as f:
+        yaml.safe_dump(data, f, default_flow_style=False)
+
+def update_manifest_entry(manifest: Dict, source_id: str, updates: Dict[str, Any]):
+    """Update a specific source entry in the manifest."""
+    if source_id not in manifest["sources"]:
+        manifest["sources"][source_id] = {"id": source_id, "status": "pending"}
+    manifest["sources"][source_id].update(updates)
+
+def verify_cdaweb_source():
+    """
+    Verify CDAWeb source availability via HEAD request.
+    Raises DataFetchError if verification fails.
+    """
+    url = "https://cdaweb.gsfc.nasa.gov/index.html/"
     try:
-        with os.fdopen(temp_fd, 'w', encoding='utf-8') as f:
-            yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-        os.replace(temp_path, MANIFEST_PATH)
-    except Exception as e:
-        if os.path.exists(temp_path):
-            os.unlink(temp_path)
-        raise RuntimeError(f"Failed to save manifest atomically: {e}")
-
-def update_manifest_entry(source_name: str, status: str, url: Optional[str] = None, record_count: Optional[int] = None) -> None:
-    """Update a source entry in the manifest with timestamp."""
-    manifest = load_manifest()
-    if 'sources' not in manifest:
-        manifest['sources'] = {}
-    
-    if source_name not in manifest['sources']:
-        manifest['sources'][source_name] = {}
-    
-    manifest['sources'][source_name]['status'] = status
-    manifest['sources'][source_name]['last_verified_at'] = datetime.utcnow().isoformat()
-    if url:
-        manifest['sources'][source_name]['url'] = url
-    if record_count is not None:
-        manifest['sources'][source_name]['record_count'] = record_count
-    
-    save_manifest(manifest)
-    logger.info(f"Updated manifest for {source_name}: status={status}")
+        response = requests.head(url, timeout=10)
+        if response.status_code == 200:
+            log_message(f"CDAWeb source verified: {url} (Status 200)")
+            return True
+        else:
+            raise DataFetchError(f"CDAWeb verification failed: Status {response.status_code}")
+    except requests.RequestException as e:
+        raise DataFetchError(f"CDAWeb verification failed: {str(e)}")
 
 def fetch_with_backoff(url: str, max_retries: int = 3, timeout: int = 30) -> requests.Response:
     """Fetch a URL with exponential backoff."""
-    import time
     for attempt in range(max_retries):
         try:
-            response = requests.get(url, timeout=timeout, stream=True)
+            response = requests.get(url, timeout=timeout)
             if response.status_code == 200:
                 return response
-            elif response.status_code == 404:
-                raise DataFetchError(f"URL not found: {url}")
-            else:
-                raise DataFetchError(f"HTTP {response.status_code} for {url}")
+            log_message(f"Attempt {attempt+1} failed with status {response.status_code}", "WARNING")
         except requests.RequestException as e:
-            if attempt == max_retries - 1:
-                raise DataFetchError(f"Failed to fetch {url} after {max_retries} retries: {e}")
-            wait_time = 2 ** attempt
-            logger.warning(f"Retry {attempt+1}/{max_retries} for {url} after {wait_time}s: {e}")
-            time.sleep(wait_time)
-    raise DataFetchError(f"Failed to fetch {url}")
+            log_message(f"Attempt {attempt+1} failed: {str(e)}", "WARNING")
+        if attempt < max_retries - 1:
+            time.sleep(2 ** attempt)
+    raise DataFetchError(f"Failed to fetch {url} after {max_retries} attempts")
 
-def stream_csv_lines(url: str) -> Iterator[Dict[str, str]]:
+def stream_csv_lines(url: str, delimiter: str = ',') -> Iterator[str]:
     """
-    Stream CSV lines from a URL without loading the entire file into memory.
-    
-    Args:
-        url: URL to the CSV file.
-        
-    Yields:
-        Dictionary representing each row.
+    Stream CSV lines from a URL without loading the whole file into memory.
+    Yields lines as strings.
     """
-    response = fetch_with_backoff(url)
-    response.raw.decode_content = True
-    reader = csv.DictReader(io.TextIOWrapper(response.raw, encoding='utf-8'))
-    for row in reader:
-        yield row
+    response = requests.get(url, stream=True, timeout=60)
+    response.raise_for_status()
+    for line in response.iter_lines():
+        if line:
+            yield line.decode('utf-8')
 
 def fetch_dst_indices_http() -> List[Dict[str, Any]]:
     """
-    Fetch Dst indices from NOAA SWPC.
-    
-    Returns:
-        List of dictionaries with Dst data.
+    Fetch Dst indices from NOAA SWPC via HTTP.
+    Returns a list of dictionaries with date and value.
     """
-    url = "https://services.swpc.noaa.gov/products/dst-index.txt"
-    logger.info(f"Fetching Dst indices from {url}")
-    
+    # NOAA SWPC Dst Index URL (Text format)
+    url = "https://services.swpc.noaa.gov/products/noaa-dst-index.txt"
+    data = []
     try:
-        response = fetch_with_backoff(url)
-        response.raw.decode_content = True
-        text_data = io.TextIOWrapper(response.raw, encoding='utf-8').read()
-        
-        lines = text_data.strip().split('\n')
-        data = []
-        
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        lines = response.text.splitlines()
         for line in lines:
             if line.startswith('#') or not line.strip():
                 continue
             parts = line.split()
-            if len(parts) >= 6:
+            if len(parts) >= 4:
                 try:
-                    year = int(parts[0])
-                    month = int(parts[1])
-                    day = int(parts[2])
-                    hour = int(parts[3])
-                    dst = float(parts[4])
-                    data.append({
-                        'year': year,
-                        'month': month,
-                        'day': day,
-                        'hour': hour,
-                        'dst': dst,
-                        'timestamp': f"{year}-{month:02d}-{day:02d}T{hour:02d}:00:00"
-                    })
+                    year, month, day, value = parts[0], parts[1], parts[2], parts[3]
+                    date_str = f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+                    data.append({"date": date_str, "dst": float(value)})
                 except (ValueError, IndexError):
                     continue
-        
-        logger.info(f"Fetched {len(data)} Dst records")
         return data
-    except Exception as e:
-        raise DataFetchError(f"Failed to fetch Dst indices: {e}")
-
-def write_dst_data(data: List[Dict[str, Any]]) -> str:
-    """
-    Write Dst data to CSV.
-    
-    Args:
-        data: List of Dst records.
-        
-    Returns:
-        Path to the written file.
-    """
-    ensure_directories()
-    output_path = RAW_DIR / "dst_indices.csv"
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        if data:
-            writer = csv.DictWriter(f, fieldnames=data[0].keys())
-            writer.writeheader()
-            writer.writerows(data)
-    
-    logger.info(f"Wrote {len(data)} Dst records to {output_path}")
-    return str(output_path)
+    except requests.RequestException as e:
+        raise DataFetchError(f"Failed to fetch Dst indices: {str(e)}")
 
 def fetch_kp_indices_http() -> List[Dict[str, Any]]:
     """
-    Fetch Kp indices from NOAA SWPC.
-    
-    Returns:
-        List of dictionaries with Kp data.
+    Fetch Kp indices from NOAA SWPC via HTTP.
+    Returns a list of dictionaries with date and value.
     """
-    url = "https://services.swpc.noaa.gov/products/kp-index.txt"
-    logger.info(f"Fetching Kp indices from {url}")
-    
+    # NOAA SWPC Kp Index URL (Text format)
+    url = "https://services.swpc.noaa.gov/products/noaa-kp-index.txt"
+    data = []
     try:
-        response = fetch_with_backoff(url)
-        response.raw.decode_content = True
-        text_data = io.TextIOWrapper(response.raw, encoding='utf-8').read()
-        
-        lines = text_data.strip().split('\n')
-        data = []
-        
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        lines = response.text.splitlines()
         for line in lines:
             if line.startswith('#') or not line.strip():
                 continue
             parts = line.split()
-            if len(parts) >= 6:
+            if len(parts) >= 4:
                 try:
-                    year = int(parts[0])
-                    month = int(parts[1])
-                    day = int(parts[2])
-                    hour = int(parts[3])
-                    kp = float(parts[4])
-                    data.append({
-                        'year': year,
-                        'month': month,
-                        'day': day,
-                        'hour': hour,
-                        'kp': kp,
-                        'timestamp': f"{year}-{month:02d}-{day:02d}T{hour:02d}:00:00"
-                    })
+                    year, month, day, value = parts[0], parts[1], parts[2], parts[3]
+                    date_str = f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+                    data.append({"date": date_str, "kp": float(value)})
                 except (ValueError, IndexError):
                     continue
-        
-        logger.info(f"Fetched {len(data)} Kp records")
         return data
-    except Exception as e:
-        raise DataFetchError(f"Failed to fetch Kp indices: {e}")
+    except requests.RequestException as e:
+        raise DataFetchError(f"Failed to fetch Kp indices: {str(e)}")
 
-def write_kp_data(data: List[Dict[str, Any]]) -> str:
-    """
-    Write Kp data to CSV.
-    
-    Args:
-        data: List of Kp records.
-        
-    Returns:
-        Path to the written file.
-    """
-    ensure_directories()
-    output_path = RAW_DIR / "kp_indices.csv"
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        if data:
-            writer = csv.DictWriter(f, fieldnames=data[0].keys())
-            writer.writeheader()
-            writer.writerows(data)
-    
-    logger.info(f"Wrote {len(data)} Kp records to {output_path}")
-    return str(output_path)
+def write_dst_data(data: List[Dict[str, Any]], output_path: str = 'data/raw/dst_indices.csv'):
+    """Write Dst data to CSV."""
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['date', 'dst'])
+        writer.writeheader()
+        writer.writerows(data)
+    log_message(f"Wrote {len(data)} Dst records to {output_path}")
+
+def write_kp_data(data: List[Dict[str, Any]], output_path: str = 'data/raw/kp_indices.csv'):
+    """Write Kp data to CSV."""
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['date', 'kp'])
+        writer.writeheader()
+        writer.writerows(data)
+    log_message(f"Wrote {len(data)} Kp records to {output_path}")
 
 def validate_kp_schema(data: List[Dict[str, Any]]) -> bool:
     """
-    Validate Kp data against expected schema.
-    
-    Args:
-        data: List of Kp records.
-        
-    Returns:
-        True if valid, False otherwise.
+    Validate Kp data against a simple schema.
+    Returns True if valid, False otherwise.
     """
-    required_keys = {'year', 'month', 'day', 'hour', 'kp', 'timestamp'}
     for record in data:
-        if not required_keys.issubset(record.keys()):
+        if 'date' not in record or 'kp' not in record:
             return False
-        if not (0.0 <= record['kp'] <= 9.0):
+        try:
+            float(record['kp'])
+        except (ValueError, TypeError):
             return False
     return True
 
+def validate_date_range(data: List[Dict[str, Any]], source_name: str, min_date: str = "2010-01-01", max_date: str = "2023-12-31") -> bool:
+    """
+    Validates that the downloaded data covers the required date range [min_date, max_date].
+    
+    Logic:
+    1. Parse all dates in the data.
+    2. Check if min(data_dates) >= min_date.
+    3. Check if max(data_dates) >= max_date (meaning we have at least reached the end of the required period).
+    
+    Behavior:
+    - If the window is slightly off (e.g., starts 2010-01-02), logs a warning and sets data_limitation flag.
+    - If the window is significantly missing (e.g., max date is 2022), logs a "Data Insufficiency" error,
+      sets data_limitation flag, and raises a DataFetchError to halt the pipeline.
+    
+    Returns True if data is sufficient, False otherwise (if limitation flag is set).
+    """
+    import yaml
+    from datetime import datetime as dt
+
+    if not data:
+        log_message(f"Data Insufficiency: No data found for {source_name}.", "ERROR")
+        # Update manifest
+        manifest = load_manifest()
+        update_manifest_entry(manifest, source_name, {"data_limitation": True, "limitation_reason": "No data found"})
+        save_manifest(manifest)
+        return False
+
+    dates = []
+    for record in data:
+        try:
+            d = dt.strptime(record['date'], "%Y-%m-%d")
+            dates.append(d)
+        except (ValueError, KeyError):
+            continue
+
+    if not dates:
+        log_message(f"Data Insufficiency: No valid dates found for {source_name}.", "ERROR")
+        manifest = load_manifest()
+        update_manifest_entry(manifest, source_name, {"data_limitation": True, "limitation_reason": "No valid dates"})
+        save_manifest(manifest)
+        return False
+
+    min_actual = min(dates)
+    max_actual = max(dates)
+    min_req = dt.strptime(min_date, "%Y-%m-%d")
+    max_req = dt.strptime(max_date, "%Y-%m-%d")
+
+    is_start_ok = min_actual >= min_req
+    is_end_ok = max_actual >= max_req
+
+    # Check for slight deviation at start
+    if not is_start_ok:
+        delta = (min_req - min_actual).days
+        if delta <= 5: # Graceful failure for small offset
+            log_message(f"WARNING: {source_name} start date is slightly off. Expected >= {min_date}, got {min_actual.date()}. Setting data_limitation flag.", "WARNING")
+            manifest = load_manifest()
+            update_manifest_entry(manifest, source_name, {
+                "data_limitation": True, 
+                "limitation_reason": f"Start date offset: {delta} days"
+            })
+            save_manifest(manifest)
+            # Do not halt, but flag it
+        else:
+            log_message(f"ERROR: Data Insufficiency for {source_name}. Start date {min_actual.date()} is too early/late relative to {min_date}.", "ERROR")
+            manifest = load_manifest()
+            update_manifest_entry(manifest, source_name, {
+                "data_limitation": True, 
+                "limitation_reason": f"Start date {min_actual.date()} outside acceptable range"
+            })
+            save_manifest(manifest)
+            return False
+
+    # Check for missing end of range
+    if not is_end_ok:
+        delta = (max_req - max_actual).days
+        log_message(f"ERROR: Data Insufficiency for {source_name}. Max date {max_actual.date()} is before required end {max_date}. Missing {delta} days.", "ERROR")
+        manifest = load_manifest()
+        update_manifest_entry(manifest, source_name, {
+            "data_limitation": True, 
+            "limitation_reason": f"Data ends at {max_actual.date()}, required {max_date}"
+        })
+        save_manifest(manifest)
+        return False
+
+    log_message(f"Date range validation passed for {source_name}: [{min_actual.date()}, {max_actual.date()}]", "INFO")
+    return True
+
 def main():
-    """Main entry point for ingestion."""
+    """
+    Main entry point for ingestion.
+    Performs source verification, data fetching, and date range validation.
+    """
     ensure_directories()
     
+    # 1. Verify CDAWeb source (Blocking Gate T071)
     try:
-        # Fetch and write Dst indices
-        dst_data = fetch_dst_indices_http()
-        if dst_data:
-            dst_path = write_dst_data(dst_data)
-            update_manifest_entry('dst_indices', 'Verified', 
-                                  url="https://services.swpc.noaa.gov/products/dst-index.txt",
-                                  record_count=len(dst_data))
-        else:
-            update_manifest_entry('dst_indices', 'Failed')
-            raise DataFetchError("No Dst data retrieved")
-        
-        # Fetch and write Kp indices
-        kp_data = fetch_kp_indices_http()
-        if kp_data:
-            if not validate_kp_schema(kp_data):
-                raise DataFetchError("Kp data schema validation failed")
-            kp_path = write_kp_data(kp_data)
-            update_manifest_entry('kp_indices', 'Verified',
-                                  url="https://services.swpc.noaa.gov/products/kp-index.txt",
-                                  record_count=len(kp_data))
-        else:
-            update_manifest_entry('kp_indices', 'Failed')
-            raise DataFetchError("No Kp data retrieved")
-        
-        logger.info("Ingestion completed successfully")
-        
+        verify_cdaweb_source()
+        manifest = load_manifest()
+        update_manifest_entry(manifest, "CDAWeb_LASCO", {"cme_url_verified": True, "verification_timestamp": datetime.now().isoformat()})
+        save_manifest(manifest)
     except DataFetchError as e:
-        logger.error(f"Ingestion failed: {e}")
-        # Update manifest entries for failed sources
-        update_manifest_entry('dst_indices', 'Failed')
-        update_manifest_entry('kp_indices', 'Failed')
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error during ingestion: {e}")
-        raise
+        log_message(f"Critical: CDAWeb verification failed: {e}", "ERROR")
+        sys.exit(1)
+
+    # 2. Fetch Dst Indices
+    log_message("Fetching Dst indices...")
+    try:
+        dst_data = fetch_dst_indices_http()
+        write_dst_data(dst_data)
+        # Validate Date Range for Dst
+        if not validate_date_range(dst_data, "NOAA_SWPC_DST"):
+            # If validation fails (missing end date), we stop here per T011b requirement
+            log_message("Halting pipeline due to insufficient Dst data range.", "ERROR")
+            sys.exit(1)
+    except DataFetchError as e:
+        log_message(f"Failed to fetch Dst: {e}", "ERROR")
+        sys.exit(1)
+
+    # 3. Fetch Kp Indices
+    log_message("Fetching Kp indices...")
+    try:
+        kp_data = fetch_kp_indices_http()
+        write_kp_data(kp_data)
+        if not validate_kp_schema(kp_data):
+            log_message("Kp data schema validation failed.", "ERROR")
+            sys.exit(1)
+        # Validate Date Range for Kp
+        if not validate_date_range(kp_data, "NOAA_SWPC_KP"):
+            log_message("Halting pipeline due to insufficient Kp data range.", "ERROR")
+            sys.exit(1)
+    except DataFetchError as e:
+        log_message(f"Failed to fetch Kp: {e}", "ERROR")
+        sys.exit(1)
+
+    log_message("Ingestion and initial validation complete.")
 
 if __name__ == "__main__":
     main()
