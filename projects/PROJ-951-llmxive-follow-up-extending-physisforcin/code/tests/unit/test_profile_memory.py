@@ -1,5 +1,5 @@
 """
-Unit tests for memory profiling functionality.
+Unit tests for memory profiling utilities.
 """
 import os
 import sys
@@ -10,9 +10,7 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Add the code directory to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
+# Import the module under test
 from src.utils.profile_memory import (
     MemoryProfileResult,
     MemoryProfiler,
@@ -23,213 +21,226 @@ from src.utils.profile_memory import (
     save_profile_result
 )
 
-
+# Fixtures
 @pytest.fixture
-def temp_output_dir():
+def temp_output_dir(tmp_path):
     """Create a temporary directory for test outputs."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
-
+    return tmp_path
 
 @pytest.fixture
-def setup_logging():
-    """Setup basic logging for tests."""
-    import logging
-    logging.basicConfig(level=logging.INFO)
+def mock_psutil():
+    """Mock psutil to avoid dependency issues in tests."""
+    with patch('src.utils.profile_memory.psutil') as mock_psutil:
+        mock_process = MagicMock()
+        mock_process.memory_info.return_value = MagicMock(rss=1024 * 1024 * 100)  # 100 MB
+        mock_psutil.Process.return_value = mock_process
+        mock_psutil.available = True
+        yield mock_psutil
 
 
 class TestMemoryProfileResult:
     """Tests for MemoryProfileResult dataclass."""
-    
-    def test_result_creation(self):
-        """Test creating a MemoryProfileResult instance."""
+
+    def test_to_dict(self):
+        """Test conversion to dictionary."""
         result = MemoryProfileResult(
-            function_name="test_func",
-            start_memory_mb=100.0,
-            peak_memory_mb=150.0,
-            end_memory_mb=120.0,
-            duration_seconds=1.5,
-            timestamp="2024-01-01 12:00:00",
-            pid=12345
+            peak_memory_mb=100.0,
+            start_memory_mb=50.0,
+            end_memory_mb=60.0,
+            duration_seconds=10.0,
+            timestamp="2023-01-01T00:00:00",
+            task_name="test_task"
         )
-        
-        assert result.function_name == "test_func"
-        assert result.start_memory_mb == 100.0
-        assert result.peak_memory_mb == 150.0
-        assert result.duration_seconds == 1.5
-        assert not result.exceeded_limit
-        
-    def test_result_exceeded_limit(self):
-        """Test result with exceeded memory limit."""
+        d = result.to_dict()
+        assert d['peak_memory_mb'] == 100.0
+        assert d['task_name'] == "test_task"
+        assert 'pid' in d
+
+    def test_str_representation(self):
+        """Test string representation."""
         result = MemoryProfileResult(
-            function_name="test_func",
-            start_memory_mb=4000.0,
-            peak_memory_mb=5100.0,
-            end_memory_mb=4500.0,
-            duration_seconds=1.0,
-            timestamp="2024-01-01 12:00:00",
-            pid=12345,
-            memory_limit_mb=5000.0,
-            exceeded_limit=True
+            peak_memory_mb=100.0,
+            start_memory_mb=50.0,
+            end_memory_mb=60.0,
+            duration_seconds=10.0,
+            timestamp="2023-01-01T00:00:00"
         )
-        
-        assert result.exceeded_limit is True
-        assert result.memory_limit_mb == 5000.0
+        s = str(result)
+        assert "100.00" in s
+        assert "50.00" in s
 
 
 class TestMemoryProfiler:
     """Tests for MemoryProfiler class."""
-    
-    def test_profiler_initialization(self):
-        """Test profiler initialization."""
-        profiler = MemoryProfiler(limit_mb=5000)
-        assert profiler.limit_mb == 5000
-        assert profiler._peak_memory_mb == 0.0
-        
-    def test_profiler_context_manager(self):
-        """Test profiler as context manager."""
-        with MemoryProfiler(limit_mb=5000) as profiler:
-            profiler.start()
+
+    def test_context_manager(self, mock_psutil):
+        """Test MemoryProfiler as a context manager."""
+        with MemoryProfiler(task_name="test") as profiler:
             # Simulate some work
             time.sleep(0.1)
-            peak = profiler.stop()
-            
-            assert peak >= 0
-            
-    def test_get_memory_mb(self, setup_logging):
-        """Test getting current memory."""
-        profiler = MemoryProfiler()
-        memory = profiler._get_memory_mb()
-        assert memory >= 0
-        assert isinstance(memory, float)
+            # Memory should be captured
+            assert profiler.start_memory > 0
+        
+        # After exit, peak memory should be recorded
+        assert profiler.peak_memory >= profiler.start_memory
+
+    def test_manual_start_stop(self, mock_psutil):
+        """Test manual start and stop."""
+        profiler = MemoryProfiler(task_name="manual_test")
+        profiler.start()
+        time.sleep(0.1)
+        result = profiler.stop()
+        
+        assert result.peak_memory_mb > 0
+        assert result.duration_seconds > 0
+        assert result.task_name == "manual_test"
+
+    def test_memory_increases(self, mock_psutil):
+        """Test that profiler detects memory increase."""
+        # Mock increasing memory
+        mock_psutil.Process().memory_info.side_effect = [
+            MagicMock(rss=100 * 1024 * 1024), # 100 MB start
+            MagicMock(rss=200 * 1024 * 1024), # 200 MB peak
+            MagicMock(rss=150 * 1024 * 1024), # 150 MB end
+        ]
+        
+        with MemoryProfiler(task_name="growth_test") as profiler:
+            time.sleep(0.1)
+        
+        # Peak should be 200 MB
+        assert profiler.peak_memory_mb >= 200.0
 
 
 class TestProfileMemoryContextManager:
-    """Tests for using MemoryProfiler as context manager."""
-    
-    def test_context_manager_basic(self, setup_logging):
-        """Test basic context manager usage."""
-        with MemoryProfiler(limit_mb=10000) as profiler:
-            profiler.start()
-            # Do some work
-            data = [i for i in range(10000)]
-            time.sleep(0.1)
-            peak = profiler.stop()
-            
-            assert peak >= profiler._start_memory_mb
-            assert peak > 0
+    """Tests for the context manager behavior."""
+
+    def test_exception_handling(self, mock_psutil):
+        """Test that profiler stops even if exception occurs."""
+        with pytest.raises(ValueError):
+            with MemoryProfiler(task_name="error_test") as profiler:
+                raise ValueError("Simulated error")
+        
+        # Profiler should have stopped and recorded partial data
+        # We can't easily check the result here without capturing it,
+        # but the test passes if no deadlock occurs
 
 
 class TestGetCurrentMemoryMb:
     """Tests for get_current_memory_mb function."""
-    
-    def test_get_current_memory(self, setup_logging):
-        """Test getting current memory usage."""
+
+    def test_returns_positive_value(self, mock_psutil):
+        """Test that function returns a positive value."""
         memory = get_current_memory_mb()
-        assert memory >= 0
-        assert isinstance(memory, float)
+        assert memory > 0
+
+    def test_fallback_on_linux(self):
+        """Test fallback mechanism on Linux."""
+        with patch('src.utils.profile_memory.PSUTIL_AVAILABLE', False):
+            with patch('src.utils.profile_memory.sys.platform', 'linux'):
+                with patch('builtins.open', mock_open_with_data("VmRSS: 102400 kB")):
+                    memory = get_current_memory_mb()
+                    assert memory == 100.0  # 102400 / 1024
 
 
 class TestCheckMemoryLimit:
     """Tests for check_memory_limit function."""
-    
-    def test_within_limit(self, setup_logging):
-        """Test memory check within limit."""
-        # Current memory should be well within 10GB limit
-        assert check_memory_limit(10000) is True
-        
-    def test_exceeded_limit(self, setup_logging):
-        """Test memory check with very low limit."""
-        # This should fail since current memory is likely > 0.1 MB
-        assert check_memory_limit(0.1) is False
+
+    def test_within_limit(self, mock_psutil):
+        """Test when memory is within limit."""
+        result = check_memory_limit(limit_mb=200.0)
+        assert result is True
+
+    def test_exceeds_limit(self, mock_psutil):
+        """Test when memory exceeds limit."""
+        with pytest.raises(MemoryError):
+            check_memory_limit(limit_mb=50.0)
+
+    def test_custom_current_memory(self, mock_psutil):
+        """Test with custom current memory value."""
+        result = check_memory_limit(limit_mb=200.0, current_memory_mb=100.0)
+        assert result is True
 
 
 class TestProfileFunction:
-    """Tests for profile_function decorator."""
-    
-    def test_profile_simple_function(self, setup_logging, temp_output_dir):
-        """Test profiling a simple function."""
-        def simple_func():
-            time.sleep(0.1)
-            return "done"
+    """Tests for profile_function decorator and utility."""
+
+    def test_decorator(self, mock_psutil):
+        """Test the profile_memory decorator."""
+        @profile_memory
+        def my_func():
+            return 42
         
-        result = profile_function(
-            simple_func,
-            limit_mb=5000,
-            output_path=str(temp_output_dir / "test_profile.json")
-        )
+        result, profile_result = my_func()
+        assert result == 42
+        assert profile_result.peak_memory_mb > 0
+
+    def test_profile_function_utility(self, mock_psutil):
+        """Test the profile_function utility."""
+        def my_func(x):
+            return x * 2
         
-        assert result.function_name == "simple_func"
-        assert result.duration_seconds >= 0.1
-        assert result.peak_memory_mb >= 0
-        
-        # Check that output file was created
-        output_file = temp_output_dir / "test_profile.json"
-        assert output_file.exists()
-        
-        with open(output_file) as f:
-            data = json.load(f)
-            assert "function_name" in data
-            assert "peak_memory_mb" in data
+        result, profile_result = profile_function(my_func, 5, task_name="test_func")
+        assert result == 10
+        assert profile_result.task_name == "test_func"
 
 
 class TestSaveProfileResult:
     """Tests for save_profile_result function."""
-    
-    def test_save_result(self, temp_output_dir, setup_logging):
-        """Test saving profile result to file."""
+
+    def test_save_single(self, temp_output_dir):
+        """Test saving a single result."""
         result = MemoryProfileResult(
-            function_name="test",
+            peak_memory_mb=100.0,
+            start_memory_mb=50.0,
+            end_memory_mb=60.0,
+            duration_seconds=10.0,
+            timestamp="2023-01-01T00:00:00",
+            task_name="test"
+        )
+        
+        output_path = temp_output_dir / "profile.json"
+        saved_path = save_profile_result(result, str(output_path), append=False)
+        
+        assert saved_path.exists()
+        with open(saved_path, 'r') as f:
+            data = json.load(f)
+            assert data['peak_memory_mb'] == 100.0
+
+    def test_append_mode(self, temp_output_dir):
+        """Test appending multiple results."""
+        result1 = MemoryProfileResult(
+            peak_memory_mb=100.0,
+            start_memory_mb=50.0,
+            end_memory_mb=60.0,
+            duration_seconds=10.0,
+            timestamp="2023-01-01T00:00:00",
+            task_name="test1"
+        )
+        result2 = MemoryProfileResult(
+            peak_memory_mb=200.0,
             start_memory_mb=100.0,
-            peak_memory_mb=150.0,
-            end_memory_mb=120.0,
-            duration_seconds=1.0,
-            timestamp="2024-01-01",
-            pid=12345
+            end_memory_mb=150.0,
+            duration_seconds=20.0,
+            timestamp="2023-01-01T00:01:00",
+            task_name="test2"
         )
         
-        output_path = temp_output_dir / "profile_result.json"
-        save_profile_result(result, str(output_path))
+        output_path = temp_output_dir / "profile.jsonl"
+        save_profile_result(result1, str(output_path), append=True)
+        save_profile_result(result2, str(output_path), append=True)
         
-        assert output_path.exists()
-        
-        with open(output_path) as f:
-            saved_data = json.load(f)
-            assert saved_data["function_name"] == "test"
-            assert saved_data["peak_memory_mb"] == 150.0
+        with open(output_path, 'r') as f:
+            lines = f.readlines()
+            assert len(lines) == 2
+            
+            data1 = json.loads(lines[0])
+            data2 = json.loads(lines[1])
+            assert data1['task_name'] == "test1"
+            assert data2['task_name'] == "test2"
 
 
-class TestIntegration:
-    """Integration tests for memory profiling."""
-    
-    def test_full_workflow(self, temp_output_dir, setup_logging):
-        """Test complete memory profiling workflow."""
-        # Define a memory-intensive function
-        def memory_intensive_task():
-            data = []
-            for i in range(100000):
-                data.append([i] * 10)
-            time.sleep(0.2)
-            return len(data)
-        
-        # Profile the task
-        result = profile_function(
-            memory_intensive_task,
-            limit_mb=5000,
-            output_path=str(temp_output_dir / "integration_test.json")
-        )
-        
-        # Verify results
-        assert result.function_name == "memory_intensive_task"
-        assert result.duration_seconds >= 0.2
-        assert result.peak_memory_mb >= result.start_memory_mb
-        assert not result.exceeded_limit  # Should be within 5GB limit
-        
-        # Verify output file
-        output_file = temp_output_dir / "integration_test.json"
-        assert output_file.exists()
-        
-        with open(output_file) as f:
-            saved_data = json.load(f)
-            assert saved_data["function_name"] == "memory_intensive_task"
-            assert "peak_memory_mb" in saved_data
+# Helper for mock_open
+def mock_open_with_data(data):
+    from unittest.mock import mock_open
+    m = mock_open(read_data=data)
+    return m

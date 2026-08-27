@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-951-llmxive-follow-up-extending-physisforcin
-last_run_id: 2d79635d-5235-44bb-a760-e43f961008cd
+last_run_id: bebe959e-6521-4ba9-bc43-89cd7de65525
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin
 title: 'llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator
   for Robotic Manipula"'
-updated_at: '2026-08-24T12:24:41.365981Z'
+updated_at: '2026-08-27T12:07:51.578903Z'

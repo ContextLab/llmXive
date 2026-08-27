@@ -1,29 +1,20 @@
-T001:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure under `projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/`
-    was presented or listed in the provided artifacts, so the required project root
-    directories are missing.
-T001b:
+  r: No artifact showing the existence of the required empty directory `projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/`
+    was provided; without a listing or confirmation that the directory exists and
+    is empty, the task requirement is not satisfied.
+T005a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or other evidence were provided showing that `src/`, `tests/`,
-    and `data/` actually exist under `projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/`.
-    Without concrete proof of these subdirectories, the task requirement is not satisfied.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No repository, `pyproject.toml`, `requirements.txt`, or any code files initializing\
-    \ a Python project with the listed CPU\u2011only packages are present. The implementer\
-    \ provided only a feature specification; the required project setup artifacts\
-    \ are missing."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a high\u2011level feature specification for a\
-    \ physics\u2011filter pipeline and no linting/formatting configuration files,\
-    \ scripts, or CI integration. There is no evidence of ruff or black being set\
-    \ up (e.g., no `pyproject.toml`, `.ruff.toml`, or pre\u2011commit hooks), so the\
-    \ task \u201CConfigure linting (ruff) and formatting (black) tools\u201D is not\
-    \ satisfied. The missing artifacts are the actual configuration and integration\
-    \ of ruff and black in the project."
+  r: "No evidence of the required directories (`data/raw`, `data/curated`, `data/eval`,\
+    \ `data/validation`) is presented; the claim lacks any artifact confirming that\
+    \ the directory structure was actually created. The implementer must provide proof\
+    \ (e.g., a file listing, screenshot, or script output) showing these four non\u2011\
+    empty directories exist."
+T054:
+  c: true
+  h: 01b5320263c23f72467ea0ef68965dbd3f7fb27a90eb273c8db845e0e20b9776
+  r: "The `tests/unit/test_fetch_prompts.py` file exists (2749\u202Fbytes) and contains\
+    \ assertions that `data/prompts.jsonl` exists, is non\u2011empty, and has at least\
+    \ 10 valid JSONL entries, fulfilling the task specification."

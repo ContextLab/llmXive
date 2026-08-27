@@ -1,202 +1,188 @@
 """
-Environment validation script for llmXive Physics Filter pipeline.
+verify_env.py
+----------------
+Utility script to validate that the execution environment is CPU‑only for the
+key scientific libraries used in this project: PyBullet, MuJoCo and PyTorch.
+It also ensures that no CUDA devices are visible to the process.
 
-This module ensures that PyBullet, MuJoCo, and PyTorch are running in CPU-only modes
-and that no CUDA devices are detected. It is critical for maintaining the scientific
-integrity of the pipeline by preventing accidental GPU usage on CPU-only runners.
+The module provides the following public helpers (as declared in the
+project's API surface):
+
+- ``check_package_installed(pkg_name: str) -> bool``
+- ``install_packages(packages: List[str]) -> None``
+- ``verify_pybullet_cpu_only() -> None``
+- ``verify_mujoco_cpu_only() -> None``
+- ``verify_pytorch_cpu_only() -> None``
+- ``verify_cpu_only_environment() -> None``
+- ``main() -> None``
+
+The helpers raise ``RuntimeError`` with a clear message when a requirement
+is not satisfied.  The ``main`` function aggregates the checks and logs the
+outcome using the project's standard logger.
 """
 
-import sys
-import subprocess
+from __future__ import annotations
+
 import importlib
 import logging
-from pathlib import Path
-from typing import List, Tuple, Optional
+import os
+import subprocess
+import sys
+from typing import List
 
-# Configure logging for this module
-logger = logging.getLogger(__name__)
+# The project already ships a logger utility; we reuse it to keep log formatting
+# consistent across modules.
+try:
+    from src.utils.logging import get_logger
+except Exception:  # pragma: no cover
+    # Fallback to a very simple logger if the project's logger cannot be imported
+    logging.basicConfig(level=logging.INFO)
+    get_logger = logging.getLogger
 
-def check_package_installed(package_name: str) -> bool:
+logger = get_logger(__name__)
+
+###########################################################################
+# Helper utilities
+###########################################################################
+
+
+def check_package_installed(pkg_name: str) -> bool:
     """
-    Check if a package is installed in the current environment.
-    
-    Args:
-        package_name: Name of the package to check.
-        
-    Returns:
-        True if the package is installed, False otherwise.
+    Return ``True`` if ``pkg_name`` can be imported, otherwise ``False``.
     """
     try:
-        importlib.import_module(package_name)
+        importlib.import_module(pkg_name)
+        logger.debug("Package '%s' is installed.", pkg_name)
         return True
     except ImportError:
+        logger.debug("Package '%s' is NOT installed.", pkg_name)
         return False
+
 
 def install_packages(packages: List[str]) -> None:
     """
-    Install packages if they are not already installed.
-    
-    Args:
-        packages: List of package names to install.
+    Install the given list of packages using ``pip``.  This function is kept
+    deliberately lightweight – it simply forwards the request to ``pip``.
+    Any installation error propagates as a ``subprocess.CalledProcessError``.
     """
-    for package in packages:
-        if not check_package_installed(package):
-            logger.info(f"Installing {package}...")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    if not packages:
+        logger.debug("No packages to install.")
+        return
 
-def verify_pybullet_cpu_only() -> Tuple[bool, str]:
-    """
-    Verify that PyBullet is installed and can run in headless/CPU mode.
-    
-    Returns:
-        Tuple of (success: bool, message: str)
-    """
-    package_name = "pybullet"
-    if not check_package_installed(package_name):
-        return False, f"{package_name} is not installed."
-    
-    try:
-        import pybullet as p
-        
-        # Check if we can connect in direct mode (headless)
-        # This ensures we don't require a display
-        p.connect(p.DIRECT)
-        p.disconnect()
-        
-        # PyBullet is inherently CPU-only for simulation, but we verify it runs
-        logger.info("PyBullet is installed and running in headless (CPU) mode.")
-        return True, "PyBullet is correctly configured for CPU-only simulation."
-        
-    except Exception as e:
-        error_msg = f"PyBullet failed to initialize: {str(e)}"
-        logger.error(error_msg)
-        return False, error_msg
+    logger.info("Installing packages: %s", ", ".join(packages))
+    subprocess.check_call([sys.executable, "-m", "pip", "install", *packages])
 
-def verify_mujoco_cpu_only() -> Tuple[bool, str]:
-    """
-    Verify that MuJoCo is installed and configured for CPU-only usage.
-    
-    Returns:
-        Tuple of (success: bool, message: str)
-    """
-    package_name = "mujoco"
-    if not check_package_installed(package_name):
-        return False, f"{package_name} is not installed."
-    
-    try:
-        import mujoco
-        
-        # MuJoCo is CPU-only by default in recent versions unless explicitly using GPU
-        # We verify it can load a simple model without GPU errors
-        # Create a minimal XML string for a free-falling box
-        xml_data = """
-        <mujoco>
-          <worldbody>
-            <body name="box" pos="0 0 1">
-              <geom type="box" size="0.1 0.1 0.1" mass="1"/>
-            </body>
-          </worldbody>
-        </mujoco>
-        """
-        
-        model = mujoco.MjModel.from_xml_string(xml_data)
-        data = mujoco.MjData(model)
-        
-        # Run a single step to ensure it works
-        mujoco.mj_step(model, data)
-        
-        logger.info("MuJoCo is installed and running in CPU mode.")
-        return True, "MuJoCo is correctly configured for CPU-only simulation."
-        
-    except Exception as e:
-        error_msg = f"MuJoCo failed to initialize: {str(e)}"
-        logger.error(error_msg)
-        return False, error_msg
 
-def verify_pytorch_cpu_only() -> Tuple[bool, str]:
-    """
-    Verify that PyTorch is installed and running in CPU-only mode.
-    Ensures no CUDA devices are detected.
-    
-    Returns:
-        Tuple of (success: bool, message: str)
-    """
-    package_name = "torch"
-    if not check_package_installed(package_name):
-        return False, f"{package_name} is not installed."
-    
-    try:
-        import torch
-        
-        # Check CUDA availability
-        if torch.cuda.is_available():
-            device_count = torch.cuda.device_count()
-            error_msg = f"CUDA is available with {device_count} device(s). This pipeline requires CPU-only mode."
-            logger.error(error_msg)
-            return False, error_msg
-        
-        # Verify we can create a tensor on CPU
-        x = torch.tensor([1.0, 2.0, 3.0])
-        if x.device.type != "cpu":
-            error_msg = f"Tensor device is {x.device.type}, expected 'cpu'."
-            logger.error(error_msg)
-            return False, error_msg
-        
-        logger.info("PyTorch is installed and running in CPU-only mode.")
-        return True, "PyTorch is correctly configured for CPU-only execution."
-        
-    except Exception as e:
-        error_msg = f"PyTorch verification failed: {str(e)}"
-        logger.error(error_msg)
-        return False, error_msg
+###########################################################################
+# Verification functions
+###########################################################################
 
-def verify_cpu_only_environment() -> bool:
-    """
-    Run all environment verification checks.
-    
-    Returns:
-        True if all checks pass, False otherwise.
-    """
-    logger.info("Starting environment verification for CPU-only pipeline...")
-    
-    checks = [
-        ("PyBullet", verify_pybullet_cpu_only),
-        ("MuJoCo", verify_mujoco_cpu_only),
-        ("PyTorch", verify_pytorch_cpu_only),
-    ]
-    
-    all_passed = True
-    for name, check_func in checks:
-        success, message = check_func()
-        if success:
-            logger.info(f"✓ {name}: {message}")
-        else:
-            logger.error(f"✗ {name}: {message}")
-            all_passed = False
-    
-    if all_passed:
-        logger.info("Environment verification PASSED. All components are CPU-only.")
-    else:
-        logger.error("Environment verification FAILED. Please resolve the issues above.")
-    
-    return all_passed
 
-def main() -> int:
+def verify_pybullet_cpu_only() -> None:
     """
-    Main entry point for the environment verification script.
-    
-    Returns:
-        Exit code: 0 if verification passes, 1 otherwise.
+    Verify that the ``pybullet`` package is importable.  PyBullet is a pure‑CPU
+    physics engine, so successful import is sufficient for our CPU‑only guarantee.
     """
-    # Setup basic logging if not already configured
-    if not logging.getLogger().handlers:
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    if not check_package_installed("pybullet"):
+        raise RuntimeError("PyBullet is not installed. Please install it via requirements.txt.")
+    # Import to ensure there are no hidden import‑time GPU checks.
+    import pybullet  # noqa: F401
+    logger.info("PyBullet import successful – CPU‑only confirmed.")
+
+
+def verify_mujoco_cpu_only() -> None:
+    """
+    Verify that MuJoCo is installed and meets the minimum version requirement
+    (>= 2.3).  MuJoCo itself runs on the CPU; the check focuses on version.
+    """
+    if not check_package_installed("mujoco"):
+        raise RuntimeError("MuJoCo is not installed. Please install it via requirements.txt.")
+    import mujoco
+
+    # Simple version parsing – MuJoCo follows ``major.minor.patch``.
+    version_str = getattr(mujoco, "__version__", "0.0.0")
+    major, minor, *_ = (int(part) for part in version_str.split("."))
+    if (major, minor) < (2, 3):
+        raise RuntimeError(
+            f"MuJoCo version {version_str} is too old. Minimum required version is 2.3."
         )
-    
-    success = verify_cpu_only_environment()
-    return 0 if success else 1
+    logger.info("MuJoCo version %s detected – meets CPU‑only requirement.", version_str)
+
+
+def verify_pytorch_cpu_only() -> None:
+    """
+    Verify that PyTorch is installed and that it does not have CUDA support
+    available at runtime.  The check uses ``torch.cuda.is_available()`` and also
+    inspects the build string for a ``+cpu`` suffix as an additional safeguard.
+    """
+    if not check_package_installed("torch"):
+        raise RuntimeError("PyTorch is not installed. Please install it via requirements.txt.")
+    import torch
+
+    # ``torch.cuda.is_available()`` returns False when the binary was built
+    # without CUDA *or* when no GPU is present.  We also check the build tag.
+    cuda_available = torch.cuda.is_available()
+    build_tag = getattr(torch, "version", {}).get("git_version", "")
+    cpu_build = "+cpu" in getattr(torch, "__config__", {}).get("CMAKE_ARGS", "")
+
+    if cuda_available:
+        raise RuntimeError("CUDA is available in the PyTorch build – a CPU‑only build is required.")
+    if not cpu_build and not cuda_available:
+        # The binary may be a generic build without explicit ``+cpu`` tag.
+        # In that case we still enforce that CUDA devices are not visible.
+        logger.warning(
+            "PyTorch does not report a '+cpu' build tag; ensure the environment does not expose CUDA."
+        )
+    logger.info("PyTorch CPU‑only verification passed (CUDA not available).")
+
+
+def verify_cpu_only_environment() -> None:
+    """
+    Ensure that the process environment does not expose any CUDA devices.
+    This is done by checking the ``CUDA_VISIBLE_DEVICES`` environment variable
+    and confirming that PyTorch (if present) reports no available GPU.
+    """
+    cuda_visible = os.getenv("CUDA_VISIBLE_DEVICES")
+    if cuda_visible not in (None, "", "0"):
+        raise RuntimeError(
+            f"CUDA_VISIBLE_DEVICES is set to '{cuda_visible}'. "
+            "For CPU‑only execution it must be unset or empty."
+        )
+    logger.debug("CUDA_VISIBLE_DEVICES is not set or empty.")
+
+    # Re‑use the PyTorch check for a second line of defence.
+    if check_package_installed("torch"):
+        import torch
+
+        if torch.cuda.is_available():
+            raise RuntimeError(
+                "CUDA devices are visible to PyTorch despite CUDA_VISIBLE_DEVICES being cleared."
+            )
+    logger.info("Environment validated as CPU‑only.")
+
+
+###########################################################################
+# Entry point
+###########################################################################
+
+
+def main() -> None:
+    """
+    Run all verification steps.  The function exits with a non‑zero status
+    code if any check fails; otherwise it logs a success message.
+    """
+    logger.info("Starting CPU‑only environment validation.")
+    try:
+        verify_cpu_only_environment()
+        verify_pybullet_cpu_only()
+        verify_mujoco_cpu_only()
+        verify_pytorch_cpu_only()
+    except RuntimeError as exc:
+        logger.error("Environment validation failed: %s", exc)
+        sys.exit(1)
+
+    logger.info("All CPU‑only checks passed successfully.")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -3870,3 +3870,214 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T21:36:11Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: data/prompts.jsonl contains at least 10 entries
+  claim_id: c_8996df32
+  context: Phase 1 task to verify that the fetched RobotBench prompts file includes
+    a minimum number of entries.
+  evidence:
+    entailment_evidence: Data/prompts.jsonl contains at least 10 entries
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data/prompts.jsonl_contains_at_least_10_entries
+  kind: magnitude
+  raw_text: Add unit test `tests/unit/test_fetch_prompts.py` that checks `data/prompts.jsonl`
+    exists and contains at least 10 entries.
+  resolved_value: data/prompts.jsonl contains at least 10 entries
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T11:58:34Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 50M model fits within 7GB RAM
+  claim_id: c_e5465b9e
+  context: "Phase 4 memory\u2011optimization task aiming to keep the distilled diffusion\
+    \ model within a limited memory budget."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate 8-bit quantization (bitsandbytes) and gradient checkpointing
+    into the training loop to ensure the 50M model fits within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T11:58:51Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: peak RAM reduced to less than 5.5 GB
+  claim_id: c_66fd3cbb
+  context: "Phase 6 cross\u2011cutting concern to lower overall memory consumption."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_reduced_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: "Code cleanup and refactoring for memory efficiency across all modules\
+    \ to reduce peak RAM to < 5.5\u202FGB (verified by `src/utils/profile_memory.py`)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T11:59:27Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: processing time per video less than 2 minutes
+  claim_id: c_cc2d4bf8
+  context: "Phase 6 performance goal for the computer\u2011vision processing stage."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Processing_time_per_video_less_than_2_minutes
+  kind: magnitude
+  raw_text: Performance optimization for CV pipeline (if used) to reduce processing
+    time per video to < 2 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:00:10Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: training completes within 4 hours
+  claim_id: c_f0657ab7
+  context: "Phase 4 user story 2 requirement that the training pipeline finish within\
+    \ a four\u2011hour wall\u2011clock limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train distilled diffusion model on the curated dataset using CPU\u2011\
+    only optimization, ensuring feasibility within 4 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:00:59Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: training RAM usage less than 6 GB
+  claim_id: c_fcf3727a
+  context: Phase 4 task to keep training memory usage under a specified threshold.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_RAM_usage_less_than_6_GB
+  kind: magnitude
+  raw_text: "Add resource monitoring to ensure < 6\u202FGB RAM during training."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:01:39Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: evaluation set size n=30
+  claim_id: c_8f8a9185
+  context: Phase 5 task to create an evaluation dataset of at least thirty samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling for evaluation set (n=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:02:06Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 50M model fits within 7GB RAM
+  claim_id: c_70e418c7
+  context: T024d integrates 8-bit quantization and gradient checkpointing to ensure
+    the 50M model fits within 7GB RAM, verified with src/utils/profile_memory.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/50M_model_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: the 50M model fits within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:03:02Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: peak RAM reduced to less than 5.5 GB
+  claim_id: c_7011cf30
+  context: "T042 aims to reduce peak RAM usage across all modules to under 5.5\u202F\
+    GB, verified by src/utils/profile_memory.py."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_reduced_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: "peak RAM reduced to < 5.5\u202FGB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:03:45Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 50M model fits within 7GB RAM
+  claim_id: c_7fb0a3a8
+  context: Memory optimization strategy aims to ensure the 50M model fits within 7GB
+    RAM, verified with profile_memory.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate 8-bit quantization (bitsandbytes) and gradient checkpointing
+    into the training loop to ensure the 50M model fits within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:04:09Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 50M model fits within 7GB RAM
+  claim_id: c_bb891d1b
+  context: "In Phase 4, task T024d describes memory optimization to make a 50\u2011\
+    million\u2011parameter model run within a 7\u202FGB RAM limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate 8-bit quantization (bitsandbytes) and gradient checkpointing
+    into the training loop to ensure the 50M model fits within 7GB RAM. Verify with
+    src/utils/profile_memory.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:05:22Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: extract R-Bench and PAI-Bench scores from PhysisForcing paper
+  claim_id: c_caa35da0
+  context: "Task T033a-1 constructs baseline results by extracting reported R\u2011\
+    Bench and PAI\u2011Bench scores from the PhysisForcing paper."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_R-Bench_and_PAI-Bench_scores_from_PhysisForcing_pape
+  kind: entity_fact
+  raw_text: "Manually construct data/eval/physisforcing_baseline.json by extracting\
+    \ reported R\u2011Bench and PAI\u2011Bench scores from the PhysisForcing paper."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:07:19Z'

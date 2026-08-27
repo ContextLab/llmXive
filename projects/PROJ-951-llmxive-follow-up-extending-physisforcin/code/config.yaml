@@ -1,24 +1,16 @@
-# llmXive Physics Filter Pipeline Configuration
-# This file defines the schema for all required configuration keys.
-# Values are loaded by src/training/config.py.
-#
-# IMPORTANT: No default values are hardcoded for critical scientific parameters
-# to preserve the integrity of the experimental method. Users must explicitly
-# set these values based on their specific experimental design or spec revision.
+# Configuration for llmXive Physics Filter Pipeline
+# This file defines the schema and parameters for the project.
+# The 'filter' section contains the experimental parameter for the percentile-based filter.
 
 project:
   name: "PROJ-951-llmxive-follow-up-extending-physisforcin"
-  version: "1.0.0"
-  root_dir: "projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code"
-  data_root: "data"
+  version: "0.1.0"
+  root_dir: "."
 
 environment:
-  # Force CPU-only execution
-  force_cpu: true
-  # Deterministic seed for reproducibility
+  cpu_only: true
   seed: 42
-  # Memory limit in MB (approx 6GB)
-  max_memory_mb: 6144
+  max_memory_gb: 7.0
 
 data:
   raw_dir: "data/raw"
@@ -30,71 +22,45 @@ data:
 
 generation:
   model_id: "Wan-AI/Wan2.1-Turbo"
-  # CPU inference constraints
-  max_frames: 16
-  resolution: "256x256"
-  # Offload mechanism for GPU if CPU fails
-  offload_enabled: false
-  offload_target: "kaggle"
+  batch_size: 1
+  offload_enabled: true
+  offload_kaggle_key: null # Set via environment variable or secret manager
 
-filtering:
-  # SCHEMA: Defines mapping from prompt tags to PyBullet objects
-  schema_file: "src/filtering/schema.py"
-  # Physics engine settings
-  engine: "pybullet"
-  headless: true
-  time_step: 0.016
-  # CRITICAL: Discard percentage for the bottom segment of the score distribution.
-  # This is a CONFIGURABLE parameter. No default value is provided here to
-  # ensure the scientific method is followed and the threshold is explicitly set
-  # by the researcher for the specific experiment.
-  # The code in src/filtering/score_utils.py will read this value and raise
-  # an error if it is missing or invalid (e.g., None, < 0, > 100).
-  filter_discard_percent: null
+filter:
+  # The percentage of videos to discard from the bottom of the score distribution.
+  # Example: 40 means discard the bottom 40% of videos.
+  # The actual score threshold is calculated dynamically as the `discard_percentile`
+  # percentile of the current batch's score distribution.
+  discard_percentile: 40
+  continuity_weight: 0.5
+  contact_weight: 0.5
+  min_score_threshold: 0.0
 
 training:
-  model_type: "unet_diffusion"
-  # Architecture specifications (approx 50M params)
+  model_type: "unet"
   base_channels: 64
-  down_blocks: 4
-  up_blocks: 4
+  down_blocks: 3
+  up_blocks: 3
   attention_heads: 8
-  # Training hyperparameters
-  batch_size: 4
-  learning_rate: 1e-4
-  num_epochs: 10
-  # Resource constraints
-  timeout_hours: 4
-  # Fail loud on NaN
-  abort_on_nan: true
+  batch_size: 2
+  learning_rate: 1.0e-4
+  max_epochs: 10
+  patience: 2
+  quantization_8bit: true
+  gradient_checkpointing: true
+  timeout_seconds: 14400  # 4 hours
 
 evaluation:
-  # Benchmarks
   r_bench_enabled: true
   pai_bench_enabled: true
-  # Statistical testing
-  significance_level: 0.05
-  # Sample size for evaluation
+  tost_margin: 0.15
+  power_analysis_alpha: 0.05
+  power_analysis_power: 0.80
   eval_sample_size: 30
-  # Orthogonality gate
-  orthogonality_threshold: 0.95
 
 logging:
   level: "INFO"
-  format: "json"
   log_dir: "logs"
-  metrics_file: "metrics.jsonl"
-  discard_rate_log: "logs/discard_rate.log"
-  orthogonality_log: "logs/orthogonality_gate.log"
-  baseline_log: "logs/baseline_verification.log"
-  dataset_validation_log: "logs/dataset_validation.log"
-
-augmentation:
-  enabled: true
-  # Threshold for triggering augmentation
-  min_curated_size: 30
-  # Geometric augmentation settings
-  temporal_jitter_percent: 10
-  geometric_flip: true
-
-# End of configuration schema
+  json_logs: true
+  rotation_max_mb: 100
+  rotation_backup_count: 5

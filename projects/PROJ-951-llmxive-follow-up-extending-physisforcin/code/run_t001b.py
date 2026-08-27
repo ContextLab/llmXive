@@ -1,45 +1,45 @@
 import os
 import sys
 from pathlib import Path
+
 from create_t001b_directories import create_t001b_directories
 from verify_t001b_structure import verify_t001b_structure
 
-def main():
+def main() -> int:
     """
-    Orchestrates the creation and verification of T001b directories.
+    Execute T001b: Create subdirectories and verify structure.
+    
+    Returns:
+        0 on success, 1 on failure
     """
-    current_dir = Path.cwd()
-    script_dir = Path(__file__).parent
+    # Determine project root
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent  # projects/PROJ-951-llmxive-follow-up-extending-physisforcin/
     
-    # Attempt to locate the project code root
-    project_code_root = current_dir / "projects" / "PROJ-951-llmxive-follow-up-extending-physisforcin" / "code"
-    
-    if not project_code_root.exists():
-        project_code_root = script_dir / "projects" / "PROJ-951-llmxive-follow-up-extending-physisforcin" / "code"
-        
-        if not project_code_root.exists():
-            if (script_dir / "projects").exists():
-                project_code_root = script_dir
-            else:
-                print("Error: Could not locate project code root.")
-                sys.exit(1)
-    
-    print(f"Executing T001b in: {project_code_root}")
+    print(f"Project root: {project_root}")
+    print("=" * 60)
+    print("T001b: Creating directory structure...")
+    print("=" * 60)
     
     # Step 1: Create directories
-    print("--- Creating directories ---")
-    if not create_t001b_directories(project_code_root):
-        print("Error: Directory creation failed.")
-        sys.exit(1)
-        
+    created_count = create_t001b_directories(str(project_root))
+    
+    print()
+    print("=" * 60)
+    print("T001b: Verifying directory structure...")
+    print("=" * 60)
+    
     # Step 2: Verify structure
-    print("--- Verifying structure ---")
-    if not verify_t001b_structure(project_code_root):
-        print("Error: Structure verification failed.")
-        sys.exit(1)
-        
-    print("T001b execution completed successfully.")
-    sys.exit(0)
+    is_valid, missing_dirs = verify_t001b_structure(str(project_root))
+    
+    if is_valid:
+        print("\n✓ SUCCESS: All required directories exist.")
+        print(f"  Created {created_count} new directories.")
+        return 0
+    else:
+        print(f"\n✗ FAILURE: Missing directories: {missing_dirs}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

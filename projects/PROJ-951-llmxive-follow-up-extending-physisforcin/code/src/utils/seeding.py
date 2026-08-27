@@ -1,222 +1,215 @@
 """
 Deterministic seed setting utility for reproducibility across batches.
 
-This module provides utilities to set and manage random seeds for Python's random,
+This module provides functions to set random seeds for Python's random module,
 NumPy, and PyTorch to ensure reproducible results across runs.
 """
+
 import random
 import os
 import torch
 import numpy as np
 from typing import Optional, Dict, Any
 from pathlib import Path
-import logging
-from contextlib import contextmanager
 
-# Configure logging
-logger = logging.getLogger(__name__)
+# Default seed value
+DEFAULT_SEED = 42
 
+# Global seed configuration storage
+_seed_config: Dict[str, Any] = {
+    "seed": DEFAULT_SEED,
+    "cudnn_deterministic": True,
+    "cudnn_benchmark": False,
+    "torch_manual_seed": True,
+    "numpy_seed": True,
+    "random_seed": True,
+    "python_hash_seed": True
+}
 
-def set_deterministic_seed(seed: int = 42, deterministic: bool = True, benchmark: bool = False) -> Dict[str, int]:
+def set_deterministic_seed(seed: Optional[int] = None) -> Dict[str, Any]:
     """
-    Set random seeds for all relevant libraries to ensure reproducibility.
+    Set deterministic seeds for all random number generators.
     
     Args:
-        seed: The random seed to use. Default is 42.
-        deterministic: If True, use deterministic algorithms in PyTorch.
-                       Note: This may impact performance.
-        benchmark: If True and deterministic is False, use benchmark mode in PyTorch.
-                    This can improve performance for models with fixed input sizes.
+        seed: The seed value to use. If None, uses DEFAULT_SEED.
     
     Returns:
-        Dict containing the seed configuration used.
+        Dict containing the seed configuration that was applied.
     
     Raises:
-        ValueError: If seed is not a non-negative integer.
+        RuntimeError: If setting seeds fails for any reason.
     """
-    if not isinstance(seed, int) or seed < 0:
-        raise ValueError(f"Seed must be a non-negative integer, got {seed}")
+    if seed is None:
+        seed = DEFAULT_SEED
     
-    # Set Python random seed
-    random.seed(seed)
+    try:
+        # Set Python's random seed
+        random.seed(seed)
+        _seed_config["random_seed"] = True
     
-    # Set NumPy seed
-    np.random.seed(seed)
+        # Set NumPy seed
+        np.random.seed(seed)
+        _seed_config["numpy_seed"] = True
     
-    # Set PyTorch seeds
-    torch.manual_seed(seed)
+        # Set PyTorch seeds
+        torch.manual_seed(seed)
+        _seed_config["torch_manual_seed"] = True
     
-    # Set CUDA seeds if available
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
+        # Set CUDA seeds if available (even in CPU mode, for consistency)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+        else:
+            # Explicitly set CUDA seeds to None to indicate not available
+            pass
     
-    # Configure deterministic behavior
-    if torch.cuda.is_available():
-        torch.backends.cudnn.deterministic = deterministic
-        torch.backends.cudnn.benchmark = benchmark and not deterministic
+        # Set environment variable for hash seed (Python 3.3+)
+        if _seed_config["python_hash_seed"]:
+            os.environ['PYTHONHASHSEED'] = str(seed)
     
-    # Set environment variable for deterministic operations
-    if deterministic:
-        os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
-        os.environ['PYTHONHASHSEED'] = str(seed)
+        # Configure CuDNN for deterministic behavior
+        # Note: These only have effect if CUDA is available
+        torch.backends.cudnn.deterministic = _seed_config["cudnn_deterministic"]
+        torch.backends.cudnn.benchmark = _seed_config["cudnn_benchmark"]
     
-    config = {
-        'seed': seed,
-        'deterministic': deterministic,
-        'benchmark': benchmark,
-        'python_random': random.getstate()[1][0],  # Current state marker
-        'numpy_seed': np.random.get_state()[1][0],  # Current state marker
-        'torch_seed': torch.initial_seed() & 0xffffffff  # Current state marker (truncated to 32-bit)
-    }
+        # Set additional PyTorch reproducibility flags
+        torch.use_deterministic_algorithms(True, warn_only=True)
     
-    logger.info(f"Set deterministic seed: {seed} (deterministic={deterministic}, benchmark={benchmark})")
+        _seed_config["seed"] = seed
     
-    return config
+        return _seed_config.copy()
+    
+    except Exception as e:
+        raise RuntimeError(f"Failed to set deterministic seed: {e}")
 
-
-def get_seed_config(seed: int = 42) -> Dict[str, Any]:
+def get_seed_config() -> Dict[str, Any]:
     """
-    Get the current seed configuration without modifying state.
-    
-    Args:
-        seed: The seed value to report (does not set it).
+    Get the current seed configuration.
     
     Returns:
-        Dict with seed configuration details.
+        Copy of the current seed configuration dictionary.
     """
-    return {
-        'seed': seed,
-        'python_random_state': random.getstate()[1][0],
-        'numpy_random_state': np.random.get_state()[1][0],
-        'torch_initial_seed': torch.initial_seed() & 0xffffffff
-    }
+    return _seed_config.copy()
 
-
-def verify_reproducibility(seed: int = 42, iterations: int = 3, tolerance: float = 1e-6) -> bool:
+def verify_reproducibility(seed: Optional[int] = None, n_runs: int = 3) -> bool:
     """
     Verify that setting the seed produces reproducible results.
     
-    This function runs a simple operation multiple times with the same seed
-    and verifies the results are identical.
+    This function runs a simple test multiple times to verify that
+    the seed setting produces identical results.
     
     Args:
-        seed: The seed to test.
-        iterations: Number of iterations to run.
-        tolerance: Tolerance for floating point comparison.
+        seed: The seed to test. If None, uses DEFAULT_SEED.
+        n_runs: Number of times to run the test.
     
     Returns:
-        True if results are reproducible within tolerance, False otherwise.
+        True if results are reproducible across all runs.
     
     Raises:
-        RuntimeError: If reproducibility fails.
+        RuntimeError: If reproducibility verification fails.
     """
+    if seed is None:
+        seed = DEFAULT_SEED
+    
     results = []
     
-    for i in range(iterations):
-        # Reset seed
+    for i in range(n_runs):
+        # Set the seed
         set_deterministic_seed(seed)
         
-        # Generate test data
-        test_tensor = torch.randn(100, 100)
-        test_array = np.random.randn(100, 100)
-        test_random = [random.random() for _ in range(100)]
-        
-        # Compute a simple metric
-        tensor_sum = test_tensor.sum().item()
-        array_sum = test_array.sum().item()
-        random_sum = sum(test_random)
+        # Generate test values from each library
+        test_random = random.random()
+        test_numpy = np.random.random()
+        test_torch = torch.rand(1).item()
         
         results.append({
-            'tensor_sum': tensor_sum,
-            'array_sum': array_sum,
-            'random_sum': random_sum
+            "random": test_random,
+            "numpy": test_numpy,
+            "torch": test_torch
         })
     
-    # Compare all results
+    # Check if all results are identical
     first_result = results[0]
     for i, result in enumerate(results[1:], 1):
-        if abs(result['tensor_sum'] - first_result['tensor_sum']) > tolerance:
-            logger.error(f"Tensor sum mismatch at iteration {i}: {result['tensor_sum']} vs {first_result['tensor_sum']}")
-            return False
-        
-        if abs(result['array_sum'] - first_result['array_sum']) > tolerance:
-            logger.error(f"Array sum mismatch at iteration {i}: {result['array_sum']} vs {first_result['array_sum']}")
-            return False
-        
-        if abs(result['random_sum'] - first_result['random_sum']) > tolerance:
-            logger.error(f"Random sum mismatch at iteration {i}: {result['random_sum']} vs {first_result['random_sum']}")
-            return False
+        if (abs(result["random"] - first_result["random"]) > 1e-10 or
+            abs(result["numpy"] - first_result["numpy"]) > 1e-10 or
+            abs(result["torch"] - first_result["torch"]) > 1e-10):
+            raise RuntimeError(
+                f"Reproducibility verification failed on run {i}: "
+                f"Results differ from first run."
+            )
     
-    logger.info(f"Reproducibility verified for seed {seed} over {iterations} iterations")
     return True
-
 
 class DeterministicContext:
     """
-    Context manager for temporary deterministic execution.
+    Context manager for temporary deterministic seeding.
     
-    This context manager allows running code with a specific seed and
-    automatically restores the previous state upon exit.
+    Allows temporarily setting a seed for a block of code,
+    then restoring the previous state.
+    
+    Example:
+        with DeterministicContext(seed=123):
+            # Code that needs deterministic behavior
+            pass
+        # Original seed state is restored here
     """
     
-    def __init__(self, seed: int = 42, deterministic: bool = True):
-        self.seed = seed
-        self.deterministic = deterministic
-        self._previous_state = None
+    def __init__(self, seed: Optional[int] = None):
+        """
+        Initialize the context manager.
+        
+        Args:
+            seed: The seed to use within the context. If None, uses DEFAULT_SEED.
+        """
+        self.seed = seed if seed is not None else DEFAULT_SEED
+        self.previous_config = None
     
     def __enter__(self):
-        # Save current state
-        self._previous_state = {
-            'random': random.getstate(),
-            'numpy': np.random.get_state(),
-            'torch': torch.initial_seed()
-        }
-        
-        # Set new seed
-        set_deterministic_seed(self.seed, self.deterministic)
+        """Save current config and set new seed."""
+        self.previous_config = get_seed_config().copy()
+        set_deterministic_seed(self.seed)
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # Restore previous state
-        if self._previous_state:
-            random.setstate(self._previous_state['random'])
-            np.random.set_state(self._previous_state['numpy'])
-            # Note: torch.random.set_initial_seed() is not available in all versions
-            # We rely on re-seeding if needed
+        """Restore previous configuration."""
+        # Restore the previous configuration
+        if self.previous_config:
+            # We need to manually restore since we don't have a setter
+            # This is a simplified restoration
+            if "seed" in self.previous_config:
+                set_deterministic_seed(self.previous_config["seed"])
         return False
 
-
 def main():
-    """
-    Main function for testing the seeding module.
-    """
-    print("Testing deterministic seeding...")
+    """Main function for standalone execution and testing."""
+    print("Testing deterministic seed setting...")
     
     # Test basic seed setting
     config = set_deterministic_seed(12345)
-    print(f"Seed config: {config}")
+    print(f"Seed configuration: {config}")
     
     # Test reproducibility
-    is_reproducible = verify_reproducibility(12345)
-    print(f"Reproducibility test: {'PASSED' if is_reproducible else 'FAILED'}")
+    try:
+        is_reproducible = verify_reproducibility(seed=12345, n_runs=5)
+        print(f"Reproducibility verification: {'PASSED' if is_reproducible else 'FAILED'}")
+    except RuntimeError as e:
+        print(f"Reproducibility verification failed: {e}")
     
     # Test context manager
-    with DeterministicContext(54321):
-        tensor1 = torch.randn(10)
-        array1 = np.random.randn(10)
+    with DeterministicContext(seed=99999):
+        print(f"Inside context - seed: {get_seed_config()['seed']}")
+        val1 = random.random()
     
-    with DeterministicContext(54321):
-        tensor2 = torch.randn(10)
-        array2 = np.random.randn(10)
+    print(f"After context - seed: {get_seed_config()['seed']}")
     
-    print(f"Tensor equality: {torch.allclose(tensor1, tensor2)}")
-    print(f"Array equality: {np.allclose(array1, array2)}")
+    # Verify context manager restored state
+    if get_seed_config()['seed'] == 12345:
+        print("Context manager correctly restored previous seed state")
+    else:
+        print("Warning: Context manager did not restore previous seed state")
     
-    # Test get_seed_config
-    seed_config = get_seed_config(999)
-    print(f"Seed config (no change): {seed_config}")
-
+    print("Seed utility tests completed.")
 
 if __name__ == "__main__":
     main()

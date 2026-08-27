@@ -10,7 +10,7 @@ This project implements a "physics-first" data curation pipeline for robotic man
 **Spec Traceability**:
 - **FR-003**: Discard bottom [deferred] (retain top [deferred]) based on physics score (Constitution Principle VI, source).
 - **FR-009**: Data augmentation applied if curated count < 30, with non-parametric statistical fallback.
-- **FR-006**: TOST equivalence test with 15% margin, requiring n >= 30 unique samples or non-parametric alternative.
+- **FR-006**: TOST equivalence test with a pre-defined equivalence margin, requiring n >= 30 unique samples or non-parametric alternative.
 - **FR-008**: Dual engine (PyBullet/MuJoCo) used for metric diversity (continuity vs. pose error), not just engine independence.
 
 ## Technical Context

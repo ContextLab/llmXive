@@ -1,5 +1,5 @@
 """
-Integration tests for io_utils module.
+Integration tests for src.utils.io_utils
 """
 import os
 import json
@@ -7,141 +7,131 @@ import tempfile
 import shutil
 from pathlib import Path
 import pytest
-import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+import sys
+code_root = Path(__file__).parent.parent.parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
 from src.utils.io_utils import (
-    ensure_dirs,
-    calculate_file_checksum,
     calculate_directory_checksums,
     save_checksums,
     load_checksums,
     verify_directory_integrity,
-    update_checksums,
-    get_file_size,
-    get_total_size,
-    cleanup_empty_dirs,
     move_files_with_checksums,
-    validate_project_structure,
     get_data_stats,
-    DATA_DIRS,
-    CHECKSUM_FILE
+    cleanup_empty_dirs
 )
 
 
 @pytest.fixture
-def integration_test_dir():
-    """Create a temporary directory for integration testing."""
-    temp_dir = tempfile.mkdtemp()
-    yield Path(temp_dir)
-    shutil.rmtree(temp_dir, ignore_errors=True)
+def integration_test_dir(tmp_path):
+    """Setup a temporary directory for integration tests."""
+    test_root = tmp_path / "integration_test"
+    test_root.mkdir()
+    return test_root
 
 
 def test_full_workflow(integration_test_dir):
-    """Test complete workflow: create dirs, add files, checksum, verify, modify, re-verify."""
-    # Setup test directories
-    raw_dir = integration_test_dir / "raw"
-    curated_dir = integration_test_dir / "curated"
-    raw_dir.mkdir()
-    curated_dir.mkdir()
-    
-    # Create test files
-    (raw_dir / "video1.mp4").write_bytes(b"fake_video_data_1")
-    (raw_dir / "video2.mp4").write_bytes(b"fake_video_data_2")
-    (curated_dir / "filtered1.mp4").write_bytes(b"filtered_data_1")
-    
-    # Calculate and save checksums
-    checksums = calculate_directory_checksums(integration_test_dir)
-    save_checksums(checksums, integration_test_dir / ".checksums.json")
-    
-    # Verify integrity
-    is_valid, errors = verify_directory_integrity(integration_test_dir, checksums)
-    assert is_valid, f"Integrity check failed: {errors}"
-    
-    # Modify a file
-    (raw_dir / "video1.mp4").write_bytes(b"modified_data")
-    
-    # Verify should fail
-    is_valid, errors = verify_directory_integrity(integration_test_dir, checksums)
-    assert not is_valid
-    assert any("Checksum mismatch" in error for error in errors)
-    
-    # Update checksums
-    updated_checksums = update_checksums(integration_test_dir)
-    
-    # Verify should pass now
-    is_valid, errors = verify_directory_integrity(integration_test_dir, updated_checksums)
-    assert is_valid
+    """Test the full workflow: create -> checksum -> move -> verify."""
+    src = integration_test_dir / "source"
+    dst = integration_test_dir / "destination"
+    checksums_file = integration_test_dir / "checksums.json"
+
+    # 1. Create source structure
+    src.mkdir()
+    (src / "data.txt").write_text("important data")
+    (src / "config.json").write_text('{"key": "value"}')
+
+    # 2. Calculate and save checksums
+    initial_checksums = calculate_directory_checksums(src)
+    save_checksums(initial_checksums, checksums_file)
+
+    # 3. Verify source integrity
+    valid, mismatches = verify_directory_integrity(src, initial_checksums)
+    assert valid, f"Source integrity failed: {mismatches}"
+
+    # 4. Move files
+    files_to_move = list(initial_checksums.keys())
+    success = move_files_with_checksums(src, dst, files_to_move)
+    assert success, "Move operation failed"
+
+    # 5. Verify destination integrity
+    final_checksums = load_checksums(checksums_file)
+    valid, mismatches = verify_directory_integrity(dst, final_checksums)
+    assert valid, f"Destination integrity failed: {mismatches}"
+
+    # 6. Verify source is empty/missing moved files
+    assert not (src / "data.txt").exists()
+    assert not (src / "config.json").exists()
 
 
 def test_move_and_verify(integration_test_dir):
-    """Test moving files with checksum verification."""
-    src_dir = integration_test_dir / "source"
-    dst_dir = integration_test_dir / "destination"
-    src_dir.mkdir()
-    
-    # Create files
-    (src_dir / "file1.txt").write_text("Content 1")
-    (src_dir / "file2.txt").write_text("Content 2")
-    (src_dir / "subdir").mkdir()
-    (src_dir / "subdir" / "nested.txt").write_text("Nested")
-    
-    # Move files
-    moved = move_files_with_checksums(src_dir, dst_dir)
-    assert moved == 3
-    
-    # Verify destination has all files
-    assert (dst_dir / "file1.txt").exists()
-    assert (dst_dir / "file2.txt").exists()
-    assert (dst_dir / "subdir" / "nested.txt").exists()
-    
-    # Verify source is empty
-    assert not list(src_dir.rglob("*"))
+    """Test moving a subset of files and verifying."""
+    src = integration_test_dir / "src"
+    dst = integration_test_dir / "dst"
+    src.mkdir()
+
+    (src / "keep.txt").write_text("keep")
+    (src / "move.txt").write_text("move")
+
+    checksums = calculate_directory_checksums(src)
+    save_checksums(checksums, integration_test_dir / "all.json")
+
+    # Move only one file
+    success = move_files_with_checksums(src, dst, ["move.txt"])
+    assert success
+
+    # Verify only moved file is in dst
+    assert (dst / "move.txt").exists()
+    assert not (dst / "keep.txt").exists()
+
+    # Verify source still has the other
+    assert (src / "keep.txt").exists()
 
 
 def test_directory_cleanup(integration_test_dir):
-    """Test cleanup of empty directories after file operations."""
-    # Create nested empty directories
-    nested = integration_test_dir / "a" / "b" / "c"
-    nested.mkdir(parents=True)
-    
-    # Add a file at top level
-    (integration_test_dir / "keep.txt").write_text("Keep this")
-    
-    # Clean up
-    removed = cleanup_empty_dirs(integration_test_dir)
-    assert removed == 3  # a, b, c
-    
-    # Verify structure
-    assert not (integration_test_dir / "a").exists()
-    assert (integration_test_dir / "keep.txt").exists()
+    """Test that directory cleanup works after moves."""
+    src = integration_test_dir / "src"
+    src.mkdir()
+    (src / "sub").mkdir()
+    (src / "sub" / "deep").mkdir()
+
+    # Create a file to move
+    (src / "sub" / "file.txt").write_text("data")
+
+    checksums = calculate_directory_checksums(src)
+    save_checksums(checksums, integration_test_dir / "cs.json")
+
+    # Move the file
+    move_files_with_checksums(src, integration_test_dir / "dst", ["sub/file.txt"])
+
+    # Cleanup empty dirs
+    removed = cleanup_empty_dirs(src)
+    assert removed >= 2  # sub and deep should be removed
+
+    assert not (src / "sub").exists()
 
 
 def test_stats_across_operations(integration_test_dir):
-    """Test statistics tracking across directory operations."""
-    # Create initial structure
-    (integration_test_dir / "data" / "raw").mkdir(parents=True)
-    (integration_test_dir / "data" / "curated").mkdir(parents=True)
-    
-    (integration_test_dir / "data" / "raw" / "file1.txt").write_text("A" * 100)
-    (integration_test_dir / "data" / "curated" / "file2.txt").write_text("B" * 200)
-    
-    stats = get_data_stats()
-    
-    # Check raw stats
-    assert stats["raw"]["exists"]
-    assert stats["raw"]["file_count"] == 1
-    assert stats["raw"]["total_size_bytes"] == 100
-    
-    # Check curated stats
-    assert stats["curated"]["exists"]
-    assert stats["curated"]["file_count"] == 1
-    assert stats["curated"]["total_size_bytes"] == 200
-    
-    # Add more files
-    (integration_test_dir / "data" / "raw" / "file3.txt").write_text("C" * 50)
-    
-    stats = get_data_stats()
-    assert stats["raw"]["file_count"] == 2
-    assert stats["raw"]["total_size_bytes"] == 150
+    """Verify data stats change correctly across operations."""
+    from src.utils.io_utils import get_data_stats
+
+    src = integration_test_dir / "src"
+    src.mkdir()
+    (src / "file.txt").write_text("x" * 100)
+
+    stats_before = get_data_stats(src)
+    assert stats_before["file_count"] == 1
+    assert stats_before["total_size_bytes"] == 100
+
+    # Move file
+    dst = integration_test_dir / "dst"
+    move_files_with_checksums(src, dst, ["file.txt"])
+
+    stats_after_src = get_data_stats(src)
+    stats_after_dst = get_data_stats(dst)
+
+    assert stats_after_src["file_count"] == 0
+    assert stats_after_dst["file_count"] == 1
+    assert stats_after_dst["total_size_bytes"] == 100

@@ -1,65 +1,110 @@
+"""
+create_t001b_directories.py
+---------------------------
+This module creates the required subdirectory hierarchy for the
+``PROJ-951-llmxive-follow-up-extending-physisforcin`` project under the
+``code`` directory.
+
+The expected layout is::
+
+    code/
+        src/
+            generation/
+            filtering/
+            training/
+            evaluation/
+            augmentation/
+            utils/
+        tests/
+            unit/
+            integration/
+        data/
+            raw/
+            curated/
+            eval/
+            validation/
+
+The ``create_t001b_directories`` function is idempotent – it will not raise
+an error if a directory already exists.  The ``main`` entry‑point resolves
+the project root based on the location of this file and invokes the helper.
+
+This script is used by ``run_t001b.py`` and is also importable from unit
+tests.
+"""
+
 import os
-import sys
 from pathlib import Path
+from typing import List
 
-def create_t001b_directories(base_path: Path) -> bool:
+# ----------------------------------------------------------------------
+# Public API
+# ----------------------------------------------------------------------
+def create_t001b_directories(project_root: Path) -> List[Path]:
     """
-    Creates the src/, tests/, and data/ subdirectories under the project code root.
-    
-    Args:
-        base_path: The project root directory (projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/)
-        
-    Returns:
-        True if all directories were created successfully, False otherwise.
+    Create the sub‑directory structure required for phase 1.
+
+    Parameters
+    ----------
+    project_root: Path
+        Path to the ``code`` directory of the project (i.e. the directory
+        that already contains the empty root created by T001a).
+
+    Returns
+    -------
+    List[Path]
+        A list of the directories that were created (or already existed).
     """
-    directories = [
-        "src",
-        "tests",
-        "data"
+    # Define the relative directory tree
+    subdirs = [
+        # top‑level folders
+        Path("src"),
+        Path("tests"),
+        Path("data"),
+        # src sub‑modules
+        Path("src/generation"),
+        Path("src/filtering"),
+        Path("src/training"),
+        Path("src/evaluation"),
+        Path("src/augmentation"),
+        Path("src/utils"),
+        # tests sub‑modules
+        Path("tests/unit"),
+        Path("tests/integration"),
+        # data sub‑folders
+        Path("data/raw"),
+        Path("data/curated"),
+        Path("data/eval"),
+        Path("data/validation"),
     ]
-    
-    success = True
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-        except OSError as e:
-            print(f"Error creating directory {dir_path}: {e}")
-            success = False
-            
-    return success
 
-def main():
-    """Main entry point for T001b directory creation."""
-    # Determine the base path for the project
-    # Assuming the script is run from the project root or code directory
-    current_dir = Path.cwd()
-    
-    # Look for the specific project directory
-    project_code_root = current_dir / "projects" / "PROJ-951-llmxive-follow-up-extending-physisforcin" / "code"
-    
-    if not project_code_root.exists():
-        # If not found in current structure, try relative to script location
-        script_dir = Path(__file__).parent
-        project_code_root = script_dir / "projects" / "PROJ-951-llmxive-follow-up-extending-physisforcin" / "code"
-        
-        if not project_code_root.exists():
-            # Fallback: assume current dir is the code root if it contains 'projects'
-            if (script_dir / "projects").exists():
-                project_code_root = script_dir
-            else:
-                print(f"Could not locate project code root. Expected: {script_dir / 'projects' / 'PROJ-951-llmxive-follow-up-extending-physisforcin' / 'code'}")
-                sys.exit(1)
-    
-    print(f"Creating T001b directories in: {project_code_root}")
-    
-    if create_t001b_directories(project_code_root):
-        print("T001b task completed successfully.")
-        sys.exit(0)
-    else:
-        print("T001b task failed due to directory creation errors.")
-        sys.exit(1)
+    created_paths: List[Path] = []
+    for rel_path in subdirs:
+        full_path = project_root / rel_path
+        # ``parents=True`` creates any missing ancestors; ``exist_ok=True`` makes
+        # the call idempotent.
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(full_path)
+
+    return created_paths
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Resolve the project root (the directory containing this file's ``code``
+    sibling) and create the directory hierarchy.
+    """
+    # ``create_t001b_directories.py`` lives inside ``code/``; the project root
+    # we need is the parent directory of this file.
+    project_root = Path(__file__).resolve().parent
+    created = create_t001b_directories(project_root)
+
+    # Simple feedback for manual runs – the test suite does not depend on
+    # stdout, but it is helpful for developers.
+    print("Created/verified the following directories:")
+    for p in created:
+        print(f"  - {p}")
 
 if __name__ == "__main__":
     main()
