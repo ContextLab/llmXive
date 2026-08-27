@@ -5388,27 +5388,6 @@
   updated_at: '2026-08-24T09:01:11Z'
 - artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
   attempts: 1
-  canonical: GRACE-FO analysis uses geoid height at satellite altitude as proxy for
-    mass redistribution
-  claim_id: c_c8231ef9
-  context: The analysis uses the 'geoid height at satellite altitude' as the proxy
-    for mass redistribution, explicitly distinguishing this from the 'geoid' (equipotential
-    surface at mean sea level).
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/GRACE-FO_analysis_uses_geoid_height_at_satellite_altitude_as
-  kind: entity_fact
-  raw_text: The analysis uses the 'geoid height at satellite altitude' as the proxy
-    for mass redistribution.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-24T09:01:59Z'
-- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
-  attempts: 1
   canonical: Gravity anomaly represents perturbation in gravitational potential at
     GRACE-FO satellite altitude
   claim_id: c_fa3ecfde
@@ -5837,3 +5816,678 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T09:23:48Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: analysis uses perturbation in gravitational potential at GRACE-FO satellite
+    altitude as proxy for mass redistribution
+  claim_id: c_d3fc0472
+  context: The analysis utilizes the perturbation in gravitational potential at the
+    GRACE-FO satellite altitude (approx. low Earth orbit) as the proxy for mass redistribution.
+    This is distinct from the geoid height at the Earth's surface.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_uses_perturbation_in_gravitational_potential_at_GRA
+  kind: entity_fact
+  raw_text: The analysis uses the perturbation in gravitational potential at the GRACE-FO
+    satellite altitude (approx. low Earth orbit) as the proxy for mass redistribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:44:12Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO measures gravity field changes by tracking inter-satellite distance
+    variations converted to spherical harmonic coefficients
+  claim_id: c_d4608b84
+  context: GRACE-FO measures changes in the Earth's gravity field by tracking inter-satellite
+    distance variations, which are converted to spherical harmonic coefficients (Stokes
+    coefficients).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_measures_gravity_field_changes_by_tracking_inter-sa
+  kind: entity_fact
+  raw_text: GRACE-FO measures changes in the Earth's gravity field by tracking inter-satellite
+    distance variations, which are converted to spherical harmonic coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:44:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: anomaly represents perturbation in gravitational potential at GRACE-FO
+    satellite altitude not geoid height at Earth surface
+  claim_id: c_1075fafe
+  context: The `anomaly_value` represents the perturbation in the gravitational potential
+    at the GRACE-FO satellite altitude (approx. low Earth orbit), NOT the geoid height
+    at the Earth's surface.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Anomaly_represents_perturbation_in_gravitational_potential_a
+  kind: entity_fact
+  raw_text: The anomaly represents the perturbation in the gravitational potential
+    at the GRACE-FO satellite altitude, not the geoid height at the Earth's surface.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:45:11Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling implemented with 1000 iterations and seed 42
+  claim_id: c_7384648a
+  context: implements bootstrap resampling (1000 iterations, seed=42) for 95% confidence
+    intervals
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis implements bootstrap resampling with 1000 iterations and
+    seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:45:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Gaussian smoothing applied at 300km spatial scale
+  claim_id: c_11865aac
+  context: applies Gaussian smoothing at a spatial scale appropriate for the study
+    domain (300km)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gaussian_smoothing_applied_at_300km_spatial_scale
+  kind: entity_fact
+  raw_text: The analysis applies Gaussian smoothing at a spatial scale of 300km.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:46:01Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: NOAA CPC Atmospheric River Catalog accessible at gov.noaa.ncdc:C01464
+  claim_id: c_3676baf8
+  context: fetches NOAA CPC Atmospheric River Catalog data from https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.ncdc:C01464
+    (NOAA ERDDAP endpoint)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA_CPC_Atmospheric_River_Catalog_accessible_at_gov.noaa.nc
+  kind: entity_fact
+  raw_text: The NOAA CPC Atmospheric River Catalog is accessible at https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.ncdc:C01464.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:46:26Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: study domain is West Coast NA region 120W to 125W
+  claim_id: c_577dc1a0
+  context: "align to monthly resolution for West Coast NA region (mid-latitude, Southern\
+    \ to mid-latitudes, 120\xB0W-125\xB0W)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study domain for atmospheric river data is the West Coast NA region\
+    \ spanning 120\xB0W-125\xB0W."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:47:51Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: pipeline runtime target is 6 hours on CPU cores and 7 GB RAM
+  claim_id: c_90715fbd
+  context: "Measure aggregate pipeline runtime (full historical dataset from data/processed/merged_monthly.csv,\
+    \ GRACE-FO mission launch since the early s to the present) to verify \u2264 6\
+    \ hours on CPU cores and 7 GB RAM (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline aims to verify runtime of \u2264 6 hours on CPU cores and\
+    \ 7 GB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:47:52Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO degree-1 correction uses Swenson and Wahr 2006 coefficients
+    C10 0.0 C11 0.0 S11 0.0
+  claim_id: c_8d9c12a1
+  context: applies GRACE-FO degree-1 coefficient correction using coefficients from
+    Swenson & Wahr (2006) (C10=0.0, C11=0.0, S11=0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GRACE-FO degree-1 coefficient correction uses coefficients from Swenson
+    & Wahr (2006) with C10=0.0, C11=0.0, S11=0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:48:09Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: merged CSV output expected to contain 90% of expected monthly rows
+  claim_id: c_de003a4e
+  context: "verifying the output contains a merged CSV with \u2265 90% of expected\
+    \ monthly rows and no NaN values in the primary columns"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The merged CSV output is expected to contain \u2265 90% of expected monthly\
+    \ rows."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:48:10Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO analysis uses geoid height at satellite altitude as proxy for
+    mass redistribution distinct from surface geoid
+  claim_id: c_ce288c47
+  context: The analysis uses the 'geoid height at satellite altitude' as the proxy
+    for mass redistribution, explicitly distinguishing this from the 'geoid' (equipotential
+    surface at mean sea level). Must reference the historical context of the field
+    equations as a conceptual reminder that gravitational potential is covariant.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_analysis_uses_geoid_height_at_satellite_altitude_as
+  kind: entity_fact
+  raw_text: The analysis uses the 'geoid height at satellite altitude' as the proxy
+    for mass redistribution, explicitly distinguishing this from the 'geoid' (equipotential
+    surface at mean sea level).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:49:59Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO measures gravity field changes by tracking inter-satellite distance
+    variations converted to spherical harmonic coefficients
+  claim_id: c_fc3b6312
+  context: 'Requirement: Must explain that GRACE-FO measures changes in the Earth''s
+    gravity field by tracking inter-satellite distance variations, which are then
+    converted to spherical harmonic coefficients.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_measures_gravity_field_changes_by_tracking_inter-sa
+  kind: entity_fact
+  raw_text: GRACE-FO measures changes in the Earth's gravity field by tracking inter-satellite
+    distance variations, which are then converted to spherical harmonic coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:50:32Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Gravity anomaly represents perturbation in gravitational potential at
+    GRACE-FO satellite altitude approx low Earth orbit not geoid height at surface
+  claim_id: c_8a1c412b
+  context: 'Requirement: Must state that the anomaly represents the perturbation in
+    the gravitational potential at the GRACE-FO satellite altitude (approx. low Earth
+    orbit), not the geoid height at the Earth''s surface.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gravity_anomaly_represents_perturbation_in_gravitational_pot
+  kind: entity_fact
+  raw_text: The anomaly represents the perturbation in the gravitational potential
+    at the GRACE-FO satellite altitude (approx. low Earth orbit), not the geoid height
+    at the Earth's surface.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:50:34Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO degree-1 coefficient correction uses Swenson and Wahr 2006 coefficients
+    C10=0.0 C11=0.0 S11=0.0
+  claim_id: c_afbc11d0
+  context: (1) applies GRACE-FO degree-1 coefficient correction using coefficients
+    from Swenson & Wahr (2006) (C10=0.0, C11=0.0, S11=0.0), (2) applies GRACE-FO C20
+    coefficient replacement using SLR-derived values, (3) applies Gaussian smoothing
+    at a spatial scale appropriate for the study domain (300km)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis applies GRACE-FO degree-1 coefficient correction using coefficients
+    from Swenson & Wahr (2006) (C10=0.0, C11=0.0, S11=0.0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:50:49Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO preprocessing applies 300km Gaussian smoothing
+  claim_id: c_f227bf80
+  context: (3) applies Gaussian smoothing at a spatial scale appropriate for the study
+    domain (300km), (4) implements monthly mean aggregation for GRACE-FO mascon values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_preprocessing_applies_300km_Gaussian_smoothing
+  kind: entity_fact
+  raw_text: The analysis applies Gaussian smoothing at a spatial scale of 300km.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:50:51Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Correlation analysis uses 1000 bootstrap iterations with seed 42 for
+    95% confidence intervals
+  claim_id: c_4fc99f10
+  context: 'Goal: Compute Pearson correlation between AR intensity and gravity anomalies
+    across lag windows months, apply bootstrap resampling (1000 iterations, seed=42),
+    multiple-comparison correction, and control region validation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis implements bootstrap resampling with 1000 iterations and
+    seed=42 for 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:51:11Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Study region is West Coast NA mid-latitude Southern to mid-latitudes
+    120W to 125W
+  claim_id: c_496752d6
+  context: "Goal: Retrieve GRACE-FO mascon and NOAA AR catalog data, align to monthly\
+    \ resolution for West Coast NA region (mid-latitude, Southern to mid-latitudes,\
+    \ 120\xB0W-125\xB0W), apply GRACE-FO preprocessing"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study region is the West Coast NA region (mid-latitude, Southern\
+    \ to mid-latitudes, 120\xB0W-125\xB0W)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:51:27Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Data pipeline output requires 90 percent of expected monthly rows and
+    no NaN values in primary columns
+  claim_id: c_02efee80
+  context: "Independent Test: Can be fully tested by executing the data pipeline script\
+    \ and verifying the output contains a merged CSV with \u2265 90% of expected monthly\
+    \ rows and no NaN values in the primary columns"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The data pipeline output must contain a merged CSV with \u2265 90% of\
+    \ expected monthly rows and no NaN values in the primary columns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:51:28Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Correlation analysis uses AR(1) pre-whitening for autocorrelation correction
+  claim_id: c_e64f73eb
+  context: '(3) Design Choice: implements autocorrelation correction using AR(1) pre-whitening
+    (statsmodels.tsa.ar_model.AutoReg) and effective sample size calculation to control
+    Type I errors'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis implements autocorrelation correction using AR(1) pre-whitening.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:51:45Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 0
+  canonical: GRACE-FO measures gravity field changes via inter-satellite distance
+    tracking
+  claim_id: c_14a3adfb
+  context: 'Requirement: Must explain that GRACE-FO measures changes in the Earth''s
+    gravity field by tracking inter-satellite distance variations, which are then
+    converted to spherical harmonic coefficients.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The two GRACE satellites, GRACE-1 and GRACE-2, were launched from Plesetsk\
+        \ Cosmodrome, Russia, on a Rockot (SS-19 + Briz upper stage) launch vehicle\
+        \ on 17 March 2002. The spacecraft were launched to an initial altitude of\
+        \ approximately 500 km at a near-polar inclination of 89\xB0. During normal\
+        \ operations, the satellites were separated by 220 km along their orbit track.\
+        \ This system was able to gather global coverage every 30 days. GRACE far\
+        \ exceeded its 5-year design lifespan, operating for 15 years until the decommissioning\
+        \ of GRACE-2 on 27 October 2017. Its successor, GRACE-FO, was successfully\
+        \ launched on 22 May 2018."
+      source_id: GRACE and GRACE-FO
+      url: https://en.wikipedia.org/wiki/GRACE_and_GRACE-FO
+      value: '220'
+    filled: true
+  kind: entity_fact
+  raw_text: GRACE-FO measures changes in the Earth's gravity field by tracking inter-satellite
+    distance variations.
+  resolved_value: '220'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T00:54:58Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 0
+  canonical: Study region is West Coast NA 120W-125W
+  claim_id: c_2b670095
+  context: "align to monthly resolution for West Coast NA region (mid-latitude, Southern\
+    \ to mid-latitudes, 120\xB0W-125\xB0W)"
+  evidence:
+    entailment_evidence: Study region West Coast NA 35N-50N 120W-125W coordinates
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Study_region_West_Coast_NA_35N-50N_120W-125W_coordinates
+  kind: entity_fact
+  raw_text: "The study region is defined as West Coast NA (Southern to mid-latitudes,\
+    \ 120\xB0W-125\xB0W)."
+  resolved_value: Study region West Coast NA 35N-50N 120W-125W coordinates
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T00:55:05Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 2
+  canonical: GRACE-FO analysis uses geoid height at satellite altitude as proxy for
+    mass redistribution
+  claim_id: c_c8231ef9
+  context: The analysis uses the 'geoid height at satellite altitude' as the proxy
+    for mass redistribution, explicitly distinguishing this from the 'geoid' (equipotential
+    surface at mean sea level).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_analysis_uses_geoid_height_at_satellite_altitude_as
+  kind: entity_fact
+  raw_text: The analysis uses the 'geoid height at satellite altitude' as the proxy
+    for mass redistribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:55:32Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO data converted to spherical harmonic coefficients
+  claim_id: c_ae000911
+  context: GRACE-FO measures changes in the Earth's gravity field by tracking inter-satellite
+    distance variations, which are then converted to spherical harmonic coefficients.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_data_converted_to_spherical_harmonic_coefficients
+  kind: entity_fact
+  raw_text: GRACE-FO data is converted to spherical harmonic coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:55:59Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO degree-1 correction uses Swenson & Wahr 2006 coefficients
+  claim_id: c_b67036bd
+  context: applies GRACE-FO degree-1 coefficient correction using coefficients from
+    Swenson & Wahr (2006) (C10=0.0, C11=0.0, S11=0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The degree-1 correction uses coefficients from Swenson & Wahr (2006).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:56:14Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO C20 coefficient replacement uses SLR-derived values
+  claim_id: c_a84ebeba
+  context: applies GRACE-FO C20 coefficient replacement using SLR-derived values
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_C20_coefficient_replacement_uses_SLR-derived_values
+  kind: entity_fact
+  raw_text: The C20 coefficient replacement uses SLR-derived values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:56:36Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Gaussian smoothing applied at 300km spatial scale for GRACE-FO
+  claim_id: c_cf22cb81
+  context: applies **Gaussian smoothing** at a spatial scale appropriate for the study
+    domain (300km)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gaussian_smoothing_applied_at_300km_spatial_scale_for_GRACE-
+  kind: entity_fact
+  raw_text: Gaussian smoothing is applied at a spatial scale of 300km.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:57:02Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 iterations and seed 42
+  claim_id: c_9627dc65
+  context: implements bootstrap resampling (1000 iterations, seed=42) for 95% confidence
+    intervals
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling uses 1000 iterations with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:57:23Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime target is 6 hours on CPU
+  claim_id: c_37d7e4c0
+  context: "verify \u2264 6 hours on CPU cores and 7 GB RAM (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline runtime target is 6 hours on CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:57:43Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Pipeline memory target is 7 GB RAM
+  claim_id: c_2f0e8d6a
+  context: "verify \u2264 6 hours on CPU cores and 7 GB RAM (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline memory target is 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:58:01Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Dataset spans from early 2000s to present
+  claim_id: c_d28ce9b0
+  context: full historical dataset from data/processed/merged_monthly.csv, GRACE-FO
+    mission launch since the early s to the present
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_spans_from_early_2000s_to_present
+  kind: entity_fact
+  raw_text: The dataset spans from the early 2000s to the present.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T00:58:22Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Swenson & Wahr (2006) degree-1 coefficients C10=0.0, C11=0.0, S11=0.0
+  claim_id: c_3b894cf8
+  context: 'T017a [US1] Create GRACE-FO preprocessing script ... that: (1) applies
+    GRACE-FO degree-1 coefficient correction using coefficients from Swenson & Wahr
+    (2006) (C10=0.0, C11=0.0, S11=0.0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T017a applies GRACE-FO degree-1 coefficient correction using coefficients
+    from Swenson & Wahr (2006) (C10=0.0, C11=0.0, S11=0.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:04:00Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO C20 coefficient replacement using SLR-derived values
+  claim_id: c_e77bf7a1
+  context: 'T017a [US1] Create GRACE-FO preprocessing script ... that: (2) applies
+    GRACE-FO C20 coefficient replacement using SLR-derived values'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_C20_coefficient_replacement_using_SLR-derived_value
+  kind: entity_fact
+  raw_text: T017a applies GRACE-FO C20 coefficient replacement using SLR-derived values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:04:13Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Gaussian smoothing at 300km spatial scale
+  claim_id: c_e6ee9bf4
+  context: 'T017a [US1] Create GRACE-FO preprocessing script ... that: (3) applies
+    Gaussian smoothing at a spatial scale appropriate for the study domain (300km)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gaussian_smoothing_at_300km_spatial_scale
+  kind: entity_fact
+  raw_text: T017a applies Gaussian smoothing at a spatial scale of 300km
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:04:22Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Dataset schema validation against contracts/dataset.schema.yaml
+  claim_id: c_76d471e4
+  context: T017c [US1] Create merge and validation script ... (2) validates output
+    against `contracts/dataset.schema.yaml` (generated by T013)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_schema_validation_against_contracts/dataset.schema.y
+  kind: entity_fact
+  raw_text: T017c validates output against contracts/dataset.schema.yaml
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:04:27Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: C20 SLR example value -4.8e-11
+  claim_id: c_6aeced47
+  context: 'T017a [US1] Create GRACE-FO preprocessing script ... C20_SLR = -4.8e-11
+    # Example value, replace with actual SLR value'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T017a uses C20_SLR = -4.8e-11 as an example value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:04:30Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Runtime profile sample size 1000
+  claim_id: c_b22ce99a
+  context: 'T020b [Sequential] Create performance profiling script ... (2) outputs
+    `docs/runtime_profile.md` ... Sample size: N=1000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T020b profiles runtime on a sample size of N=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:04:36Z'

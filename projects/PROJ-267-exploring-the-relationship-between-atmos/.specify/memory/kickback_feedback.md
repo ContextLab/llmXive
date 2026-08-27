@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T017c` (rejected 1x): The repository contains a `02_preprocessing_merge.py` script, but the merged CSV `data/processed/merged_monthly.csv` is absent and the referenced schema file `contracts/dataset.schema.yaml` does not exist. Moreover, the script excerpt shows no concrete validation against the schema. The required output and validation artifact are missing, so the task is not fully satisfied.
+- `T020` (rejected 1x): The provided `03_correlation_analysis.py` stops after a partially shown `compute_pearson_with_correction` function and does not contain implementations for lag‑window analysis, bootstrap resampling (1000 iterations, seed = 42), Newey‑West standard errors, FDR correction, SNR calculation, or writing the required `data/processed/correlation_results.csv` with a `region_type` column. Moreover, the expected output CSV file is absent from the repository. These missing components mean the task’s core requirements are not satisfied.
+- `T040` (rejected 1x): The required input `data/processed/merged_monthly.csv` and `docs/runtime_profile.md` are missing, and the produced `docs/runtime_report.md` contains only placeholder values (zero duration, zero CPU/memory) with a note to run the script on real data. No genuine runtime measurement was performed.
 
 ## Required change
 

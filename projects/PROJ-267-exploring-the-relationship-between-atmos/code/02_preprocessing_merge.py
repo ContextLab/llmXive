@@ -87,6 +87,9 @@ def merge_datasets(grace_df, noaa_df):
         
     merged = merged[available_columns]
     
+    # Ensure date is formatted as ISO 8601 string for schema compliance
+    merged['date'] = merged['date'].dt.strftime('%Y-%m-%d')
+    
     logger.info(f"Merged dataset: {len(merged)} rows")
     return merged
 
@@ -121,6 +124,21 @@ def validate_against_schema(df, schema):
     
     if errors:
         raise ValueError(f"Data validation failed: {errors}")
+    
+    # Validate data types
+    properties = schema.get('properties', {})
+    for col in df.columns:
+        if col in properties:
+            expected_type = properties[col].get('type')
+            if expected_type == 'number':
+                if not pd.api.types.is_numeric_dtype(df[col]):
+                    errors.append(f"Column '{col}' should be numeric")
+            elif expected_type == 'string':
+                if not pd.api.types.is_string_dtype(df[col]) and not pd.api.types.is_datetime64_any_dtype(df[col]):
+                    errors.append(f"Column '{col}' should be string")
+    
+    if errors:
+        raise ValueError(f"Schema validation failed: {errors}")
     
     logger.info("Schema validation passed")
     return True
