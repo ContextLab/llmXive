@@ -3189,3 +3189,108 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T10:46:49Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Teacher ground truth dataset contains at least 1000 rows with valid expert
+    identifiers
+  claim_id: c_0f00b2e0
+  context: "Independent Test: The system produces a CSV/Parquet file with \u22651,000\
+    \ rows, valid expert identifiers, and consistent velocity vector dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth_dataset_contains_at_least_1000_rows_wit
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T08:18:39Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Data stream targets 1200 raw samples from ImageNet and LAION sources
+  claim_id: c_c27d54f8
+  context: 'Sampling Strategy: Use seed=42. Target 1200 raw samples from data/raw/imagenet_samples.parquet
+    and data/raw/laion_samples.parquet.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target 1200 raw samples from data/raw/imagenet_samples.parquet and data/raw/laion_samples.parquet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T08:19:01Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Teacher inference requires at least 1000 valid samples or fails
+  claim_id: c_5d1e5a92
+  context: "Constraint: If CPU inference fails to produce \u22651,000 valid samples,\
+    \ exit with code 1 (fail loud). Do NOT generate an empty file."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_inference_requires_at_least_1000_valid_samples_or_fa
+  kind: magnitude
+  raw_text: "If CPU inference fails to produce \u22651,000 valid samples, exit with\
+    \ code 1."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T08:19:28Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Decision tree training covers max_depth range from 2 to 20
+  claim_id: c_dd1ab0df
+  context: "Implement a loop to train DecisionTreeClassifier (scikit\u2011learn, CPU)\
+    \ for max_depth values range(2, 21) (step 1) in code/01_train_trees.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a DecisionTreeClassifier for max_depth values range(2, 21) (step
+    1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T08:19:51Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Pilot run for statistical power calculation uses 50 samples
+  claim_id: c_c49520a9
+  context: Execute a pilot run (N=50) to estimate variance for power calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a pilot run (N=50) to estimate variance for power calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T08:20:25Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Fidelity evaluation compares teacher vs depth 5 tree with statistical
+    significance
+  claim_id: c_12d3f6c0
+  context: 'Independent Test: The system calculates FID/CLIP for teacher vs. tree
+    (depth=5) on the full dataset and outputs valid p-values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system calculates FID/CLIP for teacher vs. tree (depth=5) on the full
+    dataset and outputs valid p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T08:20:45Z'

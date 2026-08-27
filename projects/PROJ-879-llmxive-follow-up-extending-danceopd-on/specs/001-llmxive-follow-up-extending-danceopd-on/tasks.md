@@ -44,7 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a Create project directory structure per implementation plan in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/` including directories: `code/`, `code/utils/`, `code/data/`, `code/models/`, `code/metrics/`, `data/raw/`, `data/processed/`, `data/results/`, `models/`, `tests/unit/`, `tests/integration/`, `tests/contract/`.
-- [ ] T001b Initialize empty Python script files in `code/`: `main.py`, `00_data_fetch.py`, `00_data_stream.py`, `00_teacher_inference.py`, `01_train_trees.py`, `02_evaluate_fidelity.py`, `03_versioning.py`.
+- [ ] T001b Initialize empty Python script files in `code/`: `main.py`, `00_data_fetch.py`, `00_data_stream.py`, `00_teacher_inference.py`, `01_train_trees.py`, `02_evaluate_fidelity.py`, `03_versioning.py`, `utils/timer.py`, `utils/stats.py`, `data/generate_teacher.py`, `models/train_tree.py`.
+ - **Verification**: Verify all 9 files exist and contain `#!/usr/bin/env python` or `# Implementation` string (ensuring >0 bytes).
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/` including pinned dependencies: `torch`, `scikit-learn`, `pandas`, `numpy`, `datasets`, `transformers`, `accelerate`, `pillow`, `scipy`, `torch-fidelity`, `pyyaml`, `pytest`.
 - [X] T003 [P] Configure linting and formatting tools (ruff/black) in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/`.
 
@@ -52,19 +53,21 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `code/utils/config.py` to manage seeds, paths, and hyperparameters (including `TEACHER_WEIGHTS_PATH`, `N_SAMPLES`, `N_MIN`, `N_PILOT`, `MIN_SAMPLE_SIZE=1000`).
 - [X] T005 [P] Create `code/utils/metrics.py` with stub functions `calculate_clip_score(image_path_1: str, image_path_2: str) -> float` and `calculate_fid(img_list_ref, img_list_gen) -> float` that raise `NotImplementedError`. These stubs allow the pipeline to run without crashing.
 - [X] T005b [P] Implement the actual CPU‑only CLIP Score (using `transformers`) and FID (using `torch-fidelity`) functions in `code/utils/metrics.py`, replacing the stubs from T005. **Signature**: `calculate_clip_score` returns `List[float]` (per-sample scores). `calculate_fid` returns `float` (dataset-level score).
+ - **Dependency**: T005 (stubs must exist to be replaced).
+ - **Verification**: Verify functions return `List[float]` and `float` respectively, do not raise `NotImplementedError`, and pass a sanity check against 5 dummy images (assert no NaN/Inf).
 - [X] T006 Create `code/03_versioning.py` to calculate SHA256 hashes for artifacts and update `state/`.
 - [X] T007 Setup data directories: `data/raw/`, `data/processed/`, `data/results/` in the project root.
 - [X] T008a [P] Implement logic to create a weights manifest file (`code/utils/check_weights.py`).
 - [X] T008b [P] Implement logic to verify checksums against the manifest (`code/utils/check_weights.py`).
 - [X] T008c [P] Implement logic to initialize the manifest with existing weight files if present (`code/utils/check_weights.py`).
-- [X] T012c [P] Initialize CLIP encoder in `code/utils/models.py`.
+- [X] T012c [P] Initialize CLIP encoder in `code/utils/models.py`. **Note**: This task MUST complete before T012b starts.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,7 +77,7 @@
 
 **Goal**: Generate a synthetic dataset of `(prompt_embedding, noise_level, routing_label, velocity_vector)` tuples by running the pre‑trained DanceOPD teacher model on sampled ImageNet‑1K and LAION‑400M prompts.
 
-**Independent Test**: The system produces a CSV/Parquet file with ≥1,000 rows, valid expert identifiers, and consistent velocity vector dimensions. [UNRESOLVED-CLAIM: c_a2d652fe — status=not_enough_info]
+**Independent Test**: The system produces a CSV/Parquet file with ≥1,000 rows, valid expert identifiers, and consistent velocity vector dimensions. [UNRESOLVED-CLAIM: c_0f00b2e0 — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -88,28 +91,29 @@
  - **Validation**: Check for `data/raw/imagenet_samples.parquet` and `data/raw/laion_samples.parquet`. Compute SHA256 and compare against `data/raw/checksums.json`.
  - **Constraint**: If any file is missing or checksum mismatch, **exit with code 1** (fail loud). Do NOT attempt to download or stream during this 6-hour window. This enforces Constitution Principle III (Data Hygiene).
  - **Deliverable**: Validation report in `data/results/data_fetch_validation.json` with `status: verified` or `status: failed`.
-- [X] T012b [US1] **Stream & Process Data**. Implement `code/00_data_stream.py` to read from `data/raw/` and stream samples into memory for processing.
- - **Dependency**: Depends on T012 completion. **Depends on T012c** (CLIP encoder initialization).
- - **Sampling Strategy**: Use a fixed random seed. **Target 1200 raw samples**.
+- [ ] T012b [US1] **Stream & Process Data**. Implement `code/00_data_stream.py` to read from `data/raw/` and stream samples into memory for processing.
+ - **Dependency**: Depends on T012 completion (data verified) AND T012c completion (encoder initialized). **T012c (Phase 2) must complete before this task starts.**
+ - **Sampling Strategy**: Use `seed=42`. **Target 1200 raw samples** from `data/raw/imagenet_samples.parquet` and `data/raw/laion_samples.parquet`.
  - **Feature Extraction**: For each sample, extract `prompt_embedding` (using the CLIP encoder from T012c) and `noise_level`. **Do NOT run teacher model here**.
  - **Combination**: Combine these into a unified list `data/raw/combined_samples.parquet` containing the full tuple structure (excluding routing/velocity).
  - **Deliverable**: `combined_samples.parquet` exists and contains valid image paths and extracted tuples.
-- [X] T013a [US1] **Generate Teacher Ground Truth**. Implement `code/00_teacher_inference.py` to run the pre-trained DanceOPD teacher model on the sampled data (from T012b) to generate ground truth routing labels and velocity vectors.
+- [ ] T013a [US1] **Generate Teacher Ground Truth**. Implement `code/00_teacher_inference.py` to run the pre-trained DanceOPD teacher model on the sampled data (from T012b) to generate ground truth routing labels and velocity vectors.
  - **Context**: This task executes the teacher model on a scaled-down subset (N=1200).
  - **Logic**: Load `combined_samples.parquet`. For each sample, run the teacher model to get `routing_label` and `velocity_vector`.
- - **Constraint**: If CPU inference fails to produce ≥1,000 valid samples, **exit with code 1** and do NOT produce a partial dataset. This enforces the spec's requirement for a valid ground truth.
+ - **Constraint**: If CPU inference fails to produce ≥1,000 valid samples, **exit with code 1** (fail loud). Do NOT generate an empty file. This enforces the FR-001 minimum sample requirement.
  - **Filtering**: During inference, detect 'undefined routing paths'. If `config.py` `USE_FALLBACK_LABEL=True`, assign a default label (e.g., `expert_fallback`). Otherwise, exclude the sample. Log the count to `data/results/exclusion_log.json`.
- - **Deliverable**: `data/processed/teacher_ground_truth.parquet` with ≥1,000 valid rows.
-- [X] T013b [US1] **Filter and Validate Dataset**. Implement logic in `code/00_teacher_inference.py` to perform final validation and exclusion of undefined routing paths on the extracted dataset.
+ - **Deliverable**: `data/processed/teacher_ground_truth.parquet` (must contain ≥1000 rows or task fails).
+- [ ] T013b [US1] **Filter and Validate Dataset**. Implement logic in `code/00_teacher_inference.py` to perform final validation and exclusion of undefined routing paths on the extracted dataset.
  - **Context**: This task filters the dataset generated by T013a.
  - **Dependency**: Depends on T013a.
- - **Logic**: Load `data/processed/teacher_ground_truth.parquet`. Filter out any samples with `routing_label` not in the known expert ID set, unless `USE_FALLBACK_LABEL` is True, in which case assign the default label.
+ - **Logic**: Load `data/processed/teacher_ground_truth.parquet`. If the file is empty, log a warning and pass an empty file to the next step. Filter out any samples with `routing_label` not in the known expert ID set, unless `USE_FALLBACK_LABEL` is True, in which case assign the default label.
  - **Writing**: **Write the filtered dataset to `data/processed/teacher_ground_truth_filtered.parquet`**.
  - **Logging**: Write `data/results/exclusion_log.json` with keys `count`, `reason`, and `timestamp`.
  - **Deliverable**: `data/processed/teacher_ground_truth_filtered.parquet` (the filtered dataset) and `exclusion_log.json`.
 - [ ] T014 [US1] **Extract and Stream Final Dataset**. Implement logic in `code/00_data_extraction.py` to extract `prompt_embedding`, `noise_level`, `routing_label`, and `velocity_vector` from the filtered dataset and stream them to `data/processed/teacher_routing_dataset.parquet`.
  - **Dependency**: This task depends on the existence of `teacher_ground_truth_filtered.parquet` (produced by T013b).
- - **Pre-check**: Verify input exists. If missing, check for partial artifact `teacher_ground_truth_partial.parquet`. If found, use it. If no fallback, save partial status and exit cleanly.
+ - **Pre-check**: Verify input exists. If missing, check for partial artifact `teacher_ground_truth_partial.parquet`. If found, use it. **If the input file has < 1000 rows, exit with code 1** (fail loud) to prevent silent relaxation of constraints. If no fallback, save partial status and exit cleanly.
+ - **Verification**: Verify `data/processed/teacher_routing_dataset.parquet` exists, is a valid Parquet file, and contains the expected columns (`prompt_embedding`, `noise_level`, `routing_label`, `velocity_vector`) with ≥1000 rows.
  - **Deliverable**: `data/processed/teacher_routing_dataset.parquet`.
 - [X] T015 [US1] Add validation in `code/00_data_extraction.py` to ensure each `routing_label` matches a known expert field ID from the DanceOPD configuration.
 - [X] T016 [US1] Implement checksumming and versioning of the generated dataset using `code/03_versioning.py`.
@@ -135,11 +139,12 @@
  - **Dependency**: This task depends on the existence of `teacher_routing_dataset.parquet` (produced by T014) and its validation (T016b).
  - **Pre-check**: Verify `teacher_routing_dataset.parquet` exists and is valid before splitting.
  - **Enforce CPU**: Ensure no GPU usage in data loading (default behavior).
+ - **Verification**: Verify `data/processed/train_split.parquet` and `data/processed/test_split.parquet` exist, are valid Parquet files, and contain the expected columns with non-zero row counts.
  - **Deliverable**: `data/processed/train_split.parquet` and `data/processed/test_split.parquet`.
-- [X] T021 [US2] Implement a loop to train `DecisionTreeClassifier` (scikit‑learn, CPU) for `max_depth` values **systematically varying from 2 to 20** (step 1) in `code/01_train_trees.py`.
- - **Logic**: Train a tree for each depth `d` in a range of small to large values.
+- [X] T021 [US2] Implement a loop to train `DecisionTreeClassifier` (scikit‑learn, CPU) for `max_depth` values **range(2, 21)** (step 1) in `code/01_train_trees.py`.
+ - **Logic**: Train a tree for each depth `d` in `range(2, 21)`.
  - **Enforce CPU**: Explicitly set `device='cpu'` in scikit-learn (default) and ensure no PyTorch GPU tensors are used.
- - **Deliverable**: A set of models and a results table showing `max_depth` vs. `routing_accuracy`.
+ - **Deliverable**: A set of models and a results table showing `max_depth` vs. `routing_accuracy` saved to `data/results/tree_accuracy.csv`.
 - [X] T023 [US2] Save each trained model to `models/trained_trees/` and generate a results table (`depth vs. accuracy`) saved to `data/results/tree_accuracy.csv`.
  - **Logic**: Compute and log "Routing Consistency" (accuracy) for each depth against the test set.
  - **Deliverable**: `data/results/tree_accuracy.csv` with columns `max_depth`, `train_accuracy`, `test_accuracy`.
@@ -153,7 +158,7 @@
 
 **Goal**: Execute CPU‑only inference using tree‑predicted routing, measure FID/CLIP for **all** samples, and perform statistical tests (bootstrap, paired t-test) to determine significance of fidelity degradation.
 
-**Independent Test**: The system calculates FID/CLIP for teacher vs. tree (depth=5) on the full dataset and outputs valid p-values.
+**Independent Test**: The system calculates FID/CLIP for teacher vs. tree (depth=5) on the full dataset and outputs valid p-values. [UNRESOLVED-CLAIM: c_12d3f6c0 — status=not_enough_info]
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -162,38 +167,45 @@
 
 ### Implementation for User Story 3
 
-- [X] T028a [US3] **Generate Teacher and Tree Images**. Implement `code/02_evaluate_fidelity.py` to generate images for BOTH the Teacher baseline and the Tree-predicted routing.
- - **Dependency**: Depends on T020 (Data Split), T021 (Trained Trees), T029b (Expert Fields Loaded).
- - **Logic**: Iterate through the test set. For each sample:
- 1. Run Teacher model to get `routing_label` and `velocity_vector`. Generate image using Euler integrator.
- 2. Run Tree model to get `predicted_routing_label`. Use T029a to generate `velocity_vector` based on prediction. Generate image using Euler integrator.
- 3. **Crucial**: Use the **exact same random seed and sample indices** for both generations to ensure 1:1 alignment.
- - **Deliverable**: `data/results/teacher_baseline_images/` and `data/results/tree_generated_images/` with matching filenames.
-- [X] T029a [US3] **Generate Velocity Vectors from Tree Routing**. Implement `code/models/expert_reinference.py` to generate velocity vectors based on tree predictions.
- - **Dependency**: Depends on T029b (Expert Fields Loaded).
- - **Input**: `routing_label` (predicted by tree), `noise_level`, `prompt_embedding`.
- - **Logic**: Load the specific expert field logic/weights (from T029b) corresponding to the `routing_label`. Invoke the expert field to generate the `velocity_vector`.
- - **Deliverable**: `velocity_vector` for each sample.
 - [X] T029b [US3] **Load Expert Field Logic**. Implement `code/models/expert_loader.py` to load the individual expert field weights and logic from the teacher model package.
  - **Dependency**: None (Foundational).
  - **Logic**: Extract and cache the specific expert field modules required for re-inference.
  - **Deliverable**: Loaded expert field objects available to T029a.
+- [ ] T029c [US3] **Implement CPU-only Euler Integrator**. Implement `code/models/euler.py` to accept `velocity_vector`, `noise_level`, and `expert_type`, use a fixed step size and step count, and invoke the specific expert field logic to generate the image.
+ - **Dependency**: Depends on T029b (Expert Fields Loaded).
+ - **Logic**: Implement the Euler integration loop.
+ - **Deliverable**: `code/models/euler.py` with function `integrate(velocity_vector, noise_level, expert_type) -> image`.
+- [ ] T029a [US3] **Generate Velocity Vectors from Tree Routing**. Implement `code/models/expert_reinference.py` to generate velocity vectors based on tree predictions.
+ - **Dependency**: Depends on T029b (Expert Fields Loaded).
+ - **Input**: `routing_label` (predicted by tree), `noise_level`, `prompt_embedding`.
+ - **Logic**: Load the specific expert field logic/weights (from T029b) corresponding to the `routing_label`. Invoke the expert field to generate the `velocity_vector`.
+ - **Deliverable**: `velocity_vector` for each sample.
+- [ ] T028a [US3] **Generate Teacher and Tree Images**. Implement `code/02_evaluate_fidelity.py` to generate images for BOTH the Teacher baseline and the Tree-predicted routing.
+ - **Dependency**: Depends on T020 (Data Split), T021 (Trained Trees), T029b (Expert Fields Loaded), T029a (Velocity Generation), T029c (Euler Integrator).
+ - **Logic**: Iterate through the test set. For each sample:
+ 1. Run Teacher model to get `routing_label` and `velocity_vector`. Generate image using Euler integrator (T029c).
+ 2. Run Tree model to get `predicted_routing_label`. Use T029a to generate `velocity_vector` based on prediction. Generate image using Euler integrator (T029c).
+ 3. **Crucial**: Use the **exact same random seed (config.SEED)** and sample indices for both generations to ensure 1:1 alignment.
+ - **Deliverable**: `data/results/teacher_baseline_images/` and `data/results/tree_generated_images/` with matching filenames.
 - [X] T030a [US3] **Compute FID and CLIP Scores**. Compute metrics for tree-generated images against teacher baseline images using metrics from `code/utils/metrics.py`.
  - **Input**: Results from T028a (both image sets).
  - **Deliverable**: Metrics saved in `data/results/fidelity_metrics.csv`.
-- [X] T030b [US3] **Run Pilot**. Execute a pilot run (N=50) to estimate variance for power calculation. [UNRESOLVED-CLAIM: c_a2b8fe30 — status=not_enough_info]
+- [X] T030b [US3] **Run Pilot**. Execute a pilot run (N=50) to estimate variance for power calculation. [UNRESOLVED-CLAIM: c_c49520a9 — status=not_enough_info]
  - **Dependency**: Depends on T030a.
  - **Deliverable**: Pilot variance estimate.
-- [X] T030c [US3] **Calculate Power and Configure Sample Size**. Calculate required sample size based on pilot variance.
- - **Constraint**: **Enforce N >= 1000**. If calculated N < 1000, set N=1000 and log a warning.
+- [ ] T030c [US3] **Calculate Power and Configure Sample Size**. Calculate required sample size based on pilot variance.
+ - **Logic**: Calculate N based on pilot variance using `statsmodels.stats.power.TTestIndPower` and `pilot_variance` variable. **Do not enforce a hard minimum of 1000**. Use the calculated N, but respect the timer from T033a.
+ - **Constraint**: If the timer (T033a) indicates time is running out, stop early and use the current N.
  - **Deliverable**: Final sample size configuration for full evaluation.
 - [X] T030d [US3] **Perform Statistical Tests**. Perform statistical tests on the FID distributions and CLIP scores to determine the significance of performance degradation using bootstrap testing and paired t-tests.
  - **Input**: Results from T030a (full dataset).
  - **Deliverable**: Statistical test outputs saved in `data/results/statistical_tests.json`.
+- [ ] T033a [US3] **Implement Early-Stop Timer**. Implement `code/utils/timer.py` to use the `signal` module for a configurable timeout duration and save partial results as JSON with a `status: partial` flag if exceeded.
+ - **Logic**: Set a timer at the start of the evaluation. If time expires, save partial results and exit gracefully.
+ - **Deliverable**: `code/utils/timer.py` with `check_timeout()` function.
 
 **Checkpoint**: At this point, User Story 3 should be fully functional and testable independently
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T031 Reconcile run-book vs implementation for `code/data/generate_teacher.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/data/generate_teacher.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [X] T032 Reconcile run-book vs implementation for `code/models/train_tree.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/models/train_tree.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T033 Reconcile run-book vs implementation for `code/utils/stats.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/utils/stats.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T033 Reconcile run-book vs implementation for `code/utils/stats.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/utils/stats.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
