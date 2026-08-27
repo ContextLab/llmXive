@@ -1,86 +1,87 @@
+"""
+Setup script to create the full project directory tree.
+This script ensures all required directories exist for the project structure.
+"""
 import os
 import sys
 from pathlib import Path
 import logging
-
 from config import get_logger, setup_logging
-
-logger = get_logger(__name__)
 
 def main():
     """
-    Create the full project directory tree for PROJ-191.
-    This script ensures all required directories exist atomically.
+    Create the full project directory tree at the repository root.
+    Uses mkdir -p logic to ensure all subdirectories are created atomically.
     """
-    # Define the project root based on the task description
-    # The task specifies: projects/PROJ-191-investigating-the-validity-of-the-invers/
-    # We assume this runs from the repository root.
-    repo_root = Path(__file__).resolve().parent.parent
-    project_name = "PROJ-191-investigating-the-validity-of-the-invers"
-    project_root = repo_root / "projects" / project_name
+    # Setup logging
+    setup_logging()
+    logger = get_logger(__name__)
 
-    # Define all required subdirectories
-    # Core structure
-    core_dirs = [
+    # Define the project root relative to the code directory
+    # The code directory is at projects/PROJ-191-investigating-the-validity-of-the-invers/code/
+    # So we go up two levels to reach the project root
+    current_path = Path(__file__).resolve()
+    code_dir = current_path.parent
+    project_root = code_dir.parent
+
+    logger.info(f"Project root detected at: {project_root}")
+
+    # Define the directory structure to create
+    # Based on the task description:
+    # code/, tests/, data/, docs/
+    # code/data/, code/models/, code/inference/, code/robustness/, code/utils/
+    # data/raw/, data/processed/, data/results/
+    # tests/unit/, tests/contract/, tests/integration/
+    
+    directories_to_create = [
         "code",
-        "tests",
-        "data",
-        "docs",
-    ]
-
-    # Code sub-structure
-    code_dirs = [
         "code/data",
         "code/models",
         "code/inference",
         "code/robustness",
         "code/utils",
-    ]
-
-    # Data sub-structure
-    data_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/results",
-    ]
-
-    # Tests sub-structure
-    tests_dirs = [
+        "tests",
         "tests/unit",
         "tests/contract",
         "tests/integration",
+        "data",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "docs"
     ]
 
-    # Combine all relative paths
-    all_dirs = core_dirs + code_dirs + data_dirs + tests_dirs
-
-    # Ensure parent directory exists
-    project_root.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Project root ensured: {project_root}")
-
-    # Create each directory
     created_count = 0
-    for rel_path in all_dirs:
-        dir_path = project_root / rel_path
-        dir_path.mkdir(parents=True, exist_ok=True)
-        created_count += 1
-        logger.debug(f"Created directory: {dir_path}")
+    existing_count = 0
 
-    logger.info(f"Successfully created {created_count} directories for {project_name}")
+    for dir_path in directories_to_create:
+        full_path = project_root / dir_path
+        
+        if full_path.exists():
+            logger.debug(f"Directory already exists: {full_path}")
+            existing_count += 1
+        else:
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_count += 1
+
+    logger.info(f"Directory setup complete. Created {created_count} new directories, "
+               f"{existing_count} already existed.")
     
-    # Verify structure
+    # Verify the structure
+    logger.info("Verifying directory structure...")
     missing = []
-    for rel_path in all_dirs:
-        if not (project_root / rel_path).exists():
-            missing.append(rel_path)
+    for dir_path in directories_to_create:
+        full_path = project_root / dir_path
+        if not full_path.exists() or not full_path.is_dir():
+            missing.append(str(full_path))
     
     if missing:
-        logger.error(f"Missing directories: {missing}")
+        logger.error(f"Verification failed. Missing directories: {missing}")
         return 1
     
-    logger.info("Directory structure verification passed.")
+    logger.info("All required directories verified successfully.")
     return 0
 
 if __name__ == "__main__":
-    setup_logging()
     sys.exit(main())

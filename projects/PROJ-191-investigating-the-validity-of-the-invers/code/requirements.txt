@@ -1,24 +1,32 @@
-# Core Data & Scientific Computing
-numpy>=1.21.0
-pandas>=1.3.0
-scipy>=1.7.0
-matplotlib>=3.4.0
+# Core dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
 
-# Machine Learning & Inference
+# Inference libraries
 emcee>=3.1.0
 dynesty>=2.1.0
-pyro-ppl>=1.8.0
+corner>=2.2.1
 
-# Data Handling & Serialization
-pyyaml>=6.0
-jsonschema>=4.0.0
-
-# Testing & Quality
-pytest>=7.0.0
-pytest-cov>=3.0.0
-black>=22.0.0
-ruff>=0.1.0
+# Data handling
+requests>=2.31.0
+tqdm>=4.65.0
 
 # Utilities
-tqdm>=4.62.0
-requests>=2.26.0
+pyyaml>=6.0
+click>=8.1.0
+pydantic>=2.0.0
+
+# Testing
+pytest>=7.3.0
+pytest-cov>=4.1.0
+hypothesis>=6.79.0
+
+# Code quality tools (T003)
+ruff>=0.1.0
+black>=23.0.0
+
+# Optional: for arXiv data fetching if needed later
+arxiv>=2.0.0

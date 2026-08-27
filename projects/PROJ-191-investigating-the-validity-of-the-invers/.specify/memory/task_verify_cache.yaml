@@ -1,10 +1,19 @@
-T022:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or module implementing the requested log\u2011likelihood function\
-    \ is present; there is no evidence that a function using the T015\u2011COV covariance\
-    \ matrix (full or block\u2011diagonal) and Cholesky decomposition was added. The\
-    \ required artifact is missing, so the task is not satisfied."
+  r: "No evidence of the requested directory tree (e.g., a file\u2011system listing,\
+    \ screenshot, or command output) is provided, so we cannot verify that `projects/PROJ-191-investigating-the-validity-of-the-invers/`\
+    \ with all the specified sub\u2011directories actually exists. The implementer\
+    \ must supply concrete proof that the `mkdir -p \u2026` command was run and the\
+    \ full hierarchy is present."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` entries\
+    \ for Black, a `.ruff.toml` or `ruff.toml`, or related setup scripts) were presented\
+    \ in the evidence, so the required artifacts to claim the task is done are missing.\
+    \ The implementer must add the actual configuration files and ensure they are\
+    \ non\u2011empty and correctly set up for ruff and black."
 T025#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

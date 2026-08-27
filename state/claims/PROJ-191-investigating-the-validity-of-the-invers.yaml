@@ -1278,3 +1278,243 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T15:38:18Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Reference-Validator Agent returns success or raises RuntimeError for
+    arXiv:2106.08611 and arXiv:2305.06325
+  claim_id: c_99cb83da
+  context: Implement logic in code/agents/validator.py to invoke the official Reference-Validator
+    Agent CLI (reference-validator) to verify arXiv:2106.08611 and arXiv:2305.06325.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The agent must return success; otherwise raise RuntimeError with the agent's
+    error message.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T02:47:15Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Insufficient runs warning if count < 3 for leave-one-out cross-validation
+  claim_id: c_53257d15
+  context: Scan for files matching *_run*.csv (or metadata experiment_id) to count
+    independent experimental runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If len(runs) < 3: log a warning ''Insufficient runs (<3) for leave-one-out
+    cross-validation; robustness stage will use bootstrap fallback.'' Continue execution;
+    downstream robustness tasks will handle the fallback.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T02:47:15Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Gelman-Rubin statistic threshold for MCMC convergence is 1.01
+  claim_id: c_057ec239
+  context: After completion compute the Gelman-Rubin statistic; if GR > 1.01 log a
+    warning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "After completion compute the Gelman-Rubin statistic; if GR > 1.01 log\
+    \ a warning 'MCMC chains did not fully converge (GR = \u2026).' Do not truncate\
+    \ or reduce steps."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T02:47:15Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Subsampling selects first 2000 points if estimated runtime exceeds 6
+    hours
+  claim_id: c_c8617da5
+  context: "Estimate runtime using a simple heuristic (e.g., runtime \u2248 0.001\
+    \ s \xD7 N_points). If estimated runtime > 6 h, set mode = 'subsample' and select\
+    \ the first 2000 points."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subsampling_selects_first_2000_points_if_estimated_runtime_e
+  kind: magnitude
+  raw_text: "If estimated runtime > 6 h, set mode = 'subsample' and select the first\
+    \ 2000 points (or the largest subset that keeps estimated runtime \u2264 6 h)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T02:49:17Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Subsampling threshold runtime limit is 6 hours
+  claim_id: c_b5cb675e
+  context: "Estimate runtime using a simple heuristic (e.g., runtime \u2248 0.001\
+    \ s \xD7 N_points). If estimated runtime > 6 h, set mode = 'subsample' and select\
+    \ the first 2000 points."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subsampling_threshold_runtime_limit_is_6_hours
+  kind: magnitude
+  raw_text: "If estimated runtime > 6 h, set mode = 'subsample' and select the first\
+    \ 2000 points (or the largest subset that keeps estimated runtime \u2264 6 h)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T02:49:21Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Block-diagonal covariance matrix bandwidth is 20 for subsampled datasets
+  claim_id: c_53f8b975
+  context: When subsampling, the covariance matrix is stored as a block-diagonal matrix
+    (bandwidth = 20) to retain local correlation structure.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: When subsampling, the covariance matrix is stored as a block-diagonal
+    matrix (bandwidth = 20) to retain local correlation structure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T02:50:04Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Injection-recovery pass condition requires recovered alpha median within
+    95% CI of injected value
+  claim_id: c_78259b02
+  context: "Compute distance = |injected_alpha \u2013 recovered_alpha_median|. Determine\
+    \ pass: SC005_PASS = (recovered_alpha_median within 95 % CI of injected value)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Determine pass: SC005_PASS = (recovered_alpha_median within 95 % CI of
+    injected value).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T03:09:37Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: False positive condition defined as Bayes factor K greater than 3
+  claim_id: c_0dff2693
+  context: Compute false_positive = (Bayes_factor_K > 3).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_positive_condition_defined_as_Bayes_factor_K_greater_t
+  kind: magnitude
+  raw_text: Compute false_positive = (Bayes_factor_K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T03:10:26Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 samples if experimental runs are fewer
+    than 3
+  claim_id: c_193bbdc6
+  context: 'Fallback method: If runs < 3, perform row bootstrap resampling with N
+    = 1000 samples (as stipulated in the plan).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_uses_1000_samples_if_experimental_runs
+  kind: magnitude
+  raw_text: If runs < 3, perform row bootstrap resampling with N = 1000 samples (as
+    stipulated in the plan).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T03:11:33Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Systematic uncertainty inflation test requires Bayes factor change less
+    than 0.1 log-units
+  claim_id: c_97592acd
+  context: Apply it multiplicatively to the covariance matrix. Verify that the Bayes
+    factor changes by less than 0.1 log-units; log the result.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Systematic_uncertainty_inflation_test_requires_Bayes_factor
+  kind: magnitude
+  raw_text: Verify that the Bayes factor changes by less than 0.1 log-units; log the
+    result.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T03:12:38Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Coefficient of variation calculation for credible-upper-limits uses 95th
+    percentile
+  claim_id: c_d62d7a67
+  context: "Calculate the coefficient of variation (CV) of the credible-upper-limits\
+    \ (95th percentile) across all robustness iterations (CV = (std / mean) \xD7 100)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate the coefficient of variation (CV) of the credible-upper-limits\
+    \ (95th percentile) across all robustness iterations (CV = (std / mean) \xD7 100)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T03:12:57Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Coefficient of variation warning threshold is 15%
+  claim_id: c_0df1ebe1
+  context: Log the CV; if CV > 15 % log a warning and flag the result (do not raise
+    an error).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If CV > 15 % log a warning and flag the result (do not raise an error).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T03:12:58Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: SC-002 Kass Raftery pass condition requires Bayes factor K greater than
+    3
+  claim_id: c_61a64a7a
+  context: Compute SC002_KASS_RAFTERY_PASS = (K > 3).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SC-002_Kass_Raftery_pass_condition_requires_Bayes_factor_K_g
+  kind: magnitude
+  raw_text: Compute SC002_KASS_RAFTERY_PASS = (K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T03:32:31Z'

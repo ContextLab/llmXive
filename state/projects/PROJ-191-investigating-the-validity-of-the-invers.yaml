@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T09:37:12.278181Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-191-investigating-the-validity-of-the-invers
-last_run_id: 47062be4-fed8-4681-9022-71fd68edeae0
+last_run_id: fcb73eb3-c066-4c16-b586-176d3f6fd56b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers
 title: Investigating the Validity of the Inverse Square Law at Sub-Millimeter Scales
-updated_at: '2026-08-26T08:29:44.352473Z'
+updated_at: '2026-08-27T03:35:31.796279Z'

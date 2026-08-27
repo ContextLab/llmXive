@@ -1,20 +1,45 @@
-[tool.ruff]
-line-length = 88
-target-version = "py311"
+# Ruff configuration for llmXive project
+# https://docs.astral.sh/ruff/configuration/
 
-[tool.ruff.lint]
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # Pyflakes
-  "I",  # isort
-  "B",  # flake8-bugbear
-  "C4", # flake8-comprehensions
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C90", # McCabe cyclomatic complexity
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
 ]
 ignore = [
-  "E501", # line too long (handled by black)
-  "B008", # do not perform function calls in argument defaults
+    "E501", # Line too long (handled by black)
+    "N806", # Variable in function should be lowercase (sometimes necessary for physics constants)
+    "ARG001", # Unused function argument (sometimes needed for interface compatibility)
 ]
 
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
+# Same as Black.
+line-length = 88
+
+[lint.per-file-ignores]
+# Ignore specific rules in test files
+"tests/**/*.py" = [
+    "S101", # Use of assert detected (assert is standard in tests)
+    "ARG001", # Unused arguments in fixtures
+]
+# Ignore some rules in setup scripts
+"code/setup_*.py" = [
+    "T201", # print found (allowed in setup scripts)
+]
+
+[format]
+# Enable auto-formatting
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
