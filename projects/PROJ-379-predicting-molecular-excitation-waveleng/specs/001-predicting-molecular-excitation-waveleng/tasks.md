@@ -1,6 +1,6 @@
 # Tasks: Predicting Molecular Excitation Wavelengths from SMILES with Graph Neural Networks
 
-**Input**: Design documents from `/specs/001-predict-molecular-excitation-wavelengths/`
+**Input**: Design documents from `/specs/001-predict-molecular-excitation-waveleng/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -79,16 +79,20 @@
 
 ### Implementation for User Story 1
 
-- [X] T008 [US1] Implement `code/ingest.py`: <!-- FAILED: unspecified -->
+- [ ] T008 [US1] Implement `code/ingest.py`: 
  1. Fetch UV-Vis data from `datasets.load_dataset("zjunlp/UV-Vis-ML")`.
  2. **Verify** the dataset contains the `lambda_max_exp` column.
- 3. **If missing**, fallback to fetching from PubChem/SDBS using specific URLs defined in `plan.md` (e.g., `).
+ 3. **If missing**, raise `FileNotFoundError` with message "Primary dataset missing required 'lambda_max_exp' column; cannot proceed with real data."
  4. Parse SMILES, validate with RDKit, retain median λmax for duplicates.
  5. Implement chunked loading to ensure <7GB RAM usage.
  6. Save to `data/raw/processed.csv`.
-- [X] T009 [US1] Implement `code/validate_data.py`: Data Validity Gate to check for `lambda_max_exp` column and flag computed-only datasets (reduces SC-001 validity)
-- [X] T010 [US1] Implement `code/split.py`: Generate Bemis-Murcko scaffolds and split data into train/val/test (majority/minority/minority) ensuring no scaffold appears in multiple splits (FR-002)
-- [X] T011 [US1] Add logging for data ingestion, conflict resolution, and split statistics in `code/ingest.py` and `code/split.py`
+ 7. **Enforce**: No synthetic fallback allowed; pipeline must fail loud on data issues.
+- [ ] T009 [US1] Implement `code/validate_data.py`: Data Validity Gate to check for `lambda_max_exp` column. If only computed values exist, **reframe SC-001** to "prediction of computed values" and log the limitation explicitly; do NOT silently reduce validity.
+- [ ] T010 [US1] Implement `code/split.py`: Generate Bemis-Murcko scaffolds and split data into train/val/test using **80/10/10** ratio (majority training, balanced val/test) ensuring no scaffold appears in multiple splits (FR-002, Constitution VII). Output split indices (train_idx, val_idx, test_idx) to `data/processed/split_indices.json`.
+- [ ] T010.5 [US1] Implement `code/merge_split.py`: Combine cleaned data from T008 and split indices from T010 into a single `data/processed/train_val_test.csv` with scaffold IDs, ready for model training (FR-001).
+- [ ] T011 [US1] Add logging for data ingestion, conflict resolution, and split statistics in `code/ingest.py`, `code/split.py`, and `code/merge_split.py`
+- [ ] T033 [US1] Implement streaming fallback for large datasets in `code/ingest.py`: Add logic to use `datasets.load_dataset(..., streaming=True)` if the initial non-streaming load fails due to memory constraints, ensuring the full real dataset is processed in chunks rather than falling back to synthetic data.
+- [ ] T034 [US1] Enforce "fail loud" policy in `code/ingest.py`: Remove any `try/except` blocks that catch download errors and substitute `generate_synthetic_*()` or `mock_*()` data; ensure any real fetch failure raises a distinct exception to halt the pipeline.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,17 +111,18 @@
 
 ### Implementation for User Story 2
 
-- [X] T014 [US2] Implement `code/model.py`: Define MPNN GNN (2-3 layers, <1M params) and ECFP+Ridge Regression baseline (FR-003, FR-004)
-- [X] T015 [US2] Implement `code/train.py`: Training loop with CPU-only execution, early stopping, fixed seed, and output `model.pt` (FR-003)
-- [X] T016 [US2] Implement `code/evaluate.py`:
+- [ ] T014 [US2] Implement `code/model.py`: Define MPNN GNN (2-3 layers, <1M params) and ECFP+Ridge Regression baseline (FR-003, FR-004)
+- [ ] T015 [US2] Implement `code/train.py`: Training loop with CPU-only execution, early stopping, fixed seed, and output `model.pt` (FR-003)
+- [ ] T016 [US2] Implement `code/evaluate.py`:
  1. Compute MAE, R².
  2. Perform Wilcoxon signed-rank test against baseline.
  3. **Apply Decision Logic**: If `p < 0.05` AND `MAE < 30` then `sc001_status = "PASS"`, else `sc001_status = "FAIL"`.
- 4. Write results to `data/processed/metrics.json` with keys: `mae`, `r2`, `wilcoxon_p_value`, `sc001_status` (SC-001, FR-004)
-- [X] T017 [P] [US2] Test task for SC-001 logic: Write `tests/test_evaluate.py` to verify that `sc001_status` in `metrics.json` is correctly set to "PASS" or "FAIL" based on the Wilcoxon test result and MAE threshold (F001)
-- [X] T018 [US2] Implement power analysis logic in `code/evaluate.py` to verify test set n≥50; append power analysis results (n, effect size, power_status) to `metrics.json`
-- [X] T019 [US2] Enforce n≥50 constraint: If test set size n < 50, halt execution and log error in `code/evaluate.py` to prevent downstream execution with insufficient power (SC-001)
-- [X] T020 [US2] Add versioning step in `code/train.py` to generate hashes for `model.pt` and update `state/` YAML
+ 4. Write partial results to `data/processed/metrics_partial.json` with keys: `mae`, `r2`, `wilcoxon_p_value`, `sc001_status` (SC-001, FR-004)
+- [ ] T017 [P] [US2] Test task for SC-001 logic: Write `tests/test_evaluate.py` to verify that `sc001_status` in `metrics_partial.json` is correctly set to "PASS" or "FAIL" based on the Wilcoxon test result and MAE threshold (F001)
+- [ ] T018 [US2] Implement power analysis logic in `code/evaluate.py` to verify test set n≥50; append power analysis results (n, effect size, power_status) to `data/processed/power_analysis.json`
+- [ ] T019 [US2] Enforce n≥50 constraint: If test set size n < 50, halt execution and log error in `code/evaluate.py` to prevent downstream execution with insufficient power (SC-001)
+- [ ] T020 [US2] Add versioning step in `code/train.py` to generate hashes for `model.pt` and update `state/` YAML
+- [ ] T035 [US2] Add early stopping trigger in `code/train.py`: Implement logic to halt training if loss does not decrease for `patience` epochs, logging the trigger event to prevent infinite loops on CPU.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,22 +137,24 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T021 [P] [US3] Contract test for attribution output format in `tests/test_explain.py`
-- [X] T022 [P] [US3] Integration test for sensitivity sweep and collinearity flags in `tests/test_sensitivity.py` <!-- FAILED: unspecified -->
+- [ ] T022 [P] [US3] Integration test for sensitivity sweep and collinearity flags in `tests/test_sensitivity.py`: Verify MAE thresholds 20, 30, 40, 50, 60 nm are swept and collinearity flag logic is correct.
 
 ### Implementation for User Story 3
 
-- [X] T023 [US3] Implement `code/collinearity_check.py`: Calculate Pearson r for ECFP bits (flag if ≥0.9) and latent cosine similarity for GNN subgraphs (flag if >0.9), and generate redundancy masks for flagged subgraphs (FR-007). Output to `data/processed/redundancy_masks.json` with structure `{ "molecule_id": [0, 1, 0...] }` (mask array)
-- [X] T024 [US3] Implement `code/explain.py`: Perform GNNExplainer or gradient-based attribution on test set, consume redundancy masks from T023 to apply masking, and identify contributing substructures (FR-005, FR-007)
+- [ ] T023 [US3] Implement `code/collinearity_check.py`: Calculate Pearson r for ECFP bits (flag if ≥0.9) and latent cosine similarity for GNN subgraphs (flag if >0.9), and generate redundancy masks for flagged subgraphs (FR-007). Output to `data/processed/redundancy_masks.json` with structure `{ "molecule_id": [0, 1, 0...] }` (mask array)
+- [ ] T036 [US3] Add subgraph redundancy aggregation in `code/collinearity_check.py`: Implement logic to aggregate subgraphs with latent cosine similarity > 0.9 and mask their individual attribution weights to prevent spurious independent effect claims (FR-007).
 - [ ] T025 [US3] Apply and verify masking:
- 1. Apply redundancy masks from T023 to the final attribution weights in `code/explain.py`.
+ 1. Apply redundancy masks from T023 to the final attribution weights in `code/explain.py` (or a helper module).
  2. Verify masking occurred by comparing masked vs. unmasked weights (ensure masked weights are zero).
- 3. Save final masked attribution to `data/processed/attribution_results.json` (FR-007)
-- [X] T026 [US3] Implement `code/sensitivity.py`:
+ 3. Save final masked attribution to `data/processed/masked_attribution.json` (FR-007)
+- [ ] T024 [US3] Implement `code/explain.py`: Perform GNNExplainer or gradient-based attribution on test set, **consume masked attribution from T025**, and identify contributing substructures (FR-005, FR-007)
+- [ ] T026 [US3] Implement `code/sensitivity.py`:
  1. Sweep MAE decision cutoffs using specific nanometer thresholds: **20, 30, 40, 50, 60 nm** (derived from US3 acceptance scenarios).
  2. Verify that the sweep covers these exact thresholds.
  3. Report variation in error rates (FR-006)
-- [ ] T027 [US3] Implement `code/analyze_results.py`: Aggregate metrics, collinearity flags, redundancy masks, and power status into `data/processed/metrics.json` (Depends on T018, T023, T025) ensuring keys: `mae`, `r2`, `collinearity_flags`, `redundancy_masks`, `power_status`, `sc001_status`
-- [ ] T028 [P] [US3] Run `quickstart.md` validation and verify end-to-end execution on CPU-only environment (Moved from Phase 6)
+- [ ] T027 [US3] Implement `code/analyze_results.py`: Aggregate metrics from T016, power status from T018, collinearity flags and redundancy masks from T023/T036, and masked attribution from T025 into a single `data/processed/metrics.json` (SSoT). Ensure keys: `mae`, `r2`, `wilcoxon_p_value`, `sc001_status`, `collinearity_flags`, `redundancy_masks`, `power_status`, `attribution_results` (Constitution IV, FR-007)
+- [ ] T028a [P] [US3] Generate `quickstart.md` in `projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predict-molecular-excitation-waveleng/`: Include instructions for environment setup, data fetching, and running the pipeline end-to-end.
+- [ ] T029b_new [P] Documentation: Update `specs/001-predict-molecular-excitation-waveleng/quickstart.md` with instructions for interpreting feature attribution and masked attribution results.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -158,11 +165,10 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T029a [P] Documentation: Update `README.md` "Quickstart" section with instructions for running the full pipeline and interpreting `metrics.json`
-- [ ] T029b [P] Documentation: Add a new section to `docs/` describing the feature attribution visualization and how to read the masked attribution results
 - [X] T030a [P] Refactor: Extract validation logic in `code/ingest.py` into a separate function `validate_molecule(smiles)` to improve modularity
 - [X] T030b [P] Refactor: Reduce cyclomatic complexity of `code/split.py` to <10 by extracting scaffold generation logic into a helper function
 - [X] T031a [P] Performance: Optimize data loading in `code/ingest.py` by using multiprocessing to reduce loading time to <30s for 10k molecules
-- [X] T031b [P] Performance: Optimize graph construction in `code/utils.py` by caching RDKit molecule objects to reduce overhead by [deferred]
+- [X] T031b [P] Performance: Optimize graph construction in `code/utils.py` by caching RDKit molecule objects to reduce overhead by **[deferred]** (or document baseline if not achievable)
 - [ ] T032 [P] Code cleanup: Remove unused imports and fix linting errors across `code/`
 
 ---
@@ -257,3 +263,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All model training and data processing MUST run on CPU-only (2 vCPU, 7GB RAM) within 6 hours. No GPU, no 8-bit/4-bit quantization, no large models.
+- **Data Integrity**: Real data must be streamed or sampled explicitly; synthetic fallbacks are strictly prohibited.
+- **Fail Loud**: If real data fetch fails, raise an exception. Do NOT fall back to synthetic data.
