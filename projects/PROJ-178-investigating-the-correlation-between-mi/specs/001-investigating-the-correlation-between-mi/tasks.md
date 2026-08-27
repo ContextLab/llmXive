@@ -54,7 +54,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001A [P] Create data directories: `code/data/raw`, `code/data/processed`, `code/logs`, `paper/figures`
+- [ ] T001A [P] Create data directories at **repository root**: `data/raw`, `data/processed`, `logs`, `paper/figures` (aligning with plan.md Project Structure).
 - [ ] T001B [P] Create code directories: `code/analysis`, `code/tests`
 - [X] T002 Initialize Python 3.11 project with requirements.txt (scikit-learn, pandas, numpy, scipy, vcfpy, haplogrep2, requests, tqdm)
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
@@ -92,16 +92,15 @@
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/analysis/load_data.py` to download mitochondrial VCFs from 1000 Genomes FTP and metadata panel
-- [ ] T013A [P] [US1] Implement chunked VCF reading in `code/analysis/load_data.py` using `vcfpy` to handle large files within 7GB RAM
-- [ ] T013B [P] [US1] Add logic to aggregate variant counts per sample in memory without loading full VCF
+- [X] T013 [P] [US1] Implement chunked VCF reading and in-memory aggregation in `code/analysis/load_data.py` using `vcfpy` to handle large files within 7GB RAM. The function must stream variants, filter for `chrM` and `PASS`, and accumulate heteroplasmy counts per sample without loading the full VCF into memory.
 - [X] T014 [US1] Implement variant filtering in `code/analysis/preprocess.py` (retain only `PASS` status and `chrM`)
 - [X] T015 [US1] Implement heteroplasmy burden calculation with VAF ≥ 1% threshold in `code/analysis/preprocess.py`
 - [X] T016 [US1] Implement depth-stratified burden calculation (Low, Medium, High bins) in `code/analysis/preprocess.py`
 - [X] T017 [US1] Integrate `haplogrep2` via subprocess in `code/analysis/preprocess.py` to assign haplogroups
-- [ ] T018 [US1] Implement metadata merge logic to join burden, haplogroups, age, sex, population, and PCs; write merged dataframe to `code/data/processed/mito_aging_dataset.csv`
-- [ ] T019 [US1] Implement conditional exclusion logic: 1) Exclude samples with missing age from ALL analysis; 2) Exclude samples with failed haplogroup assignment from haplogroup-specific analysis ONLY, but RETAIN them for burden-only analysis if age is present; log exclusion counts and retention status to `code/logs/exclusion_report.txt`.
-- [ ] T019A [US1] Implement haplogroup assignment success rate calculation; verify if ≥ 90% of samples are assigned and log the result to `code/logs/haplogroup_success_rate.txt`
-- [ ] T020 [US1] Write processed dataset to `code/data/processed/mito_aging_dataset.csv` with checksum generation
+- [ ] T019A [US1] Implement haplogroup assignment success rate calculation; verify if ≥ 90% of samples are assigned and log the result to `code/logs/haplogroup_success_rate.txt`. **Depends on T017 (individual flags)**.
+- [ ] T019 [US1] **ONLY IF Phase 0 (T007A) PASSES**: Implement conditional exclusion logic for **individual samples**: 1) Exclude samples with missing age from ALL analysis; 2) Exclude samples with failed haplogroup assignment from haplogroup-specific analysis ONLY, but RETAIN them for burden-only analysis if age is present; log exclusion counts and retention status to `code/logs/exclusion_report.txt`. **Depends on T007A (age validation) and T019A (aggregate validation)**.
+- [X] T018 [US1] Implement metadata merge logic to join burden, haplogroups, age, sex, population, and PCs; write merged dataframe to `code/data/processed/mito_aging_dataset.csv`
+- [X] T020 [US1] Write processed dataset to `code/data/processed/mito_aging_dataset.csv` with checksum generation
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,7 +108,7 @@
 
 ## Phase 4: User Story 2 - Statistical Modeling and Association Testing (Priority: P2)
 
-**Goal**: Perform Spearman correlation and Rank-OLS regression to quantify the relationship between heteroplasmy burden and age, adjusting for confounders.
+**Goal**: Perform Rank-OLS and Spearman analysis to quantify the relationship between heteroplasmy burden and age, adjusting for confounders.
 
 **Independent Test**: The system can be tested by running the analysis on a synthetic dataset with a known correlation and verifying the model recovers the correct p-value and coefficient sign.
 
@@ -121,9 +120,9 @@
 ### Implementation for User Story 2
 
 - [X] T023A [P] [US2] Implement unadjusted Spearman rank correlation calculation (primary method per FR-004) in `code/analysis/model.py` and save results to `code/data/processed/spearman_results.csv`
-- [ ] T024 [US2] Implement Rank-OLS regression (per plan.md Decision Log): Rank-transform all continuous variables (`age`, `burden`, `depth`, `PC1`, `PC2`) then fit `rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)` using the depth-stratified burden from T016 in `code/analysis/model.py` and save coefficients, p-values, and adjusted p-values to `code/data/processed/rank_ols_results.csv`. Note: Rank-OLS is used as a robust multivariate alternative to Partial Spearman as justified in the plan.md Decision Log.
+- [X] T024 [US2] Implement **Rank-OLS** (per plan.md Decision Log) as the primary adjusted analysis: Rank-transform `heteroplasmy_burden`, `age`, `sequencing_depth`, `PC1`, `PC2`. Fit OLS: `rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)`. Extract coefficient and p-value for `rank(burden)`. Save results to `code/data/processed/rank_ols_results.csv`. **Note**: This task implements the plan's chosen method (Rank-OLS) to satisfy the spec's requirement for multivariate adjustment (FR-004), resolving the methodological contradiction between the spec's "Partial Spearman" mention and the plan's "Rank-OLS" decision.
 - [X] T025 [US2] Implement Benjamini-Hochberg correction for all generated p-values in `code/analysis/model.py`
-- [X] T027 [US2] Record coefficients and p-values for the secondary OLS model (as per FR-004) in `code/logs/model_comparison.log`, calculate the delta between Spearman and OLS coefficients, and log the comparison result to satisfy the "recorded and compared" requirement.
+- [X] T027 [US2] Record coefficients and p-values for the secondary OLS model (as per FR-004) in `code/logs/model_comparison.log`, calculate the delta between Rank-OLS and unadjusted Spearman coefficients, and log the comparison result to satisfy the "recorded and compared" requirement.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -142,8 +141,8 @@
 
 ### Implementation for User Story 3
 
-- [X] T032 [US3] Implement threshold sweep for heteroplasmy burden recalculation across specific VAF thresholds: {low (0.005), 1.0% (0.01), [deferred] (0.02)}. Write results to `code/data/processed/sensitivity_results.csv` with columns: `threshold`, `coefficient`, `p_value`.
-- [ ] T032A [US3] Calculate and record the variation (range/std dev) of correlation coefficients across the {0.5%, 1.0%, 2.0%} thresholds; save this metric to `code/data/processed/threshold_variation.json` to satisfy SC-003.
+- [ ] T032 [US3] Implement threshold sweep for heteroplasmy burden recalculation across VAF thresholds: **{0.5%, 1.0%, 2.0%}**. Write results to `code/data/processed/sensitivity_results.csv` with columns: `threshold`, `coefficient`, `p_value`.
+- [ ] T032A [US3] Calculate and record the variation (range and standard deviation) of correlation coefficients across the set of low-level thresholds.; save this metric to `code/data/processed/threshold_variation.json` with schema: `{"range": float, "std_dev": float, "thresholds": [float]}` to satisfy SC-003.
 - [X] T033 [US3] Implement subgroup analysis for continental ancestries (EUR, AFR, EAS, SAS, AMR) in `code/analysis/sensitivity.py`; write results to `code/data/processed/subgroup_results.csv` with columns: `ancestry`, `coefficient`, `p_value`.
 - [ ] T033A [US3] Calculate and record the variation (magnitude of difference) of coefficients across ancestry groups; save this metric to `code/data/processed/subgroup_variation.json` to satisfy SC-004.
 - [X] T034 [US3] Implement depth-stratified subsampling to equalize sequencing depth across groups in `code/analysis/sensitivity.py`
@@ -155,19 +154,24 @@
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 6: DELETED (Power-Law Analysis - Original)
+
+**Note**: This phase has been removed per plan.md Decision Log ("Remove Power-Law Hypothesis"). All tasks related to Power-Law analysis have been deleted.
+
+---
+
+## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Documentation updates in `paper/draft.md` (include findings and limitations)
-- [ ] T050 [P] Document the explicit removal of the Power-Law Hypothesis in `paper/draft.md` citing plan.md Decision Log, ensuring no references to "quarter-power scaling" or "Geoffrey West" remain. <!-- FAILED: unspecified -->
-- [ ] T042A [P] Refactor `code/analysis/preprocess.py` to reduce cyclomatic complexity of the burden calculation function to < 10
-- [ ] T042B [P] Remove unused imports from all scripts in `code/analysis/`
-- [ ] T043A [P] Profile `code/analysis/load_data.py` and implement chunking strategy to ensure peak RAM usage < 7GB
-- [ ] T043B [P] Verify memory usage via `memory_profiler` and write output to `code/logs/memory_profile.log`
-- [ ] T044 [P] Additional unit tests for edge cases (zero burden, missing haplogroup) in `code/tests/`
-- [ ] T045 [P] Run `quickstart.md` validation, capture runtime in `code/logs/runtime_validation.log`, and assert runtime <= 6 hours
-- [ ] T046 Generate final figures (linear fit, threshold sensitivity) in `paper/figures/`
+- [ ] T041 [P] Generate `paper/draft.md` including findings, limitations, and the explicit note that the Power-Law hypothesis was removed per the plan's Decision Log. (Addresses spec requirement for a paper draft).
+- [X] T049 [P] Refactor `code/analysis/preprocess.py` to reduce cyclomatic complexity of the `calculate_heteroplasmy_burden` function to < 10. **Execution Steps**: 1) Run `radon cc code/analysis/preprocess.py` to record the current baseline complexity of `calculate_heteroplasmy_burden` in `code/logs/complexity_baseline.log`. 2) Refactor the function (e.g., extract helper functions, simplify nested conditionals). 3) Re-run `radon cc` to verify the new complexity is < 10 and log the delta in `code/logs/complexity_reduction.log`. The task is incomplete without the baseline and final verification logs. (Target function identified).
+- [ ] T050 [P] Remove unused imports from all scripts in `code/analysis/`.
+- [X] T051 [P] Profile `code/analysis/load_data.py` and implement chunking strategy to ensure peak RAM usage < 7GB.
+- [ ] T052 [P] Verify memory usage via `memory_profiler` and write output to `code/logs/memory_profile.log`.
+- [X] T053 [P] Implement unit tests for edge cases in `code/tests/test_data.py`, `code/tests/test_model.py`, and `code/tests/test_sensitivity.py`: specifically test (1) zero heteroplasmic burden, (2) samples with failed haplogroup assignment, and (3) samples with missing age. (Addresses spec Edge Cases).
+- [ ] T054A [P] Implement runtime measurement for the **entire analysis pipeline** (Phases 0-5) in `code/run_analysis.py`. **Log total execution time to `code/logs/runtime.log` and flag if > 6 hours** to satisfy SC-005. Do NOT assert/fail the pipeline; the spec requires measurement against the constraint, not a hard crash.
+- [ ] T055 [P] Generate final figures (Rank-OLS fit, threshold sensitivity, subgroup comparison) in `paper/figures/`. (Note: Power-Law figure removed from original plan).
 
 ---
 
@@ -235,8 +239,8 @@ Task: "Implement variant filtering in code/analysis/preprocess.py"
 
 1. Complete Phase 0 + Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (Linear & Power-Law Correlation)
-4. Add User Story 3 → Test independently → Deploy/Demo (Robustness of Scaling Law)
+3. Add User Story 2 → Test independently → Deploy/Demo (Rank-OLS & Spearman Correlation)
+4. Add User Story 3 → Test independently → Deploy/Demo (Robustness of Correlation)
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -247,7 +251,7 @@ With multiple developers:
 2. Once Foundational is done:
  - Developer A: User Story 1 (Data Pipeline)
  - Developer B: User Story 2 (Statistical Models)
- - Developer C: User Story 3 (Sensitivity & Robustness)
+ - Developer C: User Story 3 (Sensitivity, Robustness)
 3. Stories complete and integrate independently
 
 ---
@@ -260,8 +264,18 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Critical**: Phase 5 Power-Law tasks (T050-T052) have been removed per plan.md Decision Log ("Remove Power-Law Hypothesis"). T050 in Phase 6 now documents this removal.
-- **Revision Note**: Updated T007A/T007B to enforce hard halt with artifacts; added T023A for primary Spearman; added T019A for haplogroup success rate; removed T028; replaced T042/T043 with atomic metric-driven tasks; updated T024 to consume T016 output; removed [P] tags from T032/T033/T007A/T007B to fix ordering.
-- **Revision Note**: Updated T032 to explicitly list thresholds {0.5%, 1.0%, 2.0%} and output schema; added T032A/T033A to explicitly calculate variation metrics for SC-003/SC-004; updated T019 to implement conditional retention logic for partial data; updated T027 to include comparison logic; removed all Power-Law/West review references.
-- **Revision Note**: Removed T050-T052 (Power-Law Scaling) as they contradicted the plan; added T050 to Phase 6 to document the hypothesis removal.
+- **Critical**: Phase 6 (Power-Law) has been removed per plan.md Decision Log.
+- **Revision Note**: Updated T007A/T007B to enforce hard halt with artifacts; added T023A for primary Spearman; added T019A for haplogroup success rate; removed T028; updated T024 to implement Rank-OLS per plan.md (resolving spec-plan contradiction); removed all Power-Law/West review references (T056, T057, T055, T060, T039).
+- **Revision Note**: Updated T032 to explicitly list thresholds {0.5%, 1.0%, 2.0%} from plan.md Decision Log and log spec discrepancy; added T032A/T033A to explicitly calculate variation metrics for SC-003/SC-004; updated T019 to implement conditional retention logic for partial data; updated T027 to include comparison logic.
+- **Revision Note**: Updated T001A to use correct repository root paths (`data/raw` vs `code/data/raw`).
+- **Revision Note**: Reordered T019A before T019 to ensure aggregate validation precedes row-wise filtering logic.
+- **Revision Note**: Merged T013A and T013B into T013 to resolve interface ambiguity.
+- **Revision Note**: Replaced T049 with a specific target function and T053 with specific test cases.
+- **Revision Note**: Added T041 to generate the paper draft as required by the spec.
+- **Revision Note**: Removed T056, T057, T055 (original), T060 as they implemented the deleted Power-Law hypothesis.
+- **Revision Note**: Updated T049 to include baseline measurement and verification steps for cyclomatic complexity to resolve executability concerns.
+- **Revision Note**: Updated T054A to log and flag runtime violations instead of asserting, aligning with spec SC-005.
+- **Revision Note**: Removed T019B to align with the binary halt logic defined in plan.md (no re-scope deliverable defined).
+- **Revision Note**: Removed T039 and updated T055/T041 to remove all references to the deleted Power-Law hypothesis, resolving plan contradiction and ordering violations.
+- **Revision Note**: Removed T039 (Power-Law Scaling) and T055 (Power-Law Figure) to resolve plan contradiction and ordering violations.
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence

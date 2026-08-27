@@ -13,16 +13,9 @@ T033:
     \ shows no implementation of a continental\u2011ancestry subgroup analysis or\
     \ code that writes the required `ancestry`, `coefficient`, `p_value` rows. The\
     \ task\u2019s core functionality is therefore missing."
-T041:
+T055:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `paper/draft.md` file was provided, nor any excerpt showing
-    that findings and limitations were added. Without the actual documentation artifact,
-    we cannot confirm the required updates were made.
-T050:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `paper/draft.md` file or its contents were provided, so we cannot verify\
-    \ that it documents the removal of the Power\u2011Law Hypothesis, cites the plan.md\
-    \ Decision Log, or that it omits any mention of \u201Cquarter\u2011power scaling\u201D\
-    \ or \u201CGeoffrey West\u201D. The required artifact is missing."
+  r: "No figures are present in the `paper/figures/` directory; the required Rank\u2011\
+    OLS fit, threshold\u2011sensitivity, and subgroup\u2011comparison plots are missing,\
+    \ so the task\u2019s deliverable is not satisfied."

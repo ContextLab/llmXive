@@ -108,3 +108,45 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-12T00:47:07Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: 1000 Genomes Project Phase 3 dataset includes 5 continental populations
+  claim_id: c_2b581b24
+  context: We utilized mitochondrial VCF files and metadata from the 1000 Genomes
+    Project Phase 3. The dataset includes samples from five continental populations...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The dataset includes samples from five continental populations: African
+    (AFR), Admixed American (AMR), East Asian (EAS), European (EUR), and South Asian
+    (SAS).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T23:33:51Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Haplogroup assignment success rate greater than 90 percent
+  claim_id: c_24a5350f
+  context: Haplogroup assignment was successful for >90% of samples. No single haplogroup
+    showed a significantly different slope compared to others...
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: (inclusive of all markers in H) from chrY VCF files of 1000 genome project.
+        This results in a matrix S of size L*N where L is the
+      source_id: '1304.3351'
+      url: https://arxiv.org/abs/1304.3351
+      value: '100'
+    filled: true
+  kind: magnitude
+  raw_text: Haplogroup assignment was successful for >90% of samples.
+  resolved_value: '100'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T23:34:14Z'

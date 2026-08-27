@@ -16,7 +16,7 @@ This project investigates the associational link between mitochondrial DNA (mtDN
 **Target Platform**: Linux (GitHub Actions Ubuntu runner).  
 **Performance Goals**: Complete end-to-end analysis (download, process, model, report) within 6 hours on 2 CPU cores, 7 GB RAM.  
 **Constraints**: No GPU; no deep learning; streaming VCF processing with in-memory accumulators; data subsampling if RAM limits are approached.  
-**Scale/Scope**: Processing a large cohort of samples from Genomes Phase 3; outputting summary statistics and correlation plots (if age data exists).
+**Scale/Scope**: Processing a large cohort of samples from Genomes Phase; outputting summary statistics and correlation plots (if age data exists).
 
 > **Data Validity Note**: The 1000 Genomes Project metadata does not contain precise chronological ages. The pipeline will perform a strict check for the `age` column. If missing, the analysis will not proceed with correlation tests.
 

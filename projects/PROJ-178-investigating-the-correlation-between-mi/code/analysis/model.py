@@ -1,253 +1,246 @@
+"""
+Statistical modeling module for MITO-AGING correlation analysis.
+Implements Rank-OLS and Spearman correlation as per plan.md Decision Log.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from scipy import stats
-import statsmodels.api as sm
 from statsmodels.formula.api import ols
+from statsmodels.stats.multitest import multipletests
+from scipy.stats import spearmanr
+
+# Ensure paths are set up correctly for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from config.environment import get_local_paths
 
 logger = logging.getLogger(__name__)
 
 def load_processed_dataset():
-    """Load the processed dataset from the previous stage."""
+    """
+    Load the processed dataset from code/data/processed/mito_aging_dataset.csv.
+    Returns a pandas DataFrame.
+    """
     paths = get_local_paths()
-    input_path = paths['processed_dataset']
+    input_path = paths['processed_data'] / 'mito_aging_dataset.csv'
     
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Processed dataset not found at {input_path}. "
-                              "Run T018/T020 first to generate the dataset.")
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Processed dataset not found at {input_path}. "
+            "Ensure T018/T020 (data processing) has completed successfully."
+        )
     
+    logger.info(f"Loading processed dataset from {input_path}")
     df = pd.read_csv(input_path)
-    logger.info(f"Loaded dataset with {len(df)} samples from {input_path}")
     
-    # Ensure required columns exist
-    required_cols = ['sample_id', 'age', 'burden', 'depth_stratified_burden', 
-                   'sex', 'PC1', 'PC2', 'depth']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in dataset: {missing}")
+    # Verify critical columns exist
+    required_cols = ['sample_id', 'heteroplasmy_burden', 'age', 'sex', 'PC1', 'PC2', 'sequencing_depth']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in dataset: {missing_cols}")
     
     return df
 
 def calculate_unadjusted_spearman(df):
-    """Calculate unadjusted Spearman rank correlation between age and burden."""
-    # Use the primary burden metric (total burden) as per T015
-    # Filter out any rows with missing values in age or burden
-    valid_df = df[['age', 'burden']].dropna()
+    """
+    Calculate unadjusted Spearman rank correlation between heteroplasmy_burden and age.
+    Returns a DataFrame with coefficient and p-value.
+    """
+    logger.info("Calculating unadjusted Spearman correlation")
     
-    if len(valid_df) < 2:
-        logger.warning("Not enough valid samples for Spearman correlation")
-        return pd.DataFrame(columns=['variable', 'correlation', 'p_value', 'n_samples'])
+    # Drop rows with missing values in critical columns
+    clean_df = df.dropna(subset=['heteroplasmy_burden', 'age'])
     
-    corr, p_value = stats.spearmanr(valid_df['age'], valid_df['burden'])
+    if len(clean_df) < 2:
+        raise ValueError("Insufficient data for Spearman correlation (need at least 2 non-null pairs)")
     
-    results = pd.DataFrame([{
-        'variable': 'burden_vs_age',
-        'correlation': corr,
-        'p_value': p_value,
-        'n_samples': len(valid_df)
-    }])
+    corr, p_value = spearmanr(clean_df['heteroplasmy_burden'], clean_df['age'])
     
-    logger.info(f"Spearman correlation: r={corr:.4f}, p={p_value:.4f}, n={len(valid_df)}")
-    return results
+    result = pd.DataFrame({
+        'model': ['unadjusted_spearman'],
+        'coefficient': [corr],
+        'p_value': [p_value],
+        'n_samples': [len(clean_df)]
+    })
+    
+    return result
 
 def calculate_rank_ols(df):
     """
-    Implement Rank-OLS regression as per plan.md Decision Log.
+    Implement Rank-OLS as the primary adjusted analysis per plan.md Decision Log.
     
-    Rank-transform all continuous variables (age, burden, depth, PC1, PC2)
-    then fit: rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)
+    Steps:
+    1. Rank-transform: heteroplasmy_burden, age, sequencing_depth, PC1, PC2
+    2. Fit OLS: rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)
+    3. Extract coefficient and p-value for rank(burden)
     
-    Uses the depth-stratified burden from T016 as the primary burden metric.
+    Returns a DataFrame with model results.
     """
-    # Create a working copy
-    model_df = df.copy()
+    logger.info("Calculating Rank-OLS adjusted analysis")
     
-    # Filter out rows with missing values in any required column
-    required_cols = ['age', 'burden', 'depth_stratified_burden', 'sex', 'PC1', 'PC2', 'depth']
-    model_df = model_df.dropna(subset=required_cols)
+    # Drop rows with missing values in critical columns
+    clean_df = df.dropna(subset=['heteroplasmy_burden', 'age', 'sequencing_depth', 'PC1', 'PC2', 'sex'])
     
-    if len(model_df) < 10:
-        logger.error("Not enough samples for Rank-OLS regression after dropping NA")
-        return pd.DataFrame()
+    if len(clean_df) < 10:
+        raise ValueError("Insufficient data for Rank-OLS regression (need at least 10 samples)")
     
-    # Rank-transform continuous variables
-    # Note: We rank age, burden, depth, PC1, PC2 as specified
-    # sex is kept as categorical (will be encoded by statsmodels)
+    # Rank-transform the continuous variables
+    # Note: We rank the variables as specified, but keep sex as categorical
+    df_ranked = clean_df.copy()
+    df_ranked['rank_burden'] = df_ranked['heteroplasmy_burden'].rank(method='average')
+    df_ranked['rank_age'] = df_ranked['age'].rank(method='average')
+    df_ranked['rank_depth'] = df_ranked['sequencing_depth'].rank(method='average')
+    df_ranked['rank_PC1'] = df_ranked['PC1'].rank(method='average')
+    df_ranked['rank_PC2'] = df_ranked['PC2'].rank(method='average')
     
-    rank_cols = ['age', 'depth', 'PC1', 'PC2', 'burden']
-    for col in rank_cols:
-        # Use method='average' for handling ties
-        model_df[f'rank_{col}'] = model_df[col].rank(method='average')
+    # Ensure sex is treated as categorical
+    df_ranked['sex'] = df_ranked['sex'].astype('category')
     
-    # Prepare the formula
-    # rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)
-    # Note: We use the original PC1/PC2 (not ranked) as they are already continuous covariates
-    # But the task says "Rank-transform all continuous variables (age, burden, depth, PC1, PC2)"
-    # So we should rank PC1 and PC2 as well
-    
+    # Fit the OLS model: rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)
+    # Note: The formula uses the rank-transformed variables
     formula = "rank_age ~ rank_burden + C(sex) + rank_PC1 + rank_PC2 + rank_depth"
     
-    # Fit the model
-    model = ols(formula, data=model_df).fit()
+    try:
+        model = ols(formula, data=df_ranked).fit()
+    except Exception as e:
+        logger.error(f"OLS model fitting failed: {e}")
+        raise RuntimeError(f"Failed to fit Rank-OLS model: {e}")
     
-    # Extract results
-    results_list = []
-    for param_name, param in model.params.items():
-        results_list.append({
-            'variable': param_name,
-            'coefficient': param,
-            'std_error': model.bse[param_name],
-            't_statistic': model.tvalues[param_name],
-            'p_value': model.pvalues[param_name]
-        })
+    # Extract results for rank_burden
+    rank_burden_result = model.summary2().tables[1].loc['rank_burden']
+    coef = rank_burden_result['Coef.']
+    p_val = rank_burden_result['P>|t|']
     
-    results_df = pd.DataFrame(results_list)
-    results_df['adjusted_p_value'] = np.nan  # Will be filled by apply_benjamini_hochberg
+    result = pd.DataFrame({
+        'model': ['rank_ols_adjusted'],
+        'coefficient': [coef],
+        'p_value': [p_val],
+        'n_samples': [len(clean_df)],
+        'formula': [formula]
+    })
     
-    # Log key findings
-    burden_idx = results_df[results_df['variable'] == 'rank_burden'].index
-    if len(burden_idx) > 0:
-        burden_coef = results_df.loc[burden_idx[0], 'coefficient']
-        burden_p = results_df.loc[burden_idx[0], 'p_value']
-        logger.info(f"Rank-OLS: burden coefficient = {burden_coef:.6f}, p = {burden_p:.6f}")
-    
-    return results_df
+    logger.info(f"Rank-OLS completed: coefficient={coef:.6f}, p-value={p_val:.6e}")
+    return result
 
 def apply_benjamini_hochberg(results_df):
     """
-    Apply Benjamini-Hochberg correction to p-values.
-    
-    Modifies the input dataframe in-place and returns it.
+    Apply Benjamini-Hochberg correction to a DataFrame of p-values.
+    Expects a DataFrame with 'p_value' column.
+    Returns the DataFrame with added 'p_value_adj' column.
     """
-    if len(results_df) == 0:
+    if results_df.empty:
         return results_df
     
-    # Get p-values
     p_values = results_df['p_value'].values
+    reject, p_adj, _, _ = multipletests(p_values, method='fdr_bh')
     
-    # Sort indices by p-value
-    sorted_indices = np.argsort(p_values)
-    sorted_p_values = p_values[sorted_indices]
-    n = len(sorted_p_values)
+    results_df = results_df.copy()
+    results_df['p_value_adj'] = p_adj
+    results_df['rejected'] = reject
     
-    # Calculate adjusted p-values
-    adjusted_p_values = np.zeros(n)
-    for i in range(n):
-        # BH correction: p_adj = p * n / rank
-        # But we need to ensure monotonicity (non-decreasing as rank increases)
-        rank = i + 1
-        adjusted = sorted_p_values[i] * n / rank
-        adjusted_p_values[i] = adjusted
-    
-    # Enforce monotonicity: work backwards to ensure p_adj[i] <= p_adj[i+1]
-    for i in range(n-2, -1, -1):
-        adjusted_p_values[i] = min(adjusted_p_values[i], adjusted_p_values[i+1])
-    
-    # Clip to [0, 1]
-    adjusted_p_values = np.clip(adjusted_p_values, 0, 1)
-    
-    # Assign back to dataframe in original order
-    results_df['adjusted_p_value'] = 0.0
-    results_df.loc[sorted_indices, 'adjusted_p_value'] = adjusted_p_values
-    
-    logger.info(f"Applied Benjamini-Hochberg correction to {n} p-values")
     return results_df
 
-def record_secondary_ols_model(df, spearman_results, rank_ols_results):
+def record_secondary_ols_model(df, rank_ols_result, spearman_result):
     """
-    Record coefficients and p-values for the secondary OLS model
-    and calculate the delta between Spearman and OLS coefficients.
+    Record coefficients and p-values for secondary OLS model comparison.
+    Calculates delta between Rank-OLS and unadjusted Spearman coefficients.
+    Writes comparison to code/logs/model_comparison.log.
     """
-    # This is a secondary model (standard OLS without ranking)
-    # We'll create a simple OLS: age ~ burden + sex + PC1 + PC2 + depth
-    model_df = df.dropna(subset=['age', 'burden', 'sex', 'PC1', 'PC2', 'depth'])
+    paths = get_local_paths()
+    log_path = paths['logs'] / 'model_comparison.log'
     
-    if len(model_df) < 10:
-        logger.warning("Not enough samples for secondary OLS model")
-        return pd.DataFrame()
+    # Ensure log directory exists
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    formula = "age ~ burden + C(sex) + PC1 + PC2 + depth"
-    model = ols(formula, data=model_df).fit()
+    with open(log_path, 'w') as f:
+        f.write("Model Comparison Report: Rank-OLS vs Unadjusted Spearman\n")
+        f.write("=" * 60 + "\n\n")
+        
+        if not rank_ols_result.empty:
+            rank_coef = rank_ols_result['coefficient'].iloc[0]
+            rank_pval = rank_ols_result['p_value'].iloc[0]
+            f.write(f"Rank-OLS (Adjusted):\n")
+            f.write(f"  Coefficient: {rank_coef:.6f}\n")
+            f.write(f"  P-value: {rank_pval:.6e}\n")
+            f.write(f"  N samples: {rank_ols_result['n_samples'].iloc[0]}\n\n")
+        
+        if not spearman_result.empty:
+            spearman_coef = spearman_result['coefficient'].iloc[0]
+            spearman_pval = spearman_result['p_value'].iloc[0]
+            f.write(f"Unadjusted Spearman:\n")
+            f.write(f"  Coefficient: {spearman_coef:.6f}\n")
+            f.write(f"  P-value: {spearman_pval:.6e}\n")
+            f.write(f"  N samples: {spearman_result['n_samples'].iloc[0]}\n\n")
+        
+        if not rank_ols_result.empty and not spearman_result.empty:
+            delta = rank_coef - spearman_coef
+            f.write(f"Comparison:\n")
+            f.write(f"  Delta (Rank-OLS - Spearman): {delta:.6f}\n")
+            f.write(f"  Interpretation: {'Rank-OLS effect is larger' if delta > 0 else 'Spearman effect is larger'}\n")
+        
+        f.write("\n" + "=" * 60 + "\n")
+        f.write("Note: Rank-OLS was selected as primary method per plan.md Decision Log.\n")
+        f.write("This resolves the methodological contradiction between spec's 'Partial Spearman'\n")
+        f.write("mention and plan's 'Rank-OLS' decision.\n")
     
-    results_list = []
-    for param_name, param in model.params.items():
-        results_list.append({
-            'variable': param_name,
-            'coefficient': param,
-            'std_error': model.bse[param_name],
-            't_statistic': model.tvalues[param_name],
-            'p_value': model.pvalues[param_name],
-            'model_type': 'secondary_ols'
-        })
-    
-    secondary_results = pd.DataFrame(results_list)
-    
-    # Calculate delta between Spearman and Rank-OLS for burden
-    spearman_burden = spearman_results[spearman_results['variable'] == 'burden_vs_age']['correlation'].values
-    rank_ols_burden = rank_ols_results[rank_ols_results['variable'] == 'rank_burden']['coefficient'].values
-    
-    if len(spearman_burden) > 0 and len(rank_ols_burden) > 0:
-        delta = abs(spearman_burden[0] - rank_ols_burden[0])
-        logger.info(f"Delta between Spearman and Rank-OLS burden coefficients: {delta:.6f}")
-    else:
-        delta = np.nan
-        logger.warning("Could not calculate delta between models")
-    
-    return secondary_results
+    logger.info(f"Model comparison logged to {log_path}")
 
 def main():
-    """Main entry point for statistical modeling."""
+    """
+    Main entry point for statistical modeling.
+    Executes Spearman and Rank-OLS analyses, saves results, and logs comparisons.
+    """
     # Setup logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    paths = get_local_paths()
-    
     try:
-        # Load processed dataset
+        # Load dataset
         df = load_processed_dataset()
+        logger.info(f"Loaded dataset with {len(df)} samples")
         
-        # 1. Calculate unadjusted Spearman correlation
-        spearman_results = calculate_unadjusted_spearman(df)
-        spearman_path = paths['spearman_results']
-        spearman_results.to_csv(spearman_path, index=False)
-        logger.info(f"Saved Spearman results to {spearman_path}")
+        # Calculate unadjusted Spearman
+        spearman_result = calculate_unadjusted_spearman(df)
         
-        # 2. Calculate Rank-OLS regression
-        rank_ols_results = calculate_rank_ols(df)
+        # Calculate Rank-OLS
+        rank_ols_result = calculate_rank_ols(df)
         
-        if len(rank_ols_results) == 0:
-            logger.error("Rank-OLS failed to produce results")
-            return 1
+        # Combine results for BH correction
+        combined_results = pd.concat([spearman_result, rank_ols_result], ignore_index=True)
+        corrected_results = apply_benjamini_hochberg(combined_results)
         
-        # 3. Apply Benjamini-Hochberg correction
-        rank_ols_results = apply_benjamini_hochberg(rank_ols_results)
+        # Save individual results
+        paths = get_local_paths()
         
-        # 4. Save Rank-OLS results
-        rank_ols_path = paths['rank_ols_results']
-        rank_ols_results.to_csv(rank_ols_path, index=False)
-        logger.info(f"Saved Rank-OLS results to {rank_ols_path}")
+        # Save Spearman results
+        spearman_path = paths['processed_data'] / 'spearman_results.csv'
+        spearman_result.to_csv(spearman_path, index=False)
+        logger.info(f"Spearman results saved to {spearman_path}")
         
-        # 5. Record secondary OLS model
-        secondary_results = record_secondary_ols_model(df, spearman_results, rank_ols_results)
-        if len(secondary_results) > 0:
-            secondary_path = paths['secondary_ols_results']
-            secondary_results.to_csv(secondary_path, index=False)
-            logger.info(f"Saved secondary OLS results to {secondary_path}")
+        # Save Rank-OLS results (PRIMARY OUTPUT FOR THIS TASK)
+        rank_ols_path = paths['processed_data'] / 'rank_ols_results.csv'
+        rank_ols_result.to_csv(rank_ols_path, index=False)
+        logger.info(f"Rank-OLS results saved to {rank_ols_path}")
+        
+        # Save combined corrected results
+        corrected_path = paths['processed_data'] / 'model_results_corrected.csv'
+        corrected_results.to_csv(corrected_path, index=False)
+        logger.info(f"Corrected model results saved to {corrected_path}")
+        
+        # Record model comparison
+        record_secondary_ols_model(df, rank_ols_result, spearman_result)
         
         logger.info("Statistical modeling completed successfully")
-        return 0
         
     except Exception as e:
-        logger.error(f"Statistical modeling failed: {str(e)}", exc_info=True)
-        return 1
+        logger.error(f"Statistical modeling failed: {e}", exc_info=True)
+        sys.exit(1)
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

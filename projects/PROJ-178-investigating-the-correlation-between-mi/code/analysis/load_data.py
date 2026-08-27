@@ -3,221 +3,412 @@ import sys
 import gzip
 import shutil
 import logging
+import gc
+import time
 from pathlib import Path
-import requests
-from tqdm import tqdm
-import pandas as pd
-from urllib.parse import urlparse
+from typing import Dict, List, Tuple, Iterator, Optional, Generator
+import vcfpy
 
-# Ensure we can import from the project root if running as a script
-if __name__ == "__main__" and __package__ is None:
+# Import environment configuration
+try:
+    from config.environment import get_local_paths, get_ftp_urls, ensure_directories
+except ImportError:
+    # Fallback for direct script execution
     sys.path.insert(0, str(Path(__file__).parent.parent))
+    from config.environment import get_local_paths, get_ftp_urls, ensure_directories
 
-from config.environment import get_ftp_urls, ensure_directories
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def ensure_dirs():
-    """Ensure raw data directories exist."""
-    dirs = ensure_directories()
-    raw_dir = dirs.get('raw')
-    if raw_dir and not raw_dir.exists():
-        raw_dir.mkdir(parents=True, exist_ok=True)
-    return raw_dir
+# Memory profiling utilities
+def get_memory_usage_mb() -> float:
+    """
+    Get current memory usage of the process in MB.
+    Uses /proc/self/status on Linux or psutil if available.
+    """
+    try:
+        import psutil
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss / (1024 * 1024)
+    except ImportError:
+        # Fallback for Linux systems without psutil
+        try:
+            with open('/proc/self/status', 'r') as f:
+                for line in f:
+                    if line.startswith('VmRSS:'):
+                        return int(line.split()[1]) / 1024.0
+        except (FileNotFoundError, IndexError, ValueError):
+            logger.warning("Could not determine memory usage. psutil not available and /proc not found.")
+            return 0.0
+    return 0.0
 
-def download_mito_vcf(output_dir: Path):
+class MemoryMonitor:
+    """Context manager to track peak memory usage during a block of code."""
+    
+    def __init__(self, threshold_mb: float = 7000.0):
+        self.threshold_mb = threshold_mb
+        self.peak_mb = 0.0
+        self.start_mb = 0.0
+        self.current_mb = 0.0
+    
+    def __enter__(self):
+        self.start_mb = get_memory_usage_mb()
+        self.peak_mb = self.start_mb
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.current_mb = get_memory_usage_mb()
+        self.peak_mb = max(self.peak_mb, self.current_mb)
+        logger.info(f"MemoryMonitor: Start={self.start_mb:.1f}MB, Peak={self.peak_mb:.1f}MB, End={self.current_mb:.1f}MB")
+        if self.peak_mb > self.threshold_mb:
+            logger.warning(f"MemoryMonitor: Peak usage {self.peak_mb:.1f}MB exceeded threshold {self.threshold_mb:.1f}MB")
+        return False
+
+def ensure_dirs() -> Dict[str, Path]:
+    """Create necessary directories if they don't exist."""
+    paths = get_local_paths()
+    ensure_directories(paths)
+    return paths
+
+def download_mito_vcf(ftp_url: str, output_path: Path) -> bool:
     """
     Download mitochondrial VCF from 1000 Genomes FTP.
-    
-    The 1000 Genomes Phase 3 data is hosted on FTP. We target the 
-    specific chrM VCF file. Note: 1000 Genomes data is often split
-    by chromosome and population. We fetch the combined chrM VCF if available,
-    or a representative one.
-    
-    Source: ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/
+    Returns True on success, False on failure.
     """
-    urls = get_ftp_urls()
-    # Using the specific chrM VCF path for Phase 3
-    # Note: Direct FTP downloads in Python often require 'ftputil' or 'wget'. 
-    # Here we use requests with a fallback or a direct HTTP mirror if available.
-    # The 1000 Genomes FTP is often accessible via http too for specific files.
-    
-    # Standard Phase 3 chrM VCF location
-    base_url = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20130502.release/"
-    # The actual file is usually split. We will try to fetch the master chrM VCF 
-    # or the index if the full file is too large to stream directly without special FTP libs.
-    # For robustness in this script, we attempt to fetch the specific chrM VCF from the 
-    # release folder. If the exact file structure varies, we might need to download 
-    # per-population and merge, but the task asks for "the" VCF.
-    # Let's try the consolidated chrM file if it exists in the release, otherwise 
-    # we might need to download a subset. 
-    # Actually, 1000G Phase 3 VCFs are usually per-chromosome. 
-    # File: ALL.chrM.phase3_integrated.vcf.gz
-    
-    filename = "ALL.chrM.phase3_integrated.vcf.gz"
-    url = f"{base_url}{filename}"
-    
-    local_path = output_dir / filename
-    
-    if local_path.exists():
-        logger.info(f"File {local_path} already exists. Skipping download.")
-        return local_path
+    import requests
+    from tqdm import tqdm
 
-    logger.info(f"Downloading {filename} from {url}...")
+    if not ftp_url:
+        logger.error("FTP URL is empty or not configured.")
+        return False
+
+    logger.info(f"Downloading VCF from {ftp_url} to {output_path}")
     
     try:
-        # Using wget via subprocess is often more reliable for FTP than requests
-        # but to keep dependencies minimal (only requests/tqdm), we try requests first.
-        # requests does not support FTP directly in newer versions without extra handlers,
-        # so we will assume an HTTP mirror or use a generic download helper.
-        # However, 1000 Genomes FTP is accessible via http for many files.
-        http_url = url.replace("ftp://", "http://")
-        
-        response = requests.get(http_url, stream=True, timeout=120)
+        response = requests.get(ftp_url, stream=True)
         response.raise_for_status()
         
         total_size = int(response.headers.get('content-length', 0))
         
-        with open(local_path, 'wb') as f, tqdm(
-            desc=filename,
-            total=total_size,
-            unit='B',
-            unit_scale=True,
-            unit_divisor=1024,
+        with open(output_path, 'wb') as f, tqdm(
+            total=total_size, unit='B', unit_scale=True, desc=output_path.name
         ) as pbar:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
                     pbar.update(len(chunk))
-                    
-        logger.info(f"Downloaded {local_path}")
-        return local_path
         
+        logger.info(f"Download complete: {output_path} ({output_path.stat().st_size / 1024 / 1024:.2f} MB)")
+        return True
     except Exception as e:
         logger.error(f"Failed to download VCF: {e}")
-        raise RuntimeError(f"Could not download mitochondrial VCF. {e}")
+        return False
 
-def download_metadata(output_dir: Path):
+def download_metadata(ftp_url: str, output_path: Path) -> bool:
     """
-    Download the 1000 Genomes metadata panel containing age, sex, population, etc.
-    
-    The metadata is typically available as a TSV or CSV file on the FTP site.
-    We target the 'Sample Information' file which contains phenotypic data.
+    Download metadata panel from 1000 Genomes FTP.
+    Returns True on success, False on failure.
     """
-    # The metadata file for 1000 Genomes Phase 3
-    # URL: ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20130502.release/integrated_call_samples_v3.20130502.ALL.panel
-    # This file contains population, super_population, etc.
-    # Age data is NOT in the standard 1000 Genomes panel (they are anonymous).
-    # However, the task specification implies age data exists or must be derived.
-    # In many research contexts using 1000G for aging, they use a specific subset 
-    # or a derived dataset where age is imputed or available from a linked study.
-    # Since the task requires "real data" and "age column", we must fetch the 
-    # canonical panel first. If age is missing, the pipeline halts (T007A).
-    # We will download the standard panel file.
-    
-    base_url = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20130502.release/"
-    filename = "integrated_call_samples_v3.20130502.ALL.panel"
-    url = f"{base_url}{filename}"
-    
-    local_path = output_dir / filename
-    
-    if local_path.exists():
-        logger.info(f"Metadata file {local_path} already exists. Skipping download.")
-        return local_path
+    import requests
+    from tqdm import tqdm
 
-    logger.info(f"Downloading metadata {filename}...")
+    if not ftp_url:
+        logger.error("Metadata FTP URL is empty or not configured.")
+        return False
+
+    logger.info(f"Downloading metadata from {ftp_url} to {output_path}")
     
     try:
-        http_url = url.replace("ftp://", "http://")
-        response = requests.get(http_url, stream=True, timeout=120)
+        response = requests.get(ftp_url, stream=True)
         response.raise_for_status()
         
         total_size = int(response.headers.get('content-length', 0))
         
-        with open(local_path, 'wb') as f, tqdm(
-            desc=filename,
-            total=total_size,
-            unit='B',
-            unit_scale=True,
-            unit_divisor=1024,
+        with open(output_path, 'wb') as f, tqdm(
+            total=total_size, unit='B', unit_scale=True, desc=output_path.name
         ) as pbar:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
                     pbar.update(len(chunk))
-                    
-        logger.info(f"Downloaded {local_path}")
-        return local_path
         
+        logger.info(f"Download complete: {output_path} ({output_path.stat().st_size / 1024 / 1024:.2f} MB)")
+        return True
     except Exception as e:
         logger.error(f"Failed to download metadata: {e}")
-        raise RuntimeError(f"Could not download metadata panel. {e}")
+        return False
 
-def validate_age_column(metadata_path: Path):
+def validate_age_column(metadata_df: 'pd.DataFrame') -> bool:
     """
-    Check if the 'age' column exists in the metadata.
-    If not, log error and raise a critical error to halt the pipeline.
+    Validate that the 'age' column exists in the metadata dataframe.
+    Returns True if valid, raises ValueError if missing.
     """
-    if not metadata_path.exists():
-        raise FileNotFoundError(f"Metadata file not found at {metadata_path}")
+    import pandas as pd
+    
+    if 'age' not in metadata_df.columns:
+        error_msg = "CRITICAL: 'age' column missing from metadata. Pipeline must halt."
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    
+    logger.info("Age column validation passed.")
+    return True
+
+def stream_vcf_variants(vcf_path: Path, sample_ids: List[str]) -> Generator[Tuple[vcfpy.Record, Dict[str, str]], None, None]:
+    """
+    Stream variants from a VCF file in chunks to minimize memory usage.
+    Yields (record, sample_genotypes) tuples.
+    
+    Args:
+        vcf_path: Path to the VCF file
+        sample_ids: List of sample IDs to extract genotypes for
+    
+    Yields:
+        Tuple of (vcfpy.Record, dict of sample_id -> genotype_info)
+    """
+    logger.info(f"Streaming variants from {vcf_path} for {len(sample_ids)} samples")
+    
+    reader = vcfpy.Reader.from_path(str(vcf_path))
+    
+    with reader:
+        for record in reader:
+            # Filter for chrM and PASS status immediately
+            if record.CHROM != 'chrM' and record.CHROM != 'MT':
+                continue
+            
+            if record.FILTER and 'PASS' not in record.FILTER:
+                continue
+            
+            # Extract genotypes for requested samples
+            sample_genotypes = {}
+            for sample in record.samples:
+                if sample.name in sample_ids:
+                    gt_info = {
+                        'GT': sample['GT'] if 'GT' in sample else None,
+                        'DP': sample['DP'] if 'DP' in sample else None,
+                        'AF': sample['AF'] if 'AF' in sample else None,
+                        'HP': sample['HP'] if 'HP' in sample else None
+                    }
+                    sample_genotypes[sample.name] = gt_info
+            
+            if sample_genotypes:
+                yield record, sample_genotypes
+
+def filter_variant(record: vcfpy.Record) -> bool:
+    """
+    Filter a VCF record based on quality and type criteria.
+    Returns True if the variant should be kept.
+    """
+    # Keep only chrM and PASS status
+    if record.CHROM not in ['chrM', 'MT']:
+        return False
+    
+    if record.FILTER and 'PASS' not in record.FILTER:
+        return False
+    
+    # Optional: Filter by quality score if needed
+    if hasattr(record, 'QUAL') and record.QUAL is not None:
+        if record.QUAL < 30.0:  # Standard VCF quality threshold
+            return False
+    
+    return True
+
+def calculate_burden_streaming(
+    vcf_path: Path, 
+    sample_ids: List[str],
+    vaf_threshold: float = 0.01,
+    memory_threshold_mb: float = 7000.0
+) -> Dict[str, Dict[str, float]]:
+    """
+    Calculate heteroplasmy burden for each sample using streaming VCF processing.
+    Implements chunking strategy to ensure peak RAM usage < 7GB.
+    
+    Args:
+        vcf_path: Path to the VCF file
+        sample_ids: List of sample IDs to process
+        vaf_threshold: Minimum variant allele frequency (default 1%)
+        memory_threshold_mb: Maximum allowed memory usage (default 7GB)
+    
+    Returns:
+        Dictionary mapping sample_id to burden metrics:
+        {
+            'sample_id': {
+                'total_variants': int,
+                'heteroplasmic_variants': int,
+                'burden_count': float,
+                'burden_frequency': float,
+                'depth_bins': {'Low': int, 'Medium': int, 'High': int}
+            }
+        }
+    """
+    import pandas as pd
+    import gc
+
+    # Initialize burden accumulator
+    burden_data = {
+        sample_id: {
+            'total_variants': 0,
+            'heteroplasmic_variants': 0,
+            'burden_count': 0.0,
+            'burden_frequency': 0.0,
+            'depth_bins': {'Low': 0, 'Medium': 0, 'High': 0}
+        }
+        for sample_id in sample_ids
+    }
+    
+    logger.info(f"Starting streaming burden calculation for {len(sample_ids)} samples")
+    logger.info(f"Memory threshold set to {memory_threshold_mb}MB")
+    
+    # Process VCF in streaming mode
+    with MemoryMonitor(threshold_mb=memory_threshold_mb) as monitor:
+        variant_count = 0
         
-    # The standard 1000G panel does NOT have an 'age' column.
-    # It has: sample_id, population, super_population, etc.
-    # If the project spec assumes age is present, we must check.
-    # If it's missing, we halt as per T007A.
+        for record, sample_genotypes in stream_vcf_variants(vcf_path, sample_ids):
+            variant_count += 1
+            
+            # Process each sample for this variant
+            for sample_id, gt_info in sample_genotypes.items():
+                # Extract AF (Allele Frequency)
+                af = gt_info.get('AF')
+                if af is None or af == '.':
+                    continue
+                
+                try:
+                    af_val = float(af)
+                except (ValueError, TypeError):
+                    continue
+                
+                # Check VAF threshold
+                if af_val >= vaf_threshold:
+                    burden_data[sample_id]['heteroplasmic_variants'] += 1
+                    burden_data[sample_id]['burden_frequency'] += af_val
+                
+                # Count total variants for this sample
+                burden_data[sample_id]['total_variants'] += 1
+                
+                # Depth binning
+                dp = gt_info.get('DP')
+                if dp is not None and dp != '.':
+                    try:
+                        dp_val = int(dp)
+                        if dp_val < 50:
+                            burden_data[sample_id]['depth_bins']['Low'] += 1
+                        elif dp_val < 200:
+                            burden_data[sample_id]['depth_bins']['Medium'] += 1
+                        else:
+                            burden_data[sample_id]['depth_bins']['High'] += 1
+                    except (ValueError, TypeError):
+                        pass
+          
+          # Periodic memory cleanup and monitoring
+            if variant_count % 10000 == 0:
+                gc.collect()
+                current_mem = get_memory_usage_mb()
+                if current_mem > memory_threshold_mb * 0.9:
+                    logger.warning(f"Memory usage at {current_mem:.1f}MB approaching threshold. Forcing GC.")
+                    gc.collect()
     
-    try:
-        df = pd.read_csv(metadata_path, sep='\t')
-    except Exception as e:
-        # Try comma if tab fails
-        try:
-            df = pd.read_csv(metadata_path, sep=',')
-        except Exception as e2:
-            raise ValueError(f"Could not parse metadata file: {e2}")
+    # Calculate final burden counts (sum of AFs)
+    for sample_id in burden_data:
+        if burden_data[sample_id]['heteroplasmic_variants'] > 0:
+            burden_data[sample_id]['burden_count'] = burden_data[sample_id]['burden_frequency']
+        else:
+            burden_data[sample_id]['burden_count'] = 0.0
     
-    columns = df.columns.tolist()
-    logger.info(f"Metadata columns: {columns}")
+    logger.info(f"Streaming burden calculation complete. Processed {variant_count} variants.")
+    logger.info(f"Peak memory usage: {monitor.peak_mb:.1f}MB")
     
-    if 'age' not in columns:
-        logger.error("CRITICAL: 'age' column is missing from the metadata panel.")
-        logger.error("The pipeline cannot proceed without age data for correlation analysis.")
-        # We do not return a value here, we raise an exception to halt execution
-        raise RuntimeError("Pipeline HALTED: 'age' column missing from metadata.")
-    
-    logger.info("Age column found. Validation passed.")
-    return df
+    return burden_data
 
 def main():
     """
-    Main entry point for data acquisition.
-    Downloads VCF and Metadata, validates age column.
+    Main entry point for the load_data module.
+    Downloads data, validates, and performs streaming burden calculation.
     """
-    ensure_directories()
-    raw_dir = ensure_dirs()
-    
-    logger.info("Starting data acquisition phase...")
-    
-    try:
-        vcf_path = download_mito_vcf(raw_dir)
-        meta_path = download_metadata(raw_dir)
-        
-        # Validate age column immediately
-        validate_age_column(meta_path)
-        
-        logger.info("Data acquisition and initial validation complete.")
-        print(f"VCF downloaded to: {vcf_path}")
-        print(f"Metadata downloaded to: {meta_path}")
-        
-    except RuntimeError as e:
-        logger.critical(str(e))
-        sys.exit(1)
-    except Exception as e:
-        logger.critical(f"Unexpected error during data acquisition: {e}")
-        sys.exit(1)
+    import pandas as pd
+    from pathlib import Path
 
-if __name__ == "__main__":
+    paths = ensure_dirs()
+    urls = get_ftp_urls()
+    
+    # Configuration
+    vcf_url = urls.get('mito_vcf')
+    metadata_url = urls.get('metadata_panel')
+    
+    if not vcf_url or not metadata_url:
+        logger.error("Missing FTP URLs in configuration. Check environment.py")
+        sys.exit(1)
+    
+    # Download data
+    vcf_path = paths['raw'] / '1000g_mito.vcf.gz'
+    metadata_path = paths['raw'] / '1000g_metadata.tsv'
+    
+    if not vcf_path.exists():
+        if not download_mito_vcf(vcf_url, vcf_path):
+            logger.error("Failed to download VCF. Exiting.")
+            sys.exit(1)
+    
+    if not metadata_path.exists():
+        if not download_metadata(metadata_url, metadata_path):
+            logger.error("Failed to download metadata. Exiting.")
+            sys.exit(1)
+    
+    # Load metadata
+    logger.info("Loading metadata panel...")
+    metadata_df = pd.read_csv(metadata_path, sep='\t', comment='#')
+    
+    # Validate age column
+    try:
+        validate_age_column(metadata_df)
+    except ValueError as e:
+        logger.error(str(e))
+        # Log to validation file as per T007A
+        validation_log = paths['logs'] / 'validation'
+        validation_log.mkdir(parents=True, exist_ok=True)
+        log_file = validation_log / 'log_age_column.json'
+        with open(log_file, 'w') as f:
+            f.write(f'{{"status": "error", "message": "{str(e)}"}}')
+        sys.exit(1)
+    
+    # Extract sample IDs
+    sample_ids = metadata_df['sample_id'].tolist()
+    logger.info(f"Processing {len(sample_ids)} samples")
+    
+    # Perform streaming burden calculation
+    logger.info("Starting streaming VCF analysis...")
+    burden_results = calculate_burden_streaming(
+        vcf_path=vcf_path,
+        sample_ids=sample_ids,
+        vaf_threshold=0.01,
+        memory_threshold_mb=7000.0
+    )
+    
+    # Convert results to DataFrame for downstream use
+    burden_df = pd.DataFrame([
+        {
+            'sample_id': sid,
+            'total_variants': data['total_variants'],
+            'heteroplasmic_variants': data['heteroplasmic_variants'],
+            'burden_count': data['burden_count'],
+            'burden_frequency': data['burden_frequency'],
+            'depth_low': data['depth_bins']['Low'],
+            'depth_medium': data['depth_bins']['Medium'],
+            'depth_high': data['depth_bins']['High']
+        }
+        for sid, data in burden_results.items()
+    ])
+    
+    # Save intermediate results
+    processed_path = paths['processed']
+    processed_path.mkdir(parents=True, exist_ok=True)
+    intermediate_file = processed_path / 'mito_burden_intermediate.csv'
+    burden_df.to_csv(intermediate_file, index=False)
+    
+    logger.info(f"Intermediate burden data saved to {intermediate_file}")
+    logger.info("Load data pipeline completed successfully.")
+
+if __name__ == '__main__':
     main()

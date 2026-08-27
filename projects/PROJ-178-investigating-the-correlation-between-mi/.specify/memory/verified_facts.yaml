@@ -1,5 +1,6 @@
-'|approach benjamini controlling discovery false hochberg multiple powerful practical rate testing':
-  quote: "Society Series B, 57(1), 289\u2013300."
-  source_id: '2201.09350'
-  url: https://arxiv.org/abs/2201.09350
-  value: "289\u2013300"
+'|assignment haplogroup sample successful':
+  quote: (inclusive of all markers in H) from chrY VCF files of 1000 genome project.
+    This results in a matrix S of size L*N where L is the
+  source_id: '1304.3351'
+  url: https://arxiv.org/abs/1304.3351
+  value: '100'

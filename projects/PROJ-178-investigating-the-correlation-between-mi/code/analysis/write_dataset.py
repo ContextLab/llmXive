@@ -4,7 +4,6 @@ import logging
 import hashlib
 import pandas as pd
 from pathlib import Path
-
 from config.environment import get_local_paths
 
 # Configure logging
@@ -14,103 +13,123 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def calculate_file_checksum(file_path: Path, algorithm: str = 'md5') -> str:
+def calculate_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
     """
-    Calculate the checksum of a file to ensure data integrity.
+    Calculate the checksum of a file.
 
     Args:
-        file_path: Path to the file to checksum.
-        algorithm: Hash algorithm to use (default: md5).
+        file_path: Path to the file to hash
+        algorithm: Hash algorithm to use (default: sha256)
 
     Returns:
-        Hex digest string of the file checksum.
+        Hexadecimal digest string
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Cannot calculate checksum: file not found at {file_path}")
+    hash_obj = hashlib.new(algorithm)
+    try:
+        with open(file_path, 'rb') as f:
+            # Read in chunks to handle large files
+            for chunk in iter(lambda: f.read(8192), b""):
+                hash_obj.update(chunk)
+        return hash_obj.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found for checksum calculation: {file_path}")
+        raise
+    except Exception as e:
+        logger.error(f"Error calculating checksum for {file_path}: {e}")
+        raise
 
-    hasher = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        # Read in chunks to handle large files efficiently
-        for chunk in iter(lambda: f.read(4096), b""):
-            hasher.update(chunk)
-    
-    return hasher.hexdigest()
-
-def write_processed_dataset(df: pd.DataFrame, output_path: Path) -> str:
+def write_processed_dataset(df: pd.DataFrame, output_path: Path, generate_checksum: bool = True) -> dict:
     """
-    Write the processed dataset to a CSV file and generate a checksum.
+    Write the processed dataset to CSV and optionally generate a checksum file.
 
     Args:
-        df: The pandas DataFrame containing the processed dataset.
-        output_path: The path where the CSV file will be written.
+        df: The processed pandas DataFrame to write
+        output_path: Path where the CSV file will be written
+        generate_checksum: Whether to generate a .sha256 file
 
     Returns:
-        The checksum of the written file.
+        Dictionary containing metadata about the written file
     """
-    # Ensure the output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Writing processed dataset to {output_path}")
-    df.to_csv(output_path, index=False)
-    
-    logger.info(f"Dataset written successfully. Shape: {df.shape}")
-    
-    # Calculate and log checksum
-    checksum = calculate_file_checksum(output_path)
-    logger.info(f"Checksum ({output_path.name}): {checksum}")
-    
-    return checksum
+    try:
+        # Ensure output directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write the dataset
+        df.to_csv(output_path, index=False)
+        logger.info(f"Wrote processed dataset to {output_path} with {len(df)} rows and {len(df.columns)} columns")
+
+        result = {
+            'path': str(output_path),
+            'rows': len(df),
+            'columns': len(df.columns),
+            'column_names': list(df.columns)
+        }
+
+        if generate_checksum:
+            checksum = calculate_file_checksum(output_path)
+            checksum_path = Path(str(output_path) + '.sha256')
+            with open(checksum_path, 'w') as f:
+                f.write(f"{checksum}  {output_path.name}\n")
+            result['checksum'] = checksum
+            result['checksum_path'] = str(checksum_path)
+            logger.info(f"Generated checksum {checksum} and saved to {checksum_path}")
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Failed to write processed dataset: {e}")
+        raise
 
 def main():
     """
-    Main entry point for writing the processed dataset and generating checksum.
-    This script assumes that the processed dataset has already been created
-    by previous steps (e.g., T018) and is available at the expected location.
-    It will load the data, write it to the final output location, and generate a checksum.
+    Main entry point for writing the processed dataset.
+    Loads the merged dataset from the expected location, validates it,
+    writes it to the final output path, and generates a checksum.
     """
-    paths = get_local_paths()
-    
-    # Define input and output paths
-    # T018 was supposed to write to this location, but if it failed or we need to re-write,
-    # we assume the data is available in the processed directory.
-    # Since T018 was marked as failed/missing in the feedback, we assume the data
-    # might need to be regenerated or re-merged. However, T020's specific job is
-    # to write the dataset and generate checksum. 
-    # We will assume the merged data exists at the expected path from T018's description.
-    input_path = paths['processed_data'] / 'mito_aging_dataset.csv'
-    output_path = paths['processed_data'] / 'mito_aging_dataset.csv'
-    
+    logger.info("Starting dataset write process for T020")
+
+    # Get paths from environment config
+    local_paths = get_local_paths()
+    input_path = local_paths.get('processed_dataset_path', 'code/data/processed/mito_aging_dataset.csv')
+    input_path = Path(input_path)
+
+    # Validate input file exists
     if not input_path.exists():
-        logger.error(f"Input file not found at {input_path}.")
-        logger.error("This task depends on T018 completing successfully to generate the input file.")
+        logger.error(f"Input file not found: {input_path}")
+        logger.error("T018 must complete successfully before T020 can run.")
         sys.exit(1)
 
     try:
+        # Load the merged dataset
         logger.info(f"Loading dataset from {input_path}")
         df = pd.read_csv(input_path)
-        
-        if df.empty:
-            logger.warning("Dataset is empty. Writing empty file.")
-        else:
-            logger.info(f"Loaded dataset with {len(df)} samples and {len(df.columns)} columns.")
-            # Verify critical columns exist (optional validation)
-            critical_columns = ['sample_id', 'age', 'sex', 'population', 'haplogroup', 'burden']
-            missing_cols = [col for col in critical_columns if col not in df.columns]
-            if missing_cols:
-                logger.warning(f"Missing critical columns: {missing_cols}")
 
-        # Write to final output location (could be same as input if overwriting)
-        checksum = write_processed_dataset(df, output_path)
-        
-        # Optionally write checksum to a separate file for easy access
-        checksum_path = paths['processed_data'] / 'mito_aging_dataset.csv.md5'
-        with open(checksum_path, 'w') as f:
-            f.write(checksum)
-        logger.info(f"Checksum written to {checksum_path}")
+        # Basic validation
+        if df.empty:
+            logger.error("Dataset is empty. Cannot write empty dataset.")
+            sys.exit(1)
+
+        required_columns = ['sample_id', 'heteroplasmy_burden', 'age']
+        missing_cols = [col for col in required_columns if col not in df.columns]
+        if missing_cols:
+            logger.error(f"Missing required columns: {missing_cols}")
+            sys.exit(1)
+
+        # Determine output path (same as input for this task, but we ensure checksum generation)
+        output_path = input_path
+
+        # Write dataset with checksum
+        result = write_processed_dataset(df, output_path, generate_checksum=True)
+
+        logger.info("T020 completed successfully.")
+        logger.info(f"Output: {result['path']}")
+        logger.info(f"Checksum: {result.get('checksum', 'N/A')}")
+
+        return result
 
     except Exception as e:
-        logger.error(f"Error processing dataset: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Critical error in main: {e}")
+        raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

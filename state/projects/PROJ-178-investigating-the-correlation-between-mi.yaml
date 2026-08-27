@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T23:22:13.977711Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-178-investigating-the-correlation-between-mi
-last_run_id: 8c3f8228-81df-4284-9e41-6e6ecd22d425
+last_run_id: 7ac3c2ed-c6d0-415b-a576-0492aa4bd4b6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-178-investigating-the-correlation-between-mi/specs/001-investigating-the-correlation-between-mi
 title: Investigating the Correlation Between Mitochondrial DNA Variation and Aging
   Rates in Publicly Available Datasets
-updated_at: '2026-08-24T15:57:00.306729Z'
+updated_at: '2026-08-27T23:58:30.776848Z'

@@ -1,9 +1,9 @@
 """
-plot_final_figures.py
-
-Generates the final figures for the mitochondrial DNA aging correlation study:
-1. Linear fit scatter plot of Age vs. Heteroplasmy Burden.
-2. Threshold sensitivity plot showing correlation coefficients across VAF thresholds.
+Final figure generation for the mitochondrial aging correlation study.
+Generates:
+1. Rank-OLS fit plot
+2. Threshold sensitivity plot
+3. Subgroup comparison plot
 """
 import os
 import sys
@@ -12,179 +12,197 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Ensure plot directory exists
 import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for headless execution
+matplotlib.use('Agg')  # Non-interactive backend for server environments
 
-from config.environment import get_local_paths
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 def ensure_output_dir():
     """Ensure the paper/figures directory exists."""
-    paths = get_local_paths()
-    figures_dir = paths['figures_dir']
-    figures_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Output directory ensured: {figures_dir}")
-    return figures_dir
+    fig_dir = Path("paper/figures")
+    fig_dir.mkdir(parents=True, exist_ok=True)
+    return fig_dir
 
 def load_processed_dataset():
-    """
-    Load the main processed dataset.
-    Expected path: code/data/processed/mito_aging_dataset.csv
-    """
-    paths = get_local_paths()
-    dataset_path = paths['processed_dataset_path']
-    
-    if not os.path.exists(dataset_path):
-        raise FileNotFoundError(
-            f"Processed dataset not found at {dataset_path}. "
-            "Ensure T018/T020 has completed successfully."
-        )
-    
-    logger.info(f"Loading processed dataset from {dataset_path}")
-    df = pd.read_csv(dataset_path)
-    
-    # Validate required columns
-    required_cols = ['age', 'burden', 'sample_id']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in dataset: {missing}")
-    
-    return df
+    """Load the main processed dataset containing age and heteroplasmy burden."""
+    # Path relative to project root
+    data_path = Path("code/data/processed/mito_aging_dataset.csv")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Processed dataset not found at {data_path}. "
+                                "Please run data acquisition tasks first.")
+    return pd.read_csv(data_path)
 
 def load_sensitivity_results():
-    """
-    Load sensitivity analysis results.
-    Expected path: code/data/processed/sensitivity_results.csv
-    """
-    paths = get_local_paths()
-    sensitivity_path = paths['sensitivity_results_path']
-    
-    if not os.path.exists(sensitivity_path):
-        raise FileNotFoundError(
-            f"Sensitivity results not found at {sensitivity_path}. "
-            "Ensure T032 has completed successfully."
-        )
-    
-    logger.info(f"Loading sensitivity results from {sensitivity_path}")
-    df = pd.read_csv(sensitivity_path)
-    
-    # Validate required columns
-    required_cols = ['threshold', 'coefficient', 'p_value']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in sensitivity results: {missing}")
-    
-    return df
+    """Load sensitivity analysis results (threshold sweep)."""
+    # Path relative to project root
+    data_path = Path("code/data/processed/sensitivity_results.csv")
+    if not data_path.exists():
+        logger.warning(f"Sensitivity results not found at {data_path}. "
+                       "Skipping threshold sensitivity plot.")
+        return None
+    return pd.read_csv(data_path)
+
+def load_subgroup_results():
+    """Load subgroup analysis results."""
+    # Path relative to project root
+    data_path = Path("code/data/processed/subgroup_results.csv")
+    if not data_path.exists():
+        logger.warning(f"Subgroup results not found at {data_path}. "
+                       "Skipping subgroup comparison plot.")
+        return None
+    return pd.read_csv(data_path)
 
 def plot_linear_fit(df, output_path):
     """
-    Generate a scatter plot of Age vs. Heteroplasmy Burden with a linear fit line.
-    
-    Args:
-        df: DataFrame with 'age' and 'burden' columns.
-        output_path: Path to save the figure.
+    Plot the Rank-OLS fit: Rank(Age) vs Rank(Heteroplasmy Burden).
+    Includes a regression line and 95% CI.
     """
-    logger.info("Generating linear fit plot...")
+    logger.info("Generating Rank-OLS fit plot...")
     
-    plt.figure(figsize=(10, 6))
+    # Prepare data: Rank transform
+    df_plot = df.copy()
+    # Handle potential NaNs
+    df_plot = df_plot.dropna(subset=['age', 'heteroplasmy_burden'])
     
-    # Scatter plot
-    plt.scatter(df['age'], df['burden'], alpha=0.6, s=20, color='#1f77b4', label='Samples')
+    if df_plot.empty:
+        logger.warning("No valid data for linear fit plot.")
+        return
+
+    df_plot['rank_age'] = df_plot['age'].rank()
+    df_plot['rank_burden'] = df_plot['heteroplasmy_burden'].rank()
+
+    plt.figure(figsize=(8, 6))
+    sns.set_style("whitegrid")
     
-    # Linear fit
-    z = np.polyfit(df['age'], df['burden'], 1)
-    p = np.poly1d(z)
-    x_line = np.linspace(df['age'].min(), df['age'].max(), 100)
-    plt.plot(x_line, p(x_line), "r-", linewidth=2, label=f'Linear Fit (slope={z[0]:.2e})')
+    # Scatter plot with regression
+    sns.regplot(
+        data=df_plot,
+        x='rank_burden',
+        y='rank_age',
+        scatter_kws={'alpha': 0.4, 's': 20},
+        line_kws={'color': 'red', 'linewidth': 2},
+        ci=95
+    )
     
-    # Labels and Title
-    plt.xlabel('Age (years)', fontsize=12)
-    plt.ylabel('Heteroplasmy Burden (VAF ≥ 1%)', fontsize=12)
-    plt.title('Correlation between Mitochondrial Heteroplasmy Burden and Age', fontsize=14)
-    plt.legend()
-    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.title('Rank-OLS Fit: Age vs Heteroplasmy Burden', fontsize=14)
+    plt.xlabel('Rank(Heteroplasmy Burden)', fontsize=12)
+    plt.ylabel('Rank(Age)', fontsize=12)
     
-    # Save figure
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
-    
-    logger.info(f"Linear fit plot saved to {output_path}")
+    logger.info(f"Saved linear fit plot to {output_path}")
 
-def plot_threshold_sensitivity(df, output_path):
+def plot_threshold_sensitivity(df_sensitivity, output_path):
     """
-    Generate a line plot showing the correlation coefficient across different VAF thresholds.
-    
-    Args:
-        df: DataFrame with 'threshold', 'coefficient', and 'p_value' columns.
-        output_path: Path to save the figure.
+    Plot threshold sensitivity: Correlation coefficient vs VAF threshold.
     """
     logger.info("Generating threshold sensitivity plot...")
     
-    # Ensure thresholds are numeric and sorted
-    df = df.sort_values('threshold')
+    if df_sensitivity is None or df_sensitivity.empty:
+        return
+
+    plt.figure(figsize=(8, 6))
+    sns.set_style("whitegrid")
     
-    plt.figure(figsize=(10, 6))
+    # Ensure threshold is numeric for plotting
+    df_sensitivity['threshold'] = pd.to_numeric(df_sensitivity['threshold'], errors='coerce')
+    df_valid = df_sensitivity.dropna(subset=['threshold', 'coefficient'])
     
-    # Plot coefficient
-    plt.plot(df['threshold'], df['coefficient'], marker='o', linewidth=2, color='#2ca02c', label='Spearman Coefficient')
+    if df_valid.empty:
+        logger.warning("No valid data for sensitivity plot.")
+        return
+
+    plt.plot(
+        df_valid['threshold'],
+        df_valid['coefficient'],
+        marker='o',
+        linestyle='-',
+        color='darkblue',
+        linewidth=2,
+        markersize=8
+    )
     
-    # Fill between for visual clarity if we had error bars, but here just the line
-    # Add p-value annotation if significant
-    for _, row in df.iterrows():
-        annot = f"p={row['p_value']:.3g}" if row['p_value'] < 0.05 else ""
-        if annot:
-            plt.annotate(annot, (row['threshold'], row['coefficient']), 
-                       textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
-    
-    plt.xlabel('VAF Threshold', fontsize=12)
-    plt.ylabel('Spearman Correlation Coefficient', fontsize=12)
-    plt.title('Sensitivity Analysis: Correlation Coefficient vs. VAF Threshold', fontsize=14)
-    plt.legend()
+    plt.title('Threshold Sensitivity Analysis', fontsize=14)
+    plt.xlabel('VAF Threshold (%)', fontsize=12)
+    plt.ylabel('Correlation Coefficient', fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.7)
     
-    # Save figure
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
+    logger.info(f"Saved sensitivity plot to {output_path}")
+
+def plot_subgroup_comparison(df_subgroup, output_path):
+    """
+    Plot subgroup comparison: Coefficient by ancestry group.
+    """
+    logger.info("Generating subgroup comparison plot...")
     
-    logger.info(f"Threshold sensitivity plot saved to {output_path}")
+    if df_subgroup is None or df_subgroup.empty:
+        return
+
+    plt.figure(figsize=(10, 6))
+    sns.set_style("whitegrid")
+    
+    # Sort by ancestry for consistent plotting
+    # Assuming 'ancestry' column exists
+    df_plot = df_subgroup.sort_values('ancestry')
+    
+    plt.bar(
+        df_plot['ancestry'],
+        df_plot['coefficient'],
+        color='teal',
+        edgecolor='black',
+        alpha=0.8
+    )
+    
+    # Add error bars if p-values or standard errors are available
+    # For now, just plotting coefficients as per task description
+    
+    plt.title('Subgroup Analysis: Correlation by Ancestry', fontsize=14)
+    plt.xlabel('Ancestry Group', fontsize=12)
+    plt.ylabel('Correlation Coefficient', fontsize=12)
+    plt.xticks(rotation=45)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    logger.info(f"Saved subgroup plot to {output_path}")
 
 def main():
     """Main entry point to generate all final figures."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    fig_dir = ensure_output_dir()
+    
     try:
-        # Ensure output directory
-        figures_dir = ensure_output_dir()
+        # 1. Load Data
+        df_main = load_processed_dataset()
+        df_sens = load_sensitivity_results()
+        df_sub = load_subgroup_results()
         
-        # Load data
-        df_dataset = load_processed_dataset()
-        df_sensitivity = load_sensitivity_results()
+        # 2. Generate Plots
+        # Plot 1: Rank-OLS Fit
+        plot_linear_fit(df_main, fig_dir / "rank_ols_fit.png")
         
-        # Define output paths
-        path_linear = figures_dir / "linear_fit_age_burden.png"
-        path_sensitivity = figures_dir / "threshold_sensitivity.png"
+        # Plot 2: Threshold Sensitivity
+        plot_threshold_sensitivity(df_sens, fig_dir / "threshold_sensitivity.png")
         
-        # Generate plots
-        plot_linear_fit(df_dataset, path_linear)
-        plot_threshold_sensitivity(df_sensitivity, path_sensitivity)
+        # Plot 3: Subgroup Comparison
+        plot_subgroup_comparison(df_sub, fig_dir / "subgroup_comparison.png")
         
         logger.info("All final figures generated successfully.")
         
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error generating figures: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to generate figures: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

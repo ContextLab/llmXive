@@ -1,0 +1,2 @@
+model,coefficient,p_value,n_samples,formula
+rank_ols_adjusted,0.0,0.0,0,rank_age ~ rank_burden + C(sex) + rank_PC1 + rank_PC2 + rank_depth

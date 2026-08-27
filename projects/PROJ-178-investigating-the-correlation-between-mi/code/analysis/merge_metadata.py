@@ -10,97 +10,139 @@ logger = logging.getLogger(__name__)
 def ensure_dirs():
     """Ensure output directories exist."""
     paths = get_local_paths()
-    ensure_directories(paths['processed_data'])
-    return paths
+    ensure_directories(paths)
 
-def load_burden_data(paths):
-    """Load heteroplasmy burden data from preprocess output."""
-    burden_path = paths['processed_data'] / 'burden_per_sample.csv'
+def load_burden_data():
+    """
+    Load the processed heteroplasmy burden data.
+    Expected location: data/processed/heteroplasmy_burden.csv
+    """
+    paths = get_local_paths()
+    burden_path = paths['data_processed'] / 'heteroplasmy_burden.csv'
+    
     if not burden_path.exists():
-        raise FileNotFoundError(f"Burden data not found at {burden_path}. Run preprocess.py first.")
+        raise FileNotFoundError(f"Burden data file not found at {burden_path}. "
+                                "Run load_data.py and preprocess.py first.")
+    
     logger.info(f"Loading burden data from {burden_path}")
     df = pd.read_csv(burden_path)
-    # Ensure sample ID column is consistent
-    if 'sample_id' not in df.columns:
-        # Try to infer if column name is different
-        if 'SampleID' in df.columns:
-            df.rename(columns={'SampleID': 'sample_id'}, inplace=True)
-        else:
-            raise ValueError("Burden data missing 'sample_id' column")
     return df
 
-def load_haplogroup_data(paths):
-    """Load haplogroup assignments from haplogrep2 output."""
-    # Haplogrep2 typically outputs a specific format; we assume a standardized CSV
-    hg_path = paths['processed_data'] / 'haplogroups.csv'
-    if not hg_path.exists():
-        raise FileNotFoundError(f"Haplogroup data not found at {hg_path}. Run preprocess.py (assign_haplogroups) first.")
-    logger.info(f"Loading haplogroup data from {hg_path}")
-    df = pd.read_csv(hg_path)
-    if 'sample_id' not in df.columns:
-        if 'SampleID' in df.columns:
-            df.rename(columns={'SampleID': 'sample_id'}, inplace=True)
-        else:
-            raise ValueError("Haplogroup data missing 'sample_id' column")
-    return df
-
-def load_metadata_panel(paths):
-    """Load 1000 Genomes metadata panel (age, sex, population, PCs)."""
-    meta_path = paths['raw_data'] / 'metadata_panel.csv'
-    if not meta_path.exists():
-        # Fallback for downloaded metadata if named differently
-        meta_path = paths['raw_data'] / 'phase3_sample_info.tsv'
-        if meta_path.exists():
-            df = pd.read_csv(meta_path, sep='\t')
-        else:
-            raise FileNotFoundError(f"Metadata panel not found at {paths['raw_data']}. Run load_data.py first.")
-    else:
-        df = pd.read_csv(meta_path)
-    
-    logger.info(f"Loading metadata panel from {meta_path}")
-    
-    # Standardize column names
-    # Expected columns: sample_id, age, sex, population, PC1, PC2, ...
-    rename_map = {}
-    for col in df.columns:
-        lower_col = col.lower()
-        if 'sample' in lower_col and 'id' in lower_col:
-            rename_map[col] = 'sample_id'
-        elif 'age' in lower_col and 'years' not in lower_col:
-            rename_map[col] = 'age'
-        elif 'sex' in lower_col or 'gender' in lower_col:
-            rename_map[col] = 'sex'
-        elif 'population' in lower_col or 'superpopulation' in lower_col:
-            rename_map[col] = 'population'
-        elif 'pc1' in lower_col:
-            rename_map[col] = 'PC1'
-        elif 'pc2' in lower_col:
-            rename_map[col] = 'PC2'
-    
-    if rename_map:
-        df.rename(columns=rename_map, inplace=True)
-    
-    # Ensure sample_id is string for joining
-    if 'sample_id' in df.columns:
-        df['sample_id'] = df['sample_id'].astype(str)
-    
-    return df
-
-def merge_datasets(burden_df, haplogroup_df, metadata_df):
+def load_haplogroup_data():
     """
-    Merge burden, haplogroups, and metadata into a single dataframe.
-    Inner join on sample_id to ensure all rows have complete data for this stage.
+    Load the haplogroup assignments.
+    Expected location: data/processed/haplogroups.csv
     """
-    logger.info("Merging datasets...")
+    paths = get_local_paths()
+    haplogroup_path = paths['data_processed'] / 'haplogroups.csv'
     
-    # Start with burden
+    if not haplogroup_path.exists():
+        raise FileNotFoundError(f"Haplogroup data file not found at {haplogroup_path}. "
+                                "Run preprocess.py first.")
+    
+    logger.info(f"Loading haplogroup data from {haplogroup_path}")
+    df = pd.read_csv(haplogroup_path)
+    return df
+
+def load_metadata_panel():
+    """
+    Load the metadata panel containing age, sex, population, and PCs.
+    Expected location: data/raw/1000G_phase3_sample_info.tsv (or similar)
+    This function assumes the metadata has been downloaded by load_data.py.
+    """
+    paths = get_local_paths()
+    # The metadata file is typically downloaded to data/raw
+    # We look for the standard 1000 Genomes sample info file
+    metadata_path = paths['data_raw'] / 'phase3_sample_info.tsv'
+    
+    if not metadata_path.exists():
+        # Fallback to other common names if the specific file isn't found
+        # This handles cases where the filename might differ slightly
+        possible_names = [
+            '1000G_phase3_sample_info.tsv',
+            'sample_info.tsv',
+            'metadata.tsv'
+        ]
+        for name in possible_names:
+            alt_path = paths['data_raw'] / name
+            if alt_path.exists():
+                metadata_path = alt_path
+                break
+        else:
+            raise FileNotFoundError(
+                f"Metadata panel not found in {paths['data_raw']}. "
+                "Ensure load_data.py has downloaded the metadata."
+            )
+    
+    logger.info(f"Loading metadata panel from {metadata_path}")
+    df = pd.read_csv(metadata_path, sep='\t')
+    return df
+
+def merge_datasets():
+    """
+    Merge burden data, haplogroups, and metadata panel into a single analysis-ready dataset.
+    
+    Returns:
+        pd.DataFrame: Merged dataset with columns for burden, haplogroup, age, sex, population, PCs
+    
+    Raises:
+        FileNotFoundError: If any required input files are missing
+        ValueError: If required columns are missing in input files
+    """
+    # Load all source data
+    burden_df = load_burden_data()
+    haplogroup_df = load_haplogroup_data()
+    metadata_df = load_metadata_panel()
+    
+    logger.info(f"Burden data shape: {burden_df.shape}")
+    logger.info(f"Haplogroup data shape: {haplogroup_df.shape}")
+    logger.info(f"Metadata data shape: {metadata_df.shape}")
+    
+    # Ensure sample IDs are consistent (strip any potential whitespace)
+    if 'sample_id' in burden_df.columns:
+        burden_df['sample_id'] = burden_df['sample_id'].astype(str).str.strip()
+    if 'sample_id' in haplogroup_df.columns:
+        haplogroup_df['sample_id'] = haplogroup_df['sample_id'].astype(str).str.strip()
+    if 'sample_id' in metadata_df.columns:
+        metadata_df['sample_id'] = metadata_df['sample_id'].astype(str).str.strip()
+    
+    # Start with burden data as the base (since it's the primary analysis target)
     merged = burden_df.copy()
     
-    # Merge haplogroups
-    merged = merged.merge(haplogroup_df[['sample_id', 'haplogroup']], on='sample_id', how='inner')
+    # Merge with haplogroup data
+    merged = merged.merge(
+        haplogroup_df[['sample_id', 'haplogroup']],
+        on='sample_id',
+        how='left'
+    )
     
-    # Merge metadata
-    merged = merged.merge(metadata_df, on='sample_id', how='inner')
+    # Merge with metadata panel
+    # We need to map metadata columns to our expected names
+    # Common metadata columns: sample_id, age, sex, superpopulation, PC1-PC10
+    merged = merged.merge(
+        metadata_df,
+        on='sample_id',
+        how='left'
+    )
+    
+    # Standardize column names if needed
+    # Check for common metadata column name variations
+    col_mapping = {}
+    if 'superpopulation' in merged.columns:
+        col_mapping['superpopulation'] = 'population'
+    if 'SEX' in merged.columns:
+        col_mapping['SEX'] = 'sex'
+    if 'AGE' in merged.columns:
+        col_mapping['AGE'] = 'age'
+    
+    merged = merged.rename(columns=col_mapping)
+    
+    # Verify required columns exist
+    required_cols = ['sample_id', 'heteroplasmy_burden', 'haplogroup', 'age', 'sex', 'population']
+    missing_cols = [col for col in required_cols if col not in merged.columns]
+    
+    if missing_cols:
+        raise ValueError(f"Missing required columns in merged dataset: {missing_cols}")
     
     logger.info(f"Merged dataset shape: {merged.shape}")
     logger.info(f"Columns: {list(merged.columns)}")
@@ -108,32 +150,29 @@ def merge_datasets(burden_df, haplogroup_df, metadata_df):
     return merged
 
 def main():
-    """Main entry point for metadata merging."""
+    """Main entry point for merging metadata."""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('code/logs/merge_metadata.log')
-        ]
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    paths = ensure_dirs()
-    
     try:
-        burden_df = load_burden_data(paths)
-        haplogroup_df = load_haplogroup_data(paths)
-        metadata_df = load_metadata_panel(paths)
+        ensure_dirs()
+        merged_df = merge_datasets()
         
-        merged_df = merge_datasets(burden_df, haplogroup_df, metadata_df)
+        # Write to output file
+        paths = get_local_paths()
+        output_path = paths['data_processed'] / 'mito_aging_dataset.csv'
         
-        output_path = paths['processed_data'] / 'mito_aging_dataset.csv'
         merged_df.to_csv(output_path, index=False)
         logger.info(f"Successfully wrote merged dataset to {output_path}")
+        logger.info(f"Total samples: {len(merged_df)}")
+        
+        return merged_df
         
     except Exception as e:
-        logger.error(f"Failed to merge datasets: {e}")
+        logger.error(f"Failed to merge datasets: {e}", exc_info=True)
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

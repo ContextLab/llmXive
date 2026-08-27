@@ -6,160 +6,197 @@ from pathlib import Path
 import tempfile
 import shutil
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from analysis.merge_metadata import (
-    load_burden_data,
-    load_haplogroup_data,
-    load_metadata_panel,
-    merge_datasets,
-    ensure_dirs
-)
+from analysis.merge_metadata import merge_datasets, load_burden_data, load_haplogroup_data, load_metadata_panel
 
 class TestMergeMetadata:
+    """Test suite for metadata merging functionality."""
     
     @pytest.fixture
-    def temp_dirs(self):
-        """Create temporary directory structure mimicking project layout."""
-        temp_base = tempfile.mkdtemp()
-        paths = {
-            'raw_data': Path(temp_base) / 'raw',
-            'processed_data': Path(temp_base) / 'processed',
-            'logs': Path(temp_base) / 'logs'
+    def temp_data_dirs(self):
+        """Create temporary directories for test data."""
+        temp_dir = tempfile.mkdtemp()
+        data_raw = Path(temp_dir) / 'data' / 'raw'
+        data_processed = Path(temp_dir) / 'data' / 'processed'
+        data_raw.mkdir(parents=True)
+        data_processed.mkdir(parents=True)
+        
+        # Mock environment paths
+        original_get_local_paths = None
+        try:
+            from config import environment
+            original_get_local_paths = environment.get_local_paths
+            
+            def mock_get_local_paths():
+                return {
+                    'data_raw': data_raw,
+                    'data_processed': data_processed,
+                    'logs': Path(temp_dir) / 'logs',
+                    'figures': Path(temp_dir) / 'figures'
+                }
+            
+            environment.get_local_paths = mock_get_local_paths
+            
+        except ImportError:
+            pass
+        
+        yield {
+            'temp_dir': temp_dir,
+            'data_raw': data_raw,
+            'data_processed': data_processed
         }
-        for p in paths.values():
-            p.mkdir(parents=True, exist_ok=True)
-        return paths, temp_base
-    
-    def test_load_burden_data(self, temp_dirs):
-        """Test loading burden data."""
-        paths, _ = temp_dirs
-        burden_path = paths['processed_data'] / 'burden_per_sample.csv'
+        
+        # Cleanup
+        shutil.rmtree(temp_dir)
+        if original_get_local_paths:
+            environment.get_local_paths = original_get_local_paths
+
+    def test_merge_datasets_basic(self, temp_data_dirs):
+        """Test basic merging of datasets with all required columns."""
+        data_processed = temp_data_dirs['data_processed']
         
         # Create mock burden data
-        mock_data = pd.DataFrame({
-            'sample_id': ['HG00001', 'HG00002'],
-            'burden_total': [0.05, 0.08],
-            'burden_low': [0.02, 0.03],
-            'burden_medium': [0.02, 0.03],
-            'burden_high': [0.01, 0.02]
+        burden_df = pd.DataFrame({
+            'sample_id': ['HG00096', 'HG00097', 'HG00098'],
+            'heteroplasmy_burden': [0.15, 0.22, 0.08],
+            'sequencing_depth': [100, 150, 120]
         })
-        mock_data.to_csv(burden_path, index=False)
+        burden_df.to_csv(data_processed / 'heteroplasmy_burden.csv', index=False)
         
-        df = load_burden_data(paths)
-        assert len(df) == 2
-        assert 'sample_id' in df.columns
-        assert 'burden_total' in df.columns
-
-    def test_load_haplogroup_data(self, temp_dirs):
-        """Test loading haplogroup data."""
-        paths, _ = temp_dirs
-        hg_path = paths['processed_data'] / 'haplogroups.csv'
-        
-        mock_data = pd.DataFrame({
-            'sample_id': ['HG00001', 'HG00002'],
-            'haplogroup': ['H1a1', 'J1b']
+        # Create mock haplogroup data
+        haplogroup_df = pd.DataFrame({
+            'sample_id': ['HG00096', 'HG00097', 'HG00098'],
+            'haplogroup': ['H1', 'J1', 'U5b']
         })
-        mock_data.to_csv(hg_path, index=False)
+        haplogroup_df.to_csv(data_processed / 'haplogroups.csv', index=False)
         
-        df = load_haplogroup_data(paths)
-        assert len(df) == 2
-        assert 'haplogroup' in df.columns
-
-    def test_load_metadata_panel(self, temp_dirs):
-        """Test loading metadata panel."""
-        paths, _ = temp_dirs
-        meta_path = paths['raw_data'] / 'metadata_panel.csv'
-        
-        mock_data = pd.DataFrame({
-            'sample_id': ['HG00001', 'HG00002'],
-            'age': [45, 60],
-            'sex': ['Male', 'Female'],
-            'population': ['EUR', 'AFR'],
-            'PC1': [0.1, -0.2],
-            'PC2': [0.05, 0.1]
+        # Create mock metadata panel
+        metadata_df = pd.DataFrame({
+            'sample_id': ['HG00096', 'HG00097', 'HG00098'],
+            'age': [45, 62, 38],
+            'sex': ['Male', 'Female', 'Male'],
+            'superpopulation': ['EUR', 'AFR', 'EAS'],
+            'PC1': [0.1, 0.2, 0.3],
+            'PC2': [0.05, 0.15, 0.25]
         })
-        mock_data.to_csv(meta_path, index=False)
+        metadata_df.to_csv(temp_data_dirs['data_raw'] / 'phase3_sample_info.tsv', sep='\t', index=False)
         
-        df = load_metadata_panel(paths)
-        assert len(df) == 2
-        assert 'age' in df.columns
-        assert 'PC1' in df.columns
-
-    def test_merge_datasets(self, temp_dirs):
-        """Test merging all datasets."""
-        paths, _ = temp_dirs
+        # Run merge
+        merged = merge_datasets()
         
-        # Create mock data for all sources
-        burden_path = paths['processed_data'] / 'burden_per_sample.csv'
-        pd.DataFrame({
-            'sample_id': ['HG00001', 'HG00002'],
-            'burden_total': [0.05, 0.08]
-        }).to_csv(burden_path, index=False)
-        
-        hg_path = paths['processed_data'] / 'haplogroups.csv'
-        pd.DataFrame({
-            'sample_id': ['HG00001', 'HG00002'],
-            'haplogroup': ['H1a1', 'J1b']
-        }).to_csv(hg_path, index=False)
-        
-        meta_path = paths['raw_data'] / 'metadata_panel.csv'
-        pd.DataFrame({
-            'sample_id': ['HG00001', 'HG00002'],
-            'age': [45, 60],
-            'sex': ['Male', 'Female'],
-            'population': ['EUR', 'AFR']
-        }).to_csv(meta_path, index=False)
-        
-        burden_df = load_burden_data(paths)
-        hg_df = load_haplogroup_data(paths)
-        meta_df = load_metadata_panel(paths)
-        
-        merged = merge_datasets(burden_df, hg_df, meta_df)
-        
-        assert len(merged) == 2
-        assert 'burden_total' in merged.columns
+        # Verify results
+        assert len(merged) == 3
+        assert 'heteroplasmy_burden' in merged.columns
         assert 'haplogroup' in merged.columns
         assert 'age' in merged.columns
         assert 'sex' in merged.columns
-        assert 'population' in merged.columns
-        assert all(merged['sample_id'] == ['HG00001', 'HG00002'])
+        assert 'population' in merged.columns  # Should be renamed from superpopulation
+        
+        # Check specific values
+        assert merged.loc[merged['sample_id'] == 'HG00096', 'haplogroup'].iloc[0] == 'H1'
+        assert merged.loc[merged['sample_id'] == 'HG00096', 'age'].iloc[0] == 45
 
-    def test_merge_mismatched_ids(self, temp_dirs):
-        """Test that merge drops samples with missing data in any source."""
-        paths, _ = temp_dirs
+    def test_merge_datasets_missing_samples(self, temp_data_dirs):
+        """Test merging when some samples are missing in one dataset."""
+        data_processed = temp_data_dirs['data_processed']
         
-        # Burden has 3 samples
-        burden_path = paths['processed_data'] / 'burden_per_sample.csv'
-        pd.DataFrame({
-            'sample_id': ['HG00001', 'HG00002', 'HG00003'],
-            'burden_total': [0.05, 0.08, 0.02]
-        }).to_csv(burden_path, index=False)
+        # Create burden data with 3 samples
+        burden_df = pd.DataFrame({
+            'sample_id': ['HG00096', 'HG00097', 'HG00098'],
+            'heteroplasmy_burden': [0.15, 0.22, 0.08],
+        })
+        burden_df.to_csv(data_processed / 'heteroplasmy_burden.csv', index=False)
         
-        # Haplogroup only has 2
-        hg_path = paths['processed_data'] / 'haplogroups.csv'
-        pd.DataFrame({
-            'sample_id': ['HG00001', 'HG00002'],
-            'haplogroup': ['H1a1', 'J1b']
-        }).to_csv(hg_path, index=False)
+        # Create haplogroup data with only 2 samples (missing HG00098)
+        haplogroup_df = pd.DataFrame({
+            'sample_id': ['HG00096', 'HG00097'],
+            'haplogroup': ['H1', 'J1']
+        })
+        haplogroup_df.to_csv(data_processed / 'haplogroups.csv', index=False)
         
-        # Metadata has all 3
-        meta_path = paths['raw_data'] / 'metadata_panel.csv'
-        pd.DataFrame({
-            'sample_id': ['HG00001', 'HG00002', 'HG00003'],
-            'age': [45, 60, 55],
+        # Create metadata with all 3 samples
+        metadata_df = pd.DataFrame({
+            'sample_id': ['HG00096', 'HG00097', 'HG00098'],
+            'age': [45, 62, 38],
             'sex': ['Male', 'Female', 'Male'],
-            'population': ['EUR', 'AFR', 'EAS']
-        }).to_csv(meta_path, index=False)
+            'superpopulation': ['EUR', 'AFR', 'EAS']
+        })
+        metadata_df.to_csv(temp_data_dirs['data_raw'] / 'phase3_sample_info.tsv', sep='\t', index=False)
         
-        burden_df = load_burden_data(paths)
-        hg_df = load_haplogroup_data(paths)
-        meta_df = load_metadata_panel(paths)
+        # Run merge
+        merged = merge_datasets()
         
-        merged = merge_datasets(burden_df, hg_df, meta_df)
+        # Verify results
+        assert len(merged) == 3  # All burden samples retained
+        assert pd.isna(merged.loc[merged['sample_id'] == 'HG00098', 'haplogroup'].iloc[0])
+        assert merged.loc[merged['sample_id'] == 'HG00096', 'haplogroup'].iloc[0] == 'H1'
+
+    def test_merge_datasets_missing_columns(self, temp_data_dirs):
+        """Test that missing required columns raise an error."""
+        data_processed = temp_data_dirs['data_processed']
         
-        # HG00003 should be dropped because it has no haplogroup
-        assert len(merged) == 2
-        assert 'HG00003' not in merged['sample_id'].values
+        # Create burden data missing required column
+        burden_df = pd.DataFrame({
+            'sample_id': ['HG00096'],
+            'heteroplasmy_burden': [0.15],
+        })
+        burden_df.to_csv(data_processed / 'heteroplasmy_burden.csv', index=False)
+        
+        # Create minimal haplogroup data
+        haplogroup_df = pd.DataFrame({
+            'sample_id': ['HG00096'],
+            'haplogroup': ['H1']
+        })
+        haplogroup_df.to_csv(data_processed / 'haplogroups.csv', index=False)
+        
+        # Create metadata missing age column
+        metadata_df = pd.DataFrame({
+            'sample_id': ['HG00096'],
+            'sex': ['Male'],
+            'superpopulation': ['EUR']
+        })
+        metadata_df.to_csv(temp_data_dirs['data_raw'] / 'phase3_sample_info.tsv', sep='\t', index=False)
+        
+        # Should raise ValueError due to missing 'age' column
+        with pytest.raises(ValueError, match="Missing required columns"):
+            merge_datasets()
+
+    def test_merge_datasets_column_renaming(self, temp_data_dirs):
+        """Test that metadata columns are properly renamed."""
+        data_processed = temp_data_dirs['data_processed']
+        
+        # Create burden data
+        burden_df = pd.DataFrame({
+            'sample_id': ['HG00096'],
+            'heteroplasmy_burden': [0.15],
+        })
+        burden_df.to_csv(data_processed / 'heteroplasmy_burden.csv', index=False)
+        
+        # Create haplogroup data
+        haplogroup_df = pd.DataFrame({
+            'sample_id': ['HG00096'],
+            'haplogroup': ['H1']
+        })
+        haplogroup_df.to_csv(data_processed / 'haplogroups.csv', index=False)
+        
+        # Create metadata with various column name variations
+        metadata_df = pd.DataFrame({
+            'sample_id': ['HG00096'],
+            'AGE': [45],  # Uppercase
+            'SEX': ['Male'],  # Uppercase
+            'superpopulation': ['EUR']
+        })
+        metadata_df.to_csv(temp_data_dirs['data_raw'] / 'phase3_sample_info.tsv', sep='\t', index=False)
+        
+        # Run merge
+        merged = merge_datasets()
+        
+        # Verify columns are renamed to lowercase standard names
+        assert 'age' in merged.columns
+        assert 'sex' in merged.columns
+        assert 'population' in merged.columns
+        assert 'AGE' not in merged.columns
+        assert 'SEX' not in merged.columns
+        assert 'superpopulation' not in merged.columns
