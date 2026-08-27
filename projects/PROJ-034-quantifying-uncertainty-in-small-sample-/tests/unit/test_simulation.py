@@ -9,12 +9,14 @@ from simulation.engine import calculate_vif, generate_dataset, DatasetInstance
 def test_correlation_matrix_generation():
     """
     Verify that the generated correlation matrix matches the target correlation.
+    Tests that the empirical correlation in the generated data is within a
+    predefined tolerance of the target rho parameter.
     """
     np.random.seed(42)
     config = SimulationConfig(
-        n=20,
+        n=50,  # Increased N slightly for more stable correlation estimate
         predictors=3,
-        rho=0.8,
+        rho=0.7,
         noise_std=1.0,
         true_coeffs=np.array([1.0, 2.0, 3.0])
     )
@@ -26,20 +28,24 @@ def test_correlation_matrix_generation():
     if dataset.X.shape[1] > 1:
         corr_matrix = np.corrcoef(dataset.X.T)
         # Check off-diagonal elements (approximate due to sampling noise)
-        # We check the mean off-diagonal correlation
+        # We check the mean absolute off-diagonal correlation
         off_diag = corr_matrix[np.ones_like(corr_matrix, dtype=bool) ^ np.eye(corr_matrix.shape[0], dtype=bool)]
         mean_off_diag = np.mean(np.abs(off_diag))
         
-        # Tolerance for small sample size (N=20)
-        tolerance = 0.3 
+        # Tolerance for small sample size (N=50)
+        # With N=50, we expect tighter bounds than N=20
+        tolerance = 0.15 
         assert abs(mean_off_diag - config.rho) < tolerance, \
-            f"Mean off-diagonal correlation {mean_off_diag:.3f} not within tolerance of {config.rho}"
+            f"Mean off-diagonal correlation {mean_off_diag:.3f} not within tolerance ({tolerance}) of target rho {config.rho}. " \
+            f"Expected ~{config.rho}, got {mean_off_diag:.3f}"
     else:
         pytest.skip("Cannot test correlation with single predictor")
 
 def test_rank_checking_logic():
     """
     Verify handling of N=5 or rank-deficient cases.
+    Ensures the simulation engine properly handles or rejects cases where
+    sample size is less than or equal to the number of predictors.
     """
     # Test case: N < predictors (rank deficient)
     config = SimulationConfig(
@@ -52,14 +58,8 @@ def test_rank_checking_logic():
     
     # This should raise a ValueError or handle gracefully
     # Based on engine.py implementation, it should fail or warn
-    try:
+    with pytest.raises((ValueError, np.linalg.LinAlgError)):
         dataset = generate_dataset(config)
-        # If it succeeds, check rank
-        rank = np.linalg.matrix_rank(dataset.X)
-        assert rank <= config.n, "Matrix rank exceeds number of samples"
-    except ValueError:
-        # Expected behavior for rank deficiency
-        pass
 
 def test_vif_calculation():
     """

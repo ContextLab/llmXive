@@ -6,22 +6,42 @@ build-backend = "setuptools.build_meta"
 name = "quantify-uncertainty-small-sample"
 version = "0.1.0"
 description = "Quantifying Uncertainty in Small Sample Regression Models"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "numpy",
-    "pandas",
-    "scipy",
-    "scikit-learn",
-    "cmdstanpy",
-    "matplotlib",
-    "seaborn",
-    "pyyaml",
-    "pytest",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.2.0",
+    "cmdstanpy>=1.1.0",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "pyyaml>=6.0",
+    "pytest>=7.3.0",
 ]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["simulation*", "models*", "metrics*", "validation*", "plots*", "scripts*", "main*"]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.flake8]
 max-line-length = 88
@@ -32,5 +52,11 @@ exclude = [
     "build",
     "dist",
     ".eggs",
+    "*.egg-info"
 ]
-ignore = ["E203", "W503"]
+ignore = [
+    "E203",
+    "W503"
+]
+per-file-ignores = []
+max-complexity = 10

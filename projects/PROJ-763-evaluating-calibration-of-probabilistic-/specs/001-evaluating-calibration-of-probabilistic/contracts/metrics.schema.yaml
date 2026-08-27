@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Calibration Metrics Schema"
+description: "Schema for output CSV files containing calibration metrics."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    enum: ["Brier", "CRPS", "PIT_KS", "Reliability_Slope"]
+    description: "Name of the computed metric."
+  lead_time:
+    type: "integer"
+    description: "Lead time for this metric."
+  variable:
+    type: "string"
+    enum: ["precip", "temp"]
+    description: "Target variable."
+  method:
+    type: "string"
+    enum: ["raw", "isotonic", "bayesian"]
+    description: "Method used to generate the forecast."
+  value:
+    type: "number"
+    description: "Computed metric value."
+  confidence_interval:
+    type: "string"
+    description: "String representation of the 95% confidence interval."
+  convergence_status:
+    type: "string"
+    enum: ["Converged", "Unconverged", "Timeout", "Excluded", "N/A"]
+    description: "Status of the model convergence. 'Unconverged' implies R-hat > 1.05. 'Excluded' implies valid but excluded from aggregation."
+  test_type:
+    type: "string"
+    enum: ["DM", "Wilcoxon", "Bootstrap", "N/A"]
+    description: "Statistical test used. 'Wilcoxon' is recorded if Shapiro-Wilk fails."
+  p_value:
+    type: "number"
+    description: "P-value of the statistical test."
+  prior_dominance_flag:
+    type: "boolean"
+    description: "True if Flat Prior model outperformed Physics Prior model."
+  bootstrap_iterations:
+    type: "integer"
+    description: "Number of bootstrap iterations performed (if applicable)."
+required:
+  - metric_name
+  - lead_time
+  - variable
+  - method
+  - value
+  - convergence_status
+additionalProperties: false

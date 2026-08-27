@@ -1,5 +1,5 @@
 """
-Unit tests for the calibration module.
+Tests for the calibration module (T010).
 """
 import os
 import json
@@ -8,72 +8,88 @@ import numpy as np
 import pytest
 from pathlib import Path
 
-# Import the module under test
-# We need to make sure the path is correct
-import sys
-sys.path.insert(0, 'code')
+# Mock the config and utils if necessary, but ideally run against real structure
+# We will test the logic of estimate_lambda with a synthetic but structured input
+# that mimics the spatial autocorrelation expected in real data.
 
-from calibration import estimate_lambda, save_lambda, _load_sample_from_raster
+def test_estimate_lambda_logic():
+    """
+    Test that estimate_lambda runs without error on a synthetic dataset
+    that has known spatial structure.
+    """
+    # This test requires the actual calibration module to be importable.
+    # We will create a temporary GeoTIFF with synthetic data to test the pipeline.
+    
+    try:
+        import rasterio
+        from rasterio.transform import from_bounds
+    except ImportError:
+        pytest.skip("rasterio not installed for testing")
 
-def test_estimate_lambda_on_synthetic_data():
-    """
-    Test that estimate_lambda can run on a synthetic 1D array.
-    Since we don't have real data in the test environment, we create a 
-    temporary file with synthetic data that has a known spatial structure.
-    """
-    # Create a temporary file
-    with tempfile.NamedTemporaryFile(suffix='.npy', delete=False) as tmp:
-        # Create a 1D array with some spatial correlation
-        # y[i] = 0.5 * y[i-1] + noise
-        n = 1000
-        y = np.zeros(n)
-        y[0] = 1.0
-        for i in range(1, n):
-            y[i] = 0.5 * y[i-1] + np.random.normal(0, 0.1)
-        
-        np.save(tmp.name, y)
-        
-        # Run estimation
-        # Note: The implementation uses a 1D neighbor structure which matches our synthetic data
-        lam = estimate_lambda(tmp.name, n_samples=500, seed=42)
-        
-        # Assert that the result is a valid number
-        assert isinstance(lam, float)
-        assert -1.0 < lam < 1.0
-        
-        # The true lambda is 0.5. We expect the estimate to be close.
-        # Due to the small sample and noise, we allow a wide margin.
-        assert 0.0 < lam < 1.0
+    from calibration import estimate_lambda
 
-def test_save_lambda_creates_json():
-    """
-    Test that save_lambda creates a valid JSON file.
-    """
+    # Create a synthetic raster with spatial autocorrelation
+    # Use a simple autoregressive process: y_t = lambda * y_neighbors + error
+    n = 50
+    data = np.random.rand(n, n)
+    
+    # Inject spatial autocorrelation manually (smoothing)
+    # This is a crude approximation but sufficient to trigger the MLE
+    # We'll use a simple convolution to create smooth regions
+    kernel = np.array([[0.1, 0.2, 0.1],
+                       [0.2, 0.2, 0.2],
+                       [0.1, 0.2, 0.1]])
+    from scipy.signal import convolve2d
+    data = convolve2d(data, kernel, mode='same')
+    
+    # Add some noise
+    data += np.random.normal(0, 0.1, data.shape)
+    
+    # Create a temporary GeoTIFF
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, 'test_lambda.json')
-        save_lambda(0.45, output_path, seed=42)
+        tiff_path = os.path.join(tmpdir, "test_30m.tif")
+        transform = from_bounds(0, 0, 1, 1, n, n)
         
-        assert os.path.exists(output_path)
+        with rasterio.open(
+            tiff_path, 'w',
+            driver='GTiff',
+            height=n,
+            width=n,
+            count=1,
+            dtype=data.dtype,
+            crs='EPSG:4326',
+            transform=transform
+        ) as dst:
+            dst.write(data, 1)
+        
+        # Run the estimation
+        lambda_val = estimate_lambda(tiff_path)
+        
+        assert isinstance(lambda_val, float), "Lambda must be a float"
+        assert not np.isnan(lambda_val), "Lambda must not be NaN"
+        assert not np.isinf(lambda_val), "Lambda must not be Inf"
+        # Lambda for spatial lag is typically between -1 and 1
+        assert -1 < lambda_val < 1, f"Lambda {lambda_val} is out of expected range [-1, 1]"
+
+def test_save_calibration_result():
+    """
+    Test that save_calibration_result writes a valid JSON file.
+    """
+    from calibration import save_calibration_result
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, "calibration_lambda.json")
+        save_calibration_result(0.5, output_path)
+        
+        assert os.path.exists(output_path), "Output file must exist"
         
         with open(output_path, 'r') as f:
             data = json.load(f)
         
-        assert data['lambda'] == 0.45
-        assert data['seed'] == 42
-        assert 'method' in data
+        assert "lambda" in data
+        assert data["lambda"] == 0.5
+        assert "seed" in data
+        assert "method" in data
 
-def test_load_sample_from_raster():
-    """
-    Test the sample loading function.
-    """
-    with tempfile.NamedTemporaryFile(suffix='.npy', delete=False) as tmp:
-        data = np.random.rand(1000)
-        np.save(tmp.name, data)
-        
-        sample = _load_sample_from_raster(tmp.name, n_samples=100, seed=42)
-        
-        assert len(sample) == 100
-        assert isinstance(sample, np.ndarray)
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

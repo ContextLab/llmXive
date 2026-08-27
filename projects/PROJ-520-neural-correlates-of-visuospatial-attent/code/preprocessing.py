@@ -1,3 +1,7 @@
+"""
+Preprocessing pipeline for EEG data.
+Handles filtering, ICA, epoching, and missing electrode handling.
+"""
 import os
 import json
 import logging
@@ -5,323 +9,254 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 
-# MNE-Python is required for EEG processing and FIF I/O
+# Import logging infrastructure
+from logging_config import get_pipeline_logger, log_stage_start, log_stage_end
+# Import config for paths
+from config import get_paths
+
+# MNE imports for EEG handling
 try:
     import mne
 except ImportError:
-    raise ImportError("MNE-Python is required for this task. Install via: pip install mne")
+    raise ImportError("MNE-Python is required for EEG preprocessing. Install with: pip install mne")
 
-from config import get_paths, load_config, get_seed
-from logging_config import get_pipeline_logger, log_stage_start, log_stage_end
-from ci_limits import enforce_limits, get_cpu_count
+logger = get_pipeline_logger(__name__)
 
-# Ensure the logger is configured
-logger = get_pipeline_logger()
-
-def validate_sample_size(epochs: mne.Epochs, min_epochs: int = 50, warn_threshold: int = 100) -> bool:
+def fallback_to_landmark_timestamps(raw: 'mne.io.Raw', events: np.ndarray) -> Tuple[np.ndarray, List[str]]:
     """
-    Validates that the number of epochs meets the minimum requirements.
+    Fallback logic for missing event markers.
+    Uses landmark timestamps if standard markers are missing.
     
     Args:
-        epochs: The MNE Epochs object.
-        min_epochs: Minimum required epochs per condition.
-        warn_threshold: Threshold for underpowered warning.
+        raw: Raw MNE object
+        events: Existing events array
         
     Returns:
-        True if sample size is sufficient, False otherwise.
-        
-    Raises:
-        ValueError: If sample size is below min_epochs.
+        Tuple of (updated_events, list_of_fallback_reasons)
     """
-    event_counts = epochs.event_id
-    logger.info(f"Validating sample size. Total events: {len(epochs.events)}")
+    log_stage_start(logger, "fallback_to_landmark_timestamps")
     
-    for condition, count in event_counts.items():
-        # In MNE, event_id maps condition name to integer, but we need counts per condition
-        # We can count occurrences in epochs.events based on the condition index
-        pass 
+    if events is not None and len(events) > 0:
+        logger.info("Standard event markers found, no fallback needed.")
+        log_stage_end(logger, "fallback_to_landmark_timestamps", status="success")
+        return events, []
     
-    # MNE Epochs object has a 'events' attribute (N x 3 array) and 'event_id' (dict name->idx)
-    # We need to count how many events correspond to each condition
-    condition_counts = {k: 0 for k in event_counts.keys()}
-    # Reverse map idx to name
-    idx_to_name = {v: k for k, v in event_counts.items()}
+    logger.warning("No event markers found. Attempting fallback to landmark timestamps.")
+    # Placeholder logic for landmark detection
+    # In a real implementation, this would detect specific peaks or markers in the raw data
+    # For now, we return the original (empty) events and a log entry
+    fallback_reasons = ["No standard markers found; landmark fallback attempted but no landmarks detected in this stub."]
     
-    for event in epochs.events:
-        idx = event[2]
-        if idx in idx_to_name:
-            condition_counts[idx_to_name[idx]] += 1
+    log_stage_end(logger, "fallback_to_landmark_timestamps", status="fallback_used")
+    return events, fallback_reasons
+
+def update_metadata_with_fallback(metadata_path: Path, fallback_details: List[str]) -> None:
+    """
+    Updates metadata.json with fallback details.
     
-    logger.info(f"Epoch counts per condition: {condition_counts}")
+    Args:
+        metadata_path: Path to metadata.json
+        fallback_details: List of strings describing the fallback
+    """
+    if not metadata_path.exists():
+        logger.warning(f"Metadata file not found at {metadata_path}, skipping update.")
+        return
+        
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
+        
+    if 'assumptions' not in metadata:
+        metadata['assumptions'] = {}
+        
+    metadata['assumptions']['event_source'] = 'landmark_fallback'
+    metadata['assumptions']['fallback_details'] = fallback_details
     
-    for condition, count in condition_counts.items():
-        if count < min_epochs:
-            logger.error(f"Condition '{condition}' has {count} epochs, which is below minimum {min_epochs}.")
-            raise ValueError(f"Underpowered dataset: Condition '{condition}' has only {count} epochs (min: {min_epochs}).")
-        elif count < warn_threshold:
-            logger.warning(f"Condition '{condition}' has {count} epochs, which is below recommended {warn_threshold}. Results may be underpowered.")
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+        
+    logger.info(f"Updated metadata at {metadata_path} with fallback details.")
+
+def handle_missing_electrodes(epochs: 'mne.Epochs', metadata_path: Path) -> Tuple['mne.Epochs', List[str]]:
+    """
+    Handles missing electrode data by skipping affected electrodes.
+    
+    Args:
+        epochs: MNE Epochs object
+        metadata_path: Path to metadata.json for logging skipped electrodes
+        
+    Returns:
+        Tuple of (cleaned_epochs, list_of_skipped_electrodes)
+    """
+    log_stage_start(logger, "handle_missing_electrodes")
+    
+    # Get the channel names from the epochs info
+    all_channels = epochs.ch_names
+    # Get the pickable channels (excluding bads if they are marked)
+    # MNE usually handles bad channels via info['bads']
+    # We check for channels that are effectively missing or have NaN data
+    
+    skipped_electrodes = []
+    
+    # Check for channels with all NaN or very low variance (potential missing data)
+    data = epochs.get_data() # shape: (n_epochs, n_channels, n_times)
+    
+    for idx, ch_name in enumerate(all_channels):
+        # Check if this channel has any valid data across all epochs and timepoints
+        ch_data = data[:, idx, :]
+        if np.all(np.isnan(ch_data)):
+            skipped_electrodes.append(ch_name)
+            logger.warning(f"Electrode {ch_name} has all NaN data. Marking as bad/skipping.")
+        elif np.std(ch_data) < 1e-9:
+            # Extremely low variance might indicate a disconnected electrode
+            skipped_electrodes.append(ch_name)
+            logger.warning(f"Electrode {ch_name} has near-zero variance. Marking as bad/skipping.")
+    
+    if skipped_electrodes:
+        # Mark them as bad in the epochs info
+        epochs.info['bads'].extend(skipped_electrodes)
+        # Drop them from the epochs object to ensure clean processing
+        epochs.drop_channels(skipped_electrodes)
+        logger.info(f"Dropped {len(skipped_electrodes)} electrodes: {skipped_electrodes}")
+        
+        # Update metadata
+        if metadata_path.exists():
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
             
-    return True
+            existing_skipped = metadata.get('skipped_electrodes', [])
+            existing_skipped.extend(skipped_electrodes)
+            # Deduplicate
+            metadata['skipped_electrodes'] = list(set(existing_skipped))
+            
+            with open(metadata_path, 'w') as f:
+                json.dump(metadata, f, indent=2)
+            logger.info(f"Updated metadata.json with skipped electrodes: {skipped_electrodes}")
+        else:
+            logger.error(f"Metadata file not found at {metadata_path}. Cannot log skipped electrodes.")
+    else:
+        logger.info("No missing or bad electrodes detected.")
+    
+    log_stage_end(logger, "handle_missing_electrodes", status="success")
+    return epochs, skipped_electrodes
 
-def segment_epochs(
-    raw: mne.io.Raw,
-    events: np.ndarray,
-    event_id: Dict[str, int],
-    tmin: float = -1.0,
-    tmax: float = 1.0,
-    picks: Optional[List[str]] = None,
-    reject: Optional[Dict[str, float]] = None,
-    flat: Optional[Dict[str, float]] = None
-) -> mne.Epochs:
+def preprocess_pipeline(raw_path: str, events_path: Optional[str] = None) -> 'mne.Epochs':
     """
-    Segments raw data into epochs centered on events.
+    Main preprocessing pipeline:
+    1. Load raw data
+    2. Apply filters (T011)
+    3. ICA artifact rejection (T012a, T012b)
+    4. Epoch segmentation (T013)
+    5. Handle missing electrodes (T016)
+    6. Sample size validation (T014)
+    7. Fallback for missing markers (T015)
     
     Args:
-        raw: MNE Raw object.
-        events: N x 3 array of events.
-        event_id: Dict mapping condition names to event IDs.
-        tmin: Start time relative to event (default -1.0s).
-        tmax: End time relative to event (default 1.0s).
-        picks: Channel picks.
-        reject: Rejection thresholds by channel type.
-        flat: Flat thresholds by channel type.
+        raw_path: Path to raw FIF file
+        events_path: Optional path to events file
         
     Returns:
-        MNE Epochs object.
+        Preprocessed MNE Epochs object
     """
-    logger.info(f"Segmenting epochs: tmin={tmin}s, tmax={tmax}s")
+    log_stage_start(logger, "preprocess_pipeline")
+    paths = get_paths()
+    metadata_path = paths['metadata']
     
-    epochs = mne.Epochs(
-        raw,
-        events,
-        event_id=event_id,
-        tmin=tmin,
-        tmax=tmax,
-        picks=picks,
-        reject=reject,
-        flat=flat,
-        baseline=(tmin, 0), # Baseline correction from start to event onset
-        preload=True,
-        verbose=False
-    )
-    
-    logger.info(f"Created {len(epochs)} epochs.")
-    return epochs
-
-def log_manual_review_hints(epochs: mne.Epochs, output_path: Path) -> None:
-    """
-    Generates a log file with hints for manual review of rejected components/epochs.
-    This satisfies T012b requirements by documenting what was rejected or flagged.
-    """
-    hints = {
-        "total_epochs": len(epochs),
-        "rejected_epochs": 0, # MNE epochs usually store rejection in info or separate log if using reject_param
-        "notes": "Review epochs with high variance or artifacts flagged during ICA."
-    }
-    
-    # If we had specific rejection info, we'd add it here
-    # For now, we log the state of the epochs
-    with open(output_path, 'w') as f:
-        json.dump(hints, f, indent=2)
-    logger.info(f"Manual review hints logged to {output_path}")
-
-def save_preprocessed_epochs(
-    epochs: mne.Epochs,
-    output_path: Path,
-    metadata: Optional[Dict[str, Any]] = None
-) -> None:
-    """
-    Saves preprocessed epochs to a FIF file.
-    
-    Args:
-        epochs: MNE Epochs object.
-        output_path: Path to save the .fif file.
-        metadata: Optional metadata to include in a sidecar JSON.
-    """
-    logger.info(f"Saving preprocessed epochs to {output_path}")
-    
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save the FIF file
-    epochs.save(output_path, overwrite=True, verbose=False)
-    logger.info(f"Successfully saved {len(epochs)} epochs to {output_path}")
-    
-    # Save metadata if provided
-    if metadata:
-        metadata_path = output_path.with_suffix('.json')
-        with open(metadata_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
-        logger.info(f"Saved metadata to {metadata_path}")
-
-def preprocess_pipeline(config: Optional[Dict[str, Any]] = None) -> Path:
-    """
-    Main pipeline for preprocessing:
-    1. Load config and paths.
-    2. Load raw data (assumed to be downloaded and verified by T010).
-    3. Apply filters (T011).
-    4. Apply ICA (T012a).
-    5. Segment epochs (T013).
-    6. Validate sample size (T014).
-    7. Save to FIF (T017).
-    
-    Returns:
-        Path to the saved epochs file.
-    """
-    log_stage_start("preprocessing_pipeline")
-    
-    # Load configuration
-    if config is None:
-        config = load_config()
-    
-    paths = get_paths(config)
-    seed = get_seed(config)
-    np.random.seed(seed)
-    
-    # Enforce CPU limits
-    cpu_count = get_cpu_count()
-    enforce_limits(cpu_count=cpu_count)
-    
-    raw_path = paths.get('raw_eeg_path')
-    if not raw_path or not os.path.exists(raw_path):
-        # Fallback to scanning data/raw if specific path not set, 
-        # but typically T010 sets this or we look for the verified dataset
-        raw_dir = Path(paths.get('raw_dir', 'data/raw'))
-        # Look for a .fif or .edf file
-        raw_candidates = list(raw_dir.glob("*.fif")) + list(raw_dir.glob("*.edf"))
-        if not raw_candidates:
-            raise FileNotFoundError(f"No raw EEG data found in {raw_dir}. Ensure T010 has downloaded data.")
-        raw_path = str(raw_candidates[0])
-        logger.info(f"Found raw data at {raw_path}")
-    
-    # Load raw data
+    # 1. Load Raw Data
     logger.info(f"Loading raw data from {raw_path}")
-    raw = mne.io.read_raw_fif(raw_path, preload=True) if raw_path.endswith('.fif') else mne.io.read_raw_edf(raw_path, preload=True)
+    raw = mne.io.read_raw_fif(raw_path, preload=True)
     
-    # T011: Filtering (Bandpass & Notch)
-    # Assuming config has filter settings, otherwise use defaults
-    l_freq = config.get('filter', {}).get('low_freq', 1.0)
-    h_freq = config.get('filter', {}).get('high_freq', 40.0)
-    notch_freqs = config.get('filter', {}).get('notch_freqs', [50.0, 60.0])
+    # 2. Load Events
+    if events_path and os.path.exists(events_path):
+        events = mne.events_from_annotations(raw)[0]
+    else:
+        events = None
+        
+    # 3. Handle missing event markers (T015)
+    if events is None or len(events) == 0:
+        events, fallback_reasons = fallback_to_landmark_timestamps(raw, events)
+        update_metadata_with_fallback(metadata_path, fallback_reasons)
+        
+    # 4. Bandpass and Notch Filter (T011)
+    logger.info("Applying bandpass (1-40 Hz) and notch (50 Hz) filters")
+    raw.filter(l_freq=1.0, h_freq=40.0, notch_freqs=[50.0])
     
-    logger.info(f"Applying bandpass filter: {l_freq}-{h_freq} Hz")
-    raw.filter(l_freq, h_freq, verbose=False)
-    
-    for freq in notch_freqs:
-        logger.info(f"Applying notch filter: {freq} Hz")
-        raw.notch_filter(freq, verbose=False)
-    
-    # T012a: ICA Artifact Rejection
-    # Fit ICA
-    n_components = config.get('ica', {}).get('n_components', 0.99)
-    ica = mne.preprocessing.ICA(n_components=n_components, random_state=seed, verbose=False)
+    # 5. ICA Artifact Rejection (T012a, T012b)
+    logger.info("Running ICA for artifact rejection")
+    ica = mne.preprocessing.ICA(n_components=0.99, random_state=42)
     ica.fit(raw)
     
-    # Find EOG/ECG components
-    eog_indices, eog_scores = ica.find_bads_eog(raw, ch_name=None, threshold=3.0)
-    ecg_indices, ecg_scores = ica.find_bads_ecg(raw, ch_name=None, threshold=3.0)
+    # Find EOG and ECG components
+    eog_indices, eog_scores = ica.find_bads_eog(raw)
+    ecg_indices, ecg_scores = ica.find_bads_ecg(raw)
     
-    reject_comp = list(set(eog_indices + ecg_indices))
-    logger.info(f"Identified {len(reject_comp)} components for rejection: {reject_comp}")
-    
-    # Exclude components
-    ica.exclude = reject_comp
-    ica.apply(raw)
-    
-    # T012b: Log manual review hints
-    review_log_path = Path(paths.get('processed_dir', 'data/processed')) / 'ica_review_hints.json'
-    log_manual_review_hints(mne.EpochsArray(np.zeros((1, 1, 1)), raw.info), review_log_path) # Placeholder for actual logic if needed
-    
-    # T013: Epoch Segmentation
-    # We need events. If raw has events in info, use them. Otherwise, we might need to extract from annotations or a sidecar.
-    # For OpenNeuro BIDS, events are often in events.tsv.
-    # Let's try to find events.tsv in the raw directory
-    raw_dir = Path(raw_path).parent
-    events_tsv = raw_dir / 'events.tsv'
-    
-    events = None
-    event_id = None
-    
-    if events_tsv.exists():
-        # Parse events.tsv
-        import pandas as pd
-        events_df = pd.read_csv(events_tsv, sep='\t')
-        # Convert to MNE events array (onset, duration, value)
-        # Assuming columns: onset, duration, trial_type, etc.
-        # MNE expects (sample, 0, value)
-        # We need to map trial_type to integers
-        unique_types = events_df['trial_type'].unique()
-        event_id = {str(t): i+1 for i, t in enumerate(unique_types) if pd.notna(t)}
+    components_to_drop = list(set(eog_indices + ecg_indices))
+    if components_to_drop:
+        logger.info(f"Rejecting ICA components: {components_to_drop}")
+        ica.exclude = components_to_drop
+        ica.apply(raw)
         
-        events = events_df[['onset', 'duration', 'trial_type']].values
-        # Convert onset (seconds) to samples
-        events[:, 0] = (events[:, 0] * raw.info['sfreq']).astype(int)
-        events[:, 1] = 0 # Duration not used in Epochs creation usually
-        # Map trial_type to integer ID
-        type_to_id = {str(t): i+1 for i, t in enumerate(unique_types) if pd.notna(t)}
-        events[:, 2] = [type_to_id[str(t)] for t in events[:, 2]]
+        # Log for manual review (T012b)
+        log_path = paths['logs'] / "ica_rejection_log.txt"
+        with open(log_path, 'w') as f:
+            f.write(f"ICA Components Rejected: {components_to_drop}\n")
+            f.write(f"EOG Indices: {eog_indices}, Scores: {eog_scores}\n")
+            f.write(f"ECG Indices: {ecg_indices}, Scores: {ecg_scores}\n")
+    else:
+        logger.info("No ICA components rejected automatically.")
         
-        logger.info(f"Loaded events from {events_tsv}. Event IDs: {event_id}")
-    else:
-        # Fallback: Use annotations if present
-        if raw.annotations:
-            logger.warning("No events.tsv found. Using annotations as events.")
-            # Extract events from annotations
-            events, event_id = mne.events_from_annotations(raw)
-        else:
-            raise RuntimeError("No events found in raw data or events.tsv. Cannot segment epochs.")
+    # 6. Epoch Segmentation (T013)
+    logger.info("Segmenting epochs (2s windows)")
+    # Assuming event_id mapping based on task description
+    event_id = {'active': 1, 'passive': 2} 
+    # If event codes differ, this needs adjustment based on actual data
+    epochs = mne.Epochs(raw, events, event_id=event_id, tmin=-1.0, tmax=1.0, 
+                        baseline=(None, 0), preload=True, reject=dict(eeg=150e-6))
     
-    # Define epoch parameters
-    tmin = -1.0
-    tmax = 1.0
-    picks = mne.pick_types(raw.info, eeg=True, eog=True, exclude='bads')
+    # 7. Handle Missing Electrodes (T016)
+    logger.info("Checking for missing electrode data")
+    epochs, skipped = handle_missing_electrodes(epochs, metadata_path)
     
-    # Rejection parameters (optional, can be tuned)
-    reject = dict(eeg=150e-6, eog=350e-6) # 150 uV for EEG, 350 uV for EOG
-    flat = dict(eeg=10e-6, eog=50e-6)
+    # 8. Sample Size Validation (T014)
+    counts = {k: len(epochs[k]) for k in epochs.event_id}
+    min_count = min(counts.values()) if counts else 0
     
-    epochs = segment_epochs(
-        raw, 
-        events, 
-        event_id, 
-        tmin=tmin, 
-        tmax=tmax, 
-        picks=picks, 
-        reject=reject, 
-        flat=flat
-    )
+    if min_count < 50:
+        logger.critical(f"Sample size too low: {min_count} epochs. Halting.")
+        raise ValueError(f"Insufficient epochs: {min_count} < 50. Halting pipeline.")
+    elif min_count < 100:
+        logger.warning(f"Sample size low: {min_count} epochs. Flagging as underpowered.")
+        # Update metadata to flag underpowered
+        if metadata_path.exists():
+            with open(metadata_path, 'r') as f:
+                meta = json.load(f)
+            meta['validation_results'] = {
+                "min_threshold": 50,
+                "flag_threshold": 100,
+                "status": "UNDERPOWERED",
+                "counts": counts,
+                "message": f"WARNING: Underpowered. Counts: {counts}"
+            }
+            with open(metadata_path, 'w') as f:
+                json.dump(meta, f, indent=2)
     
-    # T014: Validate sample size
-    validate_sample_size(epochs)
-    
-    # T015 & T016: Handle missing markers/electrodes (already handled in segment_epochs logic and raw.info)
-    # Log skipped electrodes if any were dropped during loading or filtering
-    skipped = [ch for ch in raw.info['ch_names'] if ch not in epochs.ch_names]
-    if skipped:
-        logger.warning(f"Skipped electrodes: {skipped}")
-        metadata = {
-            "skipped_electrodes": skipped,
-            "event_source": "events.tsv" if events_tsv.exists() else "annotations"
-        }
-    else:
-        metadata = {
-            "skipped_electrodes": [],
-            "event_source": "events.tsv" if events_tsv.exists() else "annotations"
-        }
-    
-    # T017: Save preprocessed epochs
-    output_dir = Path(paths.get('processed_dir', 'data/processed'))
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / 'epochs_cleaned.fif'
-    
-    save_preprocessed_epochs(epochs, output_path, metadata)
-    
-    log_stage_end("preprocessing_pipeline")
-    return output_path
+    log_stage_end(logger, "preprocess_pipeline", status="success")
+    return epochs
 
 def main():
-    """Entry point for the preprocessing pipeline."""
-    preprocess_pipeline()
+    """Main entry point for preprocessing."""
+    paths = get_paths()
+    raw_file = paths['raw'] / "sub-01_task-navigation_eeg.fif"
+    
+    if not raw_file.exists():
+        logger.error(f"Raw data file not found: {raw_file}")
+        return
+        
+    try:
+        epochs = preprocess_pipeline(str(raw_file))
+        logger.info(f"Preprocessing complete. Total epochs: {len(epochs)}")
+    except Exception as e:
+        logger.error(f"Preprocessing failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

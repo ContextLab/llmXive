@@ -1,66 +1,69 @@
 # Research: Evaluating Calibration of Probabilistic Weather Forecasts
 
-## Summary
-This research phase validates the feasibility of the implementation plan, focusing on dataset availability, statistical methodology, and computational constraints. It confirms that the SubseasonalRodeo dataset (or a verified substitute) contains the necessary variables (GFS ensemble probabilities, ground-truth observations) and that the chosen statistical methods (Isotonic Regression, Bayesian Hierarchical Logistic Regression) are viable within the GitHub Actions resource limits.
+## Summary of Research
+
+This research investigates the calibration of probabilistic weather forecasts, specifically targeting the SubseasonalRodeo dataset or verified equivalents. The core problem is that raw ensemble forecasts (e.g., from NOAA GFS) are often systematically biased or over/under-confident. The proposed solution involves a two-tiered recalibration strategy: a robust non-parametric method (Isotonic Regression) and a more complex, physics-aware method (Bayesian Hierarchical Logistic Regression). The research validates these methods against proper scoring rules (Brier, CRPS) and statistical significance tests (Diebold-Mariano).
+
+**Data Feasibility Warning**: No verified public URL was found for the SubseasonalRodeo dataset containing `probability_value` fields. The pipeline will halt with a "Data Unavailability Report" if no suitable data source is found. If `ensemble_members` are available, probabilities may be derived, but this is not guaranteed to match the required distribution.
 
 ## Dataset Strategy
 
-| Dataset Name | Purpose | Verified Source / Loader | Feasibility Notes |
-| :--- | :--- | :--- | :--- |
-| **SubseasonalRodeo** | Primary source for GFS ensemble forecasts and ground-truth observations. | **NO verified source found**. <br> *Strategy*: The plan assumes the dataset is accessible via `wget` from a canonical URL as per the spec's assumption. **If the URL fails, checksum mismatch, or schema validation fails, the pipeline will HALT with "Dataset Unavailable" or "Schema Mismatch"**. No fallback to NOAA-Buoy/GFS is permitted as they lack the required ensemble probability structure. | **Critical Risk**: The spec assumes the dataset is downloadable via `wget`. Since no verified URL exists in the provided list, the implementation must handle the "NO verified source" case by explicitly coding a **HALT** if the download fails. The plan will attempt to fetch from the assumed canonical location; if it fails, the pipeline stops. |
-| **NOAA (parquet)** | Not used as fallback. | `https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet` | **Rejected**: Lacks ensemble probability fields required for Brier/CRPS. Analysis is infeasible without these fields. |
-| **GFS (zip)** | Not used as fallback. | `https://huggingface.co/datasets/jacobbieker/gfs-kerchunk/resolve/main/data/2021/2021022712.zip` | **Rejected**: Lacks ensemble probability fields required for Brier/CRPS. Analysis is infeasible without these fields. |
-| **CRPS (jsonl)** | Reference for CRPS calculation logic (not for data). | `https://huggingface.co/datasets/PeiyangLiu/CRPS-30K/resolve/main/crps_train_30k.jsonl` | Verified source. Used for reference on CRPS implementation, not as a data source for the weather study. |
+The project relies on probabilistic forecast data. The primary target is the **SubseasonalRodeo** dataset. However, as per the verified search results, **no direct public URL** for the full SubseasonalRodeo dataset containing `probability_value` fields was found.
 
-**Dataset Variable Fit Analysis**:
-- **Required Variables**: `grid_id`, `lead_time`, `forecast_date`, `probability_value` (ensemble), `event_occurred` (binary observation).
-- **SubseasonalRodeo**: Assumed to contain these fields based on the spec. If the dataset lacks `probability_value` for specific variables (e.g., heavy precipitation), the plan will fall back to binary occurrence data (Assumption: Variable Fit).
-- **Gap Handling**: If the dataset lacks a required variable (e.g., post-task anxiety equivalent in weather, or specific lead time), the plan will explicitly state the mismatch and adjust the analysis scope (e.g., "Analysis restricted to available lead times 1-7").
-- **Infeasibility**: If the primary dataset is unavailable or lacks required fields, the study is **infeasible**. The pipeline will halt and log a "Research Infeasible" status. No alternative analysis path is available. **Fallback datasets (NOAA-Buoy, GFS-kerchunk) are explicitly rejected** as they do not contain the necessary ensemble probability fields.
+**Strategy**:
+1. **Primary Attempt**: Use `datasets.load_dataset("subseasonal_rodeo")` if available on Hugging Face Hub.
+2. **Fallback (Verified Sources)**: If the specific Rodeo dataset is unavailable, the pipeline will attempt to construct the required data from the **verified NOAA/GFS sources** listed below.
+ * **NOAA Buoy Data**: ` (Used for verification of observation alignment).
+ * **GFS Ensemble Data**: ` (Contains GFS ensemble members).
+ * *Note*: The implementation strictly enforces the presence of `probability_value` OR `ensemble_members` fields. If neither exists, the "Data Availability Gate" triggers a halt.
 
-**Dataset Size Contingency**:
-- If the downloaded dataset exceeds the available memory or disk capacity, the pipeline will automatically switch to streaming mode (processing shards one by one) or a fixed-seed random sample with a logged warning about power limitations.
+| Dataset Name | Source Type | Verified URL | Usage |
+|:--- |:--- |:--- |:--- |
+| SubseasonalRodeo | HF Dataset | (None found) | Primary target. If missing, check for `probability_value` in fallbacks. |
+| NOAA Buoy | Parquet | ` | Ground truth observations (if Rodeo missing). |
+| GFS Ensemble | ZIP/Parquet | ` | Forecast ensembles (if Rodeo missing). |
 
-## Methodological Rigor
+**Data Availability Gate**:
+The pipeline includes a mandatory check: `if 'probability_value' not in dataset.columns and 'ensemble_members' not in dataset.columns: raise DataAvailabilityGateError("NO_PROB_DATA")`. This prevents the project from proceeding with binary data only, which would invalidate the Brier/CRPS calculations required by the spec.
 
-### Statistical Framework
-The study employs a frequentist framework for baseline and isotonic methods, and a Bayesian framework for the hierarchical model.
-- **Baseline**: Brier Score (BS) and Continuous Ranked Probability Score (CRPS) are computed for each lead time and variable.
-- **Isotonic Regression**: Non-parametric, monotonic mapping to correct bias. Fitted on [deferred] chronological data, tested on [deferred].
-- **Bayesian Hierarchical Model**: Logistic regression with a structured prior for lead-time decay.
-  - **Prior Structure**: The prior for the lead-time coefficient will follow an exponential decay function: `beta_lead_time ~ Normal(0, sigma * exp(-alpha * lead_time))` to respect the physics of forecast degradation (Assumption: Variable Fit).
-  - **Inference**: Variational Inference (ADVI) with ≤ 500 iterations (or equivalent) for speed. If diagnostics fail, switch to GPU-accelerated MCMC.
-  - **Convergence**: R-hat < 1.05 (SC-006) or ELBO convergence. If unconverged, results are flagged, and isotonic results are used as fallback.
+## Statistical Methodology
 
-### Statistical Rigor Checks
-- **Multiple Comparisons**: When comparing multiple lead times or variables, the plan will apply a **Holm-Bonferroni** correction to the p-values of the Diebold-Mariano tests. Standard Bonferroni is rejected due to over-conservatism for time-series data.
-- **Power Justification**: A **Power Analysis (T000)** will be conducted to calculate the minimum detectable effect size for rare events. If the dataset lacks sufficient power, results will be flagged as "Underpowered" rather than concluding "no improvement".
-- **Causal Inference**: The study is observational. Claims are framed as "associational improvements in calibration" rather than causal claims about weather systems.
-- **Collinearity**: Predictors (lead time, forecast value) are not definitionally related in a way that causes perfect collinearity. However, the hierarchical model accounts for correlations across lead times.
-- **Stationarity**: A pre-test (Augmented Dickey-Fuller) will be performed on loss differentials. If non-stationarity is detected, the **Harvey-Leybourne-Newbold (HLN)** modification of the Diebold-Mariano test will be used.
-- **Normality**: The Wilcoxon test is **rejected** for time-series data. Instead, a **HAC (Heteroskedasticity-and-Autocorrelation-Consistent)** variance estimator will be used within the Diebold-Mariano test framework.
-- **Bootstrapping**: For sensitivity analysis, **Moving Block Bootstrap** (block size = 7 days) will be used to account for temporal dependence, preventing underestimation of variance.
+### 1. Calibration Metrics
+* **Brier Score**: $BS = \frac{1}{N} \sum (f_i - o_i)^2$. Used for binary events (e.g., precipitation > 1mm). Computed per lead time.
+* **CRPS**: Continuous Ranked Probability Score. Used for continuous variables (e.g., temperature). Measures the integrated difference between the forecast CDF and the observation CDF.
+* **Reliability Diagrams**: Visualizes the relationship between forecast probability bins and observed relative frequencies. A perfectly calibrated forecast lies on the 45-degree line.
+* **PIT Histograms**: Probability Integral Transform. For a well-calibrated forecast, the PIT values should be uniformly distributed.
 
-### Computational Feasibility
-- **CPU-First**: 
-  - Data download and alignment: < 5 mins.
-  - Baseline metrics: < 5 mins.
-  - Isotonic regression: < 2 mins (scikit-learn).
-  - Bayesian sampling: **Critical Path**. PyMC on CPU may take > 30 mins for 500 draws on a hierarchical model. The plan will attempt **Variational Inference (ADVI)** first. If ADVI diagnostics fail, the execution stage will auto-offload to a Kaggle GPU.
-- **GPU Escape Hatch**: If CPU sampling fails or is too slow, the plan will switch to `device="cuda"` with standard precision on a scaled-down subset (e.g., fewer grid points) to ensure the 6-hour limit is met.
-- **Memory**: The dataset is of moderate size. Streaming or chunked processing will be used to stay within 7 GB RAM.
+### 2. Recalibration Methods
+* **Isotonic Regression**: A non-parametric, monotonic mapping $f(x) \to \hat{p}$. It preserves the rank order of forecasts but corrects the probability scale.
+ * *Validation*: Blocked/Expanding window split to prevent look-ahead bias.
+ * *Sensitivity*: Tested with 60/40, 70/30, 80/20 splits.
+* **Bayesian Hierarchical Logistic Regression**:
+ * *Model*: $\text{logit}(p_{i,t,s}) = \alpha_s + \beta_t \cdot \text{raw\_prob}_{i,t,s} + \epsilon$.
+ * *Hierarchical Priors*: $\alpha_s \sim \mathcal{N}(\mu_\alpha, \sigma_\alpha)$, $\beta_t \sim \mathcal{N}(\mu_\beta, \sigma_\beta)$ with $\mu_\beta < 0$ (decay).
+ * *Physics Constraint*: Priors on $\beta_t$ are structured to decay with lead time $t$, reflecting the degradation of forecast skill.
+ * *Inference*: MCMC (NUTS) via PyMC.
+ * *Control*: 'Flat Prior' model (no decay) to test for prior dominance.
+
+### 3. Statistical Testing
+* **Diebold-Mariano (DM) Test**: Compares the predictive accuracy of two competing forecasts.
+ * *HAC Estimators*: Used to account for autocorrelation in forecast errors.
+ * *Decision*: If Shapiro-Wilk test on error differences fails ($p < 0.05$), switch to Wilcoxon Signed-Rank test.
+ * *Rank-Preserving Control*: Compare Isotonic against a 'Rank-Preserving Calibration' baseline.
+* **Convergence Diagnostics**: R-hat $\le 1.05$ for all parameters.
+* **Bootstrap**: Stratified bootstrap (1000 iterations) for sparse events.
 
 ## Decision Rationale
-- **Why Isotonic Regression?** It is a robust, non-parametric baseline that requires no distributional assumptions and is computationally cheap. It serves as a strong benchmark for the more complex Bayesian method.
-- **Why Bayesian Hierarchical?** It allows sharing of information across lead times, which is crucial for sparse events (e.g., heavy precipitation) where data per lead time is limited. The structured prior ensures physical consistency (decay).
-- **Why Diebold-Mariano (HAC)?** It is the standard test for comparing forecast accuracy, accounting for serial correlation in forecast errors. The HAC estimator ensures validity for non-stationary data.
-- **Why Block Bootstrapping?** Bootstrapping provides a non-parametric way to estimate confidence intervals for split ratios, accounting for temporal dependence in weather forecast errors.
-- **Why Prior Sensitivity Analysis?** To ensure that the "improvement" in calibration is driven by the data and not just the prior assumption of decay.
 
-## Risk Mitigation
-- **Dataset Unavailable**: If the SubseasonalRodeo download fails or schema validation fails, the pipeline **halts** with a clear error. The research notes that no verified URL exists, so the implementation must rely on the user-provided URL or halt.
-- **MCMC Convergence Failure**: If R-hat > 1.1 or ADVI fails, the results are flagged as "Unconverged" and the isotonic results are used. The plan includes a check for this in the output.
-- **Sparse Data**: For lead times with < 100 samples, isotonic regression may overfit. The plan enforces a minimum sample size threshold and falls back to raw forecasts for those bins.
-- **Underpowered Results**: If the power analysis indicates insufficient sample size for rare events, the results will be explicitly flagged as "Underpowered" to avoid false negative conclusions.
-- **Schema Mismatch**: If the dataset structure does not match the required schema, the pipeline halts with "Schema Mismatch" to prevent processing of incompatible data.
-- **Dataset Size Variance**: If the dataset exceeds memory limits, the pipeline switches to streaming or sampling to ensure completion.
+* **Why Isotonic First?** It is computationally cheap, non-parametric, and robust. It serves as a strong baseline.
+* **Why Bayesian Hierarchical?** It allows "borrowing strength" across lead times and seasons.
+* **Why CPU-First?** The GitHub Actions free tier has no GPU. The Bayesian model is scaled down.
+* **Why Streaming?** The full subseasonal dataset may exceed available RAM capacity.
+
+## Limitations & Assumptions
+
+* **Data Availability**: The project assumes `probability_value` or `ensemble_members` fields exist. If not, the project halts.
+* **Causal Claims**: The study is observational.
+* **Computational Limits**: The Bayesian model is constrained by a timeout.
+* **Sparse Events**: For lead times with very few events, pooling or global fit is used.
+* **Prior Dominance**: The 'Flat Prior' control ensures improvements are not artifacts of the prior.

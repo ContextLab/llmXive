@@ -1,71 +1,73 @@
+"""
+Script to create the project directory structure for the llmXive project.
+This task (T001) creates the required folder tree as per the implementation plan.
+"""
 import os
 import sys
 from pathlib import Path
 
 def create_directories():
-    """
-    Create the required project directory structure.
-    This satisfies T004 (code/ subdirectories) and T007 (data/ and tests/ directories).
-    """
-    root = Path(__file__).resolve().parents[2]
+    """Create the required directory structure."""
+    # Define the root directory (current working directory or specified path)
+    root = Path.cwd()
     
-    # Define all required directories based on T001, T004, T007
+    # Define all required directories relative to root
     directories = [
-        # Code structure (T004)
-        root / "code" / "simulation",
-        root / "code" / "models",
-        root / "code" / "metrics",
-        root / "code" / "validation",
-        root / "code" / "plots",
-        root / "code" / "scripts",
+        # Code modules
+        "code/simulation",
+        "code/models",
+        "code/metrics",
+        "code/validation",
+        "code/plots",
+        "code/scripts",
         
-        # Data structure (T007)
-        root / "data" / "raw",
-        root / "data" / "simulated",
-        root / "data" / "results",
+        # Data directories
+        "data/raw",
+        "data/simulated",
+        "data/results",
         
-        # Tests structure (T001)
-        root / "tests" / "unit",
-        root / "tests" / "integration",
+        # Test directories
+        "tests/unit",
+        "tests/integration",
         
-        # Docs structure (T001)
-        root / "docs" / "paper",
+        # Documentation
+        "docs/paper"
     ]
-
+    
     created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
+    for dir_path in directories:
+        full_path = root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {directory}")
-
-    # Create .gitkeep files in data directories to ensure they are tracked by git (T007)
-    data_dirs = [
-        root / "data" / "raw",
-        root / "data" / "simulated",
-        root / "data" / "results",
-    ]
+            print(f"Directory already exists: {full_path}")
     
-    for data_dir in data_dirs:
-        gitkeep_path = data_dir / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.touch()
-            print(f"Created .gitkeep in: {data_dir}")
-
-    print(f"\nProject structure setup complete. Created {created_count} new directories.")
+    # Create .gitkeep files in data directories to ensure they are tracked by git
+    gitkeep_dirs = ["data/raw", "data/simulated", "data/results"]
+    for dir_path in gitkeep_dirs:
+        full_path = root / dir_path / ".gitkeep"
+        if not full_path.exists():
+            full_path.touch()
+            print(f"Created .gitkeep: {full_path}")
+            created_count += 1
+    
+    print(f"\nProject structure setup complete. Created {created_count} new items.")
     return True
 
 def main():
-    """Entry point for CLI execution."""
-    print("Setting up project directory structure...")
-    success = create_directories()
-    if success:
-        print("Success.")
-        sys.exit(0)
-    else:
-        print("Failed to set up directories.")
+    """Entry point for the script."""
+    try:
+        success = create_directories()
+        if success:
+            print("Success: Project structure created successfully.")
+            sys.exit(0)
+        else:
+            print("Error: Failed to create project structure.")
+            sys.exit(1)
+    except Exception as e:
+        print(f"Error: An exception occurred: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

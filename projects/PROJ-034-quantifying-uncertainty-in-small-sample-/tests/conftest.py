@@ -42,3 +42,26 @@ def small_sample_data():
     beta_true = np.array([1.0, 2.0])
     y = X @ beta_true + np.random.randn(n) * 0.5
     return {"X": X, "y": y, "beta_true": beta_true}
+
+@pytest.fixture
+def simulation_config():
+    """
+    Create a default SimulationConfig for testing.
+    """
+    from simulation.config import SimulationConfig
+    return SimulationConfig(
+        N=30,
+        predictors=2,
+        rho=0.5,
+        noise_std=1.0,
+        true_coefficients=np.array([1.0, -1.0])
+    )
+
+@pytest.fixture
+def temp_output_dir(tmp_path):
+    """
+    Provide a temporary directory for output files.
+    """
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    return output_dir

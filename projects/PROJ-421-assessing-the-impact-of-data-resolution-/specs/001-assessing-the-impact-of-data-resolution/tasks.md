@@ -84,7 +84,7 @@
 
 - [X] T013 [P] [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/data_ingestion.py` to download NLCD 30m subset for Colorado from verified HuggingFace URL: ` (configurable via `code/config.py` for API keys). Validate checksum using `utils.py::checksum_file`. Implement retry logic using `utils.py` utilities. <!-- FAILED: unspecified -->
 - [ ] T014 [US1] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py::generate_resolution(input_path, factor)` function to generate a single coarser resolution raster using nearest-neighbor resampling, and implement the CLI loop to call it for factors [2, 4, 8, 16] (60m, 120m, 240m, 480m).
-- [ ] T015 [US1] Implement bounds checking to skip invalid resolutions that exceed dataset bounds in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py`.
+- [ ] T015 [US1] Implement bounds checking to skip invalid resolutions that exceed dataset bounds in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/resampling.py`. <!-- FAILED: unspecified -->
 - [X] T016 [US1] Apply checksumming and metadata validation for all generated rasters using `code/utils.py::checksum_file`.
 - [ ] T017 [US1] Ensure chunked processing (windowed reads) is used in `code/resampling.py` to stay within 7GB RAM limit.
 
@@ -133,9 +133,9 @@
 - [ ] T029 [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py::find_threshold(power_csv_path)` which returns the resolution string (e.g., '240m') where power < 0.80, and writes this to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/threshold_report.txt`.
 - [ ] T030 [US3] Calculate Type II error delta (1 - power) relative to 30m baseline.
 - [ ] T031 [US3] Implement sensitivity analysis: sweep resolution aggregation factor by ±10% around inflection point. Verify the threshold does not vary by more than **one resolution step** (defined as the transition between adjacent levels in the geometric series, e.g., 30m->60m, 60m->120m).
-- [~] T032 [US3] Generate sensitivity analysis report confirming threshold stability.
-- [ ] T033 [US3] Generate `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md` containing the specific resolution threshold, Type II error delta, and sensitivity analysis results. <!-- FAILED: unspecified -->
-- [~] T034 [US3] Ensure p-value = 0.05 is treated as significant but flagged (add specific log flag and output column for p=0.05 cases).
+- [ ] T032 [US3] Generate sensitivity analysis report confirming threshold stability.
+- [X] T033 [US3] Generate `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md` containing the specific resolution threshold, Type II error delta, and sensitivity analysis results. <!-- FAILED: unspecified -->
+- [ ] T034 [US3] Ensure p-value = 0.05 is treated as significant but flagged (add specific log flag and output column for p=0.05 cases).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -145,9 +145,9 @@
 
 **Purpose**: Improvements that affect multiple user stories and final verification
 
-- [~] T035 [P] Documentation updates in `docs/` and `README.md`.
-- [~] T036 Code cleanup and refactoring.
-- [~] T037 Performance optimization (verify < 6h runtime on CPU-only runner). <!-- ATOMIZE: requested -->
+- [ ] T035 [P] Documentation updates in `docs/` and `README.md`.
+- [ ] T036 Code cleanup and refactoring.
+- [ ] T037 Performance optimization (verify < 6h runtime on CPU-only runner). <!-- ATOMIZE: requested -->
 - [~] T038 [P] Additional unit tests in `tests/unit/`.
 - [X] T039 [P] Execute Reference-Validator Agent to confirm NLCD URLs (verified HuggingFace/proxy URLs) are reachable and match primary sources (Title-token-overlap ≥ 0.7 where applicable) using command: `python -m code.reference_validator --input data/ --config code/config.py`.
 - [~] T040 Run full pipeline on GitHub Actions runner to verify < 6h runtime and < 7GB RAM. <!-- ATOMIZE: requested -->

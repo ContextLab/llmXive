@@ -12,6 +12,15 @@ properties:
   lead_time:
     type: "integer"
     description: "Lead time for which the model was fitted."
+  season:
+    type: "string"
+    enum:
+      - "Winter"
+      - "Spring"
+      - "Summer"
+      - "Fall"
+      - "All"
+    description: "Season for which the model was fitted."
   variable:
     type: "string"
     enum:
@@ -22,13 +31,37 @@ properties:
     type: "object"
     description: "Model parameters (e.g., knots for isotonic, coefficients for Bayesian)."
     additionalProperties: true
+    required:
+      - "lead_time_decay_coefficient"
+    description: "For Bayesian models, 'lead_time_decay_coefficient' must be present and negative."
   training_sample_size:
     type: "integer"
     description: "Number of samples used for training."
+  pooling_strategy:
+    type: "string"
+    enum:
+      - "None"
+      - "Adjacent_Lead"
+      - "Adjacent_Season"
+      - "Global_Fit"
+      - "Insufficient_Data"
+    description: "Strategy used to handle low sample sizes."
+  fallback_reason:
+    type: "string"
+    enum:
+      - "None"
+      - "Low_Sample"
+      - "Timeout"
+      - "Unconverged"
+      - "Prior_Dominated"
+      - "Insufficient_Data"
+    description: "Reason for any fallback or exclusion."
 required:
   - method_type
   - lead_time
   - variable
   - parameters
   - training_sample_size
+  - pooling_strategy
+  - fallback_reason
 additionalProperties: false

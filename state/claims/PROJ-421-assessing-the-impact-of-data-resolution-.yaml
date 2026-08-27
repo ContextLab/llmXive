@@ -112,3 +112,136 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T11:15:23Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md
+  attempts: 1
+  canonical: statistical power drops below 0.80 threshold at 240m resolution
+  claim_id: c_4dc26e6d
+  context: 'Key Finding: The statistical power drops below the 0.80 threshold at 240m.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical power drops below the 0.80 threshold at 240m.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:57:53Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md
+  attempts: 1
+  canonical: 30m resolution Moran's I 0.4521 P-Value 0.0010 Power 1.0000
+  claim_id: c_681e0133
+  context: Table showing Power vs. Resolution results for 30m, 60m, 120m, 240m, 480m.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 30m resolution, the Moran's I is 0.4521 with a P-Value of 0.0010 and
+    Statistical Power of 1.0000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:58:57Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md
+  attempts: 1
+  canonical: 60m resolution Moran's I 0.4815 P-Value 0.0010 Power 1.0000
+  claim_id: c_41ea2854
+  context: Table showing Power vs. Resolution results for 30m, 60m, 120m, 240m, 480m.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 60m resolution, the Moran's I is 0.4815 with a P-Value of 0.0010 and
+    Statistical Power of 1.0000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:59:51Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md
+  attempts: 1
+  canonical: 120m resolution Moran's I 0.5102 P-Value 0.0010 Power 0.9850
+  claim_id: c_0111b22a
+  context: Table showing Power vs. Resolution results for 30m, 60m, 120m, 240m, 480m.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 120m resolution, the Moran's I is 0.5102 with a P-Value of 0.0010 and
+    Statistical Power of 0.9850.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T06:00:40Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md
+  attempts: 1
+  canonical: 240m resolution Moran's I 0.4988 P-Value 0.0020 Power 0.7620
+  claim_id: c_c2ceb798
+  context: Table showing Power vs. Resolution results for 30m, 60m, 120m, 240m, 480m.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 240m resolution, the Moran's I is 0.4988 with a P-Value of 0.0020 and
+    Statistical Power of 0.7620.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T06:02:13Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md
+  attempts: 1
+  canonical: 480m resolution Moran's I 0.4105 P-Value 0.0150 Power 0.4100
+  claim_id: c_be44d66c
+  context: Table showing Power vs. Resolution results for 30m, 60m, 120m, 240m, 480m.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At 480m resolution, the Moran's I is 0.4105 with a P-Value of 0.0150 and
+    Statistical Power of 0.4100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T06:04:18Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md
+  attempts: 1
+  canonical: study utilized NLCD land cover data for Colorado aggregated from 30m
+    to 480m
+  claim_id: c_419f5762
+  context: The study utilized NLCD land cover data for Colorado, aggregated from 30m
+    to 480m resolutions, and evaluated power via Monte Carlo simulations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study utilized NLCD land cover data for Colorado, aggregated from
+    30m to 480m resolutions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T06:04:23Z'
+- artifact_path: projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/final_report.md
+  attempts: 1
+  canonical: spatial autocorrelation detected with >80% power at resolutions up to
+    240m
+  claim_id: c_f319bbf5
+  context: The study concludes that for this dataset, spatial autocorrelation can
+    be reliably detected with >80% power at resolutions up to 240m.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/spatial_autocorrelation_detected_with_%3E80%25_power_at_resoluti
+  kind: magnitude
+  raw_text: Spatial autocorrelation can be reliably detected with greater than 80%
+    power at resolutions up to 240m.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T06:04:36Z'

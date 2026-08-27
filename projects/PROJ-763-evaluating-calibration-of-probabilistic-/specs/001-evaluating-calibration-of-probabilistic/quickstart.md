@@ -1,55 +1,52 @@
 # Quickstart: Evaluating Calibration of Probabilistic Weather Forecasts
 
 ## Prerequisites
-- Python 3.11 or higher.
-- `pip` package manager.
-- Access to the SubseasonalRodeo dataset (or a verified fallback).
-- (Optional) Kaggle account for GPU offload if CPU sampling fails.
+
+*   Python 3.11+
+*   `pip` or `conda`
+*   Git
 
 ## Installation
-1. Clone the repository and navigate to the project directory.
-2. Create a virtual environment and activate it:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
 
-## Configuration
-1. Edit `code/config.py` to set the dataset URL if the default is incorrect.
-2. Set the random seed for reproducibility (default: 42).
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` includes `pymc`, `properscoring`, `diebold-mariano`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`.*
 
 ## Running the Pipeline
-Execute the main pipeline script:
-```bash
-python code/main.py
-```
-This will:
-1. Download and verify the dataset (halts if unavailable).
-2. Align forecasts and observations.
-3. Compute baseline metrics and generate `reliability_diagram_raw.png`.
-4. Fit isotonic and Bayesian models (ADVI first, then MCMC if needed).
-5. Compare results and generate diagrams.
-6. Output results to the `results` directory.
 
-## Output Artifacts
-- `results_baseline.csv`: Baseline Brier scores and CRPS.
-- `results_isotonic.csv`: Isotonic recalibration results.
-- `results_bayesian.csv`: Bayesian recalibration results.
-- `reliability_diagram_raw.png`: Baseline reliability diagram.
-- `reliability_diagram_isotonic.png`: Isotonic reliability diagram.
-- `reliability_diagram_bayesian.png`: Bayesian reliability diagram.
-- `pit_histogram_raw.png`: Raw forecast PIT histogram.
-- `pit_histogram_bayesian.png`: Bayesian forecast PIT histogram.
-- `pit_histogram.png`: Aggregated PIT histogram.
-- `results_decomposition.csv`: Brier score decomposition (Reliability, Resolution, Uncertainty).
-- `power_analysis_report.json`: Power analysis results.
+The pipeline is executed via the main entry point. It handles data download, alignment, baseline calculation, isotonic recalibration, and (if possible) Bayesian recalibration.
+
+```bash
+python src/main.py
+```
+
+### Configuration
+
+Edit `src/utils/config.py` to adjust:
+*   `DATA_SOURCE`: Set to "subseasonal_rodeo" or "noaa_gfs".
+*   `TRAIN_SPLIT_RATIO`: Default 0.7.
+*   `BAYESIAN_TIMEOUT_MINUTES`: Default 60.
+*   `SEED`: Random seed for reproducibility (Default: 42).
+
+### Expected Outputs
+
+Upon successful completion, the `results/` directory will contain:
+*   `results_baseline.csv`: Brier/CRPS for raw forecasts.
+*   `results_isotonic.csv`: Metrics after isotonic recalibration.
+*   `results_bayesian.csv`: Metrics after Bayesian recalibration (or fallback status).
+*   `figures/`: Reliability diagrams and PIT histograms.
+*   `logs/pipeline.log`: Detailed execution logs.
 
 ## Troubleshooting
-- **Dataset Download Failed**: Check the URL in `config.py` or verify network connectivity. If the dataset is unverified, the pipeline halts.
-- **MCMC Convergence Failed**: Check `results_bayesian.csv` for "Unconverged" status. The pipeline will fall back to isotonic results.
-- **Out of Memory**: Reduce the dataset size or use the Kaggle GPU escape hatch.
-- **Underpowered Results**: Check `power_analysis_report.json` for "Underpowered" flag.
+
+*   **"Data Availability Gate Failed"**: The dataset lacks `probability_value` fields. Check the `DATA_SOURCE` config. If using NOAA/GFS, ensure the correct files are downloaded.
+*   **"Bayesian Model Timeout"**: The MCMC sampler exceeded 60 minutes. The pipeline will fallback to Isotonic results. Check `logs/pipeline.log` for R-hat diagnostics.
+*   **"Memory Error"**: The dataset is too large for RAM. Ensure `streaming=True` is enabled in `src/data/loaders.py`.

@@ -63,8 +63,8 @@
 - [X] T012b [US1] Implement manual review capability: generate detailed log file of rejected components and visual inspection hints in `code/preprocessing.py` (addresses FR-003 manual-part)
 - [X] T013 [US1] Implement epoch segmentation (2-second windows) centered on attention shift events in `code/preprocessing.py` (addresses FR-004)
 - [ ] T014 [US1] Implement sample size validation: halt if <50 epochs/condition; flag as underpowered if <100 epochs/condition (addresses SC-005)
-- [ ] T015 [US1] Implement fallback logic for missing event markers (use landmark timestamps) and document substitution in 'assumptions' section of `data/processed/metadata.json` with key `event_source: landmark_fallback` (addresses Edge Cases)
-- [ ] T016 [US1] Handle missing electrode data: skip affected electrodes and log skipped electrodes in `data/processed/metadata.json` with key `skipped_electrodes` (addresses Edge Cases)
+- [X] T015 [US1] Implement fallback logic for missing event markers (use landmark timestamps) and document substitution in 'assumptions' section of `data/processed/metadata.json` with key `event_source: landmark_fallback` (addresses Edge Cases)
+- [X] T016 [US1] Handle missing electrode data: skip affected electrodes and log skipped electrodes in `data/processed/metadata.json` with key `skipped_electrodes` (addresses Edge Cases)
 - [ ] T017 [US1] Save preprocessed epochs to `data/processed/epochs_cleaned.fif`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

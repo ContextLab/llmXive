@@ -59,13 +59,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 [P] Initialize Python 3.11 project: Create `requirements.txt` with pinned versions (numpy, pandas, scipy, scikit-learn, cmdstanpy, matplotlib, seaborn, pyyaml, pytest) and run `python -m venv venv && pip install -r requirements.txt`
-- [ ] T003 [P] Configure linting: Create `pyproject.toml` with `[tool.black]` (line-length=88) and `[tool.flake8]` (max-line-length=88, exclude=venv) sections
+- [X] T002 [P] Initialize Python 3.11 project: Create `requirements.txt` with pinned versions (numpy, pandas, scipy, scikit-learn, cmdstanpy, matplotlib, seaborn, pyyaml, pytest) and run `python -m venv venv && pip install -r requirements.txt`
+- [X] T003 [P] Configure linting: Create `pyproject.toml` with `[tool.black]` (line-length=88) and `[tool.flake8]` (max-line-length=88, exclude=venv) sections
 - [ ] T004 [P] Setup `code/` directory structure: `simulation/`, `models/`, `metrics/`, `validation/`, `plots/`, `scripts/`
-- [ ] T005 [P] Implement `code/simulation/config.py` defining `SimulationConfig` schema (N, predictors, correlation matrix, noise, true coefficients)
-- [ ] T006 [P] Implement `code/simulation/engine.py`: **Fully implement** the `calculate_vif` function (FR-006) and `generate_synthetic_data` with the exact signature: `def generate_synthetic_data(config: SimulationConfig, seed: int) -> DatasetInstance`. The `DatasetInstance` must include fields: `X` (np.ndarray), `y` (np.ndarray), `beta_true` (np.ndarray), `vif_scores` (dict). **Do not use a skeleton**; provide a complete, working implementation.
+- [X] T005 [P] Implement `code/simulation/config.py` defining `SimulationConfig` schema (N, predictors, correlation matrix, noise, true coefficients)
+- [X] T006 [P] Implement `code/simulation/engine.py`: **Fully implement** the `calculate_vif` function (FR-006) and `generate_synthetic_data` with the exact signature: `def generate_synthetic_data(config: SimulationConfig, seed: int) -> DatasetInstance`. The `DatasetInstance` must include fields: `X` (np.ndarray), `y` (np.ndarray), `beta_true` (np.ndarray), `vif_scores` (dict). **Do not use a skeleton**; provide a complete, working implementation.
 - [ ] T007 [P] Create `data/raw/`, `data/simulated/`, and `data/results/` directory structure with `.gitkeep` files in each
-- [ ] T009 [P] Setup pytest configuration: Create `pytest.ini` (addopts="-v --tb=short") and `tests/conftest.py` with shared fixtures
+- [X] T009 [P] Setup pytest configuration: Create `pytest.ini` (addopts="-v --tb=short") and `tests/conftest.py` with shared fixtures
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,16 +81,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for correlation matrix generation in `tests/unit/test_simulation.py` (Verify $\rho$ within a predefined tolerance threshold.)
-- [ ] T011 [P] [US1] Unit test for rank-checking logic in `tests/unit/test_simulation.py` (Verify handling of $N=5$ or rank-deficient cases)
+- [X] T010 [P] [US1] Unit test for correlation matrix generation in `tests/unit/test_simulation.py` (Verify $\rho$ within a predefined tolerance threshold.)
+- [X] T011 [P] [US1] Unit test for rank-checking logic in `tests/unit/test_simulation.py` (Verify handling of $N=5$ or rank-deficient cases)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/simulation/engine.py`: Generate $X$ matrix with Cholesky decomposition for target correlation
-- [ ] T013 [US1] Implement `code/simulation/engine.py`: Generate $y$ vector using true coefficients and Gaussian noise
-- [ ] T014 [US1] Implement `code/simulation/engine.py`: Add full VIF calculation and flagging (VIF > 10) for collinearity verification (FR-006), **persisting the flag in the `DatasetInstance` metadata** saved to `data/simulated/`. (Note: `calculate_vif` is already implemented in T006; this task focuses on integration and metadata persistence).
-- [ ] T015 [US1] Implement `code/simulation/engine.py`: Add positive semi-definite check and auto-regeneration logic for invalid matrices (limited number of attempts per config)
-- [ ] T016 [US1] Implement `code/simulation/engine.py`: Save `DatasetInstance` objects (X, y, $\beta_{true}$) to `data/simulated/` with metadata (JSON). **Explicitly mandate serializing the `beta_true` vector** into the JSON output to satisfy FR-001.
+- [X] T012 [P] [US1] Implement `code/simulation/engine.py`: Generate $X$ matrix with Cholesky decomposition for target correlation
+- [X] T013 [US1] Implement `code/simulation/engine.py`: Generate $y$ vector using true coefficients and Gaussian noise
+- [X] T014 [US1] Implement `code/simulation/engine.py`: Add full VIF calculation and flagging (VIF > 10) for collinearity verification (FR-006), **persisting the flag in the `DatasetInstance` metadata** saved to `data/simulated/`. (Note: `calculate_vif` is already implemented in T006; this task focuses on integration and metadata persistence).
+- [X] T015 [US1] Implement `code/simulation/engine.py`: Add positive semi-definite check and auto-regeneration logic for invalid matrices (limited number of attempts per config)
+- [X] T016 [US1] Implement `code/simulation/engine.py`: Save `DatasetInstance` objects (X, y, $\beta_{true}$) to `data/simulated/` with metadata (JSON). **Explicitly mandate serializing the `beta_true` vector** into the JSON output to satisfy FR-001.
 - [ ] T017 [US1] Add logging for simulation run parameters: Write to `data/results/simulation.log` in JSON format with fields: `N`, `rho`, `seed`, `duration`, `vif_max`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

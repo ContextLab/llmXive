@@ -1,44 +1,22 @@
-- artifact_hash: 83b463a13ab33ee8bccf00d00e5f8b2bb7a60991761b64a8a5030b88fffa26ff
-  artifact_path: projects/PROJ-763-evaluating-calibration-of-probabilistic-/specs/001-evaluating-calibration-of-probabilistic/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/paleolimsub/subseasonal-rodeo/releases`
-  verification_status: mismatch
-  verified_against_url: https://github.com/paleolimsub/subseasonal-rodeo/releases
-  verified_at: '2026-08-09T05:06:12.326625Z'
-- artifact_hash: 6ae628fdb95a8795396b579a97c5a26edfe33ec9432c8764c6b639b656ab4265
+- artifact_hash: f19ea48e8b162fa1d33182fef89794014d11cd16016697555d3898e799469ba8
   artifact_path: projects/PROJ-763-evaluating-calibration-of-probabilistic-/specs/001-evaluating-calibration-of-probabilistic/research.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/paleolimsub/subseasonal-rodeo/releases`
-  verification_status: mismatch
-  verified_against_url: https://github.com/paleolimsub/subseasonal-rodeo/releases
-  verified_at: '2026-08-09T05:06:27.436201Z'
-- artifact_hash: 6ae628fdb95a8795396b579a97c5a26edfe33ec9432c8764c6b639b656ab4265
-  artifact_path: projects/PROJ-763-evaluating-calibration-of-probabilistic-/specs/001-evaluating-calibration-of-probabilistic/research.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: full_2023_remove_flawed.parquet
   kind: url
   value: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6538f137ee5888edef6860de/6485c4566749068043602ae2a93520b6c1f5120ce51c5e03fa629dfac2c7d158?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full_2023_remove_flawed.parquet%3B+filename%3D%22full_2023_remove_flawed.parquet%22%3B&user_id=public&Expires=1786255587&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUzOGYxMzdlZTU4ODhlZGVmNjg2MGRlLzY0ODVjNDU2Njc0OTA2ODA0MzYwMmFlMmE5MzUyMGI2YzFmNTEyMGNlNTFjNWUwM2ZhNjI5ZGZhYzJjN2QxNThcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbF8yMDIzX3JlbW92ZV9mbGF3ZWQucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmZ1bGxfMjAyM19yZW1vdmVfZmxhd2VkLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjI1NTU4N319fV19&Signature=MEQCIFMMkNj4eyjsrZPo7WvEHWsPEzKSPh6sEyCYGQ9Q102KAiB9Jr5DfUGMQ7cElA5qHHkAngn9NltmpSFfhETR1XsElA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-09T05:06:27.436201Z'
-- artifact_hash: 6ae628fdb95a8795396b579a97c5a26edfe33ec9432c8764c6b639b656ab4265
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6538f137ee5888edef6860de/6485c4566749068043602ae2a93520b6c1f5120ce51c5e03fa629dfac2c7d158?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full_2023_remove_flawed.parquet%3B+filename%3D%22full_2023_remove_flawed.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1787811636&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUzOGYxMzdlZTU4ODhlZGVmNjg2MGRlLzY0ODVjNDU2Njc0OTA2ODA0MzYwMmFlMmE5MzUyMGI2YzFmNTEyMGNlNTFjNWUwM2ZhNjI5ZGZhYzJjN2QxNThcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbF8yMDIzX3JlbW92ZV9mbGF3ZWQucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmZ1bGxfMjAyM19yZW1vdmVfZmxhd2VkLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NzgxMTYzNn19fV19&Signature=MEYCIQCdupT-2rCBiD5LlcaOoQjL2srFCOmMm0XsWLKDOibniAIhAMEVv5d2ahPblY-mc4NKApMmZfkn0ZuxRLKjGmKyHFdH&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-27T05:20:36.540768Z'
+- artifact_hash: f19ea48e8b162fa1d33182fef89794014d11cd16016697555d3898e799469ba8
   artifact_path: projects/PROJ-763-evaluating-calibration-of-probabilistic-/specs/001-evaluating-calibration-of-probabilistic/research.md
-  cite_id: c-003
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: 2021022712.zip
   kind: url
   value: https://huggingface.co/datasets/jacobbieker/gfs-kerchunk/resolve/main/data/2021/2021022712.zip`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/659d4dc3c19a7062641e5009/3a9b5eb8a3a1a0135dc81f9d14998ec6c410b5c89933e343c510390bb26cf4a2?user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fzip&response-content-disposition=inline%3B+filename*%3DUTF-8%27%272021022712.zip%3B+filename%3D%222021022712.zip%22%3B&Expires=1786255588&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU5ZDRkYzNjMTlhNzA2MjY0MWU1MDA5LzNhOWI1ZWI4YTNhMWEwMTM1ZGM4MWY5ZDE0OTk4ZWM2YzQxMGI1Yzg5OTMzZTM0M2M1MTAzOTBiYjI2Y2Y0YTJcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyNzIwMjEwMjI3MTIuemlwJTNCK2ZpbGVuYW1lJTNEJTIyMjAyMTAyMjcxMi56aXAlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjI1NTU4OH19fV19&Signature=MEYCIQDbwLD9Nzl-lXROuxg2dXJGukRVWYvnQuoIfW9aoJN2OgIhAOTjAGP0qW38%7EpaxVpCHZq9WCFRb%7ESYi5nzR4k2kRXhQ&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-09T05:06:27.436201Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/659d4dc3c19a7062641e5009/3a9b5eb8a3a1a0135dc81f9d14998ec6c410b5c89933e343c510390bb26cf4a2?user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fzip&response-content-disposition=inline%3B+filename*%3DUTF-8%27%272021022712.zip%3B+filename%3D%222021022712.zip%22%3B&Expires=1787811637&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU5ZDRkYzNjMTlhNzA2MjY0MWU1MDA5LzNhOWI1ZWI4YTNhMWEwMTM1ZGM4MWY5ZDE0OTk4ZWM2YzQxMGI1Yzg5OTMzZTM0M2M1MTAzOTBiYjI2Y2Y0YTJcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyNzIwMjEwMjI3MTIuemlwJTNCK2ZpbGVuYW1lJTNEJTIyMjAyMTAyMjcxMi56aXAlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NzgxMTYzN319fV19&Signature=MEUCIQCOlKUIKiYGG-Ke2%7E6g%7ErekRNq6rBtT5Um7-L9w8itCyAIgOKngkk1OI5YaL8zGvPA4ZPZld8hItAOtIj91zy%7E31%7EA_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-27T05:20:36.540768Z'

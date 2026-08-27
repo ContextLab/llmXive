@@ -437,3 +437,136 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T00:11:58Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: 200 Monte Carlo replications
+  claim_id: c_1a863701
+  context: 'Implement code/main.py: Orchestration loop for Monte Carlo replications.
+    CRITICAL: Implement a fixed for loop over N=200 replications.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a fixed for loop over N=200 replications.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:42:29Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: R-hat threshold 1.05 and VIF threshold 10
+  claim_id: c_9173ecb7
+  context: For each run, if the model fails convergence (R-hat > 1.05) or VIF > 10,
+    flag it as under-coverage or record the exclusion reason in a separate log.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag model runs as under-coverage if R-hat > 1.05 or VIF > 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:42:29Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: UCI Concrete dataset has >= 3 predictors
+  claim_id: c_1d36bdc3
+  context: "Consult the primary source for the 'Concrete Compressive Strength' dataset...\
+    \ confirm the dataset contains sufficient features (\u22653 predictors) and sample\
+    \ size potential."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/UCI_Concrete_dataset_has_%3E=_3_predictors
+  kind: magnitude
+  raw_text: The UCI Concrete Compressive Strength dataset contains at least 3 predictors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:42:48Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Subsample UCI dataset to N < 50
+  claim_id: c_018eebc9
+  context: Subsample logic to N < 50 using stratified random sampling with explicit
+    validation ensuring at least 3 predictors are retained.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subsample the UCI dataset to N < 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:42:48Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Simulation runtime limit 21600 seconds
+  claim_id: c_ad094c65
+  context: Add a check in run_full_simulation.sh that FAILS the build (exit code 1)
+    if total_duration > 21600s (6 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full simulation runtime must not exceed 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:43:21Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: OLS 95% confidence interval
+  claim_id: c_22f55146
+  context: 'Implement code/models/ols.py: OLS fit and standard 95% confidence interval
+    calculation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 95% confidence intervals for the OLS method.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:43:21Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Bayesian prior Normal(0, 10)
+  claim_id: c_140afcd0
+  context: 'Implement code/models/bayesian.py: CmdStanPy model definition with Normal(0,
+    10) priors and Half-Cauchy scale'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Normal(0, 10) priors for the Bayesian regression model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:44:23Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Bayesian prior Half-Cauchy scale
+  claim_id: c_eea3e3a5
+  context: 'Implement code/models/bayesian.py: CmdStanPy model definition with Normal(0,
+    10) priors and Half-Cauchy scale'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bayesian_prior_Half-Cauchy_scale
+  kind: entity_fact
+  raw_text: Use Half-Cauchy scale priors for the Bayesian regression model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T05:45:13Z'

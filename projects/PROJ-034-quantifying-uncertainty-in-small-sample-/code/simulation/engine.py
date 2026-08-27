@@ -1,217 +1,306 @@
 from dataclasses import dataclass, field
-from typing import Optional, Tuple, Dict, Any
+from typing import Optional, Tuple, Dict, Any, List
 import numpy as np
 from numpy.typing import ArrayLike
 import json
 import os
 import logging
 
-# Configure logging for the module
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
 
 @dataclass
 class DatasetInstance:
     """
-    Container for a single simulated dataset instance.
-    
-    Attributes:
-        X: Feature matrix (n_samples, n_features)
-        y: Target vector (n_samples,)
-        beta_true: True coefficients used to generate y (n_features,)
-        metadata: Dictionary containing generation parameters and diagnostics (N, rho, seed, vif_max, etc.)
+    Container for a generated synthetic dataset and its metadata.
     """
     X: np.ndarray
     y: np.ndarray
     beta_true: np.ndarray
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    vif_scores: Dict[str, float] = field(default_factory=dict)
+    config_params: Dict[str, Any] = field(default_factory=dict)
+    seed: int = 0
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the instance to a dictionary suitable for JSON serialization."""
-        return {
-            "X": self.X.tolist(),
-            "y": self.y.tolist(),
-            "beta_true": self.beta_true.tolist(),
-            "metadata": self.metadata
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'DatasetInstance':
-        """Reconstruct a DatasetInstance from a dictionary."""
-        return cls(
-            X=np.array(data["X"]),
-            y=np.array(data["y"]),
-            beta_true=np.array(data["beta_true"]),
-            metadata=data.get("metadata", {})
-        )
-
-
-def calculate_vif(X: np.ndarray) -> Tuple[np.ndarray, float]:
+def calculate_vif(X: np.ndarray) -> Dict[str, float]:
     """
-    Calculate Variance Inflation Factors (VIF) for each predictor.
+    Calculate Variance Inflation Factors for each predictor in X.
     
     Args:
-        X: Feature matrix (n_samples, n_features). Should NOT include intercept.
-    
-    Returns:
-        Tuple of (vif_array, max_vif)
-    """
-    n_features = X.shape[1]
-    vifs = np.zeros(n_features)
-    
-    # Add intercept column for the regression
-    X_with_intercept = np.column_stack((np.ones(X.shape[0]), X))
-    
-    for i in range(n_features):
-        # Predictor to test
-        y_test = X_with_intercept[:, i+1] # Skip intercept column
-        # Predictors to regress against (all other columns including intercept)
-        X_test = np.delete(X_with_intercept, i+1, axis=1)
+        X: Design matrix (n_samples, n_features)
         
-        # Simple OLS: beta = (X'X)^-1 X'y
+    Returns:
+        Dictionary mapping feature index to VIF score.
+    """
+    n_samples, n_features = X.shape
+    if n_samples <= n_features:
+        return {f"X{i}": float('inf') for i in range(n_features)}
+    
+    vif_scores = {}
+    # Add intercept for OLS calculation if needed, but VIF is usually on centered X
+    # We compute VIF for each column j by regressing X_j on all other columns
+    for i in range(n_features):
+        y_var = X[:, i]
+        X_others = np.delete(X, i, axis=1)
+        
+        # OLS: beta = (X'X)^-1 X'y
+        # Check rank
+        if np.linalg.matrix_rank(X_others) < X_others.shape[1]:
+            vif_scores[f"X{i}"] = float('inf')
+            continue
+        
         try:
-            # Using least squares to avoid matrix inversion issues directly
-            coeffs, _, _, _ = np.linalg.lstsq(X_test, y_test, rcond=None)
-            y_pred = X_test @ coeffs
-            residuals = y_test - y_pred
+            # Solve least squares
+            _, residuals, rank, s = np.linalg.lstsq(X_others, y_var, rcond=None)
             
-            # R-squared
-            ss_res = np.sum(residuals**2)
-            ss_tot = np.sum((y_test - np.mean(y_test))**2)
+            # R-squared calculation
+            # SSR = sum((y_hat - y_mean)^2)
+            # SST = sum((y - y_mean)^2)
+            # R2 = 1 - SSR/SST
+            
+            y_hat = X_others @ residuals
+            y_mean = np.mean(y_var)
+            
+            ss_res = np.sum((y_var - y_hat) ** 2)
+            ss_tot = np.sum((y_var - y_mean) ** 2)
             
             if ss_tot == 0:
-                vifs[i] = np.inf
+                r_squared = 1.0
             else:
                 r_squared = 1 - (ss_res / ss_tot)
-                if r_squared >= 1.0:
-                    vifs[i] = np.inf
-                else:
-                    vifs[i] = 1.0 / (1.0 - r_squared)
+            
+            if r_squared >= 1.0:
+                vif_scores[f"X{i}"] = float('inf')
+            else:
+                vif_scores[f"X{i}"] = 1.0 / (1.0 - r_squared)
         except np.linalg.LinAlgError:
-            vifs[i] = np.inf
+            vif_scores[f"X{i}"] = float('inf')
     
-    return vifs, np.max(vifs)
+    return vif_scores
 
-
-def generate_dataset(
-    N: int,
-    n_features: int,
-    rho: float,
-    beta_true: np.ndarray,
-    sigma: float,
-    seed: Optional[int] = None
-) -> DatasetInstance:
+def check_positive_semidefinite(matrix: np.ndarray, tol: float = 1e-8) -> bool:
     """
-    Generate a synthetic dataset with controlled correlation structure.
+    Check if a matrix is positive semi-definite by checking eigenvalues.
+    """
+    eigenvalues = np.linalg.eigvalsh(matrix)
+    return np.all(eigenvalues >= -tol)
+
+def generate_correlation_matrix(n_features: int, rho: float, seed: int) -> np.ndarray:
+    """
+    Generate a correlation matrix with a specific off-diagonal correlation rho.
     
     Args:
-        N: Sample size
-        n_features: Number of predictors
-        rho: Target correlation between predictors (assumes equicorrelation structure)
-        beta_true: True coefficients
-        sigma: Noise standard deviation
+        n_features: Number of features (p)
+        rho: Target correlation between any pair of features
         seed: Random seed for reproducibility
-    
+        
     Returns:
-        DatasetInstance containing X, y, beta_true, and metadata
+        A valid correlation matrix.
+        
+    Raises:
+        ValueError: If rho is out of valid range for the given dimension.
     """
-    if seed is not None:
-        np.random.seed(seed)
+    if not (-1.0 <= rho <= 1.0):
+        raise ValueError("rho must be between -1 and 1")
     
-    # 1. Generate Correlation Matrix (Equicorrelation)
-    # Ensure positive semi-definite
-    # Condition for PSD: rho >= -1/(n_features-1) and rho <= 1
+    # For an equicorrelation matrix to be positive semi-definite:
+    # rho >= -1/(n_features - 1)
     min_rho = -1.0 / (n_features - 1) if n_features > 1 else -1.0
-    if rho < min_rho or rho > 1.0:
-        raise ValueError(f"rho={rho} is outside the valid range [{min_rho}, 1.0] for {n_features} features.")
+    if rho < min_rho:
+        raise ValueError(f"rho={rho} is too low for n_features={n_features}. Minimum allowed: {min_rho}")
+
+    # Construct equicorrelation matrix
+    R = np.full((n_features, n_features), rho)
+    np.fill_diagonal(R, 1.0)
     
-    Sigma = np.full((n_features, n_features), rho)
-    np.fill_diagonal(Sigma, 1.0)
+    if not check_positive_semidefinite(R):
+        # Numerical stability adjustment if needed
+        min_eig = np.min(np.linalg.eigvalsh(R))
+        if min_eig < -1e-8:
+            raise ValueError(f"Generated matrix is not positive semi-definite. Min eigenvalue: {min_eig}")
     
-    # Check PSD explicitly
-    eigvals = np.linalg.eigvalsh(Sigma)
-    if np.min(eigvals) < -1e-10:
-        raise ValueError(f"Generated correlation matrix is not positive semi-definite (min eigval: {np.min(eigvals)})")
+    return R
+
+def generate_synthetic_data(config: 'SimulationConfig', seed: int) -> DatasetInstance:
+    """
+    Generate a synthetic dataset based on the configuration.
     
-    # 2. Generate X using Cholesky decomposition
+    Args:
+        config: SimulationConfig object defining parameters.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        DatasetInstance containing X, y, beta_true, and metadata.
+    """
+    np.random.seed(seed)
+    
+    n = config.N
+    p = len(config.predictors) if isinstance(config.predictors, list) else config.predictors
+    
+    # Generate correlation matrix
     try:
-        L = np.linalg.cholesky(Sigma)
-    except np.linalg.LinAlgError:
-        # Fallback for numerical instability: adjust rho slightly if needed
-        logger.warning("Cholesky failed, attempting to adjust rho slightly for numerical stability.")
-        Sigma_adjusted = Sigma * 0.999 + np.eye(n_features) * 0.001
-        L = np.linalg.cholesky(Sigma_adjusted)
+        R = generate_correlation_matrix(p, config.rho, seed)
+    except ValueError as e:
+        logger.error(f"Correlation matrix generation failed: {e}")
+        raise
     
-    Z = np.random.normal(0, 1, size=(N, n_features))
+    # Cholesky decomposition to generate correlated X
+    try:
+        L = np.linalg.cholesky(R)
+    except np.linalg.LinAlgError:
+        # Fallback: add small jitter to diagonal if not PSD due to precision
+        R_adj = R + np.eye(p) * 1e-6
+        try:
+            L = np.linalg.cholesky(R_adj)
+        except np.linalg.LinAlgError:
+            raise ValueError("Failed to generate valid correlation matrix even with jitter.")
+    
+    # Generate standard normal X
+    Z = np.random.randn(n, p)
     X = Z @ L.T
     
-    # 3. Generate y
-    noise = np.random.normal(0, sigma, size=N)
+    # Normalize X to mean 0, std 1 (optional but good for stability)
+    # X = (X - X.mean(axis=0)) / X.std(axis=0)
+    
+    # Generate true coefficients
+    # If config.coefficients is provided, use it; else generate random
+    if isinstance(config.coefficients, list):
+        beta_true = np.array(config.coefficients)
+    else:
+        # Default: generate random coefficients
+        beta_true = np.random.randn(p)
+    
+    # Generate noise
+    noise = np.random.randn(n) * config.noise_std
+    
+    # Generate y
+    # Ensure beta_true is 1D and compatible
+    if beta_true.ndim == 0:
+        beta_true = np.full(p, beta_true)
+        
     y = X @ beta_true + noise
     
-    # 4. Calculate VIF
-    vifs, max_vif = calculate_vif(X)
+    # Calculate VIF
+    vif_scores = calculate_vif(X)
     
-    metadata = {
-        "N": N,
-        "n_features": n_features,
-        "rho": rho,
-        "sigma": sigma,
-        "seed": seed,
-        "vif_max": float(max_vif),
-        "vif_list": vifs.tolist(),
-        "generated_at": str(np.datetime64('now'))
-    }
+    # Check for high VIF
+    max_vif = max(vif_scores.values()) if vif_scores else 0
+    if max_vif > 10:
+        logger.warning(f"High multicollinearity detected (Max VIF: {max_vif:.2f})")
     
-    return DatasetInstance(X=X, y=y, beta_true=beta_true, metadata=metadata)
+    return DatasetInstance(
+        X=X,
+        y=y,
+        beta_true=beta_true,
+        vif_scores=vif_scores,
+        config_params={
+            "N": n,
+            "rho": config.rho,
+            "noise_std": config.noise_std,
+            "predictors": config.predictors
+        },
+        seed=seed
+    )
 
-
-def save_dataset_instance(
-    instance: DatasetInstance,
-    output_dir: str,
-    filename_prefix: str = "dataset"
-) -> str:
+def generate_dataset(config: 'SimulationConfig', seed: int) -> DatasetInstance:
     """
-    Save a DatasetInstance to disk as a JSON file.
+    Wrapper to generate a dataset, ensuring PSD checks and regeneration logic.
+    
+    Args:
+        config: SimulationConfig.
+        seed: Random seed.
+        
+    Returns:
+        DatasetInstance.
+    """
+    # T015: Auto-regeneration logic for invalid matrices
+    max_attempts = 5
+    for attempt in range(max_attempts):
+        try:
+            instance = generate_synthetic_data(config, seed + attempt)
+            # Verify PSD of correlation matrix used (re-construct to check)
+            p = len(config.predictors) if isinstance(config.predictors, list) else config.predictors
+            R = generate_correlation_matrix(p, config.rho, seed + attempt)
+            if check_positive_semidefinite(R):
+                return instance
+            else:
+                logger.warning(f"Attempt {attempt}: Generated matrix not PSD. Retrying...")
+        except (ValueError, np.linalg.LinAlgError) as e:
+            logger.warning(f"Attempt {attempt} failed: {e}. Retrying...")
+    
+    raise RuntimeError(f"Failed to generate a valid dataset after {max_attempts} attempts.")
+
+def save_dataset_instance(instance: DatasetInstance, output_path: str) -> None:
+    """
+    Save a DatasetInstance to a JSON file.
+    
+    Explicitly serializes X, y, and beta_true as lists to satisfy FR-001.
     
     Args:
         instance: The DatasetInstance to save.
-        output_dir: Directory to save the file (e.g., 'data/simulated').
-        filename_prefix: Prefix for the filename.
-    
-    Returns:
-        The absolute path to the saved file.
+        output_path: Path to the output JSON file.
     """
-    os.makedirs(output_dir, exist_ok=True)
+    if not output_path.endswith('.json'):
+        raise ValueError("Output path must be a .json file")
     
-    # Generate filename based on seed and N if available, otherwise timestamp
-    seed = instance.metadata.get("seed", "none")
-    n = instance.metadata.get("N", "unknown")
-    timestamp = instance.metadata.get("generated_at", "now").replace(":", "-").replace(" ", "_")
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    filename = f"{filename_prefix}_N{n}_seed{seed}.json"
-    filepath = os.path.join(output_dir, filename)
+    data = {
+        "X": instance.X.tolist(),
+        "y": instance.y.tolist(),
+        "beta_true": instance.beta_true.tolist(),
+        "vif_scores": instance.vif_scores,
+        "config_params": instance.config_params,
+        "seed": instance.seed,
+        "shape": {
+            "n_samples": int(instance.X.shape[0]),
+            "n_features": int(instance.X.shape[1])
+        }
+    }
     
-    data = instance.to_dict()
-    
-    with open(filepath, 'w') as f:
+    with open(output_path, 'w') as f:
         json.dump(data, f, indent=2)
     
-    logger.info(f"Saved dataset instance to {filepath}")
-    return filepath
+    logger.info(f"Dataset instance saved to {output_path}")
 
-
-def load_dataset_instance(filepath: str) -> DatasetInstance:
+def load_dataset_instance(input_path: str) -> DatasetInstance:
     """
     Load a DatasetInstance from a JSON file.
     
     Args:
-        filepath: Path to the JSON file.
-    
+        input_path: Path to the input JSON file.
+        
     Returns:
-        DatasetInstance object.
+        DatasetInstance.
     """
-    with open(filepath, 'r') as f:
+    if not input_path.endswith('.json'):
+        raise ValueError("Input path must be a .json file")
+    
+    with open(input_path, 'r') as f:
         data = json.load(f)
-    return DatasetInstance.from_dict(data)
+    
+    X = np.array(data["X"])
+    y = np.array(data["y"])
+    beta_true = np.array(data["beta_true"])
+    
+    return DatasetInstance(
+        X=X,
+        y=y,
+        beta_true=beta_true,
+        vif_scores=data.get("vif_scores", {}),
+        config_params=data.get("config_params", {}),
+        seed=data.get("seed", 0)
+    )
+
+# Import SimulationConfig here to avoid circular import if defined in config.py
+# We use a string type hint in the function signatures above to defer resolution
+# but we need the actual class if we want to instantiate it here or use isinstance checks.
+# Since the prompt says "extend code/simulation/engine.py", we assume config.py is available.
+# However, to be safe and avoid import errors if this file is run standalone without config,
+# we keep the type hints as strings or import inside functions if strictly necessary.
+# For now, we rely on the fact that 'from simulation.config import SimulationConfig' exists in the project.
+
+try:
+    from simulation.config import SimulationConfig
+except ImportError:
+    # Fallback if imported in a context where config is not yet available
+    SimulationConfig = None

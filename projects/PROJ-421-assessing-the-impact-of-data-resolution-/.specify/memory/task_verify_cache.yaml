@@ -20,12 +20,11 @@ T025:
     \ The required output artifact is missing."
 T029:
   c: false
-  h: c743567a70db1462b0e8a68ca92b40a7e5bb7d8e9e261aea0d742ebb648e2986
-  r: "The `visualization.py` file contains a partially\u2011written `find_threshold`\
-    \ implementation, but the source is truncated (the write block ends abruptly)\
-    \ and the expected output file `data/results/threshold_report.txt` does not exist\
-    \ on disk. Consequently the required artifact (the threshold report) is missing\
-    \ and the function implementation is incomplete."
+  h: c1f68d0ee15d8e7d1d5c8fcdd7f444c8937d91940fdc18e705dd149f40771a05
+  r: "The `visualization.py` file contains a partially truncated `find_threshold`\
+    \ implementation (missing closing quotes/parentheses) and the required `data/results/threshold_report.txt`\
+    \ does not exist on disk, so the function\u2019s output file is not actually produced.\
+    \ The task\u2019s artifact is missing and the code appears broken."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,3 +39,40 @@ T031:
     \ aggregation factor, nor any analysis confirming that the power\u2011threshold\
     \ varies by no more than one resolution step. The required sensitivity\u2011analysis\
     \ artifact is missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No sensitivity analysis report, code, or output files were supplied; the claim
+    lacks any tangible artifact confirming threshold stability. The required report
+    is missing entirely.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, log output, or data file was provided that demonstrates\
+    \ the implementation of a special flag for p\u2011values exactly equal to 0.05\
+    \ nor an added output column capturing those cases. Without such artifacts, we\
+    \ cannot confirm that the requirement has been met. The implementer must supply\
+    \ the modified script (or module) and example output showing the flag and column\
+    \ for p\u202F=\u202F0.05."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I looked for updated files in the `docs/` directory and modifications to `README.md`
+    as required by task T035, but no such artifacts were supplied or referenced in
+    the provided evidence. Without the actual documentation files or change logs,
+    the requirement cannot be confirmed as met.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, scripts, or refactored files are present to demonstrate that any cleanup
+    or refactoring was performed; the only evidence is the original feature specification,
+    which does not include the required artifacts. The implementer must provide the
+    updated codebase (e.g., cleaned Python/R scripts, commit diffs, or a repository
+    snapshot) showing the refactoring work.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No runtime measurements, benchmark logs, or performance reports are provided\
+    \ to demonstrate that the pipeline completes in under 6\u202Fhours on a CPU\u2011\
+    only runner. The claim lacks any concrete artifact (e.g., timing output, CI logs,\
+    \ profiling results) required to verify the performance optimization."

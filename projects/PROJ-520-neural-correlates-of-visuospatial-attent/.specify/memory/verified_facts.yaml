@@ -1,0 +1,9 @@
+60|configured filter hz notch:
+  quote: "Notch filters \u2013 Notch filters or band-rejection filters are useful\
+    \ for eliminating a specific noise frequency. For example, power lines within\
+    \ a building run at 50 or 60 Hz line frequency. A sensitive circuit will pick\
+    \ up this frequency as noise. A notch filter tuned to the line frequency can remove\
+    \ the noise."
+  source_id: Noise (electronics)
+  url: https://en.wikipedia.org/wiki/Noise_(electronics)
+  value: 50 or 60 Hz
