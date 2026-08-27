@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T12:30:36.809525Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-491-investigating-the-relationship-between-b
-last_run_id: 952bc601-5c52-4de0-8b01-2a7c14d688ca
+last_run_id: 0216d6d0-8123-4c7f-b171-3bbeaea600f2
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-491-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b
 title: Investigating the Relationship Between Brain Network Dynamics and Anticipatory
   Reward Processing
-updated_at: '2026-08-24T14:09:07.760748Z'
+updated_at: '2026-08-27T16:33:24.232691Z'

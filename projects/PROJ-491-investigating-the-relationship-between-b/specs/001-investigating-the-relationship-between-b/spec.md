@@ -56,7 +56,7 @@ The system MUST correlate individual flexibility scores with ventral striatum ac
 ### Edge Cases
 
 - What happens when a subject's resting-state data is missing or corrupted? (System MUST skip that subject and log a warning, proceeding with the remaining valid subjects).
-- What happens when the total available pool of subjects with both scan types is less than 50? (System MUST fail fast with an error message indicating insufficient data and terminate execution).
+- What happens when the total available pool of subjects with both scan types is insufficient for robust analysis? (System MUST fail fast with an error message indicating insufficient data and terminate execution).
 - How does the system handle a subject with zero variance in their flexibility score (constant state)? (System MUST flag this subject as an outlier and exclude them from the correlation analysis to avoid division by zero or undefined statistics).
 - How does the system handle a case where the permutation test p-value equals exactly 0? (System MUST report p < 1/1001 rather than 0 to reflect the finite number of permutations).
 

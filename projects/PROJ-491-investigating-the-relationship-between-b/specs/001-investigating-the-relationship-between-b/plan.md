@@ -17,7 +17,7 @@ This project implements a computational neuroscience pipeline to investigate the
 **Project Type**: Computational research pipeline / CLI tool.  
 **Performance Goals**: Complete full pipeline (A cohort of participants) within 6 hours; peak RAM < 7 GB.  
 **Constraints**: No GPU usage; no deep learning libraries (PyTorch/TensorFlow) unless CPU-only and strictly necessary (avoided here); sliding window analysis must be memory-efficient (streaming or chunked if needed, though A cohort of subjects fits in RAM if handled carefully).  
-**Scale/Scope**: 50 subjects; A substantial number of time points per subject (resting state); dynamic states.
+**Scale/Scope**: A sample of subjects; A substantial number of time points per subject (resting state); dynamic states.
 
 ## Constitution Check
 
@@ -95,8 +95,8 @@ The specific value to remove/generalize: 'Power atlas'
 Rewritten passage:
 Power atlas
 
-This study addresses the research question of how functional network organization varies across individuals. The method involves applying a widely used functional parcellation scheme to map brain regions. References include Power et al. (2011) and the associated arXiv preprint. coordinates and Ventral Striatum ROI definition are compatible with HCP MNI152NLin2009cAsym space used in OpenNeuro. **ACTION**: Verify coordinate alignment; if mismatch, plan resampling.
-- **FR-003, FR-009, Assumption**: Validate that sliding window K-means (K=4, seed=42) is computationally feasible for 50 subjects on CPU cores within 6 hours. **ACTION**: Confirm TR of downloaded data (expected a latency on the order of one second) to validate TR window is physiologically appropriate.
+This study addresses the research question of how functional network organization varies across individuals. The method involves applying a widely used functional parcellation scheme to map brain regions. References include Power et al. and the associated arXiv preprint. coordinates and Ventral Striatum ROI definition are compatible with HCP MNI152NLin2009cAsym space used in OpenNeuro. **ACTION**: Verify coordinate alignment; if mismatch, plan resampling.
+- **FR-003, FR-009, Assumption**: Validate that sliding window K-means (K=4, seed=42) is computationally feasible for A cohort of subjects on CPU cores within 6 hours. **ACTION**: Confirm TR of downloaded data (expected a latency on the order of one second) to validate TR window is physiologically appropriate.
 - **FR-005, FR-006**: Verify `scipy`/`numpy` can handle A sufficient number of permutations efficiently without GPU.
 
 ### Phase 1: Data Model & Contracts
