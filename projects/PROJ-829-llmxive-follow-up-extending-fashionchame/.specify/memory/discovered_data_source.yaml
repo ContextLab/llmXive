@@ -1,13 +1,11 @@
 status: none
-intent: download real DeepFashion2 HuggingFace loader python package dataset
+intent: DeepFashion2 and 7eu7d7/vlm_data download huggingface datasets python package
+  dataset
 required_fields:
-- image_id
-- image_url
+- image
 - color
 - pattern
 - texture
-- material
-- garment_type
-cache_key: 689d838d8e8ec6bc84976c36e3d1b6386f18e741cd9dec47ea2c4e3b4681a76c
-searched_at: '2026-08-25T16:42:24.106517+00:00'
+cache_key: bc7506ccc1c4346d3cb346f781455444d5048e2a820b2d12c560d27d705608a3
+searched_at: '2026-08-27T05:20:55.018529+00:00'
 retry_count: 1

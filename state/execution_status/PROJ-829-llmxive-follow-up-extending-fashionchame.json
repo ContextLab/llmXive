@@ -1,17 +1,16 @@
 {
   "project_id": "PROJ-829-llmxive-follow-up-extending-fashionchame",
   "ok": false,
-  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/metrics/latency.py: self-declared fabricated metric \u2014 \u201c\u202648.9, 49.5]          print(f\"Simulated latency samples: {simulated_latencies\u2026\u201d; code/src/adapters/text_cross_attention.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ads}\")          # Create dummy inputs     batch_size = args.ba\u2026\u201d; code/src/metrics/latency.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026, 49.5]          print(f\"Simulated latency samples: {simulated_latencies}\")\u2026\u201d; 2 command(s) failed: python code/scripts/run_full_benchmark.py --mode prepare (rc=1); python code/scripts/run_full_benchmark.py --mode benchmark --subset-size 500 (rc=1); 5 declared deliverable(s) absent: data/processed/fidelity_report.json; data/processed/filtered_subset_manifest.json; data/processed/manifest.json",
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/adapters/text_cross_attention.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026a forward pass with dummy inputs to ensure no CUDA calls\u2026\u201d; code/src/adapters/text_cross_attention.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026=2, help='Batch size for dummy input')     parser.add_argumen\u2026\u201d; code/src/adapters/text_cross_attention.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Create dummy inputs on CPU         batch_siz\u2026\u201d; 1 command(s) failed: python code/scripts/run_full_benchmark.py --mode benchmark --subset-size 500 (rc=1); 7 declared deliverable(s) absent: data/processed/fidelity_report.json; data/processed/filtered_subset_manifest.json; data/processed/latency_verification_report.json",
   "artifacts": [],
   "failures": [
-    "python code/scripts/run_full_benchmark.py --mode prepare -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-829-llmxive-follow-up-extending-fashionchame/code/scripts/run_full_benchmark.py\", line 8, in <module>\n    from src.pipeline.benchmark_runner import main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-829-llmxive-follow-up-extending-fashionchame/code/src/pipeline/benchmark_runner.py\", line 10, in <module>\n    from src.pipeline.runner import run_text_adapter_pipeline_with_bottleneck_analysis\n  File \"/home/runner/work/llmXive/llmX",
-    "python code/scripts/run_full_benchmark.py --mode benchmark --subset-size 500 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-829-llmxive-follow-up-extending-fashionchame/code/scripts/run_full_benchmark.py\", line 8, in <module>\n    from src.pipeline.benchmark_runner import main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-829-llmxive-follow-up-extending-fashionchame/code/src/pipeline/benchmark_runner.py\", line 10, in <module>\n    from src.pipeline.runner import run_text_adapter_pipeline_with_bottleneck_analysis\n  File \"/home/runn"
+    "python code/scripts/run_full_benchmark.py --mode benchmark --subset-size 500 -> rc=1\n    in main\n    run_text_adapter_pipeline_with_bottleneck_analysis(\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-829-llmxive-follow-up-extending-fashionchame/code/src/pipeline/runner.py\", line 141, in run_text_adapter_pipeline_with_bottleneck_analysis\n    adapter = TextCrossAttentionAdapter(config) # Assuming config has necessary params\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-829-llmxive-follow-up-extending-fashionchame/code/src/adapter"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-25T16:41:14Z"
+  "updated_at": "2026-08-27T05:16:49Z"
 }

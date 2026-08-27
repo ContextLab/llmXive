@@ -1,12 +1,12 @@
 experiment:
   seed: 42
-streaming:
-  chunk_size: 100
+  streaming_chunk_size: 64
 motion:
-  optical_flow_threshold: 10.0
+  optical_flow_threshold: 5.0
   optical_flow_subsampling_ratio: 5
 model:
   vlm_confidence_threshold: 0.8
   blip_model_id: "Salesforce/blip-large"
 benchmark:
-  latency_threshold_ms: null
+  latency_threshold_ms: 100.0
+  memory_trigger_mb: 2048
