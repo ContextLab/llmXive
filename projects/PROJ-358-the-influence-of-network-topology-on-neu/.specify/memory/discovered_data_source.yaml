@@ -1,0 +1,14 @@
+status: none
+intent: Human Connectome Project fMRI download API Python package dataset
+required_fields:
+- subject_id
+- scan_type
+- nifti_file_path
+- motion_parameters_file_path
+- parcellated_timeseries_csv_path
+- num_regions
+- timepoints
+- average_frame_displacement
+cache_key: 8413f9110572c8b3fd8e2bafc754e51be2079e19d0cf22f506bb3a5bde4a45e3
+searched_at: '2026-08-27T11:37:51.433365+00:00'
+retry_count: 1

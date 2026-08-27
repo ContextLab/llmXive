@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Synchrony Metrics Schema
+description: Schema for task-based neural synchrony metrics (including Task-Evoked Delta FC)
+type: object
+properties:
+  subject_id:
+    type: string
+    description: Unique subject identifier
+  network_pair:
+    type: string
+    description: Network pair (e.g., "FPN-DMN")
+    pattern: "^[A-Z]+-[A-Z]+$"
+  mean_fc_task:
+    type: number
+    description: Mean Pearson correlation during task (-1 to 1)
+    minimum: -1
+    maximum: 1
+  mean_fc_rest:
+    type: number
+    description: Mean Pearson correlation during rest (-1 to 1)
+    minimum: -1
+    maximum: 1
+  delta_fc:
+    type: number
+    description: Task-Evoked Change (Task FC - Rest FC)
+  task_epoch:
+    type: string
+    description: Task epoch name (e.g., "working_memory")
+    const: "working_memory"
+required:
+  - subject_id
+  - network_pair
+  - mean_fc_task
+  - mean_fc_rest
+  - delta_fc
+  - task_epoch
+additionalProperties: false

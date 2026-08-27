@@ -1,0 +1,38 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Graph Metrics Schema
+description: Schema for resting-state graph-theoretical metrics
+type: object
+properties:
+  subject_id:
+    type: string
+    description: Unique subject identifier
+  clustering_coeff:
+    type: number
+    description: Global clustering coefficient (0 to 1)
+    minimum: 0
+    maximum: 1
+  path_length:
+    type: number
+    description: Characteristic path length (positive float)
+    minimum: 0
+  global_efficiency:
+    type: number
+    description: Global efficiency (0 to 1)
+    minimum: 0
+    maximum: 1
+  modularity:
+    type: number
+    description: Modularity score (typically -1 to 1)
+  threshold:
+    type: number
+    description: Proportional threshold used (e.g., 0.20)
+    minimum: 0
+    maximum: 1
+required:
+  - subject_id
+  - clustering_coeff
+  - path_length
+  - global_efficiency
+  - modularity
+  - threshold
+additionalProperties: false

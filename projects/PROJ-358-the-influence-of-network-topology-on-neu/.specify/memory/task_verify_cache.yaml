@@ -1,0 +1,29 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory tree (`projects/PROJ-358-the-influence-of-network-topology-on-neu/...`)
+    is provided; the implementer did not show that the folders were created or list
+    their contents. The task remains undone until the specified project structure
+    exists and is demonstrated.
+T002:
+  c: false
+  h: 7fed66e4bddea817b5c8b6f3d71859b22743ce127061a115504f0477308b1533
+  r: The required file `projects/PROJ-358-the-influence-of-network-topology-on-neu/code/requirements.txt`
+    does not exist, and the only `requirements.txt` present uses version ranges (`>=`)
+    instead of pinned exact versions for the listed packages. The task therefore remains
+    unfinished.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, or related scripts) are present in the
+    provided evidence, so the requirement to configure Ruff and Black is not satisfied.
+    The task lacks any tangible artifact demonstrating the setup.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`data/raw`, `data/processed`, `code/data`,
+    `code/analysis`, `tests/`) is presented; the response contains only the task description
+    and specifications, with no actual file system artifacts or screenshots confirming
+    the structure exists. The implementer must create and show the directory tree
+    to satisfy the requirement.
