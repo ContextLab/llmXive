@@ -90,10 +90,10 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T015 [US1] Implement robust filtering logic in `code/ingestion/fetch_data.py` to exclude non-amorphous entries and missing CTE values.
 - [ ] T016 [US1] Implement `descriptors.py` in `code/features/` to calculate weighted mean atomic radius, electronegativity variance, VEC, and atomic size mismatch.
 - [X] T017 [US1] Implement VIF check in `code/features/descriptors.py` to detect multicollinearity between `mean_atomic_radius` and `size_mismatch`. **Constraint**: If VIF > 5.0 (Config Key: `VIF_THRESHOLD=5.0`), DO NOT exclude `size_mismatch` (per Constitution Principle VI); instead, log a warning "High VIF detected for size_mismatch" and retain the feature.
-- [ ] T017a [US1] Document the VIF conflict: Add a comment in `code/features/descriptors.py` explaining that `size_mismatch` is retained despite high VIF per Constitution Principle VI, and flag this as a known limitation in `results/metrics.json` if VIF > 5.0.
+- [X] T017a [US1] Document the VIF conflict: Add a comment in `code/features/descriptors.py` explaining that `size_mismatch` is retained despite high VIF per Constitution Principle VI, and flag this as a known limitation in `results/metrics.json` if VIF > 5.0.
 - [ ] T022 [US1] Save cleaned dataset to `data/processed/clean_mg_data.parquet` with checksum manifest using `compute_sha256` from T005a.
-- [ ] T018 [US1] Implement data splitting logic in `code/modeling/train.py`: **Primary**: Stratified split by `alloy_family` (Zr, Pd, Fe) as required by FR-003. **Fallback**: If any family has < 5 samples causing empty test sets, revert to random split. Do NOT downgrade based on N < 50.
-- [ ] T019 [US1] Implement conditional validation strategy selection in `code/modeling/train.py`: 5-fold (N≥50), Hold-Out (20≤N<50), LOO (N<20). **Log Format**: If stratification fails, log "DEV: FR-003 stratification failed, using random split". If N-based strategy is used, log "DEV: FR-003 5-fold skipped due to N<50" and write `{"spec_deviation_FR003": "N<50_downgrade"}` to `results/metrics.json`.
+- [X] T018 [US1] Implement data splitting logic in `code/modeling/train.py`: **Primary**: Stratified split by `alloy_family` (Zr, Pd, Fe) as required by FR-003. **Fallback**: If any family has < 5 samples causing empty test sets, revert to random split. Do NOT downgrade based on N < 50.
+- [X] T019 [US1] Implement conditional validation strategy selection in `code/modeling/train.py`: 5-fold (N≥50), Hold-Out (20≤N<50), LOO (N<20). **Log Format**: If stratification fails, log "DEV: FR-003 stratification failed, using random split". If N-based strategy is used, log "DEV: FR-003 5-fold skipped due to N<50" and write `{"spec_deviation_FR003": "N<50_downgrade"}` to `results/metrics.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,7 +103,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Handle the case where no data is found
 
-- [ ] T020 [US1] Implement "Phase 0.5: No Data Termination" pipeline in `code/ingestion/fetch_data.py`: If N=0, log error "No valid metallic glass entries found", generate `results/metrics.json` with `{"status": "no_data"}`, and exit cleanly with code 0.
+- [X] T020 [US1] Implement "Phase 0.5: No Data Termination" pipeline in `code/ingestion/fetch_data.py`: If N=0, log error "No valid metallic glass entries found", generate `results/metrics.json` with `{"status": "no_data"}`, and exit cleanly with code 0.
 
 ---
 
@@ -111,7 +111,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Handle the case where data is insufficient for robust statistical testing
 
-- [ ] T021 [US1] Implement "Phase 0.6: Qualitative Trend Analysis" pipeline in `code/modeling/train.py`: If 20 <= N < 50, skip permutation testing, perform simple linear regression/correlation, and generate `results/metrics.json` with `{"status": "qualitative"}`.
+- [X] T021 [US1] Implement "Phase 0.6: Qualitative Trend Analysis" pipeline in `code/modeling/train.py`: If 20 <= N < 50, skip permutation testing, perform simple linear regression/correlation, and generate `results/metrics.json` with `{"status": "qualitative"}`.
 
 ---
 
@@ -124,15 +124,15 @@ Examples of foundational tasks (adjust based on your project):
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T023 [P] [US2] Unit test: Add `tests/unit/test_baseline.py::test_null_model_predicts_mean` to verify null model baseline calculation. Assert: `NullModel().predict(X) == y_train.mean()`.
-- [ ] T024 [P] [US2] Integration test: Add `tests/integration/test_training.py::test_training_pipeline_5fold_cv` to verify full training pipeline with 5-fold CV. Assert: `cv_scores` are finite and `model` is saved.
+- [X] T024 [P] [US2] Integration test: Add `tests/integration/test_training.py::test_training_pipeline_5fold_cv` to verify full training pipeline with 5-fold CV. Assert: `cv_scores` are finite and `model` is saved.
 
 ### Implementation for User Story 2
 
 - [ ] T025 [US2] Implement `train.py` in `code/modeling/` to load `clean_mg_data.parquet` and prepare feature matrix.
-- [ ] T026 [US2] Implement "Null Model" baseline (predicts mean CTE) in `code/modeling/train.py`.
-- [ ] T026a [US2] Implement "Elemental Weighted Average" baseline in `code/modeling/train.py`: Use `mendeleev` to fetch elemental CTEs, calculate weighted average by stoichiometry, and use this as the primary baseline for SC-001.
-- [ ] T027 [US2] Log Spec-Root Cause flag: If elemental CTEs are unavailable, use Null Model and write `{"baseline_type": "null_model"}` to `results/metrics.json`. If elemental CTEs are available, write `{"baseline_type": "elemental_weighted_average"}`.
-- [ ] T028 [US2] Implement Linear Regression training with 5-fold CV (or selected strategy) in `code/modeling/train.py`.
+- [X] T026 [US2] Implement "Null Model" baseline (predicts mean CTE) in `code/modeling/train.py`.
+- [X] T026a [US2] Implement "Elemental Weighted Average" baseline in `code/modeling/train.py`: Use `mendeleev` to fetch elemental CTEs, calculate weighted average by stoichiometry, and use this as the primary baseline for SC-001. <!-- FAILED: unspecified -->
+- [X] T027 [US2] Log Spec-Root Cause flag: If elemental CTEs are unavailable, use Null Model and write `{"baseline_type": "null_model"}` to `results/metrics.json`. If elemental CTEs are available, write `{"baseline_type": "elemental_weighted_average"}`.
+- [X] T028 [US2] Implement Linear Regression training with 5-fold CV (or selected strategy) in `code/modeling/train.py`.
 - [ ] T029 [US2] Implement Random Forest training with 5-fold CV and grid search over `max_depth` and `n_estimators` in `code/modeling/train.py`.
 - [ ] T030 [US2] Enforce resource constraints: Add `n_jobs=2` and `memory_limit` to sklearn config in `code/modeling/train.py` to ensure training runs on ≤2 CPU cores and ≤7 GB RAM (no GPU).
 - [ ] T031 [US2] Implement model serialization to `models/` directory with metadata (hyperparameters, CV scores).

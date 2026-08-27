@@ -1,17 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `code/` directory is provided; the claim cannot be verified
-    because the required artifact (the directory itself) is missing from the supplied
-    evidence. The next implementer must create the `code/` folder in the repository
-    so that `pathlib.Path(__file__).parent.joinpath('code').is_dir()` returns `True`.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/` directory being present in the repository is provided,
-    nor is there any code snippet showing the `pathlib.Path(__file__).parent.joinpath('data').is_dir()`
-    check. The implementer must add the `data/` folder (even if empty) and include
-    a verification step confirming its existence.
 T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,3 +1,7 @@
+"""
+Module to verify and initialize the required project directory structure.
+This module ensures that 'code/', 'data/', 'tests/', and 'docs/' directories exist.
+"""
 import os
 import sys
 from pathlib import Path
@@ -7,45 +11,58 @@ from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-
-def ensure_directory_exists(path: str) -> bool:
+def ensure_directory_exists(dir_name: str, base_path: Path = None) -> bool:
     """
-    Ensure a directory exists, creating it if necessary.
+    Ensure a specific directory exists. If it doesn't, create it.
     
     Args:
-        path: Relative path to the directory.
+        dir_name: Name of the directory to ensure exists.
+        base_path: Base path to resolve the directory against. Defaults to project root.
         
     Returns:
-        True if the directory exists, False otherwise.
+        True if directory exists (was created or already present), False otherwise.
     """
-    dir_path = Path(path)
+    if base_path is None:
+        base_path = Path(__file__).parent.parent
     
-    if not dir_path.exists():
+    target_dir = base_path / dir_name
+    
+    if not target_dir.exists():
         try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path.absolute()}")
+            target_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {target_dir}")
             return True
-        except OSError as e:
-            logger.error(f"Failed to create directory {path}: {e}")
+        except Exception as e:
+            logger.error(f"Failed to create directory {target_dir}: {e}")
             return False
-    
-    logger.info(f"Directory already exists: {dir_path.absolute()}")
-    return True
+    else:
+        logger.debug(f"Directory already exists: {target_dir}")
+        return True
 
-
-def main() -> int:
+def main():
     """
-    Main entry point for demonstration/testing.
+    Main entry point to verify and create the required directory structure.
+    """
+    logger.info("Starting directory verification and creation...")
     
-    Returns:
-        0 on success, 1 on failure.
-    """
-    # Example usage
-    success = ensure_directory_exists("code")
-    if not success:
+    base_path = Path(__file__).parent.parent
+    required_dirs = ['code', 'data', 'tests', 'docs']
+    
+    all_success = True
+    for dir_name in required_dirs:
+        success = ensure_directory_exists(dir_name, base_path)
+        if not success:
+            all_success = False
+            logger.error(f"Failed to ensure existence of directory: {dir_name}")
+        else:
+            logger.info(f"Successfully verified/created directory: {dir_name}")
+    
+    if all_success:
+        logger.info("All required directories are present.")
+        return 0
+    else:
+        logger.error("Some directories could not be created or verified.")
         return 1
-    return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

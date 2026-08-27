@@ -105,7 +105,7 @@
  2. **Generation**: Generate synthetic orientation data for Al, Cu, and Ni across the resolved reduction levels using a deterministic seed.
  3. **Metadata**: Ensure the generated data includes 'reduction' percentage and 'confidence' index fields.
  4. **Output**: Save to `data/raw/synthetic_ebsd.parquet`. (FR-001).
-- [ ] T014 [US1] Implement `code/data/preprocess.py` to filter confidence index < 0.1 [UNRESOLVED-CLAIM: c_98b937e2 — status=not_enough_info] and re-index orientations to FCC symmetry using `orix`. **Logic**:
+- [ ] T014 [US1] Implement `code/data/preprocess.py` to filter confidence index < 0.1 and re-index orientations to FCC symmetry using `orix`. **Logic**:
  1. Read reduction levels from the resolved list (as determined in T012).
  2. If specific levels are `[deferred]` (from research.md), proceed with available levels and log a warning.
  3. If ALL levels are `[deferred]`, the script will have already failed in T012; this task assumes valid input exists. (FR-002).
@@ -145,7 +145,7 @@
  5. **Output**: Calculate and return scalar values for each component. (FR-003).
 - [ ] T019 [US2] Implement mass balance check: explicitly verify that the sum of major components (Brass, Copper, S, Goss) plus the "random" fraction equals 1.0 ± 0.01 for every sample. **Requirement**: This task is mandatory to verify spec.md US-2 Scenario 2 acceptance criteria. If the check fails, log an error and exclude the sample.
 - [ ] T020a [US2] Output descriptors to `data/processed/descriptors.csv` linked to original sample IDs. **Dependency**: This task depends on T019 to ensure only valid samples are written.
-- [ ] T020b [US2] Implement system-level mass balance verification on `data/processed/descriptors.csv`. **Logic**: After generating the CSV, aggregate the data and verify that the sum of Brass, Copper, S, Goss, and random components equals 1.0 ± 0.01 for the aggregated dataset [UNRESOLVED-CLAIM: c_59aa676e — status=not_enough_info]. **Requirement**: This task is mandatory to verify spec.md US-2 Scenario 2 acceptance criteria at the system level, distinct from T009a (schema test).
+- [ ] T020b [US2] Implement system-level mass balance verification on `data/processed/descriptors.csv`. **Logic**: After generating the CSV, aggregate the data and verify that the sum of Brass, Copper, S, Goss, and random components equals 1.0 ± 0.01 for the aggregated dataset. **Requirement**: This task is mandatory to verify spec.md US-2 Scenario 2 acceptance criteria at the system level, distinct from T009a (schema test).
 - [ ] T021 [US2] Add validation to flag samples where texture evolution deviates from standard FCC trends (Edge Case). **Logic**: If a metal's texture evolution does not follow standard FCC trends (e.g., anomalous behavior), flag these outliers during validation rather than forcing a fit. **Requirement**: This task is mandatory to verify spec.md Edge Cases acceptance criteria.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -349,7 +349,7 @@ With multiple developers:
 - **Critical Review Update**: T012 logic corrected to invoke T012b (synthetic generator) if real data fails, resolving the contradiction with the spec's assumption of synthetic data availability.
 - **Critical Review Update**: T030 updated to explicitly describe the dynamic sweep loop for R² stability verification over `{0.01, 0.05, 0.1}`.
 - **Critical Review Update**: T018 updated to reference Rosenstock et al. (2018) and implement configurable search window.
-- **Critical Review Update**: T026 updated to use fixed [0, 80] range for extrapolation threshold [UNRESOLVED-CLAIM: c_132b7b2f — status=not_enough_info].
+- **Critical Review Update**: T026 updated to use fixed [0, 80] range for extrapolation threshold.
 - **Critical Review Update**: T020 split into T020a (output) and T020b (system-level mass balance verification).
 - **Critical Review Update**: Task statuses corrected (T001-T005, T048-T049) to reflect actual artifact existence.
 - **Critical Review Update**: Removed Phase 8 to resolve confusion about removed tasks.

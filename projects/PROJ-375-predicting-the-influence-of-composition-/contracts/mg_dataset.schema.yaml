@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Metallic Glass Dataset Schema
-description: Schema for metallic glass composition and thermal expansion data
+title: MetallicGlassDatasetSchema
+description: Schema for the cleaned metallic glass dataset used in composition-CTE analysis.
 type: object
 required:
   - composition
@@ -11,44 +11,37 @@ required:
   - atomic_size_mismatch
   - amorphous_state_flag
   - alloy_family
+  - source
 properties:
   composition:
     type: string
-    description: Chemical formula in Hill notation (e.g., Zr50Cu40Al10)
+    description: Chemical formula in standard notation (e.g., Zr50Cu40Al10).
     pattern: "^[A-Z][a-z]?[0-9.]+([A-Z][a-z]?[0-9.]+)*$"
   cte:
     type: number
-    description: Coefficient of Thermal Expansion in 1e-6/K
+    description: Coefficient of Thermal Expansion (10^-6 /K).
     minimum: 0
   weighted_mean_atomic_radius:
     type: number
-    description: Weighted mean atomic radius in pm
-    minimum: 0
+    description: Weighted mean atomic radius in pm.
   electronegativity_variance:
     type: number
-    description: Variance of electronegativity values
-    minimum: 0
+    description: Variance of electronegativity values.
   vec:
     type: number
-    description: Valence Electron Concentration
-    minimum: 0
+    description: Valence Electron Concentration.
   atomic_size_mismatch:
     type: number
-    description: Atomic size mismatch parameter (delta)
-    minimum: 0
+    description: Atomic size mismatch parameter (delta).
   amorphous_state_flag:
     type: integer
-    description: Flag indicating amorphous state (1 for amorphous, 0 otherwise)
+    description: Flag indicating amorphous state (1 for amorphous, 0 otherwise).
     enum: [0, 1]
   alloy_family:
     type: string
-    description: Primary alloy family (Zr, Pd, Fe, etc.)
-    enum: ["Zr", "Pd", "Fe", "Mg", "Ti", "Cu", "Other"]
+    description: Primary alloy family classification.
+    enum: ["Zr", "Pd", "Fe", "Other"]
   source:
     type: string
-    description: Data source identifier (MP, AFLOW, ZENODO)
-    enum: ["MP", "AFLOW", "ZENODO"]
-  entry_id:
-    type: string
-    description: Unique identifier for the entry
+    description: Origin of the data entry (e.g., Materials Project, AFLOW, Zenodo).
 additionalProperties: false

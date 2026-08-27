@@ -1,61 +1,89 @@
+import pytest
 import os
 import sys
 from pathlib import Path
 import tempfile
-import pytest
+import shutil
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the project root to the path to allow imports
+# Assuming this test file is in tests/unit/, and code/ is at the root
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from code.setup_data_directory import ensure_data_directory
+from code.setup_data_directory import ensure_data_directory, verify_data_directory
 
-def test_ensure_data_directory_creates_folder():
+class TestDataDirectorySetup:
     """
-    Test that ensure_data_directory creates the 'data' directory
-    if it does not exist.
+    Tests for the data directory setup functionality (Task T001b).
     """
-    # We simulate the environment by temporarily changing the working directory
-    # or mocking the path logic. However, since the function uses __file__
-    # relative to the project root, we test the logic directly on a temp structure.
-    
-    # Create a temporary directory to act as the project root
-    with tempfile.TemporaryDirectory() as tmpdir:
-        project_root = Path(tmpdir)
-        code_dir = project_root / "code"
-        code_dir.mkdir()
-        
-        # Create a dummy __main__.py to simulate the project structure
-        (code_dir / "__main__.py").write_text("pass")
-        
-        # Mock the __file__ behavior by temporarily replacing the module's file path
-        # This is tricky in unit tests. Instead, we test the logic:
-        # The function calculates: Path(__file__).parent.parent -> project_root
-        # Then checks project_root / "data"
-        
-        # Let's verify the path calculation logic manually against the temp structure
-        # Since we can't easily override __file__ in a running module,
-        # we will assert that the function runs without error in the actual project context
-        # and that the directory exists afterwards.
-        
-        # For this specific task T001b, the requirement is to create the directory.
-        # We assume the test runs from the project root context.
-        pass
 
-def test_data_directory_exists_after_run():
-    """
-    Verify that the data directory exists after running the setup.
-    This test assumes it is run from the project root where 'code' and 'data'
-    are expected siblings.
-    """
-    project_root = Path(__file__).parent.parent.parent
-    data_path = project_root / "data"
-    
-    # Run the setup
-    try:
-        ensure_data_directory()
-    except Exception as e:
-        pytest.fail(f"ensure_data_directory raised an exception: {e}")
-    
-    # Verify existence
-    assert data_path.is_dir(), f"Data directory {data_path} was not created."
-    assert (project_root / "data").is_dir()
+    def test_ensure_creates_directory_if_missing(self, tmp_path):
+        """
+        Test that ensure_data_directory creates the 'data' directory if it doesn't exist.
+        """
+        # tmp_path provides a unique temporary directory for this test
+        data_dir = tmp_path / "data"
+        
+        # Ensure the directory is created
+        result_path = ensure_data_directory(base_path=tmp_path)
+        
+        # Verify the returned path matches the expected data directory
+        assert result_path == data_dir
+        # Verify the directory actually exists on disk
+        assert data_dir.is_dir()
+        # Verify .gitkeep was created
+        assert (data_dir / ".gitkeep").exists()
+
+    def test_ensure_uses_existing_directory(self, tmp_path):
+        """
+        Test that ensure_data_directory does not fail if the directory already exists.
+        """
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        
+        # Call ensure on an existing directory
+        result_path = ensure_data_directory(base_path=tmp_path)
+        
+        assert result_path == data_dir
+        assert data_dir.is_dir()
+
+    def test_verify_returns_true_when_exists(self, tmp_path):
+        """
+        Test that verify_data_directory returns True when the directory exists.
+        """
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        
+        assert verify_data_directory(base_path=tmp_path) is True
+
+    def test_verify_returns_false_when_missing(self, tmp_path):
+        """
+        Test that verify_data_directory returns False when the directory is missing.
+        """
+        # Ensure 'data' does not exist in tmp_path
+        assert not (tmp_path / "data").exists()
+        
+        assert verify_data_directory(base_path=tmp_path) is False
+
+    def test_verification_logic_matches_spec(self, tmp_path):
+        """
+        Test that the verification logic matches the specific requirement:
+        `pathlib.Path(__file__).parent.joinpath('data').is_dir()`
+        (Adapted for the test's base_path context).
+        """
+        data_dir = tmp_path / "data"
+        
+        # Case 1: Directory missing
+        assert not data_dir.is_dir()
+        assert verify_data_directory(base_path=tmp_path) is False
+        
+        # Case 2: Directory created
+        data_dir.mkdir()
+        assert data_dir.is_dir()
+        assert verify_data_directory(base_path=tmp_path) is True
+        
+        # Case 3: Directory removed
+        shutil.rmtree(data_dir)
+        assert not data_dir.is_dir()
+        assert verify_data_directory(base_path=tmp_path) is False

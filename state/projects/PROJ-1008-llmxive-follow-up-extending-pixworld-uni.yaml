@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-08T02:53:35.149290Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1008-llmxive-follow-up-extending-pixworld-uni
-last_run_id: bbdbc1df-4b67-438a-a398-bd5c5f938e11
+last_run_id: a81feb0c-a26b-44dc-b8af-f5f878406812
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "PixWorld: Unifying 3D Scene Generation and Reconstruction
   in Pixel Spa"'
-updated_at: '2026-08-09T09:45:06.932035Z'
+updated_at: '2026-08-27T21:39:24.650524Z'

@@ -15,11 +15,13 @@ T003:
     \ showing `ruff` as a dependency). The installation step is missing."
 T012:
   c: false
-  h: 3e51b8a81093e8e73e49c17087f36dc6d728f73fd1a8f8526baf66f5403da989
-  r: The integration test file does not contain a `test_schema_validation` function
-    that checks the DataFrame columns against a schema, and the required `contracts/mg_dataset.schema.yaml`
-    file is absent from the repository. Both the specific test and the schema artifact
-    are missing, so the task is not satisfied.
+  h: a5d46139d175a36d2edae5d61de8e3e4a74cfc22078355a1f3f31aa039dd674b
+  r: "The integration test file exists, but it depends on `contracts/mg_dataset.schema.yaml`,\
+    \ which is missing, causing the fixture to fail. Moreover, the test never loads\
+    \ an actual DataFrame from the ingestion pipeline\u2014it only compares a hard\u2011\
+    coded column list to the schema\u2019s required fields, so it does not truly assert\
+    \ `df.columns` matches the contract. The required artifact (the schema file) and\
+    \ the full schema\u2011validation behavior are absent."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,3 +42,11 @@ T017a:
     \ why `size_mismatch` is kept despite a high VIF, and the required `results/metrics.json`\
     \ file does not exist at all. Both the documentation comment and the JSON flag\
     \ for VIF\u202F>\u202F5.0 are missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `train.py` file was presented in `code/modeling/`, nor any code snippet showing\
+    \ it loading `clean_mg_data.parquet` and constructing a feature matrix. Without\
+    \ the actual script, we cannot confirm the required artifact exists or meets the\
+    \ specification. The implementer must provide a non\u2011empty `train.py` that\
+    \ performs the described data loading and feature preparation."
