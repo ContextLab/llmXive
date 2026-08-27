@@ -1,0 +1,71 @@
+# Configuration for Single-Cell Trajectories of T-Cell Exhaustion Pipeline
+# This file defines random seeds, dataset paths, and environment settings.
+
+# Randomness control for reproducibility
+random_seeds:
+  python: 42
+  numpy: 42
+  tensorflow: null  # Not used in this CPU-only pipeline
+  pytorch: null     # Not used in this CPU-only pipeline
+  r: 42
+
+# Dataset configuration
+datasets:
+  discovery:
+    - gse136103
+    - gse127465
+    - gse111075
+  validation:
+    - gse138852
+
+# Paths relative to project root
+paths:
+  data_root: data
+  raw_data: data/raw
+  processed_data: data/processed
+  results: data/results
+  figures: figures
+  logs: logs
+  contracts: contracts
+
+# SRA Toolkit configuration
+sra_toolkit:
+  enabled: true
+  prefetch_timeout_seconds: 3600
+  max_retries: 3
+
+# Preprocessing parameters
+preprocessing:
+  mitochondrial_threshold: 0.20  # 20%
+  min_genes_per_cell: 200
+  min_cells_per_gene: 3
+  n_top_genes: 2000
+
+# scVelo configuration
+scvelo:
+  mode: "dynamical"
+  n_neighbors: 30
+  min_counts: 4
+  min_cells: 3
+  max_iter: 1000
+  convergence_threshold: 1e-06
+  regularization: 1.0
+
+# Fork-point detection parameters
+forkpoint:
+  divergence_threshold_sd: 2.0
+  low_confidence_threshold_sd: 1.5
+  min_pseudotime_diff: 0.1
+  null_model: "rotation"  # rotation-based null model
+
+# Validation parameters
+validation:
+  n_bootstrap_iterations: 1000
+  block_size: "patient"  # Patient-level block bootstrapping
+  significance_threshold: 0.01
+
+# Logging configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/pipeline.log

@@ -45,7 +45,7 @@
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/`)
 - [X] T002 Initialize Python project with `requirements.txt` (scvelo, scanpy, pandas, numpy, scipy, matplotlib, seaborn, requests, wget)
-- [ ] T002b Setup system-level R environment: {{claim:c_bed10a97}}, install `r-seurat` v4 package, and `reticulate` via system package manager (apt-get/conda). **Verification**: Run `R --version` and `Rscript -e "packageVersion('Seurat')"` to confirm installation. **Checksum**: Record the checksum of the installed package list. **Note**: This task modifies the system environment and must NOT run in parallel with other system-modifying tasks. (Plan Technical Context, Constitution Principle I & III)
+- [ ] T002b Setup system-level R environment: {{claim:c_bed10a97}}, install `r-seurat` v4 package, and `reticulate` via system package manager (apt-get/conda). **Verification**: Run `R --version` and `Rscript -e "packageVersion('Seurat')"` to confirm installation. **Checksum**: Record the checksum of the installed package list. **Note**: This task modifies the system environment and must NOT run in parallel with other system-modifying tasks. (Plan Technical Context, Constitution Principle I & III) <!-- FAILED: unspecified -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/`
 
 ---
@@ -62,7 +62,7 @@
 - [ ] T006 [P] Implement `preprocess.R` for Seurat v4 QC (>20% mitochondrial reads) and normalization. **Prerequisite**: Ensure R 4.3 and Seurat v4 are installed (see T002b). **Output**: Normalized `.h5ad` files. **Depends on**: T002b. (FR-002)
 - [ ] T007 Implement `preprocess.py` wrapper to call `preprocess.R` via subprocess and output `.h5ad` files. **Depends on**: T006 completion.
 - [ ] T008 Create `contracts/fork_point.schema.yaml` defining the output schema for fork-point genes (gene symbols, branch ID, timing rank)
-- [ ] T009 Setup environment configuration for random seeds and dataset paths in `config.yaml`
+- [X] T009 Setup environment configuration for random seeds and dataset paths in `config.yaml`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,7 +72,7 @@
 
 **Goal**: Download four specific public scRNA-seq datasets, preprocess them to remove low-quality cells, and run scVelo to generate RNA velocity and pseudotime orderings independently for each dataset.
 
-**Independent Test**: The pipeline executes end-to-end on GSE136103 within 45 minutes on CPU, producing a valid `.h5ad` file with velocity vectors and pseudotime values. [UNRESOLVED-CLAIM: c_ee0a114c — status=not_enough_info]
+**Independent Test**: The pipeline executes end-to-end on GSE136103 within 45 minutes on CPU, producing a valid `.h5ad` file with velocity vectors and pseudotime values.
 
 ### Tests for User Story 1 (REQUIRED)
 

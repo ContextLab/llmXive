@@ -457,6 +457,25 @@
   updated_at: '2026-07-25T21:16:24Z'
 - artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
   attempts: 1
+  canonical: Pipeline executes on GSE136103 within 45 minutes on CPU producing valid
+    h5ad file
+  claim_id: c_cba694d2
+  context: 'Independent Test: The pipeline executes end-to-end on GSE136103 within
+    45 minutes on CPU, producing a valid .h5ad file with velocity vectors and pseudotime
+    values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline executes end-to-end on GSE136103 within 45 minutes on CPU,
+    producing a valid .h5ad file with velocity vectors and pseudotime values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:54:56Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 2
   canonical: System identifies at least one statistically significant branch point
     in GSE dataset
   claim_id: c_aaad57d9
@@ -474,9 +493,9 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-25T21:19:48Z'
+  updated_at: '2026-08-27T01:56:01Z'
 - artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
-  attempts: 1
+  attempts: 2
   canonical: System performs 1000 bootstrap iterations with enrichment p-values less
     than 0.01
   claim_id: c_cebb771c
@@ -494,4 +513,138 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-25T21:19:51Z'
+  updated_at: '2026-08-27T01:57:00Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: System skips datasets with fewer than 1000 cells
+  claim_id: c_7f019ede
+  context: 'Implement logic to skip datasets with <1000 cells: log warning, mark dataset
+    as skipped in results/status.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_skips_datasets_with_fewer_than_1000_cells
+  kind: magnitude
+  raw_text: The system skips datasets with less than 1000 cells.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:57:39Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Branch points flagged where divergence exceeds 2.0 standard deviations
+    above null mean
+  claim_id: c_edb87c7e
+  context: 'Implement branch point identification logic: Flag points where divergence
+    > 2.0 SD above null mean (FR-004).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Branch_points_flagged_where_divergence_exceeds_2.0_standard
+  kind: magnitude
+  raw_text: The system flags branch points where divergence is greater than 2.0 standard
+    deviations above the null mean.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:58:13Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Branch points with divergence less than 1.5 standard deviations excluded
+  claim_id: c_3c79d095
+  context: Add filtering logic to exclude branch points with divergence < 1.5 SD (flag
+    as 'low_confidence') (Edge Case)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Branch_points_with_divergence_less_than_1.5_standard_deviati
+  kind: magnitude
+  raw_text: The system excludes branch points with divergence less than 1.5 standard
+    deviations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:58:48Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Genes filtered for differential timing greater than 0.1 pseudotime units
+  claim_id: c_689a88bf
+  context: Implement filtering logic to ensure the output list contains genes with
+    differential timing > 0.1 pseudotime units.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Genes_filtered_for_differential_timing_greater_than_0.1_pseu
+  kind: magnitude
+  raw_text: The system filters for genes with differential timing greater than 0.1
+    pseudotime units.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:59:17Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Cells with more than 20% mitochondrial reads removed
+  claim_id: c_52943095
+  context: Implement preprocess.R for Seurat v4 QC (>20% mitochondrial reads) and
+    normalization.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cells_with_more_than_20%25_mitochondrial_reads_removed
+  kind: magnitude
+  raw_text: The system removes cells with more than 20% mitochondrial reads.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T01:59:58Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: 'Project utilizes four scRNA-seq datasets: GSE136103, GSE127465, GSE111075,
+    GSE138852'
+  claim_id: c_3f72073f
+  context: 'Goal: Download four specific public scRNA-seq datasets... Fetch GSE136103,
+    GSE127465, GSE111075, GSE138852 (FR-001).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_utilizes_four_scRNA-seq_datasets:_GSE136103,_GSE1274
+  kind: entity_fact
+  raw_text: 'The project utilizes four specific public scRNA-seq datasets: GSE136103,
+    GSE127465, GSE111075, and GSE138852.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T02:00:48Z'
+- artifact_path: projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/specs/001-single-cell-trajectories-of-t-cell-exhau/tasks.md
+  attempts: 1
+  canonical: Validation splits data into Discovery set GSE136103 GSE127465 GSE111075
+    and Validation set GSE138852
+  claim_id: c_b285da54
+  context: 'Implement validate.py to split data: Discovery (GSE136103, GSE127465,
+    GSE111075) vs Validation (GSE138852) (FR-006)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_splits_data_into_Discovery_set_GSE136103_GSE12746
+  kind: entity_fact
+  raw_text: The validation phase splits data into Discovery (GSE136103, GSE127465,
+    GSE111075) and Validation (GSE138852) sets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T02:09:46Z'

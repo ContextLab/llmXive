@@ -1,0 +1,5 @@
+# Data directory placeholder
+# This directory is managed by the pipeline.
+# Raw data will be downloaded to data/raw/
+# Processed data to data/processed/
+# Results to data/results/

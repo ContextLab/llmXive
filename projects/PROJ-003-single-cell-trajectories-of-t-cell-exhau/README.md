@@ -1,41 +1,40 @@
-# T-Cell Exhaustion Trajectory Analysis
+# Single-Cell Trajectories of T-Cell Exhaustion
 
-## Development Setup
+## Setup
 
-### Prerequisites
-- Python 3.9+
-- R 4.3+ (for Seurat integration)
-
-### Installation
 1. Create a virtual environment:
  ```bash
- python -m venv venv
- source venv/bin/activate
+ python -m venv.venv
+ source.venv/bin/activate
  ```
+
 2. Install dependencies:
  ```bash
  pip install -r requirements.txt
- pip install -r requirements-dev.txt
  ```
 
-### Code Quality
-This project uses `ruff` for linting and `black` for formatting.
+3. Install pre-commit hooks:
+ ```bash
+ pre-commit install
+ ```
 
-- **Check linting**: `make lint`
-- **Check formatting**: `make check-format`
-- **Auto-format**: `make format`
+## Usage
 
-### Running Tests
+Run the pipeline:
 ```bash
-make test
-# Or with coverage
-pytest tests/ --cov=code --cov-report=html
+python code/download_data.py
+python code/preprocess.py
+python code/velocity.py
 ```
 
-## Project Structure
-- `code/`: Source code
-- `data/`: Data storage (raw, processed, results)
-- `tests/`: Test suite
-- `specs/`: Design documents
-- `contracts/`: Data schemas
-- `config.yaml`: Environment configuration
+## Configuration
+
+Linting and formatting are configured via:
+- `pyproject.toml`: Black and Ruff settings
+- `.pre-commit-config.yaml`: Pre-commit hooks
+
+Run manually:
+```bash
+ruff check code/
+black code/
+```
