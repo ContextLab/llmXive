@@ -1,0 +1,17 @@
+- artifact_path: projects/PROJ-713-calibration-of-predictive-intervals-for-/README.md
+  attempts: 1
+  canonical: UCI Electricity dataset contains hourly consumption data from 370 clients
+  claim_id: c_b6b00ac7
+  context: 'Supported Datasets: M4 Hourly Dataset and UCI Electricity Dataset. UCI
+    Electricity Dataset: Hourly electricity consumption data from 370 clients.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'UCI Electricity Dataset: Hourly electricity consumption data from 370
+    clients.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T10:23:04Z'

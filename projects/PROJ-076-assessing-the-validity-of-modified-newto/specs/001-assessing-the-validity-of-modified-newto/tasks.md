@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `tests/`, `state/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (scipy, numpy, pandas, requests, pyyaml, pytest)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (scipy, numpy, pandas, requests, pyyaml, pytest)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -56,8 +56,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement data schema validators in `tests/contract/test_schemas.py` matching `contracts/dataset.schema.yaml`
-- [ ] T005 [P] Create base configuration loader for `data/metadata.yaml` in `code/__init__.py`
-- [ ] T006 [P] Setup deterministic random seed utility in `code/utils.py` (global seed pinning)
+- [X] T005 [P] Create base configuration loader for `data/metadata.yaml` in `code/__init__.py`
+- [X] T006 [P] Setup deterministic random seed utility in `code/utils.py` (global seed pinning)
 - [X] T007 Implement error handling wrapper for HTTP requests in `code/download.py` (retry logic)
 - [X] T008 Create logging infrastructure in `code/utils.py` to track pipeline stages
 
@@ -82,7 +82,7 @@
 - [X] T016 [US1] Implement validation in `code/download.py` to ensure no synthetic/fake data is used; verify real URLs (SPARC) immediately after download before any processing (FR-001, Data Hygiene)
 - [X] T013 [US1] Implement rotation curve parser in `code/preprocess.py` to extract radial distance, velocity, uncertainty (FR-002)
 - [X] T014 [US1] Implement quality filter in `code/preprocess.py` to exclude inclination uncertainty ≥10° and <15 points (FR-003)
-- [ ] T015 [US1] Create `data/processed/filtered_galaxies.csv` and `data/metadata.yaml` with download timestamp/version
+- [X] T015 [US1] Create `data/processed/filtered_galaxies.csv` and `data/metadata.yaml` with download timestamp/version
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,15 +96,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for MOND 'simple' interpolating function in `tests/unit/test_mond.py`
-- [ ] T019 [P] [US2] Unit test for NFW profile with Gaussian prior in `tests/unit/test_nfw.py`
-- [ ] T020 [P] [US2] Integration test for fitting pipeline on sample galaxy in `tests/integration/test_fitting.py`
+- [X] T018 [P] [US2] Unit test for MOND 'simple' interpolating function in `tests/unit/test_mond.py`
+- [X] T019 [P] [US2] Unit test for NFW profile with Gaussian prior in `tests/unit/test_nfw.py`
+- [X] T020 [P] [US2] Integration test for fitting pipeline on sample galaxy in `tests/integration/test_fitting.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement MOND 'simple' model in `code/models/mond.py`: a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0) with a0=1.2e-10; include M/L (mass-to-light ratio) as a free parameter (FR-004, Plan Summary)
-- [ ] T022 [P] [US2] Implement NFW model in `code/models/nfw.py` with concentration prior c ~ M_baryon^α, where α is a negative scaling exponent. (Plan Summary; Note: FR-005 spec typo flagged for correction) (FR-005)
-- [ ] T023 [US2] Implement fitting engine in `code/fit.py` using `scipy.optimize.curve_fit` with velocity uncertainty weighting (FR-006)
+- [X] T021 [P] [US2] Implement MOND 'simple' model in `code/models/mond.py`: a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0) with a0=1.2e-10; include M/L (mass-to-light ratio) as a free parameter (FR-004, Plan Summary)
+- [X] T022 [P] [US2] Implement NFW model in `code/models/nfw.py` with concentration prior c ~ M_baryon^α, where α is a negative scaling exponent. (Plan Summary; Note: FR-005 spec typo flagged for correction) (FR-005)
+- [X] T023 [US2] Implement fitting engine in `code/fit.py` using `scipy.optimize.curve_fit` with velocity uncertainty weighting (FR-006)
 - [ ] T024 [US2] Implement metric calculator in `code/metrics.py` for reduced χ², AIC, BIC (FR-007)
 - [ ] T025 [US2] Generate `results/fit_summary.csv` with all metrics per galaxy-model
 - [ ] T026 [US2] Implement sensitivity analysis in `code/sensitivity.py` sweeping χ² thresholds across the set of representative values and output `results/sensitivity_data.csv` (FR-012, SC-006)

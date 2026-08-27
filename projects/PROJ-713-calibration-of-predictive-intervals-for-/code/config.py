@@ -1,30 +1,30 @@
 """
-Configuration module for the project.
-Defines paths, hyperparameters, and random seeds.
+Configuration module for the Calibration of Predictive Intervals project.
+Defines constants for paths, hyperparameters, and random seeds.
 """
 import os
 from pathlib import Path
 
-# Determine project root (assumes this file is at code/config.py)
+# Project Root
+# Assumes this file is at code/config.py, so root is parent of parent
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Directories
+# Directory Structure
 CODE_DIR = PROJECT_ROOT / "code"
-TESTS_DIR = PROJECT_ROOT / "tests"
 DATA_DIR = PROJECT_ROOT / "data"
-DATA_RAW_DIR = DATA_DIR / "raw"
-DATA_PROCESSED_DIR = DATA_DIR / "processed"
 RESULTS_DIR = PROJECT_ROOT / "results"
 FIGURES_DIR = RESULTS_DIR / "figures"
 LOG_DIR = PROJECT_ROOT / "logs"
+TESTS_DIR = PROJECT_ROOT / "tests"
 
-# Ensure directories exist (lazy creation handled by setup_data_dirs.py)
-# But we define them here for import consistency
+# Data Subdirectories
+DATA_RAW_DIR = DATA_DIR / "raw"
+DATA_PROCESSED_DIR = DATA_DIR / "processed"
 
 # Hyperparameters
 RANDOM_SEED = 42
-TEST_SIZE = 0.2  # 20% for test set
-TRAIN_SIZE = 0.8  # 80% for training (derived from 1 - TEST_SIZE)
+TRAIN_SPLIT_RATIO = 0.80  # 80/20 split as per FR-001 override
+TEST_SPLIT_RATIO = 0.20
 
 # Model Hyperparameters
 ARIMA_ORDER = (1, 1, 1)
@@ -32,12 +32,20 @@ PROPHET_UNCERTAINTY_SAMPLES = 1000
 LSTM_HIDDEN_UNITS = 32
 LSTM_MAX_EPOCHS = 50
 LSTM_EARLY_STOPPING_PATIENCE = 5
-LSTM_LEARNING_RATE = 0.01
+LSTM_INITIAL_LEARNING_RATE = 0.01
+LSTM_LEARNING_RATE_REDUCTION = 0.1
+LSTM_MAX_RETRIES = 3
 
 # Evaluation Parameters
 CONFIDENCE_LEVELS = [0.80, 0.95]
 BOOTSTRAP_RESAMPLES = 1000
 SIGNIFICANCE_ALPHA = 0.05
 
-# Logging
-LOG_LEVEL = "INFO"
+# Ensure directories exist (lazy initialization helper)
+def ensure_dirs():
+    """Create necessary directories if they do not exist."""
+    for dir_path in [DATA_RAW_DIR, DATA_PROCESSED_DIR, RESULTS_DIR, FIGURES_DIR, LOG_DIR]:
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+# Initialize directories on import if desired, or call ensure_dirs() explicitly
+# ensure_dirs()

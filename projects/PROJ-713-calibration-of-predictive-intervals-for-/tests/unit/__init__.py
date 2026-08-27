@@ -1,3 +1,2 @@
-"""
-Unit tests package.
-"""
+"""Unit tests package."""
+pass

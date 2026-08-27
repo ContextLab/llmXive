@@ -1,69 +1,83 @@
 """
-Script to initialize the test directory structure for the project.
-Creates the necessary folders for unit, integration, and contract tests.
+Script to create the tests directory structure for the project.
+
+This script creates the necessary directory hierarchy under the 'tests/'
+directory to support unit, contract, and integration tests as defined
+in the project plan.
 """
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
-# Add the project root to the path to import config if needed, 
-# though we can also derive paths relative to this file's location.
-# Assuming this script runs from the project root or code/ directory.
+# Import project root configuration
+# Assuming config.py is in the root of the 'code' directory or project root
+# Adjusting import to work relative to this script's location
+try:
+    from config import PROJECT_ROOT
+except ImportError:
+    # Fallback if running directly without config import path setup
+    _current = Path(__file__).resolve()
+    _project_root = _current.parent.parent
+    PROJECT_ROOT = _project_root
+    sys.path.insert(0, str(_project_root))
+    from config import PROJECT_ROOT
 
-# Determine project root based on script location (code/setup_tests_structure.py)
-script_dir = Path(__file__).resolve().parent
-project_root = script_dir.parent
-tests_dir = project_root / "tests"
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def ensure_dir(path: Path) -> None:
-    """Create directory if it does not exist."""
+    """Ensure a directory exists, creating it if necessary."""
     if not path.exists():
         path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
+        logger.info(f"Created directory: {path}")
     else:
-        print(f"Directory already exists: {path}")
+        logger.debug(f"Directory already exists: {path}")
 
-def main():
-    """Create the test directory structure."""
-    print(f"Initializing test structure in: {tests_dir}")
+def main() -> int:
+    """
+    Main function to create the tests directory structure.
     
-    # Core test directories
-    ensure_dir(tests_dir)
-    ensure_dir(tests_dir / "unit")
-    ensure_dir(tests_dir / "integration")
-    ensure_dir(tests_dir / "contract")
-    ensure_dir(tests_dir / "fixtures")
+    Returns:
+        int: 0 on success, 1 on failure.
+    """
+    logger.info("Starting tests directory structure setup...")
     
-    # Create __init__.py files to make them Python packages
-    (tests_dir / "__init__.py").touch()
-    (tests_dir / "unit" / "__init__.py").touch()
-    (tests_dir / "integration" / "__init__.py").touch()
-    (tests_dir / "contract" / "__init__.py").touch()
-    (tests_dir / "fixtures" / "__init__.py").touch()
+    base_dir = Path(PROJECT_ROOT) / "tests"
     
-    # Create placeholder README for tests
-    readme_content = """# Tests
-
-This directory contains the test suite for the project.
-
-## Structure
-- `unit/`: Unit tests for individual components.
-- `integration/`: Integration tests for component interactions.
-- `contract/`: Contract tests for API/schema compliance.
-- `fixtures/`: Shared test data and fixtures.
-
-## Running Tests
-Run tests using pytest from the project root:
-```bash
-pytest tests/
-```
-"""
-    readme_path = tests_dir / "README.md"
-    if not readme_path.exists():
-        readme_path.write_text(readme_content)
-        print(f"Created: {readme_path}")
+    # Define the required directory structure
+    # Based on tasks.md: tests/unit/, tests/contract/, tests/integration/
+    dirs_to_create = [
+        base_dir,
+        base_dir / "unit",
+        base_dir / "contract",
+        base_dir / "integration",
+        base_dir / "__pycache__", # Optional, but good practice to ensure structure
+    ]
     
-    print("Test directory structure initialization complete.")
+    success = True
+    for dir_path in dirs_to_create:
+        try:
+            ensure_dir(dir_path)
+        except OSError as e:
+            logger.error(f"Failed to create directory {dir_path}: {e}")
+            success = False
+    
+    if success:
+        logger.info("Tests directory structure created successfully.")
+        # List created structure for verification
+        logger.info(f"Created structure under: {base_dir}")
+        for root, dirs, _ in os.walk(base_dir):
+            level = root.replace(str(base_dir), '').count(os.sep)
+            indent = ' ' * 2 * level
+            logger.info(f"{indent}{os.path.basename(root)}/")
+            sub_indent = ' ' * 2 * (level + 1)
+            for d in dirs:
+                logger.info(f"{sub_indent}{d}/")
+        return 0
+    else:
+        logger.error("Failed to create some directories.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,73 +1,67 @@
 """
-Script to create and verify the results directory structure for the project.
-
-This script ensures that the `results/`, `results/plots/`, and `results/tables/`
-directories exist within the project root as defined in config.py.
-
-Usage:
-    python code/setup_results_dirs.py
+Setup script to create the results directory structure.
+This ensures that `results/` and `figures/` directories exist
+before any evaluation scripts attempt to write output files.
 """
 import os
 from pathlib import Path
 import sys
+
+# Add parent directory to path to allow imports from project root
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from config import PROJECT_ROOT, RESULTS_DIR, FIGURES_DIR
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-def ensure_dir(dir_path: Path) -> bool:
+def ensure_dir(directory_path: Path) -> None:
     """
-    Ensure a directory exists, creating it if necessary.
-    
+    Ensure a directory exists. If not, create it and its parents.
+
     Args:
-        dir_path: Path object representing the directory to create.
-        
-    Returns:
-        True if the directory exists or was successfully created, False otherwise.
+        directory_path: Path object representing the directory to create.
     """
-    try:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-        else:
-            logger.debug(f"Directory already exists: {dir_path}")
-        return True
-    except PermissionError:
-        logger.error(f"Permission denied when creating directory: {dir_path}")
-        return False
-    except OSError as e:
-        logger.error(f"OS error when creating directory {dir_path}: {e}")
-        return False
+    if not directory_path.exists():
+        directory_path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {directory_path}")
+    else:
+        logger.debug(f"Directory already exists: {directory_path}")
 
 
 def main() -> int:
     """
     Main entry point for setting up results directories.
-    
+
     Returns:
-        Exit code: 0 for success, 1 for failure.
+        int: Exit code (0 for success, 1 for failure).
     """
     logger.info("Starting results directory setup...")
-    
-    # Define the required directories
-    dirs_to_create = [
-        RESULTS_DIR,
-        RESULTS_DIR / "plots",
-        RESULTS_DIR / "tables",
-        FIGURES_DIR,
-    ]
-    
-    success = True
-    for dir_path in dirs_to_create:
-        if not ensure_dir(dir_path):
-            success = False
-    
-    if success:
-        logger.info("Results directory structure setup completed successfully.")
+
+    try:
+        # Ensure results directory exists
+        ensure_dir(RESULTS_DIR)
+
+        # Ensure figures directory exists (often used alongside results)
+        ensure_dir(FIGURES_DIR)
+
+        # List created directories for verification
+        logger.info(f"Results directory ready: {RESULTS_DIR}")
+        logger.info(f"Figures directory ready: {FIGURES_DIR}")
+
+        # Verify subdirectories expected by the pipeline
+        expected_subdirs = ["coverage", "distributional", "significance", "conformal"]
+        for subdir_name in expected_subdirs:
+            subdir_path = RESULTS_DIR / subdir_name
+            ensure_dir(subdir_path)
+            logger.debug(f"Ensured subdirectory: {subdir_path}")
+
+        logger.info("Results directory structure setup complete.")
         return 0
-    else:
-        logger.error("Results directory structure setup failed due to errors.")
+
+    except Exception as e:
+        logger.error(f"Failed to setup results directories: {e}", exc_info=True)
         return 1
 
 

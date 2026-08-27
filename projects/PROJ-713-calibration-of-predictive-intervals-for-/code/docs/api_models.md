@@ -1,131 +1,140 @@
-# Models API Documentation
+# API Documentation: Models
 
 This document provides the API reference for the forecasting models implemented in `code/models/`.
-Each model follows a unified interface to ensure interchangeability within the evaluation pipeline.
+All models follow a unified interface to support the calibration pipeline.
 
-## Base Interface
+## Common Interface
 
-All models inherit from a conceptual base interface requiring the following methods:
-- `fit(train_series: pd.Series) -> None`: Fits the model to training data.
-- `forecast(steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]`: Returns point forecasts, lower bounds, and upper bounds.
-- `get_params() -> Dict[str, Any]`: Returns model configuration parameters.
+Every model class implements the following methods:
+
+- `fit(train_series: pd.Series) -> None`: Trains the model on the provided training data.
+- `forecast(steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]`: Returns predictions, lower bounds, and upper bounds.
+- `get_name() -> str`: Returns the string identifier for the model.
 
 ---
 
 ## ARIMAModel
 
-**File**: `code/models/arima_model.py`
+**Module**: `code/models/arima_model.py`
 
-**Description**:
-Wrapper around `statsmodels.tsa.arima.model.ARIMA` and `statsmodels.tsa.statespace.sarimax.SARIMAX`.
-Generates prediction intervals using conditional variance methods to comply with FR-003.
+A wrapper around `statsmodels.tsa.arima.model.ARIMA` and `SARIMAX` for generating forecasts with conditional variance intervals.
 
 ### Class: `ARIMAModel`
 
-**Constructor**:
+**Signature**:
 ```python
-ARIMAModel(order: Tuple[int, int, int], seasonal_order: Optional[Tuple[int, int, int, int]] = None,
- conf_level: float = 0.95, maxiter: int = 50)
+class ARIMAModel:
+ def __init__(self, order: Tuple[int, int, int] = (1, 1, 1), seasonal_order: Tuple[int, int, int, int] = (0, 0, 0, 0)):
+...
 ```
-- `order`: (p, d, q) ARIMA parameters.
-- `seasonal_order`: (P, D, Q, s) seasonal parameters.
-- `conf_level`: Confidence level for intervals (default 0.95).
-- `maxiter`: Maximum iterations for model convergence.
+
+**Parameters**:
+- `order`: The (p, d, q) order of the model.
+- `seasonal_order`: The (P, D, Q, s) seasonal order.
 
 **Methods**:
-- `fit(train_series: pd.Series) -> None`:
- Fits the model. Raises `ModelConvergenceError` if the model fails to converge after `maxiter` attempts.
-- `forecast(steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]`:
- Returns:
- 1. `point_forecast`: Array of predicted values.
- 2. `lower_bound`: Array of lower interval bounds.
- 3. `upper_bound`: Array of upper interval bounds.
 
- Intervals are calculated using `conf_int` with `method='conditional'` (or equivalent explicit parameter) as per specification.
-- `get_params() -> Dict[str, Any]`:
- Returns the configuration dictionary.
+#### `fit(train_series: pd.Series) -> None`
+Fits the ARIMA model to the training data.
+- **Logic**: Uses `statsmodels.tsa.arima.model.ARIMA`. If convergence fails, logs a warning and skips the series.
+- **Interval Method**: Uses `method='conditional'` for confidence intervals as per FR-003.
 
-**Dependencies**:
-- `statsmodels`
-- `numpy`
-- `pandas`
+#### `forecast(steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]`
+Generates forecasts for the specified number of steps.
+- **Returns**:
+ - `predictions`: Array of point forecasts.
+ - `lower_bounds`: Lower bound of the 95% confidence interval.
+ - `upper_bounds`: Upper bound of the 95% confidence interval.
+
+#### `get_name() -> str`
+Returns `"ARIMA"`.
 
 ---
 
 ## ProphetModel
 
-**File**: `code/models/prophet_model.py`
+**Module**: `code/models/prophet_model.py`
 
-**Description**:
-Wrapper around `fbprophet.Prophet`. Generates intervals by simulating uncertainty in trend changepoints and seasonalities.
+A wrapper around `prophet.Prophet` for generating forecasts with uncertainty intervals via residual simulation.
 
 ### Class: `ProphetModel`
 
-**Constructor**:
+**Signature**:
 ```python
-ProphetModel(conf_level: float = 0.95, uncertainty_samples: int = 1000,
- growth: str = 'linear', changepoint_prior_scale: float = 0.05)
+class ProphetModel:
+ def __init__(self, uncertainty_samples: int = 1000, seasonality_mode: str = 'additive'):
+...
 ```
-- `conf_level`: Target confidence level.
-- `uncertainty_samples`: Number of samples for interval simulation (default 1000).
-- `growth`: Growth type ('linear', 'logistic', 'flat').
-- `changepoint_prior_scale`: Regularization parameter for changepoints.
+
+**Parameters**:
+- `uncertainty_samples`: Number of simulated draws for uncertainty estimation.
+- `seasonality_mode`: 'additive' or 'multiplicative'.
 
 **Methods**:
-- `fit(train_series: pd.Series) -> None`:
- Prepares data (converts to Prophet format with 'ds' and 'y') and fits the model.
-- `forecast(steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]`:
- Predicts future values and extracts `yhat_lower` and `yhat_upper` from the forecast dataframe.
-- `get_params() -> Dict[str, Any]`:
- Returns the configuration dictionary.
 
-**Dependencies**:
-- `prophet`
-- `numpy`
-- `pandas`
+#### `fit(train_series: pd.Series) -> None`
+Fits the Prophet model.
+- **Logic**: Converts the series to a DataFrame with a 'ds' (date) and 'y' (value) column.
+- **Uncertainty**: Uses `uncertainty_samples` to simulate residuals for interval generation.
+
+#### `forecast(steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]`
+Generates forecasts.
+- **Returns**:
+ - `predictions`: Point forecasts ('yhat').
+ - `lower_bounds`: Lower bound ('yhat_lower').
+ - `upper_bounds`: Upper bound ('yhat_upper').
+
+#### `get_name() -> str`
+Returns `"Prophet"`.
 
 ---
 
 ## LSTMModel
 
-**File**: `code/models/lstm_model.py`
+**Module**: `code/models/lstm_model.py`
 
-**Description**:
-PyTorch-based LSTM model with a single hidden layer (32 units).
-Implements robust fallback logic for interval generation if residuals are non-Gaussian or intervals are invalid.
+A PyTorch-based LSTM model with stability checks and fallback to Empirical CDF intervals.
 
 ### Class: `LSTMModel`
 
-**Constructor**:
+**Signature**:
 ```python
-LSTMModel(horizon: int, input_size: int = 1, hidden_size: int = 32,
- learning_rate: float = 0.01, epochs: int = 50, patience: int = 5,
- conf_level: float = 0.95)
+class LSTMModel:
+ def __init__(
+ self,
+ input_size: int = 1,
+ hidden_size: int = 32,
+ num_layers: int = 1,
+ max_epochs: int = 50,
+ patience: int = 5,
+ learning_rate: float = 0.01
+):
+...
 ```
-- `horizon`: Forecast horizon (steps ahead).
-- `hidden_size`: Number of units in the LSTM layer (default 32).
-- `learning_rate`: Initial learning rate (default 0.01).
-- `epochs`: Maximum training epochs (default 50).
+
+**Parameters**:
+- `hidden_size`: Number of units in the hidden layer (default 32).
+- `max_epochs`: Maximum training epochs (default 50).
 - `patience`: Early stopping patience (default 5).
-- `conf_level`: Confidence level for intervals.
+- `learning_rate`: Initial learning rate (default 0.01).
 
 **Methods**:
-- `fit(train_series: pd.Series) -> None`:
- - Converts series to sliding window tensors.
- - Trains on CPU only.
- - Implements early stopping.
- - **Stability Check**: Detects NaN/Inf in gradients or loss; retries with reduced learning rate (0.1x) up to a max number of attempts.
-- `forecast(steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]`:
- - Generates point forecasts.
- - Calculates intervals based on residual distribution.
- - **Fallback**: If residuals are non-Gaussian (variance check) or intervals are invalid (NaN/Inf), switches to Empirical CDF (quantile-based) intervals.
-- `get_params() -> Dict[str, Any]`:
- Returns the configuration dictionary.
 
-**Dependencies**:
-- `torch`
-- `numpy`
-- `pandas`
+#### `fit(train_series: pd.Series) -> None`
+Trains the LSTM model.
+- **Stability Check**: Detects NaN/Inf in loss. If detected, retries with reduced learning rate (0.1x) up to a maximum number of attempts.
+- **CPU Only**: Training is enforced on CPU.
+
+#### `forecast(steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]`
+Generates forecasts.
+- **Fallback Logic**: If residuals are non-Gaussian (variance check) or intervals are invalid (NaN/Inf), switches to Empirical CDF (quantile-based) intervals.
+- **Returns**:
+ - `predictions`: Point forecasts.
+ - `lower_bounds`: Lower quantile.
+ - `upper_bounds`: Upper quantile.
+
+#### `get_name() -> str`
+Returns `"LSTM"`.
 
 ---
 
@@ -137,16 +146,23 @@ from models.prophet_model import ProphetModel
 from models.lstm_model import LSTMModel
 import pandas as pd
 
-# Load data
-data = pd.read_csv('data/processed/example_series.csv')
-series = data['value']
+# Load data (example)
+data = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+train = data.iloc[:8]
+test = data.iloc[8:]
 
-# Initialize Model
-model = ARIMAModel(order=(1, 1, 1))
+# ARIMA
+arima = ARIMAModel(order=(1, 1, 1))
+arima.fit(train)
+preds, lower, upper = arima.forecast(len(test))
 
-# Fit
-model.fit(series)
+# Prophet
+prophet = ProphetModel()
+prophet.fit(train)
+preds, lower, upper = prophet.forecast(len(test))
 
-# Forecast
-points, lower, upper = model.forecast(steps=24)
+# LSTM
+lstm = LSTMModel()
+lstm.fit(train)
+preds, lower, upper = lstm.forecast(len(test))
 ```

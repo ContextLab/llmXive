@@ -1,5 +1,4 @@
 """
-Test package for the MOND validity assessment pipeline.
+Tests package for PROJ-076.
 """
-
-__version__ = "0.1.0"
+pass

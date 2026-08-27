@@ -1,1 +1,23 @@
-[]
+- artifact_hash: 3e52c55dd153f6a4fbc6dbfa6b77b8f6f5506a668c1f194080a2a25565dea070
+  artifact_path: projects/PROJ-713-calibration-of-predictive-intervals-for-/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: M4 Competition Repository
+  fetched_title: "GitHub - Mcompetitions/M4-methods: Data, Benchmarks, and methods\
+    \ submitted to the M4 forecasting competition \xB7 GitHub"
+  kind: url
+  value: https://github.com/Mcompetitions/M4-methods
+  verification_status: mismatch
+  verified_against_url: https://github.com/Mcompetitions/M4-methods
+  verified_at: '2026-08-27T10:22:43.248428Z'
+- artifact_hash: 3e52c55dd153f6a4fbc6dbfa6b77b8f6f5506a668c1f194080a2a25565dea070
+  artifact_path: projects/PROJ-713-calibration-of-predictive-intervals-for-/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: UCI Machine Learning Repository
+  fetched_title: UCI Machine Learning Repository
+  kind: url
+  value: https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014
+  verification_status: verified
+  verified_against_url: https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014
+  verified_at: '2026-08-27T10:22:43.248428Z'

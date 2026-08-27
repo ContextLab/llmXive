@@ -1,0 +1,23 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory hierarchy (`code/`, `data/`, `results/`,\
+    \ `tests/`, `state/`) is provided; the implementer\u2019s claim lacks any artifact\
+    \ showing these folders exist or contain content. The task\u2019s core requirement\u2014\
+    creating the project structure\u2014is therefore not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The review found no linting or formatting configuration files (e.g.,\u202F`.ruff.toml`,\
+    \ `.flake8`, `pyproject.toml` with Black settings) or related setup scripts in\
+    \ the repository. Without these concrete artifacts, the requirement to configure\
+    \ ruff/flake8 and Black is not satisfied. The implementer must add the appropriate\
+    \ configuration files and ensure they are non\u2011empty and correctly set up."
+T004:
+  c: false
+  h: 4e9d23ce51d7d8e27c2f70f43bf9bcdb647d357c4ab29376f56731e208d49cfe
+  r: The test file `tests/contract/test_schemas.py` is present, but it relies on `contracts/dataset.schema.yaml`,
+    which is missing from the repository, so the validators cannot actually match
+    the required schema. Additionally, the shown test code is truncated, suggesting
+    the implementation may be incomplete. The missing schema file must be added (and
+    the test completed) for the task to be satisfied.

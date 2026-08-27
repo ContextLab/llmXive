@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
 .Python
 build/
 develop-eggs/
@@ -31,17 +30,13 @@ env/
 *.swp
 *.swo
 
-# Data (keep raw, exclude large processed files if needed)
+# Data and Results (large files)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
-
-# Results and figures
 results/*
 !results/.gitkeep
-figures/*
-!figures/.gitkeep
 
 # Logs
 *.log
@@ -50,6 +45,7 @@ figures/*
 .DS_Store
 Thumbs.db
 
-# Local configuration
-.env
-.local_config.yaml
+# Testing
+.pytest_cache/
+coverage.xml
+htmlcov/

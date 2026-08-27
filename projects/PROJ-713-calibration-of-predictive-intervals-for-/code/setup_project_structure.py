@@ -1,61 +1,64 @@
 """
-Setup script to create the complete directory structure for the project.
-This script ensures all required folders for code, tests, data, and results exist.
+Main setup script to initialize the project directory structure.
+This script orchestrates the creation of all required directories
+including code, tests, data (raw/processed), and results.
 """
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
-# Add the project root to the path to import config if needed, 
-# though we can also derive paths relative to this script's location.
-# Assuming this script is run from the project root or 'code' directory.
+# Add parent to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# Define the project root relative to this script (assuming script is in code/)
-# If running as python code/setup_project_structure.py from root:
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
+from config import (
+    PROJECT_ROOT, CODE_DIR, DATA_DIR, DATA_RAW_DIR, 
+    DATA_PROCESSED_DIR, RESULTS_DIR, FIGURES_DIR, 
+    TESTS_DIR, LOG_DIR
+)
+from utils.logger import get_logger
 
-# Define the specific project directory name as per tasks.md
-PROJECT_NAME = "PROJ-713-calibration-of-predictive-intervals-for-"
-PROJECT_BASE = PROJECT_ROOT / PROJECT_NAME
+logger = get_logger(__name__)
 
-# Define required directories
-DIRS = [
-    PROJECT_BASE / "code",
-    PROJECT_BASE / "code" / "models",
-    PROJECT_BASE / "code" / "metrics",
-    PROJECT_BASE / "code" / "evaluation",
-    PROJECT_BASE / "code" / "calibration",
-    PROJECT_BASE / "code" / "utils",
-    PROJECT_BASE / "tests",
-    PROJECT_BASE / "tests" / "unit",
-    PROJECT_BASE / "tests" / "contract",
-    PROJECT_BASE / "tests" / "integration",
-    PROJECT_BASE / "data" / "raw",
-    PROJECT_BASE / "data" / "processed",
-    PROJECT_BASE / "results",
-    PROJECT_BASE / "results" / "figures",
-    PROJECT_BASE / "specs",
-]
-
-def ensure_dir(path: Path):
-    """Create directory if it doesn't exist."""
-    if not path.exists():
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
+def ensure_dir(directory_path: Path) -> None:
+    """Ensure a directory exists, creating it if necessary."""
+    if not directory_path.exists():
+        directory_path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {directory_path}")
     else:
-        print(f"Directory exists: {path}")
+        logger.debug(f"Directory already exists: {directory_path}")
 
-def main():
-    print(f"Setting up project structure at: {PROJECT_BASE}")
-    if not PROJECT_BASE.exists():
-        PROJECT_BASE.mkdir(parents=True, exist_ok=True)
-        print(f"Created project root: {PROJECT_BASE}")
+def main() -> int:
+    """Execute the setup of the project structure."""
+    logger.info("Initializing project directory structure...")
     
-    for dir_path in DIRS:
+    # Define all directories to ensure
+    directories = [
+        PROJECT_ROOT,
+        CODE_DIR,
+        DATA_DIR,
+        DATA_RAW_DIR,
+        DATA_PROCESSED_DIR,
+        RESULTS_DIR,
+        FIGURES_DIR,
+        TESTS_DIR,
+        LOG_DIR,
+        # Subdirectories for organization
+        CODE_DIR / "models",
+        CODE_DIR / "metrics",
+        CODE_DIR / "calibration",
+        CODE_DIR / "evaluation",
+        CODE_DIR / "scripts",
+        CODE_DIR / "utils",
+        TESTS_DIR / "unit",
+        TESTS_DIR / "integration",
+        TESTS_DIR / "contract",
+    ]
+
+    for dir_path in directories:
         ensure_dir(dir_path)
-    
-    print("Project directory structure setup complete.")
+
+    logger.info("Project directory structure setup complete.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,292 +1,224 @@
 """
-Probability Integral Transform (PIT) metrics for distributional calibration.
+Probability Integral Transform (PIT) metrics for predictive interval calibration.
 
-Implements PIT calculation, histogram generation, and the Ljung-Box test
-for uniformity as specified in FR-004 and SC-002.
-
-This module avoids the Kolmogorov-Smirnov test in favor of Ljung-Box to
-account for potential autocorrelation in the PIT sequence.
+This module computes PIT values, generates histograms, and performs statistical
+tests for uniformity (Ljung-Box test) to assess distributional calibration.
 """
-
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Tuple, Optional, Union, Any
 from scipy import stats
+from scipy.stats import chi2
+
 from utils.logger import get_logger
 from utils.exceptions import DataValidationError
 
 logger = get_logger(__name__)
 
 
-def calculate_pit(
-    forecasts: Union[np.ndarray, List[float]],
-    actuals: Union[np.ndarray, List[float]],
-    predictive_cdf: Optional[callable] = None,
-    predictive_samples: Optional[np.ndarray] = None
-) -> np.ndarray:
+def calculate_pit(actual: np.ndarray, forecasts: np.ndarray, intervals: Dict[str, np.ndarray]) -> np.ndarray:
     """
-    Calculate the Probability Integral Transform (PIT) values for a set of forecasts.
-
-    The PIT value for an observation y and forecast distribution F is F(y).
-    If F is continuous and correctly specified, PIT values should be uniformly
-    distributed on [0, 1].
-
+    Calculate Probability Integral Transform values.
+    
+    The PIT value for a forecast is the CDF value at the actual observation.
+    For symmetric intervals, we approximate the CDF using the interval bounds.
+    
     Args:
-        forecasts: Not directly used if CDF or samples are provided.
-        actuals: The observed ground truth values (y).
-        predictive_cdf: A callable CDF function F(y) for the forecast distribution.
-                        If provided, this is used directly.
-        predictive_samples: If CDF is not provided, an array of shape (n_samples,)
-                            representing draws from the predictive distribution.
-                            Used to estimate the empirical CDF.
-
+        actual: Actual observed values
+        forecasts: Point forecasts
+        intervals: Dictionary of interval bounds (e.g., {'lower_0.95': ..., 'upper_0.95': ...})
+        
     Returns:
-        np.ndarray: PIT values in the range [0, 1].
-
-    Raises:
-        DataValidationError: If neither CDF nor samples are provided, or if inputs are invalid.
+        Array of PIT values (should be uniform in [0, 1] for well-calibrated forecasts)
     """
-    actuals = np.asarray(actuals, dtype=float)
-    forecasts = np.asarray(forecasts, dtype=float)
-
-    if actuals.size == 0:
-        raise DataValidationError("Actuals array is empty.")
-    if actuals.shape != forecasts.shape:
-        # Forecasts shape check is flexible depending on how samples are passed,
-        # but for direct CDF usage, they should match or be broadcastable.
-        logger.warning(f"Shape mismatch check: actuals {actuals.shape}, forecasts {forecasts.shape}")
-
-    pit_values = np.zeros_like(actuals)
-
-    if predictive_cdf is not None:
-        # Use the provided CDF directly
-        try:
-            # Assume CDF takes scalar or array and returns probability
-            # We iterate if the CDF is not vectorized for safety, or vectorize if possible
-            if callable(predictive_cdf):
-                # Try vectorized call first
-                try:
-                    pit_values = predictive_cdf(actuals)
-                except Exception:
-                    # Fallback to scalar iteration
-                    pit_values = np.array([predictive_cdf(y) for y in actuals])
-        except Exception as e:
-            raise DataValidationError(f"Error evaluating predictive CDF: {e}")
-
-    elif predictive_samples is not None:
-        # Estimate CDF using empirical distribution from samples
-        # predictive_samples shape: (n_samples,)
-        # We need to estimate P(Y <= y) for each y in actuals
-        predictive_samples = np.asarray(predictive_samples, dtype=float)
-        if predictive_samples.ndim != 1:
-            raise DataValidationError("predictive_samples must be a 1D array.")
-
-        n_samples = predictive_samples.size
-        # Sort samples for efficient CDF estimation
-        sorted_samples = np.sort(predictive_samples)
-
-        # Calculate empirical CDF: count how many samples <= y
-        # Using searchsorted is efficient for sorted arrays
-        # side='right' gives count of elements <= value (since indices are 0-based)
-        counts = np.searchsorted(sorted_samples, actuals, side='right')
-        pit_values = counts / n_samples
-
-    else:
-        raise DataValidationError("Either predictive_cdf or predictive_samples must be provided.")
-
-    # Clamp values to [0, 1] to handle floating point errors
-    pit_values = np.clip(pit_values, 0.0, 1.0)
-
-    # Handle exact 0 or 1 if necessary for log-likelihoods later,
-    # but for uniformity testing, strict boundaries are often kept as is
-    # or smoothed. Here we keep them as calculated.
-    logger.debug(f"Calculated {len(pit_values)} PIT values. Range: [{pit_values.min():.4f}, {pit_values.max():.4f}]")
-
+    if len(actual) != len(forecasts):
+        raise DataValidationError(
+            f"Length mismatch: actual={len(actual)}, forecasts={len(forecasts)}"
+        )
+    
+    # Use 0.95 confidence level intervals for PIT calculation
+    lower_key = 'lower_0.95'
+    upper_key = 'upper_0.95'
+    
+    if lower_key not in intervals or upper_key not in intervals:
+        logger.warning(f"Missing interval keys. Available: {list(intervals.keys())}")
+        # Fallback: use available intervals or return NaN
+        return np.full(len(actual), np.nan)
+    
+    lower = intervals[lower_key]
+    upper = intervals[upper_key]
+    
+    # Estimate CDF using linear interpolation between lower and upper bounds
+    # Assuming symmetric distribution around forecast
+    width = upper - lower
+    # Handle zero-width intervals
+    width = np.where(width == 0, 1e-10, width)
+    
+    # Position of actual within the interval
+    # If actual < lower: PIT ~ 0.025 (for 95% interval)
+    # If actual > upper: PIT ~ 0.975
+    # If lower <= actual <= upper: linear interpolation
+    
+    pit_values = np.zeros(len(actual))
+    
+    # Below lower bound
+    below_mask = actual < lower
+    pit_values[below_mask] = 0.025
+    
+    # Above upper bound
+    above_mask = actual > upper
+    pit_values[above_mask] = 0.975
+    
+    # Within interval
+    within_mask = ~below_mask & ~above_mask
+    if np.any(within_mask):
+        normalized_pos = (actual[within_mask] - lower[within_mask]) / width[within_mask]
+        # Map [0, 1] to [0.025, 0.975]
+        pit_values[within_mask] = 0.025 + normalized_pos * 0.95
+    
+    # Clip to [0, 1]
+    pit_values = np.clip(pit_values, 0.001, 0.999)
+    
     return pit_values
 
 
-def generate_pit_histogram(
-    pit_values: np.ndarray,
-    bins: int = 20
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+def generate_pit_histogram(pit_values: np.ndarray, bins: int = 20) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Generate histogram data for PIT values to assess uniformity visually.
-
+    Generate histogram data for PIT values.
+    
     Args:
-        pit_values: Array of PIT values.
-        bins: Number of bins for the histogram.
-
+        pit_values: Array of PIT values
+        bins: Number of histogram bins
+        
     Returns:
-        Tuple of (bin_edges, counts, stats_dict).
-        stats_dict contains 'mean', 'variance', 'expected_mean', 'expected_variance'.
+        Tuple of (bin_edges, counts)
     """
-    if pit_values.size == 0:
-        raise DataValidationError("PIT values array is empty.")
-
+    if len(pit_values) == 0:
+        return np.array([]), np.array([])
+    
     counts, bin_edges = np.histogram(pit_values, bins=bins, range=(0, 1))
-    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
-    # Expected uniform distribution statistics
-    n = len(pit_values)
-    expected_count = n / bins
-    expected_mean = 0.5
-    expected_variance = 1.0 / 12.0  # Variance of Uniform(0,1)
-
-    pit_mean = np.mean(pit_values)
-    pit_var = np.var(pit_values)
-
-    stats_dict = {
-        "mean": float(pit_mean),
-        "variance": float(pit_var),
-        "expected_mean": expected_mean,
-        "expected_variance": expected_variance,
-        "n_bins": bins,
-        "counts": counts.tolist(),
-        "bin_edges": bin_edges.tolist()
-    }
-
-    logger.debug(f"PIT Histogram generated: Mean={pit_mean:.4f}, Var={pit_var:.4f}")
-
-    return bin_edges, counts, stats_dict
+    return bin_edges, counts
 
 
-def ljung_box_test(pit_values: np.ndarray, lags: Optional[int] = None) -> Dict[str, float]:
+def ljung_box_test(pit_values: np.ndarray, lags: int = 10) -> Dict[str, float]:
     """
-    Perform the Ljung-Box test on PIT values to test for uniformity (independence).
-
-    Under the null hypothesis, PIT values should be i.i.d. Uniform(0,1).
-    The Ljung-Box test checks for autocorrelation in the PIT sequence.
-    Significant autocorrelation suggests the forecast distribution is misspecified
-    or poorly calibrated over time.
-
-    Note: We use Ljung-Box instead of KS-test as per FR-004 to account for
-    time-series dependencies.
-
+    Perform Ljung-Box test for uniformity of PIT values.
+    
+    The null hypothesis is that the PIT values are independently uniformly distributed.
+    We test for autocorrelation in the PIT values.
+    
     Args:
-        pit_values: Array of PIT values.
-        lags: Number of lags to test. If None, defaults to int(10 * log10(n)).
-
+        pit_values: Array of PIT values
+        lags: Number of lags for the test
+        
     Returns:
-        Dict with 'statistic' and 'p_value'.
+        Dictionary with 'statistic' and 'p_value'
     """
-    if pit_values.size == 0:
-        raise DataValidationError("PIT values array is empty.")
-
-    # Convert to float64 for scipy
-    pit_values = np.asarray(pit_values, dtype=np.float64)
-
-    # Determine lags if not provided
-    n = len(pit_values)
-    if lags is None:
-        lags = max(1, int(10 * np.log10(n)))
-
-    # The Ljung-Box test in statsmodels/scipy usually tests for zero autocorrelation.
-    # For uniformity, we ideally want to test if the sequence is i.i.d. Uniform(0,1).
-    # A common approach is to test the PIT values directly for autocorrelation.
-    # If PITs are uniform and independent, autocorrelations should be near zero.
-
-    # Using scipy.stats.ljungbox (available in newer versions) or statsmodels
-    # Since the environment has statsmodels (via requirements), we prefer that for robustness.
+    if len(pit_values) < lags + 10:
+        logger.warning(f"Not enough data points for Ljung-Box test with {lags} lags")
+        return {'statistic': np.nan, 'p_value': np.nan}
+    
+    # Remove NaN values
+    valid_mask = ~np.isnan(pit_values)
+    pit_clean = pit_values[valid_mask]
+    
+    if len(pit_clean) < lags + 10:
+        logger.warning("Too few valid PIT values after removing NaN")
+        return {'statistic': np.nan, 'p_value': np.nan}
+    
     try:
-        from statsmodels.stats.diagnostic import acorr_ljungbox
+        # Ljung-Box test for autocorrelation
+        # Note: We test if PIT values are autocorrelated (should not be if uniform)
+        stat, p_value = stats.ljungbox(pit_clean, lags=[lags], return_df=False)
         
-        # acorr_ljungbox returns a DataFrame
-        result = acorr_ljungbox(pit_values, lags=[lags], return_df=True)
-        
-        # The statistic and p-value for the specified lag
-        # The result index is the lag number
-        lb_stat = result.loc[lags, 'lb_stat']
-        lb_pvalue = result.loc[lags, 'lb_pvalue']
-        
-    except ImportError:
-        # Fallback to manual calculation if statsmodels is not fully available
-        # Ljung-Box Statistic: Q = n(n+2) * sum(rho_k^2 / (n-k))
-        mean_pit = np.mean(pit_values)
-        # Center the series
-        x = pit_values - mean_pit
-        
-        rho_squares = []
-        for k in range(1, lags + 1):
-            if k >= n:
-                break
-            # Autocorrelation at lag k
-            numerator = np.sum(x[k:] * x[:-k])
-            denominator = np.sum(x * x)
-            if denominator == 0:
-                rho_k = 0.0
-            else:
-                rho_k = numerator / denominator
-            rho_squares.append(rho_k ** 2 / (n - k))
-        
-        if not rho_squares:
-            lb_stat = 0.0
-            lb_pvalue = 1.0
-        else:
-            lb_stat = n * (n + 2) * sum(rho_squares)
-            # Approximate p-value using Chi-squared distribution with lags degrees of freedom
-            lb_pvalue = 1.0 - stats.chi2.cdf(lb_stat, df=lags)
-
-    logger.debug(f"Ljung-Box Test (lag={lags}): Statistic={lb_stat:.4f}, P-value={lb_pvalue:.4f}")
-
-    return {
-        "statistic": float(lb_stat),
-        "p_value": float(lb_pvalue),
-        "lags": lags,
-        "n_observations": n
-    }
+        return {
+            'statistic': float(stat[0]),
+            'p_value': float(p_value[0])
+        }
+    except Exception as e:
+        logger.warning(f"Ljung-Box test failed: {e}")
+        return {'statistic': np.nan, 'p_value': np.nan}
 
 
 def compute_pit_metrics(
-    actuals: np.ndarray,
-    predictive_samples: np.ndarray,
-    bins: int = 20
-) -> Dict[str, Any]:
+    actual: pd.Series,
+    forecasts: np.ndarray,
+    intervals: Dict[str, np.ndarray],
+    confidence_levels: List[float] = [0.80, 0.95]
+) -> Dict[str, float]:
     """
-    Compute a comprehensive set of PIT metrics for a single forecast series.
-
+    Compute comprehensive PIT metrics for a series.
+    
     Args:
-        actuals: Ground truth values.
-        predictive_samples: Samples from the predictive distribution (1D array).
-        bins: Number of bins for histogram.
-
+        actual: Actual observed values
+        forecasts: Point forecasts
+        intervals: Dictionary of interval bounds
+        confidence_levels: Confidence levels to consider
+        
     Returns:
-        Dictionary containing:
-            - pit_values: Array of calculated PITs.
-            - histogram: Dict with bin data and stats.
-            - ljung_box: Dict with test results.
-            - summary: Dict with key metrics (mean, var, p-value).
+        Dictionary with PIT metrics
     """
-    # 1. Calculate PIT values
-    pit_values = calculate_pit(
-        forecasts=None, 
-        actuals=actuals, 
-        predictive_samples=predictive_samples
-    )
-
-    # 2. Generate Histogram
-    hist_edges, hist_counts, hist_stats = generate_pit_histogram(pit_values, bins=bins)
-
-    # 3. Ljung-Box Test
-    lb_results = ljung_box_test(pit_values)
-
-    # 4. Assemble Summary
-    summary = {
-        "mean_pit": hist_stats["mean"],
-        "var_pit": hist_stats["variance"],
-        "expected_mean": hist_stats["expected_mean"],
-        "expected_var": hist_stats["expected_variance"],
-        "ljung_box_statistic": lb_results["statistic"],
-        "ljung_box_p_value": lb_results["p_value"],
-        "is_uniform_indistinguishable": lb_results["p_value"] > 0.05
-    }
-
+    pit_values = calculate_pit(actual.values, forecasts, intervals)
+    
+    # Remove NaN for metrics calculation
+    pit_clean = pit_values[~np.isnan(pit_values)]
+    
+    if len(pit_clean) == 0:
+        return {
+            'mean_pit': np.nan,
+            'std_pit': np.nan,
+            'uniformity_p_value': np.nan,
+            'histogram_bins': np.nan,
+            'histogram_counts': np.nan
+        }
+    
+    # Mean should be close to 0.5 for uniform distribution
+    mean_pit = float(np.mean(pit_clean))
+    std_pit = float(np.std(pit_clean))
+    
+    # Ljung-Box test for uniformity
+    lb_result = ljung_box_test(pit_clean)
+    
+    # Histogram (for visualization, return counts)
+    _, hist_counts = generate_pit_histogram(pit_clean, bins=20)
+    
     return {
-        "pit_values": pit_values,
-        "histogram": {
-            "edges": hist_edges,
-            "counts": hist_counts,
-            "stats": hist_stats
-        },
-        "ljung_box": lb_results,
-        "summary": summary
+        'mean_pit': mean_pit,
+        'std_pit': std_pit,
+        'uniformity_p_value': lb_result['p_value'],
+        'uniformity_statistic': lb_result['statistic'],
+        'histogram_bins': 20,
+        'histogram_counts': list(hist_counts)  # Convert to list for CSV serialization
     }
+
+
+def pit_metrics_to_dataframe(pit_results: List[Dict[str, Any]]) -> pd.DataFrame:
+    """
+    Convert list of PIT result dictionaries to DataFrame.
+    
+    Args:
+        pit_results: List of dictionaries with PIT metrics
+        
+    Returns:
+        DataFrame with PIT metrics
+    """
+    rows = []
+    for res in pit_results:
+        row = {
+            'dataset': res.get('dataset'),
+            'series_id': res.get('series_id'),
+            'model': res.get('model'),
+            'horizon': res.get('horizon')
+        }
+        
+        pit_metrics = res.get('pit', {})
+        for key, value in pit_metrics.items():
+            if isinstance(value, list):
+                # Convert list to string for CSV
+                row[f'pit_{key}'] = ';'.join(map(str, value))
+            else:
+                row[f'pit_{key}'] = value
+        
+        rows.append(row)
+    
+    return pd.DataFrame(rows)

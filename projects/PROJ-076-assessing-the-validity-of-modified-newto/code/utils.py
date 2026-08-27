@@ -1,244 +1,165 @@
 """
-Utility functions for the MOND validity assessment pipeline.
-
-Includes:
-- Random seed management for reproducibility
-- Logging infrastructure
-- Common helper functions
+llmXive PROJ-076: Utility functions for logging, seeding, and common operations.
 """
-
 import os
 import logging
 import random
 import numpy as np
 from pathlib import Path
 from datetime import datetime
+from typing import Optional, Union
 
-# Project root
-PROJECT_ROOT = Path(__file__).parent.parent
+# --- Logging Setup (T008 implementation) ---
 
-# Global logger instance (initialized lazily or explicitly)
-_logger = None
+_logger_instance: Optional[logging.Logger] = None
 
-def setup_logging(log_level=logging.INFO, log_file=None):
+def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
     """
-    Set up logging infrastructure for the pipeline.
-    
-    This function configures a named logger 'mond_pipeline' with handlers
-    for both console and optional file output. It also updates the global
-    logger instance used throughout the pipeline.
+    Initialize the project logger.
     
     Args:
-        log_level: Logging level (default: INFO)
+        log_level: Logging level (e.g., logging.INFO).
         log_file: Optional path to log file. If None, logs to console only.
-                
+    
     Returns:
-        logging.Logger: Configured logger instance
+        Configured logger instance.
     """
-    global _logger
+    global _logger_instance
+    if _logger_instance is not None:
+        return _logger_instance
     
-    # Create logger
-    _logger = logging.getLogger('mond_pipeline')
-    _logger.setLevel(log_level)
+    logger = logging.getLogger("llmXive_PROJ076")
+    logger.setLevel(log_level)
     
-    # Clear existing handlers to prevent duplicates on re-calls
-    _logger.handlers.clear()
+    # Clear existing handlers
+    logger.handlers.clear()
     
     # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(log_level)
-    console_format = logging.Formatter(
+    ch = logging.StreamHandler()
+    ch.setLevel(log_level)
+    formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    console_handler.setFormatter(console_format)
-    _logger.addHandler(console_handler)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
     
-    # File handler (optional)
+    # File handler if specified
     if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_path)
-        file_handler.setLevel(log_level)
-        file_format = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        file_handler.setFormatter(file_format)
-        _logger.addHandler(file_handler)
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(log_level)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
     
-    return _logger
+    _logger_instance = logger
+    return logger
 
-def get_logger():
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Retrieve the global pipeline logger.
-    
-    If logging has not been initialized yet, this returns a default
-    console-only logger at INFO level.
-    
-    Returns:
-        logging.Logger: The configured logger instance
+    Get the project logger or a child logger.
     """
-    global _logger
-    if _logger is None:
-        _logger = logging.getLogger('mond_pipeline')
-        if not _logger.handlers:
-            handler = logging.StreamHandler()
-            handler.setLevel(logging.INFO)
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S'
-            )
-            handler.setFormatter(formatter)
-            _logger.addHandler(handler)
-            _logger.setLevel(logging.INFO)
-    return _logger
+    if _logger_instance is None:
+        setup_logging()
+    if name:
+        return _logger_instance.getChild(name)
+    return _logger_instance
 
-def log_stage(stage_name, message=""):
+def log_stage(stage_name: str, message: str, level: int = logging.INFO):
     """
-    Log a pipeline stage transition.
-    
-    This utility provides a standardized way to mark significant points
-    in the pipeline execution (e.g., 'Data Download Started', 'Fitting Complete').
-    
-    Args:
-        stage_name: Name of the pipeline stage
-        message: Optional additional context message
+    Log a message with a stage prefix.
     """
     logger = get_logger()
-    if message:
-        logger.info(f"[STAGE: {stage_name}] {message}")
-    else:
-        logger.info(f"[STAGE: {stage_name}]")
+    logger.log(level, f"[{stage_name}] {message}")
 
-# Initialize logger immediately for module-level usage
-# This ensures that if 'from utils import logger' is used, it works
-# though explicit setup_logging() is preferred for configuration.
-try:
-    _logger = setup_logging()
-except Exception:
-    # Fallback if logging setup fails (e.g., in restricted environments)
-    _logger = logging.getLogger('mond_pipeline')
-    _logger.setLevel(logging.INFO)
-    if not _logger.handlers:
-        _logger.addHandler(logging.StreamHandler())
+# --- Deterministic Seed Utility (T006 implementation) ---
 
-def set_global_seed(seed=42):
+def set_global_seed(seed: int = 42) -> None:
     """
-    Set global random seeds for reproducibility.
+    Pin the random seed for reproducibility across Python, NumPy, and related libraries.
     
-    This function pins the random seed for Python's built-in `random` module,
-    NumPy's random number generator, and sets the environment variable
-    `PYTHONHASHSEED` to ensure deterministic behavior across runs.
+    This ensures deterministic behavior for any randomized operations in the pipeline,
+    crucial for reproducible scientific research.
     
     Args:
-        seed: Integer seed value (default: 42)
+        seed: Integer seed value. Default is 42.
     """
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    _logger.info(f"Global random seed set to {seed}")
+    # If torch or tensorflow are used later, add their seeders here
+    # os.environ['PYTHONHASHSEED'] = str(seed)
+    log_stage("SEED", f"Global seed set to {seed}")
 
-def get_timestamp():
+# --- Common Utilities ---
+
+def get_timestamp() -> str:
     """
     Get current timestamp in ISO format.
-    
-    Returns:
-        str: ISO formatted timestamp string
     """
-    return datetime.now().strftime("%Y%m%d_%H%M%S")
+    return datetime.now().isoformat(timespec='seconds')
 
-def safe_divide(numerator, denominator, default=0.0):
+def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
     """
-    Safe division that handles zero denominators.
-    
-    Args:
-        numerator: Numerator value
-        denominator: Denominator value
-        default: Default value to return if division by zero (default: 0.0)
-                
-    Returns:
-        float: Result of division or default value
+    Safely divide two numbers, returning default if denominator is zero.
     """
     if denominator == 0:
         return default
     return numerator / denominator
 
-def format_number(value, precision=4):
+def format_number(value: float, precision: int = 4, scientific: bool = False) -> str:
     """
     Format a number with specified precision.
-    
-    Args:
-        value: Number to format
-        precision: Number of decimal places (default: 4)
-                
-    Returns:
-        str: Formatted number string
     """
-    if isinstance(value, (int, float)):
-        if abs(value) < 1e-6:
-            return f"{value:.2e}"
-        return f"{value:.{precision}f}"
-    return str(value)
+    if scientific:
+        return f"{value:.{precision}e}"
+    return f"{value:.{precision}f}"
 
-def ensure_directory(path):
+def ensure_directory(path: Union[str, Path]) -> Path:
     """
     Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        path: Path to directory
-                
-    Returns:
-        Path: The directory path
     """
-    path = Path(path)
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    p = Path(path)
+    p.mkdir(parents=True, exist_ok=True)
+    return p
 
-def calculate_chi2(observed, predicted, uncertainties):
+# --- Statistical Metrics (Required for T024, defined here to avoid circular imports) ---
+
+def calculate_chi2(observed: np.ndarray, predicted: np.ndarray, uncertainty: np.ndarray) -> float:
     """
-    Calculate chi-squared statistic.
+    Calculate reduced chi-squared statistic.
+    """
+    if len(observed) != len(predicted) or len(observed) != len(uncertainty):
+        raise ValueError("Arrays must have the same length")
     
-    Args:
-        observed: Observed values
-        predicted: Predicted values
-        uncertainties: Uncertainties in observed values
-                
-    Returns:
-        float: Chi-squared value
-    """
-    observed = np.array(observed)
-    predicted = np.array(predicted)
-    uncertainties = np.array(uncertainties)
+    if np.any(uncertainty == 0):
+        raise ValueError("Uncertainty cannot be zero")
     
     residuals = observed - predicted
-    chi2 = np.sum((residuals / uncertainties) ** 2)
-    return chi2
+    chi2 = np.sum((residuals / uncertainty) ** 2)
+    dof = len(observed) - 1  # Assuming 1 fitted parameter for simplicity, adjust as needed
+    
+    if dof <= 0:
+        return float('inf')
+    
+    return chi2 / dof
 
-def calculate_aic(chi2, n_params, n_points):
+def calculate_aic(chi2: float, k: int, n: int) -> float:
     """
-    Calculate Akaike Information Criterion.
+    Calculate Akaike Information Criterion (AIC).
     
     Args:
-        chi2: Chi-squared value
-        n_params: Number of model parameters
-        n_points: Number of data points
-                
-    Returns:
-        float: AIC value
+        chi2: Chi-squared statistic.
+        k: Number of parameters.
+        n: Number of data points.
     """
-    return chi2 + 2 * n_params
+    return n * np.log(chi2 / n) + 2 * k
 
-def calculate_bic(chi2, n_params, n_points):
+def calculate_bic(chi2: float, k: int, n: int) -> float:
     """
-    Calculate Bayesian Information Criterion.
+    Calculate Bayesian Information Criterion (BIC).
     
     Args:
-        chi2: Chi-squared value
-        n_params: Number of model parameters
-        n_points: Number of data points
-                
-    Returns:
-        float: BIC value
+        chi2: Chi-squared statistic.
+        k: Number of parameters.
+        n: Number of data points.
     """
-    return chi2 + n_params * np.log(n_points)
+    return n * np.log(chi2 / n) + k * np.log(n)

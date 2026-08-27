@@ -81,8 +81,8 @@ biopython
  1. Calculate power using non-central chi-squared distribution.
  2. If n < 80: HALT with error code `ERR_SAMPLE_SIZE_INSUFFICIENT`.
  3. If n >= 80: Calculate power.
- 4. **CRITICAL**: If Power < 0.20: REPORT the power value but DO NOT HALT. [UNRESOLVED-CLAIM: c_9976ef5b — status=not_enough_info] The Spec requires reporting power if n >= 80 regardless of the value.
- 5. If Power >= 0.20: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05. [UNRESOLVED-CLAIM: c_b26125cd — status=not_enough_info]
+ 4. **CRITICAL**: If Power < 0.20: REPORT the power value but DO NOT HALT. The Spec requires reporting power if n >= 80 regardless of the value.
+ 5. If Power >= 0.20: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05.
  6. Output: Write power value and status to `data/processed/power_analysis.txt`.
 - [X] T006 [P] Implement `code/utils/collinearity_diag.py` for FR-010 (VIF calculation, correlation matrix)
 - [X] T007 [P] Create base data schema validators for `Colony` and `SNP` entities: create `code/utils/validators/colony_schema.py` and `code/utils/validators/snp_schema.py` based on `specs/001-gene-regulation/contracts/dataset.schema.yaml` and `specs/001-gene-regulation/contracts/gwas_output.schema.yaml`
@@ -90,7 +90,7 @@ biopython
 - [X] T009 [P] Implement `code/00_generate_synthetic_data.py` to create deterministic synthetic VCF + Phenotypes for validation. MUST implement CCD diagnosis validation logic that explicitly checks: <!-- FAILED: unspecified -->
  1. Presence of dead adult bees in the hive.
  2. Absence of dead pupae.
- 3. Live bee population < 10% relative to peak season. [UNRESOLVED-CLAIM: c_e43c4ead — status=not_enough_info]
+ 3. Live bee population < 10% relative to peak season.
  Logic MUST fail validation if any of these criteria are not met in the synthetic data generation process (FR-011).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -186,7 +186,7 @@ biopython
  - Logic: Calculate VIF using `code/utils/collinearity_diag.py` (T006).
  - **Condition**: If VIF >= 5 (inclusive boundary):
  - Log "High collinearity detected (VIF >= 5). Documenting as per Spec FR-010."
- - Identify specific pairs with correlation > 0.8. [UNRESOLVED-CLAIM: c_533b6886 — status=not_enough_info]
+ - Identify specific pairs with correlation > 0.8.
  - **Output**: Generate `data/processed/model_config.yaml` containing:
  - `strategy`: "Covariates" (Default, but flexible)
  - `covariate_columns`: ["geographic_region", "sampling_year", "Varroa_mite_count"]
@@ -359,7 +359,7 @@ biopython
 - [X] T044 [P] Implement `code/06_edge_case_handler.py` to explicitly handle missing Varroa metadata (Assumption 1):
  - Read metadata from T009/T012a.
  - **Mandatory**: If < 80% of the total cohort has Varroa data (i.e., > 20% missing), raise `ERR_VARROA_COVARIATE_MISSING` and halt.
- - **Mandatory**: If missing for <= 20%, exclude those samples from the covariate model but retain for genotype-only analysis. [UNRESOLVED-CLAIM: c_c82592fb — status=not_enough_info]
+ - **Mandatory**: If missing for <= 20%, exclude those samples from the covariate model but retain for genotype-only analysis.
  - Log all exclusions to `data/processed/exclusion_log.txt`.
  - **Output Schema**: `exclusion_log.txt` must be a CSV with columns: `sample_id`, `reason`.
 - [X] T047 [P] [Polish] Implement `code/07_runbook_generator.py` to generate a deterministic execution runbook for GitHub Actions (FR-004, US-1 AC3).
@@ -555,8 +555,8 @@ With multiple developers:
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
 - [X] T062 Reconcile run-book vs implementation for `code/02_harmonize_phenotypes.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/02_harmonize_phenotypes.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T063 Reconcile run-book vs implementation for `code/04_filter_snps.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/04_filter_snps.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T064 Reconcile run-book vs implementation for `code/05_collinearity_diag.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/05_collinearity_diag.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T063 Reconcile run-book vs implementation for `code/04_filter_snps.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/04_filter_snps.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T064 Reconcile run-book vs implementation for `code/05_collinearity_diag.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/05_collinearity_diag.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [ ] T065 Reconcile run-book vs implementation for `code/06_power_analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/06_power_analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [ ] T066 Reconcile run-book vs implementation for `code/08_apply_fdr.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/08_apply_fdr.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [ ] T067 Reconcile run-book vs implementation for `code/09_threshold_sensitivity.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/09_threshold_sensitivity.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

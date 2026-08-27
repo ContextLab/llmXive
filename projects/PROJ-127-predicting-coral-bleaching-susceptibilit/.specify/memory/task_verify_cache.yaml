@@ -1,0 +1,42 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `data/raw`, `data/processed`,\
+    \ `data/models`, `tests/`) is present; the provided material only describes feature\
+    \ specifications and contains no filesystem artifacts. The task\u2019s core deliverable\
+    \ \u2013 the project folder structure \u2013 is missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `black.toml`, or pre\u2011commit hooks) are present in the `code/` directory,\
+    \ nor any evidence that ruff and black have been set up. The required artifact\
+    \ is missing."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/unit/` or `tests/integration/` directories (or any files within them)
+    are present in the provided evidence; the implementer did not supply the required
+    directory structure. The task remains undone.
+T014:
+  c: false
+  h: 19c916eaad05559c2089eafe4bcc91739735bce37c2116a2626aff06911357a6
+  r: "The repository contains a partially written `code/ingest.py` that ends with\
+    \ placeholder comments and does not implement the full merging logic, and the\
+    \ required output file `data/processed/reef_species_unified.csv` is absent. Both\
+    \ the script implementation and the generated unified CSV are missing, so the\
+    \ task\u2019s requirement is not satisfied."
+T018:
+  c: false
+  h: aa701108a5d7bb6c0d7090921e5f2ff8430f12fcbf6af120aba80e85516c55dd
+  r: The `code/features.py` file ends abruptly inside `check_definitional_circularity`
+    and never implements the required logic to drop DHW, use residuals, or log the
+    decision. Moreover, the required output file `data/processed/features.csv` does
+    not exist. Both the functional implementation and the artifact are missing.
+T019:
+  c: false
+  h: 72002245f19ed1c94d5fba4881349e933955fe180ca14002582a1542356744f7
+  r: "The provided `code/features.py` does not contain any function that computes\
+    \ Variance Inflation Factor or drops features with VIF\u202F>\u202F5, and the\
+    \ required output file `data/processed/filtered_features.csv` is absent. Both\
+    \ the core functionality and the expected artifact are missing."

@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://useast.ensembl.org/Apis_mellifera/Info/Index?redirectsrc=//www.ensembl.org%2FApis_mellifera%2FInfo%2FIndex
   verified_at: '2026-08-01T12:48:16.115569Z'
-- artifact_hash: c638156b8cd2f5f531acb0c3310e48e12464831b6fcb749da0749c691a6d110f
+- artifact_hash: ecd490f0230eebd0c77893d4e659659a08e892e86ca7b3f117b6bd3dd6e9d679
   artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://www.wikidata.org/wiki/Q48989513
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q48989513
-  verified_at: '2026-08-02T02:21:23.554363Z'
+  verified_at: '2026-08-27T09:58:50.395511Z'

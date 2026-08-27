@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-calibration"
+name = "llmxive-proj-713"
 version = "0.1.0"
 description = "Calibration of Predictive Intervals for Time-Series Forecasts"
 readme = "README.md"
@@ -18,22 +18,20 @@ dependencies = [
     "pandas>=2.0.0",
     "numpy>=1.24.0",
     "matplotlib>=3.7.0",
-    "datasets>=2.14.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "flake8>=6.1.0",
-    "black>=23.7.0",
+    "flake8>=6.0.0",
+    "black>=23.0.0",
     "isort>=5.12.0",
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
-    "mypy>=1.5.0",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -52,18 +50,17 @@ exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["config", "utils", "models", "metrics", "evaluation", "calibration", "data_loader", "setup_data_dirs", "setup_project_structure", "setup_results_dirs", "setup_tests_structure"]
-skip = [".git", ".venv", "venv", "__pycache__", "build", "dist"]
+known_first_party = ["code"]
+skip = [".git", ".mypy_cache", ".tox", ".venv", "build", "dist"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
-
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = false
-ignore_missing_imports = true
+addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "contract: Contract tests",
+]

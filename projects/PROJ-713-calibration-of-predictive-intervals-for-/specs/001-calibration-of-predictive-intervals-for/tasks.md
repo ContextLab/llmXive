@@ -170,9 +170,9 @@
 - [ ] T033b [P] Update `README.md` with usage guide, installation steps, and data fetch instructions
 - [X] T033c [P] Document data schemas in `docs/data_schema.md`
 - [ ] T034 Code cleanup and refactoring (remove hardcoded paths, ensure seed reproducibility)
-- [~] T035a [P] Run full pipeline on M/UCI subset and record runtime in `results/benchmark_timing.csv` to verify a time limit constraint
+- [ ] T035a [P] Run full pipeline on M/UCI subset and record runtime in `results/benchmark_timing.csv` to verify a time limit constraint
 - [X] T035b [P] Add unit test in `tests/unit/test_conformal_constraints.py` verifying fixed sample size and no nested CV parameters
-- [~] T036 [P] Additional unit tests for edge cases (constant variance, NaN handling) in `tests/unit/`
+- [ ] T036 [P] Additional unit tests for edge cases (constant variance, NaN handling) in `tests/unit/`
 - [ ] T037 Run `quickstart.md` validation to ensure end-to-end reproducibility
 - [ ] T038 Verify `state/` hashes and `updated_at` timestamps are correctly tracked
 

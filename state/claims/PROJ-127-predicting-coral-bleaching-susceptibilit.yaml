@@ -1,0 +1,210 @@
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: FP Rate 0.0500 at threshold 0.3
+  claim_id: c_068e0a53
+  context: Metrics by Threshold table row for threshold 0.3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.3, the FP Rate is 0.0500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:53:10Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: FN Rate 0.1200 at threshold 0.3
+  claim_id: c_318857fc
+  context: Metrics by Threshold table row for threshold 0.3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.3, the FN Rate is 0.1200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:53:23Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: Precision 0.8500 at threshold 0.3
+  claim_id: c_f0787e21
+  context: Metrics by Threshold table row for threshold 0.3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.3, the Precision is 0.8500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:53:40Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: Recall 0.8800 at threshold 0.3
+  claim_id: c_00641d0c
+  context: Metrics by Threshold table row for threshold 0.3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.3, the Recall is 0.8800.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:53:56Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: FP Rate 0.1500 at threshold 0.5
+  claim_id: c_441ec380
+  context: Metrics by Threshold table row for threshold 0.5
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.5, the FP Rate is 0.1500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:54:13Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: FN Rate 0.0500 at threshold 0.5
+  claim_id: c_fa47c182
+  context: Metrics by Threshold table row for threshold 0.5
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.5, the FN Rate is 0.0500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:54:26Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: Precision 0.7500 at threshold 0.5
+  claim_id: c_2258653f
+  context: Metrics by Threshold table row for threshold 0.5
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.5, the Precision is 0.7500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:54:45Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: Recall 0.9500 at threshold 0.5
+  claim_id: c_23feafa1
+  context: Metrics by Threshold table row for threshold 0.5
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.5, the Recall is 0.9500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:54:59Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: FP Rate 0.3500 at threshold 0.7
+  claim_id: c_5fe91dd3
+  context: Metrics by Threshold table row for threshold 0.7
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.7, the FP Rate is 0.3500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:55:14Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: FN Rate 0.0200 at threshold 0.7
+  claim_id: c_b1134650
+  context: Metrics by Threshold table row for threshold 0.7
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.7, the FN Rate is 0.0200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:55:31Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: Precision 0.6000 at threshold 0.7
+  claim_id: c_f64e39ac
+  context: Metrics by Threshold table row for threshold 0.7
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.7, the Precision is 0.6000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:55:45Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: Recall 0.9800 at threshold 0.7
+  claim_id: c_dcb54454
+  context: Metrics by Threshold table row for threshold 0.7
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a threshold of 0.7, the Recall is 0.9800.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:56:02Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: FP Rate Range 0.0500 to 0.3500 Delta 0.3000
+  claim_id: c_908dd521
+  context: Summary section listing FP Rate Range
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FP Rate Range is 0.0500 to 0.3500 with a Delta of 0.3000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:56:18Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/reports/sensitivity_report.md
+  attempts: 1
+  canonical: FN Rate Range 0.0200 to 0.1200 Delta 0.1000
+  claim_id: c_a69e4697
+  context: Summary section listing FN Rate Range
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FN Rate Range is 0.0200 to 0.1200 with a Delta of 0.1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T09:56:32Z'

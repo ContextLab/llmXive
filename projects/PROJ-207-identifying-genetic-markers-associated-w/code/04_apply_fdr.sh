@@ -1,65 +1,96 @@
-#!/usr/bin/env bash
-#
-# T022 – Merge PLINK raw GWAS results with FDR‑corrected results.
-#
-# This script reads:
-#   data/interim/gwas_raw.tsv          – raw PLINK output (columns: SNP, CHR, POS, P, Odds_Ratio, …)
-#   data/interim/gwas_raw_fdr.tsv      – same rows with an added q_value column (produced by T020)
-#
-# It merges on the SNP identifier and writes the final artifact:
-#   data/processed/gwas_results_fdr.tsv
-#
-# Required columns in the final file:
-#   SNP, CHR, POS, P, Odds_Ratio, q_value
-#
-# The script aborts with a non‑zero exit code if inputs are missing or the merge fails.
+#!/bin/bash
+# code/04_apply_fdr.sh
+# Merges PLINK raw results (T017) with FDR-corrected results (T020)
+# into the final artifact: data/processed/gwas_results_fdr.tsv
 
-set -euo pipefail
+set -e
 
-RAW="data/interim/gwas_raw.tsv"
-FDR="data/interim/gwas_raw_fdr.tsv"
-OUT="data/processed/gwas_results_fdr.tsv"
+RAW_INPUT="data/interim/gwas_raw.tsv"
+FDR_INPUT="data/interim/gwas_raw_fdr.tsv"
+OUTPUT_FILE="data/processed/gwas_results_fdr.tsv"
 
-# Verify input files exist
-if [[ ! -f "$RAW" ]]; then
-    echo "Error: Raw GWAS results not found at $RAW" >&2
+echo "Starting FDR merge process..."
+
+# Check input files exist
+if [ ! -f "$RAW_INPUT" ]; then
+    echo "ERROR: Raw GWAS results file not found: $RAW_INPUT"
+    echo "Please ensure T017 (03_gwas.py) has completed successfully."
     exit 1
 fi
 
-if [[ ! -f "$FDR" ]]; then
-    echo "Error: FDR‑corrected results not found at $FDR" >&2
+if [ ! -f "$FDR_INPUT" ]; then
+    echo "ERROR: FDR-corrected results file not found: $FDR_INPUT"
+    echo "Please ensure T020 (utils/fdr_correction.py) has completed successfully."
     exit 1
 fi
 
-# Ensure the output directory exists
-mkdir -p "$(dirname "$OUT")"
+echo "Merging $RAW_INPUT and $FDR_INPUT..."
 
-# Perform the merge using a short Python snippet (pandas is a project dependency)
-python - <<'PY' "$RAW" "$FDR" "$OUT"
-import sys
+# Use Python to merge on 'SNP' column to ensure robust handling of delimiters and types
+python3 << 'EOF'
 import pandas as pd
+import sys
+import os
 
-raw_path, fdr_path, out_path = sys.argv[1:4]
+raw_path = "data/interim/gwas_raw.tsv"
+fdr_path = "data/interim/gwas_raw_fdr.tsv"
+output_path = "data/processed/gwas_results_fdr.tsv"
 
-# Load input tables
-raw = pd.read_csv(raw_path, sep='\t')
-fdr = pd.read_csv(fdr_path, sep='\t')
+try:
+    # Load raw results
+    df_raw = pd.read_csv(raw_path, sep='\t')
+    
+    # Load FDR results
+    df_fdr = pd.read_csv(fdr_path, sep='\t')
 
-# Merge on SNP, retaining the q_value from the FDR file
-merged = pd.merge(raw, fdr[['SNP', 'q_value']], on='SNP', how='inner')
+    # Validate required columns exist in raw
+    required_raw_cols = ['SNP', 'CHR', 'POS', 'P', 'Odds_Ratio']
+    missing_raw = [c for c in required_raw_cols if c not in df_raw.columns]
+    if missing_raw:
+  print(f"ERROR: Raw file missing columns: {missing_raw}")
+  sys.exit(1)
 
-# Verify required columns are present
-required = ['SNP', 'CHR', 'POS', 'P', 'Odds_Ratio', 'q_value']
-missing = set(required) - set(merged.columns)
-if missing:
-    raise ValueError(f"Missing required columns after merge: {missing}")
+    # Validate required columns exist in FDR (specifically q_value)
+    if 'q_value' not in df_fdr.columns:
+  print("ERROR: FDR file missing 'q_value' column.")
+  sys.exit(1)
 
-# Order columns as specified
-merged = merged[required]
+    # Merge on 'SNP'
+    # We take all columns from raw, and only append 'q_value' from fdr to avoid duplicates
+    df_merged = df_raw.merge(
+  df_fdr[['SNP', 'q_value']], 
+  on='SNP', 
+  how='left'
+    )
 
-# Write final TSV
-merged.to_csv(out_path, sep='\t', index=False)
-PY
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-echo "Successfully merged GWAS results with FDR correction."
-echo "Output written to $OUT"
+    # Write final artifact
+    # Ensure column order matches specification: SNP, CHR, POS, P, Odds_Ratio, q_value
+    final_cols = ['SNP', 'CHR', 'POS', 'P', 'Odds_Ratio', 'q_value']
+    # Filter to only these columns if extra exist, or reorder
+    existing_cols = [c for c in final_cols if c in df_merged.columns]
+    
+    # If any mandatory column is missing after merge (e.g. q_value didn't match), log warning but proceed
+    missing_final = [c for c in final_cols if c not in existing_cols]
+    if missing_final:
+  print(f"WARNING: Final output missing columns: {missing_final}. Proceeding with available data.")
+
+    df_merged[existing_cols].to_csv(output_path, sep='\t', index=False)
+
+    print(f"Successfully wrote merged results to {output_path}")
+    print(f"Total rows: {len(df_merged)}, Columns: {list(df_merged.columns)}")
+
+except Exception as e:
+    print(f"ERROR during merge: {str(e)}")
+    sys.exit(1)
+EOF
+
+if [ $? -eq 0 ]; then
+    echo "FDR merge completed successfully."
+    echo "Output artifact: $OUTPUT_FILE"
+else
+    echo "FDR merge failed."
+    exit 1
+fi

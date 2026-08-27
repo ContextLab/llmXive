@@ -6,14 +6,6 @@ T017:
     process the PLINK output into `data/interim/gwas_raw.tsv`. The missing `gwas_raw.tsv`\
     \ file is acceptable because it is the expected runtime product of the script,\
     \ not a required artifact to be pre\u2011generated."
-T022:
-  c: false
-  h: dd8e0fe9f7cdaa187b3b80376949f70842fd37ca28c04f1df0309818fa07c036
-  r: "The `code/04_apply_fdr.sh` script is present and appears to correctly merge\
-    \ the raw and FDR\u2011corrected tables, but the required output file `data/processed/gwas_results_fdr.tsv`\
-    \ is missing, so the final artifact was not produced. The missing artifact must\
-    \ be generated (or a placeholder file provided) for the task to be considered\
-    \ complete."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

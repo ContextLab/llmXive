@@ -4,14 +4,20 @@ extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
-    .venv,
-    venv,
+    .eggs,
+    *.egg-info,
     build,
-    dist
+    dist,
+    .mypy_cache
 per-file-ignores =
-    # Allow unused imports in __init__.py for public API exposure
-    */__init__.py: F401
-    # Allow unused arguments in model interfaces
-    */models/*.py: ARG001, ARG002
-    # Allow unused arguments in metric interfaces
-    */metrics/*.py: ARG001, ARG002
+    # Allow wildcard imports in __init__.py files for package interfaces
+    code/models/__init__.py:F401
+    code/metrics/__init__.py:F401
+    code/evaluation/__init__.py:F401
+    code/calibration/__init__.py:F401
+    code/utils/__init__.py:F401
+    # Allow unused arguments in abstract base classes/interfaces if defined as such
+    code/models/*.py:ARG001
+# Ensure consistent imports
+import-order-style = pep8
+application-import-names = code

@@ -1,46 +1,29 @@
 # Calibration of Predictive Intervals for Time-Series Forecasts
 
-**Project ID:** PROJ-713
-**Status:** Active Research Pipeline
+**Project ID**: PROJ-713
+**Status**: Active Research Pipeline
 
-This project implements a comprehensive pipeline for evaluating and calibrating predictive intervals for time-series forecasting models. It supports ARIMA, Prophet, and LSTM models, with rigorous statistical testing for coverage, distributional calibration (PIT, CRPS), and conformal prediction adjustments.
+This project implements a comprehensive pipeline for evaluating and calibrating predictive intervals for time-series forecasts. It supports multiple models (ARIMA, Prophet, LSTM) and datasets (M4, UCI Electricity), computing empirical coverage, distributional metrics (PIT, CRPS), and statistical significance tests.
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Features](#features)
-- [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Project Structure](#project-structure)
-- [Data Preparation](#data-preparation)
+- [Data Fetch Instructions](#data-fetch-instructions)
 - [Usage Guide](#usage-guide)
+- [Project Structure](#project-structure)
 - [Configuration](#configuration)
 - [Output Artifacts](#output-artifacts)
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 
-## 🚀 Features
+---
 
-- **Multi-Model Support**: ARIMA (Statsmodels), Prophet, and LSTM (PyTorch).
-- **Empirical Coverage**: Calculates empirical coverage rates for nominal intervals (0.80, 0.95).
-- **Distributional Calibration**: Probability Integral Transform (PIT) histograms and Ljung-Box tests for uniformity.
-- **Continuous Ranked Probability Score (CRPS)**: Probabilistic forecast accuracy metric.
-- **Statistical Significance**: Paired bootstrap tests for comparing model performance.
-- **Conformal Prediction**: Self-Calibrating Conformal Prediction wrapper for improved coverage.
-- **Robust Data Handling**: Streaming support for large datasets (UCI Electricity) with strict checksum verification.
+## Installation
 
-## 🛠 Prerequisites
-
-- **Python**: 3.11 or higher
-- **Package Manager**: `pip` (or `conda`)
-- **System Dependencies**:
- - `gcc` / `build-essential` (required for compiling some Python packages)
- - `git` (for fetching submodules if applicable)
-
-## 📦 Installation
-
-1. **Clone the repository** (if applicable) or navigate to the project root:
+1. **Clone the repository**:
  ```bash
- cd projects/PROJ-713-calibration-of-predictive-intervals-for-
+ git clone <repository-url>
+ cd projects/PROJ-713-calibration-of-predictive-intervals-for-/
  ```
 
 2. **Create a virtual environment** (recommended):
@@ -55,171 +38,224 @@ This project implements a comprehensive pipeline for evaluating and calibrating 
  pip install -r requirements.txt
  ```
 
- *Note: `requirements.txt` includes `statsmodels`, `prophet`, `torch`, `properscoring`, `scikit-learn`, `scipy`, `pandas`, `numpy`, and `matplotlib`.*
+ **Key Dependencies**:
+ - `statsmodels`: ARIMA modeling
+ - `prophet`: Facebook Prophet forecasting
+ - `torch`: LSTM implementation
+ - `properscoring`: CRPS calculation
+ - `scikit-learn`, `scipy`, `pandas`, `numpy`, `matplotlib`: Core data science stack
 
-4. **Verify installation**:
- ```bash
- python -c "import statsmodels; import prophet; import torch; print('All core dependencies loaded successfully.')"
- ```
+---
 
-## 📂 Project Structure
+## Data Fetch Instructions
 
-```text
-.
-├── code/
-│ ├── config.py # Hyperparameters and path constants
-│ ├── data_loader.py # Data fetching and preprocessing
-│ ├── models/ # Model implementations (ARIMA, Prophet, LSTM)
-│ ├── metrics/ # Coverage, PIT, CRPS calculations
-│ ├── evaluation/ # Pipeline runner and bootstrap tests
-│ ├── calibration/ # Conformal prediction wrapper
-│ ├── utils/ # Logging and exception handling
-│ └── scripts/ # Utility scripts (export results, setup)
-├── data/
-│ ├── raw/ # Downloaded raw datasets (M4, UCI)
-│ └── processed/ # Preprocessed/standardized data
-├── results/ # Output CSVs and figures
-├── tests/ # Unit and integration tests
-├── requirements.txt # Python dependencies
-└── README.md # This file
-```
+This project requires real external datasets. The pipeline will automatically attempt to fetch them. If automatic fetching fails, manual download is required.
 
-## 📥 Data Preparation
+### Supported Datasets
 
-The pipeline supports **M4** (Hourly subset) and **UCI Electricity** datasets. Data is automatically fetched and verified upon first run, or can be prepared manually.
+- **M4 Hourly Dataset**: A large collection of time series from the M4 competition.
+- **UCI Electricity Dataset**: Hourly electricity consumption data from 370 clients.
 
-### Automatic Fetching (Recommended)
+### Automatic Fetching
 
-Run the main evaluation script; it will attempt to download and verify data:
-```bash
-python code/evaluation/runner.py --dataset m4_hourly
-```
-
-### Manual Preparation
-
-If you prefer to download data manually:
-
-1. **M4 Dataset**:
- - Download the M4 Hourly data from the official repository.
- - Place the CSV files in `data/raw/m4/`.
-
-2. **UCI Electricity**:
- - Download the "Electricity Load Diagrams" dataset from the UCI Machine Learning Repository.
- - Place the CSV file in `data/raw/uci/`.
-
-**Verification**:
-The `data_loader.py` module enforces checksum verification. If the downloaded files do not match the expected checksums, the process will fail loudly with a `ValueError`.
-
-## 🏃 Usage Guide
-
-### 1. Setup Project Directories
-
-Ensure all required directories exist:
-```bash
-python code/setup_project_structure.py
-python code/setup_results_dirs.py
-```
-
-### 2. Run the Full Evaluation Pipeline
-
-Execute the main runner to process all series, fit models, and compute metrics:
+Run the data loader script to fetch and verify data:
 
 ```bash
-python code/evaluation/runner.py \
- --dataset m4_hourly \
- --models arima prophet lstm \
- --coverage-levels 0.80 0.95 \
- --output-dir results/
+python code/data_loader.py --fetch-all
+```
+
+This script:
+- Downloads data from verified sources
+- Computes checksums for integrity verification
+- Stores raw data in `data/raw/`
+- **Fails loudly** if URLs are unreachable or checksums do not match (no synthetic fallback).
+
+### Manual Download (if automatic fetch fails)
+
+If the automatic fetch fails, download the datasets manually and place them in `data/raw/`:
+
+1. **M4 Hourly Data**:
+ - Source: [M4 Competition Repository](https://github.com/Mcompetitions/M4-methods) or specific verified URL.
+ - File: `m4_hourly.csv` (or specific archive).
+ - Place in: `data/raw/m4_hourly.csv`
+
+2. **UCI Electricity Data**:
+ - Source: [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014).
+ - File: `LD2011_2014.txt` (or processed CSV).
+ - Place in: `data/raw/uci_electricity.csv`
+
+**Note**: Ensure file names match the expected paths in `code/config.py` or `code/data_loader.py`.
+
+---
+
+## Usage Guide
+
+### Running the Full Pipeline
+
+To run the complete evaluation pipeline (Data Loading -> Model Fitting -> Metrics -> Significance Tests):
+
+```bash
+python code/evaluation/runner.py --dataset m4 --models arima prophet lstm
 ```
 
 **Arguments**:
-- `--dataset`: Name of the dataset to load (`m4_hourly`, `uci_electricity`).
-- `--models`: List of models to run (default: `arima`, `prophet`, `lstm`).
-- `--coverage-levels`: Nominal coverage levels to test (default: `0.80`, `0.95`).
-- `--output-dir`: Directory for results (default: `results/`).
+- `--dataset`: `m4` or `uci`
+- `--models`: Space-separated list of models (`arima`, `prophet`, `lstm`)
+- `--output-dir`: Custom output directory (default: `results/`)
 
-### 3. Conformal Calibration
+### Running Specific Modules
 
-After standard evaluation, run the conformal wrapper to improve coverage:
-
+**1. Coverage Assessment (User Story 1)**:
 ```bash
-python code/calibration/conformal.py \
- --input results/coverage.csv \
- --output results/conformal_results.csv
+python code/evaluation/runner.py --dataset m4 --models arima --metrics coverage
+```
+Output: `results/coverage.csv`
+
+**2. Distributional Metrics (User Story 2)**:
+```bash
+python code/scripts/aggregate_distributional_metrics.py --input results/coverage.csv
+```
+Output: `results/distributional_metrics.csv`
+
+**3. Significance Testing & Conformal (User Story 3)**:
+```bash
+python code/evaluation/runner.py --dataset m4 --models arima prophet --significance
+```
+Output: `results/significance_test.csv`, `results/conformal_results.csv`
+
+### Benchmarking
+
+To measure runtime on a subset:
+```bash
+python code/scripts/benchmark_pipeline.py --dataset m4 --subset 10
+```
+Output: `results/benchmark_timing.csv`
+
+---
+
+## Project Structure
+
+```text
+projects/PROJ-713-calibration-of-predictive-intervals-for-/
+├── code/
+│ ├── config.py # Hyperparameters, paths, seeds
+│ ├── data_loader.py # Data fetching, splitting, standardization
+│ ├── utils/
+│ │ ├── logger.py # Structured logging
+│ │ └── exceptions.py # Custom errors
+│ ├── models/
+│ │ ├── arima_model.py # Statsmodels wrapper
+│ │ ├── prophet_model.py # Prophet wrapper
+│ │ └── lstm_model.py # PyTorch implementation
+│ ├── metrics/
+│ │ ├── coverage.py # Empirical coverage calculation
+│ │ ├── pit.py # Probability Integral Transform
+│ │ └── crps.py # Continuous Ranked Probability Score
+│ ├── calibration/
+│ │ └── conformal.py # Self-Calibrating Conformal Wrapper
+│ ├── evaluation/
+│ │ ├── runner.py # Main pipeline orchestrator
+│ │ └── bootstrap_test.py # Paired bootstrap significance tests
+│ └── scripts/
+│ ├── aggregate_distributional_metrics.py
+│ ├── benchmark_pipeline.py
+│ └── export_results.py
+├── data/
+│ ├── raw/ # Downloaded raw datasets
+│ └── processed/ # Preprocessed splits
+├── results/
+│ ├── coverage.csv
+│ ├── distributional_metrics.csv
+│ ├── significance_test.csv
+│ └── conformal_results.csv
+├── tests/
+│ ├── unit/
+│ ├── contract/
+│ └── integration/
+├── requirements.txt
+└── README.md
 ```
 
-### 4. Significance Testing
+---
 
-Compare models using paired bootstrap tests:
-
-```bash
-python code/evaluation/bootstrap_test.py \
- --results results/coverage.csv \
- --output results/significance_test.csv
-```
-
-### 5. Export Results
-
-Aggregate and export all results to a single report:
-
-```bash
-python code/scripts/export_results.py
-```
-
-## ⚙️ Configuration
+## Configuration
 
 Edit `code/config.py` to modify:
-- **Random Seeds**: For reproducibility.
-- **Data Paths**: Default directories for raw/processed data.
-- **Model Hyperparameters**:
- - ARIMA: Order, seasonal periods.
- - Prophet: Seasonality modes, uncertainty samples.
- - LSTM: Hidden units, epochs, learning rate.
-- **Bootstrap Parameters**: Number of resamples, significance level.
+- **Paths**: `PROJECT_ROOT`, `DATA_DIR`, `RESULTS_DIR`
+- **Hyperparameters**:
+ - `TRAIN_SPLIT`: 0.8 (80% training)
+ - `CONF_LEVELS`: `[0.80, 0.95]`
+ - `RANDOM_SEED`: 42
+- **Model Parameters**:
+ - ARIMA order, Prophet uncertainty samples, LSTM hidden units/epochs
 
-## 📊 Output Artifacts
+---
 
-The pipeline generates the following files in the `results/` directory:
+## Output Artifacts
+
+The pipeline generates the following CSV files in `results/`:
 
 | File | Description |
 |------|-------------|
-| `coverage.csv` | Empirical coverage rates vs. nominal levels for each model/series. |
-| `distributional_metrics.csv` | PIT histograms, Ljung-Box p-values, and CRPS scores. |
-| `significance_test.csv` | Bootstrap p-values for pairwise model comparisons. |
-| `conformal_results.csv` | Coverage improvements after conformal wrapping. |
-| `figures/` | PIT histograms and coverage deviation plots. |
+| `coverage.csv` | Empirical coverage rates vs. nominal levels for each model/series |
+| `distributional_metrics.csv` | PIT histograms, Ljung-Box p-values, CRPS scores |
+| `significance_test.csv` | Paired bootstrap p-values for model comparisons |
+| `conformal_results.csv` | Baseline vs. Conformal coverage comparison |
+| `benchmark_timing.csv` | Runtime measurements for pipeline stages |
 
-## 🧪 Testing
+---
 
-Run the test suite to verify implementation correctness:
+## Testing
+
+Run the test suite:
 
 ```bash
-python -m pytest tests/ -v
+pytest tests/ -v
 ```
 
-**Key Test Modules**:
-- `tests/unit/test_data_loader.py`: Verifies 80/20 split and streaming.
-- `tests/integration/test_coverage_arima.py`: End-to-end ARIMA coverage.
-- `tests/integration/test_pit_ljung_box_test.py`: PIT uniformity logic.
+**Test Categories**:
+- **Unit Tests**: Individual function logic (e.g., `test_coverage.py`)
+- **Contract Tests**: Schema validation (e.g., `test_data_schema.py`)
+- **Integration Tests**: End-to-end pipeline validation (e.g., `test_coverage_arima.py`)
 
-## 🐛 Troubleshooting
+**Specific Test Commands**:
+```bash
+# Test data loader split logic
+pytest tests/unit/test_data_loader.py -v
 
-- **Data Fetch Failures**:
- - Ensure internet connectivity.
- - Verify that the `data_loader.py` checksums match the source files.
- - If a URL is unreachable, the script will raise a `ValueError` (no silent fallback).
+# Test ARIMA coverage calculation
+pytest tests/integration/test_coverage_arima.py -v
 
-- **Model Convergence Errors**:
- - ARIMA: Some series may be non-stationary. Check logs for `ModelConvergenceError`.
- - LSTM: If NaN/Inf intervals occur, the model automatically retries with a reduced learning rate (per spec).
+# Test PIT uniformity
+pytest tests/integration/test_pit_ljung_box_test.py -v
+```
 
-- **Memory Issues (UCI)**:
- - The `data_loader` uses streaming/chunked loading for UCI data. Ensure you have at least 7GB of RAM available for processing.
+---
 
-- **Import Errors**:
- - Ensure `requirements.txt` is fully installed.
- - Verify Python version is 3.11+.
+## Troubleshooting
 
-## 📄 License
+### Data Fetch Failures
+- **Error**: `ValueError: Data fetch failed. Checksum mismatch or URL unreachable.`
+- **Fix**: Verify internet connection, check `data/raw/` for partial downloads, or download manually as described in [Data Fetch Instructions](#data-fetch-instructions).
 
-This project is part of the llmXive automated science pipeline.
+### Model Convergence Errors
+- **Error**: `ModelConvergenceError: ARIMA failed to converge for series X.`
+- **Fix**: The pipeline logs these errors and continues. Check `logs/` for details. Consider adjusting model parameters in `config.py`.
+
+### CUDA/OOM Errors (LSTM)
+- **Error**: `RuntimeError: CUDA out of memory`
+- **Fix**: The LSTM model is configured for CPU-only training by default. If CUDA is enabled accidentally, set `CUDA_VISIBLE_DEVICES=""` or check `code/models/lstm_model.py` for device settings.
+
+### Missing Output Files
+- **Error**: `FileNotFoundError: results/coverage.csv not found`
+- **Fix**: Ensure the full pipeline (`runner.py`) was executed successfully. Check for early exits in logs.
+
+---
+
+## License
+
+Research project for academic purposes.
+
+## Contact
+
+For issues, open a GitHub issue in the project repository.

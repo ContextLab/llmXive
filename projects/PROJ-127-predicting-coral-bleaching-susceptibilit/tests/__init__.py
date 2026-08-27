@@ -1,1 +1,3 @@
-# Tests package for Coral Bleaching Susceptibility Project
+"""
+Test package initialization for PROJ-127-predicting-coral-bleaching-susceptibilit.
+"""
