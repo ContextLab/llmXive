@@ -13,7 +13,7 @@ This feature extends the "ResearchStudio-Idea" system to test the universality o
 **Primary Dependencies**: `sentence-transformers`, `transformers`, `scikit-learn`, `pandas`, `numpy`, `requests`, `pyyaml`, `statsmodels`, `prolific-api` (for recruitment logic)
 **Storage**: Local file system (`data/` for raw/processed JSON/CSV), GitHub Actions ephemeral storage
 **Testing**: `pytest` (unit tests for data parsing, statistical logic; integration tests for pipeline flow)
-**Target Platform**: Linux (GitHub Actions Free Runner: 2 vCPU, 7 GB RAM, 14 GB Disk)
+**Target Platform**: Linux (GitHub Actions Free Runner: vCPU, 7 GB RAM, 14 GB Disk)
 **Project Type**: Computational Research Pipeline / CLI
 **Performance Goals**: Complete end-to-end pipeline (download -> generate -> analyze) within ≤6 hours; Memory usage < 7 GB at peak.
 **Constraints**: Must run on CPU; no local GPU; data must be openly downloadable (no paywalls); statistical rigor (FWER correction, power acknowledgement, IRR gate).

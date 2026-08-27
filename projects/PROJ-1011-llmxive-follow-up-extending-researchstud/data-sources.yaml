@@ -1,0 +1,15 @@
+# Data Sources Configuration for llmXive
+# Used by code/01_data_acquisition.py
+
+# arXiv Configuration
+arxiv_category: "cs.LG" # Default to Machine Learning
+max_arxiv_results: 100
+
+# DOI Lists for Non-ML Domains
+# These files must contain one DOI per line
+nature_doi_list: "data/nature_dois.txt"
+health_affairs_doi_list: "data/health_affairs_dois.txt"
+
+# Fetch Parameters
+fetch_timeout_seconds: 30
+rate_limit_delay_seconds: 0.1

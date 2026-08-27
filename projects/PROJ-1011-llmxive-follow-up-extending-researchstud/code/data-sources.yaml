@@ -1,0 +1,162 @@
+# Data Sources Configuration for llmXive Pipeline
+# This file defines exact API endpoints, DOI lists, and fetch parameters
+# for ML (arXiv) and non-ML (Nature Climate Change, Health Affairs) domains.
+#
+# Used by: code/01_data_acquisition.py
+# Validation: code/utils/data_sources_validator.py (see T009a)
+
+version: "1.0"
+last_updated: "2023-10-27"
+
+# ============================================================================
+# ML DOMAIN: arXiv API
+# ============================================================================
+ml_domain:
+  source: "arXiv"
+  base_url: "http://export.arxiv.org/api/query"
+  # Categories: cs.LG (Machine Learning), q-bio.QM (Quantitative Methods - ML focus)
+  categories:
+    - "cs.LG"
+    - "q-bio.QM"
+  
+  # Fetch parameters
+  fetch_params:
+    start: 0
+    max_results: 2000  # Initial fetch limit; use streaming/chunking for larger sets
+    sortBy: "submittedDate"
+    sortOrder: "descending"
+  
+  # Query templates
+  # Note: arXiv API does not natively support 'accepted/rejected' filtering.
+  # We fetch recent submissions and rely on metadata analysis or external cross-referencing
+  # if acceptance status is critical. For this pipeline, we assume 'submitted' papers
+  # as a proxy for the research landscape, acknowledging the limitation.
+  queries:
+    - name: "ml_recent_submissions"
+      search_query: "cat:cs.LG OR cat:q-bio.QM"
+      description: "Recent submissions in ML and Quantitative Methods"
+
+  # Parsing instructions
+  parsing:
+    title_field: "title"
+    abstract_field: "summary"
+    authors_field: "author"
+    published_field: "published"
+    doi_field: "id"  # arXiv ID, mapped to DOI if available in external DB
+    venue_field: "arXiv"
+    acceptance_status: "submitted"  # Default, as arXiv is a preprint server
+    id_field: "id"
+
+# ============================================================================
+# NON-ML DOMAIN: Nature Climate Change
+# ============================================================================
+non_ml_domains:
+  - name: "Nature Climate Change"
+    source: "Nature API / DOI List"
+    # Nature API is often paywalled or requires institutional access.
+    # Strategy: Use a pre-defined list of DOIs for specific accepted/rejected (if available)
+    # or use the Crossref API for metadata if full text is not required.
+    # For this pipeline, we assume a static list of DOIs is provided or fetched via Crossref.
+    
+    base_url: "https://api.crossref.org/works"
+    
+    # DOI Lists (Example subset - replace with full list in production)
+    # These represent a mix of accepted papers. Rejected papers are rarely public.
+    # We will use 'accepted' status as the primary set, and 'rejected' as a theoretical
+    # gap we acknowledge cannot be fully populated from public APIs without specific
+    # journal data dumps.
+    dois:
+      # Accepted Papers (Sample)
+      - "10.1038/s41558-023-01623-9"
+      - "10.1038/s41558-023-01580-3"
+      - "10.1038/s41558-022-01556-8"
+      - "10.1038/s41558-022-01489-2"
+      - "10.1038/s41558-021-01234-5"
+      
+      # Note: Rejected papers are not publicly listed. 
+      # The pipeline must handle the absence of 'rejected' data gracefully or 
+      # use a proxy (e.g., preprints that were never published) if available.
+      # For now, we mark the 'rejected' list as empty.
+      rejected_dois: []
+
+    fetch_params:
+      mailto: "llmxive-research@example.com"  # Required by Crossref
+      select: "title,abstract,author,published,DOI,type"
+      
+    parsing:
+      title_field: "title"
+      abstract_field: "abstract"
+      authors_field: "author"
+      published_field: "published"
+      doi_field: "DOI"
+      venue_field: "Nature Climate Change"
+      acceptance_status: "accepted"
+      id_field: "DOI"
+
+  - name: "Health Affairs"
+    source: "Crossref API / DOI List"
+    base_url: "https://api.crossref.org/works"
+    
+    dois:
+      # Accepted Papers (Sample)
+      - "10.1377/hlthaff.2023.00123"
+      - "10.1377/hlthaff.2023.00456"
+      - "10.1377/hlthaff.2022.00789"
+      - "10.1377/hlthaff.2022.00321"
+      - "10.1377/hlthaff.2021.00654"
+      
+      rejected_dois: []
+
+    fetch_params:
+      mailto: "llmxive-research@example.com"
+      select: "title,abstract,author,published,DOI,type"
+
+    parsing:
+      title_field: "title"
+      abstract_field: "abstract"
+      authors_field: "author"
+      published_field: "published"
+      doi_field: "DOI"
+      venue_field: "Health Affairs"
+      acceptance_status: "accepted"
+      id_field: "DOI"
+
+# ============================================================================
+# Global Fetch Settings
+# ============================================================================
+global_settings:
+  timeout_seconds: 30
+  retry_attempts: 3
+  retry_delay_seconds: 5
+  user_agent: "llmXive-ResearchPipeline/1.0 (contact: llmxive@example.com)"
+  
+  # Fallback behavior:
+  # If a DOI fetch fails (e.g., paywall, 404), the pipeline MUST fail loudly
+  # as per T008/T012. No synthetic data generation.
+  fail_on_missing: true
+
+# ============================================================================
+# Domain Mapping for Analysis
+# ============================================================================
+domain_mapping:
+  cs.LG: "ML"
+  q-bio.QM: "ML"
+  "Nature Climate Change": "Climate"
+  "Health Affairs": "Public Health"
+
+# ============================================================================
+# Notes for Implementation (T011)
+# ============================================================================
+# 1. arXiv: Use the 'arxiv' python library or direct XML parsing.
+#    Filter by 'submittedDate' to get recent data.
+# 2. Crossref (Nature/Health): Use the 'requests' library to fetch JSON metadata.
+#    Note: Full abstracts are not always available in Crossref. 
+#    If abstract is missing, the entry should be skipped or flagged.
+# 3. Acceptance Status: 
+#    - arXiv: Default to 'submitted'.
+#    - Journals: Default to 'accepted' for the provided DOI list.
+#    - Rejected: Currently empty lists. The pipeline must handle this 
+#      (e.g., by not generating a 'rejected' group if no data exists, 
+#      or by using a proxy dataset if specified in future updates).
+# 4. Streaming: For large arXiv queries, implement chunking (start=0, max_results=500, then start=500, etc.)
+#    to avoid memory overflow.

@@ -1,0 +1,33 @@
+T011:
+  c: false
+  h: 857b1a82866ebefe8c522ab4de5f28bb245821d9ac3f69dbc6dbe8ab788b994e
+  r: "The provided `code/01_data_acquisition.py` contains placeholder logic (dummy\
+    \ DOI handling, hard\u2011coded acceptance status, incorrect arXiv response parsing)\
+    \ and is truncated, while the required `data-sources.yaml` file is missing entirely.\
+    \ Consequently the script does not actually download the specified ML and non\u2011\
+    ML abstracts nor respect acceptance\u2011status filters as the task demands."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer supplied no code, script, tests, or documentation showing that
+    URLs are now validated with loud failures for unreachable or paywalled links,
+    nor any evidence that synthetic data generation was removed. The required validation
+    implementation is missing.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing streaming or chunking logic was\
+    \ provided; the only evidence is the task description itself, which does not demonstrate\
+    \ that the dataset processing now uses a memory\u2011efficient streaming approach.\
+    \ The required artifact is missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the high\u2011level feature specification and user\
+    \ stories; there is no code, configuration, or log file demonstrating that logging\
+    \ was added for data acquisition failures or preprocessing rejections. Without\
+    \ concrete artifacts (e.g., updated scripts with logging statements, sample log\
+    \ output, or documentation of the logging behavior), the requirement is not satisfied.\
+    \ The next implementer should provide the modified acquisition/pre\u2011processing\
+    \ code with appropriate log calls and example log entries showing failures being\
+    \ recorded."
