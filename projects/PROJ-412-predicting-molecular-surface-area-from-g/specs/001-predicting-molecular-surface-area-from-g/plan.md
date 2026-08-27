@@ -17,7 +17,7 @@ This project implements a pipeline to predict molecular surface area (SASA) usin
 **Project Type**: Computational Research / Machine Learning Pipeline
 **Performance Goals**: Complete full pipeline (ingest -> preprocess -> train -> eval -> report) within 6 hours on CPU.
 **Constraints**: 
-- Max limited RAM, 14 GB disk.
+- Max limited RAM, limited disk.
 - No local GPU (GPU tasks offloaded to Kaggle if triggered).
 - Dataset must be open and directly downloadable (ZINC15 via HuggingFace canonical repo).
 - Ground truth is RDKit-computed SASA of a specific generated conformer.
@@ -115,7 +115,7 @@ logs/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
 | **3D Baseline vs 2D GCN** | Required by Spec FR-004 & Constitution Principle VI to quantify info loss. | A pure 2D baseline would fail to address the core hypothesis (2D -> 3D prediction). |
-| **Streaming Dataset** | ZINC exceeds 7 GB RAM if fully loaded. | Loading full dataset would cause OOM on CI runner. Streaming is mandatory for feasibility. |
+| **Streaming Dataset** | ZINC exceeds substantial RAM requirements if fully loaded. | Loading full dataset would cause OOM on CI runner. Streaming is mandatory for feasibility. |
 | **Sensitivity Analysis** | Required by Spec FR-006 to avoid cherry-picking thresholds. | Single threshold evaluation lacks robustness and fails methodological rigor. |
 | **Conformer Noise Analysis** | Required to ensure thresholds are valid (larger than noise floor). | Without this, success rates may reflect conformer generation noise rather than model performance. |
 
