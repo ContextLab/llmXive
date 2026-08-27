@@ -1,9 +1,23 @@
-T023b:
+T017b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or configuration implementing the FWER verification logic was
-    presented, nor any `analysis/results.json` file containing a `fwer_control_status`
-    entry. The required artifact is missing, so the task is not satisfied.
+  r: No evidence of `data/processed/transition_probs.json` or `data/processed/markov_state.json`
+    (or any equivalent files) was provided; thus the required versioned artifacts
+    are missing. The task is not satisfied.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis/results.json` file was found containing the required `convergence_status`\
+    \ and `fallback_applied` fields, and there is no evidence of code that implements\
+    \ a convergence check with a fallback to a random\u2011intercept\u2011only model.\
+    \ The task\u2019s core artifact is missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code implementing Bonferroni or Benjamini\u2011Hochberg correction, no conditional\
+    \ logic checking `num_tests > 1`, and no `analysis/results.json` containing an\
+    \ `adjusted_pvalues` list are present in the provided artifacts. The required\
+    \ files and functionality are missing."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,3 +33,30 @@ T025:
     \ computes the Minimum Detectable Effect for power\u202F=\u202F0.80 is provided,\
     \ nor is there any logic that checks \u201Cobserved effect\u202F<\u202FMDE\u201D\
     \ and reports it as a limitation. The required artifact is missing."
+T025b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `analysis/results.json` file was provided, and there is no evidence that MDE
+    results have been logged for each dataset analyzed. The required artifact is missing,
+    so the task is not satisfied.
+T025c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code implementing a cutoff\u2011sweeping sensitivity analysis is present,\
+    \ and the required `analysis/results.json` file does not exist or is empty. Consequently\
+    \ the task\u2019s deliverable is missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or notebook implementing a Shapiro\u2011Wilk normality test\
+    \ (\u03B1\u202F=\u202F0.05) with a conditional fallback to a Wilcoxon signed\u2011\
+    rank test is present; the only artifacts described relate to data acquisition\
+    \ and mixed\u2011effects modeling, not the required normality\u2011check functionality.\
+    \ The task\u2019s core requirement is therefore unmet."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis/results.json` file (or its contents) was presented, and therefore\
+    \ there is no evidence that coefficients, p\u2011values, MDE, and convergence\
+    \ status have been logged as required. The implementer must create a non\u2011\
+    empty JSON file at that path containing all specified result fields."
