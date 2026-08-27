@@ -103,7 +103,7 @@ The system must validate categorical variables and apply binning strategies if v
 
 - **SC-001**: The interaction term `status_level * observed_behavior` in the mixed-effects model is measured against the null hypothesis of zero effect (p-value < 0.05) (See US-2).
 - **SC-002**: The stability of the interaction effect is measured against the sensitivity analysis results, specifically checking if the p-value remains < 0.05 across the outlier threshold sweep {2.5, 3.0, 3.5 SD} (See US-3).
-- **SC-003**: The precision of the effect estimate is measured by the width of the 95% Confidence Interval for the interaction coefficient, reported for all model runs (See US-2).
+- **SC-003**: The precision of the effect estimate is measured by the width of the confidence interval for the interaction coefficient, reported for all model runs (See US-2).
 - **SC-004**: The validity of the risk-taking measure is measured by the existence of a `data/processed/validation_report.json` file confirming the risk metric used matches the instrument defined in the methodology section (See US-1).
 
 ## Assumptions

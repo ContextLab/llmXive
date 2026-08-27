@@ -79,7 +79,7 @@ data/
 
 ## Complexity Tracking
 
-No complexity violations identified. The simulation approach reduces data acquisition complexity while maintaining statistical rigor. The addition of a Null Condition doubles the simulation/analysis runtime but remains well within the 6-hour CI budget.
+No complexity violations identified. The simulation approach reduces data acquisition complexity while maintaining statistical rigor. The addition of a Null Condition doubles the simulation/analysis runtime but remains well within the CI budget.
 
 ## Implementation Phases
 
