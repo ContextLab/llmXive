@@ -1,3 +1,1 @@
-"""
-Contract tests initialization.
-"""
+# Contract tests package

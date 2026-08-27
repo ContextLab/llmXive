@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T02:56:08.547531Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-837-llmxive-follow-up-extending-moebius-0-2b
-last_run_id: 0c321e67-576b-4bad-9963-13f91905f90e
+last_run_id: bf116a83-90f6-45e6-9379-cb69d77a5765
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b
 title: 'llmXive follow-up: extending "Moebius: 0.2B Lightweight Image Inpainting Framework
   with 10B-Level Pe"'
-updated_at: '2026-08-26T00:46:14.276875Z'
+updated_at: '2026-08-27T16:34:05.407279Z'

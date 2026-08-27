@@ -79,7 +79,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement Morlet wavelet time-frequency decomposition (low-frequency band) consuming `data/processed/epochs_cleaned.fif` in `code/feature_extraction.py` (addresses FR-005)
+- [ ] T018 [US2] Implement Morlet wavelet time-frequency decomposition (low-frequency band) consuming `data/processed/epochs_cleaned.fif` in `code/feature_extraction.py` (addresses FR-005) <!-- FAILED: unspecified -->
 - [X] T019 [US2] Implement baseline normalization (pre-stimulus interval to stimulus onset) for dB conversion. in `code/feature_extraction.py`
 - [X] T020 [US2] Extract mean alpha power for P, Pz, P4 electrodes from the normalized output of T019 in `code/feature_extraction.py` (addresses FR-006)
 - [X] T021 [US2] Extract mean beta power (beta frequency band) for F3, Fz, F4 electrodes from the normalized output of T019 in `code/feature_extraction.py` (addresses FR-006)
@@ -100,8 +100,8 @@
 ### Implementation for User Story 3
 
 - [ ] T025 [US3] Implement LDA classifier training with k-fold cross-validation consuming `data/processed/features_matrix.csv` in `code/classification.py` (addresses FR-007)
-- [ ] T026 [US3] Report accuracy, precision, recall with standard deviation across folds in `code/classification.py`
-- [ ] T027 [US3] Implement permutation testing with a sufficient number of iterations to establish statistical significance in `code/classification.py` (addresses FR-008)
+- [X] T026 [US3] Report accuracy, precision, recall with standard deviation across folds in `code/classification.py`
+- [X] T027 [US3] Implement permutation testing with a sufficient number of iterations to establish statistical significance in `code/classification.py` (addresses FR-008)
 - [ ] T028 [US3] Report classifier p-value and null hypothesis rejection decision (α = 0.05) in `results.json`
 - [ ] T028a [US3] Run univariate t-tests on features and save results to `data/processed/t_test_results.json` (producer for T029)
 - [ ] T029 [US3] Implement {{claim:c_147c0918}} (Wikidata Q858572, https://www.wikidata.org/wiki/Q858572) for univariate t-tests on alpha (low-frequency range) at P3/Pz/P4 and beta (13-30 Hz) at F3/Fz/F4; append `fwe_corrected_p_values` to `data/processed/feature_metadata.json` (addresses FR-009, clarifies scope)

@@ -4,179 +4,129 @@ import json
 import pandas as pd
 import numpy as np
 from typing import Dict, Any, List
+import logging
 
-# Schema definition based on T016 requirements
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
 REQUIRED_COLUMNS = [
-    'sample_id',
-    'method',
-    'prediction',
-    'variance',
-    'lower_50',
-    'upper_50',
-    'lower_90',
-    'upper_90'
+    'sample_id', 'method', 'prediction', 'variance',
+    'lower_50', 'upper_50', 'lower_90', 'upper_90'
 ]
 
-def verify_schema(file_path: str) -> Dict[str, Any]:
-    """
-    Verifies that the CSV file exists and contains the required columns.
-    
-    Args:
-        file_path: Path to the CSV file to verify.
-        
-    Returns:
-        Dictionary with verification results.
-    """
-    result = {
-        "file_exists": False,
-        "schema_valid": False,
-        "missing_columns": [],
-        "extra_columns": [],
-        "row_count": 0,
-        "errors": []
-    }
-    
-    if not os.path.exists(file_path):
-        result["errors"].append(f"File not found: {file_path}")
-        return result
-        
-    result["file_exists"] = True
-    
-    try:
-        df = pd.read_csv(file_path)
-        result["row_count"] = len(df)
-        
-        # Check for required columns
-        present_columns = set(df.columns)
-        required_set = set(REQUIRED_COLUMNS)
-        
-        missing = required_set - present_columns
-        extra = present_columns - required_set
-        
-        result["missing_columns"] = list(missing)
-        result["extra_columns"] = list(extra)
-        
-        if not missing:
-            result["schema_valid"] = True
-        else:
-            result["errors"].append(f"Missing required columns: {missing}")
-            
-        # Verify numeric types for prediction and variance
-        for col in ['prediction', 'variance', 'lower_50', 'upper_50', 'lower_90', 'upper_90']:
-            if col in df.columns:
-                if not np.issubdtype(df[col].dtype, np.number):
-                    result["errors"].append(f"Column '{col}' is not numeric")
-                    
-    except Exception as e:
-        result["errors"].append(f"Failed to read CSV: {str(e)}")
-        
-    return result
+# Optional columns that might be added by other tasks (e.g., uncertainty types)
+OPTIONAL_COLUMNS = ['aleatoric', 'epistemic', 'total']
 
-def verify_data_integrity(file_path: str) -> Dict[str, Any]:
+def verify_schema(df: pd.DataFrame) -> bool:
     """
-    Verifies data integrity: bounds consistency, non-negative variance, etc.
-    
-    Args:
-        file_path: Path to the CSV file to verify.
-        
-    Returns:
-        Dictionary with integrity check results.
+    Verify that the DataFrame contains all required columns.
     """
-    result = {
-        "integrity_valid": True,
-        "issues": [],
-        "stats": {}
-    }
+    missing_cols = set(REQUIRED_COLUMNS) - set(df.columns)
+    if missing_cols:
+        logger.error(f"Schema verification failed. Missing columns: {missing_cols}")
+        return False
     
-    if not os.path.exists(file_path):
-        result["issues"].append("File does not exist")
-        result["integrity_valid"] = False
-        return result
-        
-    try:
-        df = pd.read_csv(file_path)
-        
-        # Check variance is non-negative
-        if 'variance' in df.columns:
-            neg_variance = df[df['variance'] < 0]
-            if len(neg_variance) > 0:
-                result["issues"].append(f"Found {len(neg_variance)} rows with negative variance")
-                result["integrity_valid"] = False
-                
-        # Check bounds consistency: lower < prediction < upper
-        for interval in ['50', '90']:
-            lower_col = f'lower_{interval}'
-            upper_col = f'upper_{interval}'
-            
-            if lower_col in df.columns and upper_col in df.columns:
-                invalid_lower = df[df[lower_col] > df['prediction']]
-                invalid_upper = df[df[upper_col] < df['prediction']]
-                
-                if len(invalid_lower) > 0:
-                    result["issues"].append(f"Found {len(invalid_lower)} rows where lower_{interval} > prediction")
-                    result["integrity_valid"] = False
-                    
-                if len(invalid_upper) > 0:
-                    result["issues"].append(f"Found {len(invalid_upper)} rows where upper_{interval} < prediction")
-                    result["integrity_valid"] = False
-                    
-        # Check that 90% bounds are wider than 50% bounds
-        if 'lower_50' in df.columns and 'lower_90' in df.columns:
-            invalid_range = df[df['lower_90'] > df['lower_50']]
-            if len(invalid_range) > 0:
-                result["issues"].append(f"Found {len(invalid_range)} rows where lower_90 > lower_50")
-                result["integrity_valid"] = False
-                
-        if 'upper_50' in df.columns and 'upper_90' in df.columns:
-            invalid_range = df[df['upper_90'] < df['upper_50']]
-            if len(invalid_range) > 0:
-                result["issues"].append(f"Found {len(invalid_range)} rows where upper_90 < upper_50")
-                result["integrity_valid"] = False
-                
-        # Basic statistics
-        numeric_cols = ['prediction', 'variance', 'lower_50', 'upper_50', 'lower_90', 'upper_90']
-        available_cols = [c for c in numeric_cols if c in df.columns]
-        if available_cols:
-            result["stats"] = df[available_cols].describe().to_dict()
-            
-    except Exception as e:
-        result["issues"].append(f"Error during integrity check: {str(e)}")
-        result["integrity_valid"] = False
-        
-    return result
+    logger.info("Schema verification passed: All required columns present.")
+    
+    # Check for optional columns and log presence
+    optional_present = set(df.columns) & set(OPTIONAL_COLUMNS)
+    if optional_present:
+        logger.info(f"Optional columns detected: {optional_present}")
+    
+    return True
+
+def verify_data_integrity(df: pd.DataFrame) -> bool:
+    """
+    Verify data integrity:
+    1. No NaN values in required columns.
+    2. Variance must be non-negative.
+    3. Lower bounds must be <= prediction <= Upper bounds.
+    4. lower_50 <= lower_90 and upper_90 <= upper_50 (assuming 90% interval is wider).
+    """
+    is_valid = True
+
+    # 1. Check for NaNs in required columns
+    for col in REQUIRED_COLUMNS:
+        if df[col].isna().any():
+            logger.error(f"Data integrity failed: Column '{col}' contains NaN values.")
+            is_valid = False
+
+    # 2. Check variance non-negative
+    if (df['variance'] < 0).any():
+        logger.error("Data integrity failed: Variance contains negative values.")
+        is_valid = False
+
+    # 3. Check interval logic: lower <= prediction <= upper
+    # For 50% interval
+    if ((df['lower_50'] > df['prediction']) | (df['prediction'] > df['upper_50'])).any():
+        logger.error("Data integrity failed: 50% interval does not contain prediction.")
+        is_valid = False
+    
+    # For 90% interval
+    if ((df['lower_90'] > df['prediction']) | (df['prediction'] > df['upper_90'])).any():
+        logger.error("Data integrity failed: 90% interval does not contain prediction.")
+        is_valid = False
+
+    # 4. Check interval nesting: 90% should be wider than 50%
+    # lower_90 <= lower_50 and upper_50 <= upper_90
+    if ((df['lower_90'] > df['lower_50']) | (df['upper_50'] > df['upper_90'])).any():
+        logger.error("Data integrity failed: 90% interval is not wider than 50% interval.")
+        is_valid = False
+
+    if is_valid:
+        logger.info("Data integrity verification passed.")
+    else:
+        logger.error("Data integrity verification failed.")
+    
+    return is_valid
 
 def main():
-    """Main entry point for verification."""
-    input_file = "results/uq_predictions.csv"
+    """
+    Main entry point to verify the uq_predictions.csv artifact.
+    """
+    input_path = "results/uq_predictions.csv"
     
-    print(f"Verifying {input_file}...")
-    
-    # Schema verification
-    schema_result = verify_schema(input_file)
-    print("\n--- Schema Verification ---")
-    print(f"File exists: {schema_result['file_exists']}")
-    print(f"Schema valid: {schema_result['schema_valid']}")
-    print(f"Row count: {schema_result['row_count']}")
-    if schema_result['missing_columns']:
-        print(f"Missing columns: {schema_result['missing_columns']}")
-    if schema_result['errors']:
-        print(f"Errors: {schema_result['errors']}")
-        
-    # Data integrity verification
-    integrity_result = verify_data_integrity(input_file)
-    print("\n--- Data Integrity Verification ---")
-    print(f"Integrity valid: {integrity_result['integrity_valid']}")
-    if integrity_result['issues']:
-        print(f"Issues found: {integrity_result['issues']}")
-        
-    # Determine overall success
-    success = schema_result['file_exists'] and schema_result['schema_valid'] and integrity_result['integrity_valid']
-    
-    if success:
-        print("\n✅ Verification PASSED: All checks successful.")
+    if not os.path.exists(input_path):
+        logger.error(f"Artifact not found: {input_path}")
+        print(json.dumps({"status": "failed", "reason": "File not found"}))
+        sys.exit(1)
+
+    try:
+        df = pd.read_csv(input_path)
+        logger.info(f"Loaded {input_path} with shape {df.shape}")
+    except Exception as e:
+        logger.error(f"Failed to read CSV: {e}")
+        print(json.dumps({"status": "failed", "reason": f"Read error: {str(e)}"}))
+        sys.exit(1)
+
+    schema_ok = verify_schema(df)
+    integrity_ok = verify_data_integrity(df)
+
+    if schema_ok and integrity_ok:
+        logger.info("Verification complete: SUCCESS")
+        result = {
+            "status": "success",
+            "rows_verified": len(df),
+            "columns_verified": REQUIRED_COLUMNS,
+            "message": "All checks passed."
+        }
+        print(json.dumps(result, indent=2))
         sys.exit(0)
     else:
-        print("\n❌ Verification FAILED: One or more checks failed.")
+        logger.error("Verification complete: FAILED")
+        result = {
+            "status": "failed",
+            "rows_verified": len(df),
+            "message": "Schema or data integrity checks failed."
+        }
+        print(json.dumps(result, indent=2))
         sys.exit(1)
 
 if __name__ == "__main__":

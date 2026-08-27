@@ -1,44 +1,28 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project files or directory tree were presented; there is no evidence of a\
-    \ created codebase, folder hierarchy, or any non\u2011empty artifact that would\
-    \ constitute the required project structure. The implementer must add the actual\
-    \ project scaffold (e.g., README, src/, data/, scripts/, config files) to satisfy\
-    \ the task."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only a feature specification for uncertainty quantification\
-    \ and no linting/formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml`, or a pre\u2011commit hook). Consequently, the required\
-    \ artifact to configure Ruff and Black is missing."
-T005:
-  c: false
-  h: 6fc6a51620f8f0d849849dad1e4595e066b1083cf2aa7624c545a84bdbe33253
-  r: The repository contains `code/data/download.py` with a plausible implementation,
-    but the required output file `data/raw/oqmd.parquet` is missing, so the task of
-    actually fetching and saving the dataset has not been fulfilled. The missing parquet
-    file must be generated and present for the task to be considered complete.
-T006:
-  c: false
-  h: 46b3f3a73021f090757502924b6448aa77b9bc5c59d52ad7bccf4a72d56e3392
-  r: The provided `preprocess.py` is truncated, never applies PCA to produce exactly
-    20 components, and does not write the required `features_20pca.csv` or `exclusion_log.json`.
-    Both output files are missing from the repository. The implementation therefore
-    does not meet the task specifications.
 T012:
   c: false
-  h: df83d0b087659326ad69387fc3139adb0f097c1e4462a46ad336e2d5ea9bb8af
-  r: "The `code/models/baseline_nn.py` file exists and implements a two\u2011hidden\u2011\
-    layer heteroscedastic network within the parameter budget, but the required output\
-    \ artifact `results/models/baseline_seed42.pt` is absent from the repository.\
-    \ Without the saved model file, the task\u2019s deliverable is not fulfilled."
+  h: af3c719e8bcdc61c50ed346c4484606ba0cb2be94a193efbbb18d13c9184e7b0
+  r: The `baseline_nn.py` file is present but ends abruptly (the `train_model` function
+    is cut off) and never saves a model, and the required output file `results/models/baseline_seed42.pt`
+    does not exist. Both the implementation and the expected artifact are missing.
 T014:
   c: false
-  h: 44829e29b8a201ee200d494b596d2b54edd80fdeec8f722bdc40af99376e3608
-  r: "The `code/models/mc_dropout.py` file exists and contains a dropout\u2011enabled\
-    \ model with `p=0.2` and logic for 30 stochastic forward passes, but the required\
-    \ output artifact `results/models/mc_dropout_model.pt` is missing and the script\
-    \ never saves the trained model to that path. The task\u2019s primary deliverable\
-    \ is therefore not satisfied."
+  h: 72d9305e52b1949593d5a75a4d6eb29bee3b6cf32ad1a93840a8bfac93744387
+  r: "The `code/models/mc_dropout.py` file is present but truncated (training loop\
+    \ ends abruptly) and does not contain logic to perform 30 stochastic forward passes\
+    \ or save a model checkpoint. Moreover, the required output file `results/models/mc_dropout_model.pt`\
+    \ is absent. The task\u2019s core deliverables are therefore not satisfied."
+T015:
+  c: false
+  h: eb907127eaeb2f91bf584b5dc7f5cc182f78ca077a10a2067785fa9de0247a4d
+  r: The required input file `data/processed/features_20pca.csv` is missing, and the
+    expected model checkpoint `results/models/sparse_gp_model.pt` was not produced.
+    Additionally, the provided `sparse_gp.py` is truncated and does not contain a
+    complete training loop or saving logic, so the implementation cannot generate
+    the required output.
+T016:
+  c: false
+  h: c5cc28b2bf305ba7227861d44a0ddb998c65b31058b5b1ada528c58bcae64cfc
+  r: The repository contains `code/main.py`, but it only runs data download/preprocess/validation
+    and contains a placeholder comment for model training/UQ; it never creates `results/uq_predictions.csv`
+    (the file is missing) nor writes the required prediction columns. Consequently
+    the orchestrator does not fulfill the core pipeline requirement.

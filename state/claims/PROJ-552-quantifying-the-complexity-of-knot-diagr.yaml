@@ -26905,3 +26905,868 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T06:02:16Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: download file size greater than 128 KB
+  claim_id: c_dd98d57d
+  context: "T184 verification: the download succeeds, file size > 128\u202FKB, source\
+    \ URL is logged, and data schema matches expected format."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_file_size_greater_than_128_KB
+  kind: magnitude
+  raw_text: "Download succeeds, file size > 128\u202FKB, source URL is logged, and\
+    \ data schema matches expected format."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:36:38Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: core invariant match rate at least 90 percent
+  claim_id: c_041ddaaf
+  context: "T016 verification: match rate \u2265\u202F90\u202F% within tolerance."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Core_invariant_match_rate_at_least_90_percent
+  kind: magnitude
+  raw_text: "Validate crossing number and braid index against KnotInfo references\
+    \ with absolute tolerance 1\u202F\xD7\u202F10\u207B\u2076 and match rate \u2265\
+    \u202F90\u202F%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:37:20Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic volume match rate at least 90 percent
+  claim_id: c_f8ac4695
+  context: "T017 verification: match rate \u2265\u202F90\u202F% within tolerance."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hyperbolic_volume_match_rate_at_least_90_percent
+  kind: magnitude
+  raw_text: "Validate hyperbolic volume against KnotInfo where available, with tolerance\
+    \ 1\u202F\xD7\u202F10\u207B\u2076, match rate \u2265\u202F90\u202F%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:37:56Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: null percentage at most 5 percent, no duplicates, census count matches
+    OEIS A002863
+  claim_id: c_98ee2558
+  context: "T200a verification: null\u202F% \u2264\u202F5\u202F%, no duplicates, counts\
+    \ match OEIS A002863."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 13 9988
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '9988'
+    filled: true
+  kind: magnitude
+  raw_text: "Dataset completeness validation checks null\u202F% \u2264\u202F5\u202F\
+    % and no duplicate records, and cross\u2011checks counts against the Hoste\u2011\
+    Thistlethwaite\u2011Weeks enumeration (OEIS A002863) for the full census (\u2264\
+    13 crossings)."
+  resolved_value: '9988'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T16:38:14Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: plot data point visibility at least 95 percent
+  claim_id: c_0a42f169
+  context: "T200j verification: require \u2265\u202F95\u202F% visibility, fail if\
+    \ less."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Plot_data_point_visibility_at_least_95_percent
+  kind: magnitude
+  raw_text: "Scatter\u2011plot visibility validation requires \u2265\u202F95\u202F\
+    % of data points visible in each plot; the validation script enforces this threshold."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:38:54Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: orthogonalized predictor zero correlation with crossing number
+  claim_id: c_66734ee9
+  context: 'T026b verification: unit test confirms orthogonalized predictor has zero
+    correlation with crossing number.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Orthogonalized_predictor_zero_correlation_with_crossing_numb
+  kind: entity_fact
+  raw_text: Orthogonalization logic unit test confirms the orthogonalized predictor
+    has zero correlation with crossing number.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:39:27Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: detect families deviating at least 2 standard deviations on synthetic
+    data of size 1000 with noise 0.1
+  claim_id: c_b5353cfb
+  context: "T041b verification: unit test confirms detection of families deviating\
+    \ \u2265\u202F2\u202FSD on synthetic data (distribution: normal, size: 1000, noise:\
+    \ 0.1)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Detect_families_deviating_at_least_2_standard_deviations_on
+  kind: magnitude
+  raw_text: "Residual analysis unit test confirms detection of families deviating\
+    \ \u2265\u202F2\u202FSD on synthetic data (normal distribution, size: 1000, noise:\
+    \ 0.1)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:40:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: script runs end-to-end without errors
+  claim_id: c_901e9622
+  context: T148 verification ensures the orchestrator pipeline executes fully.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Script_runs_end-to-end_without_errors
+  kind: entity_fact
+  raw_text: "Script runs end\u2011to\u2011end without errors."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:47:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: source justification document exists and references both data-access
+    paths
+  claim_id: c_47b6ad22
+  context: T999 creates a reproducibility document that cites the Knot Atlas URL and
+    confirms parity with the direct download.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q904490
+        url: https://www.wikidata.org/wiki/Q904490
+        value: Document
+      - channel: wikidata
+        source_id: Q93204
+        url: https://www.wikidata.org/wiki/Q93204
+        value: Q201658
+      quote: 'P646: /m/015bv3'
+      source_id: Q49848
+      url: https://www.wikidata.org/wiki/Q49848
+      value: /m/015bv3
+    filled: true
+  kind: entity_fact
+  raw_text: "Document exists and references both data\u2011access paths."
+  resolved_value: /m/015bv3
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T16:47:52Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: simulated transient failure triggers at least 3 retries with exponential
+    delays
+  claim_id: c_fed72453
+  context: T004 verification of exponential backoff retry logic.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulated_transient_failure_triggers_at_least_3_retries_with
+  kind: magnitude
+  raw_text: "Simulated transient failure triggers \u22653 retries with exponential\
+    \ delays."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:48:07Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: zero missing_invariant_flags for core invariants in full dataset
+  claim_id: c_91ae6c7c
+  context: T151 validation of flag logic for core tabulated invariants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test confirms 0 missing_invariant_flags for core invariants in the
+    full dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:51:01Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: missing_invariant_flags count near zero
+  claim_id: c_f5932904
+  context: "T152 re\u2011run data ingestion pipeline verifies low flag count."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Missing_invariant_flags_count_near_zero
+  kind: entity_fact
+  raw_text: missing_invariant_flags count is near zero.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:51:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: download succeeds with file size greater than 128 KB and matching schema
+  claim_id: c_c5eb1f8c
+  context: T184 direct Knot Atlas download verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_succeeds_with_file_size_greater_than_128_KB_and_mat
+  kind: magnitude
+  raw_text: "Download succeeds, file size > 128\u202FKB, source URL is logged, and\
+    \ data schema matches expected format."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:51:48Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: assertions pass with tolerance less than or equal to 1e-6
+  claim_id: c_50415d96
+  context: T184a source verification compares library and direct download data.
+  evidence:
+    entailment_evidence: Assertions pass with tolerance less than or equal to 1e-6
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Assertions_pass_with_tolerance_less_than_or_equal_to_1e-6
+  kind: magnitude
+  raw_text: "Assertions pass with \u22641e\u20116 tolerance."
+  resolved_value: assertions pass with tolerance less than or equal to 1e-6
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T16:51:56Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: match rate at least 90 percent for crossing number and braid index validation
+  claim_id: c_2b15ea3a
+  context: T016 core tabulated invariant precision check.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Match_rate_at_least_90_percent_for_crossing_number_and_braid
+  kind: magnitude
+  raw_text: "Match rate \u2265\u202F90\u202F% for crossing number and braid index\
+    \ validation."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:52:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: match rate at least 90 percent for hyperbolic volume validation
+  claim_id: c_20065a0a
+  context: T017 hyperbolic volume consistency check.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Match_rate_at_least_90_percent_for_hyperbolic_volume_validat
+  kind: magnitude
+  raw_text: "Match rate \u2265\u202F90\u202F% for hyperbolic volume validation."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:53:06Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: dataset completeness report meets thresholds and matches OEIS A002863
+    full census
+  claim_id: c_4059dc82
+  context: T200a dataset completeness validation using OEIS enumeration.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 20 1847319428
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '1847319428'
+    filled: true
+  kind: entity_fact
+  raw_text: "Report meets all thresholds and explicitly confirms full\u2011census\
+    \ count against OEIS A002863."
+  resolved_value: '1847319428'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T16:53:33Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: all records meet tolerance in core precision validation
+  claim_id: c_a48c3003
+  context: "T200k core\u2011invariant precision validation module."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1813: ALL'
+      source_id: Q655020
+      url: https://www.wikidata.org/wiki/Q655020
+      value: ALL
+    filled: true
+  kind: entity_fact
+  raw_text: All records meet tolerance; report generated.
+  resolved_value: ALL
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T16:53:58Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: flag logic verification test passes and report generated
+  claim_id: c_c4a85fe8
+  context: "T1840 FR\u2011009 flag logic verification."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Test
+      source_id: Q37315170
+      url: https://www.wikidata.org/wiki/Q37315170
+      value: Test
+    filled: true
+  kind: entity_fact
+  raw_text: Test passes; report generated for flag logic verification.
+  resolved_value: Test
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T16:54:21Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: validator core-invariant unit test passes
+  claim_id: c_a83a53e1
+  context: T084 ensures missing_invariant_flags are empty for core invariants.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Test
+      source_id: Q37315170
+      url: https://www.wikidata.org/wiki/Q37315170
+      value: Test
+    filled: true
+  kind: entity_fact
+  raw_text: "Test passes for validator core\u2011invariant unit test."
+  resolved_value: Test
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T16:54:46Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: deprecated regression file absent or contains only deprecation comment
+  claim_id: c_63308db8
+  context: T025 deprecation of old regression script.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deprecated_regression_file_absent_or_contains_only_deprecati
+  kind: entity_fact
+  raw_text: File absent or contains only deprecation comment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:55:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: detection of families deviating at least 2 standard deviations on synthetic
+    data size 1000
+  claim_id: c_df91a71e
+  context: T041b residual analysis module verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Detection_of_families_deviating_at_least_2_standard_deviatio
+  kind: magnitude
+  raw_text: "Unit test confirms detection of families deviating \u2265\u202F2\u202F\
+    SD on synthetic data (distribution: normal, size: 1000, noise: 0.1)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:56:18Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: residual analysis report includes section families deviating at least
+    2 SD
+  claim_id: c_fc6b6540
+  context: T028 residual analysis execution.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Residual_analysis_report_includes_section_families_deviating
+  kind: magnitude
+  raw_text: "File contains a section \"Families deviating \u2265\u202F2\u202FSD\"."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:57:31Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: orthogonalized predictor has zero correlation with crossing number
+  claim_id: c_7fb1bb3c
+  context: T026b orthogonalization logic verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Orthogonalized_predictor_has_zero_correlation_with_crossing
+  kind: entity_fact
+  raw_text: Unit test confirms orthogonalized predictor has zero correlation with
+    crossing number.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:58:01Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: "regression results report includes R\xB2, AIC, BIC, MAE and uses orthogonalized\
+    \ dataset"
+  claim_id: c_fc24511c
+  context: T029 regression model fitting verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_results_report_includes_R%C2%B2,_AIC,_BIC,_MAE_and_use
+  kind: entity_fact
+  raw_text: "Report contains R\xB2, AIC, BIC, MAE for each model; input file confirmed\
+    \ as orthogonalized dataset."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:58:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: regression contract test passes
+  claim_id: c_d13b9c2e
+  context: T030 contract test for regression output schema.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_contract_test_passes
+  kind: entity_fact
+  raw_text: Test passes for regression contract schema validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:59:43Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: mypy strict type checking passes with zero errors
+  claim_id: c_ce80135b
+  context: T104 strict type hint verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mypy_strict_type_checking_passes_with_zero_errors
+  kind: entity_fact
+  raw_text: mypy --strict code/analysis/ passes with zero errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:00:18Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: model fitting data loading test passes
+  claim_id: c_03b6c21f
+  context: "T106 verification that hyperbolic_volume, crossing_number, braid_index\
+    \ are non\u2011zero."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Test
+      source_id: Q37315170
+      url: https://www.wikidata.org/wiki/Q37315170
+      value: Test
+    filled: true
+  kind: entity_fact
+  raw_text: Test passes for data loading verification in model fitting.
+  resolved_value: Test
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T17:00:42Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: data ingestion evidence shows real values and flag count at most 5 percent
+  claim_id: c_576115d8
+  context: T109 investigation and fix of data ingestion.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_evidence_shows_real_values_and_flag_count_at
+  kind: magnitude
+  raw_text: "Evidence file shows real values and flag count \u2264\u202F5\u202F%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:01:31Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic volume consistency report shows match rate at least 90 percent
+  claim_id: c_fc946799
+  context: "T112 re\u2011run hyperbolic volume consistency check."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hyperbolic_volume_consistency_report_shows_match_rate_at_lea
+  kind: magnitude
+  raw_text: "Report shows \u2265\u202F90\u202F% match rate for hyperbolic volume consistency."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:02:19Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: only data/checksums.json file exists
+  claim_id: c_ac735b53
+  context: T113 deletion of redundant checksum manifests.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Only_data/checksums.json_file_exists
+  kind: entity_fact
+  raw_text: Only data/checksums.json exists.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:02:54Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: logs exist only in docs/reproducibility/logs directory
+  claim_id: c_2ef7b4af
+  context: T114 consolidation of log files.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logs_exist_only_in_docs/reproducibility/logs_directory
+  kind: entity_fact
+  raw_text: Logs only exist in the designated directory.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:03:35Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: reproducibility README accurately reflects directory structure
+  claim_id: c_ec349e90
+  context: T115 README accuracy update.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q78999756
+        url: https://www.wikidata.org/wiki/Q78999756
+        value: Readme
+      quote: Finnish book publisher, part of WSOY
+      source_id: Q131983664
+      url: https://www.wikidata.org/wiki/Q131983664
+      value: WSOY
+    filled: true
+  kind: entity_fact
+  raw_text: README accurately reflects structure.
+  resolved_value: WSOY
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T17:04:02Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: no duplicate narrative files remain in repository
+  claim_id: c_2e837dba
+  context: T116 naming convention consolidation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_duplicate_narrative_files_remain_in_repository
+  kind: entity_fact
+  raw_text: No duplicate narrative files remain.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:04:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: computed invariants unit test validates against known examples
+  claim_id: c_6d07122a
+  context: T080 additional invariant computation verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Computed_invariants_unit_test_validates_against_known_exampl
+  kind: entity_fact
+  raw_text: Unit test validates computed invariants against known examples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:05:33Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: additional invariant completeness at least 95 percent
+  claim_id: c_703ce160
+  context: T200g additional invariant completeness validation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Additional_invariant_completeness_at_least_95_percent
+  kind: magnitude
+  raw_text: "Completeness \u2265\u202F95\u202F% for additional invariants."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:06:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: "validator missing\u2011invariant flags test confirms none for core invariants"
+  claim_id: c_6758bda3
+  context: "T124 refactor validator missing\u2011invariant logic."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P41: Flag of the United Kingdom (3-5).svg'
+      source_id: Q145
+      url: https://www.wikidata.org/wiki/Q145
+      value: Flag of the United Kingdom (3-5).svg
+    filled: true
+  kind: entity_fact
+  raw_text: Unit test confirms no flags for core invariants.
+  resolved_value: Flag of the United Kingdom (3-5).svg
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T17:07:09Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: data quality report shows zero missing invariant flags and null percentage
+    at most 5 percent
+  claim_id: c_d7114a75
+  context: T125 regenerated data quality report after validator fix.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_quality_report_shows_zero_missing_invariant_flags_and_n
+  kind: magnitude
+  raw_text: "Report shows missing_invariant_flags\u202F=\u202F0, null\u202F%\u202F\
+    \u2264\u202F5\u202F%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:07:50Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: high VIF values test passes
+  claim_id: c_62e03f59
+  context: "T135 unit test asserting each VIF\u202F\u2265\u202F5."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: entity_fact
+  raw_text: Test passes for high VIF values assertion.
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T17:08:13Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: multicollinearity assessment report shows high VIF values consistent
+    with constraint
+  claim_id: c_cd765b2c
+  context: T157 verification of VIF calculation on real data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multicollinearity_assessment_report_shows_high_VIF_values_co
+  kind: entity_fact
+  raw_text: "Report shows high VIF values consistent with braid_index \u2264 crossing_number\
+    \ constraint."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:08:56Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: checksum documentation references only data/checksums.json
+  claim_id: c_00c1d678
+  context: T159 update of checksums documentation after removing redundant manifests.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Checksum_documentation_references_only_data/checksums.json
+  kind: entity_fact
+  raw_text: Only data/checksums.json exists; documentation updated.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:09:36Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: old log files removed and new logs placed in docs/reproducibility/logs
+  claim_id: c_33b944b7
+  context: T160 log file location cleanup.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Old_log_files_removed_and_new_logs_placed_in_docs/reproducib
+  kind: entity_fact
+  raw_text: Old log files deleted; new logs exclusively in docs/reproducibility/logs/.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:10:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: reproducibility README accurately lists authoritative documents and navigation
+  claim_id: c_629cf084
+  context: T161 revision of reproducibility README.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_README_accurately_lists_authoritative_docume
+  kind: entity_fact
+  raw_text: README accurately reflects directory contents and provides clear navigation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:10:53Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: refactored analysis modules unit tests pass and provide coverage
+  claim_id: c_98ede1cf
+  context: T162 addition of unit tests for refactored logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Refactored_analysis_modules_unit_tests_pass_and_provide_cove
+  kind: entity_fact
+  raw_text: Tests pass and cover key functions in refactored analysis modules.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:11:46Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: strict mypy type checking passes with zero errors for refactored analysis
+    modules
+  claim_id: c_f04e8842
+  context: T163 verification of type hints after refactoring.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Strict_mypy_type_checking_passes_with_zero_errors_for_refact
+  kind: entity_fact
+  raw_text: mypy --strict passes with zero errors for refactored modules.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T17:12:26Z'

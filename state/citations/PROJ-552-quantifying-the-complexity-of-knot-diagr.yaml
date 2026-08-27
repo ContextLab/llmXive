@@ -952,3 +952,47 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1090/S0025-5718-98-00969-0
   verified_at: '2026-08-22T05:50:23.936110Z'
+- artifact_hash: b64b1189477fbcffe267cbfd65a1bdf28e788e5b6a56245f8a2ee5603a0fcd1f
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: document - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q49848
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q49848
+  verified_at: '2026-08-27T17:12:32.246447Z'
+- artifact_hash: b64b1189477fbcffe267cbfd65a1bdf28e788e5b6a56245f8a2ee5603a0fcd1f
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: allative case - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q655020
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q655020
+  verified_at: '2026-08-27T17:12:32.246447Z'
+- artifact_hash: b64b1189477fbcffe267cbfd65a1bdf28e788e5b6a56245f8a2ee5603a0fcd1f
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Readme.fi - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q131983664
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q131983664
+  verified_at: '2026-08-27T17:12:32.246447Z'
+- artifact_hash: b64b1189477fbcffe267cbfd65a1bdf28e788e5b6a56245f8a2ee5603a0fcd1f
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: United Kingdom - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q145
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q145
+  verified_at: '2026-08-27T17:12:32.246447Z'

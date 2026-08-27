@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory tree, `plan.md`, or any files under `projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/` were presented. The response only contains feature specifications and user stories, not the required project structure. The required artifact is missing.
+- `T014` (rejected 1x): No code, configuration, tests, or documentation were provided that demonstrate a sample‑size validation step (halting <50 epochs/condition, flagging <100 epochs/condition). Without any artifact to inspect, we cannot confirm the requirement was implemented. The task remains unfulfilled.
 
 ## Required change
 

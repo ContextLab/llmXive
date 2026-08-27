@@ -1,93 +1,54 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: Material Sample Schema
-description: >
-  Schema defining the structure of material sample data used as input
-  for uncertainty quantification models. This schema ensures consistency
-  across the OQMD dataset ingestion and preprocessing pipeline.
+description: Schema for material sample data used in uncertainty quantification pipelines.
 type: object
 required:
-  - material_id
-  - formula
-  - elements
-  - n_elements
-  - structure_type
-  - formation_energy
+  - sample_id
+  - composition
   - features
+  - target_value
+  - target_unit
 properties:
-  material_id:
+  sample_id:
     type: string
-    description: Unique identifier for the material sample (e.g., from OQMD)
-    pattern: "^[a-zA-Z0-9_-]+$"
-  formula:
-    type: string
-    description: Chemical formula of the material (e.g., "LiFePO4")
-    pattern: "^[A-Za-z0-9\\s\\(\\)\\[\\]\\{\\}\\-_\\.]+$"
-  elements:
-    type: array
-    description: List of unique chemical elements in the material
-    items:
-      type: string
-      pattern: "^[A-Z][a-z]?$"
-  n_elements:
-    type: integer
-    description: Number of unique elements in the material
-    minimum: 1
-  structure_type:
-    type: string
-    description: Crystal structure type or space group category
-    enum:
-      - cubic
-      - tetragonal
-      - orthorhombic
-      - hexagonal
-      - monoclinic
-      - triclinic
-      - rhombohedral
-      - unknown
-  formation_energy:
-    type: number
-    description: Formation energy per atom in eV/atom
-    minimum: -100.0
-    maximum: 100.0
-  features:
+    description: Unique identifier for the material sample.
+    minLength: 1
+  composition:
     type: object
-    description: >
-      Dictionary of numerical features extracted for the material.
-      Expected to contain exactly 20 features after PCA reduction.
-    additionalProperties:
+    description: Chemical composition of the material.
+    required:
+      - elements
+      - ratios
+    properties:
+      elements:
+        type: array
+        items:
+          type: string
+        description: List of chemical element symbols (e.g., ["Cs", "Pb", "I"]).
+      ratios:
+        type: array
+        items:
+          type: number
+        description: Stoichiometric ratios corresponding to elements.
+  features:
+    type: array
+    items:
       type: number
-    minProperties: 20
-    maxProperties: 20
+    description: Numerical feature vector for the sample (e.g., after PCA or feature engineering).
+    minItems: 1
+  target_value:
+    type: number
+    description: The ground truth target value (e.g., formation energy).
+  target_unit:
+    type: string
+    description: Unit of the target value (e.g., "eV/atom").
+  metadata:
+    type: object
+    description: Optional metadata about the sample source or processing.
+    properties:
+      source:
+        type: string
+      processed_date:
+        type: string
+        format: date-time
 additionalProperties: false
-examples:
-  - material_id: "oqmd-123456"
-    formula: "LiFePO4"
-    elements:
-      - Li
-      - Fe
-      - P
-      - O
-    n_elements: 4
-    structure_type: "orthorhombic"
-    formation_energy: -1.234
-    features:
-      feature_0: 0.12345
-      feature_1: -0.67890
-      feature_2: 0.00123
-      feature_3: 1.45678
-      feature_4: -0.23456
-      feature_5: 0.78901
-      feature_6: -1.12345
-      feature_7: 0.56789
-      feature_8: -0.34567
-      feature_9: 0.90123
-      feature_10: -0.45678
-      feature_11: 0.23456
-      feature_12: -0.89012
-      feature_13: 0.67890
-      feature_14: -0.12345
-      feature_15: 0.45678
-      feature_16: -0.78901
-      feature_17: 0.34567
-      feature_18: -0.56789
-      feature_19: 0.89012

@@ -1,3 +1,9 @@
+T004b:
+  c: false
+  h: 30e12019010a2a92f80d2aa0cb15a3a6905910c90ce771d971f06dd84ea8fc74
+  r: The required file `code/download/knot_info_loader.py` does not exist, so there
+    is no code to verify that it uses `retry_wrapper` or that the wrapper is invoked
+    on failure. The deliverable is missing.
 T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,3 +25,12 @@ T106:
     \ test is present that checks for non\u2011zero real values in hyperbolic volume\
     \ and crossing number. These missing artifacts mean the task\u2019s verification\
     \ requirement is not satisfied."
+T151:
+  c: false
+  h: 563c9521671f3de4ed235bb22204f3f09f16fb188e01b0ed1b2ba9cebac673cd
+  r: "The provided `code/data/validator.py` is truncated and does not contain a complete\
+    \ implementation of `flag_dataframe` (the logic stops at an unfinished line).\
+    \ Additionally, the required unit test `tests/unit/test_validator_flag_logic.py`\
+    \ is absent, so there is no evidence that core invariants are correctly excluded\
+    \ from `missing_invariant_flags`. The task\u2019s verification criteria are therefore\
+    \ unmet."

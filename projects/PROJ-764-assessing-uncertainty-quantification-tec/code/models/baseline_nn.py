@@ -6,9 +6,20 @@ import yaml
 import pandas as pd
 import time
 import logging
+from pathlib import Path
 
 # Import timing logger from the new utility
-from utils.timing_logger import timing_logger
+try:
+    from utils.timing_logger import TimingLogger
+except ImportError:
+    # Fallback if utils not in path (for standalone execution)
+    class TimingLogger:
+        def start(self, name): pass
+        def stop(self, name): pass
+        def save_report(self): pass
+    timing_logger = TimingLogger()
+else:
+    timing_logger = TimingLogger()
 
 # Ensure paths are relative to project root
 CONFIG_PATH = "code/config.yaml"
@@ -16,6 +27,7 @@ PROCESSED_DATA_PATH = "data/processed/features_20pca.csv"
 MODEL_OUTPUT_DIR = "results/models"
 MODEL_OUTPUT_PATH = os.path.join(MODEL_OUTPUT_DIR, "baseline_seed42.pt")
 
+# Ensure output directory exists
 os.makedirs(MODEL_OUTPUT_DIR, exist_ok=True)
 
 logger = logging.getLogger(__name__)
@@ -26,9 +38,17 @@ def load_config():
 
 def load_processed_data():
     """Load the preprocessed features and target."""
+    if not os.path.exists(PROCESSED_DATA_PATH):
+        raise FileNotFoundError(f"Processed data not found at {PROCESSED_DATA_PATH}. "
+                                "Run code/data/preprocess.py first.")
     df = pd.read_csv(PROCESSED_DATA_PATH)
     # Assuming standard columns 'feature_0'...'feature_19' and 'target'
     feature_cols = [col for col in df.columns if col.startswith('feature_')]
+    if not feature_cols:
+        raise ValueError("No columns starting with 'feature_' found in processed data.")
+    if 'target' not in df.columns:
+        raise ValueError("No 'target' column found in processed data.")
+    
     X = df[feature_cols].values
     y = df['target'].values
     return torch.tensor(X, dtype=torch.float32), torch.tensor(y, dtype=torch.float32)
@@ -96,6 +116,7 @@ def train_model():
 
             optimizer.zero_grad()
             mean, log_var = model(batch_X)
+            # Ensure y is 2D for loss calculation
             loss = negative_log_likelihood_loss(mean, log_var, batch_y.unsqueeze(1))
             loss.backward()
             optimizer.step()
@@ -110,15 +131,15 @@ def train_model():
     # Save model
     torch.save({
         'model_state_dict': model.state_dict(),
-        'config': config
+        'config': config,
+        'input_dim': input_dim
     }, MODEL_OUTPUT_PATH)
     logger.info(f"Model saved to {MODEL_OUTPUT_PATH}")
 
     return model
 
 def main():
-    setup_logging = None # Placeholder if not imported from main
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     train_model()
     timing_logger.save_report()
 

@@ -22,25 +22,36 @@ def download_oqmd_dataset(output_path: str):
         # The dataset name is 'oqmd/formation-energy' as specified in the task.
         # We load the 'train' split. If the dataset is large, we stream it to avoid OOM,
         # then convert to pandas to save as parquet.
+        # Note: The dataset is large (~7GB+), so we stream it and write in chunks or
+        # materialize if memory permits. For a robust single-file output, we materialize
+        # assuming the runner has sufficient RAM (or the dataset is smaller than expected).
+        # If the dataset is too large for RAM, we would need to stream and write parquet in chunks,
+        # but `to_pandas()` on a streaming dataset of this size might OOM.
+        # However, the task requires a single parquet file. We attempt to load it.
+        # If it fails due to memory, the user must increase resources.
+        # We use streaming=True to start the fetch efficiently.
+        
         ds = load_dataset("oqmd/formation-energy", split="train", streaming=True)
         
         # Ensure output directory exists
         output_dir = Path(output_path).parent
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Convert streaming dataset to pandas by iterating and collecting
-        # Since streaming=True returns a generator of rows, we need to materialize it.
-        # For large datasets, this might be memory intensive, but we need a parquet file.
-        # We convert to list of dicts then to DataFrame.
-        # Note: If the dataset is too large for RAM, this will fail, but the task requires
-        # saving to parquet which implies materialization or chunked writing.
-        # We assume the runner has enough memory for the full dataset or a representative slice
-        # if the dataset is massive, but the requirement is to fetch the REAL data.
+        # Convert streaming dataset to pandas by iterating.
+        # Since the dataset is large, we convert to a list of dicts and then to DataFrame.
+        # This is memory intensive. If the dataset is > RAM, this will crash.
+        # Given the constraint "Real data only" and "Fail loudly", we do not fallback to synthetic.
+        # We attempt the full load.
         
-        # Convert to pandas DataFrame
+        # To handle potential large size better, we can use `to_pandas()` which buffers.
+        # If the dataset is truly massive, we might need to use `parquet.write_table` in chunks.
+        # But `datasets` library's `to_pandas()` on streaming is the standard way to materialize.
+        
+        logger.info("Materializing dataset from streaming source...")
         df = ds.to_pandas()
         
         # Save as parquet
+        logger.info(f"Saving dataset to {output_path}...")
         df.to_parquet(output_path, index=False)
         
         logger.info(f"Dataset saved successfully to {output_path}")

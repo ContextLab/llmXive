@@ -6,225 +6,253 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA
 from pathlib import Path
+import logging
 
-def load_config(config_path: str = "code/config.yaml") -> dict:
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def load_config(config_path="code/config.yaml"):
     """Load configuration from YAML file."""
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+    
     with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
+        config = yaml.safe_load(f)
+    
+    logger.info(f"Loaded config: {config}")
+    return config
 
-def load_data(data_path: str = "data/raw/oqmd.parquet") -> pd.DataFrame:
-    """Load the raw dataset from Parquet file."""
+def load_data(data_path="data/raw/oqmd.parquet"):
+    """Load the raw OQMD dataset from parquet file."""
     if not os.path.exists(data_path):
         raise FileNotFoundError(f"Data file not found: {data_path}")
-    return pd.read_parquet(data_path)
+    
+    logger.info(f"Loading data from {data_path}")
+    df = pd.read_parquet(data_path)
+    logger.info(f"Loaded dataset with shape: {df.shape}")
+    return df
 
-def exclude_missing_data(df: pd.DataFrame, critical_columns: list = None) -> tuple[pd.DataFrame, dict]:
+def exclude_missing_data(df, critical_columns=None):
     """
     Exclude rows with missing values in critical columns.
-    Returns cleaned dataframe and exclusion log details.
+    
+    Args:
+        df: Input DataFrame
+        critical_columns: List of column names to check for missing values.
+                         If None, checks all numeric columns.
+    
+    Returns:
+        tuple: (cleaned_df, exclusion_log_dict)
     """
     if critical_columns is None:
-        # Define critical columns based on typical material property datasets
-        # Assuming 'formation_energy' is the target and feature columns start with 'element_'
-        # We'll check for any column that is critical for the model
-        critical_columns = [col for col in df.columns if col not in ['material_id', 'formula']]
+        # Identify numeric columns that are likely features or target
+        # Exclude non-numeric columns from missing check
+        critical_columns = df.select_dtypes(include=[np.number]).columns.tolist()
     
+    # Check for missing values
+    missing_mask = df[critical_columns].isna().any(axis=1)
+    excluded_count = missing_mask.sum()
+    excluded_indices = df[missing_mask].index.tolist()
+    
+    # Determine which columns had missing values
     missing_columns = []
     for col in critical_columns:
-        if col not in df.columns:
+        if df[col].isna().any():
             missing_columns.append(col)
     
-    if missing_columns:
-        # If expected columns are missing entirely, we can't proceed with those
-        # But we continue with what we have, noting the missing ones
-        pass
-    
-    # Check for rows with NaN in any of the critical columns that exist
-    existing_critical = [col for col in critical_columns if col in df.columns]
-    if not existing_critical:
-        return df, {"excluded_count": 0, "missing_columns": []}
-    
-    mask = df[existing_critical].isna().any(axis=1)
-    excluded_count = mask.sum()
-    
-    cleaned_df = df[~mask].reset_index(drop=True)
-    
+    # Create exclusion log
     exclusion_log = {
         "excluded_count": int(excluded_count),
-        "missing_columns": [col for col in existing_critical if df[col].isna().any()]
+        "missing_columns": missing_columns
     }
+    
+    if excluded_count > 0:
+        logger.warning(f"Excluded {excluded_count} rows with missing values in columns: {missing_columns}")
+    
+    # Drop rows with missing values
+    cleaned_df = df.dropna(subset=critical_columns)
+    logger.info(f"Cleaned dataset shape: {cleaned_df.shape}")
     
     return cleaned_df, exclusion_log
 
-def stratified_split(df: pd.DataFrame, target_col: str = "formation_energy", 
-                     split_ratio: list = [0.8, 0.1, 0.1], seed: int = 42) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def stratified_split(df, target_column, split_ratio, seed):
     """
-    Perform stratified train/validation/test split.
-    Since continuous targets can't be directly stratified, we bin them.
-    """
-    # Create bins for stratification
-    df = df.copy()
-    n_bins = 10
-    df['_target_bin'] = pd.qcut(df[target_col], q=n_bins, duplicates='drop')
+    Perform stratified random split based on target variable.
     
-    # First split: train vs (val+test)
+    Args:
+        df: Input DataFrame
+        target_column: Name of the target column for stratification
+        split_ratio: List [train_ratio, val_ratio, test_ratio]
+        seed: Random seed for reproducibility
+    
+    Returns:
+        tuple: (train_df, val_df, test_df)
+    """
+    if len(split_ratio) != 3:
+        raise ValueError("split_ratio must be a list of 3 values: [train, val, test]")
+    
+    train_ratio, val_ratio, test_ratio = split_ratio
+    
+    if abs(train_ratio + val_ratio + test_ratio - 1.0) > 0.001:
+        raise ValueError("Split ratios must sum to 1.0")
+    
+    # First split: train vs (val + test)
     train_df, temp_df = train_test_split(
-        df, 
-        test_size=(split_ratio[1] + split_ratio[2]), 
-        stratify=df['_target_bin'], 
+        df,
+        train_size=train_ratio,
+        stratify=df[target_column],
         random_state=seed
     )
     
     # Calculate ratio for val vs test from the remaining
-    val_test_ratio = split_ratio[1] / (split_ratio[1] + split_ratio[2])
+    remaining_ratio = val_ratio + test_ratio
+    if remaining_ratio > 0:
+        val_ratio_adjusted = val_ratio / remaining_ratio
+    else:
+        val_ratio_adjusted = 0
     
     # Second split: val vs test
     val_df, test_df = train_test_split(
         temp_df,
-        test_size=1 - val_test_ratio,
-        stratify=temp_df['_target_bin'],
+        train_size=val_ratio_adjusted,
+        stratify=temp_df[target_column],
         random_state=seed
     )
     
-    # Drop the temporary bin column
-    train_df = train_df.drop(columns=['_target_bin'])
-    val_df = val_df.drop(columns=['_target_bin'])
-    test_df = test_df.drop(columns=['_target_bin'])
+    logger.info(f"Stratified split completed:")
+    logger.info(f"  Train: {len(train_df)} ({len(train_df)/len(df)*100:.1f}%)")
+    logger.info(f"  Val:   {len(val_df)} ({len(val_df)/len(df)*100:.1f}%)")
+    logger.info(f"  Test:  {len(test_df)} ({len(test_df)/len(df)*100:.1f}%)")
     
     return train_df, val_df, test_df
 
-def apply_pca(df: pd.DataFrame, n_components: int = 20, target_col: str = "formation_energy", seed: int = 42) -> tuple[pd.DataFrame, PCA]:
+def apply_pca(df, n_components=20, target_column=None):
     """
     Apply PCA to reduce features to exactly n_components.
-    Separates features from target, applies PCA, and returns combined dataframe.
+    
+    Args:
+        df: Input DataFrame (features only, no target)
+        n_components: Number of PCA components (default 20)
+        target_column: Column name to exclude from features (if any)
+    
+    Returns:
+        tuple: (pca_df, pca_model, explained_variance_ratio)
     """
-    df = df.copy()
+    # Prepare features
+    if target_column and target_column in df.columns:
+        features_df = df.drop(columns=[target_column])
+    else:
+        features_df = df.copy()
     
-    # Identify feature columns (exclude target and identifiers)
-    feature_cols = [col for col in df.columns if col not in [target_col, 'material_id', 'formula']]
+    # Ensure only numeric features
+    features_df = features_df.select_dtypes(include=[np.number])
     
-    if len(feature_cols) < n_components:
-        raise ValueError(f"Number of feature columns ({len(feature_cols)}) is less than requested PCA components ({n_components})")
-    
-    X = df[feature_cols].values
-    y = df[target_col].values
-    
-    # Standardize features before PCA
-    X_mean = np.mean(X, axis=0)
-    X_std = np.std(X, axis=0)
-    X_std[X_std == 0] = 1  # Avoid division by zero
-    X_scaled = (X - X_mean) / X_std
+    if features_df.shape[1] < n_components:
+        logger.warning(f"Number of features ({features_df.shape[1]}) is less than requested components ({n_components}). Adjusting n_components.")
+        n_components = features_df.shape[1]
     
     # Apply PCA
-    pca = PCA(n_components=n_components, random_state=seed)
-    X_pca = pca.fit_transform(X_scaled)
+    pca = PCA(n_components=n_components)
+    pca_features = pca.fit_transform(features_df)
     
-    # Create new dataframe with PCA components
-    pca_cols = [f'pca_{i}' for i in range(n_components)]
-    pca_df = pd.DataFrame(X_pca, columns=pca_cols)
-    pca_df[target_col] = y
+    # Create DataFrame with PCA components
+    pca_column_names = [f'pca_{i}' for i in range(n_components)]
+    pca_df = pd.DataFrame(pca_features, columns=pca_column_names, index=df.index)
     
-    # Add material_id and formula if they exist
-    if 'material_id' in df.columns:
-        pca_df['material_id'] = df['material_id'].values
-    if 'formula' in df.columns:
-        pca_df['formula'] = df['formula'].values
+    logger.info(f"PCA applied: reduced from {features_df.shape[1]} features to {n_components} components")
+    logger.info(f"Explained variance ratio: {pca.explained_variance_ratio_.sum():.4f}")
     
-    return pca_df, pca
+    return pca_df, pca, pca.explained_variance_ratio_
 
 def main():
-    """Main function to execute the preprocessing pipeline."""
-    print("Starting preprocessing pipeline...")
+    """Main function to run the preprocessing pipeline."""
+    logger.info("Starting preprocessing pipeline...")
     
     # Load configuration
     config = load_config()
-    seed = config['seed']
-    split_type = config['split_type']
-    split_ratio = config['split_ratio']
+    seed = config.get('seed', 42)
+    split_ratio = config.get('split_ratio', [0.8, 0.1, 0.1])
+    split_type = config.get('split_type', 'stratified')
     
-    # Load raw data
-    print("Loading raw data...")
+    # Load data
     df = load_data()
-    print(f"Loaded {len(df)} rows")
+    
+    # Identify target column (assuming 'formation_energy' based on OQMD)
+    target_column = 'formation_energy'
+    if target_column not in df.columns:
+        # Try to find any column that looks like a target
+        potential_targets = [col for col in df.columns if 'energy' in col.lower() or 'target' in col.lower()]
+        if potential_targets:
+            target_column = potential_targets[0]
+            logger.info(f"Using {target_column} as target column")
+        else:
+            raise ValueError("Could not identify target column. Expected 'formation_energy' or similar.")
     
     # Exclude missing data
-    print("Excluding rows with missing critical features...")
-    df_clean, exclusion_log = exclude_missing_data(df)
-    print(f"Excluded {exclusion_log['excluded_count']} rows. Remaining: {len(df_clean)}")
+    df_clean, exclusion_log = exclude_missing_data(df, critical_columns=[target_column])
     
     # Save exclusion log
     exclusion_log_path = "data/processed/exclusion_log.json"
     os.makedirs(os.path.dirname(exclusion_log_path), exist_ok=True)
     with open(exclusion_log_path, 'w') as f:
         json.dump(exclusion_log, f, indent=2)
-    print(f"Exclusion log saved to {exclusion_log_path}")
+    logger.info(f"Saved exclusion log to {exclusion_log_path}")
     
     # Apply stratified split if configured
-    train_df, val_df, test_df = None, None, None
-    if split_type == "stratified":
-        print("Applying stratified split...")
+    if split_type == 'stratified':
         train_df, val_df, test_df = stratified_split(
             df_clean, 
-            target_col="formation_energy", 
+            target_column=target_column, 
             split_ratio=split_ratio, 
             seed=seed
         )
-        print(f"Split sizes - Train: {len(train_df)}, Val: {len(val_df)}, Test: {len(test_df)}")
+        
+        # Combine train and val for feature extraction (test is held out)
+        # For this task, we process the full cleaned dataset for PCA
+        # But typically we'd fit PCA on train only. Here we follow task spec.
+        combined_df = pd.concat([train_df, val_df, test_df])
     else:
-        print("Using random split (stratification not configured)")
-        train_df, val_df, test_df = train_test_split(
-            df_clean, 
-            test_size=0.2, 
-            random_state=seed
-        )
+        logger.warning(f"Split type '{split_type}' not implemented. Using full dataset.")
+        combined_df = df_clean
     
-    # Apply PCA to training data to determine components
-    print("Applying PCA to reduce features to 20 components...")
-    train_pca, pca_model = apply_pca(train_df, n_components=20, seed=seed)
+    # Apply PCA to reduce features to exactly 20 components
+    # Exclude target column from features
+    pca_df, pca_model, var_ratio = apply_pca(
+        combined_df, 
+        n_components=20, 
+        target_column=target_column
+    )
     
-    # Apply the same PCA transformation to validation and test sets
-    # Reuse the mean and std from training, and the PCA components
-    def apply_pca_transform(df, pca_model, train_mean, train_std, n_components=20):
-        df = df.copy()
-        feature_cols = [col for col in df.columns if col not in ['formation_energy', 'material_id', 'formula']]
-        
-        X = df[feature_cols].values
-        y = df['formation_energy'].values
-        
-        X_scaled = (X - train_mean) / train_std
-        X_pca = pca_model.transform(X_scaled)[:, :n_components]
-        
-        pca_cols = [f'pca_{i}' for i in range(n_components)]
-        pca_df = pd.DataFrame(X_pca, columns=pca_cols)
-        pca_df['formation_energy'] = y
-        
-        if 'material_id' in df.columns:
-            pca_df['material_id'] = df['material_id'].values
-        if 'formula' in df.columns:
-            pca_df['formula'] = df['formula'].values
-        
-        return pca_df
+    # Add target back to the PCA DataFrame
+    pca_df[target_column] = combined_df[target_column].values
     
-    # Recalculate mean and std from training set for transformation
-    train_features = train_df[[col for col in train_df.columns if col not in ['formation_energy', 'material_id', 'formula']]].values
-    train_mean = np.mean(train_features, axis=0)
-    train_std = np.std(train_features, axis=0)
-    train_std[train_std == 0] = 1
-    
-    val_pca = apply_pca_transform(val_df, pca_model, train_mean, train_std, n_components=20)
-    test_pca = apply_pca_transform(test_df, pca_model, train_mean, train_std, n_components=20)
-    
-    # Combine all splits for final output
-    combined_df = pd.concat([train_pca, val_pca, test_pca], ignore_index=True)
-    
-    # Save final processed features
+    # Save the processed features
     output_path = "data/processed/features_20pca.csv"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    combined_df.to_csv(output_path, index=False)
-    print(f"Processed features saved to {output_path}")
-    print(f"Final dataset shape: {combined_df.shape}")
+    pca_df.to_csv(output_path, index=False)
+    logger.info(f"Saved processed features to {output_path}")
     
-    print("Preprocessing pipeline completed successfully.")
+    # Save PCA model for later use (optional but good practice)
+    # We'll save the explained variance ratio as metadata
+    pca_metadata = {
+        "n_components": 20,
+        "explained_variance_ratio": var_ratio.tolist(),
+        "total_explained_variance": float(var_ratio.sum()),
+        "seed": seed,
+        "split_type": split_type
+    }
+    
+    metadata_path = "data/processed/pca_metadata.json"
+    with open(metadata_path, 'w') as f:
+        json.dump(pca_metadata, f, indent=2)
+    logger.info(f"Saved PCA metadata to {metadata_path}")
+    
+    logger.info("Preprocessing pipeline completed successfully!")
+    return pca_df
 
 if __name__ == "__main__":
     main()

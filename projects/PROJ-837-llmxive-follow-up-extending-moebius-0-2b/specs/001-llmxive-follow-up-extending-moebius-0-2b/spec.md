@@ -42,6 +42,6 @@ This document defines the requirements for extending the Moebius 0.2B model with
 - **Auditability**: CI vs Research mode must be clearly logged.
 
 ## 4. Success Metrics
-- **Efficiency**: 30% latency reduction on low-complexity masks.
+- **Efficiency**: [deferred] latency reduction on low-complexity masks.
 - **Quality**: FID delta $\le 0.5$.
 - **Robustness**: Gating head parameter count $\le 5M$.

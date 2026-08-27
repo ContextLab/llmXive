@@ -131,3 +131,157 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-06T00:53:34Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: PCA reduces features to 20 components
+  claim_id: c_fdbce9cf
+  context: Apply a stratified random split (train/validation/test) based on the target
+    variable if split_type is stratified, Apply PCA to reduce features to exactly
+    20 components, Exclude rows with missing critical features
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply PCA to reduce features to exactly 20 components
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:12:57Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: MC Dropout runs 30 stochastic forward passes
+  claim_id: c_d41eca91
+  context: 'Implement code/models/mc_dropout.py: Enable dropout (p=0.2), run 30 stochastic
+    forward passes. Output artifact: results/models/mc_dropout_model.pt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 30 stochastic forward passes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:13:44Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Pipeline enforces 5-hour limit
+  claim_id: c_dadf913b
+  context: Implement global timeout wrapper in code/main.py to enforce 5-hour pipeline
+    limit, exiting with code 1 on timeout.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce 5-hour pipeline limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:14:54Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Pipeline runs 3 times with seeds 42, 43, 44
+  claim_id: c_8e9c9d1e
+  context: Run the full pipeline (data load -> train -> eval) exactly 3 times with
+    seeds 42, 43, 44 and aggregate the resulting ECE scores for each method into a
+    temporary file results/ece_scores_by_seed.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the full pipeline exactly 3 times with seeds 42, 43, 44
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:15:19Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: ECE CV threshold is 0.05
+  claim_id: c_c7f8dc95
+  context: "MUST output results/robustness_report.json containing the CV value and\
+    \ a boolean pass (true if CV \u2264 0.05)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ECE_CV_threshold_is_0.05
+  kind: magnitude
+  raw_text: Coefficient of Variation (CV) of ECE scores must be less than or equal
+    to 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:15:42Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Baseline FFNN has <= 10000 parameters
+  claim_id: c_3c329da6
+  context: "Implement code/models/baseline_nn.py: 2 hidden layers, \u226410k params,\
+    \ heteroscedastic output head."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_FFNN_has_%3C=_10000_parameters
+  kind: magnitude
+  raw_text: Baseline FFNN has less than or equal to 10k parameters
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:16:07Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Default seed is 42
+  claim_id: c_00fdc183
+  context: 'Implement code/config.yaml with the following exact keys and values: seed
+    (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string, MUST
+    be stratified), and timeout_hours (float, 5.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default seed is 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:16:31Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Split ratio is 0.8, 0.1, 0.1
+  claim_id: c_245eca81
+  context: 'Implement code/config.yaml with the following exact keys and values: seed
+    (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string, MUST
+    be stratified), and timeout_hours (float, 5.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Split ratio is [0.8, 0.1, 0.1]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:17:00Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Timeout hours is 5.0
+  claim_id: c_9571db83
+  context: 'Implement code/config.yaml with the following exact keys and values: seed
+    (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string, MUST
+    be stratified), and timeout_hours (float, 5.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Timeout hours is 5.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:17:24Z'
