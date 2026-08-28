@@ -1,0 +1,48 @@
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided information contains no code, test results, or output showing that\
+    \ the `fit_regression` function now computes and reports the Pearson correlation\
+    \ coefficient between flexibility and creativity. The required artifact\u2014\
+    a modified `fit_regression` implementation (or its execution log) that produces\
+    \ the numeric r\u2011value (and optionally its p\u2011value) is missing. The next\
+    \ implementer must add the correlation calculation to `fit_regression` and supply\
+    \ evidence (e.g., code diff, console output, or saved results) that it runs without\
+    \ error and reports the coefficient."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `loader.py` file containing the required `validate_and_filter_subjects`\
+    \ function is provided; without the actual code we cannot confirm the function\
+    \ exists, is non\u2011empty, logs warnings for missing scans, and excludes subjects\
+    \ with missing behavioral scores as specified. The implementer must supply the\
+    \ updated `loader.py` with the new function and demonstrate its behavior."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code defining `filter_by_motion` (or any related module) is present, nor\
+    \ any log output demonstrating that participants exceeding the FD or volume\u2011\
+    threshold criteria are excluded. The required function and its logging behavior\
+    \ are missing, so the task is not satisfied."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test suite, or documentation was provided showing that the `log_exclusion`
+    function is invoked with the exact standardized reason codes (`MISSING_SCAN`,
+    `MISSING_SCORE`, `HIGH_MOTION`) for every exclusion decision. The required artifact
+    (implementation and/or verification evidence) is missing.
+T022:
+  c: false
+  h: 8a5365336a0789099f2cf6794fecf13f1a59fd648d9fe54b1a689eaa2e04ece4
+  r: The provided `code/viz/plots.py` does not contain a complete implementation of
+    `plot_flexibility_vs_creativity` (the file is truncated and only shows a `compress_image`
+    helper). Moreover, the required output image `docs/outputs/flexibility_vs_creativity.png`
+    is absent. Both the function implementation and the saved plot are missing, so
+    the task is not satisfied.
+T023:
+  c: false
+  h: 55ed6df17f64daf494f9d539327d81f6c8a9f38e002474d1054353a8809497e3
+  r: The provided `plots.py` does not contain a complete implementation of `plot_residuals`
+    (the file is truncated and the function is absent), and the required output images
+    `docs/outputs/model_residuals.png` and `docs/outputs/model_qq.png` are not present.
+    The task therefore remains unfinished.

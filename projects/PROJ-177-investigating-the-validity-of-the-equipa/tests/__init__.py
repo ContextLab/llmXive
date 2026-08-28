@@ -1,1 +1,1 @@
-# Test package for the granular system analysis pipeline.
+# Test package for unit and integration tests.

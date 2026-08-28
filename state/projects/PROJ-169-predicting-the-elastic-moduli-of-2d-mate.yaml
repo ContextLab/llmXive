@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T20:19:42.214324Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-169-predicting-the-elastic-moduli-of-2d-mate
-last_run_id: 1f4e3069-4703-4a9c-b42f-812ec278f629
+last_run_id: 67f57b2b-8025-41ce-aaeb-7de34afd67aa
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/specs/001-predicting-the-elastic-moduli-of-2d-mate
 title: Predicting the Elastic Moduli of 2D Materials from First-Principles Calculations
-updated_at: '2026-07-27T01:13:32.620253Z'
+updated_at: '2026-08-28T09:32:11.460463Z'

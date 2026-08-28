@@ -1,4 +1,4 @@
-"""Training logger with mandatory surrogate model disclaimers."""
+"""Training logger module with scientific integrity disclaimers."""
 from __future__ import annotations
 
 import argparse
@@ -6,176 +6,170 @@ import json
 import logging
 import os
 import time
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Optional, Dict, Any
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-# Import existing project utilities
 from utils.config import get_config
-from utils.logger import get_logger, log_operation, LogEntry
-
-# ============================================================================
-# SCIENTIFIC INTEGRITY DISCLAIMER (T046 Requirement)
-# ============================================================================
-SURROGATE_DISCLAIMER = (
-    "These results are derived from a machine learning surrogate model "
-    "interpolating pre-computed DFT data. They do not represent "
-    "first-principles calculations or solutions to the Schrödinger equation."
-)
-
-FEYNMAN_QUOTE = (
-    "The first principle is that you must not fool yourself — and you are "
-    "the easiest person to fool."
-)
-
-SCIENTIFIC_INTEGRITY_STATEMENT = (
-    f"Scientific Integrity Statement:\n"
-    f"{FEYNMAN_QUOTE}\n\n"
-    f"{SURROGATE_DISCLAIMER}"
-)
-# ============================================================================
+from utils.logger import log_operation
+from utils.disclaimer_template import DISCLAIMER_TEXT, FEYNMAN_QUOTE
 
 @dataclass
 class TrainingLogEntry:
-    """Structured log entry for training events."""
+    """Entry for a single training log record."""
+    epoch: int
+    loss: float
+    metrics: Dict[str, float]
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-    epoch: Optional[int] = None
-    phase: Optional[str] = None  # 'train', 'val', 'test'
-    loss: Optional[float] = None
-    metrics: Dict[str, float] = field(default_factory=dict)
-    memory_peak_mb: Optional[float] = None
-    batch_size: Optional[int] = None
-    learning_rate: Optional[float] = None
-    # T046: Add disclaimer field to metadata
-    disclaimer: str = SURROGATE_DISCLAIMER
+    disclaimer: str = field(default_factory=lambda: DISCLAIMER_TEXT + "\n\n" + FEYNMAN_QUOTE)
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 @dataclass
 class TrainingLogMetadata:
-    """Metadata for the training run, including the mandatory disclaimer."""
+    """Metadata for the training log file."""
     run_id: str
     model_architecture: str
     dataset_path: str
     split_path: str
     hyperparameters: Dict[str, Any]
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-    # T046: Mandatory disclaimer in metadata
-    disclaimer: str = SURROGATE_DISCLAIMER
-    scientific_integrity: str = SCIENTIFIC_INTEGRITY_STATEMENT
+    start_time: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    disclaimer: str = field(default_factory=lambda: DISCLAIMER_TEXT + "\n\n" + FEYNMAN_QUOTE)
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 class TrainingLogger:
-    """Logger that writes training metrics to JSON with disclaimers."""
+    """Logger that writes training logs with mandatory disclaimers."""
 
-    def __init__(self, output_log_path: str):
-        self.output_log_path = output_log_path
-        self.logger = get_logger("training")
-        self.entries: list[TrainingLogEntry] = []
-        self.metadata: Optional[TrainingLogMetadata] = None
-
-    def set_metadata(self, metadata: TrainingLogMetadata) -> None:
+    def __init__(self, output_path: str, metadata: TrainingLogMetadata):
+        self.output_path = Path(output_path)
         self.metadata = metadata
+        self.entries: List[TrainingLogEntry] = []
+        self.output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    def log_epoch(self, epoch: int, phase: str, loss: float, metrics: Dict[str, float],
-                  memory_peak_mb: float, batch_size: int, learning_rate: float) -> None:
+    def log_epoch(self, epoch: int, loss: float, metrics: Dict[str, float]):
+        """Log a single epoch's results."""
         entry = TrainingLogEntry(
             epoch=epoch,
-            phase=phase,
             loss=loss,
-            metrics=metrics,
-            memory_peak_mb=memory_peak_mb,
-            batch_size=batch_size,
-            learning_rate=learning_rate
+            metrics=metrics
         )
         self.entries.append(entry)
-        # Log to stdout/stderr as well
-        self.logger.log("training_epoch", entry=entry.to_json())
 
-    def save(self) -> None:
-        """Save all logs and metadata to the output file."""
-        if not self.metadata:
-            raise RuntimeError("Metadata not set. Call set_metadata() before save().")
-
+    def save(self):
+        """Save all logs to the output file."""
         log_data = {
-            "metadata": json.loads(self.metadata.to_json()),
-            "entries": [json.loads(e.to_json()) for e in self.entries]
+            "metadata": asdict(self.metadata),
+            "epochs": [asdict(e) for e in self.entries]
         }
-
-        os.makedirs(os.path.dirname(self.output_log_path), exist_ok=True)
-        with open(self.output_log_path, 'w', encoding='utf-8') as f:
+        with open(self.output_path, "w") as f:
             json.dump(log_data, f, indent=2)
 
-        log_operation("training_logs_saved", path=self.output_log_path)
-
+@log_operation
 def run_training_with_logging(
     epochs: int,
     model: Any,
     train_loader: Any,
     val_loader: Any,
+    optimizer: Any,
+    device: str,
     output_log_path: str,
-    device: str = "cpu"
-) -> TrainingLogger:
-    """
-    Wrapper to run a mock training loop with logging.
-    In a real implementation, this would call the actual training loop.
-    For T046, we ensure the logger structure includes the disclaimer.
-    """
-    logger = TrainingLogger(output_log_path)
-
-    # Mock metadata for demonstration of the disclaimer injection
+    hyperparameters: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Run training with logging and mandatory disclaimers."""
     config = get_config()
+    run_id = f"run_{int(time.time())}"
     metadata = TrainingLogMetadata(
-        run_id="mock_run_t046",
+        run_id=run_id,
         model_architecture="LightweightGNN",
-        dataset_path=str(config.paths.get("data_processed", "data/processed")),
+        dataset_path=str(config.paths.get("processed_data", "data/processed")),
         split_path=str(config.paths.get("split_indices", "data/processed/split_indices.json")),
-        hyperparameters={"epochs": epochs, "device": device}
+        hyperparameters=hyperparameters
     )
-    logger.set_metadata(metadata)
+    logger = TrainingLogger(output_log_path, metadata)
 
-    # Simulate a few epochs to demonstrate logging structure
-    for epoch in range(min(epochs, 3)):
-        # Mock metrics
-        mock_loss = 0.5 * (0.9 ** epoch)
-        mock_metrics = {"mape": mock_loss * 100, "rmse": mock_loss * 5}
-        logger.log_epoch(
-            epoch=epoch + 1,
-            phase="train",
-            loss=mock_loss,
-            metrics=mock_metrics,
-            memory_peak_mb=100.0,
-            batch_size=32,
-            learning_rate=0.001
-        )
+    best_val_loss = float("inf")
+    patience_counter = 0
+    patience = hyperparameters.get("patience", 5)
+
+    for epoch in range(epochs):
+        start = time.time()
+        model.train()
+        total_loss = 0.0
+        for batch in train_loader:
+            optimizer.zero_grad()
+            # Forward pass
+            out = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+            loss = model.criterion(out, batch.y)
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
+
+        avg_loss = total_loss / len(train_loader)
+
+        # Validation
+        model.eval()
+        val_loss = 0.0
+        with torch.no_grad():
+            for batch in val_loader:
+                out = model(batch.x, batch.edge_index, batch.edge_attr, batch.batch)
+                loss = model.criterion(out, batch.y)
+                val_loss += loss.item()
+        val_loss /= len(val_loader)
+
+        metrics = {"val_loss": val_loss, "train_loss": avg_loss}
+        logger.log_epoch(epoch, avg_loss, metrics)
+
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            patience_counter = 0
+        else:
+            patience_counter += 1
+
+        if patience_counter >= patience:
+            break
 
     logger.save()
-    return logger
+    return {"best_val_loss": best_val_loss, "epochs_run": epoch + 1}
 
 def main():
-    parser = argparse.ArgumentParser(description="Training Logger with Disclaimers")
-    parser.add_argument("--epochs", type=int, default=10, help="Number of epochs")
-    parser.add_argument("--output-log", type=str, default="data/results/training_logs.json",
-                        help="Output path for training logs")
+    """CLI entry point for training logger."""
+    parser = argparse.ArgumentParser(description="Train GNN with logging")
+    parser.add_argument("--epochs", type=int, default=100, help="Number of epochs")
+    parser.add_argument("--patience", type=int, default=5, help="Early stopping patience")
+    parser.add_argument("--config", type=str, help="Path to config file")
+    parser.add_argument("--output-log", type=str, default="data/results/training_logs.json", help="Output log path")
+    parser.add_argument("--output-model", type=str, default="data/processed/model_v1.pt", help="Output model path")
+    parser.add_argument("--output-predictions", type=str, default="data/results/predictions.json", help="Output predictions path")
+    parser.add_argument("--device", type=str, default="cpu", help="Device to use")
+
     args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO)
-    logger = run_training_with_logging(
-        epochs=args.epochs,
-        model=None,  # Mock model
-        train_loader=None,
-        val_loader=None,
-        output_log_path=args.output_log
+    # Mock training for demonstration if real data not available
+    # In a real run, this would load data and train the model
+    hyperparameters = {
+        "epochs": args.epochs,
+        "patience": args.patience,
+        "device": args.device
+    }
+
+    # NOTE: This is a placeholder for the actual training logic.
+    # The real training would load data, initialize model, and run the loop.
+    # The disclaimer is injected into the log file regardless.
+    run_training_with_logging(
+        epochs=min(args.epochs, 3),  # Limit for demo if no real data
+        model=None,  # Placeholder
+        train_loader=[],
+        val_loader=[],
+        optimizer=None,
+        device=args.device,
+        output_log_path=args.output_log,
+        hyperparameters=hyperparameters
     )
-    print(f"Training logs saved to {args.output_log}")
-    # Verify disclaimer is present
-    with open(args.output_log, 'r') as f:
-        data = json.load(f)
-        assert "disclaimer" in data["metadata"], "Disclaimer missing from metadata"
-        print("Disclaimer verified in output.")
+    print(f"Training logs written to {args.output_log}")
 
 if __name__ == "__main__":
     main()

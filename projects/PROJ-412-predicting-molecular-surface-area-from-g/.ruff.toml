@@ -1,65 +1,83 @@
 [lint]
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "N",   # pep8-naming
-    "RUF", # Ruff-specific rules
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # Pyflakes
+  "I",   # isort
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "UP",  # pyupgrade
+  "N",   # pep8-naming
+  "RUF", # Ruff-specific rules
 ]
 ignore = [
-    "E501", # Line too long (handled by Black)
-    "B008", # Do not perform function call in argument defaults (common in ML/data pipelines)
-    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar` (dataclasses handle this)
+  "E501", # Line too long (handled by Black)
+  "B008", # Do not perform function call in argument defaults (common in dataclasses)
+  "C408", # Unnecessary dict call (sometimes used for clarity)
+  "N806", # Variable in function should be lowercase (strictness adjustment for scientific vars)
 ]
 
-# Allow autofix for all enabled rules.
+# Allow autofix for all enabled rules (if `--fix` is provided).
 fixable = ["ALL"]
 unfixable = []
 
-# Exclude a few files/directories that are generated or external.
+# Exclude a few files from linting.
 exclude = [
-    ".git",
-    "__pycache__",
-    "data/raw",
-    "data/processed",
-    "results",
-    "logs",
-    "docs",
-    "build",
-    "dist",
-    "*.egg-info",
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+  "data/raw", # Large data files
 ]
 
-# Assume Python 3.10 (compatible with the project's dependencies).
-target-version = "py310"
-
-# Per-file ignores (optional, for specific generated files if needed).
+# Per-file ignores (optional).
 per-file-ignores = {}
 
-[lint.isort]
-known-first-party = ["code", "data_models", "eval", "models"]
-force-single-line = false
-lines-after-imports = 2
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[lint.flake8-bugbear]
-extend-immutable-calls = [
-    "code.config.get_project_root",
-    "code.utils.config.get_project_root",
-    "code.utils.logging.get_logger",
-]
+# Target version (matching project Python version).
+target-version = "py310"
+
+[lint.mccabe]
+# Flag functions with high complexity.
+max-complexity = 12
 
 [lint.pydocstyle]
+# Use Google-style docstrings.
 convention = "google"
 
+[lint.isort]
+# Force single imports per line.
+force-single-line = true
+known-first-party = ["code"]
+known-local-folder = ["tests"]
+split-on-trailing-comma = true
+
 [format]
-# Use Black-compatible formatting.
+# Enable preview style formatting.
+preview = true
+# Quote style (matching Black).
 quote-style = "double"
+# Indent style (matching Black).
 indent-style = "space"
+# Skip magic trailing comma.
 skip-magic-trailing-comma = false
-line-ending = "auto"
-docstring-code-format = false
+# Line width (matching Black default).
+line-width = 88

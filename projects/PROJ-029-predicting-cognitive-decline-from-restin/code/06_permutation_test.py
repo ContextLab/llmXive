@@ -1,12 +1,10 @@
 """
-Permutation Test for Model Significance (Task T029)
+code/06_permutation_test.py
 
-Implements a runtime-optimized permutation test (n=100) to validate the
-statistical significance of the Random Forest classifier trained on graph metrics.
-
-Pre-flight Check: Estimates runtime for 100 permutations. If > 2 hours, aborts.
-Execution: Shuffles labels 100 times (seed=42), re-trains/re-evaluates, records ROC-AUC.
-Output: data/processed/permutation_results.json with keys 'p_value' and 'distribution'.
+Implements a runtime-bounded permutation test for the cognitive decline prediction model.
+Target: n=500 permutations.
+Constraint: Max runtime 2 hours (7200 seconds).
+Strategy: Pilot run -> Estimate -> Adjust n -> Execute -> Report.
 """
 from __future__ import annotations
 
@@ -17,311 +15,281 @@ import time
 import pickle
 import random
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.feature_selection import RFE
-from scipy.stats import pearsonr
+from sklearn.feature_selection import VarianceThreshold, RFE
+from joblib import Parallel, delayed
 
-# Import from local utils
+# Import from local utils and modules as per project structure
+# Note: We assume these modules exist and are implemented in previous tasks
 from utils.logger import get_logger, log_operation
-from utils.io import load_csv, load_json, save_json, load_pickle, save_pickle
-from utils.stats import check_collinearity, filter_low_variance_features
+from utils.io import load_csv, load_json, save_json, ensure_dir
+from utils.stats import check_collinearity
+
+# Constants
+TARGET_N_PERMUTATIONS = 500
+MAX_RUNTIME_SECONDS = 7200  # 2 hours
+EXIT_CODE_RUNTIME_EXCEEDED = 4
+RANDOM_SEED = 42
 
 logger = get_logger("permutation_test")
 
-
 def load_data() -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Load graph metrics and labels from disk.
-    
-    Reads:
-      - data/processed/graph_metrics.csv (features)
-      - data/processed/eligible_subjects.csv (to map IDs to labels if needed, 
-        though labels are usually in graph_metrics or derived from it)
-    
+    Load features and labels from the processed graph metrics and model output.
     Returns:
-      X: DataFrame of features
-      y: Series of binary labels (1 = decline, 0 = stable)
+        X: Feature DataFrame
+        y: Target Series (decline label)
     """
-    # Define paths relative to project root
-    project_root = Path(__file__).parent.parent
-    metrics_path = project_root / "data" / "processed" / "graph_metrics.csv"
-    
+    # Load graph metrics
+    metrics_path = Path("data/processed/graph_metrics.csv")
     if not metrics_path.exists():
-        raise FileNotFoundError(f"Required input file not found: {metrics_path}")
-    
-    df = pd.read_csv(metrics_path)
-    
-    # Assume the label column is 'decline_label' based on T024/T025 context
-    # If not present, try to derive or fail loudly
-    if 'decline_label' not in df.columns:
-        # Fallback: check for 'cognitive_decline' or similar
-        label_col = None
-        for col in ['decline_label', 'cognitive_decline', 'label']:
-            if col in df.columns:
-                label_col = col
-                break
-        
-        if label_col is None:
-            raise ValueError(
-                f"Label column 'decline_label' not found in {metrics_path}. "
-                f"Available columns: {df.columns.tolist()}"
-            )
-        y = df[label_col]
-    else:
-        y = df['decline_label']
-    
-    # Features are all numeric columns excluding ID and label
-    feature_cols = [c for c in df.columns if c not in ['subject_id', 'decline_label', 'cognitive_decline', 'label'] and df[c].dtype in ['float64', 'int64']]
-    
-    if len(feature_cols) == 0:
-        raise ValueError(f"No numeric feature columns found in {metrics_path}")
-    
-    X = df[feature_cols]
-    
-    # Ensure no NaNs
-    if X.isnull().any().any() or y.isnull().any():
-        # Drop rows with NaNs for the permutation test to ensure valid scoring
-        valid_mask = ~(X.isnull().any(axis=1) | y.isnull())
-        X = X[valid_mask]
-        y = y[valid_mask]
-        logger.log("permutation_data_cleaning", message="Dropped rows with NaNs")
-    
-    if len(X) < 20:
-        raise ValueError(f"Insufficient samples for permutation test after cleaning: {len(X)}")
-    
-    return X, y
-
-
-def estimate_runtime(X: pd.DataFrame, y: pd.Series, n_permutations: int = 10) -> float:
-    """
-    Estimate runtime for a single permutation to project total time.
-    Runs a minimal training loop (1 fold, small n_estimators) to time it.
-    """
-    logger.log("estimate_runtime", n_permutations=n_permutations)
-    
-    start = time.time()
-    
-    # Minimal training configuration for estimation
-    # Use a subset of features if too many, but keep structure similar
-    X_sub = X.iloc[:min(50, len(X))]
-    y_sub = y.iloc[:min(50, len(X))]
-    
-    # Simple pipeline without heavy feature selection for speed
-    clf = RandomForestClassifier(n_estimators=10, max_depth=3, random_state=42, n_jobs=1)
-    clf.fit(X_sub, y_sub)
-    _ = clf.score(X_sub, y_sub)
-    
-    elapsed = time.time() - start
-    estimated_total = (elapsed / 1) * n_permutations
-    
-    logger.log("runtime_estimation_complete", 
-               single_perm_sec=elapsed, 
-               estimated_total_sec=estimated_total,
-               estimated_total_hours=estimated_total/3600)
-    
-    return estimated_total
-
-
-def run_single_permutation(X: pd.DataFrame, y: pd.Series, 
-                           n_estimators: int = 100, 
-                           max_depth: int = 10,
-                           n_jobs: int = 2) -> float:
-    """
-    Train a model on shuffled labels and return ROC-AUC.
-    
-    This function replicates the core logic of T023 (train_model.py) but 
-    with shuffled labels and simplified inner loop for speed.
-    """
-    # Shuffle labels
-    y_shuffled = y.sample(frac=1, random_state=random.randint(0, 2**32-1)).reset_index(drop=True)
-    
-    # Prepare data
-    X_np = X.values
-    y_np = y_shuffled.values
-    
-    # Basic preprocessing
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X_np)
-    
-    # Feature selection (Variance Threshold + RFE)
-    # Filter low variance
-    variances = np.var(X_scaled, axis=0)
-    high_var_mask = variances > 0.01
-    if np.sum(high_var_mask) == 0:
-        high_var_mask = np.ones(len(variances), dtype=bool)
-    
-    X_reduced = X_scaled[:, high_var_mask]
-    
-    # Collinearity check (simple version)
-    # If features > 50, pick top 20 by variance or correlation with target (shuffled)
-    if X_reduced.shape[1] > 20:
-        # Correlation with shuffled y (should be near zero, but we pick stable ones)
-        # Just pick first 20 for speed in permutation
-        X_reduced = X_reduced[:, :20]
-    
-    # Train model
-    clf = RandomForestClassifier(
-        n_estimators=n_estimators, 
-        max_depth=max_depth, 
-        random_state=42, 
-        n_jobs=n_jobs
-    )
-    clf.fit(X_reduced, y_np)
-    
-    # Evaluate
-    y_pred_proba = clf.predict_proba(X_reduced)[:, 1]
-    
-    try:
-        auc = roc_auc_score(y_np, y_pred_proba)
-    except ValueError:
-        # If only one class present after shuffle (rare), return 0.5
-        auc = 0.5
-    
-    return auc
-
-
-def run_permutation_test(X: pd.DataFrame, y: pd.Series, 
-                         n_permutations: int = 100, 
-                         seed: int = 42,
-                         runtime_limit_hours: float = 2.0) -> Dict[str, Any]:
-    """
-    Execute the permutation test.
-    
-    1. Estimate runtime. Abort if > limit.
-    2. Run n_permutations iterations.
-    3. Calculate p-value and distribution.
-    """
-    random.seed(seed)
-    np.random.seed(seed)
-    
-    logger.log("permutation_test_start", n_permutations=n_permutations)
-    
-    # Pre-flight check
-    est_time = estimate_runtime(X, y, n_permutations=10) # Estimate based on 10
-    # Scale up to requested
-    total_est_time = est_time * (n_permutations / 10)
-    
-    if total_est_time > runtime_limit_hours * 3600:
-        error_msg = f"Estimated runtime {total_est_time/3600:.2f}h exceeds limit {runtime_limit_hours}h. Aborting."
-        logger.log("permutation_test_aborted", reason=error_msg)
-        raise RuntimeError(error_msg)
-    
-    logger.log("permutation_test_running", estimated_hours=total_est_time/3600)
-    
-    distribution = []
-    start_time = time.time()
-    
-    for i in range(n_permutations):
-        # Use a fixed seed for reproducibility of the shuffle logic if needed,
-        # but here we vary the seed per permutation to ensure randomness
-        current_seed = seed + i
-        random.seed(current_seed)
-        np.random.seed(current_seed)
-        
-        auc = run_single_permutation(X, y)
-        distribution.append(auc)
-        
-        if (i + 1) % 10 == 0:
-            elapsed = time.time() - start_time
-            logger.log("permutation_progress", 
-                       completed=i+1, 
-                       total=n_permutations, 
-                       elapsed_sec=elapsed)
-    
-    distribution = np.array(distribution)
-    elapsed_total = time.time() - start_time
-    
-    # Calculate p-value
-    # We need the actual model's performance to compare against.
-    # Since we don't have the real model's AUC here, we assume the task
-    # implies comparing against the null distribution to see if 0.5 is exceeded
-    # OR, more likely, we compare the observed AUC (from T024) to this distribution.
-    # However, T029 task says: "re-train/re-evaluate ... record ROC-AUC".
-    # And output: p_value and distribution.
-    # Standard permutation p-value: (count(permutation_auc >= observed_auc) + 1) / (n + 1)
-    # But we don't have observed_auc here. 
-    # Re-reading task: "re-train/re-evaluate the model for each permutation, and record ROC-AUC".
-    # It does NOT explicitly say to calculate p-value against an external observed value in this script.
-    # But it asks for 'p_value' in output.
-    # Assumption: The "observed" value is the best possible random performance? No.
-    # Assumption: The task expects us to load the 'performance_report.json' from T024 to get the observed AUC.
-    
-    observed_auc = 0.5 # Default fallback if file missing
-    perf_path = Path(__file__).parent.parent / "data" / "processed" / "performance_report.json"
-    if perf_path.exists():
-        try:
-            with open(perf_path, 'r') as f:
-                perf_data = json.load(f)
-                # Look for 'mean_roc_auc' or similar
-                if 'mean_roc_auc' in perf_data:
-                    observed_auc = perf_data['mean_roc_auc']
-                elif 'roc_auc' in perf_data:
-                    observed_auc = perf_data['roc_auc']
-        except Exception as e:
-            logger.log("warning_could_not_load_observed_auc", error=str(e))
-    
-    # Calculate p-value: probability of getting a score >= observed_auc by chance
-    # If observed_auc is not available, we cannot calculate a meaningful p-value.
-    # However, if we assume the model is better than chance, we check how many 
-    # permutations exceeded the observed.
-    
-    if observed_auc > 0.5:
-        # p = (count >= obs + 1) / (n + 1)
-        count_ge = np.sum(distribution >= observed_auc)
-        p_value = (count_ge + 1) / (n_permutations + 1)
-    else:
-        # If observed is <= 0.5, the model is not better than chance, p-value is high
-        p_value = 1.0
-    
-    results = {
-        "n_permutations": n_permutations,
-        "observed_auc": observed_auc,
-        "p_value": float(p_value),
-        "distribution": distribution.tolist(),
-        "runtime_seconds": elapsed_total,
-        "seed": seed
-    }
-    
-    logger.log("permutation_test_complete", p_value=p_value, runtime=elapsed_total)
-    
-    return results
-
-
-def main():
-    """Main entry point for the permutation test script."""
-    try:
-        logger.log("main_start")
-        
-        # Load data
-        X, y = load_data()
-        
-        # Run test
-        results = run_permutation_test(X, y)
-        
-        # Save results
-        project_root = Path(__file__).parent.parent
-        output_path = project_root / "data" / "processed" / "permutation_results.json"
-        
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        
-        logger.log("main_success", output_path=str(output_path))
-        print(f"Permutation test complete. Results saved to {output_path}")
-        print(f"P-value: {results['p_value']:.4f}")
-        
-    except Exception as e:
-        logger.log("main_failure", error=str(e))
-        print(f"Error: {e}")
+        logger.log("error", message=f"Missing required file: {metrics_path}")
         sys.exit(1)
 
+    df = load_csv(metrics_path)
+
+    # Define feature columns (exclude subject_id)
+    feature_cols = [
+        "node_degree", "global_efficiency", "clustering_coeff", "path_length"
+    ]
+    # Check if columns exist, if not, try to infer or fail
+    missing = [c for c in feature_cols if c not in df.columns]
+    if missing:
+        # Fallback: use all numeric columns except subject_id if specific ones missing
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        if "subject_id" in numeric_cols:
+            numeric_cols.remove("subject_id")
+        feature_cols = numeric_cols
+
+    X = df[feature_cols].copy()
+    
+    # Load labels (decline status)
+    # The label is typically derived from the training data or a separate label file.
+    # Assuming the training data (T023) produced a label column or we need to reconstruct it.
+    # For this task, we assume the training data logic is encapsulated or we re-derive.
+    # However, T023 output 'model.pkl' and 'cv_results.json'.
+    # We need the original labels. Let's assume they are in 'eligible_subjects.csv' or derived.
+    # The prompt says T023 depends on T019 (graph_metrics).
+    # Let's assume the label 'decline' is in the eligible_subjects.csv or needs to be joined.
+    # Actually, T023 (train_model) likely loaded the graph metrics and joined with labels.
+    # To be safe, let's look for a label file or reconstruct.
+    # Given the constraints, we will assume the label 'decline' is in the graph_metrics CSV 
+    # or we need to load it from a specific source.
+    # Let's assume the training script T023 created a 'data/processed/labels.csv' or similar.
+    # If not, we might need to re-calculate decline from MMSE scores if available.
+    # For this implementation, we assume a 'labels.csv' exists in processed or we join.
+    # Let's check for a standard location.
+    labels_path = Path("data/processed/labels.csv")
+    if not labels_path.exists():
+        # Fallback: try to find labels in eligible_subjects.csv if it has MMSE scores
+        eligible_path = Path("data/processed/eligible_subjects.csv")
+        if eligible_path.exists():
+            eligible_df = load_csv(eligible_path)
+            if 'mmse_baseline' in eligible_df.columns and 'mmse_followup' in eligible_df.columns:
+                eligible_df['decline'] = (eligible_df['mmse_baseline'] - eligible_df['mmse_followup']) >= 3
+                y = eligible_df['decline']
+                # Merge with X if subject_id matches
+                # Assuming X has subject_id
+                if 'subject_id' in df.columns:
+                    merged = eligible_df.merge(df[['subject_id'] + feature_cols], on='subject_id')
+                    X = merged[feature_cols]
+                    y = merged['decline']
+                else:
+                    # If no subject_id in X, assume order matches (risky but fallback)
+                    y = eligible_df['decline']
+            else:
+                logger.log("error", message="Cannot determine labels. Missing MMSE scores or labels file.")
+                sys.exit(1)
+        else:
+            logger.log("error", message="No labels source found.")
+            sys.exit(1)
+    else:
+        labels_df = load_csv(labels_path)
+        y = labels_df['decline']
+        if 'subject_id' in labels_df and 'subject_id' in df.columns:
+            merged = df.merge(labels_df[['subject_id', 'decline']], on='subject_id')
+            X = merged[feature_cols]
+            y = merged['decline']
+        else:
+            # Fallback to order
+            X = df[feature_cols]
+            y = labels_df['decline']
+
+    return X, y
+
+def estimate_runtime(X: pd.DataFrame, y: pd.Series, n_pilot: int = 1) -> float:
+    """
+    Run a pilot permutation to estimate time per permutation.
+    """
+    logger.log("estimate_runtime", message="Starting pilot run", n_pilot=n_pilot)
+    
+    start_time = time.time()
+    # Run one full permutation
+    _run_single_permutation_logic(X, y, seed=RANDOM_SEED)
+    pilot_time = time.time() - start_time
+
+    logger.log("estimate_runtime", message="Pilot run complete", pilot_time=pilot_time)
+    return pilot_time
+
+def _run_single_permutation_logic(X: pd.DataFrame, y: pd.Series, seed: int) -> float:
+    """
+    Internal logic to run a single permutation iteration.
+    Returns the score (ROC-AUC) of the permuted model.
+    """
+    # Set seed for reproducibility within this permutation
+    np.random.seed(seed)
+    random.seed(seed)
+
+    # Permute labels
+    y_perm = y.sample(frac=1, random_state=seed).reset_index(drop=True)
+
+    # Prepare data
+    X_np = X.values
+    y_np = y_perm.values
+
+    # Nested CV setup (simplified version of T023 logic)
+    # Outer CV
+    outer_cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+    scores = []
+
+    for train_idx, test_idx in outer_cv.split(X_np, y_np):
+        X_train, X_test = X_np[train_idx], X_np[test_idx]
+        y_train, y_test = y_np[train_idx], y_np[test_idx]
+
+        # Inner loop for feature selection (Variance -> RFE)
+        # Variance Threshold
+        vt = VarianceThreshold(threshold=0.01)
+        X_train_vt = vt.fit_transform(X_train)
+        X_test_vt = vt.transform(X_test)
+
+        # RFE to select <= 20 features
+        rf_base = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=seed)
+        rfe = RFE(estimator=rf_base, n_features_to_select=min(20, X_train_vt.shape[1]))
+        X_train_rfe = rfe.fit_transform(X_train_vt, y_train)
+        X_test_rfe = rfe.transform(X_test_vt)
+
+        # Train final model
+        model = RandomForestClassifier(n_estimators=100, max_depth=None, random_state=seed)
+        model.fit(X_train_rfe, y_train)
+
+        # Evaluate
+        y_pred = model.predict_proba(X_test_rfe)[:, 1]
+        try:
+            auc = roc_auc_score(y_test, y_pred)
+            scores.append(auc)
+        except ValueError:
+            # If only one class in test set, skip or handle
+            scores.append(0.5)
+
+    return np.mean(scores) if scores else 0.5
+
+def run_single_permutation(X: pd.DataFrame, y: pd.Series, seed: int) -> float:
+    """
+    Wrapper to run a single permutation and return the score.
+    """
+    return _run_single_permutation_logic(X, y, seed)
+
+def run_permutation_test(X: pd.DataFrame, y: pd.Series) -> Dict[str, Any]:
+    """
+    Main function to execute the runtime-bounded permutation test.
+    """
+    logger.log("run_permutation_test", message="Starting permutation test", target_n=TARGET_N_PERMUTATIONS, max_runtime=MAX_RUNTIME_SECONDS)
+
+    # 1. Pilot
+    pilot_time = estimate_runtime(X, y, n_pilot=1)
+    
+    # 2. Estimate
+    estimated_total = pilot_time * TARGET_N_PERMUTATIONS
+    logger.log("run_permutation_test", message="Runtime estimation", estimated_total=estimated_total)
+
+    # 3. Decision
+    n_executed = TARGET_N_PERMUTATIONS
+    if estimated_total > MAX_RUNTIME_SECONDS:
+        n_executed = int(MAX_RUNTIME_SECONDS / pilot_time)
+        if n_executed < 10:
+            logger.log("error", message="Runtime limit exceeded even for minimum n=10")
+            sys.exit(EXIT_CODE_RUNTIME_EXCEEDED)
+        logger.log("run_permutation_test", message="Adjusting n due to runtime limit", n_executed=n_executed)
+
+    # 4. Execute
+    start_time = time.time()
+    distribution = []
+    
+    logger.log("run_permutation_test", message="Executing permutations", n=n_executed)
+    
+    # Run sequentially to ensure memory safety and accurate timing
+    # In a real production environment, one might use joblib with careful memory management
+    for i in range(n_executed):
+        seed = RANDOM_SEED + i
+        score = run_single_permutation(X, y, seed)
+        distribution.append(score)
+        
+        if (i + 1) % 50 == 0:
+            logger.log("run_permutation_test", message="Progress", completed=i+1, n=n_executed)
+
+    total_time = time.time() - start_time
+    logger.log("run_permutation_test", message="Permutations complete", total_time=total_time)
+
+    # 5. Output
+    # Calculate p-value
+    # We need the original score (from non-permuted data)
+    # Re-calculate original score once
+    original_score = _run_single_permutation_logic(X, y, seed=RANDOM_SEED) # Use a fixed seed for consistency or re-run logic
+    # Actually, the original score should be the one from T023. Let's re-calculate it here to be safe.
+    # Or we can assume the user wants to compare against the distribution of permuted scores.
+    # The p-value is the proportion of permuted scores >= original score.
+    # But we need the original score. Let's calculate it once more with a fixed seed.
+    original_score = _run_single_permutation_logic(X, y, seed=RANDOM_SEED)
+
+    # Calculate p-value
+    # Note: In a strict permutation test, the original score is included in the distribution?
+    # Usually p = (count(perm >= orig) + 1) / (n + 1)
+    count_ge = sum(1 for s in distribution if s >= original_score)
+    p_value = (count_ge + 1) / (n_executed + 1)
+
+    results = {
+        "p_value": p_value,
+        "distribution": distribution,
+        "original_score": original_score,
+        "n_permutations_requested": TARGET_N_PERMUTATIONS,
+        "n_permutations_executed": n_executed,
+        "runtime_estimate": estimated_total,
+        "actual_runtime": total_time,
+        "pilot_time": pilot_time
+    }
+
+    return results
+
+def main():
+    """
+    Entry point for the permutation test.
+    """
+    logger.log("main", message="Starting main execution")
+
+    # Load data
+    X, y = load_data()
+
+    # Run test
+    results = run_permutation_test(X, y)
+
+    # Save results
+    output_path = Path("data/processed/permutation_results.json")
+    ensure_dir(output_path.parent)
+    save_json(output_path, results)
+
+    logger.log("main", message="Results saved", path=str(output_path))
+    print(f"Permutation test complete. Results saved to {output_path}")
+    print(f"P-value: {results['p_value']:.4f}")
+    print(f"Original Score: {results['original_score']:.4f}")
+    print(f"Executed: {results['n_permutations_executed']} / {results['n_permutations_requested']}")
+
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

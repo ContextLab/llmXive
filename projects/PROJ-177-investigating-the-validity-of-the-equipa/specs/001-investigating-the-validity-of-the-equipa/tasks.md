@@ -86,7 +86,7 @@
 
 - [ ] T021 [P] [US1] Unit test for correct handling of the `test_` prefix (ensures synthetic data are ignored by downstream analysis).
 - [ ] T022 [P] [US1] Verify that `artifacts/sampling_metadata.json` correctly records the seed and sampling rule.
-- [ ] T023b [P] [US1] Explicitly link T021/T022 to `test_thermal_data.csv` and `test_nonthermal_data.csv` to resolve cross-phase ambiguity.
+- [~] T023b [P] [US1] Explicitly link T021/T022 to `test_thermal_data.csv` and `test_nonthermal_data.csv` to resolve cross-phase ambiguity.
 
 ---
 
@@ -100,12 +100,12 @@
 
 ### Entry Gate
 
-- [ ] T054 [US2] Implement `code/main.py` dependency check: verify `data/derived/energy_samples.csv` exists and is valid; if missing, exit with `ERROR: Dependency file data/derived/energy_samples.csv missing. Run US1 first.`
+- [~] T054 [US2] Implement `code/main.py` dependency check: verify `data/derived/energy_samples.csv` exists and is valid; if missing, exit with `ERROR: Dependency file data/derived/energy_samples.csv missing. Run US1 first.`
 
 ### Implementation for User Story 2
 
-- [ ] T025a [US2] **Reconciliation**: Implement `code/stats.py` logic to ensure the primary hypothesis test is the Kolmogorov‑Smirnov test with Lilliefors correction (FR‑003) against the Maxwell‑Boltzmann distribution, overriding any plan summary references to simple ratio comparisons. **Constraint**: The code MUST prioritize FR-003.
-- [ ] T024 [US2] Implement `code/stats.py` function `bin_energy_data` to read `data/derived/energy_samples.csv`, apply the `chirp_handling_result.csv` (if present) to exclude or bin data, and bin by driving frequency (fixed intervals) and material type. If `chirp_handling_result.csv` is missing, assume no chirp handling is needed and proceed with full data. **Constraint**: Raise `FileNotFoundError` with the exact message if the file is missing or has a `test_` prefix.
+- [X] T025a [US2] **Reconciliation**: Implement `code/stats.py` logic to ensure the primary hypothesis test is the Kolmogorov‑Smirnov test with Lilliefors correction (FR‑003) against the Maxwell‑Boltzmann distribution, overriding any plan summary references to simple ratio comparisons. **Constraint**: The code MUST prioritize FR-003.
+- [~] T024 [US2] Implement `code/stats.py` function `bin_energy_data` to read `data/derived/energy_samples.csv`, apply the `chirp_handling_result.csv` (if present) to exclude or bin data, and bin by driving frequency (fixed intervals) and material type. If `chirp_handling_result.csv` is missing, assume no chirp handling is needed and proceed with full data. **Constraint**: Raise `FileNotFoundError` with the exact message if the file is missing or has a `test_` prefix.
 - [ ] T025 [US2] Implement Kolmogorov‑Smirnov test with **Lilliefors correction** (as mandated by FR‑003 and Constitution Principle VII) comparing each binned empirical distribution to the theoretical Maxwell‑Boltzmann CDF. The correction MUST account for parameter estimation from the sample. **Constraint**: Lilliefors correction is REQUIRED. Vanilla KS is NOT allowed.
 - [ ] T071 [P] [US2] Unit test for KS test logic with Lilliefors correction in `tests/test_stats.py` (verify p‑value calculation against known distribution). **Dependency**: Requires synthetic test data from T020b and implementation T025.
 - [ ] T072 [P] [US2] Unit test for Chi‑squared test logic in `tests/test_stats.py` (verify statistic and rejection boolean). **Dependency**: Requires synthetic test data from T020b and implementation T026.

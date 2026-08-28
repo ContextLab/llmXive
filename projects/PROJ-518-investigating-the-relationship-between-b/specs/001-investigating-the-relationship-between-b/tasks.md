@@ -45,23 +45,23 @@
 
 ### Tests (MANDATORY)
 
-- [ ] T010 [P] [US1] Contract test `tests/contract/test_loader.py::test_loader_raises_on_missing_caq` asserting `DataMissingCreativityError` is raised when CAQ is missing.
-- [ ] T011 [P] [US1] Integration test `tests/integration/test_pipeline_flow.py::test_end_to_end_correlation` runs the full pipeline on a mock subset and asserts numeric `r` and `p` values.
+- [X] T010 [P] [US1] Contract test `tests/contract/test_loader.py::test_loader_raises_on_missing_caq` asserting `DataMissingCreativityError` is raised when CAQ is missing.
+- [X] T011 [P] [US1] Integration test `tests/integration/test_pipeline_flow.py::test_end_to_end_correlation` runs the full pipeline on a mock subset and asserts numeric `r` and `p` values.
 
 ### Implementation
 
-- [ ] T012 [P] [US1] Implement `code/data/loader.py` function `fetch_hcp_data(subject_id: str)` that downloads raw fMRI and behavioral JSON **after** validation succeeds.
+- [X] T012 [P] [US1] Implement `code/data/loader.py` function `fetch_hcp_data(subject_id: str)` that downloads raw fMRI and behavioral JSON **after** validation succeeds. <!-- FAILED: unspecified -->
 - [X] T013 [P] [US1] Implement `code/data/preprocess.py` function `preprocess_fmri(input_path: str, output_path: str)` performing motion correction, spatial normalization, and **band‑pass filtering within a low-frequency range** using Nilearn.
 - [X] T014 [US1] Implement `code/analysis/connectivity.py` function `compute_sliding_window_connectivity(fmri_data: np.ndarray, window_size: int, step: int)` reading `WINDOW_SIZES` and `STEP` from `config.py`.
 - [ ] T014.1 [US1] Implement `code/analysis/connectivity.py` function `compute_static_connectivity_strength(fmri_data: np.ndarray) -> float` that calculates the mean of absolute pairwise correlations **from the full‑window static matrix** per participant.
 - [X] T015 [US1] Implement `code/analysis/dynamics.py` function `detect_communities(connectivity_matrix: np.ndarray, gamma: float = 1.0) -> List[int]` using Louvain with **γ = 1.0**.
 - [X] T016 [US1] Implement `code/analysis/dynamics.py` function `calculate_flexibility(community_labels: List[List[int]]) -> float` that counts ROI community changes **and averages across ROIs** to produce the whole‑brain metric.
 - [X] T051 [US1] Implement `code/analysis/statistics.py` function `fit_regression(flexibility: np.ndarray, creativity: np.ndarray, covariates: dict) -> RegressionResult` using `statsmodels` OLS to fit the full model `creativity ~ network_flexibility + age + sex + education + static_connectivity_strength`.
-- [~] T017 [US1] Within `fit_regression`, compute and **report Pearson correlation coefficient** between flexibility and creativity.
+- [ ] T017 [US1] Within `fit_regression`, compute and **report Pearson correlation coefficient** between flexibility and creativity.
 - [ ] T017.1 [US1] Implement baseline model `creativity ~ static_connectivity_strength + covariates`, compute ΔR², and **format ΔR² to an appropriate level of precision** via `format_delta_r2(delta_r2: float) -> str`.
-- [~] T018 [US1] Add `validate_and_filter_subjects(subjects: List[Participant]) -> List[Participant]` in `loader.py` to skip missing scans (log warning) and missing behavioral scores (exclude + log) **after** validation.
-- [~] T019 [US1] Add `filter_by_motion(subjects: List[Participant], fd_thresh: float = 0.5, vol_thresh: float = 0.2) -> List[Participant]` to exclude participants exceeding motion criteria and log the exclusion.
-- [~] T020 [US1] Ensure `log_exclusion` is called with standardized reason codes (`MISSING_SCAN`, `MISSING_SCORE`, `HIGH_MOTION`) for every exclusion decision.
+- [ ] T018 [US1] Add `validate_and_filter_subjects(subjects: List[Participant]) -> List[Participant]` in `loader.py` to skip missing scans (log warning) and missing behavioral scores (exclude + log) **after** validation.
+- [ ] T019 [US1] Add `filter_by_motion(subjects: List[Participant], fd_thresh: float = 0.5, vol_thresh: float = 0.2) -> List[Participant]` to exclude participants exceeding motion criteria and log the exclusion.
+- [ ] T020 [US1] Ensure `log_exclusion` is called with standardized reason codes (`MISSING_SCAN`, `MISSING_SCORE`, `HIGH_MOTION`) for every exclusion decision.
 
 ## Phase 4: User Story 2 – Generate Diagnostic Visualisations (Priority: P2)
 
@@ -71,8 +71,8 @@
 
 ### Implementation
 
-- [~] T022 [P] [US2] Implement `code/viz/plots.py` function `plot_flexibility_vs_creativity(flexibility, creativity, output_path='docs/outputs/flexibility_vs_creativity.png')` that creates a scatter plot with regression line and a confidence band, saves as **`flexibility_vs_creativity.png`**.
-- [~] T023 [US2] Implement `code/viz/plots.py` function `plot_residuals(model: RegressionResult, residuals_path='docs/outputs/model_residuals.png', qq_path='docs/outputs/model_qq.png')` that generates residuals‑vs‑fitted and QQ plots, saving as **`model_residuals.png`** and **`model_qq.png`**.
+- [ ] T022 [P] [US2] Implement `code/viz/plots.py` function `plot_flexibility_vs_creativity(flexibility, creativity, output_path='docs/outputs/flexibility_vs_creativity.png')` that creates a scatter plot with regression line and a confidence band, saves as **`flexibility_vs_creativity.png`**.
+- [ ] T023 [US2] Implement `code/viz/plots.py` function `plot_residuals(model: RegressionResult, residuals_path='docs/outputs/model_residuals.png', qq_path='docs/outputs/model_qq.png')` that generates residuals‑vs‑fitted and QQ plots, saving as **`model_residuals.png`** and **`model_qq.png`**.
 - [~] T057 [US2] After each plot is saved, call `compress_image(path, max_mb=5.0)` to enforce **≤ 5 MB** file size (SC‑004).
 - [~] T058 [US2] Add error handling in plot functions to skip NaN data points, log warnings, and continue (robustness for missing data).
 
@@ -97,14 +97,14 @@
 - [~] T038 Code cleanup and refactoring using `black` and `flake8`.
 - [~] T039 Performance optimisation across all stories (profiling, memory usage < 7 GB).
 - [~] T040 [P] Additional unit tests for `calculate_flexibility`, `fit_regression`, and `run_permutation_test`.
-- [ ] T041 Security hardening: run `safety check` on `requirements.txt` and update vulnerable packages.
-- [ ] T042 Run `quickstart.md` commands in a fresh virtualenv and verify successful completion.
-- [ ] T043 Implement `format_delta_r2(delta_r2: float) -> str` returning a string with **four decimal places**; integrate into regression output.
-- [ ] T044 Verify SC‑003: ΔR² is reported with precision of at least 4 decimal places (uses T043).
-- [ ] T045 (already defined) Family‑wise error correction using max‑T method.
-- [ ] T046 (already defined) Sensitivity analysis table generation.
-- [ ] T047 Ensure all plots saved with exact filenames per spec (flexibility_vs_creativity.png, model_residuals.png, model_qq.png).
-- [ ] T048 Ensure image compression enforces ≤ 5 MB limit (calls `compress_image`).
+- [X] T041 Security hardening: run `safety check` on `requirements.txt` and update vulnerable packages.
+- [~] T042 Run `quickstart.md` commands in a fresh virtualenv and verify successful completion.
+- [~] T043 Implement `format_delta_r2(delta_r2: float) -> str` returning a string with **four decimal places**; integrate into regression output.
+- [~] T044 Verify SC‑003: ΔR² is reported with precision of at least 4 decimal places (uses T043).
+- [~] T045 (already defined) Family‑wise error correction using max‑T method.
+- [~] T046 (already defined) Sensitivity analysis table generation.
+- [~] T047 Ensure all plots saved with exact filenames per spec (flexibility_vs_creativity.png, model_residuals.png, model_qq.png).
+- [~] T048 Ensure image compression enforces ≤ 5 MB limit (calls `compress_image`).
 
 ## Dependencies & Execution Order
 

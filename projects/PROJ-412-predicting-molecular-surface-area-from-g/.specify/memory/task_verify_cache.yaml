@@ -20,35 +20,21 @@ T011:
     repository, so the integration test for the SMILES ingestion pipeline is missing.
     The task cannot be considered completed until this file is added with appropriate
     test code.
-T014:
+T015a:
   c: false
-  h: a61496570beb24e4d991c10941a2c3d02166991eb667d2dd1c3cd717aa7d65e1
-  r: The required artifacts `data/processed/sampled_dataset.parquet` and `data/processed/sampling_report.json`
-    are absent, so the sampling logic and reporting have not been produced. Additionally,
-    `MAX_MOLECULES` is not defined in `code/config.py`, preventing the conditional
-    behavior from being exercised. The task therefore remains unfinished.
-T014#2:
-  c: false
-  h: 030432f0fb730e235c5307f61c0459f9c6b2399c2d207f79fa477bc0c693d0d5
-  r: "The repository lacks the required `data/processed/conformer_params.json` and\
-    \ the output Parquet file `data/processed/graphs_with_features.parquet`. Moreover,\
-    \ `code/data/preprocess.py` does not contain implementations for filtering >100\u2011\
-    atom molecules, extracting 2D atom/hybridization/charge features, computing molecular\
-    \ weight, logging excluded counts, or writing the Parquet file with the specified\
-    \ schema and metadata. These core functionalities are missing."
-T015b:
-  c: false
-  h: 244103158c49995a6237d3a91744fff825f0a6fe24d0afdc9d3fbe025e3ee802
-  r: "The repository contains a partially shown `code/data/preprocess.py` but it does\
-    \ not include the SASA or 3D descriptor calculations nor code that writes `data/processed/descriptors.parquet`.\
-    \ Moreover, the required `descriptors.parquet` file is absent. The task\u2019\
-    s output artifact is missing, so the implementation is incomplete."
+  h: 145ab810538b9c627c6175f8cf81fbb4345227dd968f0c072b1286e94487525a
+  r: "The required output files `data/processed/conformer_params.json`, `data/processed/failure_report.csv`,\
+    \ and `data/processed/conformers.parquet` are absent, and the script lacks the\
+    \ global failure\u2011rate tracking, halt\u2011on\u2011>10% logic, and logging\
+    \ to `logs/conformer_failures.log` mandated by the task. Consequently the implementation\
+    \ does not meet the specification."
 T015c:
   c: false
-  h: 6792efdef4620da31e4152692b56d4d303d12f3cb025f2359e39dc01930194aa
-  r: "The required output files `data/processed/paired_dataset.parquet` and `data/processed/conformer_params.json`\
-    \ are missing, so the merged dataset, surface_area column check, and hash embedding\
-    \ cannot be verified. The task\u2019s core deliverables are not present."
+  h: 2532f98fa00dd4d39eb914ef7c48b1670720e5893a830aabecaf297882d8b57e
+  r: The required output files `data/processed/paired_dataset.parquet` and `data/processed/conformer_params.json`
+    are missing, so the merged dataset, surface_area validation, and hash embedding
+    cannot be verified. Additionally, without these files the specified columns and
+    metadata cannot be checked. The task therefore is not completed.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -64,13 +50,6 @@ T018:
     or dataset statistics were provided. The claim lacks any artifact (e.g., updated
     scripts, log output, or documentation) demonstrating that the required logging
     behavior has been added.
-T021b:
-  c: false
-  h: 66b8bd69dc546b37a025df1ddd0e3e4c421738d357954e4ef83cf5c1590fade1
-  r: The required output artifacts `results/baseline/baseline_model_2d.pkl` and `results/predictions/baseline_2d_predictions.parquet`
-    are absent, and there is no evidence that a Linear Regression model was trained
-    on the specified 2D descriptors. The provided `baseline.py` is incomplete/truncated
-    and does not demonstrate the required training or prediction steps.
 T021c:
   c: false
   h: b1fbfbc6ab00b2ee76cb6e79dafd7c1abc53899352c660b3432947a109156d4d

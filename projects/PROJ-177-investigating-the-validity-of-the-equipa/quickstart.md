@@ -1,80 +1,75 @@
-# Quickstart Guide: Investigating the Validity of the Equipartition Theorem
-
-This guide walks you through running the full analysis pipeline for granular systems.
+# Quick Start Guide for Granular System Analysis
 
 ## Prerequisites
 
 - Python 3.11+
-- Install dependencies: `pip install -r requirements.txt`
+- Required packages listed in `requirements.txt`
 
-## Configuration
+## Installation
 
-Ensure `data/config.yaml` exists with required fields:
-```yaml
-mass: 0.01
-inertia: 0.0001
-frequency_bins: [10, 20, 30, 40, 50]
-material_type: steel
+```bash
+pip install -r requirements.txt
 ```
 
 ## Running the Pipeline
 
-### 1. Dry Run (Validation)
+The pipeline is orchestrated via `code/main.py`. Below are the commands for each stage.
 
-Validate the environment and dependencies without executing:
-```bash
-python code/main.py --stage all --dry-run
-```
+### 1. Ingestion (User Story 1)
 
-### 2. Full Execution
+This stage ingests particle tracking data and driving logs, computes energy components, and outputs `data/derived/energy_samples.csv`.
 
-Run the complete pipeline with a sample ratio of 0.1:
-```bash
-python code/main.py --stage all --sample-ratio 0.1
-```
-
-### 3. Individual Stages
-
-You can also run specific stages:
-
-**Ingestion:**
 ```bash
 python code/main.py --stage ingest --data-source data/raw/particle_tracking.csv --sample-ratio 0.1
 ```
 
-**Statistics:**
+**Note**: Replace `data/raw/particle_tracking.csv` with the path to your actual input data.
+
+### 2. Statistical Analysis (User Story 2)
+
+This stage performs KS and Chi-squared tests to assess deviation from Maxwell-Boltzmann distribution.
+
 ```bash
 python code/main.py --stage stats --alpha 0.01
 ```
 
-**Sensitivity:**
+### 3. Sensitivity Analysis (User Story 3)
+
+This stage performs sensitivity analysis on decision thresholds.
+
 ```bash
 python code/main.py --stage sensitivity --thresholds 0.01,0.05,0.10
 ```
 
-**Regression:**
+### 4. Regression Analysis (User Story 4)
+
+This stage performs regression analysis to relate deviation magnitude to driving frequency and material roughness.
+
 ```bash
 python code/main.py --stage regression
 ```
 
+### 5. Full Run
+
+To run the entire pipeline from ingestion to regression:
+
+```bash
+python code/main.py --stage all --data-source data/raw/particle_tracking.csv --sample-ratio 0.1
+```
+
+## Dry Run
+
+To validate configuration without running computations:
+
+```bash
+python code/main.py --dry-run --data-source data/raw/particle_tracking.csv
+```
+
 ## Output Artifacts
 
-After successful execution, the following artifacts will be generated:
-
-- `data/derived/energy_samples.csv`: Calculated energy components
+- `data/derived/energy_samples.csv`: Final energy samples with columns: particle_id, timestamp, E_trans, E_rot, E_pot, E_vib, pot_incomplete
+- `artifacts/sampling_metadata.json`: Random seed and sampling rule
+- `artifacts/energy_samples.hash`: SHA-256 hash of energy_samples.csv
 - `artifacts/statistical_results.json`: Statistical test results
 - `artifacts/sensitivity_analysis_report.json`: Sensitivity analysis report
 - `artifacts/regression_results.json`: Regression analysis results
-- `artifacts/regression_diagnostic.png`: Regression diagnostic plot
-
-## Troubleshooting
-
-- **Missing dependency errors**: Ensure previous stages have completed successfully.
-- **Data source not found**: Verify the path provided in `--data-source` exists.
-- **Configuration errors**: Check `data/config.yaml` for required fields.
-
-## Notes
-
-- The `--sample-ratio` parameter controls the fraction of data used for large datasets.
-- The `--alpha` parameter sets the significance level for hypothesis tests.
-- The `--thresholds` parameter accepts a comma-separated list of alpha values for sensitivity analysis.

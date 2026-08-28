@@ -1,64 +1,75 @@
-"""
-Contract tests for visualization module.
-
-This test suite verifies that the required plotting functions exist
-and are importable from the code.viz.plots module, as required by
-User Story 2 (Diagnostic Visualisations).
-"""
-
+import os
+import tempfile
+import numpy as np
 import pytest
+from pathlib import Path
+import statsmodels.api as sm
 
-# Verify the module exists and can be imported
-from code.viz import plots
+# Import the functions to test
+from viz.plots import (
+    plot_flexibility_vs_creativity,
+    plot_residuals,
+    compress_image,
+    OUTPUT_DIR
+)
 
-# Verify the required functions exist in the module namespace
 def test_plot_functions_exist():
     """
-    Contract test: Ensure all required plotting functions exist.
-    
-    Per US2 specification, the following functions must be present
-    in code/viz/plots.py:
-    - plot_flexibility_vs_creativity
-    - plot_residuals
+    Contract test asserting that the required plot functions exist and are callable.
     """
-    
-    # Check for the primary scatter plot function
-    assert hasattr(plots, 'plot_flexibility_vs_creativity'), \
-        "Missing required function: plot_flexibility_vs_creativity"
-    
-    # Check that it is callable
-    assert callable(plots.plot_flexibility_vs_creativity), \
-        "plot_flexibility_vs_creativity must be callable"
-    
-    # Check for the residual diagnostic plot function
-    assert hasattr(plots, 'plot_residuals'), \
-        "Missing required function: plot_residuals"
-    
-    # Check that it is callable
-    assert callable(plots.plot_residuals), \
-        "plot_residuals must be callable"
+    assert callable(plot_flexibility_vs_creativity)
+    assert callable(plot_residuals)
+    assert callable(compress_image)
 
-def test_plot_function_signatures():
+def test_plot_flexibility_vs_creativity_saves_file():
     """
-    Contract test: Verify basic function signatures exist.
-    
-    We don't execute the functions here (that would require real data),
-    but we verify they accept the expected argument types via introspection.
+    Test that plot_flexibility_vs_creativity creates the expected output file.
     """
-    import inspect
-    
-    # Verify plot_flexibility_vs_creativity signature
-    sig = inspect.signature(plots.plot_flexibility_vs_creativity)
-    params = list(sig.parameters.keys())
-    # Expected: flexibility, creativity, output_path
-    assert 'flexibility' in params, "Missing 'flexibility' parameter"
-    assert 'creativity' in params, "Missing 'creativity' parameter"
-    assert 'output_path' in params, "Missing 'output_path' parameter"
-    
-    # Verify plot_residuals signature
-    sig = inspect.signature(plots.plot_residuals)
-    params = list(sig.parameters.keys())
-    # Expected: model, residuals_path, qq_path
-    assert 'model' in params, "Missing 'model' parameter"
-    assert 'residuals_path' in params, "Missing 'residuals_path' parameter"
-    assert 'qq_path' in params, "Missing 'qq_path' parameter"
+    # Generate synthetic data for testing
+    np.random.seed(42)
+    flexibility = np.random.normal(0.5, 0.1, 100)
+    creativity = 2 * flexibility + np.random.normal(0, 0.1, 100)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, "test_flex_vs_creat.png")
+        
+        plot_flexibility_vs_creativity(flexibility, creativity, output_path=output_path)
+        
+        assert os.path.exists(output_path), f"Output file {output_path} was not created."
+        assert os.path.getsize(output_path) > 0, f"Output file {output_path} is empty."
+
+def test_plot_residuals_saves_files():
+    """
+    Test that plot_residuals creates the expected output files.
+    """
+    # Generate synthetic data and fit a model
+    np.random.seed(42)
+    X = np.random.normal(0, 1, 100)
+    y = 2 * X + np.random.normal(0, 0.5, 100)
+    X_with_const = sm.add_constant(X)
+    model = sm.OLS(y, X_with_const).fit()
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        residuals_path = os.path.join(tmpdir, "test_residuals.png")
+        qq_path = os.path.join(tmpdir, "test_qq.png")
+        
+        plot_residuals(model, residuals_path=residuals_path, qq_path=qq_path)
+        
+        assert os.path.exists(residuals_path), f"Residuals file {residuals_path} was not created."
+        assert os.path.exists(qq_path), f"QQ file {qq_path} was not created."
+        assert os.path.getsize(residuals_path) > 0, f"Residuals file {residuals_path} is empty."
+        assert os.path.getsize(qq_path) > 0, f"QQ file {qq_path} is empty."
+
+def test_compress_image():
+    """
+    Test that compress_image handles existing and non-existing files gracefully.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Test with non-existing file (should warn but not raise)
+        non_existing = os.path.join(tmpdir, "non_existing.png")
+        compress_image(non_existing, max_mb=5.0)  # Should not raise
+
+        # Test with existing file (create a dummy small file)
+        dummy_path = os.path.join(tmpdir, "dummy.png")
+        Path(dummy_path).touch()
+        compress_image(dummy_path, max_mb=5.0)  # Should not raise

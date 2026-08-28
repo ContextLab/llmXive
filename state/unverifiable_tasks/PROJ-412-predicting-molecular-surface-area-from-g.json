@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-412-predicting-molecular-surface-area-from-g",
+  "tasks": [
+    {
+      "task_key": "T014",
+      "reject_count": 1,
+      "last_reason": "The required artifacts `data/processed/sampled_dataset.parquet` and `data/processed/sampling_report.json` are absent, so the sampling logic and reporting have not been produced. Additionally, `MAX_MOLECULES` is not defined in `code/config.py`, preventing the conditional behavior from being exercised. The task therefore remains unfinished.",
+      "first_seen": "2026-08-28T09:43:02.101508+00:00",
+      "last_seen": "2026-08-28T09:43:02.101508+00:00"
+    },
+    {
+      "task_key": "T014#1",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/atom_count_success_report.json, data/processed/atom_count_failure_report.json",
+      "first_seen": "2026-08-28T09:43:02.102619+00:00",
+      "last_seen": "2026-08-28T09:43:02.102619+00:00"
+    },
+    {
+      "task_key": "T014#2",
+      "reject_count": 1,
+      "last_reason": "The required output files `data/processed/conformer_params.json` and `data/processed/graphs_with_features.parquet` are absent, and the shown portion of `code/data/preprocess.py` does not contain the filtering, 2D feature extraction, molecular weight calculation, logging of excluded molecules, or embedding of conformer parameters into Parquet metadata as specified. The task therefore remains unfinished.",
+      "first_seen": "2026-08-28T09:43:06.381933+00:00",
+      "last_seen": "2026-08-28T09:43:06.381933+00:00"
+    },
+    {
+      "task_key": "T015b",
+      "reject_count": 1,
+      "last_reason": "The required output file `data/processed/descriptors.parquet` does not exist, and the shown portion of `code/data/preprocess.py` contains only conformer\u2011generation utilities \u2013 it lacks any SASA calculation, 3D descriptor computation, or code that writes the described Parquet file. Consequently the task\u2019s deliverables are not present.",
+      "first_seen": "2026-08-28T09:43:08.528116+00:00",
+      "last_seen": "2026-08-28T09:43:08.528116+00:00"
+    }
+  ],
+  "updated_at": "2026-08-28T09:43:08.528116+00:00"
+}

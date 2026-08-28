@@ -1,140 +1,102 @@
 import pytest
-import pandas as pd
+import json
 import numpy as np
 from pathlib import Path
-import tempfile
-import json
-import os
+from unittest.mock import patch, MagicMock
 
-# Import the module under test
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 from code.eval.conformer_stability import (
     load_subset_for_pilot,
     generate_multiple_conformers_and_sasa,
     run_stability_check
 )
+from code.config import RANDOM_SEED
 
-@pytest.fixture
-def sample_parquet_file(tmp_path):
-    """Create a temporary parquet file with sample molecules for testing."""
-    # Create sample data
-    data = {
-        'smiles': [
-            'CCO',  # Ethanol
-            'CC(=O)O',  # Acetic acid
-            'c1ccccc1',  # Benzene
-            'CC1=CC=CC=C1',  # Toluene
-            'CCCCC',  # Pentane
-            'C1CCCCC1',  # Cyclohexane
-            'CC(C)C',  # Isobutane
-            'C=CC',  # Propene
-            'CC#C',  # Propyne
-            'CCOCC'  # Diethyl ether
-        ],
-        'node_features': [[1] * 10 for _ in range(10)],
-        'edge_features': [[1] * 5 for _ in range(10)],
-        'molecular_weight': [46.07, 60.05, 78.11, 92.14, 72.15, 84.16, 58.12, 42.08, 40.06, 74.12],
-        'surface_area': [50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 75.0, 65.0, 55.0, 85.0]
+def test_load_subset_for_pilot(tmp_path):
+    """Test loading a subset from a parquet file."""
+    # Create a dummy parquet file
+    import pandas as pd
+    df = pd.DataFrame({
+        'smiles': ['CCO', 'CCN', 'invalid', 'CCCC'],
+        'surface_area': [10.0, 20.0, 30.0, 40.0]
+    })
+    input_path = tmp_path / "test.parquet"
+    df.to_parquet(input_path)
+    
+    subset = load_subset_for_pilot(str(input_path), max_samples=2)
+    assert len(subset) == 2
+    assert all('smiles' in item for item in subset)
+    assert all('mol' in item for item in subset)
+    assert all(item['mol'] is not None for item in subset)
+
+def test_generate_multiple_conformers_and_sasa():
+    """Test SASA generation for a simple molecule."""
+    from rdkit import Chem
+    mol = Chem.MolFromSmiles('CCO')
+    mol = Chem.AddHs(mol)
+    
+    # Mock params
+    params = {
+        'numThreads': 0,
+        'maxAttempts': 200,
+        'energyMinimizationSteps': 0
     }
     
-    df = pd.DataFrame(data)
-    output_path = tmp_path / 'test_data.parquet'
-    df.to_parquet(output_path)
-    
-    return output_path
-
-def test_load_subset_for_pilot(sample_parquet_file):
-    """Test loading a subset of molecules from parquet file."""
-    subset = load_subset_for_pilot(str(sample_parquet_file), subset_size=5)
-    
-    assert len(subset) == 5
-    assert 'smiles' in subset.columns
-    assert subset['smiles'].is_unique
-
-def test_generate_multiple_conformers_and_sasa_simple():
-    """Test conformer generation and SASA calculation for a simple molecule."""
-    # Use a very simple molecule that should always work
-    smiles = 'CCO'  # Ethanol
-    
-    mean_sasa, variance_sasa, success = generate_multiple_conformers_and_sasa(
-        smiles,
+    sasa_values = generate_multiple_conformers_and_sasa(
+        mol, 
+        base_seed=RANDOM_SEED, 
         num_conformers=3,
-        max_attempts=50
+        params=params
     )
     
-    assert success is True
-    assert mean_sasa is not None
-    assert variance_sasa is not None
-    assert mean_sasa > 0
-    assert variance_sasa >= 0
+    # Should generate at least some values (unless ETKDG fails completely)
+    assert len(sasa_values) > 0
+    assert all(isinstance(v, float) for v in sasa_values)
 
-def test_generate_multiple_conformers_invalid_smiles():
-    """Test handling of invalid SMILES."""
-    smiles = 'INVALID_SMILES_123'
+def test_run_stability_check(tmp_path):
+    """Test the full stability check workflow."""
+    import pandas as pd
     
-    mean_sasa, variance_sasa, success = generate_multiple_conformers_and_sasa(
-        smiles,
-        num_conformers=3
-    )
+    # Create dummy input
+    df = pd.DataFrame({
+        'smiles': ['CCO', 'CCN', 'CCC'],
+        'surface_area': [10.0, 20.0, 30.0]
+    })
+    input_path = tmp_path / "input.parquet"
+    df.to_parquet(input_path)
     
-    assert success is False
-    assert mean_sasa is None
-    assert variance_sasa is None
-
-def test_run_stability_check(sample_parquet_file, tmp_path):
-    """Test the full stability check pipeline."""
-    output_path = tmp_path / 'pilot_check.md'
+    # Dummy params
+    params = {
+        'numThreads': 0,
+        'maxAttempts': 200,
+        'energyMinimizationSteps': 0
+    }
     
-    # Use very low threshold to ensure we get some "unstable" molecules for testing
-    # and a small subset size for speed
-    results = run_stability_check(
-        input_path=str(sample_parquet_file),
-        output_path=str(output_path),
-        num_conformers=3,
-        variance_threshold=100.0,  # High threshold to ensure stability
-        subset_size=5
-    )
+    output_path = tmp_path / "report.json"
     
-    # Verify results structure
-    assert 'total_molecules_tested' in results
-    assert 'conformer_generation_success_rate' in results
-    assert 'pipeline_flagged' in results
-    
-    # Verify output files were created
-    assert output_path.exists()
-    json_path = str(output_path).replace('.md', '.json')
-    assert os.path.exists(json_path)
-    
-    # Verify markdown content
-    with open(output_path, 'r') as f:
-        content = f.read()
-    
-    assert 'Conformer Stability Pilot Check Report' in content
-    assert 'Summary' in content
-    assert 'Methodology' in content
-
-def test_run_stability_check_with_flagging(sample_parquet_file, tmp_path):
-    """Test that the pipeline is flagged when instability is high."""
-    output_path = tmp_path / 'pilot_check_flagged.md'
-    
-    # Use a very low threshold to force flagging
-    results = run_stability_check(
-        input_path=str(sample_parquet_file),
-        output_path=str(output_path),
-        num_conformers=3,
-        variance_threshold=0.001,  # Very low threshold
-        subset_size=5
-    )
-    
-    # With such a low threshold, we expect some molecules to be flagged as unstable
-    # The exact behavior depends on the actual variance, but the function should complete
-    assert 'pipeline_flagged' in results
-    
-    # Verify output files
-    assert output_path.exists()
-    json_path = str(output_path).replace('.md', '.json')
-    assert os.path.exists(json_path)
-    
-    with open(output_path, 'r') as f:
-        content = f.read()
-    
-    assert 'Conclusion' in content
+    # Mock the load_subset to return a valid list
+    from code.eval.conformer_stability import load_subset_for_pilot
+    with patch('code.eval.conformer_stability.load_subset_for_pilot') as mock_load:
+        # Mock molecule
+        from rdkit import Chem
+        mol = Chem.MolFromSmiles('CCO')
+        mock_load.return_value = [{'smiles': 'CCO', 'mol': mol}]
+        
+        report = run_stability_check(
+            [{'smiles': 'CCO', 'mol': mol}],
+            params,
+            str(output_path)
+        )
+        
+        assert 'mean_variance' in report
+        assert 'max_variance' in report
+        assert 'threshold_validation' in report
+        assert isinstance(report['threshold_validation'], bool)
+        assert output_path.exists()
+        
+        # Verify file content
+        with open(output_path) as f:
+            saved_report = json.load(f)
+            assert saved_report == report

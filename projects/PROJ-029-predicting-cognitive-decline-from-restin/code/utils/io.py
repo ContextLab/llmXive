@@ -1,3 +1,6 @@
+"""
+Utility functions for file I/O operations.
+"""
 from __future__ import annotations
 
 import csv
@@ -5,80 +8,89 @@ import json
 import os
 import pickle
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
+import pandas as pd
 
-def ensure_dir(directory: Union[str, Path]) -> Path:
+from utils.logger import get_logger
+
+logger = get_logger("io_utils")
+
+def ensure_dir(path: Union[str, Path]) -> Path:
     """Ensure a directory exists, creating it if necessary."""
-    path = Path(directory)
+    path = Path(path)
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-def load_csv(filepath: Union[str, Path]) -> List[Dict[str, str]]:
-    """Load a CSV file into a list of dictionaries."""
-    with open(filepath, newline='') as f:
-        reader = csv.DictReader(f)
-        return list(reader)
+def load_csv(path: Union[str, Path], **kwargs) -> pd.DataFrame:
+    """Load a CSV file into a pandas DataFrame."""
+    path = Path(path)
+    if not path.exists():
+        logger.log("file_not_found", path=str(path), operation="load_csv")
+        raise FileNotFoundError(f"File not found: {path}")
+    return pd.read_csv(path, **kwargs)
 
-def save_csv(filepath: Union[str, Path], data: List[Dict[str, Any]], fieldnames: List[str] = None):
-    """Save a list of dictionaries to a CSV file."""
-    filepath = Path(filepath)
-    ensure_dir(filepath.parent)
-    
-    if not data:
-        # Create empty file with headers if needed
-        with open(filepath, 'w', newline='') as f:
-            if fieldnames:
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writeheader()
-        return
+def save_csv(df: pd.DataFrame, path: Union[str, Path], **kwargs) -> None:
+    """Save a pandas DataFrame to a CSV file."""
+    path = Path(path)
+    ensure_dir(path.parent)
+    df.to_csv(path, index=False, **kwargs)
+    logger.log("file_saved", path=str(path), operation="save_csv")
 
-    if fieldnames is None:
-        fieldnames = list(data[0].keys())
-    
-    with open(filepath, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
-
-def load_json(filepath: Union[str, Path]) -> Any:
+def load_json(path: Union[str, Path], **kwargs) -> Any:
     """Load a JSON file."""
-    with open(filepath, 'r') as f:
-        return json.load(f)
+    path = Path(path)
+    if not path.exists():
+        logger.log("file_not_found", path=str(path), operation="load_json")
+        raise FileNotFoundError(f"File not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f, **kwargs)
 
-def save_json(filepath: Union[str, Path], data: Any):
+def save_json(data: Any, path: Union[str, Path], **kwargs) -> None:
     """Save data to a JSON file."""
-    filepath = Path(filepath)
-    ensure_dir(filepath.parent)
-    with open(filepath, 'w') as f:
-        json.dump(data, f, indent=2)
+    path = Path(path)
+    ensure_dir(path.parent)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, default=str, **kwargs)
+    logger.log("file_saved", path=str(path), operation="save_json")
 
-def load_pickle(filepath: Union[str, Path]) -> Any:
+def load_pickle(path: Union[str, Path]) -> Any:
     """Load a pickle file."""
-    with open(filepath, 'rb') as f:
+    path = Path(path)
+    if not path.exists():
+        logger.log("file_not_found", path=str(path), operation="load_pickle")
+        raise FileNotFoundError(f"File not found: {path}")
+    with open(path, 'rb') as f:
         return pickle.load(f)
 
-def save_pickle(filepath: Union[str, Path], data: Any):
+def save_pickle(data: Any, path: Union[str, Path]) -> None:
     """Save data to a pickle file."""
-    filepath = Path(filepath)
-    ensure_dir(filepath.parent)
-    with open(filepath, 'wb') as f:
+    path = Path(path)
+    ensure_dir(path.parent)
+    with open(path, 'wb') as f:
         pickle.dump(data, f)
+    logger.log("file_saved", path=str(path), operation="save_pickle")
 
-def save_text(filepath: Union[str, Path], text: str):
+def save_text(text: str, path: Union[str, Path], encoding: str = 'utf-8') -> None:
     """Save text to a file."""
-    filepath = Path(filepath)
-    ensure_dir(filepath.parent)
-    with open(filepath, 'w') as f:
+    path = Path(path)
+    ensure_dir(path.parent)
+    with open(path, 'w', encoding=encoding) as f:
         f.write(text)
+    logger.log("file_saved", path=str(path), operation="save_text")
 
-def load_numpy(filepath: Union[str, Path]) -> np.ndarray:
-    """Load a .npy file."""
-    return np.load(filepath)
+def load_numpy(path: Union[str, Path]) -> np.ndarray:
+    """Load a NumPy .npy file."""
+    path = Path(path)
+    if not path.exists():
+        logger.log("file_not_found", path=str(path), operation="load_numpy")
+        raise FileNotFoundError(f"File not found: {path}")
+    return np.load(path)
 
-def save_numpy(filepath: Union[str, Path], data: np.ndarray):
-    """Save a numpy array to a .npy file."""
-    filepath = Path(filepath)
-    ensure_dir(filepath.parent)
-    np.save(filepath, data)
+def save_numpy(arr: np.ndarray, path: Union[str, Path]) -> None:
+    """Save a NumPy array to a .npy file."""
+    path = Path(path)
+    ensure_dir(path.parent)
+    np.save(path, arr)
+    logger.log("file_saved", path=str(path), operation="save_numpy")

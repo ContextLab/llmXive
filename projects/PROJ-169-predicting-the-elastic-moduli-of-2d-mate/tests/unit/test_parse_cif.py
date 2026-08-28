@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 import numpy as np
 
-from ingest.parse_cif import parse_cif_file, parse_cif_directory, get_atomic_properties
-from data_models.material_graph import MaterialGraph
+from code.ingest.parse_cif import parse_cif_file, parse_cif_directory, get_atomic_properties
+from code.data_models.material_graph import MaterialGraph
 
 
 # Sample CIF content for a simple 2D-like structure (graphene sheet approximation)

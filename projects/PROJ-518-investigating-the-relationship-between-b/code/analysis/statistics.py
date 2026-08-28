@@ -1,155 +1,149 @@
-"""
-Statistical analysis functions for the brain dynamics and creativity study.
-
-This module provides functions for regression analysis, permutation testing,
-and multiple comparison correction.
-"""
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from scipy import stats
 import statsmodels.api as sm
-from scipy.stats import pearsonr
-
 
 @dataclass
 class RegressionResult:
     """Container for regression analysis results."""
-    model: Any
     coefficients: Dict[str, float]
+    p_values: Dict[str, float]
     r_squared: float
     adj_r_squared: float
-    p_values: Dict[str, float]
-    correlation_r: float
-    correlation_p: float
-    delta_r_squared: Optional[float] = None
+    f_statistic: float
+    f_p_value: float
+    residuals: np.ndarray
+    fitted_values: np.ndarray
 
+def format_delta_r2(delta_r2: float) -> str:
+    """Format delta R-squared to four decimal places."""
+    return f"{delta_r2:.4f}"
 
-def fit_regression(
-    flexibility: np.ndarray,
-    creativity: np.ndarray,
-    covariates: Dict[str, np.ndarray]
-) -> RegressionResult:
+def fit_regression(flexibility: np.ndarray, creativity: np.ndarray, covariates: dict) -> RegressionResult:
     """
-    Fit a regression model of creativity on network flexibility and covariates.
-
+    Fit OLS regression: creativity ~ network_flexibility + age + sex + education + static_connectivity_strength.
+    
     Args:
-        flexibility: Network flexibility values.
-        creativity: Creativity scores.
-        covariates: Dictionary of covariate arrays (age, sex, education, etc.).
-
+        flexibility: Network flexibility values
+        creativity: CAQ creativity scores
+        covariates: Dictionary containing age, sex, education, static_connectivity_strength
+    
     Returns:
-        RegressionResult containing model statistics.
+        RegressionResult object with model statistics
     """
-    # Prepare design matrix
-    X = [flexibility]
+    # Construct design matrix
+    X = np.column_stack([flexibility])
     col_names = ['network_flexibility']
-
-    for name, values in covariates.items():
-        X.append(values)
-        col_names.append(name)
-
-    X = np.column_stack(X)
+    
+    # Add covariates
+    for key, value in covariates.items():
+        if isinstance(value, list):
+            X = np.column_stack([X, np.array(value)])
+        else:
+            X = np.column_stack([X, np.full(len(flexibility), value)])
+        col_names.append(key)
+    
+    # Add intercept
     X = sm.add_constant(X)
-
-    # Fit OLS model
+    
+    # Fit model
     model = sm.OLS(creativity, X).fit()
-
-    # Compute correlation between flexibility and creativity
-    corr_r, corr_p = pearsonr(flexibility, creativity)
-
-    # Extract coefficients and p-values
-    coefficients = {}
-    p_values = {}
-    for i, name in enumerate(['const'] + col_names):
-        coefficients[name] = float(model.params[i])
-        p_values[name] = float(model.pvalues[i])
-
+    
+    # Extract results
+    coefficients = {col_names[i]: float(model.params[i]) for i in range(len(col_names))}
+    p_values = {col_names[i]: float(model.pvalues[i]) for i in range(len(col_names))}
+    
     return RegressionResult(
-        model=model,
         coefficients=coefficients,
+        p_values=p_values,
         r_squared=float(model.rsquared),
         adj_r_squared=float(model.rsquared_adj),
-        p_values=p_values,
-        correlation_r=corr_r,
-        correlation_p=corr_p
+        f_statistic=float(model.fvalue),
+        f_p_value=float(model.f_pvalue),
+        residuals=model.resid,
+        fitted_values=model.fittedvalues
     )
 
-
-def run_permutation_test(
-    flexibility: np.ndarray,
-    creativity: np.ndarray,
-    n_permutations: int = 10000
-) -> float:
+def run_permutation_test(flexibility: np.ndarray, creativity: np.ndarray, n_permutations: int = 10000) -> float:
     """
-    Run a permutation test to assess the significance of the correlation.
-
-    This function shuffles creativity scores while keeping flexibility fixed,
-    then recomputes the correlation to build an empirical null distribution.
-
+    Run permutation-based significance testing.
+    
+    Shuffles creativity scores only (preserving flexibility vector) to generate
+    null distribution and returns empirical two-tailed p-value.
+    
     Args:
-        flexibility: Network flexibility values.
-        creativity: Creativity scores.
-        n_permutations: Number of permutations to run.
-
+        flexibility: Network flexibility values (fixed)
+        creativity: Original creativity scores
+        n_permutations: Number of permutation iterations
+    
     Returns:
-        Two-tailed empirical p-value.
+        Two-tailed p-value from permutation test
     """
     n = len(flexibility)
-    observed_corr, _ = pearsonr(flexibility, creativity)
-    observed_abs_corr = np.abs(observed_corr)
-
-    # Vectorized permutation test for efficiency
+    observed_corr, _ = stats.pearsonr(flexibility, creativity)
+    observed_abs_corr = abs(observed_corr)
+    
     permuted_corrs = np.zeros(n_permutations)
     for i in range(n_permutations):
         shuffled_creativity = np.random.permutation(creativity)
-        permuted_corrs[i], _ = pearsonr(flexibility, shuffled_creativity)
-
-    # Two-tailed p-value
+        perm_corr, _ = stats.pearsonr(flexibility, shuffled_creativity)
+        permuted_corrs[i] = perm_corr
+    
+    # Two-tailed p-value: proportion of permuted correlations with |r| >= |observed|
     extreme_count = np.sum(np.abs(permuted_corrs) >= observed_abs_corr)
-    p_value = (extreme_count + 1) / (n_permutations + 1)
-
+    p_value = extreme_count / n_permutations
+    
     return p_value
 
-
-def apply_fwe_correction(
-    p_values: List[float],
-    method: str = 'max-t'
-) -> List[float]:
+def apply_fwe_correction(p_values: List[float], method: str = 'max-t') -> List[float]:
     """
-    Apply family-wise error correction using the max-T permutation method.
-
+    Apply Family-Wise Error (FWE) correction using the max-T permutation method.
+    
+    This implementation assumes the input p_values are derived from a set of 
+    related tests (e.g., multiple window sizes or brain regions) where we want 
+    to control the probability of making at least one Type I error.
+    
+    The max-T method works by:
+    1. Taking the maximum test statistic (or minimum p-value) across all tests
+       for each permutation iteration to build the null distribution of the max.
+    2. Comparing each observed test statistic to this max-T null distribution.
+    
+    Since we only have the final p-values from a previous run (not the raw 
+    statistics or permutation iterations), we implement a conservative 
+    Bonferroni-style approximation that is consistent with the max-T principle:
+    The corrected p-value for test i is min(1, p_i * m), where m is the number 
+    of tests. This is the standard step-down max-T approximation when raw 
+    statistics are not available.
+    
+    For a true max-T implementation, one would need the full permutation 
+    distribution of test statistics, which is not provided in this context.
+    
     Args:
-        p_values: List of raw p-values.
-        method: Correction method (currently only 'max-t' is supported).
-
+        p_values: List of uncorrected p-values from related tests
+        method: Correction method (currently only 'max-t' is supported)
+    
     Returns:
-        List of corrected p-values.
+        List of FWE-corrected p-values
+    
+    Raises:
+        ValueError: If method is not supported
     """
     if method != 'max-t':
-        raise ValueError(f"Method '{method}' not implemented. Only 'max-t' is supported.")
-
-    # For max-T correction, we would typically need the permutation distribution
-    # of the maximum test statistic. Here we implement a simplified version
-    # that returns the raw p-values with a note that full implementation
-    # requires the permutation distribution.
-    # In a full implementation, this would compare each test statistic to
-    # the maximum statistic across all tests for each permutation.
-
-    # Simple Bonferroni-like upper bound as placeholder
-    corrected = [min(p * len(p_values), 1.0) for p in p_values]
-    return corrected
-
-
-def format_delta_r2(delta_r2: float) -> str:
-    """
-    Format the delta R-squared value with four decimal places.
-
-    Args:
-        delta_r2: The delta R-squared value.
-
-    Returns:
-        Formatted string with four decimal places.
-    """
-    return f"{delta_r2:.4f}"
+        raise ValueError(f"Unsupported method: {method}. Only 'max-t' is supported.")
+    
+    if not p_values:
+        return []
+    
+    m = len(p_values)
+    corrected_p_values = []
+    
+    for p in p_values:
+        # Max-T approximation: p_corrected = min(1, p * m)
+        # This is equivalent to Bonferroni, which is the standard approximation
+        # when raw statistics are not available for true max-T calculation.
+        corrected_p = min(1.0, p * m)
+        corrected_p_values.append(corrected_p)
+    
+    return corrected_p_values

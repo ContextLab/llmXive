@@ -1,1 +1,1 @@
-# Data directory for raw and derived datasets.
+# Data directory for raw, derived, and processed files.

@@ -21,44 +21,19 @@ T018:
     is truncated and does not demonstrably perform motion correction, MNI152 normalization,
     AAL parcellation, or connectivity matrix computation. The essential output files
     are therefore not guaranteed to be produced.
-T019:
-  c: false
-  h: df342c59f8e88f638518f24d58f844aa625efee34a2c8f4c7c50df131b3f3f78
-  r: The required output file `data/processed/graph_metrics.csv` does not exist, and
-    the provided `code/03_compute_graph_metrics.py` is truncated, so we cannot confirm
-    it computes all metrics, enforces the RAM limit, or writes the CSV with the specified
-    schema. The task is therefore not fully satisfied.
-T023:
-  c: false
-  h: 2c7a738cc62fcb81f637c27ab35c7cf34d52d9d322986cbf4d2a2f263f488ba9
-  r: "The repository lacks the required output artifacts (`data/processed/model.pkl`,\
-    \ `cv_results.json`, `model_params.json`). Moreover, the script defines hyper\u2011\
-    parameter grids (`N_ESTIMATORS_GRID`, `MAX_DEPTH_GRID`) and would perform a grid\u2011\
-    search on them, which contradicts the task\u2019s specification that these parameters\
-    \ must be fixed and the inner loop used only for feature selection. The missing\
-    \ files and incorrect hyper\u2011parameter handling mean the task is not genuinely\
-    \ completed."
 T024:
   c: false
-  h: 82d2d83fc1d6ed45ebefd05e92839ddae3cef65c7d0dbc4a6329f7f39995ef9d
-  r: "The provided `code/05_evaluate_model.py` is truncated and does not contain a\
-    \ complete implementation that calculates per\u2011fold metrics and writes the\
-    \ required JSON report. Moreover, the expected output file `data/processed/performance_report.json`\
-    \ is absent. The task therefore remains unfinished."
+  h: 31d53fe7a6ba24cea67ea7fd9f057136d545030d078ab9b4fbdf0fe4b6af7d19
+  r: The repository contains `code/05_evaluate_model.py`, but the script is incomplete
+    (e.g., placeholder functions, truncated logic) and does not produce the required
+    `data/processed/performance_report.json` file, which is missing entirely. The
+    JSON output with the specified schema is therefore not present.
 T029:
   c: false
   h: ebdfb2dbae7a903c9bb409bea4baa09f213f8fef796acfd5da802a6a38c3e061
   r: "The provided `code/06_permutation_test.py` does not import the training logic\
     \ from `code/04_train_model.py` and the required output file `data/processed/permutation_results.json`\
     \ is missing, so the task\u2019s specifications are not satisfied."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No unit\u2011test file, test suite, or code snippet was provided that actually\
-    \ verifies the collinearity filter drops one of a pair of features with Pearson\u202F\
-    >\u202F0.95. The claim lacks any concrete artifact (e.g., a pytest file, test\
-    \ output, or CI log) to confirm the required behavior, so the requirement is not\
-    \ satisfied."
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

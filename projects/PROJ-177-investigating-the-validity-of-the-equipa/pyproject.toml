@@ -1,95 +1,13 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmXive-granular-equipartition"
-version = "0.1.0"
-description = "Investigating the validity of the equipartition theorem in driven granular systems"
-requires-python = ">=3.11"
-dependencies = [
-    "pandas",
-    "numpy",
-    "scipy",
-    "statsmodels",
-    "pyyaml",
-    "tqdm",
-    "pytest",
-    "ruff",
-    "black"
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff",
-    "black",
-    "pytest",
-    "pytest-cov"
-]
+[tool.black]
+line-length = 100
+target-version = ['py311']
 
 [tool.ruff]
+line-length = 100
 target-version = "py311"
-line-length = 88
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in CLI args)
-]
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
+select = ["E", "F", "I", "W"]
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in init files for API exposure
-
-[tool.black]
-line-length = 88
-target-version = ["py311"]
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | node_modules
-  | venv
-)/
-'''
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+[project]
+name = "equipartition-granular"
+version = "0.1.0"
+requires-python = ">=3.11"
