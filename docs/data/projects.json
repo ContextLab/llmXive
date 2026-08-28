@@ -28655,7 +28655,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-08-28T07:40:13.718199+00:00",
+  "generated_at": "2026-08-28T09:08:45.276486+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -124811,7 +124811,7 @@
       },
       "authors": [
         {
-          "contributions": 9491,
+          "contributions": 9501,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -124871,83 +124871,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.988389,
-          "ended_at": "2026-08-28T05:44:36.726202Z",
+          "duration_s": 0.755002,
+          "ended_at": "2026-08-28T09:08:27.972045Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-28T05:44:35.737813Z"
+          "started_at": "2026-08-28T09:08:27.217043Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.858638,
-          "ended_at": "2026-08-28T05:44:35.667488Z",
+          "duration_s": 0.714119,
+          "ended_at": "2026-08-28T09:08:27.157258Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-28T05:44:34.808850Z"
+          "started_at": "2026-08-28T09:08:26.443139Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.965107,
-          "ended_at": "2026-08-28T05:44:34.739202Z",
+          "duration_s": 0.638315,
+          "ended_at": "2026-08-28T09:08:26.382041Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-28T05:44:33.774095Z"
+          "started_at": "2026-08-28T09:08:25.743726Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.002017,
-          "ended_at": "2026-08-28T05:44:33.704279Z",
+          "duration_s": 0.776854,
+          "ended_at": "2026-08-28T09:08:25.684157Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-28T05:44:32.702262Z"
+          "started_at": "2026-08-28T09:08:24.907303Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.981588,
-          "ended_at": "2026-08-28T05:44:32.631031Z",
+          "duration_s": 0.603831,
+          "ended_at": "2026-08-28T09:08:24.825178Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-28T05:44:31.649443Z"
+          "started_at": "2026-08-28T09:08:24.221347Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.103752,
-          "ended_at": "2026-08-28T05:44:31.577025Z",
+          "duration_s": 0.704535,
+          "ended_at": "2026-08-28T09:08:24.161873Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-28T05:44:30.473273Z"
+          "started_at": "2026-08-28T09:08:23.457338Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.936275,
-          "ended_at": "2026-08-28T05:44:30.404234Z",
+          "duration_s": 0.701301,
+          "ended_at": "2026-08-28T09:08:23.397221Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-28T05:44:29.467959Z"
+          "started_at": "2026-08-28T09:08:22.695920Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.050652,
-          "ended_at": "2026-08-28T05:44:29.398909Z",
+          "duration_s": 0.64912,
+          "ended_at": "2026-08-28T09:08:22.636576Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-28T05:44:28.348257Z"
+          "started_at": "2026-08-28T09:08:21.987456Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.023696,
-          "ended_at": "2026-08-28T05:44:28.276816Z",
+          "duration_s": 0.846334,
+          "ended_at": "2026-08-28T09:08:21.927858Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-28T05:44:27.253120Z"
+          "started_at": "2026-08-28T09:08:21.081524Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.961144,
-          "ended_at": "2026-08-28T05:44:27.175563Z",
+          "duration_s": 3.210131,
+          "ended_at": "2026-08-28T09:08:21.012306Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-28T05:44:23.214419Z"
+          "started_at": "2026-08-28T09:08:17.802175Z"
         }
       ],
       "paper_status": null,
@@ -160440,6 +160440,126 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 0.755002,
+      "ended_at": "2026-08-28T09:08:27.972045Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-28T09:08:27.217043Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.714119,
+      "ended_at": "2026-08-28T09:08:27.157258Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-28T09:08:26.443139Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.638315,
+      "ended_at": "2026-08-28T09:08:26.382041Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-28T09:08:25.743726Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.776854,
+      "ended_at": "2026-08-28T09:08:25.684157Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-28T09:08:24.907303Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.603831,
+      "ended_at": "2026-08-28T09:08:24.825178Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-28T09:08:24.221347Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.704535,
+      "ended_at": "2026-08-28T09:08:24.161873Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-28T09:08:23.457338Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.701301,
+      "ended_at": "2026-08-28T09:08:23.397221Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-28T09:08:22.695920Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.64912,
+      "ended_at": "2026-08-28T09:08:22.636576Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-28T09:08:21.987456Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.846334,
+      "ended_at": "2026-08-28T09:08:21.927858Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-28T09:08:21.081524Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.210131,
+      "ended_at": "2026-08-28T09:08:21.012306Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-28T09:08:17.802175Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 348.995655,
       "ended_at": "2026-08-28T06:30:40.832299Z",
       "failure_reason": "",
@@ -166317,126 +166437,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-08-27T09:49:39.567861Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 45.496091,
-      "ended_at": "2026-08-27T09:49:39.564509Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-27T09:48:54.068418Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 82.982948,
-      "ended_at": "2026-08-27T09:48:54.065028Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-27T09:47:31.082080Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 55.531378,
-      "ended_at": "2026-08-27T09:47:31.078726Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-27T09:46:35.547348Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 59.419711,
-      "ended_at": "2026-08-27T09:46:35.544010Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-27T09:45:36.124299Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 69.808726,
-      "ended_at": "2026-08-27T09:45:36.120843Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-27T09:44:26.312117Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.577312,
-      "ended_at": "2026-08-27T09:44:26.308673Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-27T09:44:01.731361Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 43.321669,
-      "ended_at": "2026-08-27T09:44:01.728012Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-27T09:43:18.406343Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 42.244443,
-      "ended_at": "2026-08-27T09:43:18.402999Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-27T09:42:36.158556Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 40.760274,
-      "ended_at": "2026-08-27T09:42:36.155166Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-27T09:41:55.394892Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.090168,
-      "ended_at": "2026-08-27T09:41:55.391517Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-127-predicting-coral-bleaching-susceptibilit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-27T09:41:41.301349Z"
     }
   ],
   "reviewed_preprints": [
