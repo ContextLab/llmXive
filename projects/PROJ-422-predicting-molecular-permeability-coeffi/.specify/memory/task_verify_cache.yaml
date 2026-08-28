@@ -1,0 +1,16 @@
+T022:
+  c: false
+  h: 386b5e24eb564273d052da0de7446f5b0b49c6e952f81f7676611b540c5d37cf
+  r: The repository contains a `code/analysis/train.py` file, but the shown code is
+    truncated and does not include a complete training loop nor any logic for saving
+    model checkpoints. Moreover, the required input data file `data/processed/train.csv`
+    is absent, so the script cannot be executed as specified. Both the implementation
+    and the necessary data artifact are missing.
+T024:
+  c: false
+  h: 7b4644b63b6fd68c4ade6fc53725cd5e5230585200f89093070629697017b82d
+  r: "The repository contains an `evaluate.py` with generic metric functions but no\
+    \ code that loads `data/processed/test.csv`, reads model predictions, or computes\
+    \ RMSE/MAE/R\xB2 for the three required models. Moreover, the required `data/processed/test.csv`\
+    \ file is absent. Both the artifact and its functionality are missing, so the\
+    \ task is not satisfied."

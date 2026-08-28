@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No directory listings or filesystem evidence were provided showing that the required paths (e.g., `projects/PROJ-422-predicting-molecular-permeability-coeffi/code/data`, `.../code/models`, etc.) actually exist; without such artifacts the claim cannot be verified. The implementer must supply proof (e.g., a tree dump or screenshots) that all specified directories have been created and are non‑empty.
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with `[tool.black]` and `[tool.ruff]` sections, `.ruff.toml`, or pre‑commit hook definitions) were presented, nor any evidence that ruff and black have been set up in the repository. The required artifacts are missing, so the task is not satisfied.
+- **T003a** — declared artifact(s) missing/empty/invalid: projects/PROJ-422-predicting-molecular-permeability-coeffi/config.yaml
+- **T022** — The repository contains a `code/analysis/train.py` file, but the shown code is truncated and does not include a complete training loop nor any logic for saving model checkpoints. Moreover, the required input data file `data/processed/train.csv` is absent, so the script cannot be executed as specified. Both the implementation and the necessary data artifact are missing.
+- **T024** — The repository contains an `evaluate.py` with generic metric functions but no code that loads `data/processed/test.csv`, reads model predictions, or computes RMSE/MAE/R² for the three required models. Moreover, the required `data/processed/test.csv` file is absent. Both the artifact and its functionality are missing, so the task is not satisfied.
+- **T025** — declared artifact(s) missing/empty/invalid: results/metrics.json

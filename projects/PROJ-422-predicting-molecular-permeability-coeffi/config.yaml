@@ -1,0 +1,55 @@
+# Configuration for Molecular Permeability Prediction Pipeline
+# Generated for Project: PROJ-422-predicting-molecular-permeability-coeffi
+# Task: T003a - Configurable Parameters
+
+# Threshold for bias detection in feature-target correlation (FR-016)
+# If correlation > bias_threshold, a warning is flagged in the final report.
+bias_threshold: 0.85
+
+# Minimum retention rate for valid molecules after preprocessing (FR-011)
+# If valid_molecules / total_molecules < retention_threshold, the pipeline exits with error.
+retention_threshold: 0.95
+
+# Maximum allowed difference in stratification distribution between train/test splits (FR-017)
+# If absolute percentage difference > stratification_diff_threshold, the split is considered invalid.
+stratification_diff_threshold: 0.05
+
+# Data Configuration
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  interim_dir: "data/interim"
+  source: "huggingface" # Options: huggingface, nist, local
+  dataset_id: "molecule-permeability-dataset" # Placeholder, updated by download.py logic
+  target_column: "permeability_coefficient"
+  stratification_column: "polymer_type"
+
+# Model Configuration
+model:
+  gnn:
+    hidden_channels: 128
+    num_layers: 3
+    dropout: 0.1
+    learning_rate: 0.001
+    epochs: 100
+    patience: 10 # Early stopping patience
+  rf:
+    n_estimators: 100
+    max_depth: None
+    random_state: 42
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - rmse
+    - mae
+    - r2
+  statistical_test: "paired_ttest"
+  effect_size_method: "cohen_d"
+  confidence_interval: 0.95
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "json"
+  output_file: "results/pipeline.log"
