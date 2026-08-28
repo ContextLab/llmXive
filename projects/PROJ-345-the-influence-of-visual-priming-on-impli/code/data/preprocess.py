@@ -4,213 +4,372 @@ import logging
 import sys
 import json
 from pathlib import Path
-from typing import Optional, Dict, List, Any
+from typing import Dict, List, Optional, Tuple, Any
+
 import pandas as pd
 import numpy as np
 
 from config import get_path, set_seed, ensure_directories
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_human_rated_ambiguity(ambiguity_file: Optional[str] = None) -> pd.DataFrame:
+def load_human_rated_ambiguity(
+    input_path: Optional[str] = None,
+    output_path: Optional[str] = None
+) -> pd.DataFrame:
     """
-    Load human-rated ambiguity scores from external verified sources.
-    Returns an empty DataFrame if file is missing or unavailable.
-    """
-    if ambiguity_file is None:
-        ambiguity_file = str(get_path("data/processed/human_rated_ambiguity.csv"))
+    Load human-rated ambiguity scores from an external verified source.
     
-    path = Path(ambiguity_file)
-    if not path.exists():
-        logger.info(f"Human rated ambiguity file not found at {path}. Returning empty DataFrame.")
-        return pd.DataFrame(columns=['stimulus_id', 'ambiguity_score'])
+    Args:
+        input_path: Path to the human ratings CSV file.
+        output_path: Path to write aggregated ratings if needed.
+        
+    Returns:
+        DataFrame with stimulus_id and ambiguity_score columns.
+    """
+    if input_path is None:
+        input_path = get_path("data/raw/human_ratings.csv")
     
-    try:
-        df = pd.read_csv(path)
-        logger.info(f"Loaded {len(df)} human-rated ambiguity scores from {path}")
-        return df
-    except Exception as e:
-        logger.error(f"Error loading human rated ambiguity: {e}")
-        return pd.DataFrame(columns=['stimulus_id', 'ambiguity_score'])
+    path_obj = Path(input_path)
+    if not path_obj.exists():
+        logger.warning(f"Human rated ambiguity file not found at {input_path}. "
+                       "Proceeding with synthetic derivation pipeline.")
+        return pd.DataFrame()
+    
+    df = pd.read_csv(path_obj)
+    required_cols = ['stimulus_id', 'ambiguity_score']
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Human ratings file missing required columns: {required_cols}")
+    
+    return df[['stimulus_id', 'ambiguity_score']]
 
-def aggregate_human_ratings(human_df: pd.DataFrame) -> Dict[str, float]:
+def aggregate_human_ratings(
+    df: pd.DataFrame,
+    output_path: str
+) -> pd.DataFrame:
     """
-    Aggregate human ratings to a dictionary: {stimulus_id: mean_ambiguity}
+    Aggregate human ratings if multiple raters exist per stimulus.
     """
-    if human_df.empty:
-        return {}
-    return human_df.groupby('stimulus_id')['ambiguity_score'].mean().to_dict()
+    if df.empty:
+        return pd.DataFrame()
+    
+    agg_df = df.groupby('stimulus_id')['ambiguity_score'].mean().reset_index()
+    agg_df.columns = ['stimulus_id', 'mean_ambiguity']
+    
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    agg_df.to_csv(output, index=False)
+    logger.info(f"Aggregated human ratings saved to {output_path}")
+    
+    return agg_df
 
-def derive_synthetic_ambiguity(linked_trials_path: str, output_path: str) -> pd.DataFrame:
+def derive_synthetic_ambiguity(
+    linked_trials_path: Optional[str] = None,
+    output_path: Optional[str] = None
+) -> pd.DataFrame:
     """
     Derive synthetic ambiguity scores if human ratings are unavailable.
-    Uses a simple heuristic: variance in response times per stimulus as a proxy for ambiguity.
+    
+    This implementation uses a heuristic based on response time variance
+    and consistency as a proxy for ambiguity (higher variance = higher ambiguity).
+    
+    Args:
+        linked_trials_path: Path to linked_trials.csv.
+        output_path: Path to write derived ambiguity scores.
+        
+    Returns:
+        DataFrame with stimulus_id and derived_ambiguity columns.
     """
-    logger.info("Deriving synthetic ambiguity scores...")
+    if linked_trials_path is None:
+        linked_trials_path = get_path("data/processed/linked_trials.csv")
+        
+    path_obj = Path(linked_trials_path)
+    if not path_obj.exists():
+        raise FileNotFoundError(f"Linked trials file not found at {linked_trials_path}")
     
-    if not os.path.exists(linked_trials_path):
-        raise FileNotFoundError(f"Linked trials file not found: {linked_trials_path}")
+    logger.info(f"Loading linked trials from {linked_trials_path}")
+    df = pd.read_csv(path_obj)
     
-    df = pd.read_csv(linked_trials_path)
-    
-    # Heuristic: Higher variance in RTs for a stimulus implies higher ambiguity
-    # Group by stimulus_id and calculate variance of response_time
     if 'stimulus_id' not in df.columns or 'response_time' not in df.columns:
         raise ValueError("Linked trials must contain 'stimulus_id' and 'response_time' columns")
     
-    stats = df.groupby('stimulus_id')['response_time'].agg(['mean', 'std', 'count']).reset_index()
-    stats.columns = ['stimulus_id', 'mean_rt', 'rt_std', 'trial_count']
-    
-    # Normalize std to 0-1 range for ambiguity score
-    max_std = stats['rt_std'].max()
-    if max_std == 0:
-        stats['ambiguity_score'] = 0.0
-    else:
-        stats['ambiguity_score'] = stats['rt_std'] / max_std
+    # Calculate variance of response times per stimulus as a proxy for ambiguity
+    # Rationale: Ambiguous stimuli often lead to more variable response times
+    # due to cognitive conflict or hesitation.
+    stimulus_stats = df.groupby('stimulus_id')['response_time'].agg(['mean', 'var', 'count']).reset_index()
+    stimulus_stats.columns = ['stimulus_id', 'mean_rt', 'var_rt', 'trial_count']
     
     # Filter out stimuli with insufficient trials
-    stats = stats[stats['trial_count'] >= 3]
+    valid_stimuli = stimulus_stats[stimulus_stats['trial_count'] >= 2].copy()
     
-    stats[['stimulus_id', 'ambiguity_score']].to_csv(output_path, index=False)
-    logger.info(f"Saved {len(stats)} synthetic ambiguity scores to {output_path}")
-    return stats[['stimulus_id', 'ambiguity_score']]
+    if valid_stimuli.empty:
+        raise ValueError("No stimuli with sufficient trials to derive ambiguity scores.")
+    
+    # Normalize variance to 0-1 scale for ambiguity score
+    # Using Min-Max scaling, handling edge cases
+    if valid_stimuli['var_rt'].max() > valid_stimuli['var_rt'].min():
+        valid_stimuli['derived_ambiguity'] = (
+            (valid_stimuli['var_rt'] - valid_stimuli['var_rt'].min()) / 
+            (valid_stimuli['var_rt'].max() - valid_stimuli['var_rt'].min())
+        )
+    else:
+        valid_stimuli['derived_ambiguity'] = 0.5  # Default if no variance
+    
+    # Output
+    if output_path is None:
+        output_path = get_path("data/processed/stimulus_metadata.csv")
+        
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Only save necessary columns
+    result_df = valid_stimuli[['stimulus_id', 'derived_ambiguity']].copy()
+    result_df.to_csv(output, index=False)
+    logger.info(f"Synthetic ambiguity scores derived and saved to {output_path}")
+    
+    return result_df
 
-def check_confounding(linked_trials_path: str, output_path: str) -> Dict[str, Any]:
+def check_confounding(
+    input_path: Optional[str] = None,
+    output_path: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Check if 'prime' condition is confounded with trial order or block structure.
-    Outputs a JSON report with correlation matrix and trial-order check results.
+    Check for confounding between prime condition and trial order/block structure.
     
-    Logic:
-    1. Load linked_trials.csv
-    2. Ensure 'trial_id' is numeric or sortable. If string, try to extract numeric part or sort by appearance.
-    3. Calculate correlation between trial_order (numeric index) and prime_condition (encoded).
-    4. If correlation is high (> 0.3 absolute), flag as potential confound.
-    5. Save report to output_path.
+    This function verifies that the 'prime_condition' is not systematically 
+    correlated with 'trial_order' or 'block_id', which could invalidate 
+    causal interpretations.
+    
+    Args:
+        input_path: Path to linked_trials.csv.
+        output_path: Path to write confounding_report.json.
+        
+    Returns:
+        Dictionary containing correlation matrix and check results.
+        
+    Raises:
+        ValueError: If significant confounding is detected (|r| > 0.3).
     """
-    logger.info(f"Running confounding check on {linked_trials_path}...")
+    if input_path is None:
+        input_path = get_path("data/processed/linked_trials.csv")
+        
+    path_obj = Path(input_path)
+    if not path_obj.exists():
+        raise FileNotFoundError(f"Linked trials file not found at {input_path}")
     
-    if not os.path.exists(linked_trials_path):
-        raise FileNotFoundError(f"Linked trials file not found: {linked_trials_path}")
+    logger.info(f"Loading data for confounding check from {input_path}")
+    df = pd.read_csv(path_obj)
     
-    df = pd.read_csv(linked_trials_path)
-    
-    required_cols = ['trial_id', 'prime_condition']
+    required_cols = ['prime_condition', 'trial_id', 'response_time']
     if not all(col in df.columns for col in required_cols):
-        raise ValueError(f"Linked trials must contain columns: {required_cols}")
-    
-    # Create a numeric trial order based on appearance or parsed ID
-    # Try to parse trial_id as int, otherwise use index
-    if pd.api.types.is_numeric_dtype(df['trial_id']):
-        trial_order = df['trial_id'].values
+        # Try to infer trial order if not present
+        if 'trial_order' not in df.columns:
+            # Create a simple trial order based on trial_id if possible, 
+            # or assume sequential order in the file
+            df['trial_order'] = range(len(df))
+            logger.warning("No 'trial_order' column found; assuming sequential order.")
+        
+        # Map prime_condition to numeric for correlation if it's categorical
+        # We assume binary or ordinal prime conditions for this check
+        if 'prime_condition' in df.columns and df['prime_condition'].dtype == 'object':
+            # One-hot encode or label encode
+            from sklearn.preprocessing import LabelEncoder
+            le = LabelEncoder()
+            df['prime_condition_numeric'] = le.fit_transform(df['prime_condition'])
+            prime_col = 'prime_condition_numeric'
+        else:
+            prime_col = 'prime_condition'
     else:
-        # Try to extract digits
-        try:
-            trial_order = df['trial_id'].astype(str).str.extract(r'(\d+)')[0].astype(float).values
-        except:
-            trial_order = np.arange(len(df))
+        if 'trial_order' not in df.columns:
+            df['trial_order'] = range(len(df))
+        if df['prime_condition'].dtype == 'object':
+            from sklearn.preprocessing import LabelEncoder
+            le = LabelEncoder()
+            df['prime_condition_numeric'] = le.fit_transform(df['prime_condition'])
+            prime_col = 'prime_condition_numeric'
+        else:
+            prime_col = 'prime_condition'
     
-    # Encode prime_condition if categorical
-    if not pd.api.types.is_numeric_dtype(df['prime_condition']):
-        df['prime_condition_encoded'] = pd.factorize(df['prime_condition'])[0]
-    else:
-        df['prime_condition_encoded'] = df['prime_condition']
+    # Calculate correlations
+    # We check correlation between prime condition and trial order
+    # Also check between prime condition and block (if available)
     
-    # Calculate correlation
-    correlation = np.corrcoef(trial_order, df['prime_condition_encoded'])[0, 1]
-    
-    # Determine if confounded (threshold 0.3)
-    is_confounded = abs(correlation) > 0.3
-    
-    # Build report
-    report = {
-        "confounding_check": {
-            "method": "Pearson correlation between trial order and prime condition",
-            "correlation_coefficient": float(correlation),
-            "threshold": 0.3,
-            "is_confounded": bool(is_confounded),
-            "sample_size": len(df),
-            "trial_id_type": str(type(df['trial_id'].iloc[0]).__name__)
-        },
-        "correlation_matrix": {
-            "trial_order_vs_prime_condition": float(correlation)
-        },
-        "recommendation": "Proceed with analysis" if not is_confounded else "WARNING: Potential confound detected. Consider blocking or randomization checks."
+    results = {
+        "check_timestamp": str(pd.Timestamp.now()),
+        "input_file": str(path_obj),
+        "checks_performed": [],
+        "correlation_matrix": {},
+        "confounding_detected": False,
+        "details": {}
     }
     
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    # 1. Prime vs Trial Order
+    if prime_col in df.columns and 'trial_order' in df.columns:
+        corr_order = df[prime_col].corr(df['trial_order'])
+        results["checks_performed"].append("prime_vs_trial_order")
+        results["correlation_matrix"]["prime_vs_trial_order"] = float(corr_order)
+        
+        threshold = 0.3
+        if abs(corr_order) > threshold:
+            results["confounding_detected"] = True
+            results["details"]["prime_vs_trial_order"] = {
+                "correlation": float(corr_order),
+                "threshold": threshold,
+                "status": "FAIL",
+                "message": f"Significant correlation ({corr_order:.4f}) between prime condition and trial order detected. "
+                           "This may indicate a systematic confound."
+            }
+        else:
+            results["details"]["prime_vs_trial_order"] = {
+                "correlation": float(corr_order),
+                "threshold": threshold,
+                "status": "PASS",
+                "message": "No significant correlation between prime condition and trial order."
+            }
     
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
+    # 2. Prime vs Block (if block_id exists)
+    if 'block_id' in df.columns and prime_col in df.columns:
+        # Convert block_id to numeric if needed
+        block_numeric = pd.Categorical(df['block_id']).codes
+        corr_block = df[prime_col].corr(block_numeric)
+        results["checks_performed"].append("prime_vs_block_id")
+        results["correlation_matrix"]["prime_vs_block_id"] = float(corr_block)
+        
+        threshold = 0.3
+        if abs(corr_block) > threshold:
+            results["confounding_detected"] = True
+            results["details"]["prime_vs_block_id"] = {
+                "correlation": float(corr_block),
+                "threshold": threshold,
+                "status": "FAIL",
+                "message": f"Significant correlation ({corr_block:.4f}) between prime condition and block ID detected."
+            }
+        else:
+            results["details"]["prime_vs_block_id"] = {
+                "correlation": float(corr_block),
+                "threshold": threshold,
+                "status": "PASS",
+                "message": "No significant correlation between prime condition and block ID."
+            }
     
-    logger.info(f"Confounding check complete. Report saved to {output_path}")
-    if is_confounded:
-        logger.warning(f"High correlation ({correlation:.3f}) detected between trial order and prime condition.")
-    else:
-        logger.info(f"No significant confounding detected (correlation: {correlation:.3f}).")
+    # 3. Check for perfect balance (ideal case)
+    if 'prime_condition' in df.columns and 'trial_order' in df.columns:
+        # Count trials per prime per block/order bin (simplified)
+        # This is a more robust check
+        prime_counts = df.groupby('prime_condition').size()
+        total_trials = len(df)
+        balance_ratio = prime_counts.min() / prime_counts.max()
+        results["details"]["balance_check"] = {
+            "min_prime_count": int(prime_counts.min()),
+            "max_prime_count": int(prime_counts.max()),
+            "balance_ratio": float(balance_ratio),
+            "status": "PASS" if balance_ratio > 0.8 else "WARNING"
+        }
     
-    return report
+    # Write output
+    if output_path is None:
+        output_path = get_path("data/processed/confounding_report.json")
+        
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Confounding report saved to {output_path}")
+    
+    if results["confounding_detected"]:
+        logger.error("CONFOUNDING DETECTED: The experiment design may be compromised.")
+        raise ValueError("Confounding detected between prime condition and trial order/block structure.")
+    
+    logger.info("Confounding check passed. No significant confounding detected.")
+    return results
 
 def run_preprocessing(
     linked_trials_path: Optional[str] = None,
-    ambiguity_output_path: Optional[str] = None,
-    confounding_output_path: Optional[str] = None,
-    use_synthetic_ambiguity: bool = True
+    human_ratings_path: Optional[str] = None,
+    output_metadata_path: Optional[str] = None,
+    confounding_report_path: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Orchestrate preprocessing: load/derive ambiguity and run confounding checks.
-    """
-    if linked_trials_path is None:
-        linked_trials_path = str(get_path("data/processed/linked_trials.csv"))
-    if ambiguity_output_path is None:
-        ambiguity_output_path = str(get_path("data/processed/stimulus_metadata.csv"))
-    if confounding_output_path is None:
-        confounding_output_path = str(get_path("data/processed/confounding_report.json"))
+    Run the full preprocessing pipeline:
+    1. Load or derive ambiguity scores.
+    2. Check for confounding.
+    3. Merge metadata with trial data.
     
+    Args:
+        linked_trials_path: Path to linked_trials.csv.
+        human_ratings_path: Path to human ratings CSV (optional).
+        output_metadata_path: Path to write stimulus metadata CSV.
+        confounding_report_path: Path to write confounding report JSON.
+        
+    Returns:
+        Dictionary with pipeline results.
+    """
+    set_seed(42)
     ensure_directories()
     
-    results = {}
+    results = {
+        "ambiguity_source": "unknown",
+        "confounding_status": "unknown",
+        "metadata_rows": 0
+    }
     
-    # 1. Check for human-rated ambiguity
-    human_df = load_human_rated_ambiguity()
+    # Step 1: Handle Ambiguity Scores
+    logger.info("Step 1: Checking for human-rated ambiguity...")
+    human_df = load_human_rated_ambiguity(input_path=human_ratings_path)
     
-    if human_df.empty and not use_synthetic_ambiguity:
-        logger.error("No human-rated ambiguity available and synthetic derivation disabled. Halting.")
-        raise RuntimeError("Data Gap: Ambiguity derivation failed (human ratings missing, synthetic disabled).")
-    
-    if human_df.empty:
-        logger.info("No human ratings found. Deriving synthetic ambiguity.")
-        derive_synthetic_ambiguity(linked_trials_path, ambiguity_output_path)
-        results['ambiguity_source'] = 'synthetic'
+    if not human_df.empty:
+        logger.info("Human ratings found. Aggregating...")
+        agg_df = aggregate_human_ratings(human_df, output_metadata_path or get_path("data/processed/stimulus_metadata.csv"))
+        results["ambiguity_source"] = "human_rated"
+        results["metadata_rows"] = len(agg_df)
     else:
-        # Aggregate and save human ratings
-        aggregated = aggregate_human_ratings(human_df)
-        agg_df = pd.DataFrame([{'stimulus_id': k, 'ambiguity_score': v} for k, v in aggregated.items()])
-        agg_df.to_csv(ambiguity_output_path, index=False)
-        results['ambiguity_source'] = 'human'
+        logger.info("No human ratings found. Deriving synthetic ambiguity...")
+        try:
+            synth_df = derive_synthetic_ambiguity(
+                linked_trials_path=linked_trials_path,
+                output_path=output_metadata_path or get_path("data/processed/stimulus_metadata.csv")
+            )
+            results["ambiguity_source"] = "synthetic"
+            results["metadata_rows"] = len(synth_df)
+        except Exception as e:
+            logger.error(f"Ambiguity derivation failed: {e}")
+            raise ValueError("Data Gap: Ambiguity derivation failed.") from e
     
-    # 2. Run confounding check
-    confounding_results = check_confounding(linked_trials_path, confounding_output_path)
-    results['confounding'] = confounding_results
+    # Step 2: Confounding Check
+    logger.info("Step 2: Running confounding check...")
+    try:
+        conf_results = check_confounding(
+            input_path=linked_trials_path,
+            output_path=confounding_report_path or get_path("data/processed/confounding_report.json")
+        )
+        results["confounding_status"] = "passed"
+    except ValueError as e:
+        logger.error(f"Confounding check failed: {e}")
+        results["confounding_status"] = "failed"
+        raise
     
+    logger.info("Preprocessing pipeline completed successfully.")
     return results
 
 def main():
     """
-    Entry point for preprocessing script.
+    Entry point for the preprocessing script.
     """
+    logger.info("Starting preprocessing pipeline...")
+    
     try:
-        result = run_preprocessing()
+        run_preprocessing()
         logger.info("Preprocessing completed successfully.")
-        logger.info(f"Ambiguity source: {result['ambiguity_source']}")
-        logger.info(f"Confounding status: {'Confounded' if result['confounding']['confounding_check']['is_confounded'] else 'Not Confounded'}")
-        return 0
     except Exception as e:
         logger.error(f"Preprocessing failed: {e}")
-        return 1
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

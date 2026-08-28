@@ -1,1 +1,1 @@
-# Integration tests package
+"""Integration test package for llmXive regression sensitivity project."""

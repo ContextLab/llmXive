@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T02:52:45.725842Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-836-llmxive-follow-up-extending-ai-for-auto
-last_run_id: 1d0cb9eb-3940-40f3-8d62-41de7ae4a9b2
+last_run_id: 937c19b1-3618-45d0-af48-7a04c7d47509
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto
 title: 'llmXive follow-up: extending "AI for Auto-Research: Roadmap & User Guide"'
-updated_at: '2026-08-19T18:38:53.212182Z'
+updated_at: '2026-08-28T22:21:58.862908Z'

@@ -1,0 +1,11 @@
+# Extend the main pyproject.toml settings if needed, or use this for specific overrides
+# Currently, we rely on pyproject.toml for the main configuration.
+# This file is provided for IDE compatibility if a project-level ruff config is expected separately.
+extend = "pyproject.toml"
+
+[lint]
+select = ["E", "F", "I", "UP", "W"]
+
+[lint.isort]
+known-first-party = ["src", "tests"]
+combine-as-imports = true

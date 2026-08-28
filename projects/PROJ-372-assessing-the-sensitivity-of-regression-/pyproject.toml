@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-sensitivity-study"
+name = "llmXive-sensitivity-analysis"
 version = "0.1.0"
 description = "Assessing the sensitivity of regression coefficients to dataset subset selection"
 readme = "README.md"
@@ -18,18 +18,21 @@ dependencies = [
     "datasets>=2.14",
     "pytest>=7.4",
     "linearmodels>=4.3",
+    "ruff>=0.1.0",
+    "black>=23.0",
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["src*", "tests*"]
 
-# Ruff Configuration (Linting)
 [tool.ruff]
 # Target Python version
 target-version = "py39"
-# Line length for formatting and linting
+
+# Line length
 line-length = 88
+
 # Exclude directories
 exclude = [
     ".git",
@@ -37,48 +40,41 @@ exclude = [
     "__pycache__",
     "build",
     "dist",
-    "venv",
-    ".venv",
+    "*.egg-info",
+    ".eggs",
     "data",
     "artifacts",
+    "docs",
 ]
 
 [tool.ruff.lint]
-# Enable specific rules
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "UP", "W"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore `E402` (import order) in `__init__.py` files
+"src/**/__init__.py" = ["E402"]
+"tests/**" = ["E501"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["src"]
-known-third-party = [
-    "pandas",
-    "numpy",
-    "scipy",
-    "statsmodels",
-    "sklearn",
-    "yaml",
-    "datasets",
-    "pytest",
-    "linearmodels",
-]
-force-sort-within-sections = true
+known-first-party = ["src", "tests"]
+force-sort-within-sections = false
+combine-as-imports = true
 
-# Black Configuration (Formatting)
 [tool.black]
+# Line length
 line-length = 88
-target-version = ['py39']
-include = '\.pyi?$'
+# Target versions
+target-version = ["py39"]
+# Exclude patterns
 exclude = '''
 /(
     \.git
@@ -86,37 +82,21 @@ exclude = '''
   | __pycache__
   | build
   | dist
-  | venv
-  | .venv
+  | \.egg-info
+  | \.eggs
   | data
   | artifacts
+  | docs
 )/
 '''
+# Force exclude
+force-exclude = true
 
-# Pytest Configuration
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --strict-markers"
-markers = [
-    "unit: Unit tests",
-    "integration: Integration tests",
-    "slow: Slow running tests",
-]
+pythonpath = ["."]
+addopts = "-v --tb=short"
 
-# Coverage Configuration
 [tool.coverage.run]
 source = ["src"]
 branch = true
-omit = ["*/tests/*", "*/__init__.py"]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-]

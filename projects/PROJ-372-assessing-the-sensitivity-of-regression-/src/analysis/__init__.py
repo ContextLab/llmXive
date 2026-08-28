@@ -1,23 +1,22 @@
 """
-Analysis module for the llmXive automated science pipeline.
+Analysis module for assessing the sensitivity of regression coefficients.
 
-This module implements User Story 3: Interaction Analysis and Sensitivity Visualization.
+This module implements User Story 3 (US3): Interaction Analysis and Sensitivity Visualization.
 It provides tools for multiple regression with interaction terms, sensitivity sweeps,
 and visualization of stability curves.
 
-Exports:
-    - run_meta_analysis: Main pipeline entry point for meta-analysis.
-    - hlm_analysis: Module containing multiple regression and interaction logic.
-    - visualization: Module for generating sensitivity plots.
-    - report_generator: Module for generating final analysis reports.
+Key components:
+- hlm_analysis: Multiple regression analysis (per Spec FR-005)
+- Visualization utilities for stability curves
+- Report generation for associational findings
 """
 
-from .hlm_analysis import run_meta_analysis
-from . import visualization
-from . import report_generator
+from .hlm_analysis import run_meta_analysis, sensitivity_sweep
+from .visualization import plot_stability_curves, plot_interaction_effects
 
 __all__ = [
     "run_meta_analysis",
-    "visualization",
-    "report_generator",
+    "sensitivity_sweep",
+    "plot_stability_curves",
+    "plot_interaction_effects",
 ]

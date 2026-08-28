@@ -35,9 +35,45 @@ T016:
     \ the halt condition when applicable."
 T023:
   c: false
-  h: 299293fed1ece7f85cbfafd1dac0724bd5caad5adee62af6b7086f40b65ae3bb
-  r: "The repository lacks the required `data/processed/confounding_report.json` file,\
-    \ and the shown `code/data/preprocess.py` does not contain any implementation\
-    \ of a confounding check or generation of a correlation matrix/report. Consequently,\
-    \ the task\u2019s deliverable is missing and the code does not fulfill the specified\
-    \ requirement."
+  h: e30b2ca7457d5e1cbdb698fe216555309705cf01d3cf25fd5a7c665fd1dc8158
+  r: "The required output file `data/processed/confounding_report.json` does not exist,\
+    \ and the provided `code/data/preprocess.py` snippet shows no implementation of\
+    \ a confounding check or code that would generate such a JSON report. The task\u2019\
+    s core requirement is therefore unmet."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, documentation, or example output was provided that demonstrates\
+    \ the model\u2019s results being phrased as \u201Cassociational\u201D rather than\
+    \ causal. Without such artifact, we cannot verify that the requirement of framing\
+    \ findings as associational has been satisfied."
+T035:
+  c: false
+  h: 05270145807233e4963616b5636e279cc5922b8b1d832863e6b94cd3f92a1911
+  r: "The provided `code/models/metrics.py` contains VIF and Benjamini\u2011Hochberg\
+    \ utilities but no implementation that sweeps significance thresholds or computes\
+    \ a sensitivity analysis with columns `alpha, significance_rate`. Moreover, the\
+    \ required output file `data/processed/sensitivity_analysis.csv` does not exist.\
+    \ Both the functional code and the output artifact are missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No report or document was provided that shows the required explicit citations\
+    \ of the \u201Cobservational nature\u201D limitation and the \u201Cderived prime\
+    \ valence\u201D limitation. Without a tangible artifact containing those statements,\
+    \ the task is not satisfied. The next implementer must supply the final report\
+    \ (e.g., PDF or markdown) where these limitations are clearly mentioned."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated documentation files (`docs/` contents or a modified `quickstart.md`)
+    were provided; the claim lacks any tangible artifacts to verify that the required
+    documentation changes were made. The implementer must add the revised docs and
+    quickstart files.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or refactored modules for the `data/` and `models/` directories\
+    \ are present; the provided information contains only user story specifications\
+    \ and no actual cleaned\u2011up or refactored files. The required artifacts are\
+    \ missing, so the task is not satisfied."

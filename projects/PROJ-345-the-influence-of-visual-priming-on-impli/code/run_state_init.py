@@ -1,23 +1,16 @@
 """
-Runner script for T007: Setup state/projects/PROJ-345/ structure and state.yaml initialization.
-This script initializes the project state directory and creates the initial state.yaml file.
+Entry point script for initializing the state management system.
+This script sets up the state.yaml file for Principle V (Versioning).
 """
 import sys
 from pathlib import Path
 
-# Ensure the code directory is in the path for imports
+# Ensure the code directory is in the path
 code_dir = Path(__file__).parent
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
 
-from state_management import main as state_init_main
-
-
-def main():
-    """Entry point for the state initialization runner."""
-    # Delegate to the main function in state_management
-    return state_init_main()
-
+from state_management import main
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

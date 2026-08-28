@@ -74,7 +74,7 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**⚠️ CRITICAL BLOCKER**: The plan states the project is BLOCKED until a verified dataset is found. **T012a is the unconditional gate.** If T012a fails, the project MUST halt and generate blocked artifacts (T012c_gen, T016b, etc.). T013-T017 and T020a are **STRICTLY BLOCKED** until T012a PASSES.
+**⚠️ CRITICAL BLOCKER**: The plan states the project is BLOCKED until a verified dataset is found. **T012a is the unconditional gate.** If T012a fails, the project MUST halt and generate blocked artifacts (T012c_gen, T016b, T017b, T020c, T025b, T031c, T035b). T012d, T013-T017 and T020a-T020b are **STRICTLY SKIPPED** if T012a fails.
 
 **Goal**: Automatically download, filter, and merge microbiome data with sleep metadata, excluding samples with antibiotic use or missing sleep data.
 
@@ -82,47 +82,63 @@
 
 ### Data Feasibility Check (Gate)
 
-- [ ] T012a [US1] **UNCONDITIONAL GATE**: Execute Data Feasibility Check. Read `plan.md` and check the `# Verified datasets` block for an American Gut Project URL.
- - **IF** a verified URL is found: Proceed to T012d.
- - **IF** no verified URL is found (as per current plan.md status): **IMMEDIATELY TRIGGER** T012c_gen (inline logic or execution flow). Do NOT proceed to T012d or any Happy Path tasks.
- - **Deliverable**: If blocked, ensure `data/processed/ingestion_report.json` exists with `status: "blocked"`. If passed, proceed to T012d.
+- [ ] T012a [US1] **UNCONDITIONAL GATE**: Execute Data Feasibility Check. Run `python src/ingestion.py --check-feasibility`.
+ - **Logic**: The script reads `plan.md` and checks the `# Verified datasets` block for an American Gut Project URL.
+ - **IF** a verified URL is found: Exit with code 0. Proceed to T012d.
+ - **IF** no verified URL is found (as per current plan.md status): Exit with code 1. **IMMEDIATELY TRIGGER** T012c_gen. Do NOT proceed to T012d or T013.
+ - **Deliverable**: Exit code determines path.
  - **Note**: This task resolves the circular dependency by acting as the primary trigger for the blocked state.
 
-- [ ] T012c_gen [US1] **AUTO-TRIGGERED BY T012a FAIL**: Generate Blocked Ingestion Report. Create `data/processed/ingestion_report.json` with `status: "blocked"`, `reason: "No verified data source found in plan.md"`, `measurement_status: "unmeasurable"`, and `timestamp`. **This task is the primary deliverable for the blocked state.**
+- [ ] T012c_gen [US1] **DEPENDS ON T012a FAIL (Exit Code 1)**: Generate Blocked Ingestion Report. Create `data/processed/ingestion_report.json` with `status: "blocked"`, `reason: "No verified data source found in plan.md"`, `measurement_status: "unmeasurable"`, and `timestamp`. **Verification**: Assert file exists and contains keys: status, reason, measurement_status, timestamp. **[FR-001] [FR-002] [SC-001]**
 
-- [X] T012d [US1] [BLOCKED UNTIL T012a PASSES] Implement Schema Verification in `src/ingestion.py`: Fetch a sample/headers of the source. Verify file format (BIOM/CSV) and presence of required columns (`antibiotic_use_last_3m`, `sleep_efficiency`, `sleep_duration_hours`).
+- [ ] T012d [US1] [BLOCKED UNTIL T012a PASSES] Implement Schema Verification in `src/ingestion.py`: Run `python src/ingestion.py --check-schema`. Fetch a sample/headers of the source. Verify file format (BIOM/CSV) and presence of required columns (`antibiotic_use_last_3m`, `sleep_efficiency`, `sleep_duration_hours`).
  - **IF** columns are missing: **IMMEDIATELY TRIGGER** T012d_gen.
  - **IF** columns exist: Proceed to T045.
+ - **Note**: This task is SKIPPED if T012a fails.
 
-- [ ] T012d_gen [US1] **AUTO-TRIGGERED BY T012d FAIL**: Handle Schema Verification Failure. Generate `data/processed/ingestion_report.json` with `status: "blocked"`, `reason: "Schema mismatch: Missing required columns"`, `measurement_status: "unmeasurable"`, and `timestamp`.
+- [ ] T012d_gen [US1] **DEPENDS ON T012d FAIL**: Handle Schema Verification Failure. Generate `data/processed/ingestion_report.json` (update if exists) with `status: "blocked"`, `reason: "Schema mismatch: Missing required columns"`, `measurement_status: "unmeasurable"`, and `timestamp`. **Verification**: Assert file exists and contains keys: status, reason, measurement_status, timestamp. **[FR-001] [FR-002]**
 
 ### Blocked State Handling (Global - If T012a FAILS or T012d FAILS)
 
-- [ ] T016b [US1] [BLOCKED UNTIL T012a FAILS OR T012d FAILS] Generate Blocked Cleaned Dataset: Create `data/processed/cleaned_microbiome_sleep.csv` with `status: "blocked"`, `reason: "No verified data source found"`, and empty rows. **Columns must be: sample_id, age, bmi, antibiotic_use_last_3m, sleep_efficiency, sleep_duration_hours, shannon, simpson, observed_otus.**
-- [ ] T017b [US1] [BLOCKED UNTIL T012a FAILS OR T012d FAILS] Generate Blocked Ingestion Report: Create `data/processed/ingestion_report.json` with `status: "blocked"`, `reason: "No verified data source found"`, and `measurement_status: "unmeasurable"`. **Verification**: Assert file exists and contains these keys.
-- [ ] T020c [US1] [BLOCKED UNTIL T012a FAILS OR T012d FAILS] Generate Blocked Diversity Artifact: Create `data/processed/diversity_results.csv` with `status: "blocked"`, `reason: "No verified data source found"`, and empty diversity columns (shannon, simpson, observed_otus). **Ensures US-1 has a measurable artifact in the blocked state.**
-- [ ] T025b [US2] [BLOCKED UNTIL T012a FAILS OR T012d FAILS] Generate Blocked Analysis Report: Create `data/processed/correlation_results.csv` with `status: "blocked"`, `reason: "No verified data source found"`, and empty correlation columns. **Moved from Phase 4 to Phase 3 for immediate blocking.**
-- [ ] T031c [US3] [BLOCKED UNTIL T012a FAILS OR T012d FAILS] Generate Blocked Final Report: Create `data/processed/reports/blocked_report.md` with Markdown format, explicitly stating "Project Blocked: No Verified Data Source Found" and including the `reason` and `status` fields from the ingestion report. **Moved from Phase 5 to Phase 3 for immediate blocking.**
+- [ ] T016b [US1] [DEPENDS ON T012a FAIL OR T012d FAIL] Generate Blocked Cleaned Dataset: Create `data/processed/cleaned_microbiome_sleep.csv` with header row only: `sample_id,age,bmi,antibiotic_use_last_3m,sleep_efficiency,sleep_duration_hours,shannon,simpson,observed_otus`. **Verification**: Assert file exists and has exactly 1 row (header). **[FR-001] [FR-002] [SC-001]**
+
+- [ ] T017b [US1] [DEPENDS ON T012a FAIL OR T012d FAIL] Generate Blocked Ingestion Report (Exclusion): Create `data/processed/ingestion_report.json` (update if exists) with `exclusion_proportion: "unmeasurable"`, `total_initial_sample_count: 0`, `excluded_count: 0`. **Verification**: Assert file exists and contains keys: exclusion_proportion, total_initial_sample_count, excluded_count. **[SC-001]**
+
+- [ ] T020c [US1] [DEPENDS ON T012a FAIL OR T012d FAIL] Generate Blocked Diversity Artifact: Create `data/processed/diversity_results.csv` with header row only: `sample_id,shannon,simpson,observed_otus`. **Verification**: Assert file exists and has exactly 1 row (header). **[FR-003]**
+
+- [ ] T025b [US2] [DEPENDS ON T012a FAIL OR T012d FAIL] Generate Blocked Analysis Report: Create `data/processed/correlation_results.csv` with header row only: `sample_id,diversity_index,sleep_metric,r,p,q,is_moderate,is_significant,status`. **Verification**: Assert file exists and has exactly 1 row (header). **[FR-004] [FR-005] [SC-002] [SC-003]**
+
+- [ ] T031c [US3] [DEPENDS ON T012a FAIL OR T012d FAIL] Generate Blocked Final Report: Create `data/processed/reports/blocked_report.md` with Markdown format, explicitly stating "Project Blocked: No Verified Data Source Found" and including the `reason` and `status` fields from the ingestion report. **Verification**: Assert file exists and contains "Blocked" and "reason". **[FR-006]**
+
+- [ ] T035b [P] [US1] [DEPENDS ON T012a FAIL OR T012d FAIL] Implement Blocked Reproducibility Check: Verify the structure of `data/processed/ingestion_report.json` (keys: status, reason, measurement_status, timestamp) and `data/processed/cleaned_microbiome_sleep.csv` (schema: header only). **Verification**: Assert structure matches expected schema. **[SC-005]**
 
 ### Happy Path Implementation (Executed ONLY if T012a PASSES AND T012d PASSES)
 
-- [X] T045 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement exponential backoff with retry logic in `src/ingestion.py`: Add a `retry_with_backoff()` function to handle transient network errors during data download. **This task ensures the pipeline is robust against temporary network issues, satisfying the edge case for API rate-limiting.**
-- [X] T013 [US1] [BLOCKED UNTIL T045 PASSES AND T012a PASSES AND T012d PASSES] Implement download logic with exponential backoff in `src/ingestion.py`. **Must use the verified URL from the plan's '# Verified datasets' block. This is the Happy Path execution of FR-001.**
-- [X] T014 [US1] [BLOCKED UNTIL T013 PASSES] Implement filtering logic in `src/ingestion.py` to exclude antibiotic users and missing sleep data. **This task generates the exclusion counts. This is the Happy Path execution of FR-002.** <!-- ATOMIZE: requested -->
-- [ ] T015a_read [US1] [BLOCKED UNTIL T014 PASSES] Implement chunked reading logic in `src/ingestion.py`: Use `pandas.read_csv(chunksize=10000)` or `datasets.load_dataset(..., streaming=True)` to read data in chunks. **This task ensures memory efficiency.**
-- [ ] T015a_merge [US1] [BLOCKED UNTIL T015a_read PASSES] Implement merging of OTU tables and metadata in `src/ingestion.py` using memory-efficient chunked processing. **This task ensures the merging logic handles large datasets without exceeding RAM limits (FR-007).**
-- [ ] T015a_monitor [US1] [BLOCKED UNTIL T015a_merge PASSES] Implement memory monitoring in `src/ingestion.py`: Log memory usage during processing to ensure it stays within acceptable system limits. **This task ensures FR-007 compliance.**
-- [ ] T016 [US1] [BLOCKED UNTIL T015a_monitor PASSES] Save cleaned dataset to `data/processed/cleaned_microbiome_sleep.csv`. **Verification**: Assert file exists, row count > 0, and SHA-256 hash recorded in `data/processed/checksums.json` AND `state/projects/PROJ-087-investigating-the-correlation-between-gu.yaml` under key `artifact_hashes.cleaned_microbiome_sleep` to satisfy Constitution Principle III.
-- [ ] T017 [US1] [BLOCKED UNTIL T016 PASSES] Log exclusion rates to satisfy SC-001: Capture `total_initial_sample_count`, `excluded_count`, `exclusion_proportion` (calculated as `excluded_count / total_initial_sample_count`), and `status` (e.g., "success") in `data/processed/ingestion_report.json`. **Verification**: Assert file exists and contains these keys.
+- [ ] T045 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement exponential backoff with retry logic in `src/ingestion.py`: Add a `retry_with_backoff()` function to handle transient network errors during data download. **This task ensures the pipeline is robust against temporary network issues, satisfying the edge case for API rate-limiting. SKIPPED if T012a fails.**
+
+- [ ] T013 [US1] [BLOCKED UNTIL T045 PASSES AND T012a PASSES AND T012d PASSES] Implement download logic with exponential backoff in `src/ingestion.py`. **Must use the verified URL from the plan's '# Verified datasets' block. This is the Happy Path execution of FR-001. SKIPPED if T012a fails.**
+
+- [ ] T014 [US1] [BLOCKED UNTIL T013 PASSES] Implement filtering logic in `src/ingestion.py` to exclude antibiotic users and missing sleep data. **This task generates the exclusion counts. This is the Happy Path execution of FR-002. SKIPPED if T012a fails.** <!-- ATOMIZE: requested -->
+
+- [ ] T015a_read [US1] [BLOCKED UNTIL T014 PASSES] Implement chunked reading logic in `src/ingestion.py`: Use `pandas.read_csv(chunksize=10000)` or `datasets.load_dataset(..., streaming=True)` to read data in chunks. **This task ensures memory efficiency. SKIPPED if T012a fails.**
+
+- [ ] T015a_merge [US1] [BLOCKED UNTIL T015a_read PASSES] Implement merging of OTU tables and metadata in `src/ingestion.py` using memory-efficient chunked processing. **This task ensures the merging logic handles large datasets without exceeding RAM limits (FR-007). SKIPPED if T012a fails.**
+
+- [ ] T015a_monitor [US1] [BLOCKED UNTIL T015a_merge PASSES] Implement memory monitoring in `src/ingestion.py`: Log memory usage during processing to ensure it stays within acceptable system limits. **This task ensures FR-007 compliance. SKIPPED if T012a fails.**
+
+- [ ] T016 [US1] [BLOCKED UNTIL T015a_monitor PASSES] Save cleaned dataset to `data/processed/cleaned_microbiome_sleep.csv`. **Verification**: Assert file exists, row count > 0, and SHA-256 hash recorded in `data/processed/checksums.json` AND `state/projects/PROJ-087-investigating-the-correlation-between-gu.yaml` under key `artifact_hashes.cleaned_microbiome_sleep` to satisfy Constitution Principle III. **RUN ONLY IF T012a PASSES.**
+
+- [ ] T017 [US1] [BLOCKED UNTIL T016 PASSES] Log exclusion rates to satisfy SC-001: Capture `total_initial_sample_count`, `excluded_count`, `exclusion_proportion` (calculated as `excluded_count / total_initial_sample_count`), and `status` (e.g., "success") in `data/processed/ingestion_report.json`. **Verification**: Assert file exists and contains these keys. **SKIPPED if T012a fails.**
 
 ### Alpha-Diversity Computation (Moved to Phase 3 to satisfy FR-003 Coverage)
 
-- [X] T043 [US1] [BLOCKED UNTIL T016 PASSES] Implement rarefaction normalization in `src/diversity.py`: Add a `rarefy_table()` function using `scikit-bio` to normalize sequencing depth before alpha-diversity calculation. **This task ensures that sequencing depth artifacts do not bias diversity indices, satisfying FR-003 and Plan.md Risk Mitigation.**
-- [X] T044 [US1] [BLOCKED UNTIL T043 PASSES] Add unit tests for rarefaction logic in `tests/unit/test_diversity.py`: Implement `test_rarefaction_normalization()` to verify that the rarefaction step correctly normalizes sequencing depth. **This task ensures the rarefaction logic is correct and robust.**
-- [ ] T020a [US1] [BLOCKED UNTIL T043 PASSES AND T016 PASSES] Implement alpha-diversity computation (Shannon, Simpson, Observed OTUs) in `src/diversity.py`. **Requires: data/processed/cleaned_microbiome_sleep.csv (from T016). If input missing, raise FileNotFoundError. Implementation must use chunked processing with chunksize=10000 to ensure memory usage stays under 7 GB RAM as per FR-007. Deliverable: CSV at `data/processed/diversity_results.csv` with columns [sample_id, shannon, simpson, observed_otus].** <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T020b [US1] [BLOCKED UNTIL T020a PASSES] Implement memory-efficient alpha-diversity calculation in `src/diversity.py` using sparse matrices or chunked iteration to satisfy FR-007. **This task ensures the diversity calculation handles large datasets without exceeding RAM limits.**
+- [X] T043 [US1] [BLOCKED UNTIL T016 PASSES] Implement rarefaction normalization in `src/diversity.py`: Add a `rarefy_table()` function using `scikit-bio` to normalize sequencing depth before alpha-diversity calculation. **This task ensures that sequencing depth artifacts do not bias diversity indices, satisfying FR-003 and Plan.md Risk Mitigation. SKIPPED if T012a fails.**
 
-**Checkpoint**: If T012a passes, US1 is functional. If T012a fails, T012c_gen, T016b, T017b, T020c, T025b, T031c generate the blocked reports.
+- [X] T044 [US1] [BLOCKED UNTIL T043 PASSES] Add unit tests for rarefaction logic in `tests/unit/test_diversity.py`: Implement `test_rarefaction_normalization()` to verify that the rarefaction step correctly normalizes sequencing depth. **This task ensures the rarefaction logic is correct and robust. SKIPPED if T012a fails.**
+
+- [ ] T020a [US1] [BLOCKED UNTIL T043 PASSES AND T016 PASSES] Implement Alpha-Diversity Computation (Shannon, Simpson, Observed OTUs) with Memory Efficiency in `src/diversity.py`. **Requires: data/processed/cleaned_microbiome_sleep.csv (from T016). If input missing, raise FileNotFoundError. Implementation must use chunked processing with chunksize=10000 to ensure memory usage stays under 7 GB RAM as per FR-007. Deliverable: CSV at `data/processed/diversity_results.csv` with columns [sample_id, shannon, simpson, observed_otus]. Verification: Run with memory_profiler and assert peak < 7GB. SKIPPED if T012a fails.**
+
+**Checkpoint**: If T012a passes, US1 is functional. If T012a fails, T012c_gen, T016b, T017b, T020c, T025b, T031c, T035b generate the blocked reports.
 
 ---
 
@@ -139,11 +155,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] [BLOCKED UNTIL T020a PASSES] Implement Spearman rank correlation test between **each** alpha-diversity index (Shannon, Simpson, Observed OTUs) and sleep variables in `src/correlation.py`. **Must iterate over all three indices. Save intermediate results to a temp DataFrame.**
-- [X] T022 [US2] [BLOCKED UNTIL T021 PASSES] Implement Benjamini-Hochberg FDR correction on p-values in `src/correlation.py`.
-- [X] T023 [US2] [BLOCKED UNTIL T022 PASSES] Flag correlations: Add column `is_moderate` (|r| > 0.3) and column `is_significant` (q-value < 0.05) to the results DataFrame in `src/correlation.py` to satisfy SC-002 machine-verifiability. **Log the count and percentage of moderate correlations to satisfy FR-004 reporting purposes.**
-- [ ] T024 [US2] [BLOCKED UNTIL T023 PASSES] Save correlation results (r, p, q, significance, is_moderate, is_significant, status) to `data/processed/correlation_results.csv`. **Verification**: Assert file exists, contains columns [sample_id, diversity_index, sleep_metric, r, p, q, is_moderate, is_significant, status], and row count > 0 (or status=blocked if no data).
-- [X] T025 [US2] [BLOCKED UNTIL T024 PASSES] Implement logic to handle "No significant associations" case gracefully in `src/correlation.py`.
+- [ ] T021 [US2] [BLOCKED UNTIL T020a PASSES] Implement Spearman rank correlation test between **each** alpha-diversity index (Shannon, Simpson, Observed OTUs) and sleep variables in `src/correlation.py`. **Must iterate over all three indices. Save intermediate results to a temp DataFrame. SKIPPED if T012a fails.**
+
+- [ ] T022 [US2] [BLOCKED UNTIL T021 PASSES] Implement Benjamini-Hochberg FDR correction on p-values in `src/correlation.py`. **SKIPPED if T012a fails.**
+
+- [ ] T023 [US2] [BLOCKED UNTIL T022 PASSES] Flag correlations: Add column `is_moderate` (|r| > 0.3) and column `is_significant` (q-value < 0.05) to the results DataFrame in `src/correlation.py` to satisfy SC-002 machine-verifiability. **Log the count and percentage of moderate correlations to satisfy FR-004 reporting purposes. SKIPPED if T012a fails.**
+
+- [ ] T024 [US2] [BLOCKED UNTIL T023 PASSES] Save correlation results (r, p, q, significance, is_moderate, is_significant, status) to `data/processed/correlation_results.csv`. **Verification**: Assert file exists, contains columns [sample_id, diversity_index, sleep_metric, r, p, q, is_moderate, is_significant, status], and row count > 0 (or status=blocked if no data). **SKIPPED if T012a fails.**
+
+- [ ] T025 [US2] [BLOCKED UNTIL T024 PASSES] Implement logic to handle "No significant associations" case gracefully in `src/correlation.py`. **SKIPPED if T012a fails.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (if T012c passed) or report blocked status (if T012c failed).
 
@@ -161,13 +181,19 @@
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] [BLOCKED UNTIL T024 PASSES] Implement scatterplot generation with regression lines for significant correlations in `src/viz.py`.
-- [X] T028 [US3] [BLOCKED UNTIL T024 PASSES] Implement boxplot generation by sleep quartile in `src/viz.py`.
-- [X] T028b [US3] [BLOCKED UNTIL T024 PASSES] Implement placeholder plot generation for "No significant associations" in `src/viz.py`. **Generates a placeholder image file to satisfy FR-006 edge case handling.**
-- [X] T029a [US3] [BLOCKED UNTIL T024 PASSES] Save correlation summary table to `data/processed/reports/correlation_summary.csv`. **Deliverable: CSV file containing r, p, q, is_moderate, is_significant columns.**
-- [X] T029b [US3] [BLOCKED UNTIL T029a PASSES] Save manifest of all generated artifacts to `data/processed/reports/manifest.json`. **Deliverable: JSON file listing all output files and their SHA-256 hashes.**
-- [X] T030 [US3] [BLOCKED UNTIL T028 PASSES] Save all plot artifacts to `data/processed/plots/`. **Filenames**: `scatterplot_shannon_sleep.png`, `boxplot_sleep_quartile.png`. **Verification**: Assert files exist.
-- [X] T031a [US3] [BLOCKED UNTIL T029a PASSES] Generate Final Human-Readable Report: Create `data/processed/reports/final_report.md` summarizing findings. **Must include a summary table of correlations, visualizations, and explicitly state "No significant associations found" if applicable (FR-006 edge case).**
+- [ ] T027 [US3] [BLOCKED UNTIL T024 PASSES] Implement scatterplot generation with regression lines for significant correlations in `src/viz.py`. **SKIPPED if T012a fails.**
+
+- [ ] T028 [US3] [BLOCKED UNTIL T024 PASSES] Implement boxplot generation by sleep quartile in `src/viz.py`. **SKIPPED if T012a fails.**
+
+- [ ] T028b [US3] [BLOCKED UNTIL T024 PASSES] Implement placeholder plot generation for "No significant associations" in `src/viz.py`. **Generates a placeholder image file to satisfy FR-006 edge case handling. SKIPPED if T012a fails.**
+
+- [ ] T029a [US3] [BLOCKED UNTIL T024 PASSES] Save correlation summary table to `data/processed/reports/correlation_summary.csv`. **Deliverable: CSV file containing r, p, q, is_moderate, is_significant columns. SKIPPED if T012a fails.**
+
+- [ ] T029b [US3] [BLOCKED UNTIL T029a PASSES] Save manifest of all generated artifacts to `data/processed/reports/manifest.json`. **Deliverable: JSON file listing all output files and their SHA-256 hashes. SKIPPED if T012a fails.**
+
+- [ ] T030 [US3] [BLOCKED UNTIL T028 PASSES] Save all plot artifacts to `data/processed/plots/`. **Filenames**: `scatterplot_shannon_sleep.png`, `boxplot_sleep_quartile.png`. **Verification**: Assert files exist. **SKIPPED if T012a fails.**
+
+- [ ] T031a [US3] [BLOCKED UNTIL T029a PASSES] Generate Final Human-Readable Report: Create `data/processed/reports/final_report.md` summarizing findings. **Must include a summary table of correlations, visualizations, and explicitly state "No significant associations found" if applicable (FR-006 edge case). SKIPPED if T012a fails.**
 
 **Checkpoint**: All user stories should now be independently functional or report blocked status.
 
@@ -181,9 +207,10 @@
 - [X] T032b [P] Documentation updates: Add 'Data Source' section to `README.md`.
 - [X] T032c [P] Documentation updates: Add 'Pipeline Flow' section to `docs/`.
 - [X] T033 Code cleanup and refactoring: Remove unused imports and refactor T014 to use generator expressions for memory efficiency.
-- [X] T035 [P] [BLOCKED UNTIL T016 PASSES OR T012a FAILS OR T012d FAILS] Implement `tests/integration/test_reproducibility.py`: <!-- ATOMIZE: requested -->
+- [X] T035a [P] [BLOCKED UNTIL T016 PASSES] Implement `tests/integration/test_reproducibility.py`: <!-- ATOMIZE: requested -->
  - **Happy Path**: Run the full pipeline twice, compute **SHA-256 hashes** of `data/processed/cleaned_microbiome_sleep.csv` and all files in `data/processed/plots/`, and assert the hashes match between runs to verify reproducibility (SC-005). Record hashes in `state/projects/PROJ-087-investigating-the-correlation-between-gu.yaml` under `artifact_hashes` map and `data/processed/checksums.json` under `files` map.
- - **Blocked Path**: If T012a FAILS or T012d FAILS, verify the structure of `data/processed/ingestion_report.json` (keys: status, reason, measurement_status, timestamp) and `data/processed/cleaned_microbiome_sleep.csv` (schema: sample_id, age, bmi, antibiotic_use_last_3m, sleep_efficiency, sleep_duration_hours, shannon, simpson, observed_otus, status) instead of data hashes. **Verification**: Assert structure matches expected schema.
+ - **Verification**: Assert hashes match. **RUN ONLY IF T012a PASSES.**
+
 - [X] T036 Run quickstart.md validation
 
 ---
@@ -205,15 +232,25 @@
 
 ### Error Handling & Reporting (Addressing Edge Cases)
 
-- [X] T045 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement exponential backoff with retry logic in `src/ingestion.py`: Add a `retry_with_backoff()` function to handle transient network errors during data download. **This task ensures the pipeline is robust against temporary network issues, satisfying the edge case for API rate-limiting.**
-- [X] T046 [US2] [BLOCKED UNTIL T024 PASSES] Implement graceful handling of "No significant associations" in `src/correlation.py`: Ensure that if no correlations survive FDR correction, the pipeline generates a report explicitly stating "No significant associations found" rather than crashing or returning empty results. **This task ensures the pipeline handles edge cases gracefully, satisfying the edge case for no significant results.**
-- [X] T047 [US3] [BLOCKED UNTIL T024 PASSES] Implement placeholder plot generation for "No significant associations" in `src/viz.py`: Ensure that if no correlations are significant, a placeholder plot is generated to satisfy FR-006. **This task ensures the visualization module handles edge cases gracefully.**
+- [X] T045 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement exponential backoff with retry logic in `src/ingestion.py`: Add a `retry_with_backoff()` function to handle transient network errors during data download. **This task ensures the pipeline is robust against temporary network issues, satisfying the edge case for API rate-limiting. SKIPPED if T012a fails.**
+- [X] T046 [US2] [BLOCKED UNTIL T024 PASSES] Implement graceful handling of "No significant associations" in `src/correlation.py`: Ensure that if no correlations survive FDR correction, the pipeline generates a report explicitly stating "No significant associations found" rather than crashing or returning empty results. **This task ensures the pipeline handles edge cases gracefully, satisfying the edge case for no significant results. SKIPPED if T012a fails.**
+- [X] T047 [US3] [BLOCKED UNTIL T024 PASSES] Implement placeholder plot generation for "No significant associations" in `src/viz.py`: Ensure that if no correlations are significant, a placeholder plot is generated to satisfy FR-006. **This task ensures the visualization module handles edge cases gracefully. SKIPPED if T012a fails.**
 
 ### Data Streaming & Loader Strictness (Addressing T049/T050/T051)
 
-- [X] T049 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement real dataset streaming in `src/ingestion.py`: Use `datasets.load_dataset(..., streaming=True)` or `pandas.read_csv(chunksize=10000)` to process the full American Gut Project dataset in chunks, ensuring the entire dataset contributes to results while adhering to available memory constraints. **Explicitly state the streaming rule (chunk size, iteration logic) in the code comments. If the dataset is unavailable, raise RuntimeError with message: "Data source unavailable. Pipeline halted." DO NOT fall back to a sample.**
-- [X] T050 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement strict data loader failure in `src/ingestion.py`: Remove any `try/except` blocks that catch exceptions during data fetch and call `generate_synthetic_*()` or `mock_*()` in `src/ingestion.py`. Ensure that if the real data fetch fails, the script raises a clear `RuntimeError` with instructions, preventing silent fabrication. **Note: Unit tests (T010/T011) are allowed to use hardcoded data for logic verification; this restriction applies only to `src/ingestion.py` pipeline execution.**
-- [X] T051 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Update `src/config.py` to support dynamic data source injection: Allow the execution stage to override `DATA_URL` via environment variable if a "VERIFIED REAL DATA SOURCE" is provided, ensuring the pipeline adopts the verified source without code changes. **This task ensures flexibility for verified data injection during execution.**
+- [X] T049 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement real dataset streaming in `src/ingestion.py`: Use `datasets.load_dataset(..., streaming=True)` or `pandas.read_csv(chunksize=10000)` to process the full American Gut Project dataset in chunks, ensuring the entire dataset contributes to results while adhering to available memory constraints. **Explicitly state the streaming rule (chunk size, iteration logic) in the code comments. If the dataset is unavailable, raise RuntimeError with message: "Data source unavailable. Pipeline halted." DO NOT fall back to a sample. SKIPPED if T012a fails.**
+- [X] T050 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement strict data loader failure in `src/ingestion.py`: Remove any `try/except` blocks that catch exceptions during data fetch and call `generate_synthetic_*()` or `mock_*()` in `src/ingestion.py`. Ensure that if the real data fetch fails, the script raises a clear `RuntimeError` with instructions, preventing silent fabrication. **Note: Unit tests (T010/T011) are allowed to use hardcoded data for logic verification; this restriction applies only to `src/ingestion.py` pipeline execution. SKIPPED if T012a fails.**
+- [X] T051 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Update `src/config.py` to support dynamic data source injection: Allow the execution stage to override `DATA_URL` via environment variable if a "VERIFIED REAL DATA SOURCE" is provided, ensuring the pipeline adopts the verified source without code changes. **This task ensures flexibility for verified data injection during execution. SKIPPED if T012a fails.**
+
+- [ ] T052 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement explicit "Fail Loud" check in `src/ingestion.py`: Add a pre-flight check that verifies the existence of the `DATA_URL` environment variable or config value. If missing or empty, raise `RuntimeError("Data source URL is missing. Pipeline cannot proceed without a real data source.")` immediately, preventing any attempt to download or process synthetic data. **This task enforces the "fail loud" principle for the data source configuration itself. SKIPPED if T012a fails.**
+
+- [ ] T053 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Add unit test for "Fail Loud" behavior in `tests/unit/test_ingestion.py`: Implement `test_fail_loud_on_missing_url()` to verify that `src/ingestion.py` raises `RuntimeError` when `DATA_URL` is missing, ensuring the loader never falls back to synthetic data silently. **DEPENDENCY: T037 must complete first. SKIPPED if T012a fails.**
+
+- [ ] T054 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement streaming logic documentation in `src/ingestion.py`: Add a docstring to the `stream_data` function explicitly stating the chunk size ([deferred] rows), the iteration method (generator), and the memory constraint (< 7 GB). **This task ensures transparency in the streaming strategy. SKIPPED if T012a fails.**
+
+- [ ] T055 [US2] [BLOCKED UNTIL T024 PASSES] Add integration test for correlation pipeline with "No Significant Results" scenario in `tests/integration/test_correlation.py`: Implement `test_no_significant_results_handling()` using a synthetic dataset where all p-values are > 0.05 after FDR correction. Verify that `src/correlation.py` produces a valid `correlation_results.csv` with `status="no_significant_results"` and that the downstream viz module (T047) is triggered correctly. **This task validates the end-to-end flow of the "no results" edge case. SKIPPED if T012a fails.**
+
+- [ ] T056 [US3] [BLOCKED UNTIL T024 PASSES] Add integration test for placeholder plot generation in `tests/integration/test_viz.py`: Implement `test_placeholder_plot_generation()` to verify that when `src/correlation.py` reports "no significant results", `src/viz.py` generates the placeholder image file in `data/processed/plots/` with the correct filename and metadata. **DEPENDENCY: T024 must complete first. SKIPPED if T012a fails.**
 
 ---
 
@@ -235,7 +272,7 @@
  - **T012d** runs only if T012a passes. If it fails, T012d_gen triggers, leading to blocked artifacts.
  - **T045** must pass before T013 to ensure robust error handling.
  - **T013-T017** and **T020a-T020b** are BLOCKED until T012a and T012d pass.
- - If T012a fails or T012d fails, T012c_gen, T012d_gen, T016b, T017b, T020c, T025b, T031c generate the blocked reports.
+ - If T012a fails or T012d fails, T012c_gen, T012d_gen, T016b, T017b, T020c, T025b, T031c, T035b generate the blocked reports.
 - **User Story 2 (P2)**: Depends on User Story 1 (needs cleaned data from T016 and diversity from T020a)
  - **T020a** (Diversity) must pass before **T021** (Correlation) executes.
  - **T043** must pass before T020a to ensure rarefaction normalization.
@@ -285,8 +322,8 @@ Task: "Write unit tests for models in tests/unit/test_models.py"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: Data Feasibility Check (T012a)
-4. **STOP and VALIDATE**: If T012a fails, trigger T012c_gen, T016b, T017b, T020c, T025b, T031c (Blocked Reports). If T012a passes, proceed to T012d.
-5. If T012d fails, trigger T012d_gen, T016b, T017b, T020c, T025b, T031c (Blocked Reports). If T012d passes, proceed to T013-T017 and T020a-T020b.
+4. **STOP and VALIDATE**: If T012a fails, trigger T012c_gen, T016b, T017b, T020c, T025b, T031c, T035b (Blocked Reports). If T012a passes, proceed to T012d.
+5. If T012d fails, trigger T012d_gen, T016b, T017b, T020c, T025b, T031c, T035b (Blocked Reports). If T012d passes, proceed to T013-T017 and T020a-T020b.
 6. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -325,12 +362,15 @@ With multiple developers:
 - **CRITICAL**: T020a depends on T016 output (after T043).
 - **NOTE**: Mock data paths have been removed. Pipeline validation is performed via unit tests with hardcoded data.
 - **NEW**: T040, T041, T042 removed; logic merged into T012a and T015a. T043 and T044 integrated into Phase 3. T031a added for final report.
-- **NEW**: T012a added as unconditional gate. T012c_gen and T012d_gen are AUTO-TRIGGERED by T012a/T012d failure.
-- **NEW**: T016b, T020c, T025b, T031c added to ensure measurable artifacts exist in blocked states.
+- **NEW**: T012a added as unconditional gate. T012c_gen and T012d_gen are distinct tasks triggered by T012a/T012d failure.
+- **NEW**: T016b, T017b, T020c, T025b, T031c, T035b added to ensure measurable artifacts exist in blocked states.
+- **NEW**: T052, T053, T054, T055, T056 added to address "Fail Loud" principle, explicit streaming documentation, and end-to-end edge case testing for "no significant results".
+- **NEW**: T035 split into T035a (Happy Path) and T035b (Blocked Path) to resolve executability concerns.
+- **IF T012a FAILS, SKIP T013-T017**: All Happy Path tasks (T013-T017, T020a, T021-T024, T027-T031a, T045, T049-T056) are SKIPPED if T012a fails. Only Blocked State tasks (T012c_gen, T016b, T017b, T020c, T025b, T031c, T035b) are executed.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
 - [X] T048 Reconcile run-book vs implementation for `projects/PROJ-087-investigating-the-correlation-between-gu/code/src/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `projects/PROJ-087-investigating-the-correlation-between-gu/code/src/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 
-- [X] T049 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement real dataset streaming in `src/ingestion.py`: Use `datasets.load_dataset(..., streaming=True)` or `pandas.read_csv(chunksize=10000)` to process the full American Gut Project dataset in chunks, ensuring the entire dataset contributes to results without exceeding ~7 GB RAM. **Explicitly state the streaming rule (chunk size, iteration logic) in the code comments. If the dataset is unavailable, raise RuntimeError with message: "Data source unavailable. Pipeline halted." DO NOT fall back to a sample.**
-- [ ] T050 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement strict data loader failure in `src/ingestion.py`: Remove any `try/except` blocks that catch exceptions during data fetch and call `generate_synthetic_*()` or `mock_*()` in `src/ingestion.py`. Ensure that if the real data fetch fails, the script raises a clear `RuntimeError` with instructions, preventing silent fabrication. **Note: Unit tests (T010/T011) are allowed to use hardcoded data for logic verification; this restriction applies only to `src/ingestion.py` pipeline execution.**
-- [ ] T051 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Update `src/config.py` to support dynamic data source injection: Allow the execution stage to override `DATA_URL` via environment variable if a "VERIFIED REAL DATA SOURCE" is provided, ensuring the pipeline adopts the verified source without code changes. **This task ensures flexibility for verified data injection during execution.**
+- [X] T049 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement real dataset streaming in `src/ingestion.py`: Use `datasets.load_dataset(..., streaming=True)` or `pandas.read_csv(chunksize=10000)` to process the full American Gut Project dataset in chunks, ensuring the entire dataset contributes to results without exceeding ~7 GB RAM. **Explicitly state the streaming rule (chunk size, iteration logic) in the code comments. If the dataset is unavailable, raise RuntimeError with message: "Data source unavailable. Pipeline halted." DO NOT fall back to a sample. SKIPPED if T012a fails.**
+- [X] T050 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Implement strict data loader failure in `src/ingestion.py`: Remove any `try/except` blocks that catch exceptions during data fetch and call `generate_synthetic_*()` or `mock_*()` in `src/ingestion.py`. Ensure that if the real data fetch fails, the script raises a clear `RuntimeError` with instructions, preventing silent fabrication. **Note: Unit tests (T010/T011) are allowed to use hardcoded data for logic verification; this restriction applies only to `src/ingestion.py` pipeline execution. SKIPPED if T012a fails.**
+- [X] T051 [US1] [BLOCKED UNTIL T012a PASSES AND T012d PASSES] Update `src/config.py` to support dynamic data source injection: Allow the execution stage to override `DATA_URL` via environment variable if a "VERIFIED REAL DATA SOURCE" is provided, ensuring the pipeline adopts the verified source without code changes. **This task ensures flexibility for verified data injection during execution. SKIPPED if T012a fails.**

@@ -1,48 +1,96 @@
-# Research Rationale: Sample Size Tier Selection for Regression Sensitivity Analysis
+# Research Rationale: Sample Size Tier Selection
 
 ## Overview
 
-This document defines the rationale for the fixed sample size tier percentages used in the regression coefficient sensitivity analysis pipeline. These tiers are hardcoded in `src/utils/config.py` as `SAMPLE_SIZE_TIERS = [10, 25, 50, 75, 90]` and are utilized by the resampling engine (`src/resampling/engine.py`) to generate random observation subsets for stability estimation.
+This document provides the research rationale for the fixed sample size tier percentages used in the sensitivity analysis of regression coefficients. These tiers define the subset sizes relative to the full dataset N that will be used to generate random observation subsets for resampling experiments.
 
-## Selected Tiers: [10%, 25%, 50%, 75%, 90%]
+## Selected Sample Size Tiers
 
-The selection of these five specific percentage tiers is driven by the need to balance statistical power, computational feasibility, and the resolution of the sensitivity curve across the full spectrum of dataset utilization.
+The following five percentage tiers have been selected for this implementation:
 
-### 1. Statistical Resolution and Curve Fitting
+- **10%** (0.10 × N)
+- **25%** (0.25 × N)
+- **50%** (0.50 × N)
+- **75%** (0.75 × N)
+- **90%** (0.90 × N)
 
-To accurately characterize the relationship between sample size and regression coefficient stability (variance), a minimum of five data points is required to fit a non-linear decay curve (typically following a power law or inverse-square relationship) with sufficient confidence.
+These values are hardcoded in `src/utils/config.py` as the `SAMPLE_SIZE_TIERS` list.
 
-- **10%**: Represents the **low-data regime**. This tier tests the limits of the model where high variance is expected. It is critical for identifying the "elbow" point where the model transitions from unstable to stable. If the coefficient variance at 10% is already low, the dataset is robust even with sparse data.
-- **25%**: Represents the **early-stability regime**. This tier captures the initial rapid decay in variance as sample size increases. It helps distinguish between models that stabilize quickly versus those requiring larger samples.
-- **50%**: Represents the **mid-point**. This is the median tier, providing a baseline for comparison. It is the standard "half-sample" cross-validation split often used in literature, serving as a reference anchor for the sensitivity curve.
-- **75%**: Represents the **high-data regime**. This tier tests the asymptotic behavior of the variance. At this level, the variance should be significantly reduced, and the curve should begin to flatten. It verifies that the model is not overfitting to small subsets.
-- **90%**: Represents the **near-full-data regime**. This tier is crucial for detecting subtle instabilities that only appear when the sample is very large but not complete. It ensures that the "stability" observed at 100% is not an artifact of the specific full dataset composition.
+## Rationale for Tier Selection
 
-### 2. Computational Feasibility vs. Granularity
+### 1. Coverage of the Subset Spectrum
 
-The project operates under strict computational constraints (CPU-only, ~7GB RAM limit for streaming).
+The selected tiers provide comprehensive coverage of the possible subset sizes:
 
-- **Exponential vs. Linear**: A linear progression (e.g., 10%, 20%, 30%...) would provide uniform granularity but requires more runs to cover the same range. A logarithmic progression (e.g., 10%, 30%, 70%) might miss critical transition zones. The chosen geometric-like progression (10, 25, 50, 75, 90) offers the best trade-off, providing high resolution where the variance changes most rapidly (low N) and sufficient coverage at high N.
-- **Run Count**: With 5 tiers, the total number of resampling iterations remains manageable (5 tiers × N subsets per tier). This ensures the full experiment can complete within the 6-hour wall-clock budget defined in `quickstart.md` without sacrificing the ability to plot a meaningful sensitivity curve.
+- **Lower bound (10%)**: Represents a small but statistically meaningful subset. At 10%, we test the stability of coefficients when a significant portion (90%) of data is withheld, simulating scenarios with limited data availability or high variability.
 
-### 3. Alignment with Statistical Power Analysis
+- **Lower-mid range (25%)**: A quarter of the data provides a moderate subset that balances statistical power with the ability to detect sensitivity to data composition. This tier is commonly used in bootstrap and cross-validation contexts.
 
-In regression analysis, the standard error of the coefficient estimates scales approximately as $1/\sqrt{n}$.
+- **Midpoint (50%)**: The median tier represents an equal split, providing a strong baseline for comparing how coefficients behave when half the data is randomly selected. This is a standard split in many resampling methodologies.
 
-- The jump from **10% to 25%** represents a 2.5x increase in $n$, theoretically reducing standard error by $\approx 37\%$.
-- The jump from **50% to 90%** represents a 1.8x increase, reducing standard error by $\approx 25\%$.
-- This distribution ensures that the experiment captures distinct "steps" in the error reduction curve, allowing us to empirically verify the theoretical $1/\sqrt{n}$ scaling in the presence of real-world data violations (heteroscedasticity, multicollinearity).
+- **Upper-mid range (75%)**: This tier tests the stability of coefficients when the majority of data is retained. It helps identify whether coefficient variance diminishes as the subset approaches the full dataset size.
 
-### 4. Replacement of Deferred Values
+- **Upper bound (90%)**: A near-full subset that tests the asymptotic behavior of coefficient stability. At 90%, the subset is large enough that any remaining variance is likely due to extreme outliers or structural instability rather than sample size effects.
 
-Prior to this task, the sample size tiers were marked as `[deferred]` in `spec.md`. This document explicitly resolves that ambiguity. The values `[10, 25, 50, 75, 90]` are now fixed for this implementation cycle to satisfy **FR-003** (Sample Size Tier Configuration).
+### 2. Statistical Power Considerations
+
+The tiers are spaced to ensure sufficient statistical power at each level:
+
+- For a dataset with N = 10,000 observations, the tiers yield subsets of 1,000, 2,500, 5,000, 7,500, and 9,000 observations respectively.
+- Even at the 10% tier, a subset of 1,000 observations typically provides adequate power for OLS estimation with a moderate number of predictors (e.g., <50 features), satisfying the constraint that subset size ≥ 10 × number of predictors.
+
+### 3. Detection of Non-Linear Sensitivity
+
+The non-uniform spacing (10, 25, 50, 75, 90) is intentional to detect non-linear relationships between subset size and coefficient variance:
+
+- The gap between 10% and 25% is 15 percentage points, allowing detection of rapid changes in stability at small sample sizes.
+- The gap between 25% and 50% is 25 percentage points, covering the critical mid-range where many datasets transition from unstable to stable.
+- The gaps between 50-75% and 75-90% are 25 and 15 percentage points respectively, capturing the asymptotic approach to full-dataset stability.
+
+This spacing enables the identification of "tipping points" where coefficient stability significantly improves or deteriorates.
+
+### 4. Comparison with Standard Methodologies
+
+The selected tiers align with and extend standard resampling practices:
+
+- **Cross-validation**: Typical k-fold CV uses 1/k and (k-1)/k splits. For k=4, this yields 25% and 75%, which are directly included in our tiers.
+- **Bootstrap**: Bootstrap resampling often uses the full dataset size (100%), but our 90% tier approximates this while maintaining a distinct subset.
+- **Leave-one-out**: While not directly represented, the 10% tier provides a coarse approximation of high-variance, low-data scenarios.
+
+### 5. Practical Constraints and Feasibility
+
+The tiers balance scientific rigor with computational feasibility:
+
+- **Lower tiers (10%, 25%)**: Computationally inexpensive, allowing for a larger number of iterations (subsets) to be generated and analyzed.
+- **Upper tiers (75%, 90%)**: More computationally intensive but fewer iterations are needed to detect stability trends, as variance typically decreases with larger sample sizes.
+- The 5-tier structure is a manageable number for analysis and visualization, avoiding the complexity of too many tiers while providing sufficient resolution.
+
+### 6. Alignment with Research Goals
+
+The primary research goal is to assess the **sensitivity** of regression coefficients to dataset subset selection. The selected tiers directly support this goal by:
+
+- Providing a range of subset sizes to measure how coefficient variance changes.
+- Enabling the detection of thresholds where coefficients become stable or unstable.
+- Allowing comparison of stability across different violation severities (Low/Medium/High) identified in the data profiling phase.
 
 ## Implementation Details
 
-- **Configuration**: These values are defined as a constant list in `src/utils/config.py`.
-- **Usage**: The `src/resampling/engine.py` module reads this configuration to determine the target subset sizes for each iteration of the resampling loop.
-- **Constraint**: The resampling engine must ensure that the absolute number of samples at the 10% tier is sufficient for the model to converge (typically $n \ge 10 \times p$, where $p$ is the number of predictors). If a dataset is too small to support a 10% tier meeting this constraint, the engine must raise a `ValueError` rather than falling back to synthetic data or skipping the tier silently.
+The `SAMPLE_SIZE_TIERS` list in `src/utils/config.py` is defined as:
+
+```python
+SAMPLE_SIZE_TIERS = [10, 25, 50, 75, 90]
+```
+
+These values are used by the resampling engine (`src/resampling/engine.py`) to calculate subset sizes:
+
+```python
+subset_size = int(N * (tier / 100))
+```
+
+where `N` is the total number of observations in the dataset.
 
 ## Conclusion
 
-The selection of `[10, 25, 50, 75, 90]` provides a scientifically rigorous, computationally efficient, and statistically robust framework for assessing the sensitivity of regression coefficients to dataset subset selection. It allows the pipeline to generate a high-fidelity sensitivity curve that can distinguish between stable and unstable regression models across the full range of data availability.
+The selected sample size tiers of [10, 25, 50, 75, 90] provide a scientifically grounded, computationally feasible, and statistically rigorous framework for assessing the sensitivity of regression coefficients to dataset subset selection. These tiers cover the full spectrum of subset sizes, enable detection of non-linear stability patterns, and align with standard resampling methodologies while addressing the specific goals of this research project.
+
+This document replaces any `[deferred]` placeholders in the specification with these concrete values, satisfying the requirement for fixed sample size tiers as per FR-003.

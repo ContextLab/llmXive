@@ -1,14 +1,17 @@
-'|python use':
-  quote: Guido van Rossum began working on Python in the late 1980s as a successor
-    to the ABC programming language. Python 3.0, released in 2008, was a major revision
-    and not completely backward-compatible with earlier versions. Beginning with Python
-    3.5, capabilities and keywords for typing were added to the language, allowing
-    optional static typing. As of 2026, the Python Software Foundation supports Python
-    3.10, 3.11, 3.12, 3.13, and 3.14, following the project's annual release cycle
-    and five-year support policy. Python 3.15.0rc1 (which defaults to UTF-8) is out
-    in preview, and the stable release is expected to launch in October 2026. Earlier
-    versions in the 3.x series have reached end-of-life and no longer receive security
-    updates.
-  source_id: Python (programming language)
-  url: https://en.wikipedia.org/wiki/Python_(programming_language)
-  value: '3.11'
+0|healpy:
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'
+'|healpix nside':
+  quote: 64 for a representative dataset.
+  source_id: '2608.25134'
+  url: https://arxiv.org/abs/2608.25134
+  value: '64'
+'|python':
+  quote: "Python 3.11 expanded exception handling functionality. Around this version,\
+    \ there has been a focus on making Python faster; 3.11 is claimed to be 10\u2013\
+    60% faster than 3.10, and 3.12 increases by an additional 5%."
+  source_id: History of Python
+  url: https://en.wikipedia.org/wiki/History_of_Python
+  value: "10\u201360%"

@@ -1,1 +1,1 @@
-# Statistics module initialization
+# Stats module initialization

@@ -80,8 +80,8 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T011 [P] [US1] Unit test for `ingest.py` URL validation and CSV parsing in `tests/unit/test_ingest.py`
-- [ ] T012 [P] [US1] Integration test for missing image handling (halting vs. warning) in `tests/integration/test_ingest_integration.py`
+- [X] T011 [P] [US1] Unit test for `ingest.py` URL validation and CSV parsing in `tests/unit/test_ingest.py`
+- [X] T012 [P] [US1] Integration test for missing image handling (halting vs. warning) in `tests/integration/test_ingest_integration.py`
 
 ### Implementation for User Story 1
 
@@ -135,7 +135,7 @@ The Plan's "Critical Design Change #2" (requiring human-rated ambiguity only) is
  - **Output artifact**: `state/model_convergence_metrics.json` (contains `convergence_rate`, `total_attempts`, `configurable_threshold`).
  - **Verify**: Against SC-002 design target (configurable threshold, default 0.80).
 - [X] T028 [US2] Implement FDR correction (Benjamini-Hochberg) in `code/models/metrics.py` for multiple hypothesis tests
-- [~] T029 [US2] Ensure all model outputs frame findings as "associational" (not causal) per FR-003
+- [ ] T029 [US2] Ensure all model outputs frame findings as "associational" (not causal) per FR-003
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -157,9 +157,9 @@ The Plan's "Critical Design Change #2" (requiring human-rated ambiguity only) is
 - [X] T032 [US3] Implement `code/models/metrics.py` to compute effect sizes (Cohen's d, partial eta-squared) with confidence intervals via bootstrapping
 - [X] T033 [US3] Implement `code/viz/plots.py` to generate interaction plots showing response time differences across prime valence conditions
 - [X] T034 [US3] Implement `code/viz/plots.py` to generate coefficient tables with p-values and confidence intervals
-- [~] T035 [US3] Implement `code/models/metrics.py` for alpha sensitivity analysis: **Sweep significance thresholds (, standard levels, 0.10)** and **generate output artifact `data/processed/sensitivity_analysis.csv` (columns: alpha, significance_rate)** per FR-006
+- [ ] T035 [US3] Implement `code/models/metrics.py` for alpha sensitivity analysis: **Sweep significance thresholds (, standard levels, 0.10)** and **generate output artifact `data/processed/sensitivity_analysis.csv` (columns: alpha, significance_rate)** per FR-006
 - [X] T036 [US3] Implement `code/reports/generate_report.py` to compile plots, tables, and sensitivity summaries into a single PDF
-- [~] T037 [US3] Ensure report explicitly cites the "observational nature" and "derived prime valence" limitations
+- [ ] T037 [US3] Ensure report explicitly cites the "observational nature" and "derived prime valence" limitations
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -169,8 +169,8 @@ The Plan's "Critical Design Change #2" (requiring human-rated ambiguity only) is
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T038 [P] Documentation updates in `docs/` and `quickstart.md`
-- [~] T039 Code cleanup and refactoring of `data/` and `models/` modules
+- [ ] T038 [P] Documentation updates in `docs/` and `quickstart.md`
+- [ ] T039 Code cleanup and refactoring of `data/` and `models/` modules
 - [~] T040 Performance optimization: Ensure data chunking/sampling logic handles datasets >7GB RAM
 - [~] T041 [P] Additional unit tests for edge cases (missing metadata, high collinearity) in `tests/unit/`
 - [~] T042 Security hardening: Verify no PII leakage in `data/processed/` outputs

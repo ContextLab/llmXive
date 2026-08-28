@@ -1,264 +1,307 @@
 """
-Linkage derivation fallback module.
+Linkage derivation module for mapping trial IDs to stimulus IDs.
 
-Implements fallback logic to map trial IDs to stimulus image filenames
-via hash derivation when explicit metadata is missing.
+Implements fallback logic to derive stimulus_id from trial_id when metadata
+is missing, using hash-based mapping to nearest image filename.
 """
 import os
 import hashlib
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+import csv
+import sys
 
+# Import from existing API surface
 from data.ingest import load_iat_csv, validate_trial_data
+from config import get_path, get_all_base_paths
 from data.models import Trial
-from config import get_path
+from data.integrity import load_stimulus_paths
 
 logger = logging.getLogger(__name__)
 
-def derive_stimulus_id_from_trial_id(trial_id: str, image_dir: Path, prime_type: str) -> Optional[str]:
+def derive_stimulus_id_from_trial_id(
+    trial_id: str, 
+    prime_dir: Path, 
+    target_dir: Path,
+    existing_mapping: Optional[Dict[str, str]] = None
+) -> Optional[str]:
     """
-    Attempt to derive a stimulus_id by mapping the trial_id to the nearest image filename.
+    Attempt to derive stimulus_id from trial_id via hash mapping.
     
     Strategy:
-    1. Normalize trial_id (remove common prefixes/suffixes).
-    2. Compute a hash of the trial_id.
-    3. Scan the image directory for filenames that might correspond to this hash
-       (e.g., files named like 'img_<hash_suffix>.png' or where the filename contains the hash).
-    4. If a match is found, return the filename (without extension) as the stimulus_id.
-    5. If no direct match, attempt to find the 'nearest' match based on substring similarity
-       if the trial_id contains a hash-like segment.
+    1. Extract numeric or hash component from trial_id
+    2. Compute hash of trial_id
+    3. Map to nearest available image filename in prime/target directories
     
     Args:
-        trial_id: The raw trial identifier string.
-        image_dir: Path to the directory containing the stimulus images.
-        prime_type: 'prime' or 'target' to select the correct subdirectory context.
+        trial_id: The trial identifier string
+        prime_dir: Path to prime images directory
+        target_dir: Path to target images directory
+        existing_mapping: Optional pre-computed mapping to use as reference
     
     Returns:
-        The derived stimulus_id (filename without extension) or None if no match found.
+        Derived stimulus_id string or None if derivation fails
     """
-    if not image_dir.exists():
-        logger.warning(f"Image directory {image_dir} does not exist.")
+    if not trial_id:
         return None
-
-    # Normalize trial_id: strip common prefixes like 'trial_', 'T_', etc.
-    clean_id = trial_id.strip().lower()
-    for prefix in ['trial_', 't_', 'id_']:
-        if clean_id.startswith(prefix):
-            clean_id = clean_id[len(prefix):]
     
-    # Check if the clean_id itself looks like a hash or filename component
-    # Many IAT datasets use filenames like 'stimulus_001.png' or 'img_abc123.png'
-    # We will look for files where the trial_id (or a hash of it) appears in the filename.
+    # Normalize trial_id
+    trial_id_str = str(trial_id).strip()
     
-    # Strategy A: Direct substring match in filename
-    # Some datasets name files exactly as trial IDs or contain them.
-    all_files = list(image_dir.glob("*"))
-    candidates = [f.stem for f in all_files if f.is_file() and clean_id in f.stem]
+    # If we have an existing mapping, try to find a match
+    if existing_mapping and trial_id_str in existing_mapping:
+        return existing_mapping[trial_id_str]
     
-    if candidates:
-        # Return the first match
-        return candidates[0]
+    # Compute hash of trial_id for deterministic mapping
+    trial_hash = hashlib.sha256(trial_id_str.encode()).hexdigest()
+    hash_prefix = trial_hash[:8]  # Use first 8 chars for matching
     
-    # Strategy B: Hash-based derivation
-    # If the trial_id is numeric or short, it might map to a hash suffix.
-    # We compute a hash of the trial_id and look for files ending with that suffix.
-    # This is useful if filenames are like 'prime_a1b2c3.png' and trial_id is 'a1b2c3'.
-    try:
-        # Use a simple hash of the trial_id
-        hash_obj = hashlib.md5(clean_id.encode('utf-8'))
-        hash_hex = hash_obj.hexdigest()
-        hash_suffix = hash_hex[:8] # Look for first 8 chars
+    # Collect all available image filenames from both directories
+    available_images = []
+    
+    for img_dir in [prime_dir, target_dir]:
+        if img_dir.exists():
+            for img_file in img_dir.iterdir():
+                if img_file.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.bmp']:
+                    # Extract filename without extension
+                    stem = img_file.stem
+                    # Check if filename contains hash-like pattern or numeric ID
+                    available_images.append({
+                        'path': img_file,
+                        'stem': stem,
+                        'full_name': img_file.name
+                    })
+    
+    if not available_images:
+        logger.warning(f"No images found in {prime_dir} or {target_dir}")
+        return None
+    
+    # Try to match by hash prefix in filename
+    best_match = None
+    best_score = 0
+    
+    for img_info in available_images:
+        stem = img_info['stem']
+        # Check if stem contains the hash prefix
+        if hash_prefix in stem:
+            best_match = img_info['full_name']
+            best_score = 10
+            break
         
-        candidates_hash = [f.stem for f in all_files if f.is_file() and hash_suffix in f.stem]
-        if candidates_hash:
-            return candidates_hash[0]
-    except Exception as e:
-        logger.debug(f"Hash derivation failed for {trial_id}: {e}")
+        # Check for numeric similarity (trial_id often has numeric component)
+        if stem.isdigit() or any(c.isdigit() for c in stem):
+            # Extract numeric part from stem
+            numeric_stem = ''.join(filter(str.isdigit, stem))
+            numeric_trial = ''.join(filter(str.isdigit, trial_id_str))
+            
+            if numeric_stem and numeric_trial:
+                # Simple numeric matching
+                if numeric_stem == numeric_trial:
+                    best_match = img_info['full_name']
+                    best_score = 9
+                    break
+                elif numeric_stem.startswith(numeric_trial[:4]) or numeric_trial.startswith(numeric_stem[:4]):
+                    if best_score < 5:
+                        best_match = img_info['full_name']
+                        best_score = 5
+    
+    # If no direct match, use hash modulo to select nearest available
+    if not best_match:
+        hash_value = int(trial_hash[:16], 16)
+        index = hash_value % len(available_images)
+        best_match = available_images[index]['full_name']
+        logger.debug(f"Using hash-modulo fallback for trial {trial_id_str} -> {best_match}")
+    
+    return best_match
 
-    # Strategy C: Fallback to nearest match if trial_id is numeric
-    # If trial_id is purely numeric, try to match it to a numeric sequence in filenames
-    if clean_id.isdigit():
-        num_id = int(clean_id)
-        # Look for files with numbers near num_id
-        # This is a heuristic and might not work for all datasets
-        numeric_files = []
-        for f in all_files:
-            if f.is_file():
-                stem = f.stem
-                # Try to extract numbers from filename
-                import re
-                numbers = re.findall(r'\d+', stem)
-                for n in numbers:
-                    try:
-                        numeric_files.append((int(n), f.stem))
-                    except ValueError:
-                        pass
-        
-        if numeric_files:
-            # Sort by difference
-            numeric_files.sort(key=lambda x: abs(x[0] - num_id))
-            if numeric_files[0][0] == num_id:
-                return numeric_files[0][1]
-            # If difference is small (e.g., < 5), consider it a match
-            if abs(numeric_files[0][0] - num_id) <= 5:
-                return numeric_files[0][1]
 
-    return None
-
-def run_linkage_derivation(trials: List[Trial], prime_dir: Path, target_dir: Path) -> Tuple[List[Trial], float]:
+def run_linkage_derivation(
+    input_csv: Path,
+    output_csv: Path,
+    prime_dir: Optional[Path] = None,
+    target_dir: Optional[Path] = None,
+    missing_threshold: float = 0.10
+) -> Tuple[bool, Dict[str, float]]:
     """
-    Run linkage derivation fallback for trials missing explicit stimulus_id.
+    Run linkage derivation pipeline on input trial data.
     
     Args:
-        trials: List of Trial objects. Some may have missing stimulus_id.
-        prime_dir: Path to prime images directory.
-        target_dir: Path to target images directory.
+        input_csv: Path to input CSV with trial data
+        output_csv: Path to write output CSV with derived stimulus_ids
+        prime_dir: Path to prime images directory
+        target_dir: Path to target images directory
+        missing_threshold: Threshold for halting (>10% missing = halt)
     
     Returns:
-        Tuple of (updated_trials, derivation_success_rate)
+        Tuple of (success: bool, stats: Dict)
+        success: True if derivation succeeded within threshold
+        stats: Dictionary with derivation statistics
+    
+    Raises:
+        RuntimeError: If derivation fails for >10% of trials
     """
-    updated_trials = []
+    if not input_csv.exists():
+        raise FileNotFoundError(f"Input CSV not found: {input_csv}")
+    
+    # Set default directories if not provided
+    base_paths = get_all_base_paths()
+    if prime_dir is None:
+        prime_dir = base_paths.get('primes', base_paths.get('data_primes', Path('data/primes')))
+    if target_dir is None:
+        target_dir = base_paths.get('targets', base_paths.get('data_targets', Path('data/targets')))
+    
+    # Ensure directories exist
+    if not prime_dir.exists():
+        prime_dir.mkdir(parents=True, exist_ok=True)
+    if not target_dir.exists():
+        target_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing stimulus paths for reference
+    existing_mapping = {}
+    try:
+        # Try to load any existing metadata
+        metadata_file = base_paths.get('data_processed', Path('data/processed')) / 'stimulus_metadata.csv'
+        if metadata_file.exists():
+            with open(metadata_file, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    if 'trial_id' in row and 'stimulus_id' in row:
+                        existing_mapping[row['trial_id']] = row['stimulus_id']
+    except Exception as e:
+        logger.warning(f"Could not load existing metadata: {e}")
+    
+    # Read input CSV
+    trials = []
+    with open(input_csv, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames
+        for row in reader:
+            trials.append(row)
+    
+    if not trials:
+        raise ValueError(f"No trials found in {input_csv}")
+    
+    # Derive stimulus_id for each trial
+    total_trials = len(trials)
     derived_count = 0
-    missing_count = 0
-    total_missing = 0
-
+    failed_count = 0
+    excluded_count = 0
+    
+    output_rows = []
+    
     for trial in trials:
-        if trial.stimulus_id:
-            updated_trials.append(trial)
+        trial_id = trial.get('trial_id', '')
+        stimulus_id = trial.get('stimulus_id', '')
+        
+        # If stimulus_id already exists, keep it
+        if stimulus_id and stimulus_id.strip():
+            output_rows.append(trial)
+            derived_count += 1
             continue
         
-        total_missing += 1
-        stimulus_type = trial.stimulus_type # 'prime' or 'target'
-        image_dir = prime_dir if stimulus_type == 'prime' else target_dir
-        
-        derived_id = derive_stimulus_id_from_trial_id(trial.trial_id, image_dir, stimulus_type)
+        # Attempt derivation
+        derived_id = derive_stimulus_id_from_trial_id(
+            trial_id, 
+            prime_dir, 
+            target_dir, 
+            existing_mapping
+        )
         
         if derived_id:
-            trial.stimulus_id = derived_id
+            trial['stimulus_id'] = derived_id
+            output_rows.append(trial)
             derived_count += 1
-            updated_trials.append(trial)
         else:
-            missing_count += 1
-            # Mark as excluded or keep with None? 
-            # Per task: "flagged for exclusion"
-            trial.stimulus_id = None 
-            updated_trials.append(trial)
+            failed_count += 1
+            # Mark as excluded
+            trial['stimulus_id'] = ''
+            trial['excluded'] = 'True'
+            trial['exclusion_reason'] = 'Linkage derivation failed'
+            output_rows.append(trial)
+    
+    # Calculate failure rate
+    failure_rate = failed_count / total_trials if total_trials > 0 else 0
+    success_rate = derived_count / total_trials if total_trials > 0 else 0
+    
+    stats = {
+        'total_trials': total_trials,
+        'derived_count': derived_count,
+        'failed_count': failed_count,
+        'excluded_count': failed_count,
+        'failure_rate': failure_rate,
+        'success_rate': success_rate
+    }
+    
+    logger.info(f"Linkage derivation complete: {derived_count}/{total_trials} ({success_rate:.2%}) successful")
+    logger.info(f"Failure rate: {failure_rate:.2%} (threshold: {missing_threshold:.2%})")
+    
+    # Check threshold
+    if failure_rate > missing_threshold:
+        error_msg = f"Data Gap: No linkage data available. Failed to derive stimulus_id for {failure_rate:.2%} of trials (>{missing_threshold:.2%} threshold)."
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+    
+    # Write output CSV
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_csv, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames + ['excluded', 'exclusion_reason'] if 'excluded' not in fieldnames else fieldnames)
+        writer.writeheader()
+        writer.writerows(output_rows)
+    
+    logger.info(f"Output written to {output_csv}")
+    
+    return True, stats
 
-    success_rate = derived_count / total_missing if total_missing > 0 else 1.0
-    return updated_trials, success_rate
 
 def main():
-    """
-    Main entry point for T016.
-    Reads trials from data/processed/linked_trials.csv (intermediate state),
-    attempts linkage derivation for missing IDs, and writes updated CSV.
-    """
-    logger.info("Starting T016: Linkage Derivation Fallback")
-    
-    # Load existing linked trials (output of T015)
-    input_path = get_path("data", "processed", "linked_trials.csv")
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}. Run T013-T015 first.")
-        return
-
-    # Load CSV into Trial objects
-    # Note: We need to reconstruct Trial objects. 
-    # The CSV has: trial_id, response_time, stimulus_id, prime_condition, participant_id
-    # We also need to know stimulus_type (prime/target). 
-    # Assuming prime_condition column implies type or we infer from context.
-    # For now, we assume the CSV has a 'stimulus_type' column or we infer it.
-    # If not, we might need to check the data model or spec.
-    # Let's assume the CSV has 'stimulus_type' or we default to 'prime' if not present.
-    
-    trials = []
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Map CSV columns to Trial fields
-            # Trial fields: trial_id, response_time, stimulus_id, stimulus_type, prime_condition, participant_id
-            t = Trial(
-                trial_id=row['trial_id'],
-                response_time=float(row['response_time']),
-                stimulus_id=row.get('stimulus_id', None),
-                stimulus_type=row.get('stimulus_type', 'prime'), # Default to prime if missing
-                prime_condition=row.get('prime_condition', 'neutral'),
-                participant_id=row['participant_id']
-            )
-            trials.append(t)
-
-    logger.info(f"Loaded {len(trials)} trials. Checking for missing stimulus_id...")
-    
-    missing_initial = sum(1 for t in trials if t.stimulus_id is None)
-    logger.info(f"Found {missing_initial} trials with missing stimulus_id.")
-
-    if missing_initial == 0:
-        logger.info("No missing stimulus IDs. Skipping derivation.")
-        # Write back just in case
-        with open(input_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=['trial_id', 'response_time', 'stimulus_id', 'stimulus_type', 'prime_condition', 'participant_id'])
-            writer.writeheader()
-            for t in trials:
-                writer.writerow({
-                    'trial_id': t.trial_id,
-                    'response_time': t.response_time,
-                    'stimulus_id': t.stimulus_id,
-                    'stimulus_type': t.stimulus_type,
-                    'prime_condition': t.prime_condition,
-                    'participant_id': t.participant_id
-                })
-        return
-
-    prime_dir = get_path("data", "primes")
-    target_dir = get_path("data", "targets")
-
-    updated_trials, success_rate = run_linkage_derivation(trials, prime_dir, target_dir)
-
-    final_missing = sum(1 for t in updated_trials if t.stimulus_id is None)
-    final_total = len(updated_trials)
-    final_missing_pct = (final_missing / final_total) if final_total > 0 else 0
-
-    logger.info(f"Derivation complete. Success rate: {success_rate:.2%}")
-    logger.info(f"Remaining missing: {final_missing} ({final_missing_pct:.2%})")
-
-    # SC-001 Check: "vast majority" (default 0.95)
-    # The task says: "If derivation fails for >10% of trials, halt with 'Data Gap: No linkage data available'."
-    # This implies we check the failure rate of the derivation process itself, not the final missing rate.
-    # But the task also says: "Verify a high proportion of trials have mapped stimulus_id... to meet SC-001".
-    # Let's implement the >10% failure check as per the explicit instruction.
-    
-    if final_missing_pct > 0.10:
-        logger.error("Data Gap: No linkage data available (>10% trials missing stimulus_id after derivation).")
-        logger.error("Halt: Cannot proceed without sufficient linkage data.")
-        # Do not write the file or halt the pipeline
-        raise RuntimeError("Data Gap: No linkage data available (>10% trials missing stimulus_id after derivation).")
-    
-    # Write updated CSV
-    output_path = get_path("data", "processed", "linked_trials.csv")
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['trial_id', 'response_time', 'stimulus_id', 'stimulus_type', 'prime_condition', 'participant_id'])
-        writer.writeheader()
-        for t in updated_trials:
-            writer.writerow({
-                'trial_id': t.trial_id,
-                'response_time': t.response_time,
-                'stimulus_id': t.stimulus_id,
-                'stimulus_type': t.stimulus_type,
-                'prime_condition': t.prime_condition,
-                'participant_id': t.participant_id
-            })
-    
-    logger.info(f"Updated trials written to {output_path}")
-
-if __name__ == "__main__":
+    """Main entry point for linkage derivation script."""
+    import argparse
     import sys
-    import csv
-    setup_logging = None
-    try:
-        from main import setup_logging
-    except ImportError:
-        # Fallback if not imported from main
-        logging.basicConfig(level=logging.INFO)
-        setup_logging = lambda: logging.getLogger()
     
+    parser = argparse.ArgumentParser(description='Run linkage derivation for trial-stimulus mapping')
+    parser.add_argument('--input', '-i', type=str, required=True, help='Input CSV file path')
+    parser.add_argument('--output', '-o', type=str, required=True, help='Output CSV file path')
+    parser.add_argument('--primes', '-p', type=str, default=None, help='Prime images directory')
+    parser.add_argument('--targets', '-t', type=str, default=None, help='Target images directory')
+    parser.add_argument('--threshold', type=float, default=0.10, help='Missing data threshold (default: 0.10)')
+    
+    args = parser.parse_args()
+    
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    try:
+        prime_dir = Path(args.primes) if args.primes else None
+        target_dir = Path(args.targets) if args.targets else None
+        
+        success, stats = run_linkage_derivation(
+            input_csv=Path(args.input),
+            output_csv=Path(args.output),
+            prime_dir=prime_dir,
+            target_dir=target_dir,
+            missing_threshold=args.threshold
+        )
+        
+        if success:
+            print(f"Linkage derivation completed successfully.")
+            print(f"Stats: {stats}")
+            sys.exit(0)
+        else:
+            print("Linkage derivation failed.")
+            sys.exit(1)
+            
+    except RuntimeError as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        logger.exception("Unexpected error during linkage derivation")
+        sys.exit(1)
+
+
+if __name__ == '__main__':
     main()

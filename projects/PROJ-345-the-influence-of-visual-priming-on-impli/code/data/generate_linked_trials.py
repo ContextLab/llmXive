@@ -1,12 +1,6 @@
 """
-Generate the linked_trials.csv artifact for User Story 1.
-
-This script reads the processed trial data (produced by T013/T014/T015),
-ensures the linkage derivation (T016) has been applied, and writes the
-final `data/processed/linked_trials.csv` file with the required columns.
-
-It acts as the final assembly step for US1, verifying that the metadata
-percentage meets the SC-001 threshold before writing.
+Generate linked_trials.csv from preprocessed data with linkage derivation.
+Implements T016 and T017: Linkage derivation and metadata percentage calculation.
 """
 import os
 import csv
@@ -16,190 +10,280 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 import pandas as pd
 
-# Import project utilities from the API surface
-from config import get_path, ensure_directories
-from data.ingest import load_iat_csv
-from data.linkage import run_linkage_derivation
-from data.cleanup import clean_missing_response_times, clean_duplicate_trials
-from state_management import get_project_state_dir, add_artifact_record, log_execution
-from state.checksums import calculate_linked_metadata_percentage
+from config import get_path
+from data.linkage import derive_stimulus_id_from_trial_id, run_linkage_derivation
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Constants for columns
-REQUIRED_COLUMNS = [
-    'trial_id',
-    'response_time',
-    'stimulus_id',
-    'prime_condition',
-    'participant_id'
-]
 
-def load_preprocessed_trials() -> pd.DataFrame:
+def load_preprocessed_trials(
+    input_path: Optional[Path] = None
+) -> pd.DataFrame:
     """
-    Load the intermediate trial data produced by T013/T014/T015.
-    This file is expected to be at data/processed/raw_trials.csv (or similar intermediate).
-    If T016 (linkage) has run, it should have added stimulus_id.
+    Load preprocessed trial data.
+
+    Args:
+        input_path: Path to preprocessed trials CSV. Defaults to data/processed/preprocessed_trials.csv
+
+    Returns:
+        DataFrame with trial data
     """
-    # The ingest pipeline typically outputs to data/processed/trial_data.csv or similar.
-    # We look for the most recent processed CSV that contains trial data.
-    processed_dir = get_path('data', 'processed')
-    raw_trials_path = processed_dir / 'trial_data.csv'
-    
-    if not raw_trials_path.exists():
-        # Fallback: try to find any CSV in processed that looks like trial data
-        # This handles cases where the ingest output name varies slightly
-        candidates = list(processed_dir.glob('*.csv'))
-        if not candidates:
-            raise FileNotFoundError(
-                f"No processed trial data found in {processed_dir}. "
-                "Ensure T013 (ingest) and T014/T015 (linkage) have completed."
-            )
-        # Assume the first CSV is the one (or sort by modified time)
-        raw_trials_path = sorted(candidates, key=lambda p: p.stat().st_mtime, reverse=True)[0]
-        logger.info(f"Found intermediate trial data at: {raw_trials_path}")
+    if input_path is None:
+        input_path = get_path("data", "processed", "preprocessed_trials.csv")
 
-    try:
-        df = pd.read_csv(raw_trials_path)
-    except Exception as e:
-        raise RuntimeError(f"Failed to load intermediate trial data from {raw_trials_path}: {e}")
+    if not input_path.exists():
+        raise FileNotFoundError(f"Preprocessed trials file not found: {input_path}")
 
-    # Validate basic structure
-    if 'trial_id' not in df.columns:
-        raise ValueError("Intermediate trial data missing 'trial_id' column.")
-    
+    logger.info(f"Loading preprocessed trials from: {input_path}")
+    df = pd.read_csv(input_path)
+
+    logger.info(f"Loaded {len(df)} trials")
     return df
 
-def ensure_linkage(df: pd.DataFrame) -> pd.DataFrame:
+
+def ensure_linkage(
+    df: pd.DataFrame,
+    linkage_method: str = "hash_derivation",
+    halt_threshold: float = 0.10
+) -> pd.DataFrame:
     """
-    Ensure that every trial has a mapped stimulus_id.
-    If missing, attempt to run the linkage derivation (T016 logic).
+    Ensure all trials have a stimulus_id via linkage derivation.
+
+    Args:
+        df: DataFrame with trial data
+        linkage_method: Method to use for linkage (currently only 'hash_derivation')
+        halt_threshold: If more than this fraction fail linkage, halt execution
+
+    Returns:
+        DataFrame with stimulus_id column populated where possible
     """
-    if 'stimulus_id' not in df.columns:
-        logger.info("stimulus_id column missing. Running linkage derivation...")
-        # We assume the dataframe has enough info (trial_id, prime_condition, etc.)
-        # to derive the stimulus_id.
-        # In a real pipeline, T016 would have already run. If not, we trigger it here.
-        # Since we are T017, we assume T016 is done, but we check for safety.
-        # If T016 logic is in data.linkage, we might need to call it.
-        # However, T016 description says "Implement linkage derivation fallback".
-        # Let's assume the data is already linked if T016 is marked done.
-        # If not, we raise an error because T017 depends on T016.
-        raise RuntimeError(
-            "Linkage derivation (T016) has not been completed. "
-            "The input data lacks 'stimulus_id'. Please run T016 first."
+    logger.info(f"Ensuring linkage for {len(df)} trials using method: {linkage_method}")
+
+    if "stimulus_id" not in df.columns:
+        df["stimulus_id"] = None
+
+    # Count existing valid linkages
+    existing_valid = df["stimulus_id"].notna() & (df["stimulus_id"] != "")
+    existing_count = existing_valid.sum()
+    logger.info(f"Trials with existing valid stimulus_id: {existing_count}")
+
+    # Identify trials needing linkage
+    needs_linkage = ~existing_valid
+    trials_to_link = df[needs_linkage].copy()
+
+    if len(trials_to_link) == 0:
+        logger.info("All trials already have valid stimulus_id")
+        return df
+
+    logger.info(f"Attempting linkage derivation for {len(trials_to_link)} trials")
+
+    # Apply linkage derivation
+    derived_ids = []
+    failed_trials = []
+
+    for idx, row in trials_to_link.iterrows():
+        trial_id = row.get("trial_id", "")
+        try:
+            stimulus_id = derive_stimulus_id_from_trial_id(trial_id, method=linkage_method)
+            if stimulus_id:
+                derived_ids.append(stimulus_id)
+            else:
+                derived_ids.append(None)
+                failed_trials.append(trial_id)
+        except Exception as e:
+            logger.warning(f"Linkage derivation failed for trial {trial_id}: {e}")
+            derived_ids.append(None)
+            failed_trials.append(trial_id)
+
+    # Update the dataframe
+    df.loc[needs_linkage, "stimulus_id"] = derived_ids
+
+    # Calculate failure rate
+    total_trials = len(df)
+    final_linked = df["stimulus_id"].notna() & (df["stimulus_id"] != "")
+    final_linked_count = final_linked.sum()
+    failure_count = total_trials - final_linked_count
+    failure_rate = failure_count / total_trials
+
+    logger.info(f"Linkage derivation complete:")
+    logger.info(f"  - Total trials: {total_trials}")
+    logger.info(f"  - Successfully linked: {final_linked_count}")
+    logger.info(f"  - Failed linkage: {failure_count}")
+    logger.info(f"  - Failure rate: {failure_rate:.2%}")
+
+    # Check halt threshold
+    if failure_rate > halt_threshold:
+        error_msg = (
+            f"Data Gap: Linkage derivation failed for >{int(halt_threshold*100)}% of trials "
+            f"({failure_rate:.2%}). Halting execution per SC-001 requirements."
         )
-    
-    missing_mask = df['stimulus_id'].isna()
-    missing_count = missing_mask.sum()
-    total_count = len(df)
-    
-    if missing_count > 0:
-        logger.warning(f"Found {missing_count} trials ({100*missing_count/total_count:.2f}%) without stimulus_id.")
-        # If the percentage is high, we might want to halt, but T015 already handles >10% missing images.
-        # We proceed with the assumption that T015/T016 handled the logic.
-        # We drop rows with missing stimulus_id for the final output as per standard practice,
-        # unless the task requires keeping them (T017 description implies a clean CSV).
-        df = df.dropna(subset=['stimulus_id'])
-        logger.info(f"Dropped {missing_count} trials with missing stimulus_id.")
-    
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+
+    if failure_rate > 0:
+        logger.warning(
+            f"Linkage derivation failed for {failure_rate:.2%} of trials. "
+            f"Proceeding with warning."
+        )
+
     return df
+
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Ensure the dataframe has exactly the required columns in the correct order.
+    Normalize column names and types for linked_trials.csv.
+
+    Args:
+        df: Input DataFrame
+
+    Returns:
+        DataFrame with normalized columns
     """
+    required_columns = ["trial_id", "response_time", "stimulus_id", "prime_condition", "participant_id"]
+
     # Check for required columns
-    missing_cols = [c for c in REQUIRED_COLUMNS if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
-    
+    missing = [col for col in required_columns if col not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+
     # Select and order columns
-    result = df[REQUIRED_COLUMNS].copy()
-    
-    # Ensure types are correct
-    result['trial_id'] = result['trial_id'].astype(str)
-    result['response_time'] = pd.to_numeric(result['response_time'], errors='coerce')
-    result['stimulus_id'] = result['stimulus_id'].astype(str)
-    result['prime_condition'] = result['prime_condition'].astype(str)
-    result['participant_id'] = result['participant_id'].astype(str)
-    
-    # Drop rows with invalid response times (already done in cleanup, but double check)
-    result = result.dropna(subset=['response_time'])
-    
-    return result
+    df = df[required_columns].copy()
 
-def write_linked_trials(df: pd.DataFrame, output_path: Path) -> None:
+    # Ensure types
+    df["trial_id"] = df["trial_id"].astype(str)
+    df["response_time"] = pd.to_numeric(df["response_time"], errors="coerce")
+    df["stimulus_id"] = df["stimulus_id"].astype(str)
+    df["prime_condition"] = df["prime_condition"].astype(str)
+    df["participant_id"] = df["participant_id"].astype(str)
+
+    return df
+
+
+def write_linked_trials(
+    df: pd.DataFrame,
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Write the final CSV to disk.
+    Write linked trials to CSV.
+
+    Args:
+        df: DataFrame with linked trial data
+        output_path: Output path. Defaults to data/processed/linked_trials.csv
+
+    Returns:
+        Path to the written file
     """
+    if output_path is None:
+        output_path = get_path("data", "processed", "linked_trials.csv")
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    df.to_csv(output_path, index=False)
-    logger.info(f"Wrote {len(df)} rows to {output_path}")
 
-def verify_metadata_percentage(df: pd.DataFrame, threshold: float = 0.95) -> bool:
+    df.to_csv(output_path, index=False)
+    logger.info(f"Wrote {len(df)} trials to {output_path}")
+
+    return output_path
+
+
+def verify_metadata_percentage(
+    linked_trials_path: Optional[Path] = None,
+    threshold: float = 0.95
+) -> Dict[str, Any]:
     """
     Verify that the percentage of trials with linked metadata meets the threshold.
-    This satisfies the SC-001 target mentioned in T018 (though T018 is a separate task,
-    we verify here to ensure T017 output is valid).
+
+    Args:
+        linked_trials_path: Path to linked_trials.csv
+        threshold: Minimum required percentage (default 0.95)
+
+    Returns:
+        Dictionary with verification results
     """
-    # Since we already dropped NaNs, the percentage is 100% of the output.
-    # The check here is effectively verifying that the input data was sufficient.
-    # If we dropped too much, we should have logged it.
-    # We'll just log the final count.
-    logger.info(f"Final linked trials count: {len(df)}")
-    return True
+    if linked_trials_path is None:
+        linked_trials_path = get_path("data", "processed", "linked_trials.csv")
+
+    if not linked_trials_path.exists():
+        raise FileNotFoundError(f"Linked trials file not found: {linked_trials_path}")
+
+    df = pd.read_csv(linked_trials_path)
+
+    total = len(df)
+    linked = df["stimulus_id"].notna() & (df["stimulus_id"] != "")
+    linked_count = linked.sum()
+
+    percentage = linked_count / total if total > 0 else 0.0
+
+    result = {
+        "total_trials": total,
+        "linked_trials": int(linked_count),
+        "unlinked_trials": int(total - linked_count),
+        "percentage": round(percentage, 4),
+        "threshold": threshold,
+        "meets_threshold": percentage >= threshold
+    }
+
+    logger.info(f"Metadata percentage verification: {percentage:.2%} (threshold: {threshold:.2%})")
+
+    return result
+
 
 def main():
     """
-    Main entry point for T017.
+    Main entry point for generating linked_trials.csv.
     """
-    logger.info("Starting T017: Generate linked_trials.csv")
-    
-    # 1. Load preprocessed data
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+
+    logger.info("Starting linked trials generation (T016, T017)")
+
     try:
-        df = load_preprocessed_trials()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    
-    # 2. Ensure linkage (T016 dependency)
-    try:
-        df = ensure_linkage(df)
-    except RuntimeError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    
-    # 3. Normalize columns
-    df = normalize_columns(df)
-    
-    # 4. Verify metadata percentage (SC-001)
-    if not verify_metadata_percentage(df):
-        logger.warning("Metadata percentage check failed. Outputting anyway but flagging.")
-    
-    # 5. Write output
-    output_path = get_path('data', 'processed') / 'linked_trials.csv'
-    write_linked_trials(df, output_path)
-    
-    # 6. Record artifact in state (optional but good practice)
-    try:
-        state_dir = get_project_state_dir()
-        if state_dir:
-            add_artifact_record(
-                state_dir,
-                artifact_path=str(output_path),
-                description="Linked trials dataset with stimulus metadata"
+        # Step 1: Load preprocessed trials
+        input_path = get_path("data", "processed", "preprocessed_trials.csv")
+        if not input_path.exists():
+            # Try to find any preprocessed file
+            input_path = get_path("data", "processed")
+            csv_files = list(input_path.glob("*.csv"))
+            if not csv_files:
+                raise FileNotFoundError(
+                    "No preprocessed trials file found. "
+                    "Ensure data ingestion (T013-T015) has been completed."
+                )
+            input_path = csv_files[0]
+            logger.info(f"Using found file: {input_path}")
+
+        df = load_preprocessed_trials(input_path)
+
+        # Step 2: Ensure linkage
+        df = ensure_linkage(df, halt_threshold=0.10)
+
+        # Step 3: Normalize columns
+        df = normalize_columns(df)
+
+        # Step 4: Write output
+        output_path = write_linked_trials(df)
+
+        # Step 5: Verify metadata percentage
+        result = verify_metadata_percentage(output_path, threshold=0.95)
+
+        if not result["meets_threshold"]:
+            logger.warning(
+                f"SC-001 target not met: {result['percentage']:.2%} < {result['threshold']:.2%}. "
+                f"Consider reviewing linkage derivation logic."
             )
+        else:
+            logger.info(
+                f"SC-001 target met: {result['percentage']:.2%} >= {result['threshold']:.2%}. "
+                f"'Vast majority' of trials have linked metadata."
+            )
+
+        logger.info("Linked trials generation completed successfully")
+        return 0
+
     except Exception as e:
-        logger.warning(f"Could not record artifact in state: {e}")
-    
-    logger.info("T017 completed successfully.")
+        logger.error(f"Linked trials generation failed: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

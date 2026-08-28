@@ -1,133 +1,164 @@
 """
-Unit tests for state management functionality (T007).
+Unit tests for state management functionality.
+Tests the initialization and manipulation of state.yaml for Principle V.
 """
 import os
-import sys
-import tempfile
 import yaml
-from pathlib import Path
 import pytest
-from unittest.mock import patch, MagicMock
+from pathlib import Path
+import tempfile
+import shutil
 
-# Add code directory to path
-code_dir = Path(__file__).parent.parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Mock config to use temp directories for testing
+import sys
+from unittest.mock import patch
 
-from state_management import (
-    init_state_file,
-    save_state_file,
-    add_artifact_record,
-    log_execution,
-    get_project_state_dir,
-    get_state_root
-)
+@pytest.fixture
+def temp_project_dir():
+    """Create a temporary directory structure for testing."""
+    temp_base = tempfile.mkdtemp()
+    temp_state = Path(temp_base) / "state"
+    temp_project = temp_state / "PROJ-345"
+    temp_project.mkdir(parents=True)
+    
+    # Mock the config.get_path function
+    def mock_get_path(key):
+        if key == "state":
+            return temp_state
+        return Path("/mock/path")
+    
+    with patch('state_management.get_path', side_effect=mock_get_path):
+        yield temp_project
+    
+    shutil.rmtree(temp_base)
 
+@pytest.fixture
+def mock_config():
+    """Patch config.get_path to return predictable paths."""
+    def mock_get_path(key):
+        return Path(f"/mock/{key}")
+    
+    with patch('state_management.get_path', side_effect=mock_get_path):
+        yield
 
-class TestStateManagement:
-    """Tests for state management functions."""
+def test_init_state_file_creates_structure(temp_project_dir):
+    """Test that init_state_file creates the required directory and file."""
+    from state_management import init_state_file, get_project_state_dir
+    
+    # Reset the directory to be empty
+    for f in temp_project_dir.iterdir():
+        f.unlink()
+    
+    state_file = init_state_file("PROJ-345")
+    
+    assert state_file.exists()
+    assert state_file.name == "state.yaml"
+    
+    with open(state_file, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    assert data["project_id"] == "PROJ-345"
+    assert "created_at" in data
+    assert "updated_at" in data
+    assert data["principle_v_enabled"] is True
+    assert "artifacts" in data
+    assert "execution_log" in data
 
-    @pytest.fixture
-    def temp_state_dir(self):
-        """Create a temporary directory for testing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
+def test_init_state_file_idempotent(temp_project_dir):
+    """Test that calling init_state_file twice doesn't overwrite existing data."""
+    from state_management import init_state_file
+    
+    # First init
+    state_file = init_state_file("PROJ-345")
+    with open(state_file, 'r') as f:
+        first_data = yaml.safe_load(f)
+    
+    # Modify the file
+    first_data["custom_field"] = "test_value"
+    with open(state_file, 'w') as f:
+        yaml.dump(first_data, f)
+    
+    # Second init
+    state_file_2 = init_state_file("PROJ-345")
+    with open(state_file_2, 'r') as f:
+        second_data = yaml.safe_load(f)
+    
+    # Should preserve the custom field
+    assert second_data["custom_field"] == "test_value"
 
-    @patch('state_management.get_path')
-    def test_init_state_file_creates_new(self, mock_get_path, temp_state_dir):
-        """Test that init_state_file creates a new state.yaml when it doesn't exist."""
-        project_id = "TEST-PROJECT"
-        mock_get_path.return_value = temp_state_dir
+def test_add_artifact_record(temp_project_dir):
+    """Test adding an artifact record to state.yaml."""
+    from state_management import init_state_file, add_artifact_record
+    
+    init_state_file("PROJ-345")
+    
+    add_artifact_record(
+        "PROJ-345",
+        "data/processed/linked_trials.csv",
+        "csv",
+        "abc123checksum"
+    )
+    
+    state_file = get_project_state_dir("PROJ-345") / "state.yaml"
+    with open(state_file, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    assert len(data["artifacts"]) == 1
+    assert data["artifacts"][0]["path"] == "data/processed/linked_trials.csv"
+    assert data["artifacts"][0]["type"] == "csv"
+    assert data["artifacts"][0]["checksum"] == "abc123checksum"
 
-        state = init_state_file(project_id)
+def test_log_execution(temp_project_dir):
+    """Test logging an execution event."""
+    from state_management import init_state_file, log_execution
+    
+    init_state_file("PROJ-345")
+    
+    log_execution("PROJ-345", "T007", "success", duration_seconds=1.5)
+    
+    state_file = get_project_state_dir("PROJ-345") / "state.yaml"
+    with open(state_file, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    assert len(data["execution_log"]) == 1
+    assert data["execution_log"][0]["task_id"] == "T007"
+    assert data["execution_log"][0]["status"] == "success"
+    assert data["execution_log"][0]["duration_seconds"] == 1.5
 
-        # Verify state structure
-        assert state["project_id"] == project_id
-        assert "initialized_at" in state
-        assert state["version"] == "1.0.0"
-        assert "principle_v" in state
-        assert state["principle_v"]["status"] == "initialized"
+def test_log_execution_failure(temp_project_dir):
+    """Test logging a failed execution."""
+    from state_management import init_state_file, log_execution
+    
+    init_state_file("PROJ-345")
+    
+    log_execution("PROJ-345", "T007", "failed", error="Simulated error")
+    
+    state_file = get_project_state_dir("PROJ-345") / "state.yaml"
+    with open(state_file, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    assert len(data["execution_log"]) == 1
+    assert data["execution_log"][0]["status"] == "failed"
+    assert data["execution_log"][0]["error"] == "Simulated error"
 
-        # Verify file was created
-        state_file = get_project_state_dir(project_id) / "state.yaml"
-        assert state_file.exists()
-
-    @patch('state_management.get_path')
-    def test_init_state_file_loads_existing(self, mock_get_path, temp_state_dir):
-        """Test that init_state_file loads existing state.yaml."""
-        project_id = "TEST-PROJECT-EXISTING"
-        mock_get_path.return_value = temp_state_dir
-
-        # Create a pre-existing state file
-        state_dir = get_project_state_dir(project_id)
-        state_dir.mkdir(parents=True, exist_ok=True)
-        existing_state = {
-            "project_id": project_id,
-            "initialized_at": "2023-01-01T00:00:00",
-            "version": "1.0.0",
-            "custom_field": "custom_value"
-        }
-        with open(state_dir / "state.yaml", 'w') as f:
-            yaml.dump(existing_state, f)
-
-        # Load the state
-        state = init_state_file(project_id)
-
-        assert state["project_id"] == project_id
-        assert state["custom_field"] == "custom_value"
-        assert "initialized_at" in state
-
-    @patch('state_management.get_path')
-    def test_add_artifact_record(self, mock_get_path, temp_state_dir):
-        """Test adding an artifact record to state."""
-        project_id = "TEST-PROJECT-ARTIFACT"
-        mock_get_path.return_value = temp_state_dir
-
-        init_state_file(project_id)
-
-        add_artifact_record(
-            project_id,
-            "data/processed/test.csv",
-            "data",
-            {"rows": 1000, "columns": 5}
-        )
-
-        state_file = get_project_state_dir(project_id) / "state.yaml"
-        with open(state_file, 'r') as f:
-            state = yaml.safe_load(f)
-
-        assert len(state["artifacts"]) == 1
-        assert state["artifacts"][0]["name"] == "data/processed/test.csv"
-        assert state["artifacts"][0]["type"] == "data"
-        assert state["artifacts"][0]["details"]["rows"] == 1000
-
-    @patch('state_management.get_path')
-    def test_log_execution(self, mock_get_path, temp_state_dir):
-        """Test logging an execution event."""
-        project_id = "TEST-PROJECT-LOG"
-        mock_get_path.return_value = temp_state_dir
-
-        init_state_file(project_id)
-
-        log_execution(project_id, "T007", "success", "Initialization complete")
-
-        state_file = get_project_state_dir(project_id) / "state.yaml"
-        with open(state_file, 'r') as f:
-            state = yaml.safe_load(f)
-
-        assert len(state["execution_log"]) == 1
-        assert state["execution_log"][0]["task_id"] == "T007"
-        assert state["execution_log"][0]["status"] == "success"
-        assert "message" in state["execution_log"][0]
-
-    @patch('state_management.get_path')
-    def test_get_project_state_dir(self, mock_get_path, temp_state_dir):
-        """Test getting the project state directory path."""
-        project_id = "TEST-PROJECT-PATH"
-        mock_get_path.return_value = temp_state_dir
-
-        path = get_project_state_dir(project_id)
-
-        expected = temp_state_dir / "projects" / project_id
-        assert path == expected
-        assert path.exists()
+def test_save_state_file_updates_timestamp(temp_project_dir):
+    """Test that save_state_file updates the timestamp."""
+    from state_management import init_state_file, save_state_file
+    import time
+    
+    init_state_file("PROJ-345")
+    
+    state_file = get_project_state_dir("PROJ-345") / "state.yaml"
+    with open(state_file, 'r') as f:
+        data = yaml.safe_load(f)
+    first_updated = data["updated_at"]
+    
+    time.sleep(0.01)  # Small delay to ensure timestamp changes
+    
+    save_state_file("PROJ-345", {"test_key": "test_value"})
+    
+    with open(state_file, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    assert data["updated_at"] != first_updated
+    assert data["test_key"] == "test_value"

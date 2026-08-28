@@ -1,2 +1,2 @@
-# Placeholder to ensure directory exists in version control
-# This file should be ignored by gitignore patterns in parent directories
+# This directory stores experiment artifacts: logs, plots, model weights, and reports.
+# Generated during pipeline execution.

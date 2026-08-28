@@ -21,12 +21,12 @@ wheels/
 *.egg
 
 # Virtual Environments
+.venv/
 venv/
 ENV/
 env/
-.venv/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
@@ -37,16 +37,28 @@ env/
 .DS_Store
 Thumbs.db
 
-# Project Specific: Data and Artifacts
-# We keep the directory structure but ignore the actual file contents
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-artifacts/*
-!artifacts/.gitkeep
+# Project Specific: Data & Artifacts
+# Raw data is large and immutable; keep it out of git
+data/raw/
+# Processed data can be large; exclude unless explicitly small
+data/processed/
+# Artifacts (logs, plots, models) are generated
+artifacts/
 
-# Logs and temporary files
+# Environment variables
+.env
+.env.local
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Logs
 *.log
-*.tmp
-.cache/
+logs/
+
+# Temporary files
+tmp/
+temp/

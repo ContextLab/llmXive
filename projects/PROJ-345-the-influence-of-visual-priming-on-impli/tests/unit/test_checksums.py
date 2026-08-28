@@ -1,106 +1,202 @@
+"""
+Unit tests for checksum verification and linked metadata percentage calculation (T018).
+"""
 import os
-import csv
 import tempfile
-import yaml
-from pathlib import Path
 import pytest
+import pandas as pd
+from pathlib import Path
+import yaml
 
-# Import the functions to test
-from state.checksums import (
+# Add parent to path for imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.state.checksums import (
     calculate_file_checksum,
-    calculate_linked_metadata_percentage,
-    verify_and_record_checksums,
     load_state_yaml,
     save_state_yaml,
-    DEFAULT_LINKED_THRESHOLD
+    verify_and_record_checksums,
+    calculate_linked_metadata_percentage
 )
+from code.config import get_path
+
+
+class TestCalculateFileChecksum:
+    def test_calculate_checksum_known_file(self, tmp_path):
+        """Test checksum calculation for a known file."""
+        test_file = tmp_path / "test.txt"
+        test_content = b"Hello, World!"
+        test_file.write_bytes(test_content)
+
+        checksum = calculate_file_checksum(test_file)
+
+        # SHA256 of "Hello, World!"
+        expected = "315f5bdb76d078c43b8ac0064e4a0164612b1fce77c869345bfc94c75894edd3"
+        assert checksum == expected
+
+    def test_calculate_checksum_nonexistent_file(self, tmp_path):
+        """Test that FileNotFoundError is raised for non-existent file."""
+        non_existent = tmp_path / "does_not_exist.txt"
+
+        with pytest.raises(FileNotFoundError):
+            calculate_file_checksum(non_existent)
+
+    def test_calculate_checksum_large_file(self, tmp_path):
+        """Test checksum calculation for a larger file (chunked reading)."""
+        test_file = tmp_path / "large.txt"
+        # Create a 1MB file
+        test_content = b"X" * (1024 * 1024)
+        test_file.write_bytes(test_content)
+
+        checksum = calculate_file_checksum(test_file)
+        assert len(checksum) == 64  # SHA256 hex string length
+
+
+class TestStateYamlOperations:
+    def test_load_nonexistent_state(self, tmp_path):
+        """Test loading a non-existent state file returns empty state."""
+        non_existent = tmp_path / "nonexistent.yaml"
+
+        state = load_state_yaml(non_existent)
+
+        assert "artifacts" in state
+        assert "checksums" in state
+        assert "metadata" in state
+
+    def test_save_and_load_state(self, tmp_path):
+        """Test saving and loading state data."""
+        state_file = tmp_path / "state.yaml"
+        test_data = {
+            "artifacts": {"test": "value"},
+            "checksums": {"raw_data": {"file.txt": {"checksum": "abc123"}}},
+            "metadata": {"version": "1.0"}
+        }
+
+        save_state_yaml(test_data, state_file)
+
+        assert state_file.exists()
+
+        loaded = load_state_yaml(state_file)
+
+        assert loaded == test_data
+
+
+class TestVerifyAndRecordChecksums:
+    def test_verify_checksums_empty_dir(self, tmp_path, tmp_path_state):
+        """Test checksum verification with empty directory."""
+        state_file = tmp_path_state / "state.yaml"
+        checksums = verify_and_record_checksums(tmp_path, state_file)
+
+        assert checksums == {}
+
+    def test_verify_checksums_with_files(self, tmp_path, tmp_path_state):
+        """Test checksum verification with files in directory."""
+        state_file = tmp_path_state / "state.yaml"
+
+        # Create test files
+        (tmp_path / "file1.txt").write_bytes(b"content1")
+        (tmp_path / "file2.txt").write_bytes(b"content2")
+
+        checksums = verify_and_record_checksums(tmp_path, state_file)
+
+        assert len(checksums) == 2
+        assert "file1.txt" in checksums
+        assert "file2.txt" in checksums
+
+        # Verify state file was updated
+        state = load_state_yaml(state_file)
+        assert "checksums" in state
+        assert "raw_data" in state["checksums"]
+        assert "file1.txt" in state["checksums"]["raw_data"]
+
+
+class TestCalculateLinkedMetadataPercentage:
+    def test_calculate_percentage_all_linked(self, tmp_path):
+        """Test calculation when all trials have linked metadata."""
+        linked_file = tmp_path / "linked_trials.csv"
+
+        # Create test data with all valid stimulus_ids
+        data = {
+            "trial_id": [1, 2, 3, 4, 5],
+            "response_time": [500, 600, 550, 700, 450],
+            "stimulus_id": ["img1", "img2", "img3", "img4", "img5"],
+            "prime_condition": ["positive", "negative", "positive", "negative", "positive"],
+            "participant_id": ["p1", "p1", "p2", "p2", "p3"]
+        }
+        pd.DataFrame(data).to_csv(linked_file, index=False)
+
+        result = calculate_linked_metadata_percentage(linked_file, threshold=0.95)
+
+        assert result["total_trials"] == 5
+        assert result["linked_trials"] == 5
+        assert result["linked_percentage"] == 1.0
+        assert result["meets_threshold"] is True
+
+    def test_calculate_percentage_partial_linked(self, tmp_path):
+        """Test calculation when some trials lack linked metadata."""
+        linked_file = tmp_path / "linked_trials.csv"
+
+        # Create test data with some missing stimulus_ids
+        data = {
+            "trial_id": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            "response_time": [500] * 10,
+            "stimulus_id": ["img1", "", "img3", None, "img5", "img6", "", "img8", "img9", "img10"],
+            "prime_condition": ["positive"] * 10,
+            "participant_id": ["p1"] * 10
+        }
+        pd.DataFrame(data).to_csv(linked_file, index=False)
+
+        result = calculate_linked_metadata_percentage(linked_file, threshold=0.95)
+
+        assert result["total_trials"] == 10
+        assert result["linked_trials"] == 8  # 2 are missing/empty
+        assert result["linked_percentage"] == 0.8
+        assert result["meets_threshold"] is False  # 0.8 < 0.95
+
+    def test_calculate_percentage_meets_threshold(self, tmp_path):
+        """Test calculation when percentage meets a lower threshold."""
+        linked_file = tmp_path / "linked_trials.csv"
+
+        # 9 out of 10 = 90%
+        data = {
+            "trial_id": list(range(1, 11)),
+            "response_time": [500] * 10,
+            "stimulus_id": ["img" + str(i) if i != 5 else "" for i in range(1, 11)],
+            "prime_condition": ["positive"] * 10,
+            "participant_id": ["p1"] * 10
+        }
+        pd.DataFrame(data).to_csv(linked_file, index=False)
+
+        # With threshold 0.85, 0.9 should pass
+        result = calculate_linked_metadata_percentage(linked_file, threshold=0.85)
+
+        assert result["linked_percentage"] == 0.9
+        assert result["meets_threshold"] is True
+
+    def test_calculate_percentage_empty_file(self, tmp_path):
+        """Test that ValueError is raised for empty file."""
+        linked_file = tmp_path / "linked_trials.csv"
+
+        # Create empty file with just headers
+        pd.DataFrame(columns=["trial_id", "response_time", "stimulus_id"]).to_csv(
+            linked_file, index=False
+        )
+
+        with pytest.raises(ValueError, match="Linked trials file is empty"):
+            calculate_linked_metadata_percentage(linked_file)
+
+    def test_calculate_percentage_nonexistent_file(self, tmp_path):
+        """Test that FileNotFoundError is raised for non-existent file."""
+        non_existent = tmp_path / "does_not_exist.csv"
+
+        with pytest.raises(FileNotFoundError):
+            calculate_linked_metadata_percentage(non_existent)
+
 
 @pytest.fixture
-def temp_state_dir(tmp_path):
+def tmp_path_state(tmp_path):
     """Create a temporary directory for state files."""
-    return tmp_path / "state"
-
-@pytest.fixture
-def temp_raw_dir(tmp_path):
-    """Create a temporary directory with dummy raw files."""
-    raw_dir = tmp_path / "raw"
-    raw_dir.mkdir()
-    (raw_dir / "file1.txt").write_text("content1")
-    (raw_dir / "subdir").mkdir()
-    (raw_dir / "subdir" / "file2.txt").write_text("content2")
-    return raw_dir
-
-@pytest.fixture
-def temp_linked_trials(tmp_path):
-    """Create a temporary linked_trials.csv file."""
-    trials_file = tmp_path / "linked_trials.csv"
-    with open(trials_file, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['trial_id', 'response_time', 'stimulus_id', 'prime_condition', 'participant_id'])
-        writer.writeheader()
-        # 8 linked, 2 unlinked -> 80%
-        writer.writerow({'trial_id': '1', 'response_time': '500', 'stimulus_id': 'img_001', 'prime_condition': 'positive', 'participant_id': 'P1'})
-        writer.writerow({'trial_id': '2', 'response_time': '600', 'stimulus_id': 'img_002', 'prime_condition': 'positive', 'participant_id': 'P1'})
-        writer.writerow({'trial_id': '3', 'response_time': '450', 'stimulus_id': 'img_003', 'prime_condition': 'negative', 'participant_id': 'P1'})
-        writer.writerow({'trial_id': '4', 'response_time': '550', 'stimulus_id': 'img_004', 'prime_condition': 'negative', 'participant_id': 'P1'})
-        writer.writerow({'trial_id': '5', 'response_time': '520', 'stimulus_id': 'img_005', 'prime_condition': 'neutral', 'participant_id': 'P2'})
-        writer.writerow({'trial_id': '6', 'response_time': '480', 'stimulus_id': 'img_006', 'prime_condition': 'neutral', 'participant_id': 'P2'})
-        writer.writerow({'trial_id': '7', 'response_time': '510', 'stimulus_id': 'img_007', 'prime_condition': 'positive', 'participant_id': 'P2'})
-        writer.writerow({'trial_id': '8', 'response_time': '530', 'stimulus_id': 'img_008', 'prime_condition': 'positive', 'participant_id': 'P2'})
-        # Unlinked
-        writer.writerow({'trial_id': '9', 'response_time': '600', 'stimulus_id': '', 'prime_condition': 'positive', 'participant_id': 'P3'})
-        writer.writerow({'trial_id': '10', 'response_time': '610', 'stimulus_id': None, 'prime_condition': 'negative', 'participant_id': 'P3'})
-    return trials_file
-
-def test_calculate_file_checksum(tmp_path):
-    file_path = tmp_path / "test.txt"
-    file_path.write_text("hello world")
-    
-    checksum = calculate_file_checksum(file_path)
-    assert isinstance(checksum, str)
-    assert len(checksum) == 64  # SHA-256 hex length
-    # Known checksum for "hello world"
-    assert checksum == "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
-
-def test_calculate_linked_metadata_percentage(temp_linked_trials):
-    # 8 out of 10 are linked -> 0.8
-    pct = calculate_linked_metadata_percentage(temp_linked_trials)
-    assert pct == 0.8
-    assert pct < 1.0
-
-def test_calculate_linked_metadata_percentage_empty_file(tmp_path):
-    file_path = tmp_path / "empty.csv"
-    file_path.write_text("trial_id,response_time,stimulus_id\n") # Header only
-    pct = calculate_linked_metadata_percentage(file_path)
-    assert pct == 0.0
-
-def test_calculate_linked_metadata_percentage_missing_file(tmp_path):
-    missing_path = tmp_path / "does_not_exist.csv"
-    pct = calculate_linked_metadata_percentage(missing_path)
-    assert pct == 0.0
-
-def test_verify_and_record_checksums(temp_state_dir, temp_raw_dir):
-    state_yaml = temp_state_dir / "state.yaml"
-    
-    state = verify_and_record_checksums(state_yaml, temp_raw_dir)
-    
-    assert 'raw_data_checksums' in state
-    assert 'file1.txt' in state['raw_data_checksums']
-    assert 'subdir/file2.txt' in state['raw_data_checksums']
-    
-    # Verify file was written
-    assert state_yaml.exists()
-    with open(state_yaml, 'r') as f:
-        loaded = yaml.safe_load(f)
-    assert loaded == state
-
-def test_load_save_state_yaml(temp_state_dir):
-    state_file = temp_state_dir / "test.yaml"
-    data = {"key": "value", "nested": {"a": 1}}
-    
-    save_state_yaml(state_file, data)
-    loaded = load_state_yaml(state_file)
-    
-    assert loaded == data
-
-def test_default_threshold():
-    assert DEFAULT_LINKED_THRESHOLD == 0.95
+    state_dir = tmp_path / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    return state_dir
