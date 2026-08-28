@@ -83,21 +83,9 @@ class TestASTParserMalformedFiles:
             malformed_path.write_text(malformed_code)
 
             # Test that parsing the list raises an exception for the malformed file
-            # The current implementation of parse_python_files likely raises on the first error
-            # or returns a list of results/errors. Based on the API surface, we expect it to handle
-            # the error gracefully or raise.
-            
-            # Scenario A: If it raises on error
             with pytest.raises(ASTParsingException):
                 parse_python_files([str(valid_path), str(malformed_path)])
 
-            # Scenario B: If it returns a list of results (some None or error objects)
-            # We will assume the strict behavior (raise) based on typical utility patterns 
-            # unless the implementation explicitly returns a list of (success, result) tuples.
-            # Given the task is "skipping malformed files", let's test a scenario where 
-            # we only pass the valid file to ensure it works, and the mixed test ensures
-            # the error is triggered.
-            
             # Re-test: Ensure valid file alone works
             results = parse_python_files([str(valid_path)])
             assert len(results) == 1

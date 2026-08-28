@@ -81,11 +81,7 @@ def load_model(
             )
         else:
             # Strict abort logic: If we are not on CUDA or 4-bit is disabled,
-            # we must abort if the task requires 4-bit on GPU specifically,
-            # OR we attempt the fallback as per T002 but log strictly.
-            # The task T011 specifies "strict abort on deviation".
-            # If the environment does not support the required 4-bit GPU setup,
-            # we raise an error to prevent silent degradation.
+            # we must abort if the task requires 4-bit on GPU specifically.
             if use_4bit and device.type != "cuda":
                 raise ModelLoadException(
                     "4-bit quantization requested but GPU not available. "
@@ -93,9 +89,6 @@ def load_model(
                 )
             
             logger.warning("Falling back to standard loading (CPU or 8-bit/Full Precision) - Deviation from 4-bit target.")
-            # Note: T002 handles the CPU fallback logic, but T011 enforces the 4-bit requirement.
-            # If we are here, it means we are not on CUDA or 4-bit is disabled.
-            # We attempt standard loading but log the deviation.
             model = AutoModelForCausalLM.from_pretrained(
                 model_path,
                 torch_dtype=dtype,
