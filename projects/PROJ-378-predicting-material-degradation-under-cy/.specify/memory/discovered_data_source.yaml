@@ -1,6 +1,6 @@
 status: none
-intent: Materials Project fatigue data NIST fatigue database UCI repository python
-  package dataset
+intent: download material fatigue dataset composition stress amplitude frequency R-ratio
+  remaining useful life python package dataset
 required_fields:
 - elemental_percentages
 - heat_treatment
@@ -9,6 +9,8 @@ required_fields:
 - R_ratio
 - remaining_useful_life
 - stiffness_loss
-cache_key: 3a74f6c344ad2fa6316bcb1a7ab1a5754af72606b8a21e9cf792e8be9725baa0
-searched_at: '2026-08-24T21:25:11.859563+00:00'
+- sample_id
+- test_temperature
+cache_key: 1d6a02c0c018503e978f10d161fdaacca1f970e11b5dc96eeeb3dc564f4aef0f
+searched_at: '2026-08-28T14:19:51.635433+00:00'
 retry_count: 1
