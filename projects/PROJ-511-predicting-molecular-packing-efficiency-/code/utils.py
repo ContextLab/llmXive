@@ -1,36 +1,74 @@
-"""
-General utility functions for the pipeline.
-"""
 import logging
 import os
 import random
 import sys
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 import numpy as np
 
 def fix_seed(seed: int = 42) -> None:
-    """
-    Fix random seeds for reproducibility across libraries.
-    """
+    """Fix random seed for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
-    # Note: PyTorch seed setting requires torch import, handled in specific modules if needed.
+    
+    # If torch is available, fix its seed too
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+    except ImportError:
+        pass
 
-def setup_logging(name: str, level: int = logging.INFO) -> logging.Logger:
+def setup_logging(name: Optional[Union[str, bool]] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Setup a standard logger for the pipeline.
+    Set up logging configuration.
+    
+    Args:
+        name: Logger name. If None, returns root logger. 
+              If False, returns a logger without configuration.
+              If a string, returns a named logger.
+        level: Logging level.
+    
+    Returns:
+        Configured logger instance.
     """
+    # Handle different call patterns
+    if name is False:
+        # Return a logger without configuration (for backward compatibility)
+        return logging.getLogger()
+    
+    if name is None:
+        # Return root logger with basic config
+        if not logging.getLogger().handlers:
+            logging.basicConfig(
+                level=level,
+                format='%(asctime)s - %(levelname)s - %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S'
+            )
+        return logging.getLogger()
+    
+    # Named logger
     logger = logging.getLogger(name)
-    logger.setLevel(level)
-
+    
     if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(level)
+        logger.setLevel(level)
+        
+        # Create console handler
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(level)
+        
+        # Create formatter
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
         )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-
+        ch.setFormatter(formatter)
+        
+        # Add handler to logger
+        logger.addHandler(ch)
+    
     return logger

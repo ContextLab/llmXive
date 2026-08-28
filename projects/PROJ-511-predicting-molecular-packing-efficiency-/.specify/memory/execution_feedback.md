@@ -7,37 +7,39 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/run_pipeline.py -> rc=1
-    ing type, and better interoperability with other libraries)
+    elease of pandas (pandas 3.0),
+(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
 but was not found to be installed on your system.
 If this would cause problems for you,
 please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
         
   import pandas as pd
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 429, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 256, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 401, in main
-    log_processing_statistics(success_count, failure_count, len(cif_files))
-TypeError: log_processing_statistics() missing 2 required positional arguments: 'start_time' and 'end_time'
-2026-08-26 14:35:32 - ERROR - Step code/parse_cif.py raised CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python', 'code/parse_cif.py']' returned non-zero exit status 1.
-2026-08-26 14:35:32 - ERROR - Pipeline failed at step: code/parse_cif.py
-2026-08-26 14:35:32 - ERROR - Pipeline execution failed. Failed steps: ['code/parse_cif.py']
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 204, in main
+    setup_logging()
+TypeError: setup_logging() missing 1 required positional argument: 'name'
+2026-08-28 09:11:29 - ERROR - Step code/parse_cif.py raised CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python', 'code/parse_cif.py']' returned non-zero exit status 1.
+2026-08-28 09:11:29 - ERROR - Pipeline failed at step: code/parse_cif.py
+2026-08-28 09:11:29 - ERROR - Pipeline execution failed. Failed steps: ['code/parse_cif.py']
 - python code/run_pipeline.py -> rc=1
-    ing type, and better interoperability with other libraries)
+    elease of pandas (pandas 3.0),
+(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
 but was not found to be installed on your system.
 If this would cause problems for you,
 please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
         
   import pandas as pd
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 429, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 256, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 401, in main
-    log_processing_statistics(success_count, failure_count, len(cif_files))
-TypeError: log_processing_statistics() missing 2 required positional arguments: 'start_time' and 'end_time'
-2026-08-26 14:35:33 - ERROR - Step code/parse_cif.py raised CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python', 'code/parse_cif.py']' returned non-zero exit status 1.
-2026-08-26 14:35:33 - ERROR - Pipeline failed at step: code/parse_cif.py
-2026-08-26 14:35:33 - ERROR - Pipeline execution failed. Failed steps: ['code/parse_cif.py']
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/parse_cif.py", line 204, in main
+    setup_logging()
+TypeError: setup_logging() missing 1 required positional argument: 'name'
+2026-08-28 09:11:32 - ERROR - Step code/parse_cif.py raised CalledProcessError: Command '['/home/runner/work/llmXive/llmXive/projects/PROJ-511-predicting-molecular-packing-efficiency-/code/.venv/bin/python', 'code/parse_cif.py']' returned non-zero exit status 1.
+2026-08-28 09:11:32 - ERROR - Pipeline failed at step: code/parse_cif.py
+2026-08-28 09:11:32 - ERROR - Pipeline execution failed. Failed steps: ['code/parse_cif.py']
 
 ## Declared deliverables still missing
 
@@ -56,11 +58,28 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `log_processing_statistics` — defined in `code/error_handling.py`; called 1 way(s):
+### `log_processing_statistics` — defined in `code/error_handling.py`; called 4 way(s):
 
-- code/parse_cif.py: log_processing_statistics(success_count, failure_count, len(cif_files))
+- code/error_handling.py: - log_processing_statistics(success, failure)
+- code/error_handling.py: - log_processing_statistics(success, failure, total)
+- code/error_handling.py: - log_processing_statistics(success, failure, total, start_time, end_time)
+- code/parse_cif.py: log_processing_statistics(success_count, failure_count, len(cif_files), start_time, end_time)
 
 Make `log_processing_statistics` in `code/error_handling.py` accept ALL of the above.
+
+### `setup_logging` — defined in `code/utils.py`; called 9 way(s):
+
+- code/cif_loader.py: setup_logging()
+- code/extract_physics_features.py: logger = setup_logging(__name__)
+- code/feature_assembly.py: setup_logging()
+- code/cif_parsing.py: setup_logging()
+- code/compute_RAW_metrics.py: setup_logging(level=logging.INFO)
+- code/parse_cif.py: setup_logging()
+- code/add_3d_descriptors.py: logger = setup_logging("add_3d_descriptors")
+- code/train.py: setup_logging()
+- code/cif_utils.py: setup_logging()
+
+Make `setup_logging` in `code/utils.py` accept ALL of the above.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -90,7 +109,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/dataset_with_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/features_matrix.npy` is declared but was NOT written. Scripts referencing it:
     - `code/feature_assembly.py` — NOT invoked by the run-book
+    - `code/train.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/features_matrix.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/targets.npy` is declared but was NOT written. Scripts referencing it:
     - `code/feature_assembly.py` — NOT invoked by the run-book
+    - `code/train.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/targets.npy` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

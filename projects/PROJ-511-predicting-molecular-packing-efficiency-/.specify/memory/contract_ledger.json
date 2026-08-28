@@ -2,5 +2,9 @@
   {
     "symbol": "log_processing_statistics",
     "owner": null
+  },
+  {
+    "symbol": "setup_logging",
+    "owner": null
   }
 ]

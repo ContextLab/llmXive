@@ -1,191 +1,230 @@
-"""
-T018: Calculate 3D descriptors (radius of gyration, asphericity, principal moments)
-using experimental CIF coordinates.
-
-Reads: data/dataset_filtered.csv
-Writes: data/dataset.csv
-"""
 import os
 import sys
 import logging
+import time
 import pandas as pd
 import numpy as np
 from typing import Optional, Tuple, List, Dict, Any
 
-# Import from local project modules
-from cif_parsing import parse_cif_with_pymatgen
+from pymatgen.core import Structure, Lattice
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+# Import utils for logging and config
+from utils import setup_logging
 from config import get_data_dir, get_base_dir
-from utils import setup_logging, fix_seed
 
-# Set up logging
-logger = setup_logging("add_3d_descriptors")
+# Import error handling utilities
+from error_handling import CIFParseError, handle_corrupt_cif
 
-def calculate_radius_of_gyration(coordinates: np.ndarray, masses: Optional[np.ndarray] = None) -> float:
+def calculate_radius_of_gyration(atomic_coords: np.ndarray, masses: Optional[np.ndarray] = None) -> float:
     """
-    Calculate the radius of gyration from atomic coordinates.
+    Calculate the radius of gyration (Rg) from a set of atomic coordinates.
+    
     Rg = sqrt( sum(m_i * |r_i - r_cm|^2) / sum(m_i) )
-    If masses are not provided, assume uniform mass (m_i = 1).
+    
+    If masses are not provided, uniform mass (1.0) is assumed for all atoms.
+    
+    Args:
+        atomic_coords: Array of shape (N, 3) containing Cartesian coordinates.
+        masses: Optional array of shape (N,) containing atomic masses.
+    
+    Returns:
+        Radius of gyration in Angstroms.
     """
     if masses is None:
-        masses = np.ones(len(coordinates))
+        masses = np.ones(len(atomic_coords))
+    
+    total_mass = np.sum(masses)
+    center_of_mass = np.average(atomic_coords, axis=0, weights=masses)
+    
+    distances_sq = np.sum((atomic_coords - center_of_mass) ** 2, axis=1)
+    weighted_distances_sq = masses * distances_sq
+    
+    rg_sq = np.sum(weighted_distances_sq) / total_mass
+    return np.sqrt(rg_sq)
 
-    center_of_mass = np.average(coordinates, axis=0, weights=masses)
-    diffs = coordinates - center_of_mass
-    sq_dist = np.sum(diffs ** 2, axis=1)
-    weighted_sq_dist = masses * sq_dist
-    return float(np.sqrt(np.sum(weighted_sq_dist) / np.sum(masses)))
-
-def calculate_principal_moments(coordinates: np.ndarray, masses: Optional[np.ndarray] = None) -> Tuple[float, float, float]:
+def calculate_principal_moments(atomic_coords: np.ndarray, masses: Optional[np.ndarray] = None) -> Tuple[float, float, float]:
     """
-    Calculate the principal moments of inertia.
-    Returns sorted tuple (I1, I2, I3) where I1 <= I2 <= I3.
+    Calculate the principal moments of inertia from atomic coordinates.
+    
+    Returns the three eigenvalues of the inertia tensor, sorted in ascending order.
+    
+    Args:
+        atomic_coords: Array of shape (N, 3) containing Cartesian coordinates.
+        masses: Optional array of shape (N,) containing atomic masses.
+    
+    Returns:
+        Tuple of three principal moments (I1, I2, I3) in amu*angstrom^2.
     """
     if masses is None:
-        masses = np.ones(len(coordinates))
-
-    center_of_mass = np.average(coordinates, axis=0, weights=masses)
-    diffs = coordinates - center_of_mass
-
-    # Inertia tensor calculation
-    # I_xx = sum(m * (y^2 + z^2))
-    # I_yy = sum(m * (x^2 + z^2))
-    # I_zz = sum(m * (x^2 + y^2))
-    # I_xy = -sum(m * x * y)
+        masses = np.ones(len(atomic_coords))
+    
+    total_mass = np.sum(masses)
+    center_of_mass = np.average(atomic_coords, axis=0, weights=masses)
+    
+    # Shift coordinates to center of mass
+    r = atomic_coords - center_of_mass
+    
+    # Inertia tensor components
+    # Ixx = sum(m * (y^2 + z^2))
+    # Ixy = -sum(m * x * y)
     # etc.
     
-    x, y, z = diffs[:, 0], diffs[:, 1], diffs[:, 2]
+    x, y, z = r[:, 0], r[:, 1], r[:, 2]
     
-    I_xx = np.sum(masses * (y**2 + z**2))
-    I_yy = np.sum(masses * (x**2 + z**2))
-    I_zz = np.sum(masses * (x**2 + y**2))
-    I_xy = -np.sum(masses * x * y)
-    I_xz = -np.sum(masses * x * z)
-    I_yz = -np.sum(masses * y * z)
-
+    Ixx = np.sum(masses * (y**2 + z**2))
+    Iyy = np.sum(masses * (x**2 + z**2))
+    Izz = np.sum(masses * (x**2 + y**2))
+    
+    Ixy = -np.sum(masses * x * y)
+    Ixz = -np.sum(masses * x * z)
+    Iyz = -np.sum(masses * y * z)
+    
     inertia_tensor = np.array([
-        [I_xx, I_xy, I_xz],
-        [I_xy, I_yy, I_yz],
-        [I_xz, I_yz, I_zz]
+        [Ixx, Ixy, Ixz],
+        [Ixy, Iyy, Iyz],
+        [Ixz, Iyz, Izz]
     ])
-
-    # Eigenvalues are the principal moments
+    
+    # Calculate eigenvalues (principal moments)
     eigenvalues = np.linalg.eigvalsh(inertia_tensor)
-    # Sort ascending
+    
+    # Sort in ascending order
     eigenvalues = np.sort(eigenvalues)
     
-    # Ensure non-negative (numerical errors might cause tiny negatives)
-    eigenvalues = np.maximum(eigenvalues, 0.0)
-    
-    return tuple(float(ev) for ev in eigenvalues)
+    return tuple(eigenvalues)
 
 def calculate_asphericity(principal_moments: Tuple[float, float, float]) -> float:
     """
-    Calculate the asphericity parameter.
-    Asphericity = (3/2) * ( (I_zz - I_avg)^2 + (I_yy - I_avg)^2 + (I_xx - I_avg)^2 ) / (I_xx + I_yy + I_zz)^2
-    where I_avg = (I_xx + I_yy + I_zz) / 3
-    This measures deviation from spherical symmetry.
-    Range: 0 (spherical) to 1 (rod-like)
+    Calculate the asphericity (A) from principal moments of inertia.
+    
+    A = (3/2) * (I3 - (I1 + I2)/2) / (I1 + I2 + I3)
+    
+    where I1 <= I2 <= I3 are the principal moments.
+    
+    Asphericity ranges from 0 (spherical) to 1 (rod-like).
+    
+    Args:
+        principal_moments: Tuple of three principal moments (I1, I2, I3).
+    
+    Returns:
+        Asphericity value between 0 and 1.
     """
     I1, I2, I3 = principal_moments
-    I_total = I1 + I2 + I3
+    total_moment = I1 + I2 + I3
     
-    if I_total == 0:
+    if total_moment == 0:
         return 0.0
-        
-    I_avg = I_total / 3.0
     
-    numerator = (3.0/2.0) * ((I3 - I_avg)**2 + (I2 - I_avg)**2 + (I1 - I_avg)**2)
-    denominator = I_total**2
+    asphericity = (3.0 / 2.0) * (I3 - (I1 + I2) / 2.0) / total_moment
     
-    return float(numerator / denominator)
+    # Clamp to [0, 1] to handle numerical errors
+    return max(0.0, min(1.0, asphericity))
 
-def compute_3d_descriptors(structure) -> Dict[str, Any]:
+def compute_3d_descriptors(cif_path: str) -> Dict[str, Any]:
     """
-    Compute all 3D descriptors for a pymatgen Structure object.
-    """
-    # Get fractional coordinates and convert to Cartesian
-    coords_cartesian = structure.cartesian_coords
+    Compute 3D descriptors (radius of gyration, asphericity, principal moments)
+    from a CIF file using pymatgen.
     
-    # Get atomic masses (approximate by element)
-    masses = np.array([atom.species.weight for atom in structure])
+    Args:
+        cif_path: Path to the CIF file.
+    
+    Returns:
+        Dictionary containing:
+            - radius_of_gyration: float
+            - asphericity: float
+            - principal_moments: list of 3 floats
+    
+    Raises:
+        CIFParseError: If the CIF file cannot be parsed.
+        FileNotFoundError: If the CIF file does not exist.
+    """
+    if not os.path.exists(cif_path):
+        raise FileNotFoundError(f"CIF file not found: {cif_path}")
+    
+    try:
+        structure = Structure.from_file(cif_path)
+    except Exception as e:
+        raise CIFParseError(f"Failed to parse CIF file {cif_path}: {str(e)}")
+    
+    # Get atomic coordinates and masses
+    coords = structure.frac_coords
+    lattice = structure.lattice.matrix
+    
+    # Convert fractional coordinates to Cartesian
+    cartesian_coords = np.dot(coords, lattice)
+    
+    # Get atomic masses (default to 1.0 if not available)
+    masses = np.array([atom.specie.mass for atom in structure])
     
     # Calculate descriptors
-    rg = calculate_radius_of_gyration(coords_cartesian, masses)
-    pm = calculate_principal_moments(coords_cartesian, masses)
-    asph = calculate_asphericity(pm)
+    rg = calculate_radius_of_gyration(cartesian_coords, masses)
+    pm = calculate_principal_moments(cartesian_coords, masses)
+    asp = calculate_asphericity(pm)
     
     return {
         'radius_of_gyration': rg,
-        'principal_moments': list(pm),
-        'asphericity': asph
+        'asphericity': asp,
+        'principal_moments': list(pm)
     }
 
-def add_3d_descriptors_to_dataset(input_path: str, output_path: str) -> pd.DataFrame:
+def add_3d_descriptors_to_dataset(input_path: str, output_path: str, cif_dir: str) -> None:
     """
-    Read the filtered dataset, load original CIF files, compute 3D descriptors,
-    and merge them back into the dataset.
-    """
-    data_dir = get_data_dir()
-    raw_cif_dir = os.path.join(data_dir, "raw_cif")
+    Read a filtered dataset CSV, compute 3D descriptors for each CIF file,
+    and merge the results into a final dataset CSV.
     
+    Args:
+        input_path: Path to the input CSV (data/dataset_filtered.csv).
+        output_path: Path to the output CSV (data/dataset.csv).
+        cif_dir: Directory containing the CIF files (data/raw_cif/).
+    """
+    logger = logging.getLogger(__name__)
+    
+    # Read the input dataset
     logger.info(f"Reading input dataset from {input_path}")
     df = pd.read_csv(input_path)
     
-    logger.info(f"Processing {len(df)} records to compute 3D descriptors")
+    if 'cod_id' not in df.columns:
+        raise ValueError("Input dataset must contain 'cod_id' column")
+    
+    logger.info(f"Processing {len(df)} records")
     
     descriptors_list = []
-    missing_cif_count = 0
-    error_count = 0
+    success_count = 0
+    failure_count = 0
     
     for idx, row in df.iterrows():
         cod_id = row['cod_id']
-        
-        # Construct CIF file path
         cif_filename = f"{cod_id}.cif"
-        cif_path = os.path.join(raw_cif_dir, cif_filename)
+        cif_path = os.path.join(cif_dir, cif_filename)
         
-        if not os.path.exists(cif_path):
-            logger.warning(f"CIF file not found for {cod_id}: {cif_path}")
-            missing_cif_count += 1
-            # Append NaN values for missing data
+        try:
+            desc = compute_3d_descriptors(cif_path)
+            descriptors_list.append(desc)
+            success_count += 1
+            if (idx + 1) % 50 == 0:
+                logger.info(f"Processed {idx + 1}/{len(df)} records (success: {success_count}, failure: {failure_count})")
+        except FileNotFoundError as e:
+            logger.error(f"CIF file missing for {cod_id}: {str(e)}")
+            failure_count += 1
+            # Still append a row with NaN values to maintain row count
             descriptors_list.append({
-                'cod_id': cod_id,
                 'radius_of_gyration': np.nan,
                 'asphericity': np.nan,
                 'principal_moments': [np.nan, np.nan, np.nan]
             })
-            continue
-        
-        try:
-            # Parse CIF using pymatgen
-            structure = parse_cif_with_pymatgen(cif_path)
-            
-            if structure is None:
-                logger.error(f"Failed to parse CIF structure for {cod_id}")
-                error_count += 1
-                descriptors_list.append({
-                    'cod_id': cod_id,
-                    'radius_of_gyration': np.nan,
-                    'asphericity': np.nan,
-                    'principal_moments': [np.nan, np.nan, np.nan]
-                })
-                continue
-            
-            # Compute descriptors
-            desc = compute_3d_descriptors(structure)
-            
+        except CIFParseError as e:
+            logger.error(f"Failed to parse CIF for {cod_id}: {str(e)}")
+            failure_count += 1
             descriptors_list.append({
-                'cod_id': cod_id,
-                'radius_of_gyration': desc['radius_of_gyration'],
-                'asphericity': desc['asphericity'],
-                'principal_moments': desc['principal_moments']
+                'radius_of_gyration': np.nan,
+                'asphericity': np.nan,
+                'principal_moments': [np.nan, np.nan, np.nan]
             })
-            
         except Exception as e:
-            logger.error(f"Error computing descriptors for {cod_id}: {str(e)}")
-            error_count += 1
+            logger.error(f"Unexpected error processing {cod_id}: {str(e)}")
+            failure_count += 1
             descriptors_list.append({
-                'cod_id': cod_id,
                 'radius_of_gyration': np.nan,
                 'asphericity': np.nan,
                 'principal_moments': [np.nan, np.nan, np.nan]
@@ -194,62 +233,77 @@ def add_3d_descriptors_to_dataset(input_path: str, output_path: str) -> pd.DataF
     # Create DataFrame from descriptors
     desc_df = pd.DataFrame(descriptors_list)
     
-    # Merge with original dataset
-    final_df = pd.merge(df, desc_df, on='cod_id', how='left')
+    # Flatten principal_moments into separate columns
+    if 'principal_moments' in desc_df.columns:
+        pm_list = desc_df['principal_moments'].tolist()
+        pm_df = pd.DataFrame(pm_list, columns=['principal_moment_1', 'principal_moment_2', 'principal_moment_3'])
+        desc_df = desc_df.drop('principal_moments', axis=1)
+        desc_df = pd.concat([desc_df, pm_df], axis=1)
     
-    # Log statistics
-    logger.info(f"Processing complete:")
-    logger.info(f"  - Total records: {len(df)}")
-    logger.info(f"  - Missing CIF files: {missing_cif_count}")
-    logger.info(f"  - Parse errors: {error_count}")
-    logger.info(f"  - Successfully processed: {len(df) - missing_cif_count - error_count}")
+    # Merge with original dataset
+    result_df = pd.concat([df, desc_df], axis=1)
+    
+    # Reorder columns to match expected output
+    expected_columns = [
+        'cod_id', 'smiles', 'smiles_source', 'unit_cell_volume', 'n_atoms',
+        'lattice_system', 'temperature_K', 'has_solvent',
+        'radius_of_gyration', 'asphericity', 'principal_moment_1', 
+        'principal_moment_2', 'principal_moment_3', 'cape', 'raw_pc'
+    ]
+    
+    # Check if all expected columns exist
+    missing_cols = [col for col in expected_columns if col not in result_df.columns]
+    if missing_cols:
+        logger.warning(f"Missing columns in result: {missing_cols}")
+    
+    # Select only columns that exist in result_df
+    available_cols = [col for col in expected_columns if col in result_df.columns]
+    result_df = result_df[available_cols]
     
     # Write output
-    logger.info(f"Writing output to {output_path}")
-    final_df.to_csv(output_path, index=False)
+    logger.info(f"Writing output dataset to {output_path}")
+    result_df.to_csv(output_path, index=False)
     
-    return final_df
+    logger.info(f"Completed. Success: {success_count}, Failure: {failure_count}")
+    
+    # Verify output
+    if os.path.exists(output_path):
+        output_df = pd.read_csv(output_path)
+        logger.info(f"Output verification: {len(output_df)} rows, columns: {list(output_df.columns)}")
+    else:
+        raise RuntimeError(f"Failed to write output file: {output_path}")
 
 def main():
-    """Main entry point for T018."""
-    fix_seed()
+    """Main entry point for the add_3d_descriptors script."""
+    logger = setup_logging("add_3d_descriptors")
     
+    start_time = time.time()
+    
+    # Get paths
     data_dir = get_data_dir()
+    cif_dir = os.path.join(data_dir, "raw_cif")
     input_path = os.path.join(data_dir, "dataset_filtered.csv")
     output_path = os.path.join(data_dir, "dataset.csv")
     
+    logger.info(f"Starting 3D descriptor computation")
+    logger.info(f"Input: {input_path}")
+    logger.info(f"Output: {output_path}")
+    logger.info(f"CIF directory: {cif_dir}")
+    
     if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T016 (filter_dataset.py) has been run successfully.")
-        sys.exit(1)
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    if not os.path.exists(cif_dir):
+        raise FileNotFoundError(f"CIF directory not found: {cif_dir}")
     
     try:
-        result_df = add_3d_descriptors_to_dataset(input_path, output_path)
-        
-        # Verification
-        required_columns = [
-            'cod_id', 'smiles', 'smiles_source', 'unit_cell_volume', 
-            'n_atoms', 'lattice_system', 'temperature_K', 'has_solvent',
-            'radius_of_gyration', 'asphericity', 'principal_moments', 
-            'cape', 'raw_pc'
-        ]
-        
-        missing_cols = [col for col in required_columns if col not in result_df.columns]
-        if missing_cols:
-            logger.error(f"Output is missing required columns: {missing_cols}")
-            sys.exit(1)
-        
-        logger.info(f"Verification passed: All required columns present.")
-        logger.info(f"Output dataset written to {output_path} with {len(result_df)} rows.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"File not found error: {str(e)}")
-        sys.exit(1)
+        add_3d_descriptors_to_dataset(input_path, output_path, cif_dir)
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        logger.error(f"Error during descriptor computation: {str(e)}")
+        raise
+    
+    end_time = time.time()
+    logger.info(f"Completed in {end_time - start_time:.2f} seconds")
 
 if __name__ == "__main__":
     main()

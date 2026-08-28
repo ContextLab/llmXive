@@ -4,265 +4,229 @@ import logging
 import yaml
 import json
 from typing import List, Dict, Any, Optional
-from pathlib import Path
 import pandas as pd
+from jsonschema import validate, ValidationError, Draft7Validator
+from pathlib import Path
 
-from config import get_data_dir, get_base_dir, get_cod_url
+# Import project config for paths and URLs
+try:
+    from config import get_data_dir, get_cod_url, get_base_dir
+except ImportError:
+    # Fallback for direct execution if config is not in path yet
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from config import get_data_dir, get_cod_url, get_base_dir
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(os.path.join(get_data_dir(), '..', 'logs', 'validation.log'))
-    ]
-)
-logger = logging.getLogger(__name__)
+# Import error handling utilities if available
+try:
+    from error_handling import DataValidationError
+except ImportError:
+    class DataValidationError(Exception):
+        """Custom exception for data validation failures."""
+        pass
+
+# --- Logging Setup ---
+# Must be tolerant of different call signatures as per API contract
+def setup_logging(name: Optional[str] = None, level: int = logging.INFO):
+    """
+    Sets up logging for the module.
+    Tolerant of:
+      - setup_logging()
+      - setup_logging(__name__)
+      - setup_logging("string_name")
+      - setup_logging(level=logging.INFO)
+    """
+    if name is None and level is not logging.INFO:
+        # If only level was passed as kwarg, handle it
+        # But signature is (name, level). If called as setup_logging(level=...), name is None.
+        pass
+    
+    logger = logging.getLogger(name if name else "validate_dataset")
+    
+    # Avoid duplicate handlers
+    if not logger.handlers:
+        logger.setLevel(level)
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    
+    return logger
+
+# Ensure the logger is initialized early
+logger = setup_logging()
 
 def load_schema(schema_path: str) -> Dict[str, Any]:
-    """Load JSON schema from file."""
-    try:
-        with open(schema_path, 'r') as f:
-            return yaml.safe_load(f)
-    except FileNotFoundError:
-        logger.error(f"Schema file not found: {schema_path}")
-        raise
-    except yaml.YAMLError as e:
-        logger.error(f"Error parsing schema file: {e}")
-        raise
+    """Load JSON schema from a YAML file (since we use yaml for schema storage)."""
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    with open(schema_path, 'r') as f:
+        # The schema is stored as YAML in the project (per T004)
+        return yaml.safe_load(f)
 
-def validate_schema(data: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
+def validate_schema(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
     """
-    Validate dataset against JSON schema.
-    Returns a list of validation errors.
+    Validates the DataFrame against the JSON schema.
+    Returns a list of error messages.
     """
     errors = []
+    validator = Draft7Validator(schema)
     
-    # Check required columns
-    required_cols = schema.get('properties', {}).keys()
-    missing_cols = set(required_cols) - set(data.columns)
-    if missing_cols:
-        errors.append(f"Missing required columns: {missing_cols}")
-    
-    # Validate data types and constraints for each column
-    for col_name, col_schema in schema.get('properties', {}).items():
-        if col_name not in data.columns:
-            continue
+    # Convert DataFrame to a list of records for validation
+    # We validate row by row to get specific error context
+    for idx, row in df.iterrows():
+        row_dict = row.to_dict()
+        # Ensure types match schema expectations (e.g., lists for principal_moments)
+        # The schema expects lists, pandas might read them as strings if not parsed correctly
+        # But usually CSV reads everything as string, so we might need to cast.
+        # However, jsonschema validation on a dict of mixed types (str, float, list) is tricky if CSV didn't parse lists.
+        # Let's assume the CSV has proper types or we cast them here.
         
-        col_data = data[col_name]
-        
-        # Check for null values if not allowed
-        if col_schema.get('type') != 'null' and col_data.isnull().any():
-            # Check if null is explicitly allowed in enum or pattern
-            if 'enum' not in col_schema and 'pattern' not in col_schema:
-                errors.append(f"Column '{col_name}' contains null values")
-        
-        # Type-specific validations
-        if col_schema.get('type') == 'string':
-            # Check minLength
-            if 'minLength' in col_schema:
-                invalid_rows = col_data[col_data.str.len() < col_schema['minLength']]
-                if not invalid_rows.empty:
-                    errors.append(f"Column '{col_name}' has values with length < {col_schema['minLength']}")
-            
-            # Check pattern
-            if 'pattern' in col_schema:
-                import re
-                pattern = re.compile(col_schema['pattern'])
-                invalid_rows = col_data[~col_data.astype(str).str.match(pattern)]
-                if not invalid_rows.empty:
-                    errors.append(f"Column '{col_name}' has values not matching pattern: {col_schema['pattern']}")
-            
-            # Check enum
-            if 'enum' in col_schema:
-                invalid_rows = col_data[~col_data.isin(col_schema['enum'])]
-                if not invalid_rows.empty:
-                    errors.append(f"Column '{col_name}' has values not in enum: {col_schema['enum']}")
-        
-        elif col_schema.get('type') == 'number':
-            # Check minimum
-            if 'minimum' in col_schema:
-                invalid_rows = col_data[col_data < col_schema['minimum']]
-                if not invalid_rows.empty:
-                    errors.append(f"Column '{col_name}' has values < {col_schema['minimum']}")
-            
-            # Check maximum
-            if 'maximum' in col_schema:
-                invalid_rows = col_data[col_data > col_schema['maximum']]
-                if not invalid_rows.empty:
-                    errors.append(f"Column '{col_name}' has values > {col_schema['maximum']}")
-            
-            # Check exclusiveMinimum
-            if 'exclusiveMinimum' in col_schema:
-                invalid_rows = col_data[col_data <= col_schema['exclusiveMinimum']]
-                if not invalid_rows.empty:
-                    errors.append(f"Column '{col_name}' has values <= {col_schema['exclusiveMinimum']}")
-        
-        elif col_schema.get('type') == 'integer':
-            # Check minimum
-            if 'minimum' in col_schema:
-                invalid_rows = col_data[col_data < col_schema['minimum']]
-                if not invalid_rows.empty:
-                    errors.append(f"Column '{col_name}' has values < {col_schema['minimum']}")
-            
-            # Check maximum
-            if 'maximum' in col_schema:
-                invalid_rows = col_data[col_data > col_schema['maximum']]
-                if not invalid_rows.empty:
-                    errors.append(f"Column '{col_name}' has values > {col_schema['maximum']}")
-        
-        elif col_schema.get('type') == 'boolean':
-            # Check valid boolean values
-            valid_bools = [True, False, 0, 1, 'True', 'False', 'true', 'false']
-            invalid_rows = col_data[~col_data.isin(valid_bools)]
-            if not invalid_rows.empty:
-                errors.append(f"Column '{col_name}' has non-boolean values")
-        
-        elif col_schema.get('type') == 'array':
-            # Check array constraints
-            if 'minItems' in col_schema:
-                # For array columns stored as strings or lists
-                if col_data.dtype == object:
-                    invalid_rows = col_data[col_data.apply(lambda x: len(x) < col_schema['minItems'] if isinstance(x, list) else False)]
-                    if not invalid_rows.empty:
-                        errors.append(f"Column '{col_name}' has arrays with < {col_schema['minItems']} items")
-            
-            if 'maxItems' in col_schema:
-                if col_data.dtype == object:
-                    invalid_rows = col_data[col_data.apply(lambda x: len(x) > col_schema['maxItems'] if isinstance(x, list) else False)]
-                    if not invalid_rows.empty:
-                        errors.append(f"Column '{col_name}' has arrays with > {col_schema['maxItems']} items")
+        # Specific casting for known list fields
+        if 'principal_moments' in row_dict and isinstance(row_dict['principal_moments'], str):
+            try:
+                import ast
+                row_dict['principal_moments'] = ast.literal_eval(row_dict['principal_moments'])
+            except:
+                errors.append(f"Row {idx}: Invalid format for principal_moments")
+                continue
+
+        for error in validator.iter_errors(row_dict):
+            errors.append(f"Row {idx}: {error.message} at {error.json_path}")
     
     return errors
 
-def cross_reference_cif_ids(dataset_path: str, cif_dir: str) -> List[str]:
+def cross_reference_cif_ids(csv_path: str, cif_dir: str) -> List[str]:
     """
-    Cross-reference COD IDs in the dataset against downloaded CIF files.
-    Returns a list of errors if any COD IDs are missing.
+    Cross-references COD IDs in the CSV against the list of downloaded CIF files.
+    Returns a list of missing CIF file paths.
     """
-    errors = []
+    logger.info(f"Cross-referencing CSV IDs with CIF directory: {cif_dir}")
     
-    # Load dataset
-    try:
-        df = pd.read_csv(dataset_path)
-    except Exception as e:
-        errors.append(f"Failed to load dataset: {e}")
-        return errors
-    
-    # Get list of CIF files
-    cif_files = [f for f in os.listdir(cif_dir) if f.endswith('.cif')]
-    cif_ids_in_files = set()
-    
-    for cif_file in cif_files:
-        # Extract COD ID from filename (assumes format COD-XXXXXXX.cif)
-        cif_id = cif_file.replace('.cif', '')
-        cif_ids_in_files.add(cif_id)
-    
-    # Check for missing CIF files
-    cod_ids_in_dataset = set(df['cod_id'].unique())
-    missing_cif_ids = cod_ids_in_dataset - cif_ids_in_files
-    
-    if missing_cif_ids:
-        errors.append(f"Missing CIF files for COD IDs: {missing_cif_ids}")
-    
-    return errors
+    if not os.path.exists(cif_dir):
+        logger.warning(f"CIF directory does not exist: {cif_dir}")
+        return []
 
-def validate_dataset(
-    dataset_path: str,
-    schema_path: str,
-    cif_dir: str,
-    output_report_path: str
-) -> bool:
-    """
-    Main validation function.
-    Returns True if validation passes, False otherwise.
-    """
-    logger.info(f"Starting validation of dataset: {dataset_path}")
+    df = pd.read_csv(csv_path)
+    if 'cod_id' not in df.columns:
+        raise DataValidationError("CSV must contain 'cod_id' column for cross-referencing")
+
+    csv_ids = set(df['cod_id'].astype(str).unique())
+    cif_ids = set()
     
-    # Load schema
+    # Scan directory for CIF files
+    for filename in os.listdir(cif_dir):
+        if filename.lower().endswith('.cif'):
+            # Extract COD ID from filename (assuming format COD-XXXXXXX.cif)
+            # The filename might be just the ID or have a prefix.
+            # We expect the cod_id in CSV to match the filename stem.
+            base_name = os.path.splitext(filename)[0]
+            # Normalize: ensure it matches the CSV format "COD-..."
+            if base_name.startswith("COD-"):
+                cif_ids.add(base_name)
+            else:
+                # Try to infer if the filename is the ID
+                cif_ids.add(base_name)
+
+    missing = csv_ids - cif_ids
+    if missing:
+        logger.warning(f"Found {len(missing)} COD IDs in CSV without corresponding CIF files.")
+        # Log first 10 for brevity
+        for m in list(missing)[:10]:
+            logger.warning(f"  Missing: {m}")
+    
+    return list(missing)
+
+def validate_dataset(csv_path: str, schema_path: str, cif_dir: str) -> bool:
+    """
+    Main validation logic:
+    1. Check schema compliance.
+    2. Cross-reference COD IDs.
+    3. Verify source URL metadata (log it).
+    """
+    logger.info(f"Starting validation for {csv_path}")
+    
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"Dataset file not found: {csv_path}")
+    
+    # 1. Schema Validation
     try:
         schema = load_schema(schema_path)
+        logger.info(f"Loaded schema from {schema_path}")
     except Exception as e:
         logger.error(f"Failed to load schema: {e}")
         return False
-    
-    # Validate schema
-    schema_errors = validate_schema(pd.read_csv(dataset_path), schema)
-    if schema_errors:
-        logger.error(f"Schema validation failed with {len(schema_errors)} errors:")
-        for error in schema_errors:
-            logger.error(f"  - {error}")
-    else:
-        logger.info("Schema validation passed")
-    
-    # Cross-reference CIF IDs
-    cif_errors = cross_reference_cif_ids(dataset_path, cif_dir)
-    if cif_errors:
-        logger.error(f"CIF cross-reference validation failed with {len(cif_errors)} errors:")
-        for error in cif_errors:
-            logger.error(f"  - {error}")
-    else:
-        logger.info("CIF cross-reference validation passed")
-    
-    # Compile validation report
-    validation_report = {
-        'dataset_path': dataset_path,
-        'schema_path': schema_path,
-        'cod_source_url': get_cod_url(),
-        'validation_passed': len(schema_errors) == 0 and len(cif_errors) == 0,
-        'schema_errors': schema_errors,
-        'cif_errors': cif_errors,
-        'total_schema_errors': len(schema_errors),
-        'total_cif_errors': len(cif_errors)
-    }
-    
-    # Write validation report
+
     try:
-        with open(output_report_path, 'w') as f:
-            json.dump(validation_report, f, indent=2)
-        logger.info(f"Validation report written to: {output_report_path}")
+        df = pd.read_csv(csv_path)
+        logger.info(f"Loaded dataset: {len(df)} rows, {len(df.columns)} columns")
     except Exception as e:
-        logger.error(f"Failed to write validation report: {e}")
+        logger.error(f"Failed to load dataset: {e}")
         return False
-    
-    return validation_report['validation_passed']
+
+    # Log Source URL as per FR-017
+    cod_url = get_cod_url()
+    logger.info(f"Verifying against COD Source URL: {cod_url}")
+
+    schema_errors = validate_schema(df, schema)
+    if schema_errors:
+        logger.error(f"Schema validation failed with {len(schema_errors)} errors.")
+        for err in schema_errors[:5]:
+            logger.error(f"  {err}")
+        return False
+
+    logger.info("Schema validation passed.")
+
+    # 2. Cross-reference CIF IDs
+    missing_cifs = cross_reference_cif_ids(csv_path, cif_dir)
+    if missing_cifs:
+        # This is a warning, not necessarily a hard failure if the data was already processed,
+        # but FR-017 implies data integrity check. We'll treat missing source files as a failure for integrity.
+        logger.error(f"Data Integrity Failed: {len(missing_cifs)} records missing source CIF files.")
+        return False
+
+    logger.info("Cross-reference validation passed.")
+
+    # 3. Log count of valid records
+    logger.info(f"Validation successful. Total valid records: {len(df)}")
+    return True
 
 def main():
-    """Main entry point for dataset validation."""
-    # Define paths
+    """
+    Entry point for the validation script.
+    Reads data/dataset.csv, validates against contracts/dataset.schema.yaml,
+    and cross-references with data/raw_cif/.
+    """
+    # Configure logging
+    setup_logging()
+
     base_dir = get_base_dir()
     data_dir = get_data_dir()
-    contracts_dir = os.path.join(base_dir, 'contracts')
     
-    dataset_path = os.path.join(data_dir, 'dataset.csv')
-    schema_path = os.path.join(contracts_dir, 'dataset.schema.yaml')
-    cif_dir = os.path.join(data_dir, 'raw_cif')
-    report_path = os.path.join(data_dir, 'validation_report.json')
-    
-    # Check if dataset exists
-    if not os.path.exists(dataset_path):
-        logger.error(f"Dataset not found: {dataset_path}")
-        sys.exit(1)
-    
-    # Check if schema exists
-    if not os.path.exists(schema_path):
-        logger.error(f"Schema not found: {schema_path}")
-        sys.exit(1)
-    
-    # Check if CIF directory exists
-    if not os.path.exists(cif_dir):
-        logger.warning(f"CIF directory not found: {cif_dir}")
-        logger.warning("Skipping CIF cross-reference validation")
-    
-    # Run validation
-    is_valid = validate_dataset(dataset_path, schema_path, cif_dir, report_path)
-    
-    if is_valid:
-        logger.info("Dataset validation PASSED")
+    csv_path = os.path.join(data_dir, "dataset.csv")
+    schema_path = os.path.join(base_dir, "contracts", "dataset.schema.yaml")
+    cif_dir = os.path.join(data_dir, "raw_cif")
+
+    logger.info(f"Base Dir: {base_dir}")
+    logger.info(f"Data Dir: {data_dir}")
+    logger.info(f"CSV Path: {csv_path}")
+    logger.info(f"Schema Path: {schema_path}")
+    logger.info(f"CIF Dir: {cif_dir}")
+
+    success = False
+    try:
+        success = validate_dataset(csv_path, schema_path, cif_dir)
+    except Exception as e:
+        logger.critical(f"Validation process crashed: {e}")
+        import traceback
+        traceback.print_exc()
+        success = False
+
+    if success:
+        logger.info("T019: Dataset validation completed successfully.")
         sys.exit(0)
     else:
-        logger.error("Dataset validation FAILED")
+        logger.error("T019: Dataset validation FAILED.")
         sys.exit(1)
 
 if __name__ == "__main__":

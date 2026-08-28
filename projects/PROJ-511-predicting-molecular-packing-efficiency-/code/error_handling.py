@@ -1,95 +1,87 @@
+"""
+Error handling utilities for the molecular packing efficiency pipeline.
+"""
 import logging
 import os
 import traceback
 from typing import Dict, List, Optional, Tuple, Any, Callable
 from functools import wraps
 import numpy as np
-import time
+
+logger = logging.getLogger(__name__)
 
 class CIFParseError(Exception):
-    """Custom exception for CIF parsing failures."""
+    """Raised when a CIF file cannot be parsed."""
     pass
 
 class MissingMetadataError(Exception):
-    """Custom exception for missing metadata in CIF files."""
+    """Raised when required metadata is missing from a CIF file."""
     pass
 
 class DataValidationError(Exception):
-    """Custom exception for data validation failures."""
+    """Raised when data validation fails."""
     pass
 
-def handle_corrupt_cif(cif_path: str, error: Exception) -> None:
-    """Handle a corrupt CIF file by logging the error and raising a CIFParseError."""
-    logging.error(f"Corrupt CIF file detected: {cif_path}. Error: {str(error)}")
-    raise CIFParseError(f"Failed to parse CIF file {cif_path}: {str(error)}") from error
+def handle_corrupt_cif(file_path: str, error: Exception) -> None:
+    """Log and handle a corrupt CIF file."""
+    logger.error(f"Corrupt CIF file: {file_path}")
+    logger.error(f"Error details: {str(error)}")
+    raise CIFParseError(f"Failed to parse CIF file: {file_path}") from error
 
-def validate_required_metadata(metadata: Dict[str, Any], required_fields: List[str]) -> None:
-    """Validate that all required metadata fields are present."""
-    missing_fields = [field for field in required_fields if field not in metadata or metadata[field] is None]
-    if missing_fields:
-        raise MissingMetadataError(f"Missing required metadata fields: {missing_fields}")
+def validate_required_metadata(metadata: Dict[str, Any], required_keys: List[str]) -> None:
+    """Validate that required metadata keys are present."""
+    missing_keys = [key for key in required_keys if key not in metadata]
+    if missing_keys:
+        raise MissingMetadataError(f"Missing required metadata keys: {missing_keys}")
 
-def safe_cif_read(cif_path: str, parser_func: Callable, *args, **kwargs) -> Optional[Dict[str, Any]]:
-    """Safely read a CIF file, handling errors gracefully."""
-    try:
-        return parser_func(cif_path, *args, **kwargs)
-    except Exception as e:
-        handle_corrupt_cif(cif_path, e)
-        return None
-
-def get_cif_metadata_summary(cif_path: str) -> Dict[str, Any]:
-    """Extract a summary of metadata from a CIF file."""
-    # Placeholder implementation - would use pymatgen or similar to parse CIF
-    # This is a simplified version for demonstration
-    summary = {
-        'file_path': cif_path,
-        'exists': os.path.exists(cif_path),
-        'size_bytes': os.path.getsize(cif_path) if os.path.exists(cif_path) else 0
-    }
-    return summary
-
-def log_processing_statistics(success_count: int, failure_count: int, total_count: Optional[int] = None, start_time: Optional[float] = None, end_time: Optional[float] = None) -> None:
-    """
-    Log processing statistics with flexible argument handling.
-    
-    Accepts various call signatures to maintain compatibility with different callers:
-    - log_processing_statistics(success, failure)
-    - log_processing_statistics(success, failure, total)
-    - log_processing_statistics(success, failure, total, start_time, end_time)
-    """
-    # Handle different call signatures
-    if total_count is None:
-        # If only 2 args were passed, the third arg (total_count) might be None or not passed
-        # In this case, calculate total from success + failure
-        total_count = success_count + failure_count
-        
-    if start_time is None:
-        start_time = time.time() - 3600  # Default to 1 hour ago if not provided
-        
-    if end_time is None:
-        end_time = time.time()  # Default to current time if not provided
-    
-    duration = end_time - start_time
-    success_rate = (success_count / total_count * 100) if total_count > 0 else 0
-    
-    logging.info(f"Processing Statistics:")
-    logging.info(f"  Total files processed: {total_count}")
-    logging.info(f"  Successful: {success_count} ({success_rate:.2f}%)")
-    logging.info(f"  Failed: {failure_count}")
-    logging.info(f"  Duration: {duration:.2f} seconds")
-    
-    if success_count > 0:
-        avg_time_per_file = duration / success_count
-        logging.info(f"  Average time per successful file: {avg_time_per_file:.4f} seconds")
-
-def error_handler(func: Callable) -> Callable:
-    """Decorator to handle errors in CIF processing functions."""
+def safe_cif_read(func: Callable) -> Callable:
+    """Decorator to safely read CIF files with error handling."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            logging.error(f"Error in {func.__name__}: {str(e)}")
-            traceback.print_exc()
-            raise
+            if len(args) > 0:
+                file_path = str(args[0])
+            else:
+                file_path = "unknown"
+            handle_corrupt_cif(file_path, e)
     return wrapper
+
+def get_cif_metadata_summary(metadata: Dict[str, Any]) -> str:
+    """Generate a summary string of CIF metadata."""
+    summary_lines = []
+    for key, value in metadata.items():
+        if isinstance(value, (list, np.ndarray)):
+            summary_lines.append(f"{key}: [{len(value)} items]")
+        else:
+            summary_lines.append(f"{key}: {value}")
+    return "\n".join(summary_lines)
+
+def log_processing_statistics(success: int, failure: int, total: Optional[int] = None, 
+                              start_time: Optional[float] = None, end_time: Optional[float] = None) -> None:
+    """
+    Log processing statistics in a flexible format.
+    
+    Handles multiple call signatures:
+    - log_processing_statistics(success, failure)
+    - log_processing_statistics(success, failure, total)
+    - log_processing_statistics(success, failure, total, start_time, end_time)
+    """
+    if total is None:
+        total = success + failure
+    
+    rate = (success / total * 100) if total > 0 else 0.0
+    
+    logger.info(f"Processing Statistics:")
+    logger.info(f"  Total: {total}")
+    logger.info(f"  Success: {success}")
+    logger.info(f"  Failure: {failure}")
+    logger.info(f"  Success Rate: {rate:.2f}%")
+    
+    if start_time is not None and end_time is not None:
+        duration = end_time - start_time
+        logger.info(f"  Duration: {duration:.2f} seconds")
+        if total > 0:
+            per_second = total / duration
+            logger.info(f"  Throughput: {per_second:.2f} items/second")

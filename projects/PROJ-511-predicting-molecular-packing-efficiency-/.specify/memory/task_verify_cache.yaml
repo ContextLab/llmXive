@@ -6,14 +6,6 @@ T015:
     \ write `data/dataset_with_metrics.csv`. Moreover, both required CSV files are\
     \ absent from the repository. The task\u2019s core output files and a complete\
     \ implementation are missing."
-T016:
-  c: false
-  h: c9cfe81fefef924dc83c3c7d18e75e6ca6cde63e6ad5de4f203a24bc24bdb2f3
-  r: The provided `code/filter_dataset.py` is truncated (e.g., the final mask construction
-    line is cut off) and thus not a runnable implementation, and the required input
-    file `data/dataset_with_metrics.csv` and the expected output `data/dataset_filtered.csv`
-    are absent from the repository. Both the script and the data artifacts needed
-    to verify its behavior are missing.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,6 +13,24 @@ T017:
     \ of download statistics, parsing failures, or filtering counts. The required\
     \ artifact (e.g., updated script/module with logging statements and example log\
     \ output) is missing, so the task\u2019s requirement is not satisfied."
+T018:
+  c: false
+  h: 80aee9764300f939bf84e30d75610e19bd031e5ca4cdfffc7e092fce7d460da7
+  r: "The repository lacks the required input `data/dataset_filtered.csv` and the\
+    \ output `data/dataset.csv`. Moreover, `code/add_3d_descriptors.py` is truncated\
+    \ (e.g., missing the asphericity implementation and any logic to read the CSV,\
+    \ load CIF files, compute descriptors, and write the merged dataset). Consequently\
+    \ the task\u2019s specifications are not met."
+T019:
+  c: false
+  h: cffc544d18ef79c7d03dc1de7787915cb7bdad524c6994979e49bf35da684eda
+  r: "The repository contains a `code/validate_dataset.py` file, but it is truncated\
+    \ and does not demonstrate the required validation logic, COD\u2011ID cross\u2011\
+    referencing, or logging of valid record counts. Moreover, the essential inputs\
+    \ `data/dataset.csv` and `contracts/dataset.schema.yaml` are absent, so the script\
+    \ cannot be run or verified as specified. The implementer must provide the missing\
+    \ CSV and schema files and ensure the script fully implements the validation,\
+    \ cross\u2011reference, and exit\u2011code behavior."
 T024:
   c: false
   h: eae81dfcad03132ae31c6356611f80d61495942346b633b3456f1c0154e33559
