@@ -1,110 +1,134 @@
 """
-Environment configuration management for API keys and project settings.
-
-This module handles loading .env files, retrieving API keys, and validating
-that required environment variables are present.
+Configuration management module for handling environment variables and API keys.
+Provides secure loading of .env files and retrieval of configuration values.
 """
 import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-try:
-    from dotenv import load_dotenv
-except ImportError:
-    # Fallback if python-dotenv is not installed, though it should be in requirements
-    def load_dotenv(path: Optional[Path] = None) -> bool:
-        logging.warning("python-dotenv not installed. Environment variables must be set in the shell.")
-        return False
-
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class ConfigError(Exception):
-    """Custom exception for configuration errors."""
+    """Custom exception for configuration-related errors."""
     pass
 
-
-def load_dotenv_file(project_root: Optional[Path] = None) -> bool:
+def load_dotenv_file(env_path: Optional[Path] = None) -> bool:
     """
     Load environment variables from a .env file.
-
+    
     Args:
-        project_root: The root directory of the project. Defaults to the
-                      directory containing this module.
-
+        env_path: Path to the .env file. If None, looks for .env in the 
+                  code directory (project root relative to code/).
+    
     Returns:
-        bool: True if the file was loaded successfully, False otherwise.
+        bool: True if file was loaded successfully, False otherwise.
+    
+    Raises:
+        ConfigError: If the file exists but cannot be read.
     """
-    if project_root is None:
-        # Default to the directory containing this file
-        project_root = Path(__file__).resolve().parent.parent
-
-    env_path = project_root / ".env"
-
+    if env_path is None:
+        # Default to .env in the same directory as this module's parent (code/)
+        env_path = Path(__file__).parent.parent / ".env"
+    
     if not env_path.exists():
         logger.warning(f".env file not found at {env_path}. "
-                       "Please create one based on .env.example.")
+                     "API keys will not be available. "
+                     "Please copy code/.env.example to code/.env and fill in values.")
         return False
+    
+    try:
+        # Parse the .env file manually to avoid external dependencies like python-dotenv
+        # if we want to keep dependencies minimal, or use a simple parser.
+        # However, standard practice is to use python-dotenv. Let's implement a simple parser
+        # to ensure we don't add a new dependency if not strictly necessary, 
+        # but python-dotenv is standard for this. 
+        # Given T002 (requirements.txt) is done, let's assume we can use 'python-dotenv' 
+        # or implement a simple one. To be safe and robust without adding deps if not listed:
+        # We will implement a simple parser.
+        
+        with open(env_path, 'r') as f:
+            for line_num, line in enumerate(f, 1):
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                if '=' not in line:
+                    continue
+                
+                key, _, value = line.partition('=')
+                key = key.strip()
+                value = value.strip()
+                
+                # Remove surrounding quotes if present
+                if (value.startswith('"') and value.endswith('"')) or \
+                   (value.startswith("'") and value.endswith("'")):
+                    value = value[1:-1]
+                
+                os.environ[key] = value
+        
+        logger.info(f"Loaded environment variables from {env_path}")
+        return True
+    
+    except Exception as e:
+        logger.error(f"Failed to load .env file from {env_path}: {e}")
+        raise ConfigError(f"Could not load .env file: {e}")
 
-    logger.info(f"Loading environment variables from {env_path}")
-    return load_dotenv(dotenv_path=env_path)
-
-
-def get_api_key(service: str) -> str:
+def get_api_key(key_name: str, required: bool = True) -> Optional[str]:
     """
-    Retrieve an API key for a specific service.
-
+    Retrieve an API key from the environment.
+    
     Args:
-        service: The name of the service (e.g., 'MATERIALS_PROJECT', 'NREL').
-
+        key_name: The name of the environment variable (e.g., 'MP_API_KEY').
+        required: If True, raises ConfigError if the key is missing.
+    
     Returns:
-        str: The API key.
-
+        The API key string, or None if not found and not required.
+    
     Raises:
-        ConfigError: If the API key is not found in the environment.
+        ConfigError: If required=True and the key is not found.
     """
-    env_var_map = {
-        "MATERIALS_PROJECT": "MATERIALS_PROJECT_API_KEY",
-        "MP": "MATERIALS_PROJECT_API_KEY",
-        "NREL": "NREL_API_KEY",
-    }
+    value = os.environ.get(key_name)
+    
+    if value is None:
+        if required:
+            raise ConfigError(
+                f"Required API key '{key_name}' is missing. "
+                f"Please ensure it is set in the .env file or environment variables."
+            )
+        return None
+    
+    return value
 
-    env_var = env_var_map.get(service.upper())
-    if not env_var:
-        raise ConfigError(f"Unknown service: {service}. Available: {list(env_var_map.keys())}")
-
-    key = os.getenv(env_var)
-    if not key:
-        raise ConfigError(
-            f"API key for '{service}' not found. "
-            f"Set the '{env_var}' environment variable or add it to .env file."
-        )
-
-    return key
-
-
-def validate_environment(required_services: Optional[list] = None) -> Dict[str, bool]:
+def validate_environment(required_keys: list[str]) -> Dict[str, bool]:
     """
-    Validate that required environment variables are present.
-
+    Validate that all required API keys are present in the environment.
+    
     Args:
-        required_services: List of service names to check. Defaults to
-                           ['MATERIALS_PROJECT'].
-
+        required_keys: List of environment variable names that must be present.
+    
     Returns:
-        Dict[str, bool]: A dictionary mapping service names to their validation status.
+        Dict mapping key names to their validation status (True if present).
+    
+    Raises:
+        ConfigError: If any required key is missing.
     """
-    if required_services is None:
-        required_services = ["MATERIALS_PROJECT"]
-
-    results = {}
-    for service in required_services:
-        try:
-            get_api_key(service)
-            results[service] = True
-        except ConfigError as e:
-            results[service] = False
-            logger.error(str(e))
-
-    return results
+    status = {}
+    missing = []
+    
+    for key in required_keys:
+        if os.environ.get(key):
+            status[key] = True
+        else:
+            status[key] = False
+            missing.append(key)
+    
+    if missing:
+        raise ConfigError(
+            f"The following required API keys are missing: {', '.join(missing)}. "
+            f"Please update your .env file."
+        )
+    
+    logger.info("Environment validation passed.")
+    return status

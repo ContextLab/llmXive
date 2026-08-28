@@ -9,8 +9,7 @@ logger = logging.getLogger(__name__)
 
 def load_processed_dataset() -> pd.DataFrame:
     """
-    Loads the merged dataset from the processed directory.
-    Expects `code/data/processed/mito_aging_dataset.csv` to exist.
+    Load the merged processed dataset from code/data/processed/mito_aging_dataset.csv.
     """
     paths = get_local_paths()
     input_path = paths['processed_data'] / 'mito_aging_dataset.csv'
@@ -18,151 +17,149 @@ def load_processed_dataset() -> pd.DataFrame:
     if not input_path.exists():
         raise FileNotFoundError(
             f"Processed dataset not found at {input_path}. "
-            "Run T018 (merge_metadata) and T020 (write_dataset) first."
+            "Ensure T018 (merge_metadata) and T020 (write_dataset) have completed successfully."
         )
     
     logger.info(f"Loading processed dataset from {input_path}")
     df = pd.read_csv(input_path)
-    
-    # Ensure required columns exist
-    required_cols = ['sample_id', 'age', 'haplogroup', 'heteroplasmy_burden']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in dataset: {missing}")
-    
     return df
 
-def apply_exclusion_logic(df: pd.DataFrame) -> pd.DataFrame:
+def apply_exclusion_logic(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     """
-    Implements conditional exclusion logic:
-    1. Exclude samples with missing age from ALL analysis.
-    2. Exclude samples with failed haplogroup assignment (NaN/None/empty string)
-       from haplogroup-specific analysis ONLY.
-       - However, RETAIN them for burden-only analysis if age is present.
-       
-    Returns a tuple: (df_all_analysis, df_haplogroup_analysis)
+    Apply conditional exclusion logic based on age and haplogroup assignment status.
+    
+    Rules:
+    1. Exclude samples with missing 'age' from ALL analysis.
+    2. Exclude samples with failed haplogroup assignment from haplogroup-specific analysis ONLY.
+       Retain them for burden-only analysis if age is present.
+    
+    Returns:
+        tuple: (full_analysis_df, haplogroup_analysis_df, exclusion_stats)
     """
-    if df.empty:
-        logger.warning("Input dataset is empty. Returning empty DataFrames.")
-        return df.copy(), df.copy()
-
-    # Track original counts
+    logger.info("Applying exclusion logic for age and haplogroup assignment")
+    
+    # Track counts
     total_samples = len(df)
-    logger.info(f"Starting exclusion logic on {total_samples} samples.")
-
-    # 1. Identify samples with missing age
-    # Handle NaN, None, or potentially string 'nan'/'None'
-    mask_age_missing = df['age'].isna()
-    if df['age'].dtype == object:
-        mask_age_missing = mask_age_missing | df['age'].astype(str).isin(['nan', 'None', ''])
+    missing_age_count = 0
+    failed_haplogroup_count = 0
     
-    samples_missing_age = mask_age_missing.sum()
-    logger.info(f"Found {samples_missing_age} samples with missing age.")
-
-    # Filter for ALL analysis: Must have age
-    df_all_analysis = df[~mask_age_missing].copy()
-    samples_after_age_filter = len(df_all_analysis)
-    logger.info(f"Samples remaining after age filter: {samples_after_age_filter}")
-
+    # 1. Identify samples with missing age (NaN or None)
+    # Assuming 'age' column exists and is numeric. 
+    missing_age_mask = df['age'].isna()
+    missing_age_count = missing_age_mask.sum()
+    
+    # Create a mask for samples eligible for ANY analysis (must have age)
+    has_age_mask = ~missing_age_mask
+    
     # 2. Identify samples with failed haplogroup assignment
-    # Only relevant for the 'haplogroup-specific' analysis subset
-    # We apply this filter to the 'df_all_analysis' set
-    if df_all_analysis.empty:
-        return df_all_analysis, df_all_analysis
-
-    mask_haplogroup_missing = df_all_analysis['haplogroup'].isna()
-    if df_all_analysis['haplogroup'].dtype == object:
-        mask_haplogroup_missing = mask_haplogroup_missing | df_all_analysis['haplogroup'].astype(str).isin(['nan', 'None', '', 'NA', 'N/A'])
+    # Assuming 'haplogroup' column exists. Failed assignment is typically NaN, 'UNK', or 'Failed'.
+    # We treat NaN and any string indicating failure (e.g., 'UNK') as failed.
+    # Let's assume 'UNK' or NaN indicates failure based on typical haplogrep2 output.
+    failed_haplogroup_mask = df['haplogroup'].isna() | (df['haplogroup'] == 'UNK')
+    failed_haplogroup_count = failed_haplogroup_mask.sum()
     
-    samples_missing_haplogroup = mask_haplogroup_missing.sum()
-    logger.info(f"Found {samples_missing_haplogroup} samples with missing/failed haplogroup in the age-validated set.")
+    # --- Dataset 1: Full Analysis (Burden only, requires Age) ---
+    # Retain samples that have age, regardless of haplogroup status.
+    full_analysis_df = df[has_age_mask].copy()
+    logger.info(f"Full analysis dataset: {len(full_analysis_df)} samples (excluded {missing_age_count} with missing age)")
+    
+    # --- Dataset 2: Haplogroup-Specific Analysis ---
+    # Retain samples that have age AND successful haplogroup assignment.
+    haplogroup_analysis_df = df[has_age_mask & ~failed_haplogroup_mask].copy()
+    logger.info(f"Haplogroup analysis dataset: {len(haplogroup_analysis_df)} samples "
+                f"(excluded {failed_haplogroup_count} with failed haplogroup assignment)")
+    
+    # Compile exclusion statistics
+    exclusion_stats = {
+        'total_samples': total_samples,
+        'missing_age_count': int(missing_age_count),
+        'failed_haplogroup_count': int(failed_haplogroup_count),
+        'full_analysis_count': int(len(full_analysis_df)),
+        'haplogroup_analysis_count': int(len(haplogroup_analysis_df)),
+        'retained_for_burden_only': int(len(full_analysis_df) - len(haplogroup_analysis_df))
+    }
+    
+    return full_analysis_df, haplogroup_analysis_df, exclusion_stats
 
-    # Filter for haplogroup-specific analysis: Must have age AND haplogroup
-    df_haplogroup_analysis = df_all_analysis[~mask_haplogroup_missing].copy()
-    samples_after_hg_filter = len(df_haplogroup_analysis)
-    logger.info(f"Samples remaining for haplogroup analysis: {samples_after_hg_filter}")
-
-    return df_all_analysis, df_haplogroup_analysis
-
-def write_exclusion_report(df_all: pd.DataFrame, df_hg: pd.DataFrame, original_df: pd.DataFrame) -> Path:
+def write_exclusion_report(stats: dict, output_path: Path) -> None:
     """
-    Logs exclusion counts and retention status to `code/logs/exclusion_report.txt`.
+    Write the exclusion report to a text file.
     """
-    paths = get_local_paths()
-    log_dir = paths['logs']
-    log_dir.mkdir(parents=True, exist_ok=True)
-    report_path = log_dir / 'exclusion_report.txt'
-
-    total_original = len(original_df)
-    total_age_valid = len(df_all)
-    total_hg_valid = len(df_hg)
-
-    excluded_age = total_original - total_age_valid
-    excluded_hg = total_age_valid - total_hg_valid
-
-    with open(report_path, 'w') as f:
-        f.write("=" * 60 + "\n")
-        f.write("EXCLUSION LOG: Mitochondrial Aging Correlation Study\n")
-        f.write("=" * 60 + "\n\n")
-        
-        f.write(f"Total samples in merged dataset: {total_original}\n\n")
-        
-        f.write("--- Step 1: Age Validation (Critical) ---\n")
-        f.write(f"Samples excluded (missing age): {excluded_age}\n")
-        f.write(f"Samples retained for ALL analysis: {total_age_valid}\n")
-        f.write(f"Exclusion Rate (Age): {(excluded_age/total_original*100):.2f}%\n\n")
-        
-        f.write("--- Step 2: Haplogroup Validation (Conditional) ---\n")
-        f.write(f"Samples excluded from HG-analysis (missing HG): {excluded_hg}\n")
-        f.write(f"Samples retained for HG-specific analysis: {total_hg_valid}\n")
-        f.write(f"Note: Samples with missing HG but valid age are RETAINED for burden-only analysis.\n\n")
-        
-        f.write("--- Summary ---\n")
-        f.write(f"Final dataset for full modeling (Age + HG): {total_hg_valid}\n")
-        f.write(f"Dataset for burden-only analysis (Age only): {total_age_valid}\n")
-        f.write("=" * 60 + "\n")
-
-    logger.info(f"Exclusion report written to {report_path}")
-    return report_path
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    report_lines = [
+        "Exclusion Report: Mitochondrial Aging Correlation Analysis",
+        "=" * 60,
+        f"Total Samples Input: {stats['total_samples']}",
+        "",
+        "Exclusion Criteria Applied:",
+        f"  1. Missing Age: {stats['missing_age_count']} samples excluded from ALL analysis.",
+        f"  2. Failed Haplogroup Assignment: {stats['failed_haplogroup_count']} samples excluded from haplogroup-specific analysis.",
+        "",
+        "Resulting Datasets:",
+        f"  - Full Analysis (Burden + Confounders): {stats['full_analysis_count']} samples",
+        f"  - Haplogroup-Specific Analysis: {stats['haplogroup_analysis_count']} samples",
+        "",
+        "Retention Details:",
+        f"  - Samples retained for burden-only analysis (missing haplogroup but have age): {stats['retained_for_burden_only']}",
+        "",
+        "Note: Samples excluded due to missing age are not present in either dataset.",
+        "Samples excluded due to failed haplogroup are present in Full Analysis but not Haplogroup-Specific Analysis."
+    ]
+    
+    report_text = "\n".join(report_lines)
+    
+    with open(output_path, 'w') as f:
+        f.write(report_text)
+    
+    logger.info(f"Exclusion report written to {output_path}")
 
 def main():
     """
-    Entry point for the exclusion logic task.
+    Main entry point for the exclusion logic script.
+    Loads the processed dataset, applies exclusion logic, and writes the report.
     """
+    # Setup logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
             logging.StreamHandler(sys.stdout),
-            logging.FileHandler('code/logs/exclusion_logic.log')
+            logging.FileHandler(get_local_paths()['logs'] / 'exclusion_logic.log')
         ]
     )
-
+    
     try:
-        # Load the merged dataset (produced by T018/T020)
+        # Load data
         df = load_processed_dataset()
         
-        # Apply exclusion logic
-        df_all, df_hg = apply_exclusion_logic(df)
+        # Apply logic
+        full_df, haplo_df, stats = apply_exclusion_logic(df)
         
         # Write report
-        write_exclusion_report(df_all, df_hg, df)
-        
-        logger.info("Exclusion logic completed successfully.")
-        
-        # Optional: Save the filtered datasets for downstream tasks if needed
-        # The main pipeline usually passes these DataFrames directly, 
-        # but saving them ensures reproducibility if the script is run standalone.
         paths = get_local_paths()
-        df_all.to_csv(paths['processed_data'] / 'mito_aging_dataset_all_analysis.csv', index=False)
-        df_hg.to_csv(paths['processed_data'] / 'mito_aging_dataset_hg_analysis.csv', index=False)
+        report_path = paths['logs'] / 'exclusion_report.txt'
+        write_exclusion_report(stats, report_path)
         
-    except FileNotFoundError as e:
-        logger.error(f"Data not found: {e}")
-        sys.exit(1)
+        # Optional: Save the filtered datasets if needed downstream
+        # The task description focuses on the report, but saving the filtered data
+        # is often useful for downstream steps (US2, US3).
+        # We will save them to processed_data with clear names.
+        full_output_path = paths['processed_data'] / 'mito_aging_dataset_full_analysis.csv'
+        haplo_output_path = paths['processed_data'] / 'mito_aging_dataset_haplogroup_analysis.csv'
+        
+        full_df.to_csv(full_output_path, index=False)
+        haplo_df.to_csv(haplo_output_path, index=False)
+        
+        logger.info(f"Filtered datasets saved: {full_output_path}, {haplo_output_path}")
+        
+        print(f"Exclusion logic completed successfully.")
+        print(f"Full Analysis Samples: {stats['full_analysis_count']}")
+        print(f"Haplogroup Analysis Samples: {stats['haplogroup_analysis_count']}")
+        
     except Exception as e:
-        logger.error(f"Error during exclusion logic: {e}", exc_info=True)
+        logger.error(f"Exclusion logic failed: {e}", exc_info=True)
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

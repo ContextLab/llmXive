@@ -17,26 +17,21 @@ T016:
     \ format. No placeholder or stub code is present, satisfying the task\u2019s specification."
 T020:
   c: false
-  h: 6c402dae79dccab5264670e9c2e7b4d82932a4f7b4429af5dac37ea2a78b0170
+  h: ee5834c482c5b472612652f33a087d42d543ef4ae189d901829d06066ed99e5c
   r: "The repository lacks the required `data/processed/split_indices.json` file,\
-    \ and `code/modeling.py` does not contain any implementation of the three\u2011\
-    way train/validation/test split or code that writes such a JSON file. Consequently\
-    \ the task\u2019s core requirement is not satisfied."
+    \ and the shown portion of `code/modeling.py` contains only loading utilities\
+    \ and no implementation that performs the two\u2011step `train_test_split` and\
+    \ writes the split indices to that JSON file. Consequently the three\u2011way\
+    \ split logic and its output are not present."
 T021:
   c: false
-  h: a99a2c64ebb913eb510256a02a581ae97e54252dcef538f0c691ffa81b9612c8
-  r: "The `code/modeling.py` file ends abruptly inside `run_repeated_cv` (truncated\
-    \ after `all_score`), so the repeated 5\u2011fold CV logic is not fully implemented.\
-    \ Additionally, the required output file `results/model_metrics.json` does not\
-    \ exist, so the mean CV\u2011MAE, confidence intervals, and required JSON fields\
-    \ are missing. The task therefore remains unfinished."
-T023c:
-  c: false
-  h: 872db5fe87d4eb99b81d219b461e74de83354ba5787bfbc74930b2fa76d42337
-  r: "The repository lacks the required `results/methodological_flags.json` file,\
-    \ and the provided `code/modeling.py` does not contain any logic that computes\
-    \ cross\u2011validation or test MAE, sets `mae_flag`, or writes the JSON output.\
-    \ The task\u2019s core functionality is therefore missing."
+  h: 6c1d168f63c3f71c2211ce14b2af1a8a5e127896dbe1f44cee2b24bc958ab5a2
+  r: "The required output file `results/model_metrics.json` does not exist, so the\
+    \ mean CV\u2011MAE and confidence interval are never saved. Additionally, the\
+    \ provided snippet of `code/modeling.py` is truncated before any repeated 5\u2011\
+    fold CV logic or JSON\u2011writing code, so we cannot verify that the implementation\
+    \ meets the specification. The missing JSON file (and likely missing implementation)\
+    \ must be added."
 T024:
   c: false
   h: cb0c736e98a72c8beccdd1f7308ac17c0df5b3fd8057394f6a97cfdde5dfe719
@@ -46,11 +41,13 @@ T024:
     step described in the task has not been implemented.
 T025:
   c: false
-  h: c10e3c2627467e57553e17a22d3bc78ad2d5c3c2949abd14041466c6b40253bf
-  r: "The repository lacks `results/residuals.json` and `results/model_metrics.json`,\
-    \ and the shown `code/modeling.py` does not contain any logic for an 80/20 test\
-    \ split, test\u2011set MAE calculation, or saving of residuals/metrics. The required\
-    \ artifacts and functionality are therefore missing."
+  h: a1fed8b642f9c7433ef3638c2b8c7758e213a2b68c04b60e68ccfee06ad42c02
+  r: "The repository lacks the required output artifacts \u2013 `results/model_metrics.json`\
+    \ (with a `test_mae` field) and `results/residuals.json` do not exist. Moreover,\
+    \ the provided snippet of `code/modeling.py` is truncated before any logic that\
+    \ performs an 80/20 test split, computes test\u2011set MAE, or writes those files,\
+    \ so the core functionality is not demonstrably present. The implementer must\
+    \ add the test\u2011set evaluation, log the MAE, and generate the two result files."
 T027a:
   c: false
   h: 6144de8a0b6a8066452fb3076e50f6076c2dec56fa225f58ea774288cbcef3e3

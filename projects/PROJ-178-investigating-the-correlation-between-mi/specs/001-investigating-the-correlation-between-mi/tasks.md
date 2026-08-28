@@ -98,7 +98,7 @@
 - [X] T016 [US1] Implement depth-stratified burden calculation (Low, Medium, High bins) in `code/analysis/preprocess.py`
 - [X] T017 [US1] Integrate `haplogrep2` via subprocess in `code/analysis/preprocess.py` to assign haplogroups
 - [ ] T019A [US1] Implement haplogroup assignment success rate calculation; verify if ≥ 90% of samples are assigned and log the result to `code/logs/haplogroup_success_rate.txt`. **Depends on T017 (individual flags)**.
-- [ ] T019 [US1] **ONLY IF Phase 0 (T007A) PASSES**: Implement conditional exclusion logic for **individual samples**: 1) Exclude samples with missing age from ALL analysis; 2) Exclude samples with failed haplogroup assignment from haplogroup-specific analysis ONLY, but RETAIN them for burden-only analysis if age is present; log exclusion counts and retention status to `code/logs/exclusion_report.txt`. **Depends on T007A (age validation) and T019A (aggregate validation)**.
+- [X] T019 [US1] **ONLY IF Phase 0 (T007A) PASSES**: Implement conditional exclusion logic for **individual samples**: 1) Exclude samples with missing age from ALL analysis; 2) Exclude samples with failed haplogroup assignment from haplogroup-specific analysis ONLY, but RETAIN them for burden-only analysis if age is present; log exclusion counts and retention status to `code/logs/exclusion_report.txt`. **Depends on T007A (age validation) and T019A (aggregate validation)**.
 - [X] T018 [US1] Implement metadata merge logic to join burden, haplogroups, age, sex, population, and PCs; write merged dataframe to `code/data/processed/mito_aging_dataset.csv`
 - [X] T020 [US1] Write processed dataset to `code/data/processed/mito_aging_dataset.csv` with checksum generation
 
@@ -141,7 +141,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement threshold sweep for heteroplasmy burden recalculation across VAF thresholds: **{0.5%, 1.0%, 2.0%}**. Write results to `code/data/processed/sensitivity_results.csv` with columns: `threshold`, `coefficient`, `p_value`.
+- [X] T032 [US3] Implement threshold sweep for heteroplasmy burden recalculation across VAF thresholds: **{0.5%, 1.0%, 2.0%}**. Write results to `code/data/processed/sensitivity_results.csv` with columns: `threshold`, `coefficient`, `p_value`.
 - [ ] T032A [US3] Calculate and record the variation (range and standard deviation) of correlation coefficients across the set of low-level thresholds.; save this metric to `code/data/processed/threshold_variation.json` with schema: `{"range": float, "std_dev": float, "thresholds": [float]}` to satisfy SC-003.
 - [X] T033 [US3] Implement subgroup analysis for continental ancestries (EUR, AFR, EAS, SAS, AMR) in `code/analysis/sensitivity.py`; write results to `code/data/processed/subgroup_results.csv` with columns: `ancestry`, `coefficient`, `p_value`.
 - [ ] T033A [US3] Calculate and record the variation (magnitude of difference) of coefficients across ancestry groups; save this metric to `code/data/processed/subgroup_variation.json` to satisfy SC-004.
@@ -168,7 +168,7 @@
 - [X] T049 [P] Refactor `code/analysis/preprocess.py` to reduce cyclomatic complexity of the `calculate_heteroplasmy_burden` function to < 10. **Execution Steps**: 1) Run `radon cc code/analysis/preprocess.py` to record the current baseline complexity of `calculate_heteroplasmy_burden` in `code/logs/complexity_baseline.log`. 2) Refactor the function (e.g., extract helper functions, simplify nested conditionals). 3) Re-run `radon cc` to verify the new complexity is < 10 and log the delta in `code/logs/complexity_reduction.log`. The task is incomplete without the baseline and final verification logs. (Target function identified).
 - [ ] T050 [P] Remove unused imports from all scripts in `code/analysis/`.
 - [X] T051 [P] Profile `code/analysis/load_data.py` and implement chunking strategy to ensure peak RAM usage < 7GB.
-- [ ] T052 [P] Verify memory usage via `memory_profiler` and write output to `code/logs/memory_profile.log`.
+- [X] T052 [P] Verify memory usage via `memory_profiler` and write output to `code/logs/memory_profile.log`.
 - [X] T053 [P] Implement unit tests for edge cases in `code/tests/test_data.py`, `code/tests/test_model.py`, and `code/tests/test_sensitivity.py`: specifically test (1) zero heteroplasmic burden, (2) samples with failed haplogroup assignment, and (3) samples with missing age. (Addresses spec Edge Cases).
 - [ ] T054A [P] Implement runtime measurement for the **entire analysis pipeline** (Phases 0-5) in `code/run_analysis.py`. **Log total execution time to `code/logs/runtime.log` and flag if > 6 hours** to satisfy SC-005. Do NOT assert/fail the pipeline; the spec requires measurement against the constraint, not a hard crash.
 - [ ] T055 [P] Generate final figures (Rank-OLS fit, threshold sensitivity, subgroup comparison) in `paper/figures/`. (Note: Power-Law figure removed from original plan).

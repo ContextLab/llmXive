@@ -1,81 +1,64 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "PerovskiteEntry Instrumentation Metadata"
+$schema: http://json-schema.org/draft-07/schema#
+title: PerovskiteInstrumentationMetadata
 description: >
-  Schema for instrumentation metadata associated with perovskite thermal stability
-  measurements (TGA). Defines the TGA model, temperature uncertainty, and flags
-  indicating whether the uncertainty is explicitly reported or defaulted.
-  This schema supports the "Verified Accuracy" requirement by ensuring all
-  stability measurements carry quantified uncertainty bounds.
+  Schema for instrumentation metadata extracted from TGA source data.
+  Adheres to the requirement for specifying the instrument model and precision.
 type: object
-required:
-  - perovskite_id
-  - tga_model
-  - uncertainty_value
-  - uncertainty_unit
-  - uncertainty_source
 properties:
-  perovskite_id:
+  metadata_version:
     type: string
-    description: "Unique identifier for the perovskite entry (e.g., formula or database ID)"
-    pattern: "^[A-Za-z0-9_.-]+$"
-    examples:
-      - "CsPbI3"
-      - "FAPbI3"
-      - "MAPbBr3"
-
-  tga_model:
+    description: Version of this metadata schema.
+    const: "1.0.0"
+  generated_at:
     type: string
-    description: "Manufacturer and model of the Thermogravimetric Analyzer used"
-    minLength: 1
-    examples:
-      - "TA Instruments Q500"
-      - "Mettler Toledo TGA/DSC 3+"
-      - "Netzsch STA 449 F3"
-      - "PerkinElmer TGA 4000"
-
-  uncertainty_value:
-    type: number
-    description: >
-      Numerical value of the temperature uncertainty (e.g., 5.0 for ±5°C).
-      Must be positive.
-    exclusiveMinimum: 0
-    examples:
-      - 5.0
-      - 10.0
-
-  uncertainty_unit:
-    type: string
-    description: "Unit of the uncertainty value"
-    enum:
-      - "Celsius"
-      - "Kelvin"
-      - "K"
-      - "°C"
-    default: "Celsius"
-
-  uncertainty_source:
-    type: string
-    description: >
-      Source of the uncertainty value.
-      - 'instrument_spec': Value derived from the manufacturer's specification for the specific model.
-      - 'reported_value': Value explicitly reported in the source publication or dataset.
-      - 'default_bound': Value assigned because no specific uncertainty was provided (e.g., ±10°C default).
-    enum:
-      - "instrument_spec"
-      - "reported_value"
-      - "default_bound"
-
-  is_default_uncertainty:
-    type: boolean
-    description: >
-      Flag indicating if the uncertainty is a default fallback (e.g., ±10°C)
-      rather than a specific measurement or instrument spec. Used for weighting
-      in model training (lower weight for default uncertainty).
-    default: false
-
-  notes:
-    type: string
-    description: "Optional notes regarding the measurement conditions or uncertainty derivation"
-    maxLength: 500
-
-additionalProperties: false
+    format: date-time
+    description: ISO 8601 timestamp of generation.
+  entries:
+    type: array
+    description: List of metadata entries for each perovskite record.
+    items:
+      type: object
+      required:
+        - entry_id
+        - source_citation
+        - tga_model
+        - precision
+      properties:
+        entry_id:
+          type: string
+          description: Unique identifier for the perovskite entry (matches raw data).
+        source_citation:
+          type: string
+          description: DOI or reference string for the source publication.
+        tga_model:
+          type: string
+          description: Manufacturer and model of the Thermogravimetric Analyzer (e.g., "TA Instruments Q500").
+          minLength: 1
+        precision:
+          type: object
+          description: Temperature precision/uncertainty of the measurement.
+          required:
+            - value
+            - unit
+          properties:
+            value:
+              type: number
+              description: Numerical value of the uncertainty (e.g., 5.0).
+            unit:
+              type: string
+              description: Unit of the uncertainty (e.g., "°C").
+              pattern: "^°C$"
+        flags:
+          type: object
+          description: Optional flags regarding the precision source.
+          properties:
+            is_default:
+              type: boolean
+              description: True if the precision is a default assumption (e.g., ±10°C) rather than explicitly stated.
+            default_reason:
+              type: string
+              description: Reason for using the default if is_default is true.
+required:
+  - metadata_version
+  - generated_at
+  - entries

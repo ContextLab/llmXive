@@ -150,3 +150,19 @@
   source_type: external
   status: verified
   updated_at: '2026-08-27T23:34:14Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Data obtained from 1000 Genomes Project Phase 3
+  claim_id: c_83590122
+  context: Data were obtained from the 1000 Genomes Project Phase 3. Mitochondrial
+    VCFs were downloaded from the canonical FTP site.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data were obtained from the 1000 Genomes Project Phase 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:56:15Z'

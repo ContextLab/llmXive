@@ -4,129 +4,184 @@ Unit tests for the state_manager module.
 import os
 import tempfile
 from pathlib import Path
-import yaml
 import pytest
+import yaml
 
-from utils.state_manager import (
+from code.utils.state_manager import (
     compute_sha256,
     load_state,
     save_state,
     update_artifact_state,
     verify_artifact,
-    update_state_for_multiple_artifacts
+    update_state_for_multiple_artifacts,
 )
 
 
-def test_compute_sha256():
-    """Test that SHA-256 is computed correctly for a known string."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        content = b"test content"
-        tmp.write(content)
-        tmp_path = Path(tmp.name)
-    
-    try:
-        # "test content" SHA-256
-        expected = "6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72"
-        result = compute_sha256(tmp_path)
-        assert result == expected
-    finally:
-        tmp_path.unlink()
+class TestComputeSha256:
+    def test_compute_sha256_known_file(self, tmp_path):
+        """Test hashing a file with known content."""
+        test_file = tmp_path / "test.txt"
+        content = b"Hello, World!"
+        test_file.write_bytes(content)
 
+        # Known SHA-256 for "Hello, World!"
+        expected_hash = (
+            "315f5bdb76d078c43b8ac0064e4a0164612b1fce77c869345bfc94c75894edd3"
+        )
 
-def test_load_state_missing():
-    """Test loading state from a non-existent file returns empty structure."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        state_path = Path(tmpdir) / "nonexistent.yaml"
+        result = compute_sha256(test_file)
+        assert result == expected_hash
+
+    def test_compute_sha256_nonexistent_file(self, tmp_path):
+        """Test hashing a file that doesn't exist."""
+        non_existent = tmp_path / "does_not_exist.txt"
+        with pytest.raises(FileNotFoundError):
+            compute_sha256(non_existent)
+
+    def test_compute_sha256_large_file(self, tmp_path):
+        """Test hashing a larger file to ensure chunking works."""
+        test_file = tmp_path / "large.txt"
+        # Create a 1MB file
+        content = b"A" * (1024 * 1024)
+        test_file.write_bytes(content)
+
+        result = compute_sha256(test_file)
+        assert isinstance(result, str)
+        assert len(result) == 64  # SHA-256 hex length
+
+class TestLoadState:
+    def test_load_state_new_file(self, tmp_path):
+        """Test loading state from a non-existent file."""
+        state_path = tmp_path / "state.yaml"
         state = load_state(state_path)
-        assert state["artifacts"] == {}
-        assert state["last_updated"] is None
 
+        assert state == {"artifacts": {}, "metadata": {}}
 
-def test_save_and_load_state():
-    """Test saving and loading state preserves data."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        state_path = Path(tmpdir) / "state.yaml"
+    def test_load_state_existing_file(self, tmp_path):
+        """Test loading state from an existing file."""
+        state_path = tmp_path / "state.yaml"
         initial_state = {
-            "artifacts": {"data/test.csv": {"hash": "abc123", "size_bytes": 100}},
-            "last_updated": "2023-01-01T00:00:00Z"
+            "artifacts": {"test.txt": {"hash": "abc123"}},
+            "metadata": {"version": 1},
         }
-        save_state(state_path, initial_state)
-        
-        loaded_state = load_state(state_path)
-        assert loaded_state["artifacts"]["data/test.csv"]["hash"] == "abc123"
-        assert loaded_state["last_updated"] == "2023-01-01T00:00:00Z"
+        with open(state_path, "w") as f:
+            yaml.dump(initial_state, f)
 
-
-def test_update_artifact_state():
-    """Test updating state with a new artifact."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Create a dummy file
-        file_path = Path(tmpdir) / "artifact.txt"
-        file_path.write_text("hello")
-        
-        state = {"artifacts": {}}
-        artifact_rel_path = "data/artifact.txt"
-        
-        state = update_artifact_state(state, artifact_rel_path, file_path)
-        
-        assert artifact_rel_path in state["artifacts"]
-        assert "hash" in state["artifacts"][artifact_rel_path]
-        assert "size_bytes" in state["artifacts"][artifact_rel_path]
-        assert "updated_at" in state["artifacts"][artifact_rel_path]
-
-
-def test_verify_artifact_valid():
-    """Test verification passes when hash matches."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        file_path = Path(tmpdir) / "verify.txt"
-        content = b"verify me"
-        file_path.write_bytes(content)
-        
-        file_hash = compute_sha256(file_path)
-        state = {
-            "artifacts": {
-                "data/verify.txt": {"hash": file_hash}
-            }
-        }
-        
-        assert verify_artifact(state, "data/verify.txt", file_path) is True
-
-
-def test_verify_artifact_invalid():
-    """Test verification fails when hash does not match."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        file_path = Path(tmpdir) / "verify.txt"
-        file_path.write_text("change me")
-        
-        # Use a fake hash
-        state = {
-            "artifacts": {
-                "data/verify.txt": {"hash": "invalid_hash_12345"}
-            }
-        }
-        
-        assert verify_artifact(state, "data/verify.txt", file_path) is False
-
-
-def test_update_state_for_multiple_artifacts():
-    """Test updating state for multiple files at once."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        state_path = Path(tmpdir) / "state.yaml"
-        
-        # Create two files
-        file1 = Path(tmpdir) / "f1.txt"
-        file1.write_text("file1")
-        file2 = Path(tmpdir) / "f2.txt"
-        file2.write_text("file2")
-        
-        artifacts = [
-            {"relative_path": "data/f1.txt", "absolute_path": str(file1)},
-            {"relative_path": "data/f2.txt", "absolute_path": str(file2)}
-        ]
-        
-        update_state_for_multiple_artifacts(state_path, artifacts)
-        
         state = load_state(state_path)
-        assert "data/f1.txt" in state["artifacts"]
-        assert "data/f2.txt" in state["artifacts"]
-        assert state["last_updated"] is not None
+        assert state["artifacts"]["test.txt"]["hash"] == "abc123"
+        assert state["metadata"]["version"] == 1
+
+    def test_load_state_invalid_yaml(self, tmp_path):
+        """Test loading state from an invalid YAML file."""
+        state_path = tmp_path / "state.yaml"
+        state_path.write_text("invalid: yaml: content: [")
+
+        with pytest.raises(ValueError):
+            load_state(state_path)
+
+class TestSaveState:
+    def test_save_state_creates_file(self, tmp_path):
+        """Test that save_state creates the file."""
+        state_path = tmp_path / "state.yaml"
+        state = {"artifacts": {}, "metadata": {}}
+
+        save_state(state, state_path)
+        assert state_path.exists()
+
+    def test_save_state_creates_directories(self, tmp_path):
+        """Test that save_state creates parent directories."""
+        state_path = tmp_path / "subdir" / "nested" / "state.yaml"
+        state = {"artifacts": {}, "metadata": {}}
+
+        save_state(state, state_path)
+        assert state_path.exists()
+
+    def test_save_state_valid_yaml(self, tmp_path):
+        """Test that saved state is valid YAML."""
+        state_path = tmp_path / "state.yaml"
+        state = {"artifacts": {"test.txt": {"hash": "abc123"}}}
+
+        save_state(state, state_path)
+
+        with open(state_path, "r") as f:
+            loaded = yaml.safe_load(f)
+
+        assert loaded == state
+
+class TestUpdateArtifactState:
+    def test_update_artifact_state(self, tmp_path):
+        """Test updating state for a single artifact."""
+        artifact_path = tmp_path / "artifact.txt"
+        artifact_path.write_text("Test content")
+        state_path = tmp_path / "state.yaml"
+
+        state = {"artifacts": {}, "metadata": {}}
+        updated_state = update_artifact_state(artifact_path, state, state_path)
+
+        assert "artifact.txt" in updated_state["artifacts"]
+        assert "hash" in updated_state["artifacts"]["artifact.txt"]
+        assert "updated_at" in updated_state["artifacts"]["artifact.txt"]
+        assert "size_bytes" in updated_state["artifacts"]["artifact.txt"]
+        assert updated_state["metadata"]["artifact_count"] == 1
+
+    def test_update_artifact_state_missing_file(self, tmp_path):
+        """Test updating state for a missing artifact."""
+        artifact_path = tmp_path / "missing.txt"
+        state_path = tmp_path / "state.yaml"
+        state = {"artifacts": {}, "metadata": {}}
+
+        with pytest.raises(FileNotFoundError):
+            update_artifact_state(artifact_path, state, state_path)
+
+class TestVerifyArtifact:
+    def test_verify_artifact_match(self, tmp_path):
+        """Test verifying an artifact with matching hash."""
+        artifact_path = tmp_path / "test.txt"
+        content = b"Test content"
+        artifact_path.write_bytes(content)
+
+        expected_hash = compute_sha256(artifact_path)
+        assert verify_artifact(artifact_path, expected_hash) is True
+
+    def test_verify_artifact_mismatch(self, tmp_path):
+        """Test verifying an artifact with non-matching hash."""
+        artifact_path = tmp_path / "test.txt"
+        artifact_path.write_text("Test content")
+
+        assert verify_artifact(artifact_path, "wrong_hash") is False
+
+    def test_verify_artifact_missing(self, tmp_path):
+        """Test verifying a missing artifact."""
+        artifact_path = tmp_path / "missing.txt"
+
+        with pytest.raises(FileNotFoundError):
+            verify_artifact(artifact_path, "some_hash")
+
+class TestUpdateStateForMultipleArtifacts:
+    def test_update_multiple_artifacts(self, tmp_path):
+        """Test updating state for multiple artifacts."""
+        artifact1 = tmp_path / "art1.txt"
+        artifact2 = tmp_path / "art2.txt"
+        artifact1.write_text("Content 1")
+        artifact2.write_text("Content 2")
+        state_path = tmp_path / "state.yaml"
+
+        state = update_state_for_multiple_artifacts(
+            [artifact1, artifact2], state_path
+        )
+
+        assert "art1.txt" in state["artifacts"]
+        assert "art2.txt" in state["artifacts"]
+        assert state["metadata"]["artifact_count"] == 2
+
+    def test_update_multiple_missing_artifacts(self, tmp_path):
+        """Test updating state when some artifacts are missing."""
+        artifact1 = tmp_path / "art1.txt"
+        artifact2 = tmp_path / "missing.txt"
+        artifact1.write_text("Content 1")
+        state_path = tmp_path / "state.yaml"
+
+        with pytest.raises(FileNotFoundError):
+            update_state_for_multiple_artifacts(
+                [artifact1, artifact2], state_path
+            )

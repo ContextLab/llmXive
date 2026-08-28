@@ -1,54 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `projects/PROJ-516-predicting-perovskite-stability-via-comp/`\
-    \ directory or any files inside it is provided; the claim lacks the required project\u2011\
-    structure artifacts. The implementer must create the folder and populate it with\
-    \ the expected sub\u2011directories and starter files (e.g., `data/`, `src/`,\
-    \ `scripts/`, `README.md`, etc.) as outlined in the implementation plan."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `.flake8`, `pylintrc`, `pyproject.toml`\
-    \ with Black/isort settings, or associated setup scripts) were presented, nor\
-    \ any evidence that these tools have been integrated into the project\u2019s CI\
-    \ pipeline. Without such artifacts, the requirement to configure flake8/pylint\
-    \ and Black/isort is not satisfied."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `state_manager.py` file or any code that computes SHA\u2011256 hashes and\
-    \ updates the `state/...yaml` files is present in the provided evidence. The claim\
-    \ lacks the required artifact, so the task is not satisfied."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.env` file or any configuration snippet was presented, and there is no evidence
-    that API keys for Materials Project and NREL have been stored securely in an environment
-    file. The required artifact is missing, so the task is not satisfied.
-T012:
-  c: false
-  h: 556c1019a27b6a323d04f0d0f95bb45f1011abc72ab0a403c22fa2efb7f965ca
-  r: "The required output file `data/raw/nrel_perovskites.csv` is absent, and the\
-    \ provided `code/data_ingestion.py` is truncated (ends mid\u2011function) with\
-    \ no visible logic that actually writes the filtered DataFrame to that path. Consequently\
-    \ the task\u2019s core requirement\u2014fetching, validating, filtering for `T_d`\
-    \ entries, and persisting them to the specified CSV\u2014has not been demonstrably\
-    \ fulfilled."
-T013b:
-  c: false
-  h: 7eca4083e44075184c2b642ef1ee0fed9b10e1ae2020a34cd614e260b268bd25
-  r: "The `data/raw/metadata.json` file is present, but the required schema file `contracts/metadata.schema.yaml`\
-    \ is missing, so there is no way to verify that the JSON adheres to the specified\
-    \ contract. The task\u2019s core requirement\u2014producing metadata that conforms\
-    \ to the schema\u2014has not been satisfied."
-T014:
-  c: false
-  h: f63af815f7acd0b881540c18fd9df343552a8e855262e59d5a9cc2302d619a4b
-  r: "The required output file `data/processed/descriptors.csv` does not exist, and\
-    \ the provided `code/feature_engineering.py` is only partially shown (truncated)\
-    \ with no evidence that it actually computes all requested descriptors or writes\
-    \ the CSV. The task\u2019s core deliverable is therefore missing."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -75,3 +24,25 @@ T021:
     validation with stratification by perovskite family was presented. The claim lacks\
     \ any artifact (e.g., a Python module using `StratifiedKFold` or documentation\
     \ of the setup), so the requirement is not satisfied."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or output logs were provided to demonstrate a grid\u2011\
+    search implementation that enforces a hard limit of ten or fewer hyperparameter\
+    \ combinations per model, nor any evidence that the resulting metrics are recorded.\
+    \ The required artifact is missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, logs, or documentation were provided that demonstrate RMSE,\
+    \ R\xB2, MAE tracking or the recording of the best hyperparameters. The claim\
+    \ cannot be verified without concrete artifacts, so the required implementation\
+    \ is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, configuration file, or execution log was provided to demonstrate\
+    \ that model training is forced to use default (full\u2011precision) arithmetic\
+    \ and that the runs are restricted to CPU\u2011only hardware. Without such artifacts,\
+    \ we cannot verify that 8\u2011bit/4\u2011bit quantization is disabled or that\
+    \ no GPU resources are used. The required evidence is missing."

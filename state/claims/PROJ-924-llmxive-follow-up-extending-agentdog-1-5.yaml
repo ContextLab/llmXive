@@ -8578,3 +8578,269 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T11:57:28Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: System runs google/flan-t5-small zero-shot classifier on log subset
+  claim_id: c_acc4d38e
+  context: 'Phase -1: Spec Amendment & Deviation Logging, T-002-AmendUS03'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_runs_google/flan-t5-small_zero-shot_classifier_on_log
+  kind: entity_fact
+  raw_text: The system runs a zero-shot LLM classifier (google/flan-t5-small) on a
+    subset of logs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:21:51Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Specification requires statistical validation and contract tests
+  claim_id: c_8da6c6f8
+  context: Document header, Tests section
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Specification_requires_statistical_validation_and_contract_t
+  kind: entity_fact
+  raw_text: The specification explicitly requires statistical validation and contract
+    tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:22:29Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Model substitution from gpt-4o-mini to google/flan-t5-small due to 7GB
+    RAM constraint
+  claim_id: c_79709030
+  context: 'Phase -1: Spec Amendment & Deviation Logging, T-001-DeviationLog'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project substitutes gpt-4o-mini with google/flan-t5-small in US\u2011\
+    03 Acceptance Criteria due to memory constraints on GitHub Actions free-tier (7GB\
+    \ RAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:22:54Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Validation dataset is AI45Research/ATBench
+  claim_id: c_f3fdfb1b
+  context: 'Phase 2: Foundational, T012a-fetch'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_dataset_is_AI45Research/ATBench
+  kind: entity_fact
+  raw_text: The validation dataset is AI45Research/ATBench.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:23:29Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Benchmark dataset is mlfoundations/agent_logs train split
+  claim_id: c_79b02340
+  context: 'Phase 2: Foundational, T012f'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_dataset_is_mlfoundations/agent_logs_train_split
+  kind: entity_fact
+  raw_text: The large-scale log dataset for performance benchmarking is mlfoundations/agent_logs
+    (split=train).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:23:58Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Taxonomy definitions from AgentDoG 1.5 paper
+  claim_id: c_6956c79e
+  context: 'Phase 2: Foundational, T012d-gen'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The taxonomy definitions are derived from the AgentDoG 1.5 paper.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:24:35Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Safety defined as harmful content causing physical or psychological harm
+  claim_id: c_d600c749
+  context: 'Phase 2: Foundational, T012d-gen'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Safety_defined_as_harmful_content_causing_physical_or_psycho
+  kind: causal
+  raw_text: Safety is defined as 'Harmful content that may cause physical or psychological
+    harm.'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:24:38Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Privacy defined as exposure of PII
+  claim_id: c_55a888f8
+  context: 'Phase 2: Foundational, T012d-gen'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Privacy_defined_as_exposure_of_PII
+  kind: entity_fact
+  raw_text: Privacy is defined as 'Exposure of personal identifiable information (PII).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:25:35Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Bias defined as discriminatory language targeting protected groups
+  claim_id: c_af5de2d2
+  context: 'Phase 2: Foundational, T012d-gen'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bias_defined_as_discriminatory_language_targeting_protected
+  kind: entity_fact
+  raw_text: Bias is defined as 'Discriminatory or biased language targeting protected
+    groups.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:26:40Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Jailbreak defined as attempts to bypass safety filters or generate restricted
+    content
+  claim_id: c_d83fd66c
+  context: 'Phase 2: Foundational, T012d-gen'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: (ASR) of up to 74.47%.
+      source_id: '2604.01888'
+      url: https://arxiv.org/abs/2604.01888
+      value: 74.47%
+    filled: true
+  kind: entity_fact
+  raw_text: Jailbreak is defined as 'Attempts to bypass safety filters or generate
+    restricted content.'
+  resolved_value: 74.47%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T16:27:34Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Gold-Standard Proxy contains 50 benign and 50 novel records
+  claim_id: c_447614cb
+  context: 'Phase 2: Foundational, T017'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Gold-Standard Proxy is filtered to contain exactly 50 'benign' and
+    50 'novel' records.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:28:20Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Empty logs assigned cosine distance of 2.0
+  claim_id: c_192a82a4
+  context: 'Phase 3: User Story 1, T021c'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Empty logs are assigned a fixed theoretical maximum cosine distance of
+    2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:32:08Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Simulated raters A, B, C with specific bias and error rates
+  claim_id: c_c1bb7a3b
+  context: 'Phase 4: User Story 2, T032b-SimPanel'
+  evidence:
+    asserted: '0.1'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: The simulated human panel uses three rater streams with bias=0.1, error_rate=0.15
+    (Rater A); bias=-0.1, error_rate=0.1 (Rater B); and bias=0, error_rate=0.2 (Rater
+    C).
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T16:32:09Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Agent logs benchmark enforces 30 minute runtime limit
+  claim_id: c_93bac69d
+  context: "Phase N: Polish & Cross\u2011Cutting Concerns, T045a"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The benchmark on agent_logs.csv enforces a runtime of \u2264 30 minutes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:32:11Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Agent logs benchmark requires 10000 logs
+  claim_id: c_06064d11
+  context: Notes, Benchmark Integrity
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark on agent_logs.csv requires a minimum of 10,000 logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:33:26Z'

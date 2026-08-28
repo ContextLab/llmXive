@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-516-predicting-perovskite-stability-via-comp/`) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001 Create project structure per implementation plan (`projects/PROJ-516-predicting-perovskite-stability-via-comp/`) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T002 Initialize Python 3.11 project with dependencies (`code/requirements.txt`)
 - [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools
 
@@ -69,7 +69,7 @@
 - [ ] T014 [US1] Implement `code/feature_engineering.py` to compute atomic fractions, weighted averages (ionic radius, electronegativity, formation enthalpy, **first** ionization energy), and variance metrics; write output to `data/processed/descriptors.csv`
 - [ ] T014b [US1] Implement verification logic to confirm 'first ionization energy' column is present in `data/processed/descriptors.csv` matching FR-002 requirements
 - [ ] T015 [US1] Implement logic to exclude entries with ≥2 missing descriptor values and log exclusion counts
-- [ ] T016 [US1] Implement VIF diagnostic computation; flag descriptors with VIF > 5 and implement feature removal or Elastic Net fallback; write report to `data/processed/vif_report.csv`
+- [X] T016 [US1] Implement VIF diagnostic computation; flag descriptors with VIF > 5 and implement feature removal or Elastic Net fallback; write report to `data/processed/vif_report.csv`
 - [ ] T017 [US1] Write final processed dataset to `data/processed/descriptors.csv` including the `T_d_uncertainty` column and update `state/...yaml` with hash
 
 **Checkpoint**: User Story 1 fully functional; dataset ready for modeling.
@@ -85,14 +85,14 @@
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
 - [X] T018 [P] [US2] Unit test for grid search hyperparameter limit enforcement (≤10 combos) in `tests/unit/test_model_training.py`
-- [ ] T019 [P] [US2] Integration test for full pipeline runtime (must complete ≤ 6 hours) in `tests/integration/test_pipeline_runtime.py`
+- [X] T019 [P] [US2] Integration test for full pipeline runtime (must complete ≤ 6 hours) in `tests/integration/test_pipeline_runtime.py`
 
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement `code/model_training.py` with Random Forest, Gradient Boosting, and Elastic Net using `scikit-learn`; apply sample weights (1/σ) for Elastic Net and use custom wrappers for RF/GB to support sample weights; ensure all training uses default precision (no 8-bit/4-bit quantization) and CPU-only execution
 - [ ] T021 [US2] Configure k-fold cross-validation with stratification by perovskite family
-- [~] T022 [US2] Implement grid search with a hard cap of ≤10 hyperparameter combinations per model
-- [~] T023 [US2] Implement metric tracking (RMSE, R², MAE) and logging of best hyperparameters
+- [ ] T022 [US2] Implement grid search with a hard cap of ≤10 hyperparameter combinations per model
+- [ ] T023 [US2] Implement metric tracking (RMSE, R², MAE) and logging of best hyperparameters
 - [ ] T024 [US2] Ensure all training uses default precision (no 8-bit/4-bit quantization) and CPU-only execution
 - [ ] T025 [US2] Save trained models and metrics to `data/processed/model_runs.json` with required keys: `model_type`, `hyperparameters`, `metrics` (R², RMSE, MAE)
 
@@ -108,7 +108,7 @@
 
 ### Tests for User Story 3 (OPTIONAL) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for multiple-comparison correction (Bonferroni and Benjamini-Hochberg) in `tests/unit/test_feature_importance.py`
+- [X] T026 [P] [US3] Unit test for multiple-comparison correction (Bonferroni and Benjamini-Hochberg) in `tests/unit/test_feature_importance.py`
 - [ ] T027 [P] [US3] Integration test for OOD detection and separate metric reporting in `tests/integration/test_ood_validation.py`
 
 ### Implementation for User Story 3

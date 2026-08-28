@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-llmxive-follow-up-extending-agentdog-1-5/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories)
 
-**Tests**: The specification explicitly requires statistical validation and contract tests.
+**Tests**: The specification explicitly requires statistical validation and contract tests. [UNRESOLVED-CLAIM: c_8da6c6f8 — status=not_enough_info]
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 

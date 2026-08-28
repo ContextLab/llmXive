@@ -1,9 +1,7 @@
 """
-T015: Filter descriptor dataset to exclude entries with >= 2 missing values.
+Filter descriptors to exclude entries with excessive missing values.
 
-This script reads the processed descriptors CSV, counts missing values per row,
-excludes entries with 2 or more missing descriptor values, and logs the exclusion
-counts to the project log.
+Implements T015: Exclude entries with ≥2 missing descriptor values and log exclusion counts.
 """
 import logging
 import sys
@@ -16,121 +14,100 @@ import pandas as pd
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(Path(__file__).parent.parent / 'logs' / 'pipeline.log', mode='a')
-    ]
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-INPUT_PATH = Path(__file__).parent.parent / 'data' / 'processed' / 'descriptors.csv'
-OUTPUT_PATH = Path(__file__).parent.parent / 'data' / 'processed' / 'descriptors_cleaned.csv'
-MISSING_THRESHOLD = 2  # Exclude entries with >= 2 missing values
+# Define the path constants based on project structure
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "descriptors.csv"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "descriptors_filtered.csv"
+LOG_PATH = PROJECT_ROOT / "data" / "processed" / "filter_exclusion_log.txt"
 
-def load_descriptors(input_path: Path) -> pd.DataFrame:
-    """Load the descriptors CSV file."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    logger.info(f"Loading descriptors from {input_path}")
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows")
-    return df
+def load_descriptors(path: Path = INPUT_PATH) -> pd.DataFrame:
+    """Load the descriptors DataFrame from CSV."""
+    if not path.exists():
+        raise FileNotFoundError(f"Input descriptors file not found: {path}")
+    logger.info(f"Loading descriptors from {path}")
+    return pd.read_csv(path)
 
-def count_missing_values(df: pd.DataFrame, exclude_columns: list = None) -> pd.Series:
+def count_missing_values(df: pd.DataFrame) -> int:
     """
-    Count missing values per row, excluding specified columns.
-    
-    Args:
-        df: Input DataFrame
-        exclude_columns: List of column names to exclude from missing value count
-                       (e.g., 'formula', 'T_d', 'source_id')
-    
-    Returns:
-        Series with missing value counts per row
+    Count the number of missing values per row in the descriptor columns.
+    Excludes the target variable 'T_d' and index/ID columns if present.
     """
-    if exclude_columns is None:
-        exclude_columns = ['formula', 'T_d', 'source_id', 'T_d_uncertainty']
-    
-    # Select only numeric/descriptor columns
-    descriptor_cols = [col for col in df.columns if col not in exclude_columns]
+    # Identify descriptor columns (exclude 'T_d', 'formula', 'id' if they exist)
+    exclude_cols = {'T_d', 'formula', 'id', 'T_d_uncertainty'}
+    descriptor_cols = [col for col in df.columns if col not in exclude_cols]
     
     if not descriptor_cols:
-        logger.warning("No descriptor columns found to check for missing values")
-        return pd.Series([0] * len(df))
+        raise ValueError("No descriptor columns found to check for missing values.")
     
-    return df[descriptor_cols].isna().sum(axis=1)
+    # Count missing values per row across descriptor columns
+    missing_counts = df[descriptor_cols].isna().sum(axis=1)
+    return missing_counts
 
-def filter_entries(df: pd.DataFrame, threshold: int) -> Tuple[pd.DataFrame, int, int]:
+def filter_entries(df: pd.DataFrame, max_missing: int = 1) -> Tuple[pd.DataFrame, int]:
     """
-    Filter entries based on missing value count.
+    Filter entries to keep only those with <= max_missing missing values.
+    Default max_missing is 1, meaning we exclude entries with >= 2 missing values.
     
     Args:
         df: Input DataFrame
-        threshold: Exclude entries with >= threshold missing values
-    
+        max_missing: Maximum allowed missing values per row (default 1)
+        
     Returns:
-        Tuple of (filtered DataFrame, original count, excluded count)
+        Tuple of (filtered DataFrame, count of excluded rows)
     """
     missing_counts = count_missing_values(df)
     
-    # Filter: keep rows with missing counts < threshold
-    mask = missing_counts < threshold
-    filtered_df = df[mask].reset_index(drop=True)
+    # Filter rows where missing count is within the limit
+    valid_mask = missing_counts <= max_missing
+    filtered_df = df[valid_mask].reset_index(drop=True)
     
-    original_count = len(df)
-    excluded_count = original_count - len(filtered_df)
+    excluded_count = len(df) - len(filtered_df)
     
-    logger.info(f"Missing value analysis:")
-    logger.info(f"  - Original rows: {original_count}")
-    logger.info(f"  - Rows with < {threshold} missing values: {len(filtered_df)}")
-    logger.info(f"  - Rows excluded (>= {threshold} missing values): {excluded_count}")
+    logger.info(f"Total rows before filtering: {len(df)}")
+    logger.info(f"Rows excluded (missing values > {max_missing}): {excluded_count}")
+    logger.info(f"Rows remaining after filtering: {len(filtered_df)}")
     
-    # Log distribution of missing values
-    if excluded_count > 0:
-        missing_dist = missing_counts.value_counts().sort_index()
-        logger.info("Missing value distribution (excluded rows):")
-        for count, freq in missing_dist[missing_dist.index >= threshold].items():
-            logger.info(f"  - {count} missing values: {freq} rows")
-    
-    return filtered_df, original_count, excluded_count
+    return filtered_df, excluded_count
 
-def save_filtered_data(df: pd.DataFrame, output_path: Path):
+def save_filtered_data(df: pd.DataFrame, path: Path = OUTPUT_PATH) -> None:
     """Save the filtered DataFrame to CSV."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved filtered data to {output_path}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False)
+    logger.info(f"Filtered descriptors saved to {path}")
 
-def main():
-    """Main execution function."""
+def log_exclusion_counts(excluded_count: int, path: Path = LOG_PATH) -> None:
+    """Log the exclusion counts to a text file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        f.write(f"Filter Exclusion Log\n")
+        f.write(f"====================\n")
+        f.write(f"Exclusion Criteria: Exclude entries with >= 2 missing descriptor values.\n")
+        f.write(f"Total Entries Excluded: {excluded_count}\n")
+        f.write(f"Output File: {OUTPUT_PATH}\n")
+    logger.info(f"Exclusion log saved to {path}")
+
+def main() -> None:
+    """Main entry point for the filtering script."""
     try:
-        # Ensure logs directory exists
-        logs_dir = Path(__file__).parent.parent / 'logs'
-        logs_dir.mkdir(parents=True, exist_ok=True)
-        
         # Load data
-        df = load_descriptors(INPUT_PATH)
+        df = load_descriptors()
         
-        # Filter entries
-        filtered_df, original_count, excluded_count = filter_entries(df, MISSING_THRESHOLD)
+        # Filter entries (exclude if >= 2 missing)
+        filtered_df, excluded_count = filter_entries(df, max_missing=1)
         
         # Save results
-        save_filtered_data(filtered_df, OUTPUT_PATH)
+        save_filtered_data(filtered_df)
+        log_exclusion_counts(excluded_count)
         
-        # Summary
-        logger.info("=" * 50)
-        logger.info("T015 EXECUTION COMPLETE")
-        logger.info(f"  Input:  {INPUT_PATH} ({original_count} rows)")
-        logger.info(f"  Output: {OUTPUT_PATH} ({len(filtered_df)} rows)")
-        logger.info(f"  Excluded: {excluded_count} rows (>= {MISSING_THRESHOLD} missing values)")
-        logger.info("=" * 50)
-        
-        return 0
+        logger.info("Filtering completed successfully.")
         
     except Exception as e:
-        logger.error(f"Execution failed: {str(e)}", exc_info=True)
-        return 1
+        logger.error(f"Error during filtering process: {e}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

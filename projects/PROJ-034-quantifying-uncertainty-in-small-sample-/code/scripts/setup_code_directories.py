@@ -9,8 +9,8 @@ def create_directories():
     """
     base_dir = Path(__file__).resolve().parent.parent
     code_dir = base_dir / "code"
-
-    subdirs = [
+    
+    subdirectories = [
         "simulation",
         "models",
         "metrics",
@@ -18,33 +18,50 @@ def create_directories():
         "plots",
         "scripts"
     ]
-
-    created_paths = []
-    for subdir in subdirs:
-        target_path = code_dir / subdir
-        if not target_path.exists():
-            target_path.mkdir(parents=True, exist_ok=True)
-            created_paths.append(str(target_path))
-            print(f"Created directory: {target_path}")
+    
+    created_dirs = []
+    for subdir in subdirectories:
+        dir_path = code_dir / subdir
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(str(dir_path))
         else:
-            print(f"Directory already exists: {target_path}")
-
-    # Ensure __init__.py files exist in each new directory to make them packages
-    # This is crucial for imports like `from simulation.config import ...` to work
-    for subdir in subdirs:
-        init_file = code_dir / subdir / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created package init: {init_file}")
-
-    return created_paths
+            # Ensure it is a directory
+            if not dir_path.is_dir():
+                raise NotADirectoryError(f"Path exists but is not a directory: {dir_path}")
+    
+    return created_dirs
 
 def main():
-    """Entry point for the script."""
-    print("Setting up code/ directory structure...")
-    paths = create_directories()
-    print(f"Setup complete. Created {len(paths)} directories.")
-    return 0
+    """Entry point for script execution."""
+    print("Setting up code directory structure...")
+    try:
+        created = create_directories()
+        if created:
+            print(f"Created directories: {', '.join(created)}")
+        else:
+            print("All required directories already exist.")
+        
+        # Verify existence
+        base_dir = Path(__file__).resolve().parent.parent
+        code_dir = base_dir / "code"
+        expected_subdirs = ["simulation", "models", "metrics", "validation", "plots", "scripts"]
+        
+        missing = []
+        for subdir in expected_subdirs:
+            if not (code_dir / subdir).exists():
+                missing.append(subdir)
+        
+        if missing:
+            print(f"ERROR: Missing directories after creation attempt: {missing}")
+            sys.exit(1)
+        else:
+            print("Verification successful: All required code subdirectories exist.")
+            sys.exit(0)
+            
+    except Exception as e:
+        print(f"ERROR: Failed to create directory structure: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

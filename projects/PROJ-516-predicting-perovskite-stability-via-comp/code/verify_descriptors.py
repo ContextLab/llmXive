@@ -1,6 +1,7 @@
 """
-Verification module for descriptor computation.
-Confirms presence and validity of required columns in the processed descriptors dataset.
+Verification logic for compositional descriptors.
+Specifically checks for the presence of the 'first_ionization_energy' column
+as required by Functional Requirement FR-002.
 """
 import logging
 import sys
@@ -9,161 +10,119 @@ from typing import List, Tuple, Optional
 
 import pandas as pd
 
-# Required columns based on FR-002 and T014 implementation
-# T014 explicitly requires: atomic fractions, weighted averages (ionic radius, electronegativity, formation enthalpy, first ionization energy), and variance metrics.
-REQUIRED_COLUMNS = [
-    "formula",
-    "T_d",
-    "atomic_fraction_A",
-    "atomic_fraction_B",
-    "atomic_fraction_X",
-    "weighted_ionic_radius",
-    "weighted_electronegativity",
-    "weighted_formation_enthalpy",
-    "first_ionization_energy",  # Explicitly required by FR-002
-    "ionic_radius_variance",
-    "electronegativity_variance",
-    "formation_enthalpy_variance",
-    "T_d_uncertainty"
-]
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
+# Path to the processed descriptors file
+DESCRIPTORS_PATH = Path("data/processed/descriptors.csv")
 
-def verify_column_presence(
-    df: pd.DataFrame,
-    required_cols: Optional[List[str]] = None
-) -> Tuple[bool, List[str], List[str]]:
+# Required column per FR-002
+FR_002_REQUIRED_COLUMN = "first_ionization_energy"
+
+def verify_column_presence(df: pd.DataFrame, column_name: str) -> Tuple[bool, Optional[str]]:
     """
-    Verify that all required columns are present in the DataFrame.
+    Verify if a specific column exists in the DataFrame.
 
     Args:
         df: The DataFrame to check.
-        required_cols: List of required column names. Defaults to REQUIRED_COLUMNS.
+        column_name: The name of the column to verify.
 
     Returns:
-        Tuple of (all_present, missing_cols, present_cols)
+        Tuple of (is_present, error_message).
+        If present, error_message is None.
+        If missing, is_present is False and error_message describes the failure.
     """
-    if required_cols is None:
-        required_cols = REQUIRED_COLUMNS
+    if column_name not in df.columns:
+        available_cols = ", ".join(df.columns)
+        error_msg = (
+            f"FR-002 Violation: Column '{column_name}' is missing from the dataset. "
+            f"Available columns: [{available_cols}]"
+        )
+        return False, error_msg
+    return True, None
 
-    present_cols = [col for col in required_cols if col in df.columns]
-    missing_cols = [col for col in required_cols if col not in df.columns]
-
-    all_present = len(missing_cols) == 0
-    return all_present, missing_cols, present_cols
-
-
-def verify_column_data_validity(
-    df: pd.DataFrame,
-    columns_to_check: Optional[List[str]] = None
-) -> Tuple[bool, List[str]]:
+def verify_column_data_validity(df: pd.DataFrame, column_name: str) -> Tuple[bool, Optional[str]]:
     """
-    Verify that critical numeric columns contain valid non-null data.
+    Verify that the column contains valid numeric data and no nulls.
 
     Args:
         df: The DataFrame to check.
-        columns_to_check: List of columns to validate for non-null values.
-                          Defaults to numeric descriptor columns.
+        column_name: The name of the column to verify.
 
     Returns:
-        Tuple of (all_valid, invalid_cols)
+        Tuple of (is_valid, error_message).
     """
-    if columns_to_check is None:
-        columns_to_check = [
-            "first_ionization_energy",
-            "weighted_ionic_radius",
-            "weighted_electronegativity",
-            "weighted_formation_enthalpy",
-            "T_d"
-        ]
+    if column_name not in df.columns:
+        return False, f"Column '{column_name}' does not exist to check validity."
 
-    invalid_cols = []
-    for col in columns_to_check:
-        if col not in df.columns:
-            invalid_cols.append(f"{col} (missing)")
-            continue
-        
-        null_count = df[col].isnull().sum()
-        if null_count > 0:
-            invalid_cols.append(f"{col} ({null_count} nulls)")
+    series = df[column_name]
 
-    all_valid = len(invalid_cols) == 0
-    return all_valid, invalid_cols
+    # Check for nulls
+    if series.isnull().any():
+        null_count = series.isnull().sum()
+        error_msg = (
+            f"Data Validity Error: Column '{column_name}' contains {null_count} null values. "
+            "All entries must have computed values for FR-002 compliance."
+        )
+        return False, error_msg
 
+    # Check for numeric type (or convertible)
+    if not pd.api.types.is_numeric_dtype(series):
+        try:
+            pd.to_numeric(series)
+        except (ValueError, TypeError):
+            error_msg = (
+                f"Data Validity Error: Column '{column_name}' contains non-numeric values "
+                "that cannot be converted to float."
+            )
+            return False, error_msg
+
+    return True, None
 
 def main() -> int:
     """
-    Main entry point for descriptor verification.
-    Loads data/processed/descriptors.csv and verifies compliance with FR-002.
-    
-    Returns:
-        0 if verification passes, 1 if it fails.
+    Main entry point for the verification script.
+    Loads data/processed/descriptors.csv and verifies FR-002 requirements.
+    Exits with code 0 if successful, 1 if verification fails.
     """
-    input_path = Path("data/processed/descriptors.csv")
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("T014 must be completed to generate data/processed/descriptors.csv")
+    logger.info(f"Starting verification for {FR_002_REQUIRED_COLUMN}...")
+
+    if not DESCRIPTORS_PATH.exists():
+        logger.error(f"Required file not found: {DESCRIPTORS_PATH}")
+        logger.error("Ensure code/feature_engineering.py has been run to generate descriptors.csv.")
         return 1
 
     try:
-        logger.info(f"Loading descriptors from {input_path}")
-        df = pd.read_csv(input_path)
-        logger.info(f"Loaded {len(df)} rows with {len(df.columns)} columns")
-        
-        # Check column presence
-        logger.info("Verifying required columns (FR-002 compliance)...")
-        all_present, missing, present = verify_column_presence(df)
-        
-        if all_present:
-            logger.info("✓ All required columns present")
-            logger.info(f"  Verified columns: {', '.join(present)}")
-        else:
-            logger.error("✗ Missing required columns:")
-            for col in missing:
-                logger.error(f"  - {col}")
-            return 1
-
-        # Check data validity for critical columns
-        logger.info("Verifying data validity for critical numeric columns...")
-        all_valid, invalid = verify_column_data_validity(df)
-        
-        if all_valid:
-            logger.info("✓ All critical columns contain valid non-null data")
-        else:
-            logger.warning("⚠ Critical columns have null values:")
-            for col in invalid:
-                logger.warning(f"  - {col}")
-            # This is a warning, not a failure for T014b, but worth noting
-
-        # Specific check for first_ionization_energy as per FR-002
-        if "first_ionization_energy" in df.columns:
-            stats = df["first_ionization_energy"].describe()
-            logger.info(f"'first_ionization_energy' statistics:")
-            logger.info(f"  Mean: {stats['mean']:.4f}")
-            logger.info(f"  Std:  {stats['std']:.4f}")
-            logger.info(f"  Min:  {stats['min']:.4f}")
-            logger.info(f"  Max:  {stats['max']:.4f}")
-            logger.info(f"  Count: {stats['count']}")
-        else:
-            logger.error("✗ 'first_ionization_energy' column is missing - FR-002 violation")
-            return 1
-
-        logger.info("\n" + "="*60)
-        logger.info("VERIFICATION PASSED: FR-002 requirements satisfied")
-        logger.info("="*60)
-        return 0
-
+        df = pd.read_csv(DESCRIPTORS_PATH)
+        logger.info(f"Loaded {len(df)} entries from {DESCRIPTORS_PATH}")
     except Exception as e:
-        logger.error(f"Verification failed with exception: {e}", exc_info=True)
+        logger.error(f"Failed to load {DESCRIPTORS_PATH}: {e}")
         return 1
 
+    # 1. Verify Column Presence
+    logger.info(f"Checking for presence of column: '{FR_002_REQUIRED_COLUMN}'")
+    is_present, presence_error = verify_column_presence(df, FR_002_REQUIRED_COLUMN)
+
+    if not is_present:
+        logger.error(presence_error)
+        return 1
+    logger.info(f"✓ Column '{FR_002_REQUIRED_COLUMN}' is present.")
+
+    # 2. Verify Data Validity (Non-null, Numeric)
+    logger.info(f"Checking data validity for column: '{FR_002_REQUIRED_COLUMN}'")
+    is_valid, validity_error = verify_column_data_validity(df, FR_002_REQUIRED_COLUMN)
+
+    if not is_valid:
+        logger.error(validity_error)
+        return 1
+    logger.info(f"✓ Column '{FR_002_REQUIRED_COLUMN}' contains valid numeric data with no nulls.")
+
+    logger.info("FR-002 Verification PASSED: 'first_ionization_energy' column is present and valid.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

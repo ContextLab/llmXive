@@ -75,7 +75,7 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2410.21676
   verified_at: '2026-08-12T15:52:33.437743Z'
-- artifact_hash: 408f010ca95ca301521a9e095d196467ad1557e3ce5f5fec93f7b9784613e960
+- artifact_hash: abb8af49b46cdae1fa7c7a7a49059a4fb93e2b4a118014fef0059f0b4847a7dd
   artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,4 +85,4 @@
   value: https://arxiv.org/abs/2410.21676
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2410.21676
-  verified_at: '2026-08-15T11:54:47.048054Z'
+  verified_at: '2026-08-28T16:33:27.569662Z'

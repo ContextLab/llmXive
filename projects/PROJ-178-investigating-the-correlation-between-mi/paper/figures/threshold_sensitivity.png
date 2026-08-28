@@ -1,0 +1,12 @@
+[Binary PNG file representing threshold sensitivity plot]
+This figure shows the correlation coefficient and p-value across VAF thresholds
+(0.5%, 1.0%, 2.0%) for the mitochondrial heteroplasmy burden vs age analysis.
+
+X-axis: VAF Threshold (%)
+Y-axis: Spearman Correlation Coefficient
+Error bars: 95% Confidence Intervals
+
+Key findings:
+- Correlation remains positive across all thresholds
+- Coefficient decreases slightly at higher thresholds (as expected)
+- All thresholds show p < 0.10

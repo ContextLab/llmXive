@@ -13,6 +13,21 @@ T033:
     \ shows no implementation of a continental\u2011ancestry subgroup analysis or\
     \ code that writes the required `ancestry`, `coefficient`, `p_value` rows. The\
     \ task\u2019s core functionality is therefore missing."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `paper/draft.md` file was presented, nor any excerpt of its contents showing\
+    \ the required findings, limitations, and the explicit note about removing the\
+    \ Power\u2011Law hypothesis. Without the actual document, we cannot confirm that\
+    \ the draft was generated as specified. The implementer must provide the markdown\
+    \ file with the stated sections."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files from the `code/analysis/` directory were presented, and there is no\
+    \ evidence (e.g., diff, lint report, or cleaned script contents) showing that\
+    \ unused imports have been removed. The required artifact \u2013 the updated scripts\
+    \ without unused imports \u2013 is missing."
 T055:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

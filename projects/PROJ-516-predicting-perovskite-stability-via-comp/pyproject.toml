@@ -1,3 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "predicting-perovskite-stability-via-comp"
+version = "0.1.0"
+description = "Predicting Perovskite Stability via Compositional Fingerprints"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "pymatgen>=2023.0.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+]
+
 [tool.black]
 line-length = 88
 target-version = ['py311']
@@ -13,8 +32,6 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | data
-    | state
 )/
 '''
 
@@ -22,16 +39,29 @@ exclude = '''
 profile = "black"
 line_length = 88
 skip_gitignore = true
-skip_glob = ["data/*", "state/*"]
+known_first_party = ["utils"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 
 [tool.pylint.messages_control]
 disable = [
-    "C0114", # missing-module-docstring
-    "C0115", # missing-class-docstring
-    "C0116", # missing-function-docstring
-    "R0903", # too-few-public-methods
-    "W0511", # fixme
+    "C0114",  # missing-module-docstring
+    "C0115",  # missing-class-docstring
+    "C0116",  # missing-function-docstring
+    "R0903",  # too-few-public-methods
+    "R0913",  # too-many-arguments
+    "R0914",  # too-many-locals
+    "R0915",  # too-many-statements
+    "W0511",  # fixme
 ]
 
 [tool.pylint.format]
 max-line-length = 88
+
+[tool.pylint.design]
+max-args = 8
+max-locals = 20
+max-returns = 6
+max-branches = 15
+max-statements = 50
+max-attributes = 15
+max-public-methods = 25

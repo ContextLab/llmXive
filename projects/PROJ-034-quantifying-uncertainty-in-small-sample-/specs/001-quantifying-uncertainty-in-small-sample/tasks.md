@@ -105,13 +105,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for OLS interval calculation in `tests/unit/test_models.py`
-- [ ] T019 [P] [US2] Unit test for Bootstrap BCa interval calculation in `tests/unit/test_models.py`
-- [ ] T020 [P] [US2] Unit test for Bayesian convergence checks (R-hat) in `tests/unit/test_models.py`
+- [X] T018 [P] [US2] Unit test for OLS interval calculation in `tests/unit/test_models.py`
+- [X] T019 [P] [US2] Unit test for Bootstrap BCa interval calculation in `tests/unit/test_models.py`
+- [X] T020 [P] [US2] Unit test for Bayesian convergence checks (R-hat) in `tests/unit/test_models.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/models/ols.py`: OLS fit and standard 95% confidence interval calculation
+- [X] T021 [P] [US2] Implement `code/models/ols.py`: OLS fit and standard 95% confidence interval calculation
 - [ ] T022 [US2] Implement `code/models/bootstrap.py`: Non-parametric bootstrap with BCa interval correction
 - [ ] T023 [US2] Implement `code/models/bayesian.py`: CmdStanPy model definition with Normal(0, 10) priors and Half-Cauchy scale
 - [ ] T024 [US2] Implement `code/models/bayesian.py`: Execution wrapper (multiple chains, a sufficient number of samples per chain, an adequate warmup period) and divergent transition check

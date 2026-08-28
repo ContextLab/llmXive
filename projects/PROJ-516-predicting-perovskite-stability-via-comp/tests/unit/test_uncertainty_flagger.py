@@ -1,92 +1,132 @@
 """
-Unit tests for the uncertainty flagger module (Task T013c).
+Unit tests for the uncertainty_flagger module.
 """
 import json
-import pytest
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, MagicMock
 
-import sys
-import os
-# Ensure code directory is in path for imports
-code_path = Path(__file__).resolve().parent.parent.parent / "code"
-sys.path.insert(0, str(code_path))
+import pytest
 
-from uncertainty_flagger import (
+from code.uncertainty_flagger import (
+    load_metadata,
     flag_default_uncertainty_entries,
+    save_flags,
     DEFAULT_UNCERTAINTY_COVERAGE
 )
+from code.data_ingestion_metadata import parse_uncertainty
 
-# Mock metadata for testing
-MOCK_METADATA_ENTRIES = [
-    {
-        "entry_id": "entry_001",
-        "uncertainty_raw": "±5°C",
-        "instrument": "TGA-500"
-    },
-    {
-        "entry_id": "entry_002",
-        "uncertainty_raw": "±10°C",
-        "instrument": "TGA-500"
-    },
-    {
-        "entry_id": "entry_003",
-        "uncertainty_raw": "Unknown",
-        "instrument": "TGA-500"
-    },
-    {
-        "entry_id": "entry_004",
-        "uncertainty_raw": "",
-        "instrument": "TGA-500"
-    }
-]
 
-def test_flag_default_uncertainty_entries():
-    """Test that entries are correctly flagged based on uncertainty values."""
-    result = flag_default_uncertainty_entries(MOCK_METADATA_ENTRIES)
-    
-    assert "flags" in result
-    assert "summary" in result
-    assert len(result["flags"]) == 4
-    
-    # Check specific flags
-    flags_by_id = {f["entry_id"]: f for f in result["flags"]}
-    
-    # entry_001: ±5°C -> Explicit, non-default
-    assert flags_by_id["entry_001"]["is_default_bound"] is False
-    assert flags_by_id["entry_001"]["uncertainty_source"] == "explicit"
-    assert flags_by_id["entry_001"]["uncertainty_value"] == 5.0
-    
-    # entry_002: ±10°C -> Explicit, but matches default
-    assert flags_by_id["entry_002"]["is_default_bound"] is True
-    assert flags_by_id["entry_002"]["uncertainty_source"] == "explicit_default"
-    assert flags_by_id["entry_002"]["uncertainty_value"] == 10.0
-    
-    # entry_003: Unknown -> Default applied
-    assert flags_by_id["entry_003"]["is_default_bound"] is True
-    assert flags_by_id["entry_003"]["uncertainty_source"] == "default_applied"
-    assert flags_by_id["entry_003"]["uncertainty_value"] == DEFAULT_UNCERTAINTY_COVERAGE
-    
-    # entry_004: Empty -> Default applied
-    assert flags_by_id["entry_004"]["is_default_bound"] is True
-    assert flags_by_id["entry_004"]["uncertainty_source"] == "default_applied"
-    assert flags_by_id["entry_004"]["uncertainty_value"] == DEFAULT_UNCERTAINTY_COVERAGE
+class TestParseUncertainty:
+    """Tests for the helper function parse_uncertainty used in flagging."""
 
-def test_summary_statistics():
-    """Test that summary statistics are calculated correctly."""
-    result = flag_default_uncertainty_entries(MOCK_METADATA_ENTRIES)
-    
-    summary = result["summary"]
-    assert summary["total_entries"] == 4
-    assert summary["default_bound_count"] == 3  # 002, 003, 004
-    assert summary["explicit_non_default_count"] == 1  # 001
-    assert summary["default_threshold"] == DEFAULT_UNCERTAINTY_COVERAGE
+    def test_parse_explicit_10(self):
+        assert parse_uncertainty("±10°C") == 10.0
+        assert parse_uncertainty("10") == 10.0
 
-def test_empty_metadata():
-    """Test handling of empty metadata list."""
-    result = flag_default_uncertainty_entries([])
-    
-    assert result["flags"] == []
-    assert result["summary"]["total_entries"] == 0
-    assert result["summary"]["default_bound_count"] == 0
-    assert result["summary"]["explicit_non_default_count"] == 0
+    def test_parse_explicit_5(self):
+        assert parse_uncertainty("±5°C") == 5.0
+
+    def test_parse_missing(self):
+        # Should return None for empty or None input
+        assert parse_uncertainty("") is None
+        assert parse_uncertainty(None) is None
+
+    def test_parse_invalid(self):
+        # Should return None for unparseable strings
+        assert parse_uncertainty("unknown") is None
+        assert parse_uncertainty("high") is None
+
+
+class TestFlagDefaultUncertaintyEntries:
+    """Tests for the core flagging logic."""
+
+    def test_missing_uncertainty_flags_default(self):
+        """Entry with no uncertainty should be flagged as default."""
+        entries = [{"entry_id": "e1", "uncertainty_raw": None}]
+        flags = flag_default_uncertainty_entries(entries)
+        
+        assert len(flags) == 1
+        assert flags[0]["is_default_uncertainty"] is True
+        assert flags[0]["uncertainty_value"] == DEFAULT_UNCERTAINTY_COVERAGE
+        assert flags[0]["source"] == "missing_data_default"
+
+    def test_explicit_default_flags_default(self):
+        """Entry with explicit ±10°C should be flagged as default."""
+        entries = [{"entry_id": "e2", "uncertainty_raw": "±10°C"}]
+        flags = flag_default_uncertainty_entries(entries)
+        
+        assert len(flags) == 1
+        assert flags[0]["is_default_uncertainty"] is True
+        assert flags[0]["source"] == "explicit_default"
+
+    def test_explicit_non_default_not_flagged(self):
+        """Entry with ±5°C should NOT be flagged as default."""
+        entries = [{"entry_id": "e3", "uncertainty_raw": "±5°C"}]
+        flags = flag_default_uncertainty_entries(entries)
+        
+        assert len(flags) == 1
+        assert flags[0]["is_default_uncertainty"] is False
+        assert flags[0]["uncertainty_value"] == 5.0
+        assert flags[0]["source"] == "explicit_custom"
+
+    def test_parse_failure_flags_default(self):
+        """Entry with unparseable uncertainty should fall back to default."""
+        entries = [{"entry_id": "e4", "uncertainty_raw": "garbage"}]
+        flags = flag_default_uncertainty_entries(entries)
+        
+        assert len(flags) == 1
+        assert flags[0]["is_default_uncertainty"] is True
+        assert flags[0]["source"] == "parse_failure_default"
+
+
+class TestLoadMetadata:
+    """Tests for loading metadata from JSON."""
+
+    def test_load_list_format(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump([{"entry_id": "x"}], f)
+            f.flush()
+            path = Path(f.name)
+        
+        try:
+            data = load_metadata(path)
+            assert len(data) == 1
+            assert data[0]["entry_id"] == "x"
+        finally:
+            path.unlink()
+
+    def test_load_dict_format(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump({"entries": [{"entry_id": "y"}]}, f)
+            f.flush()
+            path = Path(f.name)
+        
+        try:
+            data = load_metadata(path)
+            assert len(data) == 1
+            assert data[0]["entry_id"] == "y"
+        finally:
+            path.unlink()
+
+    def test_file_not_found(self):
+        with pytest.raises(FileNotFoundError):
+            load_metadata(Path("/nonexistent/path.json"))
+
+
+class TestSaveFlags:
+    """Tests for saving flags to JSON."""
+
+    def test_save_creates_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_flags.json"
+            flags = [{"entry_id": "z", "is_default_uncertainty": True}]
+            
+            save_flags(flags, output_path)
+            
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                loaded = json.load(f)
+            
+            assert len(loaded) == 1
+            assert loaded[0]["entry_id"] == "z"

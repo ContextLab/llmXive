@@ -1,10 +1,3 @@
-T010d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that `pytest` was executed or that `test_ruff_config_exists`
-    and `test_black_config_exists` actually passed (e.g., no test output, log file,
-    or screenshots). Without such artifacts, we cannot verify the acceptance criteria.
-    The implementer must supply the pytest run results showing both tests succeeding.
 T011a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

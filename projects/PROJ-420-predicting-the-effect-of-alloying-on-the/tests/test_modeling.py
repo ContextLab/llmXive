@@ -1,173 +1,194 @@
-import pytest
-import os
+"""Tests for modeling pipeline."""
 import json
+import os
 import tempfile
+from pathlib import Path
+import pytest
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 from sklearn.ensemble import RandomForestRegressor
-import joblib
 
-# Import the module under test
-import code.modeling as modeling
-from code.modeling import (
+from modeling import (
     load_features_and_target,
+    apply_ilr_transformation,
+    load_split_indices,
     train_random_forest_with_cv,
     run_repeated_cv,
     evaluate_model_on_test,
-    save_model,
     save_model_metrics,
-    write_methodological_flags,
+    save_residuals,
+    check_mae_threshold,
+    save_methodological_flags,
+    save_model,
     run_modeling_pipeline
 )
 
 @pytest.fixture
-def mock_data():
-    """Create mock data for testing."""
-    np.random.seed(42)
-    n = 100
-    data = {
-        'ilr_0': np.random.randn(n),
-        'ilr_1': np.random.randn(n),
-        'ilr_2': np.random.randn(n),
-        'ilr_3': np.random.randn(n),
-        'ilr_4': np.random.randn(n),
-        'poisson_ratio': np.random.randn(n)
-    }
-    return pd.DataFrame(data)
-
-@pytest.fixture
-def mock_split_indices():
-    """Create mock split indices."""
-    return {
-        'train': list(range(80)),
-        'val': list(range(80, 90)),
-        'test': list(range(90, 100))
-    }
+def sample_data():
+    """Create sample data for testing."""
+    df = pd.DataFrame({
+        'Cu': [0.05, 0.06, 0.04, 0.07, 0.05],
+        'Mg': [0.03, 0.04, 0.02, 0.05, 0.03],
+        'Si': [0.02, 0.03, 0.01, 0.04, 0.02],
+        'Zn': [0.01, 0.02, 0.01, 0.03, 0.01],
+        'Mn': [0.01, 0.01, 0.01, 0.02, 0.01],
+        'poisson_ratio': [0.33, 0.34, 0.32, 0.35, 0.33]
+    })
+    return df
 
 @pytest.fixture
 def temp_dir():
-    """Create a temporary directory for file outputs."""
+    """Create a temporary directory for test outputs."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+        yield tmpdir
 
-@patch('code.modeling.get_config')
-@patch('code.modeling.pd.read_parquet')
-def test_load_features_and_target(mock_read, mock_config, mock_data, temp_dir):
-    """Test loading features and target from parquet."""
-    # Setup mocks
-    mock_config.return_value.data_processed = temp_dir
-    mock_read.return_value = mock_data
-    
-    # Mock the file existence check
-    with patch('code.modeling.os.path.exists', return_value=True):
-        X, y = load_features_and_target(str(temp_dir / "alloys_clean.parquet"))
-    
-    assert X.shape[0] == 100
-    assert y.shape[0] == 100
-    assert list(X.columns) == ['ilr_0', 'ilr_1', 'ilr_2', 'ilr_3', 'ilr_4']
+def test_ilr_transform_handles_zero_sum(sample_data):
+    """Test that ILR transformation handles normal compositions."""
+    result = apply_ilr_transformation(sample_data)
+    assert 'ilr_0' in result.columns
+    assert 'ilr_1' in result.columns
+    assert 'ilr_2' in result.columns
+    assert 'ilr_3' in result.columns
+    assert 'ilr_4' in result.columns
+    assert len(result) == len(sample_data)
 
-def test_rf_training_converges(mock_data):
-    """Test that Random Forest training converges without error."""
-    X = mock_data[['ilr_0', 'ilr_1', 'ilr_2', 'ilr_3', 'ilr_4']]
-    y = mock_data['poisson_ratio']
+def test_rf_training_converges(sample_data, temp_dir):
+    """Test that RF training converges and produces a model."""
+    # Prepare features
+    ilr_data = apply_ilr_transformation(sample_data)
+    X = ilr_data
+    y = sample_data['poisson_ratio']
     
-    model = train_random_forest_with_cv(X, y, n_estimators=10, random_state=42)
-    
+    model = train_random_forest_with_cv(X, y)
     assert isinstance(model, RandomForestRegressor)
-    assert model.n_estimators == 10
-    # Check that model can predict
-    predictions = model.predict(X)
-    assert len(predictions) == len(y)
+    assert model.fitted_
 
-def test_cv_split_reproducibility(mock_data):
-    """Test that repeated CV produces consistent results with fixed seed."""
-    X = mock_data[['ilr_0', 'ilr_1', 'ilr_2', 'ilr_3', 'ilr_4']]
-    y = mock_data['poisson_ratio']
+def test_cv_split_reproducibility(sample_data):
+    """Test that CV splits are reproducible with fixed random state."""
+    ilr_data = apply_ilr_transformation(sample_data)
+    X = ilr_data
+    y = sample_data['poisson_ratio']
     
-    # Run twice with same seed
-    result1 = run_repeated_cv(X, y, n_splits=3, n_repeats=2, random_state=42)
-    result2 = run_repeated_cv(X, y, n_splits=3, n_repeats=2, random_state=42)
+    result1 = run_repeated_cv(X, y, n_splits=5, n_repeats=2)
+    result2 = run_repeated_cv(X, y, n_splits=5, n_repeats=2)
     
+    # Results should be identical due to fixed random state in KFold
     assert result1['cv_mae'] == result2['cv_mae']
-    assert result1['cv_ci_lower'] == result2['cv_ci_lower']
-    assert result1['cv_ci_upper'] == result2['cv_ci_upper']
 
-def test_save_model_creates_directory(temp_dir):
-    """Test that save_model creates the models directory if it doesn't exist."""
-    model = RandomForestRegressor(n_estimators=10, random_state=42)
-    model_path = temp_dir / "models" / "rf_model.pkl"
+def test_mae_threshold_check():
+    """Test MAE threshold logic."""
+    assert check_mae_threshold(0.04) == False
+    assert check_mae_threshold(0.05) == False
+    assert check_mae_threshold(0.051) == True
+    assert check_mae_threshold(0.10) == True
+
+def test_save_methodological_flags(temp_dir):
+    """Test saving methodological flags."""
+    output_path = os.path.join(temp_dir, 'flags.json')
+    save_methodological_flags(0.045, False, output_path)
     
-    # Directory should not exist yet
-    assert not model_path.parent.exists()
+    assert os.path.exists(output_path)
+    with open(output_path, 'r') as f:
+        data = json.load(f)
     
-    # Save model
-    result_path = save_model(model, str(model_path))
-    
-    # Directory should now exist
-    assert model_path.parent.exists()
-    assert model_path.exists()
-    
-    # Verify file can be loaded
-    loaded_model = joblib.load(result_path)
-    assert isinstance(loaded_model, RandomForestRegressor)
+    assert 'mae_flag' in data
+    assert 'cv_mae' in data
+    assert data['mae_flag'] == False
+    assert data['cv_mae'] == 0.045
 
 def test_save_model_metrics(temp_dir):
-    """Test saving model metrics to JSON."""
+    """Test saving model metrics."""
+    output_path = os.path.join(temp_dir, 'metrics.json')
     metrics = {
-        'cv_mae': 0.05,
-        'cv_ci_lower': 0.04,
-        'cv_ci_upper': 0.06,
-        'test_mae': 0.055
+        'cv_mae': 0.045,
+        'cv_std': 0.005,
+        'cv_ci_lower': 0.035,
+        'cv_ci_upper': 0.055,
+        'test_mae': 0.048
     }
-    output_path = temp_dir / "model_metrics.json"
+    save_model_metrics(metrics, output_path)
     
-    save_model_metrics(metrics, str(output_path))
-    
-    assert output_path.exists()
-    
+    assert os.path.exists(output_path)
     with open(output_path, 'r') as f:
-        saved_metrics = json.load(f)
+        data = json.load(f)
     
-    assert saved_metrics['cv_mae'] == 0.05
-    assert saved_metrics['test_mae'] == 0.055
+    assert data == metrics
 
-def test_write_methodological_flags(temp_dir):
-    """Test writing methodological flags."""
-    output_path = temp_dir / "methodological_flags.json"
+def test_save_residuals(temp_dir):
+    """Test saving residuals."""
+    output_path = os.path.join(temp_dir, 'residuals.json')
+    residuals = [0.01, -0.02, 0.005, -0.01, 0.015]
+    save_residuals(residuals, output_path)
     
-    # Test flag True (MAE > 0.05)
-    write_methodological_flags(0.06, str(output_path))
-    
+    assert os.path.exists(output_path)
     with open(output_path, 'r') as f:
-        flags = json.load(f)
+        data = json.load(f)
     
-    assert flags['mae_flag'] is True
-    assert flags['cv_mae'] == 0.06
-    
-    # Test flag False (MAE <= 0.05)
-    write_methodological_flags(0.04, str(output_path))
-    
-    with open(output_path, 'r') as f:
-        flags = json.load(f)
-    
-    assert flags['mae_flag'] is False
+    assert data == residuals
 
-def test_evaluate_model_on_test(mock_data):
-    """Test evaluation on test set."""
-    X = mock_data[['ilr_0', 'ilr_1', 'ilr_2', 'ilr_3', 'ilr_4']]
-    y = mock_data['poisson_ratio']
+def test_save_model(temp_dir, sample_data):
+    """Test saving trained model."""
+    ilr_data = apply_ilr_transformation(sample_data)
+    X = ilr_data
+    y = sample_data['poisson_ratio']
     
-    model = train_random_forest_with_cv(X, y, n_estimators=10, random_state=42)
+    model = train_random_forest_with_cv(X, y)
+    model_path = os.path.join(temp_dir, 'model.pkl')
+    save_model(model, model_path)
     
-    # Use a subset as test
-    X_test = X.iloc[:10]
-    y_test = y.iloc[:10]
+    assert os.path.exists(model_path)
     
-    results = evaluate_model_on_test(model, X_test, y_test)
+    # Verify it can be loaded
+    loaded_model = joblib.load(model_path)
+    assert isinstance(loaded_model, RandomForestRegressor)
+
+def test_run_modeling_pipeline_end_to_end(temp_dir, sample_data):
+    """Test full pipeline execution."""
+    # Create necessary files
+    data_path = os.path.join(temp_dir, 'alloys_clean.parquet')
+    splits_path = os.path.join(temp_dir, 'split_indices.json')
+    metrics_output = os.path.join(temp_dir, 'model_metrics.json')
+    residuals_output = os.path.join(temp_dir, 'residuals.json')
+    flags_output = os.path.join(temp_dir, 'methodological_flags.json')
+    model_output = os.path.join(temp_dir, 'rf_model.pkl')
     
+    # Save sample data
+    sample_data.to_parquet(data_path)
+    
+    # Create split indices
+    n = len(sample_data)
+    train_idx = list(range(0, 3))
+    val_idx = list(range(3, 4))
+    test_idx = list(range(4, n))
+    
+    splits = {
+        'train': train_idx,
+        'val': val_idx,
+        'test': test_idx
+    }
+    with open(splits_path, 'w') as f:
+        json.dump(splits, f)
+    
+    # Run pipeline
+    results = run_modeling_pipeline(
+        data_path=data_path,
+        splits_path=splits_path,
+        metrics_output=metrics_output,
+        residuals_output=residuals_output,
+        flags_output=flags_output,
+        model_output=model_output
+    )
+    
+    # Verify outputs exist
+    assert os.path.exists(metrics_output)
+    assert os.path.exists(residuals_output)
+    assert os.path.exists(flags_output)
+    assert os.path.exists(model_output)
+    
+    # Verify results structure
+    assert 'cv_mae' in results
     assert 'test_mae' in results
-    assert 'residuals' in results
-    assert len(results['residuals']) == 10
-    assert results['test_mae'] >= 0
+    assert 'mae_flag' in results
+    assert isinstance(results['cv_mae'], float)
+    assert isinstance(results['test_mae'], float)
+    assert isinstance(results['mae_flag'], bool)
