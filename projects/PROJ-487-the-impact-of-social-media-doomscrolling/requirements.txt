@@ -8,7 +8,3 @@ seaborn
 pyyaml
 pytrends
 python-dotenv
-flake8
-black
-isort
-pytest

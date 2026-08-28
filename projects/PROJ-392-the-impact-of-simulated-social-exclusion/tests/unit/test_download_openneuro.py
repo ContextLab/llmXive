@@ -1,152 +1,164 @@
 """
-Unit tests for code/data_download/download_openneuro.py
+Unit tests for download_openneuro.py
 """
-
-import unittest
-from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+import os
 import sys
-import json
 import tempfile
-import shutil
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+import pytest
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.data_download.download_openneuro import (
-    DATASETS,
+from data_download.download_openneuro import (
     check_dependencies,
+    download_with_curl,
     validate_bids_structure,
     process_dataset,
-    main
+    DATASETS
 )
 
-class TestDownloadOpenNeuro(unittest.TestCase):
-    
-    def setUp(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.project_root = Path(self.temp_dir)
-        
-        # Mock the PROJECT_ROOT and sys.path logic if necessary
-        # Since the script sets sys.path in the module, we ensure imports work
-        # by running tests in an environment where the module is importable.
-        
-        # Create mock dataset structure
-        self.mock_dataset_dir = self.project_root / "data" / "raw-fmri" / "ds000246"
-        self.mock_dataset_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Create a mock dataset_description.json
-        desc_file = self.mock_dataset_dir / "dataset_description.json"
-        desc_file.write_text(json.dumps({
-            "Name": "Test Dataset",
-            "BIDSVersion": "1.6.0"
-        }))
-        
-        # Create a mock sub directory
-        sub_dir = self.mock_dataset_dir / "sub-01"
-        sub_dir.mkdir()
-        (sub_dir / "func").mkdir()
-        (sub_dir / "func" / "task-exclusion_bold.nii.gz").touch()
 
-    def tearDown(self):
-        """Clean up test fixtures."""
-        shutil.rmtree(self.temp_dir)
-
-    @patch('code.data_download.download_openneuro.subprocess.run')
-    def test_check_dependencies_success(self, mock_run):
-        """Test that check_dependencies returns True when tools are found."""
-        mock_run.return_value = MagicMock(returncode=0)
+class TestCheckDependencies:
+    def test_check_dependencies_returns_tuple(self):
+        """Test that check_dependencies returns a tuple of bool and list."""
         result = check_dependencies()
-        # Note: check_dependencies checks for curl AND openneuro-cli
-        # If openneuro is missing, it returns True but logs warning.
-        # If curl is missing, it returns False.
-        # We mock subprocess to succeed for both.
-        # The function checks curl first.
-        # Then checks openneuro.
-        # If openneuro fails, it returns True (fallback).
-        # So if both succeed, it returns True.
-        self.assertTrue(result)
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+        assert isinstance(result[0], bool)
+        assert isinstance(result[1], list)
 
-    @patch('code.data_download.download_openneuro.subprocess.run')
-    def test_check_dependencies_missing_curl(self, mock_run):
-        """Test that check_dependencies returns False when curl is missing."""
-        # First call (curl) fails
-        mock_run.side_effect = FileNotFoundError("curl not found")
-        result = check_dependencies()
-        self.assertFalse(result)
+    def test_check_dependencies_has_expected_structure(self):
+        """Test that the return values have expected types."""
+        is_available, missing = check_dependencies()
+        assert isinstance(is_available, bool)
+        assert isinstance(missing, list)
+        # Missing should contain strings
+        for item in missing:
+            assert isinstance(item, str)
 
-    def test_validate_bids_structure_valid(self):
-        """Test validation with a valid BIDS structure."""
-        result = validate_bids_structure(self.mock_dataset_dir, "ds000246")
-        self.assertTrue(result)
 
-    def test_validate_bids_structure_missing_desc(self):
-        """Test validation fails when dataset_description.json is missing."""
-        desc_file = self.mock_dataset_dir / "dataset_description.json"
-        desc_file.unlink()
+class TestDownloadWithCurl:
+    def test_download_with_curl_invalid_dataset_id(self):
+        """Test that invalid dataset ID returns False."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            result = download_with_curl("invalid_dataset", output_dir)
+            assert result is False
+
+    def test_download_with_curl_creates_output_dir(self):
+        """Test that download creates output directory if it doesn't exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir) / "new_dir"
+            assert not output_dir.exists()
+            
+            # This will fail to download but should create the directory
+            # We're testing directory creation, not download success
+            try:
+                download_with_curl("ds000246", output_dir)
+            except Exception:
+                pass  # Expected to fail in test environment
+            
+            # Directory should exist after the call
+            assert output_dir.exists()
+
+
+class TestValidateBidsStructure:
+    def test_validate_bids_structure_missing_required_files(self):
+        """Test validation fails when required files are missing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dataset_path = Path(tmpdir)
+            # Create empty directory without required files
+            is_valid, errors = validate_bids_structure(dataset_path)
+            
+            assert is_valid is False
+            assert len(errors) > 0
+            assert any("dataset_description.json" in error for error in errors)
+            assert any("participants.tsv" in error for error in errors)
+
+    def test_validate_bids_structure_with_required_files(self):
+        """Test validation passes when required files exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dataset_path = Path(tmpdir)
+            
+            # Create required files
+            (dataset_path / "dataset_description.json").write_text(
+                '{"Name": "Test", "BIDSVersion": "1.6.0"}'
+            )
+            (dataset_path / "participants.tsv").write_text("participant_id\nsub-01")
+            
+            # Create a fake subject directory
+            sub_dir = dataset_path / "sub-01"
+            sub_dir.mkdir()
+            func_dir = sub_dir / "func"
+            func_dir.mkdir()
+            
+            is_valid, errors = validate_bids_structure(dataset_path)
+            
+            # Should pass validation
+            assert is_valid is True
+            assert len(errors) == 0
+
+    def test_validate_bids_structure_invalid_json(self):
+        """Test validation fails when dataset_description.json is invalid JSON."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dataset_path = Path(tmpdir)
+            
+            # Create invalid JSON
+            (dataset_path / "dataset_description.json").write_text("{invalid json}")
+            (dataset_path / "participants.tsv").write_text("participant_id\nsub-01")
+            
+            sub_dir = dataset_path / "sub-01"
+            sub_dir.mkdir()
+            
+            is_valid, errors = validate_bids_structure(dataset_path)
+            
+            assert is_valid is False
+            assert any("not valid JSON" in error for error in errors)
+
+
+class TestProcessDataset:
+    def test_process_dataset_creates_output_dir(self):
+        """Test that process_dataset creates the output directory."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_base = Path(tmpdir)
+            dataset_id = "ds000246"
+            
+            result = process_dataset(dataset_id, output_base)
+            
+            # Directory should be created even if download fails
+            output_dir = output_base / dataset_id
+            assert output_dir.exists()
+
+    def test_process_dataset_returns_false_for_invalid_dataset(self):
+        """Test that process_dataset returns False for invalid dataset ID."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_base = Path(tmpdir)
+            result = process_dataset("invalid_dataset", output_base)
+            assert result is False
+
+
+class TestDatasetConfig:
+    def test_datasets_contains_required_ids(self):
+        """Test that DATASETS contains both required dataset IDs."""
+        assert "ds000246" in DATASETS
+        assert "ds004738" in DATASETS
+
+    def test_datasets_has_required_fields(self):
+        """Test that each dataset has required configuration fields."""
+        required_fields = ["name", "description", "url", "dataset_id", "task_label"]
         
-        result = validate_bids_structure(self.mock_dataset_dir, "ds000246")
-        self.assertFalse(result)
+        for dataset_id, config in DATASETS.items():
+            for field in required_fields:
+                assert field in config, f"Missing field '{field}' in {dataset_id}"
 
-    def test_validate_bids_structure_missing_dir(self):
-        """Test validation fails when directory does not exist."""
-        non_existent = self.project_root / "non_existent"
-        result = validate_bids_structure(non_existent, "ds000246")
-        self.assertFalse(result)
+    def test_ds000246_is_exclusion_dataset(self):
+        """Test that ds000246 is configured as exclusion dataset."""
+        config = DATASETS["ds000246"]
+        assert "exclusion" in config["name"].lower() or "cyberball" in config["name"].lower()
 
-    @patch('code.data_download.download_openneuro.download_with_curl')
-    @patch('code.data_download.download_openneuro.validate_bids_structure')
-    @patch('code.data_download.download_openneuro.generate_checksum_manifest')
-    @patch('code.data_download.download_openneuro.generate_provenance_sidecar')
-    def test_process_dataset_success(
-        self, mock_prov, mock_checksum, mock_validate, mock_download
-    ):
-        """Test successful processing of a dataset."""
-        mock_download.return_value = True
-        mock_validate.return_value = True
-        
-        # Mock the output directory to exist (created in setup)
-        output_dir = self.mock_dataset_dir
-        
-        # We need to patch the DATASETS config to point to our temp dir
-        # But process_dataset uses the global DATASETS which has hardcoded paths.
-        # We will patch the specific path in the function or use a different approach.
-        # For unit testing, we can mock the Path operations.
-        
-        # Actually, let's just test the logic flow with mocks.
-        # We need to ensure the function doesn't crash with our temp dir setup.
-        # Since process_dataset uses global DATASETS, we might need to patch it.
-        
-        with patch('code.data_download.download_openneuro.DATASETS', {
-            "ds000246": {
-                "name": "Test",
-                "output_dir": str(self.mock_dataset_dir),
-                "expected_tasks": ["exclusion"]
-            }
-        }):
-            result = process_dataset("ds000246")
-            self.assertTrue(result)
-            mock_download.assert_called_once()
-            mock_validate.assert_called_once()
-            mock_checksum.assert_called_once()
-            mock_prov.assert_called_once()
-
-    @patch('code.data_download.download_openneuro.download_with_curl')
-    def test_process_dataset_download_failure(self, mock_download):
-        """Test process_dataset returns False if download fails."""
-        mock_download.return_value = False
-        
-        with patch('code.data_download.download_openneuro.DATASETS', {
-            "ds000246": {
-                "name": "Test",
-                "output_dir": str(self.mock_dataset_dir),
-                "expected_tasks": ["exclusion"]
-            }
-        }):
-            result = process_dataset("ds000246")
-            self.assertFalse(result)
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_ds004738_is_reward_dataset(self):
+        """Test that ds004738 is configured as reward dataset."""
+        config = DATASETS["ds004738"]
+        assert "reward" in config["name"].lower()

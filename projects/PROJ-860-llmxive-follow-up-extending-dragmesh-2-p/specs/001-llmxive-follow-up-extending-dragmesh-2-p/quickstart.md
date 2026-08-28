@@ -1,64 +1,80 @@
-# Quickstart: llmXive Follow-up: Virtual Tactile Zero-Shot Adaptation
+# Quickstart: Virtual Tactile Zero-Shot Adaptation
 
 ## Prerequisites
 
 - Python 3.11+
-- pip
-- Git
-- A GitHub Actions runner (or local machine with sufficient RAM and CPU cores).
+- A Linux environment (GitHub Actions runner or local Linux/WSL2)
+- 7GB+ RAM, 2+ CPU cores
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p
-    ```
+1. **Clone the repository** and navigate to the project directory:
+   ```bash
+   cd projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    cd code
-    pip install -r requirements.txt
-    cd ..
-    ```
-    *Note: Ensure `pybullet` is installed. If running on a headless server, install `xvfb`.*
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Note: `requirements.txt` pins `pybullet`, `torch` (CPU), `numpy`, `pandas`, `pytest`, `scipy`, `statsmodels`, `psutil`.*
 
-## Running the Pipeline
+## Running the Experiments
 
-### 1. Generate Novel Objects
-Generate a set of novel articulated objects with randomized friction and mass.
+### 1. Validate Citations and Manifest
+Before running experiments, ensure data integrity and citation validity:
 ```bash
-python code/generator.py --num-objects 30 --trials-per-object 50 --output data/generated/
+python code/utils/validate_citations.py
+python code/utils/verify_manifest.py
+```
+*These scripts verify the DragMesh-2 manifest URL and compute the SHA256 checksum of the populated manifest file, storing it in the state YAML. A `citations_validation.log` file will be generated as evidence.*
+
+### 2. Generate Novel Objects (Optional)
+If you wish to inspect the generated object geometries:
+```bash
+python code/data/object_generator.py --count 5 --output data/generated/novel_objects/
 ```
 
-### 2. Run the Experiment
-Execute the full evaluation loop (Static Baseline vs. Adaptive Policy).
+### 3. Run the Full Sweep
+Execute the main experiment (a sufficient number of trials, 50 objects, friction range 0.0–2.5, stratified):
 ```bash
-python code/evaluate.py --objects data/generated/ --policy adaptive --output data/results/
+python code/experiments/sweep_runner.py
 ```
-*This command runs the simulation for a set of objects across multiple trials, applying the Virtual Tactile Estimator.*
+*This script:*
+- Downloads the DragMesh-2 manifest if missing.
+- Generates a set of novel objects, comprising both high-friction and full-range variants.
+- Runs the static and adaptive policies on each object.
+- Logs results to `data/generated/sweep.csv`.
+- Monitors system resources.
+- **Estimated Time**: ~4-5 hours on a 2-core CPU.
 
-### 3. Analyze Results
-Perform the statistical comparison (Paired T-Test) and Estimator Accuracy check.
+### 4. Analyze Results
+Run the statistical analysis:
 ```bash
-python code/analysis.py --results data/results/ --output data/results/summary_report.md
+python code/experiments/stats_analyzer.py
 ```
+*This generates `data/results/stat_test_results.json` containing the GLMM results, Odds Ratios, and pass/fail status for SC-001 and SC-002.*
 
-## Verification
+## Verifying the Output
 
-To verify the system is working correctly:
-1.  Check `data/results/summary_report.md` for the **p-value**. It should be `< 0.05` if the hypothesis is supported.
-2.  Inspect `data/logs/{object_id}_adaptive.jsonl` to confirm that `k_est` values are within `[0.01, 100.0]` and that `r_detach` increases smoothly when `k_est > 1.0`.
-3.  Verify the "Estimator Accuracy" section in the report, which should show a high Pearson correlation ($r > 0.8$) between $k_{est}$ and the injected friction.
+1. **Check the logs**: Ensure `data/generated/sweep.csv` contains a sufficient number of rows to support the experimental design (multiple objects across trials and policies).
+2. **Check the stats**: Open `data/results/stat_test_results.json` and verify:
+   - `high_friction_subset.odds_ratio` > 1.0 and `p_value` < 0.05 (SC-001).
+   - `full_range_varying.odds_ratio` > 1.0 and `p_value` < 0.05 (SC-002).
+3. **Check the system metrics**: Open `data/results/system_metrics.json` and verify:
+   - `total_wall_clock_hours` <= 6.0 (SC-003).
+   - `peak_ram_gb` <= 7.0 (SC-004).
+4. **Check the manifest hash**: Verify `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` contains the correct `artifact_hashes.data_raw`.
 
 ## Troubleshooting
 
-- **OOM Errors**: If you encounter "Out of Memory" errors, reduce the number of objects in `generator.py` or ensure `gc.collect()` is called after each object evaluation.
-- **Simulation Jitter**: If the estimator produces NaN values, check the `epsilon` value in `code/estimator.py` (default: $10^{-4}$).
-- **CUDA Errors**: If you see CUDA errors, ensure `torch` is installed with CPU-only support or set `CUDA_VISIBLE_DEVICES=""` in your environment.
+- **OOM Error**: If you encounter Out of Memory errors, reduce the `--trials` argument in `sweep_runner.py` (e.g., to 50) and note the power limitation in the final report.
+- **CUDA Error**: If you see CUDA-related errors, ensure `torch` is installed in CPU-only mode (`pip install torch --index-url https://download.pytorch.org/whl/cpu`) and that no GPU devices are detected.
+- **Manifest Download Failure**: Verify internet connectivity. The manifest is small (<10MB) and should download instantly.
+- **Zero Success Baseline**: If the static policy fails [deferred] of trials in a subset, the GLMM will still compute an Odds Ratio; do not panic if the "improvement %" calculation would otherwise be undefined.

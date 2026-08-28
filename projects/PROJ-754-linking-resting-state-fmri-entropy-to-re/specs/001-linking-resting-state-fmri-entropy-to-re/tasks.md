@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan <!-- FAILED: unspecified -->
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, nibabel, pyentropy, statsmodels, nilearn, scikit-learn, tqdm)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, nibabel, pyentropy, statsmodels, nilearn, scikit-learn, tqdm)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -57,7 +57,7 @@
 
 Examples of foundational tasks (adjust based on your plan.md):
 
-- [ ] T004 Setup `data/` directory structure and `data/checksums.txt` logging mechanism <!-- SKIPPED: non-mapping output -->
+- [X] T004 Setup `data/` directory structure and `data/checksums.txt` logging mechanism <!-- SKIPPED: non-mapping output -->
 - [ ] T005 [P] Implement robust environment variable management (HCP_TOKEN) with graceful failure on missing credentials
 - [ ] T006 [P] Setup logging infrastructure to record subject exclusions and processing steps
 - [ ] T007 Create base data entities (Subject, Parcel) in `src/entities/`

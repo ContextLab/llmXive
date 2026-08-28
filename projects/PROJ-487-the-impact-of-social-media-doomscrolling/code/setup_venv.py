@@ -5,99 +5,60 @@ import subprocess
 from pathlib import Path
 import logging
 
-# Ensure we can import the project's logging utilities if they exist in the path
-# The project structure places utils in code/utils, but for setup scripts running
-# from the root or code/, we ensure the path is correct.
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+from utils.logging import get_logger
 
-try:
-    from utils.logging import get_logger
-except ImportError:
-    # Fallback if logging module isn't set up yet (which is expected for T004)
-    # We configure a basic logger to ensure T004 can run independently.
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-    def get_logger(name):
-        return logging.getLogger(name)
-
-logger = get_logger("setup_venv")
-
-def setup_venv(project_path: str, venv_name: str = "venv") -> bool:
+def setup_venv(project_root: Path) -> bool:
     """
-    Creates a Python virtual environment in the specified project path.
-
+    Create a Python virtual environment in the project root.
+    
     Args:
-        project_path: The root directory of the project where the venv will be created.
-        venv_name: The name of the virtual environment directory (default: 'venv').
-
+        project_root: Path to the project root directory
+        
     Returns:
-        bool: True if successful, False otherwise.
+        True if successful, False otherwise
     """
-    target_path = Path(project_path) / venv_name
-
-    if target_path.exists():
-        logger.warning(f"Virtual environment already exists at {target_path}. Skipping creation.")
+    logger = get_logger(__name__)
+    venv_path = project_root / "venv"
+    
+    if venv_path.exists():
+        logger.info(f"Virtual environment already exists at {venv_path}")
         return True
-
-    logger.info(f"Creating virtual environment at {target_path}...")
+    
     try:
-        venv.create(str(target_path), with_pip=True)
+        logger.info(f"Creating virtual environment at {venv_path}...")
+        venv.create(venv_path, with_pip=True)
         
-        # Verify creation by checking for activation scripts and python executable
-        if sys.platform == "win32":
-            python_exec = target_path / "Scripts" / "python.exe"
-            pip_exec = target_path / "Scripts" / "pip.exe"
-        else:
-            python_exec = target_path / "bin" / "python"
-            pip_exec = target_path / "bin" / "pip"
-
-        if not python_exec.exists() or not pip_exec.exists():
-            logger.error("Virtual environment created but verification failed (missing python or pip).")
-            return False
-
-        logger.info("Virtual environment created successfully.")
+        # Verify the venv was created successfully
+        if not (venv_path / "bin" / "activate").exists():
+            # Check for Windows
+            if not (venv_path / "Scripts" / "activate.bat").exists():
+                logger.error("Virtual environment creation failed: activation script not found")
+                return False
         
-        # Optional: Upgrade pip to latest version to ensure compatibility
-        logger.info("Upgrading pip...")
-        subprocess.run(
-            [str(python_exec), "-m", "pip", "install", "--upgrade", "pip"],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        
+        logger.info("Virtual environment created successfully")
         return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to upgrade pip: {e}")
-        return False
+        
     except Exception as e:
         logger.error(f"Failed to create virtual environment: {e}")
         return False
 
 def main():
-    """
-    Main entry point for the virtual environment setup script.
-    Expects the project root path as a command-line argument or uses current directory.
-    """
-    if len(sys.argv) > 1:
-        project_path = sys.argv[1]
-    else:
-        # Default to the directory containing this script's parent (project root)
-        # Since this file is at code/setup_venv.py, parent is project root
-        project_path = str(Path(__file__).parent.parent)
-
-    logger.info(f"Starting venv setup for project at: {project_path}")
+    """Main entry point for setup_venv script."""
+    # Determine project root (parent of code directory)
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent
     
-    success = setup_venv(project_path)
+    logger = get_logger(__name__)
+    logger.info(f"Project root: {project_root}")
+    
+    success = setup_venv(project_root)
     
     if success:
-        logger.info("Task T004 completed: Python virtual environment created.")
+        logger.info("Setup complete")
         sys.exit(0)
     else:
-        logger.error("Task T004 failed: Could not create Python virtual environment.")
+        logger.error("Setup failed")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,6 +1,28 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proj-487-doomscrolling"
+version = "0.1.0"
+description = "Impact of social media doomscrolling research pipeline"
+requires-python = ">=3.8"
+dependencies = [
+    "pandas",
+    "numpy",
+    "statsmodels",
+    "requests",
+    "scikit-learn",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "pytrends",
+    "python-dotenv",
+]
+
 [tool.black]
-line-length = 100
-target-version = ['py38']
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -18,5 +40,11 @@ exclude = '''
 
 [tool.isort]
 profile = "black"
-line_length = 100
-known_first_party = ["code"]
+line_length = 88
+skip = [".git", ".venv", "venv", "__pycache__", "build", "dist"]
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

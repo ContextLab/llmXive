@@ -1,163 +1,76 @@
-"""
-Configuration and execution utilities for linting (ruff) and formatting (black).
-
-This module provides functions to check installation status and run
-linting/formatting commands as subprocesses.
-"""
-
 import subprocess
 import sys
 import argparse
 from pathlib import Path
 
-
-def run_command(cmd: list[str], description: str, check: bool = True) -> bool:
-    """
-    Run a shell command and return True if successful.
-
-    Args:
-        cmd: Command and arguments as a list.
-        description: Human-readable description for logging.
-        check: If True, raise CalledProcessError on non-zero exit.
-
-    Returns:
-        True if the command succeeded.
-    """
-    print(f"Running: {description}...")
+def run_command(cmd: list[str], cwd: Optional[Path] = None) -> int:
+    """Run a command and return the exit code."""
     try:
-        subprocess.run(cmd, check=check, text=True)
-        print(f"✓ {description} completed successfully.")
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"✗ {description} failed with exit code {e.returncode}.")
-        if not check:
-            return False
-        raise
-
+        result = subprocess.run(cmd, cwd=cwd, check=False)
+        return result.returncode
+    except FileNotFoundError:
+        print(f"Command not found: {cmd[0]}", file=sys.stderr)
+        return 127
 
 def check_ruff_installed() -> bool:
-    """Check if ruff is installed and accessible."""
-    try:
-        subprocess.run(
-            ["ruff", "--version"],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False
-
+    """Check if ruff is installed."""
+    return run_command(["ruff", "--version"]) == 0
 
 def check_black_installed() -> bool:
-    """Check if black is installed and accessible."""
-    try:
-        subprocess.run(
-            ["black", "--version"],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False
+    """Check if black is installed."""
+    return run_command(["black", "--version"]) == 0
 
-
-def run_lint_check() -> bool:
-    """Run ruff check on the project."""
+def run_lint_check(cwd: Optional[Path] = None) -> int:
+    """Run ruff lint check."""
     if not check_ruff_installed():
-        print("Error: ruff is not installed. Please install it via `pip install ruff`.")
-        return False
-    return run_command(
-        ["ruff", "check", "."],
-        "Lint check (ruff)",
-        check=False,  # Don't raise on lint errors, just report them
-    )
+        print("ruff is not installed. Install it via: pip install ruff", file=sys.stderr)
+        return 1
+    return run_command(["ruff", "check", "."], cwd=cwd)
 
-
-def run_format_check() -> bool:
-    """Run black check (diff mode) on the project."""
+def run_format_check(cwd: Optional[Path] = None) -> int:
+    """Run black format check."""
     if not check_black_installed():
-        print("Error: black is not installed. Please install it via `pip install black`.")
-        return False
-    return run_command(
-        ["black", "--check", "."],
-        "Format check (black)",
-        check=False,
-    )
+        print("black is not installed. Install it via: pip install black", file=sys.stderr)
+        return 1
+    return run_command(["black", "--check", "."], cwd=cwd)
 
-
-def run_lint_fix() -> bool:
-    """Run ruff check with automatic fixes."""
+def run_lint_fix(cwd: Optional[Path] = None) -> int:
+    """Run ruff lint fix."""
     if not check_ruff_installed():
-        print("Error: ruff is not installed. Please install it via `pip install ruff`.")
-        return False
-    return run_command(
-        ["ruff", "check", ".", "--fix"],
-        "Lint fix (ruff)",
-    )
+        print("ruff is not installed. Install it via: pip install ruff", file=sys.stderr)
+        return 1
+    return run_command(["ruff", "check", ".", "--fix"], cwd=cwd)
 
-
-def run_format_fix() -> bool:
-    """Run black formatter."""
+def run_format_fix(cwd: Optional[Path] = None) -> int:
+    """Run black format fix."""
     if not check_black_installed():
-        print("Error: black is not installed. Please install it via `pip install black`.")
-        return False
-    return run_command(
-        ["black", "."],
-        "Format fix (black)",
-    )
+        print("black is not installed. Install it via: pip install black", file=sys.stderr)
+        return 1
+    return run_command(["black", "."], cwd=cwd)
 
-
-def main():
-    """Entry point for CLI usage."""
-    parser = argparse.ArgumentParser(
-        description="Manage linting and formatting for the project."
-    )
-    parser.add_argument(
-        "--check",
-        action="store_true",
-        help="Run lint and format checks (fail if issues found).",
-    )
-    parser.add_argument(
-        "--fix",
-        action="store_true",
-        help="Run lint and format fixers (apply changes).",
-    )
-    parser.add_argument(
-        "--install",
-        action="store_true",
-        help="Verify dependencies are installed (ruff, black).",
-    )
-
+def main() -> None:
+    """CLI entry point for linting and formatting."""
+    parser = argparse.ArgumentParser(description="Lint and Format tools")
+    parser.add_argument("--lint-check", action="store_true", help="Run lint check")
+    parser.add_argument("--format-check", action="store_true", help="Run format check")
+    parser.add_argument("--lint-fix", action="store_true", help="Run lint fix")
+    parser.add_argument("--format-fix", action="store_true", help="Run format fix")
     args = parser.parse_args()
 
-    if args.install:
-        ruff_ok = check_ruff_installed()
-        black_ok = check_black_installed()
-        if ruff_ok and black_ok:
-            print("✓ All formatting tools installed.")
-            sys.exit(0)
-        else:
-            print("✗ Missing tools. Run: pip install ruff black")
-            sys.exit(1)
-
-    if args.check:
-        success = True
-        if not run_lint_check():
-            success = False
-        if not run_format_check():
-            success = False
-        sys.exit(0 if success else 1)
-
-    if args.fix:
-        run_lint_fix()
-        run_format_fix()
+    if not any([args.lint_check, args.format_check, args.lint_fix, args.format_fix]):
+        parser.print_help()
         sys.exit(0)
 
-    # Default: help
-    parser.print_help()
+    cwd = Path(__file__).resolve().parent.parent.parent
 
+    if args.lint_check:
+        sys.exit(run_lint_check(cwd))
+    if args.format_check:
+        sys.exit(run_format_check(cwd))
+    if args.lint_fix:
+        sys.exit(run_lint_fix(cwd))
+    if args.format_fix:
+        sys.exit(run_format_fix(cwd))
 
 if __name__ == "__main__":
     main()

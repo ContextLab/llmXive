@@ -1,23 +1,23 @@
-# Implementation Plan: llmXive Follow-up: Virtual Tactile Zero-Shot Adaptation
+# Implementation Plan: Virtual Tactile Zero-Shot Adaptation
 
 **Branch**: `001-virtual-tactile-adaptation` | **Date**: 2026-07-13 | **Spec**: `specs/001-virtual-tactile-adaptation/spec.md`
-**Input**: Feature specification from `/specs/001-virtual-tactile-adaptation/spec.md`
+**Input**: Feature specification from `specs/001-virtual-tactile-adaptation/spec.md`
 
 ## Summary
 
-This feature extends the DragMesh-2 framework to implement a "Virtual Tactile" zero-shot adaptation mechanism for dexterous hand-object interaction. The core innovation is a non-neural estimator that computes a stiffness proxy ($k_{est}$) from the ratio of hand joint torque derivatives to object velocity derivatives. This proxy drives an adaptive reward scheduler that dynamically adjusts detachment and contact maintenance weights during simulation, enabling the policy to handle unseen friction coefficients spanning a broad range without retraining. The implementation strictly adheres to CPU-only constraints (PyBullet) to ensure reproducibility on GitHub Actions free-tier runners.
+This feature implements a "Virtual Tactile" estimator to enable zero-shot adaptation of a dexterous hand manipulation policy (PICA baseline) to unseen friction conditions. The system estimates contact stiffness ($k_{est}$) using the ratio of hand joint torque derivatives to object velocity derivatives, dynamically scaling reward weights without prior training on specific objects. The implementation is constrained to CPU-only execution (PyBullet) to ensure reproducibility on GitHub Actions free-tier runners. The statistical validation uses a Generalized Linear Mixed Model (GLMM) to rigorously test for a >15% improvement in success rates on high-friction novel objects (0.8–1.2) compared to a static baseline, while explicitly handling zero-success baselines via Odds Ratios.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pybullet` (CPU-only), `numpy`, `scipy` (for statistical tests), `pandas`, `datasets` (for HuggingFace loading), `pytest`, `statsmodels` (for power analysis)  
-**Storage**: Local file system for generated geometry and logs; HuggingFace Hub for DragMesh-2 dataset.  
-**Testing**: `pytest` with `pytest-timeout` to enforce -hour limit; `pytest-mock` for unit testing the estimator logic.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~modest RAM).  
-**Project Type**: Research simulation pipeline / library.  
-**Performance Goals**: Complete full experiment (30 objects, 50 trials each, training, inference, analysis) in ≤ 6 hours; peak memory ≤ 7 GB.  
-**Constraints**: No CUDA/GPU operations; no 8-bit/4-bit quantization; strict CPU backend for physics engine.  
-**Scale/Scope**: A set of novel object geometries; 1 static baseline policy; 1 adaptive policy; statistical comparison via paired t-test on aggregated success rates.
+**Primary Dependencies**: `pybullet` (CPU physics), `torch` (CPU-only policy), `numpy`, `pandas`, `pytest`, `scipy`, `statsmodels` (GLMM), `psutil` (memory monitoring)  
+**Storage**: Local filesystem (`data/`), JSONL manifest from Hugging Face  
+**Testing**: `pytest` with contract validation against YAML schemas  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM)  
+**Project Type**: research-simulation  
+**Performance Goals**: Complete full experiment (100 trials, 50 objects) in ≤ 6 hours; Peak RAM < 7GB  
+**Constraints**: NO CUDA operations; NO GPU acceleration; deterministic random seeds; strict memory limits  
+**Scale/Scope**: 100 randomized friction trials per object; 50 novel articulated object geometries (25 high-friction targeted, 25 full-range)  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,13 +25,25 @@ This feature extends the DragMesh-2 framework to implement a "Virtual Tactile" z
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **I. Reproducibility**: The plan mandates pinned `requirements.txt` (located in `code/`), random seed fixation, and re-runnable scripts against the canonical HuggingFace DragMesh-2 source.
-2.  **II. Verified Accuracy**: All citations in `research.md` will be restricted to the verified HuggingFace dataset URL provided in the spec. The CI pipeline includes a `validate_citations.py` step that checks URL reachability and title-token-overlap (≥ 0.7) before execution.
-3.  **III. Data Hygiene**: The plan requires checksumming of the DragMesh manifest and any derived geometry files. Checksums are recorded in `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under the `artifact_hashes` map. The `data/raw` directory is mounted read-only in the CI environment to enforce no in-place modifications.
-4.  **IV. Single Source of Truth**: The `data/` directory will store the generated objects and simulation logs. The `paper/` (future) will reference these specific files.
-5.  **V. Versioning Discipline**: Artifacts (schemas, logs) will be tracked with content hashes in the project state file `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under `artifact_hashes`.
-6.  **VI. CPU-Only Simulation Fidelity**: The plan explicitly selects PyBullet with CPU backend and prohibits any GPU-accelerated libraries or CUDA calls.
-7.  **VII. Derivative-Based Stiffness Proxy Validation**: The plan includes the specific formula $k_{est} = \frac{|\Delta \tau_{hand}|}{|\Delta v_{object}|}$ (with mass normalization) and the paired t-test validation against the static baseline as required.
+| Principle | Status | Evidence / Mapping |
+|-----------|--------|--------------------|
+| **I. Reproducibility** | PASS | Plan mandates pinned `requirements.txt`, fixed random seeds in `code/`, and CPU-only execution to ensure identical results on fresh runners. |
+| **II. Verified Accuracy** | PASS | Plan requires `validate_citations.py` execution (Task T008c) and generation of `citations_validation.log` as evidence. Validation against the DragMesh-2 manifest URL provided in the verified datasets block. |
+| **III. Data Hygiene** | PASS | Plan includes `verify_manifest.py` (Task T005c) to compute SHA256 of the *populated* manifest and record it in `artifact_hashes.data_raw` (corrected path). |
+| **IV. Single Source of Truth** | PASS | All metrics (success rates, $k_{est}$ values, system metrics) will be written to `data/results/` CSVs/JSONs; the paper will strictly reference these derived files. |
+| **V. Versioning Discipline** | PASS | State YAML will be updated with content hashes of `data/` and `code/` artifacts upon completion. |
+| **VI. CPU-Only Simulation Fidelity** | PASS | Plan explicitly forbids CUDA; uses PyBullet `Direct` (CPU) backend; policies run on `device="cpu"`. |
+| **VII. Derivative-Based Stiffness Proxy Validation** | PASS | Plan includes GLMM validation (Task T015d) comparing adaptive vs. static success rates, specifically isolating the high-friction subset (0.8–1.2) for SC-001 and calculating Odds Ratios to handle zero-success baselines. |
+
+## Resolved Tasks
+
+*The following tasks were refined to address panel concerns regarding ambiguity and missing parameters.*
+
+- **T001c (Revised)**: Compute SHA256 of the *populated* `requirements.txt` and `pytest.ini` created in T002/T003. Do NOT hash empty skeletons.
+- **T005c (Revised)**: Execute `verify_manifest.py` to compute SHA256 of the *populated* `data/raw/dataset_manifest.jsonl`. Record the hash under `artifact_hashes.data_raw` in the state YAML. Include `FileNotFoundError` handling to abort if the manifest is missing.
+- **T021a (Split)**: 
+  . **Implement sweep generator**: Create `object_generator.py` to generate 50 objects (25 with friction in [0.8, 1.2], 25 with friction in [0.0, 2.5]).
+  . **Execute sweep**: Run multiple trials per object for both static and adaptive policies. Output to `data/generated/sweep.csv` with columns: `trial_id`, `object_id`, `friction_coefficient`, `policy_type`, `success` (0/1), `k_est_mean`, `runtime_seconds`.
 
 ## Project Structure
 
@@ -44,8 +56,6 @@ specs/001-virtual-tactile-adaptation/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── estimator_output.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
@@ -53,35 +63,54 @@ specs/001-virtual-tactile-adaptation/
 
 ```text
 projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/
-├── data/
-│   ├── raw/             # DragMesh-2 manifest (downloaded, read-only)
-│   └── generated/       # novel object geometries
 ├── code/
 │   ├── __init__.py
-│   ├── config.py        # Hyperparameters, seeds
-│   ├── estimator.py     # VirtualTactileEstimator (FR-001, FR-006, FR-007)
-│   ├── scheduler.py     # AdaptiveRewardScheduler (FR-002)
-│   ├── environment.py   # PyBullet CPU setup (FR-004)
-│   ├── generator.py     # NovelObjectSet generation (FR-003)
-│   ├── train.py         # Policy training loop
-│   ├── evaluate.py      # Inference and success rate logging
-│   ├── analysis.py      # Paired t-test (FR-005)
-│   ├── validate_citations.py # CI gate for Principle II
-│   └── requirements.txt # Pinning dependencies (Constitution Reproducibility)
+│   ├── env/
+│   │   ├── __init__.py
+│   │   ├── dragmesh_wrapper.py      # Wraps PyBullet for DragMesh objects
+│   │   └── virtual_tactile_estimator.py  # FR-001, FR-006, FR-007
+│   ├── policy/
+│   │   ├── __init__.py
+│   │   ├── pica_baseline.py         # Static reward baseline
+│   │   └── adaptive_reward_scheduler.py # FR-002
+│   ├── data/
+│   │   ├── __init__.py
+│   │   ├── manifest_loader.py       # Loads DragMesh-2 manifest
+│   │   └── object_generator.py      # FR-003: Generates novel geometries (stratified)
+│   ├── experiments/
+│   │   ├── __init__.py
+│   │   ├── sweep_runner.py          # Executes 100 trials, range [0.0, 2.5]
+│   │   ├── stats_analyzer.py        # FR-005: GLMM analysis (not t-test)
+│   │   └── system_monitor.py        # Tracks RAM/CPU time for SC-003/004
+│   └── utils/
+│       ├── __init__.py
+│       ├── validate_citations.py    # T008c: Validates DragMesh/PICA citations
+│       └── verify_manifest.py       # T005c: Computes SHA256 of populated manifest
+├── data/
+│   ├── raw/
+│   │   └── dataset_manifest.jsonl   # Downloaded from HF
+│   ├── generated/
+│   │   ├── sweep.csv                # T021a output: 100 trials, friction [0.0, 2.5]
+│   │   └── novel_objects/           # Generated geometries
+│   └── results/
+│       ├── adaptive_success_rates.csv
+│       ├── static_success_rates.csv
+│       ├── system_metrics.json      # SC-003/004 verification
+│       └── stat_test_results.json   # GLMM results (Odds Ratios)
 ├── tests/
+│   ├── contract/
+│   │   └── test_schemas.py          # Validates against contracts/*.yaml
 │   ├── unit/
-│   │   └── test_estimator.py
+│   │   └── test_estimator.py        # Tests k_est calculation, epsilon handling
 │   └── integration/
-│       └── test_pipeline.py
-├── state/
-│   └── projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml # State file with artifact_hashes
-└── README.md
+│       └── test_sweep.py            # Tests full pipeline on small subset
+└── requirements.txt
 ```
 
-**Structure Decision**: A single-project structure is selected. The research involves a tight coupling between the estimator, scheduler, and physics environment, making a monolithic `code/` directory more efficient for simulation state management and reproducibility than a microservices split. The `data/` directory is strictly separated to enforce the "Data Hygiene" constitution principle.
+**Structure Decision**: Single project structure chosen to minimize overhead for a research simulation. All simulation logic, data generation, and analysis reside in `code/` to ensure a single entry point for the CI runner. The `data/` directory is strictly for inputs (raw manifest) and outputs (generated sweeps, results), preserving the "Single Source of Truth" principle.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| N/A | The project adheres to all constraints. | The CPU-only constraint is a hard requirement for CI feasibility, not a complexity choice. |
+| None | The scope is tightly bounded by the spec (CPU-only, 100 trials, specific friction ranges). The complexity of the estimator, scheduler, and GLMM analysis is intrinsic to the research hypothesis and cannot be simplified without invalidating the study. | N/A |

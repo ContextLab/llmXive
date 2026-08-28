@@ -1,50 +1,77 @@
 import os
 import sys
 from pathlib import Path
+import logging
 
-def create_directories(project_root: str) -> None:
+def create_directories(project_root: Path) -> None:
     """
     Create the required code directory structure for the project.
     
-    Specifically creates:
+    Creates:
     - code/data/
     - code/tests/
     - code/utils/
     
     Args:
-        project_root: The absolute or relative path to the project root directory.
+        project_root: The root path of the project (e.g., projects/PROJ-487-...)
     """
-    base_path = Path(project_root)
-    
-    # Define the directories to create relative to the project root
     directories = [
-        base_path / "code" / "data",
-        base_path / "code" / "tests",
-        base_path / "code" / "utils"
+        project_root / "code" / "data",
+        project_root / "code" / "tests",
+        project_root / "code" / "utils",
     ]
     
     for directory in directories:
-        # Create the directory and any parent directories if they don't exist
-        # exist_ok=True prevents errors if the directory already exists
         directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
+        logging.info(f"Created directory: {directory}")
 
-def main() -> None:
+def main() -> int:
     """
-    Main entry point for the directory creation script.
+    Main entry point for directory creation.
     
-    Expects the project root to be provided as a command-line argument.
-    If no argument is provided, defaults to the current working directory
-    (assuming the script is run from the project root).
+    Returns:
+        int: 0 on success, 1 on failure
     """
-    if len(sys.argv) > 1:
-        project_root = sys.argv[1]
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    # Determine project root based on task requirements
+    # The task specifies the project is at: projects/PROJ-487-the-impact-of-social-media-doomscrolling/
+    current_dir = Path(__file__).resolve().parent
+    
+    # If running from code/, go up one level to project root
+    if current_dir.name == "code":
+        project_root = current_dir.parent
     else:
-        project_root = os.getcwd()
-    
-    print(f"Creating code directories in: {os.path.abspath(project_root)}")
-    create_directories(project_root)
-    print("Directory creation complete.")
+        # Assume we are in the project root or a subdirectory
+        # Try to find the project root by looking for known markers
+        # For now, assume current_dir is the project root if not in code/
+        project_root = current_dir
+        
+        # Check if we need to go up to find the project root
+        # If the project root is expected to be 'projects/PROJ-487-...'
+        # and we are currently in 'projects/PROJ-487-.../code'
+        # The logic above handles the 'code' case.
+        # If we are in the project root directly, we create 'code/...'
+        
+        # Verify if 'code' already exists as a sibling to confirm we are at root
+        if not (project_root / "code").exists():
+            # We are likely at the project root
+            pass
+        else:
+            # If 'code' exists, we might be inside it or at root
+            # The path logic above handles the 'code' subdirectory case
+            pass
+
+    try:
+        create_directories(project_root)
+        logging.info("Successfully created all required code directories.")
+        return 0
+    except Exception as e:
+        logging.error(f"Failed to create directories: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

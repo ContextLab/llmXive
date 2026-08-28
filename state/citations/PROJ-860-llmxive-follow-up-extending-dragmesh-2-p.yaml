@@ -1,11 +1,77 @@
-- artifact_hash: 2ae1ef5259c80f6774fc70d7c349db92e6b9e21c2d3bafc14aa5c6ff02159692
+- artifact_hash: cee1b7fcd48fa88c487f87dd4f5398c35792b57fc78b93ef87ab44ebad98a2d3
   artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: dataset_manifest.jsonl
   kind: url
-  value: https://huggingface.co/datasets/AIGeeksGroup/DragMesh-2/resolve/main/dataset_manifest.jsonl`
-  verification_status: verified
+  value: https://huggingface.co/datasets/AIGeeksGroup/DragMesh-2/resolve/main/dataset_manifest.jsonl
+  verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/AIGeeksGroup/DragMesh-2/9699c0b64d4086eeb5c531d825e8d50a85abc460/dataset_manifest.jsonl?%2Fdatasets%2FAIGeeksGroup%2FDragMesh-2%2Fresolve%2Fmain%2Fdataset_manifest.jsonl=&etag=%22ad99bf157ba549d136168f72e6882237272ba935%22
-  verified_at: '2026-07-13T01:29:11.203640Z'
+  verified_at: '2026-08-28T03:23:01.679070Z'
+- artifact_hash: cee1b7fcd48fa88c487f87dd4f5398c35792b57fc78b93ef87ab44ebad98a2d3
+  artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Gaussian filter - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Gaussian_filter
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Gaussian_filter
+  verified_at: '2026-08-28T03:23:01.679070Z'
+- artifact_hash: cee1b7fcd48fa88c487f87dd4f5398c35792b57fc78b93ef87ab44ebad98a2d3
+  artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Generalized linear mixed model - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Generalized_linear_mixed_model
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Generalized_linear_mixed_model
+  verified_at: '2026-08-28T03:23:01.679070Z'
+- artifact_hash: 4acf46aa94d0b12fe0092888901346709e810537d4ac28f8d9230315f606e26c
+  artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1234/example
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1234/example
+  verified_at: '2026-08-28T03:23:18.483652Z'
+- artifact_hash: 4acf46aa94d0b12fe0092888901346709e810537d4ac28f8d9230315f606e26c
+  artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/data-model.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1038/s41586-023-06000-0
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1038/s41586-023-06000-0
+  verified_at: '2026-08-28T03:23:18.483652Z'
+- artifact_hash: 4acf46aa94d0b12fe0092888901346709e810537d4ac28f8d9230315f606e26c
+  artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/data-model.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Array programming with NumPy
+  kind: doi
+  value: 10.1038/s41586-020-2649-2
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1038/s41586-020-2649-2
+  verified_at: '2026-08-28T03:23:18.483652Z'
+- artifact_hash: 93a1a8f77e616a41e07b24366a96a66f976b04663cb3a79c271b84bfd0213234
+  artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-08-28T03:23:20.423636Z'

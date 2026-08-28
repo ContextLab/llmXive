@@ -80,10 +80,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement GDELT fetch script in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_gdelt.py` using `EventCount` metric for negative sentiment events; save to `data/raw/gdelt_events.csv`
-- [ ] T012 [US1] Implement Google Trends fetch script in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_google_trends.py` for keywords "anticipatory anxiety", "worry about future"; save to `data/raw/google_trends.csv`
+- [X] T011 [US1] Implement GDELT fetch script in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_gdelt.py` using `EventCount` metric for negative sentiment events; save to `data/raw/gdelt_events.csv` <!-- FAILED: unspecified -->
+- [X] T012 [US1] Implement Google Trends fetch script in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_google_trends.py` for keywords "anticipatory anxiety", "worry about future"; save to `data/raw/google_trends.csv`
 - [ ] T013 [US1] Add error handling for API failures in `fetch_gdelt.py` and `fetch_google_trends.py` (exit non-zero on failure after retries)
-- [ ] T014 [US1] Add data integrity checks: verify CSVs have non-empty rows for target date range by reading from `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`; write `validation_status.json` with fetch status or exit non-zero on failure. <!-- ATOMIZE: requested -->
+- [X] T014 [US1] Add data integrity checks: verify CSVs have non-empty rows for target date range by reading from `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`; write `validation_status.json` with fetch status or exit non-zero on failure. <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,11 +102,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement timestamp alignment in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/preprocess.py`: align to daily intervals, preserve zero-event days as valid zeros (DO NOT interpolate zeros), use **linear interpolation** ONLY for null/missing values. Read from `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`.
+- [X] T017 [US2] Implement timestamp alignment in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/preprocess.py`: align to daily intervals, preserve zero-event days as valid zeros (DO NOT interpolate zeros), use **linear interpolation** ONLY for null/missing values. Read from `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`.
 - [ ] T018 [US2] Implement stationarity testing (Augmented Dickey-Fuller) in `preprocess.py`: if p ≥ 0.05, apply differencing until stationary
-- [~] T019 [US2] Implement normalization in `preprocess.py`: convert to z-scores (mean=0, std=1) after stationarity is achieved
+- [ ] T019 [US2] Implement normalization in `preprocess.py`: convert to z-scores (mean=0, std=1) after stationarity is achieved
 - [ ] T020 [US2] Save aligned, stationary, normalized data to `data/processed/aligned_timeseries.csv` and `data/processed/stationarity_check.csv`
-- [~] T021 [US2] Add validation to exit with error "Insufficient data for Granger causality" if time-series length < 20
+- [ ] T021 [US2] Add validation to exit with error "Insufficient data for Granger causality" if time-series length < 20
 - [ ] T022 [US2] **Post-Interpolation Completeness Check**: Verify `data/processed/aligned_timeseries.csv` has ≥95% data completeness (per Spec SC-001) after interpolation; write `validation_status.json` or exit non-zero if failed.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -126,12 +126,12 @@
 
 ### Implementation for User Story 3
 
-- [~] T025 [US3] Implement correlation analysis in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/analyze.py`: compute Pearson and Spearman coefficients with p-values. Read from `data/processed/aligned_timeseries.csv`.
+- [X] T025 [US3] Implement correlation analysis in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/analyze.py`: compute Pearson and Spearman coefficients with p-values. Read from `data/processed/aligned_timeseries.csv`.
 - [ ] T026 [US3] **Spec Override**: Implement Granger causality test in `analyze.py`: perform a **FIXED SWEEP** of lags {1, 2, 3, 7, 14} as per Spec FR-005. **Note**: This task overrides the Plan's AIC/BIC constraint to strictly follow Spec FR-005. Report p-values for ALL specified lags. Save results to `data/processed/granger_results.csv`. <!-- FAILED: unspecified -->
 - [ ] T027 [US3] Implement sensitivity analysis in `analyze.py`: Calculate the significance rate (count of lags in {1, 2, 3, 7, 14} where p < 0.05) and report this rate. Read from `data/processed/granger_results.csv`. <!-- FAILED: unspecified -->
-- [~] T028 [US3] **Statistical Validity Check (Spec Override)**: Verify at least one lag in the specific set {1, 2, 3, 7, 14} has p < 0.01 (Bonferroni-corrected alpha α = 0.05 / 5 = 0.01) as per Spec SC-002. **Note**: This task overrides the Plan's "avoid Bonferroni" constraint. If condition fails, exit with code 1 and log error: "Statistical validity failed: no lag met Bonferroni threshold".
+- [ ] T028 [US3] **Statistical Validity Check (Spec Override)**: Verify at least one lag in the specific set {1, 2, 3, 7, 14} has p < 0.01 (Bonferroni-corrected alpha α = 0.05 / 5 = 0.01) as per Spec SC-002. **Note**: This task overrides the Plan's "avoid Bonferroni" constraint. If condition fails, exit with code 1 and log error: "Statistical validity failed: no lag met Bonferroni threshold".
 - [ ] T029 [US3] Implement report generation in `analyze.py`: create `data/reports/analysis_report.pdf` containing lag plots, correlation heatmaps, sensitivity summaries, and the validity check result. <!-- ATOMIZE: requested -->
-- [~] T030 [US3] Ensure all analysis runs on CPU-only environment within ≤ 6 hours (verify no CUDA/GPU dependencies)
+- [ ] T030 [US3] Ensure all analysis runs on CPU-only environment within ≤ 6 hours (verify no CUDA/GPU dependencies)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,7 +141,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T031 [P] Documentation updates: Update README.md with CLI usage and quickstart.md with environment setup steps in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
+- [ ] T031 [P] Documentation updates: Update README.md with CLI usage and quickstart.md with environment setup steps in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
 - [~] T032 Code cleanup and refactoring in `code/` <!-- FAILED: unspecified -->
 - [~] T033 [P] Additional unit tests for edge cases (zero-event days, API failures) in `code/tests/`
 - [~] T034 Run quickstart.md validation to ensure full pipeline reproducibility

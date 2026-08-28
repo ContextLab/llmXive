@@ -1,0 +1,44 @@
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No unified metadata file (e.g., CSV/TSV) linking each participant to their exclusion/inclusion
+    status and task run type was supplied; the evidence section contains no artifact
+    or code demonstrating that such a file was created. Consequently, the required
+    output for harmonizing and labeling the merged exclusion and reward datasets is
+    missing.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No YAML sidecar files or any provenance records are provided; the evidence does
+    not show that a YAML file exists for each preprocessed output, nor that pipeline
+    version and parameters are captured. The required artifacts are missing.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output files implementing a first\u2011level GLM with Nilearn\
+    \ and autoregressive pre\u2011whitening are present; the claim provides no artifact\
+    \ to verify that the GLM was actually run or that the required pre\u2011whitened\
+    \ beta estimates were generated. The required implementation and its results are\
+    \ missing."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, CSV/TSV file, or report) containing per\u2011participant\
+    \ beta estimates for the \u201Creward anticipation\u201D and \u201Creward receipt\u201D\
+    \ events was provided; thus there is no evidence that the extraction was actually\
+    \ performed. The implementer must supply the generated beta\u2011estimate data\
+    \ (or code that produces it) to satisfy the task."
+T020:
+  c: false
+  h: ddce28b8afd5cd7c8646f514f7a55506359a9057f5bcc130d7ea78d7cec0ed04
+  r: The provided `beta_estimates.csv` contains only the header (no beta rows), so
+    no extracted beta values are actually stored. The file must include data rows
+    with the required columns (participant_id, group, roi, event_type, beta_value).
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation implementing the Bonferroni correction\
+    \ for the four ROI\u202F\xD7\u202Fevent tests is present; the only information\
+    \ is the task description itself. The required artifact (e.g., a function that\
+    \ adjusts p\u2011values or a report showing the corrected \u03B1\u202F=\u202F\
+    0.0125) is missing, so the requirement is not satisfied."

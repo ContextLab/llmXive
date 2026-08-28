@@ -1,55 +1,107 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Processed and Analysis Output Schema
-description: Schema for processed data and analysis results.
-type: object
-properties:
-  aligned_timeseries:
-    type: object
-    required:
-      - file_path
-      - expected_columns
-      - stationarity_status
-    properties:
-      file_path:
-        type: string
-        pattern: "^data/processed/aligned_timeseries\\.csv$"
-      expected_columns:
-        type: array
-        items:
-          type: string
-        contains:
-          const: "date"
-          minItems: 1
-      stationarity_status:
-        type: string
-        enum: ["stationary", "non-stationary"]
-  granger_results:
-    type: object
-    required:
-      - file_path
-      - lags_tested
-      - p_values
-    properties:
-      file_path:
-        type: string
-        pattern: "^data/processed/granger_results\\.csv$"
-      lags_tested:
-        type: array
-        items:
-          type: integer
-        contains:
-          const: 1
-      p_values:
-        type: array
-        items:
-          type: number
-        minItems: 1
-  analysis_report:
-    type: object
-    required:
-      - file_path
-    properties:
-      file_path:
-        type: string
-        pattern: "^data/reports/analysis_report\\.pdf$"
-additionalProperties: false
+# Schema for processed and analysis output files
+# Defines structure for aligned timeseries, stationarity checks, and analysis results
+schema_name: output_schema
+version: "1.0"
+description: Schema for validating processed data and analysis report outputs
+
+# Common fields for processed timeseries
+processed_timeseries:
+  fields:
+    - name: date
+      type: string
+      description: ISO 8601 formatted date
+      constraints:
+        pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+        required: true
+
+    - name: gdelt_negative_events
+      type: float
+      description: Normalized GDELT negative event count (z-score)
+      constraints:
+        required: true
+
+    - name: anxiety_trends
+      type: float
+      description: Normalized anxiety search trend index (z-score)
+      constraints:
+        required: true
+
+    - name: is_stationary
+      type: boolean
+      description: Whether the series passed ADF stationarity test
+      constraints:
+        required: true
+
+# Schema for Granger causality results
+granger_results:
+  fields:
+    - name: lag
+      type: integer
+      description: Lag value tested
+      constraints:
+        required: true
+        allowed_values: [1, 2, 3, 7, 14]
+
+    - name: f_statistic
+      type: float
+      description: F-statistic from Granger test
+      constraints:
+        required: true
+        min: 0.0
+
+    - name: p_value
+      type: float
+      description: P-value from Granger test
+      constraints:
+        required: true
+        min: 0.0
+        max: 1.0
+
+    - name: significant_at_alpha_0.05
+      type: boolean
+      description: Whether p < 0.05
+      constraints:
+        required: true
+
+    - name: significant_at_bonferroni
+      type: boolean
+      description: Whether p < 0.01 (Bonferroni corrected)
+      constraints:
+        required: true
+
+# Schema for correlation analysis
+correlation_results:
+  fields:
+    - name: method
+      type: string
+      description: Correlation method (pearson or spearman)
+      constraints:
+        required: true
+        allowed_values:
+          - pearson
+          - spearman
+
+    - name: correlation_coefficient
+      type: float
+      description: Correlation coefficient value
+      constraints:
+        required: true
+        min: -1.0
+        max: 1.0
+
+    - name: p_value
+      type: float
+      description: P-value for correlation test
+      constraints:
+        required: true
+        min: 0.0
+        max: 1.0
+
+validation_rules:
+  - rule: non_empty
+    description: Output files must contain data rows
+    check: "len(df) > 0"
+
+  - rule: column_presence
+    description: Required columns must exist
+    check: "all(col in df.columns for col in required_columns)"

@@ -1,18 +1,27 @@
 """
-Generate condition labels for social exclusion/inclusion tasks.
+generate_condition_labels.py
 
-This module extracts exclusion/inclusion labels from participants.tsv or task JSON
-files for each dataset (ds000246, ds004738) and creates a unified condition mapping.
+Extracts exclusion/inclusion condition labels from BIDS participants.tsv
+and task events.json files for OpenNeuro datasets ds000246 (Exclusion)
+and ds004738 (Reward).
+
+This script generates a unified CSV mapping participant IDs to their
+experimental condition (e.g., 'excluded', 'included', 'neutral') and
+task type, suitable for downstream harmonization and analysis.
+
+It handles:
+- ds000246: Cyberball task (exclusion vs inclusion groups).
+- ds004738: Reward task (typically neutral/control, but labeled as 'reward').
+- Fallback to events.json if participants.tsv lacks explicit group columns.
 """
+
 import argparse
 import json
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-import pandas as pd
+from typing import Dict, List, Optional, Any
 
 # Configure logging
 logging.basicConfig(
@@ -21,269 +30,314 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+DATASET_IDS = ['ds000246', 'ds004738']
+OUTPUT_FILE = Path('data/behavioral/condition_labels.csv')
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-def load_participants_tsv(participants_path: Path) -> pd.DataFrame:
-    """Load participants.tsv file."""
+# Mapping for ds000246 (Cyberball)
+# The Cyberball task typically has 'Exclusion' and 'Inclusion' groups.
+# We map these to standardized labels.
+CYBERBALL_GROUP_MAP = {
+    'exclusion': 'excluded',
+    'inclusion': 'included',
+    'Exclusion': 'excluded',
+    'Inclusion': 'included',
+    'Excluded': 'excluded',
+    'Included': 'included'
+}
+
+# Mapping for ds004738 (Reward)
+# This dataset is primarily a reward task. We label it as 'neutral'
+# regarding social exclusion, or 'reward' regarding task type.
+# For the purpose of the exclusion analysis, these participants are
+# the 'control' or 'included' baseline, but we mark them specifically
+# to distinguish from the Cyberball 'inclusion' group.
+REWARD_GROUP_MAP = {
+    'reward': 'reward_task',
+    'control': 'neutral',
+    'baseline': 'neutral'
+}
+
+
+def load_participants_tsv(participants_path: Path) -> Optional[List[Dict[str, Any]]]:
+    """
+    Load a BIDS participants.tsv file into a list of dictionaries.
+    Handles basic TSV parsing without pandas to minimize dependencies.
+    """
     if not participants_path.exists():
-        raise FileNotFoundError(f"Participants file not found: {participants_path}")
-    return pd.read_csv(participants_path, sep='\t')
+        logger.warning(f"Participants file not found: {participants_path}")
+        return None
 
+    participants = []
+    with open(participants_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        if not lines:
+            return None
 
-def load_task_events(events_path: Path) -> pd.DataFrame:
-    """Load task events JSON or TSV file."""
-    if not events_path.exists():
-        raise FileNotFoundError(f"Events file not found: {events_path}")
+        # Parse header
+        header = lines[0].strip().split('\t')
+        
+        for line in lines[1:]:
+            line = line.strip()
+            if not line:
+                continue
+            values = line.split('\t')
+            # Ensure we have enough values
+            if len(values) < len(header):
+                values.extend([''] * (len(header) - len(values)))
+            
+            participant = dict(zip(header, values))
+            participants.append(participant)
     
-    if events_path.suffix == '.tsv':
-        return pd.read_csv(events_path, sep='\t')
-    elif events_path.suffix == '.json':
-        with open(events_path, 'r') as f:
-            data = json.load(f)
-            # Convert JSON structure to DataFrame if needed
-            if isinstance(data, list):
-                return pd.DataFrame(data)
-            return pd.DataFrame([data])
-    else:
-        raise ValueError(f"Unsupported events file format: {events_path.suffix}")
+    return participants
+
+
+def load_task_events(events_path: Path) -> Optional[List[Dict[str, Any]]]:
+    """
+    Load a BIDS events.json file (if it exists as metadata) or
+    parse events.tsv if available.
+    
+    Note: In BIDS, events are usually in events.tsv. events.json is
+    metadata describing the columns. We primarily look for events.tsv
+    but accept the path passed as 'events_path' which might be the .tsv.
+    """
+    # If the path ends in .json, we might be looking for metadata,
+    # but for condition extraction, we need the actual data (tsv).
+    # Let's assume the caller passes the .tsv path or we derive it.
+    
+    actual_path = events_path
+    if events_path.suffix == '.json':
+        actual_path = events_path.with_suffix('.tsv')
+    
+    if not actual_path.exists():
+        # Check if .tsv exists next to .json
+        if not actual_path.exists():
+            logger.warning(f"Events file not found: {actual_path}")
+            return None
+
+    events = []
+    with open(actual_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        if not lines:
+            return None
+
+        header = lines[0].strip().split('\t')
+        for line in lines[1:]:
+            line = line.strip()
+            if not line:
+                continue
+            values = line.split('\t')
+            if len(values) < len(header):
+                values.extend([''] * (len(header) - len(values)))
+            
+            event = dict(zip(header, values))
+            events.append(event)
+    
+    return events
 
 
 def extract_condition_from_participants(
-    participants_df: pd.DataFrame,
-    dataset_name: str
-) -> Dict[str, str]:
+    participant: Dict[str, Any], 
+    dataset_id: str
+) -> Optional[str]:
     """
-    Extract condition labels from participants.tsv.
-    
-    For ds000246 (Cyberball): Look for 'group' or 'condition' column
-    For ds004738 (Reward): Look for relevant condition indicators
-    
-    Returns a mapping of participant_id to condition label.
+    Extract the condition label for a participant based on their row
+    in participants.tsv.
     """
-    condition_mapping = {}
+    # Look for common column names indicating group
+    possible_cols = ['group', 'condition', 'task', 'cyberball_group', 'Group']
     
-    # Common column names that might indicate group/condition
-    condition_cols = ['group', 'condition', 'task_condition', 'exclusion_group']
+    condition = None
+    for col in possible_cols:
+        if col in participant:
+            val = participant[col].strip().lower()
+            if dataset_id == 'ds000246':
+                condition = CYBERBALL_GROUP_MAP.get(val)
+            elif dataset_id == 'ds004738':
+                condition = REWARD_GROUP_MAP.get(val)
+            
+            if condition:
+                break
     
-    # Find the relevant column
-    condition_col = None
-    for col in condition_cols:
-        if col in participants_df.columns:
-            condition_col = col
-            break
+    # Fallback: if no explicit column, check participant_id pattern
+    # (e.g., sub-001_group-exclusion) - though BIDS usually separates this.
+    if not condition:
+        pid = participant.get('participant_id', '')
+        if 'exclusion' in pid.lower():
+            condition = 'excluded'
+        elif 'inclusion' in pid.lower():
+            condition = 'included'
+        elif dataset_id == 'ds004738':
+            condition = 'neutral' # Default for reward dataset if not specified
     
-    if condition_col is None:
-        logger.warning(f"No condition column found in {dataset_name} participants.tsv")
-        # Default mapping based on participant ID patterns if available
-        for _, row in participants_df.iterrows():
-            pid = row.get('participant_id', row.get('sub'))
-            if pid:
-                # Default to 'inclusion' if no specific condition found
-                condition_mapping[str(pid)] = 'inclusion'
-        return condition_mapping
-    
-    # Map conditions based on dataset-specific logic
-    for _, row in participants_df.iterrows():
-        pid = row.get('participant_id', row.get('sub'))
-        condition_value = str(row[condition_col]).lower().strip()
-        
-        if pid:
-            if dataset_name == 'ds000246':
-                # Cyberball dataset: map exclusion/inclusion groups
-                if any(term in condition_value for term in ['exclusion', 'exclude', 'ostracized']):
-                    condition_mapping[str(pid)] = 'exclusion'
-                elif any(term in condition_value for term in ['inclusion', 'include', 'control']):
-                    condition_mapping[str(pid)] = 'inclusion'
-                else:
-                    # Default to inclusion for unknown values
-                    condition_mapping[str(pid)] = 'inclusion'
-            elif dataset_name == 'ds004738':
-                # Reward task dataset: typically control condition
-                condition_mapping[str(pid)] = 'inclusion'  # Control group
-            else:
-                condition_mapping[str(pid)] = 'unknown'
-    
-    return condition_mapping
+    return condition
 
 
 def extract_condition_from_events(
-    events_df: pd.DataFrame,
-    dataset_name: str
-) -> Dict[str, str]:
+    events: List[Dict[str, Any]], 
+    dataset_id: str
+) -> Optional[str]:
     """
-    Extract condition labels from task events files.
-    
-    Analyzes event types to determine if a participant experienced
-    exclusion or inclusion conditions.
+    Infer condition from events.tsv if participant metadata is missing.
+    For ds000246, look for 'exclusion' or 'inclusion' in trial_type.
+    For ds004738, look for 'reward' or 'cue'.
     """
-    participant_conditions = {}
+    if not events:
+        return None
+
+    # Analyze trial_types
+    trial_types = set()
+    for event in events:
+        tt = event.get('trial_type', '')
+        if tt:
+            trial_types.add(tt.lower())
+
+    if dataset_id == 'ds000246':
+        if any('exclusion' in t for t in trial_types):
+            return 'excluded'
+        elif any('inclusion' in t for t in trial_types):
+            return 'included'
     
-    # Common event type names
-    exclusion_events = ['exclusion', 'ostracism', 'social_exclusion', 'exclude']
-    inclusion_events = ['inclusion', 'control', 'social_inclusion', 'include']
+    elif dataset_id == 'ds004738':
+        if any('reward' in t for t in trial_types) or any('cue' in t for t in trial_types):
+            return 'neutral' # In the context of exclusion, this is the control condition
     
-    # Group by participant
-    participant_col = None
-    for col in ['participant_id', 'sub', 'subject']:
-        if col in events_df.columns:
-            participant_col = col
-            break
-    
-    if participant_col is None:
-        logger.warning(f"No participant column found in events for {dataset_name}")
-        return {}
-    
-    event_type_col = None
-    for col in ['event_type', 'type', 'trial_type', 'condition']:
-        if col in events_df.columns:
-            event_type_col = col
-            break
-    
-    if event_type_col is None:
-        logger.warning(f"No event type column found in events for {dataset_name}")
-        return {}
-    
-    for participant_id in events_df[participant_col].unique():
-        participant_events = events_df[events_df[participant_col] == participant_id]
-        event_types = participant_events[event_type_col].str.lower().tolist()
-        
-        # Determine condition based on event types
-        has_exclusion = any(any(term in event for term in exclusion_events) for event in event_types)
-        has_inclusion = any(any(term in event for term in inclusion_events) for event in event_types)
-        
-        if has_exclusion and not has_inclusion:
-            participant_conditions[str(participant_id)] = 'exclusion'
-        elif has_inclusion and not has_exclusion:
-            participant_conditions[str(participant_id)] = 'inclusion'
-        elif has_exclusion and has_inclusion:
-            # Mixed: use majority or first occurrence
-            exclusion_count = sum(1 for event in event_types if any(term in event for term in exclusion_events))
-            inclusion_count = sum(1 for event in event_types if any(term in event for term in inclusion_events))
-            if exclusion_count > inclusion_count:
-                participant_conditions[str(participant_id)] = 'exclusion'
-            else:
-                participant_conditions[str(participant_id)] = 'inclusion'
-        else:
-            participant_conditions[str(participant_id)] = 'unknown'
-    
-    return participant_conditions
+    return None
 
 
 def generate_condition_labels(
-    dataset_path: Path,
-    dataset_name: str,
+    raw_data_dir: Path,
     output_path: Path
-) -> pd.DataFrame:
+) -> None:
     """
-    Generate condition labels for a dataset.
+    Main logic to scan datasets, extract labels, and write a unified CSV.
     
     Args:
-        dataset_path: Path to the dataset root directory
-        dataset_name: Name of the dataset (e.g., 'ds000246', 'ds004738')
-        output_path: Path to save the condition labels CSV
-    
-    Returns:
-        DataFrame with participant_id and condition columns
+        raw_data_dir: Path to the directory containing downloaded datasets (e.g., data/raw-fmri).
+        output_path: Path to write the output CSV.
     """
-    logger.info(f"Generating condition labels for {dataset_name}")
+    results = []
     
-    # Try to load from participants.tsv first
-    participants_path = dataset_path / 'participants.tsv'
-    events_path = None
-    
-    # Look for events files
-    task_dirs = list(dataset_path.glob('sub-*/func/*events*.tsv'))
-    if task_dirs:
-        events_path = task_dirs[0]
-    
-    condition_mapping = {}
-    
-    if participants_path.exists():
-        try:
-            participants_df = load_participants_tsv(participants_path)
-            condition_mapping = extract_condition_from_participants(
-                participants_df, dataset_name
-            )
-            logger.info(f"Extracted {len(condition_mapping)} conditions from participants.tsv")
-        except Exception as e:
-            logger.warning(f"Failed to extract from participants.tsv: {e}")
-    
-    # If participants.tsv didn't yield results, try events files
-    if not condition_mapping and events_path:
-        try:
-            events_df = load_task_events(events_path)
-            condition_mapping = extract_condition_from_events(events_df, dataset_name)
-            logger.info(f"Extracted {len(condition_mapping)} conditions from events files")
-        except Exception as e:
-            logger.warning(f"Failed to extract from events: {e}")
-    
-    # If still no results, create a default mapping
-    if not condition_mapping:
-        logger.warning("No conditions found, creating default mapping")
-        # Try to get participant list from any available source
-        participant_ids = []
-        if participants_path.exists():
-            try:
-                participants_df = load_participants_tsv(participants_path)
-                participant_ids = participants_df.get('participant_id', 
-                                                     participants_df.get('sub', [])).tolist()
-            except:
-                pass
+    for dataset_id in DATASET_IDS:
+        dataset_path = raw_data_dir / dataset_id
+        if not dataset_path.exists():
+            logger.error(f"Dataset directory not found: {dataset_path}")
+            continue
+
+        logger.info(f"Processing dataset: {dataset_id}")
         
-        for pid in participant_ids:
-            if pid:
-                condition_mapping[str(pid)] = 'inclusion'  # Default
-    
-    # Create output DataFrame
-    result_df = pd.DataFrame([
-        {'participant_id': pid, 'condition': cond}
-        for pid, cond in condition_mapping.items()
-    ])
-    
-    # Ensure output directory exists
+        # 1. Load participants.tsv
+        participants_path = dataset_path / 'participants.tsv'
+        participants = load_participants_tsv(participants_path)
+        
+        if not participants:
+            logger.warning(f"No participants found for {dataset_id}, skipping.")
+            continue
+
+        # 2. Iterate participants and determine condition
+        # We need to find the associated task/events to confirm condition if participants.tsv is ambiguous
+        # For ds000246, participants.tsv often has a 'group' column.
+        # For ds004738, it might be less explicit.
+        
+        # Strategy:
+        # - Try to get condition from participants row.
+        # - If ambiguous, look for events.tsv for the first task run to infer.
+        
+        tasks = [d for d in dataset_path.iterdir() if d.is_dir() and d.name.startswith('sub-')]
+        
+        # If we can't find task subdirs, look for task- folders
+        task_dirs = [d for d in dataset_path.iterdir() if d.is_dir() and 'task' in d.name]
+        if not tasks and not task_dirs:
+            # Maybe flat structure?
+            tasks = list(dataset_path.iterdir())
+        
+        # Determine condition for each participant
+        for p in participants:
+            pid = p.get('participant_id', 'unknown')
+            condition = extract_condition_from_participants(p, dataset_id)
+            
+            # Fallback to events if condition is None
+            if condition is None:
+                # Find an events file for this subject
+                events_file = None
+                # Search pattern: sub-<pid>/func/*events.tsv
+                sub_dir = dataset_path / pid
+                if not sub_dir.exists():
+                    # Try sub-<pid>
+                    sub_dir = dataset_path / f"sub-{pid}"
+                
+                if sub_dir.exists():
+                    func_dir = sub_dir / 'func'
+                    if func_dir.exists():
+                        for f in func_dir.glob('*events.tsv'):
+                            events_file = f
+                            break
+                
+                if events_file:
+                    events = load_task_events(events_file)
+                    inferred_cond = extract_condition_from_events(events, dataset_id)
+                    if inferred_cond:
+                        condition = inferred_cond
+                
+                # Final fallback: assign a default based on dataset if still None
+                if condition is None:
+                    if dataset_id == 'ds004738':
+                        condition = 'neutral'
+                    else:
+                        condition = 'unknown'
+
+            results.append({
+                'participant_id': pid,
+                'dataset_id': dataset_id,
+                'condition': condition
+            })
+
+    # Write results to CSV
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Save to CSV
-    result_df.to_csv(output_path, index=False)
-    logger.info(f"Saved condition labels to {output_path}")
+    if not results:
+        logger.warning("No condition labels generated. Writing empty file.")
     
-    return result_df
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write('participant_id,dataset_id,condition\n')
+        for r in results:
+            f.write(f"{r['participant_id']},{r['dataset_id']},{r['condition']}\n")
+    
+    logger.info(f"Condition labels written to {output_path}")
+    logger.info(f"Total participants processed: {len(results)}")
 
 
 def main():
-    """Main entry point for condition label generation."""
     parser = argparse.ArgumentParser(
-        description='Generate exclusion/inclusion condition labels from dataset files'
+        description='Extract exclusion/inclusion labels from BIDS datasets.'
     )
     parser.add_argument(
-        '--dataset-path',
-        type=Path,
-        required=True,
-        help='Path to the dataset root directory'
+        '--input-dir', 
+        type=str, 
+        default=str(PROJECT_ROOT / 'data' / 'raw-fmri'),
+        help='Path to the root directory containing downloaded datasets.'
     )
     parser.add_argument(
-        '--dataset-name',
+        '--output-file',
         type=str,
-        required=True,
-        help='Name of the dataset (e.g., ds000246, ds004738)'
-    )
-    parser.add_argument(
-        '--output',
-        type=Path,
-        required=True,
-        help='Output path for condition labels CSV'
+        default=str(OUTPUT_FILE),
+        help='Path to the output CSV file.'
     )
     
     args = parser.parse_args()
     
+    input_path = Path(args.input_dir)
+    output_path = Path(args.output_file)
+    
+    if not input_path.exists():
+        logger.error(f"Input directory does not exist: {input_path}")
+        sys.exit(1)
+    
     try:
-        generate_condition_labels(
-            args.dataset_path,
-            args.dataset_name,
-            args.output
-        )
-        logger.info("Condition label generation completed successfully")
+        generate_condition_labels(input_path, output_path)
     except Exception as e:
-        logger.error(f"Condition label generation failed: {e}")
+        logger.error(f"Failed to generate condition labels: {e}", exc_info=True)
         sys.exit(1)
 
 

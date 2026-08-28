@@ -1,0 +1,22 @@
+# Ruff configuration for PROJ-754
+line-length = 88
+target-version = "py311"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data loading)
+]
+
+[lint.isort]
+known-first-party = ["config", "scripts", "analysis", "data", "stats"]
+force-sort-within-sections = true

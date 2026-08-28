@@ -1,44 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`\
-    \ directory (or any files within it) is provided; the only artifacts shown are\
-    \ feature specifications, not the actual project root folder. The task\u2019s\
-    \ core requirement\u2014creating the project root directory\u2014is therefore\
-    \ unmet."
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `data/reports/`)
-    inside `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` is presented;
-    the artifact list is empty, so the task is not satisfied.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/data/`, `code/tests/`, `code/utils/`)
-    inside `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` is provided;
-    the artifact list is empty, so the task is not satisfied.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a Python virtual environment (e.g., a `venv` or `.venv` directory
-    with activation scripts and installed packages) exists in the specified path,
-    and no related artifact was supplied. The required environment was not created.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`
-    with Black settings, or a `pre-commit` hook) were presented for the `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
-    directory, so the required artifact does not exist. The task remains undone.
-T008:
-  c: false
-  h: 0d2265eea997ab204bcd4d3d7fa74ff1efa6a0249b8d3bf386708e060e65f878
-  r: "The `validation.py` file exists but does not contain a complete end\u2011to\u2011\
-    end validation function (the code is truncated and no routine validates a dataset\
-    \ or output against a schema). Moreover, the required schema files `contracts/dataset.schema.yaml`\
-    \ and `contracts/output.schema.yaml` are missing from the repository, so the utilities\
-    \ cannot actually validate anything. The task\u2019s core requirement is therefore\
-    \ not satisfied."
 T011:
   c: false
   h: 8ad0eaef581618ad7032c50afc4d1d923dba7c2340819fa6091be6b910e4ef3d
@@ -76,3 +35,39 @@ T018:
     Fuller test and iterative differencing logic; without the actual implementation\
     \ we cannot confirm the requirement was met. The missing artifact is the preprocessing\
     \ script containing the ADF test and automatic differencing until stationarity."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `preprocess.py` file or code snippet was provided, and there is no evidence\
+    \ that z\u2011score normalization after stationarity testing has been implemented.\
+    \ The required artifact is missing, so the task is not satisfied."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or test output was provided showing that a validation check\
+    \ was added to abort with the specific error message when the time\u2011series\
+    \ length is under 20. Without an artifact demonstrating this behavior, the requirement\
+    \ is not satisfied."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (script, log file, or result table) was provided showing the lag\u2011\
+    wise p\u2011values or confirming that at least one of the lags {1,2,3,7,14} meets\
+    \ the Bonferroni\u2011adjusted threshold (p\u202F<\u202F0.01). Consequently the\
+    \ required statistical validity check cannot be verified."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only the feature specification and user story text;\
+    \ there are no scripts, logs, benchmark results, or environment checks demonstrating\
+    \ that the analysis pipeline runs without CUDA/GPU dependencies and completes\
+    \ within six hours on a CPU\u2011only setup. Concrete evidence (e.g., a run log\
+    \ showing total runtime \u2264\u202F6\u202Fh on a CPU\u2011only machine and confirmation\
+    \ that no GPU libraries are imported) is missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or quickstart.md files (or their updated contents) were provided
+    for the `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` directory,
+    so we cannot verify that CLI usage and environment setup steps were added as required.
+    The necessary documentation artifacts are missing.
