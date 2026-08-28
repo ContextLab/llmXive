@@ -1,111 +1,96 @@
-# Methodology: Distribution of Smooth Numbers in Short Intervals
+# Methodology: Exploring the Distribution of Smooth Numbers in Short Intervals
 
-This document details the computational methodology and statistical validation framework
-employed in Project PROJ-549 to investigate the distribution of $y$-smooth numbers within
-short intervals $[x, x+h]$.
+This document details the implementation strategy, algorithms, and statistical frameworks employed in the `PROJ-549` research pipeline. It serves as the primary reference for reproducibility and methodological justification.
 
-## 1. Data Generation and Validation Pipeline
+## 1. Sieve Implementation
 
-The foundational step of this research involves the generation of a comprehensive prime
-list up to $10^9$. This is achieved via a memory-efficient Segmented Sieve of Eratosthenes
-implemented in `code/sieve.py`.
+### Segmented Sieve of Eratosthenes
+To generate the prime set required for factorization up to $10^9$, we utilize a segmented sieve. A standard sieve of size $10^9$ would require $\approx 1$ GB of memory for a boolean array, which exceeds our strict memory constraints for concurrent analysis. The segmented approach processes the range $[2, N]$ in blocks of size $S$ (typically $S \approx 32\text{KB}$ to $1\text{MB}$).
 
-### 1.1 Segmented Sieve Implementation
-The sieve operates by dividing the range $[1, 10^9]$ into segments that fit within the
-available memory constraints (target < 4 GB RAM). For each segment, small primes are used
-to mark composites. The resulting primes are written to `data/primes_1e9.csv`.
+**Algorithm**:
+1. **Pre-sieve**: Generate all primes up to $\sqrt{N}$ using a simple sieve.
+2. **Segment Iteration**: For each segment $[L, R]$:
+ - Initialize a boolean array `is_prime` of size $R-L+1$.
+ - For each pre-sieved prime $p$, find the first multiple $j = \lceil L/p \rceil \cdot p$.
+ - Mark all multiples of $p$ in the current segment as composite.
+ - Collect unmarked numbers as primes.
+3. **Memory Management**: The `code/sieve.py` implementation enforces a hard memory cap via `psutil` monitoring. If the process exceeds 4 GB, it triggers a graceful checkpoint save and exit.
 
-### 1.2 Deterministic Validation (Task T013)
-To ensure data integrity without reliance on external databases, a secondary validation
-script (`code/validate_sieve.py`) performs a deterministic verification. This script:
-1. Loads the generated prime list.
-2. Selects a statistically significant random sample of primes.
-3. Verifies primality for each sample point using a secondary, independent trial-division
- algorithm implemented within the project.
-4. Checks for completeness by verifying the count against known bounds (OEIS A006880).
-5. Generates a checksum and a boolean validation flag.
+### Checkpointing and Resilience
+Given the runtime potential for $10^9$ (approx. 1-2 hours on standard hardware), `code/sieve.py` implements a `signal.alarm` mechanism. If the execution time exceeds 7200 seconds (120 minutes), the current segment index and partial prime list are serialized to `state/sieve_checkpoint.json`. Subsequent runs detect this file and resume from the last completed segment, ensuring long-running jobs are not lost to timeouts.
 
-## 2. Smoothness Enumeration Strategy
+## 2. Smoothness Logic
 
-The core experimental engine enumerates $y$-smooth numbers across two distinct parameter
-grids to address both the original specification and the revised methodological plan.
+### Definition of $y$-Smoothness
+An integer $n$ is $y$-smooth if all its prime factors are $\le y$.
+$$ \Psi(x, y) = |\{n \le x: p|n \implies p \le y\}| $$
 
-### 2.1 Factorization Logic
-For each integer $n$ in an interval $[x, x+h]$, the algorithm determines $y$-smoothness
-by attempting to factor $n$ using only primes $\le y$ (loaded from the validated prime list).
-If the remaining cofactor is 1, the number is classified as $y$-smooth.
+### Factorization Strategy
+Direct factorization of every integer in a short interval $[x, x+h]$ is computationally prohibitive. Instead, we leverage the pre-computed prime list from the sieve.
 
-### 2.2 Dual-Grid Parameter Sweep
-The experiment executes two parallel sweeps stored in `data/density_measurements_*.csv`:
+**Algorithm** (implemented in `code/smoothness.py`):
+1. Load the validated prime list from `data/primes_1e9.csv`.
+2. Filter the prime list to retain only primes $p \le y$.
+3. For each integer $n \in [x, x+h]$:
+ - Perform trial division using the filtered primes.
+ - If $n$ reduces to 1, it is $y$-smooth.
+ - If $n$ remains $> 1$ after dividing by all primes $\le y$, it is not $y$-smooth.
 
-* **Spec-Defined Grid (Comparative Analysis):**
- * $y \in \{100, 1000, 10000\}$
- * $x \in \{10^6, 10^7, 10^8, 10^9\}$
- * $h \in \{x^{0.1}, x^{0.3}, x^{0.5}, x^{0.7}, x^{0.9}\}$
- * *Purpose:* To compare observed densities against the theoretical scaling of interval length.
+**Optimization**: The implementation avoids full factorization by stopping early once a prime factor $> y$ is found. This significantly reduces the average number of divisions per integer.
 
-* **Plan-Defined Grid (Primary Experiment):**
- * $y \in \{100, 1000, 10000\}$
- * $x \in \{10^6, 10^7, 10^8, 10^9\}$
- * $h \in \{10^3, 10^4, 10^5, 10^6\}$ (Fixed interval lengths)
- * *Purpose:* To eliminate truncation bias and isolate the effect of interval length on
- density deviation from the Dickman function prediction.
+## 3. Statistical Tests (KS & Chi-Square)
 
-## 3. Statistical Analysis Framework
+To evaluate the deviation of observed smooth number density from the theoretical Dickman function $\rho(u)$, we employ two complementary statistical tests.
 
-The analysis phase employs a dual-test approach to rigorously evaluate the fit between
-observed data and the Dickman function $\rho(u)$, where $u = (\log x) / (\log y)$.
+### 3.1 Kolmogorov-Smirnov (KS) Test (Plan-Primary)
+The KS test is non-parametric and sensitive to differences in both the location and shape of the cumulative distribution functions (CDF).
 
-### 3.1 Theoretical Baseline: The Dickman Function
-The expected density of $y$-smooth numbers is approximated by the Dickman function $\rho(u)$.
-Our implementation (`code/dickman.py`) solves the delay-differential equation
-$u\rho'(u) + \rho(u-1) = 0$ numerically using the Tenenbaum integration method.
+**Procedure**:
+1. **Data**: Collect the observed densities $\rho_{obs}$ for a fixed $y$ across varying interval lengths $h$.
+2. **Theoretical CDF**: Construct the expected CDF based on the Dickman function $\rho(u)$ where $u = \frac{\ln x}{\ln y}$.
+3. **Statistic**: Compute $D = \sup_x |F_{obs}(x) - F_{theory}(x)|$.
+4. **P-value**: Calculate the asymptotic p-value. A low p-value indicates a significant deviation from the Dickman prediction, supporting the hypothesis that smooth number distribution in short intervals exhibits variance not captured by the asymptotic limit.
 
-### 3.2 Deviation Ratio Analysis
-For each configuration, we compute the observed density $\rho_{obs} = \text{count}/h$ and
-the theoretical density $\rho_{theo} = \rho(u)$. The deviation ratio $R = \rho_{obs} / \rho_{theo}$
-is analyzed to detect systematic biases.
+### 3.2 Chi-Square Goodness-of-Fit Test (Spec-Mandatory)
+The Chi-Square test evaluates the fit between observed counts and expected counts in binned data.
 
-### 3.3 Dual-Test Validation Strategy
+**Procedure**:
+1. **Binning**: Apply Sturges' rule ($k = \lceil 1 + \log_2 N \rceil$) to bin the interval lengths or density values.
+2. **Expected Counts**: Calculate expected counts $E_i$ for each bin $i$ using the integral of the Dickman density over the bin range.
+3. **Statistic**: Compute $\chi^2 = \sum \frac{(O_i - E_i)^2}{E_i}$.
+4. **Constraint**: Bins with $E_i < 5$ are merged to satisfy the asymptotic approximation requirements of the test.
+5. **Output**: The resulting p-value is stored in `data/model_fits.json` alongside the regression parameters.
 
-To satisfy both the original specification requirements (FR-005) and the revised methodological
-principles (Plan Principle VII), we employ two complementary statistical tests:
+## 4. Dual-Grid Rationale
 
-#### A. Chi-Square Goodness-of-Fit Test (Spec-Mandatory)
-* **Implementation:** `run_chi_square_goodness_of_fit` in `code/analysis.py`.
-* **Method:**
- 1. The interval data is binned into $k$ categories based on the magnitude of $h$.
- 2. Expected counts for each bin are calculated as $E_i = \rho(u) \times h_i$.
- 3. The Chi-Square statistic is computed: $\chi^2 = \sum \frac{(O_i - E_i)^2}{E_i}$.
- 4. P-values are derived from the Chi-Square distribution with $k-1$ degrees of freedom.
-* **Purpose:** Provides a classical measure of how well the observed distribution fits the
- theoretical model across the Spec-defined grid.
+The experimental design utilizes two distinct parameter grids to address both the original specification and methodological refinements proposed in the research plan.
 
-#### B. Kolmogorov-Smirnov (KS) Test (Plan-Primary)
-* **Implementation:** `run_plan_primary_analysis` in `code/analysis.py`.
-* **Method:**
- 1. Constructs the empirical cumulative distribution function (ECDF) of the observed
- smooth numbers in the interval.
- 2. Compares this ECDF against the theoretical CDF derived from the Dickman function.
- 3. Calculates the maximum distance $D = \sup_x |F_{obs}(x) - F_{theo}(x)|$.
-* **Purpose:** A non-parametric test that is more sensitive to differences in the shape of
- the distribution, particularly in the tails, making it the primary metric for the
- Plan-defined fixed-interval analysis.
+### Grid A: Spec-Defined (Comparative Analysis)
+- **Parameters**: $y \in \{100, 1000, 10000\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$.
+- **Interval Length**: $h \in \{x^{0.1}, x^{0.3}, x^{0.5}, x^{0.7}, x^{0.9}\}$.
+- **Purpose**: Satisfies FR-002 of the original specification. This grid explores how density changes as the interval length scales non-linearly with $x$, providing a broad overview of the density surface.
 
-## 4. Visualization and Reporting
+### Grid B: Plan-Defined (Primary Experiment)
+- **Parameters**: $y \in \{100, 1000, 10000\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$.
+- **Interval Length**: $h \in \{10^3, 10^4, 10^5, 10^6\}$ (Fixed).
+- **Purpose**: Satisfies SC-004 (Variance Analysis) and Plan Principle VII. By fixing $h$, we isolate the effect of $x$ and $y$ on density variance, avoiding the truncation bias inherent in the scaling grid. This allows for a cleaner statistical test of the power-law hypothesis $R \propto h^\beta$.
 
-Results are visualized using `code/viz.py`, which generates plots of density vs. interval
-length with 95% confidence intervals. All visualizations strictly adhere to data-driven
-captions, ensuring that interpretations (e.g., "forest density" metaphors) are confined
-to the narrative `research.md` section, preserving the integrity of the data artifacts
-(Constitution Principle IV).
+**Integration**: Results from both grids are saved to `data/density_measurements_spec.csv` and `data/density_measurements_plan.csv` respectively. The `code/analysis.py` module processes both datasets independently, generating separate regression models and statistical tests to ensure the robustness of the findings across methodological approaches.
 
-## 5. Reproducibility
+## 5. Reproducibility Steps
 
-The entire pipeline is orchestrated via `code/main.py`, which manages configuration loading,
-sequential execution of the sieve, density enumeration, and analysis steps. Deterministic
-random seeds are enforced via `code/utils.py` to ensure that every run produces identical
-results given the same input parameters.
+To reproduce these results, ensure the following environment and steps are followed:
 
-All output artifacts, including the prime list, density measurements, and statistical fit
-parameters, are stored in the `data/` directory with checksums for verification.
+1. **Dependencies**: Install required packages:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
+2. **Environment Variables**: Set `PYTHONHASHSEED=0` for deterministic hashing.
+3. **Execution Order**:
+ - Run `python code/main.py --task sieve` to generate `data/primes_1e9.csv`.
+ - Run `python code/validate_sieve.py` to verify the prime list.
+ - Run `python code/main.py --task smoothness` to generate density measurements.
+ - Run `python code/main.py --task analysis` to compute statistics and generate plots.
+4. **Verification**: Checksums for all generated data files are recorded in `state/checksums.json`. Compare these against the provided hash values to ensure data integrity.
+
+This methodology ensures that the exploration of smooth number distributions is conducted with rigorous statistical standards, memory safety, and full reproducibility.

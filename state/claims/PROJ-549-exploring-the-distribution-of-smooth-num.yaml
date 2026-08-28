@@ -1937,3 +1937,711 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T18:57:04Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count up to 10^9 is 50,847,534
+  claim_id: c_510ddb23
+  context: 'Integration test for prime count verification in tests/test_sieve.py:
+    Implement test_prime_count_exact asserting 50847534 (OEIS A006880)'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Implement `test_prime_count_exact` asserting 50847534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:02:23Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count up to 10^9 is 50,847,534
+  claim_id: c_e089b202
+  context: Verify total count exactly equals 50,847,534 (OEIS A006880) in validate_sieve.py
+    requirements
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:02:29Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: prime count up to 10^9 is 50847534
+  claim_id: c_56bc9aa9
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: The prime count up to 10^9 is 50,847,534 (OEIS A006880).
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:02:42Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count equals 50847534
+  claim_id: c_19cceb57
+  context: Verify total count exactly equals 50,847,534 (OEIS A006880) in the validation
+    script
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:06:42Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: pi(10^9) equals 50847534 according to OEIS A006880
+  claim_id: c_18b066e3
+  context: Implement test_prime_count_exact asserting 50847534 (OEIS A006880, https://oeis.org/A006880)
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: 50847534 (OEIS A006880, https://oeis.org/A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:06:51Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count up to 10^9 equals 50847534
+  claim_id: c_168b2aac
+  context: 'Implement and run code/validate_sieve.py: Verify total count exactly equals
+    50,847,534 (OEIS A006880)'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:08:07Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: number of primes up to 10^9 is 50,847,534
+  claim_id: c_fefc75ac
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:09:38Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: number of primes up to 10^9 is 50,847,534
+  claim_id: c_97b0402f
+  context: Implement and run code/validate_sieve.py... Verify total count exactly
+    equals 50,847,534 (OEIS A006880)
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:09:38Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: number of primes up to 10^9 is 50,847,534
+  claim_id: c_cf71c537
+  context: Verify total count exactly equals 50,847,534 (OEIS A006880). Randomly sample
+    a set of primes from the list and verify each using deterministic trial division
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:10:19Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count equals 50847534 verified against OEIS A006880
+  claim_id: c_17e89940
+  context: 'Requirements: 2. Verify total count exactly equals 50,847,534 (OEIS A006880).'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880).
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:10:43Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: Dickman function rho(u) solver via Tenenbaum method
+  claim_id: c_97173429
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004 [P] Implement code/dickman.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dickman_function_rho(u)_solver_via_Tenenbaum_method
+  kind: entity_fact
+  raw_text: "Implement `code/dickman.py`: Numerical solver for the Dickman function\
+    \ \u03C1(u) via integration of the delay-differential equation (Tenenbaum method)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:11:07Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count pi(10^9) is 50847534
+  claim_id: c_a5de453b
+  context: 'Independent Test: Execute the sieve script in isolation; verify output
+    count matches pi(10^9) = 50,847,534 within 1 second; verify peak memory < 4 GB.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: verify output count matches pi(10^9) = 50,847,534
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:11:20Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count pi(10^9) is 50847534
+  claim_id: c_208a457e
+  context: 'Requirements: 2. Verify total count exactly equals 50,847,534 (OEIS A006880).'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:11:21Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: pi(10^9) equals 50847534
+  claim_id: c_3eed2fa2
+  context: 'Requirements: 2. Verify total count exactly equals 50,847,534 (OEIS A006880).'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:11:48Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count pi(10^9) equals 50,847,534
+  claim_id: c_e576ef3a
+  context: Implement and run code/validate_sieve.py... Verify total count exactly
+    equals 50,847,534 (OEIS A006880).
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880).
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:13:45Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: OEIS A006880 URL
+  claim_id: c_a3f82a06
+  context: Implement test_prime_count_exact asserting {{claim:c_18b066e3}} (OEIS A006880,
+    https://oeis.org/A006880) (OEIS A006880)
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: entity_fact
+  raw_text: https://oeis.org/A006880
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:13:46Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: pi(10^9) equals 50847534
+  claim_id: c_91a65bfd
+  context: 'Independent Test: Execute the sieve script in isolation; verify output
+    count matches pi(10^9) = 50,847,534 within 1 second; verify peak memory < 4 GB.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: verify output count matches pi(10^9) = 50,847,534
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:14:36Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: total prime count up to 10^9 equals 50847534
+  claim_id: c_f59052d1
+  context: Verify total count exactly equals 50,847,534 (OEIS A006880).
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:14:37Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: pi(10^9) equals 50,847,534
+  claim_id: c_55a848d5
+  context: 'Independent Test: Execute the sieve script in isolation; verify output
+    count matches pi(10^9) = 50,847,534 within 1 second; verify peak memory < 4 GB.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: verify output count matches pi(10^9) = 50,847,534
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:14:46Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: number of primes up to 10^9 is 50847534
+  claim_id: c_69d4edff
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second"
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: "verify output count matches \u03C0(10^9) = 50,847,534"
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:14:58Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: number of primes up to 10^9 is 50847534
+  claim_id: c_8b22de99
+  context: 'Requirements for validate_sieve.py: Verify total count exactly equals
+    50,847,534 (OEIS A006880)'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:14:59Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: total prime count equals 50847534 according to OEIS A006880
+  claim_id: c_9cbfed82
+  context: 'Requirements: Verify total count exactly equals 50,847,534 (OEIS A006880)'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:15:08Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: pi(10^9) equals 50847534
+  claim_id: c_e6d27c47
+  context: Verify total count exactly equals 50,847,534 (OEIS A006880). Randomly sample
+    a set of primes from the list and verify each using deterministic trial division
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:15:17Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime count pi(10^9) equals 50847534
+  claim_id: c_1b62ac5b
+  context: 'Requirements: 2. Verify total count exactly equals 50,847,534 (OEIS A006880).'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534 (OEIS A006880)
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:16:10Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: OEIS sequence A006880
+  claim_id: c_9358ea2f
+  context: Implement test_prime_count_exact asserting {{claim:c_18b066e3}} (OEIS A006880,
+    {{claim:c_a3f82a06}} (OEIS A006880, https://oeis.org/A006880))
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 29 1520698109714272166094258063
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: 29 1520698109714272166094258063
+    filled: true
+  kind: entity_fact
+  raw_text: OEIS A006880
+  resolved_value: 29 1520698109714272166094258063
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:16:22Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: total prime count up to 10^9 equals 50847534
+  claim_id: c_43c032c9
+  context: 'Requirements: Verify total count exactly equals 50,847,534'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:16:36Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: pi(10^9) equals 50847534
+  claim_id: c_1b1833b4
+  context: 'Requirements: 2. Verify total count exactly equals 50,847,534 ({{claim:c_9358ea2f}}).'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: Verify total count exactly equals 50,847,534
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:16:53Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: runtime less than 7200 seconds
+  claim_id: c_97bce677
+  context: 'Integration test for prime count verification in tests/test_sieve.py:
+    Implement test_prime_count_exact ... and test_sieve_runtime asserting runtime_seconds
+    < 7200 (120 minutes).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 60 minStart 111 min
+      source_id: '2603.26441'
+      url: https://arxiv.org/abs/2603.26441
+      value: '111'
+    filled: true
+  kind: magnitude
+  raw_text: asserting runtime_seconds < 7200 (120 minutes)
+  resolved_value: '111'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:17:46Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: peak memory usage less than 4 GB
+  claim_id: c_109013a1
+  context: "Independent Test: Execute the sieve script in isolation; verify output\
+    \ count matches \u03C0(10^9) = 50,847,534 within 1 second; verify peak memory\
+    \ < 4 GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_4_GB
+  kind: magnitude
+  raw_text: verify peak memory < 4 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:18:06Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: reduce runtime of smoothness.py by at least 50 percent
+  claim_id: c_e92bfc6a
+  context: 'Performance Optimization: Implement vectorized factorization using numpy
+    broadcasting. Goal: Reduce runtime of smoothness.py by at least 50% compared to
+    the baseline profile (T032a).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_runtime_of_smoothness.py_by_at_least_50_percent
+  kind: magnitude
+  raw_text: reduce runtime of smoothness.py by at least 50% compared to the baseline
+    profile
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:18:35Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: synthetic data with 10 points slope 2.0 and noise 0.1
+  claim_id: c_1cd018d1
+  context: 'Unit test for WLS regression implementation in tests/test_analysis.py:
+    Implement test_wls_recovery using synthetic data: 10 points, slope=2.0, noise=0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10 points, slope=2.0, noise=0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:19:03Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 0
+  canonical: prime list total count equals 50847534
+  claim_id: c_b965e6d7
+  context: 'Requirements: 2. Verify total count exactly equals 50,847,534 ({{claim:c_9358ea2f}}).'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9 50847534
+      source_id: A006880
+      url: https://oeis.org/A006880
+      value: '50847534'
+    filled: true
+  kind: numeric
+  raw_text: verify total count exactly equals 50,847,534
+  resolved_value: '50847534'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-28T06:19:28Z'

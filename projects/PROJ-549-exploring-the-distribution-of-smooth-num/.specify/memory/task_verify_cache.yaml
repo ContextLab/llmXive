@@ -36,3 +36,17 @@ T031:
   r: "No documentation files were presented in a `docs/` directory, nor any text describing\
     \ the methodology or the dual-test (Chi\u2011Square and Kolmogorov\u2011Smirnov)\
     \ approach. Without such artifacts, the requirement cannot be confirmed as satisfied."
+T032a:
+  c: false
+  h: 6eed0d6184085ec15a378c06e82483ac0f70493ef4e2d86c47a6ba94f5f2b3a4
+  r: "The required profiling output file `data/profiles/smoothness_baseline.txt` is\
+    \ missing, and there is no evidence that `cProfile` was run on the loop in `code/smoothness.py`.\
+    \ The task\u2019s core deliverable \u2013 a saved cProfile pstats text report\
+    \ \u2013 was not provided."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or updated Section\u202F4 containing the requested \u201C\
+    forest density\u201D metaphor and \u201Cmoment of tension\u201D framing was provided;\
+    \ the claim lacks any tangible artifact to verify that the narrative integration\
+    \ was actually written."

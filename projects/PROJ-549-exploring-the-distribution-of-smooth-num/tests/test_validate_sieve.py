@@ -1,109 +1,213 @@
 """
 Tests for validate_sieve.py
 """
+import json
+import os
+import random
+import tempfile
+from unittest.mock import patch, MagicMock
 
 import pytest
-import os
-import tempfile
-import csv
-from unittest.mock import patch, mock_open
-import sys
 
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Import the functions to test
+from validate_sieve import (
+    load_primes_from_csv,
+    is_prime_trial_division,
+    verify_primes_sample,
+    verify_primes_completeness,
+    compute_file_checksum,
+    EXPECTED_PRIME_COUNT,
+    SAMPLE_SIZE
+)
 
-from code.validate_sieve import is_prime_trial_division, verify_primes_sample, verify_primes_completeness
+class TestLoadPrimesFromCsv:
+    def test_load_primes_from_csv_valid_file(self, tmp_path):
+        """Test loading primes from a valid CSV file."""
+        primes_file = tmp_path / "primes.csv"
+        primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+        
+        with open(primes_file, 'w') as f:
+            for p in primes:
+                f.write(f"{p}\n")
+        
+        result = load_primes_from_csv(str(primes_file))
+        assert result == primes
+        assert len(result) == len(primes)
+    
+    def test_load_primes_from_csv_nonexistent_file(self):
+        """Test loading from a nonexistent file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_primes_from_csv("/nonexistent/path/primes.csv")
+    
+    def test_load_primes_from_csv_with_empty_lines(self, tmp_path):
+        """Test loading primes from a CSV file with empty lines."""
+        primes_file = tmp_path / "primes.csv"
+        primes = [2, 3, 5, 7]
+        
+        with open(primes_file, 'w') as f:
+            f.write("2\n")
+            f.write("\n")  # Empty line
+            f.write("3\n")
+            f.write("5\n")
+            f.write("\n")  # Empty line
+            f.write("7\n")
+        
+        result = load_primes_from_csv(str(primes_file))
+        assert result == primes
 
 class TestIsPrimeTrialDivision:
-    """Test the trial division prime checker"""
+    def test_is_prime_small_primes(self):
+        """Test trial division for small primes."""
+        primes_list = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+        
+        # Test known primes
+        assert is_prime_trial_division(2, primes_list)
+        assert is_prime_trial_division(3, primes_list)
+        assert is_prime_trial_division(5, primes_list)
+        assert is_prime_trial_division(7, primes_list)
+        assert is_prime_trial_division(29, primes_list)
+        
+        # Test known composites
+        assert not is_prime_trial_division(4, primes_list)
+        assert not is_prime_trial_division(6, primes_list)
+        assert not is_prime_trial_division(9, primes_list)
+        assert not is_prime_trial_division(15, primes_list)
+        assert not is_prime_trial_division(25, primes_list)
     
-    def test_small_primes(self):
-        """Test known small primes"""
-        for p in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]:
-            assert is_prime_trial_division(p) is True
+    def test_is_prime_edge_cases(self):
+        """Test edge cases."""
+        primes_list = [2, 3, 5, 7]
+        
+        assert not is_prime_trial_division(0, primes_list)
+        assert not is_prime_trial_division(1, primes_list)
+        assert is_prime_trial_division(2, primes_list)
     
-    def test_small_composites(self):
-        """Test known small composites"""
-        for n in [1, 4, 6, 8, 9, 10, 12, 14, 15, 16, 18, 20, 21, 22, 24, 25, 26, 27, 28]:
-            assert is_prime_trial_division(n) is False
-    
-    def test_medium_primes(self):
-        """Test medium-sized primes"""
-        assert is_prime_trial_division(97) is True
-        assert is_prime_trial_division(101) is True
-        assert is_prime_trial_division(103) is True
-        assert is_prime_trial_division(107) is True
-        assert is_prime_trial_division(109) is True
-    
-    def test_medium_composites(self):
-        """Test medium-sized composites"""
-        assert is_prime_trial_division(100) is False
-        assert is_prime_trial_division(102) is False
-        assert is_prime_trial_division(104) is False
-        assert is_prime_trial_division(105) is False
-        assert is_prime_trial_division(106) is False
-    
-    def test_large_prime(self):
-        """Test a large prime"""
-        assert is_prime_trial_division(104729) is True  # 10000th prime
-    
-    def test_large_composite(self):
-        """Test a large composite"""
-        assert is_prime_trial_division(104730) is False
+    def test_is_prime_large_prime(self):
+        """Test a larger prime that requires trial division up to sqrt."""
+        primes_list = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
+        
+        # 53 is prime, sqrt(53) ≈ 7.28, so we need primes up to 7
+        assert is_prime_trial_division(53, primes_list)
+        
+        # 49 = 7*7 is composite
+        assert not is_prime_trial_division(49, primes_list)
 
 class TestVerifyPrimesSample:
-    """Test the sample verification function"""
+    def test_verify_primes_sample_all_pass(self, tmp_path):
+        """Test sample verification when all primes are valid."""
+        primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
+        sample_size = 5
+        
+        # Set seed for reproducibility
+        random.seed(42)
+        
+        all_passed, indices, results = verify_primes_sample(primes, sample_size)
+        
+        assert all_passed
+        assert len(indices) == sample_size
+        assert all(results)
+        assert all(idx < len(primes) for idx in indices)
     
-    def test_valid_sample(self):
-        """Test with a valid list of primes"""
-        primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
-        result = verify_primes_sample(primes, sample_size=5, seed=42)
-        assert result is True
-    
-    def test_invalid_sample(self):
-        """Test with a list containing a non-prime"""
-        primes = [2, 3, 4, 5, 7, 11, 13, 17, 19, 23]  # 4 is not prime
-        # Note: 4 might not be in the sample, so we test with a list that forces it
-        primes = [4, 6, 8, 9, 10, 12, 14, 15, 16, 18]
-        result = verify_primes_sample(primes, sample_size=5, seed=42)
-        assert result is False
-    
-    def test_empty_list(self):
-        """Test with empty list"""
-        primes = []
-        result = verify_primes_sample(primes, sample_size=5, seed=42)
-        assert result is False
-    
-    def test_sample_larger_than_list(self):
-        """Test when sample size is larger than list"""
-        primes = [2, 3, 5]
-        result = verify_primes_sample(primes, sample_size=10, seed=42)
-        assert result is True
+    def test_verify_primes_sample_small_list(self):
+        """Test sample verification with list smaller than sample size."""
+        primes = [2, 3, 5, 7]
+        sample_size = 10  # Larger than list size
+        
+        all_passed, indices, results = verify_primes_sample(primes, sample_size)
+        
+        assert all_passed
+        assert len(indices) == len(primes)
+        assert all(results)
 
 class TestVerifyPrimesCompleteness:
-    """Test the completeness check function"""
-    
-    def test_valid_primes(self):
-        """Test with a valid list of primes"""
+    def test_verify_primes_completeness_valid(self):
+        """Test completeness check with valid prime list."""
         primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
-        result = verify_primes_completeness(primes)
-        assert result is True
+        
+        passed, error = verify_primes_completeness(primes)
+        
+        # This should pass if count matches expected
+        # Note: For this test, we're using a small list, so count will fail
+        # unless we adjust EXPECTED_PRIME_COUNT for testing
+        # The function should correctly identify the count mismatch
+        assert not passed
+        assert "Count mismatch" in error
     
-    def test_wrong_first_primes(self):
-        """Test with wrong first primes"""
-        primes = [3, 5, 7, 11, 13, 17, 19, 23, 29, 31]  # Missing 2
-        result = verify_primes_completeness(primes)
-        assert result is False
+    def test_verify_primes_completeness_duplicates(self):
+        """Test completeness check detects duplicates."""
+        primes = [2, 3, 5, 5, 7, 11]
+        
+        passed, error = verify_primes_completeness(primes)
+        
+        assert not passed
+        assert "Duplicate" in error
     
-    def test_empty_list(self):
-        """Test with empty list"""
-        primes = []
-        result = verify_primes_completeness(primes)
-        assert result is False
+    def test_verify_primes_completeness_unsorted(self):
+        """Test completeness check detects unsorted list."""
+        primes = [2, 3, 5, 11, 7, 13]  # 11 comes before 7
+        
+        passed, error = verify_primes_completeness(primes)
+        
+        assert not passed
+        assert "sorted" in error
     
-    def test_single_prime(self):
-        """Test with single prime"""
-        primes = [2]
-        result = verify_primes_completeness(primes)
-        # Should fail because we expect at least 10 primes for the first check
-        assert result is False
+    def test_verify_primes_completeness_first_not_two(self):
+        """Test completeness check detects first prime not 2."""
+        primes = [3, 5, 7, 11]
+        
+        passed, error = verify_primes_completeness(primes)
+        
+        assert not passed
+        assert "First prime" in error
+
+class TestComputeFileChecksum:
+    def test_compute_file_checksum(self, tmp_path):
+        """Test checksum computation."""
+        test_file = tmp_path / "test.txt"
+        content = "Hello, World!"
+        
+        with open(test_file, 'w') as f:
+            f.write(content)
+        
+        checksum = compute_file_checksum(str(test_file))
+        
+        assert len(checksum) == 64  # SHA256 hex length
+        assert isinstance(checksum, str)
+    
+    def test_compute_file_checksum_consistency(self, tmp_path):
+        """Test that checksum is consistent for same file."""
+        test_file = tmp_path / "test.txt"
+        content = "Test content for checksum"
+        
+        with open(test_file, 'w') as f:
+            f.write(content)
+        
+        checksum1 = compute_file_checksum(str(test_file))
+        checksum2 = compute_file_checksum(str(test_file))
+        
+        assert checksum1 == checksum2
+
+class TestIntegration:
+    def test_full_validation_workflow(self, tmp_path):
+        """Test the full validation workflow with a mock prime list."""
+        # Create a small prime list file
+        primes_file = tmp_path / "primes_small.csv"
+        primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+        
+        with open(primes_file, 'w') as f:
+            for p in primes:
+                f.write(f"{p}\n")
+        
+        # Load and verify
+        loaded_primes = load_primes_from_csv(str(primes_file))
+        assert loaded_primes == primes
+        
+        # Check completeness (will fail on count, but should pass other checks)
+        passed, error = verify_primes_completeness(loaded_primes)
+        assert not passed  # Count will be wrong
+        assert "Count mismatch" in error
+        
+        # Sample verification (should pass)
+        random.seed(42)
+        sample_passed, _, _ = verify_primes_sample(loaded_primes, 5)
+        assert sample_passed

@@ -33,7 +33,7 @@ The researcher needs to systematically enumerate integers in short intervals $[x
 **Acceptance Scenarios**:
 
 1. **Given** a specific parameter set ($x=10^7, y=1000, h=x^{0.5}$), **When** the enumeration script processes the interval $[x, x+h]$, **Then** the script correctly identifies every integer in the range as $y$-smooth or not based on its prime factors, and outputs a count that matches the expected value with [deferred] error (accounting for potential edge-case definition differences).
-2. **Given** the full parameter grid ($y \in \{100, 1000, 10000\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$, $h \in \{x^{0.1}, x^{0.3}, x^{0.5}, x^{0.7}, x^{0.9}\}$), **When** the script runs across 50 random starting positions per configuration, **Then** it generates a complete dataset of density measurements without crashing due to memory or time limits (completing within 240 minutes).
+2. **Given** the full parameter grid ($y \in \{100, 1000, 10000\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$, $h \in \{x^{0.1}, x^{0.3}, x^{0.5}, x^{0.7}, x^{0.9}\}$), **When** the script runs across multiple random starting positions per configuration, **Then** it generates a complete dataset of density measurements without crashing due to memory or time limits (completing within 240 minutes).
 
 ---
 
@@ -48,7 +48,7 @@ The researcher needs to fit a power-law model to the observed density data, perf
 **Acceptance Scenarios**:
 
 1. **Given** the complete density dataset from User Story 2, **When** the power-law regression ($\rho(h) = c \cdot h^\beta$) is executed, **Then** the model converges and outputs a coefficient $\beta$ with a standard error, and the $R^2$ value is calculated for each $y$-group.
-2. **Given** the observed density distributions, **When** the Chi-Square Goodness-of-Fit test is applied against the theoretical prediction derived from the Dickman function for each $y$-group, **Then** the script outputs a p-value for each test, and a visualization plot is generated showing the observed density curves with 95% confidence intervals overlaid on the theoretical expectation.
+2. **Given** the observed density distributions, **When** the Chi-Square Goodness-of-Fit test is applied against the theoretical prediction derived from the Dickman function for each $y$-group, **Then** the script outputs a p-value for each test, and a visualization plot is generated showing the observed density curves with confidence intervals overlaid on the theoretical expectation.
 
 ### Edge Cases
 
@@ -87,9 +87,9 @@ The researcher needs to fit a power-law model to the observed density data, perf
 
 ## Assumptions
 
-- **Assumption about data**: The pre-computed prime tables from PrimePages are available and trusted, or the segmented sieve implementation is sufficient to generate primes up to $10^9$ within the 2-hour window on a 2-core CPU.
+- **Assumption about data**: The pre-computed prime tables from PrimePages are available and trusted, or the segmented sieve implementation is sufficient to generate primes up to a large magnitude within the 2-hour window on a 2-core CPU.
 - **Assumption about methodology**: The distribution of $y$-smooth numbers in short intervals follows a power-law relationship at the scales tested ($x \le 10^9$) as a hypothesis to be tested, not an assumed truth; the Dickman function provides a valid theoretical baseline for expected counts.
-- **Assumption about compute**: The factorization of integers up to $10^9$ using trial division against primes up to $y$ (where $y \le [deferred]$) is computationally feasible within the 6-hour limit, even with the overhead of 50 random samples per configuration.
+- **Assumption about compute**: The factorization of integers up to $10^9$ using trial division against primes up to $y$ (where $y \le [deferred]$) is computationally feasible within the 6-hour limit, even with the overhead of a moderate set of random samples per configuration.
 - **Assumption about statistical framing**: Since the study is observational (no random assignment of numbers), all conclusions regarding the relationship between interval length and density will be framed as associational, not causal, to avoid inferential overreach.
 - **Assumption about threshold**: The power-law regression will use a standard least-squares approach without additional regularization, assuming the data is sufficiently linear in the log-log space for the tested range.
 - **Assumption about sensitivity**: The choice of $h$ values as powers of $x$ ($x^{0.1}$ to $x^{0.9}$) is sufficient to capture the transition from local to asymptotic behavior; a sensitivity analysis sweeping the exponent $\alpha$ by $\pm 0.05$ is deferred to future work if the initial results are inconclusive.

@@ -1,258 +1,141 @@
 """
-Main entry point for the Smooth Numbers Distribution Project.
-
-This module provides a CLI interface to trigger:
-1. Segmented sieve generation (US1)
-2. Smoothness density analysis across parameter grids (US2)
-3. Statistical analysis and visualization orchestration (US3)
+code/main.py: CLI entry point and orchestration.
+Orchestrates the analysis pipeline: runs T026a, T026b, T027a, T027b and aggregates results into data/model_fits.json.
 """
-
 import argparse
 import json
 import logging
 import sys
+import os
 from typing import Optional
-
 from config import load_config
-from sieve import run_sieve
-from smoothness import run_smoothness_analysis, parse_args as smoothness_parse_args
-from analysis import run_plan_primary_analysis, run_spec_mandatory_analysis, run_chi_square_goodness_of_fit
-from utils import setup_logging
 
-
-def parse_args() -> argparse.Namespace:
+def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="CLI entry point for Smooth Numbers Distribution analysis."
-    )
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-
-    # Sieve command
-    sieve_parser = subparsers.add_parser(
-        "sieve", help="Generate primes using the segmented sieve."
-    )
-    sieve_parser.add_argument(
-        "--limit",
-        type=int,
-        default=None,
-        help="Upper bound for prime generation (default: from config).",
-    )
-    sieve_parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Output CSV path (default: from config).",
-    )
-    sieve_parser.add_argument(
-        "--validate",
-        action="store_true",
-        default=True,
-        help="Run deterministic validation after generation (default: True).",
-    )
-    sieve_parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Set logging level.",
-    )
-
-    # Analyze command (US2)
-    analyze_parser = subparsers.add_parser(
-        "analyze", help="Run smoothness density analysis (US2)."
-    )
-    analyze_parser.add_argument(
-        "--primes-path",
-        type=str,
-        default=None,
-        help="Path to the validated primes CSV (default: from config).",
-    )
-    analyze_parser.add_argument(
-        "--output-spec",
-        type=str,
-        default=None,
-        help="Output CSV path for Spec grid density measurements (default: from config).",
-    )
-    analyze_parser.add_argument(
-        "--output-plan",
-        type=str,
-        default=None,
-        help="Output CSV path for Plan grid density measurements (default: from config).",
-    )
-
-    analyze_parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Set logging level.",
-    )
-
-    # Run Analysis command (US3)
-    run_analysis_parser = subparsers.add_parser(
-        "run-analysis", help="Run full statistical analysis (US3)."
-    )
-    run_analysis_parser.add_argument(
-        "--input-spec",
-        type=str,
-        default=None,
-        help="Input CSV path for Spec grid (default: from config).",
-    )
-    run_analysis_parser.add_argument(
-        "--input-plan",
-        type=str,
-        default=None,
-        help="Input CSV path for Plan grid (default: from config).",
-    )
-    run_analysis_parser.add_argument(
-        "--output-fits",
-        type=str,
-        default=None,
-        help="Output JSON path for model fits (default: from config).",
-    )
-    run_analysis_parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Set logging level.",
-    )
-
+    parser = argparse.ArgumentParser(description="Main entry point for smooth number analysis")
+    parser.add_argument("--task", type=str, choices=["sieve", "smoothness", "analysis", "viz", "aggregate"],
+                        help="Task to run")
+    parser.add_argument("--config", type=str, help="Path to config file")
     return parser.parse_args()
 
-
-def main() -> int:
+def run_aggregation():
     """
-    Main entry point.
-
-    Returns:
-        int: Exit code (0 for success, 1 for failure).
+    Orchestrates the analysis tasks (T026a, T026b, T027a, T027b) and writes the final JSON report.
     """
+    logging.info("Starting analysis aggregation pipeline...")
+
+    # Import analysis functions dynamically to ensure they are available
+    from analysis import (
+        run_plan_primary_analysis,
+        run_spec_mandatory_analysis,
+        run_chi_square_goodness_of_fit,
+        load_density_data
+    )
+
+    output_path = "data/model_fits.json"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    result = {
+        "plan_beta": None,
+        "plan_beta_se": None,
+        "plan_r_squared": None,
+        "plan_ks_p": None,
+        "spec_beta": None,
+        "spec_beta_se": None,
+        "spec_r_squared": None,
+        "spec_chi2_p": None
+    }
+
+    try:
+        # --- Plan-Primary Analysis (T026a & T027a) ---
+        logging.info("Running Plan-Primary Analysis (Deviation Ratio Regression & KS Test)...")
+        plan_results = run_plan_primary_analysis()
+        
+        if plan_results:
+            result["plan_beta"] = plan_results.get("beta")
+            result["plan_beta_se"] = plan_results.get("se")
+            result["plan_r_squared"] = plan_results.get("r_squared")
+            result["plan_ks_p"] = plan_results.get("ks_p_value")
+            logging.info(f"Plan Analysis Complete: beta={result['plan_beta']}, p={result['plan_ks_p']}")
+        else:
+            logging.warning("Plan-Primary analysis returned no results (non-convergence or data error).")
+
+    except Exception as e:
+        logging.error(f"Error during Plan-Primary analysis: {e}", exc_info=True)
+        # Values remain null
+
+    try:
+        # --- Spec-Mandatory Analysis (T026b) ---
+        logging.info("Running Spec-Mandatory Analysis (Raw Density Regression)...")
+        spec_results = run_spec_mandatory_analysis()
+        
+        if spec_results:
+            result["spec_beta"] = spec_results.get("beta")
+            result["spec_beta_se"] = spec_results.get("se")
+            result["spec_r_squared"] = spec_results.get("r_squared")
+            logging.info(f"Spec Analysis Complete: beta={result['spec_beta']}")
+        else:
+            logging.warning("Spec-Mandatory analysis returned no results (non-convergence or data error).")
+
+    except Exception as e:
+        logging.error(f"Error during Spec-Mandatory analysis: {e}", exc_info=True)
+        # Values remain null
+
+    try:
+        # --- Spec-Mandatory Chi-Square Test (T027b) ---
+        logging.info("Running Spec-Mandatory Chi-Square Goodness-of-Fit Test...")
+        chi2_results = run_chi_square_goodness_of_fit()
+        
+        if chi2_results:
+            result["spec_chi2_p"] = chi2_results.get("p_value")
+            logging.info(f"Chi-Square Test Complete: p={result['spec_chi2_p']}")
+        else:
+            logging.warning("Chi-Square test returned no results (data error or sparse bins).")
+
+    except Exception as e:
+        logging.error(f"Error during Chi-Square analysis: {e}", exc_info=True)
+        # Values remain null
+
+    # Write final results
+    try:
+        with open(output_path, "w") as f:
+            json.dump(result, f, indent=2)
+        logging.info(f"Successfully wrote aggregated results to {output_path}")
+    except IOError as e:
+        logging.error(f"Failed to write output file {output_path}: {e}")
+        sys.exit(1)
+
+    return result
+
+def main():
+    """Main entry point."""
     args = parse_args()
-
-    if not args.command:
-        print("Error: No command specified. Use 'python code/main.py --help' for usage.")
-        return 1
+    config = load_config(args.config)
 
     # Setup logging
-    logger = setup_logging(level=getattr(args, 'log_level', 'INFO'))
-    logger.info("Starting Smooth Numbers Distribution Project CLI.")
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-    # Load configuration
-    try:
-        config = load_config()
-    except Exception as e:
-        logger.error(f"Failed to load configuration: {e}")
-        return 1
-
-    if args.command == "sieve":
-        logger.info("Triggering segmented sieve generation (US1).")
-
-        # Override config with CLI args if provided
-        limit = args.limit if args.limit is not None else config.grid.get("sieve_limit", 10**9)
-        output_path = args.output if args.output is not None else config.paths.get("primes_output", "data/primes_1e9.csv")
-
-        logger.info(f"Running segmented sieve up to {limit:,}")
-        logger.info(f"Output path: {output_path}")
-
-        try:
-            success, checksum, count = run_sieve(
-                limit=limit,
-                output_path=output_path,
-                validate=args.validate,
-                logger=logger
-            )
-
-            if success:
-                logger.info(f"Sieve completed successfully. Count: {count:,}, Checksum: {checksum}")
-                return 0
-            else:
-                logger.error("Sieve validation failed or runtime limit exceeded.")
-                return 1
-
-        except Exception as e:
-            logger.exception(f"Error during sieve execution: {e}")
-            return 1
-
-    elif args.command == "analyze":
-        logger.info("Triggering smoothness density analysis (US2).")
-
-        # Override config with CLI args if provided
-        primes_path = args.primes_path if args.primes_path is not None else config.paths.get("primes_input", "data/primes_1e9.csv")
-        output_spec_path = args.output_spec if args.output_spec is not None else config.paths.get("density_output_spec", "data/density_measurements_spec.csv")
-        output_plan_path = args.output_plan if args.output_plan is not None else config.paths.get("density_output_plan", "data/density_measurements_plan.csv")
-
-        logger.info(f"Using primes from: {primes_path}")
-        logger.info(f"Output path (Spec): {output_spec_path}")
-        logger.info(f"Output path (Plan): {output_plan_path}")
-
-        try:
-            success = run_smoothness_analysis(
-                primes_path=primes_path,
-                output_spec_path=output_spec_path,
-                output_plan_path=output_plan_path,
-                logger=logger
-            )
-
-            if success:
-                logger.info("Analysis completed successfully.")
-                return 0
-            else:
-                logger.error("Analysis failed.")
-                return 1
-
-        except Exception as e:
-            logger.exception(f"Error during analysis execution: {e}")
-            return 1
-
-    elif args.command == "run-analysis":
-        logger.info("Triggering full statistical analysis (US3).")
-
-        # Override config with CLI args if provided
-        input_spec_path = args.input_spec if args.input_spec is not None else config.paths.get("density_input_spec", "data/density_measurements_spec.csv")
-        input_plan_path = args.input_plan if args.input_plan is not None else config.paths.get("density_input_plan", "data/density_measurements_plan.csv")
-        output_fits_path = args.output_fits if args.output_fits is not None else config.paths.get("model_fits_output", "data/model_fits.json")
-
-        logger.info(f"Input path (Spec): {input_spec_path}")
-        logger.info(f"Input path (Plan): {input_plan_path}")
-        logger.info(f"Output path (Fits): {output_fits_path}")
-
-        try:
-            # Run Plan-Primary Analysis (Power-law regression on deviation ratio)
-            logger.info("Running Plan-Primary Analysis (Deviation Ratio Regression)...")
-            plan_results = run_plan_primary_analysis(input_plan_path, logger)
-
-            # Run Spec-Mandatory Analysis (Power-law regression on raw density)
-            logger.info("Running Spec-Mandatory Analysis (Raw Density Regression)...")
-            spec_results = run_spec_mandatory_analysis(input_spec_path, logger)
-
-            # Run Chi-Square Goodness-of-Fit Test (Spec-Mandatory)
-            logger.info("Running Chi-Square Goodness-of-Fit Test...")
-            chi_square_results = run_chi_square_goodness_of_fit(input_spec_path, logger)
-
-            # Aggregate results
-            fits_data = {
-                "plan_primary": plan_results,
-                "spec_mandatory": spec_results,
-                "chi_square_test": chi_square_results
-            }
-
-            # Write to JSON
-            with open(output_fits_path, 'w', encoding='utf-8') as f:
-                json.dump(fits_data, f, indent=2, default=str)
-
-            logger.info(f"Model fits saved to {output_fits_path}")
-            logger.info("Full statistical analysis completed successfully.")
-            return 0
-
-        except Exception as e:
-            logger.exception(f"Error during statistical analysis execution: {e}")
-            return 1
-
+    if args.task == "sieve":
+        from sieve import main as sieve_main
+        sieve_main()
+    elif args.task == "smoothness":
+        from smoothness import main as smoothness_main
+        smoothness_main()
+    elif args.task == "analysis":
+        from analysis import main as analysis_main
+        analysis_main()
+    elif args.task == "viz":
+        from viz import main as viz_main
+        viz_main()
+    elif args.task == "aggregate":
+        # New task for T029 orchestration
+        run_aggregation()
     else:
-        logger.error(f"Unknown command: {args.command}")
-        return 1
-
+        print("Usage: python code/main.py --task {sieve,smoothness,analysis,viz,aggregate}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

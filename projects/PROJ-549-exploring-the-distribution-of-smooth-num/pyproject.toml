@@ -1,60 +1,8 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "smooth-numbers-analysis"
-version = "0.1.0"
-description = "Exploring the distribution of smooth numbers in short intervals"
-readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-    "numpy>=1.24.0",
-    "scipy>=1.10.0",
-    "matplotlib>=3.7.0",
-    "pytest>=7.0.0",
-]
-
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["sieve", "smoothness", "dickman", "analysis", "viz", "config", "utils", "validate_sieve", "main"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.coverage.run]
-source = ["code"]
-omit = ["*/tests/*", "*/venv/*"]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-    "@abstractmethod",
-]
