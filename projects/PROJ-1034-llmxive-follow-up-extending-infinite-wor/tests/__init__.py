@@ -1,1 +1,3 @@
-# Tests module initialization
+"""
+Tests for llmXive Follow-up project.
+"""

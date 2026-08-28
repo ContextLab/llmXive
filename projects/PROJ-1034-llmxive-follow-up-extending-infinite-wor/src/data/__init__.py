@@ -1,3 +1,1 @@
-"""
-Data module (src structure).
-"""
+"""Data handling modules."""

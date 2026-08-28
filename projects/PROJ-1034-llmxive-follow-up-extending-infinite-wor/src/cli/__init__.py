@@ -1,3 +1,1 @@
-"""
-CLI module (src structure).
-"""
+"""CLI entry points."""

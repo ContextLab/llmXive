@@ -1,69 +1,32 @@
-# llmXive Follow-up: Extending Infinite Worlds with Versatile Interactions
+# llmXive: Infinite Worlds with Versatile Interactions
 
-Automated science pipeline for simulating and analyzing infinite worlds.
-
-## Installation
-
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-## Usage
-
-### Run Simulation
-```bash
-python -m code.cli.run_simulation --config path/to/config.yaml --steps 1000 --seed 42
-```
-
-### Generate Parameter Grid
-```bash
-python -m code.cli.generate_grid
-```
-
-### Run Sweep
-```bash
-python -m code.cli.run_sweep_execution
-```
+Automated science pipeline for simulating and analyzing complex systems.
 
 ## Project Structure
 
-```
-.
-├── code/
-│ ├── cli/
-│ ├── data/
-│ ├── sim/
-│ ├── analysis/
-│ ├── tests/
-│ ├── config.py
-│ └── setup_project.py
-├── data/
-├── requirements.txt
-├── pyproject.toml
-└── README.md
-```
+- `src/`: Source code
+ - `sim/`: Simulation engines (Eco-Director, Baselines)
+ - `analysis/`: Statistical analysis tools (LMM, RF, ACF)
+ - `data/`: Data loading and processing
+ - `cli/`: Command-line interfaces
+ - `tests/`: Test utilities
+- `data/`: Input and output data
+- `tests/`: Test suite
 
-## Development
+## Installation
 
-Install development dependencies:
 ```bash
-pip install -e ".[dev]"
+pip install -r requirements.txt
 ```
 
-Run tests:
+## Usage
+
 ```bash
-pytest
+python -m src.cli.run_simulation --steps 1000
 ```
 
-Format code:
+## Testing
+
 ```bash
-black code/
-ruff check code/
+pytest tests/
 ```

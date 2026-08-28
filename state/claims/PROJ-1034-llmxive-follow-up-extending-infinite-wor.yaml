@@ -1,0 +1,36 @@
+- artifact_path: projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/specs/001-llmxive-follow-up-extending-infinite-wor/tasks.md
+  attempts: 1
+  canonical: neural baseline runs within 6h CPU limits
+  claim_id: c_50829a34
+  context: Phase 3 implementation tasks for User Story 1 require throttling logic
+    to ensure the baseline runs within a specific time frame.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Neural_baseline_runs_within_6h_CPU_limits
+  kind: entity_fact
+  raw_text: Implement throttling logic in src/sim/neural_baseline.py to ensure it
+    runs within 6h CPU limits
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T22:34:14Z'
+- artifact_path: projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/specs/001-llmxive-follow-up-extending-infinite-wor/tasks.md
+  attempts: 1
+  canonical: execute minimum 10000 time-steps of CA vs Neural baseline per configuration
+  claim_id: c_f6f89223
+  context: Phase 3 implementation tasks for User Story 1 specify the minimum number
+    of time-steps to be executed for the simulation comparison.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a minimum of 10,000 time-steps of CA vs Neural baseline per configuration
+    and log step_latency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T22:35:07Z'

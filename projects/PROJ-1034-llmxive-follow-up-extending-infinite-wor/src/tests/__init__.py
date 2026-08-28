@@ -1,3 +1,1 @@
-"""
-Tests module (src structure).
-"""
+"""Test utilities."""

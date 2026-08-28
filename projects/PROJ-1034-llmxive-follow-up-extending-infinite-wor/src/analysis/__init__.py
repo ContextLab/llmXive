@@ -1,3 +1,1 @@
-"""
-Analysis module (src structure).
-"""
+"""Analysis modules."""
