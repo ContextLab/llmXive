@@ -4128,3 +4128,463 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T01:12:33Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Feasibility Pilot targets N=15-20 participants across 3 conditions
+  claim_id: c_886ff673
+  context: Initialize data/raw/participants_raw.json with the schema for a Feasibility
+    Pilot of N=15-20 TOTAL participants (distributed across 3 conditions, approx 5-7
+    per group).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Feasibility Pilot targets N=15-20 TOTAL participants (distributed
+    across 3 conditions, approx 5-7 per group).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:17:32Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Primary analysis method is Welch's ANOVA
+  claim_id: c_ddd8437f
+  context: 'Content Requirements: Must include sections: ''1. Pre-specified Analysis
+    Approach (Welch''s ANOVA as primary, Levene''s for diagnostics ONLY)'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_analysis_method_is_Welch's_ANOVA
+  kind: entity_fact
+  raw_text: The primary analysis method is Welch's ANOVA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:17:52Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Levene's test is used for diagnostics only
+  claim_id: c_f7441305
+  context: 'Content Requirements: Must include sections: ''1. Pre-specified Analysis
+    Approach (Welch''s ANOVA as primary, Levene''s for diagnostics ONLY)'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Levene's_test_is_used_for_diagnostics_only
+  kind: entity_fact
+  raw_text: Levene's test is used for diagnostics only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:18:14Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback model phi quantized int4 uses commit hash e9d0e9f6c4b3a2d1f8e7c6b5a4d3c2b1a0f9e8d7
+  claim_id: c_04341c27
+  context: 'Define the static HuggingFace commit hash for the fallback model ''phi
+    (quantized int4)''. Value: phi_2_gguf_commit: "e9d0e9f6c4b3a2d1f8e7c6b5a4d3c2b1a0f9e8d7"'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_model_phi_quantized_int4_uses_commit_hash_e9d0e9f6c
+  kind: entity_fact
+  raw_text: The fallback model is phi (quantized int4) with HuggingFace commit hash
+    e9d0e9f6c4b3a2d1f8e7c6b5a4d3c2b1a0f9e8d7.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:18:34Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Stop-loss intervention triggers at 2700 seconds
+  claim_id: c_3d6e594b
+  context: 'Implement "Stop-Loss" intervention logic: If task time > 2700s (45 min),
+    trigger moderator intervention, flag record as ''failed'', set intervention_status
+    = ''stop_loss'', and record max_time = 2700.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stop-loss intervention triggers if task time exceeds 2700 seconds
+    (45 minutes).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:18:49Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Primary analysis always performed regardless of diagnostics
+  claim_id: c_232570f3
+  context: 'Primary Test: ALWAYS perform Welch''s ANOVA (regardless of diagnostics).
+    This is the pre-specified primary method per the plan''s "Critical Methodological
+    Shift".'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_analysis_always_performed_regardless_of_diagnostics
+  kind: entity_fact
+  raw_text: The primary analysis is always performed regardless of diagnostic results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:19:38Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Execution time constraint less than 6 hours
+  claim_id: c_6394d04a
+  context: 'Verification: Assert execution time < 6 hours and RAM < 7GB via data/reports/resource_log.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execution_time_constraint_less_than_6_hours
+  kind: magnitude
+  raw_text: The execution time constraint is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:20:03Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: RAM constraint less than 7GB
+  claim_id: c_fd9c2471
+  context: 'Verification: Assert execution time < 6 hours and RAM < 7GB via data/reports/resource_log.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_constraint_less_than_7GB
+  kind: magnitude
+  raw_text: The RAM constraint is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:20:33Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Jaccard similarity threshold 0.7
+  claim_id: c_92169e39
+  context: "Calculate Jaccard similarity of tokenized titles; threshold \u2265 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Jaccard similarity threshold for reference validation is 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:20:49Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: "Repository filtering applies \xB115% tolerance on LOC and CC"
+  claim_id: c_e7ce87b7
+  context: "Logic: Filter for high-quality docs (T021c), then apply \xB115% tolerance\
+    \ on LOC and CC."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The repository filtering logic applies a \xB115% tolerance on LOC and\
+    \ CC."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:20:50Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback model configuration load_in_4bit=True
+  claim_id: c_28d875da
+  context: 'Configuration: load_in_4bit=True.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_model_configuration_load_in_4bit=True
+  kind: entity_fact
+  raw_text: The fallback model configuration uses load_in_4bit=True.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:21:22Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Latency threshold for fallback is 300 seconds
+  claim_id: c_233f655f
+  context: 'Trigger: HTTP 5xx or latency > 300s.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The latency threshold for triggering fallback to the local model is 300
+    seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:21:42Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Feasibility pilot size of 15-20 participants across 3 conditions
+  claim_id: c_e1406837
+  context: Task T073b describes implementing a Recruitment Tracking System for a pilot
+    study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize data/raw/participants_raw.json with the schema for a Feasibility
+    Pilot of N=15-20 TOTAL participants (distributed across 3 conditions, approx 5-7
+    per group).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:26:26Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Total pilot size is 15 to 20 participants
+  claim_id: c_4add0ca9
+  context: Task T073b specifies the capacity constraint for the recruitment tracking
+    system.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total pilot size is N=15-20 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:26:48Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Target assignment of 5 to 7 participants per group
+  claim_id: c_bf8d1d77
+  context: Task T014b describes stratified randomization to LLM/Human/None conditions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The assignment logic targets N=5-7 participants per group.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:27:07Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Stop-loss intervention threshold of 2700 seconds
+  claim_id: c_dde3bd2c
+  context: Task T018 defines the logic for stopping a session if it takes too long.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stop-loss intervention triggers if task time exceeds 2700s (45 min).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:27:19Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback model is phi quantized int4 with static commit hash
+  claim_id: c_4946764b
+  context: Task T028a describes creating a config file for the fallback model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_model_is_phi_quantized_int4_with_static_commit_hash
+  kind: entity_fact
+  raw_text: The fallback model is defined as 'phi (quantized int4)' with a static
+    HuggingFace commit hash.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:27:38Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback model commit hash is e9d0e9f6c4b3a2d1f8e7c6b5a4d3c2b1a0f9e8d7
+  claim_id: c_528a8c1f
+  context: Task T028a specifies the exact 40-character hex hash for reproducibility.
+  evidence:
+    entailment_evidence: Fallback model commit hash is e9d0e9f6c4b3a2d1f8e7c6b5a4d3c2
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Fallback_model_commit_hash_is_e9d0e9f6c4b3a2d1f8e7c6b5a4d3c2
+  kind: entity_fact
+  raw_text: The static HuggingFace commit hash for the fallback model is e9d0e9f6c4b3a2d1f8e7c6b5a4d3c2b1a0f9e8d7.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-28T06:27:56Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback model configuration uses 4-bit loading
+  claim_id: c_387f479b
+  context: Task T028 describes implementing fallback logic to a local CPU-optimized
+    model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback model configuration requires load_in_4bit=True.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:28:21Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback trigger latency threshold of 300 seconds
+  claim_id: c_b25586d6
+  context: Task T028 specifies conditions for switching to the local model.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_trigger_latency_threshold_of_300_seconds
+  kind: magnitude
+  raw_text: The fallback trigger condition includes latency greater than 300s.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:28:41Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Repository filtering uses 15 percent tolerance on LOC and CC
+  claim_id: c_0ecbe3da
+  context: Task T021d describes filtering repositories based on documentation quality
+    and metrics tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The repository filtering logic applies a \xB115% tolerance on LOC and\
+    \ CC."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:28:42Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Primary analysis method is Welch's ANOVA
+  claim_id: c_d1a1bc3e
+  context: Task T036b mandates that Welch's ANOVA is always performed regardless of
+    diagnostics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_analysis_method_is_Welch's_ANOVA
+  kind: entity_fact
+  raw_text: The primary statistical analysis method is Welch's ANOVA.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:29:08Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Post-hoc correction is Games-Howell test
+  claim_id: c_ae2b3916
+  context: Task T036c describes implementing the post-hoc test if Welch's ANOVA is
+    significant.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Post-hoc_correction_is_Games-Howell_test
+  kind: entity_fact
+  raw_text: The post-hoc correction applied is the Games-Howell test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:29:26Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Execution time constraint of 6 hours
+  claim_id: c_c55b762c
+  context: Task T036b-exec sets a verification threshold for execution time.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execution_time_constraint_of_6_hours
+  kind: magnitude
+  raw_text: The execution time constraint is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:29:29Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: RAM usage constraint of 7 gigabytes
+  claim_id: c_d61cfec4
+  context: Task T036b-exec sets a verification threshold for memory usage.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_constraint_of_7_gigabytes
+  kind: magnitude
+  raw_text: The RAM usage constraint is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:29:54Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: HTTP 5xx errors trigger local model fallback
+  claim_id: c_97edc263
+  context: Task T055 defines error handling logic for data fetch operations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HTTP 5xx error range (500-599) triggers a fallback to the local model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:30:22Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Timeout threshold for fallback is 300 seconds
+  claim_id: c_4eb30265
+  context: Task T055 specifies the timeout condition for triggering the local model.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Timeout_threshold_for_fallback_is_300_seconds
+  kind: magnitude
+  raw_text: The timeout threshold for fallback logic is greater than 300s.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T06:30:40Z'

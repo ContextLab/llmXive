@@ -1,79 +1,105 @@
 """
-Unit tests for Run Metadata initialization (Task T010b).
+Unit tests for the run_metadata module.
+
+Tests the generation and persistence of run metadata.
 """
 import json
 import os
 import sys
 import tempfile
-from pathlib import Path
+import uuid
 from datetime import datetime
+from pathlib import Path
+import pytest
 
 # Add project root to path
-current_file = Path(__file__).resolve()
-project_root = current_file.parent.parent.parent
+project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from utils.run_metadata import (
-    ensure_metadata_dir,
     generate_run_metadata,
     save_metadata,
-    load_metadata
+    load_metadata,
+    ensure_metadata_dir
 )
 
-def test_generate_run_metadata_structure():
-    """Test that generated metadata has required keys."""
-    metadata = generate_run_metadata()
-    assert "RUN_ID" in metadata, "RUN_ID key missing"
-    assert "start_time" in metadata, "start_time key missing"
-    assert "project_version" in metadata, "project_version key missing"
-    
-def test_run_id_is_uuid():
-    """Test that RUN_ID is a valid UUID string."""
-    metadata = generate_run_metadata()
-    run_id = metadata["RUN_ID"]
-    # Basic UUID format check (8-4-4-4-12 hex)
-    parts = run_id.split('-')
-    assert len(parts) == 5, "UUID should have 5 parts"
-    assert len(parts[0]) == 8
-    assert len(parts[1]) == 4
-    assert len(parts[2]) == 4
-    assert len(parts[3]) == 4
-    assert len(parts[4]) == 12
+class TestRunMetadata:
+    """Test cases for run metadata generation and storage."""
 
-def test_start_time_is_iso_format():
-    """Test that start_time is in ISO 8601 format."""
-    metadata = generate_run_metadata()
-    start_time = metadata["start_time"]
-    # Attempt to parse ISO format
-    try:
-        datetime.fromisoformat(start_time)
-    except ValueError:
-        assert False, f"start_time '{start_time}' is not a valid ISO 8601 format"
-
-def test_save_and_load_metadata(tmp_path):
-    """Test saving and loading metadata to/from a file."""
-    metadata = generate_run_metadata()
-    output_file = tmp_path / "test_metadata.json"
-    
-    save_metadata(metadata, output_file)
-    assert output_file.exists(), "Output file was not created"
-    
-    loaded_metadata = load_metadata(output_file)
-    assert loaded_metadata == metadata, "Loaded metadata does not match saved metadata"
-
-def test_json_validity(tmp_path):
-    """Test that the saved file is valid JSON."""
-    metadata = generate_run_metadata()
-    output_file = tmp_path / "test_metadata.json"
-    
-    save_metadata(metadata, output_file)
-    
-    with open(output_file, 'r') as f:
+    def test_generate_run_metadata_structure(self):
+        """Test that generated metadata contains required fields."""
+        metadata = generate_run_metadata()
+        
+        assert "RUN_ID" in metadata
+        assert "start_time" in metadata
+        assert "project_version" in metadata
+        
+        # Validate RUN_ID is a valid UUID string
         try:
-            json.load(f)
-        except json.JSONDecodeError:
-            assert False, "Saved file is not valid JSON"
+            uuid.UUID(metadata["RUN_ID"])
+        except ValueError:
+            pytest.fail("RUN_ID is not a valid UUID string")
+        
+        # Validate start_time is ISO8601 format
+        try:
+            datetime.fromisoformat(metadata["start_time"])
+        except ValueError:
+            pytest.fail("start_time is not a valid ISO8601 datetime string")
 
-if __name__ == "__main__":
-    import pytest
-    pytest.main([__file__, "-v"])
+    def test_save_and_load_metadata(self, tmp_path):
+        """Test saving and loading metadata to/from a file."""
+        metadata = generate_run_metadata()
+        output_file = tmp_path / "test_run_metadata.json"
+        
+        # Save metadata
+        save_metadata(metadata, output_file)
+        
+        # Verify file exists
+        assert output_file.exists()
+        
+        # Load metadata
+        loaded_metadata = load_metadata(output_file)
+        
+        # Verify content matches
+        assert loaded_metadata == metadata
+        assert loaded_metadata["RUN_ID"] == metadata["RUN_ID"]
+
+    def test_save_metadata_creates_directory(self):
+        """Test that save_metadata creates the state directory if it doesn't exist."""
+        metadata = generate_run_metadata()
+        
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            test_state_dir = Path(tmp_dir) / "state"
+            test_file = test_state_dir / "run_metadata.json"
+            
+            # Ensure directory doesn't exist yet
+            assert not test_state_dir.exists()
+            
+            # Save metadata (should create directory)
+            save_metadata(metadata, test_file)
+            
+            # Verify directory and file exist
+            assert test_state_dir.exists()
+            assert test_file.exists()
+
+    def test_load_metadata_missing_file(self):
+        """Test that loading a missing file raises FileNotFoundError."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            missing_file = Path(tmp_dir) / "nonexistent.json"
+            
+            with pytest.raises(FileNotFoundError):
+                load_metadata(missing_file)
+
+    def test_metadata_json_validity(self, tmp_path):
+        """Test that saved metadata is valid JSON."""
+        metadata = generate_run_metadata()
+        output_file = tmp_path / "test_run_metadata.json"
+        
+        save_metadata(metadata, output_file)
+        
+        # Verify it's valid JSON
+        with open(output_file, 'r', encoding='utf-8') as f:
+            loaded = json.load(f)
+        
+        assert isinstance(loaded, dict)
+        assert loaded == metadata

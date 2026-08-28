@@ -1,49 +1,55 @@
 """
-Task T001b: Verify Project Directory Structure
-Dependency: T001a
-
-This script asserts that the core directory structure required for the
-project exists. It checks for `data/raw/`, `code/`, and `tests/`.
-
-Exit Code:
-  0 - All directories exist.
-  1 - One or more directories are missing.
+T001b: Verify project directory structure.
+Asserts existence of key directories and exits with code 0 on success.
 """
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Define the project root relative to where this script is run.
-    # Assuming the script is run from the project root:
+    # Define the project root based on the standard llmXive layout
+    # The script is expected to be run from the project root:
     # projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/
-    project_root = Path.cwd()
-    
+    project_root = Path(__file__).parent.parent
+
     required_dirs = [
         "data/raw",
+        "data/processed",
+        "data/reports",
+        "data/logs",
         "code",
-        "tests"
+        "code/utils",
+        "code/experiment",
+        "code/analysis",
+        "code/generation",
+        "code/recruitment",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+        "specs",
+        "state",
+        "config",
+        "contracts",
     ]
-    
+
     missing_dirs = []
-    
+
     print(f"Verifying structure in: {project_root}")
-    
-    for dir_name in required_dirs:
-        full_path = project_root / dir_name
-        if full_path.is_dir():
-            print(f"[OK] Found: {full_path}")
+
+    for rel_path in required_dirs:
+        full_path = project_root / rel_path
+        if not full_path.is_dir():
+            missing_dirs.append(rel_path)
+            print(f"MISSING: {full_path}")
         else:
-            missing_dirs.append(full_path)
-            print(f"[MISSING] {full_path}")
-    
+            print(f"OK: {full_path}")
+
     if missing_dirs:
-        print(f"\nError: {len(missing_dirs)} required directory(ies) missing.")
-        for d in missing_dirs:
-            print(f"  - {d}")
+        print(f"\nERROR: {len(missing_dirs)} required directories are missing.")
+        print("Please ensure T001a (Create project directory structure) has been completed.")
         sys.exit(1)
-    
-    print("\nAll required directories present.")
+
+    print("\nAll required directories exist. Structure verification passed.")
     sys.exit(0)
 
 if __name__ == "__main__":

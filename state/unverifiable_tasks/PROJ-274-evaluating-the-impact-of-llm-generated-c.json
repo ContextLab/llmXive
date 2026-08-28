@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-274-evaluating-the-impact-of-llm-generated-c",
+  "tasks": [
+    {
+      "task_key": "T070",
+      "reject_count": 1,
+      "last_reason": "No evidence was provided that `specs/001-evaluating-the-impact-of-llm-generated-c/research.md` exists, contains the three required sections, or that its SHA256 hash was written to `state/research_protocol.sha256`. The implementer must add the appendix with the specified content and store its hash as proof.",
+      "first_seen": "2026-08-28T06:30:40.843264+00:00",
+      "last_seen": "2026-08-28T06:30:40.843264+00:00"
+    },
+    {
+      "task_key": "T073b",
+      "reject_count": 1,
+      "last_reason": "The repository contains `code/recruitment/tracker.py` and a populated `data/raw/participants_raw.json`, but the required schema file `contracts/participant.schema.yaml` is missing, so the schema cannot be verified. Moreover, the JSON file\u2019s structure (a plain list) does not match the tracker\u2019s expected schema (metadata + participants array), violating the \u201cmatches contracts/participant.schema.yaml\u201d requirement. The task therefore remains incomplete.",
+      "first_seen": "2026-08-28T06:30:47.146970+00:00",
+      "last_seen": "2026-08-28T06:30:47.146970+00:00"
+    },
+    {
+      "task_key": "T001a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: state/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c.yaml",
+      "first_seen": "2026-08-28T06:30:47.148368+00:00",
+      "last_seen": "2026-08-28T06:30:47.148368+00:00"
+    },
+    {
+      "task_key": "T010b",
+      "reject_count": 1,
+      "last_reason": "No `state/run_metadata.json` file or its contents were provided; thus we cannot confirm the file exists, contains valid JSON, or includes a `RUN_ID` UUID as required. The implementer must supply the actual file with the specified fields.",
+      "first_seen": "2026-08-28T06:30:47.149723+00:00",
+      "last_seen": "2026-08-28T06:30:47.149723+00:00"
+    }
+  ],
+  "updated_at": "2026-08-28T06:30:47.149723+00:00"
+}

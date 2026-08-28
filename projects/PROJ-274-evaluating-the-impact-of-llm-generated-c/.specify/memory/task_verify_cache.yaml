@@ -1,17 +1,10 @@
-T001a:
+T014b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or file\u2011system evidence was provided showing that\
-    \ `projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/` and its subfolders\
-    \ (`code/`, `data/raw/`, `data/processed/`, `data/reports/`, `tests/unit/`, `tests/integration/`,\
-    \ `tests/contract/`, `specs/`) actually exist. Without concrete artifacts, the\
-    \ requirement cannot be confirmed."
-T010b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `state/run_metadata.json` file or its contents were provided; thus we cannot
-    confirm the file exists, contains valid JSON, or includes a `RUN_ID` UUID as required.
-    The implementer must supply the actual file with the specified fields.
+  h: 872016adfc34a8998640e1ccd413bd0e7e00bff4584ee0779890e62e7737fea6
+  r: The repository contains `code/experiment/assignment.py` with loading and stratified
+    assignment functions, but there is no code that writes the resulting mapping to
+    `data/processed/assignment_log.json`, and the file is missing entirely. Consequently
+    the required output artifact and any verification of balance/randomness are absent.
 T020:
   c: true
   h: 46f56fe0588eed034caa90ec4bb352cefaaaddebb25e0a0857577a8b12b7e0cd
@@ -70,17 +63,10 @@ T033:
     \ file `contracts/dataset.schema.yaml` is missing, so the validation could not\
     \ have actually been performed against the specified schema. The task\u2019s prerequisite\
     \ (ensuring the schema file exists) is not satisfied."
-T070:
+T071b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that `specs/001-evaluating-the-impact-of-llm-generated-c/research.md`
-    exists, contains the three required sections, or that its SHA256 hash was written
-    to `state/research_protocol.sha256`. The implementer must add the appendix with
-    the specified content and store its hash as proof.
-T073b:
-  c: false
-  h: a51507dc7e9e204cc1c38b0cfffe85edc3705d79aa55e1a3de6a698bdb1dcf23
-  r: "The required output file `data/raw/participants_raw.json` is absent, so the\
-    \ verification condition (file existence and \u226515 unique records) is not met.\
-    \ The implementer must run the provided script (or fix it) to generate the JSON\
-    \ file with at least 15 participant entries."
+  r: No evidence of `state/validation_log.json` or `state/research_validated.lock`
+    was provided; the implementer did not show that the Reference-Validator Agent
+    was run, that the log file exists with an `'all_valid'` status, nor that the required
+    lock file was created. These artifacts are mandatory for task completion.
