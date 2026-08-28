@@ -31,20 +31,9 @@
   verification_status: verified
   verified_against_url: https://www.spaceweather.gov/phenomena/geomagnetic-storms
   verified_at: '2026-07-04T01:03:41.270822Z'
-- artifact_hash: 199cb39b7ebcdc4127f38cdc4d603fe24f6cdec6d7176c168919f2d834a24daf
+- artifact_hash: 3d32fb611e20d6d0cf764be94dbc5a499d361c6a1e7c3e5d5c4dd1bf3dfd3f30
   artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://services.swpc.noaa.gov/products/dst-index.json`
-  verification_status: mismatch
-  verified_against_url: https://services.swpc.noaa.gov/products/dst-index.json
-  verified_at: '2026-08-26T09:06:29.560417Z'
-- artifact_hash: 199cb39b7ebcdc4127f38cdc4d603fe24f6cdec6d7176c168919f2d834a24daf
-  artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: Bonferroni - Wikidata
@@ -52,8 +41,19 @@
   value: https://www.wikidata.org/wiki/Q87892954
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q87892954
-  verified_at: '2026-08-26T09:06:29.560417Z'
-- artifact_hash: 199cb39b7ebcdc4127f38cdc4d603fe24f6cdec6d7176c168919f2d834a24daf
+  verified_at: '2026-08-28T23:23:23.213578Z'
+- artifact_hash: 3d32fb611e20d6d0cf764be94dbc5a499d361c6a1e7c3e5d5c4dd1bf3dfd3f30
+  artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Geomagnetic Storms | NOAA / NWS Space Weather Prediction Center
+  kind: url
+  value: https://www.swpc.noaa.gov/phenomena/geomagnetic-storms
+  verification_status: pending
+  verified_against_url: https://www.spaceweather.gov/phenomena/geomagnetic-storms
+  verified_at: '2026-08-28T23:23:23.213578Z'
+- artifact_hash: 3d32fb611e20d6d0cf764be94dbc5a499d361c6a1e7c3e5d5c4dd1bf3dfd3f30
   artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://www.wikidata.org/wiki/Q24576
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q24576
-  verified_at: '2026-08-26T09:06:29.560417Z'
+  verified_at: '2026-08-28T23:23:23.213578Z'

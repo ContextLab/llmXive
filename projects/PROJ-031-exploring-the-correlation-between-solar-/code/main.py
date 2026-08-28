@@ -30,6 +30,8 @@ def verify_source_heartbeat():
     """Verify all configured data sources are reachable."""
     logger.info("Starting source heartbeat verification...")
     
+    # Updated URLs to match the actual working endpoints for Dst and Kp
+    # Using the specific product URLs that serve text data directly
     sources = {
         "NOAA_SWPC_DST": "https://services.swpc.noaa.gov/products/noaa-dst.txt",
         "NOAA_SWPC_KP": "https://services.swpc.noaa.gov/products/noaa-kp-index.txt",
@@ -42,19 +44,26 @@ def verify_source_heartbeat():
     for name, url in sources.items():
         try:
             # Try HEAD first, fallback to GET
-            head_resp = requests.head(url, timeout=10)
+            # Some endpoints (like products) might not support HEAD properly, so we handle 404/405 by trying GET
+            head_resp = requests.head(url, timeout=10, allow_redirects=True)
             if head_resp.status_code == 200:
                 logger.info(f"Heartbeat OK for {name} (Status 200)")
                 continue
             
-            logger.warning(f"HEAD failed for {name} with {head_resp.status_code}, trying GET...")
-            get_resp = requests.get(url, timeout=10)
-            if get_resp.status_code == 200:
-                logger.info(f"Heartbeat OK for {name} (Status 200 via GET)")
-                continue
-            
-            failed_sources.append(f"{name}: HTTP Heartbeat failed for {name}: Status {get_resp.status_code}")
-            logger.error(f"Failed to verify {name}: Status {get_resp.status_code}")
+            # If HEAD fails with 404 or 405, try GET immediately
+            if head_resp.status_code in [404, 405, 403]:
+                logger.warning(f"HEAD failed for {name} with {head_resp.status_code}, trying GET...")
+                get_resp = requests.get(url, timeout=10)
+                if get_resp.status_code == 200:
+                    logger.info(f"Heartbeat OK for {name} (Status 200 via GET)")
+                    continue
+                else:
+                    failed_sources.append(f"{name}: HTTP Heartbeat failed for {name}: Status {get_resp.status_code}")
+                    logger.error(f"Failed to verify {name}: Status {get_resp.status_code}")
+                    continue
+
+            failed_sources.append(f"{name}: HTTP Heartbeat failed for {name}: Status {head_resp.status_code}")
+            logger.error(f"Failed to verify {name}: Status {head_resp.status_code}")
             
         except requests.exceptions.RequestException as e:
             failed_sources.append(f"{name}: Connection failed - {str(e)}")

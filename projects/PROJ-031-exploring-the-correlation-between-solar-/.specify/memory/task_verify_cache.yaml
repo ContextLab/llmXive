@@ -35,3 +35,16 @@ T023:
     \ regression model with flare and CME as separate predictors nor any calculated\
     \ R\xB2 values. The claim lacks any tangible artifact to verify the analysis was\
     \ performed."
+T086:
+  c: false
+  h: d4956752646a2337b663fe00a9b37d8a829e9db3195a2c3e53cdce48d60b4a9b
+  r: "The required output files `results/metrics.json` and `data/processed/aligned_events.csv`\
+    \ are absent, so the pipeline\u2019s successful execution and the specified validation\
+    \ conditions cannot be verified. The implementer must run the pipeline to generate\
+    \ these artifacts and ensure they meet the acceptance criteria."
+T087:
+  c: false
+  h: d4f7036d76050b6ee4eb69f7dd402b3d8c068b937a13a8b0142f26db96090703
+  r: "The required file `data/processed/analysis_subset.csv` does not exist, so there\
+    \ is no data to inspect for the presence of recurrent events or the 24\u2011hour\
+    \ recovery rule. Without the artifact, the verification task cannot be performed."

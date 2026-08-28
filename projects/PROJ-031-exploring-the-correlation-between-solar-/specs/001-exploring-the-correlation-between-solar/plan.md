@@ -24,7 +24,7 @@ The core associational claim (correlation strength) is computed on the full alig
 **Performance Metrics**: Execution time and peak RAM MUST be written to `results/metrics.json` under the `performance` key.  
 **VIF Fallback Logic**: If VIF > 5, the system selects the **univariate model with the higher absolute correlation coefficient** as the primary report. The selected model type (e.g., "univariate_flare") MUST be recorded in `results/metrics.json`. The joint R² is NOT reported if the joint model is discarded.  
 **Multiple Comparison Correction**: **Bonferroni** correction is used for the family of tests (primary correlations + threshold sensitivity tests). The method name MUST be recorded in `results/metrics.json`.  
-**Threshold Justification**: The implementation MUST cite the specific NOAA SWPC definition document: "https://www.swpc.noaa.gov/phenomena/geomagnetic-storms" for the "severe storm" (Dst ≤ -100 nT) threshold.  
+**Threshold Justification**: The implementation MUST cite the specific NOAA SWPC definition document: "https://www.swpc.noaa.gov/phenomena/geomagnetic-storms" for the "severe storm" threshold.  
 **Non-Linear Model**: If R² < 0.1, the system MUST test a piecewise model and report the improvement in fit in `results/metrics.json` under the key `piecewise_r2_improvement`.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
