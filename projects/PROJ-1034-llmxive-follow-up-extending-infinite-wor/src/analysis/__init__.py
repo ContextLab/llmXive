@@ -1,0 +1,3 @@
+"""
+Analysis module (src structure).
+"""

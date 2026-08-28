@@ -1,0 +1,3 @@
+"""
+Tests module (src structure).
+"""

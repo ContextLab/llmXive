@@ -98,10 +98,10 @@ A researcher needs to confirm whether the optimal CA configuration achieves stat
 ## Assumptions
 
 - The open-source LingBot-World 2.0 training corpus or a sufficiently representative synthetic dataset can be generated to simulate a large number of environmental state transitions within the GB disk limit.
-- The pilot agent weights are available and can be loaded into CPU memory without requiring 8-bit quantization or CUDA acceleration.
+- The pilot agent weights are available and can be loaded into CPU memory without requiring quantization or CUDA acceleration.
 - The "coherence" metric is defined as the deviation from expected physical constraints (e.g., conservation of mass/energy) provided by an external physics oracle, not as tautological rule adherence.
 - The "diversity" metric is defined as event entropy calculated from the state transition log, independent of the specific input parameters used to generate the state.
 - The "neural baseline" can be effectively throttled to match CPU latency constraints, or a proxy model with similar behavioral characteristics is used if the 14B model is infeasible to run directly.
-- The GitHub Actions free-tier runner provides a stable multi-core CPU environment with consistent memory allocation for the duration of the 6-hour job.
+- The GitHub Actions free-tier runner provides a stable multi-core CPU environment with consistent memory allocation for the duration of the job.
 - The relationship between CA parameters and emergent complexity is non-linear and requires the full parameter sweep (LMM + Random Forest) to identify, rather than a simple linear extrapolation.
 - The temporal autocorrelation in the [deferred]-step time-series is significant enough to require a Mixed-Effects Model rather than a standard ANOVA.

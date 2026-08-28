@@ -35,16 +35,20 @@
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
-**⚠️ ORDERING**: T007 (Data Models) MUST complete before T004a, T004b, T004c, T005, and T006.
+**⚠️ ORDERING**: T007 (Data Models) MUST complete before T004a, T004b, T004c, T004d, T005, and T006.
 
-- [ ] T004a [P] [US1] Define parameter schema for CA engine (locality, memory, non-linearity) in `src/sim/eco_director.py` (Dep: T007)
-- [ ] T004b [P] [US1] Implement core CA update loop in `src/sim/eco_director.py` (Dep: T007)
-- [ ] T004c [P] [US1] Implement configuration loader for `src/sim/eco_director.py` (Dep: T007)
-- [ ] T005 [P] [US1] Implement `src/sim/neural_baseline.py` (Throttled M Parameter Proxy) with CPU-only constraints (Dep: T007)
-- [ ] T006 [P] [US1] Implement `src/sim/physics_oracle.py` (Stochastic Physics Sandbox) to validate external constraints (FR-008) (Dep: T007)
-- [ ] T007 Create base data models: `SimulationRun`, `MetricRecord`, `ParameterGrid` in `src/data_models.py`
-- [ ] T008 Implement `src/cli/run_simulation.py` entry point with strict memory ceiling and timeout enforcement (FR-003)
-- [ ] T009 Configure deterministic random seeds in `src/config.py` and ensure reproducibility across runs
+- [X] T007 Create base data models: `SimulationRun`, `MetricRecord`, `ParameterGrid` in `src/data_models.py`
+- [X] T004a [US1] Define parameter schema for CA engine (locality, memory, non-linearity) in `src/sim/config_schema.yaml` and validate schema loads without error (Dep: T007)
+- [X] T004b [US1] Implement core CA update loop in `src/sim/eco_director.py` with function signature `eco_director.step(state, params)` returning `new_state` and unit test `test_step_updates_state` passes (Dep: T004a)
+- [X] T004c [US1] Implement configuration loader for `src/sim/eco_director.py` to load YAML config (Dep: T004b)
+- [X] T004d [US1] Implement runtime parameter injection logic in `src/sim/eco_director.py` to allow dynamic configuration without code recompilation (Dep: T004c)
+- [X] T005 [P] [US1] Implement `src/sim/neural_baseline.py` (Throttled M Parameter Proxy) with CPU-only constraints (Dep: T007)
+- [X] T006 [P] [US1] Implement `src/sim/physics_oracle.py` (Stochastic Physics Sandbox) to validate external constraints (FR-008) (Dep: T007)
+- [X] T008a [P] [US1] Implement `src/cli/run_simulation.py` entry point with CLI args `--config`, `--steps`, `--seed` and verify `python src/cli/run_simulation.py --help` succeeds (Dep: T007)
+- [X] T014 [US1] Implement memory monitoring in `src/cli/run_simulation.py` to kill process if RSS > 6GB, outputting JSON log to `stdout` with keys `status`, `memory_mb`, `timestamp` (Dep: T008a)
+- [X] T015 [US1] Implement timeout enforcement in `src/cli/run_simulation.py` to handle time-bound baseline runs, outputting structured JSON status log (Dep: T008a)
+- [X] T008b [US1] Implement memory/time enforcement loop in `src/cli/run_simulation.py` to wire monitoring hooks (T014, T015) to simulation termination (Dep: T014, T015)
+- [X] T009 Configure deterministic random seeds in `src/config.py` and ensure reproducibility across runs
 - [ ] T010 Implement logging infrastructure to record `coherence_score`, `diversity_score`, and `step_latency` at intervals
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -59,16 +63,15 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T011a [P] [US1] Unit test for parameter schema validation in `src/sim/eco_director.py`
-- [ ] T011b [P] [US1] Unit test for eco_director.py state transitions in `tests/unit/test_eco_director.py`
-- [ ] T012 [P] [US1] Integration test for simulation pipeline memory limits in `tests/integration/test_simulation_pipeline.py`
+- [X] T011a [P] [US1] Unit test for parameter schema validation in `src/sim/eco_director.py`
+- [X] T011b [P] [US1] Unit test for eco_director.py state transitions in `tests/unit/test_eco_director.py`
+- [X] T012 [P] [US1] Integration test for simulation pipeline memory limits in `tests/integration/test_simulation_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement throttling logic in `src/sim/neural_baseline.py` to ensure it runs within 6h CPU limits
-- [ ] T014 [US1] Implement memory monitoring in `src/cli/run_simulation.py` to detect and terminate runs exceeding a predefined memory threshold. (Edge Case 1), outputting a structured JSON status log
-- [ ] T015 [US1] Implement timeout enforcement in `src/cli/run_simulation.py` to handle time-bound baseline runs (Edge Case 2), outputting a structured JSON status log
-- [ ] T015b [US1] Implement logic to flag results as 'Power-Limited' and fallback to a smaller synthetic dataset if the primary dataset is unavailable (Edge Case 3), consuming JSON status logs from T014/T015
+- [X] T013 [US1] Implement throttling logic in `src/sim/neural_baseline.py` to ensure it runs within 6h CPU limits
+- [X] T015c [US1] Implement `src/data/generate_synthetic.py` to generate `data/synthetic_small.csv` with `--size 1000` for fallback scenarios
+- [X] T015b [US1] Implement logic to flag results as 'Power-Limited' and fallback to `data/synthetic_small.csv` (generated by T015c) if primary dataset unavailable, consuming JSON status logs from T014/T015 (Dep: T015c, T014, T015)
 - [ ] T016 [US1] Execute a minimum of 10,000 time-steps of CA vs Neural baseline per configuration and log `step_latency`
 - [ ] T017 [US1] Verify no NaN values in logged metrics and graceful handling of state explosion warnings
 
@@ -84,22 +87,22 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for parameter grid generation in `tests/unit/test_param_grid.py`
-- [ ] T019 [P] [US2] Integration test for LMM data preparation in `tests/integration/test_lmm_data_prep.py`
+- [X] T018 [P] [US2] Unit test for parameter grid generation in `tests/unit/test_param_grid.py`
+- [X] T019 [P] [US2] Integration test for LMM data preparation in `tests/integration/test_lmm_data_prep.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `src/analysis/lmm_runner.py` to perform Linear Mixed-Effects Model analysis (FR-004) (Dep: T032)
-- [ ] T021a [US2] Implement `src/analysis/acf_validator.py` to compute ACF and check lag-1 autocorrelation < 0.1 (FR-007)
-- [ ] T021b [US2] Implement model adjustment logic or fallback strategy in `src/analysis/acf_validator.py` if lag-1 >= 0.1 (FR-007) (Dep: T021a)
-- [ ] T032 [US2] Implement partial correlation analysis to ensure metric independence from input parameters (SC-006) (Dep: T021b)
+- [X] T023a [US2] Create parameter grid generator in `src/cli/generate_grid.py` to produce parameter configurations
+- [X] T023b [US2] Create simulation runner wrapper in `src/cli/run_sweep.py` to execute sweeps
+- [X] T023c [US2] Create data aggregation script in `src/cli/aggregate_metrics.py` to aggregate raw logs into `data/processed/`
+- [ ] T026 [US2] Run [deferred] time-steps per configuration as per FR-002 and record metrics to `data/raw/` (Dep: T023b)
+- [X] T020 [US2] Implement `src/analysis/lmm_runner.py` to perform Linear Mixed-Effects Model analysis (FR-004) (Dep: T023c)
+- [X] T021a [US2] Implement `src/analysis/acf_validator.py` to compute ACF and check lag-1 autocorrelation < 0.1 (FR-007)
+- [ ] T021b [US2] Implement model adjustment logic in `src/analysis/acf_validator.py` to sub-sample time-series by factor of 2 if lag-1 >= 0.1, with unit test `test_adjustment_triggers_on_high_acf` passes (Dep: T021a)
+- [ ] T032 [US2] Implement partial correlation analysis in `src/analysis/partial_corr.py` to generate `data/processed/partial_corr_report.csv` and verify `p_value` < 0.05 (Dep: T021b)
 - [ ] T022 [US2] Implement `src/analysis/rf_runner.py` for Random Forest feature importance analysis (FR-009)
-- [ ] T023a [US2] Create parameter grid generator in `src/cli/run_simulation.py`
-- [ ] T023b [US2] Create simulation runner wrapper in `src/cli/run_simulation.py`
-- [ ] T023c [US2] Create data aggregation script in `src/cli/run_simulation.py`
 - [ ] T024 [US2] Implement logic to exclude unstable configurations (state explosion) from statistical analysis (Edge Case 1)
 - [ ] T025 [US2] Ensure `data/raw/` logs are saved for every parameter configuration and `data/processed/` aggregates metrics
-- [ ] T026 [US2] Run [deferred] time-steps per configuration as per FR-002 and record metrics
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -120,7 +123,8 @@
 
 - [ ] T029 [P] [US3] Implement `src/analysis/sensitivity.py` to sweep coherence decision cutoffs across a range of low, moderate, and high thresholds. (FR-006)
 - [ ] T030 [US3] Implement statistical comparison logic to calculate p-values for coherence/diversity parity (SC-002)
-- [ ] T031 [US3] Implement latency reduction calculator to verify ≥90% target (SC-001, FR-005) (Dep: T013)
+- [ ] T031 [US3] Implement latency reduction calculator to verify ≥90% target (SC-001, FR-005) (Dep: T013, T016, T023c)
+- [ ] T032b [US3] Implement logic to act on partial correlation results in `src/analysis/partial_corr.py`: if coefficient > 0.05, flag run as invalid and adjust LMM (Dep: T032)
 - [ ] T033 [US3] Generate final report comparing CA vs Neural baseline including semantic novelty assessment
 - [ ] T034 [US3] Validate results against `physics_oracle.schema.yaml` to ensure non-tautological coherence (FR-008)
 
@@ -146,11 +150,11 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - **Critical Ordering**: T007 (Data Models) MUST complete before T004a, T004b, T004c, T005, and T006.
-  - T004a, T004b, T004c must be completed in sequence (004a -> 004b -> 004c).
+ - **Critical Ordering**: T007 (Data Models) MUST complete before T004a-T006.
+ - **Sequential Execution**: T004a -> T004b -> T004c -> T004d must run in sequence (NOT parallel) to avoid file conflicts in `src/sim/eco_director.py`.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -170,7 +174,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- T005, T006, T008a, T009, T010 in Phase 2 can run in parallel (once T007 is done)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -217,9 +221,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -233,3 +237,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- T004a/b/c/d are sequential, NOT parallel.

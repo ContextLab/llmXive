@@ -1,0 +1,38 @@
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The task requires implementing a logging infrastructure to record specific metrics
+    (`coherence_score`, `diversity_score`, `step_latency`), but no code files, configuration
+    scripts, or log output artifacts were provided in the evidence to verify this
+    implementation exists. Without seeing the actual code (e.g., a logger class, a
+    metrics callback, or a CSV/JSON log file) that performs this recording, the claim
+    of completion cannot be validated against the requirement.
+T015c:
+  c: false
+  h: 13ab17831f9d6fede8754c69ee0c007804ebefd23a22135a681df6ebc931f414
+  r: The `generate_synthetic.py` file contains only a placeholder (`pass`) and does
+    not implement any data generation logic, and the required `data/synthetic_small.csv`
+    file is absent. Both the script and the output CSV need to be created for the
+    task to be considered complete.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, data files, or script output are provided that demonstrate\
+    \ running at least 10,000 time\u2011steps for both the CA and neural baseline\
+    \ and recording `step_latency`. The required artifact (step\u2011latency log for\
+    \ \u226510\u202Fk steps per configuration) is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the feature specification and user stories but\
+    \ provides no actual artifact (e.g., test logs, code changes, or output files)\
+    \ demonstrating that metrics contain no NaN values or that state\u2011explosion\
+    \ warnings are caught and handled gracefully. Without concrete evidence, the requirement\
+    \ is not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `data/raw/` directory containing recorded metrics (e.g., latency,\
+    \ coherence, diversity) is provided, nor any script or log showing that time\u2011\
+    steps were run per configuration as required by FR\u2011002. The implementer has\
+    \ not supplied the necessary output files or proof of execution."

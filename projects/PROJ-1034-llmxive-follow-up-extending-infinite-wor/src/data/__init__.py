@@ -1,0 +1,3 @@
+"""
+Data module (src structure).
+"""

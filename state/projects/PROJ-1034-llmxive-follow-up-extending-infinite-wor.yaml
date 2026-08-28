@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-10T04:30:38.830116Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1034-llmxive-follow-up-extending-infinite-wor
-last_run_id: af49d212-db6e-4950-a592-313df2828119
+last_run_id: 5c7fa1ae-a31f-4601-9659-7775d01a1e10
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/specs/001-llmxive-follow-up-extending-infinite-wor
 title: 'llmXive follow-up: extending "Infinite Worlds with Versatile Interactions"'
-updated_at: '2026-08-26T05:10:39.835557Z'
+updated_at: '2026-08-28T22:42:20.095379Z'
