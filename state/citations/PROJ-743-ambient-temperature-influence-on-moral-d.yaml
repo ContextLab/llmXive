@@ -53,3 +53,14 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1126/science.aar7000
   verified_at: '2026-08-19T21:43:10.349798Z'
+- artifact_hash: 96c97837464c564da93d3765742d7d1322f0a4b5f34f8fe2df2a32edc83c413c
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/MoralMachine/moralmachine-data`
+  verification_status: mismatch
+  verified_against_url: https://github.com/MoralMachine/moralmachine-data
+  verified_at: '2026-08-28T19:04:43.333480Z'
