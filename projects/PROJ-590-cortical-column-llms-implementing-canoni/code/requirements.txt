@@ -7,3 +7,4 @@ psutil
 scikit-learn
 pandas
 --index-url https://download.pytorch.org/whl/cpu
+pyyaml  # auto-added: imported by run-book but missing from venv

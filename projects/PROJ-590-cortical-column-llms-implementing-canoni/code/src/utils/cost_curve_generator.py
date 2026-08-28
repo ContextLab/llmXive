@@ -1,3 +1,13 @@
+"""
+Cost Curve Generator for Cortical Column LLMs.
+
+This module computes the "Cost of Biological Plausibility" curve by comparing
+ablated variants (recurrence, inhibition) against the full model and baseline.
+It calculates relative MAE increase, training time increase, and a "Metabolic Cost"
+metric defined as Training Time (sec) / MAE.
+
+Output: data/results/cost_curve_data.csv
+"""
 import json
 import os
 import logging
@@ -6,237 +16,227 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-from src.experiments.ablation import run_ablation_study, load_ablation_configs
-from src.utils.scaling_analyzer import load_scaling_data
+# Project root relative to code/
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+DATA_LOGS_DIR = PROJECT_ROOT / "data" / "logs"
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def generate_cost_curve_data(ablation_results_dir: Optional[str] = None,
-                             scaling_results_path: Optional[str] = None,
-                             output_path: Optional[str] = None) -> pd.DataFrame:
+
+def load_json_file(filepath: Path) -> Dict[str, Any]:
+    """Load a JSON file and return its contents."""
+    if not filepath.exists():
+        raise FileNotFoundError(f"Required input file not found: {filepath}")
+    with open(filepath, 'r') as f:
+        return json.load(f)
+
+
+def load_baseline_metrics() -> Dict[str, float]:
     """
-    Compute the 'cost of biological plausibility' curve.
-    
-    This function compares the performance (MAE) of ablated variants (recurrence, inhibition)
-    against the full model and the baseline. It integrates scaling data to normalize
-    the cost by parameter count or training time if available.
-    
-    Args:
-        ablation_results_dir: Directory containing ablation study JSON results.
-        scaling_results_path: Path to scaling_law.csv to get baseline parameter counts.
-        output_path: Path to write the resulting CSV. Defaults to data/results/cost_curve_data.csv.
-    
-    Returns:
-        pd.DataFrame: The cost curve data.
+    Load baseline metrics from the training log or results file.
+    Expected source: data/logs/training_log.json or data/results/baseline_run.json
     """
-    project_root = Path(__file__).resolve().parents[3]
+    # Try the most likely location based on T012b_impl and T011a_run
+    baseline_log_path = DATA_LOGS_DIR / "training_log.json"
+    baseline_run_path = DATA_RESULTS_DIR / "baseline_run.json"
+
+    if baseline_log_path.exists():
+        data = load_json_file(baseline_log_path)
+        # Handle if data is a list of steps or a single dict
+        if isinstance(data, list):
+            # Take the last step (final metrics)
+            final_step = data[-1]
+        else:
+            final_step = data
+        
+        # Extract MAE and Time. Keys might vary slightly, normalize them.
+        mae = final_step.get("mae") or final_step.get("mae_value") or final_step.get("test_mae")
+        time_sec = final_step.get("time_sec") or final_step.get("total_time") or final_step.get("training_time")
+        
+        if mae is None or time_sec is None:
+            # Fallback: try to find them in a 'metrics' sub-dict
+            if "metrics" in final_step:
+                mae = final_step["metrics"].get("mae")
+                time_sec = final_step["metrics"].get("time_sec")
+
+        if mae is None or time_sec is None:
+            raise ValueError(f"Could not find 'mae' and 'time_sec' in {baseline_log_path}. Found keys: {final_step.keys()}")
+        
+        return {"mae": float(mae), "time_sec": float(time_sec)}
+
+    elif baseline_run_path.exists():
+        data = load_json_file(baseline_run_path)
+        mae = data.get("mae") or data.get("test_mae")
+        time_sec = data.get("time_sec") or data.get("total_time")
+        if mae is None or time_sec is None:
+            raise ValueError(f"Could not find 'mae' and 'time_sec' in {baseline_run_path}")
+        return {"mae": float(mae), "time_sec": float(time_sec)}
+    else:
+        raise FileNotFoundError(f"Neither {baseline_log_path} nor {baseline_run_path} found. Run baseline training first.")
+
+
+def load_microcircuit_metrics() -> Dict[str, float]:
+    """
+    Load full microcircuit model metrics.
+    Expected source: data/results/microcircuit_run.json
+    """
+    microcircuit_path = DATA_RESULTS_DIR / "microcircuit_run.json"
+    if not microcircuit_path.exists():
+        raise FileNotFoundError(f"Microcircuit run results not found: {microcircuit_path}. Run T048/T071c_exec first.")
     
-    if ablation_results_dir is None:
-        ablation_results_dir = project_root / "data" / "results" / "ablation"
+    data = load_json_file(microcircuit_path)
+    mae = data.get("mae") or data.get("test_mae")
+    time_sec = data.get("time_sec") or data.get("total_time")
+    
+    if mae is None or time_sec is None:
+        raise ValueError(f"Could not find 'mae' and 'time_sec' in {microcircuit_path}")
+    
+    return {"mae": float(mae), "time_sec": float(time_sec)}
+
+
+def load_ablation_results(variant_name: str) -> Dict[str, float]:
+    """
+    Load ablation result for a specific variant.
+    Expected source: data/results/ablation_{variant_name}.json
+    """
+    ablation_path = DATA_RESULTS_DIR / f"ablation_{variant_name}.json"
+    if not ablation_path.exists():
+        raise FileNotFoundError(f"Ablation result not found for variant '{variant_name}': {ablation_path}. Run T025b first.")
+    
+    data = load_json_file(ablation_path)
+    # Handle if data is a list of runs or a single result
+    if isinstance(data, list):
+        # Take the first or last result depending on convention
+        result = data[-1] if data else {}
     else:
-        ablation_results_dir = Path(ablation_results_dir)
-        
-    if scaling_results_path is None:
-        scaling_results_path = project_root / "data" / "results" / "scaling_law.csv"
-    else:
-        scaling_results_path = Path(scaling_results_path)
-        
-    if output_path is None:
-        output_path = project_root / "data" / "results" / "cost_curve_data.csv"
-    else:
-        output_path = Path(output_path)
-        
+        result = data
+    
+    mae = result.get("mae") or result.get("test_mae")
+    time_sec = result.get("time_sec") or result.get("total_time")
+    
+    if mae is None or time_sec is None:
+        raise ValueError(f"Could not find 'mae' and 'time_sec' in {ablation_path}")
+    
+    return {"mae": float(mae), "time_sec": float(time_sec)}
+
+
+def calculate_relative_increase(base_value: float, variant_value: float) -> float:
+    """
+    Calculate the relative increase: (variant - base) / base.
+    Returns 0.0 if base is 0 to avoid division by zero (though MAE should not be 0).
+    """
+    if base_value == 0:
+        return 0.0
+    return (variant_value - base_value) / base_value
+
+
+def calculate_metabolic_cost(time_sec: float, mae: float) -> float:
+    """
+    Calculate 'Metabolic Cost' as Training Time (sec) / MAE.
+    This quantifies the trade-off: higher cost means more time per unit of error reduction.
+    """
+    if mae == 0:
+        return float('inf')
+    return time_sec / mae
+
+
+def generate_cost_curve_data() -> pd.DataFrame:
+    """
+    Compute the cost curve data by comparing ablated variants against baseline and full model.
+    
+    Variants to analyze:
+    - baseline
+    - microcircuit_full
+    - ablation_recurrence
+    - ablation_inhibition
+    
+    Columns:
+    - variant: str
+    - mae: float
+    - time_sec: float
+    - relative_mae_increase: float (vs baseline)
+    - relative_time_increase: float (vs baseline)
+    - metabolic_cost: float (time_sec / mae)
+    - metabolic_cost_vs_baseline: float (ratio of metabolic costs)
+    
+    Output: data/results/cost_curve_data.csv
+    """
+    logger.info("Starting cost curve data generation...")
+    
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    DATA_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     
-    # 1. Load Scaling Data to establish Baseline Parameter Counts
-    # We need the baseline (1x columns) parameter count to normalize ablated variants if they differ
-    baseline_params = None
-    scaling_df = None
     try:
-        scaling_df = load_scaling_data(str(scaling_results_path))
-        # Assume the first row or the row with 'columns' == 1 is the baseline
-        baseline_row = scaling_df[scaling_df['columns'] == 1]
-        if baseline_row.empty:
-            baseline_row = scaling_df.iloc[0] # Fallback to first if 1x not found
-        baseline_params = baseline_row['params']
-        logger.info(f"Loaded baseline parameter count: {baseline_params}")
-    except Exception as e:
-        logger.warning(f"Could not load scaling data for normalization: {e}. Proceeding without param normalization.")
-    
-    # 2. Load Ablation Results
-    # Expected structure: ablation_results_dir contains JSON files for each ablation config
-    # We expect the study to have been run by T025b.
-    ablation_data = []
-    
-    if not ablation_results_dir.exists():
-        raise FileNotFoundError(f"Ablation results directory not found: {ablation_results_dir}. "
-                                "Ensure T025b (run_ablation_study) has been executed.")
-    
-    json_files = list(ablation_results_dir.glob("*.json"))
-    if not json_files:
-        # Try subdirectories if standard layout is used
-        for subdir in ablation_results_dir.iterdir():
-            if subdir.is_dir():
-                json_files.extend(subdir.glob("*.json"))
-    
-    if not json_files:
-        raise FileNotFoundError(f"No ablation result JSON files found in {ablation_results_dir}")
-    
-    baseline_mae = None
-    baseline_time = None
-    
-    for file_path in json_files:
-        try:
-            with open(file_path, 'r') as f:
-                result = json.load(f)
+        # Load baseline (reference point)
+        baseline = load_baseline_metrics()
+        logger.info(f"Loaded baseline: MAE={baseline['mae']:.4f}, Time={baseline['time_sec']:.2f}s")
+        
+        # Load full microcircuit
+        microcircuit = load_microcircuit_metrics()
+        logger.info(f"Loaded microcircuit: MAE={microcircuit['mae']:.4f}, Time={microcircuit['time_sec']:.2f}s")
+        
+        # Define variants to analyze
+        variants = [
+            ("baseline", baseline),
+            ("microcircuit_full", microcircuit),
+            ("ablation_recurrence", load_ablation_results("recurrence")),
+            ("ablation_inhibition", load_ablation_results("inhibition")),
+        ]
+        
+        results = []
+        baseline_mae = baseline["mae"]
+        baseline_time = baseline["time_sec"]
+        baseline_metabolic_cost = calculate_metabolic_cost(baseline_time, baseline_mae)
+        
+        for name, metrics in variants:
+            mae = metrics["mae"]
+            time_sec = metrics["time_sec"]
             
-            # Extract relevant metrics based on expected ablation schema
-            # Schema from T025b: result should contain 'config' and 'metrics' (or similar)
-            config = result.get('config', {})
-            metrics = result.get('metrics', result) # Fallback if metrics not nested
+            rel_mae_inc = calculate_relative_increase(baseline_mae, mae)
+            rel_time_inc = calculate_relative_increase(baseline_time, time_sec)
+            metabolic_cost = calculate_metabolic_cost(time_sec, mae)
+            metabolic_cost_ratio = metabolic_cost / baseline_metabolic_cost if baseline_metabolic_cost != 0 else 0.0
             
-            variant_name = config.get('name', config.get('variant', file_path.stem))
-            mae = metrics.get('val_mae', metrics.get('mae'))
-            train_time = metrics.get('training_time', metrics.get('time_sec'))
-            params = metrics.get('param_count', baseline_params)
-            
-            if mae is None:
-                logger.warning(f"Skipping {file_path}: missing MAE")
-                continue
-                
-            # Identify if this is the full model or baseline
-            if 'baseline' in variant_name.lower() or 'baseline' in str(config):
-                baseline_mae = mae
-                baseline_time = train_time
-            
-            ablation_data.append({
-                'variant': variant_name,
-                'mae': mae,
-                'time_sec': train_time,
-                'params': params,
-                'file': file_path.name
+            results.append({
+                "variant": name,
+                "mae": mae,
+                "time_sec": time_sec,
+                "relative_mae_increase": rel_mae_inc,
+                "relative_time_increase": rel_time_inc,
+                "metabolic_cost": metabolic_cost,
+                "metabolic_cost_vs_baseline": metabolic_cost_ratio
             })
             
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse {file_path}: {e}")
-            continue
-    
-    if not ablation_data:
-        raise RuntimeError("No valid ablation results found to compute cost curve.")
-    
-    # 3. Compute Cost Metrics
-    # Cost of Plausibility = (Performance_Full - Performance_Ablated) / Performance_Full
-    # We assume 'Full Model' is the most complex ablation variant (e.g., 'full_microcircuit')
-    # or the one with the lowest MAE among the microcircuit variants.
-    
-    # Identify the 'Full' microcircuit model (best performing among non-baseline)
-    microcircuit_variants = [d for d in ablation_data if 'baseline' not in d['variant'].lower()]
-    
-    if not microcircuit_variants:
-        raise RuntimeError("No microcircuit variants found in ablation results.")
+        df = pd.DataFrame(results)
+        output_path = DATA_RESULTS_DIR / "cost_curve_data.csv"
+        df.to_csv(output_path, index=False)
         
-    # Sort by MAE (lower is better) to find the 'Full' implementation (should be best)
-    microcircuit_variants.sort(key=lambda x: x['mae'])
-    full_model = microcircuit_variants[0]
-    
-    if baseline_mae is None:
-        # If baseline wasn't explicitly in the ablation JSONs, try to load from baseline_runner output
-        baseline_log = project_root / "data" / "logs" / "training_log.json"
-        if baseline_log.exists():
-            with open(baseline_log, 'r') as f:
-                log_data = json.load(f)
-                # Assume last entry or 'final' key
-                if isinstance(log_data, list):
-                    baseline_mae = log_data[-1].get('val_mae')
-                elif isinstance(log_data, dict):
-                    baseline_mae = log_data.get('final_val_mae')
+        logger.info(f"Successfully wrote cost curve data to {output_path}")
+        return df
         
-    if baseline_mae is None:
-        # Fallback: use the worst ablation as a proxy if baseline missing (not ideal but prevents crash)
-        logger.warning("Baseline MAE not found. Using worst performing variant as proxy.")
-        baseline_mae = max(d['mae'] for d in ablation_data)
-
-    cost_rows = []
-    
-    # Calculate cost for each ablated variant relative to the Full Model and Baseline
-    for variant in ablation_data:
-        variant_name = variant['variant']
-        mae = variant['mae']
-        
-        # Cost of removing specific feature = (Full_MAE - Variant_MAE) / Full_MAE
-        # Positive cost means performance dropped (bad), Negative means it improved (feature was noise)
-        # We want to show the "Cost of Plausibility": How much worse is the Full model compared to the Ablated?
-        # Actually, the "Cost" is usually: (Performance_Full - Performance_Baseline) / Performance_Baseline
-        # But here we want the curve comparing ablated vs full.
-        
-        # Let's define "Plausibility Cost" for a variant as the MAE difference from the Full Model
-        # If Full Model is better (lower MAE), the cost of using the ablated version is the error increase.
-        # If the task is "Cost of Biological Plausibility", we want to know: 
-        # "How much worse is the Full Model compared to a simple baseline?"
-        # AND "How much does removing a feature (ablation) recover performance (reduce cost)?"
-        
-        # Metric: Relative Error Increase vs Full Model
-        if full_model['mae'] > 0:
-            relative_error_vs_full = (mae - full_model['mae']) / full_model['mae']
-        else:
-            relative_error_vs_full = 0.0
-            
-        # Metric: Relative Error vs Baseline (if available)
-        if baseline_mae and baseline_mae > 0:
-            relative_error_vs_baseline = (mae - baseline_mae) / baseline_mae
-        else:
-            relative_error_vs_baseline = 0.0
-            
-        # Cost of Plausibility for this specific configuration:
-        # If this IS the full model, the cost is (Full - Baseline) / Baseline
-        # If this is an ablation, the cost is (Ablation - Baseline) / Baseline
-        
-        if baseline_mae:
-            cost_of_plausibility = (mae - baseline_mae) / baseline_mae
-        else:
-            cost_of_plausibility = 0.0
-        
-        cost_rows.append({
-            'variant': variant_name,
-            'mae': mae,
-            'baseline_mae': baseline_mae,
-            'full_model_mae': full_model['mae'],
-            'relative_error_vs_full': relative_error_vs_full,
-            'relative_error_vs_baseline': relative_error_vs_baseline,
-            'cost_of_plausibility': cost_of_plausibility,
-            'params': variant['params'],
-            'time_sec': variant['time_sec']
-        })
-    
-    df = pd.DataFrame(cost_rows)
-    
-    # Sort by cost of plausibility (descending) to show the curve from simplest to most complex
-    df = df.sort_values(by='cost_of_plausibility', ascending=False)
-    
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    logger.info(f"Cost curve data written to {output_path}")
-    
-    return df
-
-def main():
-    """Entry point for script execution."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    project_root = Path(__file__).resolve().parents[3]
-    output_path = project_root / "data" / "results" / "cost_curve_data.csv"
-    
-    try:
-        df = generate_cost_curve_data(output_path=str(output_path))
-        print(f"Successfully generated cost curve data at {output_path}")
-        print(df.to_string())
+    except FileNotFoundError as e:
+        logger.error(f"Missing required input data: {e}")
+        logger.error("Ensure T011a_run (baseline), T048 (microcircuit), and T025b (ablation) have completed successfully.")
+        raise
     except Exception as e:
-        logger.error(f"Failed to generate cost curve data: {e}")
+        logger.error(f"Error generating cost curve data: {e}")
         raise
 
+
+def main():
+    """Entry point for the cost curve generator script."""
+    try:
+        df = generate_cost_curve_data()
+        print("\nCost Curve Data Summary:")
+        print(df.to_string(index=False))
+        print(f"\nSaved to: {DATA_RESULTS_DIR / 'cost_curve_data.csv'}")
+    except Exception as e:
+        print(f"FAILED: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
+    import sys
     main()

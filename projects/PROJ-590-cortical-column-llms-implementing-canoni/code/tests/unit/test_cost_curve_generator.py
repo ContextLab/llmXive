@@ -1,134 +1,146 @@
+"""
+Unit tests for the cost_curve_generator module.
+"""
+
 import pytest
 import json
 import os
 import tempfile
-import pandas as pd
 from pathlib import Path
 import sys
+import pandas as pd
 
-# Add project root to path if not already
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add code to path if not already
+code_root = Path(__file__).parent.parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
-from src.utils.cost_curve_generator import generate_cost_curve_data
+from src.utils.cost_curve_generator import (
+    load_baseline_metrics,
+    load_microcircuit_metrics,
+    load_ablation_results,
+    calculate_relative_increase,
+    calculate_metabolic_cost,
+    generate_cost_curve_data
+)
+
 
 class TestCostCurveGenerator:
-    def test_generate_cost_curve_data_creates_file(self):
-        """Test that the function creates the output CSV file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            ablation_path = os.path.join(tmpdir, "ablation_results.json")
-            output_path = os.path.join(tmpdir, "cost_curve_data.csv")
-            
-            # Create mock ablation data
-            mock_data = [
-                {
-                    "variant_name": "baseline",
-                    "mae": 0.05,
-                    "params": 1000000
-                },
-                {
-                    "variant_name": "full_microcircuit",
-                    "mae": 0.04,
-                    "params": 1050000
-                },
-                {
-                    "variant_name": "no_recurrence",
-                    "mae": 0.06,
-                    "params": 1020000
-                },
-                {
-                    "variant_name": "no_inhibition",
-                    "mae": 0.07,
-                    "params": 1020000
-                }
-            ]
-            
-            with open(ablation_path, 'w') as f:
-                json.dump(mock_data, f)
-            
-            df = generate_cost_curve_data(ablation_path, output_path=output_path)
-            
-            assert os.path.exists(output_path), "Output CSV file was not created."
-            assert isinstance(df, pd.DataFrame)
-            assert len(df) > 0
-            
-            # Check required columns
-            required_cols = ['variant', 'baseline_mae', 'variant_mae', 'mae_delta', 'params', 'params_delta', 'cost_metric']
-            for col in required_cols:
-                assert col in df.columns, f"Missing column: {col}"
+    """Tests for cost curve generation logic."""
 
-    def test_cost_curve_data_values(self):
-        """Test that the computed values are correct."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            ablation_path = os.path.join(tmpdir, "ablation_results.json")
-            output_path = os.path.join(tmpdir, "cost_curve_data.csv")
-            
-            baseline_mae = 0.05
-            baseline_params = 1000000
-            
-            mock_data = [
-                {
-                    "variant_name": "baseline",
-                    "mae": baseline_mae,
-                    "params": baseline_params
-                },
-                {
-                    "variant_name": "variant_a",
-                    "mae": 0.06,
-                    "params": 1000000
-                }
-            ]
-            
-            with open(ablation_path, 'w') as f:
-                json.dump(mock_data, f)
-            
-            df = generate_cost_curve_data(ablation_path, output_path=output_path)
-            
-            # Find the row for variant_a
-            row = df[df['variant'] == 'variant_a'].iloc[0]
-            
-            assert abs(row['variant_mae'] - 0.06) < 1e-6
-            assert abs(row['mae_delta'] - 0.01) < 1e-6
-            assert abs(row['params_delta'] - 0) < 1e-6
-            assert abs(row['cost_metric'] - 0.01) < 1e-6
+    def test_calculate_relative_increase(self):
+        """Test relative increase calculation."""
+        assert calculate_relative_increase(10.0, 15.0) == 0.5
+        assert calculate_relative_increase(10.0, 10.0) == 0.0
+        assert calculate_relative_increase(10.0, 5.0) == -0.5
+        # Edge case: base is zero
+        assert calculate_relative_increase(0.0, 5.0) == float('inf')
+        assert calculate_relative_increase(0.0, 0.0) == 0.0
 
-    def test_missing_ablation_file_raises(self):
-        """Test that FileNotFoundError is raised if ablation file is missing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "cost_curve_data.csv")
-            
-            with pytest.raises(FileNotFoundError):
-                generate_cost_curve_data("non_existent_path.json", output_path=output_path)
+    def test_calculate_metabolic_cost(self):
+        """Test metabolic cost calculation."""
+        assert calculate_metabolic_cost(100.0, 0.1) == 1000.0
+        assert calculate_metabolic_cost(50.0, 0.5) == 100.0
+        # Edge case: MAE is zero
+        assert calculate_metabolic_cost(100.0, 0.0) == float('inf')
 
-    def test_empty_ablation_results_raises(self):
-        """Test that ValueError is raised if ablation results are empty."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            ablation_path = os.path.join(tmpdir, "ablation_results.json")
-            output_path = os.path.join(tmpdir, "cost_curve_data.csv")
-            
-            with open(ablation_path, 'w') as f:
-                json.dump([], f)
-            
-            with pytest.raises(ValueError):
-                generate_cost_curve_data(ablation_path, output_path=output_path)
+    def test_load_baseline_metrics_missing_file(self, tmp_path):
+        """Test loading baseline metrics when file is missing."""
+        # Create a temporary path that doesn't exist
+        with pytest.raises(FileNotFoundError):
+            # Temporarily override the path for testing
+            import src.utils.cost_curve_generator as mod
+            original_path = mod.BASELINE_METRICS_PATH
+            mod.BASELINE_METRICS_PATH = tmp_path / "nonexistent.json"
+            try:
+                load_baseline_metrics()
+            finally:
+                mod.BASELINE_METRICS_PATH = original_path
 
-    def test_missing_baseline_raises(self):
-        """Test that ValueError is raised if no baseline is found."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            ablation_path = os.path.join(tmpdir, "ablation_results.json")
-            output_path = os.path.join(tmpdir, "cost_curve_data.csv")
-            
-            # Data without a baseline
-            mock_data = [
-                {
-                    "variant_name": "full_microcircuit",
-                    "mae": 0.04,
-                    "params": 1000000
-                }
-            ]
-            
-            with open(ablation_path, 'w') as f:
-                json.dump(mock_data, f)
-            
-            with pytest.raises(ValueError):
-                generate_cost_curve_data(ablation_path, output_path=output_path)
+    def test_load_ablation_results_empty(self, tmp_path):
+        """Test loading ablation results with empty list."""
+        ablation_file = tmp_path / "ablation.json"
+        with open(ablation_file, 'w') as f:
+            json.dump([], f)
+
+        import src.utils.cost_curve_generator as mod
+        original_path = mod.ABLATION_RESULTS_PATH
+        mod.ABLATION_RESULTS_PATH = ablation_file
+        try:
+            results = load_ablation_results()
+            assert results == []
+        finally:
+            mod.ABLATION_RESULTS_PATH = original_path
+
+    def test_generate_cost_curve_data_integration(self, tmp_path):
+        """Test full cost curve generation with mock data."""
+        # Create temporary files for inputs
+        baseline_file = tmp_path / "baseline_run.json"
+        microcircuit_file = tmp_path / "microcircuit_run.json"
+        ablation_file = tmp_path / "ablation_study_results.json"
+        output_file = tmp_path / "cost_curve_data.csv"
+
+        # Write mock data
+        with open(baseline_file, 'w') as f:
+            json.dump({
+                'mae': 0.05,
+                'training_time_sec': 100.0,
+                'params': 1000000
+            }, f)
+
+        with open(microcircuit_file, 'w') as f:
+            json.dump({
+                'mae': 0.04,
+                'training_time_sec': 150.0,
+                'params': 1000000
+            }, f)
+
+        with open(ablation_file, 'w') as f:
+            json.dump({
+                'results': [
+                    {'variant': 'ablation_recurrence', 'mae': 0.06, 'training_time_sec': 120.0, 'params': 950000},
+                    {'variant': 'ablation_inhibition', 'mae': 0.07, 'training_time_sec': 130.0, 'params': 980000}
+                ]
+            }, f)
+
+        # Patch the paths
+        import src.utils.cost_curve_generator as mod
+        original_baseline = mod.BASELINE_METRICS_PATH
+        original_micro = mod.MICROCIRCUIT_METRICS_PATH
+        original_ablation = mod.ABLATION_RESULTS_PATH
+        original_output = mod.OUTPUT_PATH
+
+        try:
+            mod.BASELINE_METRICS_PATH = baseline_file
+            mod.MICROCIRCUIT_METRICS_PATH = microcircuit_file
+            mod.ABLATION_RESULTS_PATH = ablation_file
+            mod.OUTPUT_PATH = output_file
+
+            # Run the generator
+            df = generate_cost_curve_data()
+
+            # Verify output exists
+            assert output_file.exists()
+
+            # Verify content
+            assert len(df) == 4  # baseline, full, 2 ablations
+            assert 'variant' in df.columns
+            assert 'metabolic_cost' in df.columns
+            assert 'rel_mae_increase' in df.columns
+
+            # Check baseline row
+            baseline_row = df[df['variant'] == 'baseline'].iloc[0]
+            assert baseline_row['rel_mae_increase'] == 0.0
+            assert baseline_row['rel_time_increase'] == 0.0
+
+            # Check ablation row
+            ablation_row = df[df['variant'] == 'ablation_recurrence'].iloc[0]
+            # MAE increased from 0.05 to 0.06 -> (0.06-0.05)/0.05 = 0.2
+            assert abs(ablation_row['rel_mae_increase'] - 0.2) < 1e-6
+
+        finally:
+            # Restore original paths
+            mod.BASELINE_METRICS_PATH = original_baseline
+            mod.MICROCIRCUIT_METRICS_PATH = original_micro
+            mod.ABLATION_RESULTS_PATH = original_ablation
+            mod.OUTPUT_PATH = original_output

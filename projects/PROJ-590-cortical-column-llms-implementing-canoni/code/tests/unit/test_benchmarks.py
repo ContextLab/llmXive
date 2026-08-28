@@ -1,174 +1,104 @@
+"""
+Unit tests for data generation functions in benchmarks.py
+"""
 import pytest
 import numpy as np
 import os
-import sys
-from pathlib import Path
 import tempfile
-import json
+from pathlib import Path
+
+import sys
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.data.benchmarks import (
-    generate_polynomial_test_data,
     generate_training_data,
-    generate_fourier_test_data,
-    verify_independence
+    generate_polynomial_test_data,
+    verify_independence,
+    save_data,
+    load_data
 )
 
+class TestPolynomialTestDataGeneration:
+    """Tests for T008c: generate_polynomial_test_data"""
 
-class TestPolynomialSurface:
-    """Test polynomial surface generation for T008c"""
+    def test_generate_polynomial_test_data_shape(self):
+        """Test that output has correct shape"""
+        data = generate_polynomial_test_data(seed=42, n=1000)
+        assert data.shape == (1000, 2), f"Expected shape (1000, 2), got {data.shape}"
 
-    def test_polynomial_generation_basic(self, tmp_path):
-        """Test basic polynomial test data generation"""
-        output_path = tmp_path / "test_poly.npy"
-        data = generate_polynomial_test_data(
-            n_samples=100,
-            n_features=3,
-            degree=2,
-            seed=42,
-            output_path=str(output_path)
-        )
+    def test_generate_polynomial_test_data_deterministic(self):
+        """Test that generation is deterministic with same seed"""
+        data1 = generate_polynomial_test_data(seed=42, n=100)
+        data2 = generate_polynomial_test_data(seed=42, n=100)
+        np.testing.assert_array_equal(data1, data2)
 
-        # Check file was created
-        assert output_path.exists()
+    def test_generate_polynomial_test_data_polynomial(self):
+        """Test that Y values match polynomial x^2 - 1"""
+        data = generate_polynomial_test_data(seed=42, n=10, coeffs=[1, 0, -1], noise_std=0.0)
+        X = data[:, 0]
+        Y = data[:, 1]
+        expected_Y = X**2 - 1
+        np.testing.assert_array_almost_equal(Y, expected_Y, decimal=5)
 
-        # Check shape
-        assert data.shape == (100, 4)  # 3 features + 1 target
+    def test_generate_polynomial_test_data_with_noise(self):
+        """Test that noise is added correctly"""
+        np.random.seed(42)
+        data_no_noise = generate_polynomial_test_data(seed=42, n=100, coeffs=[1, 0, -1], noise_std=0.0)
+        data_with_noise = generate_polynomial_test_data(seed=42, n=100, coeffs=[1, 0, -1], noise_std=1.0)
+        
+        # With noise, values should differ
+        assert not np.allclose(data_no_noise, data_with_noise)
 
-        # Check data loaded correctly
-        loaded = np.load(output_path)
-        assert np.allclose(data, loaded)
+    def test_generate_polynomial_test_data_save_load(self):
+        """Test save and load functionality"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Temporarily override DATA_RESULTS_DIR
+            original_dir = None
+            import src.data.benchmarks as benchmarks_module
+            original_dir = benchmarks_module.DATA_RESULTS_DIR
+            benchmarks_module.DATA_RESULTS_DIR = Path(tmpdir)
+            
+            try:
+                data = generate_polynomial_test_data(seed=42, n=50)
+                output_path = save_data(data, "test_save.npy")
+                
+                loaded_data = load_data("test_save.npy")
+                np.testing.assert_array_equal(data, loaded_data)
+            finally:
+                if original_dir:
+                    benchmarks_module.DATA_RESULTS_DIR = original_dir
 
-    def test_polynomial_independence_from_lorenz(self, tmp_path):
-        """Verify polynomial data is independent from Lorenz by design"""
-        # Generate both datasets
-        train_data = generate_training_data(n_samples=100, seed=123)
-        test_data = generate_polynomial_test_data(n_samples=100, seed=42)
+class TestLorenzTrainingDataGeneration:
+    """Tests for generate_training_data (Lorenz)"""
 
-        # Verify independence function works
-        assert verify_independence(train_data, test_data) is True
+    def test_generate_training_data_shape(self):
+        """Test that Lorenz output has correct shape"""
+        data = generate_training_data(seed=42, n_samples=1000)
+        assert data.shape == (1000, 3), f"Expected shape (1000, 3), got {data.shape}"
 
-    def test_polynomial_degree_variety(self, tmp_path):
-        """Test different polynomial degrees produce different data"""
-        data_deg2 = generate_polynomial_test_data(n_samples=50, degree=2, seed=42)
-        data_deg3 = generate_polynomial_test_data(n_samples=50, degree=3, seed=42)
+    def test_generate_training_data_deterministic(self):
+        """Test that generation is deterministic with same seed"""
+        data1 = generate_training_data(seed=42, n_samples=100)
+        data2 = generate_training_data(seed=42, n_samples=100)
+        np.testing.assert_array_equal(data1, data2)
 
-        # Different degrees should produce different distributions
-        assert not np.allclose(data_deg2, data_deg3)
+class TestIndependenceVerification:
+    """Tests for verify_independence"""
 
-    def test_reproducibility(self, tmp_path):
-        """Test that same seed produces identical results"""
-        output1 = tmp_path / "test1.npy"
-        output2 = tmp_path / "test2.npy"
+    def test_verify_independence_different_distributions(self):
+        """Test that Lorenz and Polynomial data are verified as independent"""
+        train_data = generate_training_data(seed=42, n_samples=1000)
+        test_data = generate_polynomial_test_data(seed=42, n=1000)
+        
+        # Should not raise an exception
+        result = verify_independence(train_data, test_data)
+        assert result is True
 
-        data1 = generate_polynomial_test_data(n_samples=50, seed=12345, output_path=str(output1))
-        data2 = generate_polynomial_test_data(n_samples=50, seed=12345, output_path=str(output2))
-
-        assert np.allclose(data1, data2)
-
-
-class TestLorenzAttractor:
-    """Test Lorenz attractor training data generation"""
-
-    def test_lorenz_generation(self, tmp_path):
-        """Test Lorenz data generation"""
-        output_path = tmp_path / "lorenz.npy"
-        data = generate_training_data(n_samples=100, seed=123, output_path=str(output_path))
-
-        assert output_path.exists()
-        assert data.shape == (100, 3)
-
-    def test_lorenz_bounded(self):
-        """Lorenz attractor should be bounded within reasonable limits"""
-        data = generate_training_data(n_samples=1000, seed=123)
-        # Lorenz attractor stays within roughly [-20, 20] for standard parameters
-        assert np.all(np.abs(data) < 30)
-
-
-class TestFourierSeries:
-    """Test Fourier series test data generation"""
-
-    def test_fourier_generation(self, tmp_path):
-        """Test Fourier data generation"""
-        output_path = tmp_path / "fourier.npy"
-        data = generate_fourier_test_data(n_samples=50, seed=43, output_path=str(output_path))
-
-        assert output_path.exists()
-        assert data.shape == (50, 4)  # 3 features + 1 target
-
-
-class TestNoiseInjection:
-    """Test noise injection in data generation"""
-
-    def test_noise_addition(self):
-        """Verify noise is added to polynomial data"""
-        data1 = generate_polynomial_test_data(n_samples=100, seed=42)
-        data2 = generate_polynomial_test_data(n_samples=100, seed=42)
-
-        # Same seed should give same noise
-        assert np.allclose(data1, data2)
-
-        # Different seed should give different noise
-        data3 = generate_polynomial_test_data(n_samples=100, seed=43)
-        assert not np.allclose(data1, data3)
-
-
-class TestGenerateSyntheticDataset:
-    """Test overall dataset generation workflow"""
-
-    def test_full_generation_pipeline(self, tmp_path):
-        """Test complete generation of all datasets"""
-        data_dir = tmp_path / "results"
-        data_dir.mkdir()
-
-        # Generate all three datasets
-        train = generate_training_data(100, seed=123)
-        poly_test = generate_polynomial_test_data(50, seed=42)
-        fourier_test = generate_fourier_test_data(50, seed=43)
-
-        # Verify shapes
-        assert train.shape[1] == 3
-        assert poly_test.shape[1] == 6  # 5 features + 1 target (default)
-        assert fourier_test.shape[1] == 4  # 3 features + 1 target (default)
-
-
-class TestIndependenceThreshold:
-    """Test independence verification logic"""
-
-    def test_independent_generators(self):
-        """Test that different generators pass independence check"""
-        train = generate_training_data(100, seed=123)
-        test = generate_polynomial_test_data(100, seed=42)
-
-        assert verify_independence(train, test) is True
-
-    def test_identical_data_fails(self):
+    def test_verify_independence_same_distribution_fails(self):
         """Test that identical data fails independence check"""
-        data = generate_training_data(100, seed=123)
-
-        # Same data should fail (ranges will be identical)
-        # Note: This is a simplified check - in practice we expect different generators
-        result = verify_independence(data, data)
-        # The function returns False when ranges are identical
-        assert result is False
-
-
-class TestEdgeCases:
-    """Test edge cases in data generation"""
-
-    def test_single_sample(self, tmp_path):
-        """Test generation with single sample"""
-        output = tmp_path / "single.npy"
-        data = generate_polynomial_test_data(n_samples=1, seed=42, output_path=str(output))
-        assert data.shape == (1, 6)  # 5 features + 1 target
-
-    def test_high_degree_polynomial(self, tmp_path):
-        """Test high degree polynomial generation"""
-        output = tmp_path / "high_deg.npy"
-        data = generate_polynomial_test_data(n_samples=10, degree=5, seed=42, output_path=str(output))
-        assert data.shape == (10, 6)
-
-    def test_large_feature_space(self, tmp_path):
-        """Test with many features"""
-        output = tmp_path / "many_feat.npy"
-        data = generate_polynomial_test_data(n_samples=10, n_features=10, seed=42, output_path=str(output))
-        assert data.shape == (10, 11)  # 10 features + 1 target
+        data = generate_training_data(seed=42, n_samples=1000)
+        
+        # Use same data for both (should fail)
+        with pytest.raises(ValueError):
+            verify_independence(data, data)

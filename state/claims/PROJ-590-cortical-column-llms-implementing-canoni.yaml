@@ -568,3 +568,245 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T12:51:01Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test p-value less than 0.05 for statistical independence
+  claim_id: c_267f52c5
+  context: 'Logic: 1. Verify generators are distinct by design (Lorenz vs Polynomials).
+    2. Perform a Kolmogorov-Smirnov test on the generated samples to ensure statistical
+    independence (p-value < 0.05).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test_p-value_less_than_0.05_for_statistic
+  kind: magnitude
+  raw_text: Perform a Kolmogorov-Smirnov test on the generated samples to ensure statistical
+    independence (p-value < 0.05).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:36:20Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Parameter count within plus or minus 1 percent of baseline
+  claim_id: c_7491eee0
+  context: "CRITICAL: Verify parameter count is within \xB11% of baseline and this\
+    \ verification is a BLOCKING prerequisite for T049 (Scaling)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify parameter count is within \xB11% of baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:36:20Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: E/I ratio deviation greater than 5 percent from 4 to 1
+  claim_id: c_22b781a6
+  context: 'Test: Fail if any unexpected connections exist or if the E/I ratio deviates
+    from 4:1 by > 5%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E/I_ratio_deviation_greater_than_5_percent_from_4_to_1
+  kind: magnitude
+  raw_text: E/I ratio deviates from 4:1 by > 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:36:43Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Enforce 4 to 1 ratio as dynamic constraint
+  claim_id: c_0f115735
+  context: 'Implement dynamic E/I ratio enforcement mechanism in src/training/homeostasis.py:
+    enforce the 4: ratio as a *dynamic constraint* maintained during training using
+    ONLY homeostatic scaling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Enforce the 4: ratio as a dynamic constraint.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:37:03Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Calculate scaling exponent beta using log(MAE) approximately beta times
+    log(Parameter Count)
+  claim_id: c_44cc200d
+  context: 'Requirement: Calculate and report the scaling exponent `beta` using the
+    formula `log(MAE) ~ beta * log(Parameter Count)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_scaling_exponent_beta_using_log(MAE)_approximately
+  kind: entity_fact
+  raw_text: Calculate and report the scaling exponent beta using the formula log(MAE)
+    ~ beta * log(Parameter Count).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:37:30Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Calculate relative MAE increase and training time increase for ablation
+    variants
+  claim_id: c_b1a316c4
+  context: 'Logic: Calculate relative MAE increase and training time increase for
+    each ablation variant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_relative_MAE_increase_and_training_time_increase_f
+  kind: entity_fact
+  raw_text: Calculate relative MAE increase and training time increase for each ablation
+    variant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:37:59Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Metabolic Cost equals Training Time in seconds divided by MAE
+  claim_id: c_5f84c9f9
+  context: 'CRITICAL: Explicitly calculate ''Metabolic Cost'' as `Training Time (sec)
+    / MAE` for each variant to quantify the trade-off.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metabolic_Cost_equals_Training_Time_in_seconds_divided_by_MA
+  kind: entity_fact
+  raw_text: Explicitly calculate 'Metabolic Cost' as Training Time (sec) / MAE for
+    each variant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:38:40Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 2
+  canonical: MAE less than 0.05 within 6 hours on 4 CPU cores
+  claim_id: c_30b77d0b
+  context: 'Independent Test: Execute training on held-out synthetic functions (Lorenz,
+    Fourier) and verify MAE < 0.05 within 6 hours on 4 CPU cores.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MAE_less_than_0.05_within_6_hours_on_4_CPU_cores
+  kind: magnitude
+  raw_text: Verify MAE < 0.05 within 6 hours on 4 CPU cores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:43:42Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test p-value less than 0.05 for statistical independence
+  claim_id: c_bd72371c
+  context: '2. Perform a Kolmogorov-Smirnov test on the generated samples to ensure
+    statistical independence (p-value < 0.05). **Requirement**: If generators are
+    not distinct or samples are statistically dependent, log an error and raise an
+    exception.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test_p-value_less_than_0.05_for_statistic
+  kind: magnitude
+  raw_text: Perform a Kolmogorov-Smirnov test on the generated samples to ensure statistical
+    independence (p-value < 0.05).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:43:44Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Polynomial surfaces function family with seed 42, N 1000, coeffs [1,
+    0, -1]
+  claim_id: c_962934a3
+  context: 'Output: data/results/test_data_polynomial.npy. **CRITICAL**: Use `polynomial
+    surfaces` as the function family (distinct from Lorenz) to ensure statistical
+    independence by design. **Parameters**: `SEED=42`, `N=1000`, `coeffs=[1, 0, -1]`
+    (for $x^2 - 1$).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use polynomial surfaces as the function family (distinct from Lorenz)
+    to ensure statistical independence by design. **Parameters**: SEED=42, N=1000,
+    coeffs=[1, 0, -1] (for x^2 - 1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:44:13Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: E/I ratio 4 to 1 maintained via homeostatic scaling
+  claim_id: c_4ca3a243
+  context: 'Implement dynamic E/I ratio enforcement mechanism in src/training/homeostasis.py:
+    enforce the 4: ratio as a *dynamic constraint* maintained during training using
+    ONLY homeostatic scaling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce the 4:1 ratio as a dynamic constraint maintained during training
+    using ONLY homeostatic scaling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:44:36Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Parameter count within plus or minus 1 percent of baseline
+  claim_id: c_36c85d74
+  context: "Verify parameter count is within \xB11% of baseline and this verification\
+    \ is a BLOCKING prerequisite for T049 (Scaling)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify parameter count is within \xB11% of baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:44:36Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: E/I ratio deviation from 4 to 1 greater than 5 percent
+  claim_id: c_143a1e56
+  context: 'Test: Fail if any unexpected connections exist or if the E/I ratio deviates
+    from 4:1 by > 5%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/E/I_ratio_deviation_from_4_to_1_greater_than_5_percent
+  kind: magnitude
+  raw_text: Fail if the E/I ratio deviates from 4:1 by > 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T14:45:08Z'

@@ -1,3 +1,11 @@
+T008c:
+  c: false
+  h: a5eea4278bb9e9f6f7d43fcf558774d23d57cafd0364a2d099c7e6a9eeb190aa
+  r: "The `generate_polynomial_test_data` function is only partially defined (truncated)\
+    \ and never creates or saves the required `data/results/test_data_polynomial.npy`.\
+    \ Moreover, the verification script `scripts/hash_artifacts.sh` is absent, so\
+    \ the required checksum check cannot be performed. The task\u2019s critical output\
+    \ file and verification steps are missing."
 T011b:
   c: true
   h: 7665ec6ebdc3b6889a3be8a25687eb519f9bf6f9c9ba7a34047970e3ad862d23
@@ -6,16 +14,6 @@ T011b:
     and includes logic to generate data, run a training step, invoke `log_gradient_norms`,
     and assert that the JSON file exists and is valid. The missing `gradient_norms.json`
     is a runtime artifact, not a repository requirement.
-T014a:
-  c: false
-  h: 77657468b5a427b28fe64242ded6cdd2adc9fd1a9b987cca2a9598aff81992a3
-  r: "The repository lacks the required `data/results/test_data_polynomial.npy` file,\
-    \ and the `src/experiments/baseline_runner.py` source shown does not contain an\
-    \ implementation of the `load_test_data` function (or any code that loads that\
-    \ file). Consequently the task\u2019s core requirement\u2014providing a working\
-    \ `load_test_data` that returns `X_test, y_test` from the specified NumPy file\u2014\
-    is not satisfied. The missing data file and absent function must be added for\
-    \ the task to be complete."
 T025a:
   c: false
   h: 11e24d9cd6b1a4d6655a6f92dc049f098a4797a79065a8ef80906cbf28af139d
@@ -47,11 +45,3 @@ T050:
   r: The required file `src/utils/scaling_analyzer.py` does not exist in the repository,
     so the update cannot have been performed. The missing artifact must be added and
     contain the appropriate updated code to satisfy the task.
-T071:
-  c: false
-  h: 7d487d1a317f7e9c83b0f6bfbf96fc9b597d163ca45bec71e71b68ef4f2ca90d
-  r: "The `src/utils/statistics.py` file does not contain a `verify_gradient_distribution`\
-    \ implementation (the shown code only defines other functions), and the required\
-    \ input files `baseline_gradient_distributions.json` and `gradient_norms.json`\
-    \ as well as the output `gradient_distribution_report.md` are absent. Consequently\
-    \ the task\u2019s specifications are not met."

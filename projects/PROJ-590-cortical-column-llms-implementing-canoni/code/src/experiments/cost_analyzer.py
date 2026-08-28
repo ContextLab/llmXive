@@ -6,198 +6,228 @@ from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 
-from src.utils.scaling_analyzer import load_scaling_data, perform_log_log_regression, classify_trend
-from src.utils.cost_curve_generator import generate_cost_curve_data
+from pathlib import Path
+
+# Project root handling (relative to code/)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
 
 logger = logging.getLogger(__name__)
 
 @dataclass
 class CostMetric:
-    """Structured output for cost analysis."""
+    """Dataclass representing a single cost metric entry."""
+    variant: str
     baseline_mae: float
-    full_model_mae: float
-    ablation_costs: Dict[str, float]
-    scaling_exponent: float
-    trend_type: str
-    metabolic_overhead_ratio: float
-    parameter_efficiency: float
-    summary: str
+    variant_mae: float
+    relative_mae_increase: float
+    baseline_time_sec: float
+    variant_time_sec: float
+    relative_time_increase: float
+    metabolic_cost: float  # Time / MAE (lower is better, higher means more 'cost' per unit accuracy)
+    metabolic_cost_ratio: float  # Variant cost / Baseline cost
 
-def load_ablation_results(ablation_dir: str = "data/results/ablation") -> List[Dict[str, Any]]:
+def load_json_file(path: Path) -> Dict[str, Any]:
+    """Load a JSON file safely."""
+    if not path.exists():
+        raise FileNotFoundError(f"Required file not found: {path}")
+    with open(path, 'r') as f:
+        return json.load(f)
+
+def load_ablation_results() -> List[Dict[str, Any]]:
     """
-    Load ablation result files from the specified directory.
-    Expects JSON files named like 'ablation_{config_name}.json'.
+    Load ablation results from data/results/ablation_*.json.
+    We expect files named like: data/results/ablation_{variant}.json
     """
     results = []
-    if not os.path.exists(ablation_dir):
-        logger.warning(f"Ablation directory {ablation_dir} does not exist. Returning empty list.")
-        return results
+    ablation_files = list(DATA_RESULTS_DIR.glob("ablation_*.json"))
+    
+    if not ablation_files:
+        # Fallback to generic ablation results if specific files aren't found
+        generic_file = DATA_RESULTS_DIR / "ablation_results.json"
+        if generic_file.exists():
+            ablation_files = [generic_file]
+        else:
+            raise FileNotFoundError("No ablation result files found in data/results/")
 
-    for filename in os.listdir(ablation_dir):
-        if filename.endswith(".json") and filename.startswith("ablation_"):
-            filepath = os.path.join(ablation_dir, filename)
-            try:
-                with open(filepath, 'r') as f:
-                    data = json.load(f)
-                    results.append(data)
-            except (json.JSONDecodeError, IOError) as e:
-                logger.error(f"Failed to load ablation result {filepath}: {e}")
+    for f in ablation_files:
+        try:
+            data = load_json_file(f)
+            # Handle if the JSON is a list of results or a single result dict
+            if isinstance(data, list):
+                results.extend(data)
+            else:
+                results.append(data)
+        except Exception as e:
+            logger.warning(f"Failed to load {f}: {e}")
+
+    if not results:
+        raise ValueError("No valid ablation results found.")
     return results
 
-def load_scaling_metrics(scaling_file: str = "data/results/scaling_law_report.md") -> Tuple[float, str]:
+def load_scaling_metrics() -> pd.DataFrame:
     """
-    Parse the scaling law report to extract the exponent and trend type.
-    If the file doesn't exist or parsing fails, returns defaults.
+    Load scaling law metrics from data/results/scaling_law.csv.
+    Returns a DataFrame with columns: columns, params, mae, time_sec
     """
-    if not os.path.exists(scaling_file):
-        logger.warning(f"Scaling report {scaling_file} not found. Using defaults.")
-        return 0.0, "unknown"
+    scaling_file = DATA_RESULTS_DIR / "scaling_law.csv"
+    if not scaling_file.exists():
+        raise FileNotFoundError(f"Scaling law CSV not found: {scaling_file}")
+    
+    df = pd.read_csv(scaling_file)
+    required_cols = ['columns', 'params', 'mae', 'time_sec']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Scaling CSV missing required columns: {missing}")
+    
+    return df
 
-    scaling_exponent = 0.0
-    trend_type = "unknown"
+def load_baseline_metrics() -> Dict[str, float]:
+    """
+    Load baseline metrics. We look for a baseline run result or generalization report.
+    Typically data/results/baseline_run.json or data/results/generalization_report.md (parsed).
+    For this implementation, we assume a JSON file 'baseline_metrics.json' or 'baseline_run.json'
+    exists with 'mae' and 'time_sec'.
+    """
+    # Try specific baseline run file first
+    baseline_file = DATA_RESULTS_DIR / "baseline_run.json"
+    if baseline_file.exists():
+        data = load_json_file(baseline_file)
+        return {
+            'mae': float(data.get('mae', data.get('final_mae', 0))),
+            'time_sec': float(data.get('time_sec', data.get('total_time', 0)))
+        }
+    
+    # Fallback: try to extract from generalization report if it's a JSON
+    gen_report = DATA_RESULTS_DIR / "generalization_report.json"
+    if gen_report.exists():
+         data = load_json_file(gen_report)
+         return {
+            'mae': float(data.get('mae', 0)),
+            'time_sec': float(data.get('time_sec', 0))
+         }
 
+    raise FileNotFoundError("Baseline metrics file (baseline_run.json) not found.")
+
+def compute_cost_metrics() -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """
+    Compute the cost curve metrics by comparing ablation variants against the baseline.
+    
+    Returns:
+        Tuple of (list of CostMetric dicts, summary stats dict)
+    """
+    logger.info("Computing cost metrics...")
+    
+    # 1. Load Baseline
     try:
-        with open(scaling_file, 'r') as f:
-            content = f.read()
-            # Simple heuristic parsing for the report format
-            for line in content.split('\n'):
-                if "scaling_exponent" in line or "beta" in line:
-                    # Look for a number in the line
-                    import re
-                    match = re.search(r'[-+]?\d*\.\d+|\d+', line)
-                    if match:
-                        scaling_exponent = float(match.group())
-                if "trend" in line or "sublinear" in line or "superlinear" in line or "linear" in line:
-                    if "sublinear" in line:
-                        trend_type = "sublinear"
-                    elif "superlinear" in line:
-                        trend_type = "superlinear"
-                    elif "linear" in line:
-                        trend_type = "linear"
-    except Exception as e:
-        logger.error(f"Error parsing scaling report: {e}")
+        baseline = load_baseline_metrics()
+    except FileNotFoundError as e:
+        logger.error(f"Cannot compute cost metrics: {e}")
+        # In a real run, we might return empty or fail. Here we raise to fail loudly.
+        raise e
 
-    return scaling_exponent, trend_type
+    baseline_mae = baseline['mae']
+    baseline_time = baseline['time_sec']
 
-def compute_cost_metrics(
-    ablation_dir: str = "data/results/ablation",
-    scaling_report_path: str = "data/results/scaling_law_report.md",
-    output_path: str = "data/results/cost_metrics.json"
-) -> CostMetric:
-    """
-    Computes the 'Cost of Biological Plausibility' metrics by comparing
-    ablation variants against the baseline and full model, and integrating
-    scaling law data.
+    if baseline_mae == 0:
+        baseline_mae = 1e-9 # Avoid division by zero
 
-    This function satisfies T076 requirements:
-    1. Reads ablation data (from Phase 5).
-    2. Reads scaling metrics (from T050).
-    3. Computes overhead ratios and efficiency.
-    4. Writes a JSON report to `data/results/cost_metrics.json`.
-    """
-    logger.info(f"Computing cost metrics. Loading ablation data from {ablation_dir}...")
+    # 2. Load Ablation Results
+    ablation_results = load_ablation_results()
 
-    # 1. Load Ablation Data
-    ablation_results = load_ablation_results(ablation_dir)
+    # 3. Load Scaling Metrics (for context, though cost curve is primarily ablation vs baseline)
+    # We might use the scaling data to normalize or add a 'size' dimension later, 
+    # but the core task is ablation cost.
+    try:
+        scaling_df = load_scaling_metrics()
+        # We can compute an average scaling metric if needed, but for now we just verify it exists.
+        logger.info(f"Loaded scaling data with {len(scaling_df)} entries.")
+    except FileNotFoundError:
+        logger.warning("Scaling law CSV not found. Proceeding with ablation-only cost analysis.")
+        scaling_df = None
 
-    if not ablation_results:
-        logger.warning("No ablation results found. Generating synthetic placeholder for structure.")
-        # Fallback if no real data exists yet (though task implies data should be there)
-        # In a strict execution, this might fail, but we provide a structure to allow the pipeline to proceed
-        # with a clear error if the data is truly missing.
-        ablation_results = [
-            {"config": "no_recurrence", "mae": 0.05, "params": 100000},
-            {"config": "no_inhibition", "mae": 0.06, "params": 100000},
-            {"config": "full_model", "mae": 0.04, "params": 102000}
-        ]
+    cost_metrics = []
 
-    # 2. Identify Baseline and Full Model
-    # We assume one of the results is the "full" model and we need a baseline.
-    # If 'baseline' is in the results, use it. Otherwise, assume the 'full_model'
-    # is the best performing and compare others to it.
-    baseline_mae = None
-    full_model_mae = None
-    ablation_costs = {}
+    for result in ablation_results:
+        variant_name = result.get('variant', 'unknown')
+        variant_mae = float(result.get('mae', result.get('final_mae', 0)))
+        variant_time = float(result.get('time_sec', result.get('total_time', 0)))
 
-    for res in ablation_results:
-        config_name = res.get("config", "unknown")
-        mae = res.get("mae", float('inf'))
+        if variant_mae == 0:
+            variant_mae = 1e-9
 
-        if "full" in config_name.lower():
-            full_model_mae = mae
-        elif "baseline" in config_name.lower():
-            baseline_mae = mae
-        else:
-            # Store ablation cost relative to full model
-            if full_model_mae is not None:
-                cost = (mae - full_model_mae) / full_model_mae if full_model_mae > 0 else 0.0
-                ablation_costs[config_name] = cost
+        # Calculate relative increases
+        rel_mae_inc = (variant_mae - baseline_mae) / baseline_mae
+        rel_time_inc = (variant_time - baseline_time) / baseline_time if baseline_time > 0 else 0.0
 
-    # If baseline_mae is missing, we might need to infer it or use the best ablation
-    if baseline_mae is None:
-        # Fallback: assume the 'no_recurrence' or similar is the closest to baseline if 'full' is the complex one
-        # Or simply use the first available mae if we have to.
-        if ablation_results:
-            baseline_mae = ablation_results[0].get("mae", 0.05)
-        else:
-            baseline_mae = 0.05
+        # Metabolic Cost = Time / MAE
+        # Higher cost means more time spent per unit of error (or rather, per unit of performance? 
+        # The spec says "Metabolic Cost = Training Time (sec) / MAE". 
+        # If MAE is error, lower MAE is better. So Time/MAE: High Time + Low MAE = High Cost? 
+        # Or High Time + High MAE = Low Cost?
+        # Let's stick strictly to the formula: Cost = Time / MAE.
+        # If we improve accuracy (lower MAE) but take much longer, Cost goes up.
+        # If we are faster but much worse (higher MAE), Cost goes down.
+        # This metric quantifies the "price" of accuracy in time.
+        
+        metabolic_cost = variant_time / variant_mae
+        baseline_metabolic_cost = baseline_time / baseline_mae
 
-    if full_model_mae is None:
-        # Fallback
-        full_model_mae = baseline_mae * 0.9  # Assume slight improvement
+        if baseline_metabolic_cost == 0:
+            baseline_metabolic_cost = 1e-9
 
-    # 3. Load Scaling Metrics
-    scaling_exponent, trend_type = load_scaling_metrics(scaling_report_path)
+        metabolic_cost_ratio = metabolic_cost / baseline_metabolic_cost
 
-    # 4. Compute Derived Metrics
-    # Metabolic Overhead: How much worse is the full model compared to the simplest ablation?
-    # We'll use the average ablation MAA as a proxy for "simpler" models if baseline is missing
-    avg_ablation_mae = np.mean([r.get("mae", 0) for r in ablation_results if "full" not in r.get("config", "")])
-    if avg_ablation_mae > 0:
-        metabolic_overhead_ratio = (full_model_mae - avg_ablation_mae) / avg_ablation_mae
-    else:
-        metabolic_overhead_ratio = 0.0
+        metric = CostMetric(
+            variant=variant_name,
+            baseline_mae=baseline_mae,
+            variant_mae=variant_mae,
+            relative_mae_increase=rel_mae_inc,
+            baseline_time_sec=baseline_time,
+            variant_time_sec=variant_time,
+            relative_time_increase=rel_time_inc,
+            metabolic_cost=metabolic_cost,
+            metabolic_cost_ratio=metabolic_cost_ratio
+        )
+        cost_metrics.append(asdict(metric))
 
-    # Parameter Efficiency: MAE per parameter (lower is better)
-    # We need a representative parameter count. Let's assume the first result has it.
-    representative_params = ablation_results[0].get("params", 100000) if ablation_results else 100000
-    parameter_efficiency = full_model_mae / representative_params if representative_params > 0 else 0.0
+    # Sort by metabolic cost ratio descending (most expensive first)
+    cost_metrics.sort(key=lambda x: x['metabolic_cost_ratio'], reverse=True)
 
-    # 5. Generate Summary
-    summary = (
-        f"Cost Analysis: The full microcircuit model achieves an MAE of {full_model_mae:.4f}. "
-        f"Compared to ablated variants (avg MAE {avg_ablation_mae:.4f}), the metabolic overhead is {metabolic_overhead_ratio:.2%}. "
-        f"Scaling analysis indicates a {trend_type} trend (beta={scaling_exponent:.4f}). "
-        f"Parameter efficiency is {parameter_efficiency:.6e}."
-    )
+    summary = {
+        "baseline_mae": baseline_mae,
+        "baseline_time_sec": baseline_time,
+        "num_variants": len(cost_metrics),
+        "scaling_law_available": scaling_df is not None,
+        "metrics": cost_metrics
+    }
 
-    cost_metric = CostMetric(
-        baseline_mae=baseline_mae,
-        full_model_mae=full_model_mae,
-        ablation_costs=ablation_costs,
-        scaling_exponent=scaling_exponent,
-        trend_type=trend_type,
-        metabolic_overhead_ratio=metabolic_overhead_ratio,
-        parameter_efficiency=parameter_efficiency,
-        summary=summary
-    )
-
-    # 6. Write Output
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-
-    with open(output_path, 'w') as f:
-        json.dump(asdict(cost_metric), f, indent=2)
-
-    logger.info(f"Cost metrics written to {output_path}")
-    return cost_metric
+    return cost_metrics, summary
 
 def main():
     """Entry point for the cost analyzer script."""
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    compute_cost_metrics()
-    print("Cost analysis complete. Output written to data/results/cost_metrics.json")
+    
+    output_path = DATA_RESULTS_DIR / "cost_metrics.json"
+    
+    try:
+        metrics, summary = compute_cost_metrics()
+        
+        # Write the full summary including the list of metrics
+        with open(output_path, 'w') as f:
+            json.dump(summary, f, indent=2)
+        
+        logger.info(f"Cost metrics written to {output_path}")
+        
+        # Also write a CSV for easier plotting if needed (optional but helpful)
+        csv_path = DATA_RESULTS_DIR / "cost_curve_data.csv"
+        df_metrics = pd.DataFrame(metrics)
+        df_metrics.to_csv(csv_path, index=False)
+        logger.info(f"Cost curve data CSV written to {csv_path}")
+        
+    except Exception as e:
+        logger.error(f"Failed to compute cost metrics: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

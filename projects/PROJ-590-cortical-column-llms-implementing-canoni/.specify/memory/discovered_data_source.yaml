@@ -1,16 +1,13 @@
 status: none
-intent: synthetic function regression dataset Lorenz Fourier series python package
-  dataset
+intent: ODEBench synthetic dynamical system dataset Lorenz Fourier polynomial python
+  package dataset
 required_fields:
-- function_id
-- function_type
-- parameters
+- input_series
+- target_series
+- function_name
+- function_parameters
 - time_steps
-- inputs
-- targets
-- train_split
-- validation_split
-- test_split
-cache_key: 75ac3a095eb0242373114e2bb5fa47b982f390b82d14093ca0b4d6bdc2ca5d31
-searched_at: '2026-08-23T12:45:15.758083+00:00'
+- train_test_split_indicator
+cache_key: 31fb496b3792544d30aa4db186847dc1c75eeed80b9395e2196c3f68916a5b46
+searched_at: '2026-08-28T14:32:19.787594+00:00'
 retry_count: 1

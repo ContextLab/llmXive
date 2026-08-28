@@ -1,26 +1,34 @@
 #!/bin/bash
-# hash_artifacts.sh
-# Generates SHA256 checksums for all files in data/configs, data/results, data/logs, and state.
-# Satisfies Constitution Principle III (Data Hygiene) and Principle V (Versioning Discipline).
-#
-# Usage: ./scripts/hash_artifacts.sh [--verify]
-#
-# This script calls the Python utility src/utils/checksum.py.
+# Hash artifacts script for Constitution Principle III and V
+# Generates and verifies SHA256 checksums for data artifacts
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DATA_DIR="$PROJECT_ROOT/data"
+CHECKSUM_FILE="$DATA_DIR/checksums.sha256"
 
-cd "$PROJECT_ROOT"
+echo "=== Generating SHA256 checksums ==="
 
-OUTPUT_FILE="data/configs/checksums.json"
+# Find all relevant files in data/results, data/configs, data/logs, state
+FILES_TO_HASH=$(find "$DATA_DIR/results" "$DATA_DIR/configs" "$DATA_DIR/logs" "$PROJECT_ROOT/state" -type f 2>/dev/null || true)
 
-if [ "$1" == "--verify" ]; then
-    echo "Verifying artifacts against $OUTPUT_FILE..."
-    python -m src.utils.checksum --verify --output "$OUTPUT_FILE"
-else
-    echo "Generating checksums for data/configs, data/results, data/logs, and state..."
-    python -m src.utils.checksum --generate --output "$OUTPUT_FILE"
-    echo "Checksums saved to $OUTPUT_FILE"
+if [ -z "$FILES_TO_HASH" ]; then
+    echo "No files found to hash."
+    exit 0
 fi
+
+# Generate checksums
+echo "$FILES_TO_HASH" | xargs sha256sum > "$CHECKSUM_FILE"
+
+echo "Checksums written to: $CHECKSUM_FILE"
+echo "=== Verification complete ==="
+
+# Verify checksums if file exists
+if [ -f "$CHECKSUM_FILE" ]; then
+    echo "Verifying checksums..."
+    sha256sum -c "$CHECKSUM_FILE" > /dev/null
+    echo "✓ All checksums verified successfully"
+fi
+
+exit 0

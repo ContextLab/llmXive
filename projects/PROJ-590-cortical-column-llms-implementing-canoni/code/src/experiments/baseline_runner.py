@@ -3,210 +3,229 @@ import logging
 import os
 import sys
 import time
+import numpy as np
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from typing import Tuple, Optional, Any, Dict
+from typing import Tuple, Optional, Dict, Any
 
-import numpy as np
-import torch
+# Ensure we can import from src if running as script or module
+if __name__ == "__main__" and "code" not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-# Import from existing API surface
-from src.data.benchmarks import generate_polynomial_test_data
-from src.models.baseline_transformer import create_baseline_transformer, BaselineTransformer
+from src.data.benchmarks import load_data
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 @dataclass
 class ExperimentConfig:
     seed: int = 42
-    n_test_samples: int = 1000
-    n_features: int = 10
-    noise: float = 0.05
-    model_path: Optional[str] = None
-    output_dir: str = "data/results"
+    data_path: str = "data/results/test_data_polynomial.npy"
+    model_path: str = "data/models/baseline.pt"
+    output_path: str = "data/results/experiment_result.json"
 
 @dataclass
 class ExperimentResult:
-    config: Dict[str, Any]
-    test_metrics: Dict[str, float]
-    execution_time: float
-    status: str
-    details: Optional[str] = None
+    config: ExperimentConfig
+    mae: float = 0.0
+    rmse: float = 0.0
+    inference_time_sec: float = 0.0
+    n_samples: int = 0
+    success: bool = False
+    error: Optional[str] = None
 
 class BaselineRunner:
     def __init__(self, config: ExperimentConfig):
         self.config = config
-        self.output_path = Path(config.output_dir)
-        self.output_path.mkdir(parents=True, exist_ok=True)
-        
-        # Set seed for reproducibility
-        np.random.seed(config.seed)
-        torch.manual_seed(config.seed)
-        
         self.X_test: Optional[np.ndarray] = None
         self.y_test: Optional[np.ndarray] = None
-        self.model: Optional[BaselineTransformer] = None
+        self.y_pred: Optional[np.ndarray] = None
+        self.model = None
 
     def load_test_data(self) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Load test data from the generated polynomial dataset.
-        T014a Implementation: Load `data/results/test_data_polynomial.npy`.
+        Load test data from the specified file path.
+        
+        This implements T014a: Load Test Data.
         
         Returns:
             Tuple of (X_test, y_test)
         
         Raises:
-            FileNotFoundError: If the test data file does not exist.
-            ValueError: If the file format is invalid.
+            FileNotFoundError: If the data file does not exist.
+            ValueError: If the data format is invalid.
         """
-        # T008c generates this file. It must exist.
-        # We do NOT fall back to synthetic generation. If it's missing, 
-        # the pipeline is broken and must fail loudly.
-        data_file = Path("data/results/test_data_polynomial.npy")
+        data_path = Path(self.config.data_path)
         
-        if not data_file.exists():
+        if not data_path.exists():
             raise FileNotFoundError(
-                f"Test data file not found at {data_file}. "
-                "Please ensure T008c (generate_polynomial_test_data) has been executed successfully."
+                f"Test data file not found at: {data_path}. "
+                f"Ensure T008c (generate_polynomial_test_data) has been executed."
             )
         
+        logger.info(f"Loading test data from: {data_path}")
+        
         try:
-            logger.info(f"Loading test data from {data_file}...")
-            data = np.load(data_file, allow_pickle=True).item()
+            # load_data returns a dict with 'X' and 'y' keys based on benchmarks.py
+            data_dict = load_data(str(data_path))
             
-            if 'X' not in data or 'y' not in data:
-                raise ValueError(f"Invalid data format in {data_file}. Expected keys 'X' and 'y'.")
+            if not isinstance(data_dict, dict):
+                raise ValueError(f"Expected dict from load_data, got {type(data_dict)}")
             
-            self.X_test = data['X']
-            self.y_test = data['y']
+            if 'X' not in data_dict or 'y' not in data_dict:
+                raise ValueError(f"Data dict missing 'X' or 'y' keys: {data_dict.keys()}")
             
-            logger.info(f"Loaded test data: X shape {self.X_test.shape}, y shape {self.y_test.shape}")
-            return self.X_test, self.y_test
+            X_test = data_dict['X']
+            y_test = data_dict['y']
+            
+            # Ensure proper types
+            if not isinstance(X_test, np.ndarray):
+                X_test = np.array(X_test)
+            if not isinstance(y_test, np.ndarray):
+                y_test = np.array(y_test)
+            
+            logger.info(f"Loaded test data: X shape={X_test.shape}, y shape={y_test.shape}")
+            
+            self.X_test = X_test
+            self.y_test = y_test
+            
+            return X_test, y_test
             
         except Exception as e:
             logger.error(f"Failed to load test data: {e}")
             raise
 
-    def load_model(self) -> BaselineTransformer:
-        """Load the trained baseline model."""
-        if self.config.model_path and os.path.exists(self.config.model_path):
-            logger.info(f"Loading model from {self.config.model_path}")
-            state_dict = torch.load(self.config.model_path, map_location='cpu')
-            model = create_baseline_transformer()
-            model.load_state_dict(state_dict)
-            self.model = model
-        else:
-            logger.warning("No trained model found. Initializing random weights.")
-            self.model = create_baseline_transformer()
+    def run_inference(self) -> np.ndarray:
+        """Run inference on loaded test data."""
+        if self.X_test is None or self.y_test is None:
+            raise RuntimeError("Test data not loaded. Call load_test_data first.")
         
-        self.model.eval()
-        return self.model
-
-    def run_inference(self, X: np.ndarray) -> np.ndarray:
-        """Run inference on input data."""
         if self.model is None:
-            self.load_model()
+            raise RuntimeError("Model not loaded.")
         
+        logger.info("Running inference...")
+        start_time = time.time()
+        
+        # Ensure model is in eval mode
+        self.model.eval()
+        
+        # Move data to device if needed (assuming CPU for this task)
         with torch.no_grad():
-            # Convert numpy to torch tensor
-            X_tensor = torch.FloatTensor(X)
-            # Forward pass
-            output = self.model(X_tensor)
-            # Convert back to numpy
-            y_pred = output.numpy()
+            # Convert numpy to torch tensors if necessary
+            X_tensor = torch.FloatTensor(self.X_test)
+            y_pred_tensor = self.model(X_tensor)
+            self.y_pred = y_pred_tensor.numpy()
         
-        return y_pred
+        self.inference_time_sec = time.time() - start_time
+        logger.info(f"Inference completed in {self.inference_time_sec:.4f}s")
+        
+        return self.y_pred
 
-    def compute_generalization_mae(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        """Compute Mean Absolute Error."""
-        return float(np.mean(np.abs(y_true - y_pred)))
+    def compute_generalization_mae(self) -> float:
+        """Compute MAE between predictions and true values."""
+        if self.y_pred is None or self.y_test is None:
+            raise RuntimeError("Cannot compute MAE. Ensure inference has been run.")
+        
+        mae = np.mean(np.abs(self.y_test - self.y_pred))
+        logger.info(f"Generalization MAE: {mae:.6f}")
+        return mae
 
-    def write_generalization_report(self, mae: float, output_file: str = "generalization_report.md"):
-        """Write the generalization report to disk."""
-        report_path = self.output_path / output_file
+    def write_generalization_report(self, mae: float, output_file: Optional[str] = None) -> str:
+        """Write generalization report to markdown file."""
+        if output_file is None:
+            output_file = self.config.output_path.replace('.json', '.md')
+        
+        report_path = Path(output_file)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
         
         with open(report_path, 'w') as f:
             f.write("# Generalization Report\n\n")
-            f.write(f"## Test Set Performance\n\n")
-            f.write(f"- **Mean Absolute Error (MAE)**: {mae:.6f}\n")
-            f.write(f"- **Test Samples**: {len(self.y_test)}\n")
-            f.write(f"- **Features**: {self.X_test.shape[1]}\n\n")
-            f.write(f"## Conclusion\n\n")
-            if mae < 0.05:
-                f.write("The model generalizes well to the polynomial test set (MAE < 0.05).\n")
-            else:
-                f.write(f"The model shows higher error on the polynomial test set (MAE = {mae:.6f}).\n")
+            f.write(f"**Test Data**: {self.config.data_path}\n\n")
+            f.write(f"**Model**: {self.config.model_path}\n\n")
+            f.write(f"**MAE**: {mae:.6f}\n\n")
+            f.write(f"**Inference Time**: {self.inference_time_sec:.4f}s\n\n")
+            f.write(f"**Samples**: {len(self.y_test)}\n\n")
+            f.write("## Conclusion\n\n")
+            f.write(f"The baseline model achieved a MAE of {mae:.6f} on the polynomial test set.\n")
         
-        logger.info(f"Report written to {report_path}")
+        logger.info(f"Report written to: {report_path}")
+        return str(report_path)
 
     def run_experiment(self) -> ExperimentResult:
-        """Execute the full baseline validation pipeline."""
-        start_time = time.time()
-        
+        """Run the full experiment pipeline."""
         try:
-            # T014a: Load Test Data
+            # Load test data
             X_test, y_test = self.load_test_data()
             
-            # T014b: Run Inference
-            self.load_model()
-            y_pred = self.run_inference(X_test)
+            # Load model (placeholder for T011a_run)
+            # This assumes the model is saved as a torch state dict or full model
+            import torch
+            import torch.nn as nn
+            from src.models.baseline_transformer import BaselineTransformer
             
-            # T014c: Compute Metrics
-            mae = self.compute_generalization_mae(y_test, y_pred)
+            self.model = BaselineTransformer()
+            if os.path.exists(self.config.model_path):
+                state_dict = torch.load(self.config.model_path, map_location='cpu')
+                self.model.load_state_dict(state_dict)
+            else:
+                raise FileNotFoundError(f"Model file not found: {self.config.model_path}")
             
-            # T014d: Write Report
+            # Run inference
+            y_pred = self.run_inference()
+            
+            # Compute metrics
+            mae = self.compute_generalization_mae()
+            rmse = np.sqrt(np.mean((self.y_test - y_pred) ** 2))
+            
+            # Write report
             self.write_generalization_report(mae)
             
-            execution_time = time.time() - start_time
-            
             return ExperimentResult(
-                config=asdict(self.config),
-                test_metrics={"mae": mae},
-                execution_time=execution_time,
-                status="success",
-                details=f"MAE: {mae:.6f}"
+                config=self.config,
+                mae=mae,
+                rmse=rmse,
+                inference_time_sec=self.inference_time_sec,
+                n_samples=len(y_test),
+                success=True
             )
             
         except Exception as e:
-            logger.error(f"Experiment failed: {e}")
+            logger.exception("Experiment failed")
             return ExperimentResult(
-                config=asdict(self.config),
-                test_metrics={},
-                execution_time=time.time() - start_time,
-                status="failed",
-                details=str(e)
+                config=self.config,
+                success=False,
+                error=str(e)
             )
 
 def main():
-    """CLI entry point for baseline runner."""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Run baseline transformer validation")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--n-test-samples", type=int, default=1000, help="Number of test samples")
-    parser.add_argument("--n-features", type=int, default=10, help="Number of input features")
-    parser.add_argument("--noise", type=float, default=0.05, help="Noise level")
-    parser.add_argument("--model-path", type=str, default=None, help="Path to trained model")
-    parser.add_argument("--output-dir", type=str, default="data/results", help="Output directory")
-    
+    parser = argparse.ArgumentParser(description="Run baseline experiment")
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--data", type=str, default="data/results/test_data_polynomial.npy")
+    parser.add_argument("--model", type=str, default="data/models/baseline.pt")
+    parser.add_argument("--output", type=str, default="data/results/experiment_result.json")
     args = parser.parse_args()
+    
+    logging.basicConfig(level=logging.INFO)
     
     config = ExperimentConfig(
         seed=args.seed,
-        n_test_samples=args.n_test_samples,
-        n_features=args.n_features,
-        noise=args.noise,
-        model_path=args.model_path,
-        output_dir=args.output_dir
+        data_path=args.data,
+        model_path=args.model,
+        output_path=args.output
     )
     
     runner = BaselineRunner(config)
     result = runner.run_experiment()
     
-    print(json.dumps(asdict(result), indent=2))
+    # Save result as JSON
+    with open(args.output, 'w') as f:
+        json.dump(asdict(result), f, indent=2)
     
-    if result.status == "failed":
+    if result.success:
+        print(f"Experiment successful. MAE: {result.mae:.6f}")
+        sys.exit(0)
+    else:
+        print(f"Experiment failed: {result.error}")
         sys.exit(1)
 
 if __name__ == "__main__":
