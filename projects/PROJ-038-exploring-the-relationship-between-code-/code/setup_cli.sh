@@ -1,52 +1,90 @@
 #!/bin/bash
-# setup_cli.sh - Install and verify Defects4J and PMD CLI tools
-# This script ensures the required system tools are installed and executable
-# before proceeding with the research pipeline.
+set -e
 
-set -e  # Exit immediately if a command exits with a non-zero status
+echo "=== llmXive Project: Installing CLI Dependencies ==="
+echo "Installing Defects4J CLI and PMD (Java Static Analysis Tool)..."
 
-echo "=== llmXive Pipeline Setup: CLI Tools Verification ==="
+# Check for root/sudo privileges (required for apt)
+if [ "$EUID" -ne 0 ]; then 
+    echo "Error: This script must be run as root (sudo) to install system packages."
+    exit 1
+fi
 
-# Function to check if a command is available and executable
-verify_binary() {
-    local binary_name=$1
-    local version_flag=$2
-    local install_instruction=$3
+# Update package lists
+echo "[1/4] Updating package lists..."
+apt-get update -qq
 
-    echo "Checking for ${binary_name}..."
+# Install Defects4J dependencies (git, wget, etc.) if not present
+echo "[2/4] Installing Defects4J dependencies..."
+apt-get install -y -qq git wget openjdk-11-jdk > /dev/null 2>&1 || true
 
-    if ! command -v ${binary_name} &> /dev/null; then
-        echo "ERROR: ${binary_name} is not installed or not in PATH."
-        echo "Please install it using: ${install_instruction}"
-        exit 1
-    fi
-
-    # Verify the binary is executable
-    if [ ! -x "$(command -v ${binary_name})" ]; then
-        echo "ERROR: ${binary_name} found but is not executable."
-        echo "Please fix permissions: chmod +x $(which ${binary_name})"
-        exit 1
-    fi
-
-    # Run version check to ensure it's a valid binary
-    echo "Verifying ${binary_name} version..."
-    ${binary_name} ${version_flag} || {
-        echo "ERROR: ${binary_name} ${version_flag} failed."
-        echo "The binary exists but is not functioning correctly."
-        exit 1
+# Install PMD (Java Static Analysis Tool) via apt
+# Note: PMD is often available as 'pmd' or 'pmd-bin' in newer repos, 
+# or we can download the specific version via wget if the repo version is too old.
+# We will attempt apt first, then fallback to wget if needed to ensure a recent version.
+echo "[3/4] Installing PMD..."
+if ! command -v pmd &> /dev/null; then
+    echo "  -> PMD not found in system path. Installing via apt..."
+    apt-get install -y -qq pmd > /dev/null 2>&1 || {
+        echo "  -> Apt install failed or package missing. Downloading PMD manually..."
+        # Download PMD 7.0.0 (or latest stable)
+        PMD_VERSION="7.0.0"
+        PMD_URL="https://github.com/pmd/pmd/releases/download/pmd_releases/${PMD_VERSION}/pmd-${PMD_VERSION}.zip"
+        wget -q -O /tmp/pmd.zip "$PMD_URL"
+        unzip -q -o /tmp/pmd.zip -d /opt/
+        ln -s /opt/pmd-${PMD_VERSION}/bin/pmd /usr/local/bin/pmd
+        rm /tmp/pmd.zip
     }
-
-    echo "✓ ${binary_name} is installed and executable."
-    echo ""
-}
-
-# Verify Defects4J
-# Note: Defects4J CLI is usually invoked via 'defects4j'
-verify_binary "defects4j" "--version" "See T002c instructions for Defects4J installation (wget/apt)."
+fi
 
 # Verify PMD
-# Note: PMD CLI is usually invoked via 'pmd'
-verify_binary "pmd" "-version" "See T002d instructions for PMD installation (wget/apt)."
+echo "  -> Verifying PMD installation..."
+if command -v pmd &> /dev/null; then
+    pmd_version=$(pmd --version 2>&1 || pmd -version 2>&1)
+    echo "  -> PMD installed: $pmd_version"
+else
+    echo "  -> ERROR: PMD installation verification failed."
+    exit 1
+fi
 
-echo "=== All CLI tools verified successfully. ==="
-echo "The pipeline can now proceed with data ingestion and metric extraction."
+# Install Defects4J CLI
+# Defects4J is typically installed via a git clone and a setup script.
+# We use the standard installation method for Defects4J v2.0+.
+echo "[4/4] Installing Defects4J..."
+DEFECTS4J_DIR="/opt/defects4j"
+
+if [ -d "$DEFECTS4J_DIR" ]; then
+    echo "  -> Defects4J directory already exists at $DEFECTS4J_DIR. Updating..."
+    cd "$DEFECTS4J_DIR"
+    git pull origin main
+else
+    echo "  -> Cloning Defects4J from GitHub..."
+    mkdir -p /opt
+    cd /opt
+    git clone https://github.com/rjust/defects4j.git defects4j
+    cd defects4j
+    # Run the init script to setup the database and tools
+    ./init.sh
+fi
+
+# Add Defects4J to PATH for the current session and ensure it's available
+export DEFECTS4J_DIR
+export PATH="$DEFECTS4J_DIR/bin:$PATH"
+
+# Verify Defects4J
+echo "  -> Verifying Defects4J installation..."
+if command -v defects4j &> /dev/null; then
+    defects4j_version=$(defects4j --version 2>&1)
+    echo "  -> Defects4J installed: $defects4j_version"
+else
+    echo "  -> ERROR: Defects4J installation verification failed."
+    echo "  -> Check if /opt/defects4j/bin/defects4j exists and is executable."
+    exit 1
+fi
+
+echo ""
+echo "=== Installation Complete ==="
+echo "Defects4J Version: $defects4j_version"
+echo "PMD Version: $pmd_version"
+echo "Both tools are now available in the system PATH."
+echo "Note: You may need to run 'export PATH=/opt/defects4j/bin:\$PATH' in your shell session."

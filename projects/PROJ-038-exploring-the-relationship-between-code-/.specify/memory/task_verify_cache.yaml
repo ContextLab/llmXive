@@ -1,11 +1,31 @@
-T014b:
+T000a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No Python wrapper script, command\u2011line integration, XML parsing logic,\
-    \ or syntax\u2011validation code was provided. The required artifact (a functional\
-    \ script that runs `pmd -f xml -d <dir> -rulesets rulesets/java/complexity.xml`,\
-    \ parses `<violation>` tags, and validates Java files) is missing, so the task\
-    \ is not satisfied."
+  r: "I looked for the required artifact `specs/001-code-complexity-bug-prediction/methodology_rationale.md`\
+    \ and its contents, but no such file or any excerpt of its text was provided.\
+    \ Without the actual markdown document documenting the conflict between Constitution\
+    \ Principle\u202FVI and the spec\u2019s required methods, the task is not satisfied.\
+    \ The missing file must be created and populated with the described rationale."
+T000b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that `specs/001-code-complexity-bug-prediction/amendment_ratified.md`
+    actually exists, nor any script output or exit code confirming the check succeeded.
+    The required artifact and verification result are missing.
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `code/` directory hierarchy (e.g., `code/src`, `code/tests`,
+    etc.) is provided; the claim cannot be verified without seeing the actual filesystem
+    entries. The implementer must supply a listing or screenshot showing that the
+    directories were created.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No actual artifact (e.g., a `.venv` directory, activation script, or output confirming
+    `python --version`) is provided; the claim consists only of command descriptions
+    without any evidence that the virtual environment was created or verified. The
+    required tangible proof is missing.
 T014c:
   c: false
   h: cb223623742140d46e24e8a0db52db1fbdda1207d61046d59d72a88a2cb7c48f

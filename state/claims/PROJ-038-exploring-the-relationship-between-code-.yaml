@@ -539,3 +539,151 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T14:00:56Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: software metrics follow heavy-tailed right-skewed distribution approximated
+    by log-normal or pareto
+  claim_id: c_f543c8ec
+  context: Section 3.1. Nature of Code Complexity Metrics. Empirical studies in software
+    engineering (e.g., Hansen et al., 2015; Bassil, 2010) consistently demonstrate
+    that software metrics (Cyclomatic Complexity, Halstead Volume, LOC) follow a heavy-tailed,
+    right-skewed distribution (often approximated by Log-Normal or Pareto distributions).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Empirical studies in software engineering (e.g., Hansen et al., 2015;
+    Bassil, 2010) consistently demonstrate that software metrics (Cyclomatic Complexity,
+    Halstead Volume, LOC) follow a heavy-tailed, right-skewed distribution (often
+    approximated by Log-Normal or Pareto distributions).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:33:23Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: applying pearson r to non-normal data inflates type i error rates and
+    underestimates monotonic relationships
+  claim_id: c_9ee37085
+  context: "Section 3.1. Nature of Code Complexity Metrics. Violation: Applying Pearson\u2019\
+    s r to non-normal data inflates Type I error rates and underestimates the strength\
+    \ of monotonic relationships that are not strictly linear."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Applying_pearson_r_to_non-normal_data_inflates_type_i_error
+  kind: entity_fact
+  raw_text: "Applying Pearson\u2019s r to non-normal data inflates Type I error rates\
+    \ and underestimates the strength of monotonic relationships that are not strictly\
+    \ linear."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:35:15Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: target variable is_buggy is binary representing presence or absence of
+    bug
+  claim_id: c_6bbafc87
+  context: Section 3.2. Nature of the Target Variable (Bug Label). The target variable
+    is_buggy is binary (0 or 1), representing the presence or absence of a bug in
+    a specific file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target variable is_buggy is binary (0 or 1), representing the presence
+    or absence of a bug in a specific file.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:37:34Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: point-biserial correlation is specific case of pearson r for continuous
+    and dichotomous variables
+  claim_id: c_2e33394c
+  context: "Section 4.1. Point-Biserial Correlation (vs. Pearson). Rationale: The\
+    \ Point-Biserial correlation (r_pb) is the specific case of Pearson\u2019s r where\
+    \ one variable is continuous and the other is dichotomous."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Point-biserial_correlation_is_specific_case_of_pearson_r_for
+  kind: entity_fact
+  raw_text: "The Point-Biserial correlation (r_pb) is the specific case of Pearson\u2019\
+    s r where one variable is continuous and the other is dichotomous."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:39:07Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: point-biserial correlation provides exact same mathematical value as
+    pearson r for continuous and dichotomous variables
+  claim_id: c_495a432c
+  context: 'Section 4.1. Point-Biserial Correlation (vs. Pearson). Advantage: It provides
+    the exact same mathematical value as Pearson''s r in this context but carries
+    the correct statistical interpretation and significance testing framework for
+    binary outcomes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Point-biserial_correlation_provides_exact_same_mathematical
+  kind: entity_fact
+  raw_text: The Point-Biserial correlation provides the exact same mathematical value
+    as Pearson's r when one variable is continuous and the other is dichotomous.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:40:40Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: mcnemar test designed to compare two classifiers on same dataset or pre-post
+    intervention binary states
+  claim_id: c_bc55aa3c
+  context: "Section 3.2. Nature of the Target Variable (Bug Label). McNemar's Mismatch:\
+    \ McNemar\u2019s test is designed to compare two classifiers on the same dataset\
+    \ (e.g., Model A vs. Model B predictions) or pre/post intervention binary states."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mcnemar_test_designed_to_compare_two_classifiers_on_same_dat
+  kind: entity_fact
+  raw_text: "McNemar\u2019s test is designed to compare two classifiers on the same\
+    \ dataset or pre/post intervention binary states."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:42:43Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: mcnemar test not designed to measure correlation between continuous metric
+    and binary outcome
+  claim_id: c_d43f558c
+  context: Section 3.2. Nature of the Target Variable (Bug Label). It is not designed
+    to measure the correlation between a continuous metric (complexity) and a binary
+    outcome (bug presence).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mcnemar_test_not_designed_to_measure_correlation_between_con
+  kind: entity_fact
+  raw_text: "McNemar\u2019s test is not designed to measure the correlation between\
+    \ a continuous metric and a binary outcome."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:43:46Z'

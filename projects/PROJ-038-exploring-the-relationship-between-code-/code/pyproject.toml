@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
 
-# Dependencies from T002a requirements.txt
+# Dependencies
 dependencies = [
     "pandas==2.1.0",
     "scikit-learn==1.3.0",

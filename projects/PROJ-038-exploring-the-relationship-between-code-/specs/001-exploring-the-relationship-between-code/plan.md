@@ -18,7 +18,7 @@ This project investigates the predictive power of static code complexity metrics
 **Target Platform**: Linux (GitHub Actions Runner), CPU-only.  
 **Project Type**: Data Science / Research Pipeline (CLI scripts).  
 **Performance Goals**: End-to-end pipeline execution ≤ 6 hours; peak memory usage ≤ 7 GB.  
-**Constraints**: No GPU usage; no external API calls during execution; strict adherence to DefectsJ v2.0+ structure; statistical tests must be reproducible with fixed seeds.  
+**Constraints**: No GPU usage; no external API calls during execution; strict adherence to DefectsJ v+ structure; statistical tests must be reproducible with fixed seeds.  
 **Scale/Scope**: A small subset of Java projects from Defects4J; A variable number of source files depending on project size; binary classification task.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.

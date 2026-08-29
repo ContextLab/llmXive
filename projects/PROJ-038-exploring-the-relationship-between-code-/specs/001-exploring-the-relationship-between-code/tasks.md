@@ -20,34 +20,35 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 0: Constitutional Compliance & Setup (Sequential First)
 
-**Purpose**: Project initialization, constitutional compliance, and basic structure
+**Purpose**: Resolve constitutional blockers and create the physical directory structure required for all subsequent tasks.
 
-- [ ] T000a [S] Create `methodology_rationale.md` artifact in `specs/001-code-complexity-bug-prediction/` to document the conflict between Constitution Principle VI (Pearson/McNemar) and the Spec's required methods (Point-Biserial/Spearman/Paired Permutation), providing the scientific justification for the deviation. This task creates the draft amendment request. **Deliverable**: `specs/001-code-complexity-bug-prediction/methodology_rationale.md`.
-- [ ] T000b [S] Process the Amendment Request (AMEND-001-STATS). This task simulates the ratification workflow by updating `constitution.md` or `spec.md` to reflect the approved deviation, unblocking statistical tasks. **Prerequisite**: T000a. **Deliverable**: Updated `constitution.md` or `spec.md` with ratified amendment.
-- [ ] T001a [P] Create project directory structure: `code/`, `code/src/`, `code/tests/`, `code/data/raw/`, `code/data/processed/`, `code/data/results/`, `specs/001-exploring-the-relationship-between-code/`.
+**⚠️ CRITICAL**: T000a and T000b MUST pass before any statistical or metric extraction tasks can proceed. If the amendment is not ratified, the pipeline MUST fail.
+
+- [ ] T000a [S] Create `methodology_rationale.md` artifact in `specs/001-code-complexity-bug-prediction/`. **Content**: Document the conflict between Constitution Principle VI (Pearson/McNemar) and the Spec's required methods (Point-Biserial/Spearman/Paired Permutation), providing the scientific justification for the deviation. **Deliverable**: `specs/001-code-complexity-bug-prediction/methodology_rationale.md`. **Note**: This is a DRAFT rationale. Execution is BLOCKED until an external governance body ratifies the amendment.
+- [ ] T000b [S] Verify Amendment Artifact Existence. **Logic**: Check if `specs/001-code-complexity-bug-prediction/amendment_ratified.md` exists. If missing, raise `ConstitutionalBlockError` and halt. If present, proceed. **Deliverable**: Exit code 0 on success, non-zero on failure. **Recovery Path**: Wait for external governance ratification.
+- [ ] T001a [S] Create `code/` directory structure: `code/`, `code/src/`, `code/tests/`, `code/data/raw/`, `code/data/processed/`, `code/data/results/`. **Command**: `mkdir -p code/src code/tests code/data/raw code/data/processed code/data/results`. **Verification**: `if [ ! -d code/src ]; then exit 1; fi`.
+- [ ] T001a-2 [S] Create `specs/001-code-complexity-bug-prediction/` directory structure. **Command**: `mkdir -p specs/001-code-complexity-bug-prediction`. **Verification**: `if [ ! -d specs/001-code-complexity-bug-prediction ]; then exit 1; fi`.
 - [X] T001b [P] Create empty skeleton files: `code/src/__init__.py`, `code/tests/__init__.py`, `code/run_pipeline.sh`, `code/requirements.txt`, `code/pyproject.toml`.
-- [ ] T001c [P] Initialize Python 3.11 virtual environment. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [X] T002a [P] Create `code/requirements.txt` with pinned versions: `pandas==2.1.0`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `tree-sitter==0.20.0`, `tree-sitter-java==0.20.0`, `pytest==7.4.0`. (Note: `defects4j` CLI and PMD are installed separately in T002c/T002d and are NOT included in this file as they are system tools).
+- [ ] T001c [S] Initialize Python virtual environment. **Command**: `python3.11 -m venv.venv`. **Verification**: `if [ $? -ne 0 ]; then exit 1; fi`. **Command**: `source.venv/bin/activate && python --version`. **Verification**: `if [ $? -ne 0 ]; then exit 1; fi`. <!-- FAILED: unspecified -->
+- [X] T002a [P] Create `code/requirements.txt` with pinned versions: `pandas==2.1.0`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `tree-sitter==0.20.0`, `tree-sitter-java==0.20.0`, `pytest==7.4.0`. (Note: `defects4j` CLI and PMD are installed separately in T002c and are NOT included in this file as they are system tools).
 - [X] T002b [P] Configure `code/pyproject.toml` with project metadata, entry points for scripts, and dependency groups.
-- [X] T002c [P] Create `code/setup_cli.sh` script to install `defects4j` CLI tool via `apt` or `wget`, verifying availability via `defects4j --version`. **[FR-001]**
-- [X] T002d [P] Extend `code/setup_cli.sh` to install PMD (Java static analysis tool) via `apt` or `wget`, verifying availability via `pmd --version`. **[FR-002]**
-- [X] T002e [P] Add verification step to `code/setup_cli.sh` to ensure `defects4j` and `pmd` binaries are executable before proceeding. **[FR-001]**
+- [X] T002c [P] Implement `code/setup_cli.sh` to install `defects4j` CLI tool and PMD (Java static analysis tool) via `apt` or `wget`, verifying availability via `defects4j --version` and `pmd --version`. **[FR-001]** **[FR-002]**
 - [X] T002f [P] Configure linting (flake8) and formatting (black) tools in `code/pyproject.toml` or separate config files.
-- [ ] T036 [P] Documentation updates: Add `quickstart.md` with instructions to run `run_pipeline.sh`. (Moved to Phase 1 to align with plan requirements).
+- [X] T036 [S] Documentation updates: Add `quickstart.md` with instructions to run `code/run_pipeline.sh`. **Content Requirements**: Must include exact commands to run `code/run_pipeline.sh`, expected input/output paths, and error handling instructions. **Prerequisite**: T008 (run_pipeline.sh) must be functional. **Note**: Moved to Phase 5 to ensure script is functional before documentation.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1: Foundational (Blocking Prerequisites)
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T003 [P] Implement `code/src/config.py` to define environment variables for Defects4J path, fixed random seeds (seed=42), and memory limits. **[FR-005]**
-- [X] T004 [P] Implement `code/src/ingest.py` logic to download Defects4J v2.0+ subset via CLI wrapper. **Algorithm**: Select projects alphabetically by project ID until cumulative file count exceeds 10,000 files or estimated RAM usage > 6GB (buffer for 7GB limit). Include strict error handling to raise `DataFetchError` if CLI fails, ensuring NO synthetic fallback. **[FR-001]** **[SC-005]**
-- [X] T005 [P] Define metric extraction interface in `code/src/metrics.py`: Specify function signatures for calculating Cyclomatic Complexity (via PMD CLI), Halstead Volume (via custom JavaParser-based script), and LOC. The interface must support both tools.
+- [X] T004 [P] Implement `code/src/ingest.py` logic to download Defects4J v2.0+ subset via CLI wrapper. **Algorithm**: Select projects alphabetically by project ID until cumulative file count exceeds 10,000 files or estimated RAM usage > 6GB (buffer for 7GB limit). Include strict error handling to raise `DataFetchError` if CLI fails, ensuring NO synthetic fallback. **Note**: This is a SKELETON/PLACEHOLDER implementation that raises `NotImplementedError`. **[FR-001]** **[SC-005]**
+- [X] T005 [P] Define metric extraction interface in `code/src/metrics.py`: Specify function signatures for calculating Cyclomatic Complexity (via PMD CLI), Halstead Volume (via JavaParser-based custom script), and LOC. The interface must support both tools.
 - [X] T007 [P] Create `code/data/processed/features.csv` schema validator and checksum generator (`code/data/checksums.json`). **[FR-001]**
 - [X] T008 [P] Create skeleton `code/run_pipeline.sh` orchestration script to enforce execution order (Ingest -> Metrics -> Labeling -> Analysis), noting that Analysis scripts are not yet implemented.
 
@@ -55,7 +56,7 @@
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Metric Extraction (Priority: P1) 🎯 MVP
+## Phase 2: User Story 1 - Data Ingestion and Metric Extraction (Priority: P1) 🎯 MVP
 
 **Goal**: Ingest a subset of Defects4J Java projects and compute a labeled feature matrix (metrics + bug label).
 
@@ -63,30 +64,30 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] Implement `code/src/ingest.py` logic to clone a representative sample of projects, filter for `.java` files, and enforce a bounded RAM limit via dynamic subset validation. **[FR-001]**
+- [X] T013 [S] [US1] Implement `code/src/ingest.py` logic to clone a representative sample of projects, filter for `.java` files, and enforce a bounded RAM limit via dynamic subset validation. **Note**: This task REPLACES the placeholder in T004. **[FR-001]**
 - [X] T014 [US1] Implement `code/src/metrics.py` logic to traverse AST and compute LOC for every Java file.
-- [ ] T014b [US1] Implement Python wrapper script for PMD CLI integration to calculate Cyclomatic Complexity for every Java file. **Exact CLI**: `pmd -f xml -d <dir> -rulesets rulesets/java/complexity.xml` (PMD v7.0.0). Parse `<violation>` tags. Validate that files parse without syntax errors before proceeding. **[FR-002]** **Depends on T013.**
-- [ ] T014c [US1] Implement Python wrapper script for the custom JavaParser-based script (`code/src/metrics/halstead_calc.py`) to calculate Halstead Volume for every Java file. **Build**: `javac code/src/metrics/halstead_calc.java`. **Run**: `java -jar code/src/metrics/halstead_calc.jar <file>`. Parse output for Halstead metrics. Validate that files parse without syntax errors before proceeding. **[FR-002]** **Depends on T013.**
-- [ ] T015 [US1] Implement `code/src/labeling.py` logic to cross-reference commits with file changes to set `is_buggy` flag. **Input**: Defects4J commit hash. **Output**: binary label. **Logic**: Map bug-introduction commits to file-level labels. **[FR-003]**
-- [X] T016 [US1] Implement exclusion logic in `code/src/ingest.py` for generated code/non-Java files with logging. **[FR-001]**
+- [ ] T014b [US1] Implement Python wrapper script for PMD CLI integration to calculate Cyclomatic Complexity for every Java file. **Exact CLI**: `pmd -f xml -d <dir> -rulesets rulesets/java/complexity.xml` (PMD v7.0.0). Parse `<violation>` tags. Validate that files parse without syntax errors before proceeding. **Prerequisite**: T000b (Amendment Verification). **Depends on**: T013. **[FR-002]**
+- [ ] T014c [US1] Implement `code/src/metrics/halstead.py` using **JavaParser** (via `com.github.javaparser` or a Python wrapper like `javaparser-python`) to compute Halstead Volume. **Algorithm**: Parse Java AST, count operators (N1) and operands (N2), count unique operators (n1) and unique operands (n2). Calculate Halstead Volume: V = N * log2(n), where N = N1 + N2 and n = n1 + n2. Validate that files parse without syntax errors before proceeding. **Prerequisite**: T000b (Amendment Verification). **Depends on**: T013. **[FR-002]**
+- [ ] T015 [US1] Implement `code/src/labeling.py` logic to cross-reference commits with file changes to set `is_buggy` flag. **Input**: Defects4J commit JSON (schema: `{"commit_hash": "str", "files": ["str"]}`). **Output**: binary label. **Logic**: If file path in commit diff, set `is_buggy=1`, else `0`. **[FR-003]**
+- [ ] T016 [US1] Implement exclusion logic in `code/src/ingest.py` for generated code/non-Java files with logging. **[FR-001]**
 - [ ] T018 [US1] Add validation step to ensure no NaN values in metric columns before saving CSV. **This step MUST run before T017 to ensure the final artifact meets the acceptance criteria.** **[FR-001]**
-- [X] T017 [US1] Generate `code/data/processed/features.csv` with columns: `file_path`, `cc`, `halstead`, `loc`, `is_buggy`. **[FR-001]**
-- [X] T019 [US1] Implement memory monitoring in `code/src/ingest.py` and `code/src/metrics.py` to log current RAM usage every 100 files, ensuring the process stays within the memory limit and fails gracefully if exceeded. **[SC-005]**
+- [ ] T017 [US1] Generate `code/data/processed/features.csv` with columns: `file_path`, `cc`, `halstead`, `loc`, `is_buggy`. **Depends on**: T014b AND T014c. **[FR-001]**
+- [ ] T019 [US1] Implement memory monitoring in `code/src/ingest.py` and `code/src/metrics.py` to log current RAM usage periodically, ensuring the process stays within the memory limit and fails gracefully if exceeded. **[SC-005]**
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 1 (Sequential - Requires Implementation Complete)
 
-> **NOTE**: Write these tests AFTER implementation to verify the logic
+> **NOTE**: These tasks MUST run AFTER T013-T019 are complete. They are marked [S] (Sequential) relative to the implementation phase to enforce the "Implementation before Test" dependency.
 
-- [X] T010a [P] [US1] Unit test `test_cc_returns_int` in `code/tests/test_metrics.py` (mock Java file input).
-- [X] T010b [P] [US1] Unit test `test_halstead_returns_float` in `code/tests/test_metrics.py` (mock Java file input).
-- [X] T011a [P] [US1] Unit test `test_labeling_maps_commit_to_1` in `code/tests/test_labeling.py` (verify bug-introduction commit mapping).
-- [X] T012a [P] [US1] Integration test `test_pipeline_shape` in `code/tests/test_pipeline.py` (verify `features.csv` shape and content).
+- [ ] T010a [S] [US1] Unit test `test_cc_returns_int` in `code/tests/test_metrics.py` (mock Java file input). **Depends on**: T014b.
+- [ ] T010b [S] [US1] Unit test `test_halstead_returns_float` in `code/tests/test_metrics.py` (mock Java file input). **Depends on**: T014c.
+- [ ] T011a [S] [US1] Unit test `test_labeling_maps_commit_to_1` in `code/tests/test_labeling.py` (verify bug-introduction commit mapping). **Depends on**: T015.
+- [ ] T012a [S] [US1] Integration test `test_pipeline_shape` in `code/tests/test_pipeline.py` (verify `features.csv` shape and content). **Depends on**: T017.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Correlation Analysis and Baseline Modeling (Priority: P2)
+## Phase 3: User Story 2 - Correlation Analysis and Baseline Modeling (Priority: P2)
 
 **Goal**: Calculate correlations and train baseline models (Logistic Regression, Random Forest) using Repeated 5-Fold CV.
 
@@ -94,20 +95,21 @@
 
 ### Implementation for User Story 2
 
-- [X] T021 [P] [US2] Implement `code/src/analysis.py` to compute Point-Biserial and Spearman correlations with p-values. **[FR-004]**
-- [X] T022 [US2] Implement `code/src/modeling.py` to train Logistic Regression with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score. **[FR-005]**
-- [ ] T023 [US2] Implement `code/src/modeling.py` to train Random Forest with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score. **[FR-005]**
+- [ ] T021 [P] [US2] Implement `code/src/analysis.py` to compute Point-Biserial and Spearman correlations with p-values. **Prerequisite**: T000b (Amendment Verification). **[FR-004]**
+- [ ] T022 [US2] Implement `code/src/modeling.py` to train Logistic Regression with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score. **[FR-005]**
+- [ ] T023 [US2] Implement `code/src/modeling.py` to train Random Forest with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score. **[FR-005]** **Note**: This task must use a custom CV splitter that performs feature selection *within* each fold to prevent double-dipping.
 - [ ] T023a [US2] Implement `code/src/modeling.py` to train a 'Full Metric Set' Random Forest model specifically for the comparison in FR-006, ensuring it uses the same folds as the 'Single Best' model. **[FR-005]**
-- [ ] T024 [US2] Implement aggregation logic to calculate mean ROC-AUC and F-score with standard deviation across multiple folds. **Formula**: Calculate mean per fold, then average across the 10 repeats, then report the grand mean and standard deviation of the 10 repeat-means. **Deliverable**: Generate `code/data/results/baseline_metrics.json`. **[FR-005]** **[SC-002]**
+- [ ] T024 [US2] Implement aggregation logic to calculate mean ROC-AUC and F-score with standard deviation across multiple folds. **Formula**: Calculate mean per fold, then average across the 10 repeats, then report the grand mean and standard deviation of the 10 repeat-means. **Deliverable**: Generate `code/data/results/baseline_metrics.json` with keys: `mean_roc_auc`, `std_roc_auc`, `mean_f1`, `std_f1`. **[FR-005]** **[SC-002]**
 - [ ] T025 [US2] Handle class imbalance: Detect zero-buggy-file projects and log warnings/skip gracefully. **Strategy**: Skip project with warning if buggy count is zero.
 - [ ] T026 [US2] Generate `code/data/results/correlation_report.json` and `code/data/results/baseline_metrics.json`.
-- [ ] T029 [US2] Implement `code/src/modeling.py` to extract feature importance weights from the trained Random Forest model (from T023) to identify the 'Single Best Metric'. **[FR-007]**
+- [ ] T029 [US2] Implement `code/src/modeling.py` to extract feature importance weights from the trained Random Forest model (from T023) to identify the 'Single Best Metric'. **Depends on**: T023. **[FR-007]** **Note**: This must be called *within* the CV loop to prevent leakage.
+- [ ] T029b [US2] Implement validation logic for 'Single Best Metric' selection. **Logic**: If T029 finds multiple metrics with equal highest importance, select the one with the highest Point-Biserial correlation coefficient as a tie-breaker. **Deliverable**: A deterministic 'Single Best Metric' name. **Depends on**: T029. **[FR-006]**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Feature Importance and Statistical Significance (Priority: P3)
+## Phase 4: User Story 3 - Feature Importance and Statistical Significance (Priority: P3)
 
 **Goal**: Identify feature importance and perform Paired Permutation Test to validate model differences.
 
@@ -115,13 +117,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `code/src/modeling.py` to train a 'Single Best Metric' model (using only the top-ranked metric from T029) using Repeated 5-Fold CV to establish a baseline for comparison. **Depends on T029.** **[FR-006]**
-- [ ] T030 [US3] Implement `code/src/analysis.py` to collect predictions from 'Full Metric Set' model (T023a) and 'Single Best Metric' model (T027) on same folds.
-- [ ] T031 [US3] Implement Paired Permutation Test in `code/src/analysis.py` comparing ROC-AUC distributions from T023a and T027. **Null Hypothesis**: No difference in ROC-AUC distributions. **Test Statistic**: Difference in mean ROC-AUC. **Permutations**: 10,000. **Threshold**: alpha=0.05. **[FR-006]** **[SC-003]**
+- [ ] T027 [US3] Implement `code/src/modeling.py` to train a 'Single Best Metric' model (using only the top-ranked metric from T029b) using Repeated 5-Fold CV to establish a baseline for comparison. **Depends on**: T029b. **[FR-006]** **Note**: This must use the *exact same* fold indices as T023a.
+- [ ] T030 [US3] Implement `code/src/modeling.py` to collect predictions from 'Full Metric Set' model (T023a) and 'Single Best Metric' model (T027) on same folds. **Depends on**: T023a, T027.
+- [ ] T031 [US3] Implement Paired Permutation Test in `code/src/analysis.py` comparing ROC-AUC distributions from T023a and T027. **Null Hypothesis**: No difference in ROC-AUC distributions. **Test Statistic**: Difference in mean ROC-AUC. **Permutations**: 10,000 (shuffle labels [deferred] times, recalculate ROC-AUC difference). **Threshold**: alpha=0.05. **Prerequisite**: T000b (Amendment Verification). **Output**: `code/data/results/statistical_significance_report.json` with keys: `p_value`, `permutation_seed`, `num_permutations`. **[FR-006]** **[SC-003]**
 - [ ] T032 [US3] Generate `code/data/results/feature_importance_ranking.json`.
 - [ ] T033 [US3] Generate `code/data/results/statistical_significance_report.json` (including p-value, permutation seed, and number of permutations). **[FR-006]**
 - [ ] T034 [US3] Implement `code/src/viz.py` to create bar chart of ROC-AUC scores and table of correlations.
-- [ ] T035 [US3] Compile final `code/results/final_report.md` summarizing all findings.
+- [ ] T035 [US3] Compile final `code/results/final_report.md` summarizing all findings. **Depends on**: T032, T033.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -132,13 +134,13 @@
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 5: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T037 Code cleanup and refactoring (remove debug prints, ensure type hints).
 - [ ] T039 [P] Additional unit tests for edge cases (empty projects, parsing errors) in `code/tests/unit/`.
-- [ ] T040 Run quickstart.md validation to ensure end-to-end reproducibility.
+- [ ] T036 [S] Documentation updates: Add `quickstart.md` with instructions to run `code/run_pipeline.sh`. **Content Requirements**: Must include exact commands to run `code/run_pipeline.sh`, expected input/output paths, and error handling instructions. **Prerequisite**: T008 (run_pipeline.sh) must be functional. **Note**: Moved to Phase 5 to ensure script is functional before documentation.
 
 ---
 
@@ -146,9 +148,9 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+- **Setup (Phase 0)**: No dependencies - can start immediately
+- **Foundational (Phase 1)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 2+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
@@ -156,7 +158,7 @@
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories
 - **User Story 2 (P2)**: Depends on US1 completion (needs `features.csv`)
 - **User Story 3 (P3)**: Depends on US2 completion (needs model predictions)
 
@@ -169,7 +171,7 @@
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
+- All Setup tasks marked [P] can run in parallel (after T000a/T000b/T001a)
 - All Foundational tasks marked [P] (Metrics, Labeling) can run in parallel
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
@@ -184,7 +186,7 @@ Task: "Implement code/src/ingest.py logic..."
 Task: "Implement code/src/metrics.py logic..."
 Task: "Implement code/src/labeling.py logic..."
 
-# Launch all tests for User Story 1 together (after implementation):
+# Launch all tests for User Story 1 together (AFTER implementation):
 Task: "Unit test for metric extraction logic in code/tests/test_metrics.py"
 Task: "Unit test for labeling logic in code/tests/test_labeling.py"
 Task: "Integration test for full ingestion pipeline in code/tests/test_pipeline.py"
@@ -196,9 +198,9 @@ Task: "Integration test for full ingestion pipeline in code/tests/test_pipeline.
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup (including T000a Methodology Rationale, T000b Amendment)
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
+1. Complete Phase 0: Setup (including T000a Methodology Rationale, T000b Amendment Verification)
+2. Complete Phase 1: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 2: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently (verify `features.csv`)
 5. Deploy/demo if ready
 
@@ -236,5 +238,6 @@ With multiple developers:
 - **Constraint Check**: All tasks must run on CPU-only CI with a limited number of cores and memory.
 
 The research question, method, and references remain unchanged as per the original planning document requirements. Do not use GPU-specific libraries or 8-bit quantization.
-- **Statistical Note**: Execution is unblocked by T000a (Methodology Rationale) and T000b (Amendment Processing) documenting the scientific justification for Point-Biserial/Spearman and Paired Permutation Tests.
+- **Statistical Note**: Execution is unblocked by T000a (Methodology Rationale) and T000b (Amendment Verification) documenting the scientific justification for Point-Biserial/Spearman and Paired Permutation Tests. If T000b fails (amendment missing), the pipeline halts.
 - **Data Integrity Note**: T004 and T019 ensure that no synthetic data is ever generated and memory limits are respected, adhering to the "Real data only" principle.
+- **Nested CV Note**: T023, T027, and T029 implement Nested CV to prevent double-dipping during metric selection.

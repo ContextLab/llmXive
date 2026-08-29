@@ -1,89 +1,102 @@
-# Quickstart Guide: Code Complexity vs Bug Prediction Pipeline
+# Quickstart Guide: Code Complexity & Bug Prediction Pipeline
 
 This guide provides instructions to set up and run the automated research pipeline for exploring the relationship between code complexity metrics and bug prediction accuracy.
 
 ## Prerequisites
 
 - **Python 3.11+** installed on your system.
-- **Java JDK 11+** (required for PMD and custom Halstead calculation).
-- **Git** installed and available in PATH.
-- Sufficient disk space (~10GB) and RAM (minimum 8GB recommended).
+- **Java Development Kit (JDK) 11+** required for PMD and JavaParser tools.
+- **System Tools**: `wget`, `curl`, `git`, `unzip`.
+- **Memory**: At least 8GB RAM recommended for processing the Defects4J dataset subset.
 
-## Step 1: Clone and Setup Environment
+## Setup Instructions
 
-1. Navigate to the project root directory.
-2. Create a Python virtual environment:
+1. **Clone the Repository** (if not already done):
  ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. Install Python dependencies:
- ```bash
- pip install -r code/requirements.txt
+ git clone <repository-url>
+ cd PROJ-038-exploring-the-relationship-between-code-
  ```
 
-## Step 2: Install System Tools
+2. **Run the Setup Script**:
+ The setup script creates the necessary directory structure, installs Python dependencies, and configures system tools (PMD, Defects4J CLI).
+ ```bash
+ cd code
+ chmod +x setup_structure.sh
+./setup_structure.sh
+ ```
+ *Note: Ensure you have `sudo` privileges if installing system tools like PMD.*
 
-Run the setup script to install required CLI tools (Defects4J and PMD):
+3. **Activate the Virtual Environment**:
+ ```bash
+ source.venv/bin/activate
+ ```
 
-```bash
-bash code/setup_cli.sh
-```
+4. **Verify Configuration**:
+ Ensure the `specs/001-code-complexity-bug-prediction/amendment_ratified.md` file exists. The pipeline will halt if this constitutional artifact is missing.
+ ```bash
+ ls -l../specs/001-code-complexity-bug-prediction/amendment_ratified.md
+ ```
 
-This script verifies the installation of:
-- `defects4j` (for bug dataset access)
-- `pmd` (for Cyclomatic Complexity calculation)
+## Running the Pipeline
 
-Ensure both commands return valid version numbers:
-```bash
-defects4j --version
-pmd --version
-```
-
-## Step 3: Configure Paths (Optional)
-
-If your tools are installed in non-standard locations, set the following environment variables before running the pipeline:
-
-```bash
-export DEFECTS4J_HOME=/path/to/defects4j
-export PMD_HOME=/path/to/pmd
-```
-
-## Step 4: Run the Pipeline
-
-Execute the main orchestration script:
+Execute the main orchestration script from the `code/` directory:
 
 ```bash
-bash code/run_pipeline.sh
+cd code
+./run_pipeline.sh
 ```
 
-### Pipeline Stages
-The script executes the following stages in order:
-1. **Ingest**: Downloads a subset of Defects4J projects (limited by RAM).
-2. **Metrics**: Calculates LOC, Cyclomatic Complexity (CC), and Halstead Volume.
-3. **Labeling**: Cross-references commits to label buggy files.
-4. **Validation**: Ensures no NaN values and validates schema.
-5. **Analysis**: Computes correlations and trains baseline models.
-6. **Modeling**: Runs statistical significance tests (Paired Permutation).
+### Execution Flow
+The script performs the following steps in order:
+1. **Constitutional Check**: Verifies the amendment artifact.
+2. **Ingestion**: Downloads a subset of Defects4J projects (limited by RAM).
+3. **Metrics Extraction**: Calculates Cyclomatic Complexity (PMD), Halstead Volume (JavaParser), and LOC.
+4. **Labeling**: Cross-references commits to label buggy files.
+5. **Validation**: Ensures no NaN values and correct schema.
+6. **Analysis & Modeling**: Computes correlations and trains baseline models.
 7. **Reporting**: Generates final JSON and Markdown reports.
 
-## Step 5: Verify Outputs
+## Expected Output Paths
 
-Upon successful completion, check the `code/data/results/` directory for:
-- `features.csv`: The processed dataset with metrics and labels.
-- `correlation_report.json`: Point-Biserial and Spearman correlation results.
-- `baseline_metrics.json`: Model performance (ROC-AUC, F1) across folds.
-- `statistical_significance_report.json`: Permutation test p-values.
-- `final_report.md`: Comprehensive summary of findings.
+Upon successful completion, the following artifacts will be generated:
 
-## Troubleshooting
+| Artifact | Path | Description |
+|:--- |:--- |:--- |
+| **Feature Matrix** | `code/data/processed/features.csv` | CSV with metrics (`cc`, `halstead`, `loc`) and bug label (`is_buggy`). |
+| **Correlation Report** | `code/data/results/correlation_report.json` | Point-Biserial and Spearman correlations with p-values. |
+| **Baseline Metrics** | `code/data/results/baseline_metrics.json` | Mean ROC-AUC and F1 scores from Repeated 5-Fold CV. |
+| **Statistical Significance** | `code/data/results/statistical_significance_report.json` | Paired Permutation Test results (p-value). |
+| **Feature Importance** | `code/data/results/feature_importance_ranking.json` | Ranked importance weights from Random Forest. |
+| **Final Report** | `code/results/final_report.md` | Comprehensive summary of all findings. |
 
-- **Memory Errors**: The pipeline automatically limits data ingestion based on available RAM. If you encounter errors, reduce the `MAX_MEMORY_BYTES` in `code/src/config.py`.
-- **Defects4J Issues**: Ensure `DEFECTS4J_HOME` is set correctly and `defects4j` is in your PATH.
-- **Java Errors**: Verify that `java` and `javac` are accessible and compatible with the project requirements.
+## Error Handling & Troubleshooting
 
-## Next Steps
+### "ConstitutionalBlockError: Amendment not ratified"
+- **Cause**: The file `specs/001-code-complexity-bug-prediction/amendment_ratified.md` is missing.
+- **Fix**: Contact the governance body to ratify the amendment or verify the file path.
 
-- Review `specs/001-code-complexity-bug-prediction/methodology_rationale.md` for statistical justification.
-- Examine `code/data/results/final_report.md` for detailed analysis.
-- Extend `code/src/modeling.py` to test additional algorithms.
+### "DataFetchError: Defects4J CLI not found"
+- **Cause**: The `defects4j` command is not in your system PATH.
+- **Fix**: Re-run `./setup_cli.sh` or manually install Defects4J v2.0+.
+
+### "Memory Limit Exceeded"
+- **Cause**: The ingestion step attempted to load more data than the configured RAM limit.
+- **Fix**: The pipeline automatically reduces the project subset size. If it fails completely, increase the `MEMORY_LIMIT_GB` environment variable in `code/src/config.py` or ensure you are running on a machine with sufficient RAM.
+
+### "PMD Syntax Error"
+- **Cause**: A Java file in the dataset could not be parsed by PMD.
+- **Fix**: These files are logged and skipped. Check `code/data/logs/ingest.log` for specific file paths.
+
+## Running Tests
+
+To verify the implementation:
+```bash
+cd code
+source.venv/bin/activate
+pytest tests/ -v
+```
+
+## Notes
+- The pipeline uses a **random seed of 42** for all stochastic processes to ensure reproducibility.
+- No synthetic data is generated; all analysis is performed on real Defects4J data.
+- If the pipeline fails mid-execution, you can often resume by re-running `./run_pipeline.sh` as it checks for existing artifacts, though a clean run is recommended for consistency.

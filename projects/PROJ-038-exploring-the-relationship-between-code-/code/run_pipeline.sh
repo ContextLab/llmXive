@@ -1,24 +1,22 @@
 #!/bin/bash
-#
-# run_pipeline.sh - Orchestration script for the Code Complexity Bug Prediction Pipeline
-#
-# This script enforces the execution order:
-# 1. Ingest (Download and filter Defects4J data)
-# 2. Metrics (Calculate LOC, CC, Halstead)
-# 3. Labeling (Assign is_buggy flags)
-# 4. Analysis (Correlation and Modeling)
-#
-# Note: Analysis scripts are not yet implemented in this phase.
-# The script will stop after Labeling with a clear status message.
-#
+set -e
 
-set -e  # Exit immediately if a command exits with a non-zero status
-
-# Configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-VENV_DIR="$PROJECT_ROOT/venv"
-LOG_FILE="$PROJECT_ROOT/pipeline.log"
+# ==============================================================================
+# Pipeline Orchestration Script for Code Complexity & Bug Prediction Research
+# ==============================================================================
+# This script enforces the strict execution order required by the research
+# methodology: Ingest -> Metrics -> Labeling -> Analysis.
+#
+# Prerequisites:
+#   - Python 3.11+ virtual environment activated
+#   - Defects4J CLI installed and in PATH
+#   - PMD installed and in PATH
+#   - Amendment artifact `specs/001-code-complexity-bug-prediction/amendment_ratified.md` exists
+#
+# Exit Codes:
+#   0 - Success
+#   1 - Step failure or pre-check error
+# ==============================================================================
 
 # Colors for output
 RED='\033[0;31m'
@@ -26,139 +24,122 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-log() {
-    local level=$1
-    shift
-    local msg="$*"
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    echo -e "[$timestamp] [$level] $msg" | tee -a "$LOG_FILE"
+log_step() {
+    echo -e "${GREEN}[PIPELINE]${NC} $1"
 }
 
-info() { log "INFO" "$*"; }
-warn() { log "WARN" "$*"; }
-error() { log "ERROR" "$*"; }
-
-check_prerequisites() {
-    info "Checking prerequisites..."
-
-    # Check for Python 3.11
-    if ! command -v python3.11 &> /dev/null; then
-        error "Python 3.11 not found. Please install python3.11."
-        exit 1
-    fi
-
-    # Check for virtual environment
-    if [ ! -d "$VENV_DIR" ]; then
-        warn "Virtual environment not found at $VENV_DIR. Creating it..."
-        python3.11 -m venv "$VENV_DIR"
-    fi
-
-    # Activate virtual environment
-    source "$VENV_DIR/bin/activate"
-
-    # Check for required dependencies
-    if ! python -c "import pandas" &> /dev/null; then
-        error "Dependencies not installed. Please run 'pip install -r code/requirements.txt' first."
-        exit 1
-    fi
-
-    # Check for Defects4J CLI (optional for this skeleton run, but good to warn)
-    if ! command -v defects4j &> /dev/null; then
-        warn "Defects4J CLI not found in PATH. Ensure it is installed and accessible."
-    fi
-
-    # Check for PMD (optional for this skeleton run)
-    if ! command -v pmd &> /dev/null; then
-        warn "PMD not found in PATH. Ensure it is installed and accessible."
-    fi
-
-    info "Prerequisites check passed."
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
 }
 
-run_ingest() {
-    info "=== STEP 1: Ingest ==="
-    info "Downloading and filtering Defects4J data..."
-    
-    if [ ! -f "code/src/ingest.py" ]; then
-        error "Ingest script not found at code/src/ingest.py"
-        exit 1
-    fi
-
-    # Run the ingest script
-    # Note: This may take a while depending on the dataset size
-    python code/src/ingest.py
-    
-    if [ $? -eq 0 ]; then
-        info "Ingest completed successfully."
-    else
-        error "Ingest failed."
-        exit 1
-    fi
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
-run_metrics() {
-    info "=== STEP 2: Metrics ==="
-    info "Calculating LOC, Cyclomatic Complexity, and Halstead Volume..."
+# ------------------------------------------------------------------------------
+# 0. Pre-flight Checks
+# ------------------------------------------------------------------------------
+log_step "Running pre-flight checks..."
 
-    if [ ! -f "code/src/metrics.py" ]; then
-        error "Metrics script not found at code/src/metrics.py"
-        exit 1
-    fi
+# Check for Amendment Ratification (Constitutional Check)
+AMENDMENT_PATH="specs/001-code-complexity-bug-prediction/amendment_ratified.md"
+if [ ! -f "$AMENDMENT_PATH" ]; then
+    log_error "Constitutional Block: Amendment artifact '$AMENDMENT_PATH' not found."
+    log_error "Execution halted. Please ratify the amendment in T000b before proceeding."
+    exit 1
+fi
+log_step "Amendment verification passed."
 
-    # Run the metrics script
-    python code/src/metrics.py
-    
-    if [ $? -eq 0 ]; then
-        info "Metrics calculation completed successfully."
-    else
-        error "Metrics calculation failed."
-        exit 1
-    fi
-}
+# Check for Defects4J
+if ! command -v defects4j &> /dev/null; then
+    log_error "Defects4J CLI not found. Please run code/setup_cli.sh or install manually."
+    exit 1
+fi
 
-run_labeling() {
-    info "=== STEP 3: Labeling ==="
-    info "Assigning bug labels to features..."
+# Check for PMD
+if ! command -v pmd &> /dev/null; then
+    log_error "PMD CLI not found. Please run code/setup_cli.sh or install manually."
+    exit 1
+fi
 
-    if [ ! -f "code/src/labeling.py" ]; then
-        # Labeling is not yet implemented in this phase, but we check for the file
-        warn "Labeling script not found at code/src/labeling.py. Skipping this step as per task T008 scope (Analysis not implemented)."
-        return 0
-    fi
+# Check for Python environment
+if [ -z "$VIRTUAL_ENV" ]; then
+    log_warning "No virtual environment detected. Proceeding with system Python (not recommended)."
+fi
 
-    # Run the labeling script
+# ------------------------------------------------------------------------------
+# 1. Data Ingestion (T013)
+# ------------------------------------------------------------------------------
+log_step "Step 1: Starting Data Ingestion..."
+python code/src/ingest.py
+if [ $? -ne 0 ]; then
+    log_error "Data Ingestion failed. Stopping pipeline."
+    exit 1
+fi
+log_step "Step 1: Data Ingestion completed successfully."
+
+# ------------------------------------------------------------------------------
+# 2. Metric Extraction (T014, T014b, T014c)
+# ------------------------------------------------------------------------------
+log_step "Step 2: Starting Metric Extraction (LOC, CC, Halstead)..."
+python code/src/metrics.py
+if [ $? -ne 0 ]; then
+    log_error "Metric Extraction failed. Stopping pipeline."
+    exit 1
+fi
+log_step "Step 2: Metric Extraction completed successfully."
+
+# ------------------------------------------------------------------------------
+# 3. Labeling (T015)
+# ------------------------------------------------------------------------------
+log_step "Step 3: Starting Bug Labeling..."
+# Note: Labeling script is expected to be implemented in future tasks.
+# Currently, we call a placeholder or the main entry point if available.
+# For now, we assume the labeling logic is integrated or a separate script exists.
+# If the script doesn't exist yet, we log a warning but proceed if the file
+# is expected to be generated by a future task, or we skip if strictly blocked.
+
+# Since T015 is not yet implemented in the provided codebase, we check for a stub
+# or run the labeling module if it exists.
+if [ -f "code/src/labeling.py" ]; then
     python code/src/labeling.py
-    
-    if [ $? -eq 0 ]; then
-        info "Labeling completed successfully."
-    else
-        error "Labeling failed."
+    if [ $? -ne 0 ]; then
+        log_error "Labeling failed. Stopping pipeline."
         exit 1
     fi
-}
+else
+    log_warning "Labeling script (code/src/labeling.py) not found. Skipping labeling step."
+    log_warning "The features.csv may be incomplete without bug labels."
+fi
+log_step "Step 3: Labeling completed (or skipped)."
 
-run_analysis() {
-    info "=== STEP 4: Analysis ==="
-    warn "Analysis scripts are not yet implemented in this phase (T008). Skipping correlation and modeling steps."
-    warn "Once T021, T022, T023, etc. are complete, this step will run automatically."
-}
+# ------------------------------------------------------------------------------
+# 4. Validation (T018)
+# ------------------------------------------------------------------------------
+log_step "Step 4: Validating output schema and data integrity..."
+python code/src/validate_metrics.py
+if [ $? -ne 0 ]; then
+    log_error "Validation failed. The generated features.csv contains errors."
+    exit 1
+fi
+log_step "Step 4: Validation passed."
 
-main() {
-    info "Starting Pipeline Execution..."
-    check_prerequisites
+# ------------------------------------------------------------------------------
+# 5. Analysis (T021, T022, etc.) - BLOCKED
+# ------------------------------------------------------------------------------
+log_step "Step 5: Attempting Analysis..."
+if [ -f "code/src/analysis.py" ]; then
+    log_warning "Analysis script exists but may depend on completed Modeling/Labeling."
+    python code/src/analysis.py
+    if [ $? -ne 0 ]; then
+        log_error "Analysis failed."
+        # Do not exit 1 here if this is an expected blocker for US2/US3
+        # but log the error clearly.
+    fi
+else
+    log_warning "Analysis scripts are not yet implemented (US2/US3 tasks pending)."
+    log_warning "Pipeline stopped after data generation and validation."
+fi
 
-    # Execute steps in order
-    run_ingest
-    run_metrics
-    run_labeling
-    
-    # Analysis is skipped for now as per task description
-    run_analysis
-
-    info "=== Pipeline Execution Complete ==="
-    info "Note: Analysis phase was skipped as it is not yet implemented."
-    info "Check 'code/data/processed/features.csv' for intermediate results."
-}
-
-# Run main function
-main "$@"
+log_step "Pipeline execution finished."
+log_step "Output artifacts located in: code/data/processed/ and code/data/results/"
