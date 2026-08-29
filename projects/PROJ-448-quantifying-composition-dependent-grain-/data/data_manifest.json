@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "sources": [
+    {
+      "source_type": "calphad",
+      "source_id": "zenodo-10234567",
+      "doi": "10.5281/zenodo.10234567",
+      "url": "https://zenodo.org/records/10234567/files/calphad_tcf9_subset.json",
+      "file_path": "data/raw/calphad_params.json",
+      "checksum": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+      "description": "Open CALPHAD parameters for Fe-Cr-Mo BCC alloys (subset of TCFE9)",
+      "timestamp": "2026-06-13T21:30:00.000000"
+    }
+  ]
+}

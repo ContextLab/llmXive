@@ -1,9 +1,3 @@
-T006a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research/data_sources.md` file was presented, and there is no evidence of\
-    \ a JSON object containing the required keys (`source_id`, `doi`, `url`, `status`).\
-    \ The implementer\u2019s claim lacks the necessary artifact to satisfy the task."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -16,20 +10,34 @@ T010:
   r: The required file `tests/unit/test_mclean.py` does not exist in the repository,
     so no unit test for the McLean isotherm calculation is present. The implementer
     must add this test file with appropriate test cases.
-T045d:
+T045a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No downloaded dataset, script, or log file is present to demonstrate that the
-    implementer actually fetched the real ternary APT literature data from Zenodo
-    using `requests.get()`. Consequently, there is no evidence of the required fetch,
-    error handling, or termination behavior, so the task requirement is not satisfied.
-T047a:
+  r: "The implementer provided only the task description and user stories but no actual\
+    \ artifacts\u2014no list, table, or report confirming the NIST APT accession IDs\
+    \ for the specified binary systems, nor any evidence of verification steps. Consequently,\
+    \ the requirement to verify and document those accession IDs is unmet."
+T045c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, test results, or documentation were provided that demonstrates
-    a check for binary interaction parameters, performs linear extrapolation with
-    a warning when they are missing, or flags the gap. The required artifact (the
-    implementation of task T047a) is absent, so the claim cannot be verified.
+  r: "No list of peer\u2011reviewed literature sources or DOIs for ternary APT datasets\
+    \ (e.g., Fe\u2011Cr\u2011Mo) was provided; the response contains only the task\
+    \ description and no actual artifact fulfilling the requirement."
+T045e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CALPHAD database file, download logs, checksum verification, or any other\
+    \ artifact was presented. The implementer did not supply the required TCFE9 (or\
+    \ open subset) file nor evidence that it was fetched and verified, so the task\u2019\
+    s core requirement is unmet."
+T045f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the fetched DFT segregation energies (e.g., a data file,\
+    \ table, or documented list with citations and verification checks) was provided.\
+    \ Consequently, the requirement to fetch and verify pre\u2011computed DFT segregation\
+    \ energies from the literature is not satisfied. The implementer must supply the\
+    \ actual energy values and evidence of their verification."
 T047b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
