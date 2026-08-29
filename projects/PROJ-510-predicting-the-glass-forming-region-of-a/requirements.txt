@@ -7,5 +7,4 @@ datasets
 mendeleev
 scipy
 pydantic
-matplotlib
-seaborn
+jsonschema

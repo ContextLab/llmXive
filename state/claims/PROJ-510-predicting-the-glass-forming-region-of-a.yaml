@@ -1,0 +1,370 @@
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: matsci/glass-forming-ability is the verified source for critical cooling
+    rate
+  claim_id: c_e16e5371
+  context: 'Reconciliation: This dataset is the verified source for CCR (Plan), while
+    Mendeleev provides elemental properties (Constitution Principle VI).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Matsci/glass-forming-ability_is_the_verified_source_for_crit
+  kind: entity_fact
+  raw_text: The dataset matsci/glass-forming-ability is the verified source for CCR.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:13:18Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on 2 cores 7 GB RAM within 6 hours
+  claim_id: c_8e091467
+  context: 'Compute: All tasks are designed to run on CPU (2 cores, 7GB RAM) within
+    6 hours. No GPU required for Random Forest on a moderate-sized dataset'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is designed to run on CPU (2 cores, 7GB RAM) within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:13:43Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Sample size of 1000 rows if dataset exceeds 10000 rows
+  claim_id: c_dbaf4fae
+  context: 'Implement robust data sampling for large datasets: If matsci/glass-forming-ability
+    exceeds ~10k rows, implement streaming or a fixed-seed sample (e.g. itertools.islice
+    or df.sample(n=1000, random_state=42))'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the matsci/glass-forming-ability dataset exceeds approximately 10,000
+    rows, a fixed-seed sample of 1,000 rows is implemented.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:14:09Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 50 100 and 150 K/s
+  claim_id: c_69b82501
+  context: Conduct sensitivity analysis sweeping the specific thresholds {50, 100,
+    150} K/s (hardcoded).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis sweeps specific thresholds of 50, 100, and 150 K/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:14:44Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Pipeline produces at least 500 valid alloy records with thermodynamic
+    columns and critical_cooling_rate without model training
+  claim_id: c_b7a1e591
+  context: 'Independent Test: The pipeline can be run in isolation to produce a CSV
+    file containing at least 500 valid alloy records with all required thermodynamic
+    columns and the critical_cooling_rate column computed, without training any model.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_at_least_500_valid_alloy_records_with_ther
+  kind: magnitude
+  raw_text: The pipeline can be run in isolation to produce a CSV file containing
+    at least 500 valid alloy records with all required thermodynamic columns and the
+    critical_cooling_rate column computed, without training any model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:23:50Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Train-test split results in approximately 80% of data in training set
+    with random_state=42
+  claim_id: c_6865f4c7
+  context: 'Implement projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py:
+    Load projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/processed_alloys.csv,
+    perform a standard train-test split with random_state=42. Verification: Assert
+    len(train) == 0.8 * len(df) (approx) and random_state=42 is used in logs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Train-test_split_results_in_approximately_80%25_of_data_in_tra
+  kind: causal
+  raw_text: Assert len(train) == 0.8 * len(df) (approx) and random_state=42 is used
+    in logs.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:23:53Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Collinearity flagged if correlation between predictor pairs exceeds 0.8
+  claim_id: c_5916859b
+  context: 'Check correlation matrix of predictors using numpy.corrcoef. Threshold:
+    Flag any pair with correlation > 0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag any pair with correlation > 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:23:53Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis conducted at thresholds 50, 100, and 150 K/s
+  claim_id: c_0b60859d
+  context: 'Implement projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py:
+    Conduct sensitivity analysis sweeping the specific thresholds {50, 100, 150} K/s
+    (hardcoded).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Conduct sensitivity analysis sweeping the specific thresholds {50, 100,
+    150} K/s (hardcoded).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:24:26Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: RMSE variance across thresholds must be less than 10% relative variance
+  claim_id: c_c05b09ff
+  context: 'Verify stability: Read RMSE variance from T031 output file (sensitivity_report.csv).
+    Action: Assert that the RMSE variance is negligible (e.g., < 10% relative variance).'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/RMSE_variance_across_thresholds_must_be_less_than_10%25_relati
+  kind: magnitude
+  raw_text: Assert that the RMSE variance is negligible (e.g., < 10% relative variance).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-29T12:25:04Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Pipeline completes within 6 hours on 2 cores and 7 GB RAM
+  claim_id: c_56093756
+  context: 'Performance optimization: Verify pipeline completes within 6 hours on
+    CPU-only runner (2 cores, 7 GB RAM). Verification: Run pipeline locally as a sanity
+    check. Definitive Check: Inspect the GitHub Actions runner logs for the CI job
+    to confirm the total execution time is < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline completes within 6 hours on CPU-only runner (2 cores,
+    7 GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:25:28Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Dataset sampled to 1000 rows if it exceeds 10000 rows
+  claim_id: c_74d687b6
+  context: 'Implement robust data sampling for large datasets: If matsci/glass-forming-ability
+    exceeds ~10k rows, implement streaming or a fixed-seed sample (e.g., itertools.islice
+    or df.sample(n=1000, random_state=42)) in projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py.'
+  evidence:
+    asserted: '10.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: If matsci/glass-forming-ability exceeds ~10k rows, implement streaming
+    or a fixed-seed sample (e.g., df.sample(n=1000, random_state=42)).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T12:25:28Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Sample size N must be at least 500
+  claim_id: c_21c5413f
+  context: 'Log the exact sampling rule (N, seed, method) in data/processed/sampling_log.txt.
+    Verify: Check logs for sampling parameters and confirm N >= 500.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_N_must_be_at_least_500
+  kind: magnitude
+  raw_text: Confirm N >= 500.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:28:07Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 0
+  canonical: Dataset sampling triggered if rows exceed 10000
+  claim_id: c_0daebbbf
+  context: 'Implement robust data sampling for large datasets: If matsci/glass-forming-ability
+    exceeds ~10k rows, implement streaming or a fixed-seed sample (e.g., itertools.islice
+    or df.sample(n=1000, random_state=42)) in projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py.'
+  evidence:
+    asserted: '10.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: If matsci/glass-forming-ability exceeds ~10k rows, implement streaming
+    or a fixed-seed sample (e.g., itertools.islice or df.sample(n=1000, random_state=42)).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T12:37:15Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 2
+  canonical: Pipeline produces at least 500 valid alloy records
+  claim_id: c_9bd1c291
+  context: 'Independent Test: The pipeline can be run in isolation to produce a CSV
+    file containing at least 500 valid alloy records with all required thermodynamic
+    columns and the critical_cooling_rate column computed, without training any model.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_at_least_500_valid_alloy_records
+  kind: magnitude
+  raw_text: The pipeline can be run in isolation to produce a CSV file containing
+    at least 500 valid alloy records with all required thermodynamic columns and the
+    critical_cooling_rate column computed, without training any model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:37:18Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Train set comprises approximately 80% of dataset
+  claim_id: c_901ada4c
+  context: 'Implement projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py:
+    Load projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/processed_alloys.csv,
+    perform a standard train-test split with random_state=42. Verification: Assert
+    len(train) == 0.8 * len(df) (approx) and random_state=42 is used in logs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert len(train) == 0.8 * len(df) (approx) and random_state=42 is used
+    in logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:37:54Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Permutation importance uses 1000 permutations
+  claim_id: c_203db900
+  context: 'Implement projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py:
+    Load trained model (random_forest_model.pkl) and dataset. Perform permutation
+    importance analysis (n_permutations=1000, random_state=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform permutation importance analysis (n_permutations=1000, random_state=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:38:11Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses thresholds 50, 100, and 150 K/s
+  claim_id: c_453171f9
+  context: 'Implement projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py:
+    Conduct sensitivity analysis sweeping the specific thresholds {50, 100, 150} K/s
+    (hardcoded).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Conduct sensitivity analysis sweeping the specific thresholds {50, 100,
+    150} K/s (hardcoded).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:38:11Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: RMSE variance across thresholds must be less than 10%
+  claim_id: c_2e9cbcf9
+  context: 'Verify stability: Read RMSE variance from T031 output file (sensitivity_report.csv).
+    Action: Assert that the RMSE variance is negligible (e.g., < 10% relative variance).'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/RMSE_variance_across_thresholds_must_be_less_than_10%25
+  kind: magnitude
+  raw_text: Assert that the RMSE variance is negligible (e.g., < 10% relative variance).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-29T12:38:12Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time under 6 hours on 2 cores and 7 GB RAM
+  claim_id: c_a96e0cbb
+  context: 'Performance optimization: Verify pipeline completes within 6 hours on
+    CPU-only runner (2 cores, 7 GB RAM). Verification: 1. Run pipeline locally as
+    a sanity check. 2. Definitive Check: Inspect the GitHub Actions runner logs for
+    the CI job to confirm the total execution time is < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline completes within 6 hours on CPU-only runner (2 cores,
+    7 GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T12:38:12Z'

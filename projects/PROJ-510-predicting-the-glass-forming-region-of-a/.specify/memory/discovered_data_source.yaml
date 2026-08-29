@@ -1,18 +1,12 @@
 status: none
-intent: MatsSci-Glass critical cooling rate dataset OQMD download python package dataset
+intent: download MatsSci-Glass critical cooling rate dataset OQMD reference python
+  package dataset
 required_fields:
-- material_id
-- element_1
-- element_2
-- element_3
-- fraction_1
-- fraction_2
-- fraction_3
+- composition
 - critical_cooling_rate
-- glass_forming_label
 - mixing_enthalpy
 - atomic_size_difference
 - electronegativity_variance
-cache_key: c58e3d5f5e3a8e03d8f9062f6c6c07659cc832b0afccdfdd322d21d651f51be6
-searched_at: '2026-08-26T17:00:26.987861+00:00'
+cache_key: 0c8d97eb442a702921bfbd455d53c14cc5786b7b41afc1fdbe15a0503aba70c7
+searched_at: '2026-08-29T12:17:16.757729+00:00'
 retry_count: 1

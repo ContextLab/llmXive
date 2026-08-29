@@ -1,3 +1,10 @@
+T001b:
+  c: false
+  h: 0eb3eb6367f0dc9f1e16197002c64576d4e344d697dc76d055c22dcddafef78b
+  r: "The listed code files (__init__.py, utils.py, ingestion.py, features.py, train.py,\
+    \ analyze.py) are present and non\u2011empty, but there is no evidence that `projects/PROJ-510-predicting-the-glass-forming-region-of-a/requirements.txt`\
+    \ exists or contains any content. Without that file, the required source\u2011\
+    code structure is incomplete."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -6,27 +13,14 @@ T017:
     \ and at least 500 entries, nor any error handling for the failure case. The required\
     \ artifact (e.g., updated ingestion/validation module or a test confirming the\
     \ check) is missing."
-T020:
-  c: false
-  h: bd14496ca5f80d4be867fda0e9ab6b9ff799a86a67d52d1f968a0cc78b6015a0
-  r: "The required data file `data/processed/processed_alloys.csv` is absent, so the\
-    \ script cannot actually load the dataset or perform the train\u2011test split.\
-    \ Consequently the implementation does not fulfill the task\u2019s core requirement."
 T021:
   c: false
-  h: 7674de92d6e7005d9eaf8061ee779db6a83a5c438e24bf91fc2df94190b1180e
-  r: "The provided `train.py` stops abruptly (truncated after `de`) and does not contain\
-    \ any k\u2011fold cross\u2011validation logic nor code that aggregates fold scores,\
-    \ computes mean RMSE/variance, or writes `cv_metrics.json`. Moreover, the required\
-    \ `data/models/cv_metrics.json` file is absent. The task\u2019s core requirements\
-    \ are therefore not satisfied."
-T022:
-  c: false
-  h: cbfc40d3665d24c78bcf3db64057431d0064e104fd3cad559fb35179e62b67a3
-  r: "The required model file `data/models/random_forest_model.pkl` does not exist,\
-    \ and the provided `train.py` script (as shown) contains no visible code that\
-    \ evaluates a held\u2011out test set, computes a test RMSE, or writes the trained\
-    \ model to that path. The task\u2019s core requirements are therefore unmet."
+  h: b4402bfab20da3309d5c60de7e77f3a0b472a2c5eb6dd96c616d2d386f09b353
+  r: "The repository contains a `train.py` file, but it is truncated and shows no\
+    \ implementation of k\u2011fold cross\u2011validation or saving of `fold_scores`/`mean_rmse`\
+    \ to `data/models/cv_metrics.json`. Moreover, the required `cv_metrics.json` file\
+    \ does not exist on disk, so the verification command would fail. The task\u2019\
+    s core output is missing."
 T022b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,12 +36,12 @@ T025:
     output (explicit documentation and framing) is missing.
 T029:
   c: false
-  h: 7aab85f429054582dcd6f48f7dac52a187e203b3b1bcf3d8c6c217bea69b4257
+  h: 7228c3781c72edce82f9041f50a4ad096c1992bf4a1bcd523411d67fac17e317
   r: "The required output file `data/processed/feature_importance.json` does not exist,\
-    \ and the provided `analyze.py` script does not implement the permutation\u2011\
-    test p\u2011value calculation, ranking, or flagging of top features as specified.\
-    \ The code focuses on loading data and a collinearity report instead of generating\
-    \ the JSON of feature importances."
+    \ and the provided `analyze.py` only contains loading and collinearity utilities\u2014\
+    no code that computes permutation\u2011test p\u2011values, ranks features, flags\
+    \ top contributors, or writes the JSON file as specified. The task\u2019s core\
+    \ functionality and output are missing."
 T029a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
