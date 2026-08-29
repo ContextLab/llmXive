@@ -1,76 +1,178 @@
-# Output Schema for CLMM Results
-# Defines the structure for model output files
-$schema: "http://json-schema.org/draft-07/schema#"
+# CLMM Results Output Schema
+# Defines the structure of the Cumulative Link Mixed-Effects Model results
+# produced by code/02_fit_clmm.py and saved to data/processed/clmm_results.csv
+
+$schema: http://json-schema.org/draft-07/schema#
+title: CLMM Results
+description: Output schema for Cumulative Link Mixed-Effects Model analysis results
 type: object
+required:
+  - model_info
+  - fixed_effects
+  - random_effects
+  - diagnostics
 properties:
   model_info:
     type: object
-    properties:
-      formula:
-        type: string
-      family:
-        type: string
-      convergence_status:
-        type: boolean
-      convergence_message:
-        type: string
+    description: Metadata about the fitted model
     required:
       - formula
       - family
       - convergence_status
+      - n_observations
+      - n_groups
+    properties:
+      formula:
+        type: string
+        description: R formula used for model fitting
+        example: "quality_rating ~ politeness + conversation_length + (1|user_id)"
+      family:
+        type: string
+        description: Model family (e.g., cumulative link)
+        example: "cumulative"
+      convergence_status:
+        type: boolean
+        description: Whether the model converged successfully
+      convergence_message:
+        type: string
+        description: Convergence diagnostic message if available
+      n_observations:
+        type: integer
+        description: Total number of observations used
+        minimum: 0
+      n_groups:
+        type: integer
+        description: Number of random effect groups (e.g., unique user_ids)
+        minimum: 1
+      link_function:
+        type: string
+        description: Link function used (e.g., logit, probit, cloglog)
+        example: "logit"
+
   fixed_effects:
     type: array
+    description: Fixed effects coefficients and statistics
     items:
       type: object
-      properties:
-        term:
-          type: string
-        estimate:
-          type: number
-        std_error:
-          type: number
-        z_value:
-          type: number
-        p_value:
-          type: number
-        p_value_adj:
-          type: number
-        conf_low:
-          type: number
-        conf_high:
-          type: number
       required:
         - term
         - estimate
         - std_error
+        - z_value
         - p_value
-  random_effects:
-    type: array
-    items:
-      type: object
+        - p_value_adj
+        - ci_lower
+        - ci_upper
       properties:
-        group:
+        term:
           type: string
-        variance:
+          description: Name of the fixed effect term
+          example: "politeness"
+        estimate:
           type: number
-        std_dev:
+          description: Coefficient estimate
+        std_error:
           type: number
+          description: Standard error of the estimate
+        z_value:
+          type: number
+          description: Z-statistic (estimate / std_error)
+        p_value:
+          type: number
+          description: Raw p-value
+          minimum: 0
+          maximum: 1
+        p_value_adj:
+          type: number
+          description: Benjamini-Hochberg adjusted p-value
+          minimum: 0
+          maximum: 1
+        ci_lower:
+          type: number
+          description: Lower bound of 95% confidence interval
+        ci_upper:
+          type: number
+          description: Upper bound of 95% confidence interval
+        significance:
+          type: string
+          description: Significance level indicator
+          enum: ["***", "**", "*", ".", ""]
+
+  random_effects:
+    type: object
+    description: Random effects variance components
+    required:
+      - user_id
+    properties:
+      user_id:
+        type: object
+        description: Variance components for user_id random intercept
+        required:
+          - variance
+          - std_dev
+        properties:
+          variance:
+            type: number
+            description: Variance of the random intercept
+            minimum: 0
+          std_dev:
+            type: number
+            description: Standard deviation of the random intercept
+            minimum: 0
+          n_levels:
+            type: integer
+            description: Number of levels in the user_id factor
+            minimum: 1
+
   diagnostics:
     type: object
-    properties:
-      aic:
-        type: number
-      bic:
-        type: number
-      log_likelihood:
-        type: number
-      iterations:
-        type: integer
+    description: Model fit diagnostics and quality metrics
     required:
       - aic
       - bic
       - log_likelihood
-required:
-  - model_info
-  - fixed_effects
-  - diagnostics
+      - residual_df
+    properties:
+      aic:
+        type: number
+        description: Akaike Information Criterion
+      bic:
+        type: number
+        description: Bayesian Information Criterion
+      log_likelihood:
+        type: number
+        description: Log-likelihood of the fitted model
+      residual_df:
+        type: integer
+        description: Residual degrees of freedom
+      rho:
+        type: number
+        description: Intraclass correlation coefficient (ICC)
+        minimum: 0
+        maximum: 1
+      n_thresholds:
+        type: integer
+        description: Number of threshold parameters estimated
+        minimum: 1
+
+  thresholds:
+    type: array
+    description: Threshold (cut-point) estimates for ordinal categories
+    items:
+      type: object
+      required:
+        - threshold_name
+        - estimate
+        - std_error
+      properties:
+        threshold_name:
+          type: string
+          description: Name of the threshold (e.g., "1|2", "2|3")
+        estimate:
+          type: number
+          description: Threshold estimate
+        std_error:
+          type: number
+          description: Standard error of the threshold estimate
+
+additionalProperties: false
