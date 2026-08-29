@@ -1,3 +1,16 @@
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (e.g., `data/raw`, `src/metrics`, `tests/unit`,
+    etc.) was provided; the claim lacks any artifact confirming the directory structure
+    was created. The implementer must supply a listing or screenshot showing the full
+    hierarchy.
+T004b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitkeep` files or directory listings were provided as evidence, so we cannot
+    verify that they have been added to all created directories. The required artifact
+    is missing.
 T009a:
   c: false
   h: 535b1256a90b667478bd0e6c248b773c660715812c2538800843bd567da53d85

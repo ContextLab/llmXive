@@ -1809,3 +1809,503 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T07:14:16Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: R_lattice value 0.85 sourced from DOI 10.1103/PhysRevB.93.045417
+  claim_id: c_1580546b
+  context: 'T005b Create src/constants/lattice_resistance.yaml containing a verified
+    R_lattice value (e.g., R_lattice: 0.85  # from DOI 10.1103/PhysRevB.93.045417).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The file src/constants/lattice_resistance.yaml contains a verified R_lattice
+    value sourced from DOI 10.1103/PhysRevB.93.045417.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:38:57Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: MoS2 lattice constant 0.315 sourced from Materials Project MP-1234
+  claim_id: c_348b8973
+  context: "T009a1 Create src/constants/material_lattice.yaml containing verified\
+    \ lattice constants, e.g., MoS2: lattice: 0.315  # value sourced from Materials\
+    \ Project (MP\u20111234)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lattice constant for MoS2 is 0.315 nm, sourced from Materials Project
+    (MP-1234).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:40:03Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Graphene lattice constant 0.246
+  claim_id: c_3faa1375
+  context: 'T009a1 Create src/constants/material_lattice.yaml containing verified
+    lattice constants, e.g., graphene: lattice: 0.246'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lattice constant for graphene is 0.246 nm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:43:31Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Background lattice correction formula 1/R_total = 1/R_defect + 1/R_lattice
+  claim_id: c_12771856
+  context: 'T025b Implement src/metrics/lattice_correction.py to apply the background
+    lattice correction... Formula: 1 / R_total = 1 / R_defect + 1 / R_lattice.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The background lattice correction formula for thermal resistance is 1
+    / R_total = 1 / R_defect + 1 / R_lattice.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:44:02Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Default percolation threshold LCC fraction 0.9
+  claim_id: c_97f1b64b
+  context: T023 Implement src/metrics/percolation.py to estimate critical distance
+    d_c via binary search where LCC fraction exceeds a configurable threshold (default
+    0.9).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default percolation threshold for LCC fraction is 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:44:34Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling count 1000
+  claim_id: c_45bebb48
+  context: T032 Implement src/analysis/bootstrap.py for 1 000 resamples, generating
+    95% confidence intervals for all coefficients.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: 1,000
+    filled: true
+  kind: numeric
+  raw_text: The bootstrap resampling procedure uses 1,000 resamples.
+  resolved_value: 1,000
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T16:44:53Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis multipliers 1.5 2.0 2.5
+  claim_id: c_2a86760c
+  context: "T034 Implement src/analysis/sensitivity.py to repeat the full pipeline...\
+    \ for three proximity-threshold multipliers 1.5\xD7, 2.0\xD7, 2.5\xD7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis uses proximity-threshold multipliers of 1.5,
+    2.0, and 2.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:45:40Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Default proximity threshold 2.0 nm
+  claim_id: c_7a42bea6
+  context: 'Notes: Threshold defaults to 2.0 nm (physically motivated) but can be
+    overridden via statistical_override and the multipliers used in sensitivity analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default proximity threshold is 2.0 nm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:46:15Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Robustness status target std_dev 0.05
+  claim_id: c_c2390d27
+  context: "T034... Compute std_dev across the three runs. Write std_dev and robustness_status\
+    \ (target_met if \u2264 0.05, else target_exceeded) into the AnalysisResult JSON."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The robustness status target for standard deviation is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:46:50Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: PCA variance retention threshold 95 percent
+  claim_id: c_cc4249b8
+  context: "T030 Implement src/analysis/dimensionality.py to perform PCA on the full\
+    \ metric set, retaining components that explain \u2265 95% variance."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PCA_variance_retention_threshold_95_percent
+  kind: magnitude
+  raw_text: Principal component analysis retains components that explain at least
+    95% variance.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:47:33Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction used for 5 or fewer tests
+  claim_id: c_aee3d5ae
+  context: "T033 Implement src/analysis/correction.py for multiple-comparison correction:\
+    \ Use Bonferroni when \u2264 5 tests, otherwise Benjamini-Hochberg FDR."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The multiple-comparison correction uses Bonferroni when there are 5 or
+    fewer tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:48:16Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Performance target RAM < 7 GB for 50 samples
+  claim_id: c_266086ca
+  context: 'T039 Performance optimization: verify streaming ingestion keeps RAM <
+    7 GB for 50 samples; add profiling script src/utils/profile_memory.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance optimization target is to keep RAM usage under 7 GB for
+    50 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:48:49Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: MoS2 lattice constant 0.315 from Materials Project MP-1234
+  claim_id: c_c12e5cdc
+  context: "src/constants/material_lattice.yaml containing verified lattice constants,\
+    \ e.g.: ... MoS2: lattice: 0.315 # value sourced from Materials Project (MP\u2011\
+    1234)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "MoS2 lattice constant is 0.315 sourced from Materials Project (MP\u2011\
+    1234)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:50:09Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Graphene lattice constant 0.246
+  claim_id: c_47832bb1
+  context: 'src/constants/material_lattice.yaml containing verified lattice constants,
+    e.g.: graphene: lattice: 0.246'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Graphene lattice constant is 0.246.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:50:33Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Lattice resistance constant R_lattice 0.85 from DOI 10.1103/PhysRevB.93.045417
+  claim_id: c_57245d09
+  context: 'src/constants/lattice_resistance.yaml containing a verified R_lattice
+    value (e.g., R_lattice: 0.85 # from DOI 10.1103/PhysRevB.93.045417).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Lattice resistance constant R_lattice is 0.85 from DOI 10.1103/PhysRevB.93.045417.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:50:35Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: MoS2 lattice constant is 0.315 nm sourced from Materials Project MP-1234
+  claim_id: c_e8d8805d
+  context: "T009a1 Create src/constants/material_lattice.yaml containing verified\
+    \ lattice constants, e.g.: ... MoS2: lattice: 0.315 # value sourced from Materials\
+    \ Project (MP\u20111234)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "MoS2: lattice: 0.315 # value sourced from Materials Project (MP\u2011\
+    1234)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:51:37Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: graphene lattice constant is 0.246 nm
+  claim_id: c_478344da
+  context: 'T009a1 Create src/constants/material_lattice.yaml containing verified
+    lattice constants, e.g.: graphene: lattice: 0.246'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'graphene: lattice: 0.246'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:52:07Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Lattice resistance R_lattice is 0.85 from DOI 10.1103/PhysRevB.93.045417
+  claim_id: c_5f55bd3f
+  context: 'T005b Create src/constants/lattice_resistance.yaml containing a verified
+    R_lattice value (e.g., R_lattice: 0.85 # from DOI 10.1103/PhysRevB.93.045417).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'R_lattice: 0.85 # from DOI 10.1103/PhysRevB.93.045417'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:52:09Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Proximity threshold defaults to 2.0 nm
+  claim_id: c_00791183
+  context: 'Notes: Threshold defaults to 2.0 nm (physically motivated) but can be
+    overridden via statistical_override and the multipliers used in sensitivity analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold defaults to 2.0 nm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T16:54:34Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses proximity threshold multipliers of 1.5, 2.0,
+    and 2.5
+  claim_id: c_3f7a31fa
+  context: "Notes: Sensitivity analysis follows the Plan's multiplier set (1.5\xD7\
+    , 2.0\xD7, 2.5\xD7) and reports robustness per SC\u2011005."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis follows the Plan's multiplier set (1.5\xD7, 2.0\xD7\
+    , 2.5\xD7)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:02:00Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Bootstrap analysis uses 1,000 resamples
+  claim_id: c_333f7def
+  context: T032 [US3] Implement src/analysis/bootstrap.py for 1 000 resamples, generating
+    95% confidence intervals for all coefficients
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: 1,000
+    filled: true
+  kind: numeric
+  raw_text: 1,000 resamples for bootstrap
+  resolved_value: 1,000
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T17:02:15Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: PCA retains components explaining at least 95% variance
+  claim_id: c_e96c25c1
+  context: "T030 [US3] Implement src/analysis/dimensionality.py to perform PCA on\
+    \ the full metric set, retaining components that explain \u2265 95 % variance."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PCA_retains_components_explaining_at_least_95%25_variance
+  kind: magnitude
+  raw_text: "PCA retains components that explain \u2265 95% variance"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:02:59Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction is used when number of tests is less than or equal
+    to 5
+  claim_id: c_f687dcd0
+  context: "T033 [US3] Implement src/analysis/correction.py for multiple\u2011comparison\
+    \ correction: Use Bonferroni when \u2264 5 tests, otherwise Benjamini\u2011Hochberg\
+    \ FDR."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_is_used_when_number_of_tests_is_less_t
+  kind: magnitude
+  raw_text: "Bonferroni correction used when \u2264 5 tests"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:03:44Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Percolation critical distance is estimated where LCC fraction exceeds
+    0.9
+  claim_id: c_40565b74
+  context: T023 [US2] Implement src/metrics/percolation.py to estimate critical distance
+    d_c via binary search where LCC fraction exceeds a configurable threshold (default
+    0.9).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LCC fraction exceeds a configurable threshold (default 0.9) for percolation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:04:21Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: scipy.spatial.cKDTree is used for O(N log N) edge creation
+  claim_id: c_1f652236
+  context: T015 [US1] Implement src/graphs/constructor.py using scipy.spatial.cKDTree
+    for O(N log N) edge creation within the computed threshold.
+  evidence:
+    entailment_evidence: cKDTree is used for O(N log N) edge creation
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Scipy.spatial.cKDTree_is_used_for_O(N_log_N)_edge_creation
+  kind: entity_fact
+  raw_text: scipy.spatial.cKDTree used for O(N log N) edge creation
+  resolved_value: scipy.spatial.cKDTree is used for O(N log N) edge creation
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T17:04:24Z'
+- artifact_path: projects/PROJ-364-exploring-the-impact-of-network-topology/specs/001-exploring-the-impact-of-network-topology/tasks.md
+  attempts: 1
+  canonical: Streaming ingestion memory usage is less than 7 GB for 50 samples
+  claim_id: c_3359f11a
+  context: 'T039 [P] Performance optimization: verify streaming ingestion keeps RAM
+    < 7 GB for 50 samples; add profiling script src/utils/profile_memory.py.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_ingestion_memory_usage_is_less_than_7_GB_for_50_sa
+  kind: magnitude
+  raw_text: Streaming ingestion keeps RAM < 7 GB for 50 samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:05:00Z'
