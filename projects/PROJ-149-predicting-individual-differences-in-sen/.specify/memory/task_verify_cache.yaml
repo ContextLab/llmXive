@@ -1,12 +1,12 @@
-T007:
+T007a:
   c: false
-  h: 2d32e7ba351cf79df598d39a5f75805b776af3cfad7c09caac677ac20479bb7b
-  r: "The repository contains `code/01_download_data.py`, but the script is incomplete\
-    \ (truncated) and does not show any logic that writes `data/interim/data_source_manifest.json`.\
-    \ Moreover, the required manifest file is absent from the project directory, so\
-    \ the task\u2019s core output was not produced. The implementer must ensure the\
-    \ script fully downloads the dataset, verifies checksums, and creates the manifest\
-    \ file at the specified location."
+  h: c4aafec5e092d775957ecb4ea07be840a8c488dcc05194afa6afa78fd47db1d8
+  r: "The repository contains `code/01_download_data.py`, but the script includes\
+    \ placeholder checksum values and incomplete download logic (truncated and only\
+    \ mentions a representative subset). Moreover, the required output file `data/interim/data_source_manifest.json`\
+    \ is absent. Consequently, the task\u2019s core requirements\u2014fetching the\
+    \ full dataset, verifying checksums, and generating the manifest\u2014are not\
+    \ satisfied."
 T010:
   c: false
   h: dd3ef973364ee1e0970904278148c940d57399af69e374ffc8f2b7edf3aa301c
@@ -30,13 +30,6 @@ T032:
     \ there is no evidence that the pipeline was run, resource usage was logged, or\
     \ the failure conditions were checked. Without this file the task\u2019s verification\
     \ requirements are not satisfied."
-T035a:
-  c: false
-  h: 57a50f64ed7ccff841f123d2f8bedbe344d8e426320539ad1c21d5a3486ca87d
-  r: "The required `data/processed/features.csv` does not exist, and the contract\
-    \ schema file `contracts/feature_schema.schema.yaml` is also missing, causing\
-    \ the provided pytest to fail. Both artifacts must be created with valid, non\u2011\
-    empty content for the task to be satisfied."
 T036a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

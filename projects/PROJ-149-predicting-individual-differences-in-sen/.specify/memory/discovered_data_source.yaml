@@ -1,15 +1,14 @@
 status: none
-intent: PhysioNet EEG Motor Movement Imagery dataset download python package dataset
+intent: PhysioNet EEG Motor Movement Imagery dataset download using MNE python package
+  dataset
 required_fields:
 - participant_id
-- raw_eeg_file_path
-- task_log_file_path
-- delta_band_power
-- theta_band_power
-- alpha_band_power
-- beta_band_power
-- gamma_band_power
+- delta_power
+- theta_power
+- alpha_power
+- beta_power
+- gamma_power
 - median_reaction_time
-cache_key: 3be46b22e64142d5ddb7851b8c8416e5f1988164f878d2e36d0e0996f1451206
-searched_at: '2026-08-14T07:38:38.695501+00:00'
+cache_key: ae038647d26e51c61b1a6f187d515217ccf1794a4070854a566510ef7643e7d9
+searched_at: '2026-08-29T03:02:59.946170+00:00'
 retry_count: 1

@@ -42,3 +42,25 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1000/example
   verified_at: '2026-07-02T21:16:24.661729Z'
+- artifact_hash: 25c647900ff1afaadf5024249df1eb9cab521d744a581860abda8498e845e96a
+  artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Index of /protected/published-projects/eegmmidb/1.0.0/
+  kind: url
+  value: https://physionet.org/files/eegmmidb/1.0.0/`
+  verification_status: pending
+  verified_against_url: https://physionet.org/files/eegmmidb/1.0.0/
+  verified_at: '2026-08-29T03:45:08.480905Z'
+- artifact_hash: 25c647900ff1afaadf5024249df1eb9cab521d744a581860abda8498e845e96a
+  artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000224`
+  verification_status: pending
+  verified_against_url: https://openneuro.org/datasets/ds000224
+  verified_at: '2026-08-29T03:45:08.480905Z'
