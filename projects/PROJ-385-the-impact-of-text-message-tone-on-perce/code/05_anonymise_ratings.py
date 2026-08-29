@@ -4,126 +4,111 @@ import logging
 import os
 import sys
 from pathlib import Path
+
 from config import get_raw_data_dir, get_processed_data_dir
 from logging_config import setup_logging, get_logger
 
+# Configure logger
+logger = setup_logging()
+
 def hash_prolific_id(prolific_id: str, salt: str = "llmXive_salt_2024") -> str:
     """
-    Hash a Prolific ID using SHA-256 with a project-specific salt.
-    
-    Args:
-        prolific_id: The raw Prolific ID string.
-        salt: The salt string used for hashing.
-    
-    Returns:
-        A hex digest of the hashed ID.
+    Hashes a Prolific ID using SHA-256 with a project-specific salt.
+    Returns the hexadecimal digest.
     """
     if not prolific_id:
-        raise ValueError("Prolific ID cannot be empty")
+        return ""
     combined = f"{salt}{prolific_id}"
     return hashlib.sha256(combined.encode('utf-8')).hexdigest()
 
 def anonymise_row(row: dict, salt: str = "llmXive_salt_2024") -> dict:
     """
-    Create an anonymised copy of a rating row.
-    
-    - Replaces 'prolific_id' with 'participant_id' (hashed).
-    - Removes any potential PII columns (e.g., 'email', 'name', 'ip_address') if present.
-    - Retains all other data columns intact.
-    
-    Args:
-        row: A dictionary representing a single row from the raw ratings CSV.
-        salt: The salt for hashing the ID.
-    
-    Returns:
-        A new dictionary with anonymised fields.
+    Creates a new dictionary with PII removed or hashed.
+    - 'prolific_id' becomes 'participant_id' (hashed)
+    - 'consent_timestamp' is kept (not PII)
+    - 'rating' is kept
+    - 'stimulus_id' is kept
+    - 'context' is kept
+    - Any other PII-like columns (e.g., email, name) would be dropped if present.
     """
-    anonymised = {}
+    new_row = {}
     
-    # Copy all fields except PII and the original ID
-    pii_fields = {'email', 'name', 'ip_address', 'phone', 'address'}
-    for key, value in row.items():
-        if key.lower() in pii_fields:
-            continue
-        if key == 'prolific_id':
-            continue
-        anonymised[key] = value
+    # Map prolific_id to hashed participant_id
+    if 'prolific_id' in row:
+        new_row['participant_id'] = hash_prolific_id(row['prolific_id'], salt)
     
-    # Add the hashed participant ID
-    original_id = row.get('prolific_id')
-    if original_id:
-        anonymised['participant_id'] = hash_prolific_id(original_id, salt)
-    else:
-        raise ValueError("Row missing 'prolific_id' column")
+    # Preserve non-PII data
+    non_pii_columns = ['stimulus_id', 'context', 'rating', 'consent_timestamp', 'timestamp']
+    for col in non_pii_columns:
+        if col in row:
+            new_row[col] = row[col]
     
-    return anonymised
+    # Explicitly drop known PII if present (safety measure)
+    pii_columns = ['email', 'name', 'prolific_id', 'ip_address', 'phone']
+    for col in pii_columns:
+        if col in row and col not in new_row:
+            logger.warning(f"Dropping PII column: {col}")
+    
+    return new_row
 
-def anonymise_ratings(input_path: Path, output_path: Path, salt: str = "llmXive_salt_2024") -> int:
+def anonymise_ratings(input_path: Path, output_path: Path, salt: str = "llmXive_salt_2024"):
     """
-    Read raw ratings, anonymise Prolific IDs, strip PII, and write to a new CSV.
-    
-    Args:
-        input_path: Path to the input raw ratings CSV.
-        output_path: Path to the output anonymised ratings CSV.
-        salt: The salt for hashing.
-    
-    Returns:
-        The number of rows processed.
+    Reads real_ratings.csv, anonymizes Prolific IDs, and writes to anonymised_ratings.csv.
     """
-    logger = get_logger()
-    logger.info(f"Starting anonymisation of {input_path}")
-    
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    row_count = 0
-    fieldnames = None
+    logger.info(f"Reading raw ratings from {input_path}")
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+    rows = []
     with open(input_path, 'r', newline='', encoding='utf-8') as infile:
         reader = csv.DictReader(infile)
-        fieldnames = list(reader.fieldnames)
+        fieldnames = reader.fieldnames
         
-        # Filter fieldnames for the output to exclude raw PII
-        pii_fields = {'email', 'name', 'ip_address', 'phone', 'address'}
-        output_fieldnames = [f for f in fieldnames if f.lower() not in pii_fields and f != 'prolific_id']
-        output_fieldnames.append('participant_id')
+        if not fieldnames:
+            raise ValueError("Input CSV has no header row")
         
-        with open(output_path, 'w', newline='', encoding='utf-8') as outfile:
-            writer = csv.DictWriter(outfile, fieldnames=output_fieldnames)
-            writer.writeheader()
-            
-            for row in reader:
-                anonymised_row = anonymise_row(row, salt)
-                writer.writerow(anonymised_row)
-                row_count += 1
-                if row_count % 1000 == 0:
-                    logger.debug(f"Processed {row_count} rows...")
+        if 'prolific_id' not in fieldnames:
+            raise ValueError("Input CSV missing required column 'prolific_id'")
+        
+        for row in reader:
+            anon_row = anonymise_row(row, salt)
+            rows.append(anon_row)
     
-    logger.info(f"Anonymisation complete. Wrote {row_count} rows to {output_path}")
-    return row_count
+    # Determine output fieldnames based on what we kept
+    output_fieldnames = ['participant_id', 'stimulus_id', 'context', 'rating', 'consent_timestamp']
+    # Filter to only columns that exist in the data (some might be missing if optional)
+    if rows:
+        existing_cols = set(rows[0].keys())
+        output_fieldnames = [c for c in output_fieldnames if c in existing_cols]
+    
+    logger.info(f"Writing anonymised ratings to {output_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as outfile:
+        writer = csv.DictWriter(outfile, fieldnames=output_fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+    
+    logger.info(f"Successfully anonymised {len(rows)} ratings.")
+    return len(rows)
 
 def main():
-    """Main entry point for the anonymisation script."""
-    logger = setup_logging()
+    raw_dir = get_raw_data_dir()
+    processed_dir = get_processed_data_dir()
     
-    input_dir = get_raw_data_dir()
-    output_dir = get_processed_data_dir()
-    
-    input_file = input_dir / "real_ratings.csv"
-    output_file = output_dir / "anonymised_ratings.csv"
+    input_file = raw_dir / "real_ratings.csv"
+    output_file = processed_dir / "anonymised_ratings.csv"
     
     try:
         count = anonymise_ratings(input_file, output_file)
-        logger.info(f"Successfully anonymised {count} ratings.")
+        logger.info(f"Task T051 completed: {count} records anonymised.")
         return 0
     except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+        logger.error(f"Failed to anonymise: {e}")
         return 1
     except Exception as e:
-        logger.error(f"An error occurred during anonymisation: {e}")
+        logger.error(f"Unexpected error during anonymisation: {e}")
         return 1
 
 if __name__ == "__main__":

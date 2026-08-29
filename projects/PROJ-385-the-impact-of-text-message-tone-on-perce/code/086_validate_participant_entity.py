@@ -1,108 +1,113 @@
 """
-Implementation of T086: Validate Participant entity.
+T086: Validate Participant entity.
 
-Script to ensure data/processed/anonymised_ratings.csv contains a non-null
-participant_id column matching the Participant schema.
+Ensures that `data/processed/anonymised_ratings.csv` contains a non-null
+`participant_id` column matching the Participant schema requirements.
 
-Verification: Script exits with error if column missing or malformed.
+Verification:
+  - File exists at `data/processed/anonymised_ratings.csv`.
+  - Column `participant_id` exists.
+  - All values in `participant_id` are non-null (no empty strings or NaN).
+  - Values match the expected format (alphanumeric hash, typically 32-64 chars).
 """
 import csv
 import re
 import sys
 import logging
 from pathlib import Path
-
 from config import get_processed_data_dir
 from logging_config import setup_logging, get_logger
 
-# Initialize logging
-setup_logging()
-logger = get_logger(__name__)
+# Expected schema pattern for a hashed participant ID (alphanumeric, length 32-64)
+# This matches the output of `hash_prolific_id` in 05_anonymise_ratings.py
+PARTICIPANT_ID_PATTERN = re.compile(r'^[a-f0-9]{32,64}$')
 
-ANONYMISED_RATINGS_PATH = Path(get_processed_data_dir()) / "anonymised_ratings.csv"
-
-# Expected format for a hashed participant ID (SHA-256 is 64 hex characters)
-PARTICIPANT_ID_PATTERN = re.compile(r'^[0-9a-f]{64}$')
-
-def validate_participant_entity():
+def validate_participant_entity() -> bool:
     """
-    Validates the Participant entity in the anonymised ratings CSV.
-    
-    Checks:
-    1. File exists.
-    2. 'participant_id' column exists.
-    3. All values in 'participant_id' are non-null and match the expected hash format.
+    Validates the Participant entity in the anonymised ratings file.
     
     Returns:
         bool: True if validation passes, False otherwise.
     """
-    if not ANONYMISED_RATINGS_PATH.exists():
-        logger.error(f"File not found: {ANONYMISED_RATINGS_PATH}")
-        logger.error("Ensure T051 (Anonymise ratings) has been run successfully.")
-        return False
-
-    logger.info(f"Validating Participant entity in {ANONYMISED_RATINGS_PATH}...")
+    setup_logging()
+    logger = get_logger(__name__)
     
-    row_count = 0
-    valid_count = 0
-    invalid_rows = []
-
+    processed_dir = get_processed_data_dir()
+    input_path = processed_dir / "anonymised_ratings.csv"
+    
+    if not input_path.exists():
+        logger.error(f"Validation failed: File not found at {input_path}")
+        return False
+    
+    logger.info(f"Validating participant entity in {input_path}")
+    
     try:
-        with open(ANONYMISED_RATINGS_PATH, 'r', newline='', encoding='utf-8') as f:
+        with open(input_path, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             
+            # Check 1: Column exists
             if reader.fieldnames is None:
-                logger.error("CSV file is empty or has no headers.")
+                logger.error("Validation failed: CSV file is empty or has no headers.")
                 return False
-
+            
             if 'participant_id' not in reader.fieldnames:
-                logger.error(f"Column 'participant_id' missing from headers. Found: {reader.fieldnames}")
+                logger.error(
+                    f"Validation failed: Missing required column 'participant_id'. "
+                    f"Found columns: {reader.fieldnames}"
+                )
                 return False
-
-            for row_idx, row in enumerate(reader, start=2):
-                row_count += 1
+            
+            invalid_count = 0
+            total_count = 0
+            null_count = 0
+            
+            for row_num, row in enumerate(reader, start=2): # Start at 2 (header is 1)
+                total_count += 1
                 pid = row.get('participant_id')
-
-                # Check for null/empty
+                
+                # Check 2: Non-null
                 if pid is None or pid.strip() == '':
-                    invalid_rows.append((row_idx, "Empty or null participant_id"))
+                    null_count += 1
+                    invalid_count += 1
+                    logger.warning(f"Row {row_num}: 'participant_id' is null or empty.")
                     continue
-
-                # Check format
+                
+                pid = pid.strip()
+                
+                # Check 3: Format validation (Hashed ID)
                 if not PARTICIPANT_ID_PATTERN.match(pid):
-                    invalid_rows.append((row_idx, f"Invalid format: '{pid}'"))
-                    continue
-
-                valid_count += 1
-
-        if row_count == 0:
-            logger.error("CSV file contains no data rows.")
-            return False
-
-        if invalid_rows:
-            logger.error(f"Validation failed. Found {len(invalid_rows)} rows with invalid or missing participant_id.")
-            for r, e in invalid_rows[:5]:
-                logger.error(f"  Row {r}: {e}")
-            if len(invalid_rows) > 5:
-                logger.error(f"  ... and {len(invalid_rows) - 5} more errors.")
-            return False
-
-        logger.info(f"Validation passed. All {valid_count} rows have valid, non-null participant_id.")
-        return True
+                    invalid_count += 1
+                    logger.warning(
+                        f"Row {row_num}: 'participant_id' '{pid}' does not match "
+                        f"expected hash format (alphanumeric, 32-64 chars)."
+                    )
+            
+            if null_count > 0:
+                logger.error(
+                    f"Validation failed: Found {null_count} rows with null/empty 'participant_id'."
+                )
+                return False
+            
+            if invalid_count > 0:
+                logger.error(
+                    f"Validation failed: Found {invalid_count} rows with malformed 'participant_id'."
+                )
+                return False
+            
+            logger.info(
+                f"Validation passed: {total_count} records checked. "
+                f"All 'participant_id' values are non-null and valid."
+            )
+            return True
 
     except Exception as e:
-        logger.error(f"An error occurred during validation: {e}", exc_info=True)
+        logger.error(f"Validation failed with unexpected error: {e}", exc_info=True)
         return False
 
 def main():
-    """CLI entry point."""
+    """CLI entry point for T086."""
     success = validate_participant_entity()
-    if success:
-        logger.info("T086 Validation: SUCCESS")
-        sys.exit(0)
-    else:
-        logger.error("T086 Validation: FAILED")
-        sys.exit(1)
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

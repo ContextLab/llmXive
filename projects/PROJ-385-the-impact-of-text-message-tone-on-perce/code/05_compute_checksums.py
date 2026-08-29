@@ -5,58 +5,60 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-from config import get_project_root, get_raw_data_dir, get_processed_data_dir, get_data_dir
+from config import get_raw_data_dir, get_data_dir
 from logging_config import setup_logging, get_logger
 
 def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
 def load_existing_checksums(checksums_path: Path) -> Dict[str, str]:
     """Load existing checksums from JSON file."""
-    if checksums_path.exists():
-        with open(checksums_path, "r") as f:
-            return json.load(f)
-    return {}
+    if not checksums_path.exists():
+        return {}
+    with open(checksums_path, "r") as f:
+        return json.load(f)
 
-def save_checksums(checksums: Dict[str, str], checksums_path: Path) -> None:
+def save_checksums(checksums_path: Path, checksums: Dict[str, str]) -> None:
     """Save checksums to JSON file."""
     with open(checksums_path, "w") as f:
         json.dump(checksums, f, indent=2)
 
-def main():
-    """Compute SHA-256 checksums for key project files and record in checksums.json."""
+def main() -> int:
+    """Main entry point for computing checksums."""
     logger = setup_logging()
-    logger.info("Starting checksum computation task (T050).")
+    logger.info("Starting checksum computation for real_ratings.csv")
 
-    project_root = get_project_root()
-    checksums_path = project_root / "data" / "checksums.json"
-    
-    # Load existing checksums to preserve them
+    raw_data_dir = get_raw_data_dir()
+    checksums_path = get_data_dir() / "checksums.json"
+    target_file = raw_data_dir / "real_ratings.csv"
+
+    if not target_file.exists():
+        logger.error(f"Target file not found: {target_file}")
+        print(f"Error: Target file not found: {target_file}", file=sys.stderr)
+        return 1
+
+    # Load existing checksums
     existing_checksums = load_existing_checksums(checksums_path)
-    
-    # Define files to checksum for T050: data/raw/stimuli.csv
-    stimuli_path = get_raw_data_dir() / "stimuli.csv"
-    
-    if not stimuli_path.exists():
-        logger.error(f"Stimuli file not found: {stimuli_path}")
-        sys.exit(1)
-    
-    # Compute checksum for stimuli.csv
-    stimuli_checksum = compute_sha256(stimuli_path)
-    existing_checksums["data/raw/stimuli.csv"] = stimuli_checksum
-    
+
+    # Compute new checksum
+    checksum = compute_sha256(target_file)
+    relative_path = str(target_file.relative_to(get_data_dir().parent))
+
+    # Update checksums dictionary
+    existing_checksums[relative_path] = checksum
+
     # Save updated checksums
-    save_checksums(existing_checksums, checksums_path)
-    
-    logger.info(f"Computed SHA-256 for stimuli.csv: {stimuli_checksum}")
-    logger.info(f"Updated checksums saved to {checksums_path}")
-    print(f"Checksum for data/raw/stimuli.csv: {stimuli_checksum}")
-    print(f"Updated data/checksums.json successfully.")
+    save_checksums(checksums_path, existing_checksums)
+
+    logger.info(f"Checksum computed for {relative_path}: {checksum}")
+    logger.info(f"Checksums saved to {checksums_path}")
+    print(f"Checksum for {relative_path}: {checksum}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

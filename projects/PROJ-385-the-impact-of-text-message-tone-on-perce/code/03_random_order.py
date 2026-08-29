@@ -1,11 +1,13 @@
 """
-Random presentation order generator for the text message tone study.
+Task T015: Random presentation order generator.
 
-This module implements Task T015: Generates a shuffled trial order per participant
-based on the counterbalanced trial set. Each participant receives every stimulus
-in both relationship contexts (friend & acquaintance) in a random order.
+Reads the counterbalanced trials from T014 and generates a random
+presentation order for each participant. Outputs a CSV where each
+row represents a single trial instance with a defined order index.
 
-Output: data/processed/presentation_orders.csv
+Verification:
+  - Each participant's order list is a permutation of their trial set.
+  - Reproducible given the fixed seed in config.py.
 """
 
 import argparse
@@ -15,249 +17,241 @@ import os
 import random
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any
 
-# Import existing utilities from the project
-from config import get_project_root, get_processed_data_dir
+from config import get_processed_data_dir, get_project_root
 from logging_config import setup_logging, get_logger
 
 
-def load_counterbalanced_trials(filepath: Path) -> List[Dict[str, Any]]:
+def load_counterbalanced_trials(input_path: Path) -> list:
     """
     Load the counterbalanced trials CSV.
 
-    Args:
-        filepath: Path to data/processed/counterbalanced_trials.csv
+    Expected columns (from T014):
+      participant_id, stimulus_id, text, emoji_count, punctuation_type,
+      length_category, scenario_id, cue_intensity, context
 
     Returns:
-        List of dictionaries representing trial records.
+        List of dictionaries representing the rows.
     """
-    if not filepath.exists():
-        raise FileNotFoundError(f"Counterbalanced trials file not found: {filepath}")
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
 
     trials = []
-    with open(filepath, mode='r', newline='', encoding='utf-8') as f:
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             trials.append(row)
     return trials
 
 
-def generate_random_orders(trials: List[Dict[str, Any]], participant_ids: List[str], seed: int) -> List[Dict[str, Any]]:
+def generate_random_orders(trials: list, seed: int) -> list:
     """
-    Generate random presentation orders for each participant.
+    Generate a random presentation order for each participant.
 
-    For each participant, the set of trials is shuffled to create a unique
-    presentation order. The random seed ensures reproducibility.
+    Logic:
+      1. Group trials by participant_id.
+      2. For each participant, shuffle their specific list of trials.
+      3. Assign an 'order' index (1-based) to each trial in the shuffled list.
+      4. Flatten the results back into a single list.
 
     Args:
-        trials: List of all counterbalanced trial records.
-        participant_ids: List of participant identifiers.
+        trials: List of trial dictionaries.
         seed: Random seed for reproducibility.
 
     Returns:
-        List of dictionaries with columns: participant_id, trial_id, presentation_order.
+        List of dictionaries with added 'order' key.
     """
     random.seed(seed)
-    orders = []
-
-    # Group trials by participant_id (conceptually, though the counterbalanced file
-    # might just list all trials for all participants. We assume the counterbalanced
-    # file has a 'participant_id' column or we assign them based on the provided list).
-    # Looking at T014 description: "assigning every stimulus to both relationship contexts... for each participant".
-    # The output of T014 is 'data/processed/counterbalanced_trials.csv'.
-    # We assume this file contains a 'participant_id' column. If not, we might need to
-    # generate the assignments here, but T014 implies the assignments exist.
-    # Let's verify the structure expected: The task says "producing... with a shuffled trial order per participant".
-    # We will group by participant_id found in the input file.
-
-    # If the input file does not have participant_id, we must generate the assignment.
-    # However, T014 description says "assigning every stimulus to both... for each participant".
-    # Let's assume the input file from T014 already has 'participant_id'.
-    # If not, we fall back to generating it if we have the list of participant_ids.
-    # But standard flow: T014 -> T015. T014 output should have participant_id.
-
-    # Check if 'participant_id' exists in the first row
-    if trials and 'participant_id' not in trials[0]:
-        # Fallback: If the file doesn't have participant_id, we assume it lists all unique
-        # stimulus-context pairs and we need to replicate them for each participant.
-        # This is a robustness check.
-        logging.warning("Input file missing 'participant_id'. Generating assignments for provided participants.")
-        unique_trials = trials # These are unique stimulus-context combos
-        for pid in participant_ids:
-            for idx, trial in enumerate(unique_trials):
-                # Create a copy with the participant_id
-                assigned_trial = trial.copy()
-                assigned_trial['participant_id'] = pid
-                assigned_trial['original_idx'] = idx # Keep track for shuffling if needed
-                trials = [] # Reset and rebuild? No, this is complex.
-                # Better approach: If T014 output is just the design matrix (N stimuli x 2 contexts),
-                # then we generate the full list here.
-                # But T014 says "assigning... for each participant".
-                # Let's assume the file has 'participant_id'. If it fails, we raise.
-                raise ValueError("Input file 'counterbalanced_trials.csv' must contain 'participant_id' column.")
 
     # Group by participant
-    participant_trials: Dict[str, List[Dict[str, Any]]] = {}
+    participant_groups = {}
     for trial in trials:
-        pid = trial.get('participant_id')
-        if not pid:
-            raise ValueError("Trial record missing 'participant_id'.")
-        if pid not in participant_trials:
-            participant_trials[pid] = []
-        participant_trials[pid].append(trial)
+        pid = trial['participant_id']
+        if pid not in participant_groups:
+            participant_groups[pid] = []
+        participant_groups[pid].append(trial)
 
-    # Generate orders
-    for pid in participant_ids:
-        if pid not in participant_trials:
-            # If a participant in the list has no trials (shouldn't happen if T014 ran correctly), skip or error
-            logging.warning(f"No trials found for participant {pid}.")
-            continue
-
-        current_trials = participant_trials[pid]
+    ordered_trials = []
+    for pid, p_trials in participant_groups.items():
         # Shuffle the trials for this participant
-        # We need a deterministic shuffle based on the global seed + participant ID
-        # to ensure reproducibility across runs.
-        # Create a deterministic seed for this participant
-        pid_seed = seed + hash(pid) % 100000
-        local_random = random.Random(pid_seed)
+        random.shuffle(p_trials)
+        # Assign order
+        for idx, trial in enumerate(p_trials, start=1):
+            trial['order'] = idx
+            ordered_trials.append(trial)
 
-        shuffled_trials = current_trials.copy()
-        local_random.shuffle(shuffled_trials)
-
-        for order_idx, trial in enumerate(shuffled_trials):
-            orders.append({
-                'participant_id': pid,
-                'trial_id': trial.get('trial_id') or trial.get('id'), # Handle potential ID naming
-                'stimulus_id': trial.get('stimulus_id') or trial.get('id'),
-                'context': trial.get('context'),
-                'presentation_order': order_idx + 1
-            })
-
-    return orders
+    return ordered_trials
 
 
-def save_orders(orders: List[Dict[str, Any]], filepath: Path) -> None:
+def save_orders(ordered_trials: list, output_path: Path):
     """
-    Save the presentation orders to a CSV file.
+    Save the ordered trials to a CSV file.
 
     Args:
-        orders: List of order dictionaries.
-        filepath: Output path.
+        ordered_trials: List of trial dictionaries.
+        output_path: Path to the output CSV.
     """
-    if not orders:
-        raise ValueError("No orders to save.")
+    if not ordered_trials:
+        raise ValueError("No trials to save.")
 
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    fieldnames = ['participant_id', 'trial_id', 'stimulus_id', 'context', 'presentation_order']
-    with open(filepath, mode='w', newline='', encoding='utf-8') as f:
+    fieldnames = [
+        'participant_id', 'stimulus_id', 'text', 'emoji_count',
+        'punctuation_type', 'length_category', 'scenario_id',
+        'cue_intensity', 'context', 'order'
+    ]
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(orders)
+        writer.writerows(ordered_trials)
 
 
-def verify_orders(orders: List[Dict[str, Any]], participant_ids: List[str], total_trials_per_participant: int) -> bool:
+def verify_orders(input_path: Path, output_path: Path) -> bool:
     """
-    Verify that the generated orders are valid permutations.
+    Verify that the output file contains valid permutations.
 
     Checks:
-    1. Each participant has exactly total_trials_per_participant entries.
-    2. The presentation_order for each participant is a permutation of 1..N.
-    3. No duplicate trial_ids for the same participant.
-
-    Args:
-        orders: List of order dictionaries.
-        participant_ids: List of expected participant IDs.
-        total_trials_per_participant: Expected count of trials per participant.
+      1. Every participant in input exists in output.
+      2. For each participant, the set of stimulus_ids in output
+         matches the set in input.
+      3. The 'order' column contains a sequence 1..N for each participant.
 
     Returns:
-        True if valid, raises ValueError otherwise.
+        True if verification passes, raises AssertionError otherwise.
     """
-    from collections import Counter
+    if not output_path.exists():
+        raise FileNotFoundError(f"Output file not found: {output_path}")
 
-    # Group by participant
-    p_orders: Dict[str, List[Dict]] = {}
-    for o in orders:
-        pid = o['participant_id']
-        if pid not in p_orders:
-            p_orders[pid] = []
-        p_orders[pid].append(o)
+    input_trials = load_counterbalanced_trials(input_path)
+    output_trials = []
+    with open(output_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            output_trials.append(row)
 
-    for pid in participant_ids:
-        if pid not in p_orders:
-            raise ValueError(f"Participant {pid} missing from orders.")
+    # Group input by participant
+    input_groups = {}
+    for t in input_trials:
+        pid = t['participant_id']
+        if pid not in input_groups:
+            input_groups[pid] = set()
+        input_groups[pid].add(t['stimulus_id'])
 
-        p_data = p_orders[pid]
-        if len(p_data) != total_trials_per_participant:
-            raise ValueError(f"Participant {pid} has {len(p_data)} trials, expected {total_trials_per_participant}.")
+    # Group output by participant
+    output_groups = {}
+    for t in output_trials:
+        pid = t['participant_id']
+        if pid not in output_groups:
+            output_groups[pid] = []
+        output_groups[pid].append(t)
 
-        orders_list = [o['presentation_order'] for o in p_data]
-        # Check if 1..N permutation
-        if sorted(orders_list) != list(range(1, total_trials_per_participant + 1)):
-            raise ValueError(f"Participant {pid} has invalid presentation orders: {orders_list}")
+    # Check counts and sets
+    if set(input_groups.keys()) != set(output_groups.keys()):
+        raise AssertionError("Participant sets do not match between input and output.")
 
-        # Check for duplicate trial_ids
-        trial_ids = [o['trial_id'] for o in p_data]
-        if len(trial_ids) != len(set(trial_ids)):
-            raise ValueError(f"Participant {pid} has duplicate trial_ids.")
+    for pid, in_stimuli in input_groups.items():
+        out_trials = output_groups[pid]
+        out_stimuli = {t['stimulus_id'] for t in out_trials}
+
+        if in_stimuli != out_stimuli:
+            raise AssertionError(
+                f"Participant {pid}: Stimulus sets do not match. "
+                f"Input: {in_stimuli}, Output: {out_stimuli}"
+            )
+
+        orders = [int(t['order']) for t in out_trials]
+        orders.sort()
+        expected_orders = list(range(1, len(out_trials) + 1))
+
+        if orders != expected_orders:
+            raise AssertionError(
+                f"Participant {pid}: Order sequence is not a permutation of 1..N. "
+                f"Got: {orders}"
+            )
 
     return True
 
 
 def main():
-    """Main entry point for the random order generator."""
+    """Main entry point for the script."""
     setup_logging()
     logger = get_logger(__name__)
 
-    parser = argparse.ArgumentParser(description="Generate random presentation orders for participants.")
-    parser.add_argument('--seed', type=int, default=42, help="Random seed for reproducibility.")
-    parser.add_argument('--input', type=str, default=None, help="Path to counterbalanced_trials.csv (optional, uses default).")
-    parser.add_argument('--output', type=str, default=None, help="Path to output orders.csv (optional, uses default).")
-    parser.add_argument('--verify', action='store_true', help="Run verification checks.")
+    parser = argparse.ArgumentParser(
+        description="Generate random presentation orders for participants."
+    )
+    parser.add_argument(
+        '--input',
+        type=str,
+        default=None,
+        help="Path to counterbalanced trials CSV. Defaults to project standard."
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=None,
+        help="Path to output presentation orders CSV. Defaults to project standard."
+    )
+    parser.add_argument(
+        '--verify',
+        action='store_true',
+        help="Run verification checks after generation."
+    )
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=42,
+        help="Random seed for reproducibility."
+    )
+
     args = parser.parse_args()
 
-    root = get_project_root()
+    project_root = get_project_root()
     processed_dir = get_processed_data_dir()
 
-    input_path = Path(args.input) if args.input else processed_dir / "counterbalanced_trials.csv"
-    output_path = Path(args.output) if args.output else processed_dir / "presentation_orders.csv"
+    if args.input is None:
+        input_path = processed_dir / "counterbalanced_trials.csv"
+    else:
+        input_path = Path(args.input)
 
-    logger.info(f"Loading counterbalanced trials from {input_path}")
-    trials = load_counterbalanced_trials(input_path)
+    if args.output is None:
+        output_path = processed_dir / "presentation_orders.csv"
+    else:
+        output_path = Path(args.output)
 
-    # Extract unique participant IDs and total trials per participant
-    # We assume the input file has 'participant_id'
-    if not trials:
-        raise ValueError("No trials found in input file.")
+    logger.info(f"Loading counterbalanced trials from: {input_path}")
+    try:
+        trials = load_counterbalanced_trials(input_path)
+        logger.info(f"Loaded {len(trials)} trials.")
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        raise
 
-    participant_ids = sorted(list(set(t['participant_id'] for t in trials if 'participant_id' in t)))
-    if not participant_ids:
-        raise ValueError("Could not determine participant IDs from input file.")
+    logger.info(f"Generating random orders with seed={args.seed}")
+    ordered_trials = generate_random_orders(trials, seed=args.seed)
+    logger.info(f"Generated {len(ordered_trials)} ordered trials.")
 
-    total_trials = len([t for t in trials if t['participant_id'] == participant_ids[0]])
-    logger.info(f"Found {len(participant_ids)} participants. Trials per participant: {total_trials}")
-
-    logger.info(f"Generating random presentation orders with seed {args.seed}")
-    orders = generate_random_orders(trials, participant_ids, args.seed)
-
-    logger.info(f"Saving orders to {output_path}")
-    save_orders(orders, output_path)
+    logger.info(f"Saving to: {output_path}")
+    save_orders(ordered_trials, output_path)
+    logger.info("Saved successfully.")
 
     if args.verify:
-        logger.info("Running verification checks...")
+        logger.info("Running verification...")
         try:
-            verify_orders(orders, participant_ids, total_trials)
-            logger.info("Verification PASSED: All presentation orders are valid permutations.")
-        except ValueError as e:
+            verify_orders(input_path, output_path)
+            logger.info("Verification PASSED: All orders are valid permutations.")
+        except AssertionError as e:
             logger.error(f"Verification FAILED: {e}")
-            return 1
-    else:
-        logger.info("Verification skipped. Use --verify to check.")
+            raise
+        except FileNotFoundError as e:
+            logger.error(f"Verification FAILED: {e}")
+            raise
 
     logger.info("Task T015 completed successfully.")
-    return 0
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()

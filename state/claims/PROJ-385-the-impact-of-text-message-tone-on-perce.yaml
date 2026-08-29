@@ -2587,3 +2587,254 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T14:08:32Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: at least 60 unique participants in real_ratings dataset
+  claim_id: c_50f3c502
+  context: "Automated verification script code/02_validate_data.py checks N\u2265\
+    60 unique participants among other criteria."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_60_unique_participants_in_real_ratings_dataset
+  kind: magnitude
+  raw_text: "Check N\u226560 unique participants, valid Prolific ID format, and absence\
+    \ of simulated data."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:44:56Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: estimated power is at least 0.80 in power analysis results
+  claim_id: c_2cb3de1c
+  context: Power analysis validation (T091-Check) fails when estimated_power is below
+    0.80.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Estimated_power_is_at_least_0.80_in_power_analysis_results
+  kind: magnitude
+  raw_text: exits with error if estimated_power < 0.80
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:45:31Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: target sample size is at least 60 in power analysis results
+  claim_id: c_53cabf7f
+  context: Power analysis validation (T091-Check) fails when target_N is below 60.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_sample_size_is_at_least_60_in_power_analysis_results
+  kind: magnitude
+  raw_text: exits with error if target_N < 60
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:46:16Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: degrees of freedom for Wald test is positive
+  claim_id: c_8aba1ee0
+  context: Contract test test_lmm_wald.py confirms that the LMM summary contains df_Wald
+    greater than zero.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: df_Wald > 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:46:16Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: p-values lie between 0 and 1
+  claim_id: c_1409b017
+  context: "Contract test test_lmm_wald.py checks that p\u2011values are within the\
+    \ interval (0,\u202F1)."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: is the only parameter), and if that distribution is continuous, then
+        when the null-hypothesis is true, the p-value is uniformly distributed between
+        0 and 1. Regardless of the truth of the
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: 0 and 1
+    filled: true
+  kind: numeric
+  raw_text: "p\u2011values are plausible (0 < p < 1)"
+  resolved_value: 0 and 1
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T18:46:40Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: pipeline execution time is at most 6 hours
+  claim_id: c_14d2dab3
+  context: Performance requirement stated in multiple tasks (e.g., T099, T106) that
+    the full pipeline should finish within six hours.
+  evidence:
+    entailment_evidence: Pipeline execution time is at most 6 hours
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_is_at_most_6_hours
+  kind: magnitude
+  raw_text: "pipeline must complete \u2264\u202F6\u202Fhours"
+  resolved_value: pipeline execution time is at most 6 hours
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T18:46:43Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "total duration of pipeline must be \u2264 21600 seconds"
+  claim_id: c_c2cdc15b
+  context: Benchmark task T058 specifies that the pipeline should not exceed 21,600
+    seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: benchmark full pipeline fails if >21600 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:46:43Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: synthetic datasets contain 60 records per dataset
+  claim_id: c_f6b1d461
+  context: Verification step for T090a states the zip must contain CSVs each with
+    N=60.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zip file contains multiple CSVs with correct schema and N=60 per dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:48:11Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: df_Wald greater than 0 in LMM summary
+  claim_id: c_cfee4b55
+  context: Test T021-Verify checks that the summary exists and that df_Wald > 0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Df_Wald_greater_than_0_in_LMM_summary
+  kind: magnitude
+  raw_text: LMM summary file includes df_Wald column with values greater than 0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:49:46Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: pipeline runtime exceeds 21600 seconds causes failure
+  claim_id: c_b4d32081
+  context: Verification for T058 specifies that the benchmark should output total_duration_seconds
+    and fail if >21600.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_exceeds_21600_seconds_causes_failure
+  kind: causal
+  raw_text: Benchmark full pipeline fails if total_duration_seconds exceeds 21600
+    seconds.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:49:50Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: statsmodels.MixedLM uses Wald-Z statistics (primary)
+  claim_id: c_d7145fce
+  context: "Document states that the LMM script uses statsmodels.MixedLM with Wald\u2011\
+    Z statistics as primary method."
+  evidence:
+    entailment_evidence: MixedLM uses Wald-Z statistics (primary)
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Statsmodels.MixedLM_uses_Wald-Z_statistics_(primary)
+  kind: entity_fact
+  raw_text: "statsmodels.MixedLM uses Wald\u2011Z statistics (primary)"
+  resolved_value: statsmodels.MixedLM uses Wald-Z statistics (primary)
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T18:50:25Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Satterthwaite method is not available in statsmodels.MixedLM
+  claim_id: c_2ca977bd
+  context: Methodological limitation note explains that Satterthwaite is not available
+    in the statsmodels library.
+  evidence:
+    entailment_evidence: Satterthwaite method is not available in statsmodels.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Satterthwaite_method_is_not_available_in_statsmodels.MixedLM
+  kind: entity_fact
+  raw_text: Satterthwaite is not available in this library
+  resolved_value: Satterthwaite method is not available in statsmodels.MixedLM
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T18:50:29Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: df_Wald greater than zero
+  claim_id: c_9260a024
+  context: Test test_lmm_wald.py confirms that the LMM summary includes a df_Wald
+    column with value greater than zero.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Df_Wald_greater_than_zero
+  kind: magnitude
+  raw_text: df_Wald > 0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:52:17Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: synthetic datasets contain 60 rows each
+  claim_id: c_f2ac8d46
+  context: Generation of synthetic datasets for power analysis simulation produces
+    CSV files with N=60 per dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: each synthetic dataset contains N=60 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:53:16Z'

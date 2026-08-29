@@ -4,10 +4,12 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T090` (rejected 1x): The required artifact `data/processed/cue_intensity_weights.json` does not exist, so the cue‑intensity weighting schemes have not been defined or stored as specified. The task therefore remains unfinished.
-- `T091` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/power_analysis_results.json
-- `T093` (rejected 1x): declared artifact(s) missing/empty/invalid: data/manifest.json
-- `T050` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/stimuli.csv, data/checksums.json
+- `T014` (rejected 1x): The required output file `data/processed/counterbalanced_trials.csv` is missing, so the counterbalancing task does not actually produce the CSV that should contain rows for every stimulus‑context pair per participant. Without this file, the task’s core requirement is unmet.
+- `T051` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/real_ratings.csv, data/processed/anonymised_ratings.csv
+- `T086` (rejected 1x): The required file `data/processed/anonymised_ratings.csv` is missing, so there is no data to validate the `participant_id` column against the Participant schema. The task cannot be considered completed until this file exists and contains a non‑null `participant_id` column as specified.
+- `T054` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/real_ratings.csv, data/checksums.json
+- `T052` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/anonymised_ratings.csv, data/checksums.json
+- `T037a` (rejected 1x): The required file `code/run_pipeline.py` does not exist in the repository, so there is no CLI entry point to test for `--mode real` or `--help` output. The task’s core deliverable is missing.
 
 ## Required change
 

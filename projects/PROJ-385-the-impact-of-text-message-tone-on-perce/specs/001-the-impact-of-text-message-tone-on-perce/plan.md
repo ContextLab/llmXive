@@ -102,7 +102,7 @@ tests/
 | Task | Script | Output |
 |------|--------|--------|
 | 1.1 Load base scenarios (e.g., “I had a rough day”). | `code/01_generate_stimuli.py` | `data/raw/stimuli.csv` (8 × N_scenarios rows) |
-| 1.2 Systematically combine emoji count (0, 1, 2+), punctuation (standard, excessive), length (short, long). | same | Stimulus metadata columns: `emoji_count`, `punctuation_pattern`, `length_category`, `cue_intensity` (computed), `full_text`. |
+| 1.2 Systematically combine emoji count (absent, present, multiple), punctuation (standard, excessive), length (short, long). | same | Stimulus metadata columns: `emoji_count`, `punctuation_pattern`, `length_category`, `cue_intensity` (computed), `full_text`. |
 | 1.3 **Counterbalancing** – For each participant, assign each stimulus to **both** relationship contexts (friend & acquaintance) in separate blocks, ensuring equal representation across participants. | same | Balanced trial list ready for data collection. |
 | 1.4 Validate uniqueness of each combination via schema test. | `tests/contract/test_stimulus_schema.py` (reads `data/raw/stimuli.csv` and validates against `contracts/stimulus.schema.yaml`) | Pass/Fail |
 
