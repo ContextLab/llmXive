@@ -1,17 +1,14 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: CleanedStudy
-description: |
-  Schema for a single study record after extraction and cleaning.
-  Validated against inclusion criteria (age 6-12, ASD diagnosis, social skill outcomes).
-  Produced by code/data/cleaner.py.
+title: Cleaned Study
+description: >
+  Schema for a single study record after cleaning and validation.
+  Derived from ClinicalTrials.gov and OSF data, filtered for ASD population
+  (ages 6-12), mindfulness interventions, and social skill outcomes.
 type: object
 required:
   - study_id
   - source
-  - trial_id
   - title
-  - authors
-  - year
   - n_total
   - n_intervention
   - n_control
@@ -19,157 +16,169 @@ required:
   - age_sd
   - age_range_min
   - age_range_max
-  - asd_diagnosis_confirmed
+  - asd_diagnosis_criteria
   - intervention_component
   - delivery_format
   - social_skill_domain
   - outcome_measure
-  - follow_up_months
-  - mean_intervention
-  - sd_intervention
-  - mean_control
-  - sd_control
-  - included
-  - exclusion_reason
+  - pre_mean_intervention
+  - pre_sd_intervention
+  - pre_n_intervention
+  - post_mean_intervention
+  - post_sd_intervention
+  - post_n_intervention
+  - pre_mean_control
+  - pre_sd_control
+  - pre_n_control
+  - post_mean_control
+  - post_sd_control
+  - post_n_control
+  - follow_up_weeks
+  - inclusion_status
+  - excluded_reason
 properties:
   study_id:
     type: string
-    description: Unique identifier generated for the study (e.g., NCTxxxxxxx or OSF-xxxxx).
-    pattern: "^([A-Z]{3}\\d+|OSF-[a-zA-Z0-9]+)$"
-
+    description: Unique identifier for the study (e.g., NCT number or OSF ID)
+    pattern: "^[A-Z0-9_.-]+$"
+  
   source:
     type: string
+    description: Data source registry
     enum:
       - ClinicalTrials.gov
       - OSF
-    description: Source registry where the study was registered.
-
-  trial_id:
-    type: string
-    description: Original ID from the source registry.
-
+  
   title:
     type: string
-    description: Full title of the study.
-
-  authors:
-    type: string
-    description: Comma-separated list of authors.
-
-  year:
-    type: integer
-    minimum: 1900
-    maximum: 2100
-    description: Year of publication or registration.
-
+    description: Full study title
+  
   n_total:
     type: integer
-    minimum: 2
-    description: Total number of participants in the study arms used for analysis.
-
+    minimum: 1
+    description: Total number of participants in the study
+  
   n_intervention:
     type: integer
     minimum: 1
-    description: Number of participants in the intervention group.
-
+    description: Number of participants in the intervention group
+  
   n_control:
     type: integer
     minimum: 1
-    description: Number of participants in the control group.
-
+    description: Number of participants in the control group
+  
   age_mean:
     type: number
-    format: float
-    description: Mean age of participants in years.
-
+    description: Mean age of participants (years)
+  
   age_sd:
     type: number
-    format: float
-    description: Standard deviation of age.
-
+    description: Standard deviation of age (years)
+  
   age_range_min:
     type: integer
-    minimum: 6
-    maximum: 12
-    description: Minimum age in the study (must be >= 6).
-
+    description: Minimum age in the study (years)
+  
   age_range_max:
     type: integer
-    minimum: 6
-    maximum: 12
-    description: Maximum age in the study (must be <= 12).
-
-  asd_diagnosis_confirmed:
-    type: boolean
-    description: True if ASD diagnosis was confirmed via standard instrument (e.g., ADOS-2).
-
+    description: Maximum age in the study (years)
+  
+  asd_diagnosis_criteria:
+    type: string
+    description: Diagnostic criteria used (e.g., DSM-IV, DSM-5, ADOS, ADI-R)
+  
   intervention_component:
     type: string
-    enum:
-      - Mindfulness
-      - Mindfulness + CBT
-      - Mindfulness + Yoga
-      - Mindfulness + Parent Training
-      - Other
-    description: Primary mindfulness component delivered.
-
+    description: Primary mindfulness component (e.g., Mindfulness, Yoga, Relaxation)
+  
   delivery_format:
     type: string
-    enum:
-      - Individual
-      - Group
-      - School-based
-      - Home-based
-      - Hybrid
-    description: Format of intervention delivery.
-
+    description: Format of delivery (e.g., Individual, Group, Family)
+  
   social_skill_domain:
     type: string
-    enum:
-      - Communication
-      - Social Interaction
-      - Emotional Regulation
-      - Peer Relationships
-      - Comprehensive
-    description: Primary social skill domain targeted.
-
+    description: Targeted social skill domain (e.g., Communication, Social Interaction)
+  
   outcome_measure:
     type: string
-    description: Name of the standardized assessment used (e.g., SRS-2, ABC-I).
-
-  follow_up_months:
+    description: Name of the outcome measure used
+  
+  pre_mean_intervention:
+    type: number
+    description: Pre-intervention mean score for intervention group
+  
+  pre_sd_intervention:
+    type: number
+    description: Pre-intervention standard deviation for intervention group
+  
+  pre_n_intervention:
     type: integer
-    minimum: 0
-    description: Months between post-intervention and follow-up assessment. 0 if no follow-up.
-
-  mean_intervention:
+    description: Pre-intervention sample size for intervention group
+  
+  post_mean_intervention:
     type: number
-    format: float
-    description: Mean score of the outcome measure for the intervention group.
-
-  sd_intervention:
+    description: Post-intervention mean score for intervention group
+  
+  post_sd_intervention:
     type: number
-    format: float
-    minimum: 0
-    description: Standard deviation of the outcome measure for the intervention group.
-
-  mean_control:
+    description: Post-intervention standard deviation for intervention group
+  
+  post_n_intervention:
+    type: integer
+    description: Post-intervention sample size for intervention group
+  
+  pre_mean_control:
     type: number
-    format: float
-    description: Mean score of the outcome measure for the control group.
-
-  sd_control:
+    description: Pre-intervention mean score for control group
+  
+  pre_sd_control:
     type: number
-    format: float
-    minimum: 0
-    description: Standard deviation of the outcome measure for the control group.
-
-  included:
-    type: boolean
-    description: Whether the study met all inclusion criteria.
-
-  exclusion_reason:
+    description: Pre-intervention standard deviation for control group
+  
+  pre_n_control:
+    type: integer
+    description: Pre-intervention sample size for control group
+  
+  post_mean_control:
+    type: number
+    description: Post-intervention mean score for control group
+  
+  post_sd_control:
+    type: number
+    description: Post-intervention standard deviation for control group
+  
+  post_n_control:
+    type: integer
+    description: Post-intervention sample size for control group
+  
+  follow_up_weeks:
+    type: integer
+    nullable: true
+    description: Follow-up duration in weeks (null if no follow-up)
+  
+  inclusion_status:
     type: string
-    description: Reason for exclusion if included is false. Empty string if included.
-    default: ""
-additionalProperties: false
+    enum:
+      - included
+      - excluded
+    description: Final inclusion status after filtering
+  
+  excluded_reason:
+    type: string
+    nullable: true
+    description: Reason for exclusion if status is 'excluded'
+  
+  notes:
+    type: string
+    nullable: true
+    description: Additional notes or comments about the study record
+  
+  extraction_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the record was extracted
+  
+  hash:
+    type: string
+    description: SHA-256 hash of the record for integrity verification

@@ -1,16 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `projects/PROJ-008-psychology-research/` directory or any of\
-    \ its required sub\u2011folders/files is provided. The implementer did not supply\
-    \ the project structure, so the task\u2019s core deliverable is missing."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no linting or formatting configuration files (e.g.,
-    `pyproject.toml`, `.ruff.toml`, or `black` settings) nor any documentation showing
-    that `ruff` and `black` have been set up and integrated into the project. Consequently,
-    the required artifact for task T003 is missing.
 T011:
   c: false
   h: b1734358b5f25bdcb5c534ecde69a601199338cc160ef30c667fc28d170be83d
@@ -18,12 +5,18 @@ T011:
     in the repository, so the contract test for the data extraction schema is missing.
     The task cannot be considered completed until this test file is created and contains
     the appropriate test logic.
-T029:
+T033:
+  c: false
+  h: 9f91ac779878347665c7c772e3d3f42fc77d0531bef25eaa7c0aec375ecc6c41
+  r: "The required artifact `tests/integration/test_bias.py` is missing from the repository,\
+    \ so no integration test for Egger's test exists to satisfy the task. The implementer\
+    \ must add a non\u2011empty test file at that path that actually runs the publication\
+    \ bias assessment."
+T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation was provided that shows the required\
-    \ conditional logic (suppressing subgroup/meta\u2011regression when total N\u202F\
-    <\u202F10 and falling back to a descriptive synthesis). Without any artifact to\
-    \ inspect, we cannot confirm the feature was implemented. The missing deliverable\
-    \ is the implementation (e.g., function, script, or module) and evidence (tests\
-    \ or logs) demonstrating the N\u2011threshold behavior."
+  r: "No code, script, or report artifact was provided that demonstrates the required\
+    \ conditional logic to suppress the funnel plot and Egger\u2019s test when the\
+    \ total sample size N\u202F<\u202F10, nor the addition of a warning to the final\
+    \ report. The implementer\u2019s claim cannot be verified without such concrete\
+    \ evidence."

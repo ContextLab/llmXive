@@ -1,18 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or file listing is provided as evidence; the required
-    folders (`code/utils`, `data/raw`, `data/processed`, `data/results`, `data/metadata`,
-    `tests/unit`, `tests/integration`, `docs`) are not shown to exist or contain any
-    content. The implementer must supply a concrete proof (e.g., a directory tree
-    snapshot) that the specified structure has been created.
-T020:
-  c: false
-  h: 7c15e97997d3c0af0f781091f1b413b85f4c995087b76b7f105dbf3c40a9eb69
-  r: "The repository contains `code/test_split.py`, but the required output `data/processed/test_set.csv`\
-    \ is absent, and the provided script is truncated (incomplete) with no evidence\
-    \ it was executed to generate the test set. The task\u2019s core deliverable\u2014\
-    a fixed test set CSV\u2014has not been produced."
 T021:
   c: false
   h: 126439b4527e5df5337f8feff43faa19a74e1a6ece6e8149db4476d63334f267
@@ -20,34 +5,9 @@ T021:
     \ so no metadata (row count, checksum) has been logged, meaning the task\u2019\
     s requirement is unmet. The implementer must create the JSON file with the appropriate\
     \ metadata."
-T024:
+T034:
   c: false
-  h: 890c07c6d059e34b622131acef5035453458f646f5e5c658838a098319d19e48
-  r: "The repository contains a partially\u2011implemented `code/data_ingestion.py`\
-    \ (truncated and limited to a 10\u202F000\u2011entry fetch) and the required output\
-    \ file `data/raw/raw_pool.csv` is absent. Consequently the script does not demonstrably\
-    \ download the \u2265150\u202F000 entries nor produce the specified CSV, so the\
-    \ task\u2019s requirements are not satisfied."
-T025:
-  c: false
-  h: 4cc8dee94c90bc9fba86ebbce52fb6c891353c7e342384fd4407687cb77ab9b4
-  r: "The repository lacks the required `data/processed/filtered_pool.csv` file, and\
-    \ the shown `code/data_ingestion.py` does not contain any filtering step that\
-    \ keeps only rows with non\u2011null `formation_energy` and `dft_computed == True`.\
-    \ The script\u2019s `process_and_save` function is truncated and never writes\
-    \ to the specified output path, so the task\u2019s requirement is not met."
-T026:
-  c: false
-  h: 5e00237d49b1867c393a45566e889f97fa808271417747c0ec773eb9243352bc
-  r: "The repository lacks the required `data/processed/descriptors_pool.csv` file,\
-    \ and the shown portion of `code/data_ingestion.py` does not contain any logic\
-    \ that uses `ElementalPropertyFeatureExtractor` to compute the specified properties\
-    \ or write them to that CSV. The task\u2019s core output is therefore missing."
-T027:
-  c: false
-  h: 6cf4e13941f48456906cbf98ddfd72162875a4c2f80d0c5af8e0a3a8f71d4319
-  r: "The provided `code/data_ingestion.py` stops after writing a few fields and does\
-    \ not contain any mean\u2011imputation, row\u2011dropping, or logging logic, nor\
-    \ does it write to `data/processed/full_pool_final.csv`. Additionally, the required\
-    \ `data/results/ingestion_log.json` and `data/processed/full_pool_final.csv` files\
-    \ are absent. The task\u2019s core requirements are therefore not met."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains no evidence of any `data/metadata/sparsity_<level>_<seed>.json`
+    files, nor any listing of their contents with the required keys (`seed`, `percentage`,
+    `criteria`, `checksum`). Consequently the required metadata artifacts are missing.

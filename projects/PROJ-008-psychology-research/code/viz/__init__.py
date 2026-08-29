@@ -1,1 +1,1 @@
-# Visualization package: forest plots, funnel plots
+# Visualization module

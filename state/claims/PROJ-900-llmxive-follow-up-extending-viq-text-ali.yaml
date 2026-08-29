@@ -976,3 +976,195 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T10:12:45Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Paper ID 2411.07379
+  claim_id: c_3c1de812
+  context: 'Independent Test: The system can be tested by running the training loop
+    on a representative sample of COCO pairs, verifying that the codebook converges
+    (loss decreases) and that the resulting quantized tokens can be reconstructed
+    into 64x64 images with a {{claim:c_ea18f858}} (2411.07379, https://arxiv.org/abs/2411.07379),
+    all within the specified CPU time limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2411.07379'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:45:45Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Paper ID 2011.02803
+  claim_id: c_807f9428
+  context: 'Weights: VQ loss weight = 1.0, {{claim:c_a0a122ca}} (2011.02803, https://arxiv.org/abs/2011.02803).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2011.02803'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:46:03Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: quantized tokens reconstruct 64x64 images with metric 2411.07379
+  claim_id: c_a4c3f5bd
+  context: 'Independent Test: The system can be tested by running the training loop
+    on a representative sample of COCO pairs, verifying that the codebook converges
+    (loss decreases) and that the resulting quantized tokens can be reconstructed
+    into 64x64 images with a {{claim:c_ea18f858}} (2411.07379, https://arxiv.org/abs/2411.07379),
+    all within the specified CPU time limit.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: The system can be tested by running the training loop on a representative
+    sample of COCO pairs, verifying that the codebook converges (loss decreases) and
+    that the resulting quantized tokens can be reconstructed into 64x64 images with
+    a {{claim:c_ea18f858}} (2411.07379, https://arxiv.org/abs/2411.07379), all within
+    the specified CPU time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:47:03Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: VQ loss weight 1.0 with metric 2011.02803
+  claim_id: c_09cf5276
+  context: 'Implement code/train.py with CPU-only training loop, frozen ViQ encoder,
+    and VQ-VAE (codebook+commitment) + Contrastive (InfoNCE, temp=0.07, negative sampling
+    via in-batch negatives) loss. Weights: VQ loss weight = 1.0, {{claim:c_a0a122ca}}
+    (2011.02803, https://arxiv.org/abs/2011.02803).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Weights: VQ loss weight = 1.0, {{claim:c_a0a122ca}} (2011.02803, https://arxiv.org/abs/2011.02803).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:47:38Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Python package versions for llmXive follow-up project
+  claim_id: c_be30627e
+  context: T002 Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.1.0+cpu, transformers==4.36.0, datasets==2.14.0, scikit-learn==1.3.0,
+    opencv-python-headless==4.8.0, numpy==1.24.0, pandas==2.0.0, matplotlib==3.7.0,
+    scipy==1.10.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:49:45Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Fallback VQ-VAE architecture dimensions
+  claim_id: c_4339e6d9
+  context: 'If checkpoint missing, define fallback architecture: ResNet based VQ-VAE
+    with hidden_dim=512, codebook_size=1024, and global average pooling for resolution
+    invariance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ResNet based VQ-VAE with hidden_dim=512, codebook_size=1024
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:50:06Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: ArXiv ID 2411.07379
+  claim_id: c_7057f94d
+  context: verify that the codebook converges (loss decreases) and that the resulting
+    quantized tokens can be reconstructed into 64x64 images with a {{claim:c_ea18f858}}
+    (2411.07379, https://arxiv.org/abs/2411.07379)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2411.07379'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:50:06Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: ArXiv ID 2011.02803
+  claim_id: c_c8ded99e
+  context: VQ loss weight = 1.0, {{claim:c_a0a122ca}} (2011.02803, https://arxiv.org/abs/2011.02803).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2011.02803'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:50:06Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Maximum training time limit
+  claim_id: c_7844851b
+  context: If the training loop approaches the 6-hour limit (e.g., > 5.5 hours) without
+    convergence, log a CRITICAL warning and save the current state.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 6-hour limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:51:27Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: SSIM window size parameter
+  claim_id: c_d60c7651
+  context: Calculate PSNR using standard formula and SSIM using window_size=11 on
+    native 1024x1024 images.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: window_size=11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:53:37Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Test batch size for high-resolution inference
+  claim_id: c_00d4174a
+  context: The system can be tested by processing a batch of 50 high-resolution images
+    (1024x1024) from ImageNet-1K and COCO
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: batch of 50 high-resolution images
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:54:48Z'

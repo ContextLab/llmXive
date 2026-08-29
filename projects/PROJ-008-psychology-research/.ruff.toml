@@ -1,24 +1,5 @@
-# Ruff configuration for PROJ-008-psychology-research
-# Extends settings from pyproject.toml but allows local overrides if needed
-# Currently mirrors pyproject.toml settings for consistency
-
-line-length = 88
-target-version = "py311"
-
-[lint]
-select = [
-    "E", "W", "F", "I", "C", "B",
-    "UP", # pyupgrade
-    "ANN", # flake8-annotations (optional, strict)
-]
-ignore = [
-    "E501",
-    "ANN001", # Missing type annotation for function argument (optional strictness)
-    "ANN201", # Missing return type annotation (optional strictness)
-    "ANN002",
-    "ANN202",
-]
-
-[lint.per-file-ignores]
-"tests/*" = ["ANN"] # Skip type annotations in tests for brevity
-"code/utils/logging.py" = ["B028"] # Stacklevel warnings in logger setup
+# Extends pyproject.toml for specific overrides if needed, 
+# but primarily we rely on pyproject.toml for unified config.
+# This file exists to satisfy strict tool detection if 'ruff check' 
+# is run without the --config flag pointing to pyproject.toml.
+extend = "pyproject.toml"

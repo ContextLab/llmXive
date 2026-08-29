@@ -1,131 +1,95 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: EffectSize
-description: |
-  Schema for a calculated effect size (Hedges' g) derived from a cleaned study.
-  Used for meta-analysis aggregation.
-  Produced by code/analysis/effect_sizes.py.
+title: Effect Size
+description: >
+  Schema for a calculated effect size (Hedges' g) for a single study comparison.
+  Includes standard error, confidence intervals, and subgroup classification.
 type: object
 required:
   - study_id
   - source
-  - hedges_g
-  - var_hedges_g
-  - se_hedges_g
+  - effect_size
+  - se
   - ci_lower
   - ci_upper
-  - n_intervention
-  - n_control
-  - mean_intervention
-  - sd_intervention
-  - mean_control
-  - sd_control
   - intervention_component
   - delivery_format
   - social_skill_domain
-  - follow_up_months
+  - follow_up_category
+  - n_intervention
+  - n_control
 properties:
   study_id:
     type: string
-    description: Unique identifier matching the source cleaned study.
-
+    description: Reference to the parent study ID
+    pattern: "^[A-Z0-9_.-]+$"
+  
   source:
     type: string
+    description: Data source registry
     enum:
       - ClinicalTrials.gov
       - OSF
-    description: Source registry.
-
-  hedges_g:
+  
+  effect_size:
     type: number
-    format: float
-    description: Hedges' g effect size (with small-sample correction).
-
-  var_hedges_g:
+    description: Calculated Hedges' g effect size
+  
+  se:
     type: number
-    format: float
-    minimum: 0
-    description: Variance of Hedges' g.
-
-  se_hedges_g:
-    type: number
-    format: float
-    minimum: 0
-    description: Standard error of Hedges' g.
-
+    description: Standard error of the effect size
+  
   ci_lower:
     type: number
-    format: float
-    description: Lower bound of 95% confidence interval.
-
+    description: Lower bound of 95% confidence interval
+  
   ci_upper:
     type: number
-    format: float
-    description: Upper bound of 95% confidence interval.
-
-  n_intervention:
-    type: integer
-    minimum: 1
-    description: Sample size of intervention group.
-
-  n_control:
-    type: integer
-    minimum: 1
-    description: Sample size of control group.
-
-  mean_intervention:
-    type: number
-    format: float
-    description: Mean outcome for intervention group.
-
-  sd_intervention:
-    type: number
-    format: float
-    minimum: 0
-    description: SD outcome for intervention group.
-
-  mean_control:
-    type: number
-    format: float
-    description: Mean outcome for control group.
-
-  sd_control:
-    type: number
-    format: float
-    minimum: 0
-    description: SD outcome for control group.
-
+    description: Upper bound of 95% confidence interval
+  
   intervention_component:
     type: string
-    enum:
-      - Mindfulness
-      - Mindfulness + CBT
-      - Mindfulness + Yoga
-      - Mindfulness + Parent Training
-      - Other
-    description: Mindfulness component.
-
+    description: Mindfulness component for subgroup analysis
+  
   delivery_format:
     type: string
-    enum:
-      - Individual
-      - Group
-      - School-based
-      - Home-based
-      - Hybrid
-    description: Delivery format.
-
+    description: Delivery format for subgroup analysis
+  
   social_skill_domain:
     type: string
-    enum:
-      - Communication
-      - Social Interaction
-      - Emotional Regulation
-      - Peer Relationships
-      - Comprehensive
-    description: Social skill domain.
-
-  follow_up_months:
+    description: Social skill domain for subgroup analysis
+  
+  follow_up_category:
+    type: string
+    description: Follow-up duration category (e.g., '3-month', 'other', 'none')
+  
+  n_intervention:
     type: integer
-    minimum: 0
-    description: Follow-up duration in months.
-additionalProperties: false
+    description: Sample size of intervention group
+  
+  n_control:
+    type: integer
+    description: Sample size of control group
+  
+  weight:
+    type: number
+    description: Weight used in meta-analysis (1/variance)
+    nullable: true
+  
+  meta_analysis_model:
+    type: string
+    description: Model used (e.g., 'random-effects', 'fixed-effects')
+    nullable: true
+  
+  heterogeneity_i2:
+    type: number
+    description: I² heterogeneity statistic if part of meta-analysis
+    nullable: true
+  
+  calculation_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of calculation
+  
+  hash:
+    type: string
+    description: SHA-256 hash of the record for integrity verification

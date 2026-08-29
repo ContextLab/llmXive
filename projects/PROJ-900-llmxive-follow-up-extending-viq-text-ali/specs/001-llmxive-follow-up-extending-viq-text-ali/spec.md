@@ -1,87 +1,50 @@
-# Spec: ViQ Resolution Invariance
-# Project: PROJ-900-llmxive-follow-up-extending-viq-text-ali
-# Version: 1.1.0 (Updated per Decision Records 001 & 002)
-# Status: Active
+# Specification: ViQ Resolution Invariance
 
 ## Overview
-This document specifies the requirements for validating the resolution invariance of
-the ViQ (Visual Quantized) representation. The system trains a VQ-VAE codebook on
-low-resolution images and evaluates fidelity and semantic alignment on high-resolution
-inputs.
+This project investigates the resolution invariance of Visual Quantized (ViQ) representations. We train a low-resolution codebook on 64x64 images and evaluate its ability to reconstruct and maintain semantic alignment when processing high-resolution (1024x1024) images without resizing.
 
 ## Functional Requirements
 
-### FR-001: Low-Resolution Training
-The system shall train a VQ-VAE codebook using 64x64 resolution images from the COCO
-dataset. The training loop must be CPU-optimized and complete within a 6-hour wall-clock
-limit.
+### FR-001: Codebook Training
+The system must train a VQ-VAE codebook on 64x64 images using CPU resources within a 6-hour time limit.
 
-### FR-002: Codebook Initialization
-The system shall initialize the codebook using the frozen ViQ encoder weights (or a
-ResNet-based fallback if weights are unavailable) to ensure semantic alignment from
-the start.
+### FR-002: Low-Resolution Reconstruction
+The system must reconstruct 64x64 images with a PSNR meeting the threshold defined in the baseline validation (Claim: c_ea18f858).
 
-### FR-003: Dataset Scope (AMENDED per Decision Record 001)
-The system shall utilize the COCO and ImageNet-1K datasets for training and evaluation.
-**Exclusion**: The ChestX-ray14 dataset is explicitly EXCLUDED from this project due
-to lack of a verified, programmatic data source compatible with CI environments.
-Requirements referencing ChestX-ray14 are hereby voided.
+### FR-003: Dataset Scope
+The system must utilize the COCO and ImageNet-1K datasets for training and evaluation.
+**Update**: ChestX-ray14 is **excluded** from scope per Decision Record 001.
 
-### FR-004: High-Resolution Evaluation (AMENDED per Decision Record 002)
-The system shall evaluate reconstruction fidelity on **native 1024x1024** images.
-**Correction**: The previous requirement to upsample ground truth to 1024x1024 is
-rejected. Metrics (PSNR, SSIM) must be calculated against the native high-resolution
-ground truth to accurately measure fidelity degradation caused by the resolution shift
-in the encoder, not interpolation artifacts.
+### FR-004: High-Resolution Fidelity Measurement
+The system must evaluate reconstruction fidelity on 1024x1024 images.
+**Update**: Fidelity metrics (PSNR, SSIM) must be calculated against **native 1024x1024 ground truth** images, not upsampled low-resolution versions, per Decision Record 002.
 
-### FR-005: Semantic Alignment
-The system shall compute cosine similarity between projected visual embeddings and
-frozen CLIP text embeddings to verify semantic stability across resolutions.
+## Statistical Constraints
 
-## Success Criteria
+### SC-001: Statistical Validity
+All statistical comparisons must use appropriate tests for the data structure.
 
-### SC-001: Codebook Convergence
-The VQ-VAE training loss must decrease monotonically over the training steps, and the
-final checkpoint must reconstruct 64x64 images with a PSNR > 20dB.
+### SC-005: Resolution Comparison Test
+The system must compare reconstruction errors between low and high resolutions.
+**Update**: The comparison must use a **paired t-test** (if normality holds) or **Wilcoxon signed-rank test** (if normality fails), not a one-sample t-test, per Decision Record 002.
 
-### SC-002: Resolution Invariance Check
-The frozen ViQ encoder must successfully process 1024x1024 inputs without raising
-a `RuntimeError` or shape mismatch, validating the "any resolution" hypothesis.
+## User Stories
 
-### SC-003: Fidelity Correlation
-A statistical correlation (Spearman) must be established between image texture complexity
-and reconstruction error (PSNR drop).
+### US-1: Low-Resolution Training
+As a researcher, I want to train a codebook on 64x64 images so that I can establish a baseline for quantization.
 
-### SC-004: Semantic Stability
-The mean cosine similarity between low-res and high-res visual embeddings must remain
-within a configurable threshold (e.g., < 5% relative difference).
+### US-2: High-Resolution Inference
+As a researcher, I want to evaluate the trained codebook on 1024x1024 images to measure fidelity degradation.
+**Update**: This user story relies on ImageNet-1K and COCO only. ChestX-ray14 is **excluded** per Decision Record 001.
 
-### SC-005: Statistical Validation (AMENDED per Decision Record 002)
-**Correction**: The previous requirement for a one-sample t-test is rejected as
-scientifically unsound for paired data.
-**New Requirement**: The system shall perform a **paired t-test** (if data is normally
-distributed per Shapiro-Wilk) or a **Wilcoxon signed-rank test** (if non-normal) to
-compare reconstruction errors and semantic similarities between low-res and high-res
-conditions.
+### US-3: Semantic Alignment
+As a researcher, I want to verify that semantic alignment remains stable across resolutions.
 
-## Data Models
-- **ImageBatch**: Tensor [B, C, H, W]
-- **TextBatch**: List[str]
-- **Embedding**: Tensor [B, D]
-- **MetricResult**: Dict[str, float]
+## Data Model
+- **Codebook**: Discrete latent representation.
+- **Embeddings**: Projected visual vectors.
+- **Metrics**: PSNR, SSIM, Cosine Similarity, Texture Complexity.
 
-## Configuration
-- `batch_size`: 8 (default, adjustable for RAM)
-- `learning_rate`: 1e-4
-- `seed`: 42
-- `max_train_samples`: Configurable
-- `semantic_threshold`: 0.05
-
-## Execution Flow
-1. `code/data_loader.py --download-only` (Fetch COCO/ImageNet)
-2. `code/validate_viq_invariance.py` (Check SC-002)
-3. `code/train.py` (Execute FR-001, produce codebook)
-4. `code/eval_high_res.py` (Execute FR-004, produce embeddings)
-5. `code/aggregate_fidelity_metrics.py` (Compute PSNR/SSIM on native 1024x1024)
-6. `code/correlation_analysis.py` (Execute SC-005, paired t-test/Wilcoxon)
-7. `code/eval_semantic.py` (Verify SC-004)
+## Appendix: Decision Records
+- [DR-001: ChestX-ray14 Exclusion](decisions/001-chestx14-exclusion.md)
+- [DR-002: Native Ground Truth & Paired Test](decisions/002-native-ground-truth-test.md)

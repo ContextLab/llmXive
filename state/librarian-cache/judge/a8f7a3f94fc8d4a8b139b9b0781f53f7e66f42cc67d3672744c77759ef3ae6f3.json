@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.18592",
+  "judged_at": "2026-08-29T18:42:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"from pixels to words -- towards native one-vision models at scale\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the domain of multimodal adaptation and generalization, which is the core technical context for extending \"From Pixels to Words\" (a native one-vision model) to new scales or domains. While it does not specifically mention the \"llmXive\" follow-up, it provides the essential literature review framework for the mechanisms (multimodal domain adaptation/generalization) and the specific class of models (found",
+  "relevant": true
+}

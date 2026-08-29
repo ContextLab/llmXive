@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2608.14591",
+  "judged_at": "2026-08-29T18:42:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"from pixels to words -- towards native one-vision models at scale\" computer science",
+  "rationale": "The paper focuses on \"6G Native AI\" and \"Channel Foundation Models\" for wireless communications, which is an off-domain application of foundation models compared to the user's question about \"Native One-Vision Models\" (computer vision) and the specific \"From Pixels to Words\" architecture. While both discuss \"native\" AI and foundation models, the paper does not measure the same biological/physical/algorithmic mechanism, nor does it study the same empirical population (vision data vs. wireless cha",
+  "relevant": false
+}

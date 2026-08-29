@@ -1,1 +1,1 @@
-# Utilities: logging, configuration, hashing
+# Utilities module

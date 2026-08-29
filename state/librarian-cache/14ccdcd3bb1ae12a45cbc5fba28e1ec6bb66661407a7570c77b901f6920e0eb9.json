@@ -1,0 +1,570 @@
+{
+  "fetched_at": "2026-08-29T18:42:38Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision Models at Scale\"",
+      "target_n": 5
+    },
+    "duration_seconds": 77.18,
+    "ended_at": "2026-08-29T18:42:38Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "native multimodal foundation models"
+        ],
+        [
+          2,
+          "unified vision-language architectures"
+        ],
+        [
+          3,
+          "end-to-end multimodal transformers"
+        ],
+        [
+          4,
+          "visual tokenization for language models"
+        ],
+        [
+          5,
+          "image-to-text generation without encoders"
+        ],
+        [
+          6,
+          "single-stream multimodal learning"
+        ],
+        [
+          7,
+          "native multimodal pretraining at scale"
+        ],
+        [
+          8,
+          "vision-language model architecture unification"
+        ],
+        [
+          9,
+          "direct visual input for large language models"
+        ],
+        [
+          10,
+          "multimodal tokenization strategies"
+        ],
+        [
+          11,
+          "joint vision-language representation learning"
+        ],
+        [
+          12,
+          "scaling laws for unified multimodal models"
+        ],
+        [
+          13,
+          "multimodal attention mechanisms"
+        ],
+        [
+          14,
+          "cross-modal fusion in transformer models"
+        ],
+        [
+          15,
+          "eliminating modality-specific encoders"
+        ],
+        [
+          16,
+          "large-scale multimodal generative models"
+        ],
+        [
+          17,
+          "visual understanding via language model backbones"
+        ],
+        [
+          18,
+          "multimodal sequence modeling"
+        ],
+        [
+          19,
+          "integrated perception and generation models"
+        ],
+        [
+          20,
+          "next-generation multimodal foundation models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision Models at Scale\" computer science": 0,
+        "native multimodal foundation models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multimodal pretraining visual tokenization native architecture",
+      "image patch token sequence language model training",
+      "visual representation learning joint embedding space",
+      "zero-shot image captioning performance multimodal benchmarks",
+      "vision-language alignment data contamination training regime"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2501.18592"
+      ]
+    },
+    "per_query_hit_count": {
+      "image patch token sequence language model training": 3,
+      "llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision Models at Scale\" computer science": 3,
+      "multimodal pretraining visual tokenization native architecture": 3,
+      "vision-language alignment data contamination training regime": 3,
+      "visual representation learning joint embedding space": 3,
+      "zero-shot image captioning performance multimodal benchmarks": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2512.03307",
+          "rationale": "The paper focuses on tabular foundation models and synthetic data generation for structured data, which is an entirely different domain (tabular data) from the user's question regarding \"native one-vision models\" (computer vision). It fails the \"off-domain entirely\" rejection rule as it addresses neither the specific mechanism (vision-native architectures) nor the empirical population (image data) of the user's query.",
+          "title": "Robust Tabular Foundation Models"
+        },
+        {
+          "primary_pointer": "2608.14591",
+          "rationale": "The paper focuses on \"6G Native AI\" and \"Channel Foundation Models\" for wireless communications, which is an off-domain application of foundation models compared to the user's question about \"Native One-Vision Models\" (computer vision) and the specific \"From Pixels to Words\" architecture. While both discuss \"native\" AI and foundation models, the paper does not measure the same biological/physical/algorithmic mechanism, nor does it study the same empirical population (vision data vs. wireless cha",
+          "title": "6G Native AI and Channel Foundation Models"
+        },
+        {
+          "primary_pointer": "2506.13817",
+          "rationale": "The paper focuses on applying generative AI to single-cell RNA sequencing (biological data labeling), which is an entirely different domain and mechanism than the user's question regarding \"native one-vision models\" (computer vision and multimodal architecture). It fails all inclusion criteria as it does not measure the same mechanism, share variables, or provide a baseline for vision-language model scaling, and it is not a foundational reference for the specific \"pixels to words\" architecture t",
+          "title": "DeepSeq: High-Throughput Single-Cell RNA Sequencing Data Labeling via Web Search-Augmented Agentic Generative AI Foundation Models"
+        },
+        {
+          "primary_pointer": "2606.11553",
+          "rationale": "The paper focuses on time-series foundation models for wireless network telemetry, which is a distinct domain from the user's question regarding \"native one-vision models\" (computer vision) and the specific \"From Pixels to Words\" architecture. While both involve foundation models, the paper does not measure the same biological/physical/algorithmic mechanism, share the same independent/dependent variables, or provide a canonical baseline for vision-language scaling, thus failing criteria (a) thro",
+          "title": "APEX: A Network-Native Time-Series Foundation Model for Forecasting and Anomaly Detection for Wireless Edge Operations"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-29T18:41:21Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"from pixels to words -- towards native one-vision models at scale\" computer science",
+      "raw": "llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision Models at Scale\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sensing human motions through Inertial Measurement Units (IMUs) embedded in personal devices has enabled significant applications in health and wellness. Labeled IMU data is scarce, however, unlabeled or weakly labeled IMU data can be used to model human motions. For video or text modalities, the \"pretrain and adapt\" approach utilizes large volumes of unlabeled or weakly labeled data to build a strong feature extractor, followed by adaptation to specific tasks using limited labeled data. However, pretraining methods are poorly understood for IMU data, and pipelines are rarely evaluated on out-of-domain tasks. We propose PRIMUS: a method for PRetraining IMU encoderS that uses a novel pretraining objective that is empirically validated based on downstream performance on both in-domain and out-of-domain datasets. The PRIMUS objective effectively enhances downstream performance by combining self-supervision, multimodal, and nearest-neighbor supervision. With fewer than 500 labeled samples per class, PRIMUS improves test accuracy by up to 15%, compared to state-of-the-art baselines. To benefit the broader community, we have open-sourced our code at github.com/nokia-bell-labs/pretrained-imu-encoders.",
+          "claimed_authors": [
+            "Arnav M. Das",
+            "Chi Ian Tang",
+            "Fahim Kawsar",
+            "Mohammad Malekzadeh"
+          ],
+          "claimed_title": "PRIMUS: Pretraining IMU Encoders with Multimodal Self-Supervision",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.15127"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='PRIMUS: Pretraining IMU Encoders with Multimodal Self-Supervision')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose LogicVista, an evaluation benchmark that assesses the integrated logical reasoning capabilities of multimodal large language models (MLLMs) in Visual contexts. Recent advancements in MLLMs have demonstrated various fascinating abilities, from crafting poetry based on an image to performing mathematical reasoning. However, there is still a lack of systematic evaluation of MLLMs' proficiency in logical reasoning tasks, which are essential for activities like navigation and puzzle-solving. Thus we evaluate general logical cognition abilities across 5 logical reasoning tasks encompassing 9 different capabilities, using a sample of 448 multiple-choice questions. Each question is annotated with the correct answer and the human-written reasoning behind the selection, enabling both open-ended and multiple-choice evaluation. A total of 8 MLLMs are comprehensively evaluated using LogicVista. Code and Data Available at https://github.com/Yijia-Xiao/LogicVista.",
+          "claimed_authors": [
+            "Yijia Xiao",
+            "Edward Sun",
+            "Tianyu Liu",
+            "Wei Wang"
+          ],
+          "claimed_title": "LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.04973"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph neural networks (GNN) represent an emerging line of deep learning models that operate on graph structures. It is becoming more and more popular due to its high accuracy achieved in many graph-related tasks. However, GNN is not as well understood in the system and architecture community as its counterparts such as multi-layer perceptrons and convolutional neural networks. This work tries to introduce the GNN to our community. In contrast to prior work that only presents characterizations of GCNs, our work covers a large portion of the varieties for GNN workloads based on a general GNN description framework. By constructing the models on top of two widely-used libraries, we characterize the GNN computation at inference stage concerning general-purpose and application-specific architectures and hope our work can foster more system and architecture research for GNNs.",
+          "claimed_authors": [
+            "Zhihui Zhang",
+            "Jingwen Leng",
+            "Lingxiao Ma",
+            "Youshan Miao",
+            "Chao Li",
+            "Minyi Guo"
+          ],
+          "claimed_title": "Architectural Implications of Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.00804"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Architectural Implications of Graph Neural Networks')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most language model pre-training frameworks concatenate multiple documents into fixed-length sequences and use causal masking to compute the likelihood of each token given its context; this strategy is widely adopted due to its simplicity and efficiency. However, to this day, the influence of the pre-training sequence composition strategy on the generalisation properties of the model remains under-explored. In this work, we find that applying causal masking can lead to the inclusion of distracting information from previous documents during pre-training, which negatively impacts the performance of the models on language modelling and downstream tasks. In intra-document causal masking, the likelihood of each token is only conditioned on the previous tokens in the same document, eliminating potential distracting information from previous documents and significantly improving performance. Furthermore, we find that concatenating related documents can reduce some potential distractions during pre-training, and our proposed efficient retrieval-based sequence construction method, BM25Chunk, can improve in-context learning (+11.6\\%), knowledge memorisation (+9.8\\%), and context utilisation (+7.2\\%) abilities of language models without sacrificing efficiency.",
+          "claimed_authors": [
+            "Yu Zhao",
+            "Yuanbin Qu",
+            "Konrad Staniszewski",
+            "Szymon Tworkowski",
+            "Wei Liu",
+            "Piotr Miłoś",
+            "Yuxiang Wu",
+            "Pasquale Minervini"
+          ],
+          "claimed_title": "Analysing The Impact of Sequence Composition on Language Model Pre-Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.13991"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Analysing The Impact of Sequence Composition on Language Model Pre-Training')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent deep learning models outperform standard lossy image compression codecs. However, applying these models on a patch-by-patch basis requires that each image patch be encoded and decoded independently. The influence from adjacent patches is therefore lost, leading to block artefacts at low bitrates. We propose the Binary Inpainting Network (BINet), an autoencoder framework which incorporates binary inpainting to reinstate interdependencies between adjacent patches, for improved patch-based compression of still images. When decoding a patch, BINet additionally uses the binarised encodings from surrounding patches to guide its reconstruction. In contrast to sequential inpainting methods where patches are decoded based on previons reconstructions, BINet operates directly on the binary codes of surrounding patches without access to the original or reconstructed image data. Encoding and decoding can therefore be performed in parallel. We demonstrate that BINet improves the compression quality of a competitive deep image codec across a range of compression levels.",
+          "claimed_authors": [
+            "André Nortje",
+            "Willie Brink",
+            "Herman A. Engelbrecht",
+            "Herman Kamper"
+          ],
+          "claimed_title": "BINet: a binary inpainting network for deep patch-based image compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.05189"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='BINet: a binary inpainting network for deep patch-based image compression')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Autoregressive models, built based on the Next Token Prediction (NTP) paradigm, show great potential in developing a unified framework that integrates both language and vision tasks. Pioneering works introduce NTP to autoregressive visual generation tasks. In this work, we rethink the NTP for autoregressive image generation and extend it to a novel Next Patch Prediction (NPP) paradigm. Our key idea is to group and aggregate image tokens into patch tokens with higher information density. By using patch tokens as a more compact input sequence, the autoregressive model is trained to predict the next patch, significantly reducing computational costs. To further exploit the natural hierarchical structure of image data, we propose a multi-scale coarse-to-fine patch grouping strategy. With this strategy, the training process begins with a large patch size and ends with vanilla NTP where the patch size is 1$\\times$1, thus maintaining the original inference process without modifications. Extensive experiments across a diverse range of model sizes demonstrate that NPP could reduce the training cost to around 0.6 times while improving image generation quality by up to 1.0 FID score on the ImageNet 256x256 generation benchmark. Notably, our method retains the original autoregressive model architecture without introducing additional trainable parameters or specifically designing a custom image tokenizer, offering a flexible and plug-and-play solution for enhancing autoregressive visual generation.",
+          "claimed_authors": [
+            "Yatian Pang",
+            "Peng Jin",
+            "Shuo Yang",
+            "Bin Lin",
+            "Bin Zhu",
+            "Zhenyu Tang",
+            "Liuhan Chen",
+            "Francis E. H. Tay",
+            "Ser-Nam Lim",
+            "Harry Yang",
+            "Li Yuan"
+          ],
+          "claimed_title": "Next Patch Prediction for Autoregressive Visual Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.15321"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Next Patch Prediction for Autoregressive Visual Generation')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Contrastive learning operates on a simple yet effective principle: Embeddings of positive pairs are pulled together, while those of negative pairs are pushed apart. In this paper, we propose a unified framework for understanding contrastive learning through the lens of cosine similarity, and present two key theoretical insights derived from this framework. First, in full-batch settings, we show that perfect alignment of positive pairs is unattainable when negative-pair similarities fall below a threshold, and this misalignment can be mitigated by incorporating within-view negative pairs into the objective. Second, in mini-batch settings, smaller batch sizes induce stronger separation among negative pairs in the embedding space, i.e., higher variance in their similarities, which in turn degrades the quality of learned representations compared to full-batch settings. To address this, we propose an auxiliary loss that reduces the variance of negative-pair similarities in mini-batch settings. Empirical results show that incorporating the proposed loss improves performance in small-batch settings.",
+          "claimed_authors": [
+            "Chungpa Lee",
+            "Sehee Lim",
+            "Kibok Lee",
+            "Jy-yong Sohn"
+          ],
+          "claimed_title": "On the Similarities of Embeddings in Contrastive Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09781"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='On the Similarities of Embeddings in Contrastive Learning')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present Contextualized Local Visual Embeddings (CLoVE), a self-supervised convolutional-based method that learns representations suited for dense prediction tasks. CLoVE deviates from current methods and optimizes a single loss function that operates at the level of contextualized local embeddings learned from output feature maps of convolution neural network (CNN) encoders. To learn contextualized embeddings, CLoVE proposes a normalized mult-head self-attention layer that combines local features from different parts of an image based on similarity. We extensively benchmark CLoVE's pre-trained representations on multiple datasets. CLoVE reaches state-of-the-art performance for CNN-based architectures in 4 dense prediction downstream tasks, including object detection, instance segmentation, keypoint detection, and dense pose estimation.",
+          "claimed_authors": [
+            "Thalles Santos Silva",
+            "Helio Pedrini",
+            "Adín Ramírez Rivera"
+          ],
+          "claimed_title": "Self-supervised Learning of Contextualized Local Visual Embeddings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.00527"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Self-supervised Learning of Contextualized Local Visual Embeddings')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When a three-dimensional object moves relative to an observer, a change occurs on the observer's image plane and in the visual representation computed by a learned model. Starting with the idea that a good visual representation is one that transforms linearly under scene motions, we show, using the theory of group representations, that any such representation is equivalent to a combination of the elementary irreducible representations. We derive a striking relationship between irreducibility and the statistical dependency structure of the representation, by showing that under restricted conditions, irreducible representations are decorrelated. Under partial observability, as induced by the perspective projection of a scene onto the image plane, the motion group does not have a linear action on the space of images, so that it becomes necessary to perform inference over a latent representation that does transform linearly. This idea is demonstrated in a model of rotating NORB objects that employs a latent representation of the non-commutative 3D rotation group SO(3).",
+          "claimed_authors": [
+            "Taco S. Cohen",
+            "Max Welling"
+          ],
+          "claimed_title": "Transformation Properties of Learned Visual Representations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1412.7659"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Transformation Properties of Learned Visual Representations')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The evaluation of machine-generated image captions is a complex and evolving challenge. With the advent of Multimodal Large Language Models (MLLMs), image captioning has become a core task, increasing the need for robust and reliable evaluation metrics. This survey provides a comprehensive overview of advancements in image captioning evaluation, analyzing the evolution, strengths, and limitations of existing metrics. We assess these metrics across multiple dimensions, including correlation with human judgment, ranking accuracy, and sensitivity to hallucinations. Additionally, we explore the challenges posed by the longer and more detailed captions generated by MLLMs and examine the adaptability of current metrics to these stylistic variations. Our analysis highlights some limitations of standard evaluation approaches and suggests promising directions for future research in image captioning assessment.",
+          "claimed_authors": [
+            "Sara Sarto",
+            "Marcella Cornia",
+            "Rita Cucchiara"
+          ],
+          "claimed_title": "Image Captioning Evaluation in the Age of Multimodal LLMs: Challenges and Future Perspectives",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.14604"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Image Captioning Evaluation in the Age of Multimodal LLMs: Challenges and Future Perspectives')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic generation of caption to describe the content of an image has been gaining a lot of research interests recently, where most of the existing works treat the image caption as pure sequential data. Natural language, however possess a temporal hierarchy structure, with complex dependencies between each subsequence. In this paper, we propose a phrase-based hierarchical Long Short-Term Memory (phi-LSTM) model to generate image description. In contrast to the conventional solutions that generate caption in a pure sequential manner, our proposed model decodes image caption from phrase to sentence. It consists of a phrase decoder at the bottom hierarchy to decode noun phrases of variable length, and an abbreviated sentence decoder at the upper hierarchy to decode an abbreviated form of the image description. A complete image caption is formed by combining the generated phrases with sentence during the inference stage. Empirically, our proposed model shows a better or competitive result on the Flickr8k, Flickr30k and MS-COCO datasets in comparison to the state-of-the art models. We also show that our proposed model is able to generate more novel captions (not seen in the training data) which are richer in word contents in all these three datasets.",
+          "claimed_authors": [
+            "Ying Hua Tan",
+            "Chee Seng Chan"
+          ],
+          "claimed_title": "Phrase-based Image Captioning with Hierarchical LSTM Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.05557"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Phrase-based Image Captioning with Hierarchical LSTM Model')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the past few years, the emergence of pre-training models has brought uni-modal fields such as computer vision (CV) and natural language processing (NLP) to a new era. Substantial works have shown they are beneficial for downstream uni-modal tasks and avoid training a new model from scratch. So can such pre-trained models be applied to multi-modal tasks? Researchers have explored this problem and made significant progress. This paper surveys recent advances and new frontiers in vision-language pre-training (VLP), including image-text and video-text pre-training. To give readers a better overall grasp of VLP, we first review its recent advances from five aspects: feature extraction, model architecture, pre-training objectives, pre-training datasets, and downstream tasks. Then, we summarize the specific VLP models in detail. Finally, we discuss the new frontiers in VLP. To the best of our knowledge, this is the first survey focused on VLP. We hope that this survey can shed light on future research in the VLP field.",
+          "claimed_authors": [
+            "Feilong Chen",
+            "Duzhen Zhang",
+            "Minglun Han",
+            "Xiuyi Chen",
+            "Jing Shi",
+            "Shuang Xu",
+            "Bo Xu"
+          ],
+          "claimed_title": "VLP: A Survey on Vision-Language Pre-training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.09061"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='VLP: A Survey on Vision-Language Pre-training')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper surveys vision-language pre-training (VLP) methods for multimodal intelligence that have been developed in the last few years. We group these approaches into three categories: ($i$) VLP for image-text tasks, such as image captioning, image-text retrieval, visual question answering, and visual grounding; ($ii$) VLP for core computer vision tasks, such as (open-set) image classification, object detection, and segmentation; and ($iii$) VLP for video-text tasks, such as video captioning, video-text retrieval, and video question answering. For each category, we present a comprehensive review of state-of-the-art methods, and discuss the progress that has been made and challenges still being faced, using specific systems and models as case studies. In addition, for each category, we discuss advanced topics being actively explored in the research community, such as big foundation models, unified modeling, in-context few-shot learning, knowledge, robustness, and computer vision in the wild, to name a few.",
+          "claimed_authors": [
+            "Zhe Gan",
+            "Linjie Li",
+            "Chunyuan Li",
+            "Lijuan Wang",
+            "Zicheng Liu",
+            "Jianfeng Gao"
+          ],
+          "claimed_title": "Vision-Language Pre-training: Basics, Recent Advances, and Future Trends",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.09263"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Vision-Language Pre-training: Basics, Recent Advances, and Future Trends')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The field of computer vision has experienced significant advancements through scalable vision encoders and multimodal pre-training frameworks. However, existing approaches often treat vision encoders and large language models (LLMs) as independent modules, limiting the integration of hierarchical visual features. In this work, we propose HIVE (Hierarchical Pre-Training of Vision Encoders), a novel framework that enhances vision-language alignment by introducing hierarchical cross-attention between the vision encoder and LLM. Unlike conventional methods that flatten image embeddings, HIVE enables structured feature fusion across multiple layers, improving gradient flow and representation learning. To optimize this interaction, we introduce a three-stage training strategy that progressively aligns the vision encoder with the LLM, ensuring stable optimization and effective multimodal fusion. Empirical evaluations demonstrate that HIVE achieves superior performance not only in image classification but also on various vision-language tasks, outperforming self-attention-based methods in benchmarks such as MME, GQA, OK-VQA, and ScienceQA. Our results highlight the benefits of hierarchical feature integration, paving the way for more efficient and expressive vision-language models.",
+          "claimed_authors": [
+            "Eugene Lee",
+            "Ting-Yu Chang",
+            "Jui-Huang Tsai",
+            "Jiajie Diao",
+            "Chen-Yi Lee"
+          ],
+          "claimed_title": "Hierarchical Pre-Training of Vision Encoders with Large Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.00086"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"From Pixels to Words -- Towards Native One-Vision ', candidate_title='Hierarchical Pre-Training of Vision Encoders with Large Language Model')",
+        "failed_at": "2026-08-29T18:41:52Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hao Dong",
+            "Moru Liu",
+            "Kaiyang Zhou",
+            "Eleni Chatzi",
+            "Juho Kannala",
+            "Cyrill Stachniss",
+            "Olga Fink"
+          ],
+          "title": "Advances in Multimodal Adaptation and Generalization: From Traditional Approaches to Foundation Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.18592",
+        "summary": "In real-world scenarios, achieving domain adaptation and generalization poses significant challenges, as models must adapt to or generalize across unknown target distributions. Extending these capabilities to unseen multimodal distributions, i.e., multimodal domain adaptation and generalization, is even more challenging due to the distinct characteristics of different modalities. Significant progress has been made over the years, with applications ranging from action recognition to semantic segmentation. Besides, the recent advent of large-scale pre-trained multimodal foundation models, such as CLIP, has inspired works leveraging these models to enhance adaptation and generalization performances or adapting them to downstream tasks. This survey provides the first comprehensive review of recent advances from traditional approaches to foundation models, covering: (1) Multimodal domain adaptation; (2) Multimodal test-time adaptation; (3) Multimodal domain generalization; (4) Domain adaptation and generalization with the help of multimodal foundation models; and (5) Adaptation of multimodal foundation models. For each topic, we formally define the problem and thoroughly review existing methods. Additionally, we analyze relevant datasets and applications, highlighting open challenges and potential future research directions. We maintain an active repository that contains up-to-date literature at https://github.com/donghao51/Awesome-Multimodal-Adaptation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.18592",
+          "http_status": 200,
+          "pdf_sample_score": 0.2407,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-29T18:42:17Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"from pixels to words -- towards native one-vision models at scale\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

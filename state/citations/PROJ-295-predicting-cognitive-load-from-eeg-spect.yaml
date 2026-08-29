@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://mne.tools/
   verified_at: '2026-07-06T00:07:03.708298Z'
-- artifact_hash: 502cf629319661e5c927fc33af11329dd04680c3cb1232d8fc4d4cb29a191914
+- artifact_hash: 2457ac18792d239ecfb2398df3cf80630ebdf8a2a76c9a2ba3b745832b541675
   artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://en.wikipedia.org/wiki/Noise_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Noise
-  verified_at: '2026-08-21T15:33:02.157305Z'
-- artifact_hash: 502cf629319661e5c927fc33af11329dd04680c3cb1232d8fc4d4cb29a191914
+  verified_at: '2026-08-29T18:41:18.098291Z'
+- artifact_hash: 2457ac18792d239ecfb2398df3cf80630ebdf8a2a76c9a2ba3b745832b541675
   artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://en.wikipedia.org/wiki/Electroencephalography
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Electroencephalography
-  verified_at: '2026-08-21T15:33:02.157305Z'
-- artifact_hash: 502cf629319661e5c927fc33af11329dd04680c3cb1232d8fc4d4cb29a191914
+  verified_at: '2026-08-29T18:41:18.098291Z'
+- artifact_hash: 2457ac18792d239ecfb2398df3cf80630ebdf8a2a76c9a2ba3b745832b541675
   artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -65,8 +65,8 @@
   value: https://arxiv.org/abs/2604.10702
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2604.10702
-  verified_at: '2026-08-21T15:33:02.157305Z'
-- artifact_hash: 502cf629319661e5c927fc33af11329dd04680c3cb1232d8fc4d4cb29a191914
+  verified_at: '2026-08-29T18:41:18.098291Z'
+- artifact_hash: 2457ac18792d239ecfb2398df3cf80630ebdf8a2a76c9a2ba3b745832b541675
   artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -76,4 +76,4 @@
   value: https://oeis.org/A000040
   verification_status: pending
   verified_against_url: https://oeis.org/A000040
-  verified_at: '2026-08-21T15:33:02.157305Z'
+  verified_at: '2026-08-29T18:41:18.098291Z'

@@ -1,21 +1,16 @@
-"""
-Project Setup Script for PROJ-458-quantifying-the-impact-of-dataset-sparsi.
-
-This script creates the required directory structure for the project
-as defined in task T001.
-"""
 import os
 import sys
 from pathlib import Path
 
-
 def main():
-    """Create the project directory structure."""
+    """
+    Create the project directory structure as defined in T001.
+    """
     # Define the base directory (project root)
     base_dir = Path(__file__).resolve().parent.parent
 
-    # Define the directories to create relative to the base directory
-    directories = [
+    # Define the relative paths to create
+    dirs_to_create = [
         "code/utils",
         "data/raw",
         "data/processed",
@@ -27,18 +22,17 @@ def main():
     ]
 
     created_count = 0
-    for dir_path_str in directories:
-        dir_path = base_dir / dir_path_str
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+    for rel_path in dirs_to_create:
+        full_path = base_dir / rel_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
+            print(f"Directory already exists: {full_path}")
 
-    print(f"\nSetup complete. Created {created_count} new directories.")
+    print(f"Project structure setup complete. {created_count} new directories created.")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

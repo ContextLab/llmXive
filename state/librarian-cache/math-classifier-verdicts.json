@@ -1707,6 +1707,10 @@
     "classified_at": "2026-07-16T09:19:59Z",
     "verdict": false
   },
+  "PROJ-929-llmxive-follow-up-extending-from-pixels::1.6.0": {
+    "classified_at": "2026-08-29T18:41:52Z",
+    "verdict": false
+  },
   "PROJ-930-llmxive-follow-up-extending-mobileforge::1.6.0": {
     "classified_at": "2026-07-19T10:04:00Z",
     "verdict": false

@@ -2096,23 +2096,6 @@
   updated_at: '2026-08-21T15:23:16Z'
 - artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
   attempts: 1
-  canonical: 1000 permutations for global significance testing
-  claim_id: c_607764bb
-  context: 'Implement code/models/evaluate.py to perform permutation testing for global
-    significance: run 1000 (OEIS A000040, https://oeis.org/A000040) permutations ,
-    shuffle labels, output p-value in results/model_metrics.json'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 1000 permutations
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-21T15:26:27Z'
-- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
-  attempts: 1
   canonical: 1-45 Hz bandpass filter applied in pipeline
   claim_id: c_ab094105
   context: "Create pipeline_config.yaml with default signal processing parameters\
@@ -2402,3 +2385,234 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T15:33:01Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 0
+  canonical: run 1000 permutations for global significance testing
+  claim_id: c_fed2d3e0
+  context: 'Implement code/models/evaluate.py to perform permutation testing for global
+    significance: run 1000 (OEIS A000040, https://oeis.org/A000040) permutations ,
+    shuffle labels, output p-value in results/model_metrics.json (Plan Phase 4)'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 1000 7919
+      source_id: A000040
+      url: https://oeis.org/A000040
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Run 1000 permutations for global significance testing.
+  resolved_value: '1000'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T18:32:15Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: extract mean power for theta and alpha bands per channel
+  claim_id: c_8a854f1e
+  context: Implement code/features/extract.py to compute PSDusing Welch's method (FR-003)
+    with built-in chunked loading logic to ensure memory safety during PSD computation
+    on the full dataset (SC-002), extracting mean power for theta and alpha bands
+    per channel.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_mean_power_for_theta_and_alpha_bands_per_channel
+  kind: entity_fact
+  raw_text: Extracting mean power for theta and alpha bands per channel.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:33:14Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 2
+  canonical: 1000 permutations for global significance testing
+  claim_id: c_607764bb
+  context: 'Implement code/models/evaluate.py to perform permutation testing for global
+    significance: run 1000 (OEIS A000040, https://oeis.org/A000040) permutations ,
+    shuffle labels, output p-value in results/model_metrics.json'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: oeis
+        source_id: A046021
+        url: https://oeis.org/A046021
+        value: '44217183002083556481978121537538045804113921865913760691321361767263190032191626536814118417778115719990002145004286277616614906607779567071503379338537342846393585205078125'
+      - channel: oeis
+        source_id: A124252
+        url: https://oeis.org/A124252
+        value: '6'
+      quote: 8 2
+      source_id: A034968
+      url: https://oeis.org/A034968
+      value: '8'
+    filled: true
+  kind: numeric
+  raw_text: 1000 permutations
+  resolved_value: '8'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T18:34:59Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: epoch retention rate greater than 70 percent after ICA removal
+  claim_id: c_00f3bbaa
+  context: Integration test for full preprocessing pipeline in tests/integration/test_preprocess.py
+    (verify ICA removal and epoch retention > 70%)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Epoch_retention_rate_greater_than_70_percent_after_ICA_remov
+  kind: magnitude
+  raw_text: verify ICA removal and epoch retention > 70%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:35:46Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: exclude subjects with more than 50 percent rejected epochs
+  claim_id: c_ceb2d571
+  context: Explicitly exclude subjects with > 50% rejected epochs to prevent bias
+    (Edge Case)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_more_than_50_percent_rejected_epochs
+  kind: magnitude
+  raw_text: explicitly exclude subjects with > 50% rejected epochs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:36:28Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: halt if epoch retention rate is less than 70 percent
+  claim_id: c_ec7e61d0
+  context: Calculate and log epoch retention rate; halt if < 70% (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_epoch_retention_rate_is_less_than_70_percent
+  kind: magnitude
+  raw_text: halt if < 70%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:37:15Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: identify epochs with more than 5 percent missing sensor data
+  claim_id: c_35a52097
+  context: Implement code/features/validity.py to identify epochs with > 5% missing
+    sensor data and EXCLUDE them from the final dataset
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_epochs_with_more_than_5_percent_missing_sensor_data
+  kind: magnitude
+  raw_text: identify epochs with > 5% missing sensor data
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:37:53Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: verify missing value threshold of 5 percent
+  claim_id: c_2a4e7552
+  context: Unit test for missing value flagging in tests/unit/test_validity.py (verify
+    > 5% threshold)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify > 5% threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:37:53Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: verify memory peak is less than 7 gigabytes
+  claim_id: c_982b28d6
+  context: Unit test for chunked loading logic in tests/unit/test_loader.py (verify
+    memory peak < 7GB)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_memory_peak_is_less_than_7_gigabytes
+  kind: magnitude
+  raw_text: verify memory peak < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:38:27Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: ensure memory safety less than or equal to 6.5 gigabytes
+  claim_id: c_3e2f6426
+  context: "Implement code/data/loader.py with chunked loading logic (by epoch_id)\
+    \ to ensure memory safety (\u2264 6.5 GB)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_safety_less_than_or_equal_to_6.5_gigabytes
+  kind: magnitude
+  raw_text: "ensure memory safety (\u2264 6.5 GB)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:38:47Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 0
+  canonical: perform 1000 permutations for global significance
+  claim_id: c_e741709b
+  context: 'Implement code/models/evaluate.py to perform permutation testing for global
+    significance: run 1000 (OEIS A000040, https://oeis.org/A000040) permutations ,
+    shuffle labels, output p-value in results/model_metrics.json'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: oeis
+        source_id: A046021
+        url: https://oeis.org/A046021
+        value: '44217183002083556481978121537538045804113921865913760691321361767263190032191626536814118417778115719990002145004286277616614906607779567071503379338537342846393585205078125'
+      - channel: oeis
+        source_id: A124252
+        url: https://oeis.org/A124252
+        value: '6'
+      quote: 8 2
+      source_id: A034968
+      url: https://oeis.org/A034968
+      value: '8'
+    filled: true
+  kind: numeric
+  raw_text: 1000 permutations
+  resolved_value: '8'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T18:40:31Z'

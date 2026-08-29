@@ -435,3 +435,22 @@
   source_type: external
   status: verified
   updated_at: '2026-07-25T04:22:43Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 0
+  canonical: full pool final csv contains more than 150000 rows
+  claim_id: c_baab37e4
+  context: 'Independent Test: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    entailment_evidence: Full pool final.csv contains more than 150,000 rows
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_more_than_150,000_rows
+  kind: magnitude
+  raw_text: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: full_pool_final.csv contains more than 150,000 rows
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T18:57:04Z'

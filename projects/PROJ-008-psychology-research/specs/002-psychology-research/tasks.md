@@ -79,7 +79,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Contract test for data extraction schema in `tests/contract/test_cleaned_study_schema.py`
+- [X] T011 [P] [US1] Contract test for data extraction schema in `tests/contract/test_cleaned_study_schema.py`
 - [X] T012 [P] [US1] Integration test for API rate-limiting and backoff in `tests/integration/test_api_collector.py`
 - [X] T013 [P] [US1] Unit test for inclusion criteria filtering logic in `tests/unit/test_cleaner.py`
 
@@ -130,14 +130,14 @@
 ### Tests for User Story 3 (REQUIRED) ⚠️
 
 - [X] T031 [P] [US3] Unit test for forest plot generation in `tests/unit/test_plots.py`
-- [ ] T032 [P] [US3] Unit test for funnel plot suppression logic when N < 10 in `tests/unit/test_plots.py`
+- [X] T032 [P] [US3] Unit test for funnel plot suppression logic when N < 10 in `tests/unit/test_plots.py`
 - [ ] T033 [P] [US3] Integration test for publication bias assessment (Egger's test) in `tests/integration/test_bias.py`
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] depends on T024-T029: Implement forest plot generator in `code/viz/plots.py` (FR-006) displaying study-specific CIs and pooled effect diamond
-- [ ] T035 [US3] depends on T024-T029: Implement funnel plot generator in `code/viz/plots.py` (FR-006) with asymmetry visual cues (only if N ≥ 10)
-- [ ] T036 [US3] depends on T024-T029: Implement Egger's test and publication bias assessment in `code/analysis/bias.py` (FR-006)
+- [X] T034 [US3] depends on T024-T029: Implement forest plot generator in `code/viz/plots.py` (FR-006) displaying study-specific CIs and pooled effect diamond
+- [X] T035 [US3] depends on T024-T029: Implement funnel plot generator in `code/viz/plots.py` (FR-006) with asymmetry visual cues (only if N ≥ 10)
+- [X] T036 [US3] depends on T024-T029: Implement Egger's test and publication bias assessment in `code/analysis/bias.py` (FR-006)
 - [ ] T037 [US3] depends on T036: Implement conditional logic to suppress funnel plot/Egger's test if N < 10 and add warning to report (FR-014)
 - [ ] T038 [US3] depends on T034, T035: Generate high-resolution PNGs for forest and funnel plots in `data/processed/`
 - [ ] T039 [US3] depends on T038: Generate final `docs/results.md` report including all plots, heterogeneity statistics, and narrative synthesis (if N < 10)

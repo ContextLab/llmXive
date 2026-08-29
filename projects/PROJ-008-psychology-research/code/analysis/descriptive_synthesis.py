@@ -2,141 +2,108 @@ import logging
 from typing import List, Dict, Any, Optional
 import numpy as np
 from dataclasses import dataclass
-
 from code.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 @dataclass
 class DescriptiveSynthesisResult:
-    """Result of a descriptive synthesis when statistical meta-analysis is not possible."""
-    n_studies: int
-    effect_sizes: List[float]
+    """Result of a descriptive synthesis."""
+    k_studies: int
     mean_effect: float
-    std_effect: float
+    std_dev: float
     min_effect: float
     max_effect: float
     median_effect: float
-    iqr_low: float
-    iqr_high: float
+    effect_size_range: str
     narrative_summary: str
 
 def perform_descriptive_synthesis(
-    effect_sizes: List[float],
-    study_ids: List[str],
-    study_details: Optional[List[Dict[str, Any]]] = None
+    effect_sizes: List[Any]
 ) -> DescriptiveSynthesisResult:
     """
-    Perform a descriptive synthesis of effect sizes when meta-analysis is not appropriate.
-    
-    This function implements FR-014: When N < 10, switch from statistical meta-analysis
-    to descriptive synthesis.
-    
-    Args:
-        effect_sizes: List of effect sizes (Hedges' g)
-        study_ids: List of study identifiers
-        study_details: Optional list of dictionaries with study metadata
-        
-    Returns:
-        DescriptiveSynthesisResult with summary statistics and narrative
+    Perform a descriptive synthesis of effect sizes when meta-analysis is not appropriate (N < 10).
+    Calculates basic statistics and generates a narrative summary.
     """
-    if len(effect_sizes) == 0:
-        raise ValueError("At least one effect size is required for descriptive synthesis")
-    
-    effect_array = np.array(effect_sizes)
-    
-    # Calculate summary statistics
-    mean_effect = float(np.mean(effect_array))
-    std_effect = float(np.std(effect_array, ddof=1)) if len(effect_array) > 1 else 0.0
-    min_effect = float(np.min(effect_array))
-    max_effect = float(np.max(effect_array))
-    median_effect = float(np.median(effect_array))
-    
-    # Calculate IQR
-    q1 = np.percentile(effect_array, 25)
-    q3 = np.percentile(effect_array, 75)
-    iqr_low = float(q1)
-    iqr_high = float(q3)
-    
-    # Build narrative summary
-    narrative_parts = []
-    narrative_parts.append(f"Descriptive synthesis of {len(effect_sizes)} studies.")
-    narrative_parts.append(f"Effect sizes ranged from {min_effect:.3f} to {max_effect:.3f}.")
-    narrative_parts.append(f"The mean effect size was {mean_effect:.3f} (SD = {std_effect:.3f}).")
-    narrative_parts.append(f"The median effect size was {median_effect:.3f} (IQR: {iqr_low:.3f} to {iqr_high:.3f}).")
-    
-    if study_details:
-        narrative_parts.append("\nStudy details:")
-        for i, detail in enumerate(study_details):
-            study_id = study_ids[i] if i < len(study_ids) else f"Study {i+1}"
-            narrative_parts.append(f"  - {study_id}: g = {effect_sizes[i]:.3f}")
-            if isinstance(detail, dict):
-                if 'intervention' in detail:
-                    narrative_parts[-1] += f" ({detail['intervention']})"
-                if 'population' in detail:
-                    narrative_parts[-1] += f" in {detail['population']}"
-    
-    narrative_summary = " ".join(narrative_parts)
-    
+    if not effect_sizes:
+        raise ValueError("No effect sizes provided for descriptive synthesis.")
+
+    effects = [es.effect_size for es in effect_sizes if hasattr(es, 'effect_size')]
+    if not effects:
+        raise ValueError("Could not extract effect sizes from input.")
+
+    k = len(effects)
+    mean_eff = float(np.mean(effects))
+    std_eff = float(np.std(effects, ddof=1))
+    min_eff = float(np.min(effects))
+    max_eff = float(np.max(effects))
+    median_eff = float(np.median(effects))
+
+    # Determine range string
+    range_str = f"{min_eff:.3f} to {max_eff:.3f}"
+
+    # Generate narrative summary
+    # Interpret direction based on sign (assuming positive = improvement)
+    direction = "improvement" if mean_eff > 0 else "deterioration" if mean_eff < 0 else "no change"
+    magnitude = "small"
+    if abs(mean_eff) > 0.2: magnitude = "small"
+    if abs(mean_eff) > 0.5: magnitude = "medium"
+    if abs(mean_eff) > 0.8: magnitude = "large"
+
+    narrative = (
+        f"A descriptive synthesis of {k} studies was performed. "
+        f"The mean effect size was {mean_eff:.3f} (SD={std_eff:.3f}), "
+        f"ranging from {min_eff:.3f} to {max_eff:.3f}. "
+        f"This indicates a {magnitude} {direction} in social skills outcomes. "
+        f"Due to the limited number of studies (N={k} < 10), a random-effects meta-analysis was not conducted."
+    )
+
     return DescriptiveSynthesisResult(
-        n_studies=len(effect_sizes),
-        effect_sizes=effect_sizes,
-        mean_effect=mean_effect,
-        std_effect=std_effect,
-        min_effect=min_effect,
-        max_effect=max_effect,
-        median_effect=median_effect,
-        iqr_low=iqr_low,
-        iqr_high=iqr_high,
-        narrative_summary=narrative_summary
+        k_studies=k,
+        mean_effect=mean_eff,
+        std_dev=std_eff,
+        min_effect=min_eff,
+        max_effect=max_eff,
+        median_effect=median_eff,
+        effect_size_range=range_str,
+        narrative_summary=narrative
     )
 
 def format_synthesis_report(
-    synthesis_result: DescriptiveSynthesisResult,
-    context: str = "Mindfulness interventions for social skills in ASD"
+    result: DescriptiveSynthesisResult
 ) -> str:
     """
-    Format a descriptive synthesis result into a readable report.
-    
-    Args:
-        synthesis_result: The descriptive synthesis result
-        context: Contextual information about the analysis
-        
-    Returns:
-        Formatted report string
+    Format the descriptive synthesis result into a readable report string.
     """
-    report_lines = [
-        "=" * 60,
-        "DESCRIPTIVE SYNTHESIS REPORT",
-        "=" * 60,
+    lines = [
+        "## Descriptive Synthesis Report",
         "",
-        f"Context: {context}",
+        f"**Number of Studies:** {result.k_studies}",
+        f"**Mean Effect Size:** {result.mean_effect:.4f}",
+        f"**Standard Deviation:** {result.std_dev:.4f}",
+        f"**Median Effect Size:** {result.median_effect:.4f}",
+        f"**Range:** {result.effect_size_range}",
         "",
-        f"Number of studies: {synthesis_result.n_studies}",
+        "### Narrative Summary",
+        result.narrative_summary,
         "",
-        "Summary Statistics:",
-        f"  Mean effect size (g): {synthesis_result.mean_effect:.3f}",
-        f"  Standard deviation: {synthesis_result.std_effect:.3f}",
-        f"  Median effect size: {synthesis_result.median_effect:.3f}",
-        f"  Interquartile range: [{synthesis_result.iqr_low:.3f}, {synthesis_result.iqr_high:.3f}]",
-        f"  Range: [{synthesis_result.min_effect:.3f}, {synthesis_result.max_effect:.3f}]",
-        "",
-        "Narrative Summary:",
-        synthesis_result.narrative_summary,
-        "",
-        "Note: Statistical meta-analysis was not performed due to insufficient",
-        "sample size (N < 10). Results should be interpreted as descriptive only.",
-        "=" * 60
+        "### Note",
+        "This synthesis was performed because the number of studies was below the threshold required for meta-analysis."
     ]
-    
-    return "\n".join(report_lines)
+    return "\n".join(lines)
 
 def main():
-    """Main entry point for descriptive synthesis module."""
-    logger.info("Descriptive synthesis module loaded successfully")
-    logger.info("Functions available:")
-    logger.info("  - perform_descriptive_synthesis")
-    logger.info("  - format_synthesis_report")
+    """
+    Entry point for testing descriptive synthesis.
+    """
+    # Mock data for testing
+    class MockES:
+        def __init__(self, val):
+            self.effect_size = val
+
+    mock_data = [MockES(0.2), MockES(0.5), MockES(-0.1), MockES(0.8), MockES(0.3)]
+    result = perform_descriptive_synthesis(mock_data)
+    print(format_synthesis_report(result))
 
 if __name__ == "__main__":
     main()
