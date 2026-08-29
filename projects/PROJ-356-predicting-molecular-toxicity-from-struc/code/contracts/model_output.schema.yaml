@@ -1,188 +1,106 @@
-%YAML 1.2
----
-# Schema for model output and evaluation metrics
-# Defines the structure of prediction results and performance metrics
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Output Schema
-description: |
-  Schema for model predictions, evaluation metrics, and statistical analysis results.
+description: Schema for model predictions and evaluation metrics.
 type: object
 required:
   - metadata
-  - metrics
   - predictions
+  - metrics
 properties:
   metadata:
     type: object
-    description: Metadata about the model run
     required:
       - model_type
-      - run_id
+      - cv_folds
+      - cv_repeats
       - timestamp
-      - config_hash
     properties:
       model_type:
         type: string
-        description: Type of model (e.g., "RuleBased", "LogisticRegression")
-        enum: [RuleBased, LogisticRegression]
-      run_id:
-        type: string
-        description: Unique identifier for this run
-        pattern: "^[a-f0-9]{32}$"
+        enum: ["rule_based", "logistic_regression"]
+        description: Type of model that generated the output
+      cv_folds:
+        type: integer
+        minimum: 1
+        description: Number of cross-validation folds
+      cv_repeats:
+        type: integer
+        minimum: 1
+        description: Number of CV repeats
       timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of run completion
-      config_hash:
-        type: string
-        pattern: "^[a-f0-9]{64}$"
-        description: SHA-256 hash of the configuration used
-      cv_settings:
-        type: object
-        description: Cross-validation settings
-        properties:
-          n_folds:
-            type: integer
-            minimum: 2
-          n_repeats:
-            type: integer
-            minimum: 1
-          stratified:
-            type: boolean
-          random_seed:
-            type: integer
+        description: Timestamp of model execution
+  predictions:
+    type: array
+    description: Out-of-fold predictions for each instance
+    items:
+      type: object
+      required:
+        - instance_id
+        - prediction
+        - true_label
+      properties:
+        instance_id:
+          type: integer
+          description: Unique identifier for the instance
+        prediction:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Predicted probability of toxicity
+        true_label:
+          type: integer
+          enum: [0, 1]
+          description: Ground truth label
   metrics:
     type: object
-    description: Performance metrics
     required:
       - roc_auc
       - f1_score
       - recall
-      - precision
-      - accuracy
     properties:
       roc_auc:
         type: number
         minimum: 0.0
         maximum: 1.0
-        description: Area Under the Receiver Operating Characteristic Curve
+        description: Area Under the ROC Curve
       f1_score:
         type: number
         minimum: 0.0
         maximum: 1.0
-        description: F1 Score (harmonic mean of precision and recall)
+        description: F1 Score
       recall:
         type: number
         minimum: 0.0
         maximum: 1.0
-        description: True Positive Rate
+        description: Recall (True Positive Rate)
       precision:
         type: number
         minimum: 0.0
         maximum: 1.0
-        description: Positive Predictive Value
+        description: Precision
       accuracy:
         type: number
         minimum: 0.0
         maximum: 1.0
-        description: Overall accuracy
-      confusion_matrix:
-        type: object
-        properties:
-          tp:
-            type: integer
-            minimum: 0
-          tn:
-            type: integer
-            minimum: 0
-          fp:
-            type: integer
-            minimum: 0
-          fn:
-            type: integer
-            minimum: 0
-  predictions:
-    type: object
-    description: Prediction vectors
-    required:
-      - oof_probabilities
-      - oof_labels
-      - instance_ids
-    properties:
-      oof_probabilities:
-        type: array
-        description: Out-of-Fold predicted probabilities (one per instance)
-        items:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-      oof_labels:
-        type: array
-        description: True labels corresponding to OOF predictions
-        items:
-          type: integer
-          enum: [0, 1]
-      instance_ids:
-        type: array
-        description: Unique identifiers for each instance
-        items:
-          type: string
+        description: Accuracy
   statistical_analysis:
     type: object
-    description: Statistical significance testing results (for comparative analysis)
+    description: Results of DeLong's test comparing models
     properties:
-      delong_test:
-        type: object
-        description: DeLong's test results for AUC comparison
-        properties:
-          p_value:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-          auc_difference:
-            type: number
-          confidence_interval:
-            type: object
-            properties:
-              lower:
-                type: number
-              upper:
-                type: number
-              confidence_level:
-                type: number
-                enum: [0.95]
-          significant_at_005:
-            type: boolean
-            description: Whether p < 0.05
-  error_analysis:
-    type: object
-    description: Error analysis results (for false negative investigation)
-    properties:
-      false_negatives:
+      p_value:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: P-value from DeLong's test
+      confidence_interval:
         type: array
-        description: List of false negative cases
         items:
-          type: object
-          properties:
-            compound_id:
-              type: string
-            smiles:
-              type: string
-            murcko_scaffold:
-              type: string
-              description: Systematic scaffold representation
-      scaffold_frequency:
-        type: array
-        description: Top scaffolds in false negatives
-        items:
-          type: object
-          properties:
-            scaffold:
-              type: string
-            count:
-              type: integer
-            percentage:
-              type: number
-              minimum: 0.0
-              maximum: 100.0
-additionalProperties: false
+          type: number
+        minItems: 2
+        maxItems: 2
+        description: 95% Confidence Interval for AUC difference
+      is_significant:
+        type: boolean
+        description: Whether the difference is statistically significant (p < 0.05)

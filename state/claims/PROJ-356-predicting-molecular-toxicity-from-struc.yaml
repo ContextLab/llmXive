@@ -1770,3 +1770,754 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T06:41:18Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: curated set includes at least 10 SMARTS patterns
+  claim_id: c_aa1c3e0a
+  context: Create `config/structural_alerts.json` with a curated set of at least 10
+    SMARTS patterns and weights.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_set_includes_at_least_10_SMARTS_patterns
+  kind: magnitude
+  raw_text: The curated set of structural alerts includes at least 10 SMARTS patterns
+    and weights.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:32:09Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: dataset minimum sample size of 1000 compounds
+  claim_id: c_984d1985
+  context: Enforce a minimum sample size check (N > 1000) and fail gracefully if the
+    dataset is too small.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset must contain a minimum of 1000 compounds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:32:45Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: 5-fold stratified CV repeated 3 times
+  claim_id: c_01839237
+  context: Validation requires 5-fold stratified CV repeated 3 times on N > 1000 compounds
+    from [Specific Assay].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation standard requires 5-fold stratified cross-validation repeated
+    3 times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:33:50Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: hardcoded n_splits equals 5
+  claim_id: c_57f74d93
+  context: Hardcode `n_splits=5` and `n_repeats=3` to ensure the 15-fold structure
+    required by FR-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of cross-validation splits is hardcoded to 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:34:37Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: hardcoded n_repeats equals 3
+  claim_id: c_a83c027d
+  context: Hardcode `n_splits=5` and `n_repeats=3` to ensure the 15-fold structure
+    required by FR-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of cross-validation repeats is hardcoded to 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:35:22Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: random sample of 1000 rows for descriptor correlation
+  claim_id: c_d15a8262
+  context: Compute the correlation matrix of the 20 selected descriptors on a random
+    sample of 1000 rows drawn strictly from the training set of the first CV split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A random sample of 1000 rows is drawn from the training set for descriptor
+    correlation analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:36:19Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: descriptor correlation threshold 0.9
+  claim_id: c_0346f304
+  context: Verify that no pair exceeds a correlation threshold (e.g., |r| > 0.9).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation threshold for descriptor pairs is set to |r| > 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:36:20Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: 20 specific RDKit global descriptors computed
+  claim_id: c_a6375467
+  context: 'Compute a comprehensive set of RDKit global descriptors (non-correlated):
+    `MolWt`, `MolLogP`, `TPSA`, `NumHDonors`, `NumHAcceptors`, `NumRotatableBonds`,
+    `NumAromaticRings`, `NumAliphaticRings`, `NumSaturatedRings`, `NumHeteroatoms`,
+    `HeavyAtomCount`, `FractionCSP`, `NumBridgeheadAtoms`, `NumSpiroAtoms`, `RingCount`,
+    `MaxDendriticBranching`, `Kappa`, `Kappa2`, `Kappa3`, `Chi0`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A set of 20 specific RDKit global descriptors is computed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:36:52Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: statistical significance p-value threshold 0.05
+  claim_id: c_ef5f4e44
+  context: Verify the OOF prediction vector is constructed correctly ... indicating
+    whether the AUC difference is significant at the 0.05 level.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The 0.05 significance level is merely a convention. The 0.05 significance
+        level (alpha level) is often used as the boundary between a statistically
+        significant and a statistically non-significant p-value. However, this does
+        not imply that there is generally a scientific reason to consider results
+        on opposite sides of any threshold as qualitatively different.
+      source_id: Misuse of p-values
+      url: https://en.wikipedia.org/wiki/Misuse_of_p-values
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The statistical significance threshold for p-value is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T14:37:16Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: PubChem AID 1851 assay ID
+  claim_id: c_dce19772
+  context: Verify that the `results/metrics_baseline.json` and `research.md` explicitly
+    state the compound count (N > 1000), the specific assay source (e.g., PubChem
+    AID 1851)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The specific assay ID mentioned is PubChem AID 1851.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:38:25Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Nitroaromatic group SMARTS weight 1.5
+  claim_id: c_9e744cd8
+  context: 'Example pattern: `pattern_id`: `NITRO_AROMATIC_01`, `weight`: `1.5`, `source`:
+    `Brenk Set`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The structural alerts include a pattern for Nitroaromatic groups with
+    a weight of 1.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:38:56Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Epoxide ring SMARTS weight 2.0
+  claim_id: c_763fe1d1
+  context: 'Example pattern: `pattern_id`: `EPOXIDE_01`, `weight`: `2.0`, `source`:
+    `Brenk Set`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The structural alerts include a pattern for Epoxide rings with a weight
+    of 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:39:20Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Primary aromatic amine SMARTS weight 1.2
+  claim_id: c_53b25295
+  context: 'Example pattern: `pattern_id`: `PRIMARY_ARI_AMINE_01`, `weight`: `1.2`,
+    `source`: `Brenk Set`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The structural alerts include a pattern for Primary aromatic amines with
+    a weight of 1.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:39:49Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Secondary aromatic amine SMARTS weight 1.0
+  claim_id: c_e09a4b17
+  context: 'Example pattern: `pattern_id`: `SECONDARY_ARI_AMINE_01`, `weight`: `1.0`,
+    `source`: `Brenk Set`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The structural alerts include a pattern for Secondary aromatic amines
+    with a weight of 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:40:31Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Azide group SMARTS weight 2.5
+  claim_id: c_583bcc1d
+  context: 'Example pattern: `pattern_id`: `AZIDE_01`, `weight`: `2.5`, `source`:
+    `Brenk Set`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The structural alerts include a pattern for Azide groups with a weight
+    of 2.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:41:26Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Isocyanate group SMARTS weight 2.0
+  claim_id: c_875f8f06
+  context: 'Example pattern: `pattern_id`: `ISOCYANATE_01`, `weight`: `2.0`, `source`:
+    `Brenk Set`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The structural alerts include a pattern for Isocyanate groups with a weight
+    of 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:42:22Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Aldehyde group SMARTS weight 0.8
+  claim_id: c_2f38ad88
+  context: 'Example pattern: `pattern_id`: `ALDEHYDE_01`, `weight`: `0.8`, `source`:
+    `Brenk Set`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The structural alerts include a pattern for Aldehyde groups with a weight
+    of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:42:53Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Halogenated aliphatic SMARTS weight 0.5
+  claim_id: c_78991698
+  context: 'Example pattern: `pattern_id`: `HALO_ALIPHATIC_01`, `weight`: `0.5`, `source`:
+    `Brenk Set`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The structural alerts include a pattern for Halogenated aliphatic groups
+    with a weight of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:43:21Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Azo group SMARTS weight 1.8
+  claim_id: c_8906ca8e
+  context: 'Example pattern: `pattern_id`: `AZO_01`, `weight`: `1.8`, `source`: `Brenk
+    Set`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The structural alerts include a pattern for Azo groups with a weight of
+    1.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:44:11Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Hydrazine group SMARTS weight 1.5
+  claim_id: c_461df3e9
+  context: 'Example pattern: `pattern_id`: `HYDRAZINE_01`, `weight`: `1.5`, `source`:
+    `Brenk Set`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The structural alerts include a pattern for Hydrazine groups with a weight
+    of 1.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:44:48Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: curated set of at least 10 SMARTS patterns and weights in config/structural_alerts.json
+  claim_id: c_a2fbf2d0
+  context: Task T010 requires creating a configuration file with a minimum of 10 specific
+    chemical patterns.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_set_of_at_least_10_SMARTS_patterns_and_weights_in_co
+  kind: magnitude
+  raw_text: Create config/structural_alerts.json with a curated set of at least 10
+    SMARTS patterns and weights.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:47:35Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: correlation matrix of 20 descriptors on random sample of 1000 rows with
+    threshold |r| > 0.9
+  claim_id: c_cf5dfe39
+  context: Task T022b specifies a validation step for descriptor selection involving
+    a specific sample size and correlation threshold.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 0.9'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Correlation_matrix_of_20_descriptors_on_random_sample_of_100
+    source_value: https://en.wikipedia.org/wiki/correlation_matrix_of_20_descriptors_on_random_sample_of_100
+    subject: correlation matrix of 20 descriptors on random sample of 1000 rows with
+      threshold
+  kind: relational
+  raw_text: Compute the correlation matrix of the 20 selected descriptors on a random
+    sample of 1000 rows drawn strictly from the training set of the first CV split
+    and verify that no pair exceeds a correlation threshold (e.g., |r| > 0.9).
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:48:30Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: recall difference significance threshold of 0.05
+  claim_id: c_907e25d7
+  context: Task T025 specifies the threshold for determining statistical significance
+    in recall difference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Measure and report the difference in Recall (Desc - Rule) against a predefined
+    significance threshold of a non-trivial absolute percentage point difference.
+    Output: Append recall_diff and recall_diff_significant (boolean, true if > 0.05)
+    to results/metrics_baseline.json.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:48:30Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: statistical significance at 0.05 level for AUC difference
+  claim_id: c_77f25d0c
+  context: Phase 4 Independent Test and Task T028 specify the significance level for
+    DeLong's test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the OOF prediction vector is constructed correctly (one value
+    per instance) and that the statistical analysis module outputs a p-value and confidence
+    interval indicating whether the AUC difference is significant at the 0.05 level.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:49:05Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: reproducibility standard of 5-fold stratified CV repeated 3 times on
+    N > 1000 compounds
+  claim_id: c_095d670b
+  context: Task T044 defines the minimum sample size and cross-validation protocol
+    required for research validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Update research.md to explicitly state the reproducibility standard:
+    Validation requires 5-fold stratified CV repeated 3 times on N > 1000 compounds
+    from [Specific Assay].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:50:13Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: pre-flight validation for column existence, label distribution, and SMILES
+    validity
+  claim_id: c_9c844862
+  context: Task T045 describes the requirements for the dataset validation script.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pre-flight_validation_for_column_existence,_label_distributi
+  kind: entity_fact
+  raw_text: Implement a pre-flight validation script that checks column existence,
+    label distribution, and SMILES validity before pipeline execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:50:54Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: peak RSS less than 7 GB during full pipeline execution
+  claim_id: c_60e886cb
+  context: Task T047 and T050 specify the memory constraint for the pipeline.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_less_than_7_GB_during_full_pipeline_execution
+  kind: magnitude
+  raw_text: Implement tests with a specific test command to verify peak RSS < 7 GB
+    during full pipeline execution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:51:57Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time less than 4 hours on CPU-only runner
+  claim_id: c_a3e87bec
+  context: Task T051 sets a performance constraint for the pipeline execution time.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_less_than_4_hours_on_CPU-only_r
+  kind: magnitude
+  raw_text: Ensure full pipeline < 4 hours on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:52:33Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: curated set of at least 10 SMARTS patterns and weights in config/structural_alerts.json
+  claim_id: c_9fc97728
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T010'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_set_of_at_least_10_SMARTS_patterns_and_weights_in_co
+  kind: magnitude
+  raw_text: Create config/structural_alerts.json with a curated set of at least 10
+    SMARTS patterns and weights.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:53:01Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: correlation matrix of 20 descriptors on random sample of 1000 rows from
+    first CV training split
+  claim_id: c_5e7d2c4c
+  context: 'Phase 3: User Story 1 - Task T022b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute a correlation matrix of the 20 selected descriptors on a random
+    sample of 1000 rows drawn strictly from the training set of the first CV split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:53:37Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: hardcoded n_splits=5 and n_repeats=3 ensuring 15-fold structure
+  claim_id: c_2196bddc
+  context: 'Phase 3: User Story 1 - Task T024'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hardcode n_splits=5 and n_repeats=3 to ensure the 15-fold structure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:54:17Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: dataset contains N > 1000 compounds
+  claim_id: c_3f5ffe1a
+  context: 'Phase 6: Research Validation & Reviewer Concerns - Task T041'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the dataset contains N > 1000 compounds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:54:17Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: peak RSS < 7 GB during full pipeline execution
+  claim_id: c_ff363ded
+  context: 'Phase 7: Statistical Constraint Enforcement - Task T047'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify peak RSS < 7 GB during full pipeline execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:54:18Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: curated set of at least 10 SMARTS patterns and weights
+  claim_id: c_0dcab773
+  context: 'T010 [P] Create config/structural_alerts.json with a curated set of at
+    least 10 SMARTS patterns and weights. Requirement: Each pattern must include a
+    source field...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_set_of_at_least_10_SMARTS_patterns_and_weights
+  kind: magnitude
+  raw_text: Create config/structural_alerts.json with a curated set of at least 10
+    SMARTS patterns and weights.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:55:29Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: correlation matrix of 20 descriptors on 1000 rows from training set
+  claim_id: c_30c2c8c4
+  context: T022b [US1] Implement src/features/descriptors.py... to compute the correlation
+    matrix of the 20 selected descriptors on a random sample of 1000 rows...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute the correlation matrix of the 20 selected descriptors on a random
+    sample of 1000 rows drawn strictly from the training set of the first CV split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T14:55:29Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: no pair of descriptors exceeds correlation threshold |r| > 0.9
+  claim_id: c_0279d9ff
+  context: '...verify that no pair exceeds a correlation threshold (e.g., |r| > 0.9).
+    Log the result to results/descriptor_validation.json.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 0.9'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/no_pair_of_descriptors_exceeds_correlation_threshold_r_%3E_0.9
+    source_value: https://en.wikipedia.org/wiki/no_pair_of_descriptors_exceeds_correlation_threshold_r_>_0.9
+    subject: no pair of descriptors exceeds correlation threshold
+  kind: relational
+  raw_text: Verify that no pair exceeds a correlation threshold of |r| > 0.9.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:01:48Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: recall difference significance threshold > 0.05
+  claim_id: c_19f941c4
+  context: '...Measure and report the difference in Recall (Desc - Rule) against a
+    predefined significance threshold... Output: Append recall_diff (float) and recall_diff_significant
+    (boolean, true if > 0.05)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Measure and report the difference in Recall (Desc - Rule) against a predefined
+    significance threshold of a non-trivial absolute percentage point difference...
+    recall_diff_significant (boolean, true if > 0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:01:49Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: minimum sample size N > 1000
+  claim_id: c_43734612
+  context: T041 [US1] Update src/data/download.py to enforce a minimum sample size
+    check (N > 1000) and fail gracefully if the dataset is too small...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a minimum sample size check (N > 1000) and fail gracefully if
+    the dataset is too small.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:01:49Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: validation requires 5-fold stratified CV repeated 3 times on N > 1000
+    compounds
+  claim_id: c_14258a2b
+  context: 'T044 [US1] Update research.md to explicitly state the reproducibility
+    standard: ''Validation requires 5-fold stratified CV repeated 3 times on N > 1000
+    compounds from [Specific Assay]''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validation requires 5-fold stratified CV repeated 3 times on N > 1000
+    compounds from [Specific Assay].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:03:45Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: peak RSS < 7 GB during full pipeline execution
+  claim_id: c_c827c60a
+  context: T047 [P] [Polish] Implement tests/integration/test_memory.py with a specific
+    test command to verify peak RSS < 7 GB during full pipeline execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement tests to verify peak RSS < 7 GB during full pipeline execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:03:46Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time < 4 hours on CPU-only runner
+  claim_id: c_db4975f4
+  context: T051 [Polish] Performance optimization to ensure full pipeline < 4 hours
+    on CPU-only runner (SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full pipeline < 4 hours on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:03:46Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: log specific assay ID and assay type (Ames/ToxCast)
+  claim_id: c_d80b8c68
+  context: T042 [US1] Update src/data/download.py to explicitly log the specific assay
+    ID (e.g., a PubChem AID) and assay type (Ames/ToxCast) in the data report...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_specific_assay_ID_and_assay_type_(Ames/ToxCast)
+  kind: entity_fact
+  raw_text: Explicitly log the specific assay ID (e.g., a PubChem AID) and assay type
+    (Ames/ToxCast) in the data report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:04:36Z'

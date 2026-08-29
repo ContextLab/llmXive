@@ -1,0 +1,66 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Molecular Toxicity Dataset Schema
+description: >
+  Schema for the raw and processed molecular toxicity datasets used in the
+  predictive modeling pipeline. Ensures consistency across data acquisition,
+  preprocessing, and feature extraction stages.
+type: object
+required:
+  - metadata
+  - data
+properties:
+  metadata:
+    type: object
+    required:
+      - assay_id
+      - assay_type
+      - source_url
+      - download_timestamp
+      - total_compounds
+      - checksum_sha256
+    properties:
+      assay_id:
+        type: string
+        description: "Unique identifier for the assay (e.g., PubChem AID 1851)"
+      assay_type:
+        type: string
+        description: "Type of assay (e.g., 'Ames Test', 'ToxCast')"
+      source_url:
+        type: string
+        format: uri
+        description: "Original URL or identifier where data was fetched"
+      download_timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of data download"
+      total_compounds:
+        type: integer
+        minimum: 1
+        description: "Total number of compounds in the dataset"
+      checksum_sha256:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+        description: "SHA-256 checksum of the raw data file"
+  data:
+    type: array
+    description: "List of molecular records"
+    items:
+      type: object
+      required:
+        - smiles
+        - label
+        - molecular_weight
+      properties:
+        smiles:
+          type: string
+          description: "Canonical SMILES string"
+        label:
+          type: integer
+          description: "Binary toxicity label (0: inactive, 1: active)"
+        molecular_weight:
+          type: number
+          minimum: 0
+          description: "Molecular weight in Daltons"
+        canonical_smiles:
+          type: string
+          description: "Pre-processed canonical SMILES (optional)"

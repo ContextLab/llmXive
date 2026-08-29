@@ -74,7 +74,7 @@ A researcher needs to inspect the false negatives of the rule-based model to ide
 - **FR-007**: The system MUST perform DeLong's test to compare the AUC of the rule-based and descriptor-based models using predictions averaged per instance across all CV folds, outputting a p-value (See US-2).
 - **FR-008**: The system MUST identify and list the top unique Murcko scaffolds present in the false negatives of the rule-based model. (See US-3).
 - **FR-009**: The system MUST NOT apply multiple-comparison correction as only a single primary hypothesis test (DeLong's test) is performed (See US-2).
-- **FR-010**: The system MUST execute the entire pipeline on a CPU-only environment with a maximum runtime of a reasonable duration and memory usage under 7 GB (See Assumptions).
+- **FR-010**: The system MUST execute the entire pipeline on a CPU-only environment with a maximum runtime of a reasonable duration and memory usage within acceptable bounds. (See Assumptions).
 
 ### Key Entities
 

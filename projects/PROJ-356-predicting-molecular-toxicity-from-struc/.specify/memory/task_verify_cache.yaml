@@ -1,21 +1,9 @@
-T006:
+T010b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or file evidence was provided to confirm that `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/models/`
-    actually exists and contains any content. The claim alone is insufficient; the
-    required artifact must be shown.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/`
-    directory (or any files within it) was provided; the artifact is missing, so the
-    task is not satisfied.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `docs` directory at `projects/PROJ-356-predicting-molecular-toxicity-from-struc/docs/`
-    is provided; the response contains only task description and specifications, with
-    no actual directory or files shown. The required artifact is missing.
+  h: c1d3b9bffe199ba6016d5e30e8e7ae2353d3edf8921e6ce3ab5740a14ce90420
+  r: "The required validation implementation files (`src/features/alerts.py` or `src/utils/validator.py`)\
+    \ are absent, and the schema file `contracts/alerts.schema.yaml` (or `schema.yaml`)\
+    \ is also missing, so the task\u2019s core requirement cannot be satisfied."
 T015:
   c: false
   h: b26a0c49ee655b01c31615f9267335ab6303475c856b3aa7a5690b06709b7c5e

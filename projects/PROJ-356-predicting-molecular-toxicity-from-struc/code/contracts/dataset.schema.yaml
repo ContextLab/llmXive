@@ -1,12 +1,6 @@
-%YAML 1.2
----
-# Schema for the molecular toxicity dataset
-# Defines the expected structure of data files used in the pipeline
 $schema: http://json-schema.org/draft-07/schema#
-title: Molecular Toxicity Dataset
-description: |
-  Schema for the primary dataset used in the molecular toxicity prediction pipeline.
-  Contains SMILES strings, toxicity labels, and metadata.
+title: Molecular Toxicity Dataset Schema
+description: Schema for the raw and processed molecular toxicity datasets used in the pipeline.
 type: object
 required:
   - metadata
@@ -14,80 +8,59 @@ required:
 properties:
   metadata:
     type: object
-    description: Metadata about the dataset source and processing
     required:
-      - source
       - assay_id
       - assay_type
+      - source_url
       - total_compounds
+      - checksum_sha256
       - created_at
-      - checksum
     properties:
-      source:
-        type: string
-        description: Original data source (e.g., "PubChem", "ToxCast")
-        pattern: "^[A-Za-z0-9_\\- ]+$"
       assay_id:
         type: string
-        description: Specific assay identifier (e.g., "AID_1851")
-        pattern: "^[A-Za-z0-9_]+$"
+        description: Unique identifier for the assay (e.g., PubChem AID)
       assay_type:
         type: string
-        description: Type of assay (e.g., "Ames", "ToxCast")
-        pattern: "^(Ames|ToxCast|Tox21)$"
+        description: Type of assay (e.g., Ames, ToxCast)
+      source_url:
+        type: string
+        format: uri
+        description: URL where the data was downloaded from
       total_compounds:
         type: integer
         minimum: 1000
-        description: Total number of compounds in the dataset (minimum 1000 per reviewer concerns)
+        description: Total number of compounds in the dataset
+      checksum_sha256:
+        type: string
+        pattern: '^[a-f0-9]{64}$'
+        description: SHA-256 checksum of the raw data file
       created_at:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of dataset creation
-      checksum:
-        type: string
-        pattern: "^[a-f0-9]{64}$"
-        description: SHA-256 checksum of the raw data file
-      preprocessing:
-        type: object
-        description: Details of preprocessing steps applied
-        properties:
-          smiles_canonicalized:
-            type: boolean
-            description: Whether SMILES were canonicalized
-          mw_filter_applied:
-            type: boolean
-            description: Whether molecular weight filtering was applied
-          mw_threshold:
-            type: number
-            description: Molecular weight threshold in Daltons
-          duplicates_removed:
-            type: integer
-            description: Number of duplicate records removed
+        description: Timestamp when the dataset was processed
   records:
     type: array
-    description: Array of molecular records
+    description: List of molecular records
     items:
       type: object
       required:
         - smiles
         - label
-        - compound_id
+        - molecular_weight
       properties:
         smiles:
           type: string
-          description: Canonical SMILES string
-          pattern: "^[A-Za-z0-9@\\+\\-\\[\\]\\(\\)\\\\/=#%]+$"
+          description: Canonical SMILES string of the molecule
         label:
           type: integer
-          description: Toxicity label (0: inactive, 1: active)
           enum: [0, 1]
-        compound_id:
-          type: string
-          description: Unique identifier for the compound
+          description: Toxicity label (0: non-toxic, 1: toxic)
         molecular_weight:
           type: number
-          description: Calculated molecular weight
-        log_p:
-          type: number
-          description: Calculated partition coefficient
-additionalProperties: false
+          description: Molecular weight in Daltons
+        inchi_key:
+          type: string
+          description: InChIKey for the molecule
+        source_id:
+          type: string
+          description: Original identifier from the source dataset

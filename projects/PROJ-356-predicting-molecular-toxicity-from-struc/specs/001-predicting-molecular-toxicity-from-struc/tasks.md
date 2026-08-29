@@ -41,16 +41,10 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization and basic structure (Programmatic execution)
 
-- [ ] T001 [P] Create root project directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/`
-- [ ] T002 [P] Create source directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/`
-- [ ] T003 [P] Create test directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/`
-- [ ] T004 [P] Create data directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/`
-- [ ] T005 [P] Create results directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/`
-- [ ] T006 [P] Create models directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/models/`
-- [ ] T007 [P] Create config directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/`
-- [ ] T008 [P] Create docs directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/docs/`
+- [ ] T001 [P] Write `scripts/init_project.py` to programmatically create the required directory structure: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/`, `src/`, `tests/`, `data/`, `results/`, `models/`, `config/`, `docs/`, `contracts/`, `scripts/`. (Replaces T001-T008, addresses executability/reproducibility)
+- [ ] T002 [P] Execute `scripts/init_project.py` to generate the directory structure and verify creation via file system checks. (Depends on T001)
 
 ---
 
@@ -60,19 +54,86 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T009 Create `contracts/` directory with `dataset.schema.yaml`, `model_output.schema.yaml`, and `alerts.schema.yaml`
-- [ ] T010 [P] Implement `config/structural_alerts.json` with a curated set of SMARTS patterns and weights:
- 1. NitroAromatic: `[*;a]([N+](=O)[O-])` (weight: 1.5)
- 2. Epoxide: `[C;D3]1[O;D1][C;D3]1` (weight: 2.0)
- 3. PrimaryAromaticAmine: `[N;D1;H2][c]` (weight: 1.2)
- 4. SecondaryAromaticAmine: `[N;D2;H1][c]` (weight: 1.0)
- 5. Azide: `[N;D1]=[N;D1]=[N;D1]` (weight: 2.5)
- 6. Isocyanate: `[N;D1]=[C;D2]=[O;D1]` (weight: 2.0)
- 7. Aldehyde: `[C;D2](=[O;D1])[H;D1]` (weight: 0.8)
- 8. HalogenatedAliphatic: `[C;D4][Cl,Br,I,F]` (weight: 0.5)
- 9. Azo: `[N;D1]=[N;D1]` (weight: 1.8)
- 10. Hydrazine: `[N;D1][N;D1]` (weight: 1.5)
+- [ ] T009 [P] Create `contracts/` directory with `dataset.schema.yaml`, `model_output.schema.yaml`, and `alerts.schema.yaml`.
+- [ ] T010 [P] Create `config/structural_alerts.json` with a curated set of at least 10 SMARTS patterns and weights. **Requirement**: Each pattern must include a `source` field (e.g., "ToxCast", "Brenk set") and `description` to satisfy the "curated" requirement. **Exact JSON Schema Example**:
+```json
+{
+ "patterns": [
+ {
+ "pattern_id": "NITRO_AROMATIC_01",
+ "smarts_string": "[*;a]([N+](=O)[O-])",
+ "weight": 1.5,
+ "source": "Brenk Set",
+ "description": "Nitroaromatic group"
+ },
+ {
+ "pattern_id": "EPOXIDE_01",
+ "smarts_string": "[C;D3]1[O;D1][C;D3]1",
+ "weight": 2.0,
+ "source": "Brenk Set",
+ "description": "Epoxide ring"
+ },
+ {
+ "pattern_id": "PRIMARY_ARI_AMINE_01",
+ "smarts_string": "[N;D1;H2][c]",
+ "weight": 1.2,
+ "source": "Brenk Set",
+ "description": "Primary aromatic amine"
+ },
+ {
+ "pattern_id": "SECONDARY_ARI_AMINE_01",
+ "smarts_string": "[N;D2;H1][c]",
+ "weight": 1.0,
+ "source": "Brenk Set",
+ "description": "Secondary aromatic amine"
+ },
+ {
+ "pattern_id": "AZIDE_01",
+ "smarts_string": "[N;D1]=[N;D1]=[N;D1]",
+ "weight": 2.5,
+ "source": "Brenk Set",
+ "description": "Azide group"
+ },
+ {
+ "pattern_id": "ISOCYANATE_01",
+ "smarts_string": "[N;D1]=[C;D2]=[O;D1]",
+ "weight": 2.0,
+ "source": "Brenk Set",
+ "description": "Isocyanate group"
+ },
+ {
+ "pattern_id": "ALDEHYDE_01",
+ "smarts_string": "[C;D2](=[O;D1])[H;D1]",
+ "weight": 0.8,
+ "source": "Brenk Set",
+ "description": "Aldehyde group"
+ },
+ {
+ "pattern_id": "HALO_ALIPHATIC_01",
+ "smarts_string": "[C;D4][Cl,Br,I,F]",
+ "weight": 0.5,
+ "source": "Brenk Set",
+ "description": "Halogenated aliphatic"
+ },
+ {
+ "pattern_id": "AZO_01",
+ "smarts_string": "[N;D1]=[N;D1]",
+ "weight": 1.8,
+ "source": "Brenk Set",
+ "description": "Azo group"
+ },
+ {
+ "pattern_id": "HYDRAZINE_01",
+ "smarts_string": "[N;D1][N;D1]",
+ "weight": 1.5,
+ "source": "Brenk Set",
+ "description": "Hydrazine group"
+ }
+ ]
+}
+```
  (FR-003)
+- [ ] T010b [US1] Implement validation logic in `src/features/alerts.py` (or a new `src/utils/validator.py`) to load `config/structural_alerts.json` and validate it against `contracts/alerts.schema.yaml`. Log any missing fields or invalid SMARTS patterns. (Depends on T009, T010; addresses constraint preservation)
 - [ ] T011 [P] Create `src/pipeline/run.py` orchestration skeleton with CLI argument parsing
 - [ ] T012 Create `src/config/__init__.py` and environment variable management for paths
 - [ ] T013 Implement `src/scripts/update_state.py` for artifact hashing and state file updates
@@ -100,14 +161,15 @@
 ### Implementation for User Story 1
 
 - [ ] T019 [P] [US1] Implement `src/data/download.py` to fetch ToxCast/PubChem data from verified URL (HuggingFace/UCI) with SHA-256 checksumming
-- [ ] T020 [P] [US1] Implement `src/data/preprocess.py` for SMILES canonicalization, MW < 1000 Da filtering, and duplicate handling (FR-002, Edge Cases)
-- [ ] T021 [P] [US1] Implement `src/features/alerts.py` to load `config/structural_alerts.json`, validate SMARTS, and generate binary vectors (FR-003)
-- [ ] T022 [P] [US1] Implement `src/features/descriptors.py` to compute a comprehensive set of RDKit global descriptors (non-correlated): `MolWt`, `MolLogP`, `TPSA`, `NumHDonors`, `NumHAcceptors`, `NumRotatableBonds`, `NumAromaticRings`, `NumAliphaticRings`, `NumSaturatedRings`, `NumHeteroatoms`, `HeavyAtomCount`, `FractionCSP3`, `NumBridgeheadAtoms`, `NumSpiroAtoms`, `RingCount`, `MaxDendriticBranching`, `Kappa1`, `Kappa2`, `Kappa3`, `Chi0` (FR-004)
+- [ ] T020 [US1] Implement `src/data/preprocess.py` for SMILES canonicalization, MW < 1000 Da filtering, and duplicate handling (FR-002, Edge Cases). **Algorithm**: Group by canonical SMILES; if any group has >1 unique label, discard all rows in that group and log the count of discarded rows; otherwise, keep one instance. (FR-002, Edge Cases)
+- [ ] T021 [US1] Implement `src/features/alerts.py` to load `config/structural_alerts.json`, validate SMARTS, and generate binary vectors (FR-003). **Depends on T010b**.
+- [ ] T022 [US1] Implement `src/features/descriptors.py` to compute a comprehensive set of RDKit global descriptors (non-correlated): `MolWt`, `MolLogP`, `TPSA`, `NumHDonors`, `NumHAcceptors`, `NumRotatableBonds`, `NumAromaticRings`, `NumAliphaticRings`, `NumSaturatedRings`, `NumHeteroatoms`, `HeavyAtomCount`, `FractionCSP`, `NumBridgeheadAtoms`, `NumSpiroAtoms`, `RingCount`, `MaxDendriticBranching`, `Kappa`, `Kappa2`, `Kappa3`, `Chi0` (FR-004). **Output**: Save results as a pandas DataFrame to `data/processed/descriptors.csv` with columns `[smiles, descriptor_1,..., descriptor_20]`.
+- [ ] T022b [US1] Implement `src/features/descriptors.py` (or `src/utils/validate_descriptors.py`) to compute the correlation matrix of the 20 selected descriptors on a **random sample of 1000 rows drawn strictly from the training set of the first CV split** and verify that no pair exceeds a correlation threshold (e.g., |r| > 0.9). Log the result to `results/descriptor_validation.json`. (Addresses FR-004 non-correlation requirement and leakage prevention)
 - [ ] T023 [P] [US1] Implement `src/models/rule_based.py` for scoring based on alert weights (FR-005)
-- [ ] T024 [P] [US1] Implement `src/models/logistic.py` for Logistic Regression with k-fold stratified CV repeated multiple times (k × n total folds) (FR-005)
-- [ ] T025 [US1] Implement `src/evaluation/metrics.py` to calculate ROC-AUC, F1, and Recall for both models on held-out test set (FR-006). **Specific Task**: Measure and report the difference in Recall (Desc - Rule) against the 5% threshold to quantify marginal gain (SC-002).
-- [ ] T026 [US1] Implement `src/pipeline/run.py` logic to orchestrate download → preprocess → features → train → evaluate. **Critical**: Must output intermediate OOF prediction vectors for every instance in every fold to `results/oof_predictions_fold_{fold_id}.json` (FR-001, FR-010)
-- [ ] T027 [US1] Generate `results/metrics_baseline.json` with ROC-AUC and F1 for both models
+- [ ] T024 [P] [US1] Implement `src/models/logistic.py` for Logistic Regression with **5-fold stratified cross-validation repeated multiple times**. **Constraint**: Hardcode `n_splits=5` and `n_repeats=3` to ensure the 15-fold structure required by FR-005. (Addresses executability/ordering)
+- [ ] T025 [US1] Implement `src/evaluation/metrics.py` to calculate ROC-AUC, F1, and Recall for both models on held-out test set (FR-006). **Specific Task**: Measure and report the difference in Recall (Desc - Rule) against a predefined significance threshold of a non-trivial absolute percentage point difference. (as per SC-002). **Output**: Append `recall_diff` (float) and `recall_diff_significant` (boolean, true if > 0.05) to `results/metrics_baseline.json`. (Addresses SC-002 measurability)
+- [ ] T026 [US1] Implement `src/pipeline/run.py` logic to orchestrate download → preprocess → features → train → evaluate. **Critical**: Must output **intermediate OOF prediction vectors for every instance in every fold** to `results/oof_predictions_fold_{fold_id}.json` (a file for each fold). **Schema**: Each file must be a JSON list of objects: `[{ "instance_id": <int>, "prediction": <float> },...]`. **Depends on T019, T020, T021, T022, T023, T024, T025**. (FR-001, FR-010)
+- [ ] T027 [US1] Generate `results/metrics_baseline.json` with ROC-AUC and F for both models
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -121,14 +183,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US2] Unit test for DeLong's test implementation using synthetic paired data in `tests/unit/test_statistical.py`. **Specific Task**: Verify DeLong's test returns p-value < 0.05 for synthetic data and appends result to `results/metrics_baseline.json`.
+- [ ] T028 [P] [US2] Unit test for DeLong's test implementation using synthetic paired data in `tests/unit/test_statistical.py`. **Specific Task**: Verify DeLong's test returns p-value < 0.05 (Wikipedia: Misuse of p-values, https://en.wikipedia.org/wiki/Misuse_of_p-values) for synthetic data and appends result to `results/metrics_baseline.json`.
 - [ ] T029 [P] [US2] Integration test for OOF prediction collection and statistical comparison in `tests/integration/test_statistical.py`. **Specific Task**: Verify the OOF prediction vector is constructed correctly (one value per instance).
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] Implement logic in `src/pipeline/run.py` to **COLLECT** Out-of-Fold (OOF) predicted probabilities for every instance (one prediction per instance from the fold where it was held out) across all 15 folds (5-fold x 3 repeats) for both models. Save OOF vectors to `results/oof_predictions_final.json`. (FR-007, US-2)
-- [ ] T031 [US2] Implement `src/evaluation/statistical.py` with a custom, reproducible implementation of DeLong's test. **Input**: The **OOF** probability vectors from T030. **Output**: P-value and 95% CI. (FR-007)
-- [ ] T032 [US2] Execute DeLong's test on paired OOF probability vectors and append p-value and 95% CI to `results/metrics_baseline.json`. (FR-007, SC-001)
+- [ ] T030 [US2] Implement logic in `src/pipeline/run.py` to **COLLECT** all 15 OOF prediction files generated in T026 into a single matrix (15 x N) and save to `results/oof_predictions_matrix.json`. (FR-007, US-2). **Depends on T026**.
+- [ ] T030b [US2] Implement logic to **SELECT** the single OOF prediction per instance from the 15-fold matrix. **Logic**: For each instance, identify the fold where it was held out and extract the prediction from that specific fold. **Constraint**: Do NOT average the 15 predictions. Save the resulting 1D vector (N predictions) to `results/oof_predictions_final.json` as a **JSON array of floats** (e.g., `[0.12, 0.95,...]`). (Addresses constraint preservation/executability: "Do NOT average")
+- [ ] T031 [US2] Implement `src/evaluation/statistical.py` with a custom, reproducible implementation of DeLong's test. **Input**: The **deduplicated single-prediction vector** from T030b. **Output**: P-value and 95% CI. (FR-007)
+- [ ] T032 [US2] Execute DeLong's test on paired OOF probability vectors and append p-value and confidence interval to `results/metrics_baseline.json`. (FR-007, SC-001)
 - [ ] T033 [US2] Implement logic to flag "statistically significant" if p < 0.05 and "no significant difference" otherwise. (FR-009)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -150,8 +213,8 @@
 
 - [ ] T036 [P] [US3] Implement `src/evaluation/error_analysis.py` to filter test set for Rule-Based model False Negatives (FR-008)
 - [ ] T037 [US3] Implement Murcko scaffold extraction for false negative compounds using RDKit (FR-008)
-- [ ] T038 [US3] Implement frequency ranking of top 10 unique **Murcko scaffolds** in false negatives (US-3, SC-003)
-- [ ] T039 [US3] Generate a report listing the top unique **Murcko scaffolds** and their frequencies (FR-008)
+- [ ] T038 [US3] Implement frequency ranking of top unique **Murcko scaffolds** in false negatives by **counting occurrences** (US-3, SC-003). **Note**: Ranking by frequency is a standard descriptive statistic; no external citation required.
+- [ ] T039 [US3] Generate a report listing the top unique **Murcko scaffolds** present in the **false negatives** of the rule-based model. **Output**: Save to `results/error_analysis_scaffolds.json` as a list of objects: `[{ "scaffold_smiles": str, "count": int, "frequency": float },...]`. (FR-008)
 - [ ] T040 [US3] Append error analysis results (scaffold counts, missing motifs) to `results/metrics_baseline.json`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -166,11 +229,11 @@
 
 ### Implementation for Research Validation
 
-- [ ] T041 [P] [US1] Update `src/data/download.py` to enforce a minimum sample size check (N > 1000) and fail gracefully if the dataset is too small (Addressing Reviewer Concern: "quantity of material matters"). **Source**: Spec Assumptions.
-- [ ] T042 [P] [US1] Update `src/data/download.py` to explicitly log the specific assay ID (e.g., PubChem AID 1851) and assay type (Ames/ToxCast) in the data report (Addressing Reviewer Concern: "measurement instrument for mutagenicity"). **Source**: Spec Assumptions.
-- [ ] T043 [US1] Update `results/metrics_baseline.json` schema to include `dataset_metadata` field to store assay_id, assay_type, and total_compounds (FR-001, FR-002).
-- [ ] T044 [US1] Update `research.md` to explicitly state the reproducibility standard: "Validation requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific Assay] [UNRESOLVED-CLAIM: c_3ff0c85d — status=not_enough_info] " (Addressing Reviewer Concern: "reproducibility standard")
-- [ ] T045 [P] [US1] Add a pre-flight validation script `scripts/validate_dataset.py` that checks column existence, label distribution, and SMILES validity before pipeline execution
+- [ ] T041 [US1] Update `src/data/download.py` to enforce a minimum sample size check (N > 1000) and fail gracefully if the dataset is too small (Addressing Reviewer Concern: "quantity of material matters"). **Source**: Spec Assumptions. **Depends on T019**.
+- [ ] T042 [US1] Update `src/data/download.py` to explicitly log the specific assay ID (e.g., a PubChem AID) and assay type (Ames/ToxCast) in the data report (Addressing Reviewer Concern: "measurement instrument for mutagenicity"). **Source**: Spec Assumptions.
+- [ ] T043 [US1] Update `results/metrics_baseline.json` schema to include `dataset_metadata` field to store assay_id, assay_type, and total_compounds (FR-001, FR-002). **Schema**: `{ "assay_id": str, "assay_type": str, "total_compounds": int }`.
+- [ ] T044 [US1] Update `research.md` to explicitly state the reproducibility standard: "Validation requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific Assay]". **Constraint**: Replace any placeholder text with verified facts from T041/T042 or explicitly mark as "pending verification" if data is not yet available. (Addresses writing/constraint preservation)
+- [ ] T045 [US1] Add a pre-flight validation script `scripts/validate_dataset.py` that checks column existence, label distribution, and SMILES validity before pipeline execution
 
 ---
 
@@ -178,10 +241,17 @@
 
 **Goal**: Ensure functional enforcement of statistical constraints (FR-009) and memory limits (SC-004/005).
 
-- [ ] T046 [P] [US2] Implement `src/evaluation/statistical.py` check: Add an explicit assertion that raises an error if multiple-comparison correction is detected in the statistical workflow, enforcing FR-009 functionally (Constraint Preservation).
+- [ ] T046 [US2] Implement `src/evaluation/statistical.py` check: Add an explicit guard clause in the statistical workflow that ensures **no multiple-comparison correction** (e.g., Bonferroni, FDR) is applied to the p-value output. **Constraint**: The logic must explicitly skip any adjustment step, not just block specific library calls, to satisfy FR-009. (Enforces FR-009)
 - [ ] T047 [P] [Polish] Implement `tests/integration/test_memory.py` with a specific test command to verify peak RSS < 7 GB during full pipeline execution.
-- [ ] T048 [Polish] Update `README.md` with CLI usage examples and dependency list
-- [ ] T049 Update `docs/quickstart.md` with end-to-end execution instructions
+
+---
+
+## Phase 8: Polish & Documentation (Priority: P3)
+
+**Goal**: Final documentation, cleanup, and performance verification.
+
+- [ ] T048 [P] [Polish] Update `README.md` with CLI usage examples and dependency list
+- [ ] T049 [Polish] Update `docs/quickstart.md` with end-to-end execution instructions
 - [ ] T050 [Polish] Code cleanup and refactoring for memory efficiency: Run `pytest tests/integration/test_memory.py` and ensure PASS (< 7 GB peak RSS) (SC-004, SC-005)
 - [ ] T051 [Polish] Performance optimization to ensure full pipeline < 4 hours on CPU-only runner (SC-004)
 - [ ] T052 [P] Additional unit tests for edge cases (duplicate SMILES, invalid SMARTS) in `tests/unit/`
@@ -198,7 +268,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Polish (Phase 8)**: Depends on all desired user stories being complete
 - **Research Validation (Phase 6)**: Can run in parallel with US1 implementation but must be completed before final report generation
 - **Statistical Constraint Enforcement (Phase 7)**: Depends on Phase 2 and Phase 4 completion
 
@@ -287,5 +357,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All tasks must run on CPU-only CI with a limited core count and memory capacity.. No GPU, no 8-bit/4-bit quantization, no large LLMs.
 - **CRITICAL**: All data must be real and from verified sources. No synthetic data fabrication.
-- **CRITICAL**: Statistical methodology in Phase 4 MUST use **Out-of-Fold (OOF)** predictions (one per instance) as mandated by Plan Phase 4 and Constitution Principle VI. The previous Spec instruction to use "averaged" predictions was incorrect and has been overridden.
-- **CRITICAL**: Descriptor selection in T022 uses a specific, hardcoded list of 20 descriptors to ensure non-correlation and determinism.
+- **CRITICAL**: Statistical methodology in Phase 4 MUST use **Out-of-Fold (OOF)** predictions (one per instance) as mandated by Plan Phase 4 and Constitution Principle VI. The previous Spec instruction to use "averaged" predictions was incorrect and has been overridden. Tasks T030/T030b explicitly enforce this.
+- **CRITICAL**: Descriptor selection in T022/T022b uses a specific, hardcoded list of 20 descriptors and includes a verification step to ensure non-correlation.
+- **CRITICAL**: Research Validation tasks (T041-T045) specifically address the "Marie Curie" review regarding sample size (N > 1000), assay specificity (AID 1851), and reproducibility standards.

@@ -69,6 +69,20 @@
       "weight": 1.5,
       "source": "Brenk Set",
       "description": "Hydrazine group"
+    },
+    {
+      "pattern_id": "THIOUREA_01",
+      "smarts_string": "[S;D2]=[C;D2]([N;D3])[N;D3]",
+      "weight": 1.6,
+      "source": "ToxCast",
+      "description": "Thiourea group"
+    },
+    {
+      "pattern_id": "ANILINE_01",
+      "smarts_string": "c1ccccc1N",
+      "weight": 1.3,
+      "source": "ToxCast",
+      "description": "Aniline derivative"
     }
   ]
 }
