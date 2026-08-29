@@ -39,18 +39,30 @@ We anticipate a divergence in performance curves: smaller models will show a sha
 
 ## Methodology sketch
 
-- **Dataset selection**: Download the HumanEval benchmark (164 Python programming problems) from the HuggingFace repository (`openai/human-eval`) to ensure a standardized, publicly available ground truth.
-- **Prompt construction**: For each problem, create a "Minimal" prompt (signature + docstring) and generate 4-5 variants by programmatically adding semantically neutral but verbose elaborations (e.g., restating constraints, adding redundant examples) to create a gradient of token counts (e.g., 50, 100, 200, 400 tokens) while ensuring the core task definition remains identical.
-- **Model selection**: Select 3 open-source models of varying sizes compatible with CPU/GHA constraints: `Salesforce/codegen-350M-multi`, `Salesforce/codegen-2B-multi`, and a quantized 4-bit version of `bigcode/starcoderbase` (ensuring RAM < 7GB via `bitsandbytes` or `llama.cpp` quantization).
-- **Tokenization**: Use each model's specific tokenizer to record the exact token count for every prompt variant to ensure precise density measurement.
-- **Model inference**: Run inference on GitHub Actions free-tier runners. For each (problem, variant, model) triplet, generate a single code completion with `max_new_tokens=256` and a fixed random seed. **All results are derived from live model execution**; no pre-generated or simulated data will be used.
-- **Correctness evaluation**: Execute generated code against the original HumanEval unit tests using the standard `evaluate_functional_correctness` script. Calculate the pass@1 score (binary: 1 if all tests pass, 0 otherwise) for each variant. This evaluation target is independent of the prompt inputs.
-- **Statistical analysis**:
-  - Aggregate results to compute mean pass@1 rates for each (Model Size, Token Count) bin.
-  - Perform a **Two-Way ANOVA** (or non-parametric equivalent if assumptions fail) on the binary outcomes (logit-transformed or via GLMM) with factors "Model Size" and "Prompt Token Count" to test for the interaction effect.
-  - Fit a **Generalized Linear Mixed Model (GLMM)**: `Pass ~ ModelSize * TokenCount + (1 | ProblemID)`. This models the probability of correctness as a function of both model size and prompt length, explicitly testing if the slope of the prompt-length effect changes with model capacity.
-- **Visualization**: Plot interaction curves showing pass@1 rate (y-axis) vs. prompt token count (x-axis), with separate lines for each model size, including 95% confidence intervals derived from the GLMM.
-- **Resource constraint check**: Limit the number of model runs to ensure the total inference time (164 problems × ~5 variants × 3 models) fits within the 6-hour GHA limit; if necessary, subsample to 100 problems or reduce token bins.
+- **Dataset selection**: Download the HumanEval benchmark (164 Python programming problems) from the HuggingFace repository (`openai/human-eval`). We will use the full set (N=164) unless runtime constraints force a fallback to a stratified random sample of 100 problems (stratified by problem difficulty proxies like number of test cases).
+- **Prompt construction & Validation**:
+    - Create a "Minimal" prompt (signature + docstring) for each problem.
+    - Generate 5 variants by adding semantically neutral elaborations to target token bins: 50, 100, 200, 300, 400 tokens.
+    - **Semantic Equivalence Check**: Compute cosine similarity between the original minimal prompt and each variant using `sentence-transformers/all-MiniLM-L6-v2`. Variants with similarity < 0.95 are discarded and regenerated. If a problem cannot yield 5 valid variants after 3 attempts, it is excluded from the analysis (documenting the unbalanced design).
+    - **Token Count Verification**: Measure exact token counts using the specific model's tokenizer. If the count deviates > ±10 tokens from the target (and is not truncated due to context limits), the variant is regenerated. Truncated prompts are logged with details but included.
+- **Model Selection & Inference**:
+    - Select 3 models: `Salesforce/codegen-350M-multi`, `Salesforce/codegen-2B-multi`, and `bigcode/starcoderbase` (4-bit quantized to fit 7GB RAM).
+    - **Sampling Strategy**: For every (Problem, Model, Prompt-Variant) triplet, generate **n=10 independent samples** using distinct random seeds (0-9) and a fixed temperature (0.8) to ensure independence.
+    - **Execution**: Run inference on GitHub Actions free-tier. If the total runtime exceeds 5 hours, the pipeline switches to the stratified 100-problem subset.
+- **Correctness Evaluation**:
+    - Execute each of the 10 generated code samples against the HumanEval unit tests.
+    - Compute **pass@1** (binary: 1 if the sample passes all tests, 0 otherwise) for each of the 10 samples.
+    - Compute **pass@10** (binary: 1 if *at least one* of the 10 samples passes, 0 otherwise) for the triplet.
+    - *Note*: These metrics are derived from the 10 binary outcomes per triplet; pass@10 is a deterministic function of the pass@1 outcomes, not an independent variable.
+- **Statistical Analysis**:
+    - **Data Structure**: The unit of analysis is the (Problem, Model, Variant) triplet. The dependent variable is the *proportion* of successful samples (k/10) for pass@1.
+    - **Transformation**: Apply the **arcsine square-root transformation** to the proportions to stabilize variance, as recommended for binomial data in ANOVA contexts (Zar, 1999).
+    - **Model**: Perform a **Repeated-Measures ANOVA** (or Linear Mixed Model with Problem as random effect) with factors: `Model Size` (between-subjects) and `Prompt Token Count` (within-subjects), including the interaction term.
+    - **Hypothesis Test**: Test the significance of the `Model Size * Prompt Token Count` interaction term (α = 0.05). A significant interaction confirms that the effect of prompt length depends on model size.
+    - **Optimal Bin Identification**: Identify the token bin with the highest mean transformed pass rate for each model. Perform a post-hoc stability check by re-binning with ±5% variation in token counts to ensure the optimal bin location remains stable within a ±10 token window.
+    - **Causal Scope**: Explicitly frame findings as **associational** (correlational) regarding the relationship between prompt length and correctness, as model architecture is not randomized.
+- **Visualization**: Plot interaction curves showing the mean transformed pass rate (y-axis) vs. prompt token count (x-axis), with separate lines for each model size, including 95% confidence intervals.
+- **Resource Management**: The pipeline will monitor execution time. If the full N=164, 5-variant, 3-model, 10-sample design exceeds 5 hours, it will automatically trigger the fallback to the N=100 stratified subset to ensure completion within the 6-hour limit.
 
 ## Duplicate-check
 
@@ -61,7 +73,7 @@ We anticipate a divergence in performance curves: smaller models will show a sha
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-13T10:39:17Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-29T14:27:49Z
 **Outcome**: exhausted
 **Original term**: Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science
 **Verified citation count**: 2
@@ -70,7 +82,27 @@ We anticipate a divergence in performance curves: smaller models will show a sha
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science | 2 |
+| 0 (initial) | Analyzing the Trade‑off Between Prompt Size and Code Generation Quality computer science | 0 |
+| 1 | prompt length impact on code generation accuracy | 4 |
+| 2 | relationship between context window size and LLM coding performance | 0 |
+| 3 | optimal prompt size for automated code synthesis | 0 |
+| 4 | diminishing returns in large language model code generation | 0 |
+| 5 | effect of input token count on code correctness | 0 |
+| 6 | trade-off between prompt verbosity and code quality | 0 |
+| 7 | few-shot prompting vs zero-shot prompting for code generation | 0 |
+| 8 | scaling laws for code generation models with varying prompt lengths | 0 |
+| 9 | influence of demonstration quantity on LLM code output | 0 |
+| 10 | prompt engineering strategies for efficient code generation | 0 |
+| 11 | cost-accuracy trade-offs in LLM-based programming assistants | 0 |
+| 12 | maximum effective prompt length for code completion tasks | 0 |
+| 13 | correlation between context complexity and generated code bugs | 0 |
+| 14 | in-context learning limits for software development tasks | 0 |
+| 15 | token budget optimization for code generation models | 0 |
+| 16 | impact of long-context retrieval on code synthesis quality | 0 |
+| 17 | prompt compression techniques for code generation | 0 |
+| 18 | variance in code quality across different prompt sizes | 0 |
+| 19 | efficiency of large context windows in code generation | 0 |
+| 20 | balancing prompt detail and model inference cost | 0 |
 
 ### Verified citations
 
