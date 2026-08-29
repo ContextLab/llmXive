@@ -73,18 +73,18 @@
 
 - [ ] T022 [P] [US2] Implement `code/viz/plots.py` function `plot_flexibility_vs_creativity(flexibility, creativity, output_path='docs/outputs/flexibility_vs_creativity.png')` that creates a scatter plot with regression line and a confidence band, saves as **`flexibility_vs_creativity.png`**.
 - [ ] T023 [US2] Implement `code/viz/plots.py` function `plot_residuals(model: RegressionResult, residuals_path='docs/outputs/model_residuals.png', qq_path='docs/outputs/model_qq.png')` that generates residuals‑vs‑fitted and QQ plots, saving as **`model_residuals.png`** and **`model_qq.png`**.
-- [~] T057 [US2] After each plot is saved, call `compress_image(path, max_mb=5.0)` to enforce **≤ 5 MB** file size (SC‑004).
-- [~] T058 [US2] Add error handling in plot functions to skip NaN data points, log warnings, and continue (robustness for missing data).
+- [ ] T057 [US2] After each plot is saved, call `compress_image(path, max_mb=5.0)` to enforce **≤ 5 MB** file size (SC‑004).
+- [ ] T058 [US2] Add error handling in plot functions to skip NaN data points, log warnings, and continue (robustness for missing data).
 
 ## Phase 5: User Story 3 – Perform Permutation‑Based Significance Testing & Sensitivity Sweep (Priority: P3)
 
 ### Tests
 
-- [~] T026 [P] [US3] Contract test `tests/contract/test_permutation.py::test_permutation_counts`.
+- [ ] T026 [P] [US3] Contract test `tests/contract/test_permutation.py::test_permutation_counts`.
 
 ### Implementation
 
-- [~] T027 [P] [US3] Implement `run_permutation_test(flexibility, creativity, n_permutations=10000) -> float` that shuffles **creativity scores only** (preserving the flexibility vector) and returns an empirical two‑tailed p‑value.
+- [ ] T027 [P] [US3] Implement `run_permutation_test(flexibility, creativity, n_permutations=10000) -> float` that shuffles **creativity scores only** (preserving the flexibility vector) and returns an empirical two‑tailed p‑value.
 - [~] T045 [US3] Implement `apply_fwe_correction(p_values: List[float], method='max-t') -> List[float]` using the **max‑T permutation method**.
 - [~] T046 [US3] Implement `run_sensitivity_analysis(flexibility, creativity, window_lengths=[20,30,40]) -> pd.DataFrame` that returns a table with columns `window_length`, `correlation`, `p_value`.
 - [ ] T030 [US3] Save permutation results to `data/interim/permutation_results.csv` and sensitivity summary to `data/interim/sensitivity_summary.csv` with explicit column headers.

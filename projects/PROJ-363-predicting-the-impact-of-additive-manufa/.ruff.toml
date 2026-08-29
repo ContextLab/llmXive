@@ -1,10 +1,9 @@
-# Ruff configuration
 [lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ARG", "SIM"]
-ignore = ["E501", "B008"]
+select = ["E", "F", "W", "I"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
 
 [format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+line-length = 88
+indent-width = 4

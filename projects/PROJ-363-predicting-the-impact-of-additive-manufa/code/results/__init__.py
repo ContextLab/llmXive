@@ -1,3 +1,1 @@
-"""
-Results reporting and visualization utilities.
-"""
+# Results module package

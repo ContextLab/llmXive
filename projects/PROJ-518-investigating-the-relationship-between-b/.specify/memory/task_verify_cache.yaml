@@ -33,16 +33,43 @@ T020:
     (implementation and/or verification evidence) is missing.
 T022:
   c: false
-  h: 8a5365336a0789099f2cf6794fecf13f1a59fd648d9fe54b1a689eaa2e04ece4
-  r: The provided `code/viz/plots.py` does not contain a complete implementation of
-    `plot_flexibility_vs_creativity` (the file is truncated and only shows a `compress_image`
-    helper). Moreover, the required output image `docs/outputs/flexibility_vs_creativity.png`
-    is absent. Both the function implementation and the saved plot are missing, so
-    the task is not satisfied.
+  h: d47e62aaaf27efa3ea691defdcca10f4405f89d2eed5c63bb203fbfe348e9e48
+  r: The `plot_flexibility_vs_creativity` function is only partially shown and does
+    not include a `plt.savefig` (or similar) call, and the expected output file `docs/outputs/flexibility_vs_creativity.png`
+    is absent. Without a save operation and the resulting image, the implementation
+    does not fulfill the requirement to create and store the plot.
 T023:
   c: false
-  h: 55ed6df17f64daf494f9d539327d81f6c8a9f38e002474d1054353a8809497e3
-  r: The provided `plots.py` does not contain a complete implementation of `plot_residuals`
-    (the file is truncated and the function is absent), and the required output images
-    `docs/outputs/model_residuals.png` and `docs/outputs/model_qq.png` are not present.
-    The task therefore remains unfinished.
+  h: cb7169ecc9ad72e83036d251d28ed86d40b8934bdfee38e6fc49dddf2f4ff292
+  r: "The provided `plots.py` excerpt shows no implementation of `plot_residuals`,\
+    \ and the required output files `docs/outputs/model_residuals.png` and `docs/outputs/model_qq.png`\
+    \ are absent. The task\u2019s core function and its saved plots are therefore\
+    \ missing."
+T026:
+  c: false
+  h: 574e045362ad32b361607a91f1c348b33efa6511b2569335dc87e46cd4d8509b
+  r: The required file `tests/contract/test_permutation.py` does not exist, so the
+    contract test `test_permutation_counts` is missing. No test code or related artifacts
+    are present to satisfy the task.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code defining `run_permutation_test` is present; the required function that\
+    \ shuffles only the creativity vector and returns a two\u2011tailed empirical\
+    \ p\u2011value is missing entirely. The implementer provided no artifact to verify,\
+    \ so the task is not satisfied."
+T057:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code or script was provided that shows the plot\u2011saving functions invoking\
+    \ `compress_image(path, max_mb=5.0)`. Without an artifact demonstrating the post\u2011\
+    save compression step, we cannot verify that the \u2264\u202F5\u202FMB size enforcement\
+    \ is implemented. The required change is missing."
+T058:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no code, tests, or documentation showing that plot functions\
+    \ now skip NaN points, emit warnings, and continue execution. No artifact (e.g.,\
+    \ updated source files, unit\u2011test results, or log examples) is present to\
+    \ verify the added error\u2011handling behavior. The required implementation evidence\
+    \ is missing."

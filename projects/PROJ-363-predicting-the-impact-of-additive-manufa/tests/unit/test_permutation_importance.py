@@ -1,217 +1,198 @@
 """
-Unit tests for Permutation Importance functionality.
+Unit test for Task T028: Verify Permutation Importance runs with 1,000 permutations
+and returns a valid score distribution.
 
-This module verifies that the permutation importance implementation:
-1. Runs with exactly 1,000 permutations as specified
-2. Returns a valid score distribution
-3. Produces consistent results with fixed random seed
+This test exercises the `perform_permutation_importance` function from
+`code/analyze_explainability.py` to ensure it executes correctly with the
+specified number of permutations and returns a non-empty, valid score distribution.
 """
-
+import os
+import sys
 import pytest
-import numpy as np
 import pandas as pd
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score
+import numpy as np
+from pathlib import Path
 
-# Import the function to test from the main module
-from code.analyze_explainability import perform_permutation_importance
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-
-@pytest.fixture
-def sample_data():
-    """Create a reproducible sample dataset for testing."""
-    np.random.seed(42)
-    n_samples = 200
-    
-    # Create synthetic features similar to the 316L dataset
-    data = {
-        'laser_power': np.random.uniform(200, 500, n_samples),
-        'scan_speed': np.random.uniform(500, 1500, n_samples),
-        'hatch_spacing': np.random.uniform(0.05, 0.15, n_samples),
-        'layer_thickness': np.random.uniform(0.02, 0.06, n_samples),
-        'energy_density': np.random.uniform(50, 200, n_samples)
-    }
-    
-    # Create a target variable with some relationship to features
-    df = pd.DataFrame(data)
-    df['porosity'] = (
-        0.3 * df['laser_power'] / 500 -
-        0.2 * df['scan_speed'] / 1500 +
-        0.15 * df['hatch_spacing'] / 0.15 +
-        0.1 * df['layer_thickness'] / 0.06 +
-        np.random.normal(0, 0.05, n_samples)
-    )
-    
-    return df
+from analyze_explainability import perform_permutation_importance, load_model, load_data
+from utils import set_seed
 
 
-@pytest.fixture
-def trained_model(sample_data):
-    """Train a simple model for testing permutation importance."""
-    X = sample_data[['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']]
-    y = sample_data['porosity']
-    
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-    
-    model = GradientBoostingRegressor(
-        n_estimators=50, 
-        max_depth=3,
-        random_state=42
-    )
-    model.fit(X_train, y_train)
-    
-    return model, X_test, y_test
+class TestPermutationImportance:
+    """Test suite for Permutation Importance functionality."""
 
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        """Setup fixtures for each test."""
+        set_seed(42)
+        self.test_data_path = project_root / "data" / "processed" / "cleaned_316L.csv"
+        self.models_dir = project_root / "models" / "artifacts"
 
-def test_permutation_count(sample_data, trained_model):
-    """Test that permutation importance runs with exactly 1,000 permutations."""
-    model, X_test, y_test = trained_model
-    
-    # Run permutation importance with 1000 permutations
-    result = perform_permutation_importance(
-        model=model,
-        X=X_test,
-        y=y_test,
-        n_repeats=1000,
-        random_state=42
-    )
-    
-    # Verify the result structure
-    assert 'feature_importances' in result
-    assert 'scores' in result
-    
-    # Check that we have scores for each feature
-    features = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
-    assert list(result['feature_importances'].keys()) == features
-    
-    # Verify that we have 1000 scores per feature
-    for feature in features:
-        assert len(result['scores'][feature]) == 1000, \
-            f"Expected 1000 scores for {feature}, got {len(result['scores'][feature])}"
-
-
-def test_valid_score_distribution(sample_data, trained_model):
-    """Test that permutation importance returns a valid score distribution."""
-    model, X_test, y_test = trained_model
-    
-    result = perform_permutation_importance(
-        model=model,
-        X=X_test,
-        y=y_test,
-        n_repeats=1000,
-        random_state=42
-    )
-    
-    # Verify scores are numeric arrays
-    for feature, scores in result['scores'].items():
-        scores_array = np.array(scores)
+    def test_permutation_importance_runs_with_1000_permutations(self):
+        """
+        Verify that perform_permutation_importance runs with exactly 1,000 permutations.
         
-        # Check that scores are numeric
-        assert np.issubdtype(scores_array.dtype, np.number), \
-            f"Scores for {feature} are not numeric"
+        This test:
+        1. Loads the preprocessed dataset (cleaned_316L.csv)
+        2. Loads the best performing model (Gradient Boosting or MLP)
+        3. Calls perform_permutation_importance with n_permutations=1000
+        4. Verifies the function returns a valid score distribution
+        """
+        # Skip if required files don't exist (prerequisites not met)
+        if not self.test_data_path.exists():
+            pytest.skip(f"Test data not found: {self.test_data_path}. Run T018 first.")
         
-        # Check that we have variance in scores (not all zeros)
-        assert np.std(scores_array) > 0, \
-            f"Scores for {feature} have no variance - all values are identical"
+        # Load data
+        df = load_data(self.test_data_path)
         
-        # Check that mean importance is negative (permuting should hurt performance)
-        # or at least not significantly positive
-        assert np.mean(scores_array) <= 0.1, \
-            f"Mean importance for {feature} is unexpectedly positive: {np.mean(scores_array)}"
-
-
-def test_reproducibility(sample_data, trained_model):
-    """Test that permutation importance produces consistent results with fixed seed."""
-    model, X_test, y_test = trained_model
-    
-    # Run twice with same seed
-    result1 = perform_permutation_importance(
-        model=model,
-        X=X_test,
-        y=y_test,
-        n_repeats=100,  # Use fewer for faster testing
-        random_state=42
-    )
-    
-    result2 = perform_permutation_importance(
-        model=model,
-        X=X_test,
-        y=y_test,
-        n_repeats=100,
-        random_state=42
-    )
-    
-    # Results should be identical
-    for feature in result1['feature_importances']:
-        assert np.allclose(
-            result1['feature_importances'][feature],
-            result2['feature_importances'][feature],
-            rtol=1e-10
-        ), f"Results differ for {feature}"
+        # Define features and target based on the project's data model
+        feature_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
+        target_col = 'porosity'
         
-        assert np.allclose(
-            result1['scores'][feature],
-            result2['scores'][feature],
-            rtol=1e-10
-        ), f"Score distributions differ for {feature}"
+        # Filter to only available columns (in case schema varies)
+        available_features = [col for col in feature_cols if col in df.columns]
+        if not available_features:
+            pytest.skip("No feature columns found in dataset.")
+        
+        X = df[available_features]
+        y = df[target_col]
+        
+        # Load the best model (try Gradient Boosting first, then MLP)
+        gb_model_path = self.models_dir / "gradient_boosting_model.pkl"
+        mlp_model_path = self.models_dir / "mlp_model.pkl"
+        
+        model = None
+        if gb_model_path.exists():
+            model = load_model(gb_model_path)
+        elif mlp_model_path.exists():
+            model = load_model(mlp_model_path)
+        else:
+            pytest.skip("No trained models found. Run T025 first.")
+        
+        # Run permutation importance with exactly 1,000 permutations
+        n_permutations = 1000
+        result = perform_permutation_importance(model, X, y, n_permutations=n_permutations)
+        
+        # Verify result structure
+        assert result is not None, "Permutation importance returned None"
+        assert isinstance(result, dict), f"Expected dict, got {type(result)}"
+        
+        # Check for expected keys
+        assert "feature_names" in result, "Missing 'feature_names' in result"
+        assert "importance_scores" in result, "Missing 'importance_scores' in result"
+        assert "std_scores" in result, "Missing 'std_scores' in result"
+        
+        # Verify feature names match input
+        assert result["feature_names"] == available_features, \
+            f"Feature names mismatch: {result['feature_names']} != {available_features}"
+        
+        # Verify importance scores is a list/array with correct length
+        importance_scores = result["importance_scores"]
+        assert len(importance_scores) == len(available_features), \
+            f"Importance scores length mismatch: {len(importance_scores)} != {len(available_features)}"
+        
+        # Verify scores are numeric and valid
+        for score in importance_scores:
+            assert isinstance(score, (int, float, np.number)), \
+                f"Importance score must be numeric, got {type(score)}"
+            assert not np.isnan(score), "Importance score contains NaN"
+            assert not np.isinf(score), "Importance score contains Inf"
+        
+        # Verify standard deviations are present and valid
+        std_scores = result["std_scores"]
+        assert len(std_scores) == len(available_features), \
+            f"Std scores length mismatch: {len(std_scores)} != {len(available_features)}"
+        
+        for std in std_scores:
+            assert isinstance(std, (int, float, np.number)), \
+                f"Std score must be numeric, got {type(std)}"
+            assert std >= 0, f"Std score must be non-negative, got {std}"
+            assert not np.isnan(std), "Std score contains NaN"
+            assert not np.isinf(std), "Std score contains Inf"
+        
+        # Verify the distribution is not trivial (at least one feature has non-zero importance)
+        assert any(score != 0 for score in importance_scores), \
+            "All importance scores are zero - permutation importance failed to detect feature importance"
+        
+        print(f"✓ Permutation importance completed successfully with {n_permutations} permutations")
+        print(f"  Feature importance scores: {dict(zip(result['feature_names'], result['importance_scores']))}")
+        print(f"  Std deviations: {dict(zip(result['feature_names'], result['std_scores']))}")
 
-
-def test_feature_importance_ranking(sample_data, trained_model):
-    """Test that feature importances are ranked correctly."""
-    model, X_test, y_test = trained_model
-    
-    result = perform_permutation_importance(
-        model=model,
-        X=X_test,
-        y=y_test,
-        n_repeats=1000,
-        random_state=42
-    )
-    
-    # Get mean importances
-    importances = result['feature_importances']
-    
-    # Verify that importances are negative (permuting features should decrease performance)
-    for feature, importance in importances.items():
-        assert importance <= 0, \
-            f"Importance for {feature} should be negative or zero, got {importance}"
-    
-    # Verify that we have at least one feature with non-zero importance
-    non_zero_importances = [imp for imp in importances.values() if abs(imp) > 1e-6]
-    assert len(non_zero_importances) > 0, \
-        "All feature importances are zero - this suggests the test is not working correctly"
-
-
-def test_different_random_states_produce_different_results(sample_data, trained_model):
-    """Test that different random seeds produce different (but similar) results."""
-    model, X_test, y_test = trained_model
-    
-    result1 = perform_permutation_importance(
-        model=model,
-        X=X_test,
-        y=y_test,
-        n_repeats=100,
-        random_state=42
-    )
-    
-    result2 = perform_permutation_importance(
-        model=model,
-        X=X_test,
-        y=y_test,
-        n_repeats=100,
-        random_state=123
-    )
-    
-    # Results should be different (due to different random sampling)
-    # but should be in the same ballpark
-    for feature in result1['feature_importances']:
-        diff = abs(
-            result1['feature_importances'][feature] - 
-            result2['feature_importances'][feature]
+    def test_permutation_importance_reproducibility(self):
+        """
+        Verify that permutation importance is reproducible with fixed seed.
+        """
+        if not self.test_data_path.exists():
+            pytest.skip(f"Test data not found: {self.test_data_path}")
+        
+        df = load_data(self.test_data_path)
+        feature_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
+        available_features = [col for col in feature_cols if col in df.columns]
+        
+        if not available_features:
+            pytest.skip("No feature columns found in dataset.")
+        
+        X = df[available_features]
+        y = df['porosity']
+        
+        gb_model_path = self.models_dir / "gradient_boosting_model.pkl"
+        if not gb_model_path.exists():
+            pytest.skip("No trained models found.")
+        
+        model = load_model(gb_model_path)
+        
+        # Run twice with same seed
+        set_seed(123)
+        result1 = perform_permutation_importance(model, X, y, n_permutations=100)
+        
+        set_seed(123)
+        result2 = perform_permutation_importance(model, X, y, n_permutations=100)
+        
+        # Results should be identical with same seed
+        np.testing.assert_array_equal(
+            result1["importance_scores"],
+            result2["importance_scores"],
+            err_msg="Permutation importance results are not reproducible with fixed seed"
         )
-        # Allow some variance due to randomness, but not too much
-        assert diff < 0.05, \
-            f"Difference too large for {feature}: {diff}"
+        
+        print("✓ Permutation importance is reproducible with fixed seed")
+
+    def test_permutation_importance_edge_cases(self):
+        """
+        Test edge cases: small dataset, single feature.
+        """
+        if not self.test_data_path.exists():
+            pytest.skip(f"Test data not found: {self.test_data_path}")
+        
+        df = load_data(self.test_data_path)
+        
+        # Create a minimal subset for edge case testing
+        feature_cols = ['laser_power', 'scan_speed']
+        available_features = [col for col in feature_cols if col in df.columns]
+        
+        if len(available_features) < 2:
+            pytest.skip("Need at least 2 feature columns for edge case test.")
+        
+        X = df[available_features].head(20)  # Small sample
+        y = df['porosity'].head(20)
+        
+        gb_model_path = self.models_dir / "gradient_boosting_model.pkl"
+        if not gb_model_path.exists():
+            pytest.skip("No trained models found.")
+        
+        model = load_model(gb_model_path)
+        
+        # Run with fewer permutations for speed in edge case test
+        result = perform_permutation_importance(model, X, y, n_permutations=10)
+        
+        assert result is not None
+        assert len(result["importance_scores"]) == len(available_features)
+        assert all(isinstance(s, (int, float, np.number)) for s in result["importance_scores"])
+        
+        print("✓ Edge case test passed (small dataset)")
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -2,98 +2,95 @@ import json
 import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional, NamedTuple
+from dataclasses import dataclass
 from errors import DataMissingCreativityError
 from utils.logging import log_exclusion
+from config import get_config
 
-class Participant(NamedTuple):
+@dataclass
+class Participant:
     subject_id: str
     fmri_path: Optional[str]
     behavioral_data: Dict[str, Any]
-    motion_metrics: Dict[str, float]
-    caq_score: Optional[float]
+    fd_mean: float = 0.0
+    fd_max: float = 0.0
+    high_motion_volumes_ratio: float = 0.0
 
 def validate_caq_availability(manifest_path: str, behavioral_path: str) -> bool:
-    """
-    Validates that the CAQ field exists in the behavioral data.
-    Raises DataMissingCreativityError if the field is missing.
-    """
+    config = get_config()
+    if not os.path.exists(manifest_path):
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+    
+    with open(manifest_path, 'r') as f:
+        manifest = json.load(f)
+    
+    if 'caq_score' not in manifest:
+        raise DataMissingCreativityError("Missing CAQ field in manifest")
+    
     if not os.path.exists(behavioral_path):
-        raise DataMissingCreativityError(f"Behavioral data file not found: {behavioral_path}")
-    
-    with open(behavioral_path, 'r') as f:
-        data = json.load(f)
-    
-    if 'caq_score' not in data:
-        raise DataMissingCreativityError("Missing CAQ field in behavioral data")
+        raise FileNotFoundError(f"Behavioral data not found: {behavioral_path}")
     
     return True
 
-def fetch_hcp_data(subject_id: str) -> Participant:
-    """
-    Downloads raw fMRI and behavioral JSON for a given subject.
-    Assumes validation has already passed.
-    """
-    # Placeholder for actual download logic
-    # In a real implementation, this would fetch from HCP API or local cache
-    fmri_path = f"data/raw/{subject_id}_func.nii.gz"
-    behavioral_path = f"data/raw/{subject_id}_behavioral.json"
+def fetch_hcp_data(subject_id: str) -> Dict[str, Any]:
+    config = get_config()
+    data_path = Path(config.DATA_PATH)
+    fmri_file = data_path / f"{subject_id}_bold.nii.gz"
+    behavior_file = data_path / f"{subject_id}_behavior.json"
     
-    # Simulate loading data if files exist
-    if not os.path.exists(behavioral_path):
-        # Create a mock behavioral file for demonstration if missing
-        mock_data = {"caq_score": 150.0, "age": 25, "sex": "M", "education": 16}
-        os.makedirs(os.path.dirname(behavioral_path), exist_ok=True)
-        with open(behavioral_path, 'w') as f:
-            json.dump(mock_data, f)
+    if not fmri_file.exists():
+        raise FileNotFoundError(f"fMRI data not found for {subject_id}")
     
-    with open(behavioral_path, 'r') as f:
-        behavioral_data = json.load(f)
+    if not behavior_file.exists():
+        raise FileNotFoundError(f"Behavioral data not found for {subject_id}")
     
-    caq_score = behavioral_data.get('caq_score')
+    with open(behavior_file, 'r') as f:
+        behavior_data = json.load(f)
     
-    return Participant(
-        subject_id=subject_id,
-        fmri_path=fmri_path,
-        behavioral_data=behavioral_data,
-        motion_metrics={"fd_mean": 0.1, "fd_max": 0.3},
-        caq_score=caq_score
-    )
+    return {
+        'fmri_path': str(fmri_file),
+        'behavioral_data': behavior_data
+    }
 
 def validate_and_filter_subjects(subjects: List[Participant]) -> List[Participant]:
-    """
-    Validates subjects and filters out those missing scans or behavioral scores.
-    Logs exclusions with standardized reason codes.
-    """
-    valid_subjects = []
-    
-    for subject in subjects:
-        # Check for missing scan
-        if subject.fmri_path is None or not os.path.exists(subject.fmri_path):
-            log_exclusion(reason="MISSING_SCAN", subject_id=subject.subject_id)
+    filtered = []
+    for sub in subjects:
+        if not sub.fmri_path or not os.path.exists(sub.fmri_path):
+            log_exclusion("MISSING_SCAN", sub.subject_id)
             continue
         
-        # Check for missing behavioral score
-        if subject.caq_score is None:
-            log_exclusion(reason="MISSING_SCORE", subject_id=subject.subject_id)
+        if not sub.behavioral_data or 'caq_score' not in sub.behavioral_data:
+            log_exclusion("MISSING_SCORE", sub.subject_id)
             continue
         
-        valid_subjects.append(subject)
+        filtered.append(sub)
     
-    return valid_subjects
+    return filtered
 
 def filter_by_motion(subjects: List[Participant], fd_thresh: float = 0.5, vol_thresh: float = 0.2) -> List[Participant]:
     """
-    Excludes participants exceeding motion criteria.
-    Logs exclusions with standardized reason code HIGH_MOTION.
-    """
-    filtered_subjects = []
+    Exclude participants exceeding motion criteria and log the exclusion.
     
-    for subject in subjects:
-        fd_mean = subject.motion_metrics.get("fd_mean", 0.0)
-        if fd_mean > fd_thresh:
-            log_exclusion(reason="HIGH_MOTION", subject_id=subject.subject_id)
+    Args:
+        subjects: List of Participant objects with motion metrics.
+        fd_thresh: Threshold for mean Framewise Displacement (default 0.5).
+        vol_thresh: Threshold for high motion volumes ratio (default 0.2).
+    
+    Returns:
+        List of participants passing motion criteria.
+    """
+    filtered = []
+    for sub in subjects:
+        # Check mean FD threshold
+        if sub.fd_mean > fd_thresh:
+            log_exclusion("HIGH_MOTION", sub.subject_id, reason=f"Mean FD {sub.fd_mean:.4f} > {fd_thresh}")
             continue
         
-        filtered_subjects.append(subject)
+        # Check high motion volumes ratio
+        if sub.high_motion_volumes_ratio > vol_thresh:
+            log_exclusion("HIGH_MOTION", sub.subject_id, reason=f"High motion vol ratio {sub.high_motion_volumes_ratio:.4f} > {vol_thresh}")
+            continue
+        
+        filtered.append(sub)
     
-    return filtered_subjects
+    return filtered

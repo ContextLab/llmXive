@@ -1,32 +1,18 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: 316L LPBF Dataset Schema
+title: 316L LPBF Porosity Dataset Schema
+description: Schema for the 316L Stainless Steel Laser Powder Bed Fusion dataset.
 type: object
 properties:
   columns:
     type: array
     items:
-      type: object
-      properties:
-        name:
-          type: string
-        type:
-          type: string
-          enum: ["numeric", "categorical"]
-        required:
-          type: boolean
-    required:
-      - name
-      - type
-      - required
-  required_columns:
-    type: array
-    items:
       type: string
-    required:
-      - laser_power
-      - scan_speed
-      - hatch_spacing
-      - layer_thickness
-      - porosity
+    contains:
+      - "laser_power"
+      - "scan_speed"
+      - "hatch_spacing"
+      - "layer_thickness"
+      - "porosity"
+      - "energy_density"
 required:
-  - required_columns
+  - columns

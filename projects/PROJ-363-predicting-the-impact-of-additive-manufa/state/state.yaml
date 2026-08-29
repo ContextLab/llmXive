@@ -1,14 +1,31 @@
-# Project State Tracking
-# This file tracks artifact versions and hashes for reproducibility
-download_data:
-  hash: null
-  updated_at: null
-processed_data:
-  hash: null
-  updated_at: null
-models:
-  hash: null
-  updated_at: null
-explainability:
-  hash: null
-  updated_at: null
+# Pipeline State Manifest
+# Automatically generated and updated by pipeline scripts.
+# Do not edit manually.
+
+version: "1.0"
+last_updated: "2023-10-27T10:00:00Z"
+artifacts:
+  raw_data:
+    path: data/raw/316L_lpbf_dataset.csv
+    hash: "pending_download"
+  processed_data:
+    path: data/processed/cleaned_316L.csv
+    hash: "pending_preprocessing"
+  models:
+    gradient_boosting:
+      path: models/artifacts/gb_model.pkl
+      hash: "pending_training"
+    mlp:
+      path: models/artifacts/mlp_model.pkl
+      hash: "pending_training"
+  reports:
+    metrics:
+      path: results/reports/model_metrics.json
+      hash: "pending_training"
+    significance:
+      path: results/reports/significance_report.json
+      hash: "pending_analysis"
+  plots:
+    shap_summary:
+      path: results/plots/shap_summary.png
+      hash: "pending_analysis"

@@ -1,126 +1,177 @@
+"""
+Unit tests for Bootstrap Confidence Interval calculation logic.
+
+This module verifies that the bootstrap resampling logic used to calculate
+confidence intervals for SHAP values is implemented correctly.
+
+Dependencies:
+- code/analyze_explainability.py (specifically calculate_bootstrap_shap_ci)
+- numpy, scipy
+"""
 import numpy as np
 import pytest
+from pathlib import Path
 import sys
-import os
 
-# Add the code directory to the path to allow imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from analyze_explainability import calculate_bootstrap_shap_ci
 
 
-class TestBootstrapConfidenceInterval:
-    """Unit tests for Bootstrap Confidence Interval calculation logic."""
+class TestBootstrapCI:
+    """Test suite for bootstrap confidence interval calculations."""
 
-    def test_bootstrap_ci_returns_expected_structure(self):
-        """Verify that the function returns a dictionary with required keys."""
-        # Create synthetic SHAP values for testing (real logic is tested via integration)
-        # We use a small, fixed dataset to ensure reproducibility
+    def test_basic_ci_calculation(self):
+        """Test that basic CI calculation returns expected structure."""
+        # Create synthetic SHAP values for a single feature
         np.random.seed(42)
-        shap_values = np.random.randn(100, 5)  # 100 samples, 5 features
-
-        result = calculate_bootstrap_shap_ci(shap_values, n_iterations=100, confidence_level=0.95)
-
+        shap_values = np.random.normal(loc=0.5, scale=0.2, size=1000)
+        
+        result = calculate_bootstrap_shap_ci(shap_values, n_iterations=100, seed=42)
+        
+        # Check result structure
         assert isinstance(result, dict), "Result must be a dictionary"
-        assert "mean" in result, "Result must contain 'mean' key"
-        assert "lower_bound" in result, "Result must contain 'lower_bound' key"
-        assert "upper_bound" in result, "Result must contain 'upper_bound' key"
-        assert "ci_level" in result, "Result must contain 'ci_level' key"
+        assert "mean" in result, "Result must contain 'mean'"
+        assert "ci_lower" in result, "Result must contain 'ci_lower'"
+        assert "ci_upper" in result, "Result must contain 'ci_upper'"
+        assert "ci_level" in result, "Result must contain 'ci_level'"
+        
+        # Check types
+        assert isinstance(result["mean"], float), "Mean must be a float"
+        assert isinstance(result["ci_lower"], float), "CI lower must be a float"
+        assert isinstance(result["ci_upper"], float), "CI upper must be a float"
+        assert isinstance(result["ci_level"], float), "CI level must be a float"
 
-        # Check shapes
-        assert result["mean"].shape == (5,), "Mean shape mismatch"
-        assert result["lower_bound"].shape == (5,), "Lower bound shape mismatch"
-        assert result["upper_bound"].shape == (5,), "Upper bound shape mismatch"
-        assert result["ci_level"] == 0.95, "CI level mismatch"
+    def test_ci_bounds_order(self):
+        """Test that CI lower bound is always less than or equal to upper bound."""
+        np.random.seed(42)
+        shap_values = np.random.normal(loc=0.0, scale=1.0, size=500)
+        
+        result = calculate_bootstrap_shap_ci(shap_values, n_iterations=100, seed=42)
+        
+        assert result["ci_lower"] <= result["ci_upper"], \
+            f"CI lower ({result['ci_lower']}) must be <= CI upper ({result['ci_upper']})"
 
-    def test_bootstrap_ci_bounds_ordering(self):
-        """Verify that lower_bound <= mean <= upper_bound for all features."""
-        np.random.seed(123)
-        shap_values = np.random.randn(200, 3)
+    def test_ci_coverage_with_known_distribution(self):
+        """
+        Test that CI calculation works correctly with a known distribution.
+        For a normal distribution, the mean should be within the 95% CI.
+        """
+        np.random.seed(42)
+        true_mean = 0.5
+        true_std = 0.1
+        shap_values = np.random.normal(loc=true_mean, scale=true_std, size=2000)
+        
+        result = calculate_bootstrap_shap_ci(shap_values, n_iterations=500, seed=42)
+        
+        # The calculated mean should be close to the true mean
+        assert abs(result["mean"] - true_mean) < 0.05, \
+            f"Calculated mean {result['mean']} should be close to true mean {true_mean}"
+        
+        # The true mean should be within the 95% CI (with high probability)
+        assert result["ci_lower"] <= true_mean <= result["ci_upper"], \
+            f"True mean {true_mean} should be within CI [{result['ci_lower']}, {result['ci_upper']}]"
 
-        result = calculate_bootstrap_shap_ci(shap_values, n_iterations=200, confidence_level=0.95)
-
-        # Check that bounds are ordered correctly
-        assert np.all(result["lower_bound"] <= result["mean"]), "Lower bound should be <= mean"
-        assert np.all(result["mean"] <= result["upper_bound"]), "Mean should be <= upper bound"
-
-    def test_bootstrap_ci_width_increases_with_variance(self):
-        """Verify that higher variance in SHAP values leads to wider confidence intervals."""
-        np.random.seed(456)
-        low_var_shap = np.random.randn(100, 2) * 0.1
-        high_var_shap = np.random.randn(100, 2) * 10.0
-
-        low_var_result = calculate_bootstrap_shap_ci(low_var_shap, n_iterations=100, confidence_level=0.95)
-        high_var_result = calculate_bootstrap_shap_ci(high_var_shap, n_iterations=100, confidence_level=0.95)
-
-        low_var_width = np.mean(high_var_result["upper_bound"] - high_var_result["lower_bound"])
-        high_var_width = np.mean(high_var_result["upper_bound"] - high_var_result["lower_bound"])
-
-        # The high variance dataset should have wider intervals
-        assert high_var_width > low_var_width, "Higher variance should produce wider confidence intervals"
-
-    def test_bootstrap_ci_with_constant_input(self):
-        """Verify behavior when SHAP values are constant (zero variance)."""
-        shap_values = np.ones((50, 3))  # All values are 1.0
-
-        result = calculate_bootstrap_shap_ci(shap_values, n_iterations=50, confidence_level=0.95)
-
-        # For constant input, mean, lower, and upper should all be approximately 1.0
-        assert np.allclose(result["mean"], 1.0, atol=1e-5), "Mean should be 1.0 for constant input"
-        assert np.allclose(result["lower_bound"], 1.0, atol=1e-5), "Lower bound should be 1.0 for constant input"
-        assert np.allclose(result["upper_bound"], 1.0, atol=1e-5), "Upper bound should be 1.0 for constant input"
-
-    def test_bootstrap_ci_respects_confidence_level(self):
-        """Verify that changing confidence level changes interval width."""
-        np.random.seed(789)
-        shap_values = np.random.randn(300, 2)
-
-        ci_90 = calculate_bootstrap_shap_ci(shap_values, n_iterations=300, confidence_level=0.90)
-        ci_99 = calculate_bootstrap_shap_ci(shap_values, n_iterations=300, confidence_level=0.99)
-
-        width_90 = np.mean(ci_90["upper_bound"] - ci_90["lower_bound"])
-        width_99 = np.mean(ci_99["upper_bound"] - ci_99["lower_bound"])
-
+    def test_confidence_level_parameter(self):
+        """Test that different confidence levels produce different intervals."""
+        np.random.seed(42)
+        shap_values = np.random.normal(loc=0.5, scale=0.2, size=1000)
+        
+        result_95 = calculate_bootstrap_shap_ci(shap_values, n_iterations=200, ci_level=0.95, seed=42)
+        result_90 = calculate_bootstrap_shap_ci(shap_values, n_iterations=200, ci_level=0.90, seed=42)
+        result_99 = calculate_bootstrap_shap_ci(shap_values, n_iterations=200, ci_level=0.99, seed=42)
+        
         # Higher confidence level should produce wider intervals
-        assert width_99 > width_90, "99% CI should be wider than 90% CI"
-        assert ci_90["ci_level"] == 0.90, "CI level should be 0.90"
-        assert ci_99["ci_level"] == 0.99, "CI level should be 0.99"
+        width_95 = result_95["ci_upper"] - result_95["ci_lower"]
+        width_90 = result_90["ci_upper"] - result_90["ci_lower"]
+        width_99 = result_99["ci_upper"] - result_99["ci_lower"]
+        
+        assert width_90 <= width_95, \
+            f"90% CI width ({width_90}) should be <= 95% CI width ({width_95})"
+        assert width_95 <= width_99, \
+            f"95% CI width ({width_95}) should be <= 99% CI width ({width_99})"
 
-    def test_bootstrap_ci_deterministic_with_seed(self):
-        """Verify that running with the same seed produces identical results."""
-        np.random.seed(101)
-        shap_values = np.random.randn(150, 2)
+    def test_reproducibility_with_seed(self):
+        """Test that results are reproducible with the same seed."""
+        np.random.seed(42)
+        shap_values = np.random.normal(loc=0.5, scale=0.2, size=1000)
+        
+        result_1 = calculate_bootstrap_shap_ci(shap_values, n_iterations=200, seed=123)
+        result_2 = calculate_bootstrap_shap_ci(shap_values, n_iterations=200, seed=123)
+        
+        assert result_1["mean"] == result_2["mean"], "Mean should be identical with same seed"
+        assert result_1["ci_lower"] == result_2["ci_lower"], "CI lower should be identical with same seed"
+        assert result_1["ci_upper"] == result_2["ci_upper"], "CI upper should be identical with same seed"
 
-        result_1 = calculate_bootstrap_shap_ci(shap_values, n_iterations=150, confidence_level=0.95)
-        result_2 = calculate_bootstrap_shap_ci(shap_values, n_iterations=150, confidence_level=0.95)
+    def test_zero_variance_input(self):
+        """Test behavior with zero variance input (all values identical)."""
+        shap_values = np.ones(100) * 0.5  # All values are 0.5
+        
+        result = calculate_bootstrap_shap_ci(shap_values, n_iterations=100, seed=42)
+        
+        # Mean should be exactly 0.5
+        assert result["mean"] == 0.5, "Mean should be 0.5 for constant input"
+        # CI bounds should also be 0.5 (no variance)
+        assert result["ci_lower"] == 0.5, "CI lower should be 0.5 for constant input"
+        assert result["ci_upper"] == 0.5, "CI upper should be 0.5 for constant input"
 
-        # Results should be identical because the underlying function uses a fixed seed internally
-        # or the randomness is controlled by the input state
-        assert np.allclose(result_1["mean"], result_2["mean"]), "Mean should be reproducible"
-        assert np.allclose(result_1["lower_bound"], result_2["lower_bound"]), "Lower bound should be reproducible"
-        assert np.allclose(result_1["upper_bound"], result_2["upper_bound"]), "Upper bound should be reproducible"
+    def test_large_sample_size(self):
+        """Test with a large sample size to ensure stability."""
+        np.random.seed(42)
+        shap_values = np.random.normal(loc=0.3, scale=0.15, size=5000)
+        
+        result = calculate_bootstrap_shap_ci(shap_values, n_iterations=500, seed=42)
+        
+        # Mean should be close to 0.3
+        assert abs(result["mean"] - 0.3) < 0.02, \
+            f"Mean {result['mean']} should be close to 0.3 for large sample"
 
-    def test_bootstrap_ci_handles_single_feature(self):
-        """Verify correct handling when there is only one feature."""
-        np.random.seed(202)
-        shap_values = np.random.randn(100, 1)
+    def test_invalid_ci_level(self):
+        """Test that invalid confidence levels raise appropriate errors."""
+        np.random.seed(42)
+        shap_values = np.random.normal(loc=0.5, scale=0.2, size=100)
+        
+        # Test ci_level > 1
+        with pytest.raises(ValueError):
+            calculate_bootstrap_shap_ci(shap_values, n_iterations=100, ci_level=1.5, seed=42)
+        
+        # Test ci_level <= 0
+        with pytest.raises(ValueError):
+            calculate_bootstrap_shap_ci(shap_values, n_iterations=100, ci_level=0.0, seed=42)
+        
+        # Test ci_level < 0
+        with pytest.raises(ValueError):
+            calculate_bootstrap_shap_ci(shap_values, n_iterations=100, ci_level=-0.5, seed=42)
 
-        result = calculate_bootstrap_shap_ci(shap_values, n_iterations=100, confidence_level=0.95)
+    def test_single_feature_array(self):
+        """Test with a 1D array (single feature)."""
+        np.random.seed(42)
+        shap_values = np.random.normal(loc=0.5, scale=0.2, size=500)
+        
+        result = calculate_bootstrap_shap_ci(shap_values, n_iterations=100, seed=42)
+        
+        # Should return a scalar-like result for single feature
+        assert isinstance(result["mean"], float), "Mean should be a float for 1D input"
+        assert isinstance(result["ci_lower"], float), "CI lower should be a float for 1D input"
+        assert isinstance(result["ci_upper"], float), "CI upper should be a float for 1D input"
 
-        assert result["mean"].shape == (1,), "Mean shape should be (1,)"
-        assert result["lower_bound"].shape == (1,), "Lower bound shape should be (1,)"
-        assert result["upper_bound"].shape == (1,), "Upper bound shape should be (1,)"
-
-    def test_bootstrap_ci_large_iterations_convergence(self):
-        """Verify that increasing iterations leads to more stable estimates."""
-        np.random.seed(303)
-        shap_values = np.random.randn(500, 2)
-
-        result_100 = calculate_bootstrap_shap_ci(shap_values, n_iterations=100, confidence_level=0.95)
-        result_1000 = calculate_bootstrap_shap_ci(shap_values, n_iterations=1000, confidence_level=0.95)
-
-        # The estimates should be reasonably close, though not identical due to randomness
-        # We check that the difference is not excessively large
-        mean_diff = np.abs(result_100["mean"] - result_1000["mean"]).mean()
-        # Allow some tolerance due to stochastic nature, but it should be small
-        assert mean_diff < 0.5, "Mean estimates should converge with more iterations"
+    def test_n_iterations_parameter(self):
+        """Test that the number of iterations is respected."""
+        np.random.seed(42)
+        shap_values = np.random.normal(loc=0.5, scale=0.2, size=500)
+        
+        # Small number of iterations
+        result_small = calculate_bootstrap_shap_ci(shap_values, n_iterations=10, seed=42)
+        
+        # Large number of iterations
+        result_large = calculate_bootstrap_shap_ci(shap_values, n_iterations=1000, seed=42)
+        
+        # Both should return valid results, though with different precision
+        assert result_small["mean"] is not None
+        assert result_large["mean"] is not None
+        
+        # Larger sample should generally be more stable (though not guaranteed for small samples)
+        # This is more of a sanity check than a strict assertion
+        assert isinstance(result_small["mean"], float)
+        assert isinstance(result_large["mean"], float)

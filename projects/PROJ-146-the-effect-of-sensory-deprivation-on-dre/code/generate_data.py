@@ -5,192 +5,196 @@ import pandas as pd
 from datetime import datetime
 import logging
 
-# Import logging setup
-from logging_config import setup_logging
-
-logger = setup_logging()
+# Configure logging to use the project's standard setup
+try:
+    from logging_config import setup_logging
+    logger = setup_logging(__name__)
+except ImportError:
+    # Fallback if logging_config is not yet available or imported differently
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
 def load_protocol(protocol_path: str = "data/protocols/protocol.yaml") -> dict:
-    """Load simulation parameters from the protocol YAML file."""
+    """
+    Loads the simulation protocol from the YAML file.
+    
+    Args:
+        protocol_path: Path to the protocol.yaml file.
+        
+    Returns:
+        Dictionary containing protocol parameters.
+        
+    Raises:
+        FileNotFoundError: If the protocol file does not exist.
+        yaml.YAMLError: If the file is not valid YAML.
+    """
     if not os.path.exists(protocol_path):
         raise FileNotFoundError(f"Protocol file not found at {protocol_path}")
+    
     with open(protocol_path, 'r') as f:
-        return yaml.safe_load(f)
+        protocol = yaml.safe_load(f)
+    
+    logger.info(f"Loaded protocol from {protocol_path}")
+    return protocol
 
-def generate_participant_data(n_participants: int, seed: int, ground_truth: dict) -> pd.DataFrame:
+def generate_participant_data(
+    n_participants: int,
+    effect_size: float,
+    seed: int,
+    icc: float = 0.3
+) -> pd.DataFrame:
     """
-    Generate synthetic data for participants based on ground truth parameters.
-    This version supports generating data with known coefficients for T023 validation.
+    Generates synthetic data for a single participant group based on effect size.
+    
+    This function simulates dream recall (binary) and bizarreness (1-7) scores
+    under a specific sensory deprivation condition defined by the effect size.
+    
+    Args:
+        n_participants: Number of participants to generate.
+        effect_size: Cohen's d value for the simulated effect.
+        seed: Random seed for reproducibility.
+        icc: Intraclass correlation coefficient for random effects.
+        
+    Returns:
+        DataFrame with columns: participant_id, condition_label, recall, bizarreness, 
+                                random_effect_recall, random_effect_bizarreness
     """
     np.random.seed(seed)
     
-    n_trials = 4
-    participant_ids = np.repeat(np.arange(n_participants), n_trials)
+    # Generate random effects for participants (simulating repeated measures or 
+    # individual baselines if we were doing longitudinal, here treated as individual 
+    # variation in baseline)
+    # For a cross-sectional simulation with N participants, we treat each row as 
+    # a participant's aggregate or single observation, but we add a random effect 
+    # component to simulate the ICC structure if we were grouping. 
+    # Since this is a simulation of N=200 participants total across conditions,
+    # we will assign participants to conditions.
     
-    # Conditions cycling: strict, moderate, partial, strict
-    conditions = np.tile(['strict', 'moderate', 'partial', 'strict'], n_participants)
+    # However, the task implies generating datasets for 3 scenarios. 
+    # We will generate N participants for EACH scenario (3 datasets).
+    # Each dataset will have the effect_size applied to the condition.
     
-    # Extract ground truth effects
-    intercept = ground_truth.get('Intercept', 3.0)
-    effect_moderate = ground_truth.get('condition[T.moderate]', 0.0)
-    effect_partial = ground_truth.get('condition[T.partial]', 0.0)
+    # Generate IDs
+    participant_ids = [f"P{str(i).zfill(3)}" for i in range(1, n_participants + 1)]
     
-    # Calculate linear predictor for Bizarreness
-    effects = []
-    for c in conditions:
-        if c == 'moderate':
-            effects.append(effect_moderate)
-        elif c == 'partial':
-            effects.append(effect_partial)
-        else:
-            effects.append(0.0)
+    # Random intercepts for recall and bizarreness
+    # Variance decomposition: Total variance = 1 (for simplicity in binary probit) or 1 for linear
+    # ICC = Var_random / (Var_random + Var_residual)
+    # We assume Var_residual = 1 for standardization
+    var_random = icc / (1 - icc) if icc < 1 else 1.0
+    std_random = np.sqrt(var_random)
     
-    # Add random intercepts per participant
-    random_intercepts = np.random.normal(0, 0.8, size=n_participants)
-    random_effects = np.repeat(random_intercepts, n_trials)
+    random_effect_recall = np.random.normal(0, std_random, n_participants)
+    random_effect_bizarreness = np.random.normal(0, std_random, n_participants)
     
-    # Add noise
-    noise = np.random.normal(0, 1.2, size=len(participant_ids))
+    # Baseline parameters (intercepts)
+    # For recall (binary): Logit model. Baseline probability ~ 0.5 -> intercept ~ 0
+    baseline_recall_logit = 0.0
+    # For bizarreness (1-7): Linear. Baseline ~ 4 (midpoint)
+    baseline_bizarreness = 4.0
     
-    # Latent continuous score
-    latent_bizarreness = intercept + np.array(effects) + random_effects + noise
+    # Apply effect size
+    # For recall: effect_size is in log-odds units (approx) or we convert to probability shift
+    # For simplicity in simulation, we add effect_size to the logit
+    recall_logit = baseline_recall_logit + random_effect_recall + effect_size
+    # Convert to probability
+    recall_prob = 1 / (1 + np.exp(-recall_logit))
+    # Generate binary recall
+    recall = np.random.binomial(1, recall_prob, n_participants)
     
-    # Convert to ordinal 1-7
-    bizarreness = np.clip(latent_bizarreness, 1, 7).astype(int)
-    
-    # Generate Recall (Binary)
-    # Logistic link
-    recall_intercept = ground_truth.get('recall_Intercept', -0.5)
-    recall_moderate = ground_truth.get('recall_condition[T.moderate]', 0.0)
-    recall_partial = ground_truth.get('recall_condition[T.partial]', 0.0)
-    
-    recall_effects = []
-    for c in conditions:
-        if c == 'moderate':
-            recall_effects.append(recall_moderate)
-        elif c == 'partial':
-            recall_effects.append(recall_partial)
-        else:
-            recall_effects.append(0.0)
-    
-    # Random effect for recall (correlated or independent? Assuming independent for simplicity)
-    recall_random = np.repeat(np.random.normal(0, 0.5, size=n_participants), n_trials)
-    recall_noise = np.random.normal(0, 1.0, size=len(participant_ids))
-    
-    logit_p = recall_intercept + np.array(recall_effects) + recall_random + recall_noise
-    prob_recall = 1 / (1 + np.exp(-logit_p))
-    recall = (np.random.rand(len(participant_ids)) < prob_recall).astype(int)
+    # For bizarreness: Linear model
+    # effect_size is in standard deviation units. We scale by the residual std (1)
+    bizarreness_score = baseline_bizarreness + random_effect_bizarreness + effect_size * 1.0
+    # Add residual noise
+    bizarreness_score += np.random.normal(0, 1, n_participants)
+    # Clip to 1-7 and round
+    bizarreness = np.clip(np.round(bizarreness_score), 1, 7).astype(int)
     
     df = pd.DataFrame({
         'participant_id': participant_ids,
-        'condition': conditions,
-        'bizarreness': bizarreness,
-        'recall': recall
+        'recall': recall,
+        'bizarreness': bizarreness
     })
     
     return df
 
-def generate_synthetic_datasets(protocol_path: str = "data/protocols/protocol.yaml", 
-                                gt_path: str = "data/protocols/ground_truth_config.yaml") -> None:
+def generate_synthetic_datasets(
+    protocol: dict,
+    output_dir: str = "data/synthetic/"
+) -> list:
     """
-    Generate synthetic datasets for all thresholds defined in the protocol.
-    Saves them to data/synthetic/ and data/processed/.
+    Generates synthetic datasets for all effect size scenarios defined in the protocol.
+    
+    Args:
+        protocol: Dictionary containing study parameters.
+        output_dir: Directory to save the generated CSV files.
+        
+    Returns:
+        List of paths to the generated files.
     """
-    protocol = load_protocol(protocol_path)
+    os.makedirs(output_dir, exist_ok=True)
     
-    # Load ground truth if available (for T023 validation)
-    ground_truth = {}
-    if os.path.exists(gt_path):
-        with open(gt_path, 'r') as f:
-            gt_config = yaml.safe_load(f)
-            ground_truth = gt_config.get('ground_truth_coefs', {})
-            # Map recall keys if needed
-            recall_gt = gt_config.get('recall_ground_truth_coefs', {})
-            ground_truth['recall_Intercept'] = recall_gt.get('Intercept', -0.5)
-            ground_truth['recall_condition[T.moderate]'] = recall_gt.get('condition[T.moderate]', 0.0)
-            ground_truth['recall_condition[T.partial]'] = recall_gt.get('condition[T.partial]', 0.0)
-    else:
-        logger.warning("Ground truth config not found. Using default zeros.")
-        ground_truth = {'Intercept': 3.0, 'condition[T.moderate]': 0.0, 'condition[T.partial]': 0.0}
-
-    n = protocol.get('N', 200)
-    seed = protocol.get('seed', 42)
+    n_participants = protocol['study']['n_participants']
+    seed = protocol['study']['seed']
+    icc = protocol['statistical']['intraclass_correlation']
+    effect_sizes = protocol['effect_sizes']
     
-    # Generate data
-    df = generate_participant_data(n, seed, ground_truth)
+    generated_files = []
     
-    # Save raw synthetic data
-    os.makedirs("data/synthetic", exist_ok=True)
-    raw_path = "data/synthetic/synthetic_full.csv"
-    df.to_csv(raw_path, index=False)
-    logger.info(f"Saved synthetic data to {raw_path}")
+    # Define the mapping from effect size name to a condition label for the dataset
+    # The task asks for 3 scenarios. We will create one file per scenario.
+    scenario_mapping = {
+        'moderate_positive': 'positive_effect',
+        'null': 'null_effect',
+        'moderate_negative': 'negative_effect'
+    }
     
-    # Process data for thresholds (T017)
-    # The condition column is already populated. We just need to split/filter if needed
-    # or save distinct files for each threshold scenario as requested.
-    os.makedirs("data/processed", exist_ok=True)
-    
-    # In this simulation, the 'condition' column already holds the labels.
-    # We save the full dataset as the "moderate" scenario (since it includes all conditions),
-    # and we can create filtered views or just save the same data with different metadata
-    # to represent the different threshold definitions if the task implies that.
-    # However, T017 asks for distinct files: data_threshold_strict.csv, etc.
-    # Since the data generation is based on the *protocol* which defines the labels,
-    # and the data contains all labels, we will save the full dataset three times
-    # with different names to represent the "threshold definition" context,
-    # or we could filter if the task meant "data where condition matches threshold".
-    # Given the task: "generate/iterate processed datasets for ALL three thresholds ... and save them as distinct files"
-    # We will save the full dataset for each, as the "threshold" defines how we *interpret* the condition,
-    # not necessarily a filter of the data rows. But to be safe and distinct, we might add a metadata column.
-    # Let's assume the task wants the full dataset saved under these names for the sensitivity sweep (T030).
-    
-    labels = [
-        protocol.get('strict_threshold_label', 'strict (complete isolation)'),
-        protocol.get('moderate_threshold_label', 'moderate (partial sensory reduction)'),
-        protocol.get('partial_threshold_label', 'partial (minimal sensory reduction)')
-    ]
-    
-    # We save the same data but with a 'threshold_definition' column to distinguish them
-    # or simply save the same file. The task says "distinct files".
-    # We will save the full dataset for each, as the analysis script will read the label.
-    # To make them distinct files on disk, we just copy with different names.
-    # However, to satisfy "distinct files" meaningfully, we can add the specific label used.
-    
-    # Actually, T030 says "iterate over the three distinct datasets generated in T017".
-    # If T017 generates the SAME data three times, it's redundant.
-    # But if the "threshold" changes the *meaning* of the condition, maybe we don't need different data.
-    # Let's stick to the instruction: Save distinct files.
-    # We will save the full dataset, but add a column 'threshold_label' to each file
-    # so the sensitivity script can read the label from the file itself if needed.
-    
-    for i, label in enumerate(labels):
-        df_copy = df.copy()
-        # Determine the specific label for this file based on index
-        # strict, moderate, partial
-        if i == 0:
-            current_label = protocol.get('strict_threshold_label', 'strict (complete isolation)')
-        elif i == 1:
-            current_label = protocol.get('moderate_threshold_label', 'moderate (partial sensory reduction)')
-        else:
-            current_label = protocol.get('partial_threshold_label', 'partial (minimal sensory reduction)')
+    for scenario in effect_sizes:
+        name = scenario['name']
+        value = scenario['value']
         
-        df_copy['threshold_definition'] = current_label
+        logger.info(f"Generating dataset for scenario: {name} (d={value})")
         
-        if i == 0:
-            out_path = "data/processed/data_threshold_strict.csv"
-        elif i == 1:
-            out_path = "data/processed/data_threshold_moderate.csv"
-        else:
-            out_path = "data/processed/data_threshold_partial.csv"
+        # Generate data
+        df = generate_participant_data(
+            n_participants=n_participants,
+            effect_size=value,
+            seed=seed,
+            icc=icc
+        )
         
-        df_copy.to_csv(out_path, index=False)
-        logger.info(f"Saved processed data for {current_label} to {out_path}")
+        # Add metadata columns
+        df['scenario'] = name
+        df['effect_size'] = value
+        df['data_source'] = "Simulation-based"
+        df['generation_timestamp'] = datetime.now().isoformat()
+        
+        # Save to CSV
+        filename = f"synthetic_{name}_n{n_participants}.csv"
+        filepath = os.path.join(output_dir, filename)
+        df.to_csv(filepath, index=False)
+        
+        generated_files.append(filepath)
+        logger.info(f"Saved synthetic data to {filepath}")
+        
+    return generated_files
 
 def main():
-    """Main entry point."""
-    logger.info("Starting synthetic data generation...")
-    generate_synthetic_datasets()
-    logger.info("Data generation complete.")
+    """
+    Main entry point for the data generation script.
+    """
+    protocol_path = "data/protocols/protocol.yaml"
+    output_dir = "data/synthetic/"
+    
+    try:
+        protocol = load_protocol(protocol_path)
+        files = generate_synthetic_datasets(protocol, output_dir)
+        logger.info(f"Successfully generated {len(files)} synthetic datasets.")
+        for f in files:
+            print(f"Generated: {f}")
+    except Exception as e:
+        logger.error(f"Failed to generate synthetic data: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

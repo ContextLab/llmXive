@@ -1,2 +1,4 @@
-# Placeholder to ensure the project subdirectory exists.
-# This directory structure is required by the project plan.
+# This directory serves as the project root for PROJ-363.
+# Standard subdirectories (code/, data/, tests/, etc.) are created at the repository root
+# as per the project's unified structure plan (T001a, T006).
+# This file ensures the directory exists in version control.

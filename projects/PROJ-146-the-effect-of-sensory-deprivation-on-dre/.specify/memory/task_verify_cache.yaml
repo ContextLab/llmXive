@@ -1,0 +1,43 @@
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data file was provided that demonstrates saving generated\
+    \ synthetic data to the `data/synthetic/` directory, nor any evidence that the\
+    \ saved files include metadata flags indicating they are simulation\u2011based.\
+    \ The required artifact is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data file was provided that creates a `condition` column
+    from deprivation intensity thresholds and writes the resulting dataframe to `data/processed/`.
+    Without such an artifact, the requirement cannot be verified as met.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation was provided that adds or demonstrates\
+    \ validation of the `recall` column as binary (0/1) and the `bizarreness` column\
+    \ as an integer between 1 and 7 in the final dataframe. The required artifact\
+    \ (e.g., a data\u2011validation function, unit tests, or updated pipeline) is\
+    \ missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided showing that logging of data
+    generation parameters and the ingestion source (real vs. synthetic) has been added.
+    The claim lacks any concrete artifact to verify the required logging functionality.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or notebook implementing the required mixed\u2011effects models\
+    \ (logistic and linear) with `participant_id` as a random intercept using statsmodels\
+    \ is present. The claim lacks any artifact (e.g., Python file, function, or example\
+    \ output) demonstrating that the logic has been added, so the requirement is not\
+    \ satisfied."
+T022a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No design waiver document was provided; the claim lacks any artifact that describes\
+    \ the deviation from FR\u2011008, specifies the fallback to a Fixed\u2011Effects\
+    \ OrderedModel, or presents validation results against the synthetic random\u2011\
+    intercept ground truth. The required written documentation and validation evidence\
+    \ are missing."

@@ -6,23 +6,25 @@ from config import get_config
 
 def log_exclusion(reason: str, subject_id: str) -> None:
     """
-    Log an exclusion decision to a CSV file.
-
+    Appends an exclusion log entry to data_exclusion_log.txt.
+    
     Args:
-        reason: The reason for exclusion (e.g., 'MISSING_SCAN', 'MISSING_SCORE', 'HIGH_MOTION').
-        subject_id: The ID of the excluded subject.
+        reason: Standardized reason code (MISSING_SCAN, MISSING_SCORE, HIGH_MOTION)
+        subject_id: The ID of the excluded subject
     """
     config = get_config()
-    project_root = Path(__file__).resolve().parent.parent.parent
-    log_file = project_root / "data" / "interim" / "data_exclusion_log.txt"
+    log_path = Path(config.DATA_PATH) / "exclusion_log.csv"
     
     # Ensure directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    file_exists = os.path.exists(log_file)
+    file_exists = os.path.exists(log_path)
     
-    with open(log_file, 'a', newline='', encoding='utf-8') as f:
+    with open(log_path, 'a', newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(['timestamp', 'reason', 'subject_id'])
-        writer.writerow(['', reason, subject_id])
+            writer.writerow(['subject_id', 'reason', 'timestamp'])
+        
+        import datetime
+        timestamp = datetime.datetime.now().isoformat()
+        writer.writerow([subject_id, reason, timestamp])

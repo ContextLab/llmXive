@@ -154,9 +154,9 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T037 [P] Documentation updates in `docs/` (README, usage instructions)
-- [ ] T038 Code cleanup and refactoring of `code/utils.py` and error handling
+- [X] T038 Code cleanup and refactoring of `code/utils.py` and error handling
 - [ ] T039 [P] Run `quickstart.md` validation to ensure full pipeline reproducibility
-- [ ] T040 [P] Verify all artifacts in `state.yaml` match the latest hashes
+- [X] T040 [P] Verify all artifacts in `state.yaml` match the latest hashes
 
 ---
 

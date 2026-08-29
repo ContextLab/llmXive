@@ -1,104 +1,73 @@
-"""
-Configuration and execution logic for linting (ruff/flake8) and formatting (black).
-"""
 import subprocess
 import sys
 import os
 from pathlib import Path
+import logging
 
-def run_command(cmd: list[str], description: str) -> bool:
-    """
-    Execute a shell command and print output.
-    Returns True if successful, False otherwise.
-    """
-    print(f"Running: {description}...")
+logger = logging.getLogger(__name__)
+
+def run_command(cmd: list[str], cwd: Path | None = None) -> int:
+    """Run a shell command and return the exit code."""
+    logger.info(f"Running: {' '.join(cmd)}")
     try:
         result = subprocess.run(
             cmd,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            cwd=cwd,
+            check=False,
+            capture_output=False,
             text=True,
-            cwd=Path(__file__).parent
+            env=os.environ
         )
-        if result.stdout:
-            print(result.stdout)
-        print(f"✅ {description} completed successfully.")
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ {description} failed with code {e.returncode}.")
-        if e.stdout:
-            print(e.stdout)
-        return False
+        return result.returncode
     except FileNotFoundError:
-        print(f"❌ Command not found. Please ensure {' '.join(cmd[:2])} is installed.")
-        return False
+        logger.error(f"Command not found: {cmd[0]}")
+        return 1
+    except Exception as e:
+        logger.error(f"Error running command: {e}")
+        return 1
 
-def check_linting() -> bool:
-    """
-    Run linters (ruff check and flake8) without fixing.
-    Returns True if no issues found.
-    """
-    success = True
-    # Try ruff first
-    if run_command(["ruff", "check", "."], "Ruff Check"):
-        pass
-    else:
-        # Fallback to flake8 if ruff not found or fails configuration
-        if not run_command(["flake8", "."], "Flake8 Check"):
-            success = False
-    return success
+def check_linting(project_root: Path) -> bool:
+    """Check code for linting errors using ruff."""
+    config_path = project_root / "pyproject.toml"
+    if not config_path.exists():
+        logger.warning("pyproject.toml not found, using default ruff config")
+    
+    cmd = [sys.executable, "-m", "ruff", "check", str(project_root)]
+    return run_command(cmd, project_root) == 0
 
-def check_formatting() -> bool:
-    """
-    Run formatter (black) in check mode.
-    Returns True if formatting is correct.
-    """
-    return run_command(["black", "--check", "."], "Black Check")
+def check_formatting(project_root: Path) -> bool:
+    """Check code formatting using black."""
+    cmd = [sys.executable, "-m", "black", "--check", str(project_root)]
+    return run_command(cmd, project_root) == 0
 
-def fix_linting() -> bool:
-    """
-    Run linters with auto-fix enabled (ruff fix).
-    """
-    # Ruff can fix some issues automatically
-    return run_command(["ruff", "check", ".", "--fix"], "Ruff Fix")
+def fix_linting(project_root: Path) -> bool:
+    """Fix linting errors using ruff."""
+    cmd = [sys.executable, "-m", "ruff", "check", "--fix", str(project_root)]
+    return run_command(cmd, project_root) == 0
 
-def fix_formatting() -> bool:
-    """
-    Run formatter (black) to fix formatting issues.
-    """
-    return run_command(["black", "."], "Black Format")
+def fix_formatting(project_root: Path) -> bool:
+    """Fix formatting using black."""
+    cmd = [sys.executable, "-m", "black", str(project_root)]
+    return run_command(cmd, project_root) == 0
 
 def main():
-    """
-    Main entry point for linting and formatting tasks.
-    Usage:
-      python code/linting_config.py check   -> Check only
-      python code/linting_config.py fix     -> Fix issues
-    """
-    if len(sys.argv) < 2:
-        print("Usage: python code/linting_config.py [check|fix]")
-        sys.exit(1)
-
-    mode = sys.argv[1].lower()
-
-    if mode == "check":
-        lint_ok = check_linting()
-        fmt_ok = check_formatting()
-        if lint_ok and fmt_ok:
-            print("\n🎉 All checks passed!")
-            sys.exit(0)
-        else:
-            print("\n⚠️ Issues found. Run 'python code/linting_config.py fix' to attempt auto-fixes.")
-            sys.exit(1)
-    elif mode == "fix":
-        print("Attempting to fix issues...")
-        fix_linting()
-        fix_formatting()
-        print("\nFixes applied. Please run 'check' again to verify.")
+    """Main entry point for linting configuration and checks."""
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    
+    project_root = Path(__file__).resolve().parent.parent
+    
+    print("Checking linting...")
+    lint_ok = check_linting(project_root)
+    
+    print("Checking formatting...")
+    format_ok = check_formatting(project_root)
+    
+    if lint_ok and format_ok:
+        print("All checks passed.")
+        return 0
     else:
-        print(f"Unknown mode: {mode}")
-        sys.exit(1)
+        print("Some checks failed. Run with --fix to attempt automatic fixes.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
