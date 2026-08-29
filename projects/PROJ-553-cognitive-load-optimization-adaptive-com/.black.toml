@@ -1,4 +1,4 @@
-# This file is a legacy configuration file for ruff.
+# This file is a legacy configuration file for black.
 # The primary configuration is now in pyproject.toml.
 # This file is kept for backward compatibility if tools look for it.
 extend = "pyproject.toml"

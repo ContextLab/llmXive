@@ -7,4 +7,5 @@ datasets
 statsmodels
 pytest
 requests
-scipy
+transformers
+sentence-transformers

@@ -1,11 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "cognitive-load-optimization"
 version = "0.1.0"
 description = "Adaptive Complexity Scaling for Personalized Learning"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "scikit-learn",
@@ -18,60 +19,61 @@ dependencies = [
     "pytest",
     "requests",
     "ruff",
-    "black"
+    "black",
 ]
 
-[tool.black]
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Line length (standard for black compatibility)
 line-length = 88
-target-version = ['py311']
+
+# Exclude directories
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+    ".eggs",
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+
+# Ignore specific rules if necessary
+ignore = [
+    "E501", # Line too long (handled by black)
+    "F403", # 'from module import *' used; unable to detect undefined names
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "tests"]
+force-single-line = true
+lines-after-imports = 2
+
+[tool.black]
+# Configuration for Black
+line-length = 88
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.tox
+    | __pycache__
+    | build
+    | dist
+    | \.eggs
 )/
 '''
-
-[tool.ruff]
-target-version = "py311"
-line-length = 88
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-exclude = [
-    ".git",
-    ".mypy_cache",
-    ".ruff_cache",
-    ".venv",
-    "build",
-    "dist",
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
-
-[tool.ruff.isort]
-known-first-party = ["code"]
-force-sort-within-sections = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"

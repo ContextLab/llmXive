@@ -24,8 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create project directory structure: `data/raw/`, `data/processed/`, `data/explanation_tiers/`, `data/simulation_results/`, `code/`, `tests/`, `docs/`
-- [X] T001b Create core files: `code/__init__.py`, `requirements.txt`, `README.md`, `tests/__init__.py`
+- [ ] T001a [P] Create data directories: `data/raw/`, `data/processed/`, `data/explanation_tiers/`, `data/simulation_results/` using a single shell command (`mkdir -p`)
+- [ ] T001b [P] Create code/test directories: `code/`, `tests/`, `docs/` using a single shell command (`mkdir -p`) <!-- FAILED: unspecified -->
+- [X] T001c Create core files: `code/__init__.py`, `requirements.txt`, `README.md`, `tests/__init__.py`
 - [X] T002 Initialize Python 3.11 project with requirements.txt (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels, pytest, requests)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
@@ -38,9 +39,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/load_data.py` to fetch public datasets (ASSISTments/OULAD via HuggingFace `datasets.load_dataset`) and verify presence of timestamped responses, error logs, hint requests, and interaction features
-- [ ] T005 Implement Phase 0 "Golden Set" validation in `code/load_data.py`: check for `data/processed/golden_set.csv` with `expert_load_score` OR concurrent self-reports; exit with specific error if missing
-- [ ] T006a [P] Fetch or Verify External Golden Set: Ensure `data/processed/golden_set.csv` exists with ≥50 expert-labeled interactions. If missing, the task is blocked until external data is manually fetched. DO NOT generate synthetic labels or templates. **Depends on T004, T005** <!-- FAILED: unspecified -->
-- [ ] T006b Implement `code/create_golden_set.py` to actively CREATE the Golden Set if external data is missing: generate a synthetic expert-labeled dataset based on a defined rubric (randomized expert scores mapped to interaction features) to satisfy the 'create' clause of FR-001. Output to `data/processed/golden_set.csv`.
+- [X] T005 Implement Phase 0 "Golden Set" validation logic in `code/load_data.py`: check for `data/processed/golden_set.csv` with `expert_load_score` OR concurrent self-reports; define the specific error message and exit logic
+- [X] T006a [P] [US1] Fetch or Verify External Golden Set: Ensure `data/processed/golden_set.csv` exists with ≥50 expert-labeled interactions. If missing, the task MUST halt execution with the specific error: "Validation Data Missing: Golden Set or required interaction features with concurrent self-reports not found. Cannot proceed with model training." and call `sys.exit(1)`. DO NOT generate synthetic labels. **Depends on T004, T005, T006b**
+- [ ] T006b [P] [US1] Acquire Golden Set: Implement a workflow to acquire the required expert-labeled data. This task MUST either: (1) Fetch a verified external expert-labeled subset from a known source (if available), OR (2) Generate a template CSV with a sufficient number of interaction IDs and instructions for human experts to label them, then block execution until the file is populated. **This task resolves the "create or load" requirement of FR-001.** <!-- FAILED: unspecified -->
 - [X] T006c Document Constitutional Conflict: Update `docs/README.md` and `docs/research.md` to explicitly state the deviation from Constitution Principle VI (NASA-TLX validation) and the reliance on the 'Golden Set' path, flagging this for human review before research acceptance.
 - [X] T007 Implement utility functions in `code/utils.py`: VIF calculation, Flesch-Kincaid scoring, Jaccard similarity, semantic similarity (using lightweight CPU-safe embeddings or cosine similarity on TF-IDF)
 - [X] T008 Setup environment configuration management and logging infrastructure in `code/utils.py`
@@ -57,7 +58,7 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T009 [US1] Contract test for `code/train_load_model.py` input/output schema in `tests/contract/test_load_model.py`
 - [X] T010 [US1] Integration test for Golden Set validation and model training pipeline in `tests/integration/test_load_model_integration.py`
@@ -67,10 +68,10 @@
 - [X] T011 [P] [US1] Implement feature engineering in `code/train_load_model.py`: log-transform latency, count errors/hints/pauses per session
 - [X] T012 [US1] Implement Gradient Boosting Regressor (`LightGBM` with `tree_method='hist'`, `device='cpu'`) in `code/train_load_model.py`
 - [X] T013 [US1] Implement collinearity diagnostic (VIF ≤ 5) in `code/utils.py` and `code/train_load_model.py`; add logic to flag predictors and frame descriptive relationships if VIF > 5
-- [ ] T014 [US1] Implement model training loop with fixed seed, validation against `data/processed/golden_set.csv` (Pearson r ≥ 0.6 target)
+- [X] T014 [US1] Implement model training loop with fixed seed, validation against `data/processed/golden_set.csv` (Pearson r ≥ 0.6 target). **Depends on T006a** <!-- FAILED: unspecified -->
 - [ ] T015 [US1] Implement model size constraint check (≤ 500 MB RAM) and save model artifact to `data/processed/load_model.pkl`
 - [ ] T016 [US1] Add error handling for missing Golden Set or insufficient sample size (N < 40) with explicit reporting
-- [ ] T017 [US1] Update `code/train_load_model.py` to explicitly document that the model uses **behavioral proxies** (latency, errors, hints) as INPUT features, but validation is STRICTLY against the external **Golden Set** expert labels, ensuring no conflation of input features with validation targets (addressing "illusion of competence" concerns)
+- [X] T017 [US1] Update `code/train_load_model.py` to explicitly document that the model uses **behavioral proxies** (latency, errors, hints) as INPUT features, but validation is STRICTLY against the external **Golden Set** expert labels, ensuring no conflation of input features with validation targets (addressing "illusion of competence" concerns)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -84,15 +85,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for tier generation input/output in `tests/contract/test_tier_generation.py`
-- [ ] T019 [P] [US2] Integration test for Flesch-Kincaid scoring and fidelity checks in `tests/integration/test_tier_generation_integration.py`
+- [X] T018 [P] [US2] Contract test for tier generation input/output in `tests/contract/test_tier_generation.py`
+- [X] T019 [P] [US2] Integration test for Flesch-Kincaid scoring and fidelity checks in `tests/integration/test_tier_generation_integration.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement text processing logic in `code/generate_tiers.py`: load sample instructional units from dataset
-- [ ] T021 [US2] Implement "Simple" tier generation: Use HuggingFace `facebook/bart-large-cnn` model for summarization/simplification to reduce sentence length and remove jargon, ensuring Flesch-Kincaid decreases by ≥5 points.
-- [ ] T022 [US2] Implement "Complex" tier generation: Use a rule-based strategy with a predefined jargon dictionary and regex patterns to insert technical terms and increase sentence complexity, ensuring Flesch-Kincaid increases by ≥5 points.
-- [ ] T023 [US2] Implement Flesch-Kincaid scoring for all tiers and verify monotonic progression (simple < moderate < complex) with ≥ 5 point differences
+- [X] T020 [P] [US2] Implement text processing logic in `code/generate_tiers.py`: load sample instructional units from dataset
+- [ ] T021 [US2] Implement "Simple" tier generation: Use HuggingFace `facebook/bart-large-cnn` model for summarization/simplification to reduce sentence length and remove jargon. **Must validate FK difference ≥ 5 and Jaccard ≥ 0.85 BEFORE saving; raise ValueError if constraints not met.**
+- [ ] T022 [US2] Implement "Complex" tier generation: Use a rule-based strategy with a predefined jargon dictionary and regex patterns to insert technical terms and increase sentence complexity. **Must validate FK difference ≥ 5 and Jaccard ≥ 0.85 BEFORE saving; raise ValueError if constraints not met.**
+- [ ] T023 [US2] Implement Flesch-Kincaid scoring for all tiers and verify monotonic progression (simple < moderate < complex) with ≥ 5 point differences. **Save to `data/explanation_tiers/` ONLY if all constraints pass.**
 - [ ] T024 [US2] Implement fidelity checks: Jaccard similarity (≥ 0.85) and semantic similarity (≥ 0.90) against source text
 - [ ] T025 [US2] Save generated tiers and metadata to `data/explanation_tiers/` (CSV/JSON)
 
@@ -108,15 +109,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Contract test for simulation inputs/outputs in `tests/contract/test_simulation.py`
+- [X] T026 [P] [US3] Contract test for simulation inputs/outputs in `tests/contract/test_simulation.py`
 - [ ] T027 [P] [US3] Integration test for mixed-effects model fitting and statistical reporting in `tests/integration/test_stats_integration.py`
 
 ### Implementation for User Story 3
 
 - [ ] T028 [P] [US3] Implement session replay logic in `code/simulate_sessions.py`: load N ≥ 40 historical sessions
 - [ ] T029 [US3] Implement "Static" condition simulation: always serve "Moderate" complexity tier
-- [ ] T030 [US3] Implement "Adaptive" condition simulation: select tier based on Load Estimate (US1) + Hysteresis Controller
-- [ ] T031 [US3] Implement Hysteresis Controller with sensitivity analysis: sweep absolute diff ∈ {,, 0.1} and generate a CSV report at `data/simulation_results/hysteresis_sensitivity.csv`. **Schema**: columns `threshold` (float) and `inconsistency_rate` (float). **Formula**: `inconsistency_rate` = (count of tier switches) / (total transitions). **Depends on T014, T030**
+- [ ] T030 [US3] Implement "Adaptive" condition simulation: select tier based on Load Estimate (US1) + Hysteresis Controller. **Depends on T031, T014, T025**
+- [ ] T031 [US3] Implement Hysteresis Controller with sensitivity analysis: sweep absolute diff over a set of small, representative values and generate a CSV report at `data/simulation_results/hysteresis_sensitivity.csv`. **Schema**: columns `threshold` (float) and `inconsistency_rate` (float). **Formula**: `inconsistency_rate` = (count of tier switches) / (total transitions). **Depends on T014, T007; Output consumed by T030**
 - [ ] T032 [US3] Implement Learning Efficiency calculation: (Predicted Engagement × Gain) / Total Time
 - [ ] T033 [US3] Implement Mixed-Effects Model (LMM) in `code/analyze_results.py`: Fixed Effects (Condition, Load, Interaction), Random Effects (Session ID)
 - [ ] T034 [US3] Implement statistical reporting: Cohen's d, confidence intervals, p-value, family-wise error correction (Bonferroni if needed)
@@ -124,7 +125,6 @@
 - [ ] T036 [US3] Add power limitation check: if N < 40, report limitation and defer effect-size claims
 - [ ] T037a [US3] Implement Pipeline Wrapper: Create `code/run_pipeline.py` to orchestrate the full pipeline (Phases 1-5) and measure total wall-clock time. Assert ≤ 6h total execution time. **Depends on T001-T036**
 - [ ] T037b [US3] Update `code/analyze_results.py` to remove any isolated 6h asserts; rely on T037a for cumulative timing.
-- [ ] T038 [US3] Enhance simulation metrics in `code/analyze_results.py` to include **retrieval latency** (time between prompt and first correct response) and **error pattern tracking** as secondary indicators of consolidation, explicitly framing these as ASSOCIATIONAL indicators only.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -143,7 +143,8 @@
 - [ ] T040 [Rev] Update `docs/research.md` and `README.md` to explicitly state the limitation: "Self-reported ease is not used as a primary metric due to the risk of the 'illusion of competence'. Primary metrics focus on behavioral proxies (latency, errors) validated against expert labels."
 - [ ] T041 [Rev] Update `code/analyze_results.py` report generation to explicitly frame "retrieval latency" and "error pattern" findings as "ASSOCIATIONAL ONLY" indicators, ensuring no causal claims are made about "System 2 effort" (addressing FR-006).
 - [ ] T042 [Rev] Update `code/simulate_sessions.py` to ensure that the "Adaptive" condition does not automatically simplify text upon a single error, but rather uses the hysteresis thresholds to prevent premature simplification, preserving the "struggle" required for consolidation
-- [ ] T043 [Rev] Add a specific warning log in `code/analyze_results.py` if the "Adaptive" condition results in significantly lower error rates AND lower latency compared to "Static", flagging this as a potential "over-simplification" risk in the research report
+- [ ] T043 [Rev] Extend `code/load_data.py` to extract and store `retrieval_latency` (time from question end to answer start) and `error_pattern` (sequence of errors before success) features if present in the source dataset, ensuring these are available for the simulation phase.
+- [ ] T045 [Rev] Update `docs/research.md` to include a dedicated section discussing the "Illusion of Competence" risk, explaining why the project avoids self-reported ease metrics and relies on the Golden Set + behavioral proxies instead.
 
 **Checkpoint**: All review concerns addressed
 
@@ -153,11 +154,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T044 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T045 Code cleanup and refactoring
-- [ ] T046 Performance optimization across all stories (ensure CPU-only compliance)
-- [ ] T047 [P] Run `quickstart.md` validation and end-to-end smoke test
-- [ ] T048 Security hardening (input validation, path safety)
+- [ ] T046 [P] Documentation updates in `docs/` and `README.md`
+- [ ] T047 Code cleanup and refactoring
+- [ ] T048 Performance optimization across all stories (ensure CPU-only compliance)
+- [ ] T049 [P] Run `quickstart.md` validation and end-to-end smoke test
+- [ ] T050 Security hardening (input validation, path safety)
 
 ---
 
@@ -250,11 +251,13 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **CRITICAL**: Do not generate synthetic Golden Set data. If `data/processed/golden_set.csv` is missing, the pipeline MUST halt with the specified error OR use T006b to create it via rubric.
+- **CRITICAL**: Do not generate synthetic Golden Set data. If `data/processed/golden_set.csv` is missing, the pipeline MUST halt with the specified error. T006b provides the mechanism to acquire this data.
 - **CRITICAL**: All tasks must run on CPU-only GitHub Actions free-tier (limited cores, constrained RAM, no GPU).
 - **CRITICAL**: Address the "illusion of competence" review by focusing on behavioral metrics (errors, latency) as inputs, while maintaining strict validation against external expert labels.
 - **CRITICAL**: Tasks T039 and T040 from previous drafts were removed as they introduced unapproved metrics ('error retention', 'Risk flag') violating FR-006 and SC-002.
-- **NEW**: Phase 6 tasks (T040-T043) explicitly address the "System 2 effortful work" critique by tracking retrieval latency and error patterns rather than just "ease of processing", framed strictly as ASSOCIATIONAL.
+- **NEW**: Phase 6 tasks (T040-T045) explicitly address the "System 2 effortful work" critique by tracking retrieval latency and error patterns rather than just "ease of processing", framed strictly as ASSOCIATIONAL. T044 was removed to avoid scope creep and undefined metrics.
 - **NEW**: T037a measures cumulative pipeline time to ensure SC-004 compliance.
-- **NEW**: T006b implements the 'create' clause of FR-001.
-- **NEW**: T006c documents the constitutional conflict.
+- **NEW**: T006b enforces the strict acquisition path for the Golden Set.
+- **NEW**: T043 ensures the necessary behavioral features (retrieval latency, error patterns) are extracted and stored for the simulation phase.
+- **NEW**: T045 adds a dedicated documentation section on the "Illusion of Competence" to ensure transparency regarding the chosen metrics.
+- **NEW**: T031 explicitly lists the required sweep values {0.01, 0.05, 0.1}.

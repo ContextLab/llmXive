@@ -1,129 +1,168 @@
 """
-Tests for linting and formatting configuration.
+Tests for the linting configuration utilities.
 
-These tests verify that the configuration files are valid and that
-the expected commands can be generated correctly.
+These tests verify that the command generation functions produce
+the expected command structures and that the main entry point
+behaves correctly when tools are missing.
 """
-
-import os
 import subprocess
-import tempfile
+import sys
+from unittest.mock import patch, MagicMock
 from pathlib import Path
 
-import pytest
-
+# Import the module under test
 from code.linting_config import (
-    RUFF_CONFIG,
-    BLACK_CONFIG,
     get_ruff_command,
     get_black_command,
     get_format_check_command,
     get_lint_check_command,
+    run_formatter,
+    run_linter,
+    main,
+    PROJECT_ROOT
 )
 
+def test_get_ruff_command_check():
+    """Test that get_ruff_command generates the correct check command."""
+    cmd = get_ruff_command(check=True)
+    assert "ruff" in cmd
+    assert "check" in cmd
+    assert "--exit-non-zero-on-fix" in cmd
+    assert str(PROJECT_ROOT) in cmd
 
-class TestLintingConfig:
-    """Test suite for linting configuration."""
+def test_get_ruff_command_fix():
+    """Test that get_ruff_command generates the correct fix command."""
+    cmd = get_ruff_command(check=False)
+    assert "ruff" in cmd
+    assert "check" in cmd
+    assert "--fix" in cmd
+    assert "--exit-non-zero-on-fix" not in cmd
+    assert str(PROJECT_ROOT) in cmd
 
-    def test_ruff_config_keys(self):
-        """Verify that RUFF_CONFIG contains all required keys."""
-        required_keys = ["target-version", "line-length", "exclude", "select", "ignore"]
-        for key in required_keys:
-            assert key in RUFF_CONFIG, f"Missing key: {key}"
+def test_get_black_command_check():
+    """Test that get_black_command generates the correct check command."""
+    cmd = get_black_command(check=True)
+    assert "black" in cmd
+    assert "--check" in cmd
+    assert "--diff" in cmd
+    assert str(PROJECT_ROOT) in cmd
 
-    def test_black_config_keys(self):
-        """Verify that BLACK_CONFIG contains all required keys."""
-        required_keys = ["line-length", "target-version", "include", "exclude"]
-        for key in required_keys:
-            assert key in BLACK_CONFIG, f"Missing key: {key}"
+def test_get_black_command_format():
+    """Test that get_black_command generates the correct format command."""
+    cmd = get_black_command(check=False)
+    assert "black" in cmd
+    assert "--check" not in cmd
+    assert "--diff" not in cmd
+    assert str(PROJECT_ROOT) in cmd
 
-    def test_line_length_consistency(self):
-        """Verify that ruff and black use the same line length."""
-        assert RUFF_CONFIG["line-length"] == BLACK_CONFIG["line-length"]
+def test_get_format_check_command():
+    """Test that get_format_check_command returns the black check command."""
+    cmd = get_format_check_command()
+    assert cmd == get_black_command(check=True)
 
-    def test_target_version(self):
-        """Verify that both tools target Python 3.11."""
-        assert RUFF_CONFIG["target-version"] == "py311"
-        assert "py311" in BLACK_CONFIG["target-version"]
+def test_get_lint_check_command():
+    """Test that get_lint_check_command returns the ruff check command."""
+    cmd = get_lint_check_command()
+    assert cmd == get_ruff_command(check=True)
 
-    def test_get_ruff_command(self):
-        """Verify that get_ruff_command returns a valid command string."""
-        cmd = get_ruff_command()
-        assert isinstance(cmd, str)
-        assert "ruff" in cmd
-        assert "check" in cmd
-        assert "code/" in cmd
-        assert "tests/" in cmd
+@patch('subprocess.run')
+def test_run_formatter_success(mock_run):
+    """Test run_formatter when subprocess succeeds."""
+    mock_result = MagicMock()
+    mock_result.returncode = 0
+    mock_run.return_value = mock_result
+    
+    exit_code = run_formatter(check=True)
+    assert exit_code == 0
+    mock_run.assert_called_once()
 
-    def test_get_black_command(self):
-        """Verify that get_black_command returns a valid command string."""
-        cmd = get_black_command()
-        assert isinstance(cmd, str)
-        assert "black" in cmd
-        assert "code/" in cmd
-        assert "tests/" in cmd
+@patch('subprocess.run')
+def test_run_formatter_failure(mock_run):
+    """Test run_formatter when subprocess fails."""
+    mock_result = MagicMock()
+    mock_result.returncode = 1
+    mock_run.return_value = mock_result
+    
+    exit_code = run_formatter(check=True)
+    assert exit_code == 1
 
-    def test_get_format_check_command(self):
-        """Verify that get_format_check_command returns a valid check command."""
-        cmd = get_format_check_command()
-        assert isinstance(cmd, str)
-        assert "black" in cmd
-        assert "--check" in cmd
+@patch('subprocess.run')
+def test_run_formatter_not_found(mock_run):
+    """Test run_formatter when black is not found."""
+    mock_run.side_effect = FileNotFoundError("black not found")
+    
+    exit_code = run_formatter(check=True)
+    assert exit_code == 1
 
-    def test_get_lint_check_command(self):
-        """Verify that get_lint_check_command returns a valid check command."""
-        cmd = get_lint_check_command()
-        assert isinstance(cmd, str)
-        assert "ruff" in cmd
-        assert "check" in cmd
-        assert "--fix" not in cmd
+@patch('subprocess.run')
+def test_run_linter_success(mock_run):
+    """Test run_linter when subprocess succeeds."""
+    mock_result = MagicMock()
+    mock_result.returncode = 0
+    mock_run.return_value = mock_result
+    
+    exit_code = run_linter(check=True)
+    assert exit_code == 0
+    mock_run.assert_called_once()
 
-    def test_exclude_paths_consistency(self):
-        """Verify that both tools exclude common directories."""
-        common_excludes = [".git", "__pycache__", "data", "figures"]
-        ruff_excludes = RUFF_CONFIG["exclude"]
-        black_exclude_str = BLACK_CONFIG["exclude"]
-        
-        for exclude in common_excludes:
-            assert exclude in ruff_excludes
-            assert exclude in black_exclude_str
+@patch('subprocess.run')
+def test_run_linter_failure(mock_run):
+    """Test run_linter when subprocess fails."""
+    mock_result = MagicMock()
+    mock_result.returncode = 1
+    mock_run.return_value = mock_result
+    
+    exit_code = run_linter(check=True)
+    assert exit_code == 1
 
-    def test_pyproject_toml_exists(self):
-        """Verify that pyproject.toml exists in the project root."""
-        project_root = Path(__file__).parent.parent
-        pyproject_path = project_root / "pyproject.toml"
-        assert pyproject_path.exists(), "pyproject.toml should exist"
+@patch('subprocess.run')
+def test_run_linter_not_found(mock_run):
+    """Test run_linter when ruff is not found."""
+    mock_run.side_effect = FileNotFoundError("ruff not found")
+    
+    exit_code = run_linter(check=True)
+    assert exit_code == 1
 
-    def test_pyproject_toml_contains_ruff_config(self):
-        """Verify that pyproject.toml contains ruff configuration."""
-        project_root = Path(__file__).parent.parent
-        pyproject_path = project_root / "pyproject.toml"
-        
-        content = pyproject_path.read_text()
-        assert "[tool.ruff]" in content, "pyproject.toml should contain [tool.ruff]"
-        assert "target-version" in content, "pyproject.toml should specify target version"
+@patch('code.linting_config.run_linter')
+@patch('code.linting_config.run_formatter')
+def test_main_success(mock_format, mock_lint):
+    """Test main() when both checks pass."""
+    mock_lint.return_value = 0
+    mock_format.return_value = 0
+    
+    with patch('sys.exit') as mock_exit:
+        main()
+        mock_exit.assert_called_once_with(0)
 
-    def test_pyproject_toml_contains_black_config(self):
-        """Verify that pyproject.toml contains black configuration."""
-        project_root = Path(__file__).parent.parent
-        pyproject_path = project_root / "pyproject.toml"
-        
-        content = pyproject_path.read_text()
-        assert "[tool.black]" in content, "pyproject.toml should contain [tool.black]"
-        assert "line-length" in content, "pyproject.toml should specify line length"
+@patch('code.linting_config.run_linter')
+@patch('code.linting_config.run_formatter')
+def test_main_lint_failure(mock_format, mock_lint):
+    """Test main() when linter fails."""
+    mock_lint.return_value = 1
+    mock_format.return_value = 0
+    
+    with patch('sys.exit') as mock_exit:
+        main()
+        mock_exit.assert_called_once_with(1)
 
-    def test_ruff_toml_exists(self):
-        """Verify that .ruff.toml exists in the project root."""
-        project_root = Path(__file__).parent.parent
-        ruff_toml_path = project_root / ".ruff.toml"
-        assert ruff_toml_path.exists(), ".ruff.toml should exist"
+@patch('code.linting_config.run_linter')
+@patch('code.linting_config.run_formatter')
+def test_main_format_failure(mock_format, mock_lint):
+    """Test main() when formatter fails."""
+    mock_lint.return_value = 0
+    mock_format.return_value = 1
+    
+    with patch('sys.exit') as mock_exit:
+        main()
+        mock_exit.assert_called_once_with(1)
 
-    def test_linting_config_syntax_valid(self):
-        """Verify that linting_config.py is syntactically valid."""
-        project_root = Path(__file__).parent.parent
-        config_path = project_root / "code" / "linting_config.py"
-        
-        try:
-            compile(config_path.read_text(), config_path, "exec")
-        except SyntaxError as e:
-            pytest.fail(f"linting_config.py has a syntax error: {e}")
+@patch('code.linting_config.run_linter')
+@patch('code.linting_config.run_formatter')
+def test_main_both_failure(mock_format, mock_lint):
+    """Test main() when both checks fail."""
+    mock_lint.return_value = 1
+    mock_format.return_value = 1
+    
+    with patch('sys.exit') as mock_exit:
+        main()
+        mock_exit.assert_called_once_with(1)
