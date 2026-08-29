@@ -23,7 +23,7 @@ properties:
     description: "Distance from the training convex hull in descriptor feature space"
   is_novel:
     type: "boolean"
-    description: "True if the composition is in the 'True Novel' set (absent from hmao/all_apis_for_multiapi)"
+    description: "True if the composition is in the 'True Novel' set (absent from AFLOW union)"
 required:
   - composition_id
   - composition

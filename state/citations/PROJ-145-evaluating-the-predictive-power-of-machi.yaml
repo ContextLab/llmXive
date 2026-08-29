@@ -1,44 +1,11 @@
-- artifact_hash: 16ede1331969454299b3eb8b2c4019be4a474b9c82253f0b64e131efe74330ce
+- artifact_hash: 067f1b17e501c387c0ddf2eaa98a11ea16d337c2820f3df1ea4565a76a511e97
   artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: train-00000-of-00001.parquet
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/foundry-ml/dataset_thermalcond_aflow/resolve/main/data/train-00000-of-00001.parquet`
+  value: https://huggingface.co/datasets/foundry-ml/dataset_thermodynamics_aflow`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69519b9e1c2c18ff210eedc1/7ef4563cb4e34e8e75289150415f92cdcd370b0df90d2dbdd674cbe05d14d5c7?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1786628767&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjk1MTliOWUxYzJjMThmZjIxMGVlZGMxLzdlZjQ1NjNjYjRlMzRlOGU3NTI4OTE1MDQxNWY5MmNkY2QzNzBiMGRmOTBkMmRiZGQ2NzRjYmUwNWQxNGQ1YzdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjYyODc2N319fV19&Signature=MEYCIQCP9QH1lK3TDyEOEtl3MI1JQruMW2CkyqegWcd8MzoWVQIhAPeRBXXjvfmu-fNS-jtyJMw-ssUJ%7ExT4wAB97aheLCzZ&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-13T12:46:07.552520Z'
-- artifact_hash: 16ede1331969454299b3eb8b2c4019be4a474b9c82253f0b64e131efe74330ce
-  artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/foundry-ml/dataset_thermalexp_aflow/resolve/main/data/train-00000-of-00001.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69519ba6a8d391e3fbaf4386/c94f6c318b8d2443a1888ceefd300cd354de1df658936d2b5169bb0d63bdac21?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1786628768&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjk1MTliYTZhOGQzOTFlM2ZiYWY0Mzg2L2M5NGY2YzMxOGI4ZDI0NDNhMTg4OGNlZWZkMzAwY2QzNTRkZTFkZjY1ODkzNmQyYjUxNjliYjBkNjNiZGFjMjFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjYyODc2OH19fV19&Signature=MEYCIQCSyGGRY0p2%7Eao8Jelc4Wu9Guj3T-AzXNgJUxVxD3wbUQIhAPb96Yq85VYymZw5Hlc7P2QZtYcys8nWoodLGiGY3eC%7E&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-13T12:46:07.552520Z'
-- artifact_hash: 16ede1331969454299b3eb8b2c4019be4a474b9c82253f0b64e131efe74330ce
-  artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/Baekpica/DeepSeek-V4-Flash-0731-REAM-Healing-Mix-2048/resolve/main/data-16384/train-00000-of-00001.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a71da07d6b208957a405935/6d5f789cda09691a0d6236264982b470ac389c0e1174246a9cc2fed7ff430088?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&Expires=1786628769&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE3MWRhMDdkNmIyMDg5NTdhNDA1OTM1LzZkNWY3ODljZGEwOTY5MWEwZDYyMzYyNjQ5ODJiNDcwYWMzODljMGUxMTc0MjQ2YTljYzJmZWQ3ZmY0MzAwODhcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjYyODc2OX19fV19&Signature=MEUCIEI1COzs3R6XHQr-dqySLJLsLA2%7ElEPVimvDFq2qe9TAAiEAoduxHGe1iAGkvdLK%7E2T2E9uePgVa8jdUYmUJCN2X0E8_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-13T12:46:07.552520Z'
-- artifact_hash: 16ede1331969454299b3eb8b2c4019be4a474b9c82253f0b64e131efe74330ce
-  artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001-bd8d5e4d08813d65.parquet
-  kind: url
-  value: https://huggingface.co/datasets/hmao/all_apis_for_multiapi/resolve/main/data/train-00000-of-00001-bd8d5e4d08813d65.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f10a96b9c8f1a454ce0bc/9f5f950e6b4e5499dc626508c3610dd0cab8764cecb0279b233e37e29d44fcbf?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-bd8d5e4d08813d65.parquet%3B+filename%3D%22train-00000-of-00001-bd8d5e4d08813d65.parquet%22%3B&Expires=1786628770&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjEwYTk2YjljOGYxYTQ1NGNlMGJjLzlmNWY5NTBlNmI0ZTU0OTlkYzYyNjUwOGMzNjEwZGQwY2FiODc2NGNlY2IwMjc5YjIzM2UzN2UyOWQ0NGZjYmZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtYmQ4ZDVlNGQwODgxM2Q2NS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtYmQ4ZDVlNGQwODgxM2Q2NS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODY2Mjg3NzB9fX1dfQ__&Signature=MEQCIFV53Ayyi7GKSY6WwCTwgYQmDUYyewwGP0Xq21daLrYHAiBAVd8EQul7n3SQMcEunepLnMNdHHyrXsLoqWwnxr3Ubw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-13T12:46:07.552520Z'
+  verified_against_url: https://huggingface.co/datasets/foundry-ml/dataset_thermodynamics_aflow
+  verified_at: '2026-08-29T15:20:42.874914Z'

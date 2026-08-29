@@ -1,11 +1,16 @@
 status: none
-intent: download high entropy alloy formation energy dataset materials project aflow
+intent: HEA thermodynamic dataset formation energy mixing enthalpy Materials Project
+  AFLOW python package dataset
 required_fields:
-- composition
+- formula
+- elements
+- element_fractions
 - formation_energy_per_atom
 - mixing_enthalpy
 - num_elements
-- entry_id
-cache_key: 4961949ae7a475c636ebba322e19afee27424f8ff666673a462ba18addf54ae4
-searched_at: '2026-08-13T13:00:55.376433+00:00'
+- source_database
+- materials_project_id
+- aflow_id
+cache_key: ccf14ff9008695ecd5b3d31659f359647d7577cceff1204bb8903582a2fb9ca2
+searched_at: '2026-08-29T15:14:30.531708+00:00'
 retry_count: 1

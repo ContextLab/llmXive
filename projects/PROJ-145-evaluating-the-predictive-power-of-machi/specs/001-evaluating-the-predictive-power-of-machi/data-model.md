@@ -1,87 +1,79 @@
 # Data Model: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions
 
-## 1. Conceptual Model
+## Overview
 
-The data model revolves around three core entities: `Composition`, `DescriptorSet`, and `PredictionResult`.
+This document defines the schema and structure of the data artifacts generated and consumed by the project. All data is stored in CSV or Parquet format under `data/processed/`.
 
-1.  **Composition**: Represents a chemical formula (e.g., `CoCrFeMnNi`). Contains elemental counts and a unique hash.
-2.  **DescriptorSet**: Derived features (mean/var of radius, electronegativity, etc.) calculated from the Composition.
-3.  **PredictionResult**: Model output (predicted formation energy, uncertainty) and ground truth (if available).
+## Entity Definitions
 
-## 2. Physical Data Flow
+### 1. TrainingSet (`heas_train.csv`)
+The primary dataset used for model training. Contains known HEA compositions with ground-truth thermodynamic properties and calculated descriptors.
 
-```mermaid
-graph TD
-    A[Raw Parquet (AFLOW/API)] -->|Filter 5+ Elements| B(heas_train.csv)
-    B -->|Feature Eng (pymatgen)| C(heas_train_descriptors.csv)
-    B -->|Split 10%| D(holdout_known.csv)
-    D -->|Feature Eng| E(holdout_known_descriptors.csv)
-    B -->|Combinatorial Gen| F(true_novel_candidates)
-    F -->|Thermo Stability Filter| G(stable_candidates)
-    G -->|Filter Not in Source| H(true_novel.csv)
-    H -->|Final API Check| I(true_novel_final.csv)
-    I -->|Feature Eng| J(true_novel_descriptors.csv)
-    C -->|Train| K(Model RF/GB)
-    E -->|Eval| L(Holdout Metrics)
-    J -->|Predict| M(Novel Predictions)
-    M -->|Uncertainty Calc| N(Report CSV)
-```
+| Column Name | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `composition_id` | string | Unique hash of the elemental composition (e.g., "Al0.2Co0.2Cr0.2Fe0.2Ni0.2") | Derived |
+| `elements` | string | Comma-separated list of elements (e.g., "Al,Co,Cr,Fe,Ni") | Derived |
+| `n_elements` | int | Number of unique elements in the system | Derived |
+| `formation_energy` | float | Ground truth formation energy (eV/atom) | AFLOW (Verified) |
+| `mixing_enthalpy` | float | Ground truth mixing enthalpy (kJ/mol) | AFLOW (Verified) |
+| `atomic_radius_mean` | float | Weighted mean atomic radius | `pymatgen` |
+| `atomic_radius_var` | float | Weighted variance atomic radius | `pymatgen` |
+| `electronegativity_mean` | float | Weighted mean electronegativity | `pymatgen` |
+| `electronegativity_var` | float | Weighted variance electronegativity | `pymatgen` |
+| `vec_mean` | float | Weighted mean Valence Electron Count | `pymatgen` |
+| `vec_var` | float | Weighted variance Valence Electron Count | `pymatgen` |
+| `melting_point_mean` | float | Weighted mean melting point | `pymatgen` |
+| `melting_point_var` | float | Weighted variance melting point | `pymatgen` |
 
-## 3. File Schemas
+### 2. HoldoutKnown (`holdout_known.csv`)
+A subset of the source data that was excluded from the TrainingSet but exists in the source API. Used to measure extrapolation error.
 
-### 3.1 Input: Raw Data (Parquet)
-*Source*: Verified Hugging Face datasets.
-*Structure*: Flexible, depends on source. Key columns expected: `composition`, `formation_energy`, `mixing_enthalpy`. **Schema validation ensures presence of these columns.**
+| Column Name | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `composition_id` | string | Unique hash | Derived |
+| `elements` | string | Comma-separated list | Derived |
+| `formation_energy` | float | Ground truth (from source) | AFLOW (Verified) |
+| `mixing_enthalpy` | float | Ground truth (from source) | AFLOW (Verified) |
+| `atomic_radius_mean` | float | Weighted mean | `pymatgen` |
+| ... | ... | (Same descriptor columns as TrainingSet) | `pymatgen` |
+| `prediction_energy` | float | Model prediction | Model Output |
+| `prediction_enthalpy` | float | Model prediction | Model Output |
+| `error_energy` | float | `formation_energy` - `prediction_energy` | Derived |
+| `error_enthalpy` | float | `mixing_enthalpy` - `prediction_enthalpy` | Derived |
 
-### 3.2 Intermediate: Processed HEA (CSV)
-*File*: `data/processed/heas_train.csv`, `holdout_known.csv`, `true_novel.csv`
-*Columns*:
-*   `composition_id`: Unique hash (SHA256 of sorted elemental string).
-*   `formula`: Human-readable formula (e.g., `CoCrFeMnNi`).
-*   `elements`: JSON list of elements.
-*   `formation_energy`: Float (Target).
-*   `mixing_enthalpy`: Float (Target).
+### 3. TrueNovel (`true_novel.csv`)
+Programmatically generated compositions not found in the source API index. Used for uncertainty analysis.
 
-### 3.3 Feature-Engineered Data (CSV)
-*File*: `data/processed/heas_train_features.csv` (and equivalents for test sets)
-*Columns*:
-*   `composition_id`: PK.
-*   `radius_mean`, `radius_var`: Float.
-*   `electroneg_mean`, `electroneg_var`: Float.
-*   `vec_mean`, `vec_var`: Float.
-*   `melting_mean`, `melting_var`: Float.
-*   `target`: Float (Formation Energy).
-*   **Streaming Constraint**: Data is processed in chunks to respect the 7GB RAM limit.
+| Column Name | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `composition_id` | string | Unique hash | Derived |
+| `elements` | string | Comma-separated list | Derived |
+| `atomic_radius_mean` | float | Weighted mean | `pymatgen` |
+| ... | ... | (Same descriptor columns as TrainingSet) | `pymatgen` |
+| `prediction_energy` | float | Model prediction | Model Output |
+| `prediction_enthalpy` | float | Model prediction | Model Output |
+| `prediction_var_energy` | float | Ensemble variance for energy | Model Output |
+| `prediction_var_enthalpy` | float | Ensemble variance for enthalpy | Model Output |
+| `distance_from_hull` | float | Distance from training convex hull | Derived |
+| `reliability_rank` | int | Rank by lowest variance | Derived |
 
-### 3.4 Output: Predictions & Metrics (CSV)
-*File*: `data/processed/predictions_novel.csv`
-*Columns*:
-*   `composition_id`.
-*   `predicted_energy`: Float.
-*   `uncertainty_variance`: Float.
-*   `hull_distance`: Float (Mahalanobis distance).
-*   `rank`: Integer (1-100).
+### 4. PerformanceMetrics (`metrics_summary.csv`)
+Aggregated statistics for the final report.
 
-*File*: `data/processed/metrics_summary.csv`
-*Columns*:
-*   `metric_name`: String (e.g., `train_r2`, `holdout_r2`, `spearman_rho`).
-*   `value`: Float.
-*   `p_value`: Float (if applicable).
-*   `description`: String.
+| Column Name | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `metric_name` | string | e.g., "interpolation_R2", "extrapolation_R2" | Derived |
+| `value` | float | The measured value | Derived |
+| `p_value` | float | p-value from statistical test (if applicable) | Derived |
+| `test_type` | string | e.g., "permutation", "spearman" | Derived |
+| `dataset` | string | e.g., "train", "holdout", "novel" | Derived |
 
-### 3.5 Split Metadata (CSV)
-*File*: `data/processed/split_metadata.csv`
-*Columns*:
-*   `split_name`: String (e.g., `train`, `holdout`, `novel`).
-*   `row_count`: Integer.
-*   `checksum`: String (SHA256).
-*   `validation_status`: String (e.g., `passed`, `failed`).
+## Data Flow
 
-## 4. Constraints & Rules
-
-*   **Clamping**: `radius_var`, `electroneg_var`, etc., must be $\ge 1e-6$.
-*   **Uniqueness**: `composition_id` must be unique within each file.
-*   **Missing Data**: Rows with missing `formation_energy` are dropped during ingestion.
-*   **Precision**: All floats stored with 6 decimal places.
-*   **Streaming**: Ingestion is limited to a scalable total dataset size, processed in 1000-row chunks.
-*   **Stability Filter**: "True Novel" candidates must have predicted formation energy < 0.1 eV/atom.
+1.  **Ingestion**: Raw Parquet (AFLOW) $\to$ Filtered CSV (`heas_train.csv` + `holdout_known.csv`).
+2.  **Engineering**: CSV $\to$ CSV with descriptor columns (all sets).
+3.  **Training**: `heas_train.csv` $\to$ Model Artifacts (`.pkl`).
+4.  **Evaluation**: Models + `holdout_known.csv` $\to$ `holdout_known.csv` (with predictions).
+5.  **Novel Gen**: Random Combinations $\to$ Query Index $\to$ `true_novel.csv` (filtered).
+6.  **Novel Eval**: Models + `true_novel.csv` $\to$ `true_novel.csv` (with variance/distance).
+7.  **Reporting**: All CSVs $\to$ `metrics_summary.csv`.

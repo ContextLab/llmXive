@@ -30,10 +30,7 @@
  - Entities from data-model.md
  - Endpoints from contracts/
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+ Tasks MUST be organized by user story so each story can be independently completable and testable.
 
  DO NOT keep these sample tasks in the generated tasks.md file.
  ============================================================================
@@ -55,7 +52,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T002 Create `code/config.py` with hyperparameters, random seeds (arbitrary), and path constants
-- [X] T003 [P] Initialize Python 3.11 project with `requirements.txt` (pymatgen, scikit-learn, pandas, numpy, scipy, datasets, matplotlib, seaborn, pytest)
+- [ ] T002a [P] [US1] **Config Definitions**: Add `N_NOVEL_SAMPLES = 1000`, `ELEMENT_SUBSET = ["Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Al"]` to `code/config.py`. **Requirement**: Define the constant and a concrete subset of transition/post-transition metals to sample from.
+- [X] T003 [P] Initialize a Python project using a recent, stable version of the language. with `requirements.txt` (pymatgen, scikit-learn, pandas, numpy, scipy, datasets, matplotlib, seaborn, pytest)
 - [ ] T004 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T005 [P] Implement `code/__init__.py` and package structure
 - [ ] T006 [P] Setup `tests/` directory structure (unit, integration)
@@ -67,31 +65,35 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Novel Composition Generation (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest HEA thermodynamic data from `hmao/all_apis_for_multiapi`, generate `heas_train.csv`, `holdout_known.csv`, and `true_novel.csv` with strict separation and verification. The "Source API" for novelty verification is defined as the static `hmao` proxy dataset per Plan constraints.
+**Goal**: Ingest HEA thermodynamic data from "Materials Project API and AFLOWlib" (live implementation), generate `heas_train.csv`, `holdout_known.csv`, and `true_novel.csv` with strict separation and verification.
 
-**Independent Test**: Verify `heas_train.csv` contains only known entries, `holdout_known.csv` entries exist in source but not training, and `true_novel.csv` entries return "Not Found" against the `hmao` proxy index.
+**Independent Test**: Verify `heas_train.csv` contains only known entries, `holdout_known.csv` entries exist in source but not training, and `true_novel.csv` entries return "Not Found" against the live source APIs.
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T010 [P] [US1] Unit test for data filtering logic in `tests/unit/test_ingestion.py` (verify 5+ element filter)
+- [ ] T019b [P] [US1] **Verification of Fail-Loudly**: Add a unit test in `tests/unit/test_ingestion.py` that verifies `code/data_ingestion.py` raises an exception when the dataset fetch is simulated to fail, ensuring no synthetic fallback logic exists. **Logic**: Mock the `datasets.load_dataset` call to raise an error; assert the script exits with a non-zero code and no synthetic data is generated. **Dependency**: Requires T012 (Data Ingestion) skeleton to exist. **Ordering**: Must be written before T012 implementation.
+- [X] T010 [P] [US1] Unit test for data filtering logic in `tests/unit/test_ingestion.py` (verify + element filter)
 - [X] T011 [P] [US1] Integration test for dataset split logic in `tests/integration/test_split.py` (verify no overlap between train/holdout/novel)
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/data_ingestion.py` to load `hmao/all_apis_for_multiapi` using `datasets.load_dataset(..., streaming=True)`. **Mapping**: `formation_energy_per_atom` -> `target_energy`, `mixing_enthalpy` -> `target_hmix`. Filter for + element systems.
-- [ ] T013 [US1] Implement filtering logic in `code/data_ingestion.py` to select 5+ element systems and export to `data/processed/heas_train.csv`
-- [ ] T017 [US1] **Generate Proxy Index**: Load the static `hmao` snapshot, compute a composition hash for each entry, and export a deduplicated set of composition strings to `data/raw/hmao_index.json`. This artifact serves as the "Source API" index for novelty verification. **Constraint**: Must use a fixed random seed (42) if any sampling is involved in index generation (none expected).
-- [ ] T014 [US1] **Hold-out Known (Extrapolation)**: Implement **Stratified Element-Pair Exclusion**. Identify specific element pairs (e.g., Ti-Zr, W-Mo) known to form distinct phases. **Exclude** ALL compositions containing these pairs from the Training Set. **Sample** `config.N_NOVEL_SAMPLES` unique 5-element combinations from this *excluded* subset. **Verify** these combinations exist in the `hmao` proxy index (`data/raw/hmao_index.json`) but NOT in `heas_train.csv`. Export to `data/processed/holdout_known.csv`. **Algorithm**: Iterate all 5-element subsets of the periodic table, filter by exclusion criteria, then check against `hmao_index.json`.
-- [ ] T014a [US1] **Exclusion Criteria Definition**: Define the specific element pairs (e.g., Ti-Zr, W-Mo, Nb-Mo) to be excluded from the training set in `code/config.py`. Ensure these pairs are used by T014 to generate the "Hold-out Known" set. **Output**: A list of tuples in `code/config.py`.
-- [ ] T015 [US1] **True Novel (Sensitivity)**: **Sample** `config.N_NOVEL_SAMPLES` unique 5-element combinations from the periodic table using a fixed random seed (42). **Filter** for those NOT present in `heas_train.csv` AND NOT present in the `hmao` proxy index (`data/raw/hmao_index.json` generated by T017). Export to `data/processed/true_novel.csv`. **Constraint**: Must use a fixed random seed for reproducibility. **Note**: Verification is against the static proxy, not the live API.
-- [X] T016 [US1] Implement streaming integrity check in `code/data_ingestion.py`: Validate the dataset checksum against the known SHA256 hash in `config.py` and implement **exponential backoff with a maximum of 3 retries** if the static fetch fails (per Spec Edge Case 1). Do NOT use mock logging.
-- [X] T017 [US1] Implement strict composition string comparison check to prevent hash collisions in `code/data_ingestion.py`. **Output**: Produce a `deduplicated composition index` artifact (set of strings) consumed by T014, T015, and T018.
-- [ ] T018 [US1] Add validation script `code/validate_splits.py` to verify disjoint sets and `hmao` proxy existence for holdout/novel sets. **Logic**: Assert `len(set(train) & set(holdout)) == 0`, `len(set(train) & set(novel)) == 0`, and `len(set(holdout) & set(novel)) == 0`. Verify `holdout` entries exist in the `hmao` index and `novel` entries do not. **Output**: Exit code 0 if valid, 1 otherwise; log counts to stdout.
-- [ ] T019a [US1] **Documentation**: Create `docs/api_deviation.md` explicitly documenting the deviation from live "Materials Project/AFLOW API" verification to static `hmao` proxy verification for CI reproducibility. **Required Sections**: 1. Proxy Hash (SHA256 of `hmao` snapshot), 2. Justification (lack of live API access), 3. Constitution Reference (Principle I & III), 4. Limitation Statement (verification is against a subset, not the full live API). Reference FR-001, US-1, **Plan: Data Availability Strategy**, and **Constitution Principle I**.
-- [ ] T019b [US1] **Implementation Fix**: Refactor `code/data_ingestion.py` to remove any `try/except` blocks or `if` conditions that fall back to `generate_synthetic_*()` or mock data when the real `hmao` fetch fails. Ensure the script raises a clear exception and halts execution on fetch failure to satisfy the "Fail Loudly" rule.
-- [ ] T012b [US1] **Config**: Define `N_NOVEL_SAMPLES` constant in `code/config.py` to replace hardcoded values. **Requirement**: The value must be marked as `[deferred]` in comments, allowing the sample size to be dynamic per Spec FR-002.
+- [ ] T017a [US1] **Download Raw Data**: Download the raw `hmao` dataset to `data/raw/` using `datasets.load_dataset(..., streaming=True)`. **Output**: `data/raw/hmao_raw.parquet` (or equivalent). **Constraint**: Must use `streaming=True` to respect RAM limits. **External Checksum**: Retrieve the known SHA256 checksum from the HuggingFace dataset metadata (not from the local file) to use for integrity verification.
+- [ ] T017b [US1] **Compute Checksum & Update Config**: Compute the SHA256 checksum of `data/raw/hmao_raw.parquet`. Compare it against the *known external* checksum retrieved in T017a. If they match, update `code/config.py` to set `EXPECTED_HMAO_CHECKSUM` for future runs. **Output**: Updated `code/config.py`. **Dependency**: T017a.
+- [ ] T017c [US1] **Live API Client Implementation**: Implement `code/api_client.py` to query the "Materials Project" and "AFLOW" APIs (or their public mirrors) for composition existence. **Logic**: 1. Accept a composition string. 2. Query the API with exponential backoff (max 3 retries). 3. Return `{"status": "Found", "data": ...}` or `{"status": "Not Found"}`. **Constraint**: Must handle rate limits and timeouts. **Output**: A callable `query_live_api(composition_string)` function. **Dependency**: T003 (requirements).
+- [ ] T016 [US1] **Streaming Integrity Check**: Implement streaming integrity check in `code/data_ingestion.py`: Validate the dataset checksum against `config.EXPECTED_HMAO_CHECKSUM` (defined in T017b) and implement **exponential backoff with a maximum of 3 retries** if the fetch fails (per Spec Edge Case 1). Do NOT use mock logging. **Dependency**: T017b.
+- [ ] T012 [US1] **Data Ingestion Implementation**: Implement `code/data_ingestion.py` to load `hmao/all_apis_for_multiapi` using `datasets.load_dataset(..., streaming=True)`. **Mapping**: `formation_energy_per_atom` -> `target_energy`, `mixing_enthalpy` -> `target_hmix`. Filter for multi-element systems (systems with multiple elements). **Constraint**: Use the live API client (T017c) for any verification steps. **Fail-Loudly Rule**: The script MUST raise a `ConnectionError` or `ValueError` immediately if the dataset fetch fails; NO synthetic data generation or fallback logic is permitted.
+- [ ] T019c [US1] **Strict Composition Comparison**: Implement strict composition string comparison check to prevent hash collisions in `code/data_ingestion.py`. **Output**: Produce a `deduplicated composition index` artifact (set of strings) consumed by T014b, T014c, and T015. **Dependency**: T012.
+- [ ] T014a [US1] **Exclusion Logic Implementation**: Implement logic in `code/data_ingestion.py` to identify element pairs with the highest co-occurrence in the *loaded* training set (from T012) and define them as exclusion criteria. **Algorithm**: Calculate co-occurrence frequency for all pairs; exclude the top N pairs where N is configurable. **Output**: A list of tuples in `code/config.py` as `EXCLUSION_PAIRS`. **Dependency**: T012. **Constraint**: Do NOT hardcode specific pairs; derive dynamically.
+- [ ] T014b [US1] **Hold-out Known Sampling**: Sample `config.N_NOVEL_SAMPLES` unique combinations of the excluded subset, ensuring each combination contains a small, fixed number of elements (compositions containing `EXCLUSION_PAIRS` from T014a). **Algorithm**: Iterate all 5-element subsets of the periodic table, filter by exclusion criteria. **Output**: A list of candidate compositions. **Dependency**: T014a.
+- [ ] T014c [US1] **Hold-out Known Verification**: Verify the candidates from T014b exist in the "Source API" by invoking `query_live_api` (from T017c) and confirming a "Found" status, while ensuring they are NOT in `heas_train.csv`. **Output**: `data/processed/holdout_known.csv`. **Dependency**: T014b, T017c.
+- [ ] T014d [US1] **Hold-out Known Export**: Export the verified hold-out set to `data/processed/holdout_known.csv`. **Dependency**: T014c.
+- [ ] T015 [US1] **True Novel Generation**: Sample `config.N_NOVEL_SAMPLES` unique 5-element combinations from `config.ELEMENT_SUBSET` (defined in T002a) using `itertools.combinations` and a fixed random seed (42). Filter for those NOT present in `heas_train.csv` AND NOT present in the "Source API" by invoking `query_live_api` (from T017c) and confirming a "Not Found" status. Export to `data/processed/true_novel.csv`. **Constraint**: Must use a fixed random seed for reproducibility. **Dependency**: T017c, T019c.
+- [ ] T018a [US1] **Source API Query Simulation (Deprecated)**: *This task is deprecated in favor of T017c. Do not implement.*
+- [ ] T018b [US1] **Validation Script**: Add validation script `code/validate_splits.py` to verify disjoint sets and live API existence for holdout/novel sets. **Logic**: Assert `len(set(train) & set(holdout)) == 0`, `len(set(train) & set(novel)) == 0`, and `len(set(holdout) & set(novel)) == 0`. Verify `holdout` entries exist in the live API and `novel` entries do not. **Output**: Exit code 0 if valid, 1 otherwise; log counts to stdout. **Dependency**: T017c, T014d, T015.
+- [ ] T018c [US1] **API Fallback/Proxy Mapping**: Create `code/api_mapping.md` explicitly documenting the mapping of FR-002 "Source API" requirement to the live API implementation in T017c. **Required Sections**: 1. FR-002 Requirement, 2. Live API Implementation (T017c), 3. Fallback Strategy (if any), 4. Traceability Matrix. **Verification**: Run a diff check against the source text in `plan.md` if quoting. **Dependency**: T017c.
+- [ ] T019a [US1] **Documentation**: Create `docs/api_deviation.md` explicitly documenting the deviation from live "Materials Project/AFLOW API" verification to static `hmao` proxy verification for CI reproducibility (if applicable). **Required Sections**: 1. Proxy Hash (SHA256 of `hmao` snapshot), 2. Justification (lack of live API access), 3. Constitution Reference (Principle I & III), 4. Limitation Statement (verification is against a subset, not the full live API), 5. Traceability (explicitly map T018a logic to FR-002 "Source API" requirement). **Content Requirement**: Explicitly quote the "Dataset Strategy Note" section from `plan.md` regarding the use of the `hmao` proxy. Reference FR-001, US-1, **Plan: Dataset Strategy Note**, and **Constitution Principle I**. Explicitly state that the `hmao` proxy acts as the "Source API" for FR-002 and US-1 Acceptance 3. **Verification**: Verify the quoted text matches the source in `plan.md` exactly via a diff check. **Dependency**: T018c.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,12 +112,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/feature_engineering.py` to calculate weighted mean and variance descriptors (atomic radius, electronegativity, VEC, melting point) using `pymatgen` for all datasets
-- [ ] T022 [US2] Implement numerical clamping logic (min threshold) in `code/feature_engineering.py` to prevent division errors
-- [ ] T023 [US2] Implement `code/train_models.py` to train `RandomForestRegressor` and `GradientBoostingRegressor` with 5-fold cross-validation
-- [ ] T024 [US2] Implement hyperparameter tuning (max_depth, n_estimators) within `code/train_models.py`
-- [ ] T025 [US2] Implement model saving logic in `code/train_models.py` to output `.pkl` artifacts to `data/models/`
-- [ ] T026 [US2] Add logging for training metrics (mean $R^2$) and execution time in `code/train_models.py`
+- [ ] T021 [US2] Implement `code/feature_engineering.py` to calculate weighted mean and variance descriptors (atomic radius, electronegativity, VEC, melting point) using `pymatgen` for all datasets. **Output**: `data/processed/heas_train_features.csv` with columns: `mean_atomic_radius`, `var_atomic_radius`, `mean_electronegativity`, `var_electronegativity`, `mean_VEC`, `var_VEC`, `mean_melting_point`, `var_melting_point`.
+- [ ] T022 [US2] Implement numerical clamping logic (min threshold) in `code/feature_engineering.py` to prevent division errors.
+- [ ] T023 [US2] Implement `code/train_models.py` to train `RandomForestRegressor` and `GradientBoostingRegressor` with k-fold cross-validation.
+- [ ] T024 [US2] Implement hyperparameter tuning (max_depth, n_estimators) within `code/train_models.py`.
+- [ ] T025 [US2] Implement model saving logic in `code/train_models.py` to output `.pkl` artifacts to `data/models/`.
+- [ ] T026 [US2] Add logging for training metrics (mean $R^2$) and execution time in `code/train_models.py`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,20 +131,29 @@
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T027 [P] [US3] Integration test for evaluation pipeline in `tests/integration/test_evaluation.py` (verify t-test and Spearman correlation outputs)
+- [ ] T027 [P] [US3] Integration test for evaluation pipeline in `tests/integration/test_evaluation.py` (verify permutation test and Spearman correlation outputs)
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `code/evaluate.py` to load trained models and predict on `holdout_known.csv`
-- [ ] T029 [US3] Implement $R^2$ and MAE calculation for `holdout_known.csv` in `code/evaluate.py` and compare to training $R^2$
-- [ ] T030 [US3] Implement prediction on `true_novel.csv` in `code/evaluate.py` with ensemble variance calculation
-- [ ] T031 [US3] **Convex Hull Distance**: Implement distance calculation for `true_novel.csv` entries in `code/evaluate.py`. **Algorithm**: Use `scipy.spatial.ConvexHull` on the *training set's* descriptor space. For each novel point, compute the Euclidean distance to the nearest facet of the hull. If the point is inside the hull, distance = 0. **Output**: `distance_to_hull` column in the prediction results.
-- [ ] T032 [US3] **Statistical Test**: Implement statistical t-test (FR-006) to compare error distributions of training vs. holdout sets in `code/evaluate.py`. **Logic**: First, perform Shapiro-Wilk normality check (`scipy.stats.shapiro`) on the error distributions. If normal (p >= 0.05), use Welch's t-test (`scipy.stats.ttest_ind` with `equal_var=False`). If non-normal (p < 0.05), fallback to Mann-Whitney U test (`scipy.stats.mannwhitneyu`). **Output**: p-value and test type used.
+- [ ] T028 [US3] Implement `code/evaluate.py` to load trained models and predict on `holdout_known.csv`.
+- [ ] T029 [US3] Implement $R^2$ and MAE calculation for `holdout_known.csv` in `code/evaluate.py` and compare to training $R^2$.
+- [ ] T030 [US3] Implement prediction on `true_novel.csv` in `code/evaluate.py` with ensemble variance calculation.
+- [ ] T031 [US3] **Convex Hull Distance**: Implement distance calculation for `true_novel.csv` entries in `code/evaluate.py`. **Algorithm**: Use `scipy.spatial.ConvexHull` on the *training set's* descriptor space, specifically using the 8 columns generated by T021: `mean_atomic_radius`, `var_atomic_radius`, `mean_electronegativity`, `var_electronegativity`, `mean_VEC`, `var_VEC`, `mean_melting_point`, `var_melting_point`. For each novel point, compute the Euclidean distance to the nearest facet of the hull. If the point is inside the hull, distance = 0. **Output**: `distance_to_hull` column in the prediction results.
+- [ ] T032 [US3] **Statistical Test (Permutation)**: Implement a **Permutation Test** to compare error distributions of training vs. holdout sets in `code/evaluate.py` (satisfying FR-006). **Logic**: 1. **Check if ground truth is available** for the `holdout_known` set. If NOT, log a skip and exit. 2. If available, calculate the observed difference in mean absolute error (MAE) between training and holdout sets. 3. Pool the errors from both sets. 4. Randomly shuffle the pooled errors and re-split into two groups of the original sizes. 5. Calculate the mean difference for the shuffled groups. 6. Repeat the procedure a sufficient number of times to ensure stable estimation. 7. Calculate p-value as the proportion of shuffled differences >= observed difference. **Output**: p-value. **Constraint**: If the dataset size is insufficient for the permutation test (e.g., < 10 samples in either set), raise a `ValueError` with a clear message; do NOT fall back to a t-test or other method.
 - [ ] T033 [US3] **Correlation**: Implement Spearman rank correlation test (FR-007) between variance (from T030) and convex hull distance (from T031) in `code/evaluate.py`. **Note**: This metric replaces the Plan's "Perturbation Magnitude" to satisfy Spec FR-005/FR-007, measuring geometric extrapolation distance rather than sensitivity to perturbation. **Output**: Spearman coefficient and p-value.
-- [ ] T035a [US3] **Threshold Calculation**: Compute the 10th percentile of the *training set's* variance distribution. **Logic**: Calculate variance from the *out-of-fold* predictions of the 5-fold cross-validation on the training set (standard practice to estimate model uncertainty on known data). Calculate the 10th percentile of this distribution. **Output**: A single float value (threshold) to be used by T034.
-- [ ] T034 [US3] **Report Generation**: Implement `code/report.py` to generate final report with novel candidates ranked by uncertainty. **Logic**: **Filter** candidates where variance <= threshold (from T035a). **Sort** by `prediction_variance` ASC, then by `distance_to_hull` ASC. **Select** top 100. **Output**: `data/processed/top_100_novel_candidates.csv` with columns: `composition_string`, `predicted_energy`, `variance`, `distance_to_hull`, `rank`. **Dependency**: Input: Threshold from T035a; Correlation coefficient from T033 (to include in report summary).
-- [ ] T035 [US3] Implement report generation for accuracy degradation metrics or uncertainty correlation coefficients in `code/report.py`
-- [ ] T035b [US3] **Implementation Fix**: Ensure `code/evaluate.py` explicitly handles the case where `true_novel` set is empty or too small for statistical correlation by raising a `ValueError` with a clear message, rather than returning `NaN` or skipping the test silently.
+- [ ] T035b [US3] **Statistical Robustness Check**: Ensure `code/evaluate.py` explicitly handles the case where `true_novel` set is empty or too small (< 10 samples) for statistical correlation by raising a `ValueError` with a clear message, rather than returning `NaN` or skipping the test silently.
+- [ ] T035a [US3] **Threshold Calculation**: Compute a lower percentile of the *training set's* variance distribution to assess the distribution's tail behavior.. **Algorithm**: Train multiple independent Random Forest models on the full training set using distinct random seeds.. For each sample in the training set, collect the 10 predictions and calculate the variance. Calculate the 10th percentile of this distribution. **Output**: A single float value (threshold) to be used by T034.
+- [ ] T034a [US3] **Candidate Filtering & Ranking**: Implement logic in `code/report.py` to filter candidates where variance <= threshold (from T035a). Sort by `prediction_variance` ASC, then by `distance_to_hull` ASC. Select a representative subset. **Output**: Intermediate list of candidates.
+- [ ] T034b [US3] **CSV Generation**: Generate `data/processed/top_novel_candidates.csv`
+
+The specific value to remove/generalize: 'a set of'
+
+Rewritten passage:
+Generate `data/processed/top_novel_candidates.csv` with columns: `composition_string`, `predicted_energy`, `variance`, `distance_to_hull`, `rank` from the filtered list in T034a.
+- [ ] T034c [US3] **JSON Summary Generation**: Generate `data/processed/variance_distribution_summary.json` containing histogram data for the variance distribution relative to the 10th percentile to satisfy SC-005.
+- [ ] T034d [US3] **Report Assembly**: Implement final report generation in `code/report.py`. **Logic**: Include statistical summary, correlation coefficient from T033, and DFT status from T041. **Requirement**: If `data/processed/dft_validation_status.txt` indicates failure, explicitly include the statement "The uncertainty metric for 'True Novel' candidates is an unvalidated assumption" in the final report summary. **Dependency**: T034a, T034b, T034c, T041.
+- [ ] T041 [US3] **DFT Attempt**: Implement `code/dft_attempt.py` to attempt DFT calculation on the top novel candidates (from T034a). **Stack**: Use Quantum ESPRESSO (open-source, reproducible) via the provided container or script. **Logic**: 1. Generate input files (POTCAR, KPOINTS, etc.) for the top 5 candidates. 2. Submit job with a timeout appropriate for the task duration (e.g., an hour per job). 3. Parse output for formation energy. 4. If successful, write `data/processed/dft_results.csv`. 5. If it fails (time/resource), write `data/processed/dft_validation_status.txt` containing the exact string "DFT attempt failed due to time/resource constraints; uncertainty metric is an unvalidated assumption". **Constraint**: Must define a concrete workflow; no stubs. **Dependency**: T034a.
+- [ ] T042 [US3] **Unvalidated Statement**: Ensure `code/report.py` explicitly includes the statement "The uncertainty metric for 'True Novel' candidates is an unvalidated assumption" in the final report summary if `data/processed/dft_validation_status.txt` indicates failure, satisfying FR-009.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -205,10 +216,14 @@ Task: "Unit test for data filtering logic in tests/unit/test_ingestion.py"
 Task: "Integration test for dataset split logic in tests/integration/test_split.py"
 
 # Launch all implementation tasks for User Story 1:
-Task: "Implement code/data_ingestion.py to load hmao/all_apis_for_multiapi with streaming=True"
-Task: "Implement filtering logic in code/data_ingestion.py"
-Task: "Generate hmao proxy index in code/data_ingestion.py (T017)"
-Task: "Sample config.N_NOVEL_SAMPLES unique 5-element combinations for 'Hold-out Known' in code/data_ingestion.py (T014)"
+Task: "Download raw data (T017a)"
+Task: "Compute checksum (T017b)"
+Task: "Implement data ingestion (T012)"
+Task: "Implement live API client (T017c)"
+Task: "Implement exclusion logic (T014a)"
+Task: "Implement hold-out sampling (T014b)"
+Task: "Implement hold-out verification (T014c)"
+Task: "Implement true novel generation (T015)"
 ```
 
 ---
@@ -258,13 +273,16 @@ With multiple developers:
 - **Critical**: Ensure `code/feature_engineering.py` clamps near-zero values to a small positive constant to prevent numerical instability.
 - **Critical**: Ensure `code/evaluate.py` performs strict composition string comparison to avoid hash collisions.
 - **Critical**: Ensure `code/report.py` filters candidates by the 10th percentile variance threshold (T035a) before ranking (T034).
-- **Critical**: The "Source API" for novelty verification is the static `hmao` proxy dataset per Plan constraints; live API calls are not implemented (documented in T019a).
-- **Critical**: The sampling strategy for "True Novel" (T015) must explicitly iterate through the generated combinations and verify their absence in the `hmao` index via a fast lookup structure (e.g., a pre-computed set of composition strings from T017) to avoid false positives.
-- **Critical**: The convex hull distance calculation (T031) must use `scipy.spatial.ConvexHull` on the training set's descriptor space and compute the distance of novel points to the nearest facet or vertex, handling points inside the hull correctly (distance = 0).
-- **Critical**: The t-test (T032) and Spearman correlation (T033) must handle edge cases where the dataset size is small or variances are zero, potentially using `scipy.stats.ttest_ind` with `equal_var=False` (Welch's t-test) and `scipy.stats.spearmanr` with `nan_policy='omit'`.
+- **Critical**: The "Source API" for novelty verification is now the **live API** implementation (T017c), not a static proxy. T018c documents the mapping.
+- **Critical**: The sampling strategy for "True Novel" (T015) must explicitly iterate through the generated combinations and verify their absence in the live API via a fast lookup structure (e.g., a pre-computed set of composition strings from T017c) to avoid false positives.
+- **Critical**: The convex hull distance calculation (T031) must use `scipy.spatial.ConvexHull` on the training set's descriptor space (specifically the 8 columns generated by T021) and compute the distance of novel points to the nearest facet or vertex, handling points inside the hull correctly (distance = 0).
+- **Critical**: The permutation test (T032) and Spearman correlation (T033) must handle edge cases where the dataset size is small or variances are zero, potentially using `scipy.stats.permutation_test` and `scipy.stats.spearmanr` with `nan_policy='omit'`.
 - **Critical**: The final report (T034) must include a disclaimer about the limitations of the "True Novel" set being generated synthetically via sampling rather than discovered via a global search, and explicitly state the sample size and seed used.
-- **Critical**: T035a must calculate the 10th percentile deterministically and pass it to T034 without intermediate files to ensure reproducibility.
-- **Critical**: **Data Integrity**: T019b must ensure the loader fails loudly on fetch errors. No synthetic fallbacks are permitted.
+- **Critical**: T035a must calculate the 10th percentile deterministically (10 models, seeds 0-9) and pass it to T034 without intermediate files to ensure reproducibility.
+- **Critical**: **Data Integrity**: T012 and T019b must ensure the loader fails loudly on fetch errors. No synthetic fallbacks are permitted.
 - **Critical**: **Statistical Robustness**: T035b must ensure statistical tests fail loudly if input data is insufficient, rather than returning silent `NaN` values.
-- **Critical**: **Exclusion Logic**: T014 and T014a must implement Stratified Element-Pair Exclusion to ensure true extrapolation, not random sampling.
+- **Critical**: **Exclusion Logic**: T014a must derive exclusion pairs dynamically from the loaded training data (co-occurrence analysis) rather than hardcoding specific pairs.
 - **Critical**: **Metric Alignment**: T031 and T033 must use Convex Hull Distance as per Spec FR-005, overriding the Plan's "Perturbation Magnitude" to satisfy the Spec's explicit requirement.
+- **Critical**: **DFT Validation**: T041 and T042 must ensure that if DFT fails, the report explicitly states the uncertainty metric is an unvalidated assumption. T041 must use a concrete DFT stack (Quantum ESPRESSO) and generate actual input files.
+- **Critical**: **API Simulation**: T017c (Live API) must be implemented and invoked by T014c and T015 to satisfy the Spec's requirement for "Source API" verification. T018c documents the mapping.
+- **Critical**: **Task Ordering**: All tasks are now ordered to respect data dependencies (Producers before Consumers). T017a/T017b/T017c precede T012/T016. T019c precedes T014/T015. T014a precedes T014b. T012 precedes T014a.

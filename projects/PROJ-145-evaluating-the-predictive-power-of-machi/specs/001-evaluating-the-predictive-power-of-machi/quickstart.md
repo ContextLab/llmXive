@@ -2,74 +2,71 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to a terminal (local or GitHub Codespaces)
+- Python 3.11+
+- Git
+- Access to a terminal with `pip`
 
 ## Installation
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-145-evaluating-the-predictive-power-of-machi
-    ```
-
-2.  **Create Virtual Environment**:
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-
-3.  **Install Dependencies**:
+3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
-    *Note: `requirements.txt` pins `pymatgen`, `scikit-learn`, `datasets`, `pandas`, `numpy`, `scipy`.*
-
-## Data Setup
-
-The pipeline automatically downloads data from verified Hugging Face sources if `data/raw/` is empty.
-
-1.  **Run Data Ingestion**:
-    ```bash
-    python code/data_ingestion.py
-    ```
-    *This script fetches parquet files, filters for 5+ element systems, and generates `heas_train.csv`, `holdout_known.csv`, and `true_novel.csv`.*
-
-2.  **Verify Data**:
-    Check `data/processed/` for the generated CSV files. Ensure `holdout_known.csv` and `true_novel.csv` are not empty.
+    *Note: `requirements.txt` includes `pymatgen`, `scikit-learn`, `pandas`, `numpy`, `datasets`, and `pytest`.*
 
 ## Running the Pipeline
 
-Execute the full pipeline (Feature Engineering -> Training -> Evaluation -> Report):
+The pipeline is executed via a series of scripts in the `code/` directory.
 
+### Step 1: Data Ingestion
+Download and filter the HEA data.
 ```bash
-python code/train_model.py
-python code/evaluate.py
-python code/report_gen.py
+python code/data_ingestion.py
+```
+*Output*: `data/processed/heas_train.csv`, `data/processed/holdout_known.csv`
+
+### Step 2: Descriptor Calculation
+Calculate compositional descriptors for all datasets.
+```bash
+python code/descriptor_calc.py
+```
+*Output*: Updated CSVs with descriptor columns.
+
+### Step 3: Model Training
+Train Random Forest and Gradient Boosting models with 5-fold CV.
+```bash
+python code/model_training.py
+```
+*Output*: `data/models/rf_model.pkl`, `data/models/gb_model.pkl`
+
+### Step 4: Generate & Evaluate Novel Candidates
+Generate "True Novel" candidates and evaluate uncertainty.
+```bash
+python code/evaluation.py
+```
+*Output*: `data/processed/true_novel.csv`, `data/processed/metrics_summary.csv`
+
+### Step 5: Run Tests
+Verify the pipeline correctness.
+```bash
+pytest tests/
 ```
 
-### Output Locations
+## Expected Outputs
 
-*   **Models**: `data/models/rf_model.pkl`, `data/models/gb_model.pkl`
-*   **Metrics**: `data/processed/metrics_summary.csv`
-*   **Novel Candidates**: `data/processed/top_100_novel_candidates.csv`
-*   **Logs**: `logs/pipeline.log`
-
-## Testing
-
-Run unit and integration tests:
-
-```bash
-pytest tests/ -v
-```
-
-*   `tests/unit/test_descriptors.py`: Validates `pymatgen` descriptor calculation.
-*   `tests/unit/test_data_split.py`: Verifies no overlap between training and hold-out sets.
-*   `tests/integration/test_pipeline.py`: Runs the full ingestion-to-evaluation flow on a small sample.
+- **Interpolation Performance**: $R^2$ and MAE for the training set (5-fold CV).
+- **Extrapolation Performance**: $R^2$ and MAE for the "Hold-out Known" set.
+- **Uncertainty Metrics**: Variance and distance-from-hull for "True Novel" candidates.
+- **Final Report**: A summary of accuracy degradation and uncertainty correlation.
 
 ## Troubleshooting
 
-*   **OOM Error**: If `MemoryError` occurs, ensure `datasets` is using streaming mode or reduce the `sample_size` in `code/config.py`.
-*   **Descriptor Errors**: If `pymatgen` fails to find an element, verify the chemical formula format in `data/raw/`.
-*   **Convex Hull Error**: If the dataset is too small for a hull calculation, the script will fallback to centroid distance (logged).
+- **API Timeouts**: The `data_ingestion.py` script includes exponential backoff. If it fails after 3 retries, it logs a "partial failure" and continues.
+- **Numerical Errors**: If you see `divide by zero` errors, ensure the `utils.py` clamping logic is active (default threshold $1e-6$).
+- **Memory Issues**: The pipeline is designed for < 7 GB RAM. If you encounter OOM, reduce the `n_estimators` in `model_training.py` or sample a smaller subset of the data.
