@@ -1,295 +1,239 @@
+"""
+Metadata Statistics Computation Module.
+
+Computes cardinality, missingness, sparsity, and variance for tabular datasets.
+"""
 import os
 import sys
 import json
 import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-import pandas as pd
+from typing import Dict, Any, List, Optional, Tuple, Union
+
 import numpy as np
+import pandas as pd
 
-# Ensure the parent directory is in the path for imports if running as script
-# but rely on project structure for standard execution
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-
-def get_logger():
-    """Simple logger for the module."""
+# Import logging utilities from the project's utils
+try:
+    from utils.logging import get_logger, log_info, log_warning, log_error
+except ImportError:
+    # Fallback if utils is not in path during direct execution
     import logging
-    return logging.getLogger(__name__)
+    def get_logger(name):
+        return logging.getLogger(name)
+    def log_info(logger, msg): logger.info(msg)
+    def log_warning(logger, msg): logger.warning(msg)
+    def log_error(logger, msg): logger.error(msg)
+
+logger = get_logger(__name__)
+
+# Constants
+RAW_DATA_DIR = Path("data/raw")
+PROCESSED_DIR = Path("data/processed")
+OUTPUT_FILE = PROCESSED_DIR / "metadata_stats_summary.csv"
+VAR_THRESHOLD = 1e-9  # Threshold for considering variance as zero
 
 def load_dataset_list() -> List[str]:
     """
-    Loads the list of available dataset IDs from the raw data directory.
-    Assumes datasets are named with a specific pattern or listed in a manifest.
-    For this implementation, we scan the data/raw directory for CSV/Parquet files
-    that represent datasets, or look for a specific manifest if it exists.
-    Given the context of MulTaBench, we assume a list of dataset IDs is available
-    or can be inferred from the filenames in data/raw/.
+    Scans data/raw/ for available dataset files (CSV/Parquet) and returns their IDs.
+    Assumes files are named like {dataset_id}.csv or {dataset_id}.parquet.
     """
-    datasets = []
-    if not DATA_RAW_DIR.exists():
-        get_logger().warning(f"Raw data directory {DATA_RAW_DIR} does not exist.")
-        return datasets
+    if not RAW_DATA_DIR.exists():
+        log_error(logger, f"Raw data directory {RAW_DATA_DIR} does not exist.")
+        return []
 
-    # Heuristic: Look for files that look like dataset files
-    # MulTaBench usually has files like 'dataset_name.csv' or 'dataset_name.parquet'
-    # We will assume the filename stem (without extension) is the dataset_id
-    # unless there is a specific manifest.
-    for ext in ['*.csv', '*.parquet', '*.csv.gz']:
-        for f in DATA_RAW_DIR.glob(ext):
-            dataset_id = f.stem
-            # Filter out obvious non-dataset files if necessary
-            if not dataset_id.startswith('.'):
-                datasets.append(dataset_id)
+    files = list(RAW_DATA_DIR.glob("*.csv")) + list(RAW_DATA_DIR.glob("*.parquet"))
+    if not files:
+        log_warning(logger, f"No CSV or Parquet files found in {RAW_DATA_DIR}.")
+        return []
+
+    dataset_ids = []
+    for f in files:
+        # Extract ID by removing extension
+        dataset_id = f.stem
+        dataset_ids.append(dataset_id)
     
-    # If no files found, check for a manifest
-    if not datasets:
-        manifest_path = DATA_RAW_DIR / "dataset_manifest.json"
-        if manifest_path.exists():
-            with open(manifest_path, 'r') as f:
-                data = json.load(f)
-                datasets = data.get('datasets', [])
-    
-    return sorted(list(set(datasets)))
+    log_info(logger, f"Found {len(dataset_ids)} datasets: {dataset_ids}")
+    return dataset_ids
 
 def load_raw_tabular_data(dataset_id: str) -> Optional[pd.DataFrame]:
     """
-    Loads the raw tabular data for a specific dataset.
-    Tries common file extensions in data/raw/.
+    Loads a single dataset by ID from data/raw/.
     """
-    possible_paths = [
-        DATA_RAW_DIR / f"{dataset_id}.csv",
-        DATA_RAW_DIR / f"{dataset_id}.parquet",
-        DATA_RAW_DIR / f"{dataset_id}.csv.gz"
-    ]
-    
-    for path in possible_paths:
-        if path.exists():
-            if path.suffix == '.parquet':
-                return pd.read_parquet(path)
-            else:
-                return pd.read_csv(path)
-    
-    get_logger().error(f"Could not find raw data for dataset: {dataset_id}")
-    return None
+    csv_path = RAW_DATA_DIR / f"{dataset_id}.csv"
+    parquet_path = RAW_DATA_DIR / f"{dataset_id}.parquet"
 
-def compute_cardinality_for_dataset(df: pd.DataFrame) -> float:
-    """
-    Computes the average cardinality (number of unique values) across all features.
-    """
-    if df.empty:
-        return 0.0
-    
-    cardinalities = []
-    for col in df.columns:
-        # Only compute for non-numeric or numeric columns as appropriate
-        # Cardinality is meaningful for categorical or discrete numeric
+    if csv_path.exists():
         try:
-            unique_count = df[col].nunique()
-            cardinalities.append(unique_count)
-        except Exception:
-            continue
-    
-    if not cardinalities:
-        return 0.0
-    
-    return float(np.mean(cardinalities))
+            return pd.read_csv(csv_path)
+        except Exception as e:
+            log_error(logger, f"Failed to load CSV {csv_path}: {e}")
+            return None
+    elif parquet_path.exists():
+        try:
+            return pd.read_parquet(parquet_path)
+        except Exception as e:
+            log_error(logger, f"Failed to load Parquet {parquet_path}: {e}")
+            return None
+    else:
+        log_error(logger, f"No file found for dataset {dataset_id} in {RAW_DATA_DIR}.")
+        return None
 
-def compute_missingness_for_dataset(df: pd.DataFrame) -> float:
-    """
-    Computes the average missingness rate across all features.
-    """
-    if df.empty:
-        return 0.0
-    
-    missing_counts = []
-    for col in df.columns:
-        missing_count = df[col].isna().sum()
-        missing_counts.append(missing_count / len(df))
-    
-    if not missing_counts:
-        return 0.0
-    
-    return float(np.mean(missing_counts))
+def compute_cardinality(df: pd.DataFrame, column: str) -> float:
+    """Computes the number of unique values in a column."""
+    if df[column].dtype == 'object' or df[column].dtype.name.startswith('category'):
+        return df[column].nunique()
+    else:
+        # For numeric, count unique
+        return df[column].nunique()
 
-def compute_sparsity_for_dataset(df: pd.DataFrame) -> float:
-    """
-    Computes the average sparsity (proportion of zero values) across all features.
-    Only applicable to numeric columns.
-    """
-    if df.empty:
+def compute_missingness(df: pd.DataFrame, column: str) -> float:
+    """Computes the fraction of missing values in a column."""
+    total = len(df)
+    if total == 0:
         return 0.0
-    
-    sparsities = []
-    for col in df.select_dtypes(include=[np.number]).columns:
-        total = len(df)
-        if total == 0:
-            continue
-        zero_count = (df[col] == 0).sum()
-        sparsities.append(zero_count / total)
-    
-    if not sparsities:
-        return 0.0
-    
-    return float(np.mean(sparsities))
+    missing = df[column].isna().sum()
+    return float(missing / total)
 
-def compute_variance_for_dataset(df: pd.DataFrame) -> float:
+def compute_sparsity(df: pd.DataFrame, column: str) -> float:
     """
-    Computes the mean variance across all numeric tabular features for a dataset.
-    
-    Returns:
-        float: The mean variance of all numeric columns. Returns 0.0 if no numeric columns.
+    Computes sparsity (fraction of zeros) for numeric columns.
+    Returns 0.0 for non-numeric columns.
     """
-    if df.empty:
+    if not np.issubdtype(df[column].dtype, np.number):
         return 0.0
     
-    numeric_df = df.select_dtypes(include=[np.number])
-    if numeric_df.empty:
+    total = len(df)
+    if total == 0:
         return 0.0
     
-    variances = []
-    for col in numeric_df.columns:
-        # Calculate variance (ddof=1 for sample variance, standard in stats)
-        # If a column is constant, variance is 0.
-        var = numeric_df[col].var()
-        if not pd.isna(var):
-            variances.append(var)
-    
-    if not variances:
-        return 0.0
-    
-    return float(np.mean(variances))
+    zero_count = (df[column] == 0).sum()
+    return float(zero_count / total)
 
-def compute_feature_stats(df: pd.DataFrame) -> Dict[str, float]:
+def compute_variance(df: pd.DataFrame, column: str) -> float:
+    """Computes the variance of a numeric column."""
+    if not np.issubdtype(df[column].dtype, np.number):
+        return 0.0
+    
+    return float(df[column].var())
+
+def compute_feature_stats(df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
     """
-    Computes all metadata stats for a single dataframe.
+    Computes stats for all numeric columns in the dataframe.
+    Returns a dict mapping column_name -> {cardinality, missingness, sparsity, variance}
     """
-    return {
-        'cardinality': compute_cardinality_for_dataset(df),
-        'missingness': compute_missingness_for_dataset(df),
-        'sparsity': compute_sparsity_for_dataset(df),
-        'variance': compute_variance_for_dataset(df)
-    }
+    stats = {}
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+
+    for col in numeric_cols:
+        stats[col] = {
+            "cardinality": float(compute_cardinality(df, col)),
+            "missingness": float(compute_missingness(df, col)),
+            "sparsity": float(compute_sparsity(df, col)),
+            "variance": float(compute_variance(df, col))
+        }
+    return stats
 
 def process_single_dataset(dataset_id: str) -> Optional[Dict[str, Any]]:
     """
-    Loads a dataset and computes all stats.
+    Processes a single dataset and returns aggregated stats.
+    Aggregation logic:
+    - Cardinality: Mean of column cardinalities
+    - Missingness: Mean of column missingness
+    - Sparsity: Mean of column sparsity
+    - Variance: Mean of column variance
     """
     df = load_raw_tabular_data(dataset_id)
     if df is None:
         return None
-    
-    stats = compute_feature_stats(df)
-    stats['dataset_id'] = dataset_id
-    return stats
 
-def save_summary_csv(results: List[Dict[str, Any]], output_path: Path, columns: List[str]):
-    """
-    Saves the results to a CSV file with the specified columns.
-    """
+    if df.empty:
+        log_warning(logger, f"Dataset {dataset_id} is empty.")
+        return {
+            "dataset_id": dataset_id,
+            "cardinality": 0.0,
+            "missingness": 0.0,
+            "sparsity": 0.0,
+            "variance": 0.0
+        }
+
+    feature_stats = compute_feature_stats(df)
+    if not feature_stats:
+        # No numeric columns found
+        log_warning(logger, f"Dataset {dataset_id} has no numeric columns.")
+        return {
+            "dataset_id": dataset_id,
+            "cardinality": 0.0,
+            "missingness": 0.0,
+            "sparsity": 0.0,
+            "variance": 0.0
+        }
+
+    # Aggregate across columns
+    cardinality_vals = [s["cardinality"] for s in feature_stats.values()]
+    missingness_vals = [s["missingness"] for s in feature_stats.values()]
+    sparsity_vals = [s["sparsity"] for s in feature_stats.values()]
+    variance_vals = [s["variance"] for s in feature_stats.values()]
+
+    return {
+        "dataset_id": dataset_id,
+        "cardinality": float(np.mean(cardinality_vals)),
+        "missingness": float(np.mean(missingness_vals)),
+        "sparsity": float(np.mean(sparsity_vals)),
+        "variance": float(np.mean(variance_vals))
+    }
+
+def save_summary_csv(results: List[Dict[str, Any]], output_path: Path):
+    """Saves the aggregated results to a CSV file."""
     if not results:
-        get_logger().warning(f"No results to save for {output_path}")
-        # Create an empty file with headers to satisfy downstream checks
-        pd.DataFrame(columns=columns).to_csv(output_path, index=False)
+        log_warning(logger, "No results to save.")
         return
-    
-    df = pd.DataFrame(results)
-    # Ensure columns are in order
-    if all(col in df.columns for col in columns):
-        df = df[columns]
-    df.to_csv(output_path, index=False)
-    get_logger().info(f"Saved {len(results)} records to {output_path}")
 
-def compute_cardinality():
-    """
-    Task T024a: Compute cardinality for ALL available datasets.
-    Output: data/processed/metadata_stats_cardinality.csv
-    """
-    get_logger().info("Starting compute_cardinality for all datasets")
-    datasets = load_dataset_list()
-    results = []
-    for ds_id in datasets:
-        res = process_single_dataset(ds_id)
-        if res:
-            results.append(res)
+    df_results = pd.DataFrame(results)
+    # Ensure column order
+    cols = ["dataset_id", "cardinality", "missingness", "sparsity", "variance"]
+    df_results = df_results[cols]
     
-    output_path = DATA_PROCESSED_DIR / "metadata_stats_cardinality.csv"
-    save_summary_csv(results, output_path, ['dataset_id', 'cardinality'])
-    return results
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df_results.to_csv(output_path, index=False)
+    log_info(logger, f"Saved metadata stats summary to {output_path}")
 
-def compute_missingness():
+def compute_all_stats() -> Path:
     """
-    Task T024b: Compute missingness for ALL available datasets.
-    Output: data/processed/metadata_stats_missingness.csv
+    Main entry point to compute stats for ALL available datasets.
+    Iterates through data/raw/, computes stats, and aggregates into one CSV.
     """
-    get_logger().info("Starting compute_missingness for all datasets")
-    datasets = load_dataset_list()
-    results = []
-    for ds_id in datasets:
-        res = process_single_dataset(ds_id)
-        if res:
-            results.append(res)
+    log_info(logger, "Starting computation of metadata stats for all datasets.")
     
-    output_path = DATA_PROCESSED_DIR / "metadata_stats_missingness.csv"
-    save_summary_csv(results, output_path, ['dataset_id', 'missingness'])
-    return results
-
-def compute_sparsity():
-    """
-    Task T024c: Compute sparsity for ALL available datasets.
-    Output: data/processed/metadata_stats_sparsity.csv
-    """
-    get_logger().info("Starting compute_sparsity for all datasets")
-    datasets = load_dataset_list()
-    results = []
-    for ds_id in datasets:
-        res = process_single_dataset(ds_id)
-        if res:
-            results.append(res)
-    
-    output_path = DATA_PROCESSED_DIR / "metadata_stats_sparsity.csv"
-    save_summary_csv(results, output_path, ['dataset_id', 'sparsity'])
-    return results
-
-def compute_variance():
-    """
-    Task T024d: Compute mean variance across all tabular features per dataset for ALL available datasets.
-    Output: data/processed/metadata_stats_variance.csv with columns [dataset_id, variance].
-    """
-    get_logger().info("Starting compute_variance for all datasets")
-    datasets = load_dataset_list()
-    
-    if not datasets:
-        get_logger().warning("No datasets found to process for variance.")
-        output_path = DATA_PROCESSED_DIR / "metadata_stats_variance.csv"
-        save_summary_csv([], output_path, ['dataset_id', 'variance'])
-        return []
+    dataset_ids = load_dataset_list()
+    if not dataset_ids:
+        log_error(logger, "No datasets found to process.")
+        # Still create an empty file or exit? Task says write file.
+        # Create empty header file to satisfy 'file exists' check
+        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(columns=["dataset_id", "cardinality", "missingness", "sparsity", "variance"]).to_csv(OUTPUT_FILE, index=False)
+        return OUTPUT_FILE
 
     results = []
-    for ds_id in datasets:
-        res = process_single_dataset(ds_id)
-        if res:
-            results.append({
-                'dataset_id': res['dataset_id'],
-                'variance': res['variance']
-            })
-    
-    # Sort alphabetically by dataset_id as per general project convention
-    results.sort(key=lambda x: x['dataset_id'])
-    
-    output_path = DATA_PROCESSED_DIR / "metadata_stats_variance.csv"
-    save_summary_csv(results, output_path, ['dataset_id', 'variance'])
-    get_logger().info(f"Variance computation complete. Output saved to {output_path}")
-    return results
+    for ds_id in dataset_ids:
+        log_info(logger, f"Processing dataset: {ds_id}")
+        stats = process_single_dataset(ds_id)
+        if stats:
+            results.append(stats)
+        else:
+            log_warning(logger, f"Skipped dataset {ds_id} due to load failure.")
+
+    save_summary_csv(results, OUTPUT_FILE)
+    log_info(logger, "Metadata stats computation completed.")
+    return OUTPUT_FILE
 
 def main():
-    """
-    Main entry point for running variance computation.
-    """
-    ensure_dir = DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    compute_variance()
+    """CLI entry point."""
+    log_info(logger, "Running metadata stats computation via CLI.")
+    output_path = compute_all_stats()
+    print(f"Output written to: {output_path}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

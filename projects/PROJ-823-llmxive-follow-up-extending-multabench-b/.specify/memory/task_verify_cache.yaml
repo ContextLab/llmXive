@@ -1,12 +1,41 @@
-T015:
+T008c:
+  c: true
+  h: 91536e09529baaf82e2117d361b49f15117fe355021bcda2373b3d493d96cf87
+  r: "The `data/README.md` file exists and contains a clearly written \u201CAcquiring\
+    \ `data/raw/multabench_baselines.csv`\u201D section that lists the required manual\
+    \ steps (download, unzip, locate, and place the file), satisfying the task\u2019\
+    s specification."
+T019d:
   c: false
-  h: 24e795a66c7164d1d9c65751f6a7859ac5896a0c01085032d48f9b5dcfc6ce0f
-  r: The provided `run_baseline.py` is truncated and does not show the logic that
-    writes the required Parquet file with the exact `run_id`, `dataset_id`, `vector`,
-    and `model_type` columns. Moreover, the contract schema `contracts/frozen_embedding.schema.yaml`
-    is missing, so the output cannot be verified against the required schema. Both
-    the missing schema file and the incomplete implementation prevent the task from
-    being considered fulfilled.
+  h: 05dd0a68fe55b7a9066716ed36aa82942e88979492f410b3c6a25881a4e387bb
+  r: The required script `code/pipelines/train_frozen_baseline_classifier.py` does
+    not exist, and the input data file `data/processed/normalized_tabular_features.parquet`
+    is also missing, so no classifier can be trained nor metrics generated. The only
+    present artifact is `code/utils/feature_engineering.py`, which alone does not
+    satisfy the task.
+T024:
+  c: false
+  h: febe7b0e616b2f5b939f63cbe2d760be6467b7c46a13a10b71385b5b9cdddecb
+  r: "The repository contains `code/analysis/metadata_stats.py`, but the required\
+    \ `compute_all_stats` implementation is not shown (the file is truncated) and\
+    \ no `data/processed/metadata_stats_summary.csv` file exists. The primary output\
+    \ artifact\u2014a summary CSV with the specified columns\u2014is missing, so the\
+    \ task is not genuinely completed."
+T024e:
+  c: false
+  h: 7cea4c7551dce136c3ab6b414f4979cfebfe6ec58166e3dd883e5e530f21fd89
+  r: "The required output file `data/processed/metadata_stats_summary.csv` is missing,\
+    \ so no evidence exists that the metadata was loaded, sorted, subset\u2011selected,\
+    \ or flagged. Consequently the task\u2019s core artifact was not produced."
+T024f:
+  c: false
+  h: b2445781905f21ed9017bd45645c993218353432564519e585341128707d3843
+  r: The repository contains the pipeline script and a `normalize_features` implementation,
+    but the required output file `data/processed/normalized_tabular_features.parquet`
+    does not exist. Since the task explicitly demands that this Parquet file be generated,
+    the missing artifact means the requirement is not met. The next implementer must
+    run the pipeline (or add code to write the file) so that the normalized features
+    Parquet file is created in the specified location.
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -76,6 +105,14 @@ T038:
     \ we cannot confirm that the required reporting for datasets lacking GPU\u2011\
     Tuned baselines was added. The implementer must supply the modified report (or\
     \ source files) showing the new \u201CData Availability Gap\u201D content."
+T045:
+  c: false
+  h: c4cfed36fa8366d800cb52d38e75dc0c40437b59d19e200b67fde5d187f24e6e
+  r: "The required `data/processed/metadata_stats_summary.csv` does not exist, so\
+    \ the script cannot operate, and the expected `data/artifacts/data_integrity_report.json`\
+    \ was never generated. Moreover, the implementation in `verify_data_integrity.py`\
+    \ adds an imputation step for zero\u2011variance features, which directly violates\
+    \ the task\u2019s \u201Cdo NOT impute\u201D rule. The task therefore remains unfinished."
 T049:
   c: false
   h: 626a3721fe18ba8c50a8144a61551a4ae4bbe37c01e06740d946580ac398ba31

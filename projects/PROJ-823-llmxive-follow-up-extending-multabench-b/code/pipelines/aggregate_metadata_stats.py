@@ -1,150 +1,154 @@
+"""
+Task T024e: Metadata Aggregation & Subset Selection
+
+Loads the metadata stats summary from T024, sorts datasets alphabetically,
+selects the initial subset (using all available if limited), and flags
+any shortfall in a report.
+
+Output:
+  - data/processed/metadata_stats_summary.csv (updated with subset flag if needed)
+  - data/artifacts/metadata_subset_selection_report.json (report on selection)
+"""
 import os
 import sys
-import csv
 import json
+import csv
 import argparse
 from pathlib import Path
 from datetime import datetime
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Ensure we can import from the project root
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from config import ensure_directories
-from utils.logging import get_logger, log_info, log_warning, log_error
+from utils.logging import get_logger, log_info, log_error, log_warning
 
 logger = get_logger(__name__)
 
-INPUT_FILES = [
-    "data/processed/metadata_stats_cardinality.csv",
-    "data/processed/metadata_stats_missingness.csv",
-    "data/processed/metadata_stats_sparsity.csv",
-    "data/processed/metadata_stats_variance.csv"
-]
-
-OUTPUT_FILE = "data/processed/metadata_stats_summary.csv"
-MAX_DATASETS = 20
-REPORT_FILE = "data/artifacts/metadata_subset_selection_report.json"
-
-def load_csv_data(file_path: str) -> dict:
-    """
-    Load a CSV file and return a dictionary mapping dataset_id to the value.
-    Expects columns: dataset_id, <metric_name>
-    """
-    data = {}
-    if not os.path.exists(file_path):
-        log_error(f"Input file not found: {file_path}")
-        return None
-
-    with open(file_path, 'r', newline='', encoding='utf-8') as f:
+def load_csv_data(input_path: Path) -> list[dict]:
+    """Load the metadata stats summary CSV."""
+    if not input_path.exists():
+        log_error(f"Input file not found: {input_path}")
+        return []
+    
+    data = []
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            dataset_id = row.get('dataset_id')
-            if not dataset_id:
-                log_warning(f"Skipping row with missing dataset_id in {file_path}")
-                continue
-            # Assume the second column is the value
-            val = row.get(list(row.keys())[1])
-            try:
-                data[dataset_id] = float(val)
-            except (ValueError, TypeError):
-                log_warning(f"Could not convert value to float for {dataset_id} in {file_path}")
-                data[dataset_id] = None
+            data.append(row)
+    
+    log_info(f"Loaded {len(data)} rows from {input_path}")
     return data
 
-def aggregate_metadata():
+def aggregate_metadata(data: list[dict], subset_size: int = None) -> tuple[list[dict], dict]:
     """
-    Merges outputs of T024a-d into a single CSV, sorts alphabetically,
-    selects the initial subset (up to 20), and flags shortfalls.
+    Sort datasets alphabetically by dataset_id and select the initial subset.
+    
+    Args:
+        data: List of dictionaries containing metadata stats.
+        subset_size: Maximum number of datasets to include. If None, include all.
+    
+    Returns:
+        tuple: (subsetted_data, report_dict)
     """
-    ensure_directories()
+    if not data:
+        log_warning("No data to process.")
+        return [], {"selected_count": 0, "total_available": 0, "flagged": False}
 
-    log_info("Starting metadata aggregation...")
+    # Sort alphabetically by dataset_id
+    sorted_data = sorted(data, key=lambda x: x.get('dataset_id', ''))
+    
+    total_available = len(sorted_data)
+    selected_count = total_available
+    flagged = False
+    
+    # If a subset size is specified and we have more than that, select the subset
+    if subset_size is not None and total_available > subset_size:
+        selected_count = subset_size
+        flagged = True
+        log_warning(f"Total available datasets ({total_available}) exceeds subset size ({subset_size}). Flagging shortfall.")
+    
+    subsetted_data = sorted_data[:selected_count]
+    
+    # Add a flag column if flagged
+    if flagged:
+        for row in subsetted_data:
+            row['subset_selected'] = 'True'
+        log_info(f"Added 'subset_selected' flag to {selected_count} rows.")
+    else:
+        # Explicitly mark all as selected if not flagged
+        for row in subsetted_data:
+            row['subset_selected'] = 'True'
 
-    # Load all component files
-    datasets = {}
-    metrics = {
-        'cardinality': load_csv_data(INPUT_FILES[0]),
-        'missingness': load_csv_data(INPUT_FILES[1]),
-        'sparsity': load_csv_data(INPUT_FILES[2]),
-        'variance': load_csv_data(INPUT_FILES[3])
+    report = {
+        "timestamp": datetime.now().isoformat(),
+        "total_available": total_available,
+        "selected_count": selected_count,
+        "flagged_shortfall": flagged,
+        "subset_size_limit": subset_size,
+        "selected_dataset_ids": [row.get('dataset_id') for row in subsetted_data]
     }
 
-    if any(m is None for m in metrics.values()):
-        log_error("One or more input files are missing or empty. Cannot proceed.")
-        return False
+    return subsetted_data, report
 
-    # Collect all unique dataset IDs present in ALL files
-    # We only include datasets that have data in all 4 metrics
-    all_ids = set(metrics['cardinality'].keys())
-    for metric_name, data in metrics.items():
-        all_ids &= set(data.keys())
+def save_summary_csv(data: list[dict], output_path: Path):
+    """Save the processed data back to CSV."""
+    ensure_directories([output_path])
+    
+    if not data:
+        log_warning("No data to write to CSV.")
+        # Write empty file with headers if possible, or just return
+        return
 
-    if not all_ids:
-        log_error("No common datasets found across all input files.")
-        return False
-
-    # Sort alphabetically
-    sorted_ids = sorted(list(all_ids))
-
-    # Select subset
-    selected_ids = sorted_ids[:MAX_DATASETS]
-    shortfall = len(sorted_ids) < MAX_DATASETS
-    skipped_ids = sorted_ids[MAX_DATASETS:] if len(sorted_ids) > MAX_DATASETS else []
-
-    log_info(f"Found {len(sorted_ids)} common datasets.")
-    log_info(f"Selected {len(selected_ids)} datasets (max {MAX_DATASETS}).")
-    if shortfall:
-        log_warning(f"Shortfall: Only {len(sorted_ids)} datasets available (needed {MAX_DATASETS}).")
-    if skipped_ids:
-        log_info(f"Excluded {len(skipped_ids)} datasets due to limit.")
-
-    # Build summary rows
-    rows = []
-    for ds_id in selected_ids:
-        row = {
-            'dataset_id': ds_id,
-            'cardinality': metrics['cardinality'][ds_id],
-            'missingness': metrics['missingness'][ds_id],
-            'sparsity': metrics['sparsity'][ds_id],
-            'variance': metrics['variance'][ds_id]
-        }
-        rows.append(row)
-
-    # Write output CSV
-    output_path = Path(OUTPUT_FILE)
+    fieldnames = data[0].keys()
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        fieldnames = ['dataset_id', 'cardinality', 'missingness', 'sparsity', 'variance']
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(rows)
+        writer.writerows(data)
+    
+    log_info(f"Saved {len(data)} rows to {output_path}")
 
-    log_info(f"Summary written to {output_path}")
-
-    # Write report JSON
-    report = {
-        'timestamp': datetime.now().isoformat(),
-        'total_datasets_found': len(sorted_ids),
-        'datasets_selected': len(selected_ids),
-        'max_datasets_allowed': MAX_DATASETS,
-        'shortfall_flagged': shortfall,
-        'selected_dataset_ids': selected_ids,
-        'excluded_dataset_ids': skipped_ids,
-        'input_files': INPUT_FILES,
-        'output_file': str(output_path)
-    }
-
-    report_path = Path(REPORT_FILE)
-    with open(report_path, 'w', encoding='utf-8') as f:
+def save_report_json(report: dict, output_path: Path):
+    """Save the selection report to JSON."""
+    ensure_directories([output_path])
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
-
-    log_info(f"Selection report written to {report_path}")
-    return True
+    log_info(f"Saved report to {output_path}")
 
 def main():
-    success = aggregate_metadata()
-    sys.exit(0 if success else 1)
+    parser = argparse.ArgumentParser(description="Aggregate metadata stats and select subset (T024e)")
+    parser.add_argument("--input", type=str, default="data/processed/metadata_stats_summary.csv",
+                        help="Path to input summary CSV from T024")
+    parser.add_argument("--output", type=str, default="data/processed/metadata_stats_summary.csv",
+                        help="Path to output summary CSV")
+    parser.add_argument("--report", type=str, default="data/artifacts/metadata_subset_selection_report.json",
+                        help="Path to output report JSON")
+    parser.add_argument("--subset-size", type=int, default=None,
+                        help="Maximum number of datasets to select. If None, use all.")
+    
+    args = parser.parse_args()
+
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    report_path = Path(args.report)
+
+    log_info(f"Starting T024e: Aggregating metadata stats from {input_path}")
+
+    # Load data
+    data = load_csv_data(input_path)
+    if not data:
+        log_error("Failed to load input data. Exiting.")
+        sys.exit(1)
+
+    # Aggregate and select subset
+    subsetted_data, report = aggregate_metadata(data, subset_size=args.subset_size)
+
+    # Save outputs
+    save_summary_csv(subsetted_data, output_path)
+    save_report_json(report, report_path)
+
+    log_info("T024e completed successfully.")
 
 if __name__ == "__main__":
     main()
