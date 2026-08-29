@@ -13,7 +13,7 @@ This project implements a multivariate correlational analysis to assess the marg
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `geopandas`, `rasterio`, `requests`, `pyyaml`, `synth-pop`
 **Storage**: Local file system (`data/raw/`, `data/processed/`)
 **Testing**: `pytest` (unit, integration, contract)
-**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU cores, ~7 GB RAM, A moderate amount of disk space
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU cores, a moderate amount of RAM, and a moderate amount of disk space.
 The research question and method remain unchanged as per the planning document requirements.)
 **Project Type**: Data Science / Statistical Analysis Pipeline
 **Performance Goals**: Complete full pipeline (ingest -> model -> report) within 6 hours; regression models must run on CPU without GPU acceleration.
