@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StudyCount Schema"
+description: "Schema for the study count validation output."
+type: "object"
+properties:
+  unique_studies:
+    type: "integer"
+    description: "Count of unique (Author, Year) pairs."
+  total_comparisons:
+    type: "integer"
+    description: "Total number of rows in input."
+  distinct_tracts:
+    type: "integer"
+    description: "Count of unique tract names."
+  status:
+    type: "string"
+    enum: ["quantitative", "narrative"]
+    description: "Determines the analysis path."
+required:
+  - "unique_studies"
+  - "total_comparisons"
+  - "distinct_tracts"
+  - "status"
+additionalProperties: false

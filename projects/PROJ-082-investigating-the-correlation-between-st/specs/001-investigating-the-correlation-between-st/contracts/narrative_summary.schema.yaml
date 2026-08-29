@@ -11,14 +11,17 @@ properties:
     type: "array"
     items:
       type: "string"
-    description: "Extracted qualitative themes."
+    description: "Extracted qualitative themes (e.g., 'Arcuate Fasciculus', 'Self-report measures')."
   summary_text:
     type: "string"
-    description: "Narrative description."
+    description: "Narrative description of findings or absence of evidence."
   pivot_reason:
     type: "string"
     description: "Reason for pivot."
     const: "N < 10"
+  null_result_flag:
+    type: "boolean"
+    description: "True if study_count is 0."
 required:
   - study_count
   - summary_text

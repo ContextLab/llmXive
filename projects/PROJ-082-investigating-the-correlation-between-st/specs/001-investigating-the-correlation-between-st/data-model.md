@@ -2,111 +2,88 @@
 
 ## Overview
 
-This document defines the data structures used throughout the pipeline. The data flows from **Raw/Synthetic** input to **Processed** intermediate files, and finally to **Derived** output artifacts.
+This document defines the data structures used for input, processing, and output in the meta-analysis pipeline. All data is stored in `data/` (raw, processed, derived) and validated against the schemas in `contracts/`.
 
-## Entity Definitions
-
-### 1. StudyRecord (Input/Intermediate)
-Represents a single entry from the literature (or synthetic generator).
-
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `author` | string | First author's last name | Required |
-| `year` | integer | Publication year | Required |
-| `tract_name` | string | Name of the white matter tract (e.g., "Arcuate Fasciculus") | Required |
-| `metric` | string | dMRI metric used (e.g., "FA", "MD") | Enum: ["FA", "MD", "RD", "AD"] |
-| `r` | float | Correlation coefficient | Range: [-1.0, 1.0] |
-| `n` | integer | Sample size | Must be > 0 |
-| `p_value` | float | P-value (optional, for conversion) | Range: [0.0, 1.0] |
-| `notes` | string | Qualitative notes | Optional |
-
-### 2. MetaAnalysisResult (Derived)
-Aggregated results from the meta-analysis.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `pooled_r` | float | Weighted mean effect size |
-| `ci_lower` | float | Lower bound of 95% CI |
-| `ci_upper` | float | Upper bound of 95% CI |
-| `i_squared` | float | Heterogeneity statistic ($I^2$) |
-| `q_statistic` | float | Cochran's Q statistic |
-| `k` | integer | Number of studies included |
-| `method` | string | Model used ("RandomEffects", "FixedEffects", "MLM") |
-| `status` | string | "Success", "ConvergenceWarning", "Fallback" |
-
-### 3. BiasAssessment (Derived)
-Results from publication bias tests.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `egger_intercept` | float | Intercept of Egger's regression |
-| `egger_p_value` | float | P-value of Egger's test |
-| `test_skipped` | boolean | True if N < 10 |
-| `skip_reason` | string | Reason for skipping (e.g., "Insufficient studies") |
-| `low_power_warning` | boolean | True if 10 <= N < 20 |
-| `funnel_plot_path` | string | Path to generated PNG |
-
-### 4. NarrativeSummary (Derived)
-Output of the fallback protocol.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `study_count` | integer | Total eligible studies |
-| `themes` | list[string] | Extracted qualitative themes |
-| `summary_text` | string | Narrative description |
-| `pivot_reason` | string | "N < 10" |
-
-### 5. RealDataStatus (Derived)
-Output of the `real_data_validator.py` script.
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `total_studies` | integer | Total number of studies found |
-| `valid_pairs` | integer | Number of studies with valid (r, n) |
-| `status` | string | "Sufficient", "Insufficient", "PivotRequired" |
-| `message` | string | Human-readable status message |
-
-## File Paths
-
-| File Path | Purpose | Format |
-|-----------|---------|--------|
-| `data/raw/synthetic_literature.csv` | Generated input data | CSV |
-| `data/processed/extracted_studies.csv` | Cleaned, validated data | CSV |
-| `data/processed/study_count.json` | Count of eligible studies | JSON |
-| `data/processed/real_data_status.json` | Status of data availability | JSON |
-| `data/config/tract_lexicon.yaml` | Tract names and definitions | YAML |
-| `output/meta_analysis_results.json` | Aggregated statistics | JSON |
-| `output/bias_assessment.json` | Bias test results | JSON |
-| `output/mlm_results.json` | Multilevel model results | JSON |
-| `output/forest_plot.png` | Forest plot visualization | PNG |
-| `output/funnel_plot.png` | Funnel plot visualization | PNG |
-| `output/narrative_summary.md` | Narrative report | Markdown |
-
-## Data Flow Diagram
+## Entity-Relationship Diagram (Conceptual)
 
 ```mermaid
-graph TD
-    A[Generate Synthetic Data] -->|data/raw/synthetic_literature.csv| B(Extraction & Validation)
-    B -->|data/processed/extracted_studies.csv| C{Count N}
-    C -->|data/processed/study_count.json| D{N < 10?}
-    D -- Yes --> E[Pivot: Narrative Synthesis]
-    D -- No --> F[Primary Meta-Analysis]
-    F -->|data/processed/real_data_status.json| G[Heterogeneity & Bias]
-    G --> H[Sensitivity: MLM]
-    H --> I[Visualization]
-    E --> J[Narrative Summary]
-    I --> K[Final Report]
-    J --> K
+erDiagram
+    StudyRecord ||--o| MetaAnalysisResult : "contributes to"
+    StudyRecord {
+        string author
+        int year
+        string tract_name
+        string metric_type "FA|MD|RD"
+        string stat_type "r|t|F|p"
+        float stat_value
+        int sample_size
+        string notes
+    }
+    MetaAnalysisResult {
+        float pooled_r
+        float ci_lower
+        float ci_upper
+        float i_squared
+        float egger_intercept
+        float egger_p_value
+        bool bonferroni_applied
+        float alpha_adj
+        string synthesis_mode "quantitative|narrative"
+    }
 ```
 
-## Script Definitions
+## Data Schemas
 
-### `code/pivot/pivot_narrative.py`
-- **Input**: `data/processed/extracted_studies.csv`, `data/processed/study_count.json`
-- **Output**: `output/narrative_summary.md`
-- **Logic**: If `study_count.json` indicates N < 10, this script generates a structured narrative summary based on the qualitative descriptors in the input data.
+### 1. Input: StudyRecord (`data/raw/studies.csv`)
 
-### `tests/integration/test_pivot.py`
-- **Input**: Synthetic data with N < 10.
-- **Output**: Verification that `output/narrative_summary.md` is generated and contains expected fields.
-- **Logic**: Ensures the pivot logic is triggered correctly and the narrative summary is valid.
+**Source**: User-provided CSV or generated mock data.
+**Format**: CSV (Comma Separated Values).
+
+| Column | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `author` | string | Yes | Primary author surname. |
+| `year` | int | Yes | Publication year. |
+| `tract_name` | string | Yes | Name of the white matter tract (e.g., "Arcuate Fasciculus"). |
+| `metric_type` | string | Yes | dMRI metric: "FA", "MD", "RD", "AD". |
+| `stat_type` | string | Yes | Statistic type: "r", "t", "F", "p". |
+| `stat_value` | float | Yes | The reported value. |
+| `sample_size` | int | Yes | Total N for the study. |
+| `notes` | string | No | Any additional context or conversion notes. |
+
+### 2. Intermediate: StudyCount (`data/processed/study_count.json`)
+
+**Source**: `code/data/real_data_validator.py`
+**Purpose**: Gate logic for quantitative vs. narrative synthesis.
+
+| Key | Type | Description |
+| :--- | :--- | :--- |
+| `unique_studies` | int | Count of unique (Author, Year) pairs. |
+| `total_comparisons` | int | Total number of rows (tracts) in input. |
+| `status` | string | "quantitative" (if ≥10) or "narrative" (if <10). |
+
+### 3. Output: MetaAnalysisResult (`data/processed/meta_results.json`)
+
+**Source**: `code/analysis/meta_analysis.py`
+**Purpose**: Final statistical results.
+
+| Key | Type | Description |
+| :--- | :--- | :--- |
+| `synthesis_mode` | string | "quantitative" or "narrative". |
+| `pooled_r` | float | Pooled correlation coefficient (if quantitative). |
+| `ci_lower` | float | Lower bound of 95% CI. |
+| `ci_upper` | float | Upper bound of 95% CI. |
+| `i_squared` | float | Heterogeneity statistic ($I^2$). |
+| `egger_intercept` | float | Egger's test intercept (if N≥10). |
+| `egger_p_value` | float | Egger's test p-value (if N≥10). |
+| `bonferroni_adjusted` | bool | Whether Bonferroni was applied. |
+| `alpha_adj` | float | Adjusted alpha threshold. |
+| `narrative_summary` | string | Text summary (if narrative mode). |
+
+## Data Flow
+
+1.  **Load**: `studies.csv` (Raw) → `StudyRecord` objects.
+2.  **Validate**: Count unique studies → `study_count.json` (Processed).
+3.  **Branch**:
+    *   If `status == "quantitative"`: Run Meta-Analysis → `meta_results.json`.
+    *   If `status == "narrative"`: Run Narrative Synthesis → `meta_results.json` (with `narrative_summary`).
+4.  **Visualize**: `meta_results.json` + `StudyRecord` → PNG plots (Derived).

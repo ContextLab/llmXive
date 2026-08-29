@@ -1,47 +1,40 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "StudyRecord"
-description: "Schema for a single study record in the meta-analysis pipeline."
+title: "StudyRecord Schema"
+description: "Schema for input study data (CSV/JSON) containing dMRI and music preference correlations."
 type: "object"
 properties:
   author:
     type: "string"
-    description: "First author's last name."
-    minLength: 1
+    description: "Primary author surname."
   year:
     type: "integer"
     description: "Publication year."
-    minimum: 1900
-    maximum: 2099
   tract_name:
     type: "string"
-    description: "Name of the white matter tract."
-    minLength: 1
-  metric:
+    description: "Name of the white matter tract (e.g., Arcuate Fasciculus)."
+  metric_type:
     type: "string"
-    description: "dMRI metric used."
     enum: ["FA", "MD", "RD", "AD"]
-  r:
-    type: "number"
-    description: "Correlation coefficient."
-    minimum: -1.0
-    maximum: 1.0
-  n:
-    type: "integer"
-    description: "Sample size."
-    minimum: 1
-  p_value:
-    type: "number"
-    description: "P-value (optional)."
-    minimum: 0.0
-    maximum: 1.0
-  notes:
+    description: "Diffusion MRI metric type."
+  stat_type:
     type: "string"
-    description: "Qualitative notes."
+    enum: ["r", "t", "F", "p"]
+    description: "Reported statistic type."
+  stat_value:
+    type: "number"
+    description: "The reported statistical value."
+  sample_size:
+    type: "integer"
+    description: "Total sample size (N) for the study."
+  notes:
+    type: ["string", "null"]
+    description: "Optional notes or context."
 required:
-  - author
-  - year
-  - tract_name
-  - metric
-  - r
-  - n
+  - "author"
+  - "year"
+  - "tract_name"
+  - "metric_type"
+  - "stat_type"
+  - "stat_value"
+  - "sample_size"
 additionalProperties: false

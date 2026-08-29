@@ -1,46 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "MetaAnalysisResult"
-description: "Schema for the aggregated meta-analysis results."
+title: "MetaAnalysisResult Schema"
+description: "Schema for the output of the meta-analysis pipeline."
 type: "object"
 properties:
+  synthesis_mode:
+    type: "string"
+    enum: ["quantitative", "narrative"]
+    description: "Mode of synthesis based on study count."
   pooled_r:
-    type: "number"
-    description: "Weighted mean effect size."
-    minimum: -1.0
-    maximum: 1.0
+    type: ["number", "null"]
+    description: "Pooled correlation coefficient (null if narrative)."
   ci_lower:
-    type: "number"
-    description: "Lower bound of 95% CI."
+    type: ["number", "null"]
+    description: "Lower bound of 95% CI (null if narrative)."
   ci_upper:
-    type: "number"
-    description: "Upper bound of 95% CI."
+    type: ["number", "null"]
+    description: "Upper bound of 95% CI (null if narrative)."
   i_squared:
-    type: "number"
-    description: "Heterogeneity statistic (I^2)."
-    minimum: 0.0
-    maximum: 100.0
-  q_statistic:
-    type: "number"
-    description: "Cochran's Q statistic."
-    minimum: 0.0
-  k:
-    type: "integer"
-    description: "Number of studies included."
-    minimum: 1
-  method:
+    type: ["number", "null"]
+    description: "Heterogeneity statistic I-squared (null if narrative)."
+  egger_intercept:
+    type: ["number", "null"]
+    description: "Egger's test intercept (null if N < 10 or narrative)."
+  egger_p_value:
+    type: ["number", "null"]
+    description: "Egger's test p-value (null if N < 10 or narrative)."
+  bonferroni_adjusted:
+    type: ["boolean", "null"]
+    description: "Whether Bonferroni correction was applied."
+  alpha_adj:
+    type: ["number", "null"]
+    description: "Adjusted alpha threshold (null if not applied)."
+  hksj_adjusted:
+    type: "boolean"
+    description: "True if Hartung-Knapp adjustment was applied (10 <= N < 20)."
+  non_independence_warning:
     type: "string"
-    description: "Model used."
-    enum: ["RandomEffects", "FixedEffects", "MLM"]
-  status:
-    type: "string"
-    description: "Execution status."
-    enum: ["Success", "ConvergenceWarning", "Fallback"]
+    description: "Warning about Bonferroni application on non-independent tracts."
+  narrative_summary:
+    type: ["string", "null"]
+    description: "Text summary for narrative mode."
 required:
-  - pooled_r
-  - ci_lower
-  - ci_upper
-  - i_squared
-  - k
-  - method
-  - status
+  - "synthesis_mode"
 additionalProperties: false
