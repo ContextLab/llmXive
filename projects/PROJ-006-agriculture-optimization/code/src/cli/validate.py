@@ -1,190 +1,88 @@
-"""
-CLI module to enforce schema contracts on ingestion artifacts.
-
-This module provides strict validation for CSV and JSON artifacts
-against the schema contracts defined in `contracts/` and `src/config/schemas.py`.
-It is designed to be run as a CLI tool or imported as a library.
-
-Usage:
-    python -m src.cli.validate --input data/processed/analysis_dataset.csv --type csv
-    python -m src.cli.validate --input data/processed/regression_results.json --type json
-"""
-
 import argparse
 import logging
 import sys
+import json
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-# Importing from existing project utilities
-from src.utils.io_helpers import FatalError, load_json_strict, read_csv_strict
-from src.config.schemas import (
-    validate_dataset_schema,
-    validate_regression_output,
-    AnalysisDatasetRecord,
-    RegressionOutput
-)
+# Add project root to path
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from src.utils.io_helpers import load_json_strict, read_csv_strict
+from src.config.schemas import validate_dataset_schema, validate_regression_output
 
-
-def validate_csv_artifact(
-    file_path: Path,
-    schema_name: str = "dataset"
-) -> bool:
-    """
-    Validates a CSV artifact against the specified schema contract.
-
-    Args:
-        file_path: Path to the CSV file.
-        schema_name: Name of the schema to validate against ('dataset').
-
-    Returns:
-        True if validation passes, False otherwise.
-
-    Raises:
-        FatalError: If the file cannot be read or schema is invalid.
-    """
-    if not file_path.exists():
-        raise FatalError(f"Artifact not found: {file_path}")
-
-    logger.info(f"Validating CSV artifact: {file_path}")
-
+def validate_csv_artifact(file_path: Path, schema_type: str = 'dataset'):
+    """Validate a CSV artifact against a schema."""
     try:
-        # Strict read ensures file is not empty and is valid CSV
         df = read_csv_strict(file_path)
-        logger.info(f"Successfully read CSV. Rows: {len(df)}, Columns: {list(df.columns)}")
-
-        # Validate against Pydantic schema row-by-row or bulk
-        # The validate_dataset_schema function in src/config/schemas.py handles this
-        if schema_name == "dataset":
-            validation_results = validate_dataset_schema(df)
-            if not validation_results.get("valid", False):
-                errors = validation_results.get("errors", [])
-                logger.error(f"Schema validation failed for {file_path}:")
-                for err in errors:
-                    logger.error(f"  - {err}")
-                return False
-            logger.info("CSV schema validation PASSED.")
+        if schema_type == 'dataset':
+            is_valid, msg = validate_dataset_schema(df)
+        else:
+            logging.error(f"Unknown schema type for CSV: {schema_type}")
+            return False
+        
+        if is_valid:
+            logging.info(f"CSV validation passed for {file_path}")
             return True
         else:
-            raise FatalError(f"Unknown CSV schema type: {schema_name}")
-
-    except FatalError:
-        # Re-raise FatalError directly
-        raise
+            logging.error(f"CSV validation failed for {file_path}: {msg}")
+            return False
     except Exception as e:
-        logger.error(f"Unexpected error during CSV validation: {e}", exc_info=True)
-        raise FatalError(f"Validation failed due to internal error: {e}")
+        logging.error(f"Error validating CSV {file_path}: {e}")
+        return False
 
-
-def validate_json_artifact(
-    file_path: Path,
-    schema_name: str = "regression"
-) -> bool:
-    """
-    Validates a JSON artifact against the specified schema contract.
-
-    Args:
-        file_path: Path to the JSON file.
-        schema_name: Name of the schema to validate against ('regression').
-
-    Returns:
-        True if validation passes, False otherwise.
-
-    Raises:
-        FatalError: If the file cannot be read or schema is invalid.
-    """
-    if not file_path.exists():
-        raise FatalError(f"Artifact not found: {file_path}")
-
-    logger.info(f"Validating JSON artifact: {file_path}")
-
+def validate_json_artifact(file_path: Path, schema_type: str = 'regression'):
+    """Validate a JSON artifact against a schema."""
     try:
-        # Strict load ensures file is valid JSON
         data = load_json_strict(file_path)
-        logger.info(f"Successfully loaded JSON. Keys: {list(data.keys()) if isinstance(data, dict) else 'List/Array'}")
+        if schema_type == 'regression':
+            is_valid, msg = validate_regression_output(data)
+        else:
+            logging.error(f"Unknown schema type for JSON: {schema_type}")
+            return False
 
-        # Validate against Pydantic schema
-        if schema_name == "regression":
-            validation_results = validate_regression_output(data)
-            if not validation_results.get("valid", False):
-                errors = validation_results.get("errors", [])
-                logger.error(f"Schema validation failed for {file_path}:")
-                for err in errors:
-                    logger.error(f"  - {err}")
-                return False
-            logger.info("JSON schema validation PASSED.")
+        if is_valid:
+            logging.info(f"JSON validation passed for {file_path}")
             return True
         else:
-            raise FatalError(f"Unknown JSON schema type: {schema_name}")
-
-    except FatalError:
-        # Re-raise FatalError directly
-        raise
+            logging.error(f"JSON validation failed for {file_path}: {msg}")
+            return False
     except Exception as e:
-        logger.error(f"Unexpected error during JSON validation: {e}", exc_info=True)
-        raise FatalError(f"Validation failed due to internal error: {e}")
+        logging.error(f"Error validating JSON {file_path}: {e}")
+        return False
 
-
-def main() -> int:
-    """
-    CLI entry point for schema validation.
-    """
-    parser = argparse.ArgumentParser(
-        description="Enforce schema contracts on ingestion artifacts."
-    )
-    parser.add_argument(
-        "--input",
-        "-i",
-        type=Path,
-        required=True,
-        help="Path to the artifact file (CSV or JSON) to validate."
-    )
-    parser.add_argument(
-        "--type",
-        "-t",
-        choices=["csv", "json"],
-        required=True,
-        help="Type of the artifact (csv or json)."
-    )
-    parser.add_argument(
-        "--schema",
-        "-s",
-        default="dataset",
-        help="Specific schema contract to use (default: dataset for CSV, inferred for JSON)."
-    )
+def main():
+    parser = argparse.ArgumentParser(description="Validate pipeline artifacts.")
+    parser.add_argument('file_path', type=str, help='Path to the file to validate.')
+    parser.add_argument('--schema-type', type=str, choices=['dataset', 'regression', 'sensitivity'],
+                        default='dataset', help='Type of schema to validate against.')
+    parser.add_argument('--no-strict', action='store_true', help='Do not fail on warnings.')
+    parser.add_argument('--log-level', type=str, default='INFO',
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
 
     args = parser.parse_args()
 
-    try:
-        if args.type == "csv":
-            success = validate_csv_artifact(args.input, args.schema)
-        elif args.type == "json":
-            success = validate_json_artifact(args.input, args.schema)
-        else:
-            # Should be caught by argparse choices, but defensive check
-            raise FatalError(f"Unsupported type: {args.type}")
+    logging.basicConfig(level=args.log_level, format='%(asctime)s - %(levelname)s - %(message)s')
 
-        if success:
-            logger.info("Validation successful.")
-            return 0
-        else:
-            logger.error("Validation failed.")
-            return 1
+    file_path = Path(args.file_path)
+    if not file_path.exists():
+        logging.error(f"File not found: {file_path}")
+        sys.exit(1)
 
-    except FatalError as e:
-        logger.critical(f"Fatal Error: {e}")
-        return 2
-    except Exception as e:
-        logger.critical(f"Unhandled exception: {e}", exc_info=True)
-        return 3
+    is_valid = False
+    if file_path.suffix == '.csv':
+        is_valid = validate_csv_artifact(file_path, args.schema_type)
+    elif file_path.suffix == '.json':
+        is_valid = validate_json_artifact(file_path, args.schema_type)
+    else:
+        logging.error(f"Unsupported file type: {file_path.suffix}")
+        sys.exit(1)
 
+    if is_valid:
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

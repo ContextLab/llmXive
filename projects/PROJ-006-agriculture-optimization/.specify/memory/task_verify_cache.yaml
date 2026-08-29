@@ -13,6 +13,19 @@ T010:
     \ is truncated, contains undefined variables (e.g., `n`), and does not produce\
     \ all required columns (latitude, longitude, extension_visits, etc.) nor include\
     \ CI\u2011environment detection logic. The task therefore remains unfinished."
+T041a:
+  c: false
+  h: 1bd2207378f06a1243c6745a10ac74b25a74d9de20c83ac529bd1b84a50d45f2
+  r: "The required output file `data/processed/analysis_dataset.csv` does not exist,\
+    \ and there is no evidence of a CI run (no logs, no exit\u2011code capture, no\
+    \ \u201CInvoking synthetic generator\u201D message). Consequently the pipeline\
+    \ was not demonstrated to have been executed successfully in a CI environment."
+T041b:
+  c: false
+  h: f5d0f7ae15ec37b59dd2c08ba8ba73e1118c848456683193e76e1e38c431eeba
+  r: The required file `data/processed/analysis_dataset.csv` is missing, and the schema
+    file `contracts/dataset.schema.yaml` does not exist, so the existence, record
+    count, and schema validation checks cannot be performed.
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

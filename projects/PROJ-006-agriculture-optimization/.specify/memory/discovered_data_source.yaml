@@ -1,19 +1,19 @@
 status: none
-intent: FAOSTAT CHIRPS SoilGrids MODIS Landsat combined agricultural trial python
-  package dataset
+intent: FAOSTAT crop production, CHIRPS rainfall, SoilGrids, MODIS MOD13Q1, Landsat
+  8 python package dataset
 required_fields:
 - region_id
 - cluster_id
 - treatment_group
-- control_group
 - random_seed
 - chi_square_pvalue
 - household_id
 - crop_yield
 - rainfall_mm
 - soil_ph
-- soil_organic_carbon
-- socioeconomic_status
-cache_key: 41f1eda778f150823f83a9b7aa3ed9bbc54d1d9aae8494492db00a3f1b23acd5
-searched_at: '2026-08-13T14:04:53.643477+00:00'
+- soil_organic_matter
+- socioeconomic_income
+- ndvi
+cache_key: 6241cf667686d8ae18044138e408d7c9e5b58eac9d045b5011f20f3f7e2820fe
+searched_at: '2026-08-29T19:10:54.913173+00:00'
 retry_count: 1

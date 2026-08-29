@@ -1,5 +1,5 @@
-'|after aggregation code fatalerror if insufficient raise sample size':
-  quote: 'P12071: 11200'
-  source_id: Q136293754
-  url: https://www.wikidata.org/wiki/Q136293754
-  value: '11200'
+'|alpha':
+  quote: '0.0167'
+  source_id: "Holm\u2013Bonferroni method"
+  url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+  value: '0.0167'

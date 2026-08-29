@@ -1,156 +1,106 @@
-"""
-Main orchestration script for the Climate-Smart Agriculture Optimization Pipeline.
-
-This script coordinates data ingestion, processing, analysis, and reporting.
-It handles real data checks and triggers synthetic data generation in CI environments
-when real data is missing, adhering to strict fail-loudly principles.
-"""
 import argparse
 import logging
 import os
 import sys
+import shutil
 from pathlib import Path
-from typing import Optional
 
-# Import from existing project modules
-from src.utils.io_helpers import FatalError, setup_logging
-from src.data.generators.synthetic_generator import main as generate_synthetic_main
+from src.data.generators.synthetic_generator import SyntheticDataGenerator, main as generate_synthetic_main
+from src.data.processing.feature_engineering import run_feature_engineering
+from src.data.processing.spatial_join import verify_linkage_and_trigger_aggregation
+from src.analysis.run_regression import main as run_regression_main
+from src.analysis.sensitivity_check import main as run_sensitivity_main
+from src.services.report_generator import generate_report
+from src.utils.io_helpers import setup_logging, FatalError
+from src.config.constants import PROJECT_ROOT
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-def check_and_generate_synthetic_data(dry_run: bool = False) -> bool:
+def check_and_generate_synthetic_data():
     """
-    Check for real data in data/raw/. If missing AND CI=true, invoke synthetic generator.
-    
-    Args:
-        dry_run: If True, only log actions without executing them.
-        
-    Returns:
-        True if real data exists or synthetic data was generated successfully.
-        False if no data is available and synthetic generation was not triggered.
+    Checks for real data in data/raw/. If missing and CI=true, invokes the synthetic generator.
     """
-    raw_data_dir = Path("data/raw")
-    ci_mode = os.environ.get("CI", "").lower() == "true"
-    
-    # Check if real data exists
-    if raw_data_dir.exists() and any(raw_data_dir.iterdir()):
-        logger.info("Real data detected in data/raw/. Proceeding with pipeline.")
-        return True
-    
-    logger.warning("No real data found in data/raw/.")
-    
-    if ci_mode:
-        logger.info("CI environment detected. Triggering synthetic data generation.")
-        if dry_run:
-            logger.info("[DRY-RUN] Would invoke synthetic generator now.")
-            return True
-        
-        try:
-            # Invoke the synthetic generator main function
-            # This will generate data to data/processed/analysis_dataset.csv
+    raw_data_path = PROJECT_ROOT / "data" / "raw"
+    if not raw_data_path.exists() or not any(raw_data_path.iterdir()):
+        if os.environ.get("CI") == "true":
+            logger.info("No real data found in data/raw/. Invoking synthetic generator (CI mode).")
+            # Call the synthetic generator main directly to populate data
             generate_synthetic_main()
-            logger.info("Synthetic data generation completed successfully.")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to generate synthetic data: {e}")
-            raise FatalError("Synthetic data generation failed in CI mode.") from e
-    else:
-        logger.warning("Not in CI mode. Cannot generate synthetic data automatically.")
-        return False
-
-def run_pipeline(args: argparse.Namespace) -> int:
-    """
-    Execute the main pipeline logic.
-    
-    Args:
-        args: Parsed command line arguments.
-        
-    Returns:
-        Exit code (0 for success, non-zero for failure).
-    """
-    if args.dry_run:
-        logger.info("Running in DRY-RUN mode. No actual data processing will occur.")
-        # In dry-run, we just verify the logic flow
-        if args.no_synthetic:
-            logger.warning("[DRY-RUN] --no-synthetic flag provided. Would raise FatalError if data missing.")
-            raw_data_dir = Path("data/raw")
-            if not (raw_data_dir.exists() and any(raw_data_dir.iterdir())):
-                logger.error("No real data found. With --no-synthetic, this would be fatal.")
-                return 1
         else:
-            check_and_generate_synthetic_data(dry_run=True)
-        return 0
-
-    # Check for synthetic data requirements
-    if args.no_synthetic:
-        raw_data_dir = Path("data/raw")
-        if not (raw_data_dir.exists() and any(raw_data_dir.iterdir())):
-            raise FatalError("No real data found and --no-synthetic flag was provided. Aborting.")
-        logger.info("Real data check passed (--no-synthetic mode).")
+            raise FatalError("No real data found in data/raw/ and CI environment variable is not set. "
+                             "Please provide real data or run with CI=true.")
     else:
-        if not check_and_generate_synthetic_data(dry_run=False):
-            raise FatalError("No real data found and not in CI mode. Aborting.")
+        logger.info("Real data detected in data/raw/. Proceeding with pipeline.")
 
-    logger.info("Pipeline initialization complete. Starting data processing steps...")
-    
-    # Placeholder for actual pipeline steps (T015-T022, T025, T030, etc.)
-    # These will be implemented in subsequent tasks
-    # For now, we log the intended flow
-    steps = [
-        "1. Ingest survey data (T015)",
-        "2. Ingest remote sensing data (T016)",
-        "3. Spatial join (T017)",
-        "4. Feature engineering (T018, T018b)",
-        "5. Validation and aggregation (T017c, T021)",
-        "6. Regression analysis (T025)",
-        "7. Sensitivity analysis (T030)",
-        "8. Report generation (T032)"
-    ]
-    
-    for step in steps:
-        logger.info(step)
-    
+def run_pipeline(dry_run=False):
+    """
+    Orchestrates the full pipeline:
+    1. Check/Generate Data
+    2. Spatial Join & Aggregation
+    3. Feature Engineering
+    4. Regression Analysis
+    5. Sensitivity Check
+    6. Report Generation
+    """
+    if dry_run:
+        logger.info("Dry run: Validating structure and configuration only.")
+        # Basic checks
+        assert (PROJECT_ROOT / "contracts").exists(), "Contracts directory missing"
+        assert (PROJECT_ROOT / "data").exists(), "Data directory missing"
+        logger.info("Dry run passed.")
+        return
+
+    logger.info("Starting pipeline execution...")
+
+    # Step 1: Data Availability
+    check_and_generate_synthetic_data()
+
+    # Step 2 & 3: Spatial Join and Feature Engineering
+    # Note: These functions are designed to handle the logic of linking and aggregating
+    logger.info("Running spatial join and linkage validation...")
+    # We assume the data collectors have already populated data/raw/ with the necessary CSVs
+    # The spatial_join module handles the heavy lifting of linking and triggering aggregation
+    verify_linkage_and_trigger_aggregation()
+
+    logger.info("Running feature engineering...")
+    run_feature_engineering()
+
+    # Step 4: Regression Analysis
+    logger.info("Running regression analysis...")
+    run_regression_main()
+
+    # Step 5: Sensitivity Check
+    logger.info("Running sensitivity analysis...")
+    run_sensitivity_main()
+
+    # Step 6: Report Generation
+    logger.info("Generating final report...")
+    generate_report()
+
     logger.info("Pipeline execution completed successfully.")
-    return 0
 
 def main():
-    """Main entry point for the CLI."""
-    parser = argparse.ArgumentParser(
-        description="Orchestrate the Climate-Smart Agriculture Optimization Pipeline."
-    )
-    parser.add_argument(
-        "--no-synthetic",
-        action="store_true",
-        help="Disable automatic synthetic data generation. Fail if real data is missing."
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Run in dry-run mode: verify logic without executing data processing."
-    )
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Set logging level."
-    )
-    
+    parser = argparse.ArgumentParser(description="Run the Climate-Smart Agriculture Optimization Pipeline.")
+    parser.add_argument("--no-synthetic", action="store_true", help="Fail if real data is missing.")
+    parser.add_argument("--dry-run", action="store_true", help="Validate configuration without running full pipeline.")
+    parser.add_argument("--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], default="INFO", help="Logging level.")
+
     args = parser.parse_args()
-    
-    # Setup logging
+
     setup_logging(level=args.log_level)
-    
+
+    if args.no_synthetic:
+        # Override CI behavior if explicitly requested
+        os.environ["CI"] = "false"
+
     try:
-        exit_code = run_pipeline(args)
-        sys.exit(exit_code)
+        run_pipeline(dry_run=args.dry_run)
     except FatalError as e:
-        logger.critical(f"Fatal error: {e}")
+        logger.error(f"Pipeline failed: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.exception(f"Unexpected error: {e}")
-        sys.exit(2)
+        logger.exception(f"Unexpected error during pipeline execution: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

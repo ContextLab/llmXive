@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-006-agriculture-optimization",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/scripts/validate_dataset_schema.py: self-declared fabricated metric \u2014 \u201c\u2026n required}         # Provide dummy values for required fields to avoid\u2026\u201d; 4 command(s) failed: python src/cli/run_pipeline.py --stage ingest (rc=2); python src/cli/run_pipeline.py --stage ingest --use-synthetic (rc=2); python src/cli/run_pipeline.py --stage full (rc=2); 2 declared deliverable(s) absent: data/processed/analysis_dataset.csv; data/processed/regression_results.json",
+  "artifacts": [],
+  "failures": [
+    "python src/cli/run_pipeline.py --stage ingest -> rc=2\n    usage: run_pipeline.py [-h] [--no-synthetic] [--dry-run]\n                       [--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}]\nrun_pipeline.py: error: unrecognized arguments: --stage ingest",
+    "python src/cli/run_pipeline.py --stage ingest --use-synthetic -> rc=2\n    usage: run_pipeline.py [-h] [--no-synthetic] [--dry-run]\n                       [--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}]\nrun_pipeline.py: error: unrecognized arguments: --stage ingest --use-synthetic",
+    "python src/cli/run_pipeline.py --stage full -> rc=2\n    usage: run_pipeline.py [-h] [--no-synthetic] [--dry-run]\n                       [--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}]\nrun_pipeline.py: error: unrecognized arguments: --stage full",
+    "python src/cli/validate.py --input data/processed/analysis_dataset.csv --contract contracts/dataset.schema.yaml -> rc=2\n    usage: validate.py [-h] [--schema-type {dataset,regression,sensitivity}]\n                   [--no-strict]\n                   file_path\nvalidate.py: error: unrecognized arguments: --input --contract contracts/dataset.schema.yaml"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-29T19:08:35Z"
+}

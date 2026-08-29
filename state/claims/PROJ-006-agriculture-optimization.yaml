@@ -2831,3 +2831,691 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T13:08:44Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Spec TODO validation script exits with code 1 if TODO markers found,
+    0 otherwise
+  claim_id: c_a70d9192
+  context: 'Phase 0: Spec & Design Completeness - T060 Create Spec TODO Validation
+    Script'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script scans `spec.md` and `plan.md` for any `_TODO:` markers. If
+    any are found, the script exits with code 1 and lists the markers. If no markers
+    are found, it exits with code 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:18:03Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Hypothesis verification script exits with code 0 if falsifiable hypothesis
+    found, 1 otherwise
+  claim_id: c_56aa5563
+  context: 'Phase 0: Spec & Design Completeness - T061 Create Hypothesis Verification
+    Script'
+  evidence:
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: The script scans `spec.md` for a 'Research Hypothesis' section and verifies
+    the presence of a falsifiable statement (e.g., containing correlation/impact keywords
+    and measurable outcomes). If a valid hypothesis is found, it exits with code 0.
+    If not, it exits with code 1.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T19:18:04Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Prior studies control for finance but fail to isolate marginal agronomic
+    effects of specific practices using satellite-derived stability metrics
+  claim_id: c_e27c59c9
+  context: 'Phase 0: Spec & Design Completeness - T062 Articulate Research Gap'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prior_studies_control_for_finance_but_fail_to_isolate_margin
+  kind: entity_fact
+  raw_text: Update `spec.md` (Background) to explicitly cite existing studies and
+    state the specific gap this project fills (e.g., 'Prior studies control for finance
+    but fail to isolate marginal agronomic effects of specific practices using satellite-derived
+    stability metrics').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:19:13Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: "Success criteria include Linkage rate \u2265 95%, VIF < 5, and Report\
+    \ includes Bonferroni threshold"
+  claim_id: c_506f1c39
+  context: 'Phase 0: Spec & Design Completeness - T063 Complete Success Criteria'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Update `spec.md` (Success Criteria) to include quantifiable outcomes\
+    \ (e.g., 'Linkage rate \u2265 95%', 'VIF < 5', 'Report includes Bonferroni threshold')."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:19:14Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: 'Linting configuration: black line-length 88, flake8 max-line-length
+    88, isort profile black'
+  claim_id: c_048d8cb9
+  context: 'Phase 1: Setup - T003 Configure linting and formatting tools'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure `black` (line-length=88), `flake8` (max-line-length=88), `isort`
+    (profile=black).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:20:03Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: 'Configuration constants: buffer_size_km 1.0, grid_resolution_km 0.1'
+  claim_id: c_ff7256e9
+  context: 'Phase 1: Setup - T004 Create constants.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create `src/config/constants.py` with ... **buffer_size_km = 1.0**, **grid_resolution_km
+    = 0.1**.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:20:11Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Dataset schema defines 16 specific columns with specified types
+  claim_id: c_ffca7865
+  context: 'Phase 2: Foundational - T007 Create dataset.schema.yaml'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define columns: `household_id` (int), `latitude` (float), `longitude`
+    (float), `land_size` (float), `education_level` (int), `finance_access` (bool),
+    `practice_mixed_farming` (bool), `practice_terracing` (bool), `practice_conservation_tillage`
+    (bool), `practice_agroforestry` (bool), `extension_visits` (int), `hlias` (int),
+    `CSA_Index` (float), `Stability_Score` (float), `HFIAS` (float), `village_id`
+    (str).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:20:12Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: 'Sentinel-2 imagery filter: cloud cover less than 0.9'
+  claim_id: c_00eac5a2
+  context: 'Phase 3: User Story 1 - T016 Implement remote_sensing_collector.py'
+  evidence:
+    candidates:
+    - - ''
+      - 0.9
+    - - ''
+      - -2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Sentinel-2_imagery_filter:_cloud_cover_less_than_0.9
+  kind: magnitude
+  raw_text: Filter by `cloud_cover < 0.9`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-29T19:20:47Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Aggregation triggered if linkage rate below 95% or sample size below
+    300
+  claim_id: c_3c5ae1d0
+  context: 'Phase 3: User Story 1 - T017c Implement validation and aggregation trigger'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If linkage < 95% OR N < 300, trigger the aggregation routine.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:20:48Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Success logged if linkage rate at least 95% and sample size at least
+    300
+  claim_id: c_1cd8306a
+  context: 'Phase 3: User Story 1 - T017c Implement validation and aggregation trigger'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_logged_if_linkage_rate_at_least_95%25_and_sample_size
+  kind: magnitude
+  raw_text: If linkage >= 95% and N >= 300, log success.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:22:00Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Village-level aggregation uses mean function for CSA_Index and Stability_Score
+  claim_id: c_18e4860a
+  context: 'Phase 3: User Story 1 - T021 Implement village-level aggregation fallback'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Village-level_aggregation_uses_mean_function_for_CSA_Index_a
+  kind: entity_fact
+  raw_text: Aggregate to village level using 'village_id' as key and 'mean' as function
+    for CSA_Index and Stability_Score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:22:40Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Cluster-robust standard errors used if N_clusters < N_rows and village_id
+    has more than 1 unique value
+  claim_id: c_f3a4d18d
+  context: 'Phase 4: User Story 2 - T025 Implement run_regression.py'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cluster-robust_standard_errors_used_if_N_clusters_%3C_N_rows_a
+  kind: magnitude
+  raw_text: 'If `N_clusters < N_rows` and `village_id` has > 1 unique value: Use **Cluster-Robust
+    Standard Errors (clustered by `village_id`)**.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:23:02Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Warning logged if Variance Inflation Factor exceeds 5
+  claim_id: c_0448b43e
+  context: 'Phase 4: User Story 2 - T025 Implement run_regression.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If any VIF > 5, log a warning and annotate the output JSON with 'Potential
+    Collinearity Detected'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:23:03Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied with alpha 0.0167
+  claim_id: c_26c5e5be
+  context: 'Phase 4: User Story 2 - T025 Implement run_regression.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction (alpha=0.0167).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:24:38Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps cloud cover thresholds 0.6, 0.7, and 0.8
+  claim_id: c_c2c2e002
+  context: 'Phase 5: User Story 3 - T030 Implement sensitivity_check.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each threshold in **{0.6, 0.7, 0.8}**, filter the cached raw satellite
+    granules by cloud cover.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:26:40Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Citations manually verified against primary sources using DOI lookup
+  claim_id: c_b0215d8a
+  context: 'Phase N+1: Research & Reproducibility - T050a Create Research Document'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citations_manually_verified_against_primary_sources_using_DO
+  kind: entity_fact
+  raw_text: Manually verify citations against primary sources using standard tools
+    (e.g., DOI lookup) and update or remove invalid citations until verification passes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:27:25Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Spatial-temporal alignment documentation requires specific sentence structure
+    for geospatial fuzzing radius
+  claim_id: c_e2aa0eec
+  context: 'Phase N+1: Research & Reproducibility - T053b Spatial-Temporal Alignment
+    Documentation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial-temporal_alignment_documentation_requires_specific_s
+  kind: entity_fact
+  raw_text: 'Insert the following sentence into the ''Spatial-Temporal Alignment''
+    section of `data-model.md`: ''Geospatial fuzzing radius: {value} km (Source: {source_or_assumption_rationale}).'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:27:55Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sample size justification uses rule-of-thumb N greater than 1000 for
+    multivariate regression or N greater than 30 per predictor for aggregated models
+  claim_id: c_7988bbb0
+  context: 'Phase N+1: Research & Reproducibility - T053c Sample Size Justification'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_justification_uses_rule-of-thumb_N_greater_than
+  kind: magnitude
+  raw_text: Use a standard rule-of-thumb (N > 1000 for multivariate regression, or
+    N > 30 per predictor for aggregated models) to justify the sample size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:29:12Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Linkage rate must be at least 95%
+  claim_id: c_39f08fc4
+  context: "Update spec.md (Success Criteria) to include quantifiable outcomes (e.g.,\
+    \ 'Linkage rate \u2265 95%', 'VIF < 5', 'Report includes Bonferroni threshold')."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linkage_rate_must_be_at_least_95%25
+  kind: magnitude
+  raw_text: "Linkage rate \u2265 95%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:35:12Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Aggregation routine triggered if sample size is less than 300
+  claim_id: c_7fea3f68
+  context: If linkage < 95% OR N < 300, trigger the aggregation routine defined in
+    T021 immediately.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Aggregation_routine_triggered_if_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: N < 300 triggers aggregation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:37:45Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied with alpha set to 0.0167
+  claim_id: c_016961a3
+  context: Apply Bonferroni correction (alpha=0.0167).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction with alpha=0.0167
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:39:21Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Cloud cover thresholds swept across 0.6, 0.7, and 0.8
+  claim_id: c_c6e0d8de
+  context: For each threshold in {0.6, 0.7, 0.8}, filter the cached raw satellite
+    granules by cloud cover...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cloud cover thresholds tested at 0.6, 0.7, 0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:39:55Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Target sample size greater than 1000 for multivariate regression
+  claim_id: c_9254275e
+  context: Add power analysis or sample-size justification in data-model.md for the
+    target N > 1000 (or village aggregation logic).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_sample_size_greater_than_1000_for_multivariate_regres
+  kind: magnitude
+  raw_text: Sample size target N > 1000
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:41:23Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Rule of thumb requires N greater than 30 per predictor for aggregated
+    models
+  claim_id: c_f1539d66
+  context: Use a standard rule-of-thumb (N > 1000 for multivariate regression, or
+    N > 30 per predictor for aggregated models) to justify the sample size.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rule_of_thumb_requires_N_greater_than_30_per_predictor_for_a
+  kind: magnitude
+  raw_text: N > 30 per predictor for aggregated models
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:43:32Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Regression analysis execution time under 60 minutes on CPU
+  claim_id: c_074250dd
+  context: Execution of src/analysis/run_regression.py produces a summary file...
+    completing within 60 minutes on CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution completes within 60 minutes on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:44:04Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Buffer size set to 1.0 km
+  claim_id: c_e227b7b0
+  context: Create src/config/constants.py with random seeds, paths, cloud cover thresholds
+    (e.g., high values), buffer_size_km = 1.0, grid_resolution_km = 0.1...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: buffer_size_km = 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:44:34Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Grid resolution set to 0.1 km
+  claim_id: c_b1fad3d3
+  context: Create src/config/constants.py with random seeds, paths, cloud cover thresholds
+    (e.g., high values), buffer_size_km = 1.0, grid_resolution_km = 0.1...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: grid_resolution_km = 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:44:51Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Linkage rate greater than or equal to 95 percent
+  claim_id: c_8031163c
+  context: "Update spec.md (Success Criteria) to include quantifiable outcomes (e.g.,\
+    \ 'Linkage rate \u2265 95% ', 'VIF < 5', 'Report includes Bonferroni threshold')."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linkage_rate_greater_than_or_equal_to_95_percent
+  kind: magnitude
+  raw_text: "Linkage rate \u2265 95%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:49:58Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni adjusted alpha value of 0.0167
+  claim_id: c_6ed95b59
+  context: Apply Bonferroni correction (alpha=0.0167).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.0167'
+      source_id: "Holm\u2013Bonferroni method"
+      url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+      value: '0.0167'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.0167
+  resolved_value: '0.0167'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T19:50:13Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sample size greater than 30 per predictor for aggregated models
+  claim_id: c_5faaa171
+  context: Use a standard rule-of-thumb (N > 1000 for multivariate regression, or
+    N > 30 per predictor for aggregated models) to justify the sample size.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_greater_than_30_per_predictor_for_aggregated_mod
+  kind: magnitude
+  raw_text: N > 30 per predictor
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:53:04Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 0
+  canonical: Significance level alpha is set to 0.05
+  claim_id: c_a3d47b54
+  context: Programmatically inject the "associational" nature disclaimer, the Bonferroni
+    adjustment method (explicitly calculating alpha=0.05 / num_tests and injecting
+    the result).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.0167'
+      source_id: "Holm\u2013Bonferroni method"
+      url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+      value: '0.0167'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '0.0167'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T19:56:36Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Linkage rate must be greater than or equal to 95 percent
+  claim_id: c_239cd9b9
+  context: "Update spec.md (Success Criteria) to include quantifiable outcomes (e.g.,\
+    \ \"Linkage rate \u2265 95% \", \"VIF < 5\", \"Report includes Bonferroni threshold\"\
+    )."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linkage_rate_must_be_greater_than_or_equal_to_95_percent
+  kind: magnitude
+  raw_text: "Linkage rate \u2265 95%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:57:19Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Cloud cover threshold must be less than 0.9
+  claim_id: c_7306fcc1
+  context: Use requests with OAuth2, filter by cloud_cover < 0.9, download granules
+    covering survey coordinates.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cloud_cover_threshold_must_be_less_than_0.9
+  kind: magnitude
+  raw_text: cloud_cover < 0.9
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:58:58Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps cloud cover thresholds at 0.6, 0.7, and 0.8
+  claim_id: c_cf090e87
+  context: 'Logic: For each threshold in {0.6, 0.7, 0.8}, filter the cached raw satellite
+    granules by cloud cover.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: cloud cover thresholds {0.6, 0.7, 0.8}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:59:37Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Buffer size is set to 1.0 kilometers
+  claim_id: c_30897dc2
+  context: Create src/config/constants.py with random seeds, paths, cloud cover thresholds
+    (e.g., high values), buffer_size_km = 1.0 , grid_resolution_km = 0.1 , and other
+    configuration constants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: buffer_size_km = 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:59:38Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Grid resolution is set to 0.1 kilometers
+  claim_id: c_00891f84
+  context: Create src/config/constants.py with random seeds, paths, cloud cover thresholds
+    (e.g., high values), buffer_size_km = 1.0 , grid_resolution_km = 0.1 , and other
+    configuration constants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: grid_resolution_km = 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:59:39Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction uses the Holm-Bonferroni method
+  claim_id: c_8a276ff2
+  context: "Apply Bonferroni correction ({{claim:c_6ed95b59}} (Wikipedia: Holm\u2013\
+    Bonferroni method, https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method))."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_uses_the_Holm-Bonferroni_method
+  kind: entity_fact
+  raw_text: "Holm\u2013Bonferroni method"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T20:00:16Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sample size rule of thumb is greater than 30 per predictor for aggregated
+    models
+  claim_id: c_a942138e
+  context: Use a standard rule-of-thumb (N > 1000 for multivariate regression, or
+    N > 30 per predictor for aggregated models) to justify the sample size.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_rule_of_thumb_is_greater_than_30_per_predictor_f
+  kind: magnitude
+  raw_text: N > 30 per predictor
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T20:00:19Z'
