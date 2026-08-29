@@ -1,1 +1,1 @@
-"""Data directory for llmXive."""
+"""Data storage package (note: data files are not in git)."""

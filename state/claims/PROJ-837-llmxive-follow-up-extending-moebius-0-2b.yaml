@@ -1662,3 +1662,21 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T00:46:13Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Moebius paper available at arxiv.org/abs/2606.19195
+  claim_id: c_761b3869
+  context: 'Tasks: llmXive follow-up: extending ''Moebius: A Lightweight Image Inpainting
+    Framework with Large-Scale Parameters (, https://arxiv.org/abs/2606.19195)'''
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'The ''Moebius: A Lightweight Image Inpainting Framework with Large-Scale
+    Parameters'' paper is available at https://arxiv.org/abs/2606.19195'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T06:43:50Z'

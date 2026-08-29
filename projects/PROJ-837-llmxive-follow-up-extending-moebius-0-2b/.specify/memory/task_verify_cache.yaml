@@ -12,3 +12,50 @@ T011:
   r: "The required integration test file `tests/integration/test_data_independence.py`\
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ No further evidence of a test implementation is provided."
+T016:
+  c: false
+  h: 8d1f8bad019f37bc4a1a03ad28978e3f4256f6c4f271e48f468e735f1f3bb86b
+  r: "The provided `annotator.py` defines `MIN_SAMPLE_SIZE` and an independence placeholder\
+    \ but contains no code that checks the sample size or performs a label\u2011independence\
+    \ test and raises an error accordingly. Moreover, the required log file `data/results/validation_log.txt`\
+    \ does not exist. Both the validation logic and the logging artifact are missing."
+T019:
+  c: false
+  h: 6ced3e91182fc1c05c82be9112d14471280336b8420338a2c2d6f7b5c5959707
+  r: "The required integration test file `tests/integration/test_dynamic_rank.py`\
+    \ does not exist in the repository, so the claimed implementation provides no\
+    \ evidence of a completed test. The task cannot be considered fulfilled until\
+    \ a non\u2011empty test file covering the dynamic rank modulation logic is added."
+T025a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided that implements the required\
+    \ pre\u2011deployment validation step (checking the permutation\u2011test p\u2011\
+    value and raising `SystemExit` when p\u202F\u2264\u202F0.05). Without such an\
+    \ artifact, the task\u2019s requirement is not satisfied. The implementer must\
+    \ supply the actual implementation (e.g., a function or module) that performs\
+    \ this check and blocks deployment accordingly."
+T032b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no artifacts such as benchmark logs, latency measurements,\
+    \ FID scores, or comparative analysis between the dynamic model, static low\u2011\
+    rank, and static high\u2011rank baselines. Without these concrete results, the\
+    \ requirement to \u201Crun comparison\u201D and demonstrate the specified efficiency\
+    \ and fidelity metrics is not satisfied. The next implementer must supply the\
+    \ actual evaluation data (e.g., tables/plots of latency reductions, FID differences,\
+    \ statistical significance tests) for all three models."
+T032c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No latency, FID, or statistical power analysis artifacts were provided; the\
+    \ implementer did not supply any data, figures, or reports demonstrating the required\
+    \ \u226530\u202F% latency reduction, \u22640.5 FID difference, or significance\
+    \ testing for the dynamic model versus the static baseline. Consequently the US3\
+    \ acceptance criteria are not met."
+T036a:
+  c: false
+  h: 5f0d1d41867cc5ad35869e7ef777b75b3e4481a54177d1de8a8cd45b96087afa
+  r: The required artifact `data/results/proxy_validation.json` does not exist, so
+    the gate status cannot be recorded, and there is no evidence that the correlation
+    check and `SystemExit` behavior were implemented. The task therefore remains unfinished.

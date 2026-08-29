@@ -1,1 +1,2 @@
-"""Integration tests for llmXive."""
+# Integration tests package for llmXive Follow-up: Extending Moebius 0.2B
+pass

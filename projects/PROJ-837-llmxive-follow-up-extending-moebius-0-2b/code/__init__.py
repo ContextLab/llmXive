@@ -1,1 +1,2 @@
-"""llmXive Follow-up: Extending Moebius 0.2B Framework."""
+# llmXive Follow-up: Extending Moebius 0.2B - Code Package
+# This file makes 'code' a Python package.
