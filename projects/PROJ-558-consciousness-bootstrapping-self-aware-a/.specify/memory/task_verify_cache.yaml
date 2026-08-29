@@ -1,10 +1,11 @@
-T001b:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `__init__.py` files in `code`, `code/models`, `code/training`,
-    `code/evaluation`, `code/analysis`, or `code/utils` is provided; the claim is
-    unsupported by any displayed artifacts. The implementer must add and show these
-    files to satisfy the task.
+  r: "No evidence of the required `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/`\
+    \ directory tree (with `data/raw`, `data/processed`, `code`, `tests`, `artifacts`,\
+    \ `artifacts/checkpoints`, `artifacts/reports`) is provided; the implementer did\
+    \ not supply any file\u2011system listing or screenshots confirming its existence.\
+    \ The task remains undone."
 T004b:
   c: false
   h: 0d6ae283c16684c17ac1a4309f3d841cb8fb4d8e09891f9a5d5745b929163979
@@ -12,6 +13,13 @@ T004b:
     \ and `data/manifest.json` contains placeholder checksums and zero sizes, indicating\
     \ the datasets were never fetched or saved. The implementation does not meet the\
     \ task\u2019s requirement."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer did not provide any code files or definitions for `ModelCheckpoint`
+    or `EvaluationResult` in the required `code/models/` and `code/evaluation/` directories;
+    no artifacts exist to verify serialization suitability. The task therefore remains
+    unfinished.
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

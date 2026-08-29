@@ -1,3 +1,3 @@
 """
-Training package for model optimization and checkpointing.
+Training scripts and utilities for the Consciousness Bootstrapping project.
 """

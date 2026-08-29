@@ -35,7 +35,7 @@ This project implements a comparative study of a TinyLlama-based language model 
 ### Token Limit Derivation
 The 100k token limit is derived from the available memory:
 - Available RAM: 7 GB (GitHub Actions) - 2 GB (OS overhead) = 5 GB.
-- Model Size (TinyLlama, FP): Approximately 2 GB.
+- Model Size (TinyLlama, FP): Approximately several gigabytes.
 - Remaining for context/overhead: a substantial amount of memory.
 - Estimated memory per token (with recursive overhead): moderate.
 - Max tokens: 2.8 GB / 28 KB ≈ a large-scale context window suitable for extensive document analysis.

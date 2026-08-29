@@ -1,3 +1,3 @@
 """
-Models package for recursive self-attention and base Llama wrappers.
+Model definitions and wrappers for the Consciousness Bootstrapping project.
 """

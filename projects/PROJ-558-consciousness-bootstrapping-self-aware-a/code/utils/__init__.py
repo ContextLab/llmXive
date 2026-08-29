@@ -1,3 +1,3 @@
 """
-Utilities package for logging, configuration, and memory profiling.
+Utility modules for the Consciousness Bootstrapping project.
 """

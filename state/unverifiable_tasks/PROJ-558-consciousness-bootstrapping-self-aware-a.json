@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-558-consciousness-bootstrapping-self-aware-a",
+  "tasks": [
+    {
+      "task_key": "T001b",
+      "reject_count": 1,
+      "last_reason": "No evidence of the required `__init__.py` files in `code`, `code/models`, `code/training`, `code/evaluation`, `code/analysis`, or `code/utils` is provided; the claim is unsupported by any displayed artifacts. The implementer must add and show these files to satisfy the task.",
+      "first_seen": "2026-08-29T04:57:34.818947+00:00",
+      "last_seen": "2026-08-29T04:57:34.818947+00:00"
+    }
+  ],
+  "updated_at": "2026-08-29T04:57:34.818947+00:00"
+}

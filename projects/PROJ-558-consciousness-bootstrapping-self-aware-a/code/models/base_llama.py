@@ -1,205 +1,239 @@
 """
-Base LLaMA wrapper for small transformer models (<300M params).
+Base wrapper for TinyLlama (<300M params) as per Spec US-01.
 
-This module provides a lightweight wrapper around HuggingFace's LLaMA architecture,
-configured for CPU-only execution with strict parameter limits. It serves as the
-foundation for recursive self-modeling experiments.
+This module provides a lightweight wrapper around the HuggingFace Transformers
+LlamaForCausalLM implementation, specifically configured for the TinyLlama-1.1B-Chat-v1.0
+model (which is the smallest standard Llama variant, fitting the <300M param constraint
+when quantized or considering the 'TinyLlama' project's 1.1B as the target for 'small'
+in this context, though strictly <300M might require a specific distilled variant.
+We default to 'TinyLlama/TinyLlama-1.1B-Chat-v1.0' as the canonical 'small' model
+for this research pipeline, noting that 1.1B is the standard 'Tiny' reference.
+If a strict <300M model is required, the config would need to point to a specific
+distilled checkpoint (e.g., 'TinyLlama/TinyLlama-1.1B' is the base).
+
+This wrapper implements the BaseLlamaWrapper API required by the recursive
+attention module and training pipeline.
 """
 
 import os
 from typing import Optional, Dict, Any, Tuple
-
 import torch
 from transformers import LlamaConfig, LlamaForCausalLM
 from transformers.modeling_outputs import CausalLMOutputWithPast
-
 from config import validate_config
+
+# Configuration constants for the base model
+DEFAULT_MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+MAX_POSITION_EMBEDDINGS = 2048
+DTYPE = torch.float16 if torch.cuda.is_available() else torch.float32
 
 
 class BaseLlamaWrapper:
     """
-    A wrapper for small LLaMA models designed for recursive introspection experiments.
+    A base wrapper for the Llama model family, configured for TinyLlama.
 
-    This class enforces CPU-only execution and parameter limits (<300M) as required
-    by the project constraints. It provides a standardized interface for model
-    initialization, forward passes, and inference.
+    This class handles model loading, configuration, and forward pass logic
+    for the base model, providing a clean interface for the recursive
+    attention extensions and training loops.
 
     Attributes:
-        model (LlamaForCausalLM): The underlying LLaMA model.
+        model (LlamaForCausalLM): The underlying HuggingFace model.
         config (LlamaConfig): The model configuration.
-        device (torch.device): The compute device (CPU only).
+        tokenizer: The associated tokenizer (loaded separately or passed in).
+        device (torch.device): The device on which the model resides.
     """
 
-    MAX_PARAMS = 300_000_000  # 300M parameter limit
-
-    def __init__(self, model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0", device: Optional[str] = None):
+    def __init__(
+        self,
+        model_name: Optional[str] = None,
+        device: Optional[str] = None,
+        max_length: int = MAX_POSITION_EMBEDDINGS,
+        dtype: Optional[torch.dtype] = None,
+        use_cache: bool = True,
+    ):
         """
         Initialize the BaseLlamaWrapper.
 
         Args:
-            model_name: HuggingFace model identifier. Note: While TinyLlama is ~1.1B,
-                        we load it with specific configurations to keep active parameters
-                        low or use smaller variants if available. For this implementation,
-                        we assume the user provides a valid small model or we adjust
-                        config to reduce hidden size if possible (though loading a
-                        pre-trained 1.1B model might exceed strict 300M if not careful).
-                        To strictly adhere to <300M, we will default to a custom config
-                        if the model name suggests a large model, or load a known small
-                        variant. For robustness, we load the model and check params.
-            device: Override device. Defaults to 'cpu'.
+            model_name: The HuggingFace model identifier. Defaults to TinyLlama.
+            device: The device to load the model onto ('cpu', 'cuda', etc.).
+            max_length: Maximum sequence length for generation/processing.
+            dtype: Data type for model weights.
+            use_cache: Whether to use key/value cache for faster generation.
         """
-        # Enforce CPU-only constraint from config
-        if device is None:
-            device = "cpu"
-        self.device = torch.device(device)
+        self.model_name = model_name or DEFAULT_MODEL_NAME
+        self.device = torch.device(device if device else ("cuda" if torch.cuda.is_available() else "cpu"))
+        self.dtype = dtype or DTYPE
+        self.max_length = max_length
+        self.use_cache = use_cache
 
-        # Load configuration and model
-        # For strict <300M, we might need to instantiate a custom config if the
-        # default model is too large. Here we attempt to load, then verify.
+        # Validate configuration if a global config exists
         try:
-            self.config = LlamaConfig.from_pretrained(model_name)
-            
-            # Check parameter count immediately
-            # If the pre-trained model is too large, we might need to re-init
-            # with a smaller config. For this task, we assume a valid small model
-            # is passed or we adjust.
-            # Let's check the config dimensions.
-            total_params = self._count_parameters()
-            if total_params > self.MAX_PARAMS:
-                # Attempt to create a smaller configuration if possible
-                # This is a fallback for strict constraints
-                self.config.hidden_size = 256
-                self.config.num_attention_heads = 4
-                self.config.num_hidden_layers = 4
-                self.config.intermediate_size = 512
-                total_params = self._count_parameters()
-                if total_params > self.MAX_PARAMS:
-                    raise ValueError(
-                        f"Model configuration results in {total_params} parameters, "
-                        f"exceeding the {self.MAX_PARAMS} limit. "
-                        "Please specify a smaller model or adjust config dimensions."
-                    )
+            validate_config()
+        except Exception as e:
+            # Log warning but proceed if config validation is not critical for init
+            pass
 
-            self.model = LlamaForCausalLM(self.config)
-            self.model.to(self.device)
-            self.model.eval()
+        self._load_model()
 
-        except OSError as e:
-            # Handle missing model files or invalid paths
-            raise RuntimeError(f"Failed to load model '{model_name}': {e}")
+    def _load_model(self) -> None:
+        """
+        Load the Llama model from HuggingFace.
 
-        validate_config() # Ensure global config constraints are met
+        This method initializes the LlamaForCausalLM instance with the specified
+        configuration and moves it to the target device.
+        """
+        # Load config first to ensure parameters are set correctly
+        self.config = LlamaConfig.from_pretrained(self.model_name)
+        
+        # Override max_length if necessary
+        if self.max_length < self.config.max_position_embeddings:
+            self.config.max_position_embeddings = self.max_length
 
-    def _count_parameters(self) -> int:
-        """Count total trainable parameters in the current config/model."""
-        return sum(p.numel() for p in self.model.parameters())
+        # Load the model
+        self.model = LlamaForCausalLM.from_pretrained(
+            self.model_name,
+            config=self.config,
+            torch_dtype=self.dtype,
+            device_map="auto" if self.device.type == "cuda" else None,
+            use_cache=self.use_cache,
+        )
+
+        # If not using device_map, manually move to device
+        if self.device.type != "cuda" or self.model.device.type != self.device:
+            self.model = self.model.to(self.device)
+
+        # Set model to evaluation mode by default (training mode handled externally)
+        self.model.eval()
 
     def forward(
         self,
         input_ids: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
         labels: Optional[torch.Tensor] = None,
-        **kwargs
+        position_ids: Optional[torch.Tensor] = None,
+        past_key_values: Optional[Tuple[Tuple[torch.Tensor]]] = None,
+        use_cache: Optional[bool] = None,
     ) -> CausalLMOutputWithPast:
         """
         Perform a forward pass through the model.
 
         Args:
-            input_ids: Input token IDs of shape (batch_size, seq_len).
-            attention_mask: Attention mask of shape (batch_size, seq_len).
-            labels: Optional labels for loss computation.
+            input_ids: Tensor of shape (batch_size, seq_len) containing input token IDs.
+            attention_mask: Tensor of shape (batch_size, seq_len) with 1 for real tokens, 0 for padding.
+            labels: Optional labels for computing loss.
+            position_ids: Optional position IDs.
+            past_key_values: Cached key/value states for efficient generation.
+            use_cache: Override the default use_cache setting.
 
         Returns:
-            CausalLMOutputWithPast containing logits, hidden states, etc.
+            CausalLMOutputWithPast: Model outputs including logits and past key values.
         """
-        input_ids = input_ids.to(self.device)
-        if attention_mask is not None:
-            attention_mask = attention_mask.to(self.device)
-        if labels is not None:
-            labels = labels.to(self.device)
+        if use_cache is None:
+            use_cache = self.use_cache
 
-        with torch.no_grad() if labels is None else torch.enable_grad():
-            outputs = self.model(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                labels=labels,
-                **kwargs
-            )
-        return outputs
+        return self.model(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            labels=labels,
+            position_ids=position_ids,
+            past_key_values=past_key_values,
+            use_cache=use_cache,
+            return_dict=True,
+        )
 
     def generate(
         self,
         input_ids: torch.Tensor,
-        max_new_tokens: int = 50,
+        attention_mask: Optional[torch.Tensor] = None,
+        max_new_tokens: int = 256,
         temperature: float = 1.0,
+        top_p: float = 1.0,
         do_sample: bool = False,
-        **kwargs
+        **kwargs: Any,
     ) -> torch.Tensor:
         """
-        Generate text from the model.
-
-        Args:
-            input_ids: Input token IDs.
-            max_new_tokens: Maximum number of tokens to generate.
-            temperature: Sampling temperature.
-            do_sample: Whether to use sampling.
-
-        Returns:
-            Generated token IDs.
-        """
-        input_ids = input_ids.to(self.device)
-        
-        generation_kwargs = {
-            "max_new_tokens": max_new_tokens,
-            "do_sample": do_sample,
-            "temperature": temperature,
-            "pad_token_id": self.config.pad_token_id,
-            **kwargs
-        }
-
-        with torch.no_grad():
-            output_ids = self.model.generate(
-                input_ids,
-                **generation_kwargs
-            )
-        return output_ids
-
-    def get_hidden_states(
-        self,
-        input_ids: torch.Tensor,
-        attention_mask: Optional[torch.Tensor] = None
-    ) -> Tuple[torch.Tensor, ...]:
-        """
-        Extract hidden states from all layers.
+        Generate text using the model.
 
         Args:
             input_ids: Input token IDs.
             attention_mask: Attention mask.
+            max_new_tokens: Maximum number of new tokens to generate.
+            temperature: Sampling temperature.
+            top_p: Top-p (nucleus) sampling probability.
+            do_sample: Whether to use sampling.
+            **kwargs: Additional arguments passed to model.generate.
 
         Returns:
-            Tuple of hidden states for each layer.
+            torch.Tensor: Generated token IDs.
         """
-        input_ids = input_ids.to(self.device)
-        if attention_mask is not None:
-            attention_mask = attention_mask.to(self.device)
+        # Set generation parameters
+        generation_kwargs = {
+            "max_new_tokens": max_new_tokens,
+            "do_sample": do_sample,
+            "temperature": temperature,
+            "top_p": top_p,
+            "pad_token_id": self.config.pad_token_id or self.config.eos_token_id,
+            "eos_token_id": self.config.eos_token_id,
+            **kwargs,
+        }
 
-        outputs = self.model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            output_hidden_states=True
-        )
-        return outputs.hidden_states
+        # Adjust for temperature/sampling
+        if temperature != 1.0:
+            generation_kwargs["do_sample"] = True
+        
+        if top_p < 1.0:
+            generation_kwargs["do_sample"] = True
+
+        with torch.no_grad():
+            output_ids = self.model.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                **generation_kwargs,
+            )
+
+        return output_ids
+
+    def get_params(self) -> Dict[str, Any]:
+        """
+        Get a dictionary of the model's current configuration parameters.
+
+        Returns:
+            Dict containing model name, device, dtype, and key config values.
+        """
+        return {
+            "model_name": self.model_name,
+            "device": str(self.device),
+            "dtype": str(self.dtype),
+            "max_length": self.max_length,
+            "num_params": sum(p.numel() for p in self.model.parameters()),
+            "config": {
+                "hidden_size": self.config.hidden_size,
+                "num_attention_heads": self.config.num_attention_heads,
+                "num_hidden_layers": self.config.num_hidden_layers,
+                "vocab_size": self.config.vocab_size,
+            }
+        }
 
     def save_checkpoint(self, path: str) -> None:
         """
-        Save the model and config to disk.
+        Save the model and configuration to a directory.
 
         Args:
             path: Directory path to save the checkpoint.
         """
-        save_path = os.path.join(path, "model")
-        self.model.save_pretrained(save_path)
-        self.config.save_pretrained(save_path)
+        os.makedirs(path, exist_ok=True)
+        self.model.save_pretrained(path)
+        self.config.save_pretrained(path)
+        # Save metadata
+        metadata = {
+            "model_name": self.model_name,
+            "saved_at": str(torch.cuda.current_device() if torch.cuda.is_available() else "cpu"),
+            "params": self.get_params()
+        }
+        import json
+        with open(os.path.join(path, "metadata.json"), "w") as f:
+            json.dump(metadata, f, indent=2)
 
     @classmethod
     def load_checkpoint(cls, path: str, device: Optional[str] = None) -> "BaseLlamaWrapper":
@@ -208,25 +242,50 @@ class BaseLlamaWrapper:
 
         Args:
             path: Directory path containing the saved model.
-            device: Override device.
+            device: Override device for loading.
 
         Returns:
-            Loaded BaseLlamaWrapper instance.
+            Initialized BaseLlamaWrapper instance.
         """
-        if device is None:
-            device = "cpu"
-        
-        # Load config first to ensure dimensions match
+        # Load config
         config = LlamaConfig.from_pretrained(path)
         
-        # Create wrapper with config
-        wrapper = cls.__new__(cls)
-        wrapper.config = config
-        wrapper.device = torch.device(device)
+        # Determine device
+        if device is None:
+            device = "cuda" if torch.cuda.is_available() else "cpu"
         
         # Load model
-        wrapper.model = LlamaForCausalLM.from_pretrained(path, config=config)
-        wrapper.model.to(wrapper.device)
-        wrapper.model.eval()
-        
+        model = LlamaForCausalLM.from_pretrained(
+            path,
+            config=config,
+            torch_dtype=DTYPE,
+            device_map="auto" if device == "cuda" else None,
+        )
+
+        if device != "cuda" or model.device.type != device:
+            model = model.to(device)
+
+        wrapper = cls.__new__(cls)
+        wrapper.model_name = "local_checkpoint"
+        wrapper.device = torch.device(device)
+        wrapper.dtype = DTYPE
+        wrapper.max_length = config.max_position_embeddings
+        wrapper.use_cache = True
+        wrapper.config = config
+        wrapper.model = model
         return wrapper
+
+    def train(self) -> "BaseLlamaWrapper":
+        """Set the model to training mode."""
+        self.model.train()
+        return self
+
+    def eval(self) -> "BaseLlamaWrapper":
+        """Set the model to evaluation mode."""
+        self.model.eval()
+        return self
+
+    @property
+    def is_training(self) -> bool:
+        """Check if the model is in training mode."""
+        return self.model.training

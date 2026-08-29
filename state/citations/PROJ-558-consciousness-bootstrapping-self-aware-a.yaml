@@ -1,14 +1,3 @@
-- artifact_hash: 75fc810e26ec6fed2b4d86614814759d895a6379317e349e4b21949d321a17e2
-  artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: p-value - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/P-value
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-08-22T21:25:05.990523Z'
 - artifact_hash: 1f20c63123b223858861418542826fd460e8843482d801cbd284a908485122ba
   artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/research.md
   cite_id: c-001

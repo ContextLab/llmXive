@@ -1,3 +1,3 @@
 """
-Evaluation package for metrics, benchmarks, and calibration.
+Evaluation metrics and benchmarking tools for the Consciousness Bootstrapping project.
 """
