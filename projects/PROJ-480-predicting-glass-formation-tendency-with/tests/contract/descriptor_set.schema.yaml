@@ -1,64 +1,37 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Descriptor Set Schema
-description: Schema for the intermediate descriptor set before final validation.
+description: |
+  Schema for the computed atomic descriptors.
+  Used to validate intermediate outputs from src/data/descriptors.py.
 type: object
 required:
-  - descriptors
-  - metadata
+  - descriptor_name
+  - formula
+  - unit
+  - description
+  - computed_values
 properties:
-  metadata:
-    type: object
-    required:
-      - computed_from_doi
-      - computation_timestamp
-      - excluded_rows
-    properties:
-      computed_from_doi:
-        type: string
-        description: Source DOI.
-      computation_timestamp:
-        type: string
-        format: date-time
-      excluded_rows:
-        type: array
-        items:
-          type: object
-          properties:
-            index:
-              type: integer
-            reason:
-              type: string
-              enum: [unknown_element, missing_target, unbalanced_composition, invalid_formula]
-  descriptors:
+  descriptor_name:
+    type: string
+    description: Name of the descriptor (e.g., "Atomic Size Mismatch").
+  formula:
+    type: string
+    description: Mathematical formula used for calculation.
+  unit:
+    type: string
+    description: Unit of measurement (e.g., "percent", "kJ/mol").
+  description:
+    type: string
+    description: Physical meaning of the descriptor.
+  computed_values:
     type: array
+    description: Array of computed values for the dataset.
     items:
-      type: object
-      required:
-        - id
-        - composition
-        - raw_descriptors
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the sample.
-        composition:
-          type: object
-          additionalProperties:
-            type: number
-        raw_descriptors:
-          type: object
-          required:
-            - delta
-            - delta_h_mix
-            - delta_chi
-          properties:
-            delta:
-              type: number
-              minimum: 0
-            delta_h_mix:
-              type: number
-            delta_chi:
-              type: number
-        target:
-          type: number
-          description: Target value if available.
+      type: number
+    minItems: 1
+  exclusion_reasons:
+    type: array
+    description: List of reasons why certain rows were excluded.
+    items:
+      type: string
+additionalProperties: false

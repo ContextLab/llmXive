@@ -342,24 +342,6 @@
   status: not_enough_info
   updated_at: '2026-08-15T17:56:22Z'
 - artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
-  attempts: 3
-  canonical: Data source for experimental Dc is Zenodo DOI 10.5281/zenodo.5778205
-  claim_id: c_65c1aa5d
-  context: 'Implement src/data/download.py: Fetch data from Zenodo DOI: 10.5281/zenodo.5778205
-    (experimental $D_c$).'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental $D_c$).'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-15T17:58:22Z'
-- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
   attempts: 1
   canonical: Minimum sample count threshold is 30
   claim_id: c_6939b5c3
@@ -504,3 +486,290 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T18:01:21Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Data source Zenodo DOI 10.5281/zenodo.5778205 for experimental D_c
+  claim_id: c_8ee47899
+  context: 'Implement src/data/download.py: Fetch data from Zenodo DOI: 10.5281/zenodo.5778205
+    (experimental D_c). MUST raise on total failure; do NOT fall back to manual files
+    or synthetic data.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental D_c).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:44:43Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Experimental critical cooling rate data source is Zenodo DOI 10.5281/zenodo.5778205
+  claim_id: c_b0a6784f
+  context: 'Implement src/data/download.py: Fetch data from Zenodo DOI: 10.5281/zenodo.5778205
+    (experimental D_c).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental D_c).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:45:30Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Data source Zenodo DOI 10.5281/zenodo.5778205 for experimental Dc
+  claim_id: c_dc21b373
+  context: 'Implement src/data/download.py: Fetch data from Zenodo DOI: 10.5281/zenodo.5778205
+    (experimental $D_c$).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental $D_c$)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:46:03Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Data source Zenodo DOI 10.5281/zenodo.5778205 contains experimental critical
+    diameter
+  claim_id: c_5cd82507
+  context: 'Implement src/data/download.py: Fetch data from Zenodo DOI: 10.5281/zenodo.5778205
+    (experimental D_c).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental D_c).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:46:46Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Permutation test with 1000 iterations used to verify P_shuffled < 0.95
+    x P_real
+  claim_id: c_cb1a052a
+  context: 'Secondary Robustness Check: Perform permutation test (1000 iterations)
+    to verify P_shuffled < 0.95 x P_real.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform permutation test (1000 iterations) to verify P_shuffled < 0.95
+    x P_real.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:47:24Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Feature permutation test with 1000 iterations to determine p-value via
+    Spearman correlation
+  claim_id: c_9a9b3b9a
+  context: Permutation test (1000 iterations) to validate monotonic trend significance
+    (p < 0.05) or AUC > 0.6 for top features. Permute the feature values (not the
+    target) 1000 times and re-calculate Spearman correlation to determine the p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permute the feature values (not the target) 1000 times and re-calculate
+    Spearman correlation to determine the p-value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:47:57Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Threshold sweep from 0.0 to 1.0 in 0.05 steps resulting in 21 points
+  claim_id: c_eebc346e
+  context: Threshold sweep logic. Skip if target_type != binary. Sweep probability
+    from 0.0 to 1.0 (inclusive) in steps of 0.05 (exactly 21 points). Validate count
+    == 21.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep probability from 0.0 to 1.0 (inclusive) in steps of 0.05 (exactly
+    21 points).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:48:42Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 4
+  canonical: Data source for experimental Dc is Zenodo DOI 10.5281/zenodo.5778205
+  claim_id: c_65c1aa5d
+  context: 'Implement src/data/download.py: Fetch data from Zenodo DOI: 10.5281/zenodo.5778205
+    (experimental $D_c$).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental $D_c$).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:50:08Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: experimental D_c data sourced from Zenodo DOI 10.5281/zenodo.5778205
+  claim_id: c_5d649079
+  context: 'Implement src/data/download.py: Fetch data from Zenodo DOI: 10.5281/zenodo.5778205
+    (experimental $D_c$).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental D_c).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:51:06Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: permutation test with 1000 iterations to verify P_shuffled < 0.95 * P_real
+  claim_id: c_2a1dc43e
+  context: 'Secondary Robustness Check: Perform permutation test (1000 iterations)
+    to verify $P_{shuffled} < 0.95 \times P_{real}$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform permutation test (1000 iterations) to verify P_shuffled < 0.95
+    x P_real.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:51:06Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: probability sweep from 0.0 to 1.0 in 0.05 steps resulting in 21 points
+  claim_id: c_3e58432c
+  context: Threshold sweep logic. Skip if target_type != binary. Sweep probability
+    from 0.0 to 1.0 (inclusive) in steps of 0.05 (exactly 21 points).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep probability from 0.0 to 1.0 (inclusive) in steps of 0.05 (exactly
+    21 points).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:51:06Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: feature permutation test with 1000 iterations using Spearman correlation
+  claim_id: c_65a6a49a
+  context: Permutation test (1000 iterations) to validate monotonic trend significance
+    (p < 0.05) or AUC > 0.6 for top features. Permute the feature values (not the
+    target) 1000 times and re-calculate Spearman correlation to determine the p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permute the feature values (not the target) 1000 times and re-calculate
+    Spearman correlation to determine the p-value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:51:06Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: memory usage under 7GB on full dataset
+  claim_id: c_5502b059
+  context: 'Performance optimization: Verify memory usage stays < 7GB on full dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_under_7GB_on_full_dataset
+  kind: entity_fact
+  raw_text: Verify memory usage stays < 7GB on full dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:51:49Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: models run within 2-core 7GB RAM limits
+  claim_id: c_73fa51ff
+  context: 'CPU Constraints: Ensure all models run within 2-core, 7GB RAM limits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure all models run within 2-core, 7GB RAM limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:52:49Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: selection bias check using K-S statistic against Inoue's Rules synthetic
+    distribution
+  claim_id: c_4377be75
+  context: Check for selection bias (Inoue's Rules) using K-S statistic against synthetic
+    reference distribution and include in report.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Selection_bias_check_using_K-S_statistic_against_Inoue%27s_Rul
+  kind: entity_fact
+  raw_text: Check for selection bias (Inoue's Rules) using K-S statistic against synthetic
+    reference distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:53:35Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Data source Zenodo DOI 10.5281/zenodo.5778205 contains experimental D_c
+  claim_id: c_b363cc26
+  context: 'T009 [US1] Implement src/data/download.py: Fetch data from Zenodo DOI:
+    10.5281/zenodo.5778205 (experimental $D_c$).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental $D_c$)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:54:24Z'

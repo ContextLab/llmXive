@@ -1,0 +1,9 @@
+xgboost
+pymatgen
+scikit-learn
+pandas
+numpy
+statsmodels
+pyyaml
+pytest
+requests

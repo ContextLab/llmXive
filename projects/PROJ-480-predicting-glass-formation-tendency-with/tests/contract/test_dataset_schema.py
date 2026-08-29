@@ -18,17 +18,24 @@ if str(Path(__file__).parent.parent) not in sys.path:
 
 from tests.contract import load_schema
 
+# Constants for validation
+MIN_SAMPLES = 30
+VALID_TARGET_TYPES = ["regression", "classification"]
+
+
 def load_sample_data(filepath: Path) -> dict:
-    """Load a sample dataset file (CSV converted to dict for testing)."""
-    # In a real scenario, we would load the actual CSV and convert to the schema format
-    # For this contract test, we assume the pipeline produces a JSON intermediate
-    # or we convert the CSV to the expected structure.
-    # Since we are testing the schema, we construct a minimal valid example.
+    """
+    Load a sample dataset file (CSV converted to dict for testing).
+    
+    This constructs a minimal valid example that matches the schema structure
+    expected by the pipeline. In a real scenario, this would load the actual
+    CSV produced by the pipeline and convert it to the expected structure.
+    """
     return {
         "metadata": {
             "source_doi": "10.5281/zenodo.5778205",
             "generated_at": "2023-10-27T10:00:00Z",
-            "checksum": "abc123",
+            "checksum": "abc123def456",
             "row_count": 100,
             "feature_columns": ["delta", "delta_h_mix", "delta_chi"],
             "target_column": "target",
@@ -48,6 +55,7 @@ def load_sample_data(filepath: Path) -> dict:
         ]
     }
 
+
 def test_dataset_schema_validity():
     """Test that the schema itself is valid JSON Schema."""
     schema = load_schema("dataset")
@@ -55,6 +63,9 @@ def test_dataset_schema_validity():
     assert isinstance(schema, dict)
     assert "$schema" in schema
     assert "properties" in schema
+    assert "metadata" in schema["properties"]
+    assert "data" in schema["properties"]
+
 
 def test_dataset_schema_validation():
     """Test that valid data passes schema validation."""
@@ -67,18 +78,77 @@ def test_dataset_schema_validation():
     except ValidationError as e:
         pytest.fail(f"Valid data failed schema validation: {e.message}")
 
-def test_dataset_schema_rejection():
-    """Test that invalid data fails schema validation."""
+
+def test_dataset_schema_rejection_invalid_target_type():
+    """Test that invalid target_type fails schema validation."""
     schema = load_schema("dataset")
     invalid_data = {
         "metadata": {
             "source_doi": "10.5281/zenodo.5778205",
             "generated_at": "2023-10-27T10:00:00Z",
             "checksum": "abc123",
-            "row_count": 20, # Below MIN_SAMPLES=30
-            "feature_columns": [],
+            "row_count": 100,
+            "feature_columns": ["delta", "delta_h_mix", "delta_chi"],
             "target_column": "target",
-            "target_type": "invalid_type" # Not in enum
+            "target_type": "invalid_type"
+        },
+        "data": []
+    }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_data, schema=schema)
+
+
+def test_dataset_schema_rejection_low_sample_count():
+    """Test that row_count below MIN_SAMPLES fails validation."""
+    schema = load_schema("dataset")
+    invalid_data = {
+        "metadata": {
+            "source_doi": "10.5281/zenodo.5778205",
+            "generated_at": "2023-10-27T10:00:00Z",
+            "checksum": "abc123",
+            "row_count": 20,  # Below MIN_SAMPLES=30
+            "feature_columns": ["delta", "delta_h_mix", "delta_chi"],
+            "target_column": "target",
+            "target_type": "regression"
+        },
+        "data": []
+    }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_data, schema=schema)
+
+
+def test_dataset_schema_rejection_missing_required_fields():
+    """Test that missing required fields fail schema validation."""
+    schema = load_schema("dataset")
+    invalid_data = {
+        "metadata": {
+            "source_doi": "10.5281/zenodo.5778205",
+            "generated_at": "2023-10-27T10:00:00Z",
+            # Missing checksum, row_count, feature_columns, etc.
+            "target_column": "target",
+            "target_type": "regression"
+        },
+        "data": []
+    }
+    
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_data, schema=schema)
+
+
+def test_dataset_schema_rejection_empty_feature_columns():
+    """Test that empty feature_columns fails validation."""
+    schema = load_schema("dataset")
+    invalid_data = {
+        "metadata": {
+            "source_doi": "10.5281/zenodo.5778205",
+            "generated_at": "2023-10-27T10:00:00Z",
+            "checksum": "abc123",
+            "row_count": 100,
+            "feature_columns": [],  # Empty list
+            "target_column": "target",
+            "target_type": "regression"
         },
         "data": []
     }

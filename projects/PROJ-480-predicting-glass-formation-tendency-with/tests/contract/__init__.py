@@ -1,25 +1,35 @@
 """
-Contract tests and schema definitions for the glass formation tendency project.
-
-This module contains JSON/YAML schemas used to validate data integrity
-and model artifacts throughout the pipeline.
+Contract test utilities for schema validation.
 """
-
-import os
+import yaml
 from pathlib import Path
+import sys
 
-def get_schema_path(schema_name: str) -> Path:
-    """Get the absolute path to a schema file."""
-    current_dir = Path(__file__).parent
-    return current_dir / f"{schema_name}.schema.yaml"
+# Ensure parent directory is in path
+if str(Path(__file__).parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
 
 def load_schema(schema_name: str) -> dict:
-    """Load a schema definition from a YAML file."""
-    import yaml
-    path = get_schema_path(schema_name)
-    if not path.exists():
-        raise FileNotFoundError(f"Schema file not found: {path}")
-    with open(path, 'r') as f:
-        return yaml.safe_load(f)
-
-__all__ = ['get_schema_path', 'load_schema']
+    """
+    Load a JSON schema from the tests/contract directory.
+    
+    Args:
+        schema_name: Name of the schema file (without .yaml extension)
+    
+    Returns:
+        Dictionary containing the loaded schema
+    
+    Raises:
+        FileNotFoundError: If the schema file doesn't exist
+        yaml.YAMLError: If the schema file is invalid YAML
+    """
+    schema_path = Path(__file__).parent / f"{schema_name}.schema.yaml"
+    
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
+    
+    return schema

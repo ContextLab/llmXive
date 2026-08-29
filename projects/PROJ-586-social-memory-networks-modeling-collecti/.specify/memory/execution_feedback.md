@@ -8,6 +8,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/run_experiment.py: self-declared fabricated metric — “…the *simulation's* logic, not fake numbers.     agent_contributions = {…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…a fallback mechanism to generate synthetic cue-response pairs when…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     num_records: int…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…creates a minimal set of synthetic data (minimum 10 pairs)     b…”
@@ -15,39 +16,38 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…turns:         A list of synthetic records, each containing 'cue',…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ne:     """     Save the synthetic dataset to a JSON file.      Arg…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…records: List of synthetic records to save.         output_…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…rate and save a complete synthetic dataset.      Args:         spec…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 12 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…a fallback mechanism to generate synthetic cue-response pairs when…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     num_records: int…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…creates a minimal set of synthetic data (minimum 10 pairs)     b…”; 4 command(s) failed: python code/run_experiment.py --context full --agents 5 --dataset hanabi (rc=1); python code/run_experiment.py --context limited --agents 5 --dataset hanabi (rc=1); python code/run_experiment.py --context limited --agents 5 --dataset hanabi --token-sweep (rc=1)
+**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/run_experiment.py: self-declared fabricated metric — “…the *simulation's* logic, not fake numbers.     agent_contributions = {…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…a fallback mechanism to generate synthetic cue-response pairs when…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     num_records: int…”; 4 command(s) failed: python code/run_experiment.py --context full --agents 5 --dataset hanabi (rc=1); python code/run_experiment.py --context limited --agents 5 --dataset hanabi (rc=1); python code/run_experiment.py --context limited --agents 5 --dataset hanabi --token-sweep (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/run_experiment.py --context full --agents 5 --dataset hanabi -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
-    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law, load_scaling_data, aggregate_by_agent_count, run_scaling_analysis, generate_scaling_plot
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 20, in <module>
+    from analysis.scaling import (
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
     from .anova import (
 ImportError: cannot import name 'compute_manual_anova' from 'analysis.anova' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py)
 - python code/run_experiment.py --context limited --agents 5 --dataset hanabi -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
-    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law, load_scaling_data, aggregate_by_agent_count, run_scaling_analysis, generate_scaling_plot
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 20, in <module>
+    from analysis.scaling import (
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
     from .anova import (
 ImportError: cannot import name 'compute_manual_anova' from 'analysis.anova' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py)
 - python code/run_experiment.py --context limited --agents 5 --dataset hanabi --token-sweep -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
-    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law, load_scaling_data, aggregate_by_agent_count, run_scaling_analysis, generate_scaling_plot
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 20, in <module>
+    from analysis.scaling import (
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
     from .anova import (
 ImportError: cannot import name 'compute_manual_anova' from 'analysis.anova' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py)
 - python code/run_experiment.py --context full --agents 3,5,7 --dataset hanabi --scaling -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
-    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law, load_scaling_data, aggregate_by_agent_count, run_scaling_analysis, generate_scaling_plot
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 20, in <module>
+    from analysis.scaling import (
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
     from .anova import (
 ImportError: cannot import name 'compute_manual_anova' from 'analysis.anova' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py)
@@ -60,14 +60,15 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `__getattr__` — defined in `code/utils/logging.py`; called 0 way(s):
+### `__getattr__` — defined in `code/memory/buffer.py`; called 0 way(s):
 
 
-Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
+Make `__getattr__` in `code/memory/buffer.py` accept ALL of the above.
 
 ### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 15 way(s):
 
-- code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(successful_retrievals, total_retrievals, config.agent_count)
+- code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(
+- code/data/generate_scaling_data.py: ret_eff, _ = compute_retrieval_efficiency(total_retrieved, total_facts, agent_count)
 - code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(5, 10, [0, 1, 2])
 - code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(0, 0, 3)
 - code/metrics/retrieval.py: efficiency, metrics = compute_retrieval_efficiency(successful, total, num_agents)
@@ -81,61 +82,59 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 - code/metrics/tests/test_retrieval.py: compute_retrieval_efficiency(5, -1, 3)
 - code/metrics/tests/test_retrieval.py: compute_retrieval_efficiency(-1, 10, 3)
 - code/metrics/tests/test_retrieval.py: compute_retrieval_efficiency(15, 10, 3)
-- code/data/generate_scaling_data.py: ret_eff, _ = compute_retrieval_efficiency(total_retrieved, total_facts, agent_count)
 
 Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of the above.
 
 ### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 13 way(s):
 
-- code/run_experiment.py: spec_index, _ = compute_specialization_index(agent_contributions, num_agents=config.agent_count)
+- code/run_experiment.py: spec_index, _ = compute_specialization_index(
+- code/data/generate_scaling_data.py: spec_index, _ = compute_specialization_index(agent_skills, num_agents=agent_count)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agent_skills)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index([])
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agents=agent_skills, num_agents=2)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(5, 10)
-- code/metrics/specialization.py: index, metrics = compute_specialization_index(agent_facts, num_agents)
-- code/metrics/specialization.py: """Legacy alias for compute_specialization_index (v1 compatibility)."""
+- code/metrics/specialization.py: idx, metrics = compute_specialization_index(contributions)
+- code/metrics/specialization.py: """Legacy alias for compute_specialization_index (v1 compatibility).
 - code/metrics/specialization.py: return compute_specialization_index(agent_skills, num_agents)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index([])
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(None)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(agent_facts)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(agent_facts, num_agents=5)
-- code/data/generate_scaling_data.py: spec_index, _ = compute_specialization_index(agent_skills, num_agents=agent_count)
 
 Make `compute_specialization_index` in `code/metrics/specialization.py` accept ALL of the above.
 
-### `get_logger` — defined in `code/utils/logging.py`; called 19 way(s):
+### `get_logger` — defined in `code/utils/logging.py`; called 18 way(s):
 
+- code/run_pipeline_profile.py: logger = get_logger(__name__)
 - code/run_experiment.py: logger = get_logger(__name__)
-- code/output_full_results.py: logger = get_logger(__name__)
 - code/t015_generate_full_results.py: logger = get_logger(__name__)
 - code/run_full_pipeline_ci.py: logger = get_logger(__name__)
-- code/run_pipeline_profile.py: logger = get_logger(__name__)
+- code/output_full_results.py: logger = get_logger(__name__)
+- code/analysis/scaling.py: logger = get_logger(__name__)
+- code/analysis/sensitivity.py: logger = get_logger(__name__)
+- code/analysis/power.py: logger = get_logger(__name__)
+- code/analysis/scaling_plot.py: logger = get_logger(__name__)
+- code/memory/buffer.py: logger = get_logger(__name__)
+- code/tests/unit/test_logging.py: logger1 = get_logger(name="test1")
+- code/tests/unit/test_logging.py: logger2 = get_logger(name="test2")
+- code/tests/integration/test_ci_pipeline.py: logger = get_logger(__name__)
 - code/utils/logging.py: return get_logger().log(op, **kwargs)
 - code/utils/tests/test_logging.py: logger = get_logger(name=logger_name)
 - code/utils/tests/test_logging.py: logger2 = get_logger(name="existing_logger")
-- code/analysis/scaling.py: logger = get_logger(__name__)
-- code/analysis/power.py: logger = get_logger(__name__)
-- code/analysis/sensitivity.py: logger = get_logger(__name__)
-- code/analysis/scaling_plot.py: logger = get_logger(__name__)
-- code/analysis/anova.py: logger = get_logger(__name__)
-- code/tests/integration/test_ci_pipeline.py: logger = get_logger(__name__)
-- code/tests/unit/test_logging.py: logger1 = get_logger(name="test1")
-- code/tests/unit/test_logging.py: logger2 = get_logger(name="test2")
-- code/memory/buffer.py: logger = get_logger(__name__)
 - code/metrics/retrieval.py: logger = get_logger(__name__)
 - code/metrics/specialization.py: logger = get_logger(__name__)
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/run_experiment.py`; called 5 way(s):
+### `simulate_one_game` — defined in `code/generate_full_results.py`; called 5 way(s):
 
 - code/run_experiment.py: result = simulate_one_game(config, game_id, dataset_name)
-- code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
 - code/t015_generate_full_results.py: - T011b: simulate_one_game (game simulation loop)
 - code/t015_generate_full_results.py: spec_idx, ret_eff, game_result = simulate_one_game(game_id, config)
+- code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
 - code/tests/unit/test_run_experiment.py: spec_metrics, ret_metrics, result = simulate_one_game(1, config)
 
-Make `simulate_one_game` in `code/run_experiment.py` accept ALL of the above.
+Make `simulate_one_game` in `code/generate_full_results.py` accept ALL of the above.
 
 ### class `MemoryBuffer` (in `code/memory/buffer.py`) — accessed via method/attribute names this round: `reset`
 
@@ -154,10 +153,10 @@ Make `simulate_one_game` in `code/run_experiment.py` accept ALL of the above.
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
 `MemoryBuffer.reset` call sites (4):
-- code/tests/unit/test_memory_buffer.py: buf.reset()  # should not raise
 - code/memory/buffer.py: self._conflict_resolver.reset()
 - code/memory/buffer.py: _SHARED_BUFFER.reset()
 - code/memory/tests/test_buffer.py: result = buf.reset()
+- code/tests/unit/test_memory_buffer.py: buf.reset()  # should not raise
 
 ## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
 

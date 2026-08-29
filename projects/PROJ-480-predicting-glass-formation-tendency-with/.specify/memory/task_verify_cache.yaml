@@ -16,3 +16,11 @@ T003:
     artifact list, nor any documentation showing that flake8/ruff and black have been
     set up for the project. Without these concrete files, the task of configuring
     the tools is not satisfied.
+T007:
+  c: false
+  h: f823ba159e747427bae7249e4314d77a2b6c551b63012bb8f467bab2491a1e77
+  r: "The `tests/unit/test_descriptors.py` file exists but is truncated and contains\
+    \ an unfinished line (`with pytest.raises(ValueError): de`), making it syntactically\
+    \ invalid. Moreover, the required module `src/data/descriptors.py` is missing,\
+    \ so the unit test cannot be executed against the intended code. The task\u2019\
+    s unit\u2011test artifact is therefore incomplete."

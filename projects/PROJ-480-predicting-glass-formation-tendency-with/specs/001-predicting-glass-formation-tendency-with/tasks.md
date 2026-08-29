@@ -39,7 +39,7 @@
 - [X] T004 Create `src/lib/constants.py` with fixed random seed (42), file paths (`data/`, `state/`, `src/`), and EXPLICIT validation thresholds: `MIN_SAMPLES=30`, `TARGET_SAMPLES=500`, `CIRCULARITY_THRESHOLD=0.99`, `VIF_RIDGE_THRESHOLD=10`, `VIF_PCA_THRESHOLD=30`.
 - [X] T004b [P] Implement `src/lib/exceptions.py` with base error classes (`DataValidationError`, `CircularDataError`) and `src/lib/utils.py` with SHA-256 checksum calculation and logging helpers.
 - [ ] T005 [P] Create `tests/contract/` directory and schema files (`dataset.schema.yaml`, `descriptor_set.schema.yaml`, `model_artifact.schema.yaml`) aligning with data-model.md
-- [ ] T006 Configure environment variable management: Create `.env.example` with keys and implement `src/lib/config.py` to load from `os.environ`.
+- [X] T006 Configure environment variable management: Create `.env.example` with keys and implement `src/lib/config.py` to load from `os.environ`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,11 +54,11 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T007 [P] [US1] Unit test for `src/data/descriptors.py` descriptor calculation logic in `tests/unit/test_descriptors.py`
-- [ ] T008 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
+- [X] T008 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `src/data/download.py`: Fetch data from **Zenodo DOI: 10.5281/zenodo.5778205** (experimental $D_c$). **MUST raise** on total failure; do NOT fall back to manual files or synthetic data. If network fails, the pipeline must halt with a clear error message to ensure reproducibility.
+- [X] T009 [US1] Implement `src/data/download.py`: Fetch data from **Zenodo DOI: 10.5281/zenodo.5778205** (experimental $D_c$). **MUST raise** on total failure; do NOT fall back to manual files or synthetic data. If network fails, the pipeline must halt with a clear error message to ensure reproducibility.
 - [ ] T010 [US1] Implement `src/data/descriptors.py`: Compute Atomic Size Mismatch ($\delta$), Mixing Enthalpy ($\Delta H_{mix}$), and Electronegativity Difference ($\Delta \chi$) using `pymatgen`. Handle unknown elements by logging and excluding rows.
 - [ ] T011 [US1] Implement `src/data/validation.py` (Complete): A single, comprehensive script implementing:
  1. Target detection (regression vs classification).

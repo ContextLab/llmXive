@@ -1,28 +1,13 @@
-"""
-Setup script to create the project directory structure for llmXive PROJ-480.
-
-This script implements Task T001 by creating all required directories
-relative to the project root.
-"""
 import os
 import sys
 from pathlib import Path
 
-
-def main():
-    # Define the base directory (project root)
-    # We assume the script is run from the project root or the code directory
-    # We will resolve relative to the current working directory to be safe
-    base_path = Path.cwd()
-
-    # Define all required directories relative to the project root
-    # Based on T001 description:
-    # src/data, src/models, src/reports, src/cli, src/lib
-    # tests/contract, tests/unit, tests/integration
-    # data/raw, data/processed
-    # state/
-    # reports/
+def create_directories():
+    """Create the project directory structure as per T001."""
+    # Define the root directory (current working directory or project root)
+    root = Path.cwd()
     
+    # Define all required directories relative to root
     directories = [
         "src/data",
         "src/models",
@@ -35,31 +20,36 @@ def main():
         "data/raw",
         "data/processed",
         "state",
-        "reports",
+        "reports"
     ]
-
+    
     created_count = 0
-    skipped_count = 0
-
-    print(f"Creating project structure in: {base_path}")
-
     for dir_path in directories:
-        full_path = base_path / dir_path
-        try:
-            if not full_path.exists():
-                full_path.mkdir(parents=True, exist_ok=True)
-                print(f"Created: {dir_path}")
-                created_count += 1
-            else:
-                print(f"Exists:  {dir_path}")
-                skipped_count += 1
-        except OSError as e:
-            print(f"Error creating {dir_path}: {e}")
+        full_path = root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
+    
+    print(f"\nTotal directories created: {created_count}")
+    print(f"Project structure setup complete at: {root}")
+    return True
+
+def main():
+    """Entry point for the project setup script."""
+    try:
+        success = create_directories()
+        if success:
+            print("SUCCESS: Project structure created successfully.")
+            sys.exit(0)
+        else:
+            print("FAILURE: Project structure creation failed.")
             sys.exit(1)
-
-    print(f"\nSetup complete. Created: {created_count}, Skipped: {skipped_count}")
-    return 0
-
+    except Exception as e:
+        print(f"ERROR: An unexpected error occurred: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

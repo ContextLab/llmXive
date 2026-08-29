@@ -1,134 +1,78 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Artifact Schema
-description: Schema for the final trained model and its associated diagnostics.
+description: |
+  Schema for the final model artifact and evaluation metrics.
+  Aligns with data-model.md for state/model_artifact.json.
 type: object
 required:
-  - model_info
-  - performance_metrics
+  - model_type
+  - metrics
   - diagnostics
+  - artifacts
 properties:
-  model_info:
+  model_type:
+    type: string
+    description: Type of model used (e.g., "XGBoost", "Ridge", "PCA+Ridge").
+  metrics:
     type: object
-    required:
-      - model_type
-      - hyperparameters
-      - training_timestamp
-      - feature_columns
+    description: Performance metrics.
     properties:
-      model_type:
-        type: string
-        enum: [XGBoostRegressor, XGBClassifier, Ridge, PCA_Ridge]
-      hyperparameters:
-        type: object
-        description: Dictionary of model hyperparameters.
-      training_timestamp:
-        type: string
-        format: date-time
-      feature_columns:
-        type: array
-        items:
-          type: string
-      target_type:
-        type: string
-        enum: [regression, classification]
-  performance_metrics:
-    type: object
-    required:
-      - cv_score
-      - cv_std
-    properties:
-      cv_score:
+      r2:
         type: number
-      cv_std:
+      mse:
         type: number
-      test_score:
+      mae:
         type: number
-      baseline_score:
+      auc:
         type: number
+      accuracy:
+        type: number
+      power:
+        type: number
+        description: Achieved power from post-hoc analysis.
       mdes:
         type: number
         description: Minimum Detectable Effect Size.
-      achieved_power:
-        type: number
-        description: Achieved statistical power.
+    required:
+      - r2
   diagnostics:
     type: object
-    required:
-      - collinearity
-      - circularity
-      - selection_bias
+    description: Diagnostic checks for circularity and bias.
     properties:
-      collinearity:
-        type: object
-        required:
-          - vif_scores
-          - status
-        properties:
-          vif_scores:
-            type: object
-            additionalProperties:
-              type: number
-            description: VIF score for each feature.
-          status:
-            type: string
-            enum: [OK, WARNING, CRITICAL]
-            description: Status based on VIF thresholds.
-          comment:
-            type: string
-            description: Human-readable explanation of collinearity status.
-      circularity:
-        type: object
-        required:
-          - linear_check
-          - permutation_check
-        properties:
-          linear_check:
-            type: object
-            required:
-              - r_squared
-              - passed
-            properties:
-              r_squared:
-                type: number
-              passed:
-                type: boolean
-                description: True if R^2 < 0.99.
-          permutation_check:
-            type: object
-            required:
-              - p_value
-              - passed
-            properties:
-              p_value:
-                type: number
-              passed:
-                type: boolean
-                description: True if P_shuffled < 0.95 * P_real.
-          comment:
-            type: string
-            description: Human-readable explanation of circularity status.
-      selection_bias:
-        type: object
-        required:
-          - ks_statistic
-          - passed
-        properties:
-          ks_statistic:
-            type: number
-            description: Kolmogorov-Smirnov statistic against synthetic reference.
-          passed:
-            type: boolean
-            description: True if bias is within acceptable limits.
-          comment:
-            type: string
-            description: Human-readable explanation of bias status.
-  provenance:
+      vif_max:
+        type: number
+        description: Maximum Variance Inflation Factor.
+      vif_comment:
+        type: string
+        description: Comment on collinearity status.
+      circularity_r2:
+        type: number
+        description: R² from linear circularity check.
+      circularity_status:
+        type: string
+        enum: ["PASS", "FAIL"]
+      permutation_p_value:
+        type: number
+        description: P-value from permutation test.
+      bias_ks_statistic:
+        type: number
+        description: K-S statistic for selection bias.
+      bias_status:
+        type: string
+        enum: ["PASS", "FAIL"]
+    required:
+      - vif_max
+      - circularity_status
+  artifacts:
     type: object
-    required:
-      - data_checksum
-      - pipeline_version
+    description: Paths to saved artifacts.
     properties:
-      data_checksum:
+      model_path:
         type: string
-      pipeline_version:
+      report_path:
         type: string
+      power_analysis_path:
+        type: string
+    required:
+      - model_path
+additionalProperties: true

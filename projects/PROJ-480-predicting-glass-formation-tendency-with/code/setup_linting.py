@@ -1,30 +1,26 @@
 """
-Setup script to configure linting (ruff) and formatting (black) tools.
-This script creates configuration files and installs necessary dependencies.
+Linting and Formatting Configuration Setup Script.
+
+This script generates configuration files for Ruff (linting) and Black (formatting)
+and updates pyproject.toml and .gitignore as needed.
 """
+
 import os
 import sys
 from pathlib import Path
 
-def create_pyproject_config():
-    """Create or update pyproject.toml with black and ruff configurations."""
-    pyproject_path = Path("pyproject.toml")
+
+def create_pyproject_config(root: Path) -> None:
+    """
+    Create or update pyproject.toml with Ruff and Black configuration.
     
-    if not pyproject_path.exists():
-        print("Error: pyproject.toml not found. Run T002 first.")
-        sys.exit(1)
+    Args:
+        root: The project root directory.
+    """
+    pyproject_path = root / "pyproject.toml"
     
-    # Read existing content
-    content = pyproject_path.read_text()
-    
-    # Check if tool sections already exist
-    has_black = "[tool.black]" in content
-    has_ruff = "[tool.ruff]" in content
-    
-    new_sections = []
-    
-    if not has_black:
-        new_sections.append("""
+    # Configuration content for Ruff and Black
+    config_section = """
 [tool.black]
 line-length = 88
 target-version = ['py311']
@@ -40,91 +36,128 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | node_modules
 )/
 '''
-""")
-    
-    if not has_ruff:
-        new_sections.append("""
+
 [tool.ruff]
+# Same as Black.
 line-length = 88
 target-version = "py311"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
 ]
+
+# Assume Python 3.11
+[tool.ruff.lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "D", "N", "W", "UP", "YTT", "B", "C4", "SIM", "TID"]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D105", # Missing docstring in magic method
 ]
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
 
-[tool.ruff.isort]
-known-first-party = ["src", "tests", "data", "models", "reports", "cli", "lib"]
-force-single-line = false
-""")
-    
-    if new_sections:
-        # Append new sections
-        with open(pyproject_path, "a") as f:
-            for section in new_sections:
-                f.write(section)
-        print("Updated pyproject.toml with linting and formatting configurations.")
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+"""
+
+    # Check if pyproject.toml exists
+    if pyproject_path.exists():
+        content = pyproject_path.read_text()
+        # Check if tool sections already exist to avoid duplication
+        if "[tool.black]" in content or "[tool.ruff]" in content:
+            print("pyproject.toml already contains tool configurations.")
+            return
+        
+        # Append new configuration
+        with open(pyproject_path, "a", encoding="utf-8") as f:
+            f.write(config_section)
     else:
-        print("Linting and formatting configurations already present in pyproject.toml.")
-
-def create_gitignore_entries():
-    """Ensure .gitignore includes standard Python ignores."""
-    gitignore_path = Path(".gitignore")
+        # Create new file with configuration
+        with open(pyproject_path, "w", encoding="utf-8") as f:
+            f.write(config_section)
     
-    required_entries = [
-        "# Python",
-        "__pycache__/",
-        "*.py[cod]",
-        "*$py.class",
-        ".eggs/",
-        "*.egg-info/",
-        ".mypy_cache/",
-        ".pytest_cache/",
-        ".ruff_cache/",
-        "build/",
-        "dist/",
-        "venv/",
-        ".venv/",
-        "env/",
-        ".env",
-    ]
+    print(f"Updated {pyproject_path} with Ruff and Black configuration.")
+
+
+def create_gitignore_entries(root: Path) -> None:
+    """
+    Add linting and formatting related entries to .gitignore.
+    
+    Args:
+        root: The project root directory.
+    """
+    gitignore_path = root / ".gitignore"
+    
+    entries = """
+# Linting and Formatting
+.ruff_cache/
+.black_cache/
+"""
     
     if gitignore_path.exists():
-        existing = gitignore_path.read_text()
-        for entry in required_entries:
-            if entry not in existing:
-                with open(gitignore_path, "a") as f:
-                    f.write(f"\n{entry}\n")
-                print(f"Added '{entry}' to .gitignore")
+        content = gitignore_path.read_text()
+        if ".ruff_cache/" not in content:
+            with open(gitignore_path, "a", encoding="utf-8") as f:
+                f.write(entries)
+            print("Updated .gitignore with linting cache entries.")
+        else:
+            print(".gitignore already contains linting cache entries.")
     else:
-        with open(gitignore_path, "w") as f:
-            f.write("\n".join(required_entries) + "\n")
-        print("Created .gitignore with Python entries.")
+        with open(gitignore_path, "w", encoding="utf-8") as f:
+            f.write(entries)
+        print("Created .gitignore with linting cache entries.")
 
-def main():
-    """Main entry point for setup script."""
-    print("Configuring linting and formatting tools...")
+
+def main() -> None:
+    """Main entry point for the setup script."""
+    # Determine project root (assume running from project root or parent of code/)
+    if "code" in os.getcwd():
+        root = Path(os.getcwd()).parent
+    else:
+        root = Path(os.getcwd())
     
-    create_pyproject_config()
-    create_gitignore_entries()
+    print(f"Setting up linting and formatting in: {root}")
     
-    print("\nLinting and formatting configuration complete.")
-    print("To format code: black code/ tests/")
-    print("To lint code: ruff check code/ tests/")
+    create_pyproject_config(root)
+    create_gitignore_entries(root)
+    
+    print("Setup complete. Run 'pip install ruff black' if not already installed.")
+    print("Usage:")
+    print("  Format code: black code/ tests/")
+    print("  Lint code: ruff check code/ tests/")
+    print("  Fix linting issues: ruff check --fix code/ tests/")
+
 
 if __name__ == "__main__":
     main()

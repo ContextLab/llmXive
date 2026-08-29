@@ -1,16 +1,14 @@
 status: none
-intent: download MultiAgent Bidding Dialogue dataset HuggingFace and Hanabi Learning
-  Environment python package dataset
+intent: MultiAgent Bidding Dialogue and Multi-Agent Structure dataset python package
+  dataset
 required_fields:
 - game_id
 - agent_id
-- turn_number
-- observed_cue
-- action_taken
-- context_state
-- reward
-- game_outcome
-- timestamp
-cache_key: 6a4e86030119aefec3b4566de551b0ace5010dbcd657a6ec83fee90af95fcb0f
-searched_at: '2026-08-08T13:58:42.562218+00:00'
+- turn
+- cue
+- action
+- specialization_index
+- cue_retrieval_efficiency
+cache_key: edee7ccce5222dac9ca6dd0c557139e55dda3919f38820853577499e4e2b2516
+searched_at: '2026-08-29T15:19:22.500840+00:00'
 retry_count: 1

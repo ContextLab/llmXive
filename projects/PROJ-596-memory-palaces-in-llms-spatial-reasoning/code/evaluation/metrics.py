@@ -1,76 +1,80 @@
 """
-Evaluation metrics module for the Memory Palaces project.
-Implements exact-match recall calculation and related metrics.
+Evaluation metrics for the Memory Palaces project.
+
+This module implements exact-match recall calculation and other evaluation
+metrics required for User Story 1.
 """
+
 import json
 import os
 import csv
 import math
+import gc
+import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+
 import torch
-import numpy as np
-from transformers import AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from datasets import load_dataset
+
+# Import from project modules
 from models.loading import load_model
 from models.base import GPT2Baseline
-from models.spatial import soft_addressed_retrieve, MemoryGrid
-from models.memory_slot import MemorySlot
-from data.download import download_dataset, load_existing_checksums
-import logging
-from datetime import datetime
+from models.spatial import soft_addressed_retrieve
+from models.memory_slot import MemoryGrid
+from models.episodic_chunk import EpisodicChunk
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Ensure single-core execution for reproducibility and constraint adherence
+# Ensure single-core execution
 os.environ["OMP_NUM_THREADS"] = "1"
-if torch.cuda.is_available():
-    torch.cuda.set_device(0)
 torch.set_num_threads(1)
+
+RESULTS_DIR = Path("artifacts/results")
+CHECKPOINT_DIR = Path("artifacts/checkpoints")
 
 def ensure_results_dir():
     """Ensure the results directory exists."""
-    results_dir = Path("artifacts/results")
-    results_dir.mkdir(parents=True, exist_ok=True)
-    return results_dir
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 def compute_exact_match_recall(predictions: List[str], references: List[str]) -> float:
     """
-    Compute exact match recall.
+    Compute exact-match recall.
     
     Args:
-        predictions: List of predicted strings
-        references: List of reference strings
+        predictions: List of predicted answers
+        references: List of ground truth answers
         
     Returns:
-        Exact match recall as a float (0.0 to 1.0)
+        Exact-match recall score (fraction of exact matches)
     """
-    if len(predictions) != len(references):
-        raise ValueError("Predictions and references must have the same length")
-    
-    if len(predictions) == 0:
+    if not predictions or not references:
         return 0.0
     
-    matches = sum(1 for pred, ref in zip(predictions, references) if pred.strip() == ref.strip())
-    return matches / len(predictions)
+    if len(predictions) != len(references):
+        raise ValueError(f"Predictions and references must have same length: "
+                       f"{len(predictions)} vs {len(references)}")
+    
+    exact_matches = sum(1 for pred, ref in zip(predictions, references) 
+                      if pred.strip().lower() == ref.strip().lower())
+    
+    return exact_matches / len(references)
 
 def evaluate_model_on_dataset(
     model: Any,
     tokenizer: AutoTokenizer,
-    dataset: List[Dict[str, Any]],
-    variant: str = "spatial",
-    device: str = "cpu"
+    dataset: Any,
+    variant: str,
+    memory_grid: Optional[MemoryGrid] = None
 ) -> Tuple[List[str], List[str]]:
     """
-    Evaluate a model on a dataset and return predictions and references.
+    Evaluate model on a dataset and return predictions and references.
     
     Args:
-        model: The model to evaluate
-        tokenizer: The tokenizer to use
-        dataset: List of dataset samples with 'input' and 'target' keys
-        variant: Model variant ('spatial', 'baseline', 'buffer')
-        device: Device to run inference on
+        model: The model to evaluate (spatial or baseline)
+        tokenizer: Tokenizer for the model
+        dataset: HuggingFace dataset to evaluate on
+        variant: One of 'spatial', 'baseline', 'control'
+        memory_grid: Memory grid for spatial variant (optional)
         
     Returns:
         Tuple of (predictions, references)
@@ -78,303 +82,355 @@ def evaluate_model_on_dataset(
     predictions = []
     references = []
     
-    model.eval()
+    device = next(model.parameters()).device
     
-    with torch.no_grad():
-        for sample in dataset:
-            input_text = sample['input']
-            target_text = sample['target']
+    # Process dataset samples
+    for idx, sample in enumerate(dataset):
+        # For bAbI Task 3, we use the story and question
+        if 'story' in sample and 'question' in sample:
+            context = sample['story']
+            question = sample['question']
+            expected = sample['answer']
+        elif 'sentence1' in sample and 'sentence2' in sample:
+            # Story Cloze format
+            context = f"{sample['sentence1']} {sample['sentence2']}"
+            question = sample['sentence3']  # The continuation
+            expected = sample['sentence4']  # The correct ending
+        else:
+            continue
+        
+        # Prepare input
+        input_text = f"Context: {context}\nQuestion: {question}"
+        
+        # For spatial variant, we might use memory retrieval
+        if variant == 'spatial' and memory_grid is not None:
+            # Create episodic chunk from context
+            chunk = EpisodicChunk(
+                content=context,
+                timestamp=time.time(),
+                chunk_id=f"chunk_{idx}"
+            )
             
-            # Tokenize input
-            inputs = tokenizer(input_text, return_tensors="pt", truncation=True, max_length=512)
-            inputs = {k: v.to(device) for k, v in inputs.items()}
+            # Assign coordinate (this would normally be done during training)
+            # For evaluation, we assume coordinates are already assigned
             
-            # Generate prediction
-            if variant == "spatial":
-                # For spatial model, we need to handle memory retrieval
-                # This is a simplified inference path
-                outputs = model.generate(
-                    **inputs,
-                    max_new_tokens=50,
-                    do_sample=False,
-                    pad_token_id=tokenizer.eos_token_id
-                )
-            else:
-                # For baseline and buffer models
-                outputs = model.generate(
-                    **inputs,
-                    max_new_tokens=50,
-                    do_sample=False,
-                    pad_token_id=tokenizer.eos_token_id
-                )
+            # Retrieve from memory
+            retrieval_result = soft_addressed_retrieve(
+                query=question,
+                memory_grid=memory_grid,
+                top_k=1
+            )
             
-            # Decode prediction
-            prediction = tokenizer.decode(outputs[0], skip_special_tokens=True)
-            # Extract just the generated part (after input)
-            input_len = len(tokenizer.encode(input_text, skip_special_tokens=True))
-            generated_tokens = outputs[0][input_len:]
-            prediction = tokenizer.decode(generated_tokens, skip_special_tokens=True)
-            
-            predictions.append(prediction)
-            references.append(target_text)
-            
-            # Clear cache periodically to avoid memory buildup
-            if len(predictions) % 100 == 0:
-                torch.cuda.empty_cache() if torch.cuda.is_available() else None
-                torch.cuda.synchronize() if torch.cuda.is_available() else None
+            # Augment input with retrieved memory
+            if retrieval_result and retrieval_result.chunks:
+                retrieved_content = retrieval_result.chunks[0].content
+                input_text = f"Context: {context}\nRetrieved: {retrieved_content}\nQuestion: {question}"
+        
+        # Tokenize and generate
+        inputs = tokenizer(input_text, return_tensors="pt").to(device)
+        
+        # Generate with limited length
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=20,
+                num_return_sequences=1,
+                do_sample=False,
+                pad_token_id=tokenizer.eos_token_id
+            )
+        
+        # Decode prediction
+        generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # Extract just the generated part (after the input)
+        prediction = generated[len(input_text):].strip()
+        
+        predictions.append(prediction)
+        references.append(expected)
+        
+        # Clean up to avoid memory buildup
+        del inputs, outputs, generated
+        gc.collect()
+        
+        # Progress indicator
+        if (idx + 1) % 10 == 0:
+            print(f"  Processed {idx + 1}/{len(dataset)} samples")
     
     return predictions, references
 
 def run_evaluation_for_seed(
     seed: int,
-    variant: str,
     dataset_name: str,
+    variant: str,
     checkpoint_path: Optional[str] = None
-) -> Dict[str, Any]:
+) -> float:
     """
-    Run evaluation for a specific seed and model variant.
+    Run evaluation for a single seed.
     
     Args:
-        seed: Random seed
-        checkpoint_path: Path to model checkpoint (optional, uses default if None)
-        variant: Model variant ('spatial', 'baseline', 'buffer')
+        seed: Random seed for reproducibility
         dataset_name: Name of dataset to evaluate on
+        variant: Model variant ('spatial', 'baseline', 'control')
+        checkpoint_path: Path to model checkpoint (optional)
         
     Returns:
-        Dictionary with evaluation results
+        Exact-match recall score
     """
-    # Set seeds for reproducibility
+    # Set seed
     torch.manual_seed(seed)
     if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-    np.random.seed(seed)
-    
-    # Determine device
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    
-    # Load model
-    logger.info(f"Loading model for variant: {variant}, seed: {seed}")
-    
-    if checkpoint_path and os.path.exists(checkpoint_path):
-        # Load from checkpoint if provided
-        model = load_model(variant, checkpoint_path)
-    else:
-        # Use pretrained model for evaluation
-        model = load_model(variant, None)
-    
-    model.to(device)
-    
-    # Load tokenizer
-    tokenizer = AutoTokenizer.from_pretrained("gpt2-medium")
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
+        torch.cuda.manual_seed(seed)
     
     # Load dataset
-    logger.info(f"Loading dataset: {dataset_name}")
-    dataset_path = Path("data") / dataset_name / "test.json"
-    if not dataset_path.exists():
-        # Try to download if not exists
-        download_dataset(dataset_name)
+    print(f"Loading dataset: {dataset_name}")
+    if dataset_name == "babi_task3":
+        dataset = load_dataset("babi", "task3_10k", split="test")
+    elif dataset_name == "lambada":
+        dataset = load_dataset("lambada", split="test")
+    elif dataset_name == "story_cloze":
+        dataset = load_dataset("story_cloze", "2016", split="test")
+    else:
+        raise ValueError(f"Unknown dataset: {dataset_name}")
     
-    with open(dataset_path, 'r') as f:
-        dataset = json.load(f)
+    # Load model
+    print(f"Loading model variant: {variant}")
+    if checkpoint_path and Path(checkpoint_path).exists():
+        model = load_model(checkpoint_path, variant)
+    else:
+        # Try to find checkpoint in default location
+        default_checkpoint = CHECKPOINT_DIR / f"{variant}_seed_{seed}"
+        if default_checkpoint.exists():
+            model = load_model(str(default_checkpoint), variant)
+        else:
+            raise FileNotFoundError(f"No checkpoint found for {variant} seed {seed}")
+    
+    tokenizer = AutoTokenizer.from_pretrained("gpt2-medium")
+    
+    # Initialize memory grid for spatial variant
+    memory_grid = None
+    if variant == "spatial":
+        memory_grid = MemoryGrid(grid_size=(8, 8))
     
     # Evaluate
-    logger.info(f"Evaluating on {len(dataset)} samples")
+    print(f"Evaluating on {dataset_name}...")
     predictions, references = evaluate_model_on_dataset(
-        model, tokenizer, dataset, variant, device
+        model, tokenizer, dataset, variant, memory_grid
     )
     
     # Compute recall
     recall = compute_exact_match_recall(predictions, references)
+    print(f"  Seed {seed} recall: {recall:.4f}")
     
-    logger.info(f"Seed {seed} - Exact Match Recall: {recall:.4f}")
+    # Cleanup
+    del model, predictions, references
+    gc.collect()
     
-    return {
-        "seed": seed,
-        "variant": variant,
-        "dataset": dataset_name,
-        "recall": recall,
-        "num_samples": len(dataset)
-    }
+    return recall
 
-def aggregate_results_by_seed(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+def aggregate_results_by_seed(
+    results: List[Dict[str, Any]]
+) -> Dict[str, Any]:
     """
-    Aggregate evaluation results by seed.
+    Aggregate results by seed and compute statistics.
     
     Args:
-        results: List of result dictionaries
+        results: List of result dictionaries with 'seed' and 'accuracy'
         
     Returns:
         Aggregated results with mean and std
     """
-    # Group by seed
-    seed_results = {}
-    for result in results:
-        seed = result["seed"]
-        if seed not in seed_results:
-            seed_results[seed] = []
-        seed_results[seed].append(result["recall"])
+    if not results:
+        return {
+            "seeds": [],
+            "accuracies": [],
+            "mean": 0.0,
+            "std": 0.0
+        }
     
-    # Compute statistics
-    seeds = sorted(seed_results.keys())
-    accuracies = [np.mean(seed_results[seed]) for seed in seeds]
+    seeds = [r["seed"] for r in results]
+    accuracies = [r["accuracy"] for r in results]
     
-    mean_accuracy = float(np.mean(accuracies))
-    std_accuracy = float(np.std(accuracies))
+    mean_acc = sum(accuracies) / len(accuracies)
+    
+    if len(accuracies) > 1:
+        variance = sum((x - mean_acc) ** 2 for x in accuracies) / len(accuracies)
+        std_acc = math.sqrt(variance)
+    else:
+        std_acc = 0.0
     
     return {
         "seeds": seeds,
         "accuracies": accuracies,
-        "mean": mean_accuracy,
-        "std": std_accuracy
+        "mean": mean_acc,
+        "std": std_acc
     }
 
 def log_slot_occupancy_distribution(
-    occupancy_counts: List[int],
+    memory_grid: MemoryGrid,
     epoch: int,
-    variant: str
-) -> Path:
-    """
-    Log slot occupancy distribution for a given epoch.
+    output_dir: Optional[Path] = None
+):
+    """Log slot occupancy distribution per epoch."""
+    if output_dir is None:
+        output_dir = Path("artifacts/metrics")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        occupancy_counts: List of occupancy counts per slot
-        epoch: Current epoch number
-        variant: Model variant
-        
-    Returns:
-        Path to the saved JSON file
-    """
-    results_dir = ensure_results_dir()
-    output_path = results_dir / f"slot_occupancy_epoch_{epoch}_{variant}.json"
+    occupancy = [slot.count for slot in memory_grid.slots]
+    output_file = output_dir / f"slot_occupancy_epoch_{epoch}.json"
     
-    with open(output_path, 'w') as f:
-        json.dump(occupancy_counts, f, indent=2)
-    
-    return output_path
+    with open(output_file, 'w') as f:
+        json.dump(occupancy, f)
 
 def log_coordinate_variance(
-    coordinates: List[Tuple[int, int]],
+    memory_grid: MemoryGrid,
     epoch: int,
-    variant: str
-) -> Path:
-    """
-    Log coordinate variance for a given epoch.
+    output_dir: Optional[Path] = None
+):
+    """Log coordinate variance per epoch."""
+    if output_dir is None:
+        output_dir = Path("artifacts/metrics")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        coordinates: List of (x, y) coordinates
-        epoch: Current epoch number
-        variant: Model variant
-        
-    Returns:
-        Path to the saved JSON file
-    """
-    results_dir = ensure_results_dir()
-    output_path = results_dir / f"coordinate_variance_epoch_{epoch}_{variant}.json"
+    x_coords = [slot.x for slot in memory_grid.slots if slot.count > 0]
+    y_coords = [slot.y for slot in memory_grid.slots if slot.count > 0]
     
-    if len(coordinates) == 0:
-        variance_data = {"x_variance": 0.0, "y_variance": 0.0}
+    if x_coords:
+        x_mean = sum(x_coords) / len(x_coords)
+        y_mean = sum(y_coords) / len(y_coords)
+        x_var = sum((x - x_mean) ** 2 for x in x_coords) / len(x_coords)
+        y_var = sum((y - y_mean) ** 2 for y in y_coords) / len(y_coords)
     else:
-        x_coords = [c[0] for c in coordinates]
-        y_coords = [c[1] for c in coordinates]
-        
-        variance_data = {
-            "x_variance": float(np.var(x_coords)),
-            "y_variance": float(np.var(y_coords)),
-            "x_mean": float(np.mean(x_coords)),
-            "y_mean": float(np.mean(y_coords))
-        }
+        x_var = 0.0
+        y_var = 0.0
     
-    with open(output_path, 'w') as f:
-        json.dump(variance_data, f, indent=2)
+    output_file = output_dir / f"coordinate_variance_epoch_{epoch}.json"
     
-    return output_path
+    with open(output_file, 'w') as f:
+        json.dump({
+            "x_variance": x_var,
+            "y_variance": y_var,
+            "epoch": epoch
+        }, f)
 
 def compute_interference_distance(
-    spatial_results: Dict[str, Any],
-    baseline_results: Dict[str, Any]
-) -> Dict[str, float]:
+    memory_grid: MemoryGrid,
+    similar_pairs: List[Tuple[EpisodicChunk, EpisodicChunk]]
+) -> float:
     """
-    Compute interference distance metric between spatial and baseline models.
+    Compute interference distance metric.
     
     Args:
-        spatial_results: Results from spatial model evaluation
-        baseline_results: Results from baseline model evaluation
+        memory_grid: The memory grid
+        similar_pairs: Pairs of semantically similar chunks
         
     Returns:
-        Dictionary with interference distance metrics
+        Average Manhattan distance between similar items
     """
-    spatial_recall = spatial_results.get("recall", 0.0)
-    baseline_recall = baseline_results.get("recall", 0.0)
+    if not similar_pairs:
+        return 0.0
     
-    delta = spatial_recall - baseline_recall
+    total_distance = 0
+    count = 0
     
-    # Compute p-value using t-test (simplified)
-    # In a real implementation, we would use the actual distributions
-    p_value = 0.05  # Placeholder - would be computed from actual data
+    for chunk1, chunk2 in similar_pairs:
+        # Find slots for these chunks
+        slot1 = None
+        slot2 = None
+        
+        for slot in memory_grid.slots:
+            if slot.chunk and slot.chunk.chunk_id == chunk1.chunk_id:
+                slot1 = slot
+            if slot.chunk and slot.chunk.chunk_id == chunk2.chunk_id:
+                slot2 = slot
+        
+        if slot1 and slot2:
+            manhattan_dist = abs(slot1.x - slot2.x) + abs(slot1.y - slot2.y)
+            total_distance += manhattan_dist
+            count += 1
     
-    return {
-        "spatial_recall": spatial_recall,
-        "baseline_recall": baseline_recall,
-        "delta": delta,
-        "p_value": p_value
-    }
+    return total_distance / count if count > 0 else 0.0
 
 def main():
     """
-    Main function to run evaluation and save results.
+    Main evaluation script for T015.
+    
+    This script evaluates trained models across multiple seeds and
+    computes exact-match recall, storing results in artifacts/results/recall_accuracy.json.
     """
-    logger.info("Starting evaluation process...")
+    ensure_results_dir()
     
     # Configuration
-    seeds = [0, 1, 2, 3, 4]  # Range of seeds as required
-    variants = ["spatial", "baseline", "buffer"]
-    dataset_name = "babi_task3"
+    seeds = list(range(5))  # Range of seeds as required
+    datasets = ["babi_task3"]  # Primary dataset for US1
+    variants = ["spatial", "baseline", "control"]
     
     all_results = []
     
-    # Run evaluation for each seed and variant
     for variant in variants:
-        for seed in seeds:
-            try:
-                result = run_evaluation_for_seed(
-                    seed=seed,
-                    variant=variant,
-                    dataset_name=dataset_name
-                )
-                all_results.append(result)
-            except Exception as e:
-                logger.error(f"Error evaluating variant={variant}, seed={seed}: {e}")
-                # Continue with next seed rather than failing completely
-                continue
+        for dataset in datasets:
+            for seed in seeds:
+                print(f"\n=== Evaluating {variant} on {dataset} with seed {seed} ===")
+                
+                try:
+                    accuracy = run_evaluation_for_seed(
+                        seed=seed,
+                        dataset_name=dataset,
+                        variant=variant
+                    )
+                    
+                    all_results.append({
+                        "seed": seed,
+                        "variant": variant,
+                        "dataset": dataset,
+                        "accuracy": accuracy
+                    })
+                    
+                except Exception as e:
+                    print(f"Error evaluating seed {seed}: {e}")
+                    # Continue with other seeds
+                    continue
     
-    # Aggregate results by seed for each variant
-    aggregated_results = {}
+    # Aggregate results by variant and dataset
+    output_data = {}
+    
     for variant in variants:
-        variant_results = [r for r in all_results if r["variant"] == variant]
-        if variant_results:
-            aggregated = aggregate_results_by_seed(variant_results)
-            aggregated_results[variant] = aggregated
-            logger.info(f"Variant {variant} - Mean: {aggregated['mean']:.4f}, Std: {aggregated['std']:.4f}")
+        for dataset in datasets:
+            variant_results = [
+                r for r in all_results 
+                if r["variant"] == variant and r["dataset"] == dataset
+            ]
+            
+            if variant_results:
+                aggregated = aggregate_results_by_seed(variant_results)
+                output_data[f"{variant}_{dataset}"] = aggregated
     
-    # Save results
-    results_dir = ensure_results_dir()
-    output_path = results_dir / "recall_accuracy.json"
+    # Write results
+    output_file = RESULTS_DIR / "recall_accuracy.json"
+    with open(output_file, 'w') as f:
+        json.dump(output_data, f, indent=2)
     
-    with open(output_path, 'w') as f:
-        json.dump(aggregated_results, f, indent=2)
+    print(f"\nResults written to {output_file}")
+    print(f"Total evaluations: {len(all_results)}")
     
-    logger.info(f"Results saved to {output_path}")
+    # Also write per-seed breakdown
+    seeds_by_variant = {}
+    for variant in variants:
+        for dataset in datasets:
+            key = f"{variant}_{dataset}"
+            if key in output_data:
+                seeds_by_variant[key] = {
+                    "seeds": output_data[key]["seeds"],
+                    "accuracies": output_data[key]["accuracies"],
+                    "mean": output_data[key]["mean"],
+                    "std": output_data[key]["std"]
+                }
     
-    # Also save individual results for detailed analysis
-    individual_output_path = results_dir / "evaluation_individual.json"
-    with open(individual_output_path, 'w') as f:
-        json.dump(all_results, f, indent=2)
+    # Save individual variant results for statistical analysis
+    for key, data in seeds_by_variant.items():
+        variant_file = RESULTS_DIR / f"recall_{key}.json"
+        with open(variant_file, 'w') as f:
+            json.dump(data, f, indent=2)
     
-    logger.info(f"Individual results saved to {individual_output_path}")
-    
-    return aggregated_results
+    return output_data
 
 if __name__ == "__main__":
     main()
