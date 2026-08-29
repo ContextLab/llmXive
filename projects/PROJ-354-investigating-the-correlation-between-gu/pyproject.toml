@@ -1,37 +1,109 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "gut-microbiome-cognitive-study"
 version = "0.1.0"
-description = "Investigating the correlation between gut microbiome and cognitive function"
+description = "Investigation of the correlation between gut microbiome composition and cognitive function"
+readme = "README.md"
 requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Research Team", email = "research@llmxive.org"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "pandas==2.0.3",
+    "numpy==1.24.3",
+    "scikit-learn==1.3.0",
+    "statsmodels==0.14.0",
+    "seaborn==0.12.2",
+    "matplotlib==3.7.2",
+    "pyarrow==12.0.1",
+    "requests==2.31.0",
+    "huggingface_hub==0.17.1",
+    "scikit-bio==0.5.9",
+    "python-dotenv>=1.0.0",
+    "keyring>=24.0.0",
+    "psutil>=5.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black==23.7.0",
+    "ruff==0.0.292",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.5.0",
+    "memory-profiler>=0.61.0",
+]
+
+[project.scripts]
+run-download = "code.download:main"
+run-preprocess = "code.preprocess:main"
+run-analysis = "code.analysis:main"
+run-visualize = "code.visualize:main"
+run-power-analysis = "code.power_analysis:main"
+run-linting = "code.lint_runner:main"
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ["py310"]
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
-
-[tool.isort]
-profile = "black"
-known_first_party = ["code", "tests"]
+force-exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_functions = ["test_*"]
+python_classes = ["Test*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.setuptools]
+packages = ["code", "code.utils", "code.models", "code.tests"]
+
+[tool.setuptools.package-data]
+code = ["*.json", "*.yaml", "*.yml"]

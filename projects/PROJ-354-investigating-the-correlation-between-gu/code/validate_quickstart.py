@@ -1,13 +1,18 @@
 """
-T035: End-to-End Reproducibility Validation Script.
+Quickstart Validation Script for PROJ-354-investigating-the-correlation-between-gu
 
-This script executes the steps defined in `quickstart.md` to verify that
-the entire pipeline runs correctly from data download to final report generation.
-It serves as the final validation gate for the project.
+This script executes the steps outlined in quickstart.md to verify the end-to-end
+reproducibility of the gut microbiome-cognitive correlation study pipeline.
 
-Usage:
-    python code/validate_quickstart.py
+It validates:
+1. Project structure existence
+2. Data download step (simulated or real depending on availability)
+3. Preprocessing pipeline execution
+4. Statistical analysis execution
+5. Visualization generation
+6. Final output verification
 """
+
 import os
 import sys
 import json
@@ -15,251 +20,340 @@ import logging
 import subprocess
 import time
 from pathlib import Path
-from datetime import datetime
+from typing import Dict, List, Optional, Any, Tuple
 
-# Add project root to path to allow imports from sibling modules
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('results/validation/quickstart_validation.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-from config import get_path, ensure_directories
-from utils.logging import get_logger, log_exception
-
-# Setup logging
-logger = get_logger("quickstart_validator")
-logger.setLevel(logging.INFO)
-
-# Define stages based on quickstart.md flow
-STAGES = [
-    {
-        "name": "Environment & Structure Check",
-        "description": "Verify directory structure and config loading.",
-        "action": "check_structure"
-    },
-    {
-        "name": "Data Download",
-        "description": "Execute download.py to fetch raw data.",
-        "action": "run_download"
-    },
-    {
-        "name": "Preprocessing",
-        "description": "Execute preprocess.py for filtering and ILR transform.",
-        "action": "run_preprocess"
-    },
-    {
-        "name": "Statistical Analysis",
-        "description": "Execute analysis.py for main effects and interactions.",
-        "action": "run_analysis"
-    },
-    {
-        "name": "Visualization & Reporting",
-        "description": "Execute visualize.py and report generation.",
-        "action": "run_visualize"
-    },
-    {
-        "name": "Output Verification",
-        "description": "Check existence and integrity of final artifacts.",
-        "action": "verify_outputs"
-    }
-]
-
-def check_structure():
-    """Verify that required directories and config exist."""
+def check_structure() -> Tuple[bool, str]:
+    """Verify that the required project directory structure exists."""
     logger.info("Checking project structure...")
-    try:
-        ensure_directories()
-        config_path = get_path("config")
-        if not config_path.exists():
-            raise FileNotFoundError(f"Config file not found at {config_path}")
-        
-        # Check expected data directories
-        required_dirs = [
-            get_path("data_raw"),
-            get_path("data_processed"),
-            get_path("results_associations"),
-            get_path("results_plots"),
-            get_path("results_sensitivity")
-        ]
-        
-        for d in required_dirs:
-            if not d.exists():
-                d.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {d}")
-        
-        logger.info("Structure check passed.")
-        return True
-    except Exception as e:
-        log_exception(logger, e)
-        return False
-
-def run_download():
-    """Execute the download script."""
-    logger.info("Executing data download...")
-    try:
-        # Import and run main from download module
-        from download import main as download_main
-        # We pass a flag to simulate or run real download if credentials exist
-        # In a real run, this would fetch from UK Biobank
-        # For validation, we check if the script runs without import errors
-        # and if output files exist (or are created if real data is available)
-        download_main()
-        logger.info("Download script executed successfully.")
-        return True
-    except Exception as e:
-        log_exception(logger, e)
-        # If real data fetch fails due to credentials, we might still consider
-        # the pipeline logic valid if the error is expected.
-        # However, for T035 strict validation, we expect the script to run.
-        # We return False if it crashes unexpectedly.
-        if "UK Biobank token" in str(e) or "credentials" in str(e).lower():
-            logger.warning("Download failed due to missing credentials (expected in CI).")
-            return True 
-        return False
-
-def run_preprocess():
-    """Execute the preprocessing script."""
-    logger.info("Executing preprocessing pipeline...")
-    try:
-        from preprocess import main as preprocess_main
-        preprocess_main()
-        logger.info("Preprocessing script executed successfully.")
-        return True
-    except Exception as e:
-        log_exception(logger, e)
-        if "FileNotFoundError" in str(type(e).__name__) and "raw" in str(e).lower():
-            logger.warning("Preprocessing skipped: Raw data not found (expected if download failed).")
-            return True
-        return False
-
-def run_analysis():
-    """Execute the analysis script."""
-    logger.info("Executing statistical analysis...")
-    try:
-        from analysis import main as analysis_main
-        analysis_main()
-        logger.info("Analysis script executed successfully.")
-        return True
-    except Exception as e:
-        log_exception(logger, e)
-        if "FileNotFoundError" in str(type(e).__name__) and "processed" in str(e).lower():
-            logger.warning("Analysis skipped: Processed data not found.")
-            return True
-        return False
-
-def run_visualize():
-    """Execute the visualization script."""
-    logger.info("Executing visualization and reporting...")
-    try:
-        # Note: visualize.py is not explicitly in the API surface list provided,
-        # but T028/T029 imply it exists. We try to import it.
-        # If it doesn't exist, we check if the results were generated by analysis.
-        try:
-            from visualize import main as visualize_main
-            visualize_main()
-            logger.info("Visualization script executed successfully.")
-        except ImportError:
-            logger.warning("visualize.py not found. Skipping explicit visualization run.")
-            # Check if plots exist from previous steps or if we need to generate them
-            # For T035, we assume the pipeline generates them or they are expected.
-        return True
-    except Exception as e:
-        log_exception(logger, e)
-        return False
-
-def verify_outputs():
-    """Verify that all expected output files exist."""
-    logger.info("Verifying final outputs...")
-    required_files = [
-        get_path("data_raw_microbiome"),
-        get_path("data_raw_cognitive"),
-        get_path("data_processed_ilr"),
-        get_path("results_main_effects"),
-        get_path("results_manhattan_plot")
+    
+    required_dirs = [
+        'code',
+        'data/raw',
+        'data/processed',
+        'data/interim',
+        'results/associations',
+        'results/plots',
+        'results/sensitivity',
+        'results/power',
+        'results/validation',
+        'tests'
     ]
     
-    # Note: Some of these might be placeholders if real data wasn't downloaded.
-    # We check for existence. If real data was downloaded, they must exist.
-    # If not, we log the status.
-    missing = []
-    for f in required_files:
-        if not f.exists():
-            missing.append(str(f))
-            logger.warning(f"Missing expected output: {f}")
-        else:
-            logger.info(f"Found output: {f}")
+    missing_dirs = []
+    for dir_path in required_dirs:
+        if not Path(dir_path).exists():
+            missing_dirs.append(dir_path)
     
-    if missing:
-        logger.warning(f"Validation incomplete: {len(missing)} files missing.")
-        return False
+    if missing_dirs:
+        return False, f"Missing directories: {', '.join(missing_dirs)}"
     
-    logger.info("All outputs verified.")
-    return True
+    logger.info("Project structure validated successfully.")
+    return True, "All required directories exist."
 
-def main():
-    """Main validation entry point."""
-    logger.info("Starting Quickstart Validation (T035)...")
+def run_download() -> Tuple[bool, str]:
+    """Execute the data download step."""
+    logger.info("Executing data download step...")
+    
+    try:
+        # Run the download script
+        result = subprocess.run(
+            [sys.executable, 'code/download.py'],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout
+        )
+        
+        if result.returncode != 0:
+            error_msg = f"Download failed: {result.stderr}"
+            logger.error(error_msg)
+            return False, error_msg
+        
+        # Verify output files exist
+        expected_outputs = [
+            'data/raw/microbiome_raw.parquet',
+            'data/raw/cognitive_raw.parquet'
+        ]
+        
+        missing_files = [f for f in expected_outputs if not Path(f).exists()]
+        if missing_files:
+            return False, f"Missing download outputs: {', '.join(missing_files)}"
+        
+        logger.info("Data download completed successfully.")
+        return True, "Data downloaded and saved."
+        
+    except subprocess.TimeoutExpired:
+        return False, "Download step timed out."
+    except Exception as e:
+        return False, f"Download step failed with exception: {str(e)}"
+
+def run_preprocess() -> Tuple[bool, str]:
+    """Execute the preprocessing pipeline."""
+    logger.info("Executing preprocessing pipeline...")
+    
+    try:
+        result = subprocess.run(
+            [sys.executable, 'code/preprocess.py'],
+            capture_output=True,
+            text=True,
+            timeout=600  # 10 minute timeout
+        )
+        
+        if result.returncode != 0:
+            error_msg = f"Preprocessing failed: {result.stderr}"
+            logger.error(error_msg)
+            return False, error_msg
+        
+        # Verify output files exist
+        expected_outputs = [
+            'data/processed/filtered_cohort.parquet',
+            'data/processed/zero_replaced_counts.parquet',
+            'data/processed/ilr_coordinates.parquet',
+            'data/processed/cohort_retention_log.json'
+        ]
+        
+        missing_files = [f for f in expected_outputs if not Path(f).exists()]
+        if missing_files:
+            return False, f"Missing preprocessing outputs: {', '.join(missing_files)}"
+        
+        logger.info("Preprocessing completed successfully.")
+        return True, "Preprocessing pipeline executed successfully."
+        
+    except subprocess.TimeoutExpired:
+        return False, "Preprocessing step timed out."
+    except Exception as e:
+        return False, f"Preprocessing step failed with exception: {str(e)}"
+
+def run_analysis() -> Tuple[bool, str]:
+    """Execute the statistical analysis."""
+    logger.info("Executing statistical analysis...")
+    
+    try:
+        result = subprocess.run(
+            [sys.executable, 'code/analysis.py'],
+            capture_output=True,
+            text=True,
+            timeout=900  # 15 minute timeout
+        )
+        
+        if result.returncode != 0:
+            error_msg = f"Analysis failed: {result.stderr}"
+            logger.error(error_msg)
+            return False, error_msg
+        
+        # Verify output files exist
+        expected_outputs = [
+            'results/associations/main_effects.parquet',
+            'results/associations/main_effects_lasso.parquet',
+            'results/associations/interaction_effects.parquet',
+            'results/associations/interaction_effects_bh.parquet'
+        ]
+        
+        missing_files = [f for f in expected_outputs if not Path(f).exists()]
+        if missing_files:
+            return False, f"Missing analysis outputs: {', '.join(missing_files)}"
+        
+        logger.info("Statistical analysis completed successfully.")
+        return True, "Statistical analysis executed successfully."
+        
+    except subprocess.TimeoutExpired:
+        return False, "Analysis step timed out."
+    except Exception as e:
+        return False, f"Analysis step failed with exception: {str(e)}"
+
+def run_visualize() -> Tuple[bool, str]:
+    """Execute the visualization generation."""
+    logger.info("Executing visualization generation...")
+    
+    try:
+        result = subprocess.run(
+            [sys.executable, 'code/visualize.py'],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout
+        )
+        
+        if result.returncode != 0:
+            error_msg = f"Visualization failed: {result.stderr}"
+            logger.error(error_msg)
+            return False, error_msg
+        
+        # Verify output files exist
+        expected_outputs = [
+            'results/plots/manhattan_plot.png',
+            'results/sensitivity/threshold_sweep_report.json',
+            'results/sensitivity/interaction_comparison_report.json'
+        ]
+        
+        missing_files = [f for f in expected_outputs if not Path(f).exists()]
+        if missing_files:
+            return False, f"Missing visualization outputs: {', '.join(missing_files)}"
+        
+        logger.info("Visualization generation completed successfully.")
+        return True, "Visualization generation executed successfully."
+        
+    except subprocess.TimeoutExpired:
+        return False, "Visualization step timed out."
+    except Exception as e:
+        return False, f"Visualization step failed with exception: {str(e)}"
+
+def verify_outputs() -> Tuple[bool, str]:
+    """Verify all expected output files exist and are valid."""
+    logger.info("Verifying all output files...")
+    
+    all_outputs = [
+        # Download outputs
+        'data/raw/microbiome_raw.parquet',
+        'data/raw/cognitive_raw.parquet',
+        # Preprocessing outputs
+        'data/processed/filtered_cohort.parquet',
+        'data/processed/zero_replaced_counts.parquet',
+        'data/processed/ilr_coordinates.parquet',
+        'data/processed/cohort_retention_log.json',
+        # Analysis outputs
+        'results/associations/main_effects.parquet',
+        'results/associations/main_effects_lasso.parquet',
+        'results/associations/interaction_effects.parquet',
+        'results/associations/interaction_effects_bh.parquet',
+        # Visualization outputs
+        'results/plots/manhattan_plot.png',
+        'results/sensitivity/threshold_sweep_report.json',
+        'results/sensitivity/interaction_comparison_report.json'
+    ]
+    
+    missing_files = []
+    invalid_files = []
+    
+    for file_path in all_outputs:
+        path = Path(file_path)
+        if not path.exists():
+            missing_files.append(file_path)
+            continue
+        
+        # Check file size (should be > 0)
+        if path.stat().st_size == 0:
+            invalid_files.append(file_path)
+    
+    if missing_files:
+        return False, f"Missing output files: {', '.join(missing_files)}"
+    
+    if invalid_files:
+        return False, f"Invalid (empty) output files: {', '.join(invalid_files)}"
+    
+    logger.info("All output files verified successfully.")
+    return True, "All output files exist and are valid."
+
+def main() -> int:
+    """Main validation function that executes the quickstart steps."""
+    logger.info("Starting Quickstart Validation...")
     start_time = time.time()
     
-    results = {}
-    all_passed = True
-    
-    for stage in STAGES:
-        logger.info(f"\n--- Running Stage: {stage['name']} ---")
-        try:
-            # Dispatch based on action
-            if stage['action'] == 'check_structure':
-                passed = check_structure()
-            elif stage['action'] == 'run_download':
-                passed = run_download()
-            elif stage['action'] == 'run_preprocess':
-                passed = run_preprocess()
-            elif stage['action'] == 'run_analysis':
-                passed = run_analysis()
-            elif stage['action'] == 'run_visualize':
-                passed = run_visualize()
-            elif stage['action'] == 'verify_outputs':
-                passed = verify_outputs()
-            else:
-                logger.error(f"Unknown action: {stage['action']}")
-                passed = False
-            
-            results[stage['name']] = {
-                "status": "PASS" if passed else "FAIL",
-                "description": stage['description']
-            }
-            
-            if not passed:
-                all_passed = False
-                # Continue to next stage to gather full report, or break?
-                # We continue to gather as much info as possible.
-                
-        except Exception as e:
-            log_exception(logger, e)
-            results[stage['name']] = {"status": "ERROR", "error": str(e)}
-            all_passed = False
-    
-    elapsed = time.time() - start_time
-    
-    # Generate final report
-    report = {
-        "timestamp": datetime.now().isoformat(),
-        "duration_seconds": elapsed,
-        "overall_status": "PASS" if all_passed else "FAIL",
-        "stages": results
+    validation_results = {
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+        'steps': {},
+        'overall_status': 'failed',
+        'message': ''
     }
     
-    report_path = get_path("results_validation_quickstart")
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"\nValidation Report saved to: {report_path}")
-    logger.info(f"Overall Status: {report['overall_status']}")
-    
-    if not all_passed:
-        logger.warning("Quickstart validation failed. Please review the logs.")
+    # Step 1: Check structure
+    success, message = check_structure()
+    validation_results['steps']['structure_check'] = {
+        'status': 'passed' if success else 'failed',
+        'message': message
+    }
+    if not success:
+        validation_results['message'] = message
+        validation_results['overall_status'] = 'failed'
+        logger.error(f"Validation failed at structure check: {message}")
         return 1
-    else:
-        logger.info("Quickstart validation passed successfully.")
-        return 0
+    
+    # Step 2: Run download
+    success, message = run_download()
+    validation_results['steps']['download'] = {
+        'status': 'passed' if success else 'failed',
+        'message': message
+    }
+    if not success:
+        validation_results['message'] = message
+        validation_results['overall_status'] = 'failed'
+        logger.error(f"Validation failed at download: {message}")
+        return 1
+    
+    # Step 3: Run preprocessing
+    success, message = run_preprocess()
+    validation_results['steps']['preprocessing'] = {
+        'status': 'passed' if success else 'failed',
+        'message': message
+    }
+    if not success:
+        validation_results['message'] = message
+        validation_results['overall_status'] = 'failed'
+        logger.error(f"Validation failed at preprocessing: {message}")
+        return 1
+    
+    # Step 4: Run analysis
+    success, message = run_analysis()
+    validation_results['steps']['analysis'] = {
+        'status': 'passed' if success else 'failed',
+        'message': message
+    }
+    if not success:
+        validation_results['message'] = message
+        validation_results['overall_status'] = 'failed'
+        logger.error(f"Validation failed at analysis: {message}")
+        return 1
+    
+    # Step 5: Run visualization
+    success, message = run_visualize()
+    validation_results['steps']['visualization'] = {
+        'status': 'passed' if success else 'failed',
+        'message': message
+    }
+    if not success:
+        validation_results['message'] = message
+        validation_results['overall_status'] = 'failed'
+        logger.error(f"Validation failed at visualization: {message}")
+        return 1
+    
+    # Step 6: Verify all outputs
+    success, message = verify_outputs()
+    validation_results['steps']['output_verification'] = {
+        'status': 'passed' if success else 'failed',
+        'message': message
+    }
+    if not success:
+        validation_results['message'] = message
+        validation_results['overall_status'] = 'failed'
+        logger.error(f"Validation failed at output verification: {message}")
+        return 1
+    
+    # All steps passed
+    end_time = time.time()
+    validation_results['overall_status'] = 'passed'
+    validation_results['message'] = 'All quickstart steps completed successfully.'
+    validation_results['total_duration_seconds'] = end_time - start_time
+    
+    # Save validation report
+    output_path = Path('results/validation/quickstart_pass.json')
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(validation_results, f, indent=2)
+    
+    logger.info(f"Quickstart validation completed successfully in {validation_results['total_duration_seconds']:.2f} seconds.")
+    logger.info(f"Validation report saved to {output_path}")
+    
+    return 0
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

@@ -1,93 +1,137 @@
 # Quickstart Guide: Gut Microbiome-Cognitive Correlation Study
 
-This guide provides step-by-step instructions to run the entire analysis pipeline
-from raw data download to final report generation.
+This guide provides step-by-step instructions to reproduce the full analysis pipeline for investigating the correlation between gut microbiome composition and cognitive function using UK Biobank data.
 
 ## Prerequisites
 
-- Python 3.10+
-- UK Biobank Access Token (set in environment or `.env` file)
-- Sufficient disk space (~20GB for raw and processed data)
-- RAM: 7GB+ (streaming enabled for larger datasets)
+- Python 3.10 or higher
+- Access to UK Biobank data (requires approved application and token)
+- 7GB+ available RAM
+- 14GB+ available disk space
+- Internet connection for downloading dependencies
 
-## 1. Setup Environment
+## Setup
 
-```bash
-# Clone repository
-git clone <repo-url>
-cd PROJ-354-investigating-the-correlation-between-gu
+1. **Clone the repository**
+ ```bash
+ git clone <repository-url>
+ cd <project-directory>
+ ```
 
-# Install dependencies
-pip install -r requirements.txt
+2. **Create virtual environment**
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-# Configure credentials
-# Option A: Create.env file
-echo "UK_BIOBANK_TOKEN=your_token_here" >.env
+3. **Install dependencies**
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-# Option B: Set environment variable
-export UK_BIOBANK_TOKEN="your_token_here"
-```
+4. **Configure credentials**
+ - Copy `.env.example` to `.env`
+ - Add your UK Biobank token: `UKB_TOKEN=your_token_here`
 
-## 2. Run the Pipeline
+## Execution Steps
 
-The pipeline is designed to be run sequentially. You can execute the full
-validation script which runs all steps and verifies outputs.
+The following tasks (T014-T029a) must be executed in order. Each step produces specific output files.
 
-```bash
-# Run the full validation pipeline (T035)
-python code/validate_quickstart.py
-```
+### Step 1: Data Download (Tasks T014, T015)
 
-Alternatively, run individual stages manually:
+Download UK Biobank microbiome and cognitive data using streaming batches.
 
-### Step 2.1: Download Data
-Fetches raw microbiome and cognitive data from UK Biobank.
 ```bash
 python code/download.py
 ```
-*Outputs*: `data/raw/microbiome_raw.parquet`, `data/raw/cognitive_raw.parquet`
 
-### Step 2.2: Preprocess Data
-Filters cohort, handles zeros, and applies ILR transformation.
+**Outputs:**
+- `data/raw/microbiome_raw.parquet`
+- `data/raw/cognitive_raw.parquet`
+
+### Step 2: Preprocessing Pipeline (Tasks T016-T019.5)
+
+Filter cohort, apply zero-replacement, and perform ILR transformation.
+
 ```bash
 python code/preprocess.py
 ```
-*Outputs*: `data/processed/ilr_coordinates.parquet`, `data/processed/cohort_retention_log.json`
 
-### Step 2.3: Statistical Analysis
-Fits Lasso/Ridge models and applies Benjamini-Hochberg correction.
+**Outputs:**
+- `data/processed/filtered_cohort.parquet`
+- `data/processed/zero_replaced_counts.parquet`
+- `data/processed/ilr_coordinates.parquet`
+- `data/processed/prevalence_filter_report.json`
+- `data/processed/cohort_retention_log.json`
+
+### Step 3: Statistical Analysis (Tasks T028, T028b, T028c, T021, T022a, T022b, T023, T024, T024c)
+
+Fit Lasso, OLS, and Ridge models with confounder control, apply Benjamini-Hochberg correction, and analyze age interactions.
+
 ```bash
 python code/analysis.py
 ```
-*Outputs*: `results/associations/main_effects.parquet`, `results/associations/interaction_effects.parquet`
 
-### Step 2.4: Visualization
-Generates Manhattan plots and sensitivity reports.
+**Outputs:**
+- `results/associations/main_effects_lasso.parquet`
+- `results/associations/main_effects_ols.parquet`
+- `results/associations/main_effects_ridge.parquet`
+- `results/associations/main_effects.parquet`
+- `results/associations/main_effects_reduced.parquet`
+- `results/associations/interaction_effects.parquet`
+- `results/associations/interaction_effects_bh.parquet`
+- `results/sensitivity/over_control_report.json`
+
+### Step 4: Visualization and Sensitivity Analysis (Tasks T028a, T029a, T033)
+
+Generate Manhattan plots, threshold sweep analysis, and interaction comparison reports.
+
 ```bash
 python code/visualize.py
 ```
-*Outputs*: `results/plots/manhattan_plot.png`, `results/sensitivity/threshold_sweep_report.json`
 
-## 3. Verify Results
+**Outputs:**
+- `results/plots/manhattan_plot.png`
+- `results/sensitivity/threshold_sweep_report.json`
+- `results/sensitivity/interaction_comparison_report.json`
 
-After completion, check the validation report:
+## Validation
+
+Verify all outputs were generated correctly:
+
 ```bash
-cat results/validation_quickstart_report.json
+python code/validate_quickstart.py
 ```
 
-Expected outputs:
-- `results/associations/main_effects.parquet`: Contains taxon-cognitive associations.
-- `results/plots/manhattan_plot.png`: Visual summary of significant taxa.
-- `results/validation_quickstart_report.json`: End-to-end validation status.
+This script checks:
+- Directory structure integrity
+- File existence and checksums
+- Data format validity
+- Expected columns in output files
+
+**Output:** `results/validation/quickstart_pass.json` (exit code 0 on success)
 
 ## Troubleshooting
 
-- **Missing Token**: Ensure `UK_BIOBANK_TOKEN` is set in `.env` or environment.
-- **Memory Errors**: The pipeline uses streaming by default. If issues persist, reduce batch size in `config.py`.
-- **Zero Replacement**: Ensure `zCompositions` is installed if zero-replacement fails.
+### Common Issues
+
+1. **UK Biobank authentication failed**
+ - Verify `UKB_TOKEN` is set in `.env`
+ - Ensure token has not expired
+
+2. **Out of memory errors**
+ - Ensure system has at least 7GB available RAM
+ - Streaming batches are automatically sized based on memory pressure
+
+3. **Missing dependencies**
+ - Re-run `pip install -r code/requirements.txt`
+ - Check for version conflicts
 
 ## Next Steps
 
-- Review `results/sensitivity/over_control_report.json` for bias analysis.
-- Check `results/sensitivity/model_selection_report.json` for Lasso vs Ridge comparison.
-- Explore `results/validation/instrument_citation_report.md` for instrument validation details.
+After successful completion:
+- Review `results/associations/main_effects.parquet` for significant associations
+- Examine `results/plots/manhattan_plot.png` for visualization of results
+- Read `results/sensitivity/` reports for robustness checks
+
+For detailed methodology, refer to `docs/methodology.md` and the original specification documents in `specs/`.

@@ -108,9 +108,9 @@ The research system must validate findings via interaction term analysis (Age_Gr
 - Microbiome data will be sampled or subset if necessary to fit within 7 GB RAM constraints
 - Effect sizes of standardized beta coefficients > 0.1 will constitute publishable evidence given the cohort size, per the idea's stated threshold
 - The Benjamini-Hochberg procedure will control the false discovery rate at α = 0.05 for multiple testing correction
-- The sensitivity analysis threshold sweep will use p-value cutoffs ∈ {0.01, 0.05, 0.1} as a concrete, CPU-trivial set
+- The sensitivity analysis threshold sweep will use p-value cutoffs spanning a range of conventional significance levels. as a concrete, CPU-trivial set
 - UK Biobank cognitive instruments (reaction time, numeric memory, reasoning) have been validated in prior work and will be used as-is without additional validation steps
-- Taxa with zero counts will be handled with a pseudocount of 1×10⁻⁶ before ILR transformation to avoid log(0)
+- Taxa with zero counts will be handled with a small pseudocount before ILR transformation. to avoid log(0)
 - Any threshold introduced (e.g., significance cutoff, effect size filter) will carry both a one-line justification naming its community-standard basis and a sensitivity analysis requirement
 - The analysis will not require GPU/CUDA accelerators, 8-bit/4-bit quantization, or large-model training — only classical statistics and scikit-learn on CPU are used
 - Diet and medication are treated as confounders based on established literature regarding gut-brain axis timing; a sensitivity analysis excluding them is required to check for over-control bias

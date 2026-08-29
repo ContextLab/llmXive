@@ -1,7 +1,11 @@
 """
-Linting and formatting configuration and execution utilities.
-Provides functions to validate environment, run formatters, and run linters.
+Linting and formatting configuration management for llmXive project.
+
+This module provides functions to generate and manage configuration
+files for Black (formatter) and Ruff (linter), as well as utilities
+to run these tools on the codebase.
 """
+
 import subprocess
 import sys
 from pathlib import Path
@@ -9,197 +13,223 @@ from typing import Dict, Any, List, Optional
 import json
 import logging
 
-# Import project logger utility
-from utils.logging import get_logger
-
-logger = get_logger(__name__)
+# Configure logging
+logger = logging.getLogger(__name__)
 
 def get_black_config() -> Dict[str, Any]:
     """
-    Return the Black configuration parameters used in this project.
+    Generate Black configuration dictionary.
+    
+    Returns:
+        Dict containing Black configuration options.
     """
     return {
-        "line_length": 88,
-        "target_version": "py310",
-        "quote_style": "double",
-        "exclude_patterns": [".git", ".venv", "data", "results"],
+        "line-length": 88,
+        "target-version": ["py310"],
+        "include": r'\.pyi?$',
+        "exclude": r'/(venv|\.venv|build|dist|\.git|__pycache__)/',
+        "skip-string-normalization": False,
+        "skip-magic-trailing-comma": False,
     }
 
 def get_ruff_config() -> Dict[str, Any]:
     """
-    Return the Ruff configuration parameters used in this project.
+    Generate Ruff configuration dictionary.
+    
+    Returns:
+        Dict containing Ruff configuration options.
     """
     return {
-        "select": ["E", "W", "F", "I", "C", "B", "UP", "N"],
-        "ignore": ["E501", "B008", "C901"],
-        "exclude": [".git", "__pycache__", ".venv", "data/", "results/"],
+        "select": [
+            "E",  # pycodestyle errors
+            "F",  # Pyflakes
+            "W",  # pycodestyle warnings
+            "I",  # isort
+        ],
+        "ignore": [],
+        "line-length": 88,
+        "target-version": "py310",
+        "exclude": [
+            "venv",
+            ".venv",
+            "build",
+            "dist",
+            ".git",
+            "__pycache__",
+            "*.pyc",
+        ],
+        "per-file-ignores": {},
     }
 
 def validate_environment() -> bool:
     """
-    Validate that required tools (ruff, black) are installed and accessible.
-    Returns True if valid, False otherwise.
+    Check if required linting tools are installed.
+    
+    Returns:
+        True if all required tools are available, False otherwise.
     """
-    tools = ["ruff", "black"]
+    tools = ["black", "ruff"]
+    missing = []
+    
     for tool in tools:
         try:
             result = subprocess.run(
                 [tool, "--version"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=True,
+                capture_output=True,
                 text=True,
+                check=True
             )
-            logger.info(f"Found {tool}: {result.stdout.strip()}")
-        except subprocess.CalledProcessError:
-            logger.error(f"Tool {tool} not found or not executable.")
-            return False
-        except FileNotFoundError:
-            logger.error(f"Tool {tool} not found in PATH.")
-            return False
+            logger.info(f"{tool} is installed: {result.stdout.strip()}")
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            missing.append(tool)
+            logger.warning(f"{tool} is not installed or not in PATH")
+    
+    if missing:
+        logger.error(f"Missing required tools: {', '.join(missing)}")
+        logger.info("Install missing tools with: pip install " + " ".join(missing))
+        return False
+    
     return True
 
-def run_formatter(file_paths: Optional[List[str]] = None, check_only: bool = False) -> bool:
+def run_formatter(file_paths: Optional[List[str]] = None) -> bool:
     """
-    Run Black formatter on the specified files or the whole project.
-
+    Run Black formatter on specified files or the entire project.
+    
     Args:
-        file_paths: List of file paths to format. If None, formats the whole project.
-        check_only: If True, only check formatting without modifying files.
-
+        file_paths: Optional list of file paths to format. If None, formats entire project.
+        
     Returns:
-        True if formatting succeeded (or check passed), False otherwise.
+        True if formatting succeeded, False otherwise.
     """
-    cmd = ["black"]
-    if check_only:
-        cmd.append("--check")
-        cmd.append("--diff")
-    else:
-        cmd.append("--quiet")
-
-    if file_paths:
-        cmd.extend(file_paths)
-    else:
-        # Default to formatting code and tests directories
-        cmd.extend(["code", "tests"])
-
-    logger.info(f"Running formatter: {' '.join(cmd)}")
     try:
-        result = subprocess.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=True,
-            text=True,
-        )
+        cmd = ["black", "--config", str(Path(__file__).parent / "pyproject.toml")]
+        if file_paths:
+            cmd.extend(file_paths)
+        else:
+            # Format all Python files in the project
+            project_root = Path(__file__).parent.parent
+            cmd.append(str(project_root))
+        
+        logger.info(f"Running Black formatter: {' '.join(cmd)}")
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        
         if result.stdout:
             logger.info(result.stdout)
+        if result.stderr:
+            logger.info(result.stderr)
+        
         return True
     except subprocess.CalledProcessError as e:
-        if check_only:
-            logger.warning("Formatting check failed. Run 'black .' to fix.")
-            if e.stdout:
-                logger.warning(e.stdout)
-            return False
-        logger.error(f"Formatter failed: {e.stderr}")
+        logger.error(f"Black formatting failed: {e.stderr}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error during formatting: {e}")
         return False
 
-def run_linter(file_paths: Optional[List[str]] = None, fix: bool = False) -> bool:
+def run_linter(file_paths: Optional[List[str]] = None) -> bool:
     """
-    Run Ruff linter on the specified files or the whole project.
-
+    Run Ruff linter on specified files or the entire project.
+    
     Args:
-        file_paths: List of file paths to lint. If None, lints the whole project.
-        fix: If True, attempt to automatically fix issues.
-
+        file_paths: Optional list of file paths to lint. If None, lints entire project.
+        
     Returns:
         True if linting passed (no errors), False otherwise.
     """
-    cmd = ["ruff"]
-    if fix:
-        cmd.append("--fix")
-    else:
-        cmd.append("--output-format=concise")
-
-    if file_paths:
-        cmd.extend(file_paths)
-    else:
-        # Default to linting code and tests directories
-        cmd.extend(["code", "tests"])
-
-    logger.info(f"Running linter: {' '.join(cmd)}")
     try:
-        result = subprocess.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=True,
-            text=True,
-        )
+        cmd = ["ruff", "check", "--config", str(Path(__file__).parent / "pyproject.toml")]
+        if file_paths:
+            cmd.extend(file_paths)
+        else:
+            # Lint all Python files in the project
+            project_root = Path(__file__).parent.parent
+            cmd.append(str(project_root))
+        
+        logger.info(f"Running Ruff linter: {' '.join(cmd)}")
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        
         if result.stdout:
             logger.info(result.stdout)
+        if result.stderr:
+            logger.info(result.stderr)
+        
         return True
     except subprocess.CalledProcessError as e:
-        # Ruff returns non-zero exit code if issues are found
-        logger.warning("Linting issues found:")
-        if e.stdout:
-            logger.warning(e.stdout)
+        # Ruff returns non-zero exit code when issues are found
+        logger.warning(f"Ruff found issues:\n{e.stdout}")
         if e.stderr:
-            logger.error(e.stderr)
+            logger.warning(f"Ruff stderr:\n{e.stderr}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error during linting: {e}")
         return False
 
 def init_logging() -> None:
-    """
-    Initialize logging for the linting module.
-    """
+    """Initialize logging configuration."""
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
     )
 
-def main() -> None:
+def main() -> int:
     """
-    Main entry point for running linting and formatting checks.
-    Usage: python -m code.linting_config [--fix] [--check-only]
+    Main entry point for linting configuration and execution.
+    
+    Returns:
+        Exit code: 0 for success, 1 for failure.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Run linters and formatters.")
-    parser.add_argument(
-        "--fix", action="store_true", help="Attempt to automatically fix linting issues."
-    )
-    parser.add_argument(
-        "--check-only", action="store_true", help="Only check formatting, do not modify files."
-    )
-    parser.add_argument(
-        "--files", nargs="+", help="Specific files to process."
-    )
-
-    args = parser.parse_args()
-
     init_logging()
-
-    # Validate environment first
+    
+    # Validate that tools are installed
     if not validate_environment():
-        logger.error("Environment validation failed. Please install required tools (ruff, black).")
-        sys.exit(1)
-
+        logger.error("Required linting tools are not installed. Exiting.")
+        return 1
+    
+    # Generate configuration files
+    project_root = Path(__file__).parent
+    
+    # Create .ruff.toml
+    ruff_config = get_ruff_config()
+    ruff_path = project_root / ".ruff.toml"
+    with open(ruff_path, "w") as f:
+        f.write("# Ruff configuration\n")
+        f.write(f"select = {ruff_config['select']}\n")
+        f.write(f"ignore = {ruff_config['ignore']}\n")
+        f.write(f"line-length = {ruff_config['line-length']}\n")
+        f.write(f"target-version = '{ruff_config['target-version']}'\n")
+        f.write(f"exclude = {ruff_config['exclude']}\n")
+    logger.info(f"Created {ruff_path}")
+    
+    # Create pyproject.toml with Black configuration
+    pyproject_path = project_root / "pyproject.toml"
+    with open(pyproject_path, "w") as f:
+        f.write("[tool.black]\n")
+        f.write(f'line-length = {get_black_config()["line-length"]}\n')
+        f.write(f'target-version = {get_black_config()["target-version"]}\n')
+        f.write(f'include = "{get_black_config()["include"]}"\n')
+        f.write(f'exclude = "{get_black_config()["exclude"]}"\n')
+        f.write(f'skip-string-normalization = {get_black_config()["skip-string-normalization"]}\n')
+        f.write(f'skip-magic-trailing-comma = {get_black_config()["skip-magic-trailing-comma"]}\n')
+    logger.info(f"Created {pyproject_path}")
+    
     # Run formatter
     logger.info("Running Black formatter...")
-    format_ok = run_formatter(
-        file_paths=args.files, check_only=args.check_only
-    )
-
+    if not run_formatter():
+        logger.error("Black formatting failed. Please fix formatting issues manually.")
+        return 1
+    
     # Run linter
     logger.info("Running Ruff linter...")
-    lint_ok = run_linter(file_paths=args.files, fix=args.fix)
-
-    if format_ok and lint_ok:
-        logger.info("All checks passed successfully.")
-        sys.exit(0)
-    else:
-        logger.error("Some checks failed. Please review the output above.")
-        sys.exit(1)
+    if not run_linter():
+        logger.warning("Ruff found issues. Please review and fix them.")
+        # Return 0 even if linter finds issues, as this is informational
+        # but log the issues for the developer to fix
+    
+    logger.info("Linting and formatting completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

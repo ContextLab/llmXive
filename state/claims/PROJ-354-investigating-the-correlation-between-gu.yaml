@@ -322,3 +322,338 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T22:29:53Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: handle 14GB datasets within 7GB RAM limits
+  claim_id: c_66bd0d2c
+  context: T006 [P] Setup data hygiene utilities (checksumming, PII masking helpers)
+    in code/utils/hygiene.py - Implement streaming/batch data loader utilities in
+    code/utils/streaming.py to handle >14GB datasets within 7GB RAM limits
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Handle_14GB_datasets_within_7GB_RAM_limits
+  kind: entity_fact
+  raw_text: Implement streaming/batch data loader utilities in code/utils/streaming.py
+    to handle >14GB datasets within 7GB RAM limits
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:19:23Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: calculated power greater than or equal to 0.8
+  claim_id: c_512396ca
+  context: 'T019 [P] Implement code/power_analysis.py to generate synthetic dataset
+    (beta=0.1) using standalone isolated preprocessing (fixed zero-replacement + ILR)
+    to validate the full pipeline logic. Gate Criteria: Report MUST contain (1) calculated
+    power, (2) required sample size, (3) explicit pass/fail statement where PASS =
+    calculated power >= 0.8'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calculated_power_greater_than_or_equal_to_0.8
+  kind: magnitude
+  raw_text: Implement code/power_analysis.py to generate synthetic dataset (beta=0.1)
+    ... PASS = calculated power >= 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:19:55Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: apply fixed pseudocount of 1e-6 to raw microbiome counts
+  claim_id: c_da595b40
+  context: T017 [US1] Apply fixed pseudocount of 1e-6 to raw microbiome counts to
+    handle zero counts, as mandated by Spec Assumptions and FR-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply fixed pseudocount of 1e-6 to raw microbiome counts to handle zero
+    counts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:20:28Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: fit linear models with Age_Group * Taxon term
+  claim_id: c_3c887234
+  context: 'T024 [US3] Implement code/analysis.py to fit interaction models: fit linear
+    models with ''Age_Group * Taxon'' term to assess age-dependent effects without
+    splitting sample (FR-006).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fit_linear_models_with_Age_Group_*_Taxon_term
+  kind: entity_fact
+  raw_text: Fit linear models with 'Age_Group * Taxon' term to assess age-dependent
+    effects without splitting sample
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:22:02Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: derive Age_Group where age is greater than or equal to AGE_GROUP_CUTOFF
+  claim_id: c_58af0888
+  context: 'T016 [US1] Implement code/preprocess.py to filter cohort: exclude recent
+    antibiotic users and participants missing either data type. Includes: Derive Age_Group
+    categorical variable from continuous age where Age >= code/config.py.AGE_GROUP_CUTOFF.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Derive_Age_Group_where_age_is_greater_than_or_equal_to_AGE_G
+  kind: magnitude
+  raw_text: Derive Age_Group categorical variable from continuous age where Age >=
+    code/config.py.AGE_GROUP_CUTOFF
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:22:32Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: reduce peak RAM to less than 5GB
+  claim_id: c_047d89f4
+  context: 'T042 [P] Performance optimization. Metric: Profile code/utils/streaming.py
+    using memory_profiler and optimize to reduce peak RAM to <5GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_peak_RAM_to_less_than_5GB
+  kind: magnitude
+  raw_text: Optimize to reduce peak RAM to <5GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:23:15Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: fetch UK Biobank microbiome 16S rRNA sequencing data using streaming
+    batches
+  claim_id: c_16dc4e69
+  context: 'T014 [P] [US1] Implement code/download.py to fetch UK Biobank microbiome
+    16S rRNA sequencing data using streaming batches. Output: data/raw/microbiome_raw.parquet
+    (checksummed).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_UK_Biobank_microbiome_16S_rRNA_sequencing_data_using_s
+  kind: entity_fact
+  raw_text: Implement code/download.py to fetch UK Biobank microbiome 16S rRNA sequencing
+    data using streaming batches.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:31:14Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: fetch UK Biobank cognitive assessment scores field IDs 20400 and 20002
+    using streaming batches
+  claim_id: c_83a88535
+  context: 'T015 [P] [US1] Implement code/download.py to fetch UK Biobank cognitive
+    assessment scores (field IDs 20400, 20002) using streaming batches. Output: data/raw/cognitive_raw.parquet
+    (checksummed).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/download.py to fetch UK Biobank cognitive assessment scores
+    (field IDs 20400, 20002) using streaming batches.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:31:45Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: apply fixed pseudocount of 1e-6 to raw microbiome counts
+  claim_id: c_45bcce3d
+  context: 'T017 [US1] Apply fixed pseudocount of 1e-6 to raw microbiome counts to
+    handle zero counts, as mandated by Spec Assumptions and FR-003. Implementation:
+    Use numpy to add 1e-6 to all counts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply fixed pseudocount of 1e-6 to raw microbiome counts to handle zero
+    counts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:31:45Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: perform Isometric Log-Ratio transformation using sequential binary partition
+    defined in Aitchison
+  claim_id: c_5c19a47c
+  context: 'T018 [US1] Implement code/preprocess.py genus-level aggregation and Isometric
+    Log-Ratio (ILR) transformation. Pipeline: Zero-replaced counts -> ILR transformation
+    using sequential binary partition (sbp) defined in Aitchison via skbio.stats.composition.ilr.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_Isometric_Log-Ratio_transformation_using_sequential
+  kind: entity_fact
+  raw_text: Implement Isometric Log-Ratio (ILR) transformation using sequential binary
+    partition (sbp) defined in Aitchison.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:32:38Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: fit Lasso-regularized linear models as primary method
+  claim_id: c_0dc7c7e6
+  context: T028 [US2] Implement code/analysis.py to fit Lasso-regularized linear models
+    as the primary method per Plan Complexity Tracking (which rejects OLS).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fit_Lasso-regularized_linear_models_as_primary_method
+  kind: entity_fact
+  raw_text: Fit Lasso-regularized linear models as the primary method per Plan Complexity
+    Tracking.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:33:37Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: derive Age_Group categorical variable from continuous age where Age is
+    greater than or equal to 65
+  claim_id: c_dca1a6b9
+  context: 'Includes: Derive Age_Group categorical variable from continuous age where
+    Age >= code/config.py.AGE_GROUP_CUTOFF. Note: Age Group Definition: Derived in
+    T016 using a clinical threshold of Age >= 65.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Derive_Age_Group_categorical_variable_from_continuous_age_wh
+  kind: magnitude
+  raw_text: Age_Group categorical variable derived from continuous age where Age >=
+    65.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:34:22Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: power gate validation requires calculated power greater than or equal
+    to 0.8
+  claim_id: c_a4823b27
+  context: 'Gate Criteria: Report MUST contain (1) calculated power, (2) required
+    sample size, (3) explicit pass/fail statement where PASS = calculated power >=
+    0.8.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_gate_validation_requires_calculated_power_greater_than
+  kind: magnitude
+  raw_text: Power Gate validation requires calculated power >= 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:35:24Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: generate synthetic dataset for power analysis using beta of 0.1
+  claim_id: c_42df44eb
+  context: T019 [P] Implement code/power_analysis.py to generate synthetic dataset
+    (beta=0.1) using standalone isolated preprocessing to validate the full pipeline
+    logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic dataset generated for power analysis uses beta=0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:35:51Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: use UK Biobank field IDs 20400 and 20002 for cognitive assessment
+  claim_id: c_261f6ecc
+  context: T015 [P] [US1] Implement code/download.py to fetch UK Biobank cognitive
+    assessment scores (field IDs 20400, 20002) using streaming batches.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: UK Biobank field IDs 20400 and 20002 used for cognitive assessment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:36:22Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: handle datasets larger than 14GB within 7GB RAM limits using streaming
+    batch loader
+  claim_id: c_2b5f271d
+  context: T006 [P] Implement streaming/batch data loader utilities in code/utils/streaming.py
+    to handle >14GB datasets within 7GB RAM limits.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Handle_datasets_larger_than_14GB_within_7GB_RAM_limits_using
+  kind: entity_fact
+  raw_text: Dataset size exceeds 14GB requiring streaming/batch loader utilities within
+    7GB RAM limits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:37:16Z'
+- artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: initialize Python 3.10 project with pandas 2.0.3, numpy 1.24.3, scikit-learn
+    1.3.0, statsmodels 0.14.0, seaborn 0.12.2, matplotlib 3.7.2, pyarrow 12.0.1, requests
+    2.31.0, huggingface_hub 0.17.1, scikit-bio 0.5.9
+  claim_id: c_053d2da9
+  context: 'T002 Initialize Python 3.10 project with code/requirements.txt (pinned
+    versions: pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, statsmodels==0.14.0,
+    seaborn==0.12.2, matplotlib==3.7.2, pyarrow==12.0.1, requests==2.31.0, huggingface_hub==0.17.1,
+    scikit-bio==0.5.9).'
+  evidence:
+    asserted: '3.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Python 3.10 project initialized with specific pinned package versions.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T08:37:16Z'
