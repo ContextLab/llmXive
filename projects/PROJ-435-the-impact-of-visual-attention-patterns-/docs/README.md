@@ -1,70 +1,138 @@
-# Project: The Impact of Visual Attention Patterns on Susceptibility to Misleading Headlines
+# The Impact of Visual Attention Patterns on Susceptibility to Misleading Headlines
 
-## Overview
-This project investigates the relationship between visual attention patterns (specifically fixation duration on source attribution vs. headline body) and susceptibility to misleading headlines. We analyze how cognitive reflection, headline valence, and attention distribution interact to influence belief ratings.
+## Project Overview
+This research project investigates the relationship between visual attention patterns (measured via eye-tracking), headline valence, cognitive reflection scores, and susceptibility to misleading news headlines. The study employs a mixed-effects regression approach to test for a three-way interaction between source fixation duration, headline valence, and cognitive reflection.
+
+## Research Questions
+1. How does visual attention to source attribution vs. headline body affect belief ratings?
+2. Does headline valence moderate the relationship between attention and belief?
+3. Do individuals with higher cognitive reflection scores show different attention-belief patterns?
+4. Is there a three-way interaction between fixation duration, valence, and cognitive reflection?
+
+## Methodology
+- **Data Source**: Eye-tracking data from the Dundee Eye-Tracking Corpus (or equivalent verified dataset)
+- **Analysis**: Mixed-effects regression with random intercepts for participants and headlines
+- **Key Variables**:
+ - Dependent: `belief_rating`
+ - Independent: `fixation_duration`, `valence`, `cognitive_reflection_score`
+ - Interaction: `fixation_duration * valence * cognitive_reflection_score`
+- **Controls**: `headline_length`, `total_fixation_duration`, `lexicon_used`
+
+## Pipeline Structure
+The analysis pipeline consists of the following stages:
+
+### Phase 1: Setup
+- Project initialization and directory structure
+- Environment configuration and dependency installation
+- Linting and formatting setup
+
+### Phase 2: Foundational
+- Data ingestion and validation
+- Configuration management
+- Logging infrastructure
+
+### Phase 3: User Story 1 - Core Data Preprocessing
+- I-VT fixation detection
+- ROI mapping (source attribution vs. headline body)
+- Participant filtering based on data quality
+- Data quality reporting
+
+### Phase 4: User Story 2 - Mixed-Effects Regression
+- Data merging and outlier capping
+- Valence calculation (NRC/VADER lexicons)
+- Mixed-effects model fitting
+- Holm-Bonferroni correction for multiple comparisons
+
+### Phase 5: User Story 3 - Robustness Analysis
+- Threshold sensitivity analysis (50ms, 100ms, 150ms)
+- Stability verification of interaction effects
+- Robustness reporting
+
+## Directory Structure
+```
+code/
+├── 01_extract_empirical_outcome.py
+├── 02_data_quality_report.py
+├── 03_data_merge.py
+├── 03_valence_calculation.py
+├── 04_data_merge.py
+├── 05_regression_analysis.py
+├── 06_apply_holm_correction.py
+├── 06_generate_regression_results.py
+├── 06_measure_runtime.py
+├── 07_generate_causal_framing.py
+├── 07_stability_check.py
+├── utils/
+│ ├── config_loader.py
+│ ├── data_loading.py
+│ ├── fixation_detection.py
+│ ├── logging_config.py
+│ ├── logging_init.py
+│ ├── roi_mapping.py
+│ └── validate_dataset_schema.py
+└── models/
+ ├── participant.py
+ ├── stimulus.py
+ └── gaze_event.py
+
+data/
+├── raw/
+│ └── eye_tracking_raw.parquet
+├── derived/
+│ ├── empirical_outcomes.csv
+│ ├── preprocessed_gaze.csv
+│ ├── valence_scores.csv
+│ ├── merged_dataset_full.csv
+│ ├── regression_results.csv
+│ └── robustness_report.csv
+└── synthetic/
+ └── ground_truth.csv
+
+output/
+├── exclusion_log.txt
+├── data_quality_report.csv
+├── stability_check.json
+└── causal_framing_statement.txt
+
+state/
+├── data_hashes.json
+├── runtime_events.json
+├── runtime_metrics.json
+└── schema_validation.json
+
+tests/
+├── contract/
+│ ├── test_ingestion_schema.py
+│ ├── test_regression_schema.py
+│ └── test_robustness_schema.py
+└── integration/
+ ├── test_ivt_preprocessing.py
+ ├── test_mixed_effects_recovery.py
+ └── test_sensitivity_analysis.py
+```
+
+## Quick Start
+1. Install dependencies: `pip install -r requirements.txt`
+2. Initialize project structure: `python code/setup_data_structure.py`
+3. Configure logging: `python code/utils/logging_init.py`
+4. Ingest and preprocess data: `python code/02_preprocess_gaze.py`
+5. Run full pipeline: See `quickstart.md` for complete execution order
 
 ## Key Findings
-- Visual attention to source attribution significantly moderates the effect of headline valence on belief susceptibility.
-- Higher cognitive reflection scores correlate with reduced susceptibility to misleading headlines, particularly when source attribution is attended to.
-- The interaction between fixation duration, valence, and cognitive reflection explains a significant portion of the variance in belief ratings.
+The analysis will produce:
+- Regression coefficients with Holm-Bonferroni corrected p-values
+- Stability analysis across different fixation thresholds
+- A causal framing statement describing the three-way interaction effect
 
-## Repository Structure
-```
-.
-├── code/ # Implementation scripts
-│ ├── utils/ # Utility functions (fixation detection, ROI mapping, etc.)
-│ ├── models/ # Data models (Participant, Stimulus, GazeEvent)
-│ ├── 01_extract_empirical_outcome.py
-│ ├── 02_preprocess_gaze.py
-│ ├── 03_valence_calculation.py
-│ ├── 04_data_merge.py
-│ ├── 05_regression_analysis.py
-│ ├── 06_measure_runtime.py
-│ ├── 07_generate_causal_framing.py
-│ ├── robustness_runner.py
-│ ├── robustness_sweep.py
-│ └── robustness_stability_check.py
-├── data/
-│ ├── raw/ # Raw eye-tracking data
-│ ├── derived/ # Processed datasets
-│ └── processed/ # Final analysis-ready datasets
-├── output/ # Generated reports and logs
-├── state/ # Pipeline state and validation artifacts
-├── tests/ # Test suites
-├── docs/ # Documentation
-└── paper/ # Draft manuscript and supplementary materials
-```
+## Reproducibility
+- All random seeds are pinned in `code/config.yaml`
+- All data artifacts are checksummed in `state/data_hashes.json`
+- Runtime metrics are recorded in `state/runtime_metrics.json`
+- Lexicon choice (NRC vs. VADER) is tracked as a covariate
 
-## Installation
-1. Clone the repository
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-3. Ensure the dataset is downloaded by running `code/utils/data_loading.py`
-
-## Usage
-Run the pipeline in order:
-1. `python code/01_extract_empirical_outcome.py`
-2. `python code/02_preprocess_gaze.py`
-3. `python code/03_valence_calculation.py`
-4. `python code/04_data_merge.py`
-5. `python code/05_regression_analysis.py`
-6. `python code/06_measure_runtime.py`
-7. `python code/07_generate_causal_framing.py`
-8. `python code/robustness_sweep.py` (optional robustness analysis)
-
-## Data
-- **Raw Data**: Eye-tracking data from the Dundee Eye-Tracking Corpus (downloaded via `code/utils/data_loading.py`)
-- **Derived Data**: Preprocessed gaze events, valence scores, and merged datasets
-- **Outputs**: Regression results, robustness reports, and causal framing statements
-
-## Configuration
-Edit `code/config.yaml` to modify:
-- Random seed
-- Dataset URL
-- Fixation detection parameters (I-VT or I-DT)
-- ROI definitions
-
-## License
-This project is licensed under the MIT License.
+## References
+- I-VT Fixation Detection: Salvucci & Goldberg (2000)
+- Mixed-Effects Modeling: Bates et al. (2015)
+- Holm-Bonferroni Correction: Holm (1979)
+- NRC Lexicon: Mohammad & Turney (2013)
+- VADER Sentiment: Hutto & Gilbert (2014)

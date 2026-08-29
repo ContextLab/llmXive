@@ -1,10 +1,23 @@
-pandas
-numpy
-scikit-learn
-statsmodels
-nltk
-scipy
-pyyaml
-ruff
-black
-pytest
+# Performance optimization dependencies
+# These are additional dependencies for T047 performance optimization
+
+# Core dependencies (from T002)
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+nltk>=3.8.0
+scipy>=1.11.0
+
+# Performance optimization dependencies
+pyarrow>=12.0.0  # For efficient parquet I/O
+multiprocess>=0.70.15  # Enhanced multiprocessing support
+joblib>=1.3.0  # For parallel processing utilities
+
+# Data handling
+pyyaml>=6.0.0
+tqdm>=4.65.0  # For progress bars in long-running tasks
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0

@@ -806,3 +806,40 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T04:28:09Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/conclusion.md
+  attempts: 1
+  canonical: three-way interaction effect remains consistent across fixation duration
+    thresholds 50ms, 100ms, 150ms
+  claim_id: c_11cc7544
+  context: Robustness Verification section discussing stability checks of the primary
+    finding.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Three-way_interaction_effect_remains_consistent_across_fixat
+  kind: entity_fact
+  raw_text: The stability check confirmed that the three-way interaction effect remains
+    consistent across fixation duration thresholds (50ms, 100ms, 150ms).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:25:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/conclusion.md
+  attempts: 1
+  canonical: automatic fallback from NRC to VADER lexicon when coverage < 50% may
+    introduce minor confounds
+  claim_id: c_915ab537
+  context: Lexicon Limitations section discussing dataset constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The automatic fallback from NRC to VADER lexicon (when coverage < 50%)
+    may introduce minor confounds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T15:25:12Z'

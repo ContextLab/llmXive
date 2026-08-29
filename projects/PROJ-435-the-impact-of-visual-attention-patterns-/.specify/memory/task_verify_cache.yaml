@@ -75,6 +75,15 @@ T024:
     \ The next implementer must add the regression script (or notebook) that fits\
     \ the specified three\u2011way interaction, outputs coefficient estimates, significance\
     \ tests, and any diagnostic information."
+T028:
+  c: false
+  h: 6a3a947e22cc97359f3bb411e176b72d8aabe18d88fdb1d6ccc1b6ceab61e5c8
+  r: "The required input file `data/derived/regression_results.csv` is absent, so\
+    \ the script cannot read the regression results or generate `output/causal_framing_statement.txt`.\
+    \ Additionally, the provided code is truncated and does not show the logic for\
+    \ extracting the three\u2011way interaction term, applying corrected p\u2011values,\
+    \ or composing the FR\u2011006\u2011compliant statement. The missing data file\
+    \ and incomplete implementation must be added for the task to be considered complete."
 T030:
   c: false
   h: 97969afb6fd11006fdfe02724132e75522ce35ffa7753f183cc1fe045cb09565
@@ -113,9 +122,37 @@ T040:
     \ or write `output/data_quality_report.csv`. Moreover, the required input file\
     \ `data/derived/preprocessed_gaze.csv` is missing, so the script cannot perform\
     \ the requested calculations. The task\u2019s core output is therefore not produced."
-T045:
+T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` or `paper/` files or updates were presented; the evidence contains
-    only the feature specification and no documentation artifacts, so the required
-    documentation updates are missing.
+  r: "No code, scripts, or documentation related to \u201Ccode cleanup and refactoring\u201D\
+    \ were provided; the only material shown is a feature specification for eye\u2011\
+    tracking data processing, which does not address the cleanup task. Consequently,\
+    \ the required artifact is missing."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts were provided showing any performance optimization work, runtime\
+    \ measurements, or code changes that reduce the total execution time of the pipelines\
+    \ described in the user stories. Consequently, there is no evidence that the overall\
+    \ runtime is now under 300\u202Fminutes, so the task requirement is not satisfied."
+T048:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any new or additional unit test files under the `tests/unit/`
+    directory is provided; the claim lacks the required artifact, so the task of adding
+    additional unit tests is not satisfied.
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing that `quickstart.md` was actually run or validated is present;
+    the response only contains a feature specification and no validation results,
+    logs, or confirmation that the quickstart steps succeeded. The required evidence
+    of successful validation is missing.
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that any artifacts in the `state/` directory
+    have been checksummed; the prompt contains no checksum files, scripts, or listings
+    confirming such verification. Consequently, the requirement to verify all artifacts
+    in `state/` is not satisfied.

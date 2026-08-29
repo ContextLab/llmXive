@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T11:38:06.909564Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-435-the-impact-of-visual-attention-patterns-
-last_run_id: b1b259d6-ad98-474e-a74b-f4985514459e
+last_run_id: 60e9214e-cd7c-408c-b5a6-b74ee0f50809
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns
 title: The Impact of Visual Attention Patterns on Susceptibility to Misleading Headlines
-updated_at: '2026-08-26T06:52:24.865484Z'
+updated_at: '2026-08-29T15:53:14.759355Z'

@@ -1,112 +1,70 @@
-"""
-Unit tests for code/utils/data_loading.py
-"""
 import pytest
-import json
-import os
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pandas as pd
+import numpy as np
 import hashlib
+import json
+from pathlib import Path
+from unittest.mock import patch, MagicMock, mock_open
 
-# Add project root to path
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from code.utils.data_loading import (
-    compute_sha256,
-    load_hash_registry,
-    save_hash_registry,
-    verify_checksum,
-    parse_research_md
-)
-from code.utils.data_loading import STATE_DIR, PROJECT_ROOT
+# Import from the project's utility module
+from code.utils.data_loading import compute_sha256, verify_checksum, validate_eye_tracking_schema
 
 def test_compute_sha256():
-    """Test SHA-256 computation on a known string."""
-    # Create a temp file
-    test_file = PROJECT_ROOT / "temp_test_sha.txt"
-    content = b"test content for hashing"
-    test_file.write_bytes(content)
-    
-    expected_hash = hashlib.sha256(content).hexdigest()
-    actual_hash = compute_sha256(test_file)
-    
+    # Test SHA256 computation for a string
+    data = b"Hello, World!"
+    expected_hash = hashlib.sha256(data).hexdigest()
+    actual_hash = compute_sha256(data)
     assert actual_hash == expected_hash
-    test_file.unlink()
 
-def test_load_hash_registry_empty():
-    """Test loading registry when file doesn't exist."""
-    # Ensure file doesn't exist
-    hash_file = STATE_DIR / "data_hashes.json"
-    if hash_file.exists():
-        hash_file.unlink()
+def test_compute_sha256_file(tmp_path):
+    # Test SHA256 computation for a file
+    test_file = tmp_path / "test.txt"
+    test_content = b"Test content for hashing"
+    test_file.write_bytes(test_content)
     
-    registry = load_hash_registry()
-    assert registry == {}
+    expected_hash = hashlib.sha256(test_content).hexdigest()
+    actual_hash = compute_sha256(test_file.read_bytes())
+    assert actual_hash == expected_hash
 
-def test_save_and_load_hash_registry():
-    """Test saving and loading registry."""
-    test_registry = {"file1.parquet": "abc123", "file2.parquet": "def456"}
-    save_hash_registry(test_registry)
+def test_verify_checksum_match(tmp_path):
+    # Test checksum verification with matching hashes
+    test_file = tmp_path / "test.txt"
+    test_content = b"Content to verify"
+    test_file.write_bytes(test_content)
     
-    loaded_registry = load_hash_registry()
-    assert loaded_registry == test_registry
+    computed_hash = compute_sha256(test_content)
+    assert verify_checksum(test_content, computed_hash) is True
 
-def test_verify_checksum_new_file():
-    """Test verification of a new file."""
-    # Create a temp file
-    test_file = PROJECT_ROOT / "temp_verify_test.parquet"
-    content = b"new file content"
-    test_file.write_bytes(content)
+def test_verify_checksum_mismatch(tmp_path):
+    # Test checksum verification with mismatched hashes
+    test_content = b"Content to verify"
+    wrong_hash = "0" * 64  # Invalid hash
     
-    hash_file = STATE_DIR / "data_hashes.json"
-    if hash_file.exists():
-        hash_file.unlink() # Start fresh
-    
-    registry = load_hash_registry()
-    # Should not raise
-    verify_checksum(test_file, "temp_verify_test.parquet", registry)
-    
-    # Check registry was updated
-    assert "temp_verify_test.parquet" in registry
-    
-    test_file.unlink()
+    assert verify_checksum(test_content, wrong_hash) is False
 
-def test_verify_checksum_mismatch():
-    """Test verification fails on mismatch."""
-    # Create a temp file
-    test_file = PROJECT_ROOT / "temp_mismatch.parquet"
-    content = b"mismatch content"
-    test_file.write_bytes(content)
+def test_validate_eye_tracking_schema_valid():
+    # Test schema validation with valid columns
+    df = pd.DataFrame({
+        'headline_text': ['Headline 1', 'Headline 2'],
+        'belief_rating': [5, 4],
+        'cognitive_reflection_score': [2, 1],
+        'fixation_duration': [100, 150]
+    })
     
-    # Pre-populate registry with wrong hash
-    registry = {"temp_mismatch.parquet": "wrong_hash_12345"}
-    
-    with pytest.raises(ValueError, match="Checksum mismatch"):
-        verify_checksum(test_file, "temp_mismatch.parquet", registry)
-    
-    test_file.unlink()
+    required_columns = ['headline_text', 'belief_rating', 'cognitive_reflection_score', 'fixation_duration']
+    is_valid, missing = validate_eye_tracking_schema(df, required_columns)
+    assert is_valid is True
+    assert len(missing) == 0
 
-@patch('code.utils.data_loading.RESEARCH_MD_PATH')
-def test_parse_research_md(mock_path):
-    """Test parsing URL from research.md."""
-    mock_content = """
-    Some text...
-    VERIFIED REAL DATA SOURCE
-    https://example.com/dataset/eye_tracking_v1.parquet
-    More text...
-    """
-    mock_path.read_text.return_value = mock_content
-    mock_path.exists.return_value = True
+def test_validate_eye_tracking_schema_missing_columns():
+    # Test schema validation with missing columns
+    df = pd.DataFrame({
+        'headline_text': ['Headline 1', 'Headline 2'],
+        'belief_rating': [5, 4]
+    })
     
-    url = parse_research_md()
-    assert url == "https://example.com/dataset/eye_tracking_v1.parquet"
-
-@patch('code.utils.data_loading.RESEARCH_MD_PATH')
-def test_parse_research_md_missing_block(mock_path):
-    """Test error when block is missing."""
-    mock_path.read_text.return_value = "No verified source here"
-    mock_path.exists.return_value = True
-    
-    with pytest.raises(ValueError, match="Could not find"):
-        parse_research_md()
+    required_columns = ['headline_text', 'belief_rating', 'cognitive_reflection_score', 'fixation_duration']
+    is_valid, missing = validate_eye_tracking_schema(df, required_columns)
+    assert is_valid is False
+    assert 'cognitive_reflection_score' in missing
+    assert 'fixation_duration' in missing

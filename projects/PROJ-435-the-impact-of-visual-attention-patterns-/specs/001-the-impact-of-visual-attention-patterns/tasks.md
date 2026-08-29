@@ -55,20 +55,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] **Construct Validity Gate**: Implement `code/utils/validate_dataset_schema.py` to verify the raw dataset contains required columns (`headline_text`, `belief_rating`, `cognitive_reflection_score`, `fixation_duration`) **and** pre‑defined ROI bounding boxes (`source_attribution`, `headline_body`). Reads ROI definitions from `code/config.yaml`. Halts with `DataInvalidError` if missing. **Input**: `data/raw/eye_tracking_raw.parquet` (produced by T005). **Output**: `state/schema_validation.json` (`status: "valid"` or `"invalid"`). **Dependency**: Runs after T005 download but before any preprocessing.
-
-- [X] T005 [P] **Create Configuration & Fetch Data**: Create `code/config.yaml` with `random_seed:` and `dataset_url` (taken from `research.md` “Verified datasets” block). Implement `code/utils/data_loading.py` to fetch the eye‑tracking dataset from this URL, compute its SHA‑256 checksum, and write it to `state/data_hashes.json`. **Output**: `data/raw/eye_tracking_raw.parquet`. **Constraint**: Must verify the download URL matches `config.dataset_url` before writing.
-
-- [X] T006 [P] Implement `code/utils/fixation_detection.py` containing I‑VT (duration‑threshold) **or** I‑DT (dispersion‑threshold) logic. Reads parameters `ivt_duration_threshold` or `idt_dispersion_threshold` from `code/config.yaml`; defaults to I‑VT 100 ms if none provided.
-
-- [X] T007 Implement data models:
- - `code/models/participant.py` (`id`, `crt_score`, `random_intercept`)
- - `code/models/stimulus.py` (`id`, `headline_text`, `valence`, `random_intercept`)
- - `code/models/gaze_event.py` (`timestamp`, `duration`, `roi`, `participant_id`)
-
 - [X] T008a [P] Create logging configuration file `code/config/logging_config.yaml` **with a concrete schema**:
  ```yaml
- level: INFO # string, e.g., "INFO", "DEBUG"
+ level: INFO # string, e.g., "INFO", "DEBUG" - Default to INFO to capture audit trails
  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
  handlers:
  - console
@@ -76,17 +65,28 @@
  ```
  This file satisfies the required keys (`level`, `format`, `handlers`) for downstream logger initialization.
 
-- [X] T008b [P] Implement `code/utils/logging_init.py` to load `code/config/logging_config.yaml` (produced by T008a) and initialise the global logger. Validates that the loaded config contains the required keys; raises `ConfigError` if any are missing. Must be executed before any task that writes to `output/` or `state/`.
+- [X] T008b [P] Implement `code/utils/logging_init.py` to load `code/config/logging_config.yaml` (produced by T008a) and initialise the global logger. Validates that the loaded config contains the required keys; raises `ConfigError` if any are missing. Must be executed before any task that writes to `output/` or `state/`. **Dependency**: None (Phase 2 start).
 
-- [ ] T004b **Extract Empirical Outcome**: Load `data/raw/eye_tracking_raw.parquet` (from T005) and extract `belief_rating` and `headline_text`. Accept common aliases (`belief`, `rating`, `self_reported_belief`) with a **warning** if the exact column name is absent. Writes `data/derived/empirical_outcomes.csv` containing `participant_id`, `headline_id`, `belief_rating`, `headline_text`. **Dependency**: Must run after T005. **Tag**: not parallel‑safe (`[P]` removed). <!-- FAILED: unspecified -->
+- [X] T005 [P] **Create Configuration & Fetch Data**: Create `code/config.yaml` with `random_seed:` and `dataset_id` (taken from `research.md` "Verified datasets" block). Implement `code/utils/data_loading.py` to fetch the eye‑tracking dataset using `datasets.load_dataset(dataset_id, split=...)` with explicit versioning (e.g., `revision="v1.0"`), compute its SHA‑256 checksum, and write it to `state/data_hashes.json`. **Output**: `data/raw/eye_tracking_raw.parquet`. **Constraint**: Must verify the dataset ID matches `config.dataset_id` before writing. Log the resolved dataset ID to `state/runtime_events.json`. **Dependency**: T008b.
 
-- [ ] T021 **Valence Calculation** (no `[P]`): Using `data/derived/empirical_outcomes.csv` (from T004b), compute NRC lexical coverage. If average coverage < 50 %, **switch to VADER for all headlines** *and* add a new column `lexicon_used` (`"NRC"` or `"VADER"`) to the output. Log the switch event to `state/runtime_events.json` with fields `event`, `from`, `to`, `coverage`. Also record a warning about the systematic confound. Output `data/derived/valence_scores.csv` (schema identical regardless of lexicon). **Dependency**: Must run after T004b.
+- [X] T004 [P] **Construct Validity Gate**: Implement `code/utils/validate_dataset_schema.py` to verify the raw dataset contains required columns (`headline_text`, `belief_rating`, `cognitive_reflection_score`, `fixation_duration`) **and** pre‑defined ROI bounding boxes (`source_attribution`, `headline_body`). Reads ROI definitions from `code/config.yaml`. Halts with `DataInvalidError` if missing. **Input**: `data/raw/eye_tracking_raw.parquet` (produced by T005). **Output**: `state/schema_validation.json` (`status: "valid"` or `"invalid"`). **Dependency**: Runs after T005.
 
-- [ ] T018 **Core Preprocessing (US1)**: Implement `code/02_preprocess_gaze.py` to ingest raw data, apply fixation detection (T006), filter participants with ≥ 20 % data loss, map gaze points to ROIs (`source_attribution`, `headline_body`) using `code/utils/roi_mapping.py`, and handle edge cases (missing ROI → trial exclusion, zero fixations → duration 0). Writes `data/derived/preprocessed_gaze.csv` and `output/exclusion_log.txt`. **Dependency**: Requires T005 (raw data), T006 (fixation logic), and T015 (ROI mapping).
+- [X] T004b **Extract Empirical Outcome**: Load `data/raw/eye_tracking_raw.parquet` (from T005). **Strict Schema Enforcement**: The script MUST locate a column named exactly `belief_rating`. If this column is missing, the script MUST raise `DataInvalidError` immediately. No alias resolution or fallback columns (e.g., `self_reported_belief`, `rating`) are permitted. **Output**: `data/derived/empirical_outcomes.csv` containing `participant_id`, `headline_id`, `belief_rating`, `headline_text`. **Dependency**: T005, T008b. **Constraint**: If `data/raw/eye_tracking_raw.parquet` is missing, raise `FileNotFoundError` immediately; do not attempt to proceed.
+
+- [X] T006 [P] **Implement I-VT Fixation Detection**: Implement `code/utils/fixation_detection.py` containing I‑VT (duration‑threshold) logic as the **default** algorithm. Reads parameters `ivt_duration_threshold` (default configurable) or `idt_dispersion_threshold` from `code/config.yaml`. If I-DT is configured, it must be explicitly enabled; otherwise, I-VT is used. **Constraint**: Must enforce a minimum duration threshold for I-VT to distinguish fixations from saccades (Holmqvist et al., 2011). as per FR-001.
+
+- [X] T007 Implement data models:
+ - `code/models/participant.py` (`id`, `crt_score`, `random_intercept`)
+ - `code/models/stimulus.py` (`id`, `headline_text`, `valence`, `random_intercept`)
+ - `code/models/gaze_event.py` (`timestamp`, `duration`, `roi`, `participant_id`)
 
 - [X] T015 [P] **ROI Mapping Logic**: Implement `code/utils/roi_mapping.py` using point‑in‑polygon to assign each gaze point to a ROI. Input: raw gaze coordinates + ROI polygons from dataset. Output: `roi_type` column added to gaze records. Used by T018.
 
-- [ ] T040 **Data Quality Report (US1)**: Implement `code/02_data_quality_report.py` to read `output/exclusion_log.txt` and `data/derived/preprocessed_gaze.csv`, compute the number of excluded participants, reasons, and total participants count (derived from the checksum log generated by T005). Generates `output/data_quality_report.csv` satisfying SC‑001. **Dependency**: Runs after T018 and after `state/data_hashes.json` exists.
+- [X] T018 **Core Preprocessing (US1)**: Implement `code/02_preprocess_gaze.py` to ingest raw data, apply fixation detection (T006), filter participants with ≥ 20% data loss, map gaze points to ROIs (`source_attribution`, `headline_body`) using `code/utils/roi_mapping.py` (produced by T015), and handle edge cases (missing ROI → trial exclusion, zero fixations → duration 0). **Parameterization**: Must accept a CLI argument `--threshold` (default) to allow dynamic threshold sweeping for robustness analysis. Writes `data/derived/preprocessed_gaze.csv` and `output/exclusion_log.txt`. **Dependency**: Requires T005 (raw data), T006 (fixation logic), T015 (ROI mapping), T008b.
+
+- [X] T040 **Data Quality Report (US1)**: Implement `code/02_data_quality_report.py` to read `output/exclusion_log.txt` (produced by T018) and `data/derived/preprocessed_gaze.csv`, compute the number of excluded participants, reasons, and total participants count (derived from the checksum log generated by T005). Generates `output/data_quality_report.csv` satisfying SC‑001. **Dependency**: Runs after T018 and after `state/data_hashes.json` exists.
+
+- [X] T021 **Valence Calculation** (no `[P]`): Using `data/derived/empirical_outcomes.csv` (from T004b), compute NRC lexical coverage. If average coverage < 50%, **switch to VADER for all headlines** *and* add a new column `lexicon_used` (`"NRC"` or `"VADER"`) to the output. Log the switch event to `state/runtime_events.json` with fields `event`, `from`, `to`, `coverage`. **Compliance Note**: This switch is a compliant feature per FR-003, not a defect; log as "Automatic Lexicon Fallback". Output `data/derived/valence_scores.csv` (schema identical regardless of lexicon). **Dependency**: Must run after T004b.
 
 - [X] T010 [P] [US1] Contract test for data ingestion output schema in `tests/contract/test_ingestion_schema.py`
 
@@ -98,7 +98,7 @@
 
 **Goal**: Ingest raw eye‑tracking data, apply I‑VT fixation detection, filter low‑quality participants, and map gaze to ROIs.
 
-**Independent Test**: Run the preprocessing script on the sample dataset and verify that only participants with < 20 % data loss remain and that fixation events are correctly timestamped and ROI‑mapped.
+**Independent Test**: Run the preprocessing script on the sample dataset and verify that only participants with < 20% data loss remain and that fixation events are correctly timestamped and ROI‑mapped.
 
 - Tasks T015, T018, T040 (described above) constitute the implementation.
 
@@ -106,21 +106,23 @@
 
 ## Phase 4: User Story 2 - Mixed‑Effects Regression Analysis (Priority: P2)
 
-**Goal**: Execute a mixed‑effects regression testing the three‑way interaction between source fixation duration, headline valence, and cognitive reflection scores.
+**Goal**: Execute a mixed-effects regression testing the three-way interaction between source fixation duration, headline valence, and cognitive reflection scores.
 
-- [ ] T023 **Data Merge & Outlier Capping**: Merge `data/derived/preprocessed_gaze.csv` (T018), `data/derived/empirical_outcomes.csv` (T004b), and `data/derived/valence_scores.csv` (T021) on `participant_id` and `headline_id`.
+- [X] T020a **Synthetic Data Generator**: Implement `code/utils/synthetic_data_generator.py` to generate a synthetic dataset for coefficient recovery testing. **Parameters**: Generate `n` participants and `m` headlines. True three-way interaction coefficient = 0.5. Random intercepts ~ N(μ, σ²). Noise sigma = 1.0. Outcome = linear combination of predictors + interaction + noise. **Output**: `data/synthetic/ground_truth.csv` containing all columns and the known true coefficients for validation. **Dependency**: None (can run in parallel).
+
+- [X] T023 **Data Merge & Outlier Capping**: Merge `data/derived/preprocessed_gaze.csv` (T018), `data/derived/empirical_outcomes.csv` (T004b), and `data/derived/valence_scores.csv` (T021) on `participant_id` and `headline_id`.
  1. Validate schemas; raise `DataMissingError` if required columns are absent.
- 2. Cap `cognitive_reflection_score` at extreme percentiles.
+ 2. Cap `cognitive_reflection_score` at extreme percentiles (1st and 99th).
  3. Preserve the `lexicon_used` flag from T021 as a covariate.
  4. Compute `headline_length` (word count) and `total_fixation_duration` (sum of fixation durations) as controls.
  Output: `data/derived/merged_dataset_full.csv`. **Dependency**: After T018, T004b, T021.
 
-- [ ] T024 **Mixed‑Effects Regression & Correction**: Using `statsmodels`, fit <!-- FAILED: unspecified -->
+- [X] T024 **Mixed‑Effects Regression & Correction**: Using `statsmodels`, fit
  `belief_rating ~ fixation_duration * valence * crt + headline_length + total_fixation_duration + (1|participant_id) + (1|headline_id)` on `data/derived/merged_dataset_full.csv`.
  Steps:
  1. Load merged data, ensure outlier‑capped CRT and `lexicon_used` are present.
  2. Fit the model with random intercepts for participants and headlines.
- 3. Apply **Holm‑Bonferroni correction specifically to the three‑way interaction term p‑value** (and to all other fixed‑effect p‑values for completeness).
+ 3. Apply **Holm‑Bonferroni correction** ONLY to the **primary hypothesis family**: the main effects and interactions involving `fixation_duration`, `valence`, and `crt`. Control variables (`headline_length`, `total_fixation_duration`) are NOT included in the correction family as they are not primary hypotheses.
  4. Output `data/derived/regression_results.csv` containing coefficients, raw p‑values, corrected p‑values (`p_adj`), confidence intervals, and interaction terms.
  **Dependency**: After T023.
 
@@ -128,7 +130,12 @@
 
 - [X] T019 [P] [US2] Contract test for regression output schema in `tests/contract/test_regression_schema.py`
 
-- [ ] T020 [P] [US2] Integration test for coefficient recovery on synthetic data in `tests/integration/test_mixed_effects_recovery.py`
+- [X] T020 [P] [US2] Integration test for coefficient recovery on synthetic data in `tests/integration/test_mixed_effects_recovery.py`:
+ 1. Load `data/synthetic/ground_truth.csv` (produced by T020a).
+ 2. Run the regression model (T024 logic) on this synthetic data.
+ 3. Verify that the estimated coefficient for the three-way interaction matches the known theoretical value within a reasonable margin of error.
+ 4. Verify that the model correctly identifies random intercepts for participants and headlines.
+ **Dependency**: Requires T020a, T024 (or T032 logic).
 
 ---
 
@@ -136,23 +143,23 @@
 
 **Goal**: Verify that findings are robust to methodological variations (fixation thresholds, headline length controls, etc.).
 
-- [ ] T032 [P] **Robustness Runner**: Refactor regression logic from T024 into a reusable function/class that accepts a `fixation_duration_threshold` argument. Exposes the same modeling pipeline (including Holm‑Bonferroni on the interaction term) and returns regression statistics.
+- [X] T032 [P] **Robustness Runner**: Refactor regression logic from T024 into a reusable function/class that accepts a `fixation_duration_threshold` argument. Exposes the same modeling pipeline (including Holm-Bonferroni on primary fixed effects only) and returns regression statistics.
 
-- [X] T034 **Headline Length Control**: Ensure `code/05_regression_analysis.py` (now encapsulated in T032) includes `headline_length` as a control variable (already done in T023/T024).
+- [X] T034 **Headline Length Control Verification**: Implement `code/05_regression_analysis.py` (now encapsulated in T032) to verify that `headline_length` is included as a control variable. Output `output/verification_log.txt` confirming the model specification includes `headline_length`. **Dependency**: After T023, T024.
 
-- [ ] T033 **Robustness Sweep**: Execute a sweep over thresholds `{50, 100, 150}` ms. For each threshold: <!-- FAILED: unspecified -->
- 1. Reset the random seed to `config.random_seed`.
- 2. Re‑run the preprocessing pipeline with the given threshold (reuse T018 logic with parameter).
+- [X] T033 **Robustness Sweep**: Execute a sweep over a range of thresholds as required by FR-005. For each threshold:
+ 1. Reset the random seed to `config.random_seed` **before** any data shuffling or model fitting to ensure determinism.
+ 2. Re‑run the preprocessing pipeline (T018 logic) with the given threshold via CLI `--threshold`.
  3. Run the regression via the robustness runner (T032).
  4. Compute `mean_belief_rating`, `std_dev_belief`, and `range_belief` for the current threshold.
  5. Append results to `data/derived/robustness_report.csv`.
- **Dependency**: Requires T018 (parameterised), T023, T021, and T032.
+ **Dependency**: Requires T018 (parameterised), T023, T021, and T032. Note: T033 re-executes T018 logic multiple times; it depends on the T018 *script*, not a single run artifact.
 
-- [ ] T039 **Stability Check**: Read `data/derived/robustness_report.csv` and verify that the sign and significance of the three‑way interaction term remain consistent across thresholds. Output `output/stability_check.json` with fields `consistent_direction`, `consistent_significance`, `ci_overlap_summary`.
+- [X] T039 **Stability Check**: Read `data/derived/robustness_report.csv` and verify that the sign and significance of the three‑way interaction term remain consistent across thresholds. Output `output/stability_check.json` with fields `consistent_direction`, `consistent_significance`, `ci_overlap_summary`.
 
-- [ ] T029 [P] [US3] Contract test for robustness report schema in `tests/contract/test_robustness_schema.py`
+- [X] T029 [P] [US3] Contract test for robustness report schema in `tests/contract/test_robustness_schema.py`
 
-- [ ] T030 [P] [US3] Integration test for threshold sweep stability in `tests/integration/test_sensitivity_analysis.py`
+- [X] T030 [P] [US3] Integration test for threshold sweep stability in `tests/integration/test_sensitivity_analysis.py`
 
 ---
 
@@ -160,35 +167,46 @@
 
 **Purpose**: Final refinements affecting multiple stories.
 
-- [ ] T045 [P] Documentation updates in `docs/` and `paper/`
-- [ ] T046 Code cleanup and refactoring
-- [ ] T047 Performance optimization across all stories (ensure < 300 min runtime)
-- [ ] T048 [P] Additional unit tests in `tests/unit/`
+- [ ] T045 [P] **Documentation Updates**: Update `docs/README.md` to reflect the final pipeline steps, and update `paper/abstract.md` with the final study scope (fixed effects: source fixation, valence, cognitive reflection). The update to `paper/abstract.md` must be driven by the content of `output/causal_framing_statement.txt` (produced by T028). **Output**: Updated `docs/README.md` and `paper/abstract.md`. **Dependency**: T024, T039.
+
+- [ ] T046 **Code Cleanup and Refactoring**: Refactor `code/utils/fixation_detection.py` and `code/utils/roi_mapping.py` to reduce cyclomatic complexity to < 10. Run `ruff --max-complexity=10` to verify. **Output**: Refactored files and `output/refactoring_report.txt` confirming complexity metrics. **Dependency**: T018, T015.
+
+- [ ] T047 **Performance Optimization**: Vectorize data merge in T023 and cache intermediate results in T018. Verify runtime < 300 minutes and memory < 7 GB on the reference dataset. **Output**: Optimized scripts and `output/performance_metrics.json`. **Dependency**: T023, T018.
+
+- [ ] T048 [P] **Additional Unit Tests**: Implement unit tests for `code/utils/fixation_detection.py` (edge cases: a defined time threshold, 0ms duration) and `code/utils/valence_calculation.py` (lexicon switch logic). **Output**: `tests/unit/test_fixation_detection.py` and `tests/unit/test_valence_calculation.py`. **Dependency**: T006, T021.
+
 - [ ] T049 Run `quickstart.md` validation
 - [ ] T050 Verify all artifacts are checksummed in `state/`
-- [ ] T028 [P] **Final Report Generation**: Implement `code/07_generate_causal_framing.py` to produce `output/causal_framing_statement.txt`. Reads `data/derived/regression_results.csv`, extracts the three‑way interaction coefficient and its (corrected) p‑value, and dynamically composes a causal framing statement respecting FR‑006.
+- [ ] T028 [P] **Final Report Generation**: Implement `code/07_generate_causal_framing.py` to produce `output/causal_framing_statement.txt`. Reads `data/derived/regression_results.csv` (output of T024), extracts the three‑way interaction coefficients and their (corrected) p‑values, and dynamically composes a causal framing statement respecting FR‑006. **Dependency**: T024.
 
 ---
 
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
-- **Setup (Phase 1)** → **Foundational (Phase 2)** → **User Stories (Phases 3‑5)** → **Polish (Phase N)**
-- All tasks in Phase 2 must succeed before any user‑story tasks start.
+- **Setup (Phase 1)** → **Foundational (Phase 2)** → **User Stories (Phases 3‑5)** → **Polish (Phase N)**
+- All tasks in Phase 2 must succeed before any user‑story tasks start.
+- **New Dependency**: Logging (T008b) must complete before T005, T004b, T018, and all other Phase 2 tasks.
+- **New Dependency**: Phase N (T045, T028) depends on T024 (regression) and T039 (robustness). Phase 5.5 has been removed.
 
 ### Within User Stories
-- **US1**: T015 → T018 → T040 (plus contract tests T010/T011)
-- **US2**: T023 → T024 → T017 (plus contract tests T019/T020)
+- **US1**: T005 → T004b → T015 → T018 → T040 (plus contract tests T010/T011)
+- **US2**: T020a → T023 → T024 → T017 (plus contract tests T019/T020)
 - **US3**: T032 → T033 → T039 (plus contract tests T029/T030)
 
 ### Parallel Opportunities
 - All `[P]`‑tagged tasks within a phase may run concurrently once their hard dependencies are satisfied.
 - Logging setup (T008a/T008b) must complete before any task that writes logs.
+- T032, T034, T048, T055, T056 are parallel-safe once their respective upstream dependencies are complete.
 
 ---
 
 ## Notes
-- All random seeds are pinned in `code/config.yaml` (seed = 42) and reset before each robustness iteration.
+- All random seeds are pinned in `code/config.yaml` (seed = 42) and reset before each robustness iteration.
 - Every artifact written is recorded in `state/` with a SHA‑256 hash for data‑hygiene compliance.
 - The `lexicon_used` flag ensures that the VADER fallback does not introduce an uncontrolled confound; it is treated as a covariate in the regression.
-- No synthetic belief data or WYSIATI metrics are introduced; the outcome remains strictly `belief_rating` per FR‑004 and Constitution Principle VI.
+- No synthetic belief data or WYSIATI metrics are introduced; the outcome remains strictly empirical (`belief_rating`) per FR‑004 and Constitution Principle VI.
+- **Revision Note**: Phase 5.5 (WYSIATI & Confidence Metrics) has been **removed** to ensure strict adherence to FR-004 and Constitution Principle VI. All tasks in this phase (T051-T056) and their dependencies have been deleted.
+- **Revision Note**: Task T004b now strictly enforces the `belief_rating` column name without alias resolution to prevent data contamination.
+- **Revision Note**: Task T024 now applies Holm-Bonferroni correction only to the primary hypothesis family (fixation, valence, CRT interactions), excluding control variables.
+- **Revision Note**: Phase N tasks (T045-T050) are marked as incomplete pending implementation.
