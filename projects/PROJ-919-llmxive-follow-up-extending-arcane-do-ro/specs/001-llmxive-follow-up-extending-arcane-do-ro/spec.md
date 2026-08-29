@@ -56,7 +56,7 @@
 - **What happens when the target model (e.g., Phi-3-mini) fails to generate a response within a specified timeout period?** The system MUST log the failure, assign a default consistency score of zero for that trial, and proceed to the next probe to ensure the experiment completes within the CI time limit.
 - **How does the system handle a Judge model that outputs a score outside the 1-5 range?** The system MUST validate the output and clamp any out-of-bounds scores to the nearest valid integer within the defined scale range or discard the trial if the format is unparseable, logging the incident.
 - **What happens if the semantic distance check for a generated probe fails (i.e., it is too similar to the source)?** The system MUST discard that specific probe and regenerate a replacement until a sufficient number of valid probes are collected (at least 50).
-- **What happens if the regeneration loop exceeds 150 attempts?** The system MUST stop generating probes for that character, log a "Generation Limit Exceeded" error, and proceed with the available valid probes (if >= 50) or mark the character as invalid for the experiment.
+- **What happens if the regeneration loop exceeds a substantial number of attempts?** The system MUST stop generating probes for that character, log a "Generation Limit Exceeded" error, and proceed with the available valid probes (if >= 50) or mark the character as invalid for the experiment.
 
 ## Requirements
 

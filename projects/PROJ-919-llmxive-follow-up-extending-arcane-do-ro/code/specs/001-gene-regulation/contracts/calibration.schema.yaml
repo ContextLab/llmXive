@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: HumanAnnotation
-description: Schema for human calibration annotations used to validate the Judge model.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Gold Standard Calibration Schema"
+description: "Schema for human-annotated calibration data used in ArcANE evaluation."
 type: object
 required:
   - character
@@ -10,25 +10,16 @@ required:
 properties:
   character:
     type: string
-    description: The name of the character being evaluated.
-    minLength: 1
+    description: "The specific ArcANE character associated with this sample (e.g., 'Harry Potter', 'Elizabeth Bennet')."
   scenario:
     type: string
-    description: The out-of-world scenario prompt presented to the character.
-    minLength: 1
+    description: "The scenario text extracted from the prompt."
   ground_truth_score:
     type: integer
-    description: The human-annotated consistency score on a Likert scale (1-5).
     minimum: 1
     maximum: 5
+    description: "The human-annotated score (1-5) representing the quality or adherence of the response."
   ground_truth_phase:
     type: string
-    description: The narrative phase the scenario belongs to (e.g., 'Inciting Incident', 'Climax').
-    enum:
-      - Inciting Incident
-      - Rising Action
-      - Climax
-      - Falling Action
-      - Resolution
-      - Unknown
+    description: "The specific character phase or arc stage associated with the sample."
 additionalProperties: false

@@ -1,92 +1,71 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Probe
-description: >
-  Schema for an "Out-of-World" probe scenario used in the ArcANE 
-  character consistency evaluation. Probes must be semantically distant 
-  from the source text and novel relative to the character's established 
-  narrative.
+# Probe Schema Definition
+# Defines the structure for "Out-of-World" scenario probes used in the ArcANE evaluation pipeline.
+#
+# This schema validates the output of src/services/probe_generator.py (T017-T020).
+# Each record represents a single probe scenario designed to test character consistency
+# in a novel, semantically distant context.
+
 type: object
 required:
-  - probe_id
-  - character_name
-  - scenario_prompt
-  - coarse_axis_ref
-  - fine_axis_ref
-  - similarity_metrics
-  - status
-  - created_at
+  - character
+  - scenario_text
+  - target_phase
+  - similarity_score
 properties:
-  probe_id:
+  character:
     type: string
-    description: Unique identifier for the probe (e.g., 'probe_001_charname')
-    pattern: "^probe_[0-9]+_[a-zA-Z0-9_-]+$"
-  
-  character_name:
-    type: string
-    description: Name of the character this probe targets
+    description: >-
+      The name of the character being evaluated (e.g., "Harry Potter", "Elizabeth Bennet").
+      Must match the character name used in the associated Coarse/Fine axis definitions.
     minLength: 1
-  
-  scenario_prompt:
+    examples:
+      - "Harry Potter"
+      - "Elizabeth Bennet"
+      - "Sherlock Holmes"
+
+  scenario_text:
     type: string
-    description: The full natural language prompt describing the out-of-world scenario
-    minLength: 10
-  
-  coarse_axis_ref:
+    description: >-
+      The full text of the "Out-of-World" scenario prompt.
+      This text must be semantically distant from the character's source material
+      (cosine similarity < 0.3 against source corpus as per T018).
+      It should not contain direct quotes or specific plot points from the original work.
+    minLength: 50
+    examples:
+      - "You are a senior project manager at a tech startup. A key stakeholder is demanding a feature that violates your team's core ethical guidelines. How do you respond?"
+      - "Imagine you are a botanist in the 19th century discovering a new species of orchid that glows in the dark. Describe your reaction and next steps."
+
+  target_phase:
     type: string
-    description: Reference ID to the Coarse CharacterAxis used for generation
-    pattern: "^axis_coarse_[a-zA-Z0-9_-]+$"
-  
-  fine_axis_ref:
-    type: string
-    description: Reference ID to the Fine CharacterAxis used for generation
-    pattern: "^axis_fine_[a-zA-Z0-9_-]+$"
-  
-  similarity_metrics:
-    type: object
-    description: Metrics verifying the probe is 'out-of-world' and distinct from source
-    required:
-      - lexical_overlap
-      - cosine_similarity
-      - source_text_checksum
-    properties:
-      lexical_overlap:
-        type: number
-        description: Jaccard similarity or n-gram overlap with source text
-        minimum: 0.0
-        maximum: 1.0
-      cosine_similarity:
-        type: number
-        description: Cosine similarity between probe embedding and source text embedding
-        minimum: -1.0
-        maximum: 1.0
-      source_text_checksum:
-        type: string
-        description: SHA-256 hash of the source text corpus used for comparison
-        pattern: "^[a-f0-9]{64}$"
-  
-  status:
-    type: string
-    description: Validation status of the probe
-    enum:
-      - valid
-      - invalid_low_similarity
-      - invalid_high_overlap
-      - generation_failed
-    default: valid
-  
-  created_at:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of generation
-  
-  attempts:
-    type: integer
-    description: Number of generation attempts made to produce this valid probe
-    minimum: 1
-    default: 1
-  
-  notes:
-    type: string
-    description: Optional notes regarding generation constraints or rejection reasons
-    default: ""
+    description: >-
+      The specific phase of the character's development or psychological state
+      that this probe is designed to elicit or test.
+      Must align with the phases defined in the character's axis specifications.
+    minLength: 1
+    examples:
+      - "Initial Optimism"
+      - "Crisis of Faith"
+      - "Reconciliation"
+      - "Moral Dilemma"
+
+  similarity_score:
+    type: number
+    format: float
+    description: >-
+      The calculated cosine similarity score between the generated scenario_text
+      and the character's source text corpus.
+      Per the validation logic (T018), this value must be < 0.30 for the probe to be accepted.
+      Lower values indicate greater semantic distance.
+    minimum: 0.0
+    maximum: 1.0
+    examples:
+      - 0.12
+      - 0.25
+      - 0.05
+
 additionalProperties: false
+description: >-
+  This schema ensures that every probe generated by the pipeline contains the necessary
+  metadata for later evaluation by the Judge model (T025) and statistical analysis (T030-T033).
+  It enforces the "Out-of-World" constraint by requiring the similarity_score field,
+  which is populated by the generator's validation loop.

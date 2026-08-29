@@ -1,0 +1,260 @@
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Filter gold standard samples for >200 tokens in prompt field
+  claim_id: c_4b7a0f68
+  context: 'T009c: Process Gold Standard. Filter data/raw/gold_standard_raw.jsonl
+    to exactly n=20 samples. Logic: 1) Filter for samples with >200 tokens in the
+    ''prompt'' field.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter for samples with >200 tokens in the 'prompt' field.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:50:08Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Select gold standard subset using random seed 42
+  claim_id: c_72d04723
+  context: 'T009c: Process Gold Standard. Logic: 2) Select a subset of samples using
+    random.seed(42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a subset of samples using random.seed(42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:50:51Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Generate at least 50 unique out-of-world scenario prompts per character
+  claim_id: c_1fa58840
+  context: 'Phase 4: User Story 2 - Generate Out-of-World Probes. Goal: Generate at
+    least 50 unique ''Out-of-World'' scenario prompts per character that are semantically
+    distant from the source text.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_50_unique_out-of-world_scenario_prompts_pe
+  kind: magnitude
+  raw_text: Generate at least 50 unique 'Out-of-World' scenario prompts per character.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:51:44Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Average cosine similarity to source text less than 0.3
+  claim_id: c_81b6bc27
+  context: 'Phase 4: User Story 2 - Independent Test. The system generates a batch
+    of probes, and a sample check confirms none contain direct quotes/plot points
+    and average cosine similarity to source text is < 0.3.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Average_cosine_similarity_to_source_text_less_than_0.3
+  kind: magnitude
+  raw_text: Average cosine similarity to source text is < 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:52:31Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Cosine similarity less than 0.3 against source text
+  claim_id: c_1357e21c
+  context: 'T018: Implement semantic similarity check (cosine similarity < 0.3) against
+    source text corpus in src/services/probe_generator.py using sentence-transformers/all-MiniLM-L6-v2.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cosine_similarity_less_than_0.3_against_source_text
+  kind: magnitude
+  raw_text: Cosine similarity < 0.3 against source text corpus.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:53:08Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Discard candidate if similarity greater than or equal to 0.3
+  claim_id: c_883154c1
+  context: 'T019: Implement regeneration loop. Step 3: If similarity >= 0.3, discard
+    candidate and increment retry count.'
+  evidence:
+    entailment_evidence: Discard candidate if similarity greater than or equal to
+      0.3
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Discard_candidate_if_similarity_greater_than_or_equal_to_0.3
+  kind: magnitude
+  raw_text: If similarity >= 0.3, discard candidate and increment retry count.
+  resolved_value: Discard candidate if similarity greater than or equal to 0.3
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T17:53:12Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Log generation limit exceeded if retry count greater than 150
+  claim_id: c_6c555697
+  context: 'T019: Implement regeneration loop. Step 4: If retry count > 150, log ''Generation
+    Limit Exceeded'' and proceed with available valid probes (if >= 50) or mark character
+    as invalid.'
+  evidence:
+    entailment_evidence: Log generation limit exceeded if retry count greater than
+      15
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Log_generation_limit_exceeded_if_retry_count_greater_than_15
+  kind: magnitude
+  raw_text: If retry count > 150, log 'Generation Limit Exceeded'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-29T17:53:54Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Set character status to invalid if valid probes less than 50 after 150
+    attempts
+  claim_id: c_b86dab0a
+  context: 'T021: Implement error handling for ''Generation Limit Exceeded''. If valid_probes
+    < 50 after 150 attempts, set character_status to ''invalid'' in data/derived/probes.jsonl.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Set_character_status_to_invalid_if_valid_probes_less_than_50
+  kind: magnitude
+  raw_text: If valid_probes < 50 after 150 attempts, set character_status to 'invalid'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:56:06Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Kappa greater than 0.6 against gold standard
+  claim_id: c_fda09aca
+  context: 'T027: Implement Judge Calibration step (Kappa > 0.6 against data/gold_standard/human_annotations.json
+    using sklearn.metrics.cohen_kappa_score with quadratic weights).'
+  evidence:
+    asserted: '0.6'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: magnitude
+  raw_text: Kappa > 0.6 against data/gold_standard/human_annotations.json.
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T17:56:06Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Raise runtime error if kappa less than or equal to 0.6
+  claim_id: c_2ce33dcb
+  context: 'T027: Implement Judge Calibration step. If Kappa <= 0.6, raise a RuntimeError
+    and halt execution (FR-007, US-3).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_runtime_error_if_kappa_less_than_or_equal_to_0.6
+  kind: magnitude
+  raw_text: If Kappa <= 0.6, raise a RuntimeError and halt execution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:57:18Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Lexical overlap greater than 0.4
+  claim_id: c_6289de98
+  context: 'T012: Implement semantic validation logic (lexical overlap > 0.4, embedding
+    cosine distance < 0.3) using sentence-transformers/all-MiniLM-L6-v2.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lexical_overlap_greater_than_0.4
+  kind: magnitude
+  raw_text: Lexical overlap > 0.4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:58:08Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Embedding cosine distance less than 0.3
+  claim_id: c_75ad361c
+  context: 'T012: Implement semantic validation logic (lexical overlap > 0.4, embedding
+    cosine distance < 0.3) using sentence-transformers/all-MiniLM-L6-v2.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Embedding_cosine_distance_less_than_0.3
+  kind: magnitude
+  raw_text: Embedding cosine distance < 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:59:06Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Filter lmsys/lmsys-chatbot-arena for single-turn human preference pairs
+  claim_id: c_df755761
+  context: 'T009d: Download Real Gold Standard. Primary Source: lmsys/lmsys-chatbot-arena
+    (filter for single-turn human preference pairs).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_lmsys/lmsys-chatbot-arena_for_single-turn_human_prefe
+  kind: entity_fact
+  raw_text: Filter for single-turn human preference pairs in lmsys/lmsys-chatbot-arena.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:00:00Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Ground truth score range 1 to 5
+  claim_id: c_097dbe82
+  context: 'T009b: Create File specs/001-gene-regulation/contracts/calibration.schema.yaml.
+    Content: Define YAML schema with required fields: ... ground_truth_score (int
+    1-5).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_score_range_1_to_5
+  kind: entity_fact
+  raw_text: Ground truth score is an integer from 1 to 5.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T18:01:53Z'

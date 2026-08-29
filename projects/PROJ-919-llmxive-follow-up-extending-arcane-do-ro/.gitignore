@@ -21,8 +21,8 @@ sdist/
 var/
 wheels/
 *.egg-info/
-.installed.cfg
 *.egg
+MANIFEST
 
 # PyInstaller
 *.manifest
@@ -35,12 +35,14 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
 nosetests.xml
 coverage.xml
 *.cover
+*.py,cover
 .hypothesis/
 .pytest_cache/
 
@@ -49,6 +51,7 @@ coverage.xml
 *.pot
 
 # Environments
+.env
 .venv
 env/
 venv/
@@ -56,20 +59,32 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
 
 # Project specific
-data/raw/
-data/derived/
-data/gold_standard/
+data/raw/*.jsonl
+data/raw/*.csv
+data/gold_standard/*.json
 artifacts/
 logs/
+.DS_Store
+Thumbs.db

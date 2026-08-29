@@ -9,6 +9,8 @@ tiktoken
 hypothesis
 pytest
 sentence-transformers
-torch
+pyyaml
 ruff
 black
+pydantic
+jsonschema
