@@ -1,86 +1,109 @@
-"""
-Test for T001a: Verify directory structure creation.
-"""
 import os
+import sys
+import tempfile
 import shutil
-import pytest
 from pathlib import Path
+import pytest
 
-# Import the function to test
-# Note: We are testing the logic of creating directories
-# Since the script modifies the filesystem, we use a temporary directory for testing
-from code.create_project_dirs import main
+# Add the code directory to the path so we can import the module
+code_dir = Path(__file__).parent.parent / "code"
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-@pytest.fixture
-def temp_project_root(tmp_path):
-    """Create a temporary project root structure for testing."""
-    # Mimic the expected project structure in a temp directory
-    project_name = "PROJ-379-predicting-molecular-excitation-waveleng"
-    # We will mock the 'projects' folder behavior by changing the logic slightly or 
-    # by asserting on the temp path if we refactor. 
-    # However, to strictly test the existing `main` which uses hardcoded paths relative to CWD,
-    # we will verify the existence of the dirs in the CWD after running.
-    # For a pure unit test, we might need to refactor `main` to accept a root path, 
-    # but for now we test the side effects in a controlled env or mock.
-    return tmp_path
+from create_project_dirs import main
 
-def test_directories_exist_after_run(capsys, tmp_path):
+class TestCreateProjectDirs:
     """
-    Run the script in a temporary directory context to verify it creates the structure.
-    Since `main` uses relative paths from CWD, we can't easily inject `tmp_path` 
-    without refactoring. 
-    
-    Alternative: We verify the logic by checking the code or by running it in a 
-    subprocess in a temp dir.
-    
-    For this test, we will simulate the directory creation logic directly 
-    to ensure the paths are correct, as running `main` in the real repo 
-    might clutter the actual project tree during testing.
+    Tests for the create_project_dirs script.
+    Verifies that the required directory structure is created correctly.
     """
-    project_name = "PROJ-379-predicting-molecular-excitation-waveleng"
-    project_root = Path("projects") / project_name
-    
-    # If the real project root exists (e.g. in CI), we might want to skip or use a mock.
-    # Assuming we run this in an isolated environment or the dirs are expected to be created.
-    
-    # Let's verify the expected paths based on the task description
-    expected_dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "code",
-        project_root / "tests",
-        project_root / "docs"
-    ]
-    
-    # We assert that the paths constructed match the requirement
-    assert len(expected_dirs) == 5
-    
-    # If we were to run the script, these would be created.
-    # We verify the paths are constructed correctly.
-    assert str(expected_dirs[0]) == "projects/PROJ-379-predicting-molecular-excitation-waveleng/data/raw"
-    assert str(expected_dirs[1]) == "projects/PROJ-379-predicting-molecular-excitation-waveleng/data/processed"
-    assert str(expected_dirs[2]) == "projects/PROJ-379-predicting-molecular-excitation-waveleng/code"
-    assert str(expected_dirs[3]) == "projects/PROJ-379-predicting-molecular-excitation-waveleng/tests"
-    assert str(expected_dirs[4]) == "projects/PROJ-379-predicting-molecular-excitation-waveleng/docs"
 
-def test_create_dirs_logic():
-    """
-    Directly test the logic of creating directories to ensure no exceptions occur
-    and the correct directories are targeted.
-    """
-    project_name = "PROJ-379-predicting-molecular-excitation-waveleng"
-    project_root = Path("projects") / project_name
-    
-    required_dirs = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "tests",
-        "docs"
-    ]
-    
-    # Verify the paths are constructed as expected
-    for dir_str in required_dirs:
-        full_path = project_root / dir_str
-        assert full_path.is_absolute() or full_path.is_relative_to(project_root)
-        assert dir_str in str(full_path)
+    def test_creates_required_directories(self, tmp_path):
+        """
+        Test that the script creates all required directories:
+        data/raw, data/processed, code, tests, docs
+        """
+        # Change to the temporary directory to simulate project root
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            
+            # Run the main function
+            # We need to capture stdout to avoid cluttering test output, 
+            # but the function prints status.
+            import io
+            from contextlib import redirect_stdout
+            
+            f = io.StringIO()
+            with redirect_stdout(f):
+                main()
+            
+            # Verify directories exist
+            required_dirs = [
+                "data/raw",
+                "data/processed",
+                "code",
+                "tests",
+                "docs"
+            ]
+            
+            for dir_path_str in required_dirs:
+                dir_path = tmp_path / dir_path_str
+                assert dir_path.exists(), f"Directory {dir_path} was not created"
+                assert dir_path.is_dir(), f"{dir_path} exists but is not a directory"
+        
+        finally:
+            os.chdir(original_cwd)
+
+    def test_handles_existing_directories(self, tmp_path):
+        """
+        Test that the script handles existing directories gracefully
+        and does not fail if directories already exist.
+        """
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            
+            # Pre-create one of the directories
+            (tmp_path / "code").mkdir(parents=True)
+            
+            import io
+            from contextlib import redirect_stdout
+            
+            f = io.StringIO()
+            with redirect_stdout(f):
+                # Should not raise an exception
+                main()
+            
+            # Verify the pre-existing directory is still there
+            assert (tmp_path / "code").exists()
+            
+        finally:
+            os.chdir(original_cwd)
+
+    def test_creates_parent_directories(self, tmp_path):
+        """
+        Test that the script creates parent directories if they don't exist.
+        Specifically for 'data/raw' and 'data/processed'.
+        """
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(tmp_path)
+            
+            import io
+            from contextlib import redirect_stdout
+            
+            f = io.StringIO()
+            with redirect_stdout(f):
+                main()
+            
+            # Verify parent 'data' was created
+            assert (tmp_path / "data").exists()
+            assert (tmp_path / "data").is_dir()
+            
+            # Verify children
+            assert (tmp_path / "data" / "raw").exists()
+            assert (tmp_path / "data" / "processed").exists()
+            
+        finally:
+            os.chdir(original_cwd)

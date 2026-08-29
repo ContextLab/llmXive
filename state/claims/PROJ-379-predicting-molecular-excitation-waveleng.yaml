@@ -69,3 +69,369 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-22T13:03:07Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: CPU-only execution with 2 vCPU and 7GB RAM
+  claim_id: c_4a16b924
+  context: 'Critical Constraint: All model training and data processing MUST run on
+    CPU-only (2 vCPU, 7GB RAM) within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must use CPU-only execution with 2 vCPU and 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:27:11Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Pipeline wall-clock time less than or equal to 6 hours
+  claim_id: c_d94a9a36
+  context: 'Critical Constraint: All model training and data processing MUST run on
+    CPU-only (2 vCPU, 7GB RAM) within 6 hours.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_wall-clock_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: The total wall-clock time of the pipeline must be less than or equal to
+    6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:28:04Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: GNN architecture fewer than 1 million parameters
+  claim_id: c_67b61da3
+  context: 'Implement code/model.py: Define MPNN GNN (-3 layers, <1M params) and ECFP+Ridge
+    Regression baseline'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GNN_architecture_fewer_than_1_million_parameters
+  kind: magnitude
+  raw_text: The GNN architecture must have fewer than 1 million parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:28:38Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Data ingestion RAM usage less than 7GB
+  claim_id: c_11208319
+  context: Implement chunked loading to ensure <7GB RAM usage.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_RAM_usage_less_than_7GB
+  kind: magnitude
+  raw_text: The data ingestion script must ensure RAM usage is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:29:25Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Test set size greater than or equal to 50 samples
+  claim_id: c_6d76a79a
+  context: "Implement power analysis logic in code/evaluate.py to verify test set\
+    \ n\u226550"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_set_size_greater_than_or_equal_to_50_samples
+  kind: magnitude
+  raw_text: The test set size must be greater than or equal to 50 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:30:16Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test p-value threshold less than 0.05
+  claim_id: c_b83c536b
+  context: 'Apply Decision Logic: If p < 0.05 AND MAE < 30 then sc001_status = PASS'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_p-value_threshold_less_than_0.05
+  kind: magnitude
+  raw_text: The Wilcoxon signed-rank test p-value threshold for passing the success
+    criteria is less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:30:53Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Mean Absolute Error threshold less than 30 nm
+  claim_id: c_f5915fca
+  context: 'Apply Decision Logic: If p < 0.05 AND MAE < 30 then sc001_status = PASS'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_Absolute_Error_threshold_less_than_30_nm
+  kind: magnitude
+  raw_text: The Mean Absolute Error (MAE) threshold for passing the success criteria
+    is less than 30 nm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:31:45Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps 20 30 40 50 60 nm
+  claim_id: c_ae8d0e50
+  context: 'Sweep MAE decision cutoffs using specific nanometer thresholds: 20, 30,
+    40, 50, 60 nm'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps MAE decision cutoffs at 20, 30, 40, 50,
+    and 60 nm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:32:13Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Pearson correlation coefficient flag threshold 0.9
+  claim_id: c_4023eb32
+  context: "Calculate Pearson r for ECFP bits (flag if \u22650.9)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_coefficient_flag_threshold_0.9
+  kind: magnitude
+  raw_text: Pearson correlation coefficient flag threshold for ECFP bits is greater
+    than or equal to 0.9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:32:59Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Latent cosine similarity flag threshold 0.9
+  claim_id: c_4a58a938
+  context: latent cosine similarity for GNN subgraphs (flag if >0.9)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latent_cosine_similarity_flag_threshold_0.9
+  kind: magnitude
+  raw_text: Latent cosine similarity flag threshold for GNN subgraphs is greater than
+    0.9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:33:40Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: GNN model uses 3 layers
+  claim_id: c_ccb38ec0
+  context: Define MPNN GNN (-3 layers, <1M params)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GNN model uses 3 layers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:34:12Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: rdkit version 2023.9.5
+  claim_id: c_5274baba
+  context: 'Create requirements.txt with pinned versions: rdkit==2023.9.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion script uses rdkit version 2023.9.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:34:43Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: torch version 2.1.0+cpu
+  claim_id: c_3e20deda
+  context: 'Create requirements.txt with pinned versions: torch==2.1.0+cpu'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion script uses torch version 2.1.0+cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:35:12Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: torch-geometric version 2.4.0
+  claim_id: c_ac63c6a0
+  context: 'Create requirements.txt with pinned versions: torch-geometric==2.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion script uses torch-geometric version 2.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:35:40Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: pandas version 2.1.0
+  claim_id: c_6971ed96
+  context: 'Create requirements.txt with pinned versions: pandas==2.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion script uses pandas version 2.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:36:11Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_a5d3abd2
+  context: 'Create requirements.txt with pinned versions: scikit-learn==1.3.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion script uses scikit-learn version 1.3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:36:40Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.0
+  claim_id: c_42e70595
+  context: 'Create requirements.txt with pinned versions: numpy==1.24.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion script uses numpy version 1.24.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:37:19Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_e41dde54
+  context: 'Create requirements.txt with pinned versions: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion script uses pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:37:51Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_8d3eebc7
+  context: 'Create requirements.txt with pinned versions: pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion script uses pytest version 7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:38:24Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Load dataset zjunlp/UV-Vis-ML
+  claim_id: c_953caa33
+  context: Only if primary sources fail, attempt datasets.load_dataset(zjunlp/UV-Vis-ML)
+    as a secondary source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_dataset_zjunlp/UV-Vis-ML
+  kind: entity_fact
+  raw_text: The data ingestion script loads the dataset zjunlp/UV-Vis-ML as a fallback
+    source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:39:00Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Fetch raw UV-Vis data from PubChem
+  claim_id: c_73ef51b6
+  context: Attempt to ingest raw UV-Vis data directly from PubChem (via pubchempy
+    or official API)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_raw_UV-Vis_data_from_PubChem
+  kind: entity_fact
+  raw_text: The data ingestion script fetches raw UV-Vis data from PubChem.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:39:37Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/tasks.md
+  attempts: 1
+  canonical: Fetch raw UV-Vis data from SDBS
+  claim_id: c_ed56312b
+  context: or SDBS (via official FTP/URL) as mandated by FR-001.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_raw_UV-Vis_data_from_SDBS
+  kind: entity_fact
+  raw_text: The data ingestion script fetches raw UV-Vis data from SDBS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:40:15Z'

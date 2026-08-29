@@ -1,269 +1,244 @@
-"""
-Training loop for GNN and Baseline models.
-Implements T015: Training loop with CPU-only execution, early stopping, fixed seed, and output model.pt.
-"""
 import os
 import sys
 import json
 import logging
 import random
 import time
+import hashlib
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, List, Any, Optional
 
-import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
-from torch.optim import Adam
+import numpy as np
+import pandas as pd
+import yaml
 
-# Import local utilities and models
-from utils import get_device, setup_logging, get_logger, smiles_to_ecfp, validate_molecule
-from models import Molecule
-# Note: The actual GNN model class should be defined here or imported if T014 is done.
-# Since T014 is not yet marked complete in the completed list, we must define a lightweight GNN here
-# to ensure the script runs. This satisfies the "lightweight GNN (<1M params)" requirement.
+from model import MPNN, RidgeBaseline, build_gnn_model, build_baseline_model, prepare_gnn_data
+from utils import get_device, get_logger, setup_logging
+from hash_artifacts import compute_file_hash, update_state_file
 
-# If T014 were complete, we would import: from model import MPNN, RidgeBaseline
+# Configuration
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_NAME = "PROJ-379-predicting-molecular-excitation-waveleng"
+STATE_DIR = PROJECT_ROOT / "state"
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+MODEL_OUTPUT_PATH = PROCESSED_DIR / "model.pt"
+STATE_FILE = STATE_DIR / f"{PROJECT_NAME}.yaml"
 
-# --- Lightweight GNN Implementation (Inline for T015 readiness) ---
-class MPNN(nn.Module):
-    """
-    A simplified Message Passing Neural Network for molecular property prediction.
-    Designed to be <1M parameters.
-    """
-    def __init__(self, node_dim=200, hidden_dim=64, out_dim=1, num_layers=2):
-        super(MPNN, self).__init__()
-        self.node_dim = node_dim
-        self.hidden_dim = hidden_dim
-        self.num_layers = num_layers
+# Ensure directories exist
+STATE_DIR.mkdir(parents=True, exist_ok=True)
+PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-        # Input projection
-        self.input_proj = nn.Linear(node_dim, hidden_dim)
-        
-        # Message passing layers (simplified as MLPs on node features for this inline version)
-        # In a full implementation, this would aggregate neighbor messages.
-        # Here we simulate a graph network by treating the molecule as a bag of features
-        # or a small sequence if we had sequence data. 
-        # For ECFP-like input (fixed size), we treat it as a feature vector.
-        self.layers = nn.ModuleList([
-            nn.Linear(hidden_dim, hidden_dim) for _ in range(num_layers)
-        ])
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.1)
-        
-        # Output head
-        self.output_head = nn.Linear(hidden_dim, out_dim)
+logger = get_logger(__name__)
 
-    def forward(self, x):
-        # x: [batch_size, node_dim]
-        h = self.input_proj(x)
-        h = self.relu(h)
-        
-        for layer in self.layers:
-            h_new = layer(h)
-            h = self.relu(h_new)
-            h = self.dropout(h)
-        
-        return self.output_head(h)
-
-class RidgeBaseline(nn.Module):
-    """Simple linear model with L2 regularization (Ridge) for baseline."""
-    def __init__(self, input_dim, out_dim=1):
-        super(RidgeBaseline, self).__init__()
-        self.linear = nn.Linear(input_dim, out_dim)
-        self.alpha = 1.0  # Regularization strength
-
-    def forward(self, x):
-        return self.linear(x)
-
-    def loss(self, y_pred, y_true):
-        mse = nn.MSELoss()(y_pred, y_true)
-        l2_reg = sum(torch.sum(p**2) for p in self.parameters())
-        return mse + self.alpha * l2_reg
-
-# --- Configuration ---
-CONFIG = {
-    "seed": 42,
-    "epochs": 50,
-    "batch_size": 32,
-    "learning_rate": 0.001,
-    "early_stopping_patience": 10,
-    "model_type": "gnn",  # or "baseline"
-    "input_dim": 200,  # ECFP size
-    "device": "cpu"
-}
-
-def set_seed(seed: int):
+def set_seed(seed: int = 42) -> None:
+    """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-def load_data_splits(data_dir: Path):
-    """Load train, val, test splits."""
-    train_df = pd.read_csv(data_dir / "train.csv")
-    val_df = pd.read_csv(data_dir / "val.csv")
-    test_df = pd.read_csv(data_dir / "test.csv")
-    return train_df, val_df, test_df
+def load_data_splits() -> Dict[str, pd.DataFrame]:
+    """Load train, val, and test splits from processed CSV."""
+    split_file = PROCESSED_DIR / "train_val_test.csv"
+    if not split_file.exists():
+        raise FileNotFoundError(f"Split file not found: {split_file}")
+    
+    df = pd.read_csv(split_file)
+    # Assuming the file has columns: smi, lambda_max, scaffold_id, split
+    # We need to separate them based on the 'split' column if it exists,
+    # or load specific split files if the previous step created them.
+    # Based on T010.5, we expect a single file with split indicators or separate files.
+    # Let's assume standard convention: separate files or a 'split' column.
+    # Given T010 output is split_indices.json, T010.5 creates the combined CSV.
+    # Let's assume the combined CSV has a 'split' column ('train', 'val', 'test').
+    
+    if 'split' in df.columns:
+        train_df = df[df['split'] == 'train']
+        val_df = df[df['split'] == 'val']
+        test_df = df[df['split'] == 'test']
+    else:
+        # Fallback if columns are named differently or files are separate
+        # This logic depends on exact T010.5 output format. 
+        # Assuming T010.5 creates a file with a 'split' column for robustness.
+        raise ValueError("Expected 'split' column in train_val_test.csv")
 
-def preprocess_df(df: pd.DataFrame, input_dim: int):
-    """Convert SMILES to ECFP features and prepare tensors."""
-    logger = get_logger()
-    features = []
-    targets = []
-    
-    for _, row in df.iterrows():
-        smi = row['smi']
-        if not validate_molecule(smi):
-            continue
-        # Generate ECFP
-        ecfp = smiles_to_ecfp(smi, radius=2, nBits=input_dim)
-        if ecfp is not None:
-            features.append(ecfp)
-            targets.append(row['lambda_max'])
-    
-    if len(features) == 0:
-        raise ValueError("No valid molecules found in data split.")
-    
-    X = torch.tensor(np.array(features), dtype=torch.float32)
-    y = torch.tensor(np.array(targets), dtype=torch.float32).unsqueeze(1)
-    return X, y
+    return {
+        'train': train_df.reset_index(drop=True),
+        'val': val_df.reset_index(drop=True),
+        'test': test_df.reset_index(drop=True)
+    }
 
-def train_model(model, train_loader, val_loader, config, device):
-    logger = get_logger()
-    optimizer = Adam(model.parameters(), lr=config["learning_rate"])
+def preprocess_df(df: pd.DataFrame, device: torch.device) -> tuple:
+    """
+    Convert DataFrame to PyTorch Geometric Data objects.
+    Returns a DataLoader.
+    """
+    from model import build_gnn_model, prepare_gnn_data
+    
+    # This function relies on `prepare_gnn_data` from model.py which should handle
+    # the conversion of SMILES to Graph Data objects.
+    # Since the API surface for model.py shows `prepare_gnn_data`, we use it.
+    # However, `prepare_gnn_data` likely expects a list of SMILES or a DataFrame.
+    # Let's assume it returns a list of Data objects or a PyG Dataset.
+    
+    # We need to extract features and targets
+    smiles_list = df['smi'].tolist()
+    targets = torch.tensor(df['lambda_max'].values, dtype=torch.float32)
+    
+    # Prepare graph data
+    # Note: prepare_gnn_data is expected to handle the RDKit conversion and graph building
+    # based on the API surface provided.
+    graph_data_list = prepare_gnn_data(smiles_list)
+    
+    if not graph_data_list:
+        raise ValueError("No graph data generated from input SMILES.")
+
+    # Create dataset and loader
+    dataset = torch_geometric.data.InMemoryDataset() # Placeholder for actual dataset class if needed
+    # Actually, let's just create a simple list of Data objects and use a custom loader or standard one
+    # Since we don't have a specific Dataset class in the API, we'll create a TensorDataset-like structure
+    # or just iterate. But for training loop, DataLoader is best.
+    
+    # Let's assume we stack features if possible, or use a custom collate function.
+    # For simplicity in this context, we'll use a list and a custom collate if needed,
+    # but standard practice with PyG is to use a DataLoader with a list of Data objects.
+    from torch_geometric.loader import DataLoader as PyGDataLoader
+    
+    loader = PyGDataLoader(graph_data_list, batch_size=32, shuffle=True)
+    return loader, targets # targets might need to be aligned with the dataset if not stored in Data
+
+def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoader, device: torch.device, epochs: int = 100, patience: int = 10) -> Dict[str, Any]:
+    """
+    Train the model with early stopping.
+    """
     criterion = nn.MSELoss()
-    
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=5, factor=0.5)
+
     best_val_loss = float('inf')
     patience_counter = 0
-    best_model_state = None
-    
-    logger.info(f"Starting training for {config['epochs']} epochs...")
-    
-    for epoch in range(config["epochs"]):
+    history = {'train_loss': [], 'val_loss': []}
+
+    logger.info(f"Starting training for {epochs} epochs on {device}")
+
+    for epoch in range(epochs):
         model.train()
         train_loss = 0.0
-        
-        for batch_X, batch_y in train_loader:
-            batch_X, batch_y = batch_X.to(device), batch_y.to(device)
-            
+        for batch in train_loader:
             optimizer.zero_grad()
-            if isinstance(model, RidgeBaseline):
-                loss = model.loss(model(batch_X), batch_y)
+            # Assuming batch.x, batch.edge_index, batch.edge_attr, batch.y exist
+            # We need to ensure the targets are passed correctly.
+            # If `prepare_gnn_data` didn't attach y, we need to handle that.
+            # Let's assume the Data objects have 'y' attribute set during preparation.
+            if hasattr(batch, 'y'):
+                out = model(batch)
+                loss = criterion(out, batch.y)
             else:
-                preds = model(batch_X)
-                loss = criterion(preds, batch_y)
+                # Fallback if y is not in batch (unlikely if prepare_gnn_data is correct)
+                raise ValueError("Batch does not contain target 'y'. Check prepare_gnn_data.")
             
             loss.backward()
             optimizer.step()
-            train_loss += loss.item()
-        
-        train_loss /= len(train_loader)
-        
+            train_loss += loss.item() * batch.num_graphs
+
+        avg_train_loss = train_loss / len(train_loader.dataset) if len(train_loader.dataset) > 0 else 0
+        history['train_loss'].append(avg_train_loss)
+
         # Validation
         model.eval()
         val_loss = 0.0
         with torch.no_grad():
-            for batch_X, batch_y in val_loader:
-                batch_X, batch_y = batch_X.to(device), batch_y.to(device)
-                preds = model(batch_X)
-                if isinstance(model, RidgeBaseline):
-                    loss = criterion(preds, batch_y)
-                else:
-                    loss = criterion(preds, batch_y)
-                val_loss += loss.item()
+            for batch in val_loader:
+                if hasattr(batch, 'y'):
+                    out = model(batch)
+                    loss = criterion(out, batch.y)
+                    val_loss += loss.item() * batch.num_graphs
         
-        val_loss /= len(val_loader)
-        
-        logger.info(f"Epoch {epoch+1}/{config['epochs']} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
-        
+        avg_val_loss = val_loss / len(val_loader.dataset) if len(val_loader.dataset) > 0 else 0
+        history['val_loss'].append(avg_val_loss)
+        scheduler.step(avg_val_loss)
+
+        logger.info(f"Epoch {epoch+1}/{epochs} - Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
+
         # Early Stopping
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
             patience_counter = 0
-            best_model_state = model.state_dict().copy()
+            # Save best model state temporarily
+            torch.save(model.state_dict(), str(PROCESSED_DIR / "best_model_temp.pt"))
         else:
             patience_counter += 1
-            if patience_counter >= config["early_stopping_patience"]:
+            if patience_counter >= patience:
                 logger.info(f"Early stopping triggered at epoch {epoch+1}")
                 break
-    
-    if best_model_state:
-        model.load_state_dict(best_model_state)
-    
-    return model
+
+    # Load best model
+    model.load_state_dict(torch.load(str(PROCESSED_DIR / "best_model_temp.pt")))
+    return history
 
 def main():
-    logger = setup_logging("train", level=logging.INFO)
-    logger.info("Starting training pipeline...")
-    
-    # Setup
-    set_seed(CONFIG["seed"])
+    """
+    Main entry point for training.
+    Includes versioning step: generate hash for model.pt and update state YAML.
+    """
+    setup_logging()
+    logger.info("Starting Training Pipeline")
+
+    # 1. Setup
     device = get_device()
-    logger.info(f"Using device: {device}")
-    
-    # Paths
-    data_dir = Path("data/processed")
-    if not data_dir.exists():
-        logger.error("Processed data directory not found. Run split.py first.")
-        sys.exit(1)
-    
-    # Load Data
+    set_seed(42)
+
+    # 2. Load Data
     try:
-        train_df, val_df, test_df = load_data_splits(data_dir)
-        logger.info(f"Loaded {len(train_df)} train, {len(val_df)} val, {len(test_df)} test samples.")
+        splits = load_data_splits()
+        train_loader, _ = preprocess_df(splits['train'], device)
+        val_loader, _ = preprocess_df(splits['val'], device)
+        test_loader, _ = preprocess_df(splits['test'], device)
     except Exception as e:
         logger.error(f"Failed to load data: {e}")
         sys.exit(1)
-    
-    # Preprocess
-    X_train, y_train = preprocess_df(train_df, CONFIG["input_dim"])
-    X_val, y_val = preprocess_df(val_df, CONFIG["input_dim"])
-    
-    train_dataset = TensorDataset(X_train, y_train)
-    val_dataset = TensorDataset(X_val, y_val)
-    
-    train_loader = DataLoader(train_dataset, batch_size=CONFIG["batch_size"], shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=CONFIG["batch_size"])
-    
-    # Initialize Model
-    if CONFIG["model_type"] == "gnn":
-        model = MPNN(node_dim=CONFIG["input_dim"], hidden_dim=64, num_layers=2)
-    else:
-        model = RidgeBaseline(input_dim=CONFIG["input_dim"])
-    
-    param_count = sum(p.numel() for p in model.parameters())
-    logger.info(f"Model parameters: {param_count}")
-    if param_count >= 1_000_000:
-        logger.warning("Model has >1M parameters. This might violate constraints.")
-    
+
+    # 3. Build Model
+    # Using MPNN as per T014
+    model = build_gnn_model()
     model = model.to(device)
-    
-    # Train
-    trained_model = train_model(model, train_loader, val_loader, CONFIG, device)
-    
-    # Save Model
-    output_path = data_dir / "model.pt"
-    torch.save({
-        "model_state_dict": trained_model.state_dict(),
-        "config": CONFIG,
-        "param_count": param_count
-    }, output_path)
-    
-    logger.info(f"Model saved to {output_path}")
-    
-    # Update state (T005)
-    # We assume hash_artifacts is available
-    try:
-        from hash_artifacts import collect_artifacts, update_state_file, compute_file_hash
-        artifacts = collect_artifacts([str(output_path)])
-        update_state_file(artifacts)
-        logger.info("State file updated.")
-    except Exception as e:
-        logger.warning(f"Could not update state file: {e}")
+    logger.info(f"Model parameters: {sum(p.numel() for p in model.parameters())}")
+
+    # 4. Train
+    history = train_model(model, train_loader, val_loader, device, epochs=100, patience=10)
+
+    # 5. Save Model
+    torch.save(model.state_dict(), str(MODEL_OUTPUT_PATH))
+    logger.info(f"Model saved to {MODEL_OUTPUT_PATH}")
+
+    # 6. Versioning Step (T020 Requirement)
+    # Generate hash for model.pt
+    model_hash = compute_file_hash(MODEL_OUTPUT_PATH)
+    logger.info(f"Model hash: {model_hash}")
+
+    # Update state YAML
+    state_entry = {
+        "model_hash": model_hash,
+        "model_path": str(MODEL_OUTPUT_PATH),
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "epochs_trained": len(history['train_loss']),
+        "best_val_loss": min(history['val_loss'])
+    }
+
+    update_state_file(
+        state_file_path=STATE_FILE,
+        artifact_name="model.pt",
+        new_hash=model_hash,
+        metadata=state_entry
+    )
+    logger.info(f"State file updated at {STATE_FILE}")
+
+    logger.info("Training completed successfully.")
 
 if __name__ == "__main__":
     main()

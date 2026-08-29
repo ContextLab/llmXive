@@ -1,3 +1,40 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or evidence of the required folders (`data/raw`, `data/processed`,\
+    \ `code`, `tests`, `docs`) under `projects/PROJ-379-predicting-molecular-excitation-waveleng/`\
+    \ was provided, so we cannot confirm that the structure was actually created.\
+    \ The implementer must supply a file\u2011system snapshot, `tree` output, or similar\
+    \ proof that these directories exist and are non\u2011empty."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` file or its contents were provided; therefore there is no evidence\
+    \ that a Quickstart section with environment setup, data fetching, and end\u2011\
+    to\u2011end pipeline instructions exists. The required artifact is missing."
+T010:
+  c: false
+  h: 23964ea64d76c295be50824e14417d5d1104dda166d074396f6c6d2ea19299bd
+  r: "The provided `code/split.py` is truncated (ends mid\u2011statement) and never\
+    \ writes the split indices to `data/processed/split_indices.json`, which is also\
+    \ missing. Consequently the required output file is not produced and the implementation\
+    \ is incomplete."
+T015b:
+  c: false
+  h: 91d79f95033a2cf98eb958de48756c5edb44397dc90091aa54cf6ec45832c344
+  r: The provided `code/timing_logger.py` is truncated (the `main` function is unfinished
+    and the file would not run), and the required output file `data/processed/timing.json`
+    does not exist. Both the functional implementation and the generated timing artifact
+    are missing.
+T018:
+  c: false
+  h: d73d6c399730e3878e34c2d459e006a5f9ace0d011b811d1d8b1ca5144e089a5
+  r: "The `code/evaluate.py` file shown does not contain any implementation of power\u2011\
+    analysis logic (e.g., checking that the test set size\u202F\u2265\u202F50, computing\
+    \ effect size, determining power status, or writing results). Moreover, the required\
+    \ output file `data/processed/power_analysis.json` is absent from the repository.\
+    \ Both the functional code and the expected artifact are missing, so the task\
+    \ is not satisfied."
 T022:
   c: false
   h: ba6daf0bf9afd833e0adb6b3e2d7ffcef07f10952eb25cc6be62a9976a53f3af
@@ -5,6 +42,14 @@ T022:
     so no integration test for the sensitivity sweep and collinearity flags is present.
     The task cannot be considered completed until this test file is added with appropriate
     test implementations.
+T023:
+  c: false
+  h: c20fe983b5e35c26cc2b7c49b2a774e42116b5cff80bac82b19ef77b518d7bc5
+  r: "The repository contains a partially\u2011implemented `code/collinearity_check.py`\
+    \ (functions for ECFP correlation and GNN similarity are present, but the script\
+    \ is truncated, never loads data, never creates redundancy masks, and never writes\
+    \ `data/processed/redundancy_masks.json`). The required output file `data/processed/redundancy_masks.json`\
+    \ is absent. Consequently the task\u2019s full requirements are not met."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,14 +66,6 @@ T027:
     \ and the required output file `data/processed/metrics.json` is missing from the\
     \ repository. The task\u2019s required keys and output artifact are therefore\
     \ not produced."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., validation logs, execution output, or a report) showing that\
-    \ `quickstart.md` was actually run and verified on a CPU\u2011only environment\
-    \ is present; the claim lacks any concrete evidence of end\u2011to\u2011end execution.\
-    \ The implementer must provide the execution results or logs confirming the validation\
-    \ succeeded."
 T029a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
