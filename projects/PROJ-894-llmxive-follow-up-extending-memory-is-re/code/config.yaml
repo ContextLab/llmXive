@@ -1,31 +1,23 @@
-# Configuration for llmXive follow-up project
-# T039: Seed verification requires this config
+# Configuration for llmXive research pipeline
+noise:
+  injection_ratio: 0.1
+  seed: 42
 
-model_path: "llama-3-8b-instruct-q4_0.gguf"
-seed: 42
-noise_ratio: 0.1
+dataset:
+  name: "locomo/locomo"
+  split: "test"
+  config: "default"
+  trust_remote_code: true
 
-# LLM Inference settings
-inference:
-  max_tokens: 512
-  temperature: 0.0  # Deterministic
-  top_p: 1.0
-
-# Strategy settings
-strategies:
-  full:
-    enabled: true
-  lazy:
-    enabled: true
-    evidence_threshold: 0.7
-  greedy:
-    enabled: true
-    top_k: 5
-
-# Data paths
 paths:
   raw_data: "data/raw/locomo.jsonl"
   intermediate_triples: "data/intermediate/triples_raw.jsonl"
-  intermediate_graphs: "data/intermediate/graphs_raw.json"
-  processed_graphs: "data/processed/graphs"
-  results: "data/processed"
+  clean_graphs: "data/intermediate/graphs_raw.json"
+  noisy_graphs: "data/processed/graphs/graph_noise_42.json"
+
+timeout:
+  default_seconds: 300
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

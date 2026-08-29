@@ -1,27 +1,11 @@
-T011a#1:
+T013b:
   c: false
-  h: af1634ed0294a89603ef1d825f2710a3b25893812ef97d2d424e23413d419c6e
-  r: The provided `code/data_loader.py` loads the dataset and checks columns, but
-    it never validates the `config` argument, nor does it create the required `data/raw/locomo.jsonl`
-    file (the file is missing). Consequently the script does not fully meet the task
-    specifications.
-T011c:
-  c: false
-  h: 1194d390518f0747f3a8d921c4f95858f41ead9ea17a1d24902ab16c185ea70e
-  r: "The required output file `data/processed/graphs/graph_noise_42.json` does not\
-    \ exist, and the provided `code/data_loader.py` shows no implementation that calls\
-    \ `inject_noise` to add edges. Moreover, the unit test `test_inject_noise_adds_edges`\
-    \ is not present in `tests/unit/test_graph_utils.py`; only tests for replacing\
-    \ edges are included. The task\u2019s core functionality and verification artifacts\
-    \ are missing."
-T013:
-  c: false
-  h: c58149f640f885c86330373e59e031b57997f961769e2f2ff690f47d95b9efbe
-  r: "The provided `code/runner.py` is truncated and does not contain any logic that\
-    \ writes the required fields to `data/processed/baseline_results.csv`. Moreover,\
-    \ the CSV file itself is absent from the repository. Consequently, the task\u2019\
-    s core requirement\u2014producing a populated baseline results CSV with the specified\
-    \ columns and status mapping\u2014is not satisfied."
+  h: fd491f4aa9c1f265e67dcb528c38d9cd4203d0db88e0048ea0f29e528409e9f3
+  r: "The required output file `data/processed/noisy_baseline_results.csv` does not\
+    \ exist, and the provided `code/runner.py` is truncated (e.g., `ensure_output_dirs`\
+    \ is incomplete) with no visible logic that actually runs the noisy baseline on\
+    \ synthetic graphs and writes the required columns to the CSV. The task\u2019\
+    s core artifact is missing."
 T019a:
   c: false
   h: 2310f4ef77082b82c86bfdf04d2dc6f0eee4fc7cb2d037e80baf8d6f7238d185
@@ -30,6 +14,15 @@ T019a:
     \ Moreover, the expected output CSV (`data/processed/lazy_results.csv`) is absent\
     \ from the project. Without the CSV generation and confirmed Lazy\u2011strategy\
     \ execution, the task\u2019s requirement is not satisfied."
+T039:
+  c: false
+  h: 55c71be9c32d4d999d2cb07aa829e375cbdc4be7171d95cb089fbcd7584f9933
+  r: "The required input artifacts (`data/processed/graphs/graph_noise_42.json` and\
+    \ `data/processed/baseline_results.csv`) are missing, and the provided `verify_seeds.py`\
+    \ script (truncated) does not show the re\u2011execution of the noise injection\
+    \ or baseline logic nor the writing of initial hashes to the state file. Without\
+    \ the actual data files and full script functionality, the task is not genuinely\
+    \ completed."
 T042:
   c: false
   h: 075a4075f4a74f58f77684da496eb853e6dacda150e2b9d334085c8e1d312939
@@ -67,10 +60,3 @@ T064:
     \ but the file is truncated and does not show the logic that writes `data/processed/status_counts.json`.\
     \ Moreover, the required `status_counts.json` output file is missing entirely,\
     \ so the task\u2019s core deliverable is not present."
-T070:
-  c: false
-  h: 9827ecc5811cafbb418c17c420bba4d10550a5a8e1ad48df870d6376fac08248
-  r: "The provided `code/data_loader.py` excerpt shows no `os.path.exists` or file\u2011\
-    size validation for `data/intermediate/graphs_raw.json` before calling `inject_noise`,\
-    \ and the required `data/intermediate/graphs_raw.json` file is absent. The task\u2019\
-    s core code change is missing, so the requirement is not satisfied."
