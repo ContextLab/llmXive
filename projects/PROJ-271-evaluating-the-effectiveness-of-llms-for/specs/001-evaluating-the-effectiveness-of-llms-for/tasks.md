@@ -95,14 +95,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] [Depends: T011] Implement `code/semantic_analysis.py` to load `sentence-transformers/all-MiniLM-L6-v2` and compute dense vectors for functions in `data/static_baseline.csv` (FR-005)
+- [ ] T013 [US2] [Depends: T011] Implement `code/semantic_analysis.py` to load `sentence-transformers/all-MiniLM-L6-v2` and compute dense vectors for functions in `data/static_baseline.csv` (FR-005) <!-- FAILED: unspecified -->
 - [X] T014 [US2] Implement `code/semantic_analysis.py` to load `CodeLlama-7B-Instruct-GGUF` (4-bit) using `llama-cpp-python` on CPU device (FR-004)
 - [X] T015 [US2] Implement the standardized "Code Smell Detection" prompt in `code/semantic_analysis.py` to request a JSON list of smell categories (FR-004)
 - [X] T016 [US2] Implement batched inference loop in `code/semantic_analysis.py` with batch size ≤ 10 (within ≤ 50 constraint) and explicit `gc.collect()` between batches to manage RAM, and record batch-level metrics (RAM, CPU, time) (FR-004, FR-008)
 - [X] T017 [US2] Implement JSON parsing and error handling in `code/semantic_analysis.py` to log "Unparseable" for malformed LLM outputs (Edge Case)
 - [X] T018 [US2] Implement context window check in `code/semantic_analysis.py` to truncate or skip functions exceeding model limits and log the count (Edge Case)
-- [ ] T019 [US2] Write embeddings and LLM labels to `data/processed/semantic_results.json` (FR-004, FR-005)
-- [ ] T020 [US2] [Depends: T006b] Add monitoring in `code/semantic_analysis.py` to record peak RAM, CPU utilization, and inference time per batch to `results/resource_metrics.json` using `code/monitoring.py` (FR-008)
+- [X] T019 [US2] Write embeddings and LLM labels to `data/processed/semantic_results.json` (FR-004, FR-005)
+- [X] T020 [US2] [Depends: T006b] Add monitoring in `code/semantic_analysis.py` to record peak RAM, CPU utilization, and inference time per batch to `results/resource_metrics.json` using `code/monitoring.py` (FR-008)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -118,7 +118,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] [Depends: T019] Implement `code/statistical_analysis.py` to merge `data/static_baseline.csv` and `data/processed/semantic_results.json` into a unified dataset
+- [ ] T021 [US3] [Depends: T019] Implement `code/statistical_analysis.py` to merge `data/static_baseline.csv` and `data/processed/semantic_results.json` into a unified dataset <!-- FAILED: unspecified -->
 - [ ] T021a [US3] Validate merged dataset completeness (≥95% rows have all required fields: code, metrics, static labels, semantic vectors, LLM labels) of the 800 sampled functions before proceeding to statistical analysis (SC-005)
 - [X] T022 [US3] Implement McNemar's test per smell category (aggregating paired detection outcomes per function) in `code/statistical_analysis.py` (FR-006)
 - [X] T023 [US3] Implement Variance Inflation Factor (VIF) calculation in `code/statistical_analysis.py` for predictors (LOC, Cyclomatic, Semantic Mean) (FR-010)
@@ -137,7 +137,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T030a [P] Add usage instructions to `README.md`
+- [ ] T030a [P] Add usage instructions to `README.md`
 - [ ] T030b [P] Update dependencies list in `README.md`
 - [ ] T030c [P] Create `quickstart.md` with setup and run instructions
 - [ ] T031a [P] Remove unused imports from all `code/` modules

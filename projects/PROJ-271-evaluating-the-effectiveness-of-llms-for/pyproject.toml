@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-proj-271"
+name = "llmxive-eval-code-smells"
 version = "0.1.0"
 description = "Evaluating the Effectiveness of LLMs for Detecting Code Smells"
 readme = "README.md"
@@ -18,44 +18,42 @@ dependencies = [
     "scikit-learn",
     "statsmodels",
     "numpy",
-    "psutil",
+    "psutil"
+]
+
+[project.optional-dependencies]
+dev = [
     "flake8",
     "black",
+    "pytest",
+    "pre-commit"
 ]
 
 [tool.black]
-line-length = 100
-target-version = ["py311"]
+line-length = 88
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
-[tool.flake8]
-max-line-length = 100
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".venv",
-    ".tox",
-    ".mypy_cache",
-]
-ignore = ["E203", "W503"]
-per-file-ignores = {}
+[tool.isort]
+profile = "black"
+line_length = 88
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
+addopts = "-v --tb=short"

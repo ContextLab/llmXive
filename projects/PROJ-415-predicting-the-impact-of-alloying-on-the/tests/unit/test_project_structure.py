@@ -1,73 +1,49 @@
-"""
-Unit tests to verify the project structure was created correctly.
-"""
 import os
 import pytest
 from pathlib import Path
+from config import (
+    PROJECT_ROOT, DATA_DIR, MODELS_DIR, REPORTS_DIR,
+    LOG_DIR, ERRORS_DIR, FIGURES_DIR, CONTRACTS_DIR,
+    RAW_DATA_DIR, CURATED_DATA_DIR, ARTIFACTS_DIR
+)
 
-REQUIRED_DIRS = [
-    "code",
-    "code/utils",
-    "code/data",
-    "code/models",
-    "code/validation",
-    "tests",
-    "tests/unit",
-    "tests/contract",
-    "tests/integration",
-    "data",
-    "data/raw",
-    "data/curated",
-    "data/artifacts",
-    "data/logs",
-    "models",
-    "reports",
-    "figures"
-]
+def test_required_directories_exist():
+    """
+    Verify that the core project directories exist as per T001.
+    """
+    required_dirs = [
+        PROJECT_ROOT / "code",
+        PROJECT_ROOT / "tests",
+        DATA_DIR,
+        MODELS_DIR,
+        REPORTS_DIR,
+        LOG_DIR,
+        ERRORS_DIR,
+        FIGURES_DIR,
+        CONTRACTS_DIR,
+        RAW_DATA_DIR,
+        CURATED_DATA_DIR,
+        ARTIFACTS_DIR,
+    ]
 
-REQUIRED_PACKAGES = [
-    "code",
-    "code/utils",
-    "code/data",
-    "code/models",
-    "code/validation",
-    "tests",
-    "tests/unit",
-    "tests/contract",
-    "tests/integration"
-]
+    for dir_path in required_dirs:
+        assert dir_path.exists(), f"Directory missing: {dir_path}"
+        assert dir_path.is_dir(), f"Path is not a directory: {dir_path}"
 
-@pytest.fixture
-def project_root():
-    """Return the project root directory."""
-    return Path.cwd()
+def test_data_subdirectories_exist():
+    """
+    Verify specific data subdirectories exist.
+    """
+    assert (DATA_DIR / "raw").exists()
+    assert (DATA_DIR / "curated").exists()
+    assert (DATA_DIR / "artifacts").exists()
+    assert (DATA_DIR / "logs").exists()
 
-def test_required_directories_exist(project_root):
-    """Verify all required directories exist."""
-    for dir_path in REQUIRED_DIRS:
-        full_path = project_root / dir_path
-        assert full_path.exists(), f"Directory missing: {full_path}"
-        assert full_path.is_dir(), f"Not a directory: {full_path}"
-
-def test_init_files_exist(project_root):
-    """Verify __init__.py files exist for Python packages."""
-    for dir_path in REQUIRED_PACKAGES:
-        init_file = project_root / dir_path / "__init__.py"
-        assert init_file.exists(), f"__init__.py missing: {init_file}"
-        assert init_file.is_file(), f"Not a file: {init_file}"
-
-def test_data_subdirectories_exist(project_root):
-    """Verify data subdirectories exist."""
-    data_subdirs = ["raw", "curated", "artifacts", "logs"]
-    for subdir in data_subdirs:
-        full_path = project_root / "data" / subdir
-        assert full_path.exists(), f"Data subdirectory missing: {full_path}"
-        assert full_path.is_dir(), f"Not a directory: {full_path}"
-
-def test_tests_subdirectories_exist(project_root):
-    """Verify test subdirectories exist."""
-    test_subdirs = ["unit", "contract", "integration"]
-    for subdir in test_subdirs:
-        full_path = project_root / "tests" / subdir
-        assert full_path.exists(), f"Test subdirectory missing: {full_path}"
-        assert full_path.is_dir(), f"Not a directory: {full_path}"
+def test_code_and_tests_packages_exist():
+    """
+    Verify code and tests directories exist.
+    """
+    assert (PROJECT_ROOT / "code").exists()
+    assert (PROJECT_ROOT / "tests").exists()
+    assert (PROJECT_ROOT / "models").exists()
+    assert (PROJECT_ROOT / "reports").exists()

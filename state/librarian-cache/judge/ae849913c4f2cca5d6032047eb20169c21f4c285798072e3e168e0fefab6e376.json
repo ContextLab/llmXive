@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.00678",
+  "judged_at": "2026-08-29T21:49:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rynnworld-4d: 4d embodied world models for robotic manipulation\" computer science",
+  "rationale": "This paper belongs in the literature review because it directly addresses the core mechanism of \"4D Embodied World Models for Robotic Manipulation\" by proposing a specific architecture (ABot-M0.5) that solves the alignment challenges in mobile manipulation world models, satisfying criteria (a) for same-mechanism evidence and (d) as a foundational reference for the specific sub-field of world action models in robotics.",
+  "relevant": true
+}

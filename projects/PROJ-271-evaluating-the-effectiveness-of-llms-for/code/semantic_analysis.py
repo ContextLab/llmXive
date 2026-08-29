@@ -1,3 +1,14 @@
+"""
+Semantic analysis module for LLM-based code smell detection.
+
+This module handles:
+1. Loading semantic embeddings models (sentence-transformers)
+2. Loading quantized LLM models (llama-cpp-python)
+3. Computing embeddings for code functions
+4. Running LLM inference with standardized prompts
+5. Parsing and validating LLM outputs
+6. Resource monitoring integration for batch processing
+"""
 import os
 import json
 import logging
@@ -5,262 +16,355 @@ import gc
 import time
 from typing import List, Dict, Any, Optional, Tuple
 
+import numpy as np
 from sentence_transformers import SentenceTransformer
-import pandas as pd
 from llama_cpp import Llama
 
-from config import get_path, get_data_path, get_processed_path, setup_logging
-from monitoring import get_ram_usage_mb, get_cpu_utilization, record_batch_metrics, save_metrics_to_file, get_peak_ram_for_batch
+from config import get_processed_path, get_results_path, setup_logging
+from monitoring import (
+    capture_snapshot,
+    track_inference_time,
+    record_batch_metrics,
+    save_metrics_to_file,
+    get_ram_usage_mb,
+    get_cpu_utilization
+)
 
+# Configure logging
 logger = setup_logging(__name__)
 
-# --- Embedding Model ---
+# Constants
+BATCH_SIZE = 10
+MAX_CONTEXT_TOKENS = 4096  # CodeLlama-7B context window
+EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
+LLAMA_MODEL_PATH = "models/CodeLlama-7B-Instruct-GGUF/q4_k_m.gguf"
+OUTPUT_EMBEDDINGS_PATH = "data/processed/semantic_results.json"
+OUTPUT_METRICS_PATH = "results/resource_metrics.json"
 
-def load_embeddings_model(model_name: str = "sentence-transformers/all-MiniLM-L6-v2") -> SentenceTransformer:
+
+def load_embeddings_model(model_name: str = EMBEDDING_MODEL_NAME) -> SentenceTransformer:
+    """
+    Load the sentence-transformers model for computing embeddings.
+
+    Args:
+        model_name: Name of the model to load from HuggingFace Hub.
+
+    Returns:
+        SentenceTransformer: Loaded embedding model.
+    """
     logger.info(f"Loading embedding model: {model_name}")
-    return SentenceTransformer(model_name)
+    model = SentenceTransformer(model_name)
+    logger.info(f"Embedding model loaded successfully: {model_name}")
+    return model
 
-# --- LLM Model ---
 
-def load_llama_model(model_path: str, n_ctx: int = 4096, n_threads: int = 4, n_batch: int = 512) -> Llama:
-    logger.info(f"Loading LLM from: {model_path}")
-    # Assuming GGUF path is configured or passed; using a placeholder for the path logic
-    # In a real run, this path must be valid.
+def load_llama_model(model_path: str = LLAMA_MODEL_PATH, n_ctx: int = MAX_CONTEXT_TOKENS) -> Llama:
+    """
+    Load the quantized CodeLlama model using llama-cpp-python.
+
+    Args:
+        model_path: Path to the GGUF model file.
+        n_ctx: Context window size in tokens.
+
+    Returns:
+        Llama: Loaded LLM instance.
+    """
+    logger.info(f"Loading LLM model from: {model_path}")
     if not os.path.exists(model_path):
-        raise FileNotFoundError(f"LLM model file not found at {model_path}. Please download CodeLlama-7B-Instruct-GGUF.")
-    
-    return Llama(
+        raise FileNotFoundError(f"LLM model file not found at: {model_path}")
+
+    model = Llama(
         model_path=model_path,
         n_ctx=n_ctx,
-        n_threads=n_threads,
-        n_batch=n_batch,
+        n_threads=4,
+        n_batch=512,
         verbose=False
     )
+    logger.info("LLM model loaded successfully")
+    return model
 
-# --- Data Loading ---
 
-def load_baseline_data(csv_path: str) -> pd.DataFrame:
-    logger.info(f"Loading baseline data from {csv_path}")
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Baseline CSV not found: {csv_path}")
-    df = pd.read_csv(csv_path)
-    # Ensure 'code' column exists
-    if 'code' not in df.columns:
-        raise ValueError("Baseline CSV must contain a 'code' column.")
-    return df
+def load_baseline_data(baseline_path: str = "data/static_baseline.csv") -> List[Dict[str, Any]]:
+    """
+    Load the static baseline CSV containing code functions and metrics.
 
-# --- Embedding Computation ---
+    Args:
+        baseline_path: Path to the static baseline CSV file.
 
-def compute_embeddings(df: pd.DataFrame, model: SentenceTransformer, batch_size: int = 32) -> List[List[float]]:
-    logger.info(f"Computing embeddings for {len(df)} functions...")
-    texts = df['code'].tolist()
-    embeddings = model.encode(texts, batch_size=batch_size, show_progress_bar=True, convert_to_numpy=True)
+    Returns:
+        List of dictionaries, each representing a function with its code and metrics.
+    """
+    import pandas as pd
+
+    logger.info(f"Loading baseline data from: {baseline_path}")
+    if not os.path.exists(baseline_path):
+        raise FileNotFoundError(f"Baseline file not found at: {baseline_path}")
+
+    df = pd.read_csv(baseline_path)
+    data = df.to_dict(orient='records')
+    logger.info(f"Loaded {len(data)} functions from baseline")
+    return data
+
+
+def compute_embeddings(model: SentenceTransformer, code_texts: List[str]) -> List[List[float]]:
+    """
+    Compute semantic embeddings for a list of code texts.
+
+    Args:
+        model: The loaded SentenceTransformer model.
+        code_texts: List of code strings to embed.
+
+    Returns:
+        List of embedding vectors (each as a list of floats).
+    """
+    logger.info(f"Computing embeddings for {len(code_texts)} functions")
+    embeddings = model.encode(code_texts, convert_to_numpy=True, show_progress_bar=True)
     return embeddings.tolist()
 
-# --- Context Window Handling ---
 
-def check_context_window(text: str, max_tokens: int = 4096) -> bool:
-    # Rough estimate: 1 token ~ 4 chars for code
+def check_context_window(text: str, max_tokens: int = MAX_CONTEXT_TOKENS) -> bool:
+    """
+    Check if text fits within the model's context window.
+
+    Args:
+        text: The text to check.
+        max_tokens: Maximum allowed tokens.
+
+    Returns:
+        bool: True if text fits, False otherwise.
+    """
+    # Rough estimate: 1 token ≈ 4 characters for code
     estimated_tokens = len(text) // 4
     return estimated_tokens <= max_tokens
 
-def truncate_text(text: str, max_tokens: int = 4096) -> str:
-    # Truncate by characters based on token estimate
+
+def truncate_text(text: str, max_tokens: int = MAX_CONTEXT_TOKENS) -> str:
+    """
+    Truncate text to fit within the context window.
+
+    Args:
+        text: The text to truncate.
+        max_tokens: Maximum allowed tokens.
+
+    Returns:
+        Truncated text string.
+    """
+    # Rough estimate: 1 token ≈ 4 characters
     max_chars = max_tokens * 4
     if len(text) <= max_chars:
         return text
-    return text[:max_chars] + "..."
+    return text[:max_chars]
 
-# --- LLM Inference ---
 
-def run_llm_inference(llm: Llama, code: str, prompt_template: str, max_tokens: int = 512) -> str:
-    # Construct prompt
-    full_prompt = prompt_template.format(code=code)
-    
-    # Check context window
-    if not check_context_window(full_prompt):
-        full_prompt = truncate_text(full_prompt)
-        logger.warning("Prompt truncated due to context window limit.")
+def run_llm_inference(
+    model: Llama,
+    code_text: str,
+    temperature: float = 0.1,
+    max_tokens: int = 512
+) -> str:
+    """
+    Run LLM inference on a single code snippet.
+
+    Args:
+        model: The loaded Llama model.
+        code_text: The code snippet to analyze.
+        temperature: Sampling temperature.
+        max_tokens: Maximum tokens to generate.
+
+    Returns:
+        str: The raw LLM response.
+    """
+    prompt = (
+        "You are a code quality expert. Analyze the following Python code for code smells. "
+        "Return your answer as a JSON list of smell categories. "
+        "Available smell categories: LongMethod, LargeClass, DuplicateCode, LongParameterList, "
+        "FeatureEnvy, DataClass, GodClass, ShotgunSurgery, DivergentChange, ParallelInheritance. "
+        "If no smells are detected, return an empty list [].\n\n"
+        f"Code:\n{code_text}\n\n"
+        "Smells (JSON list):"
+    )
+
+    response = model(
+        prompt,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        stop=["\n\n", "```"],
+        echo=False,
+        verbose=False
+    )
+
+    return response['choices'][0]['text'].strip()
+
+
+def parse_llm_output(raw_output: str) -> List[str]:
+    """
+    Parse the LLM's raw output into a list of smell categories.
+
+    Args:
+        raw_output: Raw string output from the LLM.
+
+    Returns:
+        List of smell category strings, or empty list if parsing fails.
+    """
+    valid_smells = [
+        "LongMethod", "LargeClass", "DuplicateCode", "LongParameterList",
+        "FeatureEnvy", "DataClass", "GodClass", "ShotgunSurgery",
+        "DivergentChange", "ParallelInheritance"
+    ]
 
     try:
-        output = llm(
-            full_prompt,
-            max_tokens=max_tokens,
-            temperature=0.0, # Deterministic
-            stop=["</s>", "```"],
-            echo=False
-        )
-        return output['choices'][0]['text']
-    except Exception as e:
-        logger.error(f"LLM inference failed: {e}")
-        return ""
-
-def parse_llm_output(text: str) -> List[str]:
-    # Expecting JSON list like ["Long Function", "Complex Condition"]
-    # The prompt should enforce this, but we handle errors.
-    try:
-        # Clean up potential markdown code blocks
-        text = text.strip()
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.startswith("```"):
-            text = text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        
-        result = json.loads(text)
-        if isinstance(result, list):
-            return result
-        return []
-    except json.JSONDecodeError:
-        logger.warning(f"Failed to parse LLM output as JSON: {text[:100]}...")
+        # Try to extract JSON from the output
+        import re
+        json_match = re.search(r'\[.*\]', raw_output, re.DOTALL)
+        if json_match:
+            json_str = json_match.group(0)
+            smells = json.loads(json_str)
+            if isinstance(smells, list):
+                # Filter to only valid smells
+                return [s for s in smells if s in valid_smells]
+    except (json.JSONDecodeError, AttributeError):
+        logger.warning(f"Failed to parse LLM output: {raw_output[:200]}")
         return []
 
-# --- Main Pipeline ---
+    return []
+
 
 def run_semantic_analysis(
-    baseline_path: str,
-    output_path: str,
-    model_path: str,
-    batch_size: int = 10,
-    llm_batch_size: int = 10
-):
+    baseline_path: str = "data/static_baseline.csv",
+    output_path: str = OUTPUT_EMBEDDINGS_PATH,
+    metrics_path: str = OUTPUT_METRICS_PATH,
+    batch_size: int = BATCH_SIZE
+) -> Dict[str, Any]:
     """
-    Executes the full semantic analysis pipeline:
-    1. Loads baseline data.
-    2. Computes embeddings.
-    3. Runs LLM inference in batches.
-    4. Writes results to JSON.
+    Run the full semantic analysis pipeline with resource monitoring.
+
+    This function:
+    1. Loads the baseline data
+    2. Computes embeddings for all functions
+    3. Runs LLM inference in batches with monitoring
+    4. Saves results and resource metrics
+
+    Args:
+        baseline_path: Path to the static baseline CSV.
+        output_path: Path to save semantic results.
+        metrics_path: Path to save resource metrics.
+        batch_size: Number of functions to process per batch.
+
+    Returns:
+        Dictionary containing summary statistics.
     """
-    # 1. Load Data
-    df = load_baseline_data(baseline_path)
-    
-    # 2. Load Models
-    embed_model = load_embeddings_model()
-    llm_model = load_llama_model(model_path)
-    
-    # 3. Compute Embeddings
-    all_embeddings = compute_embeddings(df, embed_model)
-    
-    # 4. Prepare Prompt
-    prompt_template = """
-    Analyze the following Python code function for code smells.
-    Return ONLY a JSON list of strings containing the names of detected code smells.
-    Do not output any other text.
-    
-    Code:
-    {code}
-    
-    Detected Smells (JSON list):
-    """
+    logger.info("Starting semantic analysis pipeline")
 
-    results = []
-    metrics_log = []
-    
-    logger.info(f"Starting LLM inference on {len(df)} functions.")
-    
-    # Process in batches for resource management
-    for i in range(0, len(df), llm_batch_size):
-        batch_df = df.iloc[i:i+llm_batch_size]
-        batch_indices = list(range(i, min(i+llm_batch_size, len(df))))
-        
-        batch_start_time = time.time()
-        batch_ram_start = get_ram_usage_mb()
-        
-        batch_results = []
-        for idx, row in batch_df.iterrows():
-            code = row['code']
-            llm_output = run_llm_inference(llm_model, code, prompt_template)
-            smells = parse_llm_output(llm_output)
-            
-            # Find original index in df to match embedding
-            original_idx = row.name
-            batch_results.append({
-                "original_index": int(original_idx),
-                "llm_smells": smells,
-                "llm_raw_output": llm_output
-            })
-        
-        batch_end_time = time.time()
-        batch_ram_end = get_ram_usage_mb()
-        
-        # Record metrics
-        batch_metrics = {
-            "batch_start_idx": i,
-            "batch_end_idx": i + llm_batch_size,
-            "duration_seconds": batch_end_time - batch_start_time,
-            "ram_usage_mb": batch_ram_end,
-            "cpu_utilization": get_cpu_utilization()
-        }
-        metrics_log.append(batch_metrics)
-        
-        # Force GC
-        gc.collect()
-        
-        results.extend(batch_results)
-        logger.info(f"Processed batch {i//llm_batch_size + 1}: {len(batch_results)} items")
+    # Load models
+    embedding_model = load_embeddings_model()
+    llama_model = load_llama_model()
 
-    # 5. Construct Final Output
-    # Merge embeddings, static labels (from baseline), and LLM results
-    # We need to align results with the original dataframe order
-    
-    final_data = []
-    for idx, row in df.iterrows():
-        emb = all_embeddings[idx]
-        static_smells = row.get('static_smell_labels', '[]')
-        # Ensure static_smells is a list if it was a string in CSV
-        if isinstance(static_smells, str):
-            try:
-                static_smells = json.loads(static_smells)
-            except:
-                static_smells = []
-        
-        llm_entry = next((r for r in results if r['original_index'] == idx), None)
-        llm_smells = llm_entry['llm_smells'] if llm_entry else []
-        
-        final_data.append({
-            "original_index": idx,
-            "code_length": len(row['code']),
-            "static_smell_labels": static_smells,
-            "llm_smell_labels": llm_smells,
-            "embedding": emb
-        })
+    # Load data
+    baseline_data = load_baseline_data(baseline_path)
+    total_functions = len(baseline_data)
+    logger.info(f"Processing {total_functions} functions in batches of {batch_size}")
 
-    # 6. Save to JSON
+    # Prepare results storage
+    all_results = []
+    all_metrics = []
+    skipped_count = 0
+    unparseable_count = 0
+
+    # Process in batches
+    for batch_start in range(0, total_functions, batch_size):
+        batch_end = min(batch_start + batch_size, total_functions)
+        batch_id = batch_start // batch_size
+        batch_data = baseline_data[batch_start:batch_end]
+
+        logger.info(f"Processing batch {batch_id} (functions {batch_start} to {batch_end-1})")
+
+        # Capture metrics for this batch
+        with track_inference_time() as batch_metrics:
+            batch_results = []
+
+            for idx, item in enumerate(batch_data):
+                code = item.get('code', '')
+                if not code:
+                    continue
+
+                # Check context window
+                if not check_context_window(code):
+                    logger.warning(f"Function at index {batch_start + idx} exceeds context window, skipping")
+                    skipped_count += 1
+                    continue
+
+                # Truncate if necessary
+                truncated_code = truncate_text(code)
+
+                # Compute embedding
+                embedding = compute_embeddings(embedding_model, [truncated_code])[0]
+
+                # Run LLM inference
+                try:
+                    raw_output = run_llm_inference(llama_model, truncated_code)
+                    smells = parse_llm_output(raw_output)
+                    if not smells:
+                        unparseable_count += 1
+                except Exception as e:
+                    logger.error(f"Error during LLM inference: {e}")
+                    smells = []
+                    unparseable_count += 1
+
+                result_item = {
+                    'function_id': item.get('function_id', f"{batch_start + idx}"),
+                    'code': truncated_code,
+                    'embedding': embedding,
+                    'llm_smells': smells,
+                    'static_smells': item.get('static_smell_labels', []),
+                    'radon_metrics': {
+                        'loc': item.get('loc', 0),
+                        'cyclomatic_complexity': item.get('cyclomatic_complexity', 0)
+                    }
+                }
+                batch_results.append(result_item)
+
+            # Record batch metrics
+            batch_metrics['batch_id'] = batch_id
+            batch_metrics['functions_processed'] = len(batch_results)
+            batch_metrics['functions_skipped'] = skipped_count
+            all_metrics.append(record_batch_metrics(batch_id, batch_metrics))
+
+            all_results.extend(batch_results)
+
+            # Force garbage collection between batches
+            gc.collect()
+
+        logger.info(f"Batch {batch_id} completed. Processed: {len(batch_results)}, Skipped: {skipped_count}")
+
+    # Save results
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(final_data, f, indent=2)
-    
+        json.dump(all_results, f, indent=2)
     logger.info(f"Saved semantic results to {output_path}")
-    
-    # Save metrics if path is provided in config
-    metrics_path = get_path('results', 'resource_metrics.json')
-    save_metrics_to_file(metrics_log, metrics_path)
+
+    # Save metrics
+    save_metrics_to_file(all_metrics, metrics_path)
+    logger.info(f"Saved resource metrics to {metrics_path}")
+
+    summary = {
+        'total_functions': total_functions,
+        'processed': len(all_results),
+        'skipped_context_window': skipped_count,
+        'unparseable_outputs': unparseable_count,
+        'batches_processed': len(all_metrics),
+        'output_path': output_path,
+        'metrics_path': metrics_path
+    }
+
+    logger.info(f"Semantic analysis completed. Summary: {summary}")
+    return summary
+
 
 def main():
-    """Entry point for running the semantic analysis task."""
-    baseline_csv = get_data_path('static_baseline.csv')
-    output_json = get_processed_path('semantic_results.json')
-    
-    # The model path should be configured or downloaded. 
-    # For this implementation, we assume the user has the model path or it's in a standard location.
-    # In a real deployment, this might come from an env var or config.
-    # We'll use a placeholder that the user must update or a standard HF cache path if available.
-    # However, the task requires a real run. We will assume the model is downloaded to a specific path.
-    # Let's assume a standard GGUF path structure for the sake of the script, but it will fail if not found.
-    model_path = os.environ.get('LLAMA_MODEL_PATH', 'models/CodeLlama-7B-Instruct-GGUF/q4_k_m.gguf')
-    
-    if not os.path.exists(model_path):
-        logger.error(f"Model not found at {model_path}. Please set LLAMA_MODEL_PATH or download the model.")
-        return
+    """Main entry point for semantic analysis."""
+    setup_logging()
+    run_semantic_analysis()
 
-    run_semantic_analysis(
-        baseline_path=baseline_csv,
-        output_path=output_json,
-        model_path=model_path,
-        batch_size=32,
-        llm_batch_size=10
-    )
 
 if __name__ == "__main__":
     main()

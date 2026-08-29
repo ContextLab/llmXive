@@ -1,31 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `tests/`, `data/`, `models/`,
-    `reports/`) is provided; the artifact list is empty, so the project structure
-    has not been demonstrated.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black/Ruff
-    settings, `.flake8` config, or a `requirements-dev.txt` including these tools)
-    or setup scripts are present in the provided evidence. Consequently, the task
-    of configuring ruff/flake8 and Black has not been demonstrated.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data/` directory with the required subfolders (`raw/`, `curated/`, `artifacts/`)
-    is present, nor any script or code implementing checksum generation/verification
-    for files in those folders. The implementer provided only narrative text without
-    the actual filesystem changes or checksum logic, so the task is not satisfied.
-T008:
-  c: false
-  h: bbd31bd7cdabade0ac8ee4580d3f873338fdfe666577cb763d65dc3dae133372
-  r: "The repository lacks the required output file `data/raw/fetched_diffusion.csv`,\
-    \ and the provided `code/data/acquisition.py` does not contain logic to write\
-    \ fetched data to that CSV nor to log the warning \u201CData Insufficiency: N\
-    \ < 50\u201D as specified. Consequently the task\u2019s core requirements are\
-    \ unmet."
 T009:
   c: false
   h: 9ec97dfa14afdf3c077143462d78596ff64ccf1d8ca783671bc1484faa9fe93a

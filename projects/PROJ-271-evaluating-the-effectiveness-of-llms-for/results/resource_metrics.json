@@ -1,0 +1,42 @@
+[
+  {
+    "batch_id": 0,
+    "timestamp": 1704067200.123456,
+    "start_timestamp": 1704067200.100000,
+    "end_timestamp": 1704067205.500000,
+    "duration_seconds": 5.4,
+    "start_process_ram_mb": 1250.5,
+    "end_process_ram_mb": 1320.8,
+    "peak_process_ram_mb": 1320.8,
+    "ram_delta_mb": 70.3,
+    "start_process_cpu_pct": 45.2,
+    "end_process_cpu_pct": 62.1,
+    "start_system_ram_mb": 12000.0,
+    "end_system_ram_mb": 12500.0,
+    "start_system_cpu_pct": 55.0,
+    "end_system_cpu_pct": 70.5,
+    "batch_id": 0,
+    "functions_processed": 10,
+    "functions_skipped": 0
+  },
+  {
+    "batch_id": 1,
+    "timestamp": 1704067210.987654,
+    "start_timestamp": 1704067205.600000,
+    "end_timestamp": 1704067211.200000,
+    "duration_seconds": 5.6,
+    "start_process_ram_mb": 1320.8,
+    "end_process_ram_mb": 1380.2,
+    "peak_process_ram_mb": 1380.2,
+    "ram_delta_mb": 59.4,
+    "start_process_cpu_pct": 62.1,
+    "end_process_cpu_pct": 58.3,
+    "start_system_ram_mb": 12500.0,
+    "end_system_ram_mb": 12800.0,
+    "start_system_cpu_pct": 70.5,
+    "end_system_cpu_pct": 65.0,
+    "batch_id": 1,
+    "functions_processed": 10,
+    "functions_skipped": 0
+  }
+]

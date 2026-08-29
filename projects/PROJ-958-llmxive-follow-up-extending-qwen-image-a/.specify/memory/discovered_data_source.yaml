@@ -1,12 +1,10 @@
 status: none
-intent: IA-Bench WISE-Verified prompts CLIP mFAQ dataset download python package dataset
+intent: download IA-Bench prompts, WISE-Verified prompts, MTLD lexical reference,
+  CLIP mfaq descriptions python package dataset
 required_fields:
 - prompt_id
 - prompt_text
 - source_dataset
-- parse_tree_depth
-- clause_count
-- mtld_score
-cache_key: c429c34c40f2146ab63cccc3a37ca3642482a2be51ee25bd7049698f2d9e7661
-searched_at: '2026-08-22T14:42:07.910279+00:00'
+cache_key: 203b6809a6a976b8b922cd85a55a2c49172e22a13322a9f4d6186618b5b74495
+searched_at: '2026-08-29T21:20:14.231046+00:00'
 retry_count: 1

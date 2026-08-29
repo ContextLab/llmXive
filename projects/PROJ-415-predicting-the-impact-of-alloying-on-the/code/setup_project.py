@@ -2,62 +2,73 @@ import os
 import sys
 from pathlib import Path
 from typing import List
+from config import DATA_DIR, PROJECT_ROOT, LOG_DIR, ERRORS_DIR, MODELS_DIR, REPORTS_DIR
 
-def create_directories(root: Path, dirs: List[str]) -> None:
-    """Create directory structure if it does not exist."""
-    for d in dirs:
-        full_path = root / d
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
-
-def create_init_files(root: Path, dirs: List[str]) -> None:
-    """Create __init__.py files in Python package directories."""
-    for d in dirs:
-        full_path = root / d / "__init__.py"
-        # Only create if it doesn't exist to avoid overwriting user edits
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created __init__.py: {full_path}")
-
-def main() -> None:
-    """Main entry point to setup project structure."""
-    # Define the project root relative to the script location or current dir
-    # Assuming script is run from project root or code/
-    current_dir = Path.cwd()
-    # If running from code/, go up one level
-    if current_dir.name == "code":
-        project_root = current_dir.parent
-    else:
-        project_root = current_dir
-
-    # Define required directories per task T001
-    # Directories: code, tests, data, models, reports
-    # We also create subdirectories for data as per T007 requirements
-    base_dirs = [
-        "code",
-        "code/data",
-        "code/utils",
-        "code/models",
-        "code/validation",
-        "tests",
-        "tests/contract",
-        "tests/integration",
-        "tests/unit",
-        "data",
-        "data/raw",
-        "data/curated",
-        "data/artifacts",
-        "data/logs",
-        "models",
-        "reports",
-        "figures",
-        "contracts",
-        "specs"
+def create_directories() -> List[Path]:
+    """
+    Create the required project directory structure.
+    Returns a list of created directory paths.
+    """
+    dirs_to_create: List[Path] = [
+        PROJECT_ROOT / "code",
+        PROJECT_ROOT / "tests",
+        PROJECT_ROOT / "data",
+        PROJECT_ROOT / "data" / "raw",
+        PROJECT_ROOT / "data" / "curated",
+        PROJECT_ROOT / "data" / "artifacts",
+        PROJECT_ROOT / "data" / "logs",
+        PROJECT_ROOT / "models",
+        PROJECT_ROOT / "reports",
+        PROJECT_ROOT / "errors",
+        PROJECT_ROOT / "contracts",
+        PROJECT_ROOT / "figures",
     ]
 
-    print(f"Setting up project structure at: {project_root}")
-    create_directories(project_root, base_dirs)
-    create_init_files(project_root, base_dirs)
+    created: List[Path] = []
+    for dir_path in dirs_to_create:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(dir_path)
+        elif dir_path.is_dir():
+            created.append(dir_path)
+        else:
+            raise FileExistsError(f"Path exists but is not a directory: {dir_path}")
+
+    return created
+
+def create_init_files() -> None:
+    """
+    Create empty __init__.py files in code/ and tests/ to make them packages.
+    """
+    init_paths = [
+        PROJECT_ROOT / "code" / "__init__.py",
+        PROJECT_ROOT / "code" / "data" / "__init__.py",
+        PROJECT_ROOT / "code" / "utils" / "__init__.py",
+        PROJECT_ROOT / "code" / "models" / "__init__.py",
+        PROJECT_ROOT / "code" / "validation" / "__init__.py",
+        PROJECT_ROOT / "tests" / "__init__.py",
+        PROJECT_ROOT / "tests" / "unit" / "__init__.py",
+        PROJECT_ROOT / "tests" / "contract" / "__init__.py",
+        PROJECT_ROOT / "tests" / "integration" / "__init__.py",
+    ]
+
+    for init_path in init_paths:
+        init_path.parent.mkdir(parents=True, exist_ok=True)
+        if not init_path.exists():
+            init_path.touch()
+
+def main() -> None:
+    """
+    Main entry point to set up the project structure.
+    """
+    print("Initializing project structure...")
+    created_dirs = create_directories()
+    print(f"Created/Verified directories: {len(created_dirs)}")
+    for d in created_dirs:
+        print(f"  - {d}")
+
+    create_init_files()
+    print("Created __init__.py files.")
     print("Project structure setup complete.")
 
 if __name__ == "__main__":

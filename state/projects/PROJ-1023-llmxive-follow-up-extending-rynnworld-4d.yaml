@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-09T04:37:15.244067Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1023-llmxive-follow-up-extending-rynnworld-4d
-last_run_id: f4311b72-dea1-4d49-8bb1-4c6697f739a9
+last_run_id: 01390617-dd08-4161-b2a3-4557515b768f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "RynnWorld-4D: 4D Embodied World Models for Robotic
   Manipulation"'
-updated_at: '2026-07-18T00:43:22.476050Z'
+updated_at: '2026-08-29T21:49:54.882421Z'

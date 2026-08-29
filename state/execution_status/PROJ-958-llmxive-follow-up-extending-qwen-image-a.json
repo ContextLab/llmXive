@@ -15,11 +15,11 @@
     "python 08_regression_analysis.py --stratify -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/08_regression_analysis.py': [Errno 2] No such file or directory",
     "python 11_efficiency_report.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/11_efficiency_report.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 7,
+  "fix_rounds": 8,
   "model_tier": 0,
-  "total_attempts": 7,
+  "total_attempts": 8,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-22T14:39:48Z"
+  "updated_at": "2026-08-29T21:19:12Z"
 }

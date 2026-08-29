@@ -62,7 +62,6 @@ venv.bak/
 .vscode/
 *.swp
 *.swo
-*~
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -75,16 +74,15 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
-# Ruff
-.ruff_cache/
+# Pyre type checker
+.pyre/
 
-# Project specific
+# Data files (optional, usually tracked if small, but raw data often ignored)
 data/raw/*.csv
-!data/raw/.gitkeep
-data/curated/*.csv
-!data/curated/.gitkeep
+data/raw/*.json
 models/*.pkl
-models/*.json
+models/*.joblib
 reports/*.json
-reports/*.png
-logs/*.log
+reports/*.pdf
+figures/*.png
+figures/*.jpg

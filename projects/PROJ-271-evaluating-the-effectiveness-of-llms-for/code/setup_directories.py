@@ -3,23 +3,20 @@ from pathlib import Path
 
 def create_project_directories():
     """
-    Creates the required directory structure for the project.
+    Create the required directory structure for the project.
     
-    This function creates the following directories relative to the project root:
-    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/
-    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/raw/
-    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/processed/
-    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results/
-    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit/
-    - projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/contract/
+    Creates the following directories relative to the project root:
+    - data/raw
+    - data/processed
+    - results
+    - tests/unit
+    - tests/contract
     
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    This function is idempotent; it will not fail if directories already exist.
     """
-    project_root = Path("projects/PROJ-271-evaluating-the-effectiveness-of-llms-for")
+    project_root = Path(__file__).resolve().parent.parent
     
     directories = [
-        project_root / "code",
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "results",
@@ -28,20 +25,22 @@ def create_project_directories():
     ]
     
     created_count = 0
-    for directory in directories:
-        try:
-            directory.mkdir(parents=True, exist_ok=True)
+    for dir_path in directories:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
             created_count += 1
-        except OSError as e:
-            print(f"Error creating directory {directory}: {e}")
+        else:
+            # Ensure it is actually a directory
+            if not dir_path.is_dir():
+                raise RuntimeError(f"Path exists but is not a directory: {dir_path}")
     
-    print(f"Successfully created {created_count}/{len(directories)} directories.")
-    return created_count == len(directories)
+    return created_count
 
 if __name__ == "__main__":
-    success = create_project_directories()
-    if success:
-        print("Directory setup completed successfully.")
-    else:
-        print("Directory setup encountered errors.")
-        exit(1)
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    
+    count = create_project_directories()
+    logger.info(f"Successfully created or verified {count} directory structure(s).")
+    logger.info("Directory structure ready for data pipeline and analysis.")
