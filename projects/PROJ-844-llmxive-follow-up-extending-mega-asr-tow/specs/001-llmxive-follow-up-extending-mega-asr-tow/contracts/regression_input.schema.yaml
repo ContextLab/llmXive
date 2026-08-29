@@ -1,20 +1,20 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Regression Input Schema"
-description: "Schema for the flattened dataset used to train the collapse prediction model. Target variables are curve parameters (Slope, AUSC, Normalized Inflection Coordinate) derived from Functional Data Analysis. Grouping variables (clip_id, model_name) are used for hierarchical regression but are not features."
+description: "Schema for the flattened dataset used to train the collapse prediction model. Predictors are acoustic distortion parameters and model architecture features; targets are derived scalars representing the collapse point."
 type: "object"
 properties:
   clip_id:
     type: "string"
-    description: "Grouping variable: Unique identifier for the audio clip (used for random intercepts)."
+    description: "Grouping variable: Unique identifier for the audio clip."
   model_name:
     type: "string"
-    description: "Grouping variable: Name of the ASR model (used for random slopes/intercepts)."
+    description: "Grouping variable: Name of the ASR model."
   snr:
     type: "number"
-    description: "Feature: SNR value (mean-centered)."
+    description: "Feature: SNR value (mean‑centered)."
   rt60:
     type: "number"
-    description: "Feature: RT60 value (mean-centered)."
+    description: "Feature: RT60 value (mean‑centered)."
   snr_sq:
     type: "number"
     description: "Feature: SNR squared."
@@ -23,19 +23,19 @@ properties:
     description: "Feature: RT60 squared."
   snr_rt60:
     type: "number"
-    description: "Feature: Interaction term (SNR * RT60)."
+    description: "Feature: Interaction term (SNR * RT60)."
   normalized_inflection_coord:
-    type: "number"
-    description: "Target: The position of the inflection point within the normalized SNR/RT60 space."
+    type: ["number", "null"]
+    description: "Target: Relative position of the inflection point within the normalized SNR/RT60 space (0.0 to 1.0). Null if undefined."
   sigmoid_slope:
-    type: "number"
-    description: "Target: Slope of the fitted sigmoid curve at the inflection point."
-  ausc:
-    type: "number"
-    description: "Target: Area Under Stress Curve (AUSC)."
-  p_value_adjusted:
-    type: "number"
-    description: "Adjusted p-value for the interaction term (FDR corrected)."
+    type: ["number", "null"]
+    description: "Target: Slope of the fitted sigmoid curve at the inflection point. Null if undefined."
+  model_layers:
+    type: "integer"
+    description: "Feature: Number of layers in the ASR model."
+  model_embedding_size:
+    type: "integer"
+    description: "Feature: Embedding size of the ASR model."
 required:
   - clip_id
   - model_name
@@ -46,6 +46,6 @@ required:
   - snr_rt60
   - normalized_inflection_coord
   - sigmoid_slope
-  - ausc
-  - p_value_adjusted
+  - model_layers
+  - model_embedding_size
 additionalProperties: false

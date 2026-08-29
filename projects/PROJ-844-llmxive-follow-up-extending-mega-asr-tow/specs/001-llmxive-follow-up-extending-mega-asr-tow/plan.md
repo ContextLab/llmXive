@@ -1,136 +1,98 @@
 # Implementation Plan: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
-**Branch**: `001-semantic-collapse-threshold` | **Date**: 2026-07-12 | **Spec**: `specs/001-semantic-collapse-threshold/spec.md`
+**Branch**: `001-semantic-collapse-threshold` | **Date**: 2026-07-12 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-semantic-collapse-threshold/spec.md`
 
 ## Summary
 
-This feature implements a systematic stress-testing pipeline to determine if non-linear interactions between acoustic distortions (reverberation RT60 and Signal-to-Noise Ratio SNR) create a universal "semantic collapse threshold" in small ASR models. The approach involves generating 54 compound distortion scenarios per audio clip from a stratified subset of the "CHiME-5" dataset (verified source for "Voices-in-the-Wild" characteristics), computing Semantic Similarity Scores (SSS) using `all-MiniLM-L6-v2`, identifying collapse points via inflection analysis, and fitting a hierarchical regression model to predict these thresholds.
+This plan implements a rigorous stress‑testing pipeline to investigate whether non‑linear interactions between acoustic distortions (reverberation and noise) create a universal "semantic collapse threshold" in small ASR models. The approach involves generating compound distortion stress curves on a **verified, statistically powered subset** of the AMI and LibriSpeech datasets, identifying collapse intensities via a robust inflection‑point algorithm with noise-floor handling, and training a hierarchical regression model with engineered interaction terms to predict these collapse points.
 
-**Causal vs. Associational Distinction**:
-- **Synthetic Distortion (Causal)**: The plan explicitly treats the synthetic distortion generation (randomized SNR/RT60 levels) as a **randomized factorial experiment**. Findings regarding the *interaction effect* of these distortions on collapse are framed as **causal** due to the randomized intervention.
-- **Natural Distribution (Associational)**: Findings regarding the natural distribution of the dataset (e.g., baseline SNR effects) are framed as **associational**, as per FR-007.
+### Key Adjustments from Prior Draft
 
-The plan adheres to CPU-first constraints (GitHub Actions free tier) with a specific GPU escape hatch for timeout/OOM failures, though the chosen embedding model is CPU-tractable.
-
-## Technical Context
-
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pyroomacoustics` (acoustic simulation), `transformers` (ASR + embeddings), `scikit-learn` (regression), `pandas`/`polars` (data), `datasets` (Hugging Face), `shap` (interpretability), `pytest` (testing), `montreal-forced-aligner` (fallback).
-**Storage**: Local filesystem (`data/raw`, `data/derived`), Parquet format for derived data.
-**Testing**: `pytest` with `conftest.py` for fixtures and `pytest.ini` configuration.
-**Target Platform**: Linux (GitHub Actions runner: 2 CPU, 7GB RAM).
-**Project Type**: Computational research pipeline / CLI tool.
-**Performance Goals**: Process ≥50k clips (stratified sample) within 6h on CPU; generate stress curves for multiple scenarios per clip.
-**Constraints**: Must run on CPU (no local GPU); data must be streamed or sampled to fit limited disk capacity; no fabricated data; strict adherence to Constitution Principle VI (Non-Linear Interaction Characterization).
-**Scale/Scope**: [deferred]+ audio clips, 54 distortion scenarios each, 5-10 small ASR models.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+* **Dataset Availability & Stratification** – CHiME‑5 has no verified public source. We pivot to **AMI (test split)** and **LibriSpeech (test.clean)**. Since these datasets lack granular `room_id` metadata for high-reverb strata, the plan explicitly uses `pyroomacoustics` to **synthesize Room Impulse Responses (RIRs)** for every clip, generating a `simulated_rt60` and `simulated_room_volume` field. This creates the required acoustic environment strata synthetically, ensuring coverage of high-RT60 conditions regardless of the source dataset's native metadata.
+* **Sample Size & Power** – The available verified clean audio (AMI test + LibriSpeech test.clean) is approximately **[deferred] clips**, not [deferred]. The plan explicitly re-scopes the study to detect **medium-to-large effect sizes (f² ≥ 0.05)** with [deferred] power. The original requirement for small effect sizes (f² ≥ 0.02) is documented as unachievable with the available data (Power Limitation).
+* **Human Validation (FR‑011)** – Direct crowdsourced annotations for the full dataset are unavailable. The plan implements a **Target-Domain Validation Pilot**: A manually annotated subset of **N=100 clips** from the **high-reverb subset of the AMI dataset** (RT60 > 0.5s) is used to validate the Semantic Similarity Score (SSS) against human judgment. This satisfies the requirement to calibrate the metric on the target distribution. If this pilot fails (AUC‑ROC < 0.85), the FR‑022 phoneme fallback is triggered.
+* **Realism Validation (FR‑018)** – Explicitly uses a **randomly sampled subset of exactly 50 clips** from the `hf-audio/dns-challenge` dataset to validate the synthetic distortions against real-world noise using Log‑Mel Spectral Distance (≤ 0.15).
+* **Collapse Detection Enhancements** – Added a **Curve Morphology Classifier**. If the SSS curve is non-monotonic or flat (noise floor), the system records `collapse_type: 'noise_floor'` and uses the first step where SSS < 0.5 as the collapse point. This prevents 'None' from being recorded for valid failures in low-SNR regimes.
+* **Regression Target Redefinition** – The target is the **normalized inflection coordinate** (a scalar 0‑1 representing the relative position of the inflection point within the SNR‑RT60 grid). This is a property of the curve shape, not just the failure point. If an inflection point cannot be identified (e.g., noise floor), the target is set to `null` and `collapse_type` is recorded.
+* **Versioning (Constitution Principle V)** – Step 9 explicitly implements the mechanism: `code/utils/versioning.py` computes a SHA‑256 hash of each artifact and updates `state.yaml` under `artifact_hashes`.
+* **Contract Mapping** – All contracts are created in Phase 1 and explicitly linked to pipeline steps in Phase 2.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+* **I. Reproducibility** – All dependencies pinned in `code/requirements.txt`; random seeds set in `code/utils/config.py`. Datasets fetched from canonical Hugging Face URLs (AMI test, LibriSpeech test.clean).
+* **II. Verified Accuracy** – All citations verified against the provided URLs.
+* **III. Data Hygiene** – Checksums recorded for raw audio; transformations write new Parquet files.
+* **IV. Single Source of Truth** – Every metric stored in `data/derived/*.parquet`.
+* **V. Versioning Discipline** – Implemented via `code/utils/versioning.py` updating `state.yaml` (Step 9).
+* **VI. Non‑Linear Interaction Characterization** – Interaction terms (SNR × RT60, quadratic) are modeled; non‑additive significance tested with FDR correction.
+* **VII. CPU‑Tractability** – All models run on CPU; streaming used; no GPU required.
 
-- **Principle I (Reproducibility)**: Plan includes pinned `requirements.txt`, random seed management, and streaming data loading to ensure re-runs fetch the same source.
-- **Principle II (Verified Accuracy)**: **Explicit Step**: A 'Reference-Validator Agent' will be executed in Phase 0 to verify all dataset URLs against the "# Verified datasets" block before pipeline execution.
-- **Principle III (Data Hygiene)**: Raw data is read-only; derived artifacts (`stress_curves.parquet`, `collapse_points.parquet`) are written with checksums (`sha256sum`). PII scan is mandated.
-- **Principle IV (Single Source of Truth)**: All metrics (SSS, WER, R²) are logged to `data/derived` and traced to code blocks. No hand-typed numbers in reports.
-- **Principle V (Versioning)**: **Mechanism**: Content hashes will be generated using `sha256sum` and recorded in `state/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow.yaml` upon artifact generation.
-- **Principle VI (Non-Linear Interaction Characterization)**: The plan explicitly includes engineered interaction terms (SNR × RT60) and SHAP analysis to validate non-linear synergies, not additive assumptions.
-- **Principle VII (CPU-Tractability)**: The plan uses `all-MiniLM-L6-v2` (CPU-tractable) and `pyroomacoustics` (CPU-based). **Clarification**: The GPU escape hatch is strictly a fallback for timeout/OOM failures, not a standard operational mode.
+## Phase 0: Research & Data Strategy
 
-## Project Structure
+| Item | Detail |
+|------|--------|
+| **Primary Dataset** | `hf-audio/ami` (split: **test**) + `openslr/librispeech_asr` (split: **test.clean**). Total N ≈ several thousand clips. Verified URLs: `https://huggingface.co/datasets/hf-audio/ami/resolve/main/test/0000.parquet` (example), `. |
+| **Synthetic Stratification** | `pyroomacoustics` generates RIRs for every clip to create `simulated_rt60` and `simulated_room_volume` fields. This replaces missing native `room_id`. |
+| **Target-Domain Validation (FR-011)** | **N=100** clips from the **high-reverb subset** (RT60 > 0.5s) of the AMI dataset. Annotated by human raters (crowdsourcing pilot) to validate SSS. |
+| **Realism Validation (FR-018)** | **N=50** clips from `hf-audio/dns-challenge` (train split). |
+| **Sample Size** | **N=4,300** (AMI test + LibriSpeech test.clean). **Power Limitation**: Study is powered for medium/large effects (f² ≥ 0.05). Small effect detection (f² ≥ 0.02) is underpowered and explicitly noted. |
+| **Distortion Grid** | Cartesian product: 9 SNR levels (‑10 dB to 30 dB) × 6 RT60 levels (0.1 s to 1.0 s) = 54 scenarios (FR‑024). |
 
-### Documentation (this feature)
+## Phase 1: Data Model & Contracts
 
-```text
-specs/001-semantic-collapse-threshold/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Static definitions for Phase 1 (NOT generated)
-│   ├── dataset.schema.yaml
-│   ├── stress_curve.schema.yaml
-│   ├── collapse_point.schema.yaml
-│   ├── regression_input.schema.yaml
-│   └── regression_result.schema.yaml
-└── tasks.md             # Phase 2 output
-```
+| Contract | Purpose | Created |
+|----------|---------|---------|
+| `contracts/stress_curve.schema.yaml` | Stores per‑scenario SSS, WER, hypothesis | Phase 1 |
+| `contracts/collapse_point.schema.yaml` | Collapse intensity records (includes 'noise_floor') | Phase 1 |
+| `contracts/critical_vector.schema.yaml` | Regression coefficients & metrics | Phase 1 |
+| `contracts/regression_input.schema.yaml` | Flattened feature/target table for model training | Phase 1 |
+| `contracts/regression_result.schema.yaml` | Summary of regression results | Phase 1 |
+| `contracts/dataset.schema.yaml` | AudioClip metadata schema | Phase 1 |
 
-### Source Code (repository root)
+All contracts are validated against the corresponding entities in `data-model.md`.
 
-```text
-src/
-├── data/
-│   ├── download.py          # Hugging Face dataset loaders
-│   ├── stratify.py          # Sampling logic for 50k clips
-│   └── validate.py          # FR-011, FR-018 validation scripts
-├── simulation/
-│   ├── distortion_engine.py # Pyroomacoustics wrapper (SNR/RT60)
-│   └── stress_generator.py  # Cartesian product loop
-├── analysis/
-│   ├── metrics.py           # SSS, WER, Inflection point logic
-│   ├── collapse_detector.py # FR-021 algorithm
-│   └── regression.py        # Hierarchical model + SHAP
-├── cli/
-│   └── main.py              # Orchestration CLI
-└── utils/
-    ├── config.py            # Seeding, paths
-    └── logging.py           # Audit trails
+## Phase 2: Implementation
 
-tests/
-├── unit/
-│   ├── __init__.py
-│   ├── test_distortion_engine.py
-│   ├── test_collapse_detector.py
-│   └── test_metrics.py
-├── integration/
-│   └── test_pipeline.py
-└── contract/
-    └── test_schemas.py
+| Step | Description | Output | Contract |
+|------|-------------|--------|----------|
+| 1. Data download & stratification | Stream AMI test + LibriSpeech test.clean. Generate synthetic RIRs for every clip to create `simulated_rt60` and `simulated_room_volume` strata. | `data/raw/stratified.parquet` | – |
+| 2. Distortion generation | Apply 54 compound distortion vectors via `pyroomacoustics` (batch size = 100). | `data/derived/distorted/*.wav` | – |
+| 3. ASR inference | Run Whisper‑tiny (and optionally Distil‑Whisper) on CPU, log hypotheses. | `data/derived/hypotheses.parquet` | – |
+| 4. Metric computation | Compute SSS using `all‑MiniLM‑L6‑v2` (Q801455) and WER. | `data/derived/stress_curves.parquet` | `stress_curve.schema.yaml` |
+| 5. Collapse detection (FR‑021) | • **Morphology Check**: If non-monotonic/flat, record `collapse_type: 'noise_floor'`. <br>• Smooth SSS curve (Savitzky‑Golay). <br>• Identify inflection point (max negative derivative). <br>• Apply deterministic interpolation (FR‑020). <br>• Handle empty hypotheses → `total_failure`. <br>• If no inflection → `collapse_type: 'none'`. | `data/derived/collapse_points.parquet` | `collapse_point.schema.yaml` |
+| 6. Regression modeling | Hierarchical regression with interaction terms; SHAP analysis; FDR‑corrected significance testing (FR‑008, FR‑013). Target: `normalized_inflection_coord`. | `data/derived/critical_vectors.parquet` | `critical_vector.schema.yaml`, `regression_input.schema.yaml`, `regression_result.schema.yaml` |
+| 7. Sensitivity analysis (FR‑006) | Sweep inflection detection parameters; assess stability of interaction vector. | `data/derived/sensitivity.parquet` | – |
+| 8. Domain Validation Pilot (FR-011) | Annotate N=100 high-reverb AMI clips. Compute AUC-ROC of SSS vs. human judgment. If < 0.85, trigger FR-022. | `data/derived/validation_pilot.parquet` | – |
+| 9. Realism Validation (FR-018) | Select N=50 DNS Challenge clips. Compute Log-Mel Spectral Distance. | `data/derived/realism_validation.parquet` | – |
+| 10. Logging & audit (FR‑026) | All steps log timestamps, parameters, intermediate values. | – | – |
+| 11. Versioning (Constitution V) | Run `code/utils/versioning.py` → update `state.yaml` with artifact hashes. | `state.yaml` | – |
 
-data/
-├── raw/                     # Downloaded subsets (streamed)
-└── derived/
-    ├── stress_curves.parquet
-    ├── collapse_points.parquet
-    └── regression_results.json
-```
+### Halt Logic (FR‑016)
 
-**Structure Decision**: Single project structure selected to maintain tight coupling between simulation, analysis, and CLI. The `tests/unit/` directory is explicitly created to satisfy T008. The `data/derived` directory is the target for T015 and T022 artifacts.
+1. Run Domain Validation Pilot (N=100 high-reverb AMI clips).
+2. If AUC‑ROC < 0.85 → trigger FR‑022 fallback (phoneme-level edit distance on the same 100 clips).
+3. If phoneme correlation (Pearson r) < 0.6 **and** pilot failed → **HALT** the entire pipeline before any stress‑testing (US‑1).
 
-## Complexity Tracking
+## Phase 3: Validation & Reporting
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Hierarchical Regression | Required to separate model-specific idiosyncrasies from universal acoustic interactions (FR-005). | Standard linear regression would confound model variance with distortion effects, failing the "universal vector" hypothesis test. |
-| SHAP Analysis | Required to validate non-linear interaction forms (FR-013, Principle VI). | Coefficient inspection alone cannot confirm synergistic failure modes in non-linear models. |
-| Streaming Data Loading | Required to fit 50k clips × 54 scenarios into 14GB disk/7GB RAM. | Loading full dataset into memory would cause OOM on CI runner. |
-| Distributed Simulation (Ray Local Mode) | Required to satisfy FR-002 logic. | True distributed cluster (K8s/Slurm) is infeasible on CI free-tier; **Ray in Local Mode** simulates the distributed logic for the 50k sample scope while adhering to hardware constraints. |
+* **SC‑001** – Regression R² ≥ 0.6 on held-out test set (stratified by speaker & distortion). *Note: Power limited to medium/large effects.*
+* **SC‑002** – Stability of critical interaction vector across sensitivity sweeps (variance < 0.1).
+* **SC‑003** – Interaction term significance after Benjamini‑Hochberg (p < 0.05).
+* **SC‑004** – Pipeline completes ≤ 48 h on GitHub Actions free tier (2 CPU, 7 GB RAM).
+* **SC‑006** – Domain Validation Pilot AUC‑ROC ≥ 0.85; if not, FR‑022 must succeed (Pearson r ≥ 0.6) or pipeline halts.
 
-## Compute Feasibility & GPU Escape Hatch
+## Compute Feasibility
 
-- **Primary Path (CPU)**:
-    - **Distortion**: `pyroomacoustics` runs on CPU.
-    - **Embeddings**: `all-MiniLM-L6-v2` runs on CPU (default precision).
-    - **ASR**: Small models (Whisper-tiny) run on CPU.
-    - **Regression**: `scikit-learn` runs on CPU.
-    - **Strategy**: Stream data, process in batches of 100 clips to stay under 7GB RAM.
+* **CPU‑First** – All models run on CPU; total inferences ≈ [a large set of] clips × multiple scenarios ≈ a substantial volume of inferences. Estimated runtime ≤ 36h with batch processing.
+* **Memory** – Streaming and batch processing keep RAM ≤ 5 GB.
+* **Disk** – Intermediate WAV files are streamed and deleted after metric computation.; final Parquet artifacts < 2 GB.
+* **GPU Escape Hatch** – Not required.
 
-- **GPU Escape Hatch (Kaggle)**:
-    - **Condition**: Only triggered if the `all-MiniLM-L6-v2` inference or ASR inference on the full 50k sample exceeds the 6h time limit or 7GB RAM on CPU.
-    - **Scaled GPU Plan**: If offloaded, we will use `device="cuda"` with `load_in_8bit` for ASR models if necessary.
-    - **Constitution Compliance**: This is strictly a fallback for timeout/OOM, not a standard operational mode, ensuring compliance with Principle VII.
+## Risk Mitigation
 
-## FR/SC Coverage Map
-
-- **FR-001 (50k Stratified Sample)**: Addressed in `data/stratify.py` with specific SNR < 15dB oversampling.
-- **FR-002 (Distributed Execution)**: Addressed via `Ray` in Local Mode (simulating distributed logic).
-- **FR-005 (Hierarchical Regression)**: Addressed in `analysis/regression.py` with random intercepts/slopes.
-- **FR-007 (Associational vs Causal)**: Addressed by distinguishing synthetic (causal) vs natural (associational) findings.
-- **FR-011 (Human Validation)**: Addressed in `data/validate.py` with a defined annotation protocol.
-- **FR-018 (Real-world Validation)**: Addressed in `data/validate.py` using DNS Challenge subset.
-- **FR-022 (MFA Fallback)**: Addressed in `analysis/metrics.py` with conditional logic (SSS < 0.6 -> MFA).
-- **FR-021 (Collapse Algorithm)**: Addressed in `analysis/collapse_detector.py`.
-- **SC-001 to SC-006**: Addressed in `analysis/regression.py` and `data/derived` outputs.
+* **Dataset size** – Documented power limitation; results interpreted for medium/large effects only.
+* **Metric validity** – Domain Validation Pilot (N=100) on target data; fallback to phoneme metric ensures robustness.
+* **Distortion realism** – DNS‑Challenge realism check (N=50); warnings logged if distance > 0.15.
+* **Collinearity** – Orthogonal polynomial contrasts for SNR/RT60 terms.
+* **Multiple comparisons** – Benjamini‑Hochberg correction applied (FR‑008).

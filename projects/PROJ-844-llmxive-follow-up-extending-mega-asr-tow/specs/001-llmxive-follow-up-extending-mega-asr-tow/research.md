@@ -1,84 +1,85 @@
 # Research: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
 ## Research Question
-Do non-linear interactions between specific acoustic distortion types (Reverberation RT60 and Signal-to-Noise Ratio SNR) create a universal "semantic collapse threshold" that cannot be predicted by the sum of individual distortion effects?
 
-## Methodology Overview
-1.  **Data Acquisition**: Stream a stratified subset (≥50,000 clips) from the CHiME-5 dataset (verified source for "Voices-in-the-Wild" acoustic characteristics).
-2.  **Stress Generation**: Apply a set of compound distortion vectors spanning combinations of SNR and RT60 levels using `pyroomacoustics`.
-3.  **Metric Computation**: Calculate WER (ASR) and Semantic Similarity Score (SSS) using `all-MiniLM-L-v2` embeddings (Q801455).
-4.  **Collapse Detection**: Identify the "collapse intensity" via inflection point analysis and threshold crossing (FR-021).
-5.  **Modeling**: Fit a hierarchical regression model with interaction terms to predict the *location* of the collapse threshold relative to a null baseline.
-6.  **Validation**: Perform SHAP analysis and sensitivity sweeps to confirm non-linear synergy.
+Do non-linear interactions between specific acoustic distortion types (reverberation and noise) create a universal "semantic collapse threshold" that cannot be predicted by the sum of individual distortion effects?
+
+**Reframed Hypothesis**: The study tests whether the *location* of the collapse point (inflection coordinate) can be universally predicted by a specific interaction vector across different ASR architectures. The regression target is the *normalized inflection coordinate* (derived scalar representing the curve shape) and the predictors are the *distortion parameters* plus model architecture features. The analysis focuses on detecting **medium-to-large interaction effects** (f² ≥ 0.05) due to data volume constraints.
+
+## Background
+
+Prior Mega‑ASR work shows scaling improves robustness, but the nature of synergistic failure modes remains unexplored. This study investigates non‑additive interaction effects by comparing full interaction models to additive baselines and testing for significant interaction terms (FR‑013, FR‑008).
 
 ## Dataset Strategy
 
-The study relies on the **CHiME-5** dataset, which is the verified source for "Voices-in-the-Wild" acoustic characteristics, providing the necessary ground truth transcripts and metadata for stratified sampling.
+| Dataset | Purpose | Source (Verified) | Notes |
+|---------|---------|-------------------|-------|
+| **AMI (test)** | Clean audio + transcripts for stress testing | `hf-audio/ami` (split: **test**) – https://huggingface.co/datasets/hf-audio/ami/resolve/main/test/0000.parquet | Primary dataset; a substantial collection of clips. |
+| **LibriSpeech (test.clean)** | Clean audio + transcripts for stress testing | `openslr/librispeech_asr` (split: **test.clean**) – https://huggingface.co/datasets/openslr/librispeech_asr/resolve/main/all/test.clean/0000.parquet | Primary dataset; N ≈ several thousand clips. |
+| **DNS Challenge** | Realism validation of synthetic distortions | `hf-audio/dns-challenge` (split: **train**) – https://huggingface.co/datasets/hf-audio/dns-challenge/resolve/main/data/train-00000-of-00001.parquet | **N=50** clips randomly sampled for validation. |
+| **High-Reverb Pilot** | Target-domain validation of SSS (FR-011) | Derived from AMI test (RT60 > 0.5s) | **N=100** clips manually annotated for human intelligibility. |
 
-| Dataset Component | Source / URL | Usage |
-| :--- | :--- | :--- |
-| **Audio Clips** | `https://spandh.dcs.shef.ac.uk/chime_challenge/chime2016/download.html` | Source of raw audio for stress testing. |
-| **Transcripts** | `https://spandh.dcs.shef.ac.uk/chime_challenge/chime2016/download.html` | Ground truth transcripts for WER calculation. |
-| **Baseline WER** | **Internal Subset** (Clean CHiME-5) | Calculated on a clean subset of the *same* CHiME-5 dataset to ensure domain consistency for the '2x baseline' threshold (FR-021). |
-| **Human Annotations** | **Internal Protocol** (see below) | Used for SSS validation (FR-011) via Human-in-the-Loop scoring on CHiME-5 clips. |
-| **DNS Challenge** | `https://github.com/microsoft/DNS-Challenge` | Used for FR-018 validation of synthetic distortions (≥50 real-world clips). |
+**CHiME‑5**: No verified source; excluded. **Human crowdsourcing**: Not available for full dataset; **Target-Domain Pilot (N=100)** serves as the validation mechanism for FR-011.  
 
-**Sampling Strategy**:
-To satisfy FR-001, we will stream the CHiME-5 metadata, filter for clips with valid transcripts, and stratify by speaker ID and estimated SNR bucket. We will target a sample size of [deferred] clips.
-**Edge Case Oversampling**: To ensure the sample contains sufficient 'edge cases' susceptible to collapse, we will **oversample** clips with a **baseline SNR < 15dB**. This specific threshold ensures that the synthetic distortions (low SNR) push a significant portion of the sample into the collapse regime, addressing the concern that natural distributions may lack extreme conditions. If the specific dataset lacks the required volume, we will log a warning (FR-017) and proceed with the maximum available subset, noting the power limitation.
+**Sampling Strategy**  
 
-**Baseline WER**:
-The baseline WER will be calculated on a clean subset of the *same* CHiME-5 dataset to ensure domain consistency for the '2x baseline' threshold in FR-021. Using an external, domain-mismatched baseline (e.g., AMI) is explicitly rejected to prevent invalidation of the collapse detection logic.
+- **Synthetic Stratification**: Use `pyroomacoustics` to generate RIRs for every clip, creating `simulated_rt60` and `simulated_room_volume` metadata. This replaces missing native `room_id`.
+- **Target N**: [deferred] clips (AMI test + LibriSpeech test.clean).
+- **Power Limitation**: The study is powered to detect **medium-to-large effect sizes (f² ≥ 0.05)**. Detection of small effects (f² ≥ 0.02) is underpowered and explicitly noted as a limitation.
 
-**Data Feasibility Check**:
-- **CPU Feasibility**: The `all-MiniLM-L6-v2` model (Q801455) is CPU-tractable. `pyroomacoustics` is CPU-native.
-- **Memory Feasibility**: We will use `datasets.load_dataset(..., streaming=True)` to avoid loading the full dataset into RAM. Derived data will be written incrementally to Parquet.
-- **Disk Feasibility**: A large-scale dataset comprising tens of thousands of clips across diverse scenarios, yielding millions of records.. At ~1KB/record, this is ~2.7GB, well within the GB limit.
+## Methodology
 
-**Human Annotation Protocol (FR-011)**:
-To validate SSS against human judgment:
-1.  **Sample**: Select a representative sample of clips from the distorted stress curves (stratified by distortion type) from the CHiME-5 dataset.
-2.  **Task**: Annotators will listen to the distorted audio and rate "Semantic Integrity" on a scale of 0.0 (Completely unintelligible) to 1.0 (Perfectly intelligible).
-3.  **Tool**: A lightweight internal annotation tool (e.g., Label Studio config) will be used to present audio and collect ratings.
-4.  **Validation**: Correlation (Pearson r) between SSS and human ratings must be ≥ 0.7. If < 0.7, the workflow halts (FR-016).
-*Note: No external audio-specific semantic integrity dataset (like PTB, which is text-only) is available or used for this calibration.*
+### Stress Curve Generation
+- **Distortion Grid**: 9 SNR levels (‑10 dB … 30 dB) × 6 RT60 levels (0.1 s … 1.0 s) = 54 scenarios (FR‑024).  
+- **Distortion Application**: `pyroomacoustics` to synthesize reverberation (using generated RIRs) and add Gaussian noise at target SNR.  
+- **ASR Inference**: Whisper‑tiny (and optionally Distil‑Whisper) on CPU; hypotheses logged.  
+- **Metrics**: Compute SSS using `all‑MiniLM‑L6‑v2` (Q801455) and WER for each scenario.
 
-**Real-World Validation (FR-018)**:
-To validate synthetic distortions:
-1.  **Source**: Download the `eval` subset of the **DNS Challenge** dataset (specifically `dns_eval/` folder).
-2.  **Subset**: Extract ≥50 clips with known high-reverb/noise characteristics.
-3.  **Metric**: Compare Log-Mel Spectral Distance between synthetic distortions and real-world clips. Pass criterion: ≤ 0.15.
+### Collapse Intensity Detection (FR‑021)
+1.  **Morphology Check**: If the SSS curve is non-monotonic or flat (noise floor), record `collapse_type: 'noise_floor'` and set collapse intensity to the first step where SSS < 0.5.
+2.  Smooth SSS curve with Savitzky‑Golay filter (window = 5, poly = 2).
+3.  Compute first derivative; locate **inflection point** (maximum negative derivative).
+4.  Identify **threshold crossing**: first step where SSS < 0.5 **and** WER > 2 × baseline WER.
+5.  If threshold crossing exists → record linearly interpolated intensity (FR‑020).
+6.  Else if inflection point exists → record its intensity.
+7.  Else → record `collapse_type: 'none'`.
 
-## Statistical Rigor
+### Regression Modeling
+- **Target**: `normalized_inflection_coord` (inflection position normalized to [0, 1] across the SNR‑RT60 grid) and `sigmoid_slope`. This is a property of the curve shape, not the failure point itself.
+- **Predictors**: Centered SNR, RT60, quadratic terms, interaction (SNR × RT60), and model architecture features (layers, embedding size).
+- **Model**: Hierarchical regression with random intercepts for ASR model ID (or functional data analysis).
+- **Validation**: Stratified train-test split by model ID and distortion type.
+- **Non‑Linearity Test**: Compare full model vs. additive baseline; apply Benjamini‑Hochberg (FR‑008) and require p < 0.05 (FDR‑corrected).
+- **SHAP Analysis**: Verify interaction importance before claiming a universal vector (FR‑005).
+- **Universal Vector Test**: Compare interaction coefficients across models. If similar, a universal mechanism is supported.
 
-- **Causal Validity**: The design is a **Randomized Factorial Experiment** for the synthetic distortions. SNR and RT60 are manipulated independently. This allows for **causal claims** about the *interaction effect* on collapse. Findings regarding the natural dataset distribution remain **associational**.
-- **Hierarchical Regression**: The unit of analysis is the clip, with multiple repeated measures (scenarios) nested within each clip.. The model will include:
-    - **Random Intercepts**: For `clip_id` to account for baseline differences between clips.
-    - **Random Slopes**: For `snr` and `rt60` to account for clip-specific sensitivity to distortion.
-    - **Fixed Effects**: `snr`, `rt60`, `snr:rt60` (interaction), `model_name` (as a fixed effect to test for universality).
-    This structure prevents underestimated standard errors and inflated Type I error rates.
-- **Multiple Comparison Correction**: Per FR-008, we will apply the Benjamini-Hochberg procedure to p-values derived from the interaction terms across the 54 scenarios.
-- **Sample Size/Power**: The target of [deferred] clips is designed to detect a small effect size (f² ≥ 0.02) with 80% power at α=0.05 for the regression analysis (FR-001).
-- **Collinearity Handling**: In the proposed Cartesian product (multiple SNR levels × 6 RT60), SNR and RT60 are **orthogonal by design** (independent variables). The concern about 'definitional linkage' is misplaced. The real issue is the natural correlation between main effects and the interaction term (SNR × RT60). To address this, the regression model will explicitly use **mean-centering** for main effects before creating the interaction term, and will employ **orthogonal polynomial contrasts** where appropriate, rather than checking for non-existent definitional linkage.
-- **Target Variable**: The regression predicts `normalized_inflection_coord` (the position of the inflection point within the normalized SNR/RT60 space) and curve parameters (slope, AUSC). This tests if the *shape* of the collapse is universal, avoiding tautology by not predicting the raw input vector itself.
-- **Universality Test**: To test for a universal interaction vector, we will include a fixed-effect interaction term `Model × SNR × RT60`. If the coefficient for this term is not significantly different from zero, the interaction effect is consistent across models (universal).
+### Sensitivity Analysis (FR‑006)
+- Sweep inflection detection parameters (smoothing window, derivative threshold).
+- Evaluate variance of the derived `critical interaction vector` across curve morphologies (linear vs. sigmoid vs. noise_floor).
+
+### Validation & Gating (FR‑011, FR‑016, FR‑022)
+- **Target-Domain Validation (FR-011)**: Annotate **N=100** clips from the **high-reverb subset** of the AMI dataset (RT60 > 0.5s). Train a binary classifier to predict human intelligibility; compute AUC‑ROC.
+    - If AUC‑ROC ≥ 0.85 → proceed.
+    - If AUC‑ROC < 0.85 → trigger **FR‑022**: compute phoneme‑level edit distance (Montreal Forced Aligner) on the **same 100 clips**.
+- **Halt Logic (FR-016)**: If phoneme correlation (Pearson r) < 0.6 **and** SSS validation failed → **HALT** the pipeline.
 
 ## Decision Rationale
 
-**Why `all-MiniLM-L6-v2`?**
-It is the specified model in the spec (Q801455) and is known to be CPU-tractable, satisfying Constitution Principle VII. It provides a valid proxy for semantic similarity without requiring GPU resources.
-
-**Why Hierarchical Regression?**
-The study involves multiple ASR models. A hierarchical model allows us to model the "critical interaction vector" as a fixed effect while accounting for model-specific random effects, isolating the universal phenomenon from idiosyncrasies (FR-005).
-
-**Why Synthetic Distortion?**
-Real-world datasets lack controlled, paired RT60/SNR variations. Synthetic generation via `pyroomacoustics` allows us to create the necessary 54 scenarios (FR-024) to test the non-linear interaction hypothesis.
-
-**Why CHiME-5?**
-CHiME-5 is the verified source for "Voices-in-the-Wild" acoustic characteristics, providing the necessary ground truth transcripts and domain consistency for baseline WER calculation.
+- **CPU‑First**: All models (MiniLM, Whisper‑tiny) run on CPU; streaming keeps RAM ≤ 5 GB.
+- **Dataset Pivot**: CHiME‑5 unavailable; AMI test + LibriSpeech test.clean are the largest verified clean corpora.
+- **Synthetic Stratification**: RIR generation ensures coverage of high-RT60 conditions despite missing metadata.
+- **Target-Domain Validation**: N=100 pilot on AMI high-reverb data ensures SSS is valid for the specific study distribution.
+- **Interaction Terms**: Orthogonal polynomial contrasts mitigate collinearity.
+- **Power Limitation**: Explicitly acknowledges the study is powered for medium/large effects only.
 
 ## Limitations
 
-- **Synthetic vs. Real**: While we validate realism (FR-018), synthetic distortions may not perfectly capture all real-world acoustic pathologies.
-- **Model Scope**: The study focuses on "small" ASR models. Results may not generalize to large, state-of-the-art models.
-- **Power Limitation**: If the available open dataset is smaller than [deferred] clips, the power to detect small effect sizes will be reduced, and this will be explicitly reported.
+- **Sample Size**: N=4,300 clips limits power to medium/large effects (f² ≥ 0.05). Small‑effect detection (f² ≥ 0.02) is under‑powered.
+- **Human Validation**: Target-domain pilot (N=100) is smaller than the FR-011 ideal (N=1,000) but is the maximum feasible for manual annotation.
+- **Generalizability**: Results pertain to small ASR models and synthetic distortions; may not extend to large models or real‑world recordings.
+- **Collinearity**: SNR and RT60 may be correlated; orthogonal contrasts address this.
+
+## References
+
+- Q801455: `all‑MiniLM‑L6‑v2` semantic similarity model (https://www.wikidata.org/wiki/Q801455).  
+- Verified datasets: see URLs in the Dataset Strategy table.

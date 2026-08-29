@@ -1,71 +1,85 @@
 # Data Model: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
-## Overview
-This document defines the data structures for the stress-testing pipeline, including the input audio metadata, the generated stress curves, the derived collapse points, and the regression results.
-
 ## Entities
 
 ### AudioClip
-Represents a single audio file from the source dataset.
-- `clip_id`: Unique identifier (string).
-- `source_url`: URL of the original audio file.
-- `transcript`: Ground truth transcript (string).
-- `speaker_id`: Identifier for the speaker (string).
-- `duration_seconds`: Audio duration (float).
+- **audio_id**: str (unique identifier)
+- **source_dataset**: str (e.g., "ami", "librispeech")
+- **speaker_id**: str (if available)
+- **duration_sec**: float
+- **sample_rate**: int
+- **checksum**: str (SHA‑256 of raw audio)
+- **simulated_rt60**: float (Synthetic reverberation time generated via pyroomacoustics)
+- **simulated_room_volume**: float (Synthetic room volume generated via pyroomacoustics)
 
 ### DistortionVector
-Represents a specific combination of acoustic parameters.
-- `snr_db`: Signal-to-Noise Ratio in decibels (float).
-- `rt60_sec`: Reverberation time in seconds (float).
-- `distortion_type`: Label (e.g., "Reverb+Noise").
-- `scenario_id`: Unique ID for the 54-scenario grid (integer).
+- **vector_id**: str (unique identifier)
+- **snr_db**: float (Signal‑to‑noise ratio in dB)
+- **rt60_sec**: float (Reverberation time in seconds)
+- **distortion_type**: str ("reverberation+noise")
+- **intensity_level**: int (1‑54, based on grid position)
+- **simulated_room_volume**: float (Synthetic room volume for stratification)
 
-### StressCurveRecord
-A single data point on a stress curve for a specific clip and distortion.
-- `clip_id`: FK to AudioClip.
-- `scenario_id`: FK to DistortionVector.
-- `model_name`: ASR model used (string).
-- `wer`: Word Error Rate (float).
-- `sss`: Semantic Similarity Score (float, 0.0–1.0).
-- `hypothesis`: ASR output text (string).
+### StressCurve
+- **curve_id**: str (unique identifier)
+- **audio_id**: str (FK to AudioClip)
+- **model_id**: str (e.g., "whisper‑tiny")
+- **vector_id**: str (FK to DistortionVector)
+- **ss_score**: float (Semantic Similarity Score, 0‑1)
+- **wer**: float (Word Error Rate)
+- **hypothesis**: str (ASR output)
+- **reference_transcript**: str
+- **timestamp**: datetime
 
 ### CollapseIntensity
-The derived collapse point for a specific clip/model/scenario.
-- `clip_id`: FK to AudioClip.
-- `model_name`: FK to ASR model.
-- `normalized_inflection_coord`: The position of the inflection point within the normalized SNR/RT60 space (float).
-- `collapse_type`: "Inflection", "Threshold", or "None".
-- `sss_at_collapse`: SSS value at the collapse point.
-- `wer_at_collapse`: WER value at the collapse point.
-- `fallback_metric`: (Optional) Phoneme-level edit distance if SSS failed (FR-022).
-- `sigmoid_slope`: Slope of the fitted sigmoid curve at the inflection point.
-- `ausc`: Area Under Stress Curve.
+- **collapse_id**: str (unique identifier)
+- **audio_id**: str (FK to AudioClip)
+- **model_id**: str (FK to ASR model)
+- **collapse_intensity**: float or string ("None") – distortion intensity at collapse
+- **collapse_type**: str (enum: "threshold_crossing", "inflection_point", "none", "total_failure", "noise_floor")
+- **ss_at_collapse**: float (0‑1)
+- **wer_at_collapse**: float
+- **baseline_wer**: float (WER on clean audio)
+- **normalized_inflection_coord**: float or null – relative position of the inflection point in the normalized SNR/RT60 space (0‑1). Null if no inflection detected.  
+- **sigmoid_slope**: float – slope of the fitted sigmoid at the inflection point (null if undefined).  
 
-### RegressionInput
-The input data for the predictive model, including curve parameters and target variables.
-- **Grouping Variables** (Used for Hierarchical Regression, NOT as features):
-    - `clip_id`: Unique identifier for the audio clip.
-    - `model_name`: Name of the ASR model.
-- **Features**:
-    - `snr`: SNR value (mean-centered).
-    - `rt60`: RT60 value (mean-centered).
-    - `snr_sq`: SNR squared.
-    - `rt60_sq`: RT60 squared.
-    - `snr_rt60`: Interaction term (SNR * RT60).
-- **Targets**:
-    - `normalized_inflection_coord`: The position of the inflection point in normalized space.
-    - `sigmoid_slope`: Slope of the fitted sigmoid curve.
-    - `ausc`: Area Under Stress Curve.
-    - `p_value_adjusted`: Adjusted p-value for the interaction term (FDR corrected).
+### CriticalInteractionVector
+- **vector_id**: str (unique identifier)
+- **model_id**: str (FK to ASR model)
+- **snr_coeff**: float
+- **rt60_coeff**: float
+- **snr_sq_coeff**: float
+- **rt60_sq_coeff**: float
+- **interaction_coeff**: float (SNR × RT60)
+- **r2_score**: float
+- **mae**: float
+- **p_value_interaction**: float (FDR‑corrected)
+- **shap_interaction_strength**: float
 
-### RegressionResult
-The output of the predictive model.
-- `feature`: Name of the predictor (e.g., "SNR", "RT60", "SNR:RT60").
-- `coefficient`: Learned weight (float).
-- `p_value`: Statistical significance (float).
-- `shap_value_mean`: Mean absolute SHAP value (float).
+## Relationships
 
-## File Format
-- **Raw Data**: Parquet (streamed from Hugging Face).
-- **Derived Data**: Parquet (for efficient columnar access).
-- **Config/Results**: JSON.
+- **AudioClip** → **StressCurve** (1:N)  
+- **DistortionVector** → **StressCurve** (1:N)  
+- **StressCurve** → **CollapseIntensity** (1:1)  
+- **CollapseIntensity** → **CriticalInteractionVector** (N:1, aggregated by model_id)
+
+## Data Flow
+
+1. **Raw Data**: Download from verified Hugging Face datasets (AMI test, LibriSpeech test.clean).
+2. **Stratification**: Generate synthetic RIRs via `pyroomacoustics` to create `simulated_rt60` and `simulated_room_volume`; assign each clip to a stratum.
+3. **Distortion**: Generate scenarios per clip (synthetic).
+4. **Inference**: Run ASR models; store hypotheses.
+5. **Metrics**: Compute SSS (MiniLM v2) and WER.
+6. **Collapse Detection**: Apply FR‑021 algorithm with smoothing and **morphology check**; if noise floor, set `collapse_type: 'noise_floor'`. If no inflection, set `normalized_inflection_coord` and `sigmoid_slope` to null. Empty hypothesis before step 1 → `collapse_type` "total_failure".
+7. **Regression**: Train hierarchical model on `normalized_inflection_coord` and `sigmoid_slope` (targets) using predictors from `DistortionVector` and model architecture features.
+8. **Validation**: SHAP analysis, sensitivity sweeps.
+9. **Output**: Store all derived entities in `data/derived/` as Parquet files, each validated against its contract.
+
+## Constraints
+
+- **Checksums**: All raw files checksummed; derivations written to new files (Constitution III).
+- **No PII**: No personal data in any artifact.
+- **Immutable Raw Data**: Raw audio never modified; distortions produce new files.
+- **Streaming**: Large datasets processed in batches to stay within 7 GB RAM.
+- **Audit Trail**: All metric values logged with timestamps; hashes recorded in `state.yaml`.
+- **Synthetic Vectors**: `snr_db` and `rt60_sec` are generated internally; not sourced externally.

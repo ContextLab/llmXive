@@ -1,36 +1,49 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Collapse Intensity Schema"
+$schema: http://json-schema.org/draft-07/schema#
+title: Collapse Point Schema
+description: Schema for collapse intensity data derived from stress curves
 type: object
 properties:
-  clip_id:
+  collapse_id:
     type: string
-    description: "Foreign key to AudioClip."
-  model_name:
+    description: "Unique identifier for the collapse point"
+  audio_id:
     type: string
-    description: "Name of the ASR model."
+    description: "Foreign key to AudioClip"
+  model_id:
+    type: string
+    description: "ASR model identifier"
   collapse_intensity:
-    type: number
-    description: "The distortion intensity value at collapse."
+    type: ["number", "string"]
+    description: "Distortion intensity at collapse (float or 'None')"
   collapse_type:
     type: string
     enum:
-      - "Inflection"
-      - "Threshold"
-      - "None"
-    description: "Type of collapse detection."
-  sss_at_collapse:
+      - "threshold_crossing"
+      - "inflection_point"
+      - "none"
+      - "total_failure"
+      - "noise_floor"
+    description: "Type of collapse detection"
+  ss_at_collapse:
     type: number
-    description: "SSS value at the collapse point."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Semantic Similarity Score at collapse"
   wer_at_collapse:
     type: number
-    description: "WER value at the collapse point."
-  fallback_metric:
-    type: ["string", "null"]
-    description: "Phoneme-level edit distance if SSS failed (FR-022)."
+    minimum: 0.0
+    description: "Word Error Rate at collapse"
+  baseline_wer:
+    type: number
+    minimum: 0.0
+    description: "Baseline WER on clean audio"
 required:
-  - clip_id
-  - model_name
+  - collapse_id
+  - audio_id
+  - model_id
   - collapse_intensity
   - collapse_type
-  - sss_at_collapse
+  - ss_at_collapse
   - wer_at_collapse
+  - baseline_wer
+additionalProperties: false

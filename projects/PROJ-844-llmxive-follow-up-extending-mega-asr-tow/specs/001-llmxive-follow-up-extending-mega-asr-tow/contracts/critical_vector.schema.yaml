@@ -1,0 +1,56 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Critical Interaction Vector Schema
+description: Schema for regression model results predicting collapse intensity
+type: object
+properties:
+  vector_id:
+    type: string
+    description: "Unique identifier for the critical vector"
+  model_id:
+    type: string
+    description: "ASR model identifier"
+  snr_coeff:
+    type: number
+    description: "Coefficient for SNR"
+  rt60_coeff:
+    type: number
+    description: "Coefficient for RT60"
+  snr_sq_coeff:
+    type: number
+    description: "Coefficient for SNR squared"
+  rt60_sq_coeff:
+    type: number
+    description: "Coefficient for RT60 squared"
+  interaction_coeff:
+    type: number
+    description: "Coefficient for SNR×RT60 interaction"
+  r2_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "R-squared score on test set"
+  mae:
+    type: number
+    minimum: 0.0
+    description: "Mean Absolute Error"
+  p_value_interaction:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "FDR-corrected p-value for interaction term"
+  shap_interaction_strength:
+    type: number
+    description: "SHAP value magnitude for interaction"
+required:
+  - vector_id
+  - model_id
+  - snr_coeff
+  - rt60_coeff
+  - snr_sq_coeff
+  - rt60_sq_coeff
+  - interaction_coeff
+  - r2_score
+  - mae
+  - p_value_interaction
+  - shap_interaction_strength
+additionalProperties: false

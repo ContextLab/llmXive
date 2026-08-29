@@ -1,16 +1,11 @@
 status: none
-intent: Voices-in-the-Wild-2M dataset download python package including Common Voice
-  reference python package dataset
+intent: CHiME-5 dataset download LDC source python package dataset
 required_fields:
-- clip_id
+- audio_filepath
 - speaker_id
-- original_audio_path
-- snr_db
-- rt60_s
-- asr_hypothesis
-- semantic_similarity_score
-- distortion_scenario_id
-- model_name
-cache_key: 013840b37c3e7a98418be51aef4bfe3539a42ff7f58243fcc250ccc63955903e
-searched_at: '2026-08-14T00:06:18.883465+00:00'
+- room_id
+- utterance_id
+- transcript
+cache_key: aece7ddd0e11e70abc1aebe0195c74151f8ca48a1f3d4e01687a529be06489c9
+searched_at: '2026-08-29T10:15:50.374881+00:00'
 retry_count: 1
