@@ -1,8 +1,2 @@
 # This file ensures the data directory is tracked by git.
-# Directory structure:
-# data/
-#   raw/          # Raw data downloads (arXiv, bioRxiv, OpenAlex)
-#   processed/    # Cleaned and matched datasets
-#   results/      # Analysis outputs and reports
-#
-# Do not delete this file.
+# Subdirectories: raw/, processed/, results/

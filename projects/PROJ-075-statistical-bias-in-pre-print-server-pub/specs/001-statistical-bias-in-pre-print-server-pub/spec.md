@@ -29,7 +29,7 @@ As a researcher, I want the system to perform p-curve analysis and local density
 
 **Why this priority**: This delivers the primary scientific insight. It directly answers the research question regarding "p-value distribution anomalies" and "effect-size inflation signatures."
 
-**Independent Test**: Can be fully tested by running the analysis module on a synthetic dataset with known differences (e.g., pre-print p-values skewed toward 0.04, journal p-values uniform, with a defined ground truth of [deferred] p-hacking prevalence in pre-prints) and verifying the output correctly flags the distribution shift and calculates the expected mean difference in effect size with a 95% CI excluding zero.
+**Independent Test**: Can be fully tested by running the analysis module on a synthetic dataset with known differences (e.g., pre-print p-values skewed toward 0.04, journal p-values uniform, with a defined ground truth of [deferred] p-hacking prevalence in pre-prints) and verifying the output correctly flags the distribution shift and calculates the expected mean difference in effect size with a confidence interval excluding zero.
 
 **Acceptance Scenarios**:
 
@@ -49,7 +49,7 @@ As a researcher, I want the system to perform a sensitivity analysis on the p-va
 
 **Acceptance Scenarios**:
 
-1. **Given** a fixed dataset of p-values, **When** the sensitivity analysis runs with thresholds {0.01, 0.05, 0.1}, **Then** it calculates the proportion of "significant" results (p < threshold) for both pre-print and journal versions at each threshold.
+1. **Given** a fixed dataset of p-values, **When** the sensitivity analysis runs with thresholds {, 0.05, 0.1}, **Then** it calculates the proportion of "significant" results (p < threshold) for both pre-print and journal versions at each threshold.
 2. **Given** the sensitivity results, **When** the report is generated, **Then** it explicitly states the variation in the "significance flip rate" (difference between pre-print and journal significance) across the swept thresholds.
 3. **Given** a null result in the primary analysis, **When** the sensitivity analysis runs, **Then** it confirms that the null result holds across the swept thresholds, reinforcing the robustness of the finding.
 
@@ -87,8 +87,8 @@ As a researcher, I want the system to perform a sensitivity analysis on the p-va
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The match rate between pre-prints and journal versions is measured against the total number of pre-prints queried, with a target of ≥ 60% successful linkage for the target sample size of a representative corpus of papers. (See US-1)
-- **SC-002**: The distribution shift (density ratio magnitude) is measured against a null distribution generated via permutation or bootstrapping, requiring that the observed ratio falls outside the 95% confidence interval of the null to indicate a meaningful difference. (See US-2)
-- **SC-003**: The mean difference in effect size ($\Delta$ES) is measured against zero, with a 95% confidence interval that excludes zero indicating a systematic inflation or deflation in pre-prints. (See US-2)
+- **SC-002**: The distribution shift (density ratio magnitude) is measured against a null distribution generated via permutation or bootstrapping, requiring that the observed ratio falls outside the confidence interval of the null to indicate a meaningful difference. (See US-2)
+- **SC-003**: The mean difference in effect size ($\Delta$ES) is measured against zero, with a confidence interval that excludes zero indicating a systematic inflation or deflation in pre-prints. (See US-2)
 - **SC-004**: The sensitivity of the bias detection is measured across the swept thresholds {0.01, 0.05, 0.1}, requiring that the direction of the bias (pre-print > journal or vice versa) remains consistent across all thresholds. (See US-3)
 
 ## Assumptions
@@ -100,6 +100,6 @@ As a researcher, I want the system to perform a sensitivity analysis on the p-va
 - **Threshold Justification**: The sensitivity sweep thresholds {0.01, 0.05, 0.1} are chosen based on community-standard significance levels to ensure the analysis captures the most relevant decision boundaries for scientific reporting.
 - **Collinearity Handling**: Since the pre-print and journal versions of the same study are not independent samples but distinct artifacts of the same research, the analysis focuses on the *difference* between them rather than treating them as independent predictors; no collinearity diagnostics are required for the paired difference test.
 - **Sample Size Control**: The analysis assumes that sample size changes (N) are a primary confounder; the system controls for this by flagging pairs with > 20% N increase (FR-006) and excluding them from the effect-size difference calculation.
-- **Target Metrics**: The target match rate is ≥ 60% on a sample of 500 valid pairs; this is a planning estimate, not a functional pass/fail criterion. To achieve this with expected match/extraction failure rates, the initial query size must be at least N=1000 papers.
+- **Target Metrics**: The target match rate is ≥ 60% on a a sample of valid pairs; this is a planning estimate, not a functional pass/fail criterion. To achieve this with expected match/extraction failure rates, the initial query size must be at least N=1000 papers.
 - **Single Source of Truth**: All analysis outputs trace to specific rows in the `MatchedPaperPair` entity stored in `matched_pairs.csv`.
 - **Constraints**: The system MUST optimize for lightweight execution to ensure feasibility within standard CI/CD environments, though specific resource limits are not hard requirements for the analysis logic itself.

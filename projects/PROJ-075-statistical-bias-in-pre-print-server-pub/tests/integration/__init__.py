@@ -1,3 +1,3 @@
 """
-Integration tests for pipeline components working together.
+Integration tests package.
 """

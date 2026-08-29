@@ -17,7 +17,7 @@ This project implements a statistical pipeline to detect bias in pre-print publi
 **Primary Dependencies**: `pandas`, `scipy`, `numpy`, `requests`, `pdfplumber`, `datasets` (Hugging Face), `regex`, `rapidfuzz`  
 **Storage**: Local CSV/Parquet files in `data/`  
 **Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, ~7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, ~7GB RAM)  
 **Project Type**: Data analysis pipeline / CLI tool  
 **Performance Goals**: Process a representative sample (target ~500 matched pairs) within 6 hours.  
 **Constraints**: CPU-first execution; no GPU required for statistical tests; PDF parsing must be robust to LaTeX formatting.  
