@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "data_file": "data/processed/features.csv",
+    "required": []
+  },
+  {
+    "data_file": "results/model.pkl",
+    "required": []
+  }
+]

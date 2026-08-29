@@ -1,6 +1,5 @@
 status: none
-intent: Materials Project perovskite ABX3 dataset with OQMD validation python package
-  dataset
+intent: matminer perovskite ABX3 dataset Materials Project OQMD python package dataset
 required_fields:
 - material_id
 - formula
@@ -9,7 +8,7 @@ required_fields:
 - octahedral_factor
 - ionic_radius_mismatch
 - electronegativity_difference
-- formation_energy_per_atom
-cache_key: f2e9f4471ca94b8ab14be54389b14d93a5f08ac8894868a64d40c3f7e00803e6
-searched_at: '2026-08-14T20:01:21.567205+00:00'
+- energy_above_hull
+cache_key: 5725992ceca7a63a9c6dc7a4876ea632f2bd3d4e178cb7d3caa926eb91987685
+searched_at: '2026-08-29T13:28:09.896880+00:00'
 retry_count: 1

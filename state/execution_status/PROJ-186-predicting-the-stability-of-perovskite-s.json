@@ -1,20 +1,22 @@
 {
   "project_id": "PROJ-186-predicting-the-stability-of-perovskite-s",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python main.py; 4 command(s) failed: python code/data/download.py (rc=1); python code/data/descriptors.py (rc=1); python code/models/train.py (rc=1); 2 declared deliverable(s) absent: data/processed/features.csv; data/processed/hypothetical_library.csv",
-  "artifacts": [],
+  "reason": "every produced artifact is gitignored (data/processed/filtered_hypothetical_library.csv, data/processed/hypothetical_library.csv) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 run-book script(s) missing (plan/impl path mismatch): python main.py; 3 command(s) failed: python code/data/download.py (rc=1); python code/models/train.py (rc=1); python code/models/predict.py (rc=1); 1 declared deliverable(s) absent: data/processed/features.csv",
+  "artifacts": [
+    "data/processed/filtered_hypothetical_library.csv",
+    "data/processed/hypothetical_library.csv"
+  ],
   "failures": [
     "python main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/main.py': [Errno 2] No such file or directory",
-    "python code/data/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/data/download.py\", line 14, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/data/descriptors.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/data/descriptors.py\", line 4, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/models/train.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/models/train.py\", line 9, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/models/predict.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/models/predict.py\", line 7, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+    "python code/data/download.py -> rc=1\n    29 13:26:56 - pipeline - INFO - [EVENT] Starting T013: Data Ingestion\n2026-08-29 13:26:56 - __main__ - WARNING - Materials Project API key not found. Skipping MP fetch.\n2026-08-29 13:26:56 - __main__ - INFO - MP fetched: 0 entries.\n2026-08-29 13:26:56 - __main__ - INFO - MP entries (0) < 5000. Fetching OQMD...\n2026-08-29 13:26:57 - __main__ - ERROR - Failed to fetch from OQMD: Expecting value: line 1 column 1 (char 0)\n2026-08-29 13:26:57 - __main__ - INFO - OQMD fetched: 0 entries. Total: 0\n2026-08-29 13:26:57 - __main__ - INFO - After filtering: 0 entr",
+    "python code/models/train.py -> rc=1\n    2026-08-29 13:26:59 - pipeline - INFO - [EVENT] Training Pipeline Started\n2026-08-29 13:26:59 - __main__ - INFO - Loading data from data/processed/features.csv\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/models/train.py\", line 190, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/models/train.py\", line 155, in main\n    df = load_data(args.input)\n         ^^^^^^^^^^^^^^^^^^^^^\n  F",
+    "python code/models/predict.py -> rc=1\n    6-08-29 13:26:59 - __main__ - INFO - Generated 100 combinations.\n2026-08-29 13:26:59 - __main__ - INFO - Saved generated library to data/processed/hypothetical_library.csv\n2026-08-29 13:26:59 - __main__ - INFO - Calculating geometric feasibility (tolerance factor)...\n2026-08-29 13:26:59 - __main__ - INFO - Filtered library: 90 feasible out of 100 candidates (excluded 10 based on 0.8 <= t <= 1.1).\n2026-08-29 13:26:59 - __main__ - INFO - Saved filtered library to data/processed/filtered_hypothetical_library.csv\n\nTraceback (most recent call last):\n  File "
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-14T20:00:23Z"
+  "updated_at": "2026-08-29T13:27:00Z"
 }
