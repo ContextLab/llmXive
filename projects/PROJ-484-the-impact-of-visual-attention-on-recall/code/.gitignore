@@ -1,7 +1,3 @@
-# Data and Artifacts (Generated)
-data/
-artifacts/
-
 # Python
 __pycache__/
 *.py[cod]
@@ -24,23 +20,23 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
+# Virtual Environment
 venv/
 ENV/
 env/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Environment Variables
-.env
+# Data and Artifacts (excluded from git)
+data/
+artifacts/
 
-# Logs
-*.log
-artifacts/logs/
+# Environment variables
+.env
 
 # OS
 .DS_Store

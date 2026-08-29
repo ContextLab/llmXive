@@ -1,0 +1,49 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file list showing `projects/PROJ-484-the-impact-of-visual-attention-on-recall/`
+    with the required subfolders (`data/raw`, `data/processed`, `artifacts/figures`,
+    `artifacts/logs`, `code`, `tests`) was provided. The evidence needed to confirm
+    the directories exist is missing.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` or `README.md` files from `projects/PROJ-484-the-impact-of-visual-attention-on-recall/`
+    were presented, nor any content showing they contain the required exclusions or
+    minimal README text. The required root files are missing from the evidence.
+T002:
+  c: false
+  h: 938c2cf18176083f598f9cf8dc07d4e8cfa433ba2a13b4d2e627b86dd65342de
+  r: "The required file `projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/requirements.txt`\
+    \ does not exist (nor a top\u2011level `requirements.txt`). A `code/requirements.txt`\
+    \ is present, but it is in the wrong location and includes an extra package, so\
+    \ the task\u2019s specified artifact is missing."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `artifacts/figures/`,\
+    \ `artifacts/logs/`) was presented; the claim lacks any artifact listing, screenshots,\
+    \ or file\u2011system output confirming that the structure exists. The implementer\
+    \ must provide concrete proof that these folders have been created and are non\u2011\
+    empty."
+T006a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `specs/001-visual-attention-recall/data-model.md` file or its contents were
+    provided; thus the required schema document for Participant, Stimulus, and Trial
+    entities is missing. The implementer must create and supply this markdown artifact.
+T017:
+  c: false
+  h: 92e8fd2725d824838f100a63be530020d7e1d35d6ef09e84572cfb83a626f3bb
+  r: "The required output file `data/processed/analysis.csv` does not exist, and the\
+    \ schema file `schema.yaml` is also missing. The provided `preprocess.py` script\
+    \ is incomplete (truncated) and contains no logic that writes an analysis\u2011\
+    ready CSV or validates it against a schema. Consequently, the task\u2019s core\
+    \ requirement is not satisfied."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/logs/data_verification_report.json` file was presented, and no\
+    \ contents were shown that contain the required `success`, `variable_presence`,\
+    \ and `geometry_status` fields. The task\u2019s primary deliverable is therefore\
+    \ missing."

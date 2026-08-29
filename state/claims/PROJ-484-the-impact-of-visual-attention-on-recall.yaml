@@ -1,0 +1,17 @@
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/README.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds001435 is the data source
+  claim_id: c_33116985
+  context: Reproducibility Statement Data Source section.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds001435_is_the_data_source
+  kind: entity_fact
+  raw_text: OpenNeuro dataset ds001435 (verified).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T13:43:52Z'

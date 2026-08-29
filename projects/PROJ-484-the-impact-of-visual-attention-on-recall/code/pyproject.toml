@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmXive-proj-484"
+version = "0.1.0"
+description = "The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual Sequences"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "statsmodels",
+    "scikit-learn",
+    "matplotlib",
+    "seaborn",
+    "datasets",
+    "requests",
+    "pytest",
+    "pyyaml",
+    "black",
+    "flake8",
+    "isort",
+    "huggingface_hub"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203, W503"
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+    "venv",
+    "data",
+    "artifacts"
+]
+per-file-ignores = [
+    "__init__.py:F401"
+]
+max-complexity = 12
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_gitignore = true
+known_first_party = ["logging_config", "model_fit", "preprocess", "download_data", "setup_data_dirs", "setup_venv", "validate_schemas"]
+skip = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+    "venv",
+    "data",
+    "artifacts"
+]
+sections = [
+    "FUTURE",
+    "STDLIB",
+    "THIRDPARTY",
+    "FIRSTPARTY",
+    "LOCALFOLDER"
+]
