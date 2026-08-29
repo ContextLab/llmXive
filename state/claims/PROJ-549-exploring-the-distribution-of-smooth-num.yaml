@@ -2645,3 +2645,242 @@
   source_type: external
   status: verified
   updated_at: '2026-08-28T06:19:28Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: pi(10^9) equals 50847534
+  claim_id: c_e9d543fe
+  context: 'Independent Test: Execute the sieve script in isolation; verify output
+    count matches pi(10^9) = 50,847,534 within 1 second.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The expected count of primes up to 10^9 is 50,847,534.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T22:40:49Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: sieve peak memory less than 4 GB
+  claim_id: c_769f1751
+  context: 'Independent Test: ...verify peak memory < 4 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sieve_peak_memory_less_than_4_GB
+  kind: magnitude
+  raw_text: The sieve implementation targets a peak memory usage of less than 4 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T22:41:52Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: sieve validation sample size 10000
+  claim_id: c_dcec2e61
+  context: 'Output a JSON report... with schema: {"count": int, "sample_size": 10000...}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation script uses a sample size of 10,000 for stratified sampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T22:45:04Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: density aggregation uses 50 random starting positions
+  claim_id: c_40a67f98
+  context: Aggregation logic to compute density... for 50 random starting positions
+    per configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The smoothness density aggregation computes results for 50 random starting
+    positions per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T22:46:37Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: spec grid y values 100 1000 10000
+  claim_id: c_520c1048
+  context: 'Spec-Defined Grid (Baseline): y in {100, 1000, 10000}...'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 10000 90935
+      source_id: A114856
+      url: https://oeis.org/A114856
+      value: '10000'
+    filled: true
+  kind: numeric
+  raw_text: The Spec-Defined Grid includes y values of 100, 1000, and 10000.
+  resolved_value: '10000'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T22:47:46Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: spec grid x values 10^6 10^7 10^8 10^9
+  claim_id: c_4fbf1f76
+  context: 'Spec-Defined Grid (Baseline): ... x in {10^6, 10^7, 10^8, 10^9}...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Spec-Defined Grid includes x values of 10^6, 10^7, 10^8, and 10^9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T22:48:43Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: spec grid h values x^0.1 x^0.3 x^0.5 x^0.7 x^0.9
+  claim_id: c_4a41540d
+  context: 'Spec-Defined Grid (Baseline): ... with h in {x^0.1, x^0.3, x^0.5, x^0.7,
+    x^0.9}.'
+  evidence:
+    asserted: '0.1'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: The Spec-Defined Grid includes interval lengths h defined as powers of
+    x (0.1, 0.3, 0.5, 0.7, 0.9).
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T22:48:44Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: plan grid h values 1000 10000 100000 1000000
+  claim_id: c_30649410
+  context: 'Plan-Defined Grid (Variance Analysis): ... with fixed interval lengths
+    h in {10^3, 10^4, 10^5, 10^6}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan-Defined Grid includes fixed interval lengths h of 10^3, 10^4,
+    10^5, and 10^6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T22:52:10Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: chi-square binning uses Sturges rule
+  claim_id: c_2402f01b
+  context: 'Binning: Bin on observed density values. Use Sturges'' rule to determine
+    number of bins k = ceil(1 + log2(N)).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-square_binning_uses_Sturges_rule
+  kind: entity_fact
+  raw_text: The Chi-Square test binning uses Sturges' rule to determine the number
+    of bins.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T22:55:00Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: chi-square bin merge threshold 5
+  claim_id: c_2db1c241
+  context: 'Merge Strategy: If any bin has expected count < 5, merge adjacent bins...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Chi-square_bin_merge_threshold_5
+  kind: magnitude
+  raw_text: The Chi-Square test merges bins if any bin has an expected count less
+    than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T22:57:16Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: dickman solver rtol 1e-6
+  claim_id: c_c6c2d290
+  context: 'Requirement: Use scipy.integrate.odeint with tolerance rtol=1e-6, atol=1e-9.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Dickman function solver uses a relative tolerance of 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T22:59:01Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: dickman solver atol 1e-9
+  claim_id: c_507e4010
+  context: 'Requirement: Use scipy.integrate.odeint with tolerance rtol=1e-6, atol=1e-9.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Dickman function solver uses an absolute tolerance of 1e-9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:00:34Z'
+- artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
+  attempts: 1
+  canonical: project python version 3.11
+  claim_id: c_de57c270
+  context: Initialize Python 3.11 project with requirements.txt containing numpy,
+    scipy, matplotlib, pytest, sympy.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Van Rossum first published the code (for Python version 0.9.1) to alt.sources
+        in February 1991. Several features of the language were already present at
+        this stage, among them classes with inheritance, exception handling, functions,
+        and various core datatypes such as list, dict, and str. The initial release
+        also contained a module system borrowed from Modula-3; Van Rossum describes
+        the module as "one of Python's major programming units". Python's exception
+        model also resembled Modula-3's, with the addition of an else clause. In 1994
+        comp.lang.python, the primary discussion forum for Python, was formed.
+      source_id: History of Python
+      url: https://en.wikipedia.org/wiki/History_of_Python
+      value: 0.9.1
+    filled: true
+  kind: numeric
+  raw_text: The Python project is initialized with version 3.11.
+  resolved_value: 0.9.1
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T23:02:01Z'

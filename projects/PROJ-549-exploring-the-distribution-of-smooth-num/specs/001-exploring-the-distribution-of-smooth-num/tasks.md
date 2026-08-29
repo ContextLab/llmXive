@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure: Execute `mkdir -p code data tests state docs` and `touch code/__init__.py code/requirements.txt code/config.py tests/__init__.py`. Ensure all directories (`code`, `data`, `tests`, `state`, `docs`) exist before proceeding.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`, `scipy`, `matplotlib`, `pytest`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`, `scipy`, `matplotlib`, `pytest`, `sympy`.
 - [X] T003 [P] Configure linting and formatting: Create `.flake8` with content `[flake8] max-line-length = 100` and `pyproject.toml` with sections `[tool.black] line-length = 100 target-version = ['py311']` and `[tool.pytest]`.
 
 ---
@@ -36,9 +36,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/dickman.py`: Numerical solver for the Dickman function $\rho(u)$ via integration of the delay-differential equation (Tenenbaum method)
-- [X] T005 [P] Create `code/utils.py`: Helper functions for logging, checksum generation, and deterministic random seed management
-- [X] T006 Create `code/config.py`: Configuration loader for parameter grids ($x, y, h$) and CI constraints (RAM limits, timeouts)
+- [X] T004 [P] Implement `code/dickman.py`: Numerical solver for the Dickman function $\rho(u)$ via integration of the delay-differential equation (Tenenbaum method). **Requirement**: Use `scipy.integrate.odeint` with tolerance `rtol=1e-6`, `atol=1e-9`.
+- [X] T005 [P] Create `code/utils.py`: Helper functions for logging, checksum generation, and deterministic random seed management.
+- [X] T006 Create `code/config.py`: Configuration loader for parameter grids ($x, y, h$) and CI constraints (RAM limits, timeouts).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,19 +60,20 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/sieve.py`: Segmented Sieve of Eratosthenes with a memory cap. **Requirements**:
- 1. Implement a hard runtime cap using `signal.alarm` (or `threading.Timer` fallback); if exceeded, **checkpoint the current progress** to a temporary file and exit gracefully, allowing a resume on next run.
- 2. Monitor peak memory usage (e.g., `psutil`) and log if it exceeds 4 GB.
- 3. Perform a self-check: verify `last_prime < 10^9` and `len(set(primes)) == len(primes)` before writing.
- 4. Output to `data/primes_1e9.csv` (one prime per line).
+ 1. Implement a hard runtime cap using `signal.SIGALRM` (with `threading.Timer` fallback for non-POSIX) set to 115 minutes.
+ 2. **Checkpoint Logic**: On timeout or memory limit, write a JSON checkpoint file to `data/checkpoint.json` with schema: `{"segment_index": int, "last_prime": int, "timestamp": "ISO8601"}`. Resume from this file on next run.
+ 3. Monitor peak memory usage (e.g., `psutil`) and log if it exceeds a predefined threshold.
+ 4. Perform a self-check: verify `last_prime < 10^9` and `len(set(primes)) == len(primes)` before writing.
+ 5. Output to `data/primes_1e9.csv` (one prime per line).
  **Dependency**: None.
-- [ ] T013 [US1] Implement and run `code/validate_sieve.py`: A separate script to verify the generated prime list from `data/primes_1e9.csv`. **Requirements**:
- 1. **DO NOT** use a secondary deterministic sieve (infeasible for 10^9) or probabilistic tests.
- 2. Verify total count exactly equals `50,847,534`.
- 3. Randomly sample a set of primes from the list and verify each using **deterministic trial division** against the generated prime list itself (up to $\sqrt{p}$) to ensure primality, satisfying Constitution Principle VI.
- 4. Output a JSON report to `data/sieve_validation_report.json` with schema: `{"count": int, "sample_size": int, "all_valid": bool, "checksum": str, "timestamp": str}`.
+- [ ] T013 [US1] Implement and run `code/validate_sieve.py`: A separate script to verify the generated prime list from `data/primes_1e9.csv`. **Requirements**: <!-- ATOMIZE: requested -->
+ 1. **DO NOT** use self-referential trial division (circular logic).
+ 2. Verify total count aligns with the expected theoretical magnitude.
+ 3. **Spot Check**: Sample a representative subset of primes from the list. using **stratified sampling** (evenly spaced indices) with a fixed seed (e.g., `seed=42`). Verify each sampled prime `p` using `sympy.isprime(p)` (an independent, deterministic library) to ensure primality.
+ 4. Output a JSON report to `data/sieve_validation_report.json` with schema: `{"count": int, "sample_size": 10000, "all_valid": bool, "checksum": str, "timestamp": str}`.
  5. The script must exit with code 0 only if `all_valid` is true and `count` matches.
- **Dependency**: Must complete after T012 (produces artifact) and before T020 (consumes validated artifact).
-- [X] T014 [US1] Add CLI entry point in `code/main.py` to trigger sieve generation with progress logging.
+ **Dependency**: Must complete after T012 (produces artifact).
+- [X] T014 [US1] Add CLI entry point in `code/main.py` to trigger sieve generation with progress logging. **Dependency**: Must complete after T012 AND T013 to ensure the CLI only runs on validated data.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -80,7 +81,7 @@
 
 ## Phase 4: User Story 2 - Compute Smooth Number Density Across Parameter Grid (Priority: P2)
 
-**Goal**: Enumerate integers in short intervals $[x, x+h]$ across BOTH the Spec-defined and Plan-defined grids to calculate $y$-smooth densities.
+**Goal**: Enumerate integers in short intervals $[x, x+h]$ across BOTH the Spec-defined and Plan-defined grids to calculate $y$-smooth densities. This dual-grid approach is required to satisfy Spec FR-002 (Baseline) and Plan SC-004 (Variance Analysis).
 
 **Independent Test**: Run on a small fixed subset ($x=10^6, y=100$); verify count matches brute-force calculation.
 
@@ -93,16 +94,17 @@
 
 - [X] T020 [US2] Implement `code/smoothness.py`: Factorization logic using trial division against primes $\le y$ from `data/primes_1e9.csv`. **Dependency**: Must wait for T012 AND T013 (validated prime list).
 - [X] T021 [US2] Implement `code/smoothness.py`: Interval enumeration loop that handles edge cases (empty intervals, $x+h > 10^9$) without crashing. **Dependency**: Must wait for T012 AND T013.
-- [X] T022 [US2] Implement `code/smoothness.py`: Aggregation logic to compute density $\rho = \text{count}/h$ and deviation ratio $R = \rho_{obs} / \rho_{Dickman}(u)$ for Multiple random starting positions per configuration. **Dependency**: Must wait for T012, T013, AND T004 (Dickman function).
-- [X] T023 [US2] Implement `code/main.py` orchestration to run **TWO** distinct parameter sweeps:
- 1. **Spec-Defined Grid (Comparative Analysis)**: $y \in \{100, 1000, 10000\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$, with $h \in \{x^{0.1}, x^{0.3}, x^{0.5}, x^{0.7}, x^{0.9}\}$. Save results to `data/density_measurements_spec.csv`. (Satisfies FR-002).
- 2. **Plan-Defined Grid (Primary Experiment)**: $y \in \{100, 1000, 10000\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$, with **fixed interval lengths** $h \in \{10^3, 10^4, 10^5, 10^6\}$. Save results to `data/density_measurements_plan.csv`. (Satisfies SC-004 Variance analysis and Plan Methodological Revision).
- **Note**: This dual-grid approach satisfies the Spec's parameter sweep requirement (FR-002) while validating the Plan's methodological revision to avoid truncation bias and enable variance analysis (SC-004). **Dependency**: Must wait for T012 AND T013.
-- [ ] T023b [US2] Verify Grid Distinction: Implement `code/verify_grid_distinction.py` to ensure the Plan-defined grid results are clearly distinguished from the Spec-defined grid in the final output. **Requirements**:
- 1. Read both `data/density_measurements_spec.csv` and `data/density_measurements_plan.csv`.
- 2. Verify that the `source` column (or equivalent) correctly labels each row as 'spec' or 'plan'.
- 3. Verify that the statistical analysis (T026/T027) explicitly prioritizes the 'plan' grid for primary conclusions.
- 4. Output a boolean `grid_distinction_verified` to `data/grid_verification.json`.
+- [X] T022 [US2] Implement `code/smoothness.py`: Aggregation logic to compute density $\rho = \text{count}/h$ and deviation ratio $R = \rho_{obs} / \rho_{Dickman}(u)$ for **50** random starting positions per configuration. **Dependency**: Must wait for T012, T013, AND T004 (Dickman function).
+- [X] T023 [US2] Implement `code/main.py` orchestration to run **TWO** distinct parameter sweeps. **Justification**: The Spec grid satisfies FR-002; the Plan grid satisfies SC-004 (Variance analysis) and the Plan's methodological revision.
+ 1. **Spec-Defined Grid (Baseline)**: $y \in \{100, 1000, 10000 (OEIS A114856, https://oeis.org/A114856)\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$, with $h \in \{x^{0.1}, x^{0.3}, x^{0.5}, x^{0.7}, x^{0.9}\}$. Save results to `data/density_measurements_spec.csv` with a `source` column set to 'spec'. **Multiple random starts per configuration**.
+ 2. **Plan-Defined Grid (Variance Analysis)**: $y \in \{100, 1000, 10000\}$, $x \in \{10^6, 10^7, 10^8, 10^9\}$, with **fixed interval lengths** $h \in \{10^3, 10^4, 10^5, 10^6\}$. Save results to `data/density_measurements_plan.csv` with a `source` column set to 'plan'. **Multiple random starts per configuration**.
+ **Dependency**: Must wait for T012 AND T013.
+- [ ] T023b [US2] **Verify Grid Generation**: Validate the output of T023. **Requirements**:
+ 1. Confirm `data/density_measurements_spec.csv` and `data/density_measurements_plan.csv` exist.
+ 2. Verify non-zero row counts for both files.
+ 3. Verify the `source` column contains exactly 'spec' and 'plan' values respectively.
+ 4. Verify the schema matches the expected columns (x, y, h, start_offset, count, density, ratio).
+ 5. Output `grid_verification.json` with status `{"spec_valid": bool, "plan_valid": bool}`.
  **Dependency**: Must wait for T023.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -122,20 +124,22 @@
 
 ### Implementation for User Story 3
 
-- [X] T026a [P] [US3] Implement `code/analysis.py`: **Plan-Primary (Main Scientific Output)** Power-law regression to fit $R \propto h^\beta$ (deviation ratio) for each $y$-group using the Plan-defined grid (`density_measurements_plan.csv`). This is the **MAIN** scientific output per the Plan. (Satisfies Plan Summary). **Dependency**: Must wait for T023 AND T004.
-- [X] T026b [P] [US3] Implement `code/analysis.py`: **Spec-Mandatory (Baseline)** Power-law regression to fit $\rho = c \cdot h^\beta$ (raw density) for each $y$-group using the Spec-defined grid (`density_measurements_spec.csv`). This satisfies FR-004 and SC-001 (measuring against $\beta=1$ baseline). **Dependency**: Must wait for T023.
-- [X] T027a [P] [US3] Implement `code/analysis.py`: **Plan-Primary** Kolmogorov-Smirnov (KS) test comparing observed vs. Dickman distributions for the Plan-defined grid. This is the primary statistical test per Plan Principle VII. (Satisfies Plan Principle VII). **Dependency**: Must wait for T023 AND T004.
+- [X] T026a [P] [US3] Implement `code/analysis.py`: **Plan-Primary (Exploratory)** Power-law regression to fit $R \propto h^\beta$ (deviation ratio) for each $y$-group using the Plan-defined grid (`density_measurements_plan.csv`). **Note**: This metric has no Spec-defined success threshold (SC-001 applies to raw density). (Satisfies Plan Summary). **Dependency**: Must wait for T023 AND T004.
+- [X] T026b [P] [US3] Implement `code/analysis.py`: **Spec-Mandatory (Baseline)** Power-law regression to fit $\rho = c \cdot h^\beta$ (raw density) for each $y$-group using the Spec-defined grid (`density_measurements_spec.csv`). This satisfies FR-004 and SC-001. **Dependency**: Must wait for T023.
+- [X] T027a [P] [US3] Implement `code/analysis.py`: **Plan-Primary (Additional)** Kolmogorov-Smirnov (KS) test comparing observed vs. Dickman distributions for the Plan-defined grid. This is an additional requirement per Plan Principle VII. (Satisfies Plan Principle VII). **Dependency**: Must wait for T023 AND T004.
 - [X] T027b [P] [US3] Implement `code/analysis.py`: **Spec-Mandatory (Baseline)** Chi-Square Goodness-of-Fit test comparing observed counts vs. Dickman expectations for the Spec-defined grid. **Method**:
  1. Input: `data/density_measurements_spec.csv`.
- 2. Binning: Use Sturges' rule to determine number of bins $k = \lceil 1 + \log_2(N) \rceil$. If bins are sparse (expected count < 5), merge adjacent bins until the condition is met.
- 3. Calculate expected counts for each bin: $E_i = \sum (\rho_{Dickman}(u) \cdot h \cdot \text{bin\_width})$ for the data points in that bin.
- 4. Compute $\chi^2$ statistic and p-value.
- 5. Output: Write `chi_square_p_value` to `data/model_fits.json`.
- **Note**: This test satisfies FR-005 but is secondary to the KS test (T027a) for the primary scientific conclusions. **Dependency**: Must wait for T023.
-- [X] T028 [US3] Implement `code/viz.py`: Generate density vs. interval length plots with confidence intervals and theoretical curves for BOTH grids; save to `data/` as PNG. **Dependency**: Must wait for T026/T027.
+ 2. **Binning**: Bin on **observed density values**. Use Sturges' rule to determine number of bins $k = \lceil 1 + \log_2(N) \rceil$.
+ 3. **Merge Strategy**: If any bin has expected count < 5, merge adjacent bins, prioritizing the bins with the **lowest expected counts**, until all bins have expected count >= 5.
+ 4. Calculate expected counts for each bin: $E_i = \sum (\rho_{Dickman}(u) \cdot h \cdot \text{bin\_width})$.
+ 5. Compute $\chi^2$ statistic and p-value.
+ 6. Output: Write `chi_square_p_value` to `data/model_fits.json`.
+ **Note**: This test satisfies FR-005 and is mandatory. **Dependency**: Must wait for T023.
+- [X] T028 [US3] Implement `code/viz.py`: Generate density vs. interval length plots with confidence intervals and theoretical curves for BOTH grids; save to `data/` as PNG. **Requirement**: Generate captions directly from the data (e.g., "Observed: {rho}, Expected: {exp}, p={p}") and save as text next to the image. **Dependency**: Must wait for T026/T027.
 - [ ] T029 [US3] Implement `code/main.py` to orchestrate analysis. **Requirements**:
  1. Aggregate results from T026a, T026b, T027a, T027b.
- 2. Save to `data/model_fits.json` with exact schema:
+ 2. **Verification**: Explicitly verify that the analysis logic prioritizes the 'plan' grid for the deviation ratio regression (T026a) and KS test (T027a) as per the Plan's methodological revision. Log a warning if the 'spec' grid is used for these specific metrics.
+ 3. Save to `data/model_fits.json` with exact schema:
  ```json
  {
  "plan_beta": <float or null>,
@@ -148,7 +152,8 @@
  "spec_chi2_p": <float>
  }
  ```
- **Handling Non-Convergence**: If a regression fails to converge (e.g., R^2 is NaN), set the corresponding beta, se, and r_squared values to `null` and log a warning.
+ **Handling Non-Convergence**: If a regression fails to converge (e.g., `R^2 < 0.0` or `scipy.optimize` raises a `RuntimeError` after multiple iterations), set the corresponding beta, se, and r_squared values to `null` and log a warning with the specific error message: `WARNING: Regression failed for {group}: {error_message}`.
+ **Note**: `plan_beta` is an exploratory metric with no Spec-defined success threshold. `spec_beta` is the only metric with a defined threshold (SC-001).
  **Dependency**: Must wait for T023, T026a, T026b, T027a, T027b.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -162,37 +167,22 @@
 - [X] T030 [P] **Visualization Annotation**: Update `code/viz.py` to add specific text annotations at coordinates (x,y) for each plot indicating "Associational Trend Only" (per Spec Assumptions). Update `code/analysis.py` docstrings to explicitly state "Correlation does not imply causation".
 - [X] T031 [P] Documentation updates: Create `docs/methodology.md` containing sections: "Sieve Implementation", "Smoothness Logic", "Statistical Tests (KS & Chi-Square)", "Dual-Grid Rationale". Ensure reproducibility steps are detailed.
 - [X] T032a [P] **Performance Profiling**: Profile `code/smoothness.py` loop using `cProfile`. **Output**: Save detailed profiling report to `data/profiles/smoothness_baseline.txt` (cProfile pstats text format).
-- [ ] T032b [US2] **Performance Optimization**: Implement vectorized factorization using `numpy` broadcasting. **Method**: Create boolean masks for primes $\le y$ and use `np.all` to check smoothness across the interval array. **Goal**: Reduce runtime of `smoothness.py` by at least 50% compared to the baseline profile (T032a). **Dependency**: Must wait for T032a.
+- [ ] T032b [US2] **Performance Optimization**: Implement vectorized factorization using `numpy` broadcasting. **Method**: Create boolean masks for primes $\le y$ and use `np.all` to check smoothness across the interval array. **Dependency**: Must wait for T032a.
 - [ ] T032c [US2] **Benchmark Verification**: Run the optimized `smoothness.py` against the same parameters as T032a and record the runtime comparison. **Output**: Save results to `data/benchmark_results.json` with schema `{"baseline_ms": float, "optimized_ms": float, "speedup_factor": float, "passed": bool}`. **Dependency**: Must wait for T032b.
-- [ ] T033a [P] **Reproducibility Execution**: Execute the `quickstart.md` script end-to-end on a clean environment (simulated via Docker or CI). **Output**: Capture stdout/stderr to `data/ci_logs/repro_run.log`. **Dependency**: None.
+- [ ] T033a [P] **Reproducibility Execution**: Execute the `quickstart.md` script end-to-end in a clean environment using Docker image `python:3.11-slim` on an `ubuntu-latest` runner. **Output**: Capture stdout/stderr to `data/ci_logs/repro_run.log`. **Dependency**: None.
 - [ ] T033b [P] **Reproducibility Verification**: Verify the output of T033a. **Requirements**:
  1. Check exit code is 0.
  2. Verify `data/primes_1e9.csv` exists and matches the checksum in `state/`.
  3. Verify `data/density_measurements_plan.csv` exists and has non-zero rows.
  4. Output `repro_verified: true` to `data/repro_status.json`.
  **Dependency**: Must wait for T033a.
-- [ ] T034a [P] **Caption Generation**: Implement `code/caption_generator.py` to generate caption text. **Input**: `data/model_fits.json`. **Output**: `data/captions.txt`. **Method**: Apply a template string (e.g., "Observed density: {obs}, Expected: {exp}, p-value: {p}") to generate captions for each plot. **Dependency**: Must wait for T029.
-- [ ] T034b [P] **Model Fits Aggregation**: Ensure `data/model_fits.json` is generated and valid. **Dependency**: Must wait for T029.
-- [X] T035 [P] **Strict Data-Driven Captions**: Refactor `code/viz.py` to ensure all visualization captions are strictly derived from data artifacts (density values, confidence intervals, p-values) without subjective metaphors. **Constraint**: Metaphorical framing (e.g., "forest density") must be restricted to the `research.md` narrative section, not the primary `data/` visualizations, to preserve Constitution Principle IV (Single Source of Truth). **Dependency**: Must wait for T028.
-- [ ] T036a [P] **Narrative Drafting**: Write the initial `research.md` artifact. **Requirements**:
+- [ ] T036 [US3] **Draft Narrative**: Write the initial `research.md` artifact. **Requirements**:
  1. Create `research.md` with sections: "Introduction", "Methodology", "Results", "Narrative Interpretation".
- 2. In "Narrative Interpretation", add a placeholder section titled "The Interval as a Moment of Tension" with a brief description of the concept.
+ 2. **Constraint**: Do NOT insert pre-scripted metaphors (e.g., "forest density", "moments of tension") based on simulated feedback. Narrative must emerge strictly from the empirical results in `data/model_fits.json` and `data/density_measurements_*.csv`.
  3. Ensure the file is saved to `docs/research.md`.
- **Dependency**: Must wait for T029 (for data context) and T034a (for captions).
-- [X] T037 [P] **Narrative Arc Implementation**: Refactor `code/viz.py` and `research.md`. **Requirements**:
- 1. In `research.md`: Add a dedicated section titled "The Narrative Arc of the Interval" interpreting variance as a dynamic story of prime spacing.
- 2. In `code/viz.py`: Update plot title template to include "Snapshot of Prime Density".
- **Dependency**: Must wait for T028 (visualization generation) and T029 (statistical results).
-- [ ] T038 [P] **Review Response: Narrative Framing of Intervals**: Update `research.md` and `docs/methodology.md` to explicitly reframe "short intervals" not merely as mathematical bounds, but as **"moments of tension"** in the distribution of primes. **Method**:
- 1. In `research.md`: Add a subsection "The Interval as a Moment of Tension" that discusses how the density fluctuations within $[x, x+h]$ reveal the local "stress" or "spacing" of the prime forest, echoing the reviewer's analogy of trees in a forest.
- 2. Ensure the text explicitly contrasts the "quiet beauty" of the global asymptotic trend with the "dynamic story" of local deviations.
- 3. This framing must be supported by the data from T026a (deviation ratio) and T027a (KS test), linking the statistical significance of deviations to the narrative concept of tension.
- **Dependency**: Must wait for T036a and T029 (statistical results) to ensure the narrative is grounded in the actual findings.
-- [ ] T039 [P] **Review Response: Forest Density Metaphor Integration**: Refine the "forest density" metaphor in `research.md` to align with the "trees in a forest" analogy provided in the review. **Method**:
- 1. In `research.md`: Replace generic density descriptions with the specific metaphor: "Primes as trees in a forest, where $y$-smooth numbers represent the undergrowth or cleared spaces between the trunks."
- 2. Use this metaphor to explain the deviation ratio $R$: when $R \approx 1$, the forest is in equilibrium; when $R \neq 1$, the spacing is anomalous, indicating a "thicket" or a "clearing" in the prime distribution.
- 3. Ensure the metaphor is used to elevate the "human understanding" of the number theory results, as requested by the reviewer, without compromising the mathematical rigor.
- **Dependency**: Must wait for T038 and T029.
+ **Dependency**: Must wait for T029 (for data context).
+
+**Checkpoint**: All tasks complete
 
 ---
 
@@ -290,9 +280,9 @@ With multiple developers:
 - **Critical**: Ensure `code/analysis.py` implements BOTH Chi-Square (Spec/FR-005) and KS (Plan) tests to satisfy FR-005 and Plan Principle VII, with clear labeling of Spec-Mandatory vs Plan-Primary.
 - **Critical**: Task T012 must enforce the 120-minute runtime constraint via checkpoint/resume logic, not just warning log.
 - **Critical**: Task T030 must strictly adhere to "associational" framing as per Spec Assumptions.
-- **Critical**: Task T013 MUST use deterministic trial division for verification (not Miller-Rabin) to satisfy Constitution Principle VI and runtime constraints.
-- **Critical**: Task T035 must ensure narrative captions are strictly data-derived, moving metaphors to `research.md` to preserve the Single Source of Truth.
+- **Critical**: Task T013 MUST use `sympy.isprime` for verification (not self-referential trial division) to satisfy Constitution Principle VI and runtime constraints.
+- **Critical**: Task T036 must ensure narrative captions are strictly data-derived, moving metaphors to `research.md` to preserve the Single Source of Truth.
 - **Critical**: Task T023 must execute BOTH the Spec's $x^\alpha$ grid and the Plan's fixed $h$ grid to satisfy both methodological requirements and SC-004.
 - **Critical**: Task T032b must focus on runtime compliance, specifically targeting a [deferred] reduction via numpy broadcasting.
-- **Critical**: Task T037 must explicitly address the reviewer's request to frame intervals as "moments of tension" and utilize the "forest density" metaphor in the narrative section, elevating the work from calculation to contribution to human understanding.
-- **Critical**: Task T038 and T039 are mandatory revisions to address the "narrative arc" and "forest density" feedback from the research-stage review, ensuring the project contributes to human understanding as requested.
+- **Critical**: Task T029 must explicitly state that `plan_beta` is exploratory and lacks a Spec-defined success threshold, AND must verify that the analysis prioritizes the 'plan' grid for the deviation ratio and KS tests.
+- **Critical**: Task T023b must only verify data generation (T023) and NOT reference future analysis tasks (T026/T027).

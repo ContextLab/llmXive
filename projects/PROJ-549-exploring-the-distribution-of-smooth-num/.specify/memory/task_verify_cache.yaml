@@ -1,3 +1,12 @@
+T013:
+  c: false
+  h: 8a5fed5f0a8fd3d7d939b8a3679f94fda8d9f2092166c6e5554cb7e87c2e9b22
+  r: "The `code/validate_sieve.py` file is present but its content is truncated and\
+    \ lacks a complete implementation (e.g., the `verify_primes_sample` function is\
+    \ unfinished and there is no entry\u2011point to execute the script). Moreover,\
+    \ the required input file `data/primes_1e9.csv` is missing, so the script cannot\
+    \ be run or produce the expected validation report. Both the script and the prime\
+    \ list artifact need to be completed and present for the task to be satisfied."
 T020:
   c: true
   h: acf160f5b4ae69f142a417c5844beaadcb982729bf9fe77fa11c038dde053f80
@@ -15,6 +24,17 @@ T023:
     R, or writes results to `data/density_measurements.csv`. Moreover, the expected\
     \ output file `data/density_measurements.csv` is absent. The task\u2019s core\
     \ requirements are therefore not satisfied."
+T023b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only the task description and user stories but did\
+    \ not provide any actual artifact\u2014such as the grid\u2011generation script,\
+    \ output files, or validation results\u2014required to verify that the parameter\
+    \ grid was correctly enumerated and that smooth\u2011number densities were computed.\
+    \ Without these concrete files or evidence, the requirement cannot be confirmed.\
+    \ The next implementer must deliver the executable code and its resulting data\
+    \ (e.g., a CSV or JSON of density measurements) along with verification that the\
+    \ counts match known ground\u2011truth for at least one test case."
 T027b:
   c: false
   h: 9a2517df2c09d06ad4f37965e8f4a67bbbd75d51588d958446ee1c84dab87a85

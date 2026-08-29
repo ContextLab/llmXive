@@ -1,10 +1,17 @@
-'|matche output verify':
-  quote: 9 50847534
-  source_id: A006880
-  url: https://oeis.org/A006880
-  value: '50847534'
-'|verify':
-  quote: 9 50847534
-  source_id: A006880
-  url: https://oeis.org/A006880
-  value: '50847534'
+1001000|defined grid include spec value:
+  quote: 10000 90935
+  source_id: A114856
+  url: https://oeis.org/A114856
+  value: '10000'
+'|initialized project python version':
+  quote: Van Rossum first published the code (for Python version 0.9.1) to alt.sources
+    in February 1991. Several features of the language were already present at this
+    stage, among them classes with inheritance, exception handling, functions, and
+    various core datatypes such as list, dict, and str. The initial release also contained
+    a module system borrowed from Modula-3; Van Rossum describes the module as "one
+    of Python's major programming units". Python's exception model also resembled
+    Modula-3's, with the addition of an else clause. In 1994 comp.lang.python, the
+    primary discussion forum for Python, was formed.
+  source_id: History of Python
+  url: https://en.wikipedia.org/wiki/History_of_Python
+  value: 0.9.1
