@@ -1,86 +1,76 @@
 # Quickstart: Predicting Molecular Dipole Moments with Graph Neural Networks
 
 ## Prerequisites
-
-- Python 3.11+
-- 8GB RAM available
-- 14GB disk space
-- Internet access (for dataset download)
+*   Python 3.11+
+*   Git
+*   Sufficient free disk space (for data and cache)
+*   GB RAM (minimum)
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-262-predicting-molecular-dipole-moments-with
-   ```
+1.  **Clone the repository** and navigate to the project directory:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-262-predicting-molecular-dipole-moments-with
+    ```
 
-2. Create a virtual environment and install dependencies:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r code/requirements.txt
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-## Running the Pipeline
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### Step 1: Download and Preprocess Data
+## Execution Workflow
 
+### Step 1: Data Download & Preprocessing
+Download the QM9 dataset from the verified Hugging Face source and preprocess it.
 ```bash
-python code/main.py --step download
-python code/main.py --step preprocess
+python code/data/download_qm9.py
+python code/data/preprocess.py
 ```
+*Output*: `data/processed/train.parquet`, `data/reports/excluded_molecules.csv`.
 
-- This downloads the QM9 dataset from Hugging Face, filters missing 3D coordinates, and generates feature matrices.
-- Excluded molecules are reported in `data/reports/excluded_molecules.csv`.
-- **Note**: The `code/data/preprocess.py` script handles all data cleaning and exclusion logic. The deprecated `handle_missing_coords.py` has been removed.
-
-### Step 2: Train Models
-
+### Step 2: Model Training
+Train the GNN and Random Forest models across multiple seeds.
 ```bash
-python code/main.py --step train
+# Train GNN
+python code/train/train_gnn.py --seeds 42,123,456,789,1011
+
+# Train RF Baseline
+python code/train/train_rf.py --seeds 42,123,456,789,1011
 ```
+*Output*: `models/schnet_seed_*.pt`, `models/rf_seed_*.pkl`.
 
-- Train SchNet GNN, Random Forest baseline, and Combined Random Forest across multiple random seeds.
-- Uses 50 epochs with early stopping (patience=10).
-- Results saved to `data/processed/predictions.parquet`.
-
-### Step 3: Evaluate and Analyze
-
+### Step 3: Evaluation & Attribution
+Compute metrics and generate feature attribution.
 ```bash
-python code/main.py --step evaluate
-python code/main.py --step attribute
+python code/eval/metrics.py
+python code/eval/attribution.py
+python code/eval/stats.py  # Paired t-tests
 ```
+*Output*: `results/metrics.json`, `results/attribution.json`.
 
-- Computes MAE, RMSE, and 95% CIs.
-- Performs paired t-tests (RF 2D vs Combined, SchNet vs Randomized) and generates feature attribution plots.
-- Reports saved to `data/reports/`.
-
-### Step 4: Visualize Results
-
+### Step 4: Visualization
+Generate plots of feature importance.
 ```bash
-python code/main.py --step visualize
+python code/viz/plot_feature_importance.py
 ```
+*Output*: `figures/feature_importance.png`.
 
-- Generates plots comparing GNN vs. RF performance and feature importance maps (RDKit heatmaps).
-- Output saved to `docs/figures/`.
+## Verification
 
-## Expected Output
-
-- `data/processed/feature_matrix.parquet`: Processed feature data.
-- `data/reports/excluded_molecules.csv`: Report of excluded molecules.
-- `data/reports/metrics.json`: MAE, RMSE, and confidence intervals.
-- `data/reports/attribution.parquet`: Feature importance scores.
-- `docs/figures/`: Comparison plots and attribution visualizations.
+Run the test suite to ensure data integrity and model outputs:
+```bash
+pytest tests/
+```
 
 ## Troubleshooting
 
-- **OOM Errors**: If memory exceeds 8GB, reduce the dataset subset size in `code/data/preprocess.py`.
-- **Download Failures**: Verify internet connection; retry with `--step download`.
-- **Missing 3D Coords**: Check `data/reports/excluded_molecules.csv` for details.
-
-## Constraints
-
-- Execution time ≤ 6h on 2 CPU cores.
-- Memory footprint ≤ 8GB.
-- CPU-only mode for GNN training.
+*   **OOM Error**: If you encounter memory errors, reduce the `--subset_size` in `preprocess.py` (default: a sufficiently large sample size to ensure statistical power and representativeness).
+*   **CUDA Error**: If running on a GPU, ensure `CUDA_VISIBLE_DEVICES` is set. The default is CPU.
+*   **Missing Data**: Check `data/reports/excluded_molecules.csv` for molecules with missing coordinates.

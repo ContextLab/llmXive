@@ -1,15 +1,11 @@
 status: none
-intent: QM9 dataset download pip install python package dataset
+intent: download QM9 dataset via Hugging Face datasets python package dataset
 required_fields:
 - molecule_id
-- atom_index
-- atom_type
-- x_coordinate
-- y_coordinate
-- z_coordinate
+- atom_coordinates_3d
+- atom_types
 - bond_connectivity
-- morgan_fingerprint
-- coulomb_matrix
-cache_key: 362b72f686ca5dcad0525000ca21e2424945023be877d08fd48b76a15dde595d
-searched_at: '2026-08-25T15:33:57.367346+00:00'
+- dipole_moment
+cache_key: 7e2c912c96c5e6a2bcfbf81899933d9303ddc0ce75fafc780c149404c89278f4
+searched_at: '2026-08-29T07:31:03.084432+00:00'
 retry_count: 1

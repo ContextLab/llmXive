@@ -20,33 +20,9 @@
   verification_status: unreachable
   verified_against_url: https://oeis.org/A008299
   verified_at: '2026-06-24T21:21:17.157543Z'
-- artifact_hash: 4784af9c1144744310e83a1cafdb2665803b399430e5e850617a2d4763544412
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+- artifact_hash: 11fe0a8f73ef0a99e11ab18fcf83c47a9c7cea8da05e04dc622221e46f2bcaef
+  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/plan.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[0804.4361] Improving Coverage Accuracy of Block Bootstrap Confidence
-    Intervals'
-  kind: url
-  value: https://arxiv.org/abs/0804.4361
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/0804.4361
-  verified_at: '2026-08-21T18:24:33.025051Z'
-- artifact_hash: 4784af9c1144744310e83a1cafdb2665803b399430e5e850617a2d4763544412
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2405.13996] Detecting Gait Abnormalities in Foot-Floor Contacts
-    During Walking Through Footstep-Induced Structural Vibrations'
-  kind: url
-  value: https://arxiv.org/abs/2405.13996
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2405.13996
-  verified_at: '2026-08-21T18:24:33.025051Z'
-- artifact_hash: 4784af9c1144744310e83a1cafdb2665803b399430e5e850617a2d4763544412
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
-  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: Quantum chemistry structures and properties of 134 kilo molecules
@@ -54,8 +30,8 @@
   value: 10.1038/sdata.2014.22
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-08-21T18:24:33.025051Z'
-- artifact_hash: e49264752ab787c3c91cc66672983fe1de668bf2721b2c16fdd6ac61a306432c
+  verified_at: '2026-08-29T07:38:18.807831Z'
+- artifact_hash: e16fadee3fea33a03201c516b0fe3ea8923be71e3e28ab47b85e46e00216b862
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
   cite_id: c-001
   cited_authors: []
@@ -64,89 +40,11 @@
   kind: url
   value: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6416a1ee9b85ee6b3946acae/89132b0d504da58fa10c8734d491e719ff61dcf0ff7c20514354af110c276d54?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full-00000-of-00001-e217b6ecfbeb7149.parquet%3B+filename%3D%22full-00000-of-00001-e217b6ecfbeb7149.parquet%22%3B&user_id=public&Expires=1787676305&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxNmExZWU5Yjg1ZWU2YjM5NDZhY2FlLzg5MTMyYjBkNTA0ZGE1OGZhMTBjODczNGQ0OTFlNzE5ZmY2MWRjZjBmZjdjMjA1MTQzNTRhZjExMGMyNzZkNTRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbC0wMDAwMC1vZi0wMDAwMS1lMjE3YjZlY2ZiZWI3MTQ5LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJmdWxsLTAwMDAwLW9mLTAwMDAxLWUyMTdiNmVjZmJlYjcxNDkucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg3Njc2MzA1fX19XX0_&Signature=MEUCIQCUfP7Ox1m%7EIS8iqLfehYL2sd7tCr6LUnjg7xL332ZM2AIgKrxw4ajeMPvEoRle9mnneb5AQFdLY2TjLJzp-kV3UB8_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-25T15:45:05.840362Z'
-- artifact_hash: e49264752ab787c3c91cc66672983fe1de668bf2721b2c16fdd6ac61a306432c
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6416a1ee9b85ee6b3946acae/89132b0d504da58fa10c8734d491e719ff61dcf0ff7c20514354af110c276d54?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full-00000-of-00001-e217b6ecfbeb7149.parquet%3B+filename%3D%22full-00000-of-00001-e217b6ecfbeb7149.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1787992724&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxNmExZWU5Yjg1ZWU2YjM5NDZhY2FlLzg5MTMyYjBkNTA0ZGE1OGZhMTBjODczNGQ0OTFlNzE5ZmY2MWRjZjBmZjdjMjA1MTQzNTRhZjExMGMyNzZkNTRcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbC0wMDAwMC1vZi0wMDAwMS1lMjE3YjZlY2ZiZWI3MTQ5LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJmdWxsLTAwMDAwLW9mLTAwMDAxLWUyMTdiNmVjZmJlYjcxNDkucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg3OTkyNzI0fX19XX0_&Signature=MEUCIQCYAQ8SHsDDUnORX0b2D-C5OXYjKh2djkP9ec8wLCqwNwIgIeNNlcEgDKx6-JSeegkKfBKXbGlN9k97ARzyhs5LAvM_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-29T07:38:43.929793Z'
+- artifact_hash: e16fadee3fea33a03201c516b0fe3ea8923be71e3e28ab47b85e46e00216b862
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
   cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001-ffd5f7908688c934.parquet
-  kind: url
-  value: https://huggingface.co/datasets/hadoan/enthalpy-QM9-1k/resolve/main/data/train-00000-of-00001-ffd5f7908688c934.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64dbd505bb090cef5585ea72/c7c5dd8debc6d81ee02078e662b0589dce30817edcb14e64a5ebb1ed6d4049ff?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-ffd5f7908688c934.parquet%3B+filename%3D%22train-00000-of-00001-ffd5f7908688c934.parquet%22%3B&user_id=public&Expires=1787676309&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRkYmQ1MDViYjA5MGNlZjU1ODVlYTcyL2M3YzVkZDhkZWJjNmQ4MWVlMDIwNzhlNjYyYjA1ODlkY2UzMDgxN2VkY2IxNGU2NGE1ZWJiMWVkNmQ0MDQ5ZmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtZmZkNWY3OTA4Njg4YzkzNC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtZmZkNWY3OTA4Njg4YzkzNC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODc2NzYzMDl9fX1dfQ__&Signature=MEUCIC1%7E%7EN3ZKaPW0%7ELuOTK60z5YY23SiVj8kg%7E9waQ20P5gAiEAsakNosb3gAEJ2u%7EI8rJP0%7EDQ-vJJ%7E%7ENZxJEbLwEbtlo_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-25T15:45:05.840362Z'
-- artifact_hash: e49264752ab787c3c91cc66672983fe1de668bf2721b2c16fdd6ac61a306432c
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001-3e8a1863fa44a20f.parquet
-  kind: url
-  value: https://huggingface.co/datasets/Hassanharb/gaps-qm9-1k/resolve/main/data/train-00000-of-00001-3e8a1863fa44a20f.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64dc1250d0645cd60cb2eaf9/95c6dcf377d9832100af6ad9d284e81d1d4e869aba485b1ba47664e63dcdf532?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-3e8a1863fa44a20f.parquet%3B+filename%3D%22train-00000-of-00001-3e8a1863fa44a20f.parquet%22%3B&Expires=1787676309&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRkYzEyNTBkMDY0NWNkNjBjYjJlYWY5Lzk1YzZkY2YzNzdkOTgzMjEwMGFmNmFkOWQyODRlODFkMWQ0ZTg2OWFiYTQ4NWIxYmE0NzY2NGU2M2RjZGY1MzJcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtM2U4YTE4NjNmYTQ0YTIwZi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtM2U4YTE4NjNmYTQ0YTIwZi5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODc2NzYzMDl9fX1dfQ__&Signature=MEUCIEzrEYB1q5Z%7EtIYRgG4eKvVtOV-5kjTO9qK%7E8Sz3v6g2AiEAm2uAa%7EK0DEzhDbGy9ENc9vNqfkTg7L31PxNWokhQFJE_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-25T15:45:05.840362Z'
-- artifact_hash: e49264752ab787c3c91cc66672983fe1de668bf2721b2c16fdd6ac61a306432c
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: test-00000-of-00001-a791a8874f9adf69.parquet
-  kind: url
-  value: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/645a3cb2d15cd5a70b3ef6e3/be26c6ee89419918dc5b24c30ce7b78efa95dd0b0c0c9c83d80c13e7c8563c24?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-a791a8874f9adf69.parquet%3B+filename%3D%22test-00000-of-00001-a791a8874f9adf69.parquet%22%3B&user_id=public&Expires=1787676309&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ1YTNjYjJkMTVjZDVhNzBiM2VmNmUzL2JlMjZjNmVlODk0MTk5MThkYzViMjRjMzBjZTdiNzhlZmE5NWRkMGIwYzBjOWM4M2Q4MGMxM2U3Yzg1NjNjMjRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS1hNzkxYTg4NzRmOWFkZjY5LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLWE3OTFhODg3NGY5YWRmNjkucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg3Njc2MzA5fX19XX0_&Signature=MEUCIDA6z22jE0iK8kzrOaLthP-BSnlM8j%7En6mJxcqNHxI6pAiEAwKfQXmFKmtTZRh-95C5AbAbeclSj-S7l3ByUPi65brE_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-25T15:45:05.840362Z'
-- artifact_hash: e49264752ab787c3c91cc66672983fe1de668bf2721b2c16fdd6ac61a306432c
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
-  cite_id: c-005
-  cited_authors: []
-  cited_title: null
-  fetched_title: "sdmattpotter/dftest61523 \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/sdmattpotter/dftest61523/...`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/sdmattpotter/dftest61523
-  verified_at: '2026-08-25T15:45:05.840362Z'
-- artifact_hash: e49264752ab787c3c91cc66672983fe1de668bf2721b2c16fdd6ac61a306432c
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
-  cite_id: c-006
-  cited_authors: []
-  cited_title: null
-  fetched_title: "Dataset for Tapinarof as Topical Drug with Potential to Form Pi-stacking\
-    \ and Dimers | Datov\xFD repozit\xE1\u0159 CESNET"
-  kind: url
-  value: https://doi.org/10.48700/bvd89-eg030`
-  verification_status: pending
-  verified_against_url: https://datarepo.eosc.cz/datasets/records/bvd89-eg030
-  verified_at: '2026-08-25T15:45:05.840362Z'
-- artifact_hash: e49264752ab787c3c91cc66672983fe1de668bf2721b2c16fdd6ac61a306432c
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
-  cite_id: c-007
-  cited_authors: []
-  cited_title: null
-  fetched_title: "lisn519010/QM9 \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/lisn519010/QM9`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/lisn519010/QM9
-  verified_at: '2026-08-25T15:45:05.840362Z'
-- artifact_hash: e49264752ab787c3c91cc66672983fe1de668bf2721b2c16fdd6ac61a306432c
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
-  cite_id: c-008
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.48700/bvd89-eg030
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.48700/bvd89-eg030
-  verified_at: '2026-08-25T15:45:05.840362Z'
-- artifact_hash: e49264752ab787c3c91cc66672983fe1de668bf2721b2c16fdd6ac61a306432c
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
-  cite_id: c-009
   cited_authors: []
   cited_title: null
   fetched_title: Quantum chemistry structures and properties of 134 kilo molecules
@@ -154,15 +52,15 @@
   value: 10.1038/sdata.2014.22
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-08-25T15:45:05.840362Z'
-- artifact_hash: 8ef8fe4ba3f4e9a5466d8b109cdfa06832fea30a1a7fe0ba25514db91038eb99
-  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/data-model.md
+  verified_at: '2026-08-29T07:38:43.929793Z'
+- artifact_hash: e1ecd8fe273bf59b6fc039453244fae1e73acf36539bfb43409637ce194fb746
+  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: full-00000-of-00001-e217b6ecfbeb7149.parquet
-  kind: url
-  value: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet`
+  fetched_title: Quantum chemistry structures and properties of 134 kilo molecules
+  kind: doi
+  value: 10.1038/sdata.2014.22
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6416a1ee9b85ee6b3946acae/89132b0d504da58fa10c8734d491e719ff61dcf0ff7c20514354af110c276d54?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full-00000-of-00001-e217b6ecfbeb7149.parquet%3B+filename%3D%22full-00000-of-00001-e217b6ecfbeb7149.parquet%22%3B&Expires=1787676338&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxNmExZWU5Yjg1ZWU2YjM5NDZhY2FlLzg5MTMyYjBkNTA0ZGE1OGZhMTBjODczNGQ0OTFlNzE5ZmY2MWRjZjBmZjdjMjA1MTQzNTRhZjExMGMyNzZkNTRcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbC0wMDAwMC1vZi0wMDAwMS1lMjE3YjZlY2ZiZWI3MTQ5LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJmdWxsLTAwMDAwLW9mLTAwMDAxLWUyMTdiNmVjZmJlYjcxNDkucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg3Njc2MzM4fX19XX0_&Signature=MEYCIQD1jku3C7wye8O-cBJ36vQmsXxPV1BnMnXamYEOaM-vlwIhANiA6EiahTkLEiUwjI9FqUs0Rb2yTzfpp8aJpwb9HUcr&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-25T15:45:38.501733Z'
+  verified_against_url: https://doi.org/10.1038/sdata.2014.22
+  verified_at: '2026-08-29T07:53:47.669145Z'

@@ -1,40 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Metrics Summary Schema"
+title: "Model Metrics Schema"
+description: "Schema for model performance metrics (MAE, RMSE, CIs)."
 type: "object"
 properties:
+  seed:
+    type: "integer"
+    description: "Random seed used for the experiment."
   model_type:
     type: "string"
     enum:
-      - schnet
-      - random_forest
-    description: "Model type"
-  seed:
-    type: "integer"
-    description: "Random seed"
+      - "GNN"
+      - "RF"
+    description: "Type of model evaluated."
   mae:
     type: "number"
-    description: "Mean Absolute Error"
+    description: "Mean Absolute Error on the test set."
   rmse:
     type: "number"
-    description: "Root Mean Squared Error"
-  mae_ci_95:
-    type: "array"
-    items:
-      type: "number"
-    minItems: 2
-    maxItems: 2
-    description: "95% Confidence Interval for MAE"
-  rmse_ci_95:
-    type: "array"
-    items:
-      type: "number"
-    minItems: 2
-    maxItems: 2
-    description: "95% Confidence Interval for RMSE"
+    description: "Root Mean Squared Error on the test set."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  n_samples:
+    type: "integer"
+    description: "Number of samples in the test set."
 required:
-  - model_type
   - seed
+  - model_type
   - mae
   - rmse
-  - mae_ci_95
-  - rmse_ci_95
+  - ci_lower
+  - ci_upper
+  - n_samples
+additionalProperties: false

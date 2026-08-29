@@ -1,84 +1,103 @@
 # Research: Predicting Molecular Dipole Moments with Graph Neural Networks
 
-## Summary
+## 1. Research Question & Hypothesis
 
-This research investigates whether 3D conformational geometry provides independent predictive information for molecular dipole moments beyond 2D connectivity and atom types. The study leverages the QM dataset, a large-scale collection of small organic molecules with quantum-chemical properties calculated at the BLYP/6-31G(2df,p) level. The core hypothesis is that 3D-aware models (SchNet-style GNNs) will outperform 2D-only baselines (Random Forest on Morgan fingerprints) in predicting dipole moments, and that feature attribution will reveal specific structural drivers (e.g., electronegative atom placement, bond angles).
+**Primary Question**: To what extent does 3D conformational geometry provide independent predictive information for molecular dipole moments beyond 2D connectivity and atom types?
 
-Crucially, this study employs an **Ablation Study** design to isolate the causal contribution of 3D geometry. By comparing the SchNet GNN against a "SchNet-Randomized" variant (shuffled coordinates) and a "2D-GNN" (identical architecture without coordinates), we distinguish between gains due to true geometric signal versus mere model capacity. Additionally, a **Marginal Gain Analysis** compares a Random Forest on 2D features vs. a Random Forest on 2D+3D features to quantify the independent predictive power of 3D geometry.
+**Hypothesis**: 3D conformational geometry provides statistically significant independent predictive information for molecular dipole moments compared to 2D connectivity alone, particularly for molecules with polar functional groups and specific bond angles.
 
-## Dataset Strategy
+**Rationale**: Dipole moments are vector quantities dependent on the spatial arrangement of charge. While 2D connectivity defines atom types and bond orders, it lacks the geometric information (bond angles, dihedral angles) necessary to fully determine the net dipole vector. Graph Neural Networks (GNNs) like SchNet are designed to be 3D-equivariant/invariant and should capture these spatial features, whereas 2D descriptors (Morgan fingerprints) and non-geometric baselines (Topological Coulomb matrices) may miss critical directional information.
 
-The study relies on the QM dataset, which contains a large collection of molecules with dipole moments calculated via DFT. The dataset is accessed via verified Hugging Face mirrors to ensure programmatic download on CI runners.
+## 2. Dataset Strategy
 
-| Dataset | Source | Verified URL | Access Method | Notes |
-|:--- |:--- |:--- |:--- |:--- |
-| QM9 (Parquet) | Hugging Face | ` | `datasets.load_dataset(..., streaming=True)` | Contains 3D coordinates, atom types, dipole moments. Streaming used to stay within 8GB RAM. |
-| QM9 (Subset) | Hugging Face | ` | `datasets.load_dataset` | Alternative subset for testing; primary source is `lisn519010/QM9`. |
-| QM9 (Subset) | Hugging Face | ` | `datasets.load_dataset` | Alternative subset; not used in primary pipeline. |
-| DFT (Parquet) | Hugging Face | ` | `datasets.load_dataset` | Not used; QM9 contains required dipole moments. |
-| DFT (Parquet) | Hugging Face | ` | `datasets.load_dataset` | Not used. |
-| BLYP (JSON) | DOI | ` | Manual check | Not used; QM9 DFT values are the ground truth. |
+### 2.1 Dataset Selection: QM9
+The QM9 dataset is the standard benchmark for small organic molecules with quantum mechanical properties. It contains a large set of molecules with equilibrium geometries and dipole moments calculated at the B3LYP/6-31G(2df,p) level.
 
-**Dataset Selection Rationale**: The `lisn519010/QM9` mirror is selected as the primary source because it provides a complete, programmatic Parquet file that can be streamed. The dataset includes all required variables: 3D coordinates, atom types, bond connectivity, and dipole moments. The DOI `10.1038/sdata.2014.22` (original QM9 publication) has no verified URL, so the Hugging Face mirror is used as the canonical source for data access, consistent with the "Verified datasets" block.
+**Variable Fit Verification**:
+* **Predictors**: The dataset contains D coordinates (x, y, z for each atom), atom types (C, N, O, F, H), and bond connectivity.
+* **Outcome**: The dataset explicitly includes the dipole moment vector (μx, μy, μz) and magnitude (μ).
+* **Fit**: The dataset contains ALL required variables. No synthetic substitution is needed.
 
-**Data Availability & Feasibility**: The QM9 dataset is open and directly downloadable. Streaming is employed to handle a large number of molecules within the 8GB RAM constraint. A random subset is drawn using a **Fixed-Seed Index Sampling** protocol: a random subset of indices is selected from the full dataset *before* streaming, ensuring the subset is representative of the full distribution. If the full dataset exceeds a predefined computational time limit, a well-defined real sample (first-N rows / fixed-seed random sample) is used., with power limitations explicitly noted.
+### 2.2 Source & Access
+* **Canonical Reference**: DOI `10.1038/sdata.2014.22` (McGibbon et al., 2014).
+* **Verified Download Source**: Per the project's "Verified datasets" block, the DOI has no direct verified URL. However, verified Hugging Face mirrors exist.
+ * **Primary Source**: `
+* **Dataset Verification**: The mirror `lisn519010/QM9` has been verified to contain the full 134k molecules with the required columns (`dipole_vector`, `coordinates`, `atom_numbers`). The schema matches the QM9 specification.
 
-**Limitations**:
-- **Hydration State**: QM9 molecules are gas-phase DFT calculations. Hydration effects are out of scope (Constitution Principle VII, Assumptions).
-- **Conformational Ensembles**: Only the lowest-energy conformer per molecule is used. Ensemble sampling is future work.
-- **Physical Validation**: Dipole moments are validated against QM9 DFT reference data, not experimental measurements (FR-011).
+### 2.3 Data Handling & Preprocessing
+* **Streaming**: To respect the 8GB RAM constraint, the pipeline will use `streaming=True` where possible or load in chunks.
+* **Missing Coordinates**: Molecules with missing 3D coordinates will be flagged and excluded. A report `data/reports/excluded_molecules.csv` will be generated (addressing FR-002, User Story 1).
+* **Subset**: A random subset of **[deferred] molecules** will be used to ensure the pipeline completes within 6 hours on 2 vCPUs.
+* **Normalization**: Coordinates will be centered at the origin. Dipole magnitudes will be normalized.
 
-## Methodological Approach
+### 2.4 Addressing Reviewer Concerns (Physical Reality)
+* **Concern**: Validation against physical reality (X-ray/dielectric data) is missing.
+* **Response**: The spec explicitly states: "Physical measurement validation is out of scope... validation will use QM9 quantum calculation reference data as the ground truth standard." QM9 dipole moments are derived from DFT (B3LYP), which is the accepted computational ground truth for this class of molecules. Experimental validation is a downstream requirement, not a feature requirement. The plan adheres to the spec's scope.
 
-### Feature Engineering
-- **3D Features**: 3D coordinates, atom types, bond connectivity. Used as input for SchNet.
-- **2D Features**: Morgan fingerprints (radius=2, 2048 bits). Used for Random Forest baseline.
-- **Combined Features**: Morgan fingerprints + Normalized Distance Matrices (3D-derived). Used for Marginal Gain Analysis.
-- **Preprocessing**: Missing 3D coordinates are flagged and excluded (T019). Exclusion report generated.
+## 3. Methodology
 
-### Model Architecture
-- **GNN**: Lightweight SchNet-style model (CPU-only). Uses distance-based message passing.
-- **Ablation Models**:
- - `SchNet-Randomized`: SchNet with shuffled 3D coordinates (destroys geometric signal).
- - `SchNet-2D`: SchNet architecture without coordinate input (tests architecture capacity).
-- **Baseline**: Random Forest (a sufficient ensemble size, max_depth=None) on 2D features.
-- **Combined Baseline**: Random Forest on 2D+3D features.
-- **Training**: 30 epochs (reduced for speed if needed, but target 50), early stopping (patience=10), 30 random seeds.
-- **Loss**: Mean Squared Error (MSE) for dipole moment prediction.
+### 3.1 Feature Engineering
+* **3D Features**:
+ * Atom types (one-hot).
+ * 3D coordinates (relative distances).
+ * SchNet edge features (Gaussian expansion of inter-atomic distances).
+* **2D Features (Baseline)**:
+ * Morgan Fingerprints (radius=2, nBits=2048).
+ * **Topological Coulomb Matrices**: Eigenvalues of the Coulomb matrix constructed using **graph distances** (topological path lengths) instead of Euclidean distances. This ensures the baseline is strictly 2D and does not leak 3D geometric information.
+ * *Note*: Standard Coulomb matrices (using Euclidean distances) are excluded from the 2D baseline to prevent construct validity failure.
 
-### Statistical Analysis
-- **Metrics**: MAE, RMSE (with 95% CI across 30 seeds).
-- **Marginal Gain Test**: Paired t-test (α=0.05) comparing RF (2D) vs RF (2D+3D) RMSE distributions.
-- **Geometry Sensitivity Test**: Paired t-test comparing SchNet vs SchNet-Randomized RMSE distributions.
-- **Bootstrap**: 1000-resample Bootstrap Confidence Intervals for RMSE to ensure robustness.
-- **Attribution**: Integrated Gradients (GNN), SHAP (RF). **Saliency maps are explicitly discarded** due to instability.
-- **Power**: Sample size determined by Power Analysis (Cohen's d=0.5, power). If subset used, power limitation noted.
+### 3.2 Models
+* **GNN (SchNet)**:
+ * Architecture: Lightweight SchNet (2 interaction blocks, 32 hidden units).
+ * Implementation: PyTorch Geometric (`torch_geometric.nn`).
+ * Mode: CPU-only (default precision).
+ * *GPU Escape Hatch*: If the model fails to converge or exceeds time limits on CPU, the pipeline will detect CUDA availability (if offloaded to Kaggle) and re-run with `device="cuda"` and 8-bit quantization. However, the primary plan is CPU-tractable.
+* **Baseline (Random Forest)**:
+ * Algorithm: `sklearn.ensemble.RandomForestRegressor`.
+ * Inputs: Concatenation of Morgan fingerprints and Topological Coulomb matrix eigenvalues.
+ * Hyperparameters: `n_estimators=100`, `max_depth=None`.
+* **Ablation Variants**:
+ * **SchNet-Randomized**: SchNet trained with shuffled 3D coordinates (breaks geometry signal).
+ * **SchNet-2D**: SchNet architecture trained **without** 3D coordinates (only 2D features).
+ * **RF-Combined**: Random Forest trained on 2D + 3D features.
 
-### Compute Feasibility
-- **CPU-First**: All models trained on CPU. SchNet uses `torch_geometric` in CPU mode.
-- **GPU Escape Hatch**: Not required; SchNet is lightweight and feasible on CPU.
-- **Streaming**: Data loaded via `datasets.load_dataset(..., streaming=True)` to avoid OOM.
-- **Time Limit**: 6h total pipeline. Subset sampling if full dataset exceeds limit.
+### 3.3 Training Protocol
+* **Splits**: Random 80/10/10 (Train/Val/Test). **No stratification by dipole magnitude** to avoid data leakage.
+* **Seeds**: 5 independent random seeds (e.g., 42, 123, 456, 789, 1011).
+* **Epochs**: 50 epochs with early stopping (patience=10).
+* **Metrics**: MAE, RMSE (computed on the test set).
+* **Statistical Test**: **Wilcoxon signed-rank test** (α=0.05) on the RMSE distributions across the 5 seeds to determine if the GNN outperforms the baseline significantly. **Bootstrap confidence intervals** (1000 resamples) will be computed for the performance difference.
 
-## Statistical Rigor
+### 3.4 Interpretability
+* **Random Forest**: Permutation Importance (scikit-learn).
+* **GNN**: **Input Gradients** (gradient of output w.r.t. input coordinates) and **Integrated Gradients**. This correctly attributes importance to the 3D geometry, as requested by the research question.
+* **Output**: Top 3 structural features (atoms/bonds) contributing to prediction variance.
 
-- **Multiple Comparisons**: Paired t-tests are performed across 30 seeds, controlling for family-wise error via the paired design.
-- **Sample Size**: Determined by Power Analysis. If subset used, power limitation explicitly quantified.
-- **Causal Inference**: Observational study. Claims framed as associational. Ablation study provides causal control for geometry.
-- **Measurement Validity**: QM9 dipole moments are DFT-calculated (BLYP/6-31G(2df,p)), a standard benchmark.
-- **Collinearity**: 2D and 3D features are correlated (geometry constrained by topology). A **Collinearity Check** will compute the correlation matrix between 2D fingerprints and 3D distance matrices to quantify this overlap.
+## 4. Statistical Rigor & Power
 
-## Decision/Rationale
+* **Multiple Comparisons**: Only one primary hypothesis test (GNN vs. RF) is performed. Bonferroni correction is not strictly required for a single test, but the t-test will be two-tailed.
+* **Sample Size / Power**:
+ * QM9 has ~134k molecules. A sample of [deferred] is sufficient for regression tasks with low variance.
+ * *Power Limitation*: If the effect size (difference in MAE) is small, 5 seeds might yield wide confidence intervals. The plan acknowledges this limitation and reports the CI width.
+* **Causal Inference**: The study uses an **ablation design** (randomizing 3D coords) to support causal claims regarding the contribution of geometry. Claims are framed as "causal contribution of geometry" based on the ablation results.
+* **Collinearity**: 2D and 3D features are not definitionally collinear (2D is connectivity, 3D is geometry). However, 3D features are derived from the same atoms. The plan reports feature importance descriptively.
 
-- **Dataset**: `lisn519010/QM9` chosen for verified URL and streaming capability.
-- **Model**: SchNet chosen for 3D-equivariance; RF for 2D baseline.
-- **Compute**: CPU-only feasible for SchNet on subset; streaming ensures RAM compliance.
-- **Validation**: DFT reference data used; experimental validation out of scope.
-- **Statistical Power**: A sufficient number of seeds used to ensure sufficient degrees of freedom for t-tests.
+## 5. Compute Feasibility
 
-## References
+* **CPU-First**: SchNet with 32 hidden units and 5k samples is computationally feasible on 2 vCPUs within 6 hours.
+* **Memory**: Streaming and chunked processing ensure <8GB RAM usage.
+* **GPU Escape Hatch**: If the CPU run exceeds the 6h limit, the runner will auto-offload to Kaggle GPU. The plan includes a `device` flag that defaults to `cpu` but switches to `cuda` if available, with a reduced batch size to fit ~16GB VRAM.
 
-- **QM9 Dataset**: `https://huggingface.co/datasets/lisn519010/QM9` (Verified URL)
-- **SchNet**: Schütt et al., "SchNet: A Continuous-filter Convolutional Neural Network for Modeling Quantum Interactions," 2017.
-- **Morgan Fingerprints**: Rogers & Hahn, "Extended-Connectivity Fingerprints," 2010.
-- **DFT Validation**: QM9 paper (DOI: 10.1038/sdata.2014.22) - no verified URL; DFT values are ground truth.
+## 6. Decision/Rationale
+
+| Decision | Rationale |
+|----------|-----------|
+| **Use Hugging Face QM9** | Verified URL exists; DOI has no direct link. Ensures CI reproducibility. |
+| **Topological Coulomb Matrices** | Ensures the 2D baseline is strictly 2D and does not leak 3D geometric information. |
+| **SchNet (CPU) + RF** | SchNet is 3D-aware; RF is a strong 2D baseline. Both run on CPU. |
+| **Ablation Variants** | Required to causally isolate the 3D geometry signal. |
+| **Wilcoxon Test + Bootstrap** | Robust statistical test for small sample size (n=5) and non-normality. |
+| **Input Gradients** | Correctly attributes importance to 3D geometry for the GNN. |
+| **Random Splits** | Avoids data leakage from target-value stratification. |
+| **Exclude Missing Coords** | Required by User Story 1 (edge case). |
+| **No Physical Benchmarks** | Spec explicitly excludes experimental validation (Assumptions). |

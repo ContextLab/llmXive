@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Attribution Schema"
+description: "Schema for feature importance and saliency maps."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "GNN"
+      - "RF"
+    description: "Type of model the attribution belongs to."
+  seed:
+    type: "integer"
+    description: "Random seed used."
+  top_features:
+    type: "array"
+    description: "Top 3 most important features/atoms."
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+          description: "Name of the feature (e.g., 'atom_0_type', 'distance_1_2')."
+        importance_score:
+          type: "number"
+          description: "Normalized importance score."
+        structural_description:
+          type: "string"
+          description: "Human-readable description (e.g., 'Electronegative atom at position 0')."
+      required:
+        - feature_name
+        - importance_score
+        - structural_description
+  method:
+    type: "string"
+    enum:
+      - "permutation_importance"
+      - "saliency_map"
+    description: "Method used for attribution."
+required:
+  - model_type
+  - seed
+  - top_features
+  - method
+additionalProperties: false
