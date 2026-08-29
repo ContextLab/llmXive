@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.23521",
+  "judged_at": "2026-08-29T00:55:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"datacomp-vlm: improved open datasets for vision-language models\" computer science",
+  "rationale": "This paper satisfies criteria (b) and (e) as it provides a canonical dataset and empirical baseline for the specific domain of Vision-Language Models (VLMs) and open dataset construction, which is the core subject of the user's question regarding \"DataComp-VLM\" and extending open datasets. While it focuses on Indian languages rather than the specific English-centric scope of DataComp-VLM, it represents the same mechanism (curating large-scale interleaved image-text data for VLM pretraining) and ",
+  "relevant": true
+}

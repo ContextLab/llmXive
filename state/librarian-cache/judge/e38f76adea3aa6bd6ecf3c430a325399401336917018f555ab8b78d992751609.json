@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.11300",
+  "judged_at": "2026-08-29T00:55:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"datacomp-vlm: improved open datasets for vision-language models\" computer science",
+  "rationale": "This paper belongs in the literature review because it provides a canonical empirical study on extending open datasets and pre-trained Vision-Language Models (VLMs) to a specific domain (remote sensing), directly addressing the user's interest in \"extending\" datasets like DataComp-VLM for domain-specific transfer (Category a and e). It establishes the baseline and methodology for creating large-scale, domain-specific image-text datasets and fine-tuning VLMs, which is the core mechanism the user ",
+  "relevant": true
+}

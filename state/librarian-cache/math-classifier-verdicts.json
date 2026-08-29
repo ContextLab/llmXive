@@ -143,6 +143,10 @@
     "classified_at": "2026-08-07T09:42:03Z",
     "verdict": false
   },
+  "PROJ-1002-llmxive-follow-up-extending-datacomp-vlm::1.6.0": {
+    "classified_at": "2026-08-29T00:54:47Z",
+    "verdict": false
+  },
   "PROJ-1008-llmxive-follow-up-extending-pixworld-uni::1.6.0": {
     "classified_at": "2026-08-09T09:44:35Z",
     "verdict": false

@@ -60,13 +60,13 @@
 **Purpose**: Project initialization, basic structure, and data configuration prerequisites.
 
 **Execution Sequence**:
-1.  **Step 1**: Create directory structures (T001a, T001b, T001c).
-2.  **Step 2**: Create dependency files (T002a).
-3.  **Step 3**: Create and pin virtual environment (T002b, T002c).
-4.  **Step 4**: Setup pre-commit and gitignore (T003a, T003b).
-5.  **Step 5**: Initialize checksums and logging (T004, T005).
-6.  **Step 6**: Define models and test frameworks (T006, T007, T008).
-7.  **Step 7**: Define schemas and implement data logic (T020b, T024b-SchemaDef, T013b-ChecksumUtility, T010a, T010b-Effect, T010b-Null, T014a-MapAliases, T010b, T014a).
+1. **Step 1**: Create directory structures (T001a, T001b, T001c).
+2. **Step 2**: Create dependency files (T002a).
+3. **Step 3**: Create and pin virtual environment (T002b, T002c).
+4. **Step 4**: Setup pre-commit and gitignore (T003a, T003b).
+5. **Step 5**: Initialize checksums and logging (T004, T005).
+6. **Step 6**: Define models and test frameworks (T006, T007, T008).
+7. **Step 7**: Define schemas and implement data logic (T020b, T024b-SchemaDef, T013b-ChecksumUtility, T010a, T010b-Effect, T010b-Null, T014a-MapAliases, T010b, T014a).
 
 - [X] T001a [P] Create `data/` directory structure (`data/raw/`, `data/processed/`) with `.gitkeep` files to ensure tracking.
 - [X] T001b [P] Create `code/` directory structure (`code/__init__.py`, `code/config.py`) with `.gitkeep` files.
@@ -91,15 +91,15 @@ required:
 - family_type
 - n_subjects
 properties:
-  design_type:
-    type: string
-    enum: ["between-subjects", "within-subjects"]
-  family_type:
-    type: string
-    enum: ["gaussian", "binomial"]
-  n_subjects:
-    type: integer
-    description: Number of unique participants
+ design_type:
+ type: string
+ enum: ["between-subjects", "within-subjects"]
+ family_type:
+ type: string
+ enum: ["gaussian", "binomial"]
+ n_subjects:
+ type: integer
+ description: Number of unique participants
  ```
 - [X] T010a [P] **Must run after T000h-SimulateParams**: Read verified effect sizes and N from `code/simulation_parameters.json` and define them as constants in `code/config.py` for simulation parameters. **Output**: Update `code/config.py` with these constants.
 - [X] T010i-CreateRegistrySchema [P] **Must run after T010a**: Create `contracts/registry.schema.yaml` defining the schema for `data/registry/meta_analysis_registry.json`. **Constraint**: Must define 'studies' as a list of objects with 'study_id' and 'data_url'.
@@ -248,6 +248,6 @@ properties:
 
 **Note**: Tasks T050, T051, T052 have been removed from this list as they are non-implementation documentation maintenance tasks that do not produce code artifacts and should not block the implementation flow. Plan corrections will be handled via a separate documentation workflow.
 
-- [ ] T070 [P] **Documentation Alignment**: Update `plan.md` to explicitly reference the "Simulation-First" approach and the specific `code/simulation_parameters.json` schema as the Single Source of Truth for all simulation parameters, ensuring the plan matches the implemented task flow.
-- [ ] T071 [P] **Research.md Validation**: Run `code/verify_citations.py` one final time against the `sources_list.md` used to generate `research.md` to ensure all effect sizes cited in the plan are still valid and accessible before the final execution run.
+- [X] T070 [P] **Documentation Alignment**: Update `plan.md` to explicitly reference the "Simulation-First" approach and the specific `code/simulation_parameters.json` schema as the Single Source of Truth for all simulation parameters, ensuring the plan matches the implemented task flow.
+- [X] T071 [P] **Research.md Validation**: Run `code/verify_citations.py` one final time against the `sources_list.md` used to generate `research.md` to ensure all effect sizes cited in the plan are still valid and accessible before the final execution run.
 - [ ] T072 [P] **Edge Case Documentation**: Update `quickstart.md` to include a section on "Edge Case Handling" detailing the specific behaviors of T053 (Data Integrity), T055 (Zero Variance), and T057 (Checksum Verification) so that human reviewers understand the pipeline's robustness.

@@ -50,3 +50,9 @@ T040a:
   r: No `quickstart.md` file or updated content was presented; the implementer did
     not supply the required markdown with specific execution steps and dependencies,
     so the task is not satisfied.
+T072:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `quickstart.md` file is provided, nor any excerpt showing a new \u201C\
+    Edge Case Handling\u201D section that describes the behaviors of T053, T055, and\
+    \ T057. The required documentation artifact is missing, so the task is not satisfied."

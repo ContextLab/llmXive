@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T20:53:38.376657Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-823-llmxive-follow-up-extending-multabench-b
-last_run_id: b073ebf8-454c-48b4-903b-db90acfdf625
+last_run_id: 363f120f-6946-4fa6-b4a7-03554e44ca64
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b
 title: 'llmXive follow-up: extending "MulTaBench: Benchmarking Multimodal Tabular
   Learning with Text and Ima"'
-updated_at: '2026-08-26T19:21:46.166937Z'
+updated_at: '2026-08-29T00:54:13.794252Z'

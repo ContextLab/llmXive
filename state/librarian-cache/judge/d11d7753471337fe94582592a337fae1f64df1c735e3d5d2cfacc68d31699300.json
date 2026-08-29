@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1902.06183",
+  "judged_at": "2026-08-29T00:57:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the statistical validity of crowdsourced labels statistics",
+  "rationale": "This paper satisfies criterion (a) and (b) because it directly measures the statistical quality and reliability of crowdsourced labels (weather observations) and proposes a specific statistical metric (Veracity Score) to evaluate their validity, which is the core mechanism the user is asking about. Although the domain is weather data rather than a generic label set, it provides the canonical empirical baseline and methodological framework for assessing the statistical validity of noisy crowdsour",
+  "relevant": true
+}
