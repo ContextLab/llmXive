@@ -24,6 +24,8 @@ properties:
             - "CALPHAD"
             - "Generated"
             - "Script"
+            - "DFT"
+            - "APT"
         source_id:
           type: "string"
           description: "Unique identifier for the source."

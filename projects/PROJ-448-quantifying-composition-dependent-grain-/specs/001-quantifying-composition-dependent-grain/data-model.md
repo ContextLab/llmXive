@@ -2,62 +2,56 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and relationships used in the project. All data flows from `data/raw/` (immutable) to `data/derived/` (computed) and is validated against the contracts defined in `contracts/`.
+This document defines the data structures used to represent segregation profiles, alloy systems, and regression models. All data is stored in JSON/Parquet formats under `data/`.
 
-## Core Entities
+## Key Entities
 
 ### 1. SegregationProfile
-Represents a single computed equilibrium segregation state.
 
-| Attribute | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `solute_element` | str | The segregating element (e.g., "Cr", "Mo") | Must be in [Cr, Mo, V, W] |
-| `base_element` | str | The matrix element (e.g., "Fe") | Must be "Fe" |
-| `temperature_K` | float | Temperature in Kelvin | Range: 500.0 - 900.0 |
-| `bulk_concentration` | float | Bulk atomic fraction of solute | Range: 0.0 - 1.0 |
-| `segregation_energy_eV` | float | DFT-derived segregation energy | Source: Literature |
-| `equilibrium_concentration` | float | Calculated GB concentration | Range: 0.0 - 1.0 |
-| `system_id` | str | Alloy system identifier (e.g., "Fe-Cr-Mo") | Binary or Ternary |
-| `gb_structure` | str | Grain boundary structure ID | e.g., "Sigma5(310)" |
-| `source_doi` | str | DOI of the DFT source | Required |
+Represents the computed equilibrium concentration at the grain boundary for a specific solute, temperature, and bulk composition.
+
+**Attributes**:
+- `solute_element` (str): e.g., "Cr", "Mo".
+- `temperature_K` (float): Temperature in Kelvin (500-900).
+- `bulk_concentration` (float): Atomic fraction of solute in bulk (0.0-1.0).
+- `segregation_energy_eV` (float): DFT-derived segregation energy (negative for segregation).
+- `equilibrium_concentration` (float): Calculated GB concentration (0.0-1.0).
+- `system_id` (str): e.g., "Fe-Cr-Mo".
+- `source` (str): "dft_surrogate" or "experimental".
+- `interaction_coefficient_truth` (float, optional): Ground-truth interaction coefficient for synthetic data.
 
 ### 2. AlloySystem
-Represents the chemical system configuration.
 
-| Attribute | Type | Description |
-| :--- | :--- | :--- |
-| `system_id` | str | Unique identifier (e.g., "Fe-Cr-Mo") |
-| `base_element` | str | Base element (Fe) |
-| `solute_elements` | list[str] | List of solutes (e.g., ["Cr", "Mo"]) |
-| `calphad_db_id` | str | Identifier for the CALPHAD database used |
-| `temperature_range` | tuple[float, float] | Min and Max temperature |
+Represents a specific chemical system.
+
+**Attributes**:
+- `base_element` (str): "Fe".
+- `solute_elements` (list[str]): e.g., ["Cr", "Mo"].
+- `calphad_database_id` (str): "OpenCalphad-Reduced".
+- `temperature_range` (dict): `{"min": 500, "max": 900}`.
 
 ### 3. RegressionModel
-Represents the fitted empirical model.
 
-| Attribute | Type | Description |
-| :--- | :--- | :--- |
-| `model_id` | str | Unique identifier |
-| `coefficients` | dict[str, float] | Mapping of term name to coefficient |
-| `interaction_terms` | list[str] | List of interaction terms included |
-| `r_squared` | float | R-squared value on training set |
-| `cv_scores` | list[float] | R-squared scores for each CV fold |
-| `p_values` | dict[str, float] | P-values for each coefficient |
-| `held_out_mse` | float | MSE on held-out test set |
-| `mse_reduction` | float | % reduction vs additive model |
+Represents the fitted empirical function.
+
+**Attributes**:
+- `coefficients` (dict): Mapping of feature names to coefficients.
+- `interaction_terms` (list[str]): e.g., ["Cr-Mo", "Cr-V"].
+- `r_squared` (float): Model fit on training set.
+- `p_values` (dict): p-values for each coefficient.
+- `cross_validation_scores` (list[float]): R² for each of 5 folds.
+- `held_out_mse_reduction` (float): % reduction vs. additive model.
 
 ## Data Flow
 
-1.  **Ingestion**: `data_loader.py` fetches raw data (CALPHAD params, DFT energies) into `data/raw/`.
-2.  **Validation**: `validator.py` checks checksums and schema compliance.
-3.  **Computation**: `calculator.py` generates `SegregationProfile` objects and writes to `data/derived/segregation_profiles.csv`.
-4.  **Analysis**: `regression.py` fits models and writes `data/derived/regression_results.json`.
-5.  **Manifest**: `data_manifest.json` is updated with all source DOIs and checksums.
+1.  **Input**: `data/raw/calphad_params.json` (Bulk compositions), `data/raw/dft_energies.json` (Energies).
+2.  **Process**: `code/services/segregation_engine.py` combines inputs to generate `SegregationProfile` objects.
+3.  **Output**: `data/processed/segregation_profiles.parquet`.
+4.  **Analysis**: `code/services/analysis_engine.py` fits models and outputs `data/processed/regression_results.json`.
 
-## Contracts
+## Validation Rules
 
-The following contracts define the strict schema for data validation. See `contracts/` for the YAML definitions.
-
-*   `contracts/segregation_profile.schema.yaml`: Validates individual profile records.
-*   `contracts/regression_model.schema.yaml`: Validates model output.
-*   `contracts/data_manifest.schema.yaml`: Validates the data source manifest.
+- `bulk_concentration` must be $\in [0.0, 1.0]$.
+- `equilibrium_concentration` must be $\in [0.0, 1.0]$ (capped if >1.0).
+- `temperature_K` must be $\in [500, 900]$.
+- `segregation_energy_eV` must be a float (typically negative).

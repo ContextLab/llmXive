@@ -2,16 +2,16 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   `pip` and `venv`
-*   Access to the project repository
+- Python 3.11+
+- Git
+- Access to GitHub Actions (for CI) or local environment for testing.
 
 ## Installation
 
 1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-448-quantifying-composition-dependent-grain-/
+    cd projects/PROJ-448-quantifying-composition-dependent-grain-
     ```
 
 2.  **Create a virtual environment**:
@@ -22,50 +22,57 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
 
 ## Running the Pipeline
 
-The full pipeline can be executed via the CLI:
+The pipeline consists of three stages: Data Preparation, Segregation Calculation, and Analysis.
 
+### 1. Data Preparation
+This step downloads (or loads) the required data.
 ```bash
-python src/cli/run_pipeline.py
+python code/cli/run_pipeline.py --stage data_prep
+```
+- **Output**: `data/raw/calphad_params.json`, `data/raw/dft_energies.json`, `data/data_manifest.json`, `research/data_sources.md`.
+
+### 2. Segregation Calculation
+Computes equilibrium concentrations using the McLean isotherm.
+```bash
+python code/cli/run_pipeline.py --stage calc_segregation
+```
+- **Output**: `data/processed/segregation_profiles.parquet`.
+
+### 3. Analysis & Regression
+Fits the multicomponent model and performs cross-validation.
+```bash
+python code/cli/run_pipeline.py --stage analyze
+```
+- **Output**: `data/processed/regression_results.json`, `data/processed/heatmaps/`.
+
+## Visualizing Results
+
+To generate heatmaps of segregation energy vs. composition:
+```bash
+python code/cli/run_pipeline.py --stage visualize
+```
+- **Output**: `data/processed/heatmaps/segregation_energy_heatmap.png`.
+
+## Testing
+
+Run the full test suite:
+```bash
+pytest tests/
 ```
 
-This command will:
-1.  Load and validate the curated literature dataset (`data/raw/literature_dft.csv` and `data/raw/literature_apt.csv`).
-2.  Compute segregation profiles for all available systems (Binary and Ternary).
-3.  Fit regression models and perform cross-validation.
-4.  Generate visualizations and save results to `data/derived/`.
-5.  Update `data_manifest.json`.
+## Data Manifest
 
-### Running Specific Tasks
+All data sources are documented in `data/data_manifest.json`. This file includes:
+- `source_type`: e.g., "CALPHAD", "DFT", "APT".
+- `source_id`: Unique identifier.
+- `doi` / `url`: Link to the source.
+- `status`: "verified", "mocked", "simulated".
 
-*   **Compute Profiles Only**:
-    ```bash
-    python src/cli/run_pipeline.py --task compute_profiles
-    ```
-*   **Run Regression Analysis Only**:
-    ```bash
-    python src/cli/run_pipeline.py --task regression --input data/derived/segregation_profiles.csv
-    ```
-*   **Validate Data**:
-    ```bash
-    python src/cli/run_pipeline.py --task validate_data
-    ```
+## Data Sources Document
 
-## Output
-
-After a successful run, check the following files:
-
-*   `data/derived/segregation_profiles.csv`: The computed equilibrium concentrations.
-*   `data/derived/regression_results.json`: Model coefficients and validation metrics.
-*   `data/derived/plots/`: Heatmaps of segregation energy vs. composition.
-*   `data_manifest.json`: Complete list of data sources and checksums.
-
-## Troubleshooting
-
-*   **Missing Literature Data**: If the script reports "Missing literature data", ensure the `data/raw/literature_dft.csv` file is present and contains the required columns for the target system.
-*   **CALPHAD Error**: If the CALPHAD database is missing, check the `data/raw/calphad_params.csv` or download the TCFE9 equivalent as described in `research.md`.
-*   **Memory Error**: The pipeline is designed for moderate RAM capacity. If you encounter memory issues, reduce the number of temperature points or compositions in the configuration file.
+The `research/data_sources.md` file contains the required JSON object with `source_id`, `doi`, `url`, and `status` for all data sources, including NIST APT accession IDs and literature DOIs.

@@ -1,17 +1,15 @@
 status: none
-intent: TCFE9 CALPHAD database python package dataset Materials Project segregation
-  energies BCC Fe alloy python package dataset
+intent: TCFE9 CALPHAD database and Materials Project DFT segregation energies python
+  package dataset
 required_fields:
 - alloy_system
-- solute_element
-- host_element
-- segregation_energy_eV
+- bulk_composition
 - temperature_K
-- bulk_composition_fraction
-- grain_boundary_composition_fraction
+- segregation_energy_eV
+- grain_boundary_site
+- bulk_energy_eV
 - crystal_structure
-- calphad_database_version
-- dft_calculation_id
-cache_key: 99f0930034a458aa1db6f91b7b59c5b82ddb8e43fae7edae31affb2cada32b62
-searched_at: '2026-08-25T22:55:44.331770+00:00'
+- reference_id
+cache_key: 014fff0e6453b5b6753b8cd4c5b140569b9310fa59f94c375cee14abc281a18c
+searched_at: '2026-08-29T11:21:02.060363+00:00'
 retry_count: 1

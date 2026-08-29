@@ -89,7 +89,7 @@ As a materials researcher, I want to perform k-fold cross-validation (k=5) on th
 - **SC-001**: The number of statistically significant interaction terms (p<0.05 AND |interaction coefficient| > 0.01 eV) in the multicomponent regression model is measured against the null hypothesis of no cooperative effects. (See US-2)
 - **SC-002**: The standard deviation of the R-squared metric across the 5 cross-validation folds must be ≤ 0.05 to confirm model generalizability. (See US-3)
 - **SC-003**: The deviation of the computed segregation energy from experimental literature values (e.g., APT measurements) is measured against the experimental baseline to validate the DFT workflow. (See US-1)
-- **SC-004**: The percentage of alloy systems (out of 5) where non-linear thresholds for cooperative effects are identified is measured against the total number of systems analyzed. A system is counted only if it satisfies BOTH: (1) |interaction coefficient| > 0.01 eV AND p < 0.05, AND (2) >10% MSE reduction on the held-out test set compared to the additive model. (See US-2)
+- **SC-004**: The percentage of alloy systems where non-linear thresholds for cooperative effects are identified is measured against the total number of systems analyzed. A system is counted only if it satisfies BOTH: (1) |interaction coefficient| > 0.01 eV AND p < 0.05, AND (2) >10% MSE reduction on the held-out test set compared to the additive model. (See US-2)
 
 ## Assumptions
 

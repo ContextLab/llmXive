@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloySystem"
+description: "Schema for an alloy system definition."
+type: "object"
+properties:
+  base_element:
+    type: "string"
+    description: "The base element (always 'Fe' for this project)."
+    const: "Fe"
+  solute_elements:
+    type: "array"
+    description: "List of solute elements."
+    items:
+      type: "string"
+      pattern: "^[A-Z][a-z]?$"
+    minItems: 2
+    maxItems: 2
+  calphad_database_id:
+    type: "string"
+    description: "CALPHAD database identifier."
+    const: "OpenCalphad-Reduced"
+  temperature_range:
+    type: "object"
+    description: "Temperature range for analysis."
+    properties:
+      min:
+        type: "integer"
+        minimum: 500
+      max:
+        type: "integer"
+        maximum: 900
+    required:
+      - min
+      - max
+required:
+  - base_element
+  - solute_elements
+  - calphad_database_id
+  - temperature_range
+additionalProperties: false
