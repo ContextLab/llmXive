@@ -1,0 +1,614 @@
+{
+  "fetched_at": "2026-08-29T09:39:52Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal Visual Representatio\"",
+      "target_n": 5
+    },
+    "duration_seconds": 88.063,
+    "ended_at": "2026-08-29T09:39:52Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "causal visual representation learning in large language models"
+        ],
+        [
+          2,
+          "activation-based causality discovery in vision-language models"
+        ],
+        [
+          3,
+          "causal representation learning for multimodal LLMs"
+        ],
+        [
+          4,
+          "interpreting visual causality through neural activations"
+        ],
+        [
+          5,
+          "causal intervention in vision transformer attention mechanisms"
+        ],
+        [
+          6,
+          "disentanglement of causal visual features in deep networks"
+        ],
+        [
+          7,
+          "counterfactual reasoning for visual representations in AI"
+        ],
+        [
+          8,
+          "causal structure discovery from activation patterns"
+        ],
+        [
+          9,
+          "mechanistic interpretability of causal visual concepts"
+        ],
+        [
+          10,
+          "linking neural activations to causal visual graphs"
+        ],
+        [
+          11,
+          "causal ablation studies for visual understanding models"
+        ],
+        [
+          12,
+          "representation learning for causal inference in computer vision"
+        ],
+        [
+          13,
+          "activation patching for causal visual feature isolation"
+        ],
+        [
+          14,
+          "causal graph learning from multimodal transformer activations"
+        ],
+        [
+          15,
+          "visual causality detection via deep feature analysis"
+        ],
+        [
+          16,
+          "causal representation transfer from vision to language models"
+        ],
+        [
+          17,
+          "identifying causal visual drivers in generative AI"
+        ],
+        [
+          18,
+          "causal mechanism extraction from vision-language representations"
+        ],
+        [
+          19,
+          "activation-guided causal discovery in deep visual models"
+        ],
+        [
+          20,
+          "bridging activation dynamics and causal visual reasoning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "causal visual representation learning in large language models": 5,
+        "llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal Visual Representatio\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "causal representation disentanglement visual features",
+      "activation patching causal mediation analysis vision",
+      "causal visual concept discovery counterfactual generation",
+      "mechanistic interpretability vision transformer causal graphs",
+      "activation steering visual representation causality"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.14483"
+      ]
+    },
+    "per_query_hit_count": {
+      "activation patching causal mediation analysis vision": 3,
+      "activation steering visual representation causality": 3,
+      "causal representation disentanglement visual features": 3,
+      "causal visual concept discovery counterfactual generation": 3,
+      "llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal Visual Representatio\" computer science": 3,
+      "mechanistic interpretability vision transformer causal graphs": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2410.12096",
+          "rationale": "The paper focuses on integrating LLMs with Graph Structure Learning for robust representation learning and noise filtering, which does not address the user's specific question regarding \"causal visual representation discovery\" or the \"llmXive\" follow-up work on activation-to-causality mechanisms. While both involve LLMs, the domain (graph data vs. visual/causal mechanisms) and the core research objective (robustness via mutual learning vs. causal discovery) are distinct, failing to meet the crit",
+          "title": "Bridging Large Language Models and Graph Structure Learning Models for Robust Representation Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-29T09:38:24Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"from activation to causality: discovery of causal visual representatio\" computer science",
+      "raw": "llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal Visual Representatio\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Representation learners that disentangle factors of variation have already proven to be important in addressing various real world concerns such as fairness and interpretability. Initially consisting of unsupervised models with independence assumptions, more recently, weak supervision and correlated features have been explored, but without a causal view of the generative process. In contrast, we work under the regime of a causal generative process where generative factors are either independent or can be potentially confounded by a set of observed or unobserved confounders. We present an analysis of disentangled representations through the notion of disentangled causal process. We motivate the need for new metrics and datasets to study causal disentanglement and propose two evaluation metrics and a dataset. We show that our metrics capture the desiderata of disentangled causal process. Finally, we perform an empirical study on state of the art disentangled representation learners using our metrics and dataset to evaluate them from causal perspective.",
+          "claimed_authors": [
+            "Abbavaram Gowtham Reddy",
+            "Benin Godfrey L",
+            "Vineeth N Balasubramanian"
+          ],
+          "claimed_title": "On Causally Disentangled Representations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.05746"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='On Causally Disentangled Representations')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Parametric system identification methods estimate the parameters of explicitly defined physical systems from data. Yet, they remain constrained by the need to provide an explicit function space, typically through a predefined library of candidate functions chosen via available domain knowledge. In contrast, deep learning can demonstrably model systems of broad complexity with high fidelity, but black-box function approximation typically fails to yield explicit descriptive or disentangled representations revealing the structure of a system. We develop a novel identifiability theorem, leveraging causal representation learning, to uncover disentangled representations of system parameters without structural assumptions. We derive a graphical criterion specifying when system parameters can be uniquely disentangled from raw trajectory data, up to permutation and diffeomorphism. Crucially, our analysis demonstrates that global causal structures provide a lower bound on the disentanglement guarantees achievable when considering local state-dependent causal structures. We instantiate system parameter identification as a variational inference problem, leveraging a sparsity-regularised transformer to uncover state-dependent causal structures. We empirically validate our approach across four synthetic domains, demonstrating its ability to recover highly disentangled representations that baselines fail to recover. Corroborating our theoretical analysis, our results confirm that enforcing local causal structure is often necessary for full identifiability.",
+          "claimed_authors": [
+            "Markus W. Baumgartner",
+            "Anson Lei",
+            "Joe Watson",
+            "Ingmar Posner"
+          ],
+          "claimed_title": "Disentangling Dynamical Systems: Causal Representation Learning Meets Local Sparse Attention",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.14483"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Disentangling Dynamical Systems: Causal Representation Learning Meets Local Sparse Attention')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed as an analogue of the train/test split in correlation-based machine learning and as an enhancement of current causal validation strategies that are consistent with the logic of scientific discovery. The effectiveness of the method is illustrated using Pearl's sprinkler example, before a thorough simulation-based investigation is conducted. Limits of the technique are identified by studying exemplary failing scenarios, which are furthermore used to propose a list of topics for future research and improvements of the presented version of quantitative probing. The code for integrating quantitative probing into causal analysis, as well as the code for the presented simulation-based studies of the effectiveness of quantitative probing is provided in two separate open-source Python packages.",
+          "claimed_authors": [
+            "Daniel Grünbaum",
+            "Maike L. Stern",
+            "Elmar W. Lang"
+          ],
+          "claimed_title": "Quantitative probing: Validating causal models using quantitative domain knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.03013"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Quantitative probing: Validating causal models using quantitative domain knowledge')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Activation patching is a popular mechanistic interpretability technique, but has many subtleties regarding how it is applied and how one may interpret the results. We provide a summary of advice and best practices, based on our experience using this technique in practice. We include an overview of the different ways to apply activation patching and a discussion on how to interpret the results. We focus on what evidence patching experiments provide about circuits, and on the choice of metric and associated pitfalls.",
+          "claimed_authors": [
+            "Stefan Heimersheim",
+            "Neel Nanda"
+          ],
+          "claimed_title": "How to use and interpret activation patching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.15255"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='How to use and interpret activation patching')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mediation analysis for survival outcomes is challenging. Most existing methods quantify the treatment effect using the hazard ratio (HR) and attempt to decompose the HR into the direct effect of treatment plus an indirect, or mediated, effect. However, the HR is not expressible as an expectation, which complicates this decomposition, both in terms of estimation and interpretation. Here, we present an alternative approach which leverages pseudo-values to simplify estimation and inference. Pseudo-values take censoring into account during their construction, and once derived, can be modeled in the same way as any continuous outcome. Thus, pseudo-values enable mediation analysis for a survival outcome to fit seamlessly into standard mediation software (e.g. CMAverse in R). Pseudo-values are easy to calculate via a leave-one-observation-out procedure (i.e. jackknifing) and the calculation can be accelerated when the influence function of the estimator is known. Mediation analysis for causal effects defined by survival probabilities, restricted mean survival time, and cumulative incidence functions - in the presence of competing risks - can all be performed within this framework. Extensive simulation studies demonstrate that the method is unbiased across 324 scenarios/estimands and controls the type-I error at the nominal level under the null of no mediation. We illustrate the approach using data from the PARADIGMS clinical trial for the treatment of pediatric multiple sclerosis using fingolimod. In particular, we evaluate whether an imaging biomarker lies on the causal path between treatment and time-to-relapse, which aids in justifying this biomarker as a surrogate outcome. Our approach greatly simplifies mediation analysis for survival data and provides a decomposition of the total effect that is both intuitive and interpretable.",
+          "claimed_authors": [
+            "Alex Ocampo",
+            "Enrico Giudice",
+            "Dieter A. Häring",
+            "Baldur Magnusson",
+            "Theis Lange",
+            "Zachary R. McCaw"
+          ],
+          "claimed_title": "Simplifying Causal Mediation Analysis for Time-to-Event Outcomes using Pseudo-Values",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.17533"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Simplifying Causal Mediation Analysis for Time-to-Event Outcomes using Pseudo-Values')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Using observed language to understand interpersonal interactions is important in high-stakes decision making. We propose a causal research design for observational (non-experimental) data to estimate the natural direct and indirect effects of social group signals (e.g. race or gender) on speakers' responses with separate aspects of language as causal mediators. We illustrate the promises and challenges of this framework via a theoretical case study of the effect of an advocate's gender on interruptions from justices during U.S. Supreme Court oral arguments. We also discuss challenges conceptualizing and operationalizing causal variables such as gender and language that comprise of many components, and we articulate technical open challenges such as temporal dependence between language mediators in conversational settings.",
+          "claimed_authors": [
+            "Katherine A. Keith",
+            "Douglas Rice",
+            "Brendan O'Connor"
+          ],
+          "claimed_title": "Text as Causal Mediators: Research Design for Causal Estimates of Differential Treatment of Social Groups via Language Aspects",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.07542"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Text as Causal Mediators: Research Design for Causal Estimates of Differential Treatment of Social Groups via Language Aspects')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Judea Pearl's vision of Structural Causal Models (SCMs) as engines for counterfactual reasoning hinges on faithful abduction: the precise inference of latent exogenous noise. For decades, operationalizing this step for complex, non-linear mechanisms has remained a significant computational challenge. The advent of diffusion models, powerful universal function approximators, offers a promising solution. However, we argue that their standard design, optimized for perceptual generation over logical inference, introduces a fundamental flaw for this classical problem: an inherent information loss we term the Structural Reconstruction Error (SRE). To address this challenge, we formalize the principle of Causal Information Conservation (CIC) as the necessary condition for faithful abduction. We then introduce BELM-MDCM, the first diffusion-based framework engineered to be causally sound by eliminating SRE by construction through an analytically invertible mechanism. To operationalize this framework, a Targeted Modeling strategy provides structural regularization, while a Hybrid Training Objective instills a strong causal inductive bias. Rigorous experiments demonstrate that our Zero-SRE framework not only achieves state-of-the-art accuracy but, more importantly, enables the high-fidelity, individual-level counterfactuals required for deep causal inquiries. Our work provides a foundational blueprint that reconciles the power of modern generative models with the rigor of classical causal theory, establishing a new and more rigorous standard for this emerging field.",
+          "claimed_authors": [
+            "Rui Wu",
+            "Lizheng Wang",
+            "Yongjun Li"
+          ],
+          "claimed_title": "The Causal Round Trip: Generating Authentic Counterfactuals by Eliminating Information Loss",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.05236"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='The Causal Round Trip: Generating Authentic Counterfactuals by Eliminating Information Loss')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reconstructing the causal relationships behind the phenomena we observe is a fundamental challenge in all areas of science. Discovering causal relationships through experiments is often infeasible, unethical, or expensive in complex systems. However, increases in computational power allow us to process the ever-growing amount of data that modern science generates, leading to an emerging interest in the causal discovery problem from observational data. This work evaluates the LPCMCI algorithm, which aims to find generators compatible with a multi-dimensional, highly autocorrelated time series while some variables are unobserved. We find that LPCMCI performs much better than a random algorithm mimicking not knowing anything but is still far from optimal detection. Furthermore, LPCMCI performs best on auto-dependencies, then contemporaneous dependencies, and struggles most with lagged dependencies. The source code of this project is available online.",
+          "claimed_authors": [
+            "Christian Reiser"
+          ],
+          "claimed_title": "Causal discovery for time series with latent confounders",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.03427"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Causal discovery for time series with latent confounders')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-to-image generation has advanced rapidly with large-scale multimodal training, yet fine-grained controllability remains a critical challenge. Counterfactual controllability, defined as the capacity to deliberately generate images that contradict common-sense patterns, remains a major challenge but plays a crucial role in enabling creativity and exploratory applications. In this work, we address this gap with a focus on counterfactual size (e.g., generating a tiny walrus beside a giant button) and propose an automatic prompt engineering framework that adapts base prompts into revised prompts for counterfactual images. The framework comprises three components: an image evaluator that guides dataset construction by identifying successful image generations, a supervised prompt rewriter that produces revised prompts, and a DPO-trained ranker that selects the optimal revised prompt. We construct the first counterfactual size text-image dataset and enhance the image evaluator by extending Grounded SAM with refinements, achieving a 114 percent improvement over its backbone. Experiments demonstrate that our method outperforms state-of-the-art baselines and ChatGPT-4o, establishing a foundation for future research on counterfactual controllability.",
+          "claimed_authors": [
+            "Aleksa Jelaca",
+            "Ying Jiao",
+            "Chang Tian",
+            "Marie-Francine Moens"
+          ],
+          "claimed_title": "Automated Prompt Generation for Creative and Counterfactual Text-to-image Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.21375"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Automated Prompt Generation for Creative and Counterfactual Text-to-image Synthesis')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robust tooling and publicly available pre-trained models have helped drive recent advances in mechanistic interpretability for language models. However, similar progress in vision mechanistic interpretability has been hindered by the lack of accessible frameworks and pre-trained weights. We present Prisma (Access the codebase here: https://github.com/Prisma-Multimodal/ViT-Prisma), an open-source framework designed to accelerate vision mechanistic interpretability research, providing a unified toolkit for accessing 75+ vision and video transformers; support for sparse autoencoder (SAE), transcoder, and crosscoder training; a suite of 80+ pre-trained SAE weights; activation caching, circuit analysis tools, and visualization tools; and educational resources. Our analysis reveals surprising findings, including that effective vision SAEs can exhibit substantially lower sparsity patterns than language SAEs, and that in some instances, SAE reconstructions can decrease model loss. Prisma enables new research directions for understanding vision model internals while lowering barriers to entry in this emerging field.",
+          "claimed_authors": [
+            "Sonia Joseph",
+            "Praneet Suresh",
+            "Lorenz Hufe",
+            "Edward Stevinson",
+            "Robert Graham",
+            "Yash Vadi",
+            "Danilo Bzdok",
+            "Sebastian Lapuschkin",
+            "Lee Sharkey",
+            "Blake Aaron Richards"
+          ],
+          "claimed_title": "Prisma: An Open Source Toolkit for Mechanistic Interpretability in Vision and Video",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.19475"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Prisma: An Open Source Toolkit for Mechanistic Interpretability in Vision and Video')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mechanistic interpretability research requires reliable tools for analyzing transformer internals across diverse architectures. Current approaches face a fundamental tradeoff: custom implementations like TransformerLens ensure consistent interfaces but require coding a manual adaptation for each architecture, introducing numerical mismatch with the original models, while direct HuggingFace access through NNsight preserves exact behavior but lacks standardization across models. To bridge this gap, we develop nnterp, a lightweight wrapper around NNsight that provides a unified interface for transformer analysis while preserving original HuggingFace implementations. Through automatic module renaming and comprehensive validation testing, nnterp enables researchers to write intervention code once and deploy it across 50+ model variants spanning 16 architecture families. The library includes built-in implementations of common interpretability methods (logit lens, patchscope, activation steering) and provides direct access to attention probabilities for models that support it. By packaging validation tests with the library, researchers can verify compatibility with custom models locally. nnterp bridges the gap between correctness and usability in mechanistic interpretability tooling.",
+          "claimed_authors": [
+            "Clément Dumas"
+          ],
+          "claimed_title": "nnterp: A Standardized Interface for Mechanistic Interpretability of Transformers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.14465"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='nnterp: A Standardized Interface for Mechanistic Interpretability of Transformers')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mechanistic interpretability seeks to understand the neural mechanisms that enable specific behaviors in Large Language Models (LLMs) by leveraging causality-based methods. While these approaches have identified neural circuits that copy spans of text, capture factual knowledge, and more, they remain unusable for multimodal models since adapting these tools to the vision-language domain requires considerable architectural changes. In this work, we adapt a unimodal causal tracing tool to BLIP to enable the study of the neural mechanisms underlying image-conditioned text generation. We demonstrate our approach on a visual question answering dataset, highlighting the causal relevance of later layer representations for all tokens. Furthermore, we release our BLIP causal tracing tool as open source to enable further experimentation in vision-language mechanistic interpretability by the community. Our code is available at https://github.com/vedantpalit/Towards-Vision-Language-Mechanistic-Interpretability.",
+          "claimed_authors": [
+            "Vedant Palit",
+            "Rohan Pandey",
+            "Aryaman Arora",
+            "Paul Pu Liang"
+          ],
+          "claimed_title": "Towards Vision-Language Mechanistic Interpretability: A Causal Tracing Tool for BLIP",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.14179"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Towards Vision-Language Mechanistic Interpretability: A Causal Tracing Tool for BLIP')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Activation steering controls language model behavior by adding directions to internal representations at inference time, but standard residual-stream steering can fail in stateful dialogue. We identify KV-cache contamination as a key failure mode: steered token states are stored and repeatedly reused, turning a local perturbation into cumulative coherence degradation. To address this challenge, we propose Gated Cropped Attention-Delta steering (GCAD), which extracts steering signals from system-prompt contributions to self-attention and applies them with token-level gating. Across persona-steering experiments, GCAD preserves trait control while substantially improving long-horizon coherence. On the main multi-turn benchmark, GCAD improves average coherence drift from -18.6 to -1.9 and raises turn-10 trait expression from 78.0 to 93.1. These results suggest that activation steering becomes more reliable when interventions follow the prompt-mediated pathways that models already use for behavioral control.",
+          "claimed_authors": [
+            "Diancheng Kang",
+            "Zheyuan Liu",
+            "Ningshan Ma",
+            "Yue Huang",
+            "Zhaoxuan Tan",
+            "Meng Jiang"
+          ],
+          "claimed_title": "Prompt-Activation Duality: Improving Activation Steering via Attention-Level Interventions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.10664"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Prompt-Activation Duality: Improving Activation Steering via Attention-Level Interventions')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models sometimes assert falsehoods despite internally representing the correct answer, failures of honesty rather than accuracy, which undermines auditability and safety. Existing approaches largely optimize factual correctness or depend on retraining and brittle single-layer edits, offering limited leverage over truthful reporting. We present a training-free activation steering method that weights steering strength across network depth using a Gaussian schedule. On the MASK benchmark, which separates honesty from knowledge, we evaluate seven models spanning the LLaMA, Qwen, and Mistral families and find that Gaussian scheduling improves honesty over no-steering and single-layer baselines in six of seven models. Equal-budget ablations on LLaMA-3.1-8B-Instruct and Qwen-2.5-7B-Instruct show the Gaussian schedule outperforms random, uniform, and box-filter depth allocations, indicating that how intervention is distributed across depth materially affects outcomes beyond total strength. The method is simple, model-agnostic, requires no finetuning, and provides a low-cost control knob for eliciting truthful reporting from models' existing capabilities.",
+          "claimed_authors": [
+            "Gracjan Góral",
+            "Marysia Winkels",
+            "Steven Basart"
+          ],
+          "claimed_title": "Depth-Wise Activation Steering for Honest Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.07667"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='Depth-Wise Activation Steering for Honest Language Models')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Achieving precise and controllable emotional expression is crucial for producing natural and context-appropriate speech in text-to-speech (TTS) synthesis. However, many emotion-aware TTS systems, including large language model (LLM)-based designs, rely on scaling fixed emotion embeddings or external guidance, limiting their ability to model emotion-specific latent characteristics. To address this gap, we present EmoShift, a lightweight activation-steering framework incorporating a EmoSteer layer, which learns a steering vector for each target emotion in the output embedding space to capture its latent offset and maintain stable, appropriate expression across utterances and categories. With only 10M trainable parameters,less than 1/30 of full fine-tuning, EmoShift outperforms zero-shot and fully fine-tuned baselines in objective and subjective evaluations, enhancing emotional expressiveness while preserving naturalness and speaker similarity. Further analysis confirms the proposed EmoSteer layer's effectiveness and reveals its potential for controllable emotional intensity in speech synthesis.",
+          "claimed_authors": [
+            "Li Zhou",
+            "Hao Jiang",
+            "Junjie Li",
+            "Tianrui Wang",
+            "Haizhou Li"
+          ],
+          "claimed_title": "EmoShift: Lightweight Activation Steering for Enhanced Emotion-Aware Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.22873"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"From Activation to Causality: Discovery of Causal ', candidate_title='EmoShift: Lightweight Activation Steering for Enhanced Emotion-Aware Speech Synthesis')",
+        "failed_at": "2026-08-29T09:38:58Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Linying Yang",
+            "Vik Shirvaikar",
+            "Oscar Clivio",
+            "Fabian Falck"
+          ],
+          "title": "A Critical Review of Causal Reasoning Benchmarks for Large Language Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.08029",
+        "summary": "Numerous benchmarks aim to evaluate the capabilities of Large Language Models (LLMs) for causal inference and reasoning. However, many of them can likely be solved through the retrieval of domain knowledge, questioning whether they achieve their purpose. In this review, we present a comprehensive overview of LLM benchmarks for causality. We highlight how recent benchmarks move towards a more thorough definition of causal reasoning by incorporating interventional or counterfactual reasoning. We derive a set of criteria that a useful benchmark or set of benchmarks should aim to satisfy. We hope this work will pave the way towards a general framework for the assessment of causal understanding in LLMs and the design of novel benchmarks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.08029",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-29T09:39:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Goutham Rajendran",
+            "Simon Buchholz",
+            "Bryon Aragam",
+            "Bernhard Schölkopf",
+            "Pradeep Ravikumar"
+          ],
+          "title": "Learning Interpretable Concepts: Unifying Causal Representation Learning and Foundation Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.09236",
+        "summary": "To build intelligent machine learning systems, there are two broad approaches. One approach is to build inherently interpretable models, as endeavored by the growing field of causal representation learning. The other approach is to build highly-performant foundation models and then invest efforts into understanding how they work. In this work, we relate these two approaches and study how to learn human-interpretable concepts from data. Weaving together ideas from both fields, we formally define a notion of concepts and show that they can be provably recovered from diverse data. Experiments on synthetic data and large language models show the utility of our unified approach.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.09236",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8571,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-29T09:39:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Markus W. Baumgartner",
+            "Anson Lei",
+            "Joe Watson",
+            "Ingmar Posner"
+          ],
+          "title": "Disentangling Dynamical Systems: Causal Representation Learning Meets Local Sparse Attention",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.14483",
+        "summary": "Parametric system identification methods estimate the parameters of explicitly defined physical systems from data. Yet, they remain constrained by the need to provide an explicit function space, typically through a predefined library of candidate functions chosen via available domain knowledge. In contrast, deep learning can demonstrably model systems of broad complexity with high fidelity, but black-box function approximation typically fails to yield explicit descriptive or disentangled representations revealing the structure of a system. We develop a novel identifiability theorem, leveraging causal representation learning, to uncover disentangled representations of system parameters without structural assumptions. We derive a graphical criterion specifying when system parameters can be uniquely disentangled from raw trajectory data, up to permutation and diffeomorphism. Crucially, our analysis demonstrates that global causal structures provide a lower bound on the disentanglement guarantees achievable when considering local state-dependent causal structures. We instantiate system parameter identification as a variational inference problem, leveraging a sparsity-regularised transformer to uncover state-dependent causal structures. We empirically validate our approach across four synthetic domains, demonstrating its ability to recover highly disentangled representations that baselines fail to recover. Corroborating our theoretical analysis, our results confirm that enforcing local causal structure is often necessary for full identifiability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.14483",
+          "http_status": 200,
+          "pdf_sample_score": 0.2872,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-29T09:39:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nan Rosemary Ke",
+            "Jane. X. Wang",
+            "Jovana Mitrovic",
+            "Martin Szummer",
+            "Danilo J. Rezende"
+          ],
+          "title": "Amortized learning of neural causal representations",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.09301",
+        "summary": "Causal models can compactly and efficiently encode the data-generating process under all interventions and hence may generalize better under changes in distribution. These models are often represented as Bayesian networks and learning them scales poorly with the number of variables. Moreover, these approaches cannot leverage previously learned knowledge to help with learning new causal models. In order to tackle these challenges, we represent a novel algorithm called \\textit{causal relational networks} (CRN) for learning causal models using neural networks. The CRN represent causal models using continuous representations and hence could scale much better with the number of variables. These models also take in previously learned information to facilitate learning of new causal models. Finally, we propose a decoding-based metric to evaluate causal models with continuous representations. We test our method on synthetic data achieving high accuracy and quick adaptation to previously unseen causal models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.09301",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-29T09:39:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"from activation to causality: discovery of causal visual representatio\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

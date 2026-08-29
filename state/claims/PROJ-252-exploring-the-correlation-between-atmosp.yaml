@@ -1876,22 +1876,6 @@
 - artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   attempts: 3
   canonical: p-value stabilizes within 1% over last 1000 iterations
-  claim_id: c_239240b1
-  context: 'Verification: Ensure convergence by checking that the p-value stabilizes
-    within 1% over the last 1000 iterations (if applicable).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Verify that the p-value stabilizes within 1% over the last 1000 iterations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-24T11:35:10Z'
-- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
-  attempts: 3
-  canonical: p-value stabilizes within 1% over last 1000 iterations
   claim_id: c_0dfb94ca
   context: Verify that the p-value stabilizes within 1% over the last 1000 iterations
     (if applicable).
@@ -1975,23 +1959,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T11:36:14Z'
-- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
-  attempts: 1
-  canonical: Pipeline completed within 6 hours
-  claim_id: c_36f4c917
-  context: 'Artifact: Log file logs/quickstart_validation.log must contain ''Pipeline
-    completed successfully within 6 hours''.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Log file logs/quickstart_validation.log must contain 'Pipeline completed
-    successfully within 6 hours'.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-24T11:36:30Z'
 - artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   attempts: 1
   canonical: 2018 Alaska subset earthquake count is 12
@@ -2200,26 +2167,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T11:41:01Z'
-- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
-  attempts: 1
-  canonical: Global NOAA NCEP/NCAR download is blocked
-  claim_id: c_e1ae3312
-  context: 'New: The script MUST also verify that the global NOAA NCEP/NCAR download
-    is explicitly blocked and log this state, referencing the deviation record in
-    docs/deviations.md.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Global_NOAA_NCEP/NCAR_download_is_blocked
-  kind: entity_fact
-  raw_text: The script MUST also verify that the global NOAA NCEP/NCAR download is
-    explicitly blocked and log this state, referencing the deviation record in docs/deviations.md.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-05T13:19:27Z'
 - artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   attempts: 1
   canonical: 2018 Alaska subset earthquake count is 12
@@ -2455,24 +2402,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T04:11:17Z'
-- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
-  attempts: 10
-  canonical: 2018 Alaska subset earthquake count is 12
-  claim_id: c_7aad7bfe
-  context: 'Independent Test: The script MUST exit with code 0. The output CSV row
-    count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12)
-    within a 1% tolerance.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The output CSV row count MUST match the expected count of earthquakes
-    in the 2018 Alaska subset (N=12) within a 1% tolerance.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-24T04:14:29Z'
 - artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   attempts: 2
   canonical: USGS 2018 Alaska subset earthquake count is 12
@@ -2726,3 +2655,340 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T04:23:39Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: USGS 2018 Alaska subset earthquake count is 12
+  claim_id: c_6b9aa60b
+  context: 'Integration test for download pipeline in tests/integration/test_download_pipeline.py:
+    Fetch USGS test data from https://earthquake.usgs.gov/fdsnws/event/1/query (2018
+    Alaska subset); assert row count matches data/processed/config.yaml expected_earthquake_count
+    (12) within 1% tolerance.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: The script MUST fetch USGS test data from https://earthquake.usgs.gov/fdsnws/event/1/query
+    (2018 Alaska subset); assert row count matches data/processed/config.yaml expected_earthquake_count
+    (12) within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:25:06Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: p-value < 0.05 condition for observed statistic > 95th percentile of
+    permuted statistics
+  claim_id: c_7e2a0479
+  context: 'Independent Test: The analysis can be tested by running the statistical
+    module on the prepared dataset. The output JSON MUST contain a p-value < 0.05
+    if and only if the observed test statistic is strictly greater than the 95th percentile
+    of the permuted statistics.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/p-value_%3C_0.05_condition_for_observed_statistic_%3E_95th_perce
+  kind: magnitude
+  raw_text: The analysis can be tested by running the statistical module on the prepared
+    dataset. The output JSON MUST contain a p-value < 0.05 if and only if the observed
+    test statistic is strictly greater than the 95th percentile of the permuted statistics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:26:09Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Anomaly cutoff varies by multiples of background standard deviation
+  claim_id: c_a779dd65
+  context: "The system MUST output separate p-values and effect sizes for each subset.\
+    \ The system MUST vary the cutoff by multiples of the background standard deviation\
+    \ (\u03C3)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Anomaly_cutoff_varies_by_multiples_of_background_standard_de
+  kind: entity_fact
+  raw_text: "The system MUST vary the cutoff by multiples of the background standard\
+    \ deviation (\u03C3)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:27:20Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 4
+  canonical: p-value stabilizes within 1% over last 1000 iterations
+  claim_id: c_239240b1
+  context: 'Verification: Ensure convergence by checking that the p-value stabilizes
+    within 1% over the last 1000 iterations (if applicable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the p-value stabilizes within 1% over the last 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:27:21Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Pipeline completed successfully within 6 hours
+  claim_id: c_e8a27d50
+  context: 'Artifact: Log file logs/quickstart_validation.log must contain ''Pipeline
+    completed successfully within 6 hours''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The log file logs/quickstart_validation.log must contain 'Pipeline completed
+    successfully within 6 hours'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:28:30Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage is less than 6GB
+  claim_id: c_afdd592c
+  context: 'Metric: Peak RAM usage must be < 6GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_is_less_than_6GB
+  kind: magnitude
+  raw_text: Peak RAM usage must be < 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:29:06Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 12
+  canonical: 2018 Alaska subset earthquake count is 12
+  claim_id: c_7aad7bfe
+  context: 'Independent Test: The script MUST exit with code 0. The output CSV row
+    count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12)
+    within a 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:32:05Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: USGS 2018 Alaska subset row count matches expected count of 12
+  claim_id: c_f277bae2
+  context: 'Integration test for download pipeline in tests/integration/test_download_pipeline.py:
+    Fetch USGS test data from https://earthquake.usgs.gov/fdsnws/event/1/query (2018
+    Alaska subset); assert row count matches data/processed/config.yaml expected_earthquake_count
+    (12) within 1% tolerance.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Fetch USGS test data from https://earthquake.usgs.gov/fdsnws/event/1/query
+    (2018 Alaska subset); assert row count matches data/processed/config.yaml expected_earthquake_count
+    (12) within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:32:49Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 2
+  canonical: Global NOAA NCEP/NCAR download is blocked
+  claim_id: c_e1ae3312
+  context: 'New: The script MUST also verify that the global NOAA NCEP/NCAR download
+    is explicitly blocked and log this state, referencing the deviation record in
+    docs/deviations.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Global_NOAA_NCEP/NCAR_download_is_blocked
+  kind: entity_fact
+  raw_text: The script MUST also verify that the global NOAA NCEP/NCAR download is
+    explicitly blocked and log this state, referencing the deviation record in docs/deviations.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:34:02Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: 2018 Alaska subset test data count is 12
+  claim_id: c_e6a01afb
+  context: "Implement code/download.py to fetch verified test pressure data and USGS\
+    \ 2018 Alaska subset (M\u22654.0, depth\u226470km) from https://earthquake.usgs.gov/fdsnws/event/1/query.\
+    \ Explicitly check for absence of global NOAA NCEP/NCAR source (FR-001) by reading\
+    \ plan.md to verify absence in 'Verified Datasets' block. If absent, block the\
+    \ download and log this state, referencing the deviation record ID DEV-001 in\
+    \ docs/deviations.md (T011b). Do NOT attempt to fetch global data. Process only\
+    \ the 2018 Alaska subset (N=12) as test data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process only the 2018 Alaska subset (N=12) as test data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:34:39Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Moving average days value is 30
+  claim_id: c_07b2c962
+  context: 'Implement code/preprocess.py function calculate_left_censored_anomaly()
+    to calculate daily pressure anomalies using a left-censored moving average. Configuration:
+    Read moving_average_days (value N=30) from data/processed/config.yaml (T011d).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configuration: Read moving_average_days (value N=30) from data/processed/config.yaml
+    (T011d).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:35:47Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Master dataset row count matches expected count of 12
+  claim_id: c_2dfe5da4
+  context: 'Validation: 1. Assert row count matches data/processed/config.yaml expected_earthquake_count
+    (12) within 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert row count matches data/processed/config.yaml expected_earthquake_count
+    (12) within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:36:29Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: P-value stabilizes within 1 percent over last 1000 iterations
+  claim_id: c_0071a680
+  context: 'Verification: Ensure convergence by checking that the p-value stabilizes
+    within 1% over the last 1000 iterations (if applicable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the p-value stabilizes within 1% over the last 1000 iterations
+    (if applicable).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:36:30Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Fallback labeled unverified for missing ENSO/PDO sources
+  claim_id: c_8a51bdcf
+  context: Verify that the 'Verified Datasets' block is checked for missing ENSO/PDO
+    sources and label the fallback as 'unverified' in output artifacts, referencing
+    deviation ID DEV-002 in docs/deviations.md (T025b).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the 'Verified Datasets' block is checked for missing ENSO/PDO
+    sources and label the fallback as 'unverified' in output artifacts, referencing
+    deviation ID DEV-002 in docs/deviations.md (T025b).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:37:26Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: First 5 events in 2018 Alaska subset used for proxy validity
+  claim_id: c_3c493189
+  context: 'Verification: Include a step to compare date-matched vs. theoretical climate-index-matched
+    distributions on the first 5 events in the 2018 Alaska subset to confirm scientific
+    validity of the proxy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the first 5 events in the 2018 Alaska subset confirm scientific
+    validity of the proxy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:37:47Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Magnitude subsets 4.0-5.0 and >5.0; sensitivity sweep 0.5 sigma, 1.0
+    sigma, 1.5 sigma
+  claim_id: c_599ac656
+  context: "Validation: Check that magnitude_subsets contains entries for both 4.0\u2013\
+    5.0 and >5.0, and sensitivity_sweep contains entries for 0.5\u03C3, 1.0\u03C3\
+    , 1.5\u03C3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assert that magnitude_subsets contains entries for both 4.0\u20135.0\
+    \ and >5.0, and sensitivity_sweep contains entries for 0.5\u03C3, 1.0\u03C3, 1.5\u03C3\
+    ."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:38:15Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage is below 6 gigabytes
+  claim_id: c_b5e391c5
+  context: 'Metric: Peak RAM usage must be < 6GB. Environment Setup: pip install memory-profiler.
+    Command: python -m memory_profiler --line-by-line code/main.py. Verification:
+    Parse output log using regex Peak memory: (\d+\.\d+) MB and assert value < 6000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Peak RAM usage must be < 6GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:38:15Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 2
+  canonical: Pipeline completed within 6 hours
+  claim_id: c_36f4c917
+  context: 'Artifact: Log file logs/quickstart_validation.log must contain ''Pipeline
+    completed successfully within 6 hours''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log file logs/quickstart_validation.log must contain 'Pipeline completed
+    successfully within 6 hours'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T09:38:16Z'

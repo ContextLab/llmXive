@@ -74,37 +74,37 @@
 
 **Goal**: Download verified test pressure data and USGS earthquake catalog, align them spatially/temporally, and produce a clean analysis-ready dataset.
 
-**Independent Test**: The script MUST exit with code 0. The output CSV row count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12) within a 1% tolerance. The output MUST contain a validation report confirming all required fields are present. **New**: The script MUST also verify that the global NOAA NCEP/NCAR download is explicitly blocked and log this state, referencing the deviation record in `docs/deviations.md`.
+**Independent Test**: The script MUST exit with code 0. The output CSV row count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12) within a 1% tolerance. [UNRESOLVED-CLAIM: c_7aad7bfe — status=not_enough_info] The output MUST contain a validation report confirming all required fields are present. **New**: The script MUST also verify that the global NOAA NCEP/NCAR download is explicitly blocked and log this state, referencing the deviation record in `docs/deviations.md`.
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation. T009 depends on T008. T010 depends on T008 and T011 (structure).**
 
 - [X] T009 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Validate `earthquake.schema.yaml` and `pressure-anomaly.schema.yaml` against sample data at `tests/fixtures/sample_earthquake.yaml`; assert failure if required fields (magnitude, depth, lat, lon, timestamp) are missing. Assert failure with message "Sample data file not found: tests/fixtures/sample_earthquake.yaml" if the file does not exist. (Dependency: T008, T008b)
-- [ ] T010 [P] [US1] Integration test for download pipeline in `tests/integration/test_download_pipeline.py`: Fetch USGS test data from `https://earthquake.usgs.gov/fdsnws/event/1/query` (2018 Alaska subset); assert row count matches `data/processed/config.yaml` `expected_earthquake_count` (12) within 1% tolerance. (Dependency: T008, T011d)
+- [ ] T010 [P] [US1] Integration test for download pipeline in `tests/integration/test_download_pipeline.py`: Fetch USGS test data from `https://earthquake.usgs.gov/fdsnws/event/1/query` (2018 Alaska subset); assert row count matches `data/processed/config.yaml` `expected_earthquake_count` (12) within 1% tolerance. (Dependency: T008, T011d) <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [ ] T011a [US1] Implement `code/download.py` to fetch **verified test pressure data** and **USGS 2018 Alaska subset** (M≥4.0, depth≤70km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`. **Explicitly check for absence of global NOAA NCEP/NCAR source (FR-001)** by reading `plan.md` to verify absence in 'Verified Datasets' block. If absent, **block the download** and log this state, referencing the deviation record ID **DEV-001** in `docs/deviations.md` (T011b). **Do NOT attempt to fetch global data**. Process only the 2018 Alaska subset (N=12) as test data. This implements the **Pilot Scope** of FR-001 by enforcing the block. **(Dependency: T011d, T008)**
-- [ ] T012 [US1] Implement checksumming and raw data immutability checks in `code/download.py`
-- [ ] T013 [US1] Implement `code/preprocess.py` to interpolate a coarse pressure grid to a finer resolution and extract nearest grid points for earthquake epicenters.
+- [X] T011a [US1] Implement `code/download.py` to fetch **verified test pressure data** and **USGS 2018 Alaska subset** (M≥4.0, depth≤70km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`. **Explicitly check for absence of global NOAA NCEP/NCAR source (FR-001)** by reading `plan.md` to verify absence in 'Verified Datasets' block. If absent, **block the download** and log this state, referencing the deviation record ID **DEV-001** in `docs/deviations.md` (T011b). **Do NOT attempt to fetch global data**. Process only the 2018 Alaska subset (N=12) as test data. [UNRESOLVED-CLAIM: c_e6a01afb — status=not_enough_info] This implements the **Pilot Scope** of FR-001 by enforcing the block. **(Dependency: T011d, T008)**
+- [X] T012 [US1] Implement checksumming and raw data immutability checks in `code/download.py`
+- [X] T013 [US1] Implement `code/preprocess.py` to interpolate a coarse pressure grid to a finer resolution and extract nearest grid points for earthquake epicenters.
 - [ ] T013a [US1] Implement `code/preprocess.py` function `load_land_mask()` to load a land mask from `data/interim/land_mask.geojson` (or generate a coarse mask using `geopandas` if not present) for use in T013b. **(Dependency: T013)**
 - [ ] T013b [US1] Implement `code/preprocess.py` function `apply_ocean_mask()` to load the land mask from `data/interim/land_mask.geojson` (T013a), calculate interpolation reliability for each event using `geopandas` distance to nearest land grid point, and **exclude events over oceans** where reliability < 95% (FR-009). **Output**: Write filtered data to `data/interim/masked_events.csv`. **(Dependency: T013, T013a)**
 - [ ] T013c [US1] Implement `code/preprocess.py` function `exclude_missing_pressure()` to detect missing pressure data in the pre-event window (t-48h to t) and **exclude records** with any missing values in that window (FR-010). **Output**: Write filtered data to `data/interim/clean_events.csv` and log the count of excluded records. **(Dependency: T013b)**
-- [ ] T014 [US1] Implement `code/preprocess.py` function `calculate_left_censored_anomaly()` to calculate daily pressure anomalies using a left-censored moving average. **Configuration**: Read `moving_average_days` (value N=30) from `data/processed/config.yaml` (T011d). **Algorithm**: 
-   1. For each event at time `t`, define the **event window** as `[t-48h, t]`.
-   2. Define the **baseline window** as `[t-N-48h, t-48h]` (left-censored, excluding the event window and immediate pre-baseline).
-   3. Calculate the moving average of pressure values strictly within the **baseline window**.
-   4. Calculate the anomaly as `pressure(t) - baseline_average`.
-   5. **Exclude** any data points within the event window from the baseline calculation to prevent bias (FR-003).
-   **Output**: Write anomalies to `data/interim/anomalies_raw.csv` with columns: `event_id` (string), `timestamp` (ISO), `pressure_value` (float), `baseline_average` (float), `anomaly_value` (float). **Verification**: Assert `config.MOVING_AVERAGE_DAYS` is 30. Assert that the function correctly excludes the event window by testing with a synthetic window and verifying that values in `[t-48h, t]` are NOT included in the average. **(Dependency: T013c, T011d)**
+- [ ] T014 [US1] Implement `code/preprocess.py` function `calculate_left_censored_anomaly()` to calculate daily pressure anomalies using a left-censored moving average. **Configuration**: Read `moving_average_days` (value N=30) from `data/processed/config.yaml` (T011d). **Algorithm**:
+ 1. For each event at time `t`, define the **event window** as `[t-48h, t]`.
+ 2. Define the **baseline window** as `[t-N-48h, t-48h]` (left-censored, excluding the event window and immediate pre-baseline).
+ 3. Calculate the moving average of pressure values strictly within the **baseline window**.
+ 4. Calculate the anomaly as `pressure(t) - baseline_average`.
+ 5. **Exclude** any data points within the event window from the baseline calculation to prevent bias (FR-003).
+ **Output**: Write anomalies to `data/interim/anomalies_raw.csv` with columns: `event_id` (string), `timestamp` (ISO), `pressure_value` (float), `baseline_average` (float), `anomaly_value` (float). **Verification**: Assert `config.MOVING_AVERAGE_DAYS` is 30. Assert that the function correctly excludes the event window by testing with a synthetic window and verifying that values in `[t-48h, t]` are NOT included in the average. **(Dependency: T013c, T011d)**
 - [ ] T016 [US1] Implement deduplication logic in `code/preprocess.py` based on unique USGS event ID, retaining most recent revision. **Input**: Read from `data/interim/clean_events.csv` (T013c) and `data/interim/anomalies_raw.csv` (T014). **Output**: Write deduplicated data with anomalies to `data/interim/deduplicated_with_anomalies.csv`. **(Dependency: T014, T013c)**
-- [ ] T017 [US1] Run `code/preprocess.py --output data/processed/master_dataset.csv` to generate the master dataset pairing every earthquake with its pressure anomaly and control window label. **Input**: Read from `data/interim/deduplicated_with_anomalies.csv` (produced by T016). **Output Schema**: `master_dataset.csv` must contain columns in this exact order: `event_id` (string), `lat` (float), `lon` (float), `timestamp` (ISO), `pressure_value` (float), `anomaly_value` (float), `window_label` (string: 'event'|'control'). **Validation**: 
-   1. Assert row count matches `data/processed/config.yaml` `expected_earthquake_count` (12) within 1% tolerance.
-   2. Validate schema against `contracts/earthquake.schema.yaml` and `contracts/pressure-anomaly.schema.yaml` (T008).
-   3. Generate checksum `data/processed/master_dataset.csv.sha256` using `sha256sum`.
-   4. If validation fails, output a JSON report listing missing variables (FR-008) and exit with code 1.
-   **(Dependency: T016, T011d, T008)**
+- [ ] T017 [US1] Run `code/preprocess.py --output data/processed/master_dataset.csv` to generate the master dataset pairing every earthquake with its pressure anomaly and control window label. **Input**: Read from `data/interim/deduplicated_with_anomalies.csv` (produced by T016). **Output Schema**: `master_dataset.csv` must contain columns in this exact order: `event_id` (string), `lat` (float), `lon` (float), `timestamp` (ISO), `pressure_value` (float), `anomaly_value` (float), `window_label` (string: 'event'|'control'). **Validation**:
+ 1. Assert row count matches `data/processed/config.yaml` `expected_earthquake_count` (12) within 1% tolerance.
+ 2. Validate schema against `contracts/earthquake.schema.yaml` and `contracts/pressure-anomaly.schema.yaml` (T008).
+ 3. Generate checksum `data/processed/master_dataset.csv.sha256` using `sha256sum`.
+ 4. If validation fails, output a JSON report listing missing variables (FR-008) and exit with code 1.
+ **(Dependency: T016, T011d, T008)**
 - [ ] T017b [US1] Verification test for T017: Assert that `data/processed/master_dataset.csv` row count matches `data/processed/config.yaml` `expected_earthquake_count` (read from file) within 1% tolerance. **(Dependency: T017)**
 - [ ] T018 [US1] Implement validation report generator in `code/preprocess.py` to output JSON report of missing variables if validation fails (FR-008)
 
@@ -166,7 +166,7 @@
 **Purpose**: Improvements that affect multiple user stories. **Dependencies**: T033, T034, T035 depend on T032 completion.
 
 - [X] T033 [P] Documentation updates in `README.md`, `docs/quickstart.md`, and `docs/` regarding pilot limitations and deviation records
-- [X] T034 [P] Code cleanup and refactoring for memory efficiency on CPU-only runners. **Metric**: Peak RAM usage must be < 6GB. **Environment Setup**: `pip install memory-profiler`. **Command**: `python -m memory_profiler --line-by-line code/main.py`. **Verification**: Parse output log using regex `Peak memory: (\\d+\\.\\d+) MB` and assert value < 6000. **(Dependency: T032, T037b)**
+- [X] T034 [P] Code cleanup and refactoring for memory efficiency on CPU-only runners. **Metric**: Peak RAM usage must be < 6GB. [UNRESOLVED-CLAIM: c_b5e391c5 — status=not_enough_info] **Environment Setup**: `pip install memory-profiler`. **Command**: `python -m memory_profiler --line-by-line code/main.py`. **Verification**: Parse output log using regex `Peak memory: (\\d+\\.\\d+) MB` and assert value < 6000. **(Dependency: T032, T037b)**
 - [X] T035 [P] Run quickstart.md validation to ensure full pipeline execution on the test dataset within a reasonable timeframe. (as defined in plan.md), and document that global dataset feasibility remains unverified per plan.md. **Command**: `timeout python code/main.py`. **Artifact**: Log file `logs/quickstart_validation.log` must contain "Pipeline completed successfully within 6 hours". **(Dependency: T032, T037b)**
 - [X] T036 [P] Additional unit tests for ocean masking and missing data exclusion logic in `tests/unit/`
 - [ ] T037b [P] Implement `code/main.py` as the deterministic entry point for the full pipeline, orchestrating download, preprocess, analysis, and report generation. **(Dependency: T011a, T014, T016, T021, T023, T024, T025, T028, T029, T030, T037a)**

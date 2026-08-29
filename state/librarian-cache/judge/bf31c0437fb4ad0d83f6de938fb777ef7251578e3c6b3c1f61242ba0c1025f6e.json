@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2008.09301",
+  "judged_at": "2026-08-29T09:39:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"from activation to causality: discovery of causal visual representatio\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for \"causal visual representations\" by proposing a neural framework (Causal Relational Networks) specifically designed to learn causal models from data, which is the core technical mechanism required to extend the user's cited work on discovering causal visual representations. It also aligns with criterion (a) by addressing the same biological/algorithmic mechanism of moving from activation patterns to causal structures, ",
+  "relevant": true
+}

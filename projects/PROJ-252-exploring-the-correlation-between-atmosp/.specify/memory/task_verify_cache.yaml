@@ -6,6 +6,21 @@ T009:
     (`earthquake.schema.yaml` and `pressure-anomaly.schema.yaml`) are absent from
     the repository. Both the test logic and the dependent schema artifacts are missing,
     so the task is not genuinely fulfilled.
+T010:
+  c: false
+  h: c870e07a77b5fe53091a5065fa0a3b6330016828145fc23d28e7913ccbc0876e
+  r: "The `tests/integration/test_download_pipeline.py` file is present but is truncated\
+    \ (e.g., the `missing = require` line is incomplete) and does not actually read\
+    \ the required `data/processed/config.yaml`. Moreover, the `data/processed/config.yaml`\
+    \ file itself is missing, so the test cannot verify the expected earthquake count\
+    \ of 12 as specified. The task\u2019s core requirement is therefore not met."
+T013a:
+  c: false
+  h: f9b7a4f8e8a9da3c86954e649cd1047b8ea41ce2275ade219509f80b2d0418f4
+  r: The repository lacks the required `data/interim/land_mask.geojson` file, and
+    the provided excerpt of `code/preprocess.py` does not contain a `load_land_mask()`
+    implementation (the file is truncated before any such function could appear).
+    Without the function and/or the mask file, the task requirement is not satisfied.
 T016:
   c: false
   h: 16108849caf57c05b2226f25fdf2ccec29937f1b4baf267d4de854e605f459a1
