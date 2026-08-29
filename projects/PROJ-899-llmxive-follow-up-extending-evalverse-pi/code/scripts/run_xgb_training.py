@@ -1,12 +1,14 @@
+"""
+Script to run XGBoost training (Task T015b).
+"""
 import os
 import sys
 import logging
 from pathlib import Path
-from src.models.metrics import main
+from src.models.train import main
 from src.utils import setup_logging
 
 def main_wrapper():
-    """Wrapper for the permutation test script."""
     setup_logging()
     main()
 

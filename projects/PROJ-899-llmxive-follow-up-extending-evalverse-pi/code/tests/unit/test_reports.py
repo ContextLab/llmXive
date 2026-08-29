@@ -1,171 +1,173 @@
+"""
+Unit tests for report generation module.
+"""
 import os
+import sys
 import json
 import tempfile
-from pathlib import Path
 import pytest
-import pandas as pd
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from src.reports.generate import generate_feasibility_report, load_feasibility_data
-from src.config import get_reports_root
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-class TestFeasibilityReportGeneration:
-    """Unit tests for T025: Feasibility report generation."""
+from src.reports.generate import (
+    generate_profiling_report,
+    generate_viability_report,
+    generate_sensitivity_report,
+    load_profiling_data,
+    load_timing_profile,
+    load_feasibility_gate_result,
+    load_dimension_viability,
+    load_sensitivity_matrix
+)
 
-    @pytest.fixture
-    def temp_state_dir(self, tmp_path):
-        """Create a temporary state directory with mock scaling data."""
-        state_dir = tmp_path / "state"
-        state_dir.mkdir()
-        
-        # Create mock scaling validation data
-        scaling_data = {
-            "projected_total_hours": 4.5,
-            "r_squared": 0.98,
-            "samples": 100
-        }
-        with open(state_dir / "scaling_validation.json", 'w') as f:
-            json.dump(scaling_data, f)
-        
-        return state_dir
+@pytest.fixture
+def temp_data_dirs():
+    """Create temporary directories for test data."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create directory structure
+        data_root = Path(tmpdir) / "data"
+        data_root.mkdir()
+        (data_root / "processed").mkdir()
+        (data_root / "results").mkdir()
+        reports_root = Path(tmpdir) / "reports"
+        reports_root.mkdir()
+        state_root = Path(tmpdir) / "state"
+        state_root.mkdir()
 
-    @pytest.fixture
-    def temp_data_dir(self, tmp_path):
-        """Create a temporary data directory with mock profiling logs."""
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        
-        # Create mock profiling logs (T023b output)
-        profiling_data = {
-            "peak_memory_gb": 5.2,
-            "records": [
-                {"clip_id": "001", "memory_peak_gb": 4.5, "cpu_time": 10.2},
-                {"clip_id": "002", "memory_peak_gb": 5.2, "cpu_time": 12.1},
-                {"clip_id": "003", "memory_peak_gb": 4.8, "cpu_time": 11.0}
-            ]
-        }
-        with open(data_dir / "profiling_logs.json", 'w') as f:
-            json.dump(profiling_data, f)
-        
-        return data_dir
-
-    def test_load_feasibility_data_success(self, temp_state_dir, temp_data_dir):
-        """Test that load_feasibility_data correctly reads both sources."""
-        # Patch config paths to point to temp directories
-        with patch('src.reports.generate.get_state_root', return_value=temp_state_dir), \
-             patch('src.reports.generate.Path', side_effect=lambda x: Path(temp_data_dir) if x == "data" else Path(x)):
-            
-            # This is tricky because Path is used in multiple places. 
-            # A better approach is to patch the specific file loading logic.
-            # For now, we test the logic by mocking the file reads directly.
-            pass
-
-    def test_generate_feasibility_report_creates_file(self, temp_state_dir, temp_data_dir, tmp_path):
-        """Test that generate_feasibility_report creates the JSON file with correct structure."""
-        output_path = tmp_path / "reports" / "feasibility_profile.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Mock the path resolution to use temp directories
-        with patch('src.reports.generate.get_state_root', return_value=temp_state_dir), \
-             patch('src.reports.generate.get_reports_root', return_value=tmp_path / "reports"), \
-             patch('src.reports.generate.Path') as mock_path:
-            
-            # Configure mock_path to return our temp dirs for specific calls
-            def path_side_effect(path_str):
-                if path_str == "data":
-                    return temp_data_dir
-                return Path(path_str)
-            
-            mock_path.side_effect = path_side_effect
-
-            result_path = generate_feasibility_report(output_path)
-
-            assert result_path.exists()
-            with open(result_path, 'r') as f:
-                report = json.load(f)
-
-            assert "peak_memory_gb" in report
-            assert "projected_total_hours" in report
-            assert report["peak_memory_gb"] == 5.2
-            assert report["projected_total_hours"] == 4.5
-            assert "pass" in report
-            assert report["pass"]["memory"] is True
-            assert report["pass"]["time"] is True
-
-    def test_generate_feasibility_report_fails_on_missing_scaling(self, temp_data_dir, tmp_path):
-        """Test that report generation fails if scaling validation is missing."""
-        state_dir = tmp_path / "state"
-        state_dir.mkdir()
-        
-        output_path = tmp_path / "reports" / "feasibility_profile.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with patch('src.reports.generate.get_state_root', return_value=state_dir), \
-             patch('src.reports.generate.get_reports_root', return_value=tmp_path / "reports"), \
-             patch('src.reports.generate.Path', return_value=temp_data_dir / "profiling_logs.json"):
-            
-            with pytest.raises(FileNotFoundError, match="Scaling validation profile not found"):
-                generate_feasibility_report(output_path)
-
-    def test_generate_feasibility_report_fails_on_missing_profiling(self, temp_state_dir, tmp_path):
-        """Test that report generation fails if profiling logs are missing."""
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        
-        output_path = tmp_path / "reports" / "feasibility_profile.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with patch('src.reports.generate.get_state_root', return_value=temp_state_dir), \
-             patch('src.reports.generate.get_reports_root', return_value=tmp_path / "reports"), \
-             patch('src.reports.generate.Path', return_value=data_dir):
-            
-            with pytest.raises(FileNotFoundError, match="Profiling logs not found"):
-                generate_feasibility_report(output_path)
-
-    def test_report_passes_constraints(self, temp_state_dir, temp_data_dir, tmp_path):
-        """Test that the report correctly identifies passing constraints."""
-        output_path = tmp_path / "reports" / "feasibility_profile.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with patch('src.reports.generate.get_state_root', return_value=temp_state_dir), \
-             patch('src.reports.generate.get_reports_root', return_value=tmp_path / "reports"), \
-             patch('src.reports.generate.Path') as mock_path:
-            
-            def path_side_effect(path_str):
-                if path_str == "data":
-                    return temp_data_dir
-                return Path(path_str)
-            
-            mock_path.side_effect = path_side_effect
-
-            generate_feasibility_report(output_path)
-
-            with open(output_path, 'r') as f:
-                report = json.load(f)
-
-            assert report["pass"]["memory"] is True
-            assert report["pass"]["time"] is True
-
-    def test_report_fails_memory_constraint(self, temp_state_dir, tmp_path):
-        """Test that the report correctly identifies failing memory constraint."""
-        # Create profiling data with high memory
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        profiling_data = {"peak_memory_gb": 8.5}
-        with open(data_dir / "profiling_logs.json", 'w') as f:
+        # Create mock data files
+        profiling_data = [
+            {"clip_id": "clip_001", "cpu_time_sec": 1.5, "peak_memory_mb": 512, "status": "success"},
+            {"clip_id": "clip_002", "cpu_time_sec": 2.0, "peak_memory_mb": 600, "status": "success"},
+            {"clip_id": "clip_003", "cpu_time_sec": 0.0, "peak_memory_mb": 0, "status": "failed"}
+        ]
+        with open(data_root / "profiling_logs.json", "w") as f:
             json.dump(profiling_data, f)
 
-        output_path = tmp_path / "reports" / "feasibility_profile.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        timing_data = [
+            {"mean_time_per_clip_sec": 1.8, "projected_total_hours": 5.0}
+        ]
+        with open(data_root / "timing_profile.csv", "w") as f:
+            f.write("mean_time_per_clip_sec,projected_total_hours\n")
+            for row in timing_data:
+                f.write(f"{row['mean_time_per_clip_sec']},{row['projected_total_hours']}\n")
 
-        with patch('src.reports.generate.get_state_root', return_value=temp_state_dir), \
-             patch('src.reports.generate.get_reports_root', return_value=tmp_path / "reports"), \
-             patch('src.reports.generate.Path', return_value=data_dir / "profiling_logs.json"):
-            
-            generate_feasibility_report(output_path)
+        feasibility_data = {
+            "status": "pass",
+            "memory_limit_gb": 7,
+            "time_limit_hours": 6,
+            "within_memory_limit": True,
+            "within_time_limit": True
+        }
+        with open(state_root / "feasibility_gate.json", "w") as f:
+            json.dump(feasibility_data, f)
 
-            with open(output_path, 'r') as f:
-                report = json.load(f)
+        viability_data = [
+            {"dimension": "dimension_1", "pearson_r": 0.90, "lower_ci": 0.85, "upper_ci": 0.95, "status": "feature-sufficient", "adjusted_p": 0.01},
+            {"dimension": "dimension_2", "pearson_r": 0.60, "lower_ci": 0.50, "upper_ci": 0.70, "status": "VLM-required", "adjusted_p": 0.05}
+        ]
+        with open(data_root / "dimension_viability.csv", "w") as f:
+            f.write("dimension,pearson_r,lower_ci,upper_ci,status,adjusted_p\n")
+            for row in viability_data:
+                f.write(f"{row['dimension']},{row['pearson_r']},{row['lower_ci']},{row['upper_ci']},{row['status']},{row['adjusted_p']}\n")
 
-            assert report["pass"]["memory"] is False
-            assert report["peak_memory_gb"] == 8.5
+        sensitivity_data = [
+            {"dimension": "dimension_1", "status_0.80": "feature-sufficient", "status_0.85": "feature-sufficient", "status_0.90": "VLM-required"},
+            {"dimension": "dimension_2", "status_0.80": "VLM-required", "status_0.85": "VLM-required", "status_0.90": "VLM-required"}
+        ]
+        with open(data_root / "sensitivity_matrix_full.csv", "w") as f:
+            f.write("dimension,status_0.80,status_0.85,status_0.90\n")
+            for row in sensitivity_data:
+                f.write(f"{row['dimension']},{row['status_0.80']},{row['status_0.85']},{row['status_0.90']}\n")
+
+        yield {
+            "data_root": str(data_root),
+            "reports_root": str(reports_root),
+            "state_root": str(state_root)
+        }
+
+@patch('src.reports.generate.get_data_root')
+@patch('src.reports.generate.get_reports_root')
+@patch('src.reports.generate.get_project_root')
+def test_generate_profiling_report(mock_project_root, mock_reports_root, mock_data_root, temp_data_dirs):
+    """Test profiling report generation."""
+    mock_data_root.return_value = temp_data_dirs["data_root"]
+    mock_reports_root.return_value = temp_data_dirs["reports_root"]
+    mock_project_root.return_value = str(Path(temp_data_dirs["state_root"]).parent)
+
+    report = generate_profiling_report()
+
+    assert report is not None
+    assert report["report_type"] == "profiling"
+    assert report["summary"]["total_clips_processed"] == 3
+    assert report["summary"]["successful_clips"] == 2
+    assert "timing_metrics" in report
+    assert "memory_metrics" in report
+    assert "feasibility_status" in report
+
+    # Check file was written
+    output_path = Path(temp_data_dirs["reports_root"]) / "profiling_report.json"
+    assert output_path.exists()
+
+@patch('src.reports.generate.get_data_root')
+@patch('src.reports.generate.get_reports_root')
+def test_generate_viability_report(mock_reports_root, mock_data_root, temp_data_dirs):
+    """Test viability report generation."""
+    mock_data_root.return_value = temp_data_dirs["data_root"]
+    mock_reports_root.return_value = temp_data_dirs["reports_root"]
+
+    report = generate_viability_report()
+
+    assert report is not None
+    assert report["report_type"] == "viability"
+    assert report["total_dimensions"] == 2
+    assert report["feature_sufficient_count"] == 1
+    assert report["vlm_required_count"] == 1
+
+    # Check file was written
+    output_path = Path(temp_data_dirs["reports_root"]) / "viability_report.json"
+    assert output_path.exists()
+
+@patch('src.reports.generate.get_data_root')
+@patch('src.reports.generate.get_reports_root')
+def test_generate_sensitivity_report(mock_reports_root, mock_data_root, temp_data_dirs):
+    """Test sensitivity report generation."""
+    mock_data_root.return_value = temp_data_dirs["data_root"]
+    mock_reports_root.return_value = temp_data_dirs["reports_root"]
+
+    report = generate_sensitivity_report()
+
+    assert report is not None
+    assert report["report_type"] == "sensitivity"
+    assert len(report["thresholds_tested"]) == 3
+    assert report["dimensions_analyzed"] == 2
+
+    # Check file was written
+    output_path = Path(temp_data_dirs["reports_root"]) / "sensitivity_report.json"
+    assert output_path.exists()
+
+@patch('src.reports.generate.get_data_root')
+def test_load_profiling_data_missing_file(mock_data_root, temp_data_dirs):
+    """Test loading profiling data when file is missing."""
+    mock_data_root.return_value = str(Path(temp_data_dirs["data_root"]) / "nonexistent")
+
+    with pytest.raises(FileNotFoundError):
+        load_profiling_data()
+
+@patch('src.reports.generate.get_data_root')
+def test_load_timing_profile_missing_file(mock_data_root, temp_data_dirs):
+    """Test loading timing profile when file is missing."""
+    mock_data_root.return_value = str(Path(temp_data_dirs["data_root"]) / "nonexistent")
+
+    with pytest.raises(FileNotFoundError):
+        load_timing_profile()
+
+@patch('src.reports.generate.get_project_root')
+def test_load_feasibility_gate_result_missing_file(mock_project_root, temp_data_dirs):
+    """Test loading feasibility gate result when file is missing."""
+    mock_project_root.return_value = str(Path(temp_data_dirs["state_root"]).parent / "nonexistent")
+
+    with pytest.raises(FileNotFoundError):
+        load_feasibility_gate_result()
