@@ -1,23 +1,30 @@
-[lint]
-select = ["E", "F", "W", "I", "N", "B", "C4", "SIM", "UP"]
-ignore = ["E501", "W505"]
-fixable = ["ALL"]
+# Ruff configuration
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+# Exclude generated files
 exclude = [
     ".git",
     "__pycache__",
-    "data",
-    "state",
-    "docs",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
 ]
-force-exclude = true
 
-[lint.per-file-ignores]
-"tests/*" = ["S101", "D100", "D101", "D102", "D103"]
+# Line length
+line-length = 88
 
-[lint.isort]
-known-first-party = ["utils"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
+# Target Python version
+target-version = "py310"

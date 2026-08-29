@@ -126,3 +126,217 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T19:46:49Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: validation_report.json schema includes subgroup_counts
+  claim_id: c_fc56ab63
+  context: 'Generate data/raw/validation_report.json with schema: { status, missing_fields,
+    subgroup_counts, subgroups_eligible, subgroups_excluded }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_report.json_schema_includes_subgroup_counts
+  kind: entity_fact
+  raw_text: Generate data/raw/validation_report.json with schema including subgroup_counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:02:47Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: CI workflow runtime limit is 6 hours and RAM limit is 7 GB
+  claim_id: c_2edc0c29
+  context: Run the CI workflow. Verify runtime < 6h and RAM < 7GB. Capture metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 6h and RAM < 7GB for CI workflow execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:02:47Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: peak BERT inference memory usage limit is 7 GB
+  claim_id: c_c1781bda
+  context: 'Performance optimization: verify memory usage < 7GB during peak BERT inference'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify memory usage < 7GB during peak BERT inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:02:47Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Fallback classifier for LIWC-2015 unavailability is textstat
+  claim_id: c_16867975
+  context: 'T032 [US3] **Robustness Classifier**: Implement code/03_robustness_analysis.py
+    to re-score dialogues using **LIWC-2015**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If LIWC-2015 license is not available, log 'LIWC-2015 license missing'
+    and use textstat as a fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:07:33Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: CI pipeline performance constraints are runtime under 6 hours and RAM
+    under 7GB
+  claim_id: c_fa42c836
+  context: 'T042b [P] Execute full pipeline on GitHub Actions and capture metrics.
+    Logic: Run the CI workflow.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 6h and RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:07:33Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Peak memory usage constraint for BERT inference is 7GB
+  claim_id: c_b5e31205
+  context: 'T040 Performance optimization: verify memory usage < 7GB during peak BERT
+    inference'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_constraint_for_BERT_inference_is_7GB
+  kind: entity_fact
+  raw_text: Verify memory usage < 7GB during peak BERT inference.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:08:08Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for variable removal is 5
+  claim_id: c_0121a126
+  context: "T026 [US2] Implement VIF check for politeness and conversation_length;\
+    \ log warning and drop variable if VIF \u2265 5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Log warning and drop variable if VIF \u2265 5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:08:08Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Persona-Chat dataset source is cardinal/canonical-persona-chat on HuggingFace
+  claim_id: c_d07ab0fe
+  context: T015 [US1] Implement code/01_download_and_score.py to fetch Persona-Chat
+    as a PRIMARY input per FR-001.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Persona-Chat_dataset_source_is_cardinal/canonical-persona-ch
+  kind: entity_fact
+  raw_text: Download cardinal/canonical-persona-chat from HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:09:13Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: EmpatheticDialogues dataset source is empathetic_dialogues on HuggingFace
+  claim_id: c_2a02e73e
+  context: T016 [US1] Implement code/01_download_and_score.py to fetch EmpatheticDialogues
+    as a PRIMARY input per FR-001.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EmpatheticDialogues_dataset_source_is_empathetic_dialogues_o
+  kind: entity_fact
+  raw_text: Download empathetic_dialogues from HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:09:47Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: HCI_P2 dataset source is HCI_P2 on HuggingFace
+  claim_id: c_339ca390
+  context: T017 [US1] Implement code/01_download_and_score.py to fetch HCI_P2 as a
+    PRIMARY input per FR-001.
+  evidence:
+    entailment_evidence: HCI P2 dataset source is HCI P2 on HuggingFace
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HCI_P2_dataset_source_is_HCI_P2_on_HuggingFace
+  kind: entity_fact
+  raw_text: Download HCI_P2 from HuggingFace.
+  resolved_value: HCI_P2 dataset source is HCI_P2 on HuggingFace
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T04:09:50Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Politeness scoring model is jfiedler/politeness-bert
+  claim_id: c_3fa90a0c
+  context: T020 [US1] Implement batched inference using jfiedler/politeness-bert (CPU-only,
+    torch.no_grad(), max_memory management) to score utterances.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Politeness_scoring_model_is_jfiedler/politeness-bert
+  kind: entity_fact
+  raw_text: Score utterances using jfiedler/politeness-bert.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:10:34Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: CLMM model formula is quality_rating ~ politeness + conversation_length
+    + (1|user_id) using lme4
+  claim_id: c_eeccdabd
+  context: 'T027 [US2] Implement CLMM fitting via rpy2 (formula: quality_rating ~
+    politeness + conversation_length + (1|user_id)) with lme4.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: user_id) using lme4
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/CLMM_model_formula_is_quality_rating_~_politeness_+_conversa
+    source_value: https://en.wikipedia.org/wiki/CLMM_model_formula_is_quality_rating_~_politeness_+_conversa
+    subject: CLMM model formula is quality_rating ~ politeness + conversation_length
+      + (1
+  kind: relational
+  raw_text: Fit CLMM using formula quality_rating ~ politeness + conversation_length
+    + (1|user_id) with lme4.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T04:12:07Z'

@@ -1,8 +1,8 @@
 """
-Task T015b: Download Persona-Chat dataset to data/raw/persona_chat/ with checksums.
+T015: Implement download and verification for Persona-Chat dataset.
 
-This script downloads the Persona-Chat dataset from Hugging Face Hub as a fallback source
-for the politeness study, satisfying FR-001's requirement to store datasets locally.
+Fetches 'cardinal/canonical-persona-chat' from HuggingFace as a PRIMARY input.
+Verifies schema fields, stores raw data, and generates checksums.
 """
 import os
 import sys
@@ -12,120 +12,217 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 # Add project root to path for imports
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
+from datasets import load_dataset
 from utils.data_integrity import compute_directory_checksum, generate_manifest
 from utils.env_config import get_hf_token
+from utils.schema_validator import validate_dataset_schema, load_schema
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(project_root / 'logs' / 'download_persona_chat.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-DATASET_NAME = "persona_chat"
-HF_DATASET_ID = "parlance/persona-chat"
-OUTPUT_DIR = "data/raw/persona_chat"
-MANIFEST_FILE = "manifest.json"
-CHECKSUM_FILE = "checksums.json"
+DATASET_ID = "cardinal/canonical-persona-chat"
+REQUIRED_FIELDS = ["quality_rating", "user_id", "dialogue_id"]
+RAW_DATA_DIR = project_root / "data" / "raw" / "persona_chat"
+CHECKSUMS_FILE = RAW_DATA_DIR / "checksums.json"
+MANIFEST_FILE = RAW_DATA_DIR / "manifest.json"
+VALIDATION_REPORT_FILE = RAW_DATA_DIR / "validation_status.json"
+
 
 def ensure_directories():
-    """Create necessary output directories."""
-    output_path = project_root / OUTPUT_DIR
-    output_path.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured output directory: {output_path}")
-    return output_path
+    """Create necessary directories for raw data and logs."""
+    dirs = [
+        RAW_DATA_DIR,
+        project_root / "logs"
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured directories exist: {[str(d) for d in dirs]}")
 
-def load_dataset_with_check():
+
+def load_dataset_with_check(dataset_id: str, split: str = "train") -> Any:
     """
-    Download the Persona-Chat dataset from Hugging Face Hub.
+    Load dataset from HuggingFace with error handling.
     
-    This function:
-    1. Checks for HF_TOKEN in environment
-    2. Downloads the dataset using the datasets library
-    3. Saves it to the output directory in parquet format
-    4. Generates checksums and manifest for integrity verification
-    
-    Returns:
-        Path: Path to the downloaded dataset directory
-    """
-    output_path = ensure_directories()
-    
-    try:
-        from datasets import load_dataset
-        logger.info(f"Attempting to download dataset: {HF_DATASET_ID}")
+    Args:
+        dataset_id: HuggingFace dataset identifier
+        split: Dataset split to load
         
-        # Attempt to download the dataset
-        # Using streaming=False to download full dataset for local storage
-        # This satisfies FR-001's requirement to store datasets locally
+    Returns:
+        Loaded dataset object
+        
+    Raises:
+        RuntimeError: If dataset cannot be loaded or fields are missing
+    """
+    logger.info(f"Loading dataset: {dataset_id} (split: {split})")
+    try:
+        # Use HF token if available
+        token = get_hf_token()
         dataset = load_dataset(
-            HF_DATASET_ID,
-            split="train",  # Persona-Chat has a single train split
+            dataset_id, 
+            split=split, 
+            token=token,
             trust_remote_code=True
         )
-        
-        logger.info(f"Successfully loaded {len(dataset)} rows from {HF_DATASET_ID}")
-        
-        # Save dataset to parquet format
-        parquet_path = output_path / "persona_chat.parquet"
-        dataset.to_parquet(str(parquet_path))
-        logger.info(f"Saved dataset to {parquet_path}")
-        
-        # Generate checksums for integrity verification
-        checksum = compute_directory_checksum(output_path)
-        logger.info(f"Computed directory checksum: {checksum}")
-        
-        # Generate manifest
-        manifest = generate_manifest(output_path)
-        manifest_path = output_path / MANIFEST_FILE
-        with open(manifest_path, 'w') as f:
-            json.dump(manifest, f, indent=2)
-        logger.info(f"Generated manifest at {manifest_path}")
-        
-        # Save checksums
-        checksums = {
-            "dataset_name": DATASET_NAME,
-            "hf_dataset_id": HF_DATASET_ID,
-            "checksum": checksum,
-            "file_count": len(manifest.get("files", [])),
-            "total_size_bytes": manifest.get("total_size_bytes", 0),
-            "downloaded_at": str(Path(__file__).parent.stat().st_mtime)  # Simple timestamp
-        }
-        checksum_path = output_path / CHECKSUM_FILE
-        with open(checksum_path, 'w') as f:
-            json.dump(checksums, f, indent=2)
-        logger.info(f"Saved checksums to {checksum_path}")
-        
-        return output_path
-        
+        logger.info(f"Successfully loaded {len(dataset)} records from {dataset_id}")
+        return dataset
     except Exception as e:
-        logger.error(f"Failed to download or process dataset: {str(e)}")
-        raise RuntimeError(f"Dataset download failed: {str(e)}")
+        logger.error(f"Failed to load dataset {dataset_id}: {str(e)}")
+        raise RuntimeError(f"Dataset loading failed: {str(e)}") from e
+
+
+def validate_and_preprocess(dataset: Any) -> bool:
+    """
+    Validate dataset has required fields and basic integrity.
+    
+    Args:
+        dataset: Loaded dataset object
+        
+    Returns:
+        True if validation passes
+        
+    Raises:
+        ValueError: If required fields are missing
+    """
+    logger.info("Validating dataset schema...")
+    
+    # Check required fields
+    columns = dataset.column_names
+    missing_fields = [f for f in REQUIRED_FIELDS if f not in columns]
+    
+    if missing_fields:
+        error_msg = f"Missing required fields: {missing_fields}. Available: {columns}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    
+    logger.info(f"Schema validation passed. Required fields present: {REQUIRED_FIELDS}")
+    
+    # Optional: Validate against schema contract
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    if schema_path.exists():
+        try:
+            schema = load_schema(schema_path)
+            # Basic validation check (schema validator might need adaptation for HF dataset format)
+            logger.info("Schema contract validation attempted.")
+        except Exception as e:
+            logger.warning(f"Schema contract validation skipped/warned: {e}")
+    
+    return True
+
+
+def save_raw_data(dataset: Any, output_dir: Path):
+    """
+    Save dataset to disk in a structured format.
+    
+    Args:
+        dataset: Dataset to save
+        output_dir: Directory to save data
+    """
+    logger.info(f"Saving raw data to {output_dir}")
+    
+    # Convert to pandas for easier saving and inspection
+    df = dataset.to_pandas()
+    
+    # Save as parquet (efficient format)
+    parquet_path = output_dir / "persona_chat_raw.parquet"
+    df.to_parquet(parquet_path, index=False)
+    logger.info(f"Saved {len(df)} records to {parquet_path}")
+    
+    # Save as JSON lines for human readability/debugging
+    jsonl_path = output_dir / "persona_chat_raw.jsonl"
+    df.to_json(jsonl_path, orient='records', lines=True)
+    logger.info(f"Saved {len(df)} records to {jsonl_path}")
+
+
+def generate_checksums_and_manifest(data_dir: Path):
+    """Generate checksums and manifest for the downloaded data."""
+    logger.info("Generating checksums and manifest...")
+    
+    # Generate file manifest
+    manifest = generate_manifest(data_dir)
+    with open(MANIFEST_FILE, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    logger.info(f"Manifest saved to {MANIFEST_FILE}")
+    
+    # Compute directory checksum
+    checksum = compute_directory_checksum(data_dir)
+    checksums = {
+        "directory": str(data_dir),
+        "checksum": checksum,
+        "timestamp": str(Path(__file__).stat().st_mtime),
+        "dataset_id": DATASET_ID
+    }
+    with open(CHECKSUMS_FILE, 'w') as f:
+        json.dump(checksums, f, indent=2)
+    logger.info(f"Checksums saved to {CHECKSUMS_FILE}")
+
+
+def save_validation_report(status: str, details: Dict[str, Any]):
+    """Save validation status to file."""
+    report = {
+        "dataset": DATASET_ID,
+        "status": status,
+        "details": details,
+        "timestamp": str(Path(__file__).stat().st_mtime)
+    }
+    with open(VALIDATION_REPORT_FILE, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Validation report saved to {VALIDATION_REPORT_FILE}")
+
 
 def main():
-    """Main entry point for the script."""
-    logger.info("Starting Persona-Chat dataset download (T015b)")
+    """Main execution function for T015."""
+    logger.info("=" * 60)
+    logger.info("Starting T015: Download Persona-Chat Dataset")
+    logger.info("=" * 60)
     
     try:
-        # Verify environment (HF_TOKEN might be needed for authenticated datasets)
-        hf_token = get_hf_token()
-        if hf_token:
-            logger.info("HF_TOKEN found in environment")
-        else:
-            logger.warning("HF_TOKEN not found - some datasets may require authentication")
+        # 1. Ensure directories exist
+        ensure_directories()
         
-        # Download and process dataset
-        output_path = load_dataset_with_check()
+        # 2. Load dataset
+        dataset = load_dataset_with_check(DATASET_ID)
         
-        logger.info(f"Persona-Chat dataset successfully downloaded to {output_path}")
-        logger.info("Task T015b completed successfully")
+        # 3. Validate schema
+        validate_and_preprocess(dataset)
+        
+        # 4. Save raw data
+        save_raw_data(dataset, RAW_DATA_DIR)
+        
+        # 5. Generate checksums and manifest
+        generate_checksums_and_manifest(RAW_DATA_DIR)
+        
+        # 6. Save validation report
+        save_validation_report("success", {
+            "records_loaded": len(dataset),
+            "fields_verified": REQUIRED_FIELDS,
+            "output_files": [
+                str(RAW_DATA_DIR / "persona_chat_raw.parquet"),
+                str(RAW_DATA_DIR / "persona_chat_raw.jsonl")
+            ]
+        })
+        
+        logger.info("=" * 60)
+        logger.info("T015 COMPLETED SUCCESSFULLY")
+        logger.info(f"Data stored in: {RAW_DATA_DIR}")
+        logger.info("=" * 60)
         
     except Exception as e:
-        logger.error(f"Task T015b failed: {str(e)}")
-        sys.exit(1)
+        logger.error(f"T015 FAILED: {str(e)}")
+        save_validation_report("failed", {"error": str(e)})
+        raise
+
 
 if __name__ == "__main__":
     main()

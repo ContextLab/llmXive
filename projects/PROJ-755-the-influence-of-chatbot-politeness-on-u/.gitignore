@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,63 +20,40 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.coverage
-.coverage.*
-.hypothesis
-.pytest_cache
-
-# Transient virtualenvs
-.venv
-venv
-ENV
-env
-
-# Environment variables
-.env
-
-# Data directories (Raw and Processed)
+# Data
 data/raw/*
-!data/raw/.gitkeep
 data/processed/*
+!data/raw/.gitkeep
 !data/processed/.gitkeep
 
-# Model caches and large artifacts
-.cache
-models/
-*.pth
-*.pt
-*.bin
-*.h5
-*.onnx
+# Model caches
+.cache/
+transformers/
+.huggingface/
+hf_cache/
+
+# Environment
+.env
+.env.local
+
+# Logs
+logs/
+*.log
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
+# Test coverage
+htmlcov/
+.coverage
+coverage.xml
 
-# R artifacts
-.Rhistory
-.RData
-
-# State tracking
-state/*.yaml
-!state/.gitkeep
+# Jupyter
+.ipynb_checkpoints

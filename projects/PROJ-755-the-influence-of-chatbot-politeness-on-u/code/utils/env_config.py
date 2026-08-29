@@ -1,11 +1,13 @@
 """
 Environment configuration management utilities.
-Handles loading .env files, validating required variables, and providing access to them.
 """
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv, find_dotenv
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class EnvConfigError(Exception):
@@ -13,142 +15,102 @@ class EnvConfigError(Exception):
     pass
 
 
-def load_env_config(env_path: Optional[Path] = None) -> Dict[str, str]:
+def load_env_config(env_file: Optional[Path] = None) -> Dict[str, str]:
     """
-    Load environment variables from a .env file.
+    Load environment configuration from .env file.
     
     Args:
-        env_path: Path to the .env file. If None, searches in the current directory.
+        env_file: Path to .env file (default: auto-detect)
         
     Returns:
-        Dictionary of loaded environment variables.
-        
-    Raises:
-        EnvConfigError: If the .env file cannot be read.
+        Dictionary of environment variables
     """
-    if env_path is None:
-        env_path = Path(find_dotenv())
-        
-    if not env_path.exists():
-        # If no .env file exists, return empty dict (some vars might be in system env)
+    if env_file is None:
+        env_file = find_dotenv()
+    
+    if not env_file:
+        logger.warning("No .env file found. Using system environment variables.")
         return {}
-        
-    try:
-        load_dotenv(str(env_path), override=True)
-        return {k: v for k, v in os.environ.items() if v is not None}
-    except Exception as e:
-        raise EnvConfigError(f"Failed to load environment config from {env_path}: {e}")
-
-
-def get_hf_token(required: bool = True) -> Optional[str]:
-    """
-    Retrieve the Hugging Face token from environment variables.
     
-    Args:
-        required: If True, raises an error if the token is missing.
-                
+    load_dotenv(env_file)
+    return dict(os.environ)
+
+
+def get_hf_token() -> Optional[str]:
+    """
+    Get HuggingFace token from environment.
+    
     Returns:
-        The HF_TOKEN value if found, None otherwise.
-        
-    Raises:
-        EnvConfigError: If required=True and token is missing.
+        HF token string or None if not found
     """
     token = os.getenv("HF_TOKEN")
-    
-    if required and not token:
-        raise EnvConfigError(
-            "HF_TOKEN is not set. Please set it in your .env file or environment. "
-            "See code/.env.example for instructions."
-        )
-        
+    if not token:
+        logger.warning("HF_TOKEN not found in environment variables.")
+        return None
     return token
 
 
-def validate_env_config(required_vars: list[str]) -> Dict[str, bool]:
+def validate_env_config(required_vars: list = None) -> bool:
     """
-    Validate that all required environment variables are present and non-empty.
+    Validate that required environment variables are set.
     
     Args:
-        required_vars: List of variable names that must be present.
+        required_vars: List of required variable names
         
     Returns:
-        Dictionary mapping variable names to boolean (True if valid).
+        True if all required variables are set
         
     Raises:
-        EnvConfigError: If any required variable is missing or empty.
+        EnvConfigError: If required variables are missing
     """
-    results = {}
+    if required_vars is None:
+        required_vars = ["HF_TOKEN"]
+    
     missing = []
-    
     for var in required_vars:
-        val = os.getenv(var)
-        is_valid = bool(val)
-        results[var] = is_valid
-        if not is_valid:
+        if not os.getenv(var):
             missing.append(var)
-            
+    
     if missing:
-        raise EnvConfigError(
-            f"Missing or empty required environment variables: {', '.join(missing)}. "
-            "Please update your .env file."
-        )
-        
-    return results
+        raise EnvConfigError(f"Missing required environment variables: {missing}")
+    
+    return True
 
 
-def create_env_template(output_path: Path, template_vars: Dict[str, str]) -> None:
+def create_env_template(template_path: Path = None):
     """
-    Create a .env.example file with placeholder values.
+    Create a .env.example template file.
     
     Args:
-        output_path: Where to write the template file.
-        template_vars: Dictionary of variable names to placeholder descriptions.
+        template_path: Path to save template (default: .env.example)
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if template_path is None:
+        template_path = Path(".env.example")
     
-    lines = [
-        f"# {output_path.name}",
-        "# Auto-generated environment variable template.",
-        "# Copy this file to .env and fill in your values.",
-        ""
-    ]
+    template_content = """# Environment Configuration Template
+# Copy this file to .env and fill in your values
+
+# HuggingFace API Token (required for dataset downloads)
+HF_TOKEN=
+
+# Optional: Other configuration
+# LOG_LEVEL=INFO
+# MAX_MEMORY_GB=7
+"""
+    with open(template_path, 'w') as f:
+        f.write(template_content)
     
-    for var, description in template_vars.items():
-        lines.append(f"# {description}")
-        lines.append(f"{var}=")
-        lines.append("")
-        
-    with open(output_path, 'w') as f:
-        f.write('\n'.join(lines))
+    logger.info(f"Created environment template at {template_path}")
 
 
-def ensure_env_file_exists(env_path: Optional[Path] = None) -> Path:
+def ensure_env_file_exists():
     """
-    Ensure the .env file exists. If not, copy from .env.example.
-    
-    Args:
-        env_path: Path to the .env file.
-        
-    Returns:
-        Path to the existing or newly created .env file.
+    Ensure .env file exists, creating template if not.
     """
-    if env_path is None:
-        env_path = Path(".env")
-        
-    env_example = Path(".env.example")
-    
+    env_path = Path(".env")
     if not env_path.exists():
-        if env_example.exists():
-            # Copy template to .env
-            with open(env_example, 'r') as src:
-                content = src.read()
-            with open(env_path, 'w') as dst:
-                dst.write(content)
-            return env_path
-        else:
-            # No template found, create empty one
-            with open(env_path, 'w') as f:
-                f.write("# Environment variables\n")
-            return env_path
-            
-    return env_path
+        logger.info(".env file not found. Creating template...")
+        create_env_template()
+        logger.info("Please copy .env.example to .env and fill in your values.")
+        return False
+    return True

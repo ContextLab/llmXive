@@ -52,6 +52,7 @@
 - [X] T007 [P] Implement `code/utils/data_integrity.py` for checksumming and data integrity checks
 - [ ] T008 [P] Create `contracts/dataset.schema.yaml` defining Dialogue, Utterance, and User entities
 - [X] T007b [P] Update `state/projects/PROJ-755-the-influence-of-chatbot-politeness-on-u.yaml` to record checksums in `artifact_hashes.raw_data` key after T007 generates them.
+ - *Logic*: Dependency: T007. Must wait for T007 to complete.
 - [ ] T010 [P] [Setup] Setup environment configuration management (`.env` template for `HF_TOKEN` if needed).
  - *Logic*: Create `.env.example` with `HF_TOKEN=` placeholder. Document in `README.md` that this is for local development only and that CI secrets must be injected via GitHub Actions environment variables to ensure reproducibility on fresh runners per Constitution Principle I.
 
@@ -67,16 +68,6 @@
 
 - [ ] T009 [P] Create `contracts/output.schema.yaml` defining CLMM results structure
 - [ ] T011 [P] [Foundational] Implement `code/utils/schema_validator.py` to validate dataset schemas against `contracts/dataset.schema.yaml`
-- [ ] T011b [P] [Foundational] Perform Power & Sample Size Estimation and update `research.md`.
- - *Logic*: Run pilot on sample data to estimate effect size.
- - *Output*: Append section 'MDE_Estimation' to `research.md` with fields: `minimum_detectable_effect`, `power`, `sample_size`.
-- [ ] T012 [P] [Foundational] **VERIFICATION GATE**: Validate presence of `quality_rating`, `user_id`, `age`, and `gender` fields in the merged dataset.
- - *Logic*:
- 1. Check `quality_rating` and `user_id`: If missing in HCI_P2, **log critical error** ('CRITICAL: Missing required fields') and **exit with code 1**.
- 2. Check `age` and `gender`: If missing, **do not halt**. Generate `data/raw/validation_report.json` with `status: partial` and `missing_fields: ['age', 'gender']`. Proceed to US1 and US2.
- 3. If `age`/`gender` missing, log that US3 (subgroup analysis) will be skipped per FR-006.
- - *Deliverable*: `data/raw/validation_report.json` (if partial) or `data/raw/validation_report.json` with `status: full`.
- - *Note*: This task gates ALL user stories (US1, US2, US3). It must run before any download or scoring logic.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,7 +75,7 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Politeness Scoring (Priority: P1) 🎯 MVP
 
-**Goal**: Download **HCI_P2** dataset as the primary source (per Plan Phase 0), filter for completeness, and compute mean politeness scores per conversation using `jfiedler/politeness-bert` on CPU. Download Persona-Chat and EmpatheticDialogues ONLY if HCI_P2 lacks required fields. Store all datasets separately as per FR-001.
+**Goal**: Download **HCI_P2** as the **PRIMARY** input per Plan Summary and FR-001 (narrowed scope). Filter for completeness, and compute mean politeness scores per conversation using `jfiedler/politeness-bert` on CPU.
 
 **Independent Test**: Run `code/01_download_and_score.py` on a sample of dialogues; verify `data/processed/scored_dialogues.parquet` exists with `politeness_score` and `quality_rating` columns, and that excluded dialogues are logged.
 
@@ -97,26 +88,69 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `code/01_download_and_score.py` to fetch **HCI_P2** as the **primary input** per Plan Phase 0.
+- [X] T015 [US1] Implement `code/01_download_and_score.py` to fetch **HCI_P2** as the **PRIMARY** input per Plan Summary.
  - *Logic*:
- 1. Attempt to download **HCI_P2** first.
+ 1. Download `HCI_P2` from HuggingFace.
  2. Verify presence of `quality_rating`, `user_id`, `dialogue_id`.
- 3. **Dependency: T012**. Check `data/raw/validation_report.json`.
- 4. **If HCI_P2 lacks `quality_rating` (status: partial/missing)**, attempt to fetch **Persona-Chat** and **EmpatheticDialogues** as fallback sources per FR-001.
- 5. If all sources lack `quality_rating`, abort with critical error.
- - *Deliverable*: Raw data stored in `data/raw/hci_p2/` with checksums (and fallbacks if triggered).
-- [ ] T016 [US1] Implement **conditional** merging logic to combine available datasets into a unified DataFrame ONLY if HCI_P2 lacks required fields.
+ 3. Store raw data in `data/raw/hci_p2/` with checksums.
+ - *Deliverable*: Raw data stored in `data/raw/hci_p2/`.
+- [ ] T012 [US1] [VERIFICATION GATE] **Sample Size Verification** for Subgroups and Primary Analysis.
  - *Logic*:
- 1. **Dependency: T012**. Check `data/raw/validation_report.json`.
- 2. If `status: full`, **DO NOT MERGE**. Use HCI_P2 only.
- 3. If `status: partial` or missing, merge available fallback datasets (Persona-Chat, EmpatheticDialogues) into `data/processed/merged_dialogues.parquet`.
- 4. Preserve `user_id`, `dialogue_id`, `quality_rating`, `age`, `gender`.
- - *Deliverable*: `data/processed/merged_dialogues.parquet` (if merge occurs) or `data/processed/scored_dialogues.parquet` (if HCI_P2 only).
-- [ ] T017 [US1] Implement filtering logic to exclude dialogues missing `quality_rating` or chatbot utterances (log counts).
-- [ ] T018 [US1] Implement batched inference using `jfiedler/politeness-bert` (CPU-only, `torch.no_grad()`, max_memory management) to score utterances.
- - *Error Handling*: Implement try-except for `ModelLoadingError` and `MemoryError`, log specific error codes, and fallback to `batch_size=1`.
-- [ ] T019 [US1] Implement aggregation logic to compute `mean_politeness_score` per dialogue and z-score standardization.
-- [ ] T020 [US1] Save processed data to `data/processed/scored_dialogues.parquet` and raw logs to `data/raw/exclusions.log`.
+ 1. **Dependency**: T015.
+ 2. Load the raw HCI_P2 dataset.
+ 3. **Check Total Sample Size**: If total n < 100 (minimum for CLMM), log "STOP: Insufficient data for primary analysis" and halt pipeline.
+ 4. **Check Subgroups**: Count dialogues per `age` group and `gender` group.
+ 5. **Gate Condition**: If ANY subgroup (e.g., Male, Female, Age 18-25) has n < 30, log that US3 (subgroup analysis) will be skipped for that specific group.
+ 6. **Do NOT** skip based on column existence. Only skip if n < 30.
+ 7. Generate `data/raw/validation_report.json` with schema:
+ ```json
+ {
+ "status": "full" | "partial" | "missing_demographics",
+ "total_sample_size": 500,
+ "primary_analysis_valid": true,
+ "missing_fields": [],
+ "subgroup_counts": { "male": 500, "female": 480, "age_18_25": 200,... },
+ "subgroups_eligible": ["male", "female", "age_18_25"],
+ "subgroups_excluded": []
+ }
+ ```
+ - *Deliverable*: `data/raw/validation_report.json`.
+ - *Note*: This task gates US3. It must run after data download (T015) but before merge/score (T018).
+- [ ] T011b [US1] [Pilot] Run pilot on **first 1000 rows of the raw dataset** to estimate effect size and calculate Minimum Detectable Effect (MDE).
+ - *Logic*:
+ 1. **Dependency**: T015.
+ 2. Execute pilot analysis on the first 1000 rows of the raw dataset. Calculate MDE for the planned sample size.
+ 3. **Output**: Generate `data/processed/pilot_mde_results.json` with fields: `minimum_detectable_effect`, `power`, `sample_size`.
+- [ ] T011c [US1] Update `research.md` with MDE estimation results.
+ - *Logic*:
+ 1. **Dependency**: T011b.
+ 2. **Create `research.md` if it does not exist**.
+ 3. Read `data/processed/pilot_mde_results.json` and append section 'MDE_Estimation' to `research.md`.
+- [ ] T019 [US1] Implement filtering logic to exclude dialogues missing `quality_rating` or chatbot utterances (log counts).
+ - *Logic*:
+ 1. **Dependency**: T015.
+ 2. Filter dataset for completeness.
+ 3. Log counts of excluded dialogues.
+ - *Deliverable*: Filtered raw dataset in `data/raw/filtered/`.
+- [ ] T018 [US1] Implement **Schema Definition, Transformation, and Merge** for HCI_P2.
+ - *Logic*:
+ 1. **Dependency**: T019.
+ 2. Define the target schema for HCI_P2 (user_id, dialogue_id, quality_rating, age, gender, utterances).
+ 3. Transform the filtered dataset to match this schema.
+ 4. Save as `data/processed/merged_dialogues.parquet`.
+ 5. **Note**: Since source is single dataset, 'Merge' is effectively a transformation and save.
+ - *Deliverable*: `data/processed/merged_dialogues.parquet`.
+- [ ] T020 [US1] Implement **Politeness Scoring** (Load, Inference, Error Handling).
+ - *Logic*:
+ 1. **Dependency**: T018.
+ 2. Load `jfiedler/politeness-bert` (CPU-only).
+ 3. Verify model file size ≤ 100MB.
+ 4. Iterate through utterances in batches with dynamic batch sizing.
+ 5. Compute politeness scores; assign NaN to failures and log counts.
+ 6. Compute `mean_politeness_score` per dialogue and z-score standardize.
+ 7. Save to `data/processed/scored_dialogues.parquet`.
+ - *Deliverable*: `data/processed/scored_dialogues.parquet`.
+- [ ] T021 [US1] Save processed data to `data/processed/scored_dialogues.parquet` and raw logs to `data/raw/exclusions.log`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -130,31 +164,48 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T021 [P] [US2] Unit test for VIF calculation and collinearity check in `tests/unit/test_collinearity.py`
-- [X] T022 [P] [US2] Integration test for CLMM execution and result schema validation in `tests/integration/test_clmm.py`
+- [X] T023 [P] [US2] Unit test for VIF calculation and collinearity check in `tests/unit/test_collinearity.py`
+- [X] T024 [P] [US2] Integration test for CLMM execution and result schema validation in `tests/integration/test_clmm.py`
 
 ### Implementation for User Story 2
 
-- [X] T023 [US2] Implement `code/02_fit_clmm.py` to load `scored_dialogues.parquet`
-- [ ] T024 [US2] Implement VIF check for `politeness` and `conversation_length`; log warning and drop variable if VIF ≥ 5.
-- [ ] T025 [US2] Implement CLMM fitting via `rpy2` (formula: `quality_rating ~ politeness + conversation_length + (1|user_id)`) with `lme4`.
-- [ ] T026 [US2] **Convergence Tracking & Fallback**: Calculate and log the **CLMM convergence rate** (number of converged models / total attempts) to verify **SC-003**.
+- [X] T025 [US2] Implement `code/02_fit_clmm.py` to load `scored_dialogues.parquet`
+- [ ] T026 [US2] Implement VIF check for `politeness` and `conversation_length`; log warning and drop variable if VIF ≥ 5.
+- [ ] T027 [US2] Implement CLMM fitting via `rpy2` (formula: `quality_rating ~ politeness + conversation_length + (1|user_id)`) with `lme4`.
+- [ ] T027a [US2] **Extract Convergence Status**: Calculate convergence status for each fitted model.
  - *Logic*:
- 1. Execute CLMM fitting (T025).
- 2. Calculate convergence rate.
+ 1. **Dependency**: T027.
+ 2. Extract convergence flag from the model object.
+ 3. Return a list of convergence statuses.
+ - *Deliverable*: List of convergence statuses.
+- [ ] T027b [US2] **Aggregate Convergence Rate**: Calculate and log the **CLMM convergence rate**.
+ - *Logic*:
+ 1. **Dependency**: T027a.
+ 2. Calculate convergence rate (converged / total).
  3. **Report**: If convergence ≥ 95%, log "SC-003 MET". If convergence < 95%, log "SC-003 NOT MET" and record the specific rate.
- 4. **Fallback**: IF convergence < 95%, execute fallback to fixed-effects ordinal regression and log diagnostic.
- - *Note*: The fallback is a remediation step triggered ONLY when SC-003 is NOT met. It does not satisfy SC-003.
- - *Dependency*: T026 must complete before T028.
-- [ ] T027 [US2] Implement Benjamini-Hochberg correction for p-values across fixed effects.
-- [ ] T028 [US2] Save results to `data/processed/clmm_results.csv` with coefficients, SEs, p-values, CI, and convergence metrics.
+ 4. **Do NOT** satisfy SC-003 with a fallback. If convergence < 95%, the project fails SC-003.
+ - *Note*: This task does NOT execute the fallback. It only reports the status.
+ - *Dependency*: T027a.
+- [ ] T027c [US2] **Fallback Execution**: If T027b reports convergence < 95%, execute fallback to fixed-effects ordinal regression.
  - *Logic*:
- 1. **Dependency**: T026 (Convergence Check).
- 2. If T026 triggered fallback, **re-fit** the model using fixed-effects ordinal regression logic as defined in T026.
- 3. Save results (either from primary CLMM or fallback) to `data/processed/clmm_results.csv`.
+ 1. **Dependency**: T027b.
+ 2. If convergence < 95%, re-fit model using `statsmodels` (OrdinalGEE or `statsmodels.miscmodels.ordinal_model`) with formula `quality_rating ~ politeness + conversation_length`.
+ 3. Log diagnostic: "Fallback executed due to low CLMM convergence".
+ - *Note*: This task is for robustness, but does NOT satisfy SC-003.
+ - *Dependency*: T027b.
+- [ ] T027d [US2] **Record Project Status**: Save convergence status and outcome to `data/processed/project_status.json`.
+ - *Logic*:
+ 1. **Dependency**: T027b (Reporting) AND T027c (Fallback, if triggered).
+ 2. Create `project_status.json` with fields: `convergence_rate`, `status` ("success" or "fallback_executed"), `sc003_met` (boolean).
+ 3. This task runs regardless of whether fallback was needed, ensuring the success criterion is always measured.
+ - *Deliverable*: `data/processed/project_status.json`.
+- [ ] T028 [US2] Implement Benjamini-Hochberg correction for p-values across fixed effects.
+- [ ] T029 [US2] Save results to `data/processed/clmm_results.csv` with coefficients, SEs, p-values, CI, and convergence metrics.
+ - *Logic*:
+ 1. **Dependency**: T027d (Status Recording).
+ 2. Save results (either from primary CLMM or fallback) to `data/processed/clmm_results.csv`.
  - *Note*: This task consolidates the logic previously split between T028 and T028b into a single coherent flow.
- - *Dependency*: T026 (including any fallback execution).
-- [ ] T028b [US2] **REMOVED**: Logic consolidated into T028.
+ - *Dependency*: T027d.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -162,7 +213,7 @@
 
 ## Phase 5: User Story 3 - Robustness and Subgroup Analysis (Priority: P3)
 
-**Goal**: Validate findings with an **open-source lexicon-based classifier** (`textstat`/`politeness` per Plan Phase 0 Step 4) and conduct subgroup analyses by age/gender (n ≥ 30 guard).
+**Goal**: Validate findings with an **open-source lexicon** (per Plan Phase 0, Step 4) and conduct subgroup analyses by age/gender (n ≥ 30 guard).
 
 **Independent Test**: Run `code/03_robustness_analysis.py`; verify `data/processed/robustness_results.csv` exists, correlation (r ≥ 0.80) is calculated, and subgroup exclusions are logged.
 
@@ -175,26 +226,35 @@
 
 - [ ] T032 [US3] **Robustness Classifier**: Implement `code/03_robustness_analysis.py` to re-score dialogues.
  - *Logic*:
- 1. **Dependency: T015**. Load `scored_dialogues.parquet`.
- 2. **Primary**: Use `textstat` (Bing/Afinn) as the robustness classifier per Plan Phase 0 Step 4 to satisfy **FR-005** and **SC-004**.
- 3. **Optional**: If LIWC-2015 is available (manual license), use it instead and log the switch.
- 4. Log the classifier used.
- - *Dependency*: T015.
- - *Traceability*: Explicitly satisfies **FR-005** and **SC-004** even when using fallback `textstat`.
-- [ ] T033 [US3] Re-fit CLMM on lexicon scores and compute **Pearson correlation of per-dialogue predicted quality scores** between the primary model and the robustness model.
- - *Metric*: Calculate `correlation_r` between `primary_model.predicted_quality` and `robust_model.predicted_quality`.
- - *Output*: Save `correlation_r` to `data/processed/robustness_results.csv` at **row 0, column `correlation_r`**.
- - *Target*: Verify r ≥ 0.80 per SC-004.
- - *Note*: Explicitly generate per-dialogue predicted quality scores via CLMM prediction before correlation calculation. **Save the calculated `correlation_r` value to the output file.**
+ 1. **Dependency: T021** (Completion of US1). Load `scored_dialogues.parquet`.
+ 2. **Primary**: Attempt to use **LIWC-2015** Politeness Dictionary if license is available.
+ 3. **Fallback**: If license is missing, automatically use `textstat` (open-source lexicon) as per Plan Phase 0, Step 4. Log the classifier used.
+ 4. **Do NOT** fail hard on missing license.
+ - *Dependency*: T021.
+ - *Traceability*: Explicitly satisfies **FR-005** (Robustness) and **SC-004** (Effect size consistency).
+- [ ] T033 [US3] **Re-fit CLMM**: Re-fit CLMM on lexicon scores.
+ - *Logic*:
+ 1. **Dependency: T032**.
+ 2. Re-fit CLMM using the new lexicon-based politeness scores.
+ 3. Save model object to `data/processed/robustness_model.pkl`.
+ - *Dependency*: T032.
+- [ ] T033b [US3] **Generate Predicted Scores & Correlate**: Calculate correlation of per-dialogue predicted quality scores.
+ - *Logic*:
+ 1. **Dependency: T033**.
+ 2. Generate `predicted_quality` scores for each dialogue using the primary CLMM (expected value of ordinal outcome) and the robust CLMM.
+ 3. Calculate Pearson correlation `correlation_r` between `primary_predicted_quality` and `robust_predicted_quality`.
+ 4. Save `correlation_r` to `data/processed/robustness_results.csv` at **row 0, column `correlation_r`**.
+ 5. Verify r ≥ 0.80 per SC-004.
+ - *Note*: Explicitly generate per-dialogue predicted quality scores via CLMM prediction before correlation calculation.
+ - *Dependency*: T033.
 - [ ] T034 [US3] **Subgroup Analysis**: Split data by age/gender.
- - *Dependency*: Requires T012 (Demographic Verification) to have reported `status: full` or `partial` with available fields.
- - *Logic*: Exclude groups with n < 30, log exclusions. Fit separate CLMMs for valid subgroups and test interaction terms.
+ - *Dependency*: Requires T012 (Sample Size Verification) to have reported `subgroups_eligible`.
+ - *Logic*:
+ 1. **Check Columns**: If `age` or `gender` columns are missing, log "Subgroup analysis skipped: missing demographic columns" and exit.
+ 2. **Filter**: Exclude groups with n < 30 (as per T012), log exclusions.
+ 3. **Fit**: Fit separate CLMMs for valid subgroups and test interaction terms.
 - [ ] T035 [US3] Apply multiplicity correction for subgroup tests.
 - [ ] T037 [US3] Save all robustness results to `data/processed/robustness_results.csv`.
-- [ ] T032a [US3] **REMOVED**: LIWC acquisition logic removed; `textstat` is now the primary robustness classifier.
-- [ ] T036 [US3] **REMOVED**: E-value calculation removed (no FR-008 in Spec).
-- [ ] T036a [US3] **REMOVED**: Spec amendment for E-values removed.
-- [ ] T036b [US3] **REMOVED**: E-value report removed.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -210,10 +270,14 @@
 - [ ] T039 Code cleanup and refactoring (remove debug prints, ensure type hints)
 - [ ] T040 Performance optimization: verify memory usage < 7GB during peak BERT inference
 - [ ] T041 [P] Additional unit tests for edge cases (empty dialogues, NaN handling) in `tests/unit/`
-- [ ] T042 [P] Run `quickstart.md` validation to ensure full pipeline executes on **fresh GitHub Actions runner** with **pinned seeds** within 6 hours.
+- [ ] T042 [P] Configure CI workflow for full pipeline execution on GitHub Actions.
+ - *Logic*: Create `.github/workflows/ci.yml` to install R, Python deps, and run the full pipeline.
+- [ ] T042b [P] Execute full pipeline on GitHub Actions and capture metrics.
+ - *Logic*: Run the CI workflow. Verify runtime < 6h and RAM < 7GB. Capture metrics.
+ - *Dependency*: T042.
 - [ ] T043 [P] Generate `docs/performance_report.md` with explicit schema.
  - *Schema*: `runtime_seconds`, `peak_memory_gb`, `convergence_rate`, `status`.
- - *Logic*: Collect metrics from T040 and T042 runs.
+ - *Logic*: Collect metrics from T042b runs.
 
 ---
 
@@ -222,7 +286,7 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - **BLOCKS** all user stories. Includes T012 (Demographic Verification) which gates US3.
+- **Foundational (Phase 2)**: Depends on Setup completion - **BLOCKS** all user stories.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -261,7 +325,7 @@ Task: "Contract test for dataset schema validation in tests/contract/test_datase
 Task: "Unit test for politeness scoring logic in tests/unit/test_scoring.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement code/01_download_and_score.py to fetch HCI_P2 (primary) and fallbacks"
+Task: "Implement code/01_download_and_score.py to fetch HCI_P2"
 Task: "Implement filtering logic to exclude dialogues missing quality_rating"
 ```
 
@@ -308,5 +372,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All BERT inference must be CPU-only (no CUDA); use batch processing to stay under available RAM limits.
-- **Constraint**: Dataset source MUST prioritize HCI_P2 as per Plan; Persona-Chat and EmpatheticDialogues are fallbacks only.
-- **Constraint**: Subgroup analysis (US3) is strictly gated by T012 (Demographic Verification).
+- **Constraint**: Dataset source MUST be HCI_P2 only (per Plan Summary).
+- **Constraint**: Subgroup analysis (US3) is strictly gated by T012 (Sample Size Verification, n ≥ 30).
+- **Constraint**: Robustness classifier (T032) must fallback to `textstat` if LIWC license is missing; do not fail hard.
+- **Constraint**: Convergence rate (SC-003) must be reported accurately; fallback does not satisfy the success criterion.

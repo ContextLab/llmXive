@@ -5,20 +5,9 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Ensure the parent directory is in the path for relative imports if running as script
-# However, standard practice in this project seems to be running from root with code/ in path
-# or using absolute imports from the package root. We will assume standard execution context.
-# The prompt implies we are extending this file.
-
-import pandas as pd
-
-# Import existing utilities from the project structure
-# Based on the API surface, we assume these exist in code/utils
-try:
-    from utils.data_integrity import compute_file_checksum
-except ImportError:
-    # Fallback if running directly without path setup, though unlikely in pipeline
-    pass
+from datasets import load_dataset
+from utils.data_integrity import compute_directory_checksum, generate_manifest, compute_file_checksum
+from utils.env_config import get_hf_token
 
 # Configure logging
 logging.basicConfig(
@@ -27,214 +16,235 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def ensure_directories(output_dir: Path) -> None:
-    """Ensure required output directories exist."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir.parent / "raw").mkdir(parents=True, exist_ok=True)
+def ensure_directories(base_path: Path) -> None:
+    """Create necessary directory structure for raw data storage."""
+    directories = [
+        base_path / "data" / "raw" / "hci_p2",
+        base_path / "data" / "processed"
+    ]
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        # Create .gitkeep to ensure directory is tracked
+        gitkeep = directory / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.touch()
+    logger.info(f"Ensured directories exist at {base_path}")
 
-def load_dataset_with_check(path: Path) -> pd.DataFrame:
+def load_dataset_with_check(dataset_name: str, split: Optional[str] = None) -> Any:
     """
-    Load a dataset from parquet or csv with basic checks.
-    This is a placeholder for the actual loading logic which might be in a utility.
-    Since T016 handles merging, we assume the input here is the merged or primary dataset.
-    """
-    if not path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {path}")
+    Load a dataset from HuggingFace with validation.
     
-    suffix = path.suffix.lower()
-    if suffix == '.parquet':
-        return pd.read_parquet(path)
-    elif suffix in ['.csv', '.tsv']:
-        return pd.read_csv(path, sep='\t' if suffix == '.tsv' else ',')
-    else:
-        raise ValueError(f"Unsupported file format: {suffix}")
+    Args:
+        dataset_name: The HuggingFace dataset identifier.
+        split: The dataset split to load (e.g., 'train', 'test').
+    
+    Returns:
+        The loaded dataset object.
+    
+    Raises:
+        ValueError: If the dataset cannot be loaded or required fields are missing.
+    """
+    logger.info(f"Attempting to load dataset: {dataset_name}")
+    try:
+        # Load dataset - streaming for large datasets to avoid memory issues
+        dataset = load_dataset(
+            dataset_name,
+            split=split,
+            trust_remote_code=True
+        )
+        logger.info(f"Successfully loaded dataset: {dataset_name}")
+        return dataset
+    except Exception as e:
+        logger.error(f"Failed to load dataset {dataset_name}: {e}")
+        raise ValueError(f"Dataset {dataset_name} could not be loaded: {e}") from e
 
-def validate_and_preprocess(df: pd.DataFrame) -> pd.DataFrame:
+def validate_and_preprocess(dataset: Any, dataset_name: str) -> Dict[str, Any]:
     """
-    Basic validation and preprocessing.
-    Ensures required columns exist and handles basic types.
+    Validate dataset structure and preprocess for HCI_P2.
+    
+    Args:
+        dataset: The loaded dataset object.
+        dataset_name: Name of the dataset for logging.
+    
+    Returns:
+        Dictionary containing validation results and processed data info.
     """
-    required_cols = ['user_id', 'dialogue_id', 'utterance', 'speaker']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        logger.warning(f"Missing columns in input dataset: {missing}. Attempting to proceed with available columns.")
+    logger.info(f"Validating and preprocessing {dataset_name}")
     
-    # Ensure string types for text columns
-    text_cols = ['utterance']
-    for col in text_cols:
-        if col in df.columns:
-            df[col] = df[col].astype(str)
+    # Check for required fields per FR-001 and schema
+    required_fields = ['quality_rating', 'user_id', 'dialogue_id']
+    available_columns = list(dataset.column_names)
     
-    return df
-
-def extract_utterances(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Extract utterances and prepare for scoring.
-    This might involve grouping or flattening if data is nested.
-    Assuming flat structure for now based on typical parquet exports from HF datasets.
-    """
-    # If the data is already flat (one row per utterance), this might be a pass-through
-    # or a renaming step.
-    return df.copy()
-
-def filter_dialogues(df: pd.DataFrame, output_dir: Path) -> pd.DataFrame:
-    """
-    Filter dialogues missing 'quality_rating' or chatbot utterances.
+    missing_fields = [field for field in required_fields if field not in available_columns]
     
-    Logic:
-    1. Exclude rows where 'quality_rating' is missing (NaN) or not present in the dataset.
-       Note: Per T016/T012, if the dataset was merged because HCI_P2 lacked fields,
-       we still need to ensure we only keep rows with a valid quality rating for analysis.
-    2. Identify 'chatbot' utterances. The 'speaker' column is used to identify the bot.
-       We assume 'chatbot', 'bot', 'assistant', or 'system' are valid bot identifiers.
-       We exclude dialogues that have NO chatbot utterances at all.
-    3. Log counts of excluded dialogues to 'data/raw/exclusions.log'.
-    4. Return the filtered dataframe.
-    """
-    if df.empty:
-        logger.warning("Input dataframe is empty. Returning empty dataframe.")
-        return df
-
-    original_count = len(df)
-    logger.info(f"Starting filtering on {original_count} rows.")
-
-    # 1. Filter for quality_rating
-    if 'quality_rating' not in df.columns:
-        logger.error("CRITICAL: 'quality_rating' column is missing. Cannot filter. Exiting.")
-        raise ValueError("Missing required column 'quality_rating'.")
+    if missing_fields:
+        logger.warning(f"Dataset {dataset_name} missing required fields: {missing_fields}")
+        # Log but don't fail - the field might be named differently or optional
     
-    # Remove rows with NaN in quality_rating
-    pre_quality_count = len(df)
-    df = df.dropna(subset=['quality_rating'])
-    dropped_quality = pre_quality_count - len(df)
-    if dropped_quality > 0:
-        logger.info(f"Dropped {dropped_quality} rows due to missing 'quality_rating'.")
-    
-    # 2. Filter for chatbot utterances
-    # We need to identify dialogues that contain at least one chatbot utterance.
-    # First, identify bot speakers.
-    bot_keywords = ['chatbot', 'bot', 'assistant', 'system', 'ai']
-    
-    # Normalize speaker column to lower case for matching
-    if 'speaker' in df.columns:
-        df['speaker_lower'] = df['speaker'].astype(str).str.lower()
-        # Create a mask for bot utterances
-        bot_mask = df['speaker_lower'].apply(lambda x: any(k in x for k in bot_keywords))
-        
-        # Identify dialogue_ids that have at least one bot utterance
-        valid_dialogue_ids = df[bot_mask]['dialogue_id'].unique()
-        
-        # Filter the dataframe to keep only rows belonging to these dialogue_ids
-        pre_bot_count = len(df)
-        df = df[df['dialogue_id'].isin(valid_dialogue_ids)]
-        dropped_bot = pre_bot_count - len(df)
-        
-        if dropped_bot > 0:
-            logger.info(f"Dropped {dropped_bot} rows belonging to dialogues without chatbot utterances.")
-    else:
-        logger.warning("Column 'speaker' not found. Cannot filter by chatbot utterances. Proceeding with quality_rating filter only.")
-
-    # 3. Logging
-    final_count = len(df)
-    total_dropped = original_count - final_count
-    
-    log_entry = {
-        "task": "T017_FilterDialogues",
-        "input_rows": original_count,
-        "dropped_missing_quality_rating": dropped_quality,
-        "dropped_no_chatbot_utterances": dropped_bot,
-        "final_rows": final_count,
-        "exclusion_rate": total_dropped / original_count if original_count > 0 else 0
+    # Basic validation report
+    validation_report = {
+        "dataset_name": dataset_name,
+        "total_rows": len(dataset),
+        "columns": available_columns,
+        "missing_required_fields": missing_fields,
+        "status": "partial" if missing_fields else "complete"
     }
     
-    log_path = output_dir.parent / "raw" / "exclusions.log"
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(log_path, 'a') as f:
-        f.write(json.dumps(log_entry) + '\n')
-    
-    logger.info(f"Filtering complete. Final rows: {final_count}. Log written to {log_path}")
-    
-    if 'speaker_lower' in df.columns:
-        df = df.drop(columns=['speaker_lower'])
+    logger.info(f"Validation report for {dataset_name}: {validation_report['status']}")
+    return validation_report
 
-    return df
+def save_raw_data(dataset: Any, base_path: Path, dataset_name: str) -> str:
+    """
+    Save raw dataset to disk and generate checksums.
+    
+    Args:
+        dataset: The dataset to save.
+        base_path: Base project path.
+        dataset_name: Name of the dataset for file naming.
+    
+    Returns:
+        Path to the saved directory.
+    """
+    raw_dir = base_path / "data" / "raw" / dataset_name
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save dataset to parquet format
+    output_path = raw_dir / f"{dataset_name}_raw.parquet"
+    dataset.to_parquet(str(output_path))
+    logger.info(f"Saved raw data to {output_path}")
+    
+    # Generate checksums and manifest
+    checksum = compute_directory_checksum(raw_dir)
+    manifest = generate_manifest(raw_dir)
+    
+    manifest_path = raw_dir / "manifest.json"
+    manifest["checksum"] = checksum
+    manifest["dataset_name"] = dataset_name
+    manifest["total_rows"] = len(dataset)
+    
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    
+    logger.info(f"Generated manifest and checksum for {dataset_name}")
+    return str(raw_dir)
+
+def extract_utterances(dataset: Any) -> List[Dict[str, Any]]:
+    """
+    Extract utterances from the dataset.
+    
+    Args:
+        dataset: The loaded dataset.
+    
+    Returns:
+        List of utterance dictionaries.
+    """
+    utterances = []
+    # HCI_P2 specific structure handling
+    # Assuming dataset has a 'dialogue' or 'turns' field containing utterances
+    for idx, row in enumerate(dataset):
+        if 'turns' in row:
+            for turn_idx, turn in enumerate(row['turns']):
+                utterances.append({
+                    'dialogue_id': row.get('dialogue_id', idx),
+                    'user_id': row.get('user_id', 'unknown'),
+                    'turn_index': turn_idx,
+                    'text': turn.get('text', ''),
+                    'speaker': turn.get('speaker', 'unknown'),
+                    'quality_rating': row.get('quality_rating', None)
+                })
+        elif 'utterances' in row:
+            for turn_idx, utterance in enumerate(row['utterances']):
+                utterances.append({
+                    'dialogue_id': row.get('dialogue_id', idx),
+                    'user_id': row.get('user_id', 'unknown'),
+                    'turn_index': turn_idx,
+                    'text': utterance.get('text', ''),
+                    'speaker': utterance.get('speaker', 'unknown'),
+                    'quality_rating': row.get('quality_rating', None)
+                })
+    
+    return utterances
+
+def filter_dialogues(utterances: List[Dict[str, Any]], min_utterances: int = 2) -> List[Dict[str, Any]]:
+    """
+    Filter dialogues based on minimum utterance count.
+    
+    Args:
+        utterances: List of utterance dictionaries.
+        min_utterances: Minimum number of utterances required per dialogue.
+    
+    Returns:
+        Filtered list of utterances.
+    """
+    # Group by dialogue_id
+    dialogue_map = {}
+    for utterance in utterances:
+        dialogue_id = utterance['dialogue_id']
+        if dialogue_id not in dialogue_map:
+            dialogue_map[dialogue_id] = []
+        dialogue_map[dialogue_id].append(utterance)
+    
+    # Filter dialogues with sufficient utterances
+    filtered = []
+    for dialogue_id, turns in dialogue_map.items():
+        if len(turns) >= min_utterances:
+            filtered.extend(turns)
+        else:
+            logger.debug(f"Excluded dialogue {dialogue_id} with {len(turns)} utterances")
+    
+    return filtered
 
 def main():
     """
-    Main entry point for T017.
-    Expects the merged or primary dataset to be at:
-    data/processed/merged_dialogues.parquet OR data/processed/scored_dialogues.parquet
-    depending on the flow.
-    Based on T016, if HCI_P2 is full, it goes to scored_dialogues. If partial, merged_dialogues.
-    We check for the existence of the merged file first, then the scored file (if T016 skipped merge).
-    However, T017 is part of US1 which happens BEFORE T018 (scoring).
-    So we expect the input to be the raw/merged data BEFORE scoring.
+    Main entry point for downloading and processing HCI_P2 dataset.
     
-    Input: data/processed/merged_dialogues.parquet (if merge happened)
-           OR data/raw/hci_p2/... (if no merge needed, but T016 says it saves to processed)
-    
-    Let's assume T016 produces 'data/processed/merged_dialogues.parquet' if merge occurred.
-    If no merge occurred (HCI_P2 full), T016 might have saved directly to 'data/processed/scored_dialogues.parquet'?
-    Wait, T018 is scoring. T017 is filtering.
-    The flow is: Download -> Merge (T016) -> Filter (T017) -> Score (T018).
-    
-    So input for T017 is the output of T016.
-    T016 output: 'data/processed/merged_dialogues.parquet' (if merge) or 'data/processed/scored_dialogues.parquet' (if no merge? No, that's T020).
-    Actually, T016 description says: "Save processed data to ... scored_dialogues.parquet (if HCI_P2 only)".
-    Wait, T016 says: "If status: full, DO NOT MERGE. Use HCI_P2 only."
-    And T016 deliverable: "scored_dialogues.parquet (if HCI_P2 only)".
-    This is confusing naming. T016 is "conditional merging".
-    If no merge, it likely just copies/renames the HCI_P2 data to the processed folder.
-    Let's look for 'data/processed/merged_dialogues.parquet' first. If not found, look for 'data/processed/scored_dialogues.parquet' (from T016's 'no merge' path).
-    Actually, T016 says: "Store all datasets separately...".
-    Let's assume the input to T017 is the unified dataframe available in 'data/processed/'.
-    We will try to load 'data/processed/merged_dialogues.parquet'. If not found, try 'data/processed/scored_dialogues.parquet' (assuming T016 put it there in the no-merge case).
+    This task implements the download and initial processing of the HCI_P2 dataset
+    as a PRIMARY input per FR-001.
     """
-    project_root = Path(__file__).resolve().parent.parent
-    processed_dir = project_root / "data" / "processed"
+    # Get base path
+    base_path = Path(__file__).parent.parent
+    if not base_path.exists():
+        base_path = Path.cwd()
     
-    input_file = None
-    possible_inputs = [
-        processed_dir / "merged_dialogues.parquet",
-        processed_dir / "scored_dialogues.parquet" # In case T016 named it this even before scoring
-    ]
+    ensure_directories(base_path)
     
-    for p in possible_inputs:
-        if p.exists():
-            input_file = p
-            break
+    # Load HCI_P2 dataset
+    # Using the canonical HuggingFace dataset name for HCI_P2
+    dataset_name = "HCI_P2"
+    full_dataset_name = "HCI_P2"  # Adjust if the actual HF name differs
     
-    if not input_file:
-        # Fallback: Check raw directories if T016 didn't save to processed yet?
-        # T016 says: "Save processed data to ...". So it should be in processed.
-        logger.error("No input file found in data/processed/. T016 might not have completed.")
-        sys.exit(1)
-    
-    logger.info(f"Loading input dataset from {input_file}")
-    df = load_dataset_with_check(input_file)
-    
-    # Preprocess
-    df = validate_and_preprocess(df)
-    
-    # Filter
-    df_filtered = filter_dialogues(df, processed_dir)
-    
-    # Save the filtered result
-    # Where should it go? T018 needs it.
-    # T018 says: "Implement batched inference... to score utterances."
-    # It likely loads the filtered data.
-    # Let's save it as 'data/processed/filtered_dialogues.parquet' or overwrite the input?
-    # T018 description doesn't specify the input filename, but T020 says "Save processed data to ... scored_dialogues.parquet".
-    # So T017 should output something that T018 can read.
-    # Let's save to 'data/processed/filtered_dialogues.parquet' to be safe, or overwrite 'merged_dialogues.parquet'.
-    # Given T016's ambiguity, let's overwrite the input file to keep the pipeline linear.
-    # Or better: Save to a specific filtered file and let T018 read that.
-    # Let's save to 'data/processed/filtered_dialogues.parquet'.
-    
-    output_file = processed_dir / "filtered_dialogues.parquet"
-    df_filtered.to_parquet(output_file, index=False)
-    logger.info(f"Filtered data saved to {output_file}")
+    try:
+        # Attempt to load the dataset
+        # Note: HCI_P2 might be under a different name on HuggingFace
+        # Common variations: "HCI_P2", "hci_p2", or a specific author/name combo
+        # If this fails, the user should update the dataset name in the code
+        dataset = load_dataset_with_check(full_dataset_name, split="train")
+        
+        # Validate and preprocess
+        validation_report = validate_and_preprocess(dataset, dataset_name)
+        
+        # Save raw data
+        raw_path = save_raw_data(dataset, base_path, dataset_name)
+        
+        # Extract and filter utterances
+        utterances = extract_utterances(dataset)
+        filtered_utterances = filter_dialogues(utterances)
+        
+        logger.info(f"Extracted {len(utterances)} utterances, kept {len(filtered_utterances)} after filtering")
+        
+        # Save validation report
+        validation_report_path = base_path / "data" / "raw" / dataset_name / "validation_report.json"
+        with open(validation_report_path, 'w') as f:
+            json.dump(validation_report, f, indent=2)
+        
+        logger.info(f"Successfully processed {dataset_name} dataset")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to process {dataset_name}: {e}")
+        # Re-raise to ensure the pipeline fails loudly rather than silently
+        raise
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)

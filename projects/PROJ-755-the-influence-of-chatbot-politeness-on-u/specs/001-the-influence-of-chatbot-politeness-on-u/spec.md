@@ -90,8 +90,8 @@ Researcher validates findings by re-running analysis with an alternative lexicon
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Total pipeline runtime is measured against the 6-hour GitHub Actions free-tier limit (See US-1, US-2, US-3)
-- **SC-002**: Memory footprint is measured against the 7 GB RAM constraint during peak processing (See US-1, US-2)
+- **SC-001**: Total pipeline runtime is measured against the GitHub Actions free-tier limit. (See US-1, US-2, US-3)
+- **SC-002**: Memory footprint is measured against the available RAM constraint during peak processing. (See US-1, US-2)
 - **SC-003**: Model convergence rate is measured against the requirement that ≥ 95% of fitted models converge without error (denominator: per sensitivity analysis run) (See US-2)
 - **SC-004**: Effect size consistency between primary and lexicon-based classifiers is measured against a correlation threshold of r ≥ 0.80 (unit: correlation of per-dialogue predicted quality scores) (See US-3)
 - **SC-005**: Statistical significance is measured against the p < 0.05 threshold after multiple-comparison correction (See US-2, US-3)

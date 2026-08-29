@@ -1,125 +1,66 @@
+# Dataset Schema Contract for Chatbot Politeness Research
+# Defines the expected structure for dialogue datasets
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Chatbot Politeness Dataset Schema"
-description: "Schema for validating the raw and processed dialogue datasets used in the politeness study."
-
-definitions:
-  User:
-    type: object
-    properties:
-      user_id:
-        type: string
-        description: "Unique identifier for the user"
-      age:
-        type:
-          - integer
-          - "null"
-        description: "Age of the user, can be null if not provided"
-      gender:
-        type:
-          - string
-          - "null"
-        description: "Gender of the user, can be null if not provided"
-        enum:
-          - "Male"
-          - "Female"
-          - "Other"
-          - "Prefer not to say"
-          - "null"
-    required:
-      - user_id
-  
-  Utterance:
-    type: object
-    properties:
-      utterance_id:
-        type: string
-        description: "Unique identifier for the utterance"
-      dialogue_id:
-        type: string
-        description: "ID of the dialogue this utterance belongs to"
-      user_id:
-        type: string
-        description: "ID of the user who made this utterance"
-      text:
-        type: string
-        description: "The text content of the utterance"
-      speaker:
-        type: string
-        description: "Who made the utterance"
-        enum:
-          - "user"
-          - "chatbot"
-      timestamp:
-        type:
-          - string
-          - "null"
-        description: "Timestamp of the utterance, can be null"
-    required:
-      - utterance_id
-      - dialogue_id
-      - user_id
-      - text
-      - speaker
-  
+type: object
+properties:
   Dialogue:
     type: object
     properties:
       dialogue_id:
         type: string
-        description: "Unique identifier for the dialogue"
+        description: Unique identifier for the dialogue
       user_id:
         type: string
-        description: "ID of the user involved in this dialogue"
-      quality_rating:
-        type:
-          - integer
-          - "null"
-        description: "Quality rating of the dialogue, can be null"
-        minimum: 1
-        maximum: 5
+        description: Unique identifier for the user
       utterances:
         type: array
-        description: "List of utterances in the dialogue"
         items:
-          $ref: "#/definitions/Utterance"
-      metadata:
-        type: object
-        description: "Additional metadata about the dialogue"
-        properties:
-          source_dataset:
-            type: string
-            description: "Name of the source dataset"
-          conversation_length:
-            type:
-              - integer
-              - "null"
-            description: "Number of utterances in the dialogue"
+          type: object
+          properties:
+            speaker:
+              type: string
+              enum: [user, chatbot]
+            text:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+      quality_rating:
+        type: number
+        minimum: 1
+        maximum: 5
+        description: User-provided quality rating
+      age:
+        type: integer
+        minimum: 18
+      gender:
+        type: string
+        enum: [Male, Female, Other, Prefer not to say]
+      conversation_length:
+        type: integer
+        minimum: 1
     required:
       - dialogue_id
       - user_id
       - utterances
-
-type: object
-properties:
-  metadata:
+      - quality_rating
+  Dataset:
     type: object
     properties:
-      version:
-        type: string
-        description: "Schema version"
-      generated_at:
-        type: string
-        description: "Timestamp when the dataset was generated"
-      source:
-        type: string
-        description: "Source of the dataset"
-  records:
-    type: array
-    description: "List of dialogue records"
-    items:
-      $ref: "#/definitions/Dialogue"
-
-required:
-  - records
-
-additionalProperties: false
+      metadata:
+        type: object
+        properties:
+          source:
+            type: string
+          version:
+            type: string
+          download_date:
+            type: string
+            format: date-time
+      records:
+        type: array
+        items:
+          $ref: "#/properties/Dialogue"
+    required:
+      - metadata
+      - records

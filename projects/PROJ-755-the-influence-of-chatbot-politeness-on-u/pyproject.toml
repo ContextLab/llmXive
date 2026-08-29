@@ -1,56 +1,49 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-politeness-study"
+name = "chatbot-politeness-research"
 version = "0.1.0"
 description = "Research on the influence of chatbot politeness on user-perceived quality"
-requires-python = ">=3.11"
-# Dependencies are managed in requirements.txt for this project structure
-# but listed here for tooling compatibility if needed
+requires-python = ">=3.10"
 dependencies = [
-    "transformers",
-    "datasets",
-    "statsmodels",
-    "pandas",
-    "scikit-learn",
-    "numpy",
-    "pyyaml",
-    "tqdm",
-    "rpy2",
-    "textstat",
-    "evalue",
-    "python-dotenv",
-    "pyarrow",
-    "parquet",
-    "ruff",
-    "black",
+    "transformers>=4.30.0",
+    "datasets>=2.14.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "statsmodels>=0.14.0",
+    "pyyaml>=6.0",
+    "tqdm>=4.65.0",
+    "rpy2>=3.5.0",
+    "textstat>=0.7.0",
+    "evalue>=0.1.0",
+    "torch>=2.0.0",
+    "parquet>=0.1.0",
+    "python-dotenv>=1.0.0",
+    "ruff>=0.1.0",
 ]
 
 [tool.black]
-line-length = 100
-target-version = ['py311']
+line-length = 88
+target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | data
-  | state
-  | docs
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
-[tool.ruff]
-# Inherit settings from .ruff.toml if present, but we can override here if needed
-# This section is kept minimal as .ruff.toml handles the heavy lifting
-line-length = 100
-target-version = "py311"
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
