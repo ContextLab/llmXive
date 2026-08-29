@@ -20,11 +20,11 @@ def compute_directory_hash(dir_path: Path) -> Dict[str, str]:
     hashes = {}
     for file_path in dir_path.rglob("*"):
         if file_path.is_file():
-          try:
-              rel_path = file_path.relative_to(dir_path)
-              hashes[str(rel_path)] = compute_file_hash(file_path)
-          except ValueError:
-              continue
+            try:
+                rel_path = file_path.relative_to(dir_path)
+                hashes[str(rel_path)] = compute_file_hash(file_path)
+            except ValueError:
+                continue
     return hashes
 
 def load_state() -> Dict[str, Any]:
@@ -43,13 +43,42 @@ def save_state(state: Dict[str, Any]):
     with open(state_path, "w") as f:
         yaml.safe_dump(state, f, default_flow_style=False)
 
+def _get_relative_path(file_path: Path) -> str:
+    """
+    Convert a file path to a project-relative string.
+    Handles both absolute and relative input paths robustly.
+    """
+    # Resolve to absolute path to ensure consistency
+    abs_path = file_path.resolve()
+    
+    # Get the project root (parent of the 'code' directory where this script lives)
+    # or simply the current working directory if running from project root
+    project_root = Path.cwd().resolve()
+    
+    try:
+        # Try relative to current working directory first
+        rel_path = abs_path.relative_to(project_root)
+        return str(rel_path)
+    except ValueError:
+        # If that fails (e.g., path is outside cwd), try relative to home or just use the string
+        # Fallback: if the path is absolute but not under cwd, we might need a different strategy.
+        # However, in this project context, artifacts are expected under the project root.
+        # If they are truly outside, we return the absolute path string to avoid crash,
+        # though this might indicate a configuration error.
+        return str(abs_path)
+
 def update_state_artifact(file_path: Path):
     """Update the state with the hash of a specific file."""
     state = load_state()
     if "artifacts" not in state:
         state["artifacts"] = {}
     
-    rel_path = str(file_path.relative_to(Path.cwd()))
+    # Use the robust relative path calculation
+    rel_path = _get_relative_path(file_path)
+    
+    if not file_path.exists():
+        raise FileNotFoundError(f"Artifact not found for hashing: {file_path}")
+        
     state["artifacts"][rel_path] = compute_file_hash(file_path)
     save_state(state)
 
@@ -67,7 +96,7 @@ def update_state_directory(dir_path: Path):
 def verify_artifact_integrity(file_path: Path) -> bool:
     """Verify if a file's current hash matches the stored hash."""
     state = load_state()
-    rel_path = str(file_path.relative_to(Path.cwd()))
+    rel_path = _get_relative_path(file_path)
     
     if rel_path not in state.get("artifacts", {}):
         return False

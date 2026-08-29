@@ -206,7 +206,7 @@
 
 **Purpose**: Ensure the execution environment can successfully run the pipeline as defined.
 
-- [X] T041 [P] Create `code/main.py` as the orchestration entry point defined in plan.md Phase 2. **Action**: Create the file if missing, or update it to invoke the correct scripts. **Verification**: Run `python code/main.py` successfully.
+- [ ] T041 [P] Create `code/main.py` as the orchestration entry point defined in plan.md Phase 2. **Action**: Create the file if missing, or update it to invoke the correct scripts. **Verification**: Run `python code/main.py` successfully.
 
 ---
 

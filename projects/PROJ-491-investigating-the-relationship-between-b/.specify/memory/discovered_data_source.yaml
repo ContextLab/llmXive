@@ -1,12 +1,16 @@
 status: none
-intent: Human Connectome Project HCP WU-Minn HCP 1200 subjects download package python
+intent: download Human Connectome Project 1200 subjects dataset via nilearn python
   package dataset
 required_fields:
 - subject_id
-- resting_state_nifti
-- task_fMRI_nifti
-- power_264_atlas_bold_time_series
-- ventral_striatum_roi_bold_time_series
-cache_key: f2c3b0decf5a39da5a63db5e3a15522d8f65c651acd6c44ebf4ee43dd88a09e6
-searched_at: '2026-08-24T13:55:31.188427+00:00'
+- modality
+- task_name
+- run_number
+- nifti_file_path
+- TR
+- voxel_dimensions
+- scanner_model
+- acquisition_date
+cache_key: 5a08f2797854898416457a7f2154f1d07a118553452e23db4ddda09af3b899eb
+searched_at: '2026-08-29T04:55:27.157652+00:00'
 retry_count: 1
