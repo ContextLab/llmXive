@@ -1,3 +1,17 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that the `code/` and `tests/` directories actually\
+    \ exist at the repository root; without a directory listing or screenshots, we\
+    \ cannot confirm the required folders were created. The implementer must add proof\
+    \ (e.g., a file tree view) that both directories are present and non\u2011empty."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directories (`data/raw/`, `data/derived/`,
+    `results/`, `contracts/`) actually exist in the repository; the claim is unsubstantiated.
+    The implementer must supply a directory listing or screenshots showing these folders
+    at the repository root.
 T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,13 +26,6 @@ T015:
     any artifact showing that baseline results were saved with the correct naming
     convention. The implementer must supply the actual result files in the specified
     `results/` directory.
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, module, or documentation was provided showing logic that identifies
-    synthetic samples with zero variance and removes them before hypothesis testing;
-    thus the required artifact is missing. The claim cannot be verified from the given
-    evidence.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,20 +49,27 @@ T028:
     \ The required artifact\u2014a functioning implementation that flags configurations\
     \ with Type\u202FI error\u202F>\u202F0.10 and quantifies the impact relative to\
     \ the baseline\u2014is missing."
-T030:
+T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any JSON result files (baseline or augmented) or a summary report
-    containing the required `metadata.disclaimer` field was provided. Consequently,
-    we cannot confirm that the disclaimer string was injected into every result file
-    as specified. The implementer must supply the updated JSON files (or a directory
-    listing showing the changes) and the modified summary report demonstrating the
-    inserted disclaimer.
-T032:
+  r: No `quickstart.md` file or updated content was provided; the claim that it now
+    contains instructions for running the full study cannot be verified. The required
+    documentation artifact is missing.
+T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files from the `code/` directory were provided, and there is no evidence
-    showing that docstrings or type hints were added to any `*.py` modules. Without
-    the actual updated source files, we cannot confirm the task was fulfilled. The
-    implementer must supply the modified `code/*.py` files containing comprehensive
-    docstrings and type annotations.
+  r: "No `data-model.md` file or its contents were presented; thus the required Mermaid\
+    \ ERD documentation of the three entities is missing. The implementer must supply\
+    \ a non\u2011empty `data-model.md` containing a Mermaid ERD that defines `Dataset\
+    \ Configuration`, `Simulation Run`, and `Error Rate Profile` with the specified\
+    \ attributes."
+T040:
+  c: false
+  h: 45449b390d6c3ff30adbaf63a4fcc1e38703a52ef338ce2c33289e009398a612
+  r: "The repository contains a `log_skipped_smote_configuration` helper that writes\
+    \ a Python\u2011dict string to `data/derived/skipped_configurations.log`, but\
+    \ the log file does not exist and there is no evidence that this function is invoked\
+    \ when SMOTE is skipped (the SMOTE logic is truncated). Moreover, the written\
+    \ entry is not valid JSON (uses Python\u2019s single\u2011quoted dict representation).\
+    \ The required edge\u2011case logging behavior and correct JSON format are therefore\
+    \ not satisfied."

@@ -3,54 +3,51 @@ from pathlib import Path
 
 def main():
     """
-    Create the project directory structure for PROJ-269.
+    Create project directory structure.
     
-    Creates the following directories relative to the project root:
-    - code/
+    Creates the following directories at the repository root:
     - data/raw/
     - data/derived/
     - results/
-    - tests/
     - contracts/
     
-    This script is idempotent and will not fail if directories already exist.
+    Also ensures code/ and tests/ exist (though T001a should have handled this).
     """
-    project_root = Path(__file__).resolve().parent.parent
+    # Define the base project root (current working directory or parent of code/)
+    # Assuming this script runs from the project root
+    base_path = Path.cwd()
     
-    # Define the required directory structure
+    # Directories to create as per T001b
     directories = [
-        "code",
         "data/raw",
         "data/derived",
         "results",
-        "tests",
         "contracts"
     ]
+    
+    # Also ensure code/ and tests/ exist (T001a)
+    additional_dirs = [
+        "code",
+        "tests"
+    ]
+    
+    all_dirs = directories + additional_dirs
     
     created_count = 0
     existing_count = 0
     
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
+    for dir_name in all_dirs:
+        dir_path = base_path / dir_name
+        if dir_path.exists():
             existing_count += 1
-            print(f"Directory already exists: {full_path}")
+            print(f"[INFO] Directory already exists: {dir_path}")
+        else:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"[INFO] Created directory: {dir_path}")
     
-    print(f"\nDirectory setup complete.")
-    print(f"  Created: {created_count}")
-    print(f"  Existing: {existing_count}")
-    print(f"  Total: {len(directories)}")
-    
-    # Verify structure
-    print("\nVerifying structure:")
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        status = "✓" if full_path.exists() else "✗"
-        print(f"  {status} {dir_path}")
+    print(f"[INFO] Directory setup complete. Created: {created_count}, Existing: {existing_count}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

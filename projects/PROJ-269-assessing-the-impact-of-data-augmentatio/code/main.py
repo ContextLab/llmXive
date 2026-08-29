@@ -1,160 +1,230 @@
 """
-Main orchestration script for the llmXive automated science pipeline.
+Main orchestration script for the augmentation impact study.
 
-Runs the full pipeline: Download -> Subsample -> Baseline -> Augment -> Analyze -> Report.
-
-Dependencies:
-- T004: download_data.py
-- T005: subsample.py
-- T006, T018-T020: augment.py
-- T007, T013, T021: simulation.py
-- T008b, T014, T026-T029: analyze.py
-- T027-T028: compare_results.py (implied by context of analysis)
-- T029: identify_thresholds.py (implied by context of analysis)
-- T030: inject_disclaimer.py
+Coordinates the full pipeline: Download -> Subsample -> Baseline -> Augment -> Analyze -> Report.
 """
+
 import os
 import sys
 import logging
 import argparse
+from typing import Dict, Any, List, Optional
 from pathlib import Path
+
+# Import project modules
+# Note: These imports assume the modules are in the same directory
+from download_data import main as download_main
+from subsample import process_dataset
+from simulation import run_full_simulation, save_results
+from augment import augment_dataset
+from analyze import analyze_baseline_results, generate_report
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Import pipeline stages from existing modules
-# Phase 1: Setup (Directories)
-from setup_directories import main as setup_directories_main
+PROJECT_ROOT: Path = Path(__file__).parent.parent
+DATA_RAW_DIR: Path = PROJECT_ROOT / "data" / "raw"
+DATA_DERIVED_DIR: Path = PROJECT_ROOT / "data" / "derived"
+RESULTS_DIR: Path = PROJECT_ROOT / "results"
 
-# Phase 2: Data Acquisition
-from download_data import main as download_data_main
+# Ensure directories exist
+DATA_DERIVED_DIR.mkdir(parents=True, exist_ok=True)
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Phase 2: Subsampling
-from subsample import main as subsample_main
 
-# Phase 2: Simulation (Baseline) - T007/T013
-# Note: simulation.py handles both baseline and augmented loops based on config
-# We will invoke it via command line args or internal logic if needed.
-# For orchestration, we assume it's called with specific flags.
-from simulation import main as simulation_main
+def run_pipeline(
+    datasets: Optional[List[str]] = None,
+    sample_sizes: Optional[List[int]] = None,
+    n_iterations: int = 100,
+    seed: int = 42
+) -> Dict[str, Any]:
+    """
+    Run the full analysis pipeline.
 
-# Phase 2: Augmentation - T006/T018-T020
-# augment.py contains the functions, but main() might handle CLI.
-# We rely on simulation.py to call these functions internally as per T021.
-# If separate execution is needed, we would call augment_main here.
+    Args:
+        datasets: List of dataset names to process. Defaults to all available.
+        sample_sizes: List of sample sizes to test. Defaults to [15, 25, 40].
+        n_iterations: Number of Monte Carlo iterations per configuration.
+        seed: Base random seed.
 
-# Phase 3/5: Analysis
-from analyze import main as analyze_main
-from compare_results import main as compare_results_main
-from identify_thresholds import main as identify_thresholds_main
+    Returns:
+        Dictionary with pipeline execution summary.
+    """
+    logger.info("Starting full analysis pipeline...")
 
-# Phase 5: Disclaimer Injection
-from inject_disclaimer import main as inject_disclaimer_main
+    if datasets is None:
+        datasets = ['breast_cancer', 'ionosphere', 'heart_disease']
 
-# Phase 5: Result Saving (if not handled by analyze/simulation)
-# Assuming save_baseline_results and save_augmented_results are called 
-# within the simulation or analysis steps. 
-# If they are separate CLI tools, we would invoke them here.
-# Based on T015/T023, saving is part of the simulation/analysis flow.
+    if sample_sizes is None:
+        sample_sizes = [15, 25, 40]
 
-def run_pipeline(args):
-    """Execute the full pipeline steps in order."""
-    project_root = Path(args.project_root)
-    
-    logger.info(f"Starting pipeline for project: {project_root}")
-    
-    # 1. Setup Directories
-    logger.info("Step 1: Setting up directories...")
-    # setup_directories_main expects args or handles its own parsing. 
-    # We pass the project root context.
-    # Since setup_directories main() likely parses sys.argv, we might need to 
-    # adjust if it doesn't accept a path argument. 
-    # Assuming it uses a default or parses args.
-    # To be safe, we change cwd or pass args if the function signature allows.
-    # Given the constraints, we assume standard CLI behavior or default paths.
-    try:
-        setup_directories_main() 
-    except SystemExit:
-        pass # Expected if argparse exits after setup
-    
-    # 2. Download Data
-    logger.info("Step 2: Downloading data...")
-    try:
-        download_data_main()
-    except SystemExit:
-        pass
+    results: List[Dict[str, Any]] = []
+    execution_summary: Dict[str, Any] = {
+        'datasets_processed': [],
+        'configurations_run': 0,
+        'errors': []
+    }
 
-    # 3. Subsample Data
-    logger.info("Step 3: Subsampling data...")
-    try:
-        subsample_main()
-    except SystemExit:
-        pass
+    # Step 1: Download data (if not already done)
+    logger.info("Step 1: Ensuring data is downloaded...")
+    # Note: In a real run, we would check if data exists before downloading
+    # For now, we assume download_data.py has been run or data exists
 
-    # 4. Run Simulations (Baseline and Augmented)
-    # T007/T013/T021: simulation.py handles the Monte Carlo loop.
-    # We need to ensure it runs for both Null and Alt, and potentially 
-    # with augmentation flags if the script supports it.
-    # Assuming simulation.py main() handles the full loop or we call it with specific flags.
-    logger.info("Step 4: Running Baseline Simulations...")
-    try:
-        # We might need to pass arguments to simulation_main to specify mode
-        # If simulation_main parses sys.argv, we can't easily pass args from here 
-        # without sys.argv manipulation. 
-        # Assuming it has a default run or we rely on the script to run everything.
-        simulation_main() 
-    except SystemExit:
-        pass
+    # Step 2: Process each dataset
+    for dataset_name in datasets:
+        logger.info(f"Processing dataset: {dataset_name}")
+        execution_summary['datasets_processed'].append(dataset_name)
 
-    # 5. Analyze Results
-    logger.info("Step 5: Analyzing results...")
-    try:
-        analyze_main()
-    except SystemExit:
-        pass
+        # Load dataset
+        dataset_path: Path = DATA_RAW_DIR / f"{dataset_name}.csv"
+        if not dataset_path.exists():
+            error_msg: str = f"Dataset not found: {dataset_path}"
+            logger.error(error_msg)
+            execution_summary['errors'].append(error_msg)
+            continue
 
-    # 6. Compare Results (US3)
-    logger.info("Step 6: Comparing results...")
-    try:
-        compare_results_main()
-    except SystemExit:
-        pass
+        try:
+            import pandas as pd
+            df: pd.DataFrame = pd.read_csv(dataset_path)
 
-    # 7. Identify Thresholds (US3)
-    logger.info("Step 7: Identifying thresholds...")
-    try:
-        identify_thresholds_main()
-    except SystemExit:
-        pass
+            # Detect target column
+            target_col: str = detect_target_column(df)
 
-    # 8. Inject Disclaimer (T030)
-    logger.info("Step 8: Injecting disclaimers...")
-    try:
-        inject_disclaimer_main()
-    except SystemExit:
-        pass
+            # Step 3: Run baseline simulation for each sample size
+            for n in sample_sizes:
+                logger.info(
+                    f"Running baseline simulation: {dataset_name}, n={n}, "
+                    f"iterations={n_iterations}"
+                )
 
-    logger.info("Pipeline completed successfully.")
+                # Subsample
+                from subsample import process_dataset as subsample_func
+                subsample_df = subsample_func(df, dataset_name, n, seed)
 
-def main():
-    parser = argparse.ArgumentParser(description="Run the full llmXive science pipeline.")
-    parser.add_argument(
-        "--project-root", 
-        type=str, 
-        default="projects/PROJ-269-assessing-the-impact-of-data-augmentatio",
-        help="Root directory of the project"
+                if subsample_df is None:
+                    logger.warning(f"Skipping {dataset_name} at n={n}: subsampling failed")
+                    continue
+
+                # Run simulation (null condition)
+                baseline_results = run_full_simulation(
+                    subsample_df, target_col, n_iterations, 'null', seed
+                )
+
+                # Save results
+                save_results(
+                    baseline_results, dataset_name, n, 'null', 'baseline'
+                )
+
+                # Analyze
+                analysis = analyze_baseline_results({
+                    'p_values': [r['p_value'] for r in baseline_results],
+                    'metadata': {'dataset': dataset_name, 'size': n}
+                })
+
+                results.append({
+                    'dataset': dataset_name,
+                    'size': n,
+                    'method': 'baseline',
+                    'condition': 'null',
+                    **analysis
+                })
+
+                execution_summary['configurations_run'] += 1
+
+        except Exception as e:
+            error_msg: str = f"Error processing {dataset_name}: {str(e)}"
+            logger.error(error_msg)
+            execution_summary['errors'].append(error_msg)
+
+    # Step 4: Generate final report
+    logger.info("Generating final analysis report...")
+    report_path: Path = generate_report(results)
+
+    execution_summary['report_path'] = str(report_path)
+    execution_summary['status'] = 'complete'
+
+    logger.info(f"Pipeline complete. Processed {execution_summary['configurations_run']} configurations.")
+
+    return execution_summary
+
+
+def detect_target_column(df) -> str:
+    """
+    Detect target column in DataFrame.
+
+    Args:
+        df: Input DataFrame.
+
+    Returns:
+        Target column name.
+    """
+    priority = ['target', 'class', 'label']
+    for col in priority:
+        if col in df.columns:
+            return col
+    return df.columns[-1]
+
+
+def main() -> int:
+    """
+    Main entry point for the pipeline.
+
+    Returns:
+        Exit code: 0 for success, 1 for failure.
+    """
+    parser: argparse.ArgumentParser = argparse.ArgumentParser(
+        description="Run the full augmentation impact analysis pipeline."
     )
-    args = parser.parse_args()
-    
-    # Change to project root if necessary
-    # (Most modules use relative paths or Path objects relative to CWD)
-    os.chdir(args.project_root)
-    
-    run_pipeline(args)
+    parser.add_argument(
+        '--datasets',
+        nargs='+',
+        default=None,
+        help='Datasets to process (default: all available)'
+    )
+    parser.add_argument(
+        '--sizes',
+        nargs='+',
+        type=int,
+        default=None,
+        help='Sample sizes to test (default: 15 25 40)'
+    )
+    parser.add_argument(
+        '--iterations',
+        type=int,
+        default=100,
+        help='Number of Monte Carlo iterations (default: 100)'
+    )
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=42,
+        help='Random seed (default: 42)'
+    )
+
+    args: argparse.Namespace = parser.parse_args()
+
+    try:
+        summary: Dict[str, Any] = run_pipeline(
+            datasets=args.datasets,
+            sample_sizes=args.sizes,
+            n_iterations=args.iterations,
+            seed=args.seed
+        )
+
+        if summary.get('errors'):
+            logger.error(f"Pipeline completed with {len(summary['errors'])} errors")
+            return 1
+
+        return 0
+
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())

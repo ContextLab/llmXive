@@ -1,53 +1,62 @@
 import os
-import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
+from code.setup_directories import main
 
-# Import the function to test
-import sys
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root / "code"))
+def test_directories_created(tmp_path):
+    """
+    Test that the setup_directories script creates the required directories.
+    
+    We change to a temporary directory to avoid polluting the actual repo
+    during testing, then verify the directories are created.
+    """
+    original_cwd = Path.cwd()
+    os.chdir(tmp_path)
+    
+    try:
+        # Run the main function which creates directories
+        result = main()
+        
+        # Verify return code
+        assert result == 0, "main() should return 0 on success"
+        
+        # Define expected directories
+        expected_dirs = [
+            "data/raw",
+            "data/derived",
+            "results",
+            "contracts",
+            "code",
+            "tests"
+        ]
+        
+        # Verify each directory exists
+        for dir_name in expected_dirs:
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_path} should exist"
+            assert dir_path.is_dir(), f"{dir_path} should be a directory"
+    finally:
+        # Restore original working directory
+        os.chdir(original_cwd)
 
-from setup_directories import main
-
-def test_directory_creation_structure(tmp_path):
+def test_directories_idempotent(tmp_path):
     """
-    Test that setup_directories creates the expected directory structure.
-    
-    We override the project root detection by temporarily changing the 
-    current working directory or mocking the path logic, but for this 
-    specific test we will verify the logic by creating a temp directory 
-    and simulating the structure creation.
+    Test that running setup_directories multiple times doesn't cause errors.
     """
-    # Since the script uses __file__ to find the root, we can't easily 
-    # mock it without refactoring. Instead, we test the logic directly 
-    # by calling the internal logic or verifying the script's behavior 
-    # in a controlled environment.
+    original_cwd = Path.cwd()
+    os.chdir(tmp_path)
     
-    # For this task, we verify that the script exists and is importable.
-    # The actual directory creation is verified by the existence of the 
-    # directories in the project root after running the script.
-    assert True 
-
-def test_required_directories_exist_in_project():
-    """
-    Verify that the required directories exist in the project root.
-    
-    This test assumes the setup script has been run or the directories 
-    were created manually.
-    """
-    project_root = Path(__file__).resolve().parent.parent
-    
-    required_dirs = [
-        "code",
-        "data/raw",
-        "data/derived",
-        "results",
-        "tests",
-        "contracts"
-    ]
-    
-    for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        assert dir_path.exists(), f"Directory {dir_path} does not exist."
-        assert dir_path.is_dir(), f"{dir_path} is not a directory."
+    try:
+        # Run twice
+        result1 = main()
+        result2 = main()
+        
+        assert result1 == 0
+        assert result2 == 0
+        
+        # Verify directories still exist
+        expected_dirs = ["data/raw", "data/derived", "results", "contracts"]
+        for dir_name in expected_dirs:
+            assert (tmp_path / dir_name).exists()
+    finally:
+        os.chdir(original_cwd)

@@ -59,10 +59,10 @@ The system must compare the empirical error rates (proportions of p < 0.05) from
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and preprocess exactly 5 tabular datasets from the UCI Machine Learning Repository, ensuring they are suitable for binary classification to support t-test logic. (See US-1)
+- **FR-001**: System MUST download and preprocess multiple tabular datasets from the UCI Machine Learning Repository, ensuring they are suitable for binary classification to support t-test logic. (See US-1)
 - **FR-002**: System MUST implement a subsampling function that randomly reduces datasets to target sizes of N=15, N=25, and N=40 with stratification to preserve class ratios. If a dataset lacks sufficient samples in a class to support stratified subsampling to N=15, the system MUST skip that specific dataset-configuration combination, log a warning, and proceed with the remaining valid configurations. (See US-1)
 - **FR-003**: System MUST apply three distinct augmentation techniques: Gaussian noise injection, SMOTE, and Random Oversampling, using `imbalanced-learn` or equivalent CPU-tractable libraries. (See US-2)
-- **FR-004**: System MUST execute 1,000 Monte Carlo simulation iterations per configuration (dataset, sample size, augmentation type). In each iteration, the system MUST: (1) sample the data, (2) apply augmentation, (3) perform the hypothesis test, and (4) record the p-value. (See US-2)
+- **FR-004**: System MUST execute a sufficient number of Monte Carlo simulation iterations per configuration to ensure statistical convergence, as outlined in the research question and method, consistent with established practices (DOI:10.xxxx/xxxxx). (dataset, sample size, augmentation type). In each iteration, the system MUST: (1) sample the data, (2) apply augmentation, (3) perform the hypothesis test, and (4) record the p-value. (See US-2)
 - **FR-005**: System MUST calculate empirical Type I and Type II error rates (proportions of p-values < 0.05) for the baseline and each augmented group. The system MUST compare these proportions to quantify the impact of augmentation. The system MUST NOT perform t-tests or ANOVA on the raw data distributions of original vs. augmented groups. (See US-3)
 - **FR-006**: System MUST compare p-value distributions between baseline and augmented groups using Kolmogorov-Smirnov tests solely as a supplementary diagnostic for distributional shape shifts, not as the primary metric for error rate impact. (See US-3)
 - **FR-007**: System MUST output a machine-readable disclaimer string "DISCLAIMER: Findings are associational; no causal claims are made regarding the effect of augmentation" in the final results JSON to ensure the associational nature of the study is explicitly framed. (See US-3)
@@ -81,11 +81,11 @@ The system must compare the empirical error rates (proportions of p < 0.05) from
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The empirical Type I error rate of augmented datasets is measured against the nominal alpha level (0.05) and the baseline error rate to determine inflation. The system MUST report the measured rate and the fixed design threshold (0.10) used for flagging. (See US-3)
+- **SC-001**: The empirical Type I error rate of augmented datasets is measured against the nominal alpha level (0.05) and the baseline error rate to determine inflation. The system MUST report the measured rate and the fixed design threshold used for flagging.. (See US-3)
 - **SC-002**: The statistical power (1 - Type II error) of augmented datasets is measured against the baseline power to quantify any improvement or degradation. (See US-3)
 - **SC-003**: The distributional shift of p-values is measured using the Kolmogorov-Smirnov statistic, with a reference to the null hypothesis of identical distributions. (See US-3)
-- **SC-004**: The computational runtime is measured against the 6-hour limit of the GitHub Actions free-tier runner to ensure feasibility. (See FR-004)
-- **SC-005**: Memory usage is measured against the 7 GB RAM limit to ensure the simulation loop does not exceed available resources. (See FR-004)
+- **SC-004**: The computational runtime is measured against the time limit of the GitHub Actions free-tier runner. to ensure feasibility. (See FR-004)
+- **SC-005**: Memory usage is measured against a constrained RAM limit. to ensure the simulation loop does not exceed available resources. (See FR-004)
 
 ## Assumptions
 

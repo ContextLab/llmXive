@@ -1,3 +1,3 @@
 """
-PROJ-269: Assessing the Impact of Data Augmentation on Statistical Power in Small Samples
+Project code modules for assessing the impact of data augmentation on statistical power.
 """

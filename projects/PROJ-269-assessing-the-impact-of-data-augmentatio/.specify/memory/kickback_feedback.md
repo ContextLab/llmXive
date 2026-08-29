@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No directory listings or file paths were provided to confirm that the required folders (`projects/PROJ-269-assessing-the-impact-of-data-augmentatio/code/`, `data/raw/`, `data/derived/`, `results/`, `tests/`, `contracts/`) actually exist and contain content. The implementer’s claim cannot be verified without concrete artifact evidence.
-- `T001b` (rejected 1x): declared artifact(s) missing/empty/invalid: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/requirements.txt
+- `T030` (rejected 1x): No evidence of any JSON result files (baseline or augmented) or a summary report containing the required `metadata.disclaimer` field was provided. Consequently, we cannot confirm that the disclaimer string was injected into every result file as specified. The implementer must supply the updated JSON files (or a directory listing showing the changes) and the modified summary report demonstrating the inserted disclaimer.
 
 ## Required change
 

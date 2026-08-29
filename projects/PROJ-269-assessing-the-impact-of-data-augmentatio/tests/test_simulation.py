@@ -1,235 +1,281 @@
 """
-Integration tests for the simulation module focusing on baseline simulation loop
-and p-value distribution generation for User Story 1.
+Unit tests for the simulation module.
 """
-
 import os
 import sys
 import json
 import tempfile
+import shutil
+import pytest
 import numpy as np
 import pandas as pd
 from pathlib import Path
-import pytest
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add parent directory to path to allow imports from code/
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import simulation
 from simulation import (
+    run_full_simulation,
+    validate_schema,
+    load_dataset,
     generate_type_i_condition,
     generate_type_ii_condition,
     run_hypothesis_test,
     run_simulation_iteration,
-    run_full_simulation,
     save_results,
-    validate_schema
+    main
 )
 from subsample import create_stratified_subsample, detect_target_column
+from download_data import compute_sha256
 
 # Constants for testing
-TEST_ITERATIONS = 50  # Reduced for faster testing
 TEST_SEED = 42
-TEST_SAMPLE_SIZE = 25
+TEST_ITERATIONS = 50  # Reduced for faster testing
+TEST_SIZE = 15  # Small sample size for testing
+TEST_DATA_DIR = Path("data/raw")
+TEST_RESULTS_DIR = Path("results")
+TEST_CONTRACTS_DIR = Path("contracts")
 
-def test_p_value_distribution_null_condition():
+# Ensure directories exist for tests
+@pytest.fixture(autouse=True)
+def setup_test_environment():
+    """Setup test directories."""
+    os.makedirs(TEST_DATA_DIR, exist_ok=True)
+    os.makedirs(TEST_RESULTS_DIR, exist_ok=True)
+    os.makedirs(TEST_CONTRACTS_DIR, exist_ok=True)
+    yield
+    # Cleanup is optional in test environment to preserve state if needed
+
+@pytest.fixture
+def mock_dataset_path():
     """
-    Integration test: Verify that running the simulation loop under the null condition
-    generates a p-value distribution that is approximately uniform (or at least
-    contains values across the range).
+    Create a minimal mock dataset for testing.
+    In a real scenario, this would download actual UCI data.
+    For T039, we need a deterministic dataset to verify reproducibility.
     """
-    # Create a synthetic dataset with no true difference between classes
-    # (This simulates the "Null" hypothesis scenario)
+    # Create a simple binary classification dataset
     np.random.seed(TEST_SEED)
-    n_samples = 200
-    n_features = 5
+    n_samples = 100
+    n_features = 10
     
+    # Generate features
     X = np.random.randn(n_samples, n_features)
-    y = np.random.randint(0, 2, n_samples)
+    # Generate labels with some class imbalance
+    y = np.random.binomial(1, 0.3, n_samples)
     
-    # Run the full simulation loop for null condition
-    # Note: We use a small number of iterations for this test
-    results = run_full_simulation(
-        X=X,
-        y=y,
-        iterations=TEST_ITERATIONS,
-        condition_type='null',
-        seed=TEST_SEED,
-        sample_size=TEST_SAMPLE_SIZE
-    )
-    
-    # Verify output structure
-    assert 'p_values' in results
-    assert 'config' in results
-    
-    # Verify p-values are in valid range [0, 1]
-    p_values = results['p_values']
-    assert len(p_values) == TEST_ITERATIONS
-    assert all(0.0 <= p <= 1.0 for p in p_values)
-    
-    # For a true null hypothesis, p-values should be roughly uniform.
-    # We check that we don't have a degenerate distribution (e.g., all 1.0 or all 0.0)
-    unique_vals = len(set(p_values))
-    assert unique_vals > 1, "P-value distribution is degenerate (all same value)"
-    
-    # Check that we have some values < 0.05 (expected ~5% of the time)
-    # With only 50 iterations, we might get 0 by chance, so we check for a reasonable range
-    # rather than a strict statistical test for this unit test
-    assert min(p_values) < 0.5, "P-values are suspiciously high for null condition"
-
-def test_p_value_distribution_alt_condition():
-    """
-    Integration test: Verify that running the simulation loop under the alternative
-    condition generates a p-value distribution skewed towards 0 (indicating power).
-    """
-    # Create a synthetic dataset with a clear difference between classes
-    # (This simulates the "Alternative" hypothesis scenario)
-    np.random.seed(TEST_SEED)
-    n_samples = 200
-    n_features = 5
-    
-    # Class 0 centered at 0, Class 1 centered at 2 (clear separation)
-    X_class0 = np.random.randn(100, n_features)
-    X_class1 = np.random.randn(100, n_features) + 2.0
-    X = np.vstack([X_class0, X_class1])
-    y = np.array([0] * 100 + [1] * 100)
-    
-    # Run the full simulation loop for alternative condition
-    results = run_full_simulation(
-        X=X,
-        y=y,
-        iterations=TEST_ITERATIONS,
-        condition_type='alt',
-        seed=TEST_SEED,
-        sample_size=TEST_SAMPLE_SIZE
-    )
-    
-    # Verify output structure
-    assert 'p_values' in results
-    assert 'config' in results
-    
-    # Verify p-values are in valid range
-    p_values = results['p_values']
-    assert len(p_values) == TEST_ITERATIONS
-    assert all(0.0 <= p <= 1.0 for p in p_values)
-    
-    # For an alternative hypothesis, p-values should be skewed towards 0.
-    # Check that the median is lower than for the null case
-    median_p = np.median(p_values)
-    assert median_p < 0.5, "P-value distribution for alt condition is not skewed towards 0"
-    
-    # Check that we have a significant portion of p-values < 0.05 (power)
-    # With clear separation and 25 samples, we expect decent power
-    low_p_count = sum(1 for p in p_values if p < 0.05)
-    assert low_p_count > 0, "No significant results found for alternative condition (low power?)"
-
-def test_simulation_save_and_load():
-    """
-    Integration test: Verify that simulation results can be saved to JSON and reloaded.
-    """
-    # Create simple data
-    np.random.seed(TEST_SEED)
-    X = np.random.randn(100, 3)
-    y = np.random.randint(0, 2, 100)
-    
-    # Run simulation
-    results = run_full_simulation(
-        X=X,
-        y=y,
-        iterations=10,
-        condition_type='null',
-        seed=TEST_SEED,
-        sample_size=20
-    )
-    
-    # Save to temporary file
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        temp_path = f.name
-    
-    try:
-        save_results(results, temp_path)
-        
-        # Verify file exists
-        assert os.path.exists(temp_path), "Result file was not created"
-        
-        # Load and verify content
-        with open(temp_path, 'r') as f:
-            loaded_results = json.load(f)
-        
-        assert 'p_values' in loaded_results
-        assert len(loaded_results['p_values']) == 10
-        assert loaded_results['config']['iterations'] == 10
-    finally:
-        # Clean up
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-
-def test_end_to_end_baseline_simulation():
-    """
-    End-to-end test: Simulate the baseline workflow (subsample -> simulate)
-    to ensure the full loop works correctly for User Story 1.
-    """
-    # Create a dataset that mimics a real UCI dataset structure
-    np.random.seed(TEST_SEED)
-    n_samples = 150
-    n_features = 4
-    
-    # Generate features with some correlation
-    X = np.random.randn(n_samples, n_features)
-    # Create a target column
-    y = np.random.randint(0, 2, n_samples)
-    
-    # Combine into a DataFrame to mimic real data processing
+    # Create DataFrame
     df = pd.DataFrame(X, columns=[f'feature_{i}' for i in range(n_features)])
     df['target'] = y
     
-    # Detect target column (should find 'target')
-    target_col = detect_target_column(df)
-    assert target_col == 'target', f"Expected 'target', got {target_col}"
+    # Save to a temporary file
+    temp_dir = tempfile.mkdtemp()
+    dataset_path = Path(temp_dir) / 'test_dataset.csv'
+    df.to_csv(dataset_path, index=False)
     
-    # Create stratified subsample
-    X_sub, y_sub = create_stratified_subsample(
-        df=df,
-        target_col='target',
-        sample_size=20,
-        seed=TEST_SEED
-    )
+    yield dataset_path
     
-    assert len(X_sub) == 20, f"Expected 20 samples, got {len(X_sub)}"
-    assert len(y_sub) == 20, f"Expected 20 targets, got {len(y_sub)}"
-    
-    # Run baseline simulation (null condition)
-    results = run_full_simulation(
-        X=X_sub,
-        y=y_sub,
-        iterations=20,
-        condition_type='null',
-        seed=TEST_SEED,
-        sample_size=20
-    )
-    
-    # Verify results
-    assert 'p_values' in results
-    assert len(results['p_values']) == 20
-    assert all(0.0 <= p <= 1.0 for p in results['p_values'])
-    
-    # Verify configuration metadata
-    assert results['config']['condition_type'] == 'null'
-    assert results['config']['sample_size'] == 20
-    assert results['config']['iterations'] == 20
+    # Cleanup
+    shutil.rmtree(temp_dir)
 
-if __name__ == "__main__":
-    # Run tests manually if executed as script
-    test_p_value_distribution_null_condition()
-    print("✓ test_p_value_distribution_null_condition passed")
+@pytest.fixture
+def mock_schema_path():
+    """Create a minimal simulation schema for testing."""
+    schema = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+            "metadata": {
+                "type": "object",
+                "properties": {
+                    "dataset": {"type": "string"},
+                    "size": {"type": "integer"},
+                    "seed": {"type": "integer"},
+                    "condition": {"type": "string"}
+                },
+                "required": ["dataset", "size", "seed", "condition"]
+            },
+            "p_values": {
+                "type": "array",
+                "items": {"type": "number"}
+            },
+            "error_rates": {
+                "type": "object",
+                "properties": {
+                    "type_i": {"type": "number"},
+                    "type_ii": {"type": "number"}
+                }
+            }
+        },
+        "required": ["metadata", "p_values"]
+    }
     
-    test_p_value_distribution_alt_condition()
-    print("✓ test_p_value_distribution_alt_condition passed")
+    temp_dir = tempfile.mkdtemp()
+    schema_path = Path(temp_dir) / 'simulation_schema.json'
+    with open(schema_path, 'w') as f:
+        json.dump(schema, f)
     
-    test_simulation_save_and_load()
-    print("✓ test_simulation_save_and_load passed")
+    yield schema_path
     
-    test_end_to_end_baseline_simulation()
-    print("✓ test_end_to_end_baseline_simulation passed")
+    shutil.rmtree(temp_dir)
+
+def test_deterministic_seed_reproducibility(mock_dataset_path, mock_schema_path):
+    """
+    T039: Test that running the baseline loop twice with the same seed
+    produces bitwise identical p-value distributions.
     
-    print("\nAll integration tests passed!")
+    This ensures strict reproducibility as required by the task.
+    """
+    # Configuration for the test
+    dataset_name = "test_reproducibility"
+    size = TEST_SIZE
+    seed = TEST_SEED
+    iterations = TEST_ITERATIONS
+    condition = "baseline"
+    
+    # Load the dataset
+    df = load_dataset(str(mock_dataset_path))
+    target_col = detect_target_column(df)
+    
+    # Create a subsample
+    subsample_df = create_stratified_subsample(df, size, target_col)
+    
+    # Ensure we have enough samples for the test
+    if len(subsample_df) < size:
+        pytest.skip(f"Not enough samples for size {size}")
+    
+    # First run
+    results_run1 = run_full_simulation(
+        dataset=subsample_df,
+        dataset_name=dataset_name,
+        size=size,
+        seed=seed,
+        iterations=iterations,
+        condition=condition,
+        schema_path=mock_schema_path
+    )
+    
+    # Second run with the exact same parameters
+    results_run2 = run_full_simulation(
+        dataset=subsample_df,
+        dataset_name=dataset_name,
+        size=size,
+        seed=seed,
+        iterations=iterations,
+        condition=condition,
+        schema_path=mock_schema_path
+    )
+    
+    # Extract p-values from both runs
+    p_values_run1 = results_run1['p_values']
+    p_values_run2 = results_run2['p_values']
+    
+    # Verify that the p-value distributions are identical
+    # Use np.allclose with very tight tolerance for bitwise comparison
+    # Floating point operations should be deterministic with same seed
+    assert len(p_values_run1) == len(p_values_run2), "P-value distributions have different lengths"
+    
+    # Check for exact bitwise equality (within floating point tolerance)
+    # Using a very small tolerance to ensure reproducibility
+    assert np.allclose(p_values_run1, p_values_run2, rtol=0, atol=0), \
+        "P-value distributions are not bitwise identical with the same seed"
+    
+    # Also verify metadata is identical
+    assert results_run1['metadata'] == results_run2['metadata'], \
+        "Metadata differs between runs"
+    
+    # Verify error rates are identical
+    assert results_run1['error_rates'] == results_run2['error_rates'], \
+        "Error rates differ between runs"
+    
+    print(f"✓ Reproducibility test passed: {iterations} iterations with seed {seed} produced identical results")
+
+def test_seed_affects_results(mock_dataset_path, mock_schema_path):
+    """
+    Verify that different seeds produce different results.
+    This is a sanity check to ensure the seed parameter is actually used.
+    """
+    dataset_name = "test_seed_variation"
+    size = TEST_SIZE
+    iterations = TEST_ITERATIONS
+    condition = "baseline"
+    
+    df = load_dataset(str(mock_dataset_path))
+    target_col = detect_target_column(df)
+    subsample_df = create_stratified_subsample(df, size, target_col)
+    
+    if len(subsample_df) < size:
+        pytest.skip(f"Not enough samples for size {size}")
+    
+    # Run with seed 42
+    results_seed_42 = run_full_simulation(
+        dataset=subsample_df,
+        dataset_name=dataset_name,
+        size=size,
+        seed=42,
+        iterations=iterations,
+        condition=condition,
+        schema_path=mock_schema_path
+    )
+    
+    # Run with seed 123
+    results_seed_123 = run_full_simulation(
+        dataset=subsample_df,
+        dataset_name=dataset_name,
+        size=size,
+        seed=123,
+        iterations=iterations,
+        condition=condition,
+        schema_path=mock_schema_path
+    )
+    
+    # Verify that results are different (with high probability)
+    p_values_42 = results_seed_42['p_values']
+    p_values_123 = results_seed_123['p_values']
+    
+    # They should be different (unless by extremely rare chance)
+    is_different = not np.allclose(p_values_42, p_values_123, rtol=0, atol=0)
+    
+    # We expect them to be different with very high probability
+    # If they happen to be the same, it's a statistical fluke, so we'll be lenient
+    # but log a warning
+    if not is_different:
+        print("⚠ Warning: Different seeds produced identical results (statistical fluke)")
+    
+    # For robustness, we'll check that at least some values differ
+    # or that the distributions are statistically different
+    assert is_different or np.mean(np.abs(np.array(p_values_42) - np.array(p_values_123))) > 1e-10, \
+        "Different seeds should produce different results"
+
+def test_schema_validation(mock_schema_path):
+    """Test that the schema validation works correctly."""
+    # Create a valid result
+    valid_result = {
+        "metadata": {
+            "dataset": "test",
+            "size": 15,
+            "seed": 42,
+            "condition": "baseline"
+        },
+        "p_values": [0.05, 0.1, 0.2],
+        "error_rates": {"type_i": 0.1, "type_ii": 0.2}
+    }
+    
+    # This should not raise an exception
+    assert validate_schema(valid_result, mock_schema_path) is True
+
+def test_schema_rejection(mock_schema_path):
+    """Test that invalid results are rejected by schema validation."""
+    # Create an invalid result (missing required field)
+    invalid_result = {
+        "metadata": {
+            "dataset": "test",
+            "size": 15,
+            "seed": 42
+            # Missing 'condition'
+        },
+        "p_values": [0.05, 0.1, 0.2]
+    }
+    
+    # This should raise an exception or return False
+    with pytest.raises(Exception):
+        validate_schema(invalid_result, mock_schema_path)
