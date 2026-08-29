@@ -1,199 +1,270 @@
 """
-Core data structures for the Topic Drift Analysis pipeline.
+Core data structures for the topic drift analysis pipeline.
 
-This module defines the fundamental data entities used throughout the analysis:
-- AbstractRecord: Represents a single academic abstract with metadata.
-- TopicVector: Represents a probability distribution over topics for a window.
-- DivergenceMeasurement: Represents the statistical divergence between two TopicVectors.
+This module defines the fundamental entities used throughout the pipeline:
+- AbstractRecord: Represents a single academic abstract with metadata
+- TopicVector: Represents the topic distribution for a document or window
+- DivergenceMeasurement: Represents the statistical divergence between two topic distributions
 """
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 import numpy as np
+from src.utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 @dataclass
 class AbstractRecord:
     """
-    Represents a single academic abstract record.
+    Represents a single academic abstract with its metadata and processed tokens.
 
     Attributes:
-        id: Unique identifier for the abstract (e.g., arXiv ID or PubMed ID).
-        source: Data source ('arxiv' or 'pubmed').
-        title: Title of the paper.
-        abstract: The raw text content of the abstract.
-        year: Publication year (integer).
-        window: The 5-year analysis window this record belongs to (e.g., '2000-2004').
-        tokens: List of processed tokens (lowercased, stopwords removed).
-        metadata: Additional metadata dictionary (optional).
+        id: Unique identifier for the record (e.g., arXiv ID or PubMed ID)
+        title: Title of the paper
+        abstract: Full text of the abstract
+        year: Publication year
+        source: Source of the abstract ('arxiv' or 'pubmed')
+        categories: List of subject categories (for arXiv) or MeSH terms (for PubMed)
+        tokens: List of preprocessed tokens after stopword removal
+        window: The 5-year time window this record belongs to
+        raw_metadata: Dictionary containing any additional raw metadata
     """
     id: str
-    source: str
     title: str
     abstract: str
     year: int
-    window: str
+    source: str
     tokens: List[str] = field(default_factory=list)
-    metadata: Dict[str, any] = field(default_factory=dict)
+    window: Optional[str] = None
+    categories: List[str] = field(default_factory=list)
+    raw_metadata: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
-        """Validate required fields and types."""
+        """Validate the record after initialization."""
         if not self.id:
-            raise ValueError("AbstractRecord requires a non-empty 'id'.")
-        if self.source not in ('arxiv', 'pubmed'):
-            raise ValueError(f"AbstractRecord 'source' must be 'arxiv' or 'pubmed', got '{self.source}'.")
-        if not isinstance(self.year, int) or not (2000 <= self.year <= 2024):
-            raise ValueError(f"AbstractRecord 'year' must be an integer between 2000 and 2024, got {self.year}.")
-        if not self.window:
-            raise ValueError("AbstractRecord requires a non-empty 'window'.")
+            raise ValueError("AbstractRecord ID cannot be empty")
+        if not self.title:
+            raise ValueError("AbstractRecord title cannot be empty")
+        if not self.abstract:
+            raise ValueError("AbstractRecord abstract cannot be empty")
+        if self.year < 1900 or self.year > 2025:
+            raise ValueError(f"AbstractRecord year {self.year} is out of reasonable range")
+        if self.source not in ['arxiv', 'pubmed']:
+            logger.warning(f"Unexpected source '{self.source}' for record {self.id}")
+
+    @property
+    def token_count(self) -> int:
+        """Return the number of tokens in this record."""
+        return len(self.tokens)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the record to a dictionary for serialization."""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'abstract': self.abstract,
+            'year': self.year,
+            'source': self.source,
+            'tokens': self.tokens,
+            'window': self.window,
+            'categories': self.categories,
+            'raw_metadata': self.raw_metadata
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'AbstractRecord':
+        """Create an AbstractRecord from a dictionary."""
+        return cls(
+            id=data['id'],
+            title=data['title'],
+            abstract=data['abstract'],
+            year=data['year'],
+            source=data['source'],
+            tokens=data.get('tokens', []),
+            window=data.get('window'),
+            categories=data.get('categories', []),
+            raw_metadata=data.get('raw_metadata', {})
+        )
 
 
 @dataclass
 class TopicVector:
     """
-    Represents a topic distribution vector for a specific time window.
+    Represents a topic distribution vector for a document or time window.
 
-    This vector holds the probability mass for each of the k topics,
-    ensuring the values sum to 1.0 (valid probability distribution).
+    This class encapsulates the probability distribution over topics,
+    ensuring that the vector is valid (sums to 1.0, no NaN values).
 
     Attributes:
-        window: The time window this vector represents (e.g., '2000-2004').
-        topic_ids: List of topic identifiers (0 to k-1).
-        probabilities: Numpy array of probabilities corresponding to topic_ids.
-        model_params: Dictionary of parameters used to generate this vector (e.g., seed, k).
+        window: The time window this vector represents (e.g., '2000-2004')
+        topic_probs: Numpy array of topic probabilities (shape: [n_topics])
+        topic_ids: Optional list of topic identifiers for reference
+        model_params: Dictionary of LDA model parameters used to generate this vector
     """
     window: str
-    topic_ids: List[int]
-    probabilities: np.ndarray
-    model_params: Dict[str, any] = field(default_factory=dict)
+    topic_probs: np.ndarray = field(default_factory=lambda: np.array([]))
+    topic_ids: Optional[List[str]] = None
+    model_params: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
-        """Validate the topic vector structure and probability constraints."""
-        if len(self.topic_ids) != len(self.probabilities):
-            raise ValueError(
-                f"TopicVector: 'topic_ids' length ({len(self.topic_ids)}) must match "
-                f"'probabilities' length ({len(self.probabilities)})."
-            )
-
-        # Ensure probabilities are a numpy array
-        if not isinstance(self.probabilities, np.ndarray):
-            self.probabilities = np.array(self.probabilities, dtype=np.float64)
+        """Validate and normalize the topic vector after initialization."""
+        if self.topic_probs is None:
+            self.topic_probs = np.array([])
+        
+        # Convert to numpy array if it isn't already
+        self.topic_probs = np.array(self.topic_probs, dtype=np.float64)
+        
+        # Validate dimensions
+        if self.topic_probs.ndim != 1:
+            raise ValueError(f"TopicVector must be 1D, got {self.topic_probs.ndim}D")
+        
+        # Check for NaN values
+        if np.any(np.isnan(self.topic_probs)):
+            raise ValueError("TopicVector contains NaN values")
+        
+        # Normalize to sum to 1.0 if not already
+        total = np.sum(self.topic_probs)
+        if total == 0:
+            logger.warning(f"TopicVector for window {self.window} has zero sum, setting to uniform")
+            n_topics = len(self.topic_probs)
+            if n_topics > 0:
+                self.topic_probs = np.ones(n_topics) / n_topics
         else:
-            self.probabilities = self.probabilities.astype(np.float64)
+            self.topic_probs = self.topic_probs / total
 
-        # Check for NaN or Inf
-        if np.any(np.isnan(self.probabilities)) or np.any(np.isinf(self.probabilities)):
-            raise ValueError("TopicVector: Probabilities cannot contain NaN or Inf values.")
+    @property
+    def n_topics(self) -> int:
+        """Return the number of topics in this vector."""
+        return len(self.topic_probs)
 
-        # Check non-negativity
-        if np.any(self.probabilities < 0):
-            raise ValueError("TopicVector: Probabilities cannot be negative.")
+    @property
+    def is_valid(self) -> bool:
+        """Check if the topic vector is valid (sums to 1.0, no NaN)."""
+        return (
+            np.sum(np.abs(np.sum(self.topic_probs) - 1.0)) < 1e-6 and
+            not np.any(np.isnan(self.topic_probs)) and
+            not np.any(np.isinf(self.topic_probs))
+        )
 
-        # Check sum to 1.0 (with tolerance for floating point errors)
-        total_mass = np.sum(self.probabilities)
-        if not np.isclose(total_mass, 1.0, atol=1e-6):
-            raise ValueError(
-                f"TopicVector: Probabilities must sum to 1.0 (got {total_mass:.6f}). "
-                "Ensure the vector is normalized."
-            )
-
-    def get_topic_probability(self, topic_id: int) -> float:
+    def get_top_k_topics(self, k: int = 5) -> List[Tuple[int, float]]:
         """
-        Retrieve the probability for a specific topic ID.
+        Return the indices and probabilities of the top k topics.
 
         Args:
-            topic_id: The ID of the topic.
+            k: Number of top topics to return
 
         Returns:
-            The probability associated with the topic_id.
-
-        Raises:
-            KeyError: If topic_id is not in the vector.
+            List of (topic_index, probability) tuples sorted by probability descending
         """
-        try:
-            idx = self.topic_ids.index(topic_id)
-            return float(self.probabilities[idx])
-        except ValueError:
-            raise KeyError(f"Topic ID {topic_id} not found in vector for window {self.window}.")
+        if k <= 0:
+            return []
+        
+        sorted_indices = np.argsort(self.topic_probs)[::-1]
+        return [(int(idx), float(self.topic_probs[idx])) for idx in sorted_indices[:k]]
 
-    def to_dict(self) -> Dict:
-        """Convert the TopicVector to a JSON-serializable dictionary."""
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the topic vector to a dictionary for serialization."""
         return {
-            "window": self.window,
-            "topic_ids": self.topic_ids,
-            "probabilities": self.probabilities.tolist(),
-            "model_params": self.model_params
+            'window': self.window,
+            'topic_probs': self.topic_probs.tolist(),
+            'topic_ids': self.topic_ids,
+            'model_params': self.model_params
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> 'TopicVector':
-        """Construct a TopicVector from a dictionary."""
+    def from_dict(cls, data: Dict[str, Any]) -> 'TopicVector':
+        """Create a TopicVector from a dictionary."""
         return cls(
-            window=data["window"],
-            topic_ids=data["topic_ids"],
-            probabilities=np.array(data["probabilities"]),
-            model_params=data.get("model_params", {})
+            window=data['window'],
+            topic_probs=np.array(data['topic_probs'], dtype=np.float64),
+            topic_ids=data.get('topic_ids'),
+            model_params=data.get('model_params', {})
         )
 
 
 @dataclass
 class DivergenceMeasurement:
     """
-    Represents a statistical divergence measurement between two TopicVectors.
+    Represents a statistical divergence measurement between two topic distributions.
+
+    This class encapsulates the Jensen-Shannon divergence (or other metrics)
+    between two TopicVectors, along with statistical test results.
 
     Attributes:
-        window_1: The first time window (source).
-        window_2: The second time window (target).
-        divergence_value: The calculated divergence value (e.g., Jensen-Shannon).
-        divergence_type: The type of metric used (e.g., 'JS_Divergence').
-        is_significant: Boolean indicating if the divergence is statistically significant.
-        p_value: P-value from the permutation test (optional).
-        confidence_interval: Tuple (lower, upper) for the 95% CI (optional).
-        metadata: Additional context (e.g., correction method used).
+        window_pair: Tuple of (window_a, window_b) being compared
+        divergence_value: The computed divergence value (e.g., JS divergence)
+        p_value: P-value from permutation test (if performed)
+        confidence_interval: 95% confidence interval as (lower, upper) tuple
+        is_significant: Whether the divergence is statistically significant
+        permutation_count: Number of permutations used in the test
+        correction_method: Method used for multiple comparison correction (e.g., 'maxT')
+        raw_stats: Dictionary of additional raw statistics from the computation
     """
-    window_1: str
-    window_2: str
-    divergence_value: float
-    divergence_type: str
-    is_significant: Optional[bool] = None
+    window_pair: Tuple[str, str]
+    divergence_value: float = 0.0
     p_value: Optional[float] = None
     confidence_interval: Optional[Tuple[float, float]] = None
-    metadata: Dict[str, any] = field(default_factory=dict)
+    is_significant: bool = False
+    permutation_count: int = 0
+    correction_method: Optional[str] = None
+    raw_stats: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
-        """Validate the measurement."""
-        if self.window_1 == self.window_2:
-            raise ValueError("DivergenceMeasurement: window_1 and window_2 must be different.")
+        """Validate the measurement after initialization."""
+        if len(self.window_pair) != 2:
+            raise ValueError("window_pair must be a tuple of exactly two window names")
+        
+        if self.window_pair[0] == self.window_pair[1]:
+            raise ValueError("Cannot compute divergence between identical windows")
+        
+        # Ensure divergence value is non-negative
         if self.divergence_value < 0:
-            raise ValueError("DivergenceMeasurement: Divergence value cannot be negative.")
+            logger.warning(f"Negative divergence value {self.divergence_value} for {self.window_pair}")
+            self.divergence_value = 0.0
 
-    def to_dict(self) -> Dict:
-        """Convert the DivergenceMeasurement to a JSON-serializable dictionary."""
-        result = {
-            "window_1": self.window_1,
-            "window_2": self.window_2,
-            "divergence_value": self.divergence_value,
-            "divergence_type": self.divergence_type,
-            "is_significant": self.is_significant,
-            "p_value": self.p_value,
-            "confidence_interval": list(self.confidence_interval) if self.confidence_interval else None,
-            "metadata": self.metadata
+    @property
+    def is_valid(self) -> bool:
+        """Check if the measurement is valid."""
+        return (
+            self.divergence_value >= 0 and
+            (self.p_value is None or (0 <= self.p_value <= 1)) and
+            (self.confidence_interval is None or 
+             (len(self.confidence_interval) == 2 and 
+              self.confidence_interval[0] <= self.confidence_interval[1]))
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the measurement to a dictionary for serialization."""
+        return {
+            'window_pair': list(self.window_pair),
+            'divergence_value': float(self.divergence_value),
+            'p_value': self.p_value,
+            'confidence_interval': list(self.confidence_interval) if self.confidence_interval else None,
+            'is_significant': self.is_significant,
+            'permutation_count': self.permutation_count,
+            'correction_method': self.correction_method,
+            'raw_stats': self.raw_stats
         }
-        return result
 
     @classmethod
-    def from_dict(cls, data: Dict) -> 'DivergenceMeasurement':
-        """Construct a DivergenceMeasurement from a dictionary."""
-        ci = data.get("confidence_interval")
-        if ci and isinstance(ci, list):
-            ci = tuple(ci)
-        
+    def from_dict(cls, data: Dict[str, Any]) -> 'DivergenceMeasurement':
+        """Create a DivergenceMeasurement from a dictionary."""
         return cls(
-            window_1=data["window_1"],
-            window_2=data["window_2"],
-            divergence_value=data["divergence_value"],
-            divergence_type=data["divergence_type"],
-            is_significant=data.get("is_significant"),
-            p_value=data.get("p_value"),
-            confidence_interval=ci,
-            metadata=data.get("metadata", {})
+            window_pair=tuple(data['window_pair']),
+            divergence_value=float(data['divergence_value']),
+            p_value=data.get('p_value'),
+            confidence_interval=tuple(data['confidence_interval']) if data.get('confidence_interval') else None,
+            is_significant=data.get('is_significant', False),
+            permutation_count=data.get('permutation_count', 0),
+            correction_method=data.get('correction_method'),
+            raw_stats=data.get('raw_stats', {})
+        )
+
+    def __repr__(self) -> str:
+        """String representation for debugging."""
+        significance = "significant" if self.is_significant else "not significant"
+        return (
+            f"DivergenceMeasurement({self.window_pair[0]} vs {self.window_pair[1]}): "
+            f"JS={self.divergence_value:.4f}, p={self.p_value:.4f} ({significance})"
         )

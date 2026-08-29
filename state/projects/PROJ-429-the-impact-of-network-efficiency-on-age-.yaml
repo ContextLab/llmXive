@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T07:40:13.462030Z'
-current_stage: planned
+current_stage: clarified
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-429-the-impact-of-network-efficiency-on-age-
-last_run_id: c4a91af7-1cbb-4cf1-8f54-68cae15cc66d
+last_run_id: 26f4c593-567f-4cc9-b461-ed6d98334d6c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-429-the-impact-of-network-efficiency-on-age-/specs/001-the-impact-of-network-efficiency-on-age
 title: The Impact of Network Efficiency on Age-Related Changes in Resting-State EEG
-updated_at: '2026-08-26T13:01:35.561078Z'
+updated_at: '2026-08-29T06:44:39.498456Z'

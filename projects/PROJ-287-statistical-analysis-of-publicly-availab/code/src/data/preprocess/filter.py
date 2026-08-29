@@ -1,147 +1,151 @@
-"""
-Filter module for preprocessing abstracts.
-Excludes records with fewer than 20 tokens and logs exclusion counts.
-"""
 import os
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+import json
 
 from src.data.preprocess.tokenizer import TokenizationResult, load_preprocessed_data
 from src.utils.logging import get_logger
 
-# Minimum token count threshold as per requirements
 MIN_TOKEN_THRESHOLD = 20
+logger = get_logger(__name__)
 
-def filter_by_token_count(tokenization_results: List[TokenizationResult]) -> Tuple[List[TokenizationResult], int]:
+
+def filter_by_token_count(
+    records: List[Dict[str, Any]],
+    min_tokens: int = MIN_TOKEN_THRESHOLD
+) -> Tuple[List[Dict[str, Any]], int, int]:
     """
-    Filter a list of tokenization results, keeping only those with >= MIN_TOKEN_THRESHOLD tokens.
-
+    Filter a list of preprocessed record dictionaries based on token count.
+    
     Args:
-        tokenization_results: List of TokenizationResult objects from the tokenizer.
-
+        records: List of dicts containing at least 'tokens' key (list of strings).
+        min_tokens: Minimum number of tokens required to keep a record.
+        
     Returns:
         Tuple containing:
-            - List of filtered TokenizationResult objects (kept records)
-            - Count of excluded records
+            - filtered_records: List of records meeting the token threshold.
+            - kept_count: Number of records kept.
+            - excluded_count: Number of records excluded.
     """
-    filtered_results = []
+    if not records:
+        logger.warning("No records provided to filter_by_token_count.")
+        return [], 0, 0
+
+    filtered_records = []
     excluded_count = 0
 
-    for result in tokenization_results:
-        if result.token_count >= MIN_TOKEN_THRESHOLD:
-            filtered_results.append(result)
+    for record in records:
+        token_list = record.get("tokens", [])
+        token_count = len(token_list)
+        
+        if token_count >= min_tokens:
+            filtered_records.append(record)
         else:
             excluded_count += 1
+            
+            # Log exclusion details for a small sample to avoid log flooding
+            if excluded_count <= 5:
+                logger.debug(
+                    f"Excluding record ID {record.get('id', 'unknown')}: "
+                    f"token count {token_count} < {min_tokens}"
+                )
+            elif excluded_count == 6:
+                logger.info("Stopped logging individual exclusion details. "
+                            "Check summary stats below.")
 
-    return filtered_results, excluded_count
+    kept_count = len(filtered_records)
+    total_processed = kept_count + excluded_count
+    
+    logger.info(
+        f"Filtering complete: Kept {kept_count}/{total_processed} records "
+        f"({100*kept_count/total_processed:.1f}%) with >= {min_tokens} tokens. "
+        f"Excluded {excluded_count} records."
+    )
+    
+    return filtered_records, kept_count, excluded_count
 
-def process_and_filter(input_path: str, output_path: str) -> Dict[str, Any]:
+
+def process_and_filter(
+    input_path: str,
+    output_path: str,
+    min_tokens: int = MIN_TOKEN_THRESHOLD
+) -> Dict[str, Any]:
     """
-    Load preprocessed data, filter by token count, and save the results.
-
-    This function:
-    1. Loads tokenized data from the input path (JSONL format).
-    2. Filters out records with fewer than 20 tokens.
-    3. Logs the number of excluded records.
-    4. Saves the filtered results to the output path.
-
+    Load preprocessed data from a JSONL file, filter by token count, 
+    and save the result to a new JSONL file.
+    
     Args:
-        input_path: Path to the input JSONL file containing tokenized results.
-        output_path: Path to the output JSONL file for filtered results.
-
+        input_path: Path to the input JSONL file (raw tokenized data).
+        output_path: Path to the output JSONL file (filtered data).
+        min_tokens: Minimum token threshold.
+        
     Returns:
-        Dictionary containing processing statistics:
-            - total_loaded: Total number of records loaded
-            - total_kept: Number of records kept after filtering
-            - total_excluded: Number of records excluded (< 20 tokens)
-            - exclusion_rate: Percentage of excluded records
+        Dictionary containing processing statistics.
     """
-    logger = get_logger(__name__)
+    logger.info(f"Starting filter process: {input_path} -> {output_path}")
     
-    # Load preprocessed data
-    logger.info(f"Loading tokenized data from {input_path}")
-    tokenization_results = load_preprocessed_data(input_path)
-    
-    if not tokenization_results:
-        logger.warning(f"No data found in {input_path}")
-        return {
-            "total_loaded": 0,
-            "total_kept": 0,
-            "total_excluded": 0,
-            "exclusion_rate": 0.0
-        }
-
-    total_loaded = len(tokenization_results)
-    
-    # Filter by token count
-    logger.info(f"Filtering records (threshold: {MIN_TOKEN_THRESHOLD} tokens)...")
-    filtered_results, excluded_count = filter_by_token_count(tokenization_results)
-    
-    total_kept = len(filtered_results)
-    total_excluded = excluded_count
-    exclusion_rate = (total_excluded / total_loaded * 100) if total_loaded > 0 else 0.0
-
-    # Log exclusion counts
-    logger.info(f"Filtering complete:")
-    logger.info(f"  - Total loaded: {total_loaded}")
-    logger.info(f"  - Total kept: {total_kept}")
-    logger.info(f"  - Total excluded (< {MIN_TOKEN_THRESHOLD} tokens): {total_excluded}")
-    logger.info(f"  - Exclusion rate: {exclusion_rate:.2f}%")
-
-    # Save filtered results
-    logger.info(f"Saving filtered data to {output_path}")
-    
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+        
     # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Write filtered results to output file
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        
+    records = load_preprocessed_data(input_path)
+    logger.info(f"Loaded {len(records)} records from {input_path}")
+    
+    filtered_records, kept_count, excluded_count = filter_by_token_count(
+        records, min_tokens=min_tokens
+    )
+    
+    # Save filtered records
     with open(output_path, 'w', encoding='utf-8') as f:
-        for result in filtered_results:
-            # Convert TokenizationResult to dictionary for JSON serialization
-            record_dict = {
-                "id": result.id,
-                "source": result.source,
-                "original_text": result.original_text,
-                "tokens": result.tokens,
-                "token_count": result.token_count,
-                "window": result.window,
-                "year": result.year
-            }
-            f.write(f"{record_dict}\n")
-
+        for record in filtered_records:
+            f.write(json.dumps(record, ensure_ascii=False) + '\n')
+            
+    logger.info(f"Saved {kept_count} filtered records to {output_path}")
+    
     return {
-        "total_loaded": total_loaded,
-        "total_kept": total_kept,
-        "total_excluded": total_excluded,
-        "exclusion_rate": exclusion_rate
+        "input_file": input_path,
+        "output_file": output_path,
+        "total_input": len(records),
+        "total_output": kept_count,
+        "excluded_count": excluded_count,
+        "min_tokens_threshold": min_tokens
     }
+
 
 def main():
     """
-    Main entry point for the filter module.
-    Reads from data/raw/tokenized_abstracts.jsonl and writes to data/processed/filtered_abstracts.jsonl
+    CLI entry point for running the filter module.
+    Expects environment variables or defaults for input/output paths.
     """
-    logger = get_logger(__name__)
-    logger.info("Starting filter module...")
+    # Default paths relative to project structure
+    # These would typically be set via config or CLI args in a real pipeline
+    input_file = os.getenv(
+        "FILTER_INPUT_PATH", 
+        "data/processed/tokenized_abstracts.jsonl"
+    )
+    output_file = os.getenv(
+        "FILTER_OUTPUT_PATH",
+        "data/processed/filtered_abstracts.jsonl"
+    )
+    min_tokens = int(os.getenv("FILTER_MIN_TOKENS", str(MIN_TOKEN_THRESHOLD)))
+    
+    try:
+        stats = process_and_filter(input_file, output_file, min_tokens)
+        logger.info("Filtering successful.")
+        logger.info(f"Stats: {stats}")
+        return 0
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return 1
+    except Exception as e:
+        logger.error(f"Unexpected error during filtering: {e}")
+        return 1
 
-    # Define input and output paths
-    base_dir = Path(__file__).parent.parent.parent.parent
-    input_path = base_dir / "data" / "raw" / "tokenized_abstracts.jsonl"
-    output_path = base_dir / "data" / "processed" / "filtered_abstracts.jsonl"
-
-    # Check if input file exists
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please run the tokenizer module first to generate tokenized_abstracts.jsonl")
-        return
-
-    # Process and filter
-    stats = process_and_filter(str(input_path), str(output_path))
-
-    logger.info("Filter module completed successfully.")
-    logger.info(f"Final statistics: {stats}")
 
 if __name__ == "__main__":
-    main()
+    exit(main())

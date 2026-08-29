@@ -10,7 +10,8 @@ class AttentionMatrix:
     """
     Represents a synthetic or real attention matrix with extracted statistical properties.
     
-    Schema: 128x128 matrix, mean, variance, sparsity, outlier_magnitude.
+    Schema: 128x128 matrix (float32), mean (float32), variance (float32), 
+    sparsity (float32 ratio of zero elements), outlier_magnitude (float32).
     """
     matrix: np.ndarray
     mean: float
@@ -20,8 +21,15 @@ class AttentionMatrix:
 
     def __post_init__(self):
         """Validate matrix dimensions and numerical properties."""
+        # Ensure matrix is 128x128
         if self.matrix.shape != (128, 128):
             raise ValueError(f"AttentionMatrix must be 128x128, got {self.matrix.shape}")
+        
+        # Ensure dtype is float32
+        if self.matrix.dtype != np.float32:
+            self.matrix = self.matrix.astype(np.float32)
+        
+        # Validate scalar fields
         if not np.isfinite(self.mean):
             raise ValueError(f"Mean must be finite, got {self.mean}")
         if not np.isfinite(self.variance):
@@ -35,21 +43,21 @@ class AttentionMatrix:
         """Convert to dictionary for serialization."""
         return {
             'matrix': self.matrix.tolist(),
-            'mean': self.mean,
-            'variance': self.variance,
-            'sparsity': self.sparsity,
-            'outlier_magnitude': self.outlier_magnitude
+            'mean': float(self.mean),
+            'variance': float(self.variance),
+            'sparsity': float(self.sparsity),
+            'outlier_magnitude': float(self.outlier_magnitude)
         }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'AttentionMatrix':
         """Reconstruct from dictionary."""
         return cls(
-            matrix=np.array(data['matrix']),
-            mean=data['mean'],
-            variance=data['variance'],
-            sparsity=data['sparsity'],
-            outlier_magnitude=data['outlier_magnitude']
+            matrix=np.array(data['matrix'], dtype=np.float32),
+            mean=float(data['mean']),
+            variance=float(data['variance']),
+            sparsity=float(data['sparsity']),
+            outlier_magnitude=float(data['outlier_magnitude'])
         )
 
 @dataclass
@@ -72,7 +80,7 @@ class ScalingFactor:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
-            'value': self.value,
+            'value': float(self.value),
             'derivation_method': self.derivation_method
         }
 
@@ -80,7 +88,7 @@ class ScalingFactor:
     def from_dict(cls, data: Dict[str, Any]) -> 'ScalingFactor':
         """Reconstruct from dictionary."""
         return cls(
-            value=data['value'],
+            value=float(data['value']),
             derivation_method=data['derivation_method']
         )
 
@@ -120,7 +128,7 @@ class SimulationRun:
             'steps': self.steps,
             'kl_divergence_sequence': self.kl_divergence_sequence,
             'timing_metrics': self.timing_metrics,
-            'accumulated_kl': self.accumulated_kl,
+            'accumulated_kl': float(self.accumulated_kl),
             'start_time': self.start_time,
             'end_time': self.end_time,
             'method': self.method,

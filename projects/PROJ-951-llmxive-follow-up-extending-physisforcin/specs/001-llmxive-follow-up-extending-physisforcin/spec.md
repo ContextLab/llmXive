@@ -18,7 +18,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** the Wan2.1 model is initialized and prompts are loaded, **When** the system generates a batch of videos and runs the PyBullet physics filter, **Then** the bottom [deferred] of videos are removed, and the remaining top [deferred] are saved to the curated dataset directory with a physics score ≥ 60th percentile of the batch distribution.
-2. **Given** a generated video contains a physically impossible trajectory (e.g., object passing through a wall) that causes the PyBullet simulation to crash or fail, **When** the PyBullet filter analyzes the video, **Then** the video is assigned a score of 0, excluded from the dataset, and logged as a simulation failure.
+2. **Given** a generated video contains a physically impossible trajectory (e.g., object passing through a wall) that causes the PyBullet simulation to crash or fail, **When** the PyBullet filter analyzes the video, **Then** the video is assigned a failure designation, excluded from the dataset, and logged as a simulation failure.
 3. **Given** the system runs on a CPU-only environment with 7 GB RAM, **When** the filtering process completes, **Then** the process finishes within 2 hours and consumes less than 6 GB of RAM.
 
 ---

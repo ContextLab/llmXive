@@ -4096,3 +4096,170 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-20T05:09:42Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 0
+  canonical: Simulation horizon of 1000 steps
+  claim_id: c_cf8f289c
+  context: 'T027d [US3] Implement Unified Autoregressive Simulation Runner... Requirement:
+    Must execute a configurable number of steps (default 1000, defined in code/config.py
+    per Plan.md)... Note: The 1000-step horizon is mandated by Plan.md.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "A Monte Carlo simulation with 20,000 sample paths and 1,000 time steps\
+        \ produces results that closely match the theoretical values predicted by\
+        \ the It\xF4 isometry. As shown in the table above, the absolute errors between\
+        \ the simulated left-hand side"
+      source_id: "It\xF4 isometry"
+      url: "https://en.wikipedia.org/wiki/It\xF4_isometry"
+      value: 1,000
+    filled: true
+  kind: numeric
+  raw_text: The simulation horizon is 1000 steps.
+  resolved_value: 1,000
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T06:56:45Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: 30 independent simulation runs generated
+  claim_id: c_bca28c96
+  context: 'T030b [US3] Execute batch_runner.py to generate exactly 30 independent
+    simulation runs. Action: Execute with n=30 (per FR-006)... Requirement: T030b
+    must produce exactly 30 files (run_001.json to run_030.json) via batch_runner.py
+    using seed offsets, where n=30 is mandatory.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T030b must produce exactly 30 files (run_001.json to run_030.json) via
+    batch_runner.py using seed offsets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T06:57:20Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: 10000 synthetic attention matrices generated
+  claim_id: c_d4d4b37d
+  context: 'T017c [US1] Implement and execute the Unified Data Generation and Labeling
+    script... Requirement: Must generate [deferred] matrices (per FR-001, config.NUM_MATRICES)...
+    Verification: Assert count == 10,000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset size for T017c is 10,000 matrices.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T06:57:43Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP architecture 64-64 ReLU
+  claim_id: c_158c4036
+  context: 'T022 [P] [US2] [FR-009] Define a multi-layer perceptron (MLP) model architecture
+    with statistical moment features... Requirement: Architecture: Input(variable
+    dimension) -> Hidden(64, ReLU) -> Hidden(64, ReLU) -> Output(1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MLP model architecture has two hidden layers of 64 units with ReLU
+    activation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T06:58:11Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Quantization step Delta calculation for INT8
+  claim_id: c_705fe3ed
+  context: 'T032 [US3] [FR-008] Implement theoretical lower bound calculation... where
+    Delta = (config.QUANTIZATION_MAX - config.QUANTIZATION_MIN) / 255... Requirement:
+    Delta must be calculated as (config.QUANTIZATION_MAX - config.QUANTIZATION_MIN)
+    / 255 based on the Uniform INT8 range...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical lower bound calculation uses a quantization step size
+    derived from an INT8 range divided by 255.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T06:58:30Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Epsilon sweep range 1e-8 to 1e-4
+  claim_id: c_d9d502c0
+  context: 'T005b [P] [US3] [FR-007] Define initial epsilon sweep values in code/config.py...
+    containing a range of small magnitudes spanning multiple orders of magnitude (e.g.,
+    [1e-8, 1e-6, 1e-4])... Note: Initial bounds are defined theoretically (e.g., 1e-8
+    to 1e-4)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The epsilon sweep values span from 1e-8 to 1e-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T06:59:12Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default NUM_MATRICES configuration value
+  claim_id: c_b71e8dce
+  context: 'T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing... NUM_MATRICES=10000... Note: Explicitly sets
+    NUM_MATRICES=10000 per FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for NUM_MATRICES in config is 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T06:59:39Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default SIMULATION_STEPS configuration value
+  claim_id: c_1bcc8de9
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing... SIMULATION_STEPS=1000...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for SIMULATION_STEPS in config is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T06:59:59Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default NUM_RUNS configuration value
+  claim_id: c_825f5c97
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing... NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for NUM_RUNS in config is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T07:00:32Z'

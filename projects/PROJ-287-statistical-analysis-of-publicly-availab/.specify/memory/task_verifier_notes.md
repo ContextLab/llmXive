@@ -9,3 +9,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T017** — The required `results/manifest.json` file does not exist, so the requested fields (`arxiv_fetch_status`, `pubmed_fetch_status`, and data checksums) cannot be verified or present. The implementer must create the manifest file and populate it with the specified entries.
 - **T021** — declared artifact(s) missing/empty/invalid: src/models/lda/validator.py
 - **T024** — declared artifact(s) missing/empty/invalid: src/models/metrics/proportions.py
+- **T025** — declared artifact(s) missing/empty/invalid: results/stats/topic_vectors.json
+- **T029** — declared artifact(s) missing/empty/invalid: src/models/metrics/permutation.py

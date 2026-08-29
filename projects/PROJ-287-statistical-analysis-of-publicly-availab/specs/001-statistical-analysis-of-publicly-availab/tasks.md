@@ -108,7 +108,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `src/models/metrics/divergence.py` using `scipy.spatial.distance.jensenshannon` (base=2)
+- [X] T028 [P] [US3] Implement `src/models/metrics/divergence.py` using `scipy.spatial.distance.jensenshannon` (base=2)
 - [ ] T029 [US3] Implement `src/models/metrics/permutation.py` to perform n=1000 permutations on a **stratified sample of min(2000, available) abstracts/window** with LDA refit (**Depends on raw processed data from T016, refit logic from T020, and alignment logic from T023**; generates null distribution via refit)
 - [X] T030 [US3] Implement `src/models/metrics/ci.py` to compute bootstrapped 95% confidence intervals (width ≤0.2)
 - [ ] T031 [US3] Implement `src/models/metrics/correction.py` to apply **MaxT procedure for FWER control** across window pairs (per plan.md justification for dependent windows, overriding generic BH mention in spec)

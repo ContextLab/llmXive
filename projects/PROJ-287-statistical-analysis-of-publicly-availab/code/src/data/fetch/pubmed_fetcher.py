@@ -9,288 +9,199 @@ from pathlib import Path
 from typing import List, Dict, Optional, Generator, Any
 
 from src.utils.logging import get_logger
-from src.utils.config import get_random_seed
 
 # Constants
-BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
-FETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+PUBMED_BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+PUBMED_FETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 MAX_RETRIES = 3
-INITIAL_DELAY = 1.0  # seconds
-MAX_DELAY = 10.0     # seconds
-RETRY_MULTIPLIER = 2.0
-MIN_YEAR = 2000
-MAX_YEAR = 2024
-BATCH_SIZE = 10000   # Max IDs per efetch request
-MAX_RESULTS = 100000 # Cap total results to avoid timeout/memory issues
+RETRY_DELAY = 1.0  # seconds
+MAX_RESULTS_PER_QUERY = 10000  # PubMed max per request
+BATCH_SIZE = 5000  # Process in batches to avoid timeout
+YEAR_START = 2000
+YEAR_END = 2024
 
 logger = get_logger(__name__)
 
+def _delayed_retry(func, *args, **kwargs):
+    """Execute a function with exponential backoff retry logic (max 3 attempts)."""
+    last_exception = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            return func(*args, **kwargs)
+        except (urllib.error.URLError, urllib.error.HTTPError) as e:
+            last_exception = e
+            if attempt < MAX_RETRIES:
+                wait_time = RETRY_DELAY * (2 ** (attempt - 1))
+                logger.warning(f"Attempt {attempt}/{MAX_RETRIES} failed: {e}. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                logger.error(f"All {MAX_RETRIES} attempts failed for {func.__name__}. Last error: {e}")
+                raise
+    raise last_exception
 
-def _calculate_backoff(attempt: int) -> float:
-    """Calculate exponential backoff delay with jitter."""
-    delay = min(INITIAL_DELAY * (RETRY_MULTIPLIER ** attempt), MAX_DELAY)
-    # Add small jitter to prevent thundering herd if running multiple instances
-    jitter = (hashlib.sha256(str(time.time()).encode()).hexdigest()[:8])
-    jitter_val = int(jitter, 16) % 1000 / 1000.0
-    return delay * (1 + jitter_val * 0.1)
-
-
-def _fetch_ids_by_year(year: int, db: str = "pubmed") -> List[str]:
-    """
-    Fetch PubMed IDs for a specific year.
-    Returns a list of string IDs.
-    """
-    query = f"pubmed[{year}/{year}] AND (abstract[Filter])"
+def _fetch_pubmed_ids(year_start: int, year_end: int, term: str = "Abstract") -> List[str]:
+    """Fetch PubMed IDs (PMIDs) for a given year range and search term."""
     params = {
-        "db": db,
-        "term": query,
-        "retmax": MAX_RESULTS,
-        "usehistory": "y",
-        "retmode": "xml"
+        "db": "pubmed",
+        "term": f"{year_start}:{year_end}[Date - Publication] AND {term}[Title/Abstract]",
+        "retmax": MAX_RESULTS_PER_QUERY,
+        "retmode": "xml",
+        "usehistory": "y"
     }
+
+    def _do_request():
+        query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+        url = f"{PUBMED_BASE_URL}?{query_string}"
+        req = urllib.request.Request(url, headers={"User-Agent": "llmXive-TopicDrift/1.0"})
+        with urllib.request.urlopen(req, timeout=30) as response:
+            return response.read()
+
+    xml_data = _delayed_retry(_do_request)
+    root = ET.fromstring(xml_data)
+
+    ids = []
+    for id_elem in root.findall(".//Id"):
+        ids.append(id_elem.text)
     
-    url = f"{BASE_URL}?term={urllib.parse.quote(query)}&db={db}&retmax={MAX_RESULTS}&usehistory=y&retmode=xml"
-    
-    try:
-        with urllib.request.urlopen(url, timeout=30) as response:
-            data = response.read()
-            root = ET.fromstring(data)
-            
-            # Parse count
-            count_elem = root.find(".//Count")
-            count = int(count_elem.text) if count_elem is not None else 0
-            
-            if count == 0:
-                logger.warning(f"No results found for year {year}")
-                return []
-            
-            # Parse IDs
-            id_list = []
-            id_tags = root.findall(".//Id")
-            for tag in id_tags:
-                if tag.text:
-                    id_list.append(tag.text)
-            
-            logger.info(f"Fetched {len(id_list)} IDs for year {year} (Total available: {count})")
-            return id_list
+    logger.info(f"Found {len(ids)} PMIDs for years {year_start}-{year_end}")
+    return ids
 
-    except urllib.error.HTTPError as e:
-        logger.error(f"HTTP Error {e.code} fetching IDs for year {year}: {e.reason}")
-        return []
-    except urllib.error.URLError as e:
-        logger.error(f"URL Error fetching IDs for year {year}: {e.reason}")
-        return []
-    except ET.ParseError as e:
-        logger.error(f"XML Parse Error fetching IDs for year {year}: {e}")
-        return []
-    except Exception as e:
-        logger.error(f"Unexpected error fetching IDs for year {year}: {e}")
-        return []
+def _fetch_abstract_batch(pmids: List[str]) -> Generator[Dict[str, Any], None, None]:
+    """Fetch abstracts for a batch of PMIDs."""
+    if not pmids:
+        return
 
-
-def _fetch_abstracts_batch(id_batch: List[str], db: str = "pubmed") -> List[Dict[str, Any]]:
-    """
-    Fetch abstract details for a batch of IDs.
-    Returns a list of dictionaries with record data.
-    """
-    if not id_batch:
-        return []
-
-    ids_str = ",".join(id_batch)
     params = {
-        "db": db,
-        "id": ids_str,
+        "db": "pubmed",
+        "id": ",".join(pmids),
         "retmode": "xml",
         "rettype": "abstract"
     }
-    
-    url = f"{FETCH_URL}?db={db}&id={ids_str}&retmode=xml&rettype=abstract"
 
-    try:
-        with urllib.request.urlopen(url, timeout=60) as response:
-            data = response.read()
-            root = ET.fromstring(data)
-            
-            records = []
-            for article in root.findall(".//Article"):
-                record = {
-                    "pmid": None,
-                    "title": "",
-                    "abstract": "",
-                    "year": None,
-                    "journal": ""
-                }
-                
-                # Extract PMID
-                article_id = article.find("ArticleId")
-                if article_id is not None and article_id.attrib.get("IdType") == "pubmed":
-                    record["pmid"] = article_id.text
-                
-                # Extract Title
-                title_elem = article.find(".//ArticleTitle")
-                if title_elem is not None and title_elem.text:
-                    record["title"] = title_elem.text
-                
-                # Extract Abstract
-                abstract_elem = article.find(".//Abstract")
-                if abstract_elem is not None:
-                    abstract_texts = abstract_elem.findall(".//AbstractText")
-                    abstract_parts = [t.text for t in abstract_texts if t is not None and t.text]
-                    record["abstract"] = " ".join(abstract_parts)
-                
-                # Extract Year and Journal
-                journal_elem = article.find(".//Journal")
-                if journal_elem is not None:
-                    title_elem = journal_elem.find(".//Title")
-                    if title_elem is not None and title_elem.text:
-                        record["journal"] = title_elem.text
-                    
-                    pub_date = journal_elem.find(".//PubDate")
-                    if pub_date is not None:
-                        year_elem = pub_date.find(".//Year")
-                        if year_elem is not None and year_elem.text:
-                            try:
-                                record["year"] = int(year_elem.text)
-                            except ValueError:
-                                pass
-                
-                # Only include if we have a valid year in range and abstract
-                if (record["pmid"] and 
-                    record["year"] and 
-                    MIN_YEAR <= record["year"] <= MAX_YEAR and
-                    record["abstract"]):
-                    records.append(record)
-                else:
-                    # Log if missing critical fields for debugging
-                    if not record["abstract"] and record["pmid"]:
-                        logger.debug(f"Skipping PMID {record['pmid']}: No abstract or invalid year")
-            
-            return records
+    def _do_request():
+        query_string = "&".join([f"{k}={v}" for k, v in params.items()])
+        url = f"{PUBMED_FETCH_URL}?{query_string}"
+        req = urllib.request.Request(url, headers={"User-Agent": "llmXive-TopicDrift/1.0"})
+        with urllib.request.urlopen(req, timeout=60) as response:
+            return response.read()
 
-    except urllib.error.HTTPError as e:
-        logger.error(f"HTTP Error {e.code} fetching batch: {e.reason}")
-        return []
-    except urllib.error.URLError as e:
-        logger.error(f"URL Error fetching batch: {e.reason}")
-        return []
-    except ET.ParseError as e:
-        logger.error(f"XML Parse Error fetching batch: {e}")
-        return []
-    except Exception as e:
-        logger.error(f"Unexpected error fetching batch: {e}")
-        return []
+    xml_data = _delayed_retry(_do_request)
+    root = ET.fromstring(xml_data)
 
+    for article in root.findall(".//Article"):
+        record = {}
+        
+        # Extract PMID
+        pmid_elem = article.find(".//PMID")
+        record["pmid"] = pmid_elem.text if pmid_elem is not None else None
 
-def fetch_pubmed_abstracts(
-    year_start: Optional[int] = None,
-    year_end: Optional[int] = None,
-    output_dir: Optional[str] = None
-) -> List[Dict[str, Any]]:
+        # Extract Title
+        title_elem = article.find(".//ArticleTitle")
+        record["title"] = title_elem.text if title_elem is not None else ""
+
+        # Extract Abstract
+        abstract_text = ""
+        abstract_elem = article.find(".//Abstract")
+        if abstract_elem is not None:
+            for section in abstract_elem.findall(".//AbstractText"):
+                if section.text:
+                    abstract_text += section.text + " "
+        record["abstract"] = abstract_text.strip()
+
+        # Extract Publication Date
+        pub_date = "0000"
+        date_elem = article.find(".//PubDate")
+        if date_elem is not None:
+            year_elem = date_elem.find("Year")
+            if year_elem is not None and year_elem.text:
+                pub_date = year_elem.text
+        record["year"] = pub_date
+
+        # Extract Journal
+        journal_elem = article.find(".//Journal/Title")
+        record["journal"] = journal_elem.text if journal_elem is not None else ""
+
+        # Extract Authors
+        authors = []
+        for author in article.findall(".//Author/LastName"):
+            if author.text:
+                authors.append(author.text)
+        record["authors"] = ", ".join(authors)
+
+        yield record
+
+def fetch_pubmed_abstracts(year_start: int = YEAR_START, year_end: int = YEAR_END, output_path: Optional[Path] = None) -> List[Dict[str, Any]]:
     """
-    Fetch PubMed abstracts for the specified year range (2000-2024).
-    Implements exponential backoff with at most 3 retry attempts per endpoint.
+    Fetch PubMed abstracts for the specified year range.
     
     Args:
-        year_start: Start year (inclusive), defaults to MIN_YEAR
-        year_end: End year (inclusive), defaults to MAX_YEAR
-        output_dir: Directory to save raw JSONL file (optional)
+        year_start: Start year (inclusive)
+        year_end: End year (inclusive)
+        output_path: Optional path to save raw JSONL data
     
     Returns:
-        List of dictionaries containing abstract data.
+        List of abstract records as dictionaries
     """
-    start_year = year_start if year_start is not None else MIN_YEAR
-    end_year = year_end if year_end is not None else MAX_YEAR
+    logger.info(f"Starting PubMed fetch for years {year_start}-{year_end}")
     
-    if start_year < MIN_YEAR or end_year > MAX_YEAR:
-        raise ValueError(f"Year range must be between {MIN_YEAR} and {MAX_YEAR}")
-    
+    # Step 1: Fetch IDs
+    pmids = _fetch_pubmed_ids(year_start, year_end)
+    if not pmids:
+        logger.warning("No PMIDs found for the specified criteria.")
+        return []
+
+    # Step 2: Fetch abstracts in batches
     all_records = []
-    total_ids_fetched = 0
-    
-    logger.info(f"Starting PubMed fetch for years {start_year} to {end_year}")
-    
-    for year in range(start_year, end_year + 1):
-        logger.info(f"Processing year {year}...")
+    for i in range(0, len(pmids), BATCH_SIZE):
+        batch_pmids = pmids[i:i + BATCH_SIZE]
+        logger.info(f"Fetching batch {i//BATCH_SIZE + 1}: {len(batch_pmids)} PMIDs")
         
-        # Fetch IDs with retry logic
-        attempt = 0
-        ids = []
-        while attempt < MAX_RETRIES:
-            ids = _fetch_ids_by_year(year)
-            if ids:
-                break
-            attempt += 1
-            if attempt < MAX_RETRIES:
-                delay = _calculate_backoff(attempt)
-                logger.warning(f"Failed to fetch IDs for {year}, retrying in {delay:.2f}s (Attempt {attempt + 1}/{MAX_RETRIES})")
-                time.sleep(delay)
+        for record in _fetch_abstract_batch(batch_pmids):
+            # Filter by year strictly (in case of edge cases in search)
+            try:
+                year_val = int(record["year"])
+                if year_start <= year_val <= year_end:
+                    all_records.append(record)
+                else:
+                    logger.debug(f"Skipping record {record['pmid']} (year={record['year']}) outside range")
+            except (ValueError, TypeError):
+                logger.debug(f"Skipping record {record['pmid']} with invalid year: {record['year']}")
         
-        if not ids:
-            logger.error(f"Failed to fetch IDs for year {year} after {MAX_RETRIES} attempts. Skipping.")
-            continue
-        
-        total_ids_fetched += len(ids)
-        logger.info(f"Found {len(ids)} IDs for {year}. Fetching details in batches...")
-        
-        # Fetch details in batches with retry logic
-        for i in range(0, len(ids), BATCH_SIZE):
-            batch = ids[i : i + BATCH_SIZE]
-            attempt = 0
-            batch_records = []
-            
-            while attempt < MAX_RETRIES:
-                batch_records = _fetch_abstracts_batch(batch)
-                if batch_records:
-                    break
-                attempt += 1
-                if attempt < MAX_RETRIES:
-                    delay = _calculate_backoff(attempt)
-                    logger.warning(f"Batch fetch failed, retrying in {delay:.2f}s (Attempt {attempt + 1}/{MAX_RETRIES})")
-                    time.sleep(delay)
-            
-            if not batch_records:
-                logger.error(f"Failed to fetch batch starting at index {i} after {MAX_RETRIES} attempts.")
-                continue
-            
-            all_records.extend(batch_records)
-            logger.info(f"Fetched batch {i // BATCH_SIZE + 1}. Total records so far: {len(all_records)}")
-    
-    logger.info(f"Total IDs fetched: {total_ids_fetched}, Total valid records: {len(all_records)}")
-    
-    # Save to file if output_dir provided
-    if output_dir:
-        output_path = Path(output_dir) / "pubmed_raw.jsonl"
+        # Small delay between batches to be polite to the API
+        if i + BATCH_SIZE < len(pmids):
+            time.sleep(0.5)
+
+    logger.info(f"Successfully fetched {len(all_records)} valid abstracts")
+
+    # Step 3: Save to file if path provided
+    if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
         with open(output_path, "w", encoding="utf-8") as f:
             for record in all_records:
                 f.write(json.dumps(record) + "\n")
-        
         logger.info(f"Saved {len(all_records)} records to {output_path}")
-    
-    return all_records
 
+    return all_records
 
 def main():
     """Main entry point for standalone execution."""
-    import argparse
+    logger.info("Running PubMed fetcher standalone")
     
-    parser = argparse.ArgumentParser(description="Fetch PubMed abstracts")
-    parser.add_argument("--start-year", type=int, default=MIN_YEAR, help=f"Start year (default: {MIN_YEAR})")
-    parser.add_argument("--end-year", type=int, default=MAX_YEAR, help=f"End year (default: {MAX_YEAR})")
-    parser.add_argument("--output-dir", type=str, default="data/raw", help="Output directory for raw JSONL")
+    # Define output path
+    output_dir = Path("data/raw")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "pubmed_raw_2000_2024.jsonl"
     
-    args = parser.parse_args()
+    # Run fetch
+    records = fetch_pubmed_abstracts(year_start=2000, year_end=2024, output_path=output_file)
     
-    setup_logger = get_logger(__name__)
-    setup_logger.setLevel(logging.INFO)
+    if not records:
+        logger.error("No records fetched. Check logs for errors.")
+        return 1
     
-    fetch_pubmed_abstracts(
-        year_start=args.start_year,
-        year_end=args.end_year,
-        output_dir=args.output_dir
-    )
-
+    logger.info(f"Fetch complete. Total records: {len(records)}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    logging.basicConfig(level=logging.INFO)
+    exit(main())

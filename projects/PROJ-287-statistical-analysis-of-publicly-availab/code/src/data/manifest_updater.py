@@ -8,7 +8,10 @@ from src.utils.logging import get_logger
 logger = get_logger(__name__)
 
 def compute_file_checksum(file_path: str) -> Optional[str]:
-    """Compute SHA256 checksum of a file."""
+    """
+    Compute SHA256 checksum of a file.
+    Returns None if file does not exist.
+    """
     path = Path(file_path)
     if not path.exists():
         logger.warning(f"File not found for checksum: {file_path}")
@@ -24,117 +27,132 @@ def compute_file_checksum(file_path: str) -> Optional[str]:
         logger.error(f"Error computing checksum for {file_path}: {e}")
         return None
 
-def check_fetch_status(raw_data_dir: str) -> Dict[str, bool]:
-    """Check if raw data files exist for arXiv and PubMed."""
-    raw_path = Path(raw_data_dir)
-    if not raw_path.exists():
-        logger.warning(f"Raw data directory does not exist: {raw_data_dir}")
-        return {"arxiv_fetch_status": False, "pubmed_fetch_status": False}
-
-    arxiv_exists = any(raw_path.glob("arxiv_*.jsonl"))
-    pubmed_exists = any(raw_path.glob("pubmed_*.jsonl"))
-
-    logger.info(f"ArXiv fetch status: {arxiv_exists}")
-    logger.info(f"PubMed fetch status: {pubmed_exists}")
-
-    return {
-        "arxiv_fetch_status": arxiv_exists,
-        "pubmed_fetch_status": pubmed_exists
+def check_fetch_status(raw_dir: Path) -> Dict[str, str]:
+    """
+    Check the status of arXiv and PubMed fetches by looking for raw JSONL files.
+    Returns a dict with 'arxiv_fetch_status' and 'pubmed_fetch_status'.
+    """
+    status = {
+        "arxiv_fetch_status": "not_found",
+        "pubmed_fetch_status": "not_found"
     }
 
-def gather_processed_checksums(processed_data_dir: str) -> Dict[str, str]:
-    """Gather checksums for all processed CSV files."""
-    processed_path = Path(processed_data_dir)
-    checksums = {}
+    arxiv_files = list(raw_dir.glob("*arxiv*.jsonl"))
+    if arxiv_files:
+        # Check if file is non-empty
+        for f in arxiv_files:
+            if f.stat().st_size > 0:
+                status["arxiv_fetch_status"] = "success"
+                break
+        else:
+            status["arxiv_fetch_status"] = "empty"
 
-    if not processed_path.exists():
-        logger.warning(f"Processed data directory does not exist: {processed_data_dir}")
+    pubmed_files = list(raw_dir.glob("*pubmed*.jsonl"))
+    if pubmed_files:
+        for f in pubmed_files:
+            if f.stat().st_size > 0:
+                status["pubmed_fetch_status"] = "success"
+                break
+        else:
+            status["pubmed_fetch_status"] = "empty"
+
+    return status
+
+def gather_processed_checksums(processed_dir: Path) -> Dict[str, str]:
+    """
+    Gather checksums for all processed CSV files partitioned by window.
+    Returns a dict mapping filename to checksum.
+    """
+    checksums = {}
+    if not processed_dir.exists():
+        logger.warning(f"Processed directory does not exist: {processed_dir}")
         return checksums
 
-    for file_path in processed_path.glob("*.csv"):
-        checksum = compute_file_checksum(str(file_path))
+    csv_files = list(processed_dir.glob("*.csv"))
+    for f in csv_files:
+        checksum = compute_file_checksum(str(f))
         if checksum:
-            # Store relative path as key
-            rel_key = str(file_path.relative_to(processed_path))
-            checksums[rel_key] = checksum
+            checksums[f.name] = checksum
 
-    logger.info(f"Gathered {len(checksums)} processed file checksums")
     return checksums
 
-def update_manifest(manifest_path: str, arxiv_status: bool, pubmed_status: bool, 
-                   processed_checksums: Dict[str, str], raw_checksums: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
-    """Update or create the manifest.json with fetch status and checksums."""
-    manifest_dir = Path(manifest_path).parent
-    manifest_dir.mkdir(parents=True, exist_ok=True)
+def update_manifest(
+    manifest_path: Path,
+    raw_dir: Path,
+    processed_dir: Path,
+    additional_data: Optional[Dict[str, Any]] = None
+) -> bool:
+    """
+    Update the results/manifest.json with fetch statuses and data checksums.
+    Creates the manifest if it doesn't exist.
+    Returns True on success, False on failure.
+    """
+    # Ensure directories exist
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load existing manifest if it exists
-    if Path(manifest_path).exists():
+    # Load existing manifest or create new one
+    if manifest_path.exists():
         try:
             with open(manifest_path, 'r') as f:
                 manifest = json.load(f)
-            logger.info("Loaded existing manifest")
-        except Exception as e:
-            logger.warning(f"Could not load existing manifest, creating new: {e}")
-            manifest = {"created_at": datetime.now(timezone.utc).isoformat()}
+        except (json.JSONDecodeError, IOError) as e:
+            logger.error(f"Failed to load existing manifest: {e}")
+            manifest = {}
     else:
-        manifest = {"created_at": datetime.now(timezone.utc).isoformat()}
-        logger.info("Created new manifest")
-
-    # Update with fetch status
-    manifest["arxiv_fetch_status"] = arxiv_status
-    manifest["pubmed_fetch_status"] = pubmed_status
-
-    # Update with checksums
-    manifest["processed_data_checksums"] = processed_checksums
-    if raw_checksums:
-        manifest["raw_data_checksums"] = raw_checksums
-
-    # Update timestamp
-    manifest["updated_at"] = datetime.now(timezone.utc).isoformat()
-
-    # Save manifest
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
-
-    logger.info(f"Manifest updated successfully at {manifest_path}")
-    return manifest
-
-def main():
-    """Main entry point for updating the manifest."""
-    # Define paths based on project structure
-    project_root = Path(__file__).parent.parent.parent.parent
-    raw_data_dir = project_root / "data" / "raw"
-    processed_data_dir = project_root / "data" / "processed"
-    manifest_path = project_root / "results" / "manifest.json"
-
-    logger.info("Starting manifest update process")
+        manifest = {}
 
     # Check fetch status
-    fetch_status = check_fetch_status(str(raw_data_dir))
-    
-    # Gather processed checksums
-    processed_checksums = gather_processed_checksums(str(processed_data_dir))
-    
-    # Gather raw checksums (optional)
-    raw_checksums = {}
-    for file_path in list(raw_data_dir.glob("*.jsonl")) if raw_data_dir.exists() else []:
-        checksum = compute_file_checksum(str(file_path))
-        if checksum:
-            raw_checksums[str(file_path.relative_to(raw_data_dir))] = checksum
+    fetch_status = check_fetch_status(raw_dir)
+    manifest["arxiv_fetch_status"] = fetch_status["arxiv_fetch_status"]
+    manifest["pubmed_fetch_status"] = fetch_status["pubmed_fetch_status"]
 
-    # Update manifest
-    manifest = update_manifest(
-        str(manifest_path),
-        fetch_status["arxiv_fetch_status"],
-        fetch_status["pubmed_fetch_status"],
-        processed_checksums,
-        raw_checksums if raw_checksums else None
-    )
+    # Gather processed data checksums
+    processed_checksums = gather_processed_checksums(processed_dir)
+    manifest["data_checksums"] = processed_checksums
 
-    logger.info(f"Final manifest status: ArXiv={manifest['arxiv_fetch_status']}, PubMed={manifest['pubmed_fetch_status']}")
-    return 0
+    # Add any additional data
+    if additional_data:
+        manifest.update(additional_data)
+
+    # Save updated manifest
+    try:
+        with open(manifest_path, 'w') as f:
+            json.dump(manifest, f, indent=2)
+        logger.info(f"Manifest updated successfully at {manifest_path}")
+        return True
+    except IOError as e:
+        logger.error(f"Failed to save manifest: {e}")
+        return False
+
+def main():
+    """
+    Main entry point for updating the manifest.
+    """
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent.parent
+    raw_dir = project_root / "data" / "raw"
+    processed_dir = project_root / "data" / "processed"
+    manifest_path = project_root / "results" / "manifest.json"
+
+    logger.info(f"Updating manifest at {manifest_path}")
+    logger.info(f"Raw data directory: {raw_dir}")
+    logger.info(f"Processed data directory: {processed_dir}")
+
+    success = update_manifest(manifest_path, raw_dir, processed_dir)
+
+    if success:
+        logger.info("Manifest update completed successfully.")
+        # Print summary
+        with open(manifest_path, 'r') as f:
+            manifest = json.load(f)
+        print(f"arXiv fetch status: {manifest.get('arxiv_fetch_status', 'unknown')}")
+        print(f"PubMed fetch status: {manifest.get('pubmed_fetch_status', 'unknown')}")
+        print(f"Processed files checksums: {len(manifest.get('data_checksums', {}))} files")
+    else:
+        logger.error("Manifest update failed.")
+        exit(1)
 
 if __name__ == "__main__":
-    import sys
-    from datetime import datetime, timezone
-    sys.exit(main())
+    main()
