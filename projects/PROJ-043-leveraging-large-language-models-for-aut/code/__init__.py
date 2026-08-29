@@ -1,1 +1,3 @@
-"""Main code package for PROJ-043."""
+"""
+LLM Refactoring Research Code Base.
+"""

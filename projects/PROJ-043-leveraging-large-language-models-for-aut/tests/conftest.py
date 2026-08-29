@@ -1,44 +1,36 @@
 """
-Pytest configuration and fixtures for the project.
+Pytest configuration and shared fixtures for the test suite.
 """
 import os
 import sys
 import pytest
+from pathlib import Path
 
-# Ensure the code directory is in the path for imports
+# Ensure project root is in path for imports
 @pytest.fixture(autouse=True)
-def add_code_to_path():
-    code_dir = os.path.join(os.path.dirname(__file__), '..', 'code')
-    if code_dir not in sys.path:
-        sys.path.insert(0, code_dir)
+def add_project_root_to_path():
+    """Add project root to sys.path for imports during tests."""
+    root = Path(__file__).parent.parent
+    if str(root) not in sys.path:
+        sys.path.insert(0, str(root))
     yield
-    if code_dir in sys.path:
-        sys.path.remove(code_dir)
+    if str(root) in sys.path:
+        sys.path.remove(str(root))
 
 @pytest.fixture
 def sample_function_code():
-    """Provides a sample Python function string for testing static analysis."""
+    """Provide a sample Python function string for testing."""
     return """
-def calculate_sum(numbers):
-    \"""Calculate the sum of a list of numbers.\"""
-    total = 0
-    for num in numbers:
-  total += num
-    return total
+def calculate_fibonacci(n):
+    if n <= 1:
+  return n
+    else:
+  return calculate_fibonacci(n-1) + calculate_fibonacci(n-2)
 """
 
 @pytest.fixture
-def sample_complex_code():
-    """Provides a sample complex Python function string for testing nesting depth."""
-    return """
-def complex_processor(data):
-    \"""Process data with nested logic.\"""
-    results = []
-    if data:
-  for item in data:
-      if isinstance(item, dict):
-          for key, value in item.items():
-              if key.startswith('valid'):
-                  results.append(value)
-    return results
-"""
+def temp_output_dir(tmp_path):
+    """Provide a temporary directory for test outputs."""
+    output_dir = tmp_path / "test_outputs"
+    output_dir.mkdir()
+    return output_dir

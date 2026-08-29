@@ -1,7 +1,3 @@
-"""
-Utility functions for the PROJ-399 pipeline.
-Includes data validation, configuration loading, and random seed management.
-"""
 import os
 import yaml
 from pathlib import Path
@@ -9,116 +5,99 @@ from typing import List, Dict, Any, Optional
 import pandas as pd
 import numpy as np
 
-
 def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
     """
     Load configuration from a YAML file.
-
+    
     Args:
         config_path: Path to the config file.
-
+        
     Returns:
         Dictionary containing configuration values.
+        
+    Raises:
+        FileNotFoundError: If config file does not exist.
+        yaml.YAMLError: If file is not valid YAML.
     """
     path = Path(config_path)
     if not path.exists():
         raise FileNotFoundError(f"Config file not found: {config_path}")
-
-    with open(path, 'r') as f:
+    
+    with open(path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
-
-def set_random_seed(config: Optional[Dict[str, Any]] = None, seed: Optional[int] = None) -> None:
+def set_random_seed(seed: Optional[int] = None, config: Optional[Dict[str, Any]] = None) -> int:
     """
-    Set random seeds for reproducibility based on config or explicit argument.
-
+    Set random seed for reproducibility from config or argument.
+    
     Args:
-        config: Configuration dictionary (optional).
-        seed: Explicit seed value (optional). If provided, overrides config.
+        seed: Seed value to use. If None, looks in config.
+        config: Optional config dictionary. If None, loads from default path.
+        
+    Returns:
+        The seed value that was set.
+        
+    Raises:
+        ValueError: If no seed found in config or argument.
     """
     if seed is None:
         if config is None:
             config = load_config()
-        seed = config.get("random_seed", 42)
-
+        seed = config.get('random_seed')
+        if seed is None:
+            raise ValueError("No random seed provided in config or argument")
+    
     np.random.seed(seed)
-    # If pandas uses numpy under the hood, this affects it too.
-    # For explicit pandas seed control if available in future versions:
-    # pd.options.mode.future_copy_on_write = True # Just a placeholder for future logic
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    return seed
 
-
-def validate_stimulus_columns(df: pd.DataFrame, required_columns: Optional[List[str]] = None) -> bool:
+def validate_stimulus_columns(df: pd.DataFrame, required_columns: List[str]) -> bool:
     """
-    Validate that a DataFrame contains the required stimulus columns.
-
+    Validate that a DataFrame contains all required stimulus columns.
+    
     Args:
-        df: The DataFrame to validate.
-        required_columns: List of required column names. Defaults to
-            ['stimulus_id', 'content_domain', 'headline'] if None.
-
+        df: DataFrame to validate.
+        required_columns: List of column names that must be present.
+        
     Returns:
-        True if all required columns are present, False otherwise.
-
+        True if all required columns are present.
+        
     Raises:
-        ValueError: If the input is not a DataFrame or is empty.
+        ValueError: If any required column is missing.
     """
-    if required_columns is None:
-        required_columns = ['stimulus_id', 'content_domain', 'headline']
-
-    if not isinstance(df, pd.DataFrame):
-        raise ValueError("Input must be a pandas DataFrame.")
-
-    if df.empty:
-        raise ValueError("Input DataFrame is empty.")
-
     missing = [col for col in required_columns if col not in df.columns]
-
     if missing:
         raise ValueError(f"Missing required stimulus columns: {missing}")
-
     return True
 
-
-def validate_stimulus_data_integrity(df: pd.DataFrame) -> Dict[str, Any]:
+def validate_stimulus_data_integrity(df: pd.DataFrame) -> bool:
     """
-    Perform basic integrity checks on stimulus data beyond column existence.
-
+    Validate the integrity of stimulus data by checking:
+    1. Required columns are present: 'stimulus_id', 'content_domain', 'headline'
+    2. No null values in required columns
+    3. stimulus_id is unique
+    
     Args:
-        df: The DataFrame to validate.
-
+        df: DataFrame containing stimulus data.
+        
     Returns:
-        Dictionary with validation results and any found issues.
+        True if all validations pass.
+        
+    Raises:
+        ValueError: If any validation fails with a specific message.
     """
-    results = {
-        "is_valid": True,
-        "issues": []
-    }
-
-    try:
-        validate_stimulus_columns(df)
-    except ValueError as e:
-        results["is_valid"] = False
-        results["issues"].append(str(e))
-        return results
-
-    # Check for duplicate stimulus_ids if they are supposed to be unique
-    if 'stimulus_id' in df.columns:
-        duplicates = df['stimulus_id'].duplicated().sum()
-        if duplicates > 0:
-            results["issues"].append(f"Found {duplicates} duplicate stimulus_ids.")
-            # Depending on project needs, this might be a hard failure or just a warning.
-            # For now, we flag it.
-
-    # Check for empty strings or NaN in critical text fields
-    text_cols = ['content_domain', 'headline']
-    for col in text_cols:
-        if col in df.columns:
-            if df[col].isna().any():
-                results["issues"].append(f"Column '{col}' contains missing values (NaN).")
-            if df[col].apply(lambda x: isinstance(x, str) and x.strip() == "").any():
-                results["issues"].append(f"Column '{col}' contains empty strings.")
-
-    if results["issues"]:
-        results["is_valid"] = False
-
-    return results
+    required_cols = ['stimulus_id', 'content_domain', 'headline']
+    
+    # Check 1: Required columns
+    validate_stimulus_columns(df, required_cols)
+    
+    # Check 2: No nulls in required columns
+    for col in required_cols:
+        if df[col].isnull().any():
+            raise ValueError(f"Column '{col}' contains null values")
+    
+    # Check 3: Unique stimulus_id
+    if df['stimulus_id'].duplicated().any():
+        raise ValueError("Duplicate values found in 'stimulus_id' column")
+    
+    return True

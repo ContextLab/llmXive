@@ -1,3 +1,28 @@
+T005:
+  c: false
+  h: 4566f03743c0275cd67af7267e84ffd1945cc45cfbcd95f0aaec11aa3bd2e369
+  r: '`data/run_log.json` does not exist; the task required the file to be present
+    as an empty JSON array `[]`. Without this file the verification step fails, even
+    though `logging.py` implements the required functions. The missing log file must
+    be created (or `init_logging` must be invoked to create it) to satisfy the task.'
+T018b:
+  c: false
+  h: 98e3702ab3b33d561e87ebfcade30d56911b0bc37fe999444b38ea19c1aa6d0c
+  r: "The repository contains a `batch_runner.py` file, but it does not define a `main()`\
+    \ function that loads `config.yaml` and starts the generation pipeline. Moreover,\
+    \ the required `config.yaml` file is absent from the project. Both the essential\
+    \ entry\u2011point logic and the configuration file are missing, so the task is\
+    \ not satisfied."
+T018f:
+  c: false
+  h: 1f4847a1c8c252ea9f088a7dcb8a7bee4fa7234db3eecd23e9b94056e1a286c4
+  r: "The provided `batch_runner.py` only contains a partially shown `GlobalSuccessRateMonitor`\
+    \ class and does not demonstrate the full logic for per\u2011graph failed\u2011\
+    attempt tracking, global success\u2011rate enforcement, batch failure handling,\
+    \ or logging to `data/run_log.json`. Moreover, the required `data/run_log.json`\
+    \ and `config.yaml` files are absent, and no verification test is supplied. These\
+    \ missing artifacts and incomplete implementation mean the task requirements are\
+    \ not met."
 T027:
   c: false
   h: f623ffc6a29cbc4d42f2034c12a3790683fc387cb10c0d71508999840687bb6f

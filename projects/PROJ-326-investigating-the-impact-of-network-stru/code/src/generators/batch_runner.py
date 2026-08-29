@@ -1,338 +1,339 @@
 """
-Batch runner for generating graphs with sample size adjustment logic.
+Batch Runner for Network Topology Generation.
 
-Implements T056: Adjust batch size if rejection rate exceeds threshold.
+Orchestrates the generation of synthetic spin network datasets across different
+topology classes (Erdős-Rényi, Watts-Strogatz, Barabási-Albert), enforcing
+connectivity constraints, retry logic, and global success rate monitoring.
 """
-import argparse
+
 import json
 import logging
 import os
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
-import numpy as np
 
-# Import from project structure
+# Import from local project structure
+from code.src.utils.config import load_config, get_global_config
+from code.src.utils.logging import log_metric, init_logging
 from code.src.generators.base import BaseGenerator
 from code.src.generators.er import ErdosRenyiGenerator
 from code.src.generators.sw import WattsStrogatzGenerator
 from code.src.generators.sf import BarabasiAlbertGenerator
-from code.src.utils.config import load_config, get_global_config
-from code.src.utils.logging import log_metric, log_run
-from code.src.generators.binning import classify_graph
-from code.src.generators.quota_checker import check_quotas
-from code.src.generators.manifest_updater import save_manifest, update_manifest
-
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from code.src.generators.metrics import compute_graph_metrics
+from code.src.generators.metadata import save_graph_metadata
+from code.src.generators.binning import classify_graph_bin
+from code.src.generators.quota_checker import check_quota_status, update_quota
+from code.src.generators.manifest_updater import update_manifest
 
 # Constants
-REJECTION_THRESHOLD = 0.2  # Default threshold from spec
-MAX_BATCH_SIZE = 1000      # Safety cap to prevent infinite loops
-MIN_BATCH_SIZE = 1         # Minimum batch size
-ADJUSTMENT_FACTOR = 1.5    # Factor to increase batch size when rejection is high
+DEFAULT_MAX_RETRIES = 10
+DEFAULT_SUCCESS_RATE_THRESHOLD = 0.95
+LOG_FILE_PATH = "data/run_log.json"
+MANIFEST_PATH = "data/raw/global_batch_manifest.json"
 
-def get_generator(topology_type: str) -> BaseGenerator:
-    """Factory function to get the appropriate graph generator."""
-    generators = {
-        'er': ErdosRenyiGenerator,
-        'sw': WattsStrogatzGenerator,
-        'sf': BarabasiAlbertGenerator
-    }
-    
-    if topology_type not in generators:
-        raise ValueError(f"Unknown topology type: {topology_type}. "
-                       f"Available: {list(generators.keys())}")
-    
-    return generators[topology_type]()
+logger = logging.getLogger(__name__)
 
-def generate_single_graph(generator: BaseGenerator, config: Dict[str, Any]) -> Optional[nx.Graph]:
-    """
-    Generate a single graph with connectivity check and retry logic.
-    
-    Returns None if generation fails after retries (rejection).
-    """
-    try:
-        graph = generator.generate(config)
-        
-        # Verify connectivity (T051 requirement)
-        if not nx.is_connected(graph):
-            logger.debug(f"Generated disconnected graph, rejecting")
-            return None
-        
-        return graph
-    except Exception as e:
-        logger.warning(f"Graph generation failed: {e}")
-        return None
 
-def generate_batch(
-    generator: BaseGenerator,
-    config: Dict[str, Any],
-    batch_size: int,
-    target_bin: Optional[str] = None
-) -> Tuple[List[nx.Graph], int, int]:
-    """
-    Generate a batch of graphs with stratification support.
-    
-    Returns:
-        Tuple of (successful_graphs, total_attempts, rejected_attempts)
-    """
-    graphs = []
-    total_attempts = 0
-    rejected_attempts = 0
-    
-    for _ in range(batch_size):
-        total_attempts += 1
-        graph = generate_single_graph(generator, config)
-        
-        if graph is None:
-            rejected_attempts += 1
-            continue
-        
-        # Check bin classification if target specified
-        if target_bin is not None:
-            graph_bin = classify_graph(graph)
-            if graph_bin != target_bin:
-                rejected_attempts += 1
-                continue
-        
-        graphs.append(graph)
-    
-    return graphs, total_attempts, rejected_attempts
+class BatchGenerationError(Exception):
+    """Custom exception for batch generation failures."""
+    pass
 
-def calculate_rejection_rate(total_attempts: int, rejected_attempts: int) -> float:
-    """Calculate rejection rate as rejected_attempts / total_attempts."""
-    if total_attempts == 0:
-        return 0.0
-    return rejected_attempts / total_attempts
 
-def adjust_batch_size(current_size: int, rejection_rate: float, config: Dict[str, Any]) -> int:
+class GlobalSuccessRateMonitor:
     """
-    Adjust batch size based on rejection rate.
-    
-    Implements T056: If rate > 0.2, increase batch_size by adjustment factor.
+    Monitors the global success rate of graph generation across the entire batch.
+    Enforces the requirement that >=95% of graphs must be valid connected graphs
+    within the configured retry limit.
     """
-    threshold = config.get('stratification_params', {}).get('rejection_threshold', REJECTION_THRESHOLD)
-    
-    if rejection_rate > threshold:
-        new_size = int(current_size * ADJUSTMENT_FACTOR)
-        new_size = min(new_size, MAX_BATCH_SIZE)  # Cap at maximum
-        logger.info(f"High rejection rate ({rejection_rate:.2f} > {threshold}). "
-                   f"Increasing batch size from {current_size} to {new_size}")
-        return new_size
-    elif rejection_rate < threshold * 0.5 and current_size > MIN_BATCH_SIZE:
-        # Optional: decrease batch size if rejection is very low to improve efficiency
-        new_size = int(current_size / ADJUSTMENT_FACTOR)
-        new_size = max(new_size, MIN_BATCH_SIZE)
-        logger.info(f"Low rejection rate ({rejection_rate:.2f}). "
-                   f"Decreasing batch size from {current_size} to {new_size}")
-        return new_size
-    
-    return current_size
 
-def run_stratified_generation(config: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Run stratified graph generation with sample size adjustment.
-    
-    This is the main entry point for T056 logic.
-    """
-    seed = config.get('global_seed', 42)
-    np.random.seed(seed)
-    
-    strat_params = config.get('stratification_params', {})
-    bins = strat_params.get('bins', [0.1, 0.2, 0.3, 0.4, 0.5])
-    target_counts = strat_params.get('target_counts', {})
-    tolerance = strat_params.get('tolerance', 0.1)
-    rejection_threshold = strat_params.get('rejection_threshold', REJECTION_THRESHOLD)
-    
-    topology_targets = config.get('topology_targets', ['er', 'sw', 'sf'])
-    
-    # Initialize tracking
-    current_counts = {bin_id: 0 for bin_id in bins}
-    all_graphs = []
-    batch_size = 10  # Initial batch size
-    total_generated = 0
-    total_attempts = 0
-    total_rejected = 0
-    
-    logger.info(f"Starting stratified generation with bins: {bins}")
-    logger.info(f"Target counts: {target_counts}")
-    logger.info(f"Initial batch size: {batch_size}")
-    
-    # Generation loop with sample size adjustment
-    iteration = 0
-    max_iterations = 100  # Safety limit
-    
-    while not check_quotas(current_counts, target_counts) and iteration < max_iterations:
-        iteration += 1
-        logger.info(f"Iteration {iteration}: Current counts = {current_counts}")
-        
-        # Select bin that needs more graphs
-        needs_graph = None
-        for bin_id in bins:
-            if current_counts.get(bin_id, 0) < target_counts.get(bin_id, 0):
-                needs_graph = bin_id
-                break
-        
-        if needs_graph is None:
-            break  # All quotas met
-        
-        # Generate batch
-        # Select topology type (round-robin or random)
-        topology = topology_targets[iteration % len(topology_targets)]
-        generator = get_generator(topology)
-        
-        # Adjust config for this topology
-        topology_config = config.get('simulation_params', {}).get(topology, {})
-        topology_config['seed'] = seed + iteration  # Vary seed per batch
-        
-        graphs, attempts, rejected = generate_batch(
-            generator, topology_config, batch_size, target_bin=needs_graph
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.thresholds = config.get("thresholds", {})
+        self.success_rate_min = self.thresholds.get(
+            "success_rate_min", DEFAULT_SUCCESS_RATE_THRESHOLD
         )
-        
-        total_attempts += attempts
-        total_rejected += rejected
-        total_generated += len(graphs)
-        
-        # Update counts and graphs
-        for graph in graphs:
-            graph_bin = classify_graph(graph)
-            if graph_bin in current_counts:
-                current_counts[graph_bin] += 1
-                all_graphs.append({
-                    'graph': graph,
-                    'bin': graph_bin,
-                    'topology': topology,
-                    'seed': topology_config['seed']
+        self.max_attempts = self.config.get("simulation_params", {}).get(
+            "max_generation_attempts", DEFAULT_MAX_RETRIES
+        )
+
+        self.total_attempts = 0
+        self.total_successes = 0
+        self.total_failures = 0
+        self.failed_graphs: List[Dict[str, Any]] = []
+        self.successful_graphs: List[Dict[str, Any]] = []
+
+    def record_attempt(self, graph_id: str, success: bool, graph: Optional[nx.Graph] = None):
+        """Record a generation attempt result."""
+        self.total_attempts += 1
+        if success:
+            self.total_successes += 1
+            if graph:
+                self.successful_graphs.append({
+                    "graph_id": graph_id,
+                    "node_count": graph.number_of_nodes(),
+                    "edge_count": graph.number_of_edges(),
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 })
-        
-        # T056: Calculate rejection rate and adjust batch size
-        rejection_rate = calculate_rejection_rate(attempts, rejected)
-        logger.info(f"Batch {iteration}: Generated {len(graphs)}/{attempts}, "
-                   f"rejection rate: {rejection_rate:.2f}")
-        
-        batch_size = adjust_batch_size(batch_size, rejection_rate, config)
-        
-        # Log progress
-        log_metric(
-            event_type='batch_completed',
-            run_id=f'gen_{iteration}',
-            seed=seed,
-            status='success' if len(graphs) > 0 else 'partial',
-            duration_seconds=0.0,  # Would be measured in real run
-            metadata={
-                'iteration': iteration,
-                'batch_size': batch_size,
-                'graphs_generated': len(graphs),
-                'rejection_rate': rejection_rate,
-                'current_counts': current_counts
+        else:
+            self.total_failures += 1
+            self.failed_graphs.append({
+                "graph_id": graph_id,
+                "attempts": self.max_attempts,
+                "reason": "Max retries exceeded (disconnected)",
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            })
+
+    def get_current_success_rate(self) -> float:
+        """Calculate current success rate."""
+        if self.total_attempts == 0:
+            return 1.0
+        return self.total_successes / self.total_attempts
+
+    def check_threshold(self) -> Tuple[bool, str]:
+        """
+        Check if the current success rate meets the minimum threshold.
+        Returns (is_valid, message).
+        """
+        rate = self.get_current_success_rate()
+        if rate < self.success_rate_min:
+            msg = (
+                f"CRITICAL: Global success rate {rate:.2%} is below threshold "
+                f"{self.success_rate_min:.2%}. "
+                f"Total attempts: {self.total_attempts}, Successes: {self.total_successes}, "
+                f"Failures: {self.total_failures}. "
+                f"Failed graphs: {[g['graph_id'] for g in self.failed_graphs]}"
+            )
+            return False, msg
+        return True, "Success rate within acceptable limits."
+
+    def log_final_metrics(self):
+        """Log final success rate metrics to the run log."""
+        rate = self.get_current_success_rate()
+        log_metric({
+            "event_type": "generation_summary",
+            "run_id": "batch_generation",
+            "seed": self.config.get("global_seed", 42),
+            "status": "completed" if rate >= self.success_rate_min else "critical_error",
+            "duration_seconds": 0.0, # Duration tracked per graph, summary is instantaneous
+            "metrics": {
+                "total_attempts": self.total_attempts,
+                "total_successes": self.total_successes,
+                "total_failures": self.total_failures,
+                "success_rate": rate,
+                "threshold": self.success_rate_min
             }
-        )
-    
-    # Final statistics
-    final_rejection_rate = calculate_rejection_rate(total_attempts, total_rejected)
-    logger.info(f"Generation complete. Total: {total_generated} graphs, "
-               f"attempts: {total_attempts}, final rejection rate: {final_rejection_rate:.2f}")
-    
-    return {
-        'graphs': all_graphs,
-        'total_generated': total_generated,
-        'total_attempts': total_attempts,
-        'total_rejected': total_rejected,
-        'final_rejection_rate': final_rejection_rate,
-        'final_batch_size': batch_size,
-        'iterations': iteration,
-        'current_counts': current_counts
+        })
+
+
+def generate_single_graph(
+    generator_class: type,
+    graph_id: str,
+    params: Dict[str, Any],
+    max_retries: int
+) -> Tuple[Optional[nx.Graph], bool, int]:
+    """
+    Attempt to generate a single connected graph using the specified generator.
+    Returns (graph, success, attempts_used).
+    """
+    generator = generator_class()
+    attempts = 0
+    graph = None
+    success = False
+
+    for attempt in range(1, max_retries + 1):
+        attempts += 1
+        try:
+            graph = generator.generate(params)
+            if nx.is_connected(graph):
+                success = True
+                break
+            else:
+                logger.warning(f"Graph {graph_id} attempt {attempt}: Disconnected. Retrying...")
+        except Exception as e:
+            logger.warning(f"Graph {graph_id} attempt {attempt} failed with error: {e}. Retrying...")
+            graph = None
+
+    return graph, success, attempts
+
+
+def run_batch_generation(config_path: Optional[str] = None):
+    """
+    Main orchestration logic for batch generation.
+    1. Loads config.
+    2. Iterates over topology classes.
+    3. Generates graphs with retry logic.
+    4. Tracks global success rate.
+    5. Fails if global success rate < threshold.
+    6. Writes manifest and logs metrics.
+    """
+    # Initialize logging
+    init_logging()
+    logger.info("Starting batch generation pipeline.")
+
+    # Load configuration
+    if config_path:
+        config = load_config(config_path)
+    else:
+        config = load_config()
+
+    # Initialize Monitor
+    monitor = GlobalSuccessRateMonitor(config)
+
+    # Define topology classes and their generators/params
+    # This structure can be extended based on config.yaml topology_targets
+    topology_classes = [
+        {
+            "name": "erdos_renyi",
+            "generator": ErdosRenyiGenerator,
+            "params": {"n": 30, "p": 0.1}
+        },
+        {
+            "name": "watts_strogatz",
+            "generator": WattsStrogatzGenerator,
+            "params": {"n": 30, "k": 4, "p": 0.3}
+        },
+        {
+            "name": "barabasi_albert",
+            "generator": BarabasiAlbertGenerator,
+            "params": {"n": 30, "m": 2}
+        }
+    ]
+
+    # Override with config if specified
+    if "topology_targets" in config:
+        topology_classes = config["topology_targets"]
+
+    all_generated_graphs = []
+    max_attempts = config.get("simulation_params", {}).get("max_generation_attempts", DEFAULT_MAX_RETRIES)
+
+    logger.info(f"Generating graphs with max attempts: {max_attempts}")
+
+    # Iterate over topology classes
+    for topo in topology_classes:
+        name = topo["name"]
+        gen_class = topo["generator"]
+        params = topo.get("params", {})
+        count = topo.get("count", 1)
+
+        logger.info(f"Processing {count} graphs for topology: {name}")
+
+        for i in range(count):
+            graph_id = f"{name}_{i+1}"
+            start_time = time.time()
+
+            graph, success, attempts_used = generate_single_graph(
+                gen_class, graph_id, params, max_attempts
+            )
+
+            duration = time.time() - start_time
+
+            # Record in monitor
+            monitor.record_attempt(graph_id, success, graph)
+
+            if success:
+                # Compute metrics
+                metrics = compute_graph_metrics(graph)
+                
+                # Save metadata
+                save_graph_metadata(graph_id, {
+                    "algorithm": name,
+                    "params": params,
+                    "seed": config.get("global_seed"),
+                    "metrics": metrics,
+                    "attempts": attempts_used,
+                    "duration_seconds": duration
+                })
+
+                # Add to batch list
+                all_generated_graphs.append({
+                    "graph_id": graph_id,
+                    "topology": name,
+                    "metrics": metrics,
+                    "params": params,
+                    "success": True
+                })
+
+                # Update quota/binning if applicable
+                bin_name = classify_graph_bin(metrics.get("clustering_coefficient", 0.0), config)
+                update_quota(bin_name, config)
+                
+                # Log graph generated event
+                log_metric({
+                    "event_type": "graph_generated",
+                    "run_id": "batch_generation",
+                    "seed": config.get("global_seed"),
+                    "status": "success",
+                    "duration_seconds": duration,
+                    "graph_id": graph_id,
+                    "topology": name
+                })
+            else:
+                logger.error(f"Failed to generate valid connected graph for {graph_id} after {attempts_used} attempts.")
+                # Log failure
+                log_metric({
+                    "event_type": "graph_generated",
+                    "run_id": "batch_generation",
+                    "seed": config.get("global_seed"),
+                    "status": "failed",
+                    "duration_seconds": duration,
+                    "graph_id": graph_id,
+                    "topology": name,
+                    "reason": "Max retries exceeded"
+                })
+
+    # Final Success Rate Check
+    is_valid, message = monitor.check_threshold()
+    monitor.log_final_metrics()
+
+    if not is_valid:
+        logger.critical(message)
+        raise BatchGenerationError(message)
+
+    logger.info(message)
+
+    # Write Manifest
+    manifest = {
+        "batch_id": "batch_001",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "config_snapshot": config,
+        "total_graphs": len(all_generated_graphs),
+        "success_rate": monitor.get_current_success_rate(),
+        "graphs": all_generated_graphs
     }
 
-def save_batch_results(results: Dict[str, Any], output_path: str):
-    """Save batch generation results to JSON."""
-    # Prepare serializable data (exclude actual graph objects for manifest)
-    serializable = {
-        'total_generated': results['total_generated'],
-        'total_attempts': results['total_attempts'],
-        'total_rejected': results['total_rejected'],
-        'final_rejection_rate': results['final_rejection_rate'],
-        'final_batch_size': results['final_batch_size'],
-        'iterations': results['iterations'],
-        'current_counts': results['current_counts'],
-        'stratification_summary': {
-            'bins': list(results['current_counts'].keys()),
-            'counts': results['current_counts']
-        }
-    }
-    
-    with open(output_path, 'w') as f:
-        json.dump(serializable, f, indent=2)
-    
-    logger.info(f"Saved batch results to {output_path}")
+    manifest_path = Path(MANIFEST_PATH)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+
+    logger.info(f"Manifest written to {MANIFEST_PATH}")
+
+    return manifest
+
 
 def main():
-    """Main entry point for batch runner with sample size adjustment."""
-    parser = argparse.ArgumentParser(description='Batch graph generator with sample size adjustment')
-    parser.add_argument('--config', type=str, default='code/config.yaml',
-                      help='Path to configuration file')
-    parser.add_argument('--output', type=str, default='data/analysis/batch_results.json',
-                      help='Output path for results')
-    args = parser.parse_args()
-    
-    # Load configuration
-    config = load_config(args.config)
-    seed = config.get('global_seed', 42)
-    np.random.seed(seed)
-    
-    # Setup logging
-    log_run(
-        run_id='batch_runner_main',
-        seed=seed,
-        event_type='simulation_start',
-        status='started'
-    )
-    
-    try:
-        # Run stratified generation with T056 logic
-        results = run_stratified_generation(config)
-        
-        # Ensure output directory exists
-        output_path = Path(args.output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Save results
-        save_batch_results(results, str(output_path))
-        
-        # Log completion
-        log_metric(
-            event_type='simulation_end',
-            run_id='batch_runner_main',
-            seed=seed,
-            status='completed',
-            duration_seconds=0.0,
-            metadata={'total_generated': results['total_generated']}
-        )
-        
-        logger.info(f"Batch generation completed successfully. "
-                   f"Generated {results['total_generated']} graphs with "
-                   f"final rejection rate: {results['final_rejection_rate']:.2f}")
-        
-    except Exception as e:
-        logger.error(f"Batch generation failed: {e}")
-        log_metric(
-            event_type='simulation_end',
-            run_id='batch_runner_main',
-            seed=seed,
-            status='failed',
-            duration_seconds=0.0,
-            metadata={'error': str(e)}
-        )
-        raise
+    """Entry point for the batch runner script."""
+    import argparse
 
-if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Run batch generation of network topologies.")
+    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file.")
+    args = parser.parse_args()
+
+    try:
+        run_batch_generation(args.config)
+        logger.info("Batch generation completed successfully.")
+    except BatchGenerationError as e:
+        logger.error(f"Batch generation failed: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.exception(f"Unexpected error during batch generation: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
     main()

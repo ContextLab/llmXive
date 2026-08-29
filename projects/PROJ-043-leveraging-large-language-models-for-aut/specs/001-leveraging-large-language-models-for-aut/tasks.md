@@ -80,7 +80,7 @@
 
 - [ ] T009 [P] [US1] Unit test for metric calculation (radon/pylint) in `tests/unit/test_static_analysis.py`
 - [X] T010 [P] [US1] Unit test for dataset sampling logic in `tests/unit/test_download.py`
-- [ ] T011 [P] [US1] Integration test for full data pipeline (fetch -> analyze -> save) in `tests/integration/test_data_pipeline.py`
+- [X] T011 [P] [US1] Integration test for full data pipeline (fetch -> analyze -> save) in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 

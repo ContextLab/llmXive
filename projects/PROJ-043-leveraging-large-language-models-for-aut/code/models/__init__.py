@@ -1,1 +1,3 @@
-"""Models package."""
+"""
+Data models and entity definitions.
+"""

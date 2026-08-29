@@ -1,218 +1,277 @@
 """
-Stability checks and runtime abort mechanisms for spin simulations.
+Numerical stability checks and divergence detection for spin simulations.
+
+This module implements the mandatory edge case handling for simulation divergence:
+- Detects when energy values exceed significantly elevated levels
+- Aborts the run immediately upon detection
+- Logs the event via the logging infrastructure
+- Flags the result as [SIMULATION_DIVERGENCE]
+- NO retry or recovery logic is permitted
 """
+
 import logging
-import signal
-import threading
-import time
-from typing import Dict, Any, Optional, Callable
+import json
 from pathlib import Path
+from typing import Dict, Any, Optional, List, Tuple
+from code.src.utils.logging import log_metric, init_logging
+from code.src.utils.config import load_config
 
-from code.src.utils.logging import log_metric
-from code.src.utils.config import get_global_config
-
-logger = logging.getLogger(__name__)
-
-
-class SimulationTimeoutError(Exception):
-    """Raised when a simulation exceeds the configured time limit."""
-    pass
+# Configuration constants for divergence detection
+DIVERGENCE_THRESHOLD = 1e6  # Energy values exceeding this are considered divergent
+MAX_ENERGY_DENSITY = 1e4    # Maximum allowed energy density per node
+NUMERICAL_STABILITY_TOLERANCE = 1e-10  # Tolerance for numerical operations
 
 
 class SimulationDivergenceError(Exception):
-    """Raised when numerical divergence is detected in simulation dynamics."""
-    pass
+    """Exception raised when simulation diverges due to numerical instability."""
+    def __init__(self, message: str, run_id: str, step: int, energy_value: float):
+        super().__init__(message)
+        self.run_id = run_id
+        self.step = step
+        self.energy_value = energy_value
+        self.tag = "[SIMULATION_DIVERGENCE]"
 
 
-def _timeout_handler(signum, frame):
-    """Signal handler for timeout events."""
-    raise SimulationTimeoutError("Simulation exceeded maximum allowed runtime.")
-
-
-def setup_timeout_handler(timeout_seconds: int):
+def check_numerical_stability(
+    energy_values: List[float],
+    step: int,
+    run_id: str,
+    logger: Optional[logging.Logger] = None
+) -> Tuple[bool, Optional[str]]:
     """
-    Configure a hard timeout for the current process using signal.alarm (Unix).
+    Check if energy values indicate numerical divergence.
     
     Args:
-        timeout_seconds: Maximum allowed runtime in seconds.
-    """
-    if hasattr(signal, 'alarm'):
-        # Unix systems
-        signal.signal(signal.SIGALRM, _timeout_handler)
-        signal.alarm(timeout_seconds)
-        logger.info(f"Timeout handler set to {timeout_seconds} seconds (Unix).")
-    else:
-        # Windows or non-Unix systems: use threading.Timer as fallback
-        # Note: threading.Timer cannot interrupt arbitrary code, but we will
-        # rely on cooperative checking in the simulation loop or raise an error
-        # if the timer fires before the simulation completes.
-        logger.warning("signal.alarm not available; using threading.Timer fallback.")
-        timer = threading.Timer(timeout_seconds, lambda: exec("raise SimulationTimeoutError('Simulation exceeded time limit.')"))
-        timer.daemon = True
-        timer.start()
-        logger.info(f"Timeout handler set to {timeout_seconds} seconds (Thread Timer).")
-
-
-def cancel_timeout_handler():
-    """Cancel any active timeout handler."""
-    if hasattr(signal, 'alarm'):
-        signal.alarm(0)
-    # For threading.Timer, we cannot easily cancel if we didn't keep a reference,
-    # but in typical usage, we will clear it explicitly if we have the reference.
-    # If a timer fired, the exception would have already been raised.
-
-
-def check_numerical_stability(energy_profile: list, threshold: float = 1e6) -> bool:
-    """
-    Check if the energy profile shows signs of numerical divergence.
-    
-    Args:
-        energy_profile: List of energy values over time steps.
-        threshold: Maximum allowed absolute energy value.
-    
+        energy_values: List of energy values from the current simulation step
+        step: Current simulation step number
+        run_id: Unique identifier for this simulation run
+        logger: Optional logger instance
+        
     Returns:
-        True if stable, False if divergence detected.
+        Tuple of (is_stable, error_message)
+        - is_stable: True if all values are within acceptable bounds
+        - error_message: None if stable, otherwise contains divergence details
+        
+    Raises:
+        SimulationDivergenceError: If divergence is detected (no retry logic)
     """
-    if not energy_profile:
-        return True
+    if not energy_values:
+        return True, None
     
-    max_energy = max(abs(e) for e in energy_profile)
-    if max_energy > threshold:
-        logger.error(f"Numerical divergence detected: max energy {max_energy} exceeds threshold {threshold}")
-        return False
+    max_energy = max(abs(e) for e in energy_values)
+    avg_energy_density = sum(abs(e) for e in energy_values) / len(energy_values)
+    
+    # Check for absolute divergence threshold
+    if max_energy > DIVERGENCE_THRESHOLD:
+        error_msg = (
+            f"Divergence detected at step {step}: "
+            f"max_energy={max_energy:.2e} exceeds threshold {DIVERGENCE_THRESHOLD:.2e}. "
+            f"Run aborted. {SimulationDivergenceError('').tag}"
+        )
+        return False, error_msg
+    
+    # Check for energy density per node
+    if avg_energy_density > MAX_ENERGY_DENSITY:
+        error_msg = (
+            f"Divergence detected at step {step}: "
+            f"avg_energy_density={avg_energy_density:.2e} exceeds limit {MAX_ENERGY_DENSITY:.2e}. "
+            f"Run aborted. {SimulationDivergenceError('').tag}"
+        )
+        return False, error_msg
+    
+    # Check for NaN or Inf values
+    for i, val in enumerate(energy_values):
+        if not (val == val):  # NaN check
+            error_msg = (
+                f"Divergence detected at step {step}: "
+                f"NaN value at index {i}. Run aborted. {SimulationDivergenceError('').tag}"
+            )
+            return False, error_msg
+        if abs(val) == float('inf'):
+            error_msg = (
+                f"Divergence detected at step {step}: "
+                f"Infinite value at index {i}. Run aborted. {SimulationDivergenceError('').tag}"
+            )
+            return False, error_msg
+    
+    return True, None
+
+
+def handle_divergence(
+    run_id: str,
+    step: int,
+    energy_value: float,
+    seed: int,
+    config: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Handle simulation divergence by aborting and logging.
+    
+    This function implements the mandatory edge case behavior:
+    - Aborts the run immediately
+    - Logs the divergence event with event_type='divergence_detected'
+    - Flags the result as [SIMULATION_DIVERGENCE]
+    - NO retry or recovery logic
+    
+    Args:
+        run_id: Unique identifier for this simulation run
+        step: Current simulation step number
+        energy_value: The energy value that triggered divergence
+        seed: Random seed used for this run
+        config: Optional configuration dictionary
+        
+    Raises:
+        SimulationDivergenceError: Always raised to force abort
+    """
+    # Initialize logging if not already done
+    init_logging()
+    
+    # Log the divergence event
+    log_entry = {
+        "run_id": run_id,
+        "step": step,
+        "energy_value": energy_value,
+        "threshold": DIVERGENCE_THRESHOLD,
+        "status": "aborted",
+        "tag": "[SIMULATION_DIVERGENCE]"
+    }
+    
+    log_metric({
+        "timestamp": None,  # Will be set by log_metric
+        "event_type": "divergence_detected",
+        "run_id": run_id,
+        "seed": seed,
+        "status": "aborted",
+        "duration_seconds": 0.0,  # Will be calculated by caller if needed
+        "details": log_entry
+    })
+    
+    # Raise exception to force abort (no retry logic)
+    error = SimulationDivergenceError(
+        f"Simulation diverged at step {step} with energy {energy_value:.2e}",
+        run_id,
+        step,
+        energy_value
+    )
+    raise error
+
+
+def validate_simulation_step(
+    energy_values: List[float],
+    step: int,
+    run_id: str,
+    seed: int,
+    config: Optional[Dict[str, Any]] = None
+) -> bool:
+    """
+    Validate a simulation step and handle divergence if detected.
+    
+    This is the main entry point for stability checking during simulation.
+    It checks stability and if divergence is detected, it handles the abort
+    and logging before raising an exception.
+    
+    Args:
+        energy_values: List of energy values from the current step
+        step: Current simulation step number
+        run_id: Unique identifier for this simulation run
+        seed: Random seed used for this run
+        config: Optional configuration dictionary
+        
+    Returns:
+        True if step is stable
+        
+    Raises:
+        SimulationDivergenceError: If divergence is detected
+    """
+    is_stable, error_msg = check_numerical_stability(energy_values, step, run_id)
+    
+    if not is_stable:
+        # Extract energy value for logging (use max if available)
+        energy_value = max(abs(e) for e in energy_values) if energy_values else 0.0
+        
+        # Handle divergence (logs and raises)
+        handle_divergence(run_id, step, energy_value, seed, config)
+    
     return True
-
-
-def validate_energy_conservation(energy_profile: list, tolerance: float = 1e-3) -> bool:
-    """
-    Validate that energy is conserved within a specified tolerance.
-    
-    Args:
-        energy_profile: List of energy values over time steps.
-        tolerance: Maximum allowed relative change in energy.
-    
-    Returns:
-        True if conserved, False otherwise.
-    """
-    if len(energy_profile) < 2:
-        return True
-    
-    initial_energy = energy_profile[0]
-    if abs(initial_energy) < 1e-9:
-        # Avoid division by zero; check absolute difference instead
-        max_diff = max(abs(e - initial_energy) for e in energy_profile)
-        return max_diff < tolerance
-    
-    max_relative_change = max(abs((e - initial_energy) / initial_energy) for e in energy_profile)
-    return max_relative_change <= tolerance
 
 
 def log_simulation_runtime(
     run_id: str,
     seed: int,
+    status: str,
     duration_seconds: float,
-    status: str = "completed",
-    event_type: str = "simulation_end"
-):
+    step: Optional[int] = None,
+    divergence_info: Optional[Dict[str, Any]] = None
+) -> None:
     """
-    Log simulation runtime metrics to the run log.
+    Log simulation runtime information including divergence events.
     
     Args:
-        run_id: Unique identifier for the simulation run.
-        seed: Random seed used for the run.
-        duration_seconds: Actual runtime duration.
-        status: Status of the run (e.g., 'completed', 'timeout', 'divergence').
-        event_type: Type of log event.
+        run_id: Unique identifier for this simulation run
+        seed: Random seed used for this run
+        status: Status of the run (e.g., 'completed', 'aborted', 'divergence_detected')
+        duration_seconds: Total runtime in seconds
+        step: Optional final step number
+        divergence_info: Optional dictionary with divergence details
     """
-    log_metric(
-        event_type=event_type,
-        run_id=run_id,
-        seed=seed,
-        status=status,
-        duration_seconds=duration_seconds,
-        extra_fields={"runtime_duration_seconds": duration_seconds}
-    )
+    init_logging()
+    
+    log_entry = {
+        "timestamp": None,  # Set by log_metric
+        "event_type": "simulation_end" if status != "aborted" else "divergence_detected",
+        "run_id": run_id,
+        "seed": seed,
+        "status": status,
+        "duration_seconds": duration_seconds
+    }
+    
+    if step is not None:
+        log_entry["final_step"] = step
+    
+    if divergence_info:
+        log_entry["divergence_details"] = divergence_info
+    
+    log_metric(log_entry)
 
 
-def run_with_timeout(
-    func: Callable,
-    args: tuple = (),
-    kwargs: Optional[Dict[str, Any]] = None,
-    timeout_seconds: Optional[int] = None,
-    run_id: Optional[str] = None,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
+def main() -> None:
     """
-    Run a simulation function with a hard timeout and logging.
+    Main function for testing stability checks.
     
-    Args:
-        func: The simulation function to run.
-        args: Positional arguments for func.
-        kwargs: Keyword arguments for func.
-        timeout_seconds: Maximum allowed runtime. If None, reads from config.
-        run_id: Run ID for logging.
-        seed: Seed for logging.
-    
-    Returns:
-        Dictionary containing simulation results and runtime metadata.
-    
-    Raises:
-        SimulationTimeoutError: If the simulation exceeds the time limit.
-        SimulationDivergenceError: If numerical divergence is detected.
+    This function demonstrates the divergence detection and abort logic
+    by simulating a scenario where energy values exceed the threshold.
     """
-    if kwargs is None:
-        kwargs = {}
+    import sys
     
-    # Get timeout from config if not provided
-    if timeout_seconds is None:
-        config = get_global_config()
-        timeout_seconds = config.get("simulation_params", {}).get("timeout_seconds", 3600)
+    # Load configuration
+    config = load_config()
+    seed = config.get("global_seed", 42)
     
-    start_time = time.time()
-    result = None
-    status = "completed"
+    # Initialize logging
+    init_logging()
     
+    # Test case 1: Normal energy values (should pass)
+    print("Test 1: Normal energy values")
+    normal_energies = [1.0, 2.5, -1.5, 0.5, 3.2]
     try:
-        # Set up timeout handler
-        setup_timeout_handler(timeout_seconds)
-        
-        # Run the simulation
-        result = func(*args, **kwargs)
-        
-        # Cancel timeout on success
-        cancel_timeout_handler()
-        
-    except SimulationTimeoutError as e:
-        status = "timeout"
-        logger.error(f"Simulation timed out after {timeout_seconds} seconds: {e}")
-        cancel_timeout_handler()
-        raise
-    
+        result = validate_simulation_step(normal_energies, step=10, run_id="test_normal", seed=seed, config=config)
+        print(f"  Result: Stable - {result}")
     except SimulationDivergenceError as e:
-        status = "divergence_detected"
-        logger.error(f"Simulation diverged: {e}")
-        raise
+        print(f"  ERROR: Unexpected divergence - {e}")
+        sys.exit(1)
     
-    except Exception as e:
-        status = "error"
-        logger.error(f"Simulation failed with unexpected error: {e}")
-        raise
+    # Test case 2: Divergent energy values (should abort)
+    print("\nTest 2: Divergent energy values (should abort)")
+    divergent_energies = [1.0, 2.5, 1e7, 0.5, 3.2]  # One value exceeds threshold
+    try:
+        result = validate_simulation_step(divergent_energies, step=15, run_id="test_divergent", seed=seed, config=config)
+        print(f"  ERROR: Should have raised divergence error but got: {result}")
+        sys.exit(1)
+    except SimulationDivergenceError as e:
+        print(f"  Correctly caught divergence: {e}")
+        print(f"  Tag: {e.tag}")
     
-    finally:
-        duration = time.time() - start_time
-        
-        # Log runtime metrics
-        if run_id is not None and seed is not None:
-            log_simulation_runtime(
-                run_id=run_id,
-                seed=seed,
-                duration_seconds=duration,
-                status=status
-            )
-        
-        # Attach runtime info to result if available
-        if result is not None and isinstance(result, dict):
-            result["runtime_duration_seconds"] = duration
-            result["status"] = status
-        
-    return result
+    print("\nStability checks completed successfully.")
+
+if __name__ == "__main__":
+    main()

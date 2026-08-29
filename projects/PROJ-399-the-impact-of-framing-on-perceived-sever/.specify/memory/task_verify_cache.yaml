@@ -1,0 +1,43 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration artifacts (e.g., a `.lintr` file, RStudio\
+    \ project settings, or CI scripts invoking `lintr`) are present, and the provided\
+    \ evidence only describes simulation analysis requirements, not the required R\
+    \ linting setup. The task\u2019s requirement to configure linting/formatting tools\
+    \ is therefore unmet."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided artifacts contain only the feature specification and user stories;\
+    \ there is no `.Renviron` file, `renv` directory, lockfile, or any other environment\u2011\
+    configuration artifact present. Consequently, the requirement to set up environment\
+    \ configuration management has not been fulfilled."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation for data\u2011validation utilities is present;\
+    \ the required functions or modules that verify the presence of `stimulus_id`,\
+    \ `content_domain`, and `headline` columns are missing. The task\u2019s deliverable\
+    \ is therefore not provided."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, or documentation for error handling and logging\
+    \ in R scripts were provided; the only evidence is the task description, which\
+    \ does not include the required artifacts. The implementer must supply the actual\
+    \ R logging/error\u2011handling setup (e.g., scripts using `tryCatch`, `log4r`\
+    \ or similar, and any related configuration files)."
+T010:
+  c: false
+  h: 1aea91c0c8e3fb8242a40485f7982c86216e4c4f5a1eff59aaeec8adccb3ca7a
+  r: The required artifact `tests/test_data_generation.R` does not exist on disk,
+    so no test code validates the `severity_rating` range or `framing_condition` assignment.
+    The implementer must add the missing test file with the appropriate checks.
+T013c:
+  c: false
+  h: c7b5d1a5bb3cc3b2504d1283d5a52d65eba8d6e213ba93ff0ecdf1094c8490ae
+  r: "The required output files `results/processed/sensitivity_curve_data.csv` and\
+    \ `results/plots/sensitivity_analysis.png` are absent, and the provided `code/01_data_prep.R`\
+    \ is incomplete (truncated) and does not actually produce those artifacts. The\
+    \ task\u2019s deliverables are therefore not satisfied."

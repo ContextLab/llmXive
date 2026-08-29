@@ -1,4 +1,6 @@
 """
-Test suite for the llmXive automated science pipeline:
-Leveraging Large Language Models for Automated Code Refactoring.
+Test suite for the LLM-driven Automated Code Refactoring project.
+
+This package contains unit, integration, and end-to-end tests for all
+user stories and components of the research pipeline.
 """

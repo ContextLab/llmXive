@@ -1,35 +1,22 @@
-# Ruff configuration for llmXive research pipeline
-# Extends pyproject.toml settings if needed, or provides file-specific overrides
+# Ruff Configuration for LLM Refactoring Research
+# This file acts as a local override or extension if needed,
+# though primary config is in pyproject.toml.
+
+extend = "pyproject.toml"
 
 [lint]
-# Explicitly enable rules E (error), F (flake8), W (warning), I (isort)
+# Ensure specific rules are active
 select = ["E", "F", "W", "I"]
 
-# Ignore specific rules if necessary (currently none)
+# Ignore specific false positives if necessary (none currently)
 ignore = []
 
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude specific directories
-exclude = [
-    ".git",
-    "__pycache__",
-    ".venv",
-    "venv",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
-]
-
 [lint.isort]
-# Configuration for import sorting
-known-first-party = []
-force-single-line = false
-lines-after-imports = 2
+known-first-party = ["config", "models", "utils", "data", "llm"]
 
-[lint.per-file-ignores]
-# Example: Ignore unused imports in __init__.py
-"__init__.py" = ["F401"]
+[format]
+# Consistent with Black
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

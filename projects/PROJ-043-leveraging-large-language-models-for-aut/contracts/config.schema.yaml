@@ -1,26 +1,59 @@
+# Configuration Schema for LLM Refactoring Pipeline
+# This schema defines the structure for runtime configuration validation
+# via Pydantic models in code/utils/schema_validation.py
+
 type: object
 title: ConfigSchema
-description: Validation schema for application configuration.
+description: Runtime configuration parameters for the refactoring pipeline
+
 properties:
   HF_API_KEY:
     type: string
-    description: Hugging Face API key for model access.
+    description: Hugging Face API key for model inference
+    pattern: "^hf_"
+    minLength: 20
+    
   RANDOM_SEED:
     type: integer
-    description: Seed for random number generation.
+    description: Random seed for reproducibility
+    default: 42
     minimum: 0
+    
   MAX_ATTEMPTS:
     type: integer
-    description: Maximum number of retry attempts for API calls.
+    description: Maximum retry attempts for API calls
+    default: 400
     minimum: 1
+    
   MIN_VALID_FUNCTIONS:
     type: integer
-    description: Minimum number of valid functions required to proceed.
+    description: Minimum number of valid functions required to proceed
+    default: 100
     minimum: 1
+    
   BATCH_SIZE:
     type: integer
-    description: Number of items to process in a single batch.
+    description: Number of functions to process in a single batch
+    default: 10
     minimum: 1
+    maximum: 20
+    
+  LOG_LEVEL:
+    type: string
+    description: Logging verbosity level
+    enum: [DEBUG, INFO, WARNING, ERROR, CRITICAL]
+    default: INFO
+    
+  CACHE_DIR:
+    type: string
+    description: Directory path for disk-based caching
+    default: "data/cache"
+    
+  OUTPUT_DIR:
+    type: string
+    description: Directory path for output files
+    default: "data/processed"
+    
 required:
   - HF_API_KEY
   - RANDOM_SEED

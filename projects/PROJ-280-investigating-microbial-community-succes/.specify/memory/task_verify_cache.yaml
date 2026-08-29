@@ -90,36 +90,20 @@ T043:
     \ retains fallback logic (e.g., assuming all samples are constructed wetlands\
     \ when a column is absent) instead of aborting on missing required data. Consequently\
     \ the strict failure protocol is not fully implemented."
-T045:
-  c: false
-  h: 5da051284c615da4c88f46d1d47d901a96b1101f8b860e4aec260259edcc1ec0
-  r: "The required output file `data/processed/permanova_pairwise_matrix.json` does\
-    \ not exist, and the provided `code/03_diversity.py` (truncated) shows no implementation\
-    \ of pairwise PERMANOVA, matrix construction, or FDR correction. The task\u2019\
-    s core functionality and output are missing."
 T045#1:
   c: false
-  h: 5da051284c615da4c88f46d1d47d901a96b1101f8b860e4aec260259edcc1ec0
-  r: "The required output file `data/processed/permanova_pairwise_matrix.json` does\
-    \ not exist, and the provided `code/03_diversity.py` (truncated) shows no implementation\
-    \ of pairwise PERMANOVA, matrix construction, or FDR correction. The task\u2019\
-    s core functionality and output are missing."
+  h: ab0f3296fd4d3c734e81eb55825506a84d3ad1cceb98ee05e0b1f2ed5c6f1307
+  r: "The `code/03_diversity.py` file does not contain any PERMANOVA logic (it ends\
+    \ abruptly with a typo and no pairwise testing), and the required output file\
+    \ `data/processed/permanova_pairwise_matrix.json` is absent. The task\u2019s core\
+    \ functionality and output are therefore missing."
 T046#1:
   c: false
-  h: 9b3fa3a051f64fc86155e7d577cee81d7a51028e511c8bd03d2d4d5001c238a3
-  r: "The required output `data/processed/correlation_vif_flags.json` does not exist,\
-    \ and the provided `code/05_correlation.py` is truncated before any VIF calculation\
-    \ or flag\u2011writing logic is shown. Consequently there is no evidence that\
-    \ taxa with VIF\u202F>\u202F5 are identified, reported, or excluded in the final\
-    \ correlation report. The task\u2019s core requirement is therefore unmet."
-T047:
-  c: false
-  h: 84474a057cc7b9658c93595584b55dd7de2bc577a7bcde13fd86b41b885070cf
-  r: "The provided `code/99_generate_final_report.py` is incomplete (truncated mid\u2011\
-    function, no code that writes `final_analysis_report.json`). Moreover, the required\
-    \ output file `data/processed/final_analysis_report.json` does not exist. The\
-    \ task\u2019s core deliverable\u2014a merged JSON report with a data_lineage section\u2014\
-    is therefore missing."
+  h: c592f40450b53335a34807da6d43e93a9969a453b76dcb98ac10c094a0fa8502
+  r: "The required output file `data/processed/correlation_vif_flags.json` does not\
+    \ exist, and the provided snippet of `code/05_correlation.py` does not show any\
+    \ VIF calculation, flagging, or reporting logic. Without this JSON and explicit\
+    \ report of excluded taxa, the task\u2019s requirements are not met."
 T047#1:
   c: false
   h: 84474a057cc7b9658c93595584b55dd7de2bc577a7bcde13fd86b41b885070cf

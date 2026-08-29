@@ -1,280 +1,168 @@
-"""
-Metric extraction module for network topology analysis.
-
-Computes degree distribution, clustering coefficients, and average path length
-for generated graphs and writes results to the global batch manifest.
-"""
 import json
 import logging
+from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import networkx as nx
 import numpy as np
-from scipy import stats
 
-from code.src.generators.base import BaseGenerator
+from code.src.utils.logging import log_metric, log_run
 
 logger = logging.getLogger(__name__)
 
-def compute_degree_distribution(graph: nx.Graph) -> Dict[str, Any]:
+def compute_degree_distribution(G: nx.Graph) -> Dict[str, Any]:
     """
-    Compute degree distribution statistics.
-    
-    Args:
-        graph: NetworkX graph instance
-        
-    Returns:
-        Dictionary containing degree distribution statistics
+    Compute the degree distribution of the graph.
+    Returns a dictionary with 'distribution' (list of counts) and 'mean', 'std'.
     """
-    degrees = [d for n, d in graph.degree()]
+    degrees = [d for _, d in G.degree()]
+    counts = Counter(degrees)
     
-    # Basic statistics
-    degree_mean = float(np.mean(degrees))
-    degree_std = float(np.std(degrees))
-    degree_max = int(max(degrees))
-    degree_min = int(min(degrees))
+    # Normalize to probability distribution
+    total_nodes = len(degrees)
+    distribution = {k: v / total_nodes for k, v in sorted(counts.items())}
     
-    # Degree histogram (binned)
-    degree_counts = dict(graph.degree())
-    unique_degrees, counts = np.unique(degrees, return_counts=True)
-    degree_histogram = {int(k): int(v) for k, v in zip(unique_degrees, counts)}
-    
-    # Power-law fit for scale-free networks
-    # Using only nodes with degree >= 1 to avoid log(0)
-    positive_degrees = [d for d in degrees if d > 0]
-    if len(positive_degrees) > 1:
-        try:
-            # Fit power law: P(k) ~ k^(-gamma)
-            gamma, loglikelihood, r_squared = fit_power_law(positive_degrees)
-            is_power_law = r_squared >= 0.95
-        except Exception:
-            gamma = None
-            loglikelihood = None
-            r_squared = None
-            is_power_law = False
-    else:
-        gamma = None
-        loglikelihood = None
-        r_squared = None
-        is_power_law = False
+    mean_degree = np.mean(degrees)
+    std_degree = np.std(degrees)
     
     return {
-        "mean": degree_mean,
-        "std": degree_std,
-        "max": degree_max,
-        "min": degree_min,
-        "histogram": degree_histogram,
-        "power_law_fit": {
-            "gamma": gamma,
-            "log_likelihood": loglikelihood,
-            "r_squared": r_squared,
-            "is_power_law": is_power_law
+        "distribution": distribution,
+        "mean": float(mean_degree),
+        "std": float(std_degree),
+        "max_degree": int(max(degrees)) if degrees else 0,
+        "min_degree": int(min(degrees)) if degrees else 0
+    }
+
+def compute_clustering_coefficients(G: nx.Graph) -> Dict[str, float]:
+    """
+    Compute clustering coefficients.
+    Returns average clustering and a sample of local coefficients.
+    """
+    avg_clustering = nx.average_clustering(G)
+    local_clustering = nx.clustering(G)
+    
+    # Store a representative sample of local coefficients (first 10 or all if <10)
+    nodes = list(G.nodes())
+    sample_size = min(10, len(nodes))
+    sample_nodes = nodes[:sample_size]
+    local_samples = {str(n): local_clustering[n] for n in sample_nodes}
+    
+    return {
+        "average": float(avg_clustering),
+        "local_sample": local_samples
+    }
+
+def compute_path_lengths(G: nx.Graph) -> Dict[str, float]:
+    """
+    Compute average path length and diameter.
+    Returns NaN for disconnected graphs where path length is undefined.
+    """
+    if not nx.is_connected(G):
+        return {
+            "average_path_length": float('nan'),
+            "diameter": float('nan'),
+            "is_connected": False
         }
-    }
-
-def fit_power_law(degrees: List[int]) -> Tuple[float, float, float]:
-    """
-    Fit a power-law distribution to degree data.
     
-    Args:
-        degrees: List of degree values
-        
-    Returns:
-        Tuple of (gamma, log_likelihood, r_squared)
-    """
-    # Use log-log regression for simplicity
-    log_degrees = np.log(degrees)
-    log_counts = np.log(np.bincount(degrees)[np.bincount(degrees) > 0])
-    
-    if len(log_degrees) < 2:
-        raise ValueError("Not enough data points for power-law fit")
-    
-    # Fit linear regression on log-log scale
-    slope, intercept, r_value, p_value, std_err = stats.linregress(log_degrees, log_counts)
-    
-    gamma = -slope
-    log_likelihood = float(np.sum(log_counts - (intercept + slope * log_degrees) ** 2))
-    r_squared = float(r_value ** 2)
-    
-    return gamma, log_likelihood, r_squared
-
-def compute_clustering_metrics(graph: nx.Graph) -> Dict[str, Any]:
-    """
-    Compute clustering coefficient metrics.
-    
-    Args:
-        graph: NetworkX graph instance
-        
-    Returns:
-        Dictionary containing clustering coefficient statistics
-    """
-    # Global clustering coefficient
-    global_clustering = nx.transitivity(graph)
-    
-    # Local clustering coefficients
-    local_clustering = nx.clustering(graph)
-    local_values = list(local_clustering.values())
-    
-    local_mean = float(np.mean(local_values))
-    local_std = float(np.std(local_values))
-    local_max = float(max(local_values)) if local_values else 0.0
-    local_min = float(min(local_values)) if local_values else 0.0
-    
-    # Distribution of local clustering coefficients
-    unique_clustering, counts = np.unique(local_values, return_counts=True)
-    clustering_histogram = {float(k): int(v) for k, v in zip(unique_clustering, counts)}
+    try:
+        avg_path = nx.average_shortest_path_length(G)
+        diameter = nx.diameter(G)
+    except Exception as e:
+        logger.warning(f"Error computing path lengths: {e}")
+        avg_path = float('nan')
+        diameter = float('nan')
     
     return {
-        "global": global_clustering,
-        "local_mean": local_mean,
-        "local_std": local_std,
-        "local_max": local_max,
-        "local_min": local_min,
-        "histogram": clustering_histogram
+        "average_path_length": float(avg_path),
+        "diameter": float(diameter),
+        "is_connected": True
     }
 
-def compute_path_length_metrics(graph: nx.Graph) -> Dict[str, Any]:
+def extract_graph_metrics(graph_id: str, G: nx.Graph, generation_params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Compute average path length and related metrics.
+    Extract all required metrics for a single graph as per FR-004.
     
-    Args:
-        graph: NetworkX graph instance
-        
-    Returns:
-        Dictionary containing path length statistics
+    Returns a dictionary containing:
+    - graph_id
+    - generation_algorithm
+    - parameter_values
+    - node_count
+    - edge_count
+    - degree_distribution
+    - clustering_coefficients
+    - path_lengths
+    - is_connected
     """
-    # Check if graph is connected
-    if nx.is_connected(graph):
-        try:
-            avg_path_length = nx.average_shortest_path_length(graph)
-            max_path_length = nx.diameter(graph)
-            is_finite = True
-        except nx.NetworkXError:
-            avg_path_length = None
-            max_path_length = None
-            is_finite = False
-    else:
-        # For disconnected graphs, compute average over largest component
-        try:
-            largest_cc = max(nx.connected_components(graph), key=len)
-            subgraph = graph.subgraph(largest_cc)
-            avg_path_length = nx.average_shortest_path_length(subgraph)
-            max_path_length = nx.diameter(subgraph)
-            is_finite = True
-        except nx.NetworkXError:
-            avg_path_length = None
-            max_path_length = None
-            is_finite = False
+    logger.info(f"Extracting metrics for graph {graph_id}")
     
-    # Characteristic path length
-    characteristic_path_length = avg_path_length if avg_path_length is not None else None
-    
-    return {
-        "average_shortest_path_length": avg_path_length,
-        "diameter": max_path_length,
-        "characteristic_path_length": characteristic_path_length,
-        "is_finite": is_finite
-    }
-
-def extract_all_metrics(graph: nx.Graph, graph_id: str, topology_type: str) -> Dict[str, Any]:
-    """
-    Extract all topological metrics for a graph.
-    
-    Args:
-        graph: NetworkX graph instance
-        graph_id: Unique identifier for the graph
-        topology_type: Type of topology (ER, WS, SF)
-        
-    Returns:
-        Dictionary containing all extracted metrics
-    """
-    logger.info(f"Extracting metrics for graph {graph_id} ({topology_type})")
+    degree_dist = compute_degree_distribution(G)
+    clustering = compute_clustering_coefficients(G)
+    path_lengths = compute_path_lengths(G)
     
     metrics = {
         "graph_id": graph_id,
-        "topology_type": topology_type,
-        "num_nodes": graph.number_of_nodes(),
-        "num_edges": graph.number_of_edges(),
-        "is_connected": nx.is_connected(graph) if graph.number_of_nodes() > 0 else False,
-        "degree_distribution": compute_degree_distribution(graph),
-        "clustering_metrics": compute_clustering_metrics(graph),
-        "path_length_metrics": compute_path_length_metrics(graph)
+        "generation_algorithm": generation_params.get("algorithm", "unknown") if generation_params else "unknown",
+        "parameter_values": generation_params.get("params", {}) if generation_params else {},
+        "node_count": G.number_of_nodes(),
+        "edge_count": G.number_of_edges(),
+        "degree_distribution": degree_dist,
+        "clustering_coefficients": clustering,
+        "path_lengths": path_lengths,
+        "is_connected": path_lengths.get("is_connected", False)
     }
     
     return metrics
 
-def write_metrics_to_manifest(
-    metrics_list: List[Dict[str, Any]],
-    manifest_path: Path
-) -> None:
+def write_metrics_to_manifest(metrics_list: List[Dict[str, Any]], manifest_path: str) -> None:
     """
-    Write metrics to the global batch manifest JSON file.
-    
-    Args:
-        metrics_list: List of metric dictionaries to write
-        manifest_path: Path to the manifest file
+    Write a list of metric dictionaries to the global batch manifest JSON file.
+    Creates the parent directory if it doesn't exist.
     """
-    # Ensure directory exists
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_file = Path(manifest_path)
+    manifest_file.parent.mkdir(parents=True, exist_ok=True)
     
-    # Load existing manifest if it exists
-    if manifest_path.exists():
+    # If file exists, load existing data; otherwise start fresh
+    if manifest_file.exists():
         try:
-            with open(manifest_path, 'r') as f:
-                manifest = json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not load existing manifest: {e}")
-            manifest = {"batches": [], "metrics": [], "metadata": {}}
+            with open(manifest_file, 'r') as f:
+                existing_data = json.load(f)
+                if not isinstance(existing_data, list):
+                    existing_data = []
+        except (json.JSONDecodeError, IOError):
+            existing_data = []
     else:
-        manifest = {"batches": [], "metrics": [], "metadata": {}}
-    
-    # Ensure metrics list exists
-    if "metrics" not in manifest:
-        manifest["metrics"] = []
+        existing_data = []
     
     # Append new metrics
-    manifest["metrics"].extend(metrics_list)
+    existing_data.extend(metrics_list)
     
-    # Update metadata
-    manifest["metadata"]["total_metrics"] = len(manifest["metrics"])
-    manifest["metadata"]["last_updated"] = str(Path(manifest_path).stat().st_mtime)
+    # Write back
+    with open(manifest_file, 'w') as f:
+        json.dump(existing_data, f, indent=2)
     
-    # Write back to file
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    
-    logger.info(f"Wrote {len(metrics_list)} metrics to {manifest_path}")
+    logger.info(f"Wrote {len(metrics_list)} metric entries to {manifest_path}")
 
-def update_manifest_with_metrics(
-    graph: nx.Graph,
-    graph_id: str,
-    topology_type: str,
-    manifest_path: Path
-) -> Dict[str, Any]:
+def log_graph_generation_event(
+    graph_id: str, 
+    run_id: str, 
+    seed: int, 
+    status: str, 
+    duration_seconds: float,
+    algorithm: str,
+    is_connected: bool
+) -> None:
     """
-    Extract metrics for a graph and update the manifest.
-    
-    Args:
-        graph: NetworkX graph instance
-        graph_id: Unique identifier for the graph
-        topology_type: Type of topology (ER, WS, SF)
-        manifest_path: Path to the manifest file
-        
-    Returns:
-        The extracted metrics dictionary
+    Log the graph generation event to the run log.
     """
-    metrics = extract_all_metrics(graph, graph_id, topology_type)
-    write_metrics_to_manifest([metrics], manifest_path)
-    
-    return metrics
-
-def main() -> None:
-    """
-    Main entry point for metrics extraction.
-    
-    This function is intended to be called from batch generation scripts
-    to ensure metrics are computed and written to the manifest.
-    """
-    logger.info("Metrics extraction module loaded")
-    logger.info("Use extract_all_metrics() and write_metrics_to_manifest() to process graphs")
+    event = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "event_type": "graph_generated",
+        "run_id": run_id,
+        "seed": seed,
+        "status": status,
+        "duration_seconds": duration_seconds,
+        "algorithm": algorithm,
+        "is_connected": is_connected
+    }
+    log_metric(event)
