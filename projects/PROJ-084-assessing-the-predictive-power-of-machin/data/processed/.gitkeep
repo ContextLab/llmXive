@@ -1,2 +1,2 @@
-# This file ensures the data/processed directory is tracked by git.
-# Place cleaned and processed datasets here.
+# This directory stores processed data
+# Ensure .gitkeep is present to track the directory in git

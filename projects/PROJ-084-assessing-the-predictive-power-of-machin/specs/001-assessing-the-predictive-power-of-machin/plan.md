@@ -13,7 +13,7 @@ This project assesses the predictive power of classical machine learning (Random
 **Primary Dependencies**: `pandas`, `scikit-learn`, `rdkit`, `pyyaml`, `pytest`  
 **Storage**: Local filesystem (CSV/Parquet), GitHub Actions ephemeral storage  
 **Testing**: `pytest` (unit, integration, contract tests)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM)  
 **Project Type**: Data Science Pipeline / Research Library  
 **Performance Goals**: Process full dataset subset within 6 hours; Peak RAM < 7.0 GB  
 **Constraints**: No GPU, no deep learning, no external API calls during execution, strict reproducibility (pinned seeds).  

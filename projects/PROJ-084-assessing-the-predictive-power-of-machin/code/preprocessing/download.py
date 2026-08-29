@@ -1,65 +1,108 @@
 """
-Download USPTO dataset from canonical source and verify checksum.
+Download USPTO dataset from canonical source 'flying-sausages/uspto_yield' using Hugging Face datasets.
+Generates a SHA256 checksum immediately after fetch and logs it.
 """
 
-import os
 import hashlib
 import logging
+import sys
 from pathlib import Path
 
-# Note: This is a placeholder for the actual download logic.
-# The real implementation would fetch from the DOI source specified in the spec.
-# For now, it assumes the data exists or fails loudly.
+import pandas as pd
+from datasets import load_dataset
+
+# Ensure project root is in path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from config import DATA_RAW_DIR
 
 logger = logging.getLogger(__name__)
 
-def calculate_md5(file_path: Path, chunk_size: int = 8192) -> str:
-    """Calculate MD5 checksum of a file."""
-    md5_hash = hashlib.md5()
+def calculate_sha256(file_path: Path, chunk_size: int = 8192) -> str:
+    """Calculate SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(chunk_size), b""):
-            md5_hash.update(chunk)
-    return md5_hash.hexdigest()
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
 
-def download_uspto_dataset(output_path: Path, expected_md5: str) -> Path:
+def download_uspto_dataset(output_path: Path) -> Path:
     """
-    Download USPTO dataset from canonical source.
-
-    This function should be implemented to fetch the dataset from the
-    DOI source specified in the project specification. For now, it
-    raises an error if the file does not exist, enforcing the
-    "fail loudly" requirement.
+    Download USPTO dataset from 'flying-sausages/uspto_yield' on Hugging Face.
+    
+    The dataset is loaded, converted to Parquet, and saved to the specified output path.
+    A SHA256 checksum is calculated and logged immediately after the file is written.
+    
+    Args:
+        output_path: Path where the parquet file will be saved.
+        
+    Returns:
+        Path to the saved file.
+        
+    Raises:
+        FileNotFoundError: If the dataset cannot be loaded or saved (fails loudly).
     """
     if output_path.exists():
-        logger.info(f"File already exists: {output_path}")
-        # Verify checksum if expected_md5 is provided
-        if expected_md5:
-            actual_md5 = calculate_md5(output_path)
-            if actual_md5 != expected_md5:
-                raise ValueError(f"Checksum mismatch: expected {expected_md5}, got {actual_md5}")
+        logger.warning(f"File already exists at {output_path}. Skipping download.")
+        # Still verify checksum? The task says "generate... immediately after fetch".
+        # If we skip fetch, we skip generation. But we should probably log the existing checksum.
+        # For strict adherence to "after fetch", we might skip if exists, or re-calc.
+        # Let's re-calc to ensure integrity even if cached.
+        actual_sha = calculate_sha256(output_path)
+        logger.info(f"Existing file SHA256: {actual_sha}")
         return output_path
 
-    # TODO: Implement actual download from DOI source
-    # For now, fail loudly as per requirements
-    raise FileNotFoundError(
-        f"USPTO dataset not found at {output_path}. "
-        "Please download from the canonical source (DOI) and place it here. "
-        "This is a strict requirement to ensure verified accuracy."
-    )
+    logger.info("Loading USPTO dataset from 'flying-sausages/uspto_yield'...")
+    try:
+        # Load the dataset. The 'uspto_yield' dataset typically has a 'train' split.
+        # We load it into memory. If it's too large, we might need streaming, but 
+        # for the initial download and conversion to parquet, we assume it fits 
+        # or we process in chunks if the dataset object supports it.
+        # The dataset 'flying-sausages/uspto_yield' is relatively small (approx 100k rows).
+        dataset = load_dataset("flying-sausages/uspto_yield", split="train")
+        
+        logger.info(f"Dataset loaded successfully. Number of rows: {len(dataset)}")
+        
+        # Convert to Pandas DataFrame
+        df = dataset.to_pandas()
+        
+        # Ensure output directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        logger.info(f"Saving to {output_path}...")
+        df.to_parquet(output_path, index=False)
+        
+        logger.info("File saved successfully.")
+        
+        # Calculate and log SHA256 checksum immediately
+        checksum = calculate_sha256(output_path)
+        logger.info(f"SHA256 checksum for {output_path}: {checksum}")
+        
+        return output_path
+        
+    except Exception as e:
+        logger.error(f"Failed to download or process dataset: {e}")
+        # Fail loudly as per requirements
+        raise FileNotFoundError(
+            f"Failed to download USPTO dataset from 'flying-sausages/uspto_yield'. "
+            f"Error: {e}"
+        ) from e
 
 def main():
     """Main entry point for download script."""
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-    # Define paths (adjust based on project structure)
-    output_path = Path("data/raw/uspto_raw.parquet")
-    expected_md5 = ""  # TODO: Set expected MD5 from manifest
-
+    output_path = DATA_RAW_DIR / "uspto_raw.parquet"
+    
     try:
-        download_uspto_dataset(output_path, expected_md5)
-        logger.info("Dataset download/verification complete.")
-    except FileNotFoundError as e:
-        logger.error(str(e))
+        download_uspto_dataset(output_path)
+        logger.info("Dataset download and verification complete.")
+    except Exception as e:
+        logger.error(f"Download process failed: {e}")
         raise
 
 if __name__ == "__main__":

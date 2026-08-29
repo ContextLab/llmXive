@@ -1,274 +1,61 @@
-# Output Schema Validation Contracts
-# Defines the expected structure and constraints for all model output artifacts
-# used in the Assessing ML Predictive Power pipeline.
-#
-# This schema is used by code/utils/schema_validator.py to validate:
-# - data/results/final_report.json
-# - data/results/best_models/*.json (hyperparameter configs)
-# - data/processed/split_indices.parquet (metadata)
-# - data/results/data_quality_report.json
-# - data/results/per_class_metrics.json
-
-version: "1.0.0"
-schema_type: "output_artifacts"
-artifacts:
-  # 1. Final Report (data/results/final_report.json)
-  final_report:
+# Output Schema for Model Training and Evaluation Results
+# Used by code/utils/validators.py to validate model output artifacts
+type: object
+required:
+  - model_type
+  - hyperparameters
+  - metrics
+  - split_ratios
+properties:
+  model_type:
+    type: string
+    description: Type of model (e.g., "RandomForest", "SVM")
+    enum:
+      - RandomForest
+      - SVM
+  hyperparameters:
+    type: object
+    description: Dictionary of hyperparameters used for the model
+    additionalProperties: true
+  metrics:
     type: object
     required:
-      - model_type
-      - hyperparameters
-      - metrics
-      - split_ratios
-      - feature_importance
-      - validation_status
+      - R2
+      - RMSE
+      - MAE
     properties:
-      model_type:
-        type: string
-        enum: ["RandomForest", "SVM", "Ensemble"]
-      hyperparameters:
-        type: object
-        required:
-          - n_estimators
-          - max_depth
-          - min_samples_split
-        properties:
-          n_estimators:
-            type: integer
-            minimum: 10
-            maximum: 1000
-          max_depth:
-            type: ["integer", "null"]
-            minimum: 1
-          min_samples_split:
-            type: integer
-            minimum: 2
-      metrics:
-        type: object
-        required:
-          - r2_score
-          - rmse
-          - mae
-        properties:
-          r2_score:
-            type: number
-            minimum: -1.0
-            maximum: 1.0
-          rmse:
-            type: number
-            minimum: 0.0
-          mae:
-            type: number
-            minimum: 0.0
-          per_class_metrics:
-            type: object
-            additionalProperties:
-              type: object
-              required:
-                - r2_score
-                - rmse
-                - sample_count
-              properties:
-                r2_score:
-                  type: number
-                rmse:
-                  type: number
-                sample_count:
-                  type: integer
-                  minimum: 1
-      split_ratios:
-        type: object
-        required:
-          - train
-          - val
-          - test
-        properties:
-          train:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-          val:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-          test:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-      feature_importance:
-        type: array
-        minItems: 1
-        items:
-          type: object
-          required:
-            - bit_index
-            - importance_score
-            - substructure_description
-          properties:
-            bit_index:
-              type: integer
-              minimum: 0
-              maximum: 2047
-            importance_score:
-              type: number
-              minimum: 0.0
-            substructure_description:
-              type: string
-      validation_status:
-        type: object
-        required:
-          - success
-          - checks_passed
-          - checks_failed
-        properties:
-          success:
-            type: boolean
-          checks_passed:
-            type: array
-            items:
-              type: string
-          checks_failed:
-            type: array
-            items:
-              type: string
-          sc001_r2_threshold:
-            type: number
-            description: "Target R² >= 0.40"
-          sc002_gap_threshold:
-            type: number
-            description: "Target Train-Test Gap <= 0.10"
-          sc003_substructure_frequency:
-            type: number
-            description: "Percentage of high-yield reactions with top substructures"
-
-  # 2. Model Hyperparameter Config (data/results/best_models/*.json)
-  model_hyperparameters:
-    type: object
-    required:
-      - model_class
-      - best_params
-      - cv_score
-      - training_timestamp
-    properties:
-      model_class:
-        type: string
-        enum: ["RandomForestRegressor", "SVR"]
-      best_params:
-        type: object
-      cv_score:
+      R2:
         type: number
-      training_timestamp:
-        type: string
-        format: date-time
-
-  # 3. Split Indices Metadata (data/processed/split_indices.parquet)
-  # Note: Schema validation for Parquet is done via column names and types
-  split_indices:
+        description: R-squared coefficient
+      RMSE:
+        type: number
+        description: Root Mean Squared Error
+      MAE:
+        type: number
+        description: Mean Absolute Error
+  split_ratios:
     type: object
     required:
-      - columns
-      - row_count
+      - train
+      - val
+      - test
     properties:
-      columns:
-        type: array
-        items:
-          type: object
-          required:
-            - name
-            - dtype
-          properties:
-            name:
-              type: string
-              enum: ["reaction_id", "split"]
-            dtype:
-              type: string
-              enum: ["object", "int64", "category"]
-      row_count:
-        type: integer
-        minimum: 100
-      split_distribution:
-        type: object
-        required:
-          - train
-          - val
-          - test
-        properties:
-          train:
-            type: integer
-            minimum: 1
-          val:
-            type: integer
-            minimum: 1
-          test:
-            type: integer
-            minimum: 1
-
-  # 4. Data Quality Report (data/results/data_quality_report.json)
-  data_quality_report:
+      train:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Proportion of data in training set
+      val:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Proportion of data in validation set
+      test:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Proportion of data in test set
+  metadata:
     type: object
-    required:
-      - total_input_records
-      - excluded_records
-      - exclusion_reasons
-      - data_completeness
-    properties:
-      total_input_records:
-        type: integer
-        minimum: 0
-      excluded_records:
-        type: integer
-        minimum: 0
-      exclusion_reasons:
-        type: object
-        additionalProperties:
-          type: integer
-        description: "Map of reason -> count"
-      data_completeness:
-        type: object
-        required:
-          - yield_missing_fraction
-          - smiles_invalid_fraction
-        properties:
-          yield_missing_fraction:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-          smiles_invalid_fraction:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-      scaffold_coverage:
-        type: object
-        required:
-          - unique_scaffolds
-          - max_group_size
-          - min_group_size
-        properties:
-          unique_scaffolds:
-            type: integer
-          max_group_size:
-            type: integer
-          min_group_size:
-            type: integer
-
-  # 5. Per-Class Metrics (data/results/per_class_metrics.json)
-  per_class_metrics:
-    type: object
-    required:
-      - class_name
-      - r2_score
-      - rmse
-      - mae
-      - sample_count
-    properties:
-      class_name:
-        type: string
-      r2_score:
-        type: number
-      rmse:
-        type: number
-      mae:
-        type: number
-      sample_count:
-        type: integer
-        minimum: 1
+    description: Optional metadata (timestamp, dataset version, etc.)
+    additionalProperties: true

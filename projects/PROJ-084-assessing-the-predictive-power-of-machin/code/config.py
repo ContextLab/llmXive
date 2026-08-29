@@ -1,78 +1,42 @@
 """
-Configuration constants and utilities for the ML predictive power assessment pipeline.
-
-This module centralizes:
-- Random seeds for reproducibility
-- File system paths (relative to project root)
-- Hyperparameter grids for Random Forest and SVM
-- Data processing constraints
+Configuration constants for the project.
 """
+
 import os
 from pathlib import Path
 from typing import Dict, List, Any
 
-# --- Reproducibility ---
-RANDOM_SEED: int = 42
-"""Global random seed for numpy, pandas, sklearn, and torch if applicable."""
+# Project Root
+PROJECT_ROOT = Path(__file__).parent.parent
 
-# --- Paths ---
-# Determine project root (assumed to be parent of 'code' directory)
-_ROOT_DIR: Path = Path(__file__).resolve().parent.parent
-"""Absolute path to the project root directory."""
+# Directories
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+CODE_DIR = PROJECT_ROOT / "code"
+TESTS_DIR = PROJECT_ROOT / "tests"
 
-DATA_RAW_DIR: Path = _ROOT_DIR / "data" / "raw"
-"""Directory for raw, unprocessed data files."""
+# Random Seeds
+RANDOM_SEED = 42
 
-DATA_PROCESSED_DIR: Path = _ROOT_DIR / "data" / "processed"
-"""Directory for cleaned, feature-engineered data files."""
-
-DATA_RESULTS_DIR: Path = _ROOT_DIR / "data" / "results"
-"""Directory for model outputs, metrics, and reports."""
-
-CODE_DIR: Path = _ROOT_DIR / "code"
-"""Directory containing source code."""
-
-TESTS_DIR: Path = _ROOT_DIR / "tests"
-"""Directory containing test suites."""
-
-SPECS_DIR: Path = _ROOT_DIR / "specs"
-"""Directory containing specification documents."""
-
-# --- Memory Constraints ---
-MAX_MEMORY_GB: float = 7.0
-"""Maximum allowed memory usage in GB for batch processing."""
-
-# --- Hyperparameter Grids ---
+# Hyperparameter Grids
 RF_GRID: Dict[str, List[Any]] = {
-    "n_estimators": [50, 100, 200],
-    "max_depth": [None, 10, 20, 30],
-    "min_samples_split": [2, 5, 10],
-    "random_state": [RANDOM_SEED]
+    'n_estimators': [100, 200],
+    'max_depth': [10, 20, None],
+    'min_samples_split': [2, 5],
+    'min_samples_leaf': [1, 2]
 }
-"""Hyperparameter grid for Random Forest Regressor grid search."""
 
 SVM_GRID: Dict[str, List[Any]] = {
-    "C": [0.1, 1.0, 10.0],
-    "kernel": ["linear", "rbf"],
-    "gamma": ["scale", "auto"],
-    "random_state": [RANDOM_SEED]
+    'C': [0.1, 1, 10],
+    'kernel': ['linear', 'rbf'],
+    'gamma': ['scale', 'auto']
 }
-"""Hyperparameter grid for SVM Regressor grid search."""
 
-# --- Data Processing ---
-BATCH_SIZE: int = 10000
-"""Number of rows to process in a single batch to manage memory."""
+# Ensure directories exist (called at import or setup)
+def ensure_dirs():
+    for d in [DATA_RAW_DIR, DATA_PROCESSED_DIR, DATA_RESULTS_DIR, CODE_DIR, TESTS_DIR]:
+        d.mkdir(parents=True, exist_ok=True)
 
-YIELD_COLUMN_NAME: str = "yield"
-"""Standardized name for the yield column in datasets."""
-
-SMILES_COLUMN_NAME: str = "smiles"
-"""Standardized name for the SMILES string column."""
-
-# --- Model Evaluation ---
-METRICS: List[str] = ["r2", "rmse", "mae"]
-"""List of metrics to compute during model evaluation."""
-
-# --- Logging ---
-LOG_LEVEL: str = "INFO"
-"""Default logging level for the pipeline."""
+# Initialize dirs on module load
+ensure_dirs()

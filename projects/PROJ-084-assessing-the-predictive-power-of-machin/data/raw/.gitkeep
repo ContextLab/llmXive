@@ -1,2 +1,2 @@
-# This file ensures the data/raw directory is tracked by git.
-# Place raw downloaded datasets here.
+# This directory stores raw downloaded data
+# Ensure .gitkeep is present to track the directory in git

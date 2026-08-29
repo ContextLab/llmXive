@@ -15,7 +15,7 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
+- **Single project**: `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
@@ -43,25 +43,36 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/` directories
+- [ ] T001a Create `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/` directories using `mkdir -p`
 - [X] T001b Create `code/config.py`, `code/__init__.py`, `code/requirements.txt`, `tests/__init__.py`
 - [X] T002 Initialize Python 3.11 project with `pandas`, `scikit-learn`, `rdkit`, `pyyaml`, `pytest` in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools in `code/`
+- [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools in `code/`. **Safety Note**: This task modifies `pyproject.toml` and `setup.cfg`, while T002 modifies `requirements.txt` and T004 modifies `config.py`. Distinct file targets ensure no race conditions. (Depends on T002)
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure and data preparation that MUST be complete before ANY user story can begin.
+**Note**: This phase includes data ingestion, sanitization, fingerprinting, and scaffold generation to ensure US1 and US2 can start in parallel after completion.
+**Execution Order**: Tasks T014-T017 MUST complete before T010 is fully utilized, but T010 (Scaffold Gen) is moved here to unblock US2 splitting logic. T019 (Download) must complete before T014-T017.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `code/config.py` with pinned random seeds, path constants, and hyperparameter grids for RF/SVM
 - [X] T005 [P] Implement `code/utils/io.py` for robust Parquet/CSV loading, checksumming, and batch processing to manage memory < 7GB
 - [X] T006 [P] Create `code/preprocessing/__init__.py` and `code/modeling/__init__.py` package structures
-- [ ] T007 Implement data schema validation contracts in `specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml`
-- [ ] T008 Implement output schema validation contracts in `specs/001-assess-ml-predictive-power/contracts/output.schema.yaml`
+- [ ] T007a [P] Create `specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml` with field definitions: `smiles` (string, non-null), `yield` (float, 0.0-100.0), `reaction_class` (string), `fingerprint_ecfp` (list of int, length 2048), `fingerprint_maccs` (list of int, length 167)
+- [ ] T007b [P] Implement `code/utils/validators.py` to load and enforce `dataset.schema.yaml` using `jsonschema` or `pydantic`
+- [ ] T008a [P] Create `specs/001-assess-ml-predictive-power/contracts/output.schema.yaml` with field definitions: `model_type` (string), `hyperparameters` (dict), `metrics` (dict with keys R2, RMSE, MAE), `split_ratios` (dict)
+- [ ] T008b [P] Implement `code/utils/validators.py` to load and enforce `output.schema.yaml`
 - [X] T009 Create `data/raw/.gitkeep` and `data/processed/.gitkeep` directories to ensure directory structure exists
+- [X] T019 [US1] Implement `code/preprocessing/download.py`: Download USPTO dataset from canonical source 'flying-sausages/uspto_yield' using `datasets.load_dataset`. The script MUST generate a SHA256 checksum of the downloaded file immediately after fetch and log it (no external manifest required). **Prerequisite: T005, T007b, T008b** (FR-001, Constitution II).
+- [ ] T014 [US1] Implement `code/preprocessing/sanitize.py`: Load USPTO parquet from `data/raw/uspto_raw.parquet`, remove salts, standardize reactions using RDKit (FR-002) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T015 [US1] Implement `code/preprocessing/sanitize.py`: Handle yield parsing (ranges vs. single values) and exclude malformed entries with logging (Edge Cases)
+- [X] T016 [US1] Implement `code/preprocessing/fingerprints.py`: Generate ECFP and MACCS vectors for all reactants/reagents (FR-003)
+- [ ] T017 [US1] Implement `code/preprocessing/ingest.py`: Orchestrate sanitization (T014), yield parsing (T015), fingerprinting (T016), parse SMILES strings and yield values into a structured format, and save to `data/processed/cleaned_reactions.parquet` (FR-001). Prerequisite: T014, T015, T016
+- [ ] T018 [US1] Add logging for exclusion reasons and data quality metrics (SC-005) in `code/preprocessing/ingest.py` and generate `data/results/data_quality_report.json`
+- [ ] T010 [US1/US2] Implement `code/preprocessing/scaffold.py`: Generate Murcko scaffold grouping keys from sanitized reactions in `data/processed/cleaned_reactions.parquet` using `rdkit.Chem.Scaffolds` to produce `data/processed/scaffold_groups.parquet` (FR-004, Constitution VI). **Prerequisite: T017**. Note: This task is placed in Foundational Phase to enable parallel execution of US2 (Splitting) immediately after Phase 2 completion. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,15 +92,7 @@
 - [X] T012 [P] [US1] Unit test for salt removal and SMILES standardization in `tests/unit/test_sanitize.py`
 - [X] T013 [P] [US1] Unit test for fingerprint dimensionality (ECFP4=2048, MACCS=167) in `tests/unit/test_fingerprints.py`
 
-### Implementation for User Story 1
-
-- [ ] T019 [US1] Implement `code/preprocessing/download.py`: Download USPTO dataset from canonical source DOI ``, verify checksum against canonical manifest, and perform Constitution Principle II (Verified Accuracy) gate check before saving to `data/raw/uspto_raw.parquet` (FR-001, Constitution II) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T014 [US1] Implement `code/preprocessing/sanitize.py`: Load USPTO parquet from `data/raw/uspto_raw.parquet`, remove salts, standardize reactions using RDKit (FR-002) <!-- FAILED: unspecified -->
-- [X] T015 [US1] Implement `code/preprocessing/sanitize.py`: Handle yield parsing (ranges vs. single values) and exclude malformed entries with logging (Edge Cases)
-- [X] T016 [US1] Implement `code/preprocessing/fingerprints.py`: Generate ECFP and MACCS vectors for all reactants/reagents (FR-003)
-- [ ] T017 [US1] Implement `code/preprocessing/ingest.py`: Orchestrate sanitization, fingerprinting, and save to `data/processed/cleaned_reactions.parquet` (FR-001)
-- [ ] T018 [US1] Add logging for exclusion reasons and data quality metrics (SC-005) in `code/preprocessing/ingest.py` and generate `data/results/data_quality_report.json` <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [ ] T010 [US1] Implement `code/preprocessing/scaffold.py`: Generate Murcko scaffold grouping keys from sanitized reactions in `data/processed/cleaned_reactions.parquet` using `rdkit.Chem.Scaffolds` to produce `data/processed/scaffold_groups.parquet` (FR-004, Constitution VI) <!-- FAILED: unspecified -->
+**Note**: T014-T018 are implementation tasks for US1, completed in Phase 2 to enable parallel US2 execution.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (clean dataset generated)
 
@@ -104,19 +107,24 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
-- [X] T021 [P] [US2] Integration test for training pipeline on a subset in `tests/integration/test_training_pipeline.py` <!-- FAILED: unspecified -->
+- [X] T021 [P] [US2] Integration test for training pipeline on a subset in `tests/integration/test_training_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/modeling/split.py`: Implement **Stratified-by-Class + Intra-Class Scaffold Grouping** split using scaffold keys from T010 to prevent leakage (FR-004, Constitution VI); output `data/processed/split_indices.parquet` containing train/val/test indices
-- [ ] T023 [US2] Implement `code/modeling/split.py`: Extract the **held-out validation set** from `data/processed/split_indices.parquet` generated by T022 to create `data/processed/validation_set.parquet` specifically for SC-003 substructure frequency checks (this is the same set used for hyperparameter tuning, ensuring 'held-out' status) (SC-003)
+- [X] T022a [US2] Implement `code/modeling/split.py`: Implement **Grouping Logic** for Stratified-by-Class + Intra-Class Scaffold Grouping. Group data by `reaction_class` and then by Murcko scaffold ID (from T010). Output intermediate grouping keys. (FR-004, Constitution VI). Prerequisite: T010
+- [ ] T022b [US2] Implement `code/modeling/split.py`: Implement **Stratified Split Logic** using the grouping keys from T022a. Perform stratified split of groups into train/val/test. Output `data/processed/split_indices.parquet`. (FR-004, Constitution VI). Prerequisite: T022a <!-- FAILED: unspecified -->
+- [X] T022c [US2] Implement `code/modeling/split.py`: Implement **Edge Case Handling** for classes with only one scaffold (assign to train) and small classes (merge or exclude with warning). (FR-004). Prerequisite: T022b
+- [ ] T022d [US2] Implement logging of exact split ratios used in T022b to `data/results/split_log.json` (FR-004, SC-003). Prerequisite: T022c
+- [~] T023 [US2] Implement `code/modeling/split.py`: Extract the **held-out validation set** from `data/processed/split_indices.parquet` generated by T022b to create `data/processed/validation_set.parquet` specifically for SC-003 substructure frequency checks (this is the same set used for hyperparameter tuning, ensuring 'held-out' status) (SC-003). Prerequisite: T022d
 - [X] T024 [US2] Implement `code/modeling/train.py`: Train Random Forest with grid search (k-fold CV) for `n_estimators` and `max_depth` (FR-005)
 - [X] T025 [US2] Implement `code/modeling/train.py`: Train SVM with grid search for `C` and `kernel` (linear/RBF) (FR-005)
 - [ ] T026 [US2] Implement `code/modeling/evaluate.py`: Evaluate best models on held-out test set; report R², RMSE, MAE (FR-006)
-- [ ] T027 [US2] Ensure all training operations are CPU-only and batched to respect ≤ 7GB RAM limit (FR-009, FR-010)
+- [X] T027a [US2] Implement `code/modeling/train.py`: Ensure all training operations are CPU-only and batched to respect ≤ 7GB RAM limit using `tracemalloc` and `psutil` for profiling (FR-009, FR-010). Prerequisite: T024, T025
+- [~] T027b [US2] Implement `code/utils/memory_profiler.py`: Generate `data/results/memory_profile.log` recording peak RAM usage during training using `tracemalloc` and assert peak RAM < 7GB (SC-004, FR-009, FR-010). Prerequisite: T027a
 - [ ] T028 [US2] Save best model artifacts and hyperparameters to `data/results/best_models/`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (models trained and validated)
+**Parallel Note**: Once Phase 2 (Foundational) is complete, T022a-d (US2 Splitting) can be implemented in parallel with T031 (US3 Evaluation) as they share no code dependencies beyond the artifacts produced in Phase 2.
 
 ---
 
@@ -129,15 +137,15 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T029 [P] [US3] Contract test for feature importance report schema in `tests/contract/test_importance_report.py`
-- [ ] T030 [P] [US3] Integration test for generalization analysis in `tests/integration/test_generalization.py`
+- [X] T030 [P] [US3] Integration test for generalization analysis in `tests/integration/test_generalization.py`
 
 ### Implementation for User Story 3
 
 - [ ] T031 [US3] Implement `code/modeling/evaluate.py`: Compute per-reaction-class R² and RMSE metrics (FR-007, SC-002)
-- [ ] T032 [US3] Implement `code/modeling/evaluate.py`: Compute permutation importance for Random Forest (FR-008) <!-- FAILED: unspecified -->
-- [ ] T033 [US3] Implement `code/modeling/evaluate.py`: Map top fingerprint bits to molecular substructures and **reaction centers** using `rdkit.Chem.rdFMCS` to identify the Maximum Common Substructure between reactants and products; the reaction center is defined as the atoms/bonds in reactants/products NOT present in the MCS. Aggregate importance across bits mapping to the same substructure (FR-008, SC-003)
+- [ ] T032 [US3] Implement `code/modeling/evaluate.py`: Compute permutation importance for Random Forest (FR-008)
+- [ ] T033 [US3] Implement `code/modeling/evaluate.py`: Map top fingerprint bits to molecular substructures and **reaction centers** using `rdkit.Chem.rdFMCS` to identify the Maximum Common Substructure between reactants and products; the reaction center is defined as the atoms/bonds in reactants/products NOT present in the MCS. Aggregation: Explicitly aggregate importance scores by summing all bits mapping to the same substructure to handle bit collisions (FR-008, SC-003)
 - [ ] T034 [US3] Generate final `data/results/final_report.json` containing all metrics, split ratios, and feature importance (FR-006, FR-007, FR-008)
-- [ ] T035 [US3] Validate that all metrics meet Success Criteria (SC-001: R² ≥ 0.40, SC-002: Gap ≤ 0.10, SC-003: Substructure frequency >80% in the held-out validation set from T023, SC-005: Exclusion fraction measured from `data/results/data_quality_report.json`). Explicitly calculate the percentage of high-yield reactions in the validation set containing the top substructures and write this value to `data/results/final_report.json` under key `sc003_substructure_frequency` (FR-006, FR-007, FR-008, SC-001, SC-002, SC-003, SC-005) <!-- FAILED: unspecified -->
+- [ ] T035 [US3] Implement `code/modeling/evaluate.py`: Validate that all metrics meet Success Criteria. Define 'high-yield' dynamically (e.g., top X% or >Y% absolute) and report the chosen threshold. Define 'top substructures' as the most prominent by aggregated importance score (summing bits). Explicitly calculate the percentage of high-yield reactions in the validation set (from T023) containing the top substructures. Compare calculated frequency against SC-003 threshold (80%) and record pass/fail status in `data/results/final_report.json` under key `sc003_substructure_frequency` (FR-006, FR-007, FR-008, SC-001, SC-002, SC-003, SC-005)
 
 **Checkpoint**: All user stories should now be independently functional and results aggregated
 
@@ -148,10 +156,10 @@
 **Purpose**: Improvements that affect multiple user stories and final validation
 
 - [ ] T036 [P] Update `README.md` with quickstart instructions and dependency installation
-- [~] T037 Code cleanup: Run `ruff check --fix` and `black` on `code/` directory
-- [~] T038 Performance optimization: Ensure full pipeline runs within 6 hours on 2-CPU runner
-- [~] T039 [P] Run full test suite (`pytest`) to ensure all contract and unit tests pass
-- [~] T040 Run `quickstart.md` validation to ensure reproducibility from scratch
+- [ ] T037 Code cleanup: Run `ruff check --fix` and `black` on `code/` directory
+- [ ] T038 Performance optimization: Ensure full pipeline runs within 6 hours on 2-CPU runner
+- [ ] T039 [P] Run full test suite (`pytest`) to ensure all contract and unit tests pass
+- [ ] T040 Run `quickstart.md` validation to ensure reproducibility from scratch
 
 ---
 
@@ -161,6 +169,7 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+ - **Internal Order**: T019 (Download) requires T005, T007b, T008b. T014-T017 (Ingest) must complete before T010 (Scaffold).
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -169,7 +178,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1 (T010, T017)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on trained models from US2
 
 ### Within Each User Story
@@ -183,7 +192,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2, respecting internal order T014-T017 -> T010)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
