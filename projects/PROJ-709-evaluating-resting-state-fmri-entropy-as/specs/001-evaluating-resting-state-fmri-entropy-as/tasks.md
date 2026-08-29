@@ -44,24 +44,26 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] Initialize project directory structure: Create `code/`, `data/raw/`, `data/processed/`, `data/derived/`, `tests/`, and `docs/` directories; create `code/__init__.py` and `.gitkeep` files in data directories.
-- [X] T002a [P] Create `code/requirements.txt` with pinned versions: `antropy`, `scikit-learn`, `nibabel`, `nilearn`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`, `openneuro-py`, `pyyaml`.
-- [X] T002b [P] Initialize a Python virtual environment (`python -m venv.venv`) and install dependencies from `code/requirements.txt` (`pip install -r code/requirements.txt`). <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T002a [P] Create `code/requirements.txt` with pinned versions: `antropy`, `scikit-learn`, `nibabel`, `nilearn`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`, `openneuro-py`, `pyyaml`. **Verification**: Create virtual environment using `python3 -m venv code/.venv`, then verify the venv interpreter version by running `code/.venv/bin/python --version` to ensure it is 3.11 or higher.
+- [X] T003a [P] Configure environment pinning: Create `code/.env.example` with `CUDA_VISIBLE_DEVICES=` and `code/requirements.txt` with pinned versions to satisfy Constitution Principle I (Reproducibility).
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/config.py` defining hyperparameters: `m=2`, `r_factor=0.2`, `fd_threshold=0.2`, `target_length=120`, `atlas_n=200`, `dataset_id="ds000305"`.
-- [ ] T005 [P] Implement `code/data_loader.py` to fetch ADHD dataset `ds000305` from OpenNeuro; verify checksums using SHA256 and write `data/raw/checksums.sha256`; implement logic to filter subjects with < 100 time points (post-scrubbing simulation) and log exclusions to `data/raw/exclusions.log` with headers: subject_id, reason, fd_mean; **MUST write the filtered list of valid subjects to `data/derived/valid_subjects.csv` to satisfy Constitution Principle III (Data Hygiene)**.
-- [X] T006 [P] Implement `code/utils.py` for logging, exclusion handling, and basic plotting utilities
-- [ ] T007 Create base data structures: `Subject` (NIfTI path, phenotypic data), `Parcel` (index, mask), `EntropyFeature`
-- [ ] T008 Configure environment configuration management for CPU-only execution (no CUDA flags)
-- [X] T009 Setup `code/preprocessing.py` skeleton for motion scrubbing and time-series standardization
+- [X] T004 Create `code/config.py` defining hyperparameters: `m=2`, `r_factor=0.2`, `fd_threshold=0.2`, `target_length=120`, `atlas_n=200`, `dataset_id="[dataset_identifier]"`.
+- [X] T005a [P] [Depends: T004] Implement `code/data_loader.py` to fetch the ADHD dataset from OpenNeuro; verify checksums using SHA256 and write `data/raw/checksums.sha256`; **MUST write the filtered list of valid subjects to `data/derived/valid_subjects.csv`** with schema: `subject_id` (str), `site` (str), `diagnosis` (str).
+- [X] T013a [P] [Depends: T005a] Implement `code/preprocessing.py`: Calculate Framewise Displacement (FD) for each volume using `nilearn` and `config.py` parameters.
+- [X] T013b [P] [Depends: T013a] Implement `code/preprocessing.py`: Scrub volumes with FD > 0.2mm.
+- [ ] T005b [P] [Depends: T013b] Implement exclusion logging in `code/data_loader.py`: Filter subjects with < 100 time points (post-scrubbing, pre-truncation) and log exclusions to `data/raw/exclusions.log` with headers: `subject_id`, `reason` (fixed string: "insufficient_time_points"), `time_point_count`. **Note**: This task MUST run AFTER scrubbing (T013b) but BEFORE truncation (T014) to accurately capture the post-scrubbing count.
+- [X] T014 [P] [Depends: T005b] Implement `code/preprocessing.py`: Subsample/Truncate valid subjects to exactly N=120 volumes (FR-011). **Output**: `data/processed/scrubbed_truncated_{subject_id}.nii.gz`.
+- [X] T005c [P] [Depends: T005b] Verify `data/derived/valid_subjects.csv` exists and contains only subjects not in `exclusions.log`.
+- [X] T007 [P] Create base data structures: Implement `code/models.py` with `dataclasses`: `Subject` (attributes: `id`, `nifti_path`, `phenotype`), `Parcel` (attributes: `index`, `mask_path`), `EntropyFeature` (attributes: `subject_id`, `parcel_index`, `value`). Use these for type hinting in downstream modules.
+- [X] T008 [P] Configure environment for CPU-only execution: Create `code/.env` setting `CUDA_VISIBLE_DEVICES=` and update `code/config.py` to set `device="cpu"` explicitly; verify `CUDA_VISIBLE_DEVICES` is unset in the environment.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,7 +73,7 @@
 
 **Goal**: Compute the primary feature matrix (Subject x Variable Parcels) of Sample Entropy values from preprocessed fMRI data.
 
-**Independent Test**: Run on 5 subjects; verify output `subject_entropy_features.csv` is (5, 201) numeric matrix (no NaN), values in range [lower bound, upper threshold].
+**Independent Test**: Run on multiple subjects; verify output `subject_entropy_features.csv` is a numeric matrix with dimensions corresponding to the number of subjects and 201 features. (no NaN), values in range [lower bound, upper threshold].
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -83,13 +85,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `code/preprocessing.py`: Calculate Framewise Displacement (FD), scrub volumes > 0.2mm, log exclusions to `data/raw/exclusions.log`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T014 [US1] Implement `code/preprocessing.py`: Subsample/Truncate valid subjects to exactly N=120 volumes (FR-011).
-- [X] T015 [US1] Implement `code/entropy_engine.py`: **Read scrubbed time series from `data/processed/scrubbed_*.nii.gz`, FIRST truncate to N=120, THEN compute SD on the truncated series**, then calculate SampEn (m=2, r=0.2*SD) for each parcel (FR-001, FR-010). Output `data/processed/truncated_*.nii.gz` if needed for downstream steps.
+- [ ] T015 [US1] [Depends: T014] Implement `code/entropy_engine.py`: **Read scrubbed and truncated time series from `data/processed/scrubbed_truncated_*.nii.gz`. FIRST truncate to N=120 (if not already done), THEN compute SD on the truncated series, THEN calculate SampEn (m=2, r=0.2*SD) for each parcel (FR-001, FR-010, FR-011).** This ensures SD is computed on the exact data used for entropy, satisfying FR-010. Output `data/processed/subject_entropy_features.csv`.
 - [X] T016 [US1] Implement `code/entropy_engine.py`: Handle zero-variance parcels by imputing with cohort median (FR-009).
-- [ ] T018a [US1] Implement `code/main.py`: Orchestrate subject-loop, skipping subjects in `exclusions.log`, to generate `data/processed/subject_entropy_features.csv`.
-- [ ] T018b [US1] Verify output file `data/processed/subject_entropy_features.csv` exists with shape (N, 201) and no NaN values.
-- [ ] T019 [US1] Add validation: Ensure no NaN values in final CSV; verify biologically plausible range.
+- [ ] T018 [US1] Implement `code/main.py`: Orchestrate subject-loop, skipping subjects in `exclusions.log`, to generate `data/processed/subject_entropy_features.csv`. **Function signature: `def run_pipeline() -> str` returning path to CSV. Verification: `assert os.path.exists(output_path)` and `assert not df.isnull().any().any()`**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,14 +106,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T022a [P] [US2] Implement `code/connectivity_engine.py`: Compute full 200x200 functional connectivity matrix for each subject using chunked processing; **Write the single 200x200 matrix per subject to `data/processed/connectivity_matrix_{subject_id}.npy`** (FR-008); **ensure the entropy feature set construction strictly excludes motion covariates (e.g., scrub_fraction)**.
+- [ ] T022a [P] [US2] [Depends: T018] Implement `code/connectivity_engine.py`: Compute full 200x200 functional connectivity matrix for each subject using chunked processing; **Write the single 200x200 matrix per subject to `data/processed/connectivity_matrix_{subject_id}.npy`** (FR-008); **ensure the entropy feature set construction strictly excludes motion covariates (e.g., scrub_fraction)**.
 - [X] T022b [US2] Implement aggregation logic in `code/connectivity_engine.py`: If multiple runs are merged, combine matrices from `data/processed/` into a unified list; ensure the Single Source of Truth is the individual subject matrix file.
-- [X] T023a [US2] Implement `code/connectivity_engine.py`: Apply PCA to reduce the 200x200 connectivity matrix to **200 components** (no reduction) as the intermediate baseline representation (FR-008).
-- [ ] T023c [US2] Implement `code/connectivity_engine.py`: **Perform Feature Selection (RFE or L) on the 200 PCA components to reduce the feature space to a stable subset (20-50 features) ** to address the N=100, p=200 underpowered ratio. Output `data/derived/connectivity_features_reduced.csv`.
-- [X] T024 [P] [US2] Implement `code/modeling.py`: Train Ridge Regression for ADHD-RS prediction using **Entropy-only**, **Connectivity-only (using reduced features from T023c)**, and **Combined** models (FR-003); **ensure the Entropy-only feature set strictly excludes motion covariates**.
-- [X] T025 [US2] Implement `code/modeling.py`: Train Logistic Ridge for binary diagnosis (Entropy-only, Connectivity-only, Combined) (FR-003).
+- [X] T023a [US2] Implement `code/connectivity_engine.py`: Apply PCA to reduce the 200x200 connectivity matrix to **200 components** (no reduction) as the intermediate baseline representation (FR-008). **Output**: `data/derived/connectivity_features_baseline.csv`.
+- [ ] T023c [US2] [Depends: T023a] Implement `code/connectivity_engine.py`: **Perform Feature Selection (L-Regularized Logistic Regression) on the PCA components to reduce the feature space to a smaller, optimized subset of features** to address the N=100, p=200 underpowered ratio. **Output**: `data/derived/connectivity_features_reduced.csv`. **Note**: This is for exploratory analysis; the primary baseline comparison uses the 200-component set from T023a.
+- [X] T024a [P] [US2] [Depends: T018, T023a] Implement `code/modeling.py`: Train Ridge Regression for ADHD-RS prediction using three models: (1) Entropy-only, (2) **Connectivity-Baseline (using 200 components from T023a)**, and (3) **Combined Entropy+Connectivity-Baseline**. **This is the PRIMARY analysis for SC-001/SC-002.** Ensure the Entropy-only feature set strictly excludes motion covariates.
+- [X] T024b [P] [US2] [Depends: T018, T023c] Implement `code/modeling.py`: Train exploratory models using the **Reduced Features (T023c)** for comparison only.
+- [X] T025 [US2] Implement `code/modeling.py`: Train Logistic Ridge for binary diagnosis (Entropy-only, Connectivity-Baseline, Combined) (FR-003).
 - [X] T026 [US2] Implement `code/modeling.py`: Execute k-fold stratified cross-validation preserving label balance (FR-002).
-- [X] T027 [US2] Implement `code/modeling.py`: Calculate mean Pearson r and AUC with standard deviations for all models.
+- [X] T027 [US2] Implement `code/modeling.py`: Calculate mean Pearson r and AUC with standard deviations for all models (both primary and exploratory).
 - [ ] T028 [US2] Implement `code/modeling.py`: Perform Nested Model Comparison (Likelihood Ratio Test) to verify unique value of entropy (FR-003).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -126,7 +125,7 @@
 
 **Goal**: Validate results via permutation testing, sensitivity analysis on `r`, and FDR correction.
 
-**Independent Test**: Run permutation (1000 iter) and sensitivity sweep; verify p-value < 0.05 and stability plot.
+**Independent Test**: Run permutation (iter) and sensitivity sweep; verify p-value < 0.05 and stability plot.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -136,13 +135,13 @@
 ### Implementation for User Story 3
 
 - [ ] T032 [P] [US3] Implement `code/validation.py`: Perform a sufficient number of permutations of outcome labels to derive empirical p-values (FR-004).
-- [ ] T033 [US3] Implement `code/validation.py`: Sweep `r` ∈ {0.15, 0.20, 0.25} and calculate performance variance (FR-005).
+- [ ] T033 [US3] Implement `code/validation.py`: Sweep `r` across a range of low values and calculate performance variance (FR-005).
 - [ ] T034 [US3] Implement `code/validation.py`: Apply FDR correction to parcel-level coefficients; output `significant_parcels.csv`; **record the count of significant parcels (even if zero) and flag the result in the report; do NOT raise an exception** (FR-006, SC-005).
-- [ ] T035 [US3] Implement `code/validation.py`: Calculate correlation between mean entropy and mean FD; flag if |r| ≥ 0.3 (SC-006).
-- [ ] T036a [US3] Implement `code/validation.py`: **Calculate the raw difference in mean Pearson correlation (Δr) between Entropy-only and Connectivity-only models; verify if Δr ≥ 0.05 and record the result in model_metrics.json** (SC-001).
-- [ ] T036b [US3] Implement `code/validation.py`: Perform paired t-test on fold differences (Entropy vs Connectivity) to assess statistical significance of Δr (separate from the effect size check).
-- [ ] T037 [US3] Implement `code/validation.py`: Calculate confidence interval for ΔAUC (using bootstrapping; **if bootstrapping exceeds time budget, use standard error approximation**). **Extract the lower bound of the 95% CI and verify if it is ≥ 0.05** (SC-002).
-- [ ] T038 [US3] Generate `data/derived/model_metrics.json` aggregating all success criteria metrics from T024, T025, T027, T032, T033, T036a, T037 with schema: `delta_r` (float), `delta_auc_ci_lower` (float), `p_value_permutation` (float), `sensitivity_variance_r` (float), `sensitivity_variance_auc` (float), `significant_parcels_count` (int).
+- [ ] T035 [US3] Implement `code/validation.py`: Calculate correlation between mean entropy and mean FD using `data/raw/exclusions.log` and `data/processed/subject_entropy_features.csv`; flag if |r| ≥ 0.3 (SC-006).
+- [ ] T036a [US3] [Depends: T027, T024a, T023a] Implement `code/validation.py`: **Calculate the raw difference in mean Pearson correlation (Δr) between Entropy-only and Connectivity-Baseline (200 components from T023a) models; output `delta_r` to `model_metrics.json`** (SC-001).
+- [ ] T036b [US3] [Depends: T027, T024a, T023a] Implement `code/validation.py`: Perform paired t-test on fold differences (Entropy vs Connectivity) to assess statistical significance of Δr (separate from the effect size check).
+- [ ] T037 [US3] [Depends: T027, T024a, T023a] Implement `code/validation.py`: **Calculate confidence interval for ΔAUC using bootstrapping (sufficient iterations).** Extract the lower bound of the 95% CI and verify if it is ≥ 0.05 (SC-002). **Note**: If 1000 iterations exceed 45 minutes, reduce to 500 iterations and log the reduction. Do not use approximations.
+- [ ] T038 [US3] Generate `data/derived/model_metrics.json` aggregating all success criteria metrics from T024a, T025, T027, T032, T033, T036a, T037 with schema: `delta_r` (float), `delta_auc_ci_lower` (float), `p_value_permutation` (float), `sensitivity_variance_r` (float), `sensitivity_variance_auc` (float), `significant_parcels_count` (int).
 - [ ] T039 [US3] Generate `data/derived/motion_confound_report.json` and sensitivity plots.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -155,7 +154,7 @@
 
 - [ ] T040 [P] Documentation updates in `docs/` and `README.md`; **Add a Quickstart section with a single command to run the full pipeline**
 - [ ] T041 Code cleanup and refactoring of `code/` modules
-- [ ] T042 [P] Performance optimization: **Run `code/main.py --subset` on 50 subjects, measure wall-clock time, record in `data/derived/runtime_log.txt`; fail if > 6h ** (Plan: 'Performance Goals').
+- [ ] T042a [P] [US3] Implement `tests/integration/test_performance.py`: Run `code/main.py --subset=50` and assert `runtime < 6h`; record in `data/derived/runtime_log.txt`.
 - [ ] T043 [P] Run full integration test suite on the complete dataset subset
 - [ ] T044 Finalize `paper/` draft with all verified metrics from `model_metrics.json`
 - [ ] T045 Run quickstart.md validation

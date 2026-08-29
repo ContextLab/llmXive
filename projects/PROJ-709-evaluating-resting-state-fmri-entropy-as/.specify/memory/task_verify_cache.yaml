@@ -1,31 +1,23 @@
+T005b:
+  c: false
+  h: d2164a586829c3847ff89f30ef7cadfc1094802b5d59072b93a6905b7ac5e62c
+  r: The provided `code/data_loader.py` snippet does not contain any logic that filters
+    subjects with fewer than 100 time points nor writes exclusion entries to `data/raw/exclusions.log`.
+    Moreover, the required `data/raw/exclusions.log` file is absent from the repository.
+    Both the functional implementation and the log artifact are missing.
 T010:
   c: false
   h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e
   r: "The required artifact `tests/unit/test_preprocessing.py` does not exist, so\
     \ no unit test verifying that frames with FD\u202F>\u202F0.2\u202Fmm are removed\
     \ is present. The task\u2019s core deliverable is missing."
-T013:
+T012:
   c: false
-  h: 6699c0c8803b634ab0c24d89bfe3e3d6784883ba38eb15381b82bb512200b2d0
-  r: "The provided `code/preprocessing.py` contains a placeholder FD calculation and\
-    \ a \u201Csimulated\u201D scrubbing function that never writes to `data/raw/exclusions.log`.\
-    \ Moreover, the required `exclusions.log` file is absent from the repository.\
-    \ Consequently, the task\u2019s core requirements\u2014actual FD\u2011based volume\
-    \ removal and logging of excluded volumes\u2014are not fulfilled."
-T018a:
-  c: false
-  h: 755622efc9e58e788c4206ceebcbc502247ec8c744445639cac2eb7199c30d10
-  r: The repository contains a `code/main.py` script, but the required output file
-    `data/processed/subject_entropy_features.csv` does not exist. Without this CSV
-    the orchestration task is not fulfilled. The implementer must ensure the script
-    runs and actually creates the specified CSV file.
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, test, or documentation was provided that implements the required\
-    \ validation step (checking for NaN values in the final CSV and confirming entropy\
-    \ values lie within a biologically plausible range). Without such artifacts, the\
-    \ task\u2019s requirement is not satisfied."
+  h: 8db95ea53013ec21d8b82b985d4887edb6d1c835e5960825df0b8a6ca2c6ade4
+  r: The required artifact `tests/integration/test_us1_pipeline.py` does not exist
+    in the repository, so the integration test for the US1 pipeline on 2 subjects
+    is missing. The task cannot be considered completed until this test file is added
+    with appropriate test code.
 T023c:
   c: false
   h: 7591dcba3fdbc620bbea0ff2ae3f20060b4de16622e4c180d44b606e4a713141

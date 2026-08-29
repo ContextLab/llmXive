@@ -39,7 +39,7 @@ This project implements a computational pipeline to evaluate Sample Entropy (Sam
 
 **Resolved Concerns from Kickback**:
 1.  **PCA Dimensionality**: The plan explicitly corrects the previous error. PCA will reduce the 200x200 connectivity matrix to **200 components** (as per FR-008), not 50. This is implemented in Task T023, which was updated to match the spec.
-2.  **Entropy-Only Model Definition**: The plan strictly enforces that the "Entropy-only" model uses **only** the entropy features. The `scrub_fraction` (motion covariate) is **excluded** from the feature set for this specific model to maintain the clean separation required to prove entropy's unique value, as mandated by the spec.
+. **Entropy-Only Model Definition**: The plan strictly enforces that the "Entropy-only" model uses **only** the entropy features. The `scrub_fraction` (motion covariate) is **excluded** from the feature set for this specific model to maintain the clean separation required to prove entropy's unique value, as mandated by the spec.
 3.  **Feature Selection**: To address the N=100, p=200 underpowered ratio, a feature selection step (RFE or L1) is added before the final model training to reduce the feature space to a stable subset (e.g., top 20-50).
 
 ## Project Structure
