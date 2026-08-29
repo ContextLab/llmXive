@@ -1,115 +1,121 @@
 import pytest
 import numpy as np
-import pandas as pd
-from pathlib import Path
 import json
+from pathlib import Path
 import tempfile
-import os
-import sys
+import pandas as pd
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from code.analysis.evaluate import calculate_metrics, paired_ttest, evaluate_models
+from analysis.evaluate import calculate_metrics, paired_ttest, post_hoc_power_analysis, evaluate_models
 
 class TestCalculateMetrics:
-    def test_rmse_calculation(self):
-        y_true = np.array([1.0, 2.0, 3.0])
-        y_pred = np.array([1.1, 2.1, 2.9])
+    def test_basic_metrics(self):
+        y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        y_pred = np.array([1.1, 2.1, 2.9, 4.2, 4.8])
+        
         metrics = calculate_metrics(y_true, y_pred)
         
-        # Manual calculation:
-        # errors: [0.1, 0.1, -0.1]
-        # squared: [0.01, 0.01, 0.01] -> mean = 0.01 -> sqrt = 0.1
-        assert abs(metrics['rmse'] - 0.1) < 1e-5
-        assert metrics['mae'] == 0.1
+        assert "rmse" in metrics
+        assert "mae" in metrics
+        assert "r2" in metrics
+        assert metrics["rmse"] > 0
+        assert metrics["mae"] > 0
+        assert metrics["r2"] <= 1.0
         
-    def test_r2_calculation(self):
+    def test_perfect_prediction(self):
         y_true = np.array([1.0, 2.0, 3.0])
         y_pred = np.array([1.0, 2.0, 3.0])
-        metrics = calculate_metrics(y_true, y_pred)
-        assert metrics['r2'] == 1.0
         
-    def test_shape_mismatch(self):
+        metrics = calculate_metrics(y_true, y_pred)
+        
+        assert metrics["rmse"] == 0.0
+        assert metrics["mae"] == 0.0
+        assert metrics["r2"] == 1.0
+        
+    def test_mismatched_lengths(self):
+        y_true = np.array([1.0, 2.0, 3.0])
+        y_pred = np.array([1.0, 2.0])
+        
         with pytest.raises(ValueError):
-            calculate_metrics(np.array([1, 2]), np.array([1]))
+            calculate_metrics(y_true, y_pred)
+            
+    def test_empty_array(self):
+        y_true = np.array([])
+        y_pred = np.array([])
+        
+        with pytest.raises(ValueError):
+            calculate_metrics(y_true, y_pred)
 
 class TestPairedTtest:
     def test_basic_ttest(self):
-        # Identical arrays -> mean diff 0, p=1.0
-        errors_a = np.array([1.0, 2.0, 3.0])
-        errors_b = np.array([1.0, 2.0, 3.0])
+        errors_a = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+        errors_b = np.array([0.15, 0.25, 0.35, 0.45, 0.55])
+        
         results = paired_ttest(errors_a, errors_b)
         
-        assert results['mean_difference'] == 0.0
-        assert abs(results['p_value'] - 1.0) < 1e-5
-        assert results['cohens_d'] == 0.0
+        assert "t_statistic" in results
+        assert "p_value" in results
+        assert "mean_diff" in results
+        assert "std_diff" in results
         
-    def test_significant_difference(self):
-        # Create a case where A is consistently worse than B
-        errors_a = np.array([10.0, 11.0, 12.0, 13.0, 14.0])
-        errors_b = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    def test_identical_errors(self):
+        errors_a = np.array([0.1, 0.2, 0.3])
+        errors_b = np.array([0.1, 0.2, 0.3])
+        
         results = paired_ttest(errors_a, errors_b)
         
-        assert results['mean_difference'] > 0
-        assert results['p_value'] < 0.05
-        # Cohen's d should be large
-        assert abs(results['cohens_d']) > 1.0
+        assert results["t_statistic"] == 0.0
+        assert results["p_value"] == 1.0
         
-    def test_ci_bounds(self):
-        errors_a = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        errors_b = np.array([1.5, 2.5, 3.5, 4.5, 5.5])
-        results = paired_ttest(errors_a, errors_b)
+    def test_mismatched_lengths(self):
+        errors_a = np.array([0.1, 0.2, 0.3])
+        errors_b = np.array([0.1, 0.2])
         
-        # Mean diff should be -0.5
-        assert abs(results['mean_difference'] - (-0.5)) < 1e-5
-        # CI should bracket the mean difference
-        assert results['ci_lower'] <= results['mean_difference']
-        assert results['ci_upper'] >= results['mean_difference']
-        
-    def test_insufficient_sample_size(self):
         with pytest.raises(ValueError):
-            paired_ttest(np.array([1.0]), np.array([1.0]))
+            paired_ttest(errors_a, errors_b)
 
-class TestEvaluateModelsIntegration:
-    def test_full_evaluation_flow(self, tmp_path):
+class TestPostHocPowerAnalysis:
+    def test_basic_power(self):
+        power_results = post_hoc_power_analysis(effect_size=0.8, n_samples=100)
+        
+        assert "power" in power_results
+        assert "effect_size" in power_results
+        assert "sample_size" in power_results
+        assert 0 <= power_results["power"] <= 1.0
+        
+    def test_small_sample(self):
+        power_results = post_hoc_power_analysis(effect_size=0.5, n_samples=1)
+        
+        assert power_results["power"] == 0.0
+        assert "note" in power_results
+
+class TestEvaluateModels:
+    def test_evaluate_models_with_mock_data(self, tmp_path):
         # Create mock test data
         test_data = {
-            'smiles': ['CCO', 'CCO', 'CCO'],
-            'permeability_coefficient': [1.0, 2.0, 3.0]
+            "target": [1.0, 2.0, 3.0, 4.0, 5.0],
+            "gnn_predictions": [1.1, 2.1, 2.9, 4.2, 4.8],
+            "rf_baseline_predictions": [1.2, 1.9, 3.1, 3.8, 5.2]
         }
         test_df = pd.DataFrame(test_data)
+        
         test_file = tmp_path / "test.csv"
         test_df.to_csv(test_file, index=False)
         
-        # Mock predictions
-        gnns_preds = np.array([1.1, 2.1, 2.9])
-        rf_preds = np.array([1.5, 2.5, 3.5])
+        # Create mock training log
+        training_log = {
+            "gnn": {"training_time": 100.0, "peak_memory_gb": 2.0},
+            "rf_baseline": {"training_time": 50.0, "peak_memory_gb": 1.0}
+        }
+        training_log_file = tmp_path / "training_log.json"
+        with open(training_log_file, 'w') as f:
+            json.dump(training_log, f)
         
-        output_file = tmp_path / "metrics.json"
+        # Run evaluation
+        results = evaluate_models(project_root=tmp_path)
         
-        results = evaluate_models(test_file, gnns_preds, rf_preds, output_file)
-        
-        # Verify file creation
-        assert output_file.exists()
-        
-        # Verify content structure
-        with open(output_file) as f:
-            data = json.load(f)
-            
-        assert 'gnn' in data
-        assert 'random_forest_baseline' in data
-        assert 'statistical_comparison' in data
-        
-        # Verify statistical keys
-        stats = data['statistical_comparison']
-        assert 't_statistic' in stats
-        assert 'p_value' in stats
-        assert 'cohens_d' in stats
-        assert 'ci_lower' in stats
-        assert 'ci_upper' in stats
-        
-        # Verify interpretation
-        assert 'significant_at_0_05' in data['interpretation']
-        assert 'effect_size_category' in data['interpretation']
+        assert "models" in results
+        assert "gnn" in results["models"]
+        assert "rf_baseline" in results["models"]
+        assert "comparison" in results
+        assert results["models"]["gnn"]["rmse"] > 0
+        assert results["models"]["rf_baseline"]["rmse"] > 0

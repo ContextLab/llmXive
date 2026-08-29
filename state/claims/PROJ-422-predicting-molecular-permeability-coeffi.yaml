@@ -1,0 +1,17 @@
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/README.md
+  attempts: 1
+  canonical: Dataset fetching uses ChEMBL v30
+  claim_id: c_35d7b26d
+  context: 'code/data/download.py       # Dataset fetching (ChEMBL v30)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_fetching_uses_ChEMBL_v30
+  kind: entity_fact
+  raw_text: Dataset fetching uses ChEMBL v30.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T11:53:21Z'

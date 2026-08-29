@@ -3,15 +3,28 @@ Data splitting utilities for molecular permeability datasets.
 
 Implements stratified and random splitting strategies with strict validation
 for polymer type stratification as required by FR-003.
+Supports fallback to random split when stratification metadata is missing
+(common in Proxy Mode datasets), logging the deviation as a staged/feasibility mode.
 """
 
 import logging
+import yaml
 from typing import List, Tuple, Optional
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+def _load_config() -> dict:
+    """Load configuration from config.yaml in the project root."""
+    config_path = Path(__file__).resolve().parent.parent.parent / "config.yaml"
+    if not config_path.exists():
+        logger.warning(f"Config file not found at {config_path}. Using defaults.")
+        return {"staged_mode": False, "stratification_diff_threshold": 0.05}
+    
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
 def random_split(
     df: pd.DataFrame,
@@ -48,7 +61,7 @@ def stratified_split(
     stratify_col: str,
     test_size: float = 0.2,
     random_state: int = 42,
-    max_distribution_diff: float = 0.05
+    max_distribution_diff: Optional[float] = None
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Perform a stratified split ensuring distribution difference < threshold.
@@ -64,6 +77,7 @@ def stratified_split(
         random_state: Random seed for reproducibility.
         max_distribution_diff: Maximum allowed absolute percentage point difference
                              in class distribution between train and test sets.
+                             If None, loads from config.yaml.
 
     Returns:
         Tuple of (train_df, test_df).
@@ -73,6 +87,10 @@ def stratified_split(
                     difference exceeds the threshold after splitting.
         ValueError: If the stratification column has insufficient unique values.
     """
+    config = _load_config()
+    if max_distribution_diff is None:
+        max_distribution_diff = config.get("stratification_diff_threshold", 0.05)
+
     if stratify_col not in df.columns:
         logger.error(
             f"Stratification column '{stratify_col}' not found in dataframe. "
@@ -139,3 +157,127 @@ def stratified_split(
 
     logger.info(f"Stratified split successful: Train={len(train_df)}, Test={len(test_df)}")
     return train_df, test_df
+
+
+def execute_split(
+    df: pd.DataFrame,
+    output_dir: str,
+    test_size: float = 0.2,
+    random_state: int = 42,
+    stratify_column: str = "polymer_type"
+) -> Tuple[str, str]:
+    """
+    Main entry point for splitting data.
+    
+    Implements the logic for T017:
+    1. Check if 'polymer_type' (or configured stratify_column) exists.
+    2. If yes, perform stratified split.
+    3. If no, perform random split with a warning about Proxy Mode/Feasibility.
+    4. Save outputs to data/processed/train.csv and data/processed/test.csv.
+    
+    Args:
+        df: The preprocessed dataframe.
+        output_dir: Directory to save the split CSVs.
+        test_size: Proportion for test set.
+        random_state: Random seed.
+        stratify_column: The column to stratify by if available.
+        
+    Returns:
+        Tuple of (path_to_train_csv, path_to_test_csv).
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    train_path = output_path / "train.csv"
+    test_path = output_path / "test.csv"
+    
+    config = _load_config()
+    staged_mode = config.get("staged_mode", False)
+    
+    if stratify_column in df.columns:
+        logger.info(f"Found stratification column '{stratify_column}'. Performing stratified split.")
+        train_df, test_df = stratified_split(
+            df, 
+            stratify_col=stratify_column, 
+            test_size=test_size, 
+            random_state=random_state
+        )
+        strategy = "stratified"
+    else:
+        warning_msg = (
+            f"Stratification by '{stratify_column}' skipped; fallback to "
+            "staged/feasibility mode random split due to missing metadata."
+        )
+        logger.warning(warning_msg)
+        logger.warning("This indicates Proxy Mode or a dataset lacking polymer metadata.")
+        
+        train_df, test_df = random_split(
+            df, 
+            test_size=test_size, 
+            random_state=random_state
+        )
+        strategy = "random (fallback)"
+    
+    # Save to CSV
+    train_df.to_csv(train_path, index=False)
+    test_df.to_csv(test_path, index=False)
+    
+    logger.info(f"Split saved to: {train_path} and {test_path}")
+    logger.info(f"Strategy used: {strategy}")
+    logger.info(f"Train size: {len(train_df)}, Test size: {len(test_df)}")
+    
+    return str(train_path), str(test_path)
+
+def main():
+    """
+    CLI entry point for T017.
+    Expects a preprocessed CSV file path as argument.
+    """
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(description="Split molecular data for training/testing.")
+    parser.add_argument("--input", type=str, required=True, help="Path to preprocessed CSV (e.g., data/interim/preprocessed.csv)")
+    parser.add_argument("--output", type=str, default="data/processed", help="Output directory for train/test splits")
+    parser.add_argument("--test-size", type=float, default=0.2, help="Test set ratio")
+    parser.add_argument("--stratify-col", type=str, default="polymer_type", help="Column to stratify by")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    
+    args = parser.parse_args()
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    
+    if not Path(args.input).exists():
+        logger.error(f"Input file not found: {args.input}")
+        sys.exit(1)
+        
+    logger.info(f"Loading data from {args.input}...")
+    df = pd.read_csv(args.input)
+    
+    if df.empty:
+        logger.error("Input dataframe is empty.")
+        sys.exit(1)
+        
+    logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
+    
+    try:
+        train_path, test_path = execute_split(
+            df, 
+            output_dir=args.output, 
+            test_size=args.test_size, 
+            random_state=args.seed, 
+            stratify_column=args.stratify_col
+        )
+        logger.info(f"Successfully split data. Train: {train_path}, Test: {test_path}")
+    except SystemExit as e:
+        logger.error(f"Split process terminated: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.exception(f"Unexpected error during split: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

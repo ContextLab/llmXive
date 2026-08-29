@@ -1,3 +1,16 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `setup_dirs.sh` script was provided, nor any evidence (file listing, script\
+    \ contents, or execution output) showing that it creates the required directory\
+    \ tree and is executable. The task\u2019s core deliverable is therefore missing."
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No stratification report, processed dataset CSV, or any logged output was provided;
+    the implementer did not supply any artifact demonstrating that a dataset was ingested,
+    descriptors computed, and a stratified train/test split generated as required.
+    The task therefore remains unfinished.
 T022:
   c: false
   h: 386b5e24eb564273d052da0de7446f5b0b49c6e952f81f7676611b540c5d37cf
@@ -14,3 +27,33 @@ T024:
     \ RMSE/MAE/R\xB2 for the three required models. Moreover, the required `data/processed/test.csv`\
     \ file is absent. Both the artifact and its functionality are missing, so the\
     \ task is not satisfied."
+T025b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or report implementing a post\u2011hoc power analysis was provided,\
+    \ and the supplied project excerpt only describes data ingestion, model training,\
+    \ and interpretability\u2014not a power\u2011analysis component. Consequently\
+    \ the required artifact is missing and the task\u2019s core requirement is not\
+    \ met."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a generated comparative report, notebook, PDF, or data file)\
+    \ was provided that maps GNN\u2011identified substructures to the Random Forest\
+    \ descriptor importance. Without such a document or output, the requirement of\
+    \ FR\u2011009 is not satisfied. The implementer must produce the comparative report\
+    \ containing the mapping and any supporting visualizations or tables."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any files in `results/figures/` was provided; the claim lacks\
+    \ the required heatmap or bar\u2011chart visualizations of feature importance.\
+    \ The implementer must add the actual figure files (non\u2011empty images) in\
+    \ the specified directory."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md or results.md files were provided, and there is no evidence that\
+    \ they have been updated to cover US1 pipeline usage, US2 metrics interpretation,\
+    \ US3 feature maps, or the specific findings for SC\u2011001 through SC\u2011\
+    004. The required documentation artifacts are missing."

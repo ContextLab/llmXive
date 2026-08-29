@@ -4,42 +4,51 @@ from typing import List, Tuple, Optional, Dict, Any
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from scipy import stats
+import scipy.stats as stats
+from datetime import datetime
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Local imports based on API surface
+from utils.logging import log_result_artifact, log_error_summary
+from models.rf import predict as rf_predict, evaluate_model as rf_evaluate
+from models.gnn import create_mpnn_model, validate_epoch
+import torch
+import joblib
+import os
+
 logger = logging.getLogger(__name__)
 
 def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
     """
-    Calculate RMSE, MAE, and R² for regression predictions.
+    Calculate RMSE, MAE, and R² for given true and predicted values.
     
     Args:
-        y_true: Array of true values.
-        y_pred: Array of predicted values.
+        y_true: Array of true values
+        y_pred: Array of predicted values
         
     Returns:
-        Dictionary containing RMSE, MAE, and R².
+        Dictionary containing 'rmse', 'mae', 'r2'
     """
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
     if len(y_true) != len(y_pred):
-        raise ValueError("y_true and y_pred must have the same length")
+        raise ValueError(f"Length mismatch: y_true ({len(y_true)}) != y_pred ({len(y_pred)})")
     
-    residuals = y_true - y_pred
-    
-    rmse = np.sqrt(np.mean(residuals ** 2))
-    mae = np.mean(np.abs(residuals))
-    
-    ss_res = np.sum(residuals ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-    
-    if ss_tot == 0:
-        r2 = 0.0
-    else:
-        r2 = 1 - (ss_res / ss_tot)
+    if len(y_true) == 0:
+        raise ValueError("Input arrays are empty")
         
+    # RMSE
+    mse = np.mean((y_true - y_pred) ** 2)
+    rmse = np.sqrt(mse)
+    
+    # MAE
+    mae = np.mean(np.abs(y_true - y_pred))
+    
+    # R²
+    ss_res = np.sum((y_true - y_pred) ** 2)
+    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+    r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
+    
     return {
         "rmse": float(rmse),
         "mae": float(mae),
@@ -48,244 +57,332 @@ def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float
 
 def paired_ttest(errors_a: np.ndarray, errors_b: np.ndarray) -> Dict[str, float]:
     """
-    Perform a paired t-test on two sets of prediction errors.
-    Calculates p-value, t-statistic, Cohen's d, and 95% Confidence Interval.
+    Perform a paired t-test on two sets of errors (e.g., absolute errors).
     
     Args:
-        errors_a: Array of errors for model A (e.g., GNN).
-        errors_b: Array of errors for model B (e.g., RF).
+        errors_a: Array of errors from model A
+        errors_b: Array of errors from model B
         
     Returns:
-        Dictionary containing t-statistic, p-value, Cohen's d, and CI.
+        Dictionary containing 't_statistic', 'p_value', 'mean_diff', 'std_diff'
     """
+    errors_a = np.array(errors_a)
+    errors_b = np.array(errors_b)
+    
     if len(errors_a) != len(errors_b):
-        raise ValueError("Error arrays must have the same length for paired test")
+        raise ValueError(f"Length mismatch: errors_a ({len(errors_a)}) != errors_b ({len(errors_b)})")
+        
     if len(errors_a) < 2:
-        raise ValueError("Need at least 2 samples for paired t-test")
-    
-    # Differences
-    diff = errors_a - errors_b
-    n = len(diff)
-    mean_diff = np.mean(diff)
-    std_diff = np.std(diff, ddof=1)
-    
-    # T-test
+        raise ValueError("Need at least 2 samples for t-test")
+        
+    # Paired t-test
     t_stat, p_val = stats.ttest_rel(errors_a, errors_b)
     
-    # Cohen's d (effect size)
-    # d = mean_diff / std_diff
-    if std_diff == 0:
-        cohen_d = 0.0
-    else:
-        cohen_d = mean_diff / std_diff
-        
-    # 95% Confidence Interval for the mean difference
-    # CI = mean_diff ± t_crit * (std_diff / sqrt(n))
-    alpha = 0.05
-    t_crit = stats.t.ppf(1 - alpha/2, df=n-1)
-    margin_error = t_crit * (std_diff / np.sqrt(n))
-    ci_lower = mean_diff - margin_error
-    ci_upper = mean_diff + margin_error
+    mean_diff = np.mean(errors_a - errors_b)
+    std_diff = np.std(errors_a - errors_b, ddof=1)
     
     return {
         "t_statistic": float(t_stat),
         "p_value": float(p_val),
-        "cohen_d": float(cohen_d),
-        "ci_95_lower": float(ci_lower),
-        "ci_95_upper": float(ci_upper),
-        "n_samples": n
+        "mean_diff": float(mean_diff),
+        "std_diff": float(std_diff)
     }
 
-def post_hoc_power_analysis(effect_size: float, n_samples: int, alpha: float = 0.05, two_tailed: bool = True) -> Dict[str, float]:
+def post_hoc_power_analysis(effect_size: float, n_samples: int, alpha: float = 0.05) -> Dict[str, float]:
     """
-    Calculate post-hoc statistical power based on observed effect size and sample size.
-    Uses the t-test power calculation logic.
+    Calculate statistical power for a paired t-test given effect size and sample size.
     
     Args:
-        effect_size: Cohen's d observed.
-        n_samples: Number of paired samples.
-        alpha: Significance level (default 0.05).
-        two_tailed: Whether the test is two-tailed.
+        effect_size: Cohen's d
+        n_samples: Number of paired samples
+        alpha: Significance level
         
     Returns:
-        Dictionary containing the calculated power.
+        Dictionary containing 'power', 'effect_size', 'sample_size', 'alpha'
     """
     if n_samples < 2:
-        raise ValueError("Sample size must be at least 2 for power analysis")
-    
-    # Calculate non-centrality parameter (delta)
-    # For paired t-test, delta = d * sqrt(n)
-    delta = effect_size * np.sqrt(n_samples)
-    
-    # Degrees of freedom
+        return {
+            "power": 0.0,
+            "effect_size": effect_size,
+            "sample_size": n_samples,
+            "alpha": alpha,
+            "note": "Insufficient samples for power calculation"
+        }
+        
+    # Approximate power calculation for paired t-test
+    # Using non-central t-distribution approximation
     df = n_samples - 1
-    
     # Critical t-value
-    if two_tailed:
-        t_crit = stats.t.ppf(1 - alpha/2, df)
-    else:
-        t_crit = stats.t.ppf(1 - alpha, df)
+    t_crit = stats.t.ppf(1 - alpha/2, df)
     
-    # Calculate power: Probability that a non-central t variable exceeds the critical value
-    # Using survival function (1 - CDF) for the upper tail
-    # For two-tailed, we sum probabilities of both tails, but usually power is dominated by one direction
-    # For simplicity and standard reporting, we use the non-central t CDF logic:
-    # Power = P(T > t_crit | non-centrality=delta) + P(T < -t_crit | non-centrality=delta)
+    # Non-centrality parameter
+    ncp = effect_size * np.sqrt(n_samples)
     
-    # Since scipy.stats.nct.cdf is available:
-    # Power = 1 - CDF(t_crit) + CDF(-t_crit)
-    # Note: nct.cdf(x, df, nc)
+    # Power is the probability of rejecting the null hypothesis
+    # P(|T| > t_crit | H1) = P(T > t_crit) + P(T < -t_crit)
+    # For large n, we approximate with normal distribution for simplicity
+    # Power ≈ Φ(ncp - t_crit) + Φ(-ncp - t_crit)
+    # More accurate: use stats.nct.cdf but for simplicity we use normal approx
     
-    power_upper = 1 - stats.nct.cdf(t_crit, df, delta)
-    power_lower = stats.nct.cdf(-t_crit, df, delta)
+    z_crit = stats.norm.ppf(1 - alpha/2)
+    power = stats.norm.cdf(ncp - z_crit) + stats.norm.cdf(-ncp - z_crit)
     
-    total_power = power_upper + power_lower
-    
-    # Ensure power is within [0, 1]
-    total_power = max(0.0, min(1.0, total_power))
+    # Ensure power is between 0 and 1
+    power = max(0.0, min(1.0, power))
     
     return {
-        "power": float(total_power),
-        "alpha": float(alpha),
-        "n_samples": n_samples,
+        "power": float(power),
         "effect_size": float(effect_size),
-        "df": df
+        "sample_size": int(n_samples),
+        "alpha": float(alpha)
     }
 
-def evaluate_models(
-    metrics_path: Path,
-    gnn_errors: np.ndarray,
-    rf_errors: np.ndarray,
-    model_names: Optional[List[str]] = None
-) -> Dict[str, Any]:
+def load_model_predictions(test_path: Path, model_name: str) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Evaluate models, perform paired t-test, and calculate post-hoc power.
-    Saves results to metrics_path.
+    Load test data and model predictions for a specific model.
     
     Args:
-        metrics_path: Path to save the results JSON.
-        gnn_errors: Array of errors for GNN model.
-        rf_errors: Array of errors for Random Forest model.
-        model_names: Optional list of model names for logging.
+        test_path: Path to data/processed/test.csv
+        model_name: Name of the model ('gnn', 'rf_baseline', 'rf_ablation')
         
     Returns:
-        Dictionary containing all evaluation metrics and statistical tests.
+        Tuple of (y_true, y_pred)
     """
-    if model_names is None:
-        model_names = ["GNN", "Random Forest"]
+    if not test_path.exists():
+        raise FileNotFoundError(f"Test data file not found: {test_path}")
+        
+    df = pd.read_csv(test_path)
     
-    logger.info(f"Evaluating models: {model_names[0]} vs {model_names[1]}")
+    # Determine target column name
+    target_col = None
+    for col in ['target', 'y', 'permeability', 'logP', 'experimental_logP']:
+        if col in df.columns:
+            target_col = col
+            break
     
-    # 1. Basic Metrics (assuming we have predictions or just work with errors directly if provided)
-    # If only errors are provided, we can't calculate RMSE/MAE/R2 from scratch without true labels,
-    # but the task implies we have the errors (residuals). 
-    # However, the signature of calculate_metrics expects y_true and y_pred.
-    # To be robust, if only errors are passed, we calculate stats on the errors directly.
-    # But the prompt implies we have the full context. Let's assume we calculate metrics 
-    # from the errors if true/pred not available, or re-calculate if true/pred were available.
-    # Since the input here is specifically errors, we will report stats on the error distribution.
+    if target_col is None:
+        # Try to find any column that looks like a target
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        if len(numeric_cols) > 0:
+            # Assume the last numeric column is the target if not found
+            target_col = numeric_cols[-1]
+        else:
+            raise ValueError("Could not identify target column in test data")
     
-    # For the sake of the task, let's assume we might need to re-calculate if we had y_true/y_pred.
-    # But here we are given errors. Let's calculate the mean error and std of errors as a proxy for bias/variance
-    # or simply rely on the t-test results which are the core of this task.
-    # Actually, T024 already calculated RMSE/MAE/R2. T026 is specifically about Power Analysis.
-    # We will load the existing metrics if they exist, or just compute the statistical test here.
-    # The function signature suggests we are running the analysis now.
+    y_true = df[target_col].values.astype(np.float64)
     
-    # Perform Paired T-Test
-    t_test_results = paired_ttest(gnn_errors, rf_errors)
-    logger.info(f"T-Test P-value: {t_test_results['p_value']:.6f}")
-    logger.info(f"Cohen's d: {t_test_results['cohen_d']:.4f}")
+    # Load predictions
+    pred_col = f"{model_name}_predictions"
+    if pred_col not in df.columns:
+        # Try alternative naming
+        alt_pred_col = f"{model_name}_pred"
+        if alt_pred_col in df.columns:
+            pred_col = alt_pred_col
+        else:
+            raise KeyError(f"Predictions column '{pred_col}' not found in test data. Available columns: {df.columns.tolist()}")
     
-    # Perform Post-Hoc Power Analysis
-    power_results = post_hoc_power_analysis(
-        effect_size=t_test_results['cohen_d'],
-        n_samples=t_test_results['n_samples']
-    )
-    logger.info(f"Post-hoc Power: {power_results['power']:.4f}")
+    y_pred = df[pred_col].values.astype(np.float64)
     
-    results = {
-        "comparison": {
-            "model_a": model_names[0],
-            "model_b": model_names[1]
-        },
-        "paired_ttest": t_test_results,
-        "post_hoc_power_analysis": power_results,
-        "interpretation": {
-            "significant": t_test_results['p_value'] < 0.05,
-            "effect_size_category": "negligible" if abs(t_test_results['cohen_d']) < 0.2 else 
-                                    "small" if abs(t_test_results['cohen_d']) < 0.5 else 
-                                    "medium" if abs(t_test_results['cohen_d']) < 0.8 else "large",
-            "power_adequate": power_results['power'] >= 0.80
-        }
+    return y_true, y_pred
+
+def load_model_metadata(model_name: str, project_root: Path) -> Dict[str, Any]:
+    """
+    Load training metadata (time, memory) for a model.
+    
+    Args:
+        model_name: Name of the model
+        project_root: Root path of the project
+        
+    Returns:
+        Dictionary with training_time and peak_memory_gb
+    """
+    training_log_path = project_root / "results" / "training_log.json"
+    
+    default_meta = {
+        "training_time": 0.0,
+        "peak_memory_gb": 0.0
     }
     
-    # Ensure directory exists
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save to JSON
-    with open(metrics_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Results saved to {metrics_path}")
-    return results
-
-def main():
-    """
-    Main entry point for evaluation and power analysis.
-    Expects data to be available or passed via arguments.
-    For this task, we assume the errors are loaded from the processed test set
-    or generated by the training pipeline.
-    """
-    logger.info("Starting Evaluation and Power Analysis (T026)")
-    
-    # Paths
-    base_path = Path(__file__).parent.parent.parent
-    metrics_path = base_path / "results" / "metrics.json"
-    
-    # Load test data to get errors
-    # Assuming the pipeline produces data/processed/test.csv with columns:
-    # 'y_true', 'y_pred_gnn', 'y_pred_rf'
-    # If not, we might need to load from model outputs.
-    # Let's try to load from a standard location or raise error if missing.
-    
-    test_data_path = base_path / "data" / "processed" / "test.csv"
-    
-    if not test_data_path.exists():
-        logger.error(f"Test data not found at {test_data_path}. Cannot perform evaluation.")
-        logger.error("Ensure T024 (evaluate_models) and T022 (train) have run and produced test.csv with predictions.")
-        # In a real scenario, we might exit here.
-        # For this script, we will raise an error.
-        raise FileNotFoundError(f"Required test data file not found: {test_data_path}")
-    
+    if not training_log_path.exists():
+        logger.warning(f"Training log not found at {training_log_path}, using defaults")
+        return default_meta
+        
     try:
-        df = pd.read_csv(test_data_path)
-        required_cols = ['y_true', 'y_pred_gnn', 'y_pred_rf']
-        missing_cols = [c for c in required_cols if c not in df.columns]
-        if missing_cols:
-            raise ValueError(f"Missing required columns in test data: {missing_cols}")
+        with open(training_log_path, 'r') as f:
+            log_data = json.load(f)
         
-        y_true = df['y_true'].values
-        y_pred_gnn = df['y_pred_gnn'].values
-        y_pred_rf = df['y_pred_rf'].values
+        # Look for model-specific metadata
+        if isinstance(log_data, dict) and model_name in log_data:
+            model_meta = log_data[model_name]
+            return {
+                "training_time": float(model_meta.get("training_time", 0.0)),
+                "peak_memory_gb": float(model_meta.get("peak_memory_gb", 0.0))
+            }
+        elif isinstance(log_data, list):
+            for entry in log_data:
+                if entry.get("model_name") == model_name:
+                    return {
+                        "training_time": float(entry.get("training_time", 0.0)),
+                        "peak_memory_gb": float(entry.get("peak_memory_gb", 0.0))
+                    }
         
-        # Calculate errors
-        errors_gnn = y_true - y_pred_gnn
-        errors_rf = y_true - y_pred_rf
-        
-        # Run full evaluation including power analysis
-        results = evaluate_models(
-            metrics_path=metrics_path,
-            gnn_errors=errors_gnn,
-            rf_errors=errors_rf,
-            model_names=["GNN", "Random Forest"]
-        )
-        
-        print(json.dumps(results, indent=2))
+        logger.warning(f"Metadata for model '{model_name}' not found in training log")
+        return default_meta
         
     except Exception as e:
+        logger.error(f"Error reading training log: {e}")
+        return default_meta
+
+def evaluate_models(project_root: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Main evaluation function that calculates metrics for all models and generates artifacts.
+    
+    Args:
+        project_root: Project root directory. Defaults to parent of current file.
+        
+    Returns:
+        Dictionary containing all metrics and evaluation results
+    """
+    if project_root is None:
+        project_root = Path(__file__).resolve().parent.parent.parent
+        
+    test_path = project_root / "data" / "processed" / "test.csv"
+    metrics_output_path = project_root / "results" / "metrics.json"
+    predictions_errors_path = project_root / "results" / "predictions_errors.json"
+    
+    logger.info(f"Starting evaluation. Test data: {test_path}")
+    
+    if not test_path.exists():
+        raise FileNotFoundError(f"Test data file not found: {test_path}. Please ensure T017 has completed successfully.")
+    
+    # Models to evaluate (excluding ablation as per task description)
+    models_to_evaluate = ["gnn", "rf_baseline"]
+    
+    all_metrics = {}
+    all_predictions_errors = {}
+    comparison_results = {}
+    
+    # Evaluate each model
+    for model_name in models_to_evaluate:
+        logger.info(f"Evaluating model: {model_name}")
+        try:
+            y_true, y_pred = load_model_predictions(test_path, model_name)
+            metrics = calculate_metrics(y_true, y_pred)
+            
+            # Add training metadata
+            meta = load_model_metadata(model_name, project_root)
+            metrics["training_time"] = meta["training_time"]
+            metrics["peak_memory_gb"] = meta["peak_memory_gb"]
+            metrics["sample_size"] = len(y_true)
+            
+            all_metrics[model_name] = metrics
+            all_predictions_errors[model_name] = {
+                "y_true": y_true.tolist(),
+                "y_pred": y_pred.tolist(),
+                "errors": (y_true - y_pred).tolist(),
+                "abs_errors": np.abs(y_true - y_pred).tolist()
+            }
+            
+            logger.info(f"  RMSE: {metrics['rmse']:.4f}, MAE: {metrics['mae']:.4f}, R²: {metrics['r2']:.4f}")
+            
+        except Exception as e:
+            logger.error(f"Error evaluating {model_name}: {e}")
+            log_error_summary(e)
+            all_metrics[model_name] = {"error": str(e)}
+    
+    # Perform paired t-test if both models succeeded
+    if "gnn" in all_metrics and "rf_baseline" in all_metrics:
+        if "error" not in all_metrics["gnn"] and "error" not in all_metrics["rf_baseline"]:
+            try:
+                y_true_gnn, y_pred_gnn = load_model_predictions(test_path, "gnn")
+                y_true_rf, y_pred_rf = load_model_predictions(test_path, "rf_baseline")
+                
+                # Calculate absolute errors
+                abs_errors_gnn = np.abs(y_true_gnn - y_pred_gnn)
+                abs_errors_rf = np.abs(y_true_rf - y_pred_rf)
+                
+                t_test_results = paired_ttest(abs_errors_gnn, abs_errors_rf)
+                
+                # Calculate Cohen's d
+                mean_diff = np.mean(abs_errors_gnn - abs_errors_rf)
+                std_diff = np.std(abs_errors_gnn - abs_errors_rf, ddof=1)
+                cohens_d = mean_diff / std_diff if std_diff != 0 else 0.0
+                
+                # Calculate confidence interval for mean difference
+                n = len(abs_errors_gnn)
+                se = std_diff / np.sqrt(n)
+                t_crit = stats.t.ppf(0.975, n - 1)
+                ci_lower = mean_diff - t_crit * se
+                ci_upper = mean_diff + t_crit * se
+                
+                comparison_results = {
+                    "t_test": t_test_results,
+                    "cohens_d": float(cohens_d),
+                    "confidence_interval": {
+                        "lower": float(ci_lower),
+                        "upper": float(ci_upper),
+                        "level": 0.95
+                    },
+                    "sample_size": n
+                }
+                
+                # Add to metrics
+                all_metrics["comparison"] = comparison_results
+                
+                # Perform power analysis
+                power_results = post_hoc_power_analysis(cohens_d, n)
+                all_metrics["power_analysis"] = power_results
+                
+                logger.info(f"  T-test p-value: {t_test_results['p_value']:.6f}, Cohen's d: {cohens_d:.4f}")
+                
+            except Exception as e:
+                logger.error(f"Error in statistical comparison: {e}")
+                log_error_summary(e)
+    
+    # Compile final results
+    final_results = {
+        "evaluation_timestamp": datetime.now().isoformat(),
+        "test_file": str(test_path),
+        "models": all_metrics,
+        "comparison": comparison_results if comparison_results else None
+    }
+    
+    # Save metrics.json
+    try:
+        with open(metrics_output_path, 'w') as f:
+            json.dump(final_results, f, indent=2)
+        logger.info(f"Metrics saved to {metrics_output_path}")
+        log_result_artifact(str(metrics_output_path), "metrics.json")
+    except Exception as e:
+        logger.error(f"Failed to save metrics.json: {e}")
+    
+    # Save predictions_errors.json
+    try:
+        with open(predictions_errors_path, 'w') as f:
+            json.dump(all_predictions_errors, f, indent=2)
+        logger.info(f"Predictions and errors saved to {predictions_errors_path}")
+        log_result_artifact(str(predictions_errors_path), "predictions_errors.json")
+    except Exception as e:
+        logger.error(f"Failed to save predictions_errors.json: {e}")
+    
+    return final_results
+
+def main():
+    """Entry point for running evaluation from command line."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    try:
+        results = evaluate_models()
+        logger.info("Evaluation completed successfully")
+        return 0
+    except Exception as e:
         logger.error(f"Evaluation failed: {e}")
-        raise
+        log_error_summary(e)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

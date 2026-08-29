@@ -1,118 +1,73 @@
-"""
-Script to verify linting and formatting tools are installed and configured.
-"""
 import subprocess
 import sys
 import os
 from pathlib import Path
 
 def check_tool(tool_name: str) -> bool:
-    """Check if a tool is installed and returns version info."""
+    """Check if a tool is installed and executable."""
     try:
-        if tool_name == "black":
-            result = subprocess.run(
-                [sys.executable, "-m", "black", "--version"],
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            print(f"✓ Black: {result.stdout.strip()}")
-            return True
-        elif tool_name == "ruff":
-            result = subprocess.run(
-                [sys.executable, "-m", "ruff", "--version"],
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            print(f"✓ Ruff: {result.stdout.strip()}")
-            return True
-        else:
-            print(f"⚠ Unknown tool: {tool_name}")
-            return False
+        subprocess.run([tool_name, "--version"], check=True, capture_output=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
+def run_check_format() -> int:
+    """Run black --check on the project."""
+    print("Running Black format check...")
+    try:
+        result = subprocess.run(
+            ["black", "--check", "."],
+            cwd=Path(__file__).parent.parent,
+            check=True,
+            capture_output=False
+        )
+        return result.returncode
     except subprocess.CalledProcessError as e:
-        print(f"✗ {tool_name} not found or failed: {e}")
-        return False
-    except FileNotFoundError:
-        print(f"✗ {tool_name} not found in PATH")
-        return False
+        print(f"Black check failed. Run 'black .' to fix formatting.")
+        return e.returncode
 
-def run_check_format(project_root: Path) -> bool:
-    """Run black check on the project."""
-    code_dir = project_root / "code"
-    if not code_dir.exists():
-        print("⚠ Code directory not found, skipping format check.")
-        return True
-
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "black", "--check", "--diff", str(code_dir)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if result.returncode == 0:
-            print("✓ Code formatting check passed (black).")
-            return True
-        else:
-            print("✗ Code formatting check failed (black).")
-            print(result.stdout)
-            print(result.stderr)
-            return False
-    except Exception as e:
-        print(f"✗ Error running black check: {e}")
-        return False
-
-def run_check_lint(project_root: Path) -> bool:
+def run_check_lint() -> int:
     """Run ruff check on the project."""
-    code_dir = project_root / "code"
-    if not code_dir.exists():
-        print("⚠ Code directory not found, skipping lint check.")
-        return True
-
+    print("Running Ruff lint check...")
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", str(code_dir)],
-            capture_output=True,
-            text=True,
-            check=False,
+            ["ruff", "check", "."],
+            cwd=Path(__file__).parent.parent,
+            check=True,
+            capture_output=False
         )
-        if result.returncode == 0:
-            print("✓ Linting check passed (ruff).")
-            return True
-        else:
-            print("✗ Linting check failed (ruff).")
-            print(result.stdout)
-            print(result.stderr)
-            return False
-    except Exception as e:
-        print(f"✗ Error running ruff check: {e}")
-        return False
+        return result.returncode
+    except subprocess.CalledProcessError as e:
+        print(f"Ruff check failed. Run 'ruff check --fix' to fix issues.")
+        return e.returncode
 
-def main():
-    project_root = Path(__file__).resolve().parent.parent.parent
-    print(f"Project root: {project_root}")
+def main() -> None:
+    """Main entry point for setup_linting."""
+    project_root = Path(__file__).parent.parent
+    pyproject_path = project_root / "pyproject.toml"
 
-    print("\n--- Checking Tool Installation ---")
-    tools_ok = True
-    for tool in ["black", "ruff"]:
-        if not check_tool(tool):
-            tools_ok = False
-
-    if not tools_ok:
-        print("\n⚠ Some tools are missing. Install them via:")
-        print("  pip install -r requirements-dev.txt")
+    if not pyproject_path.exists():
+        print("Error: pyproject.toml not found. Please run the configuration generator first.")
         sys.exit(1)
 
-    print("\n--- Running Checks ---")
-    format_ok = run_check_format(project_root)
-    lint_ok = run_check_lint(project_root)
+    if not check_tool("black"):
+        print("Error: Black is not installed. Please install it via pip.")
+        sys.exit(1)
 
-    if format_ok and lint_ok:
-        print("\n✓ All linting and formatting checks passed.")
+    if not check_tool("ruff"):
+        print("Error: Ruff is not installed. Please install it via pip.")
+        sys.exit(1)
+
+    print("All tools installed. Running checks...")
+    
+    format_exit = run_check_format()
+    lint_exit = run_check_lint()
+
+    if format_exit == 0 and lint_exit == 0:
+        print("All checks passed successfully.")
         sys.exit(0)
     else:
-        print("\n✗ Some checks failed. Please fix the issues.")
+        print("One or more checks failed.")
         sys.exit(1)
 
 if __name__ == "__main__":

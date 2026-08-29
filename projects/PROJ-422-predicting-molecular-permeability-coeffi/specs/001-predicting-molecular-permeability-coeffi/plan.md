@@ -12,7 +12,7 @@ This project implements a comparative analysis of Graph Neural Networks (GNNs) v
 **Primary Dependencies**: `rdkit`, `torch`, `torch-geometric`, `scikit-learn`, `shap`, `gnnexplainer`, `pandas`, `datasets` (Hugging Face), `statsmodels`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`), CSV/Parquet formats  
 **Testing**: `pytest` (unit tests for parsing, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, 7GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier: multiple vCPUs, 7GB RAM, no GPU)  
 **Project Type**: Computational research pipeline / CLI  
 **Performance Goals**: Full pipeline execution ≤ 6 hours; Peak memory ≤ 7 GB.  
 **Constraints**: No local GPU; must handle invalid SMILES gracefully; must stream data if >7GB.  

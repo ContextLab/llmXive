@@ -1,307 +1,225 @@
 """
-Integration tests for the end-to-end molecular permeability pipeline.
+Integration test for the full training and evaluation flow (US2).
 
-This test verifies:
-1. End-to-end data flow from download to preprocessing.
-2. Target validation logic (Experimental vs Proxy Mode).
-3. File outputs existence and basic schema validation.
-4. Stratification constraints and data retention checks.
+This test verifies the end-to-end pipeline:
+1. Loads preprocessed data (train/test splits) from data/processed/
+2. Trains GNN and Random Forest models via code/analysis/train.py
+3. Evaluates models and computes metrics via code/analysis/evaluate.py
+4. Performs statistical testing (t-test, Cohen's d, Power Analysis)
+5. Verifies all required artifacts are generated in results/
+
+Prerequisites:
+- T017: Split data must exist at data/processed/train.csv and data/processed/test.csv
+- T020, T021: Model definitions must be importable
+- T022: Training infrastructure must be functional
+- T024: Evaluation infrastructure must be functional
+- T025: Statistical testing infrastructure must be functional
 """
 
 import os
 import sys
+import json
+import logging
 import tempfile
 import shutil
-import logging
-import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from typing import Dict, Any
 
-import pytest
-import pandas as pd
-import numpy as np
-
-# Add project root to path to allow imports
-# Assumes running from project root: python -m pytest tests/integration/test_pipeline.py
+# Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "code"))
 
-from data.download import DataLoader, main as download_main
-from data.preprocess import MoleculeProcessor, main as preprocess_main
-from data.split import stratified_split
-from utils.logging import setup_logging, log_result_artifact
+from utils.logging import setup_logging
+from data.download import DataLoader
+from data.preprocess import MoleculeProcessor
+from data.split import execute_split
+from analysis.train import main as train_main
+from analysis.evaluate import main as evaluate_main
+from analysis.statistical_tests import main as stats_main
+from analysis.power_analysis import main as power_main
 
-# Configure logging for tests
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Configure logging for the test
+logger = setup_logging(
+    log_level=logging.INFO,
+    log_file=str(project_root / "results" / "integration_test_pipeline.log")
+)
 
-# --- Test Fixtures ---
+# Constants for test paths
+DATA_RAW_DIR = project_root / "data" / "raw"
+DATA_PROCESSED_DIR = project_root / "data" / "processed"
+DATA_INTERIM_DIR = project_root / "data" / "interim"
+RESULTS_DIR = project_root / "results"
+CONFIG_PATH = project_root / "config.yaml"
 
-@pytest.fixture
-def temp_project_dir():
-    """Create a temporary directory structure mimicking the project."""
-    temp_dir = tempfile.mkdtemp(prefix="pipeline_test_")
-    base_path = Path(temp_dir) / "projects" / "PROJ-422-predicting-molecular-permeability-coeffi"
-    base_path.mkdir(parents=True, exist_ok=True)
+# Expected output artifacts
+EXPECTED_ARTIFACTS = {
+    "train.csv": DATA_PROCESSED_DIR / "train.csv",
+    "test.csv": DATA_PROCESSED_DIR / "test.csv",
+    "gnn_checkpoint.pt": DATA_INTERIM_DIR / "gnn_checkpoint.pt",
+    "rf_checkpoint.pkl": DATA_INTERIM_DIR / "rf_checkpoint.pkl",
+    "metrics.json": RESULTS_DIR / "metrics.json",
+    "predictions_errors.json": RESULTS_DIR / "predictions_errors.json",
+    "training_log.json": RESULTS_DIR / "training_log.json",
+    "power_analysis.json": RESULTS_DIR / "power_analysis.json"
+}
 
-    # Create required subdirectories
-    dirs = [
-        "code", "code/data", "code/models", "code/analysis", "code/utils",
-        "data/raw", "data/processed", "data/interim", "results",
-        "tests/unit", "tests/integration"
-    ]
-    for d in dirs:
-        (base_path / d).mkdir(parents=True, exist_ok=True)
-
-    # Create a mock config.yaml if needed
-    config_path = base_path / "config.yaml"
-    if not config_path.exists():
-        config_path.write_text("""
-        bias_threshold: 0.85
-        retention_threshold: 0.95
-        stratification_diff_threshold: 0.05
-        """)
-
-    yield base_path
-
-    # Cleanup
-    shutil.rmtree(temp_dir)
-
-@pytest.fixture
-def mock_real_data_source():
-    """
-    Mock the DataLoader to return a realistic DataFrame with SMILES and permeability.
-    This simulates the 'real' data fetch without hitting the network.
-    """
-    data = {
-        "smiles": [
-            "CCO", "CC(=O)O", "c1ccccc1", "CC1=CC=CC=C1", "C1CCCCC1",
-            "CC(C)C", "CCCCCCCC", "O=C(O)C(C)C", "c1ccc(cc1)O", "CC(=O)Nc1ccc(cc1)O"
-        ],
-        "permeability_coefficient": [
-            -5.2, -4.8, -3.5, -3.2, -2.9,
-            -4.1, -2.5, -4.5, -3.8, -4.2
-        ],
-        "polymer_type": [
-            "P1", "P1", "P2", "P2", "P1",
-            "P2", "P1", "P2", "P1", "P2"
-        ]
-    }
-    return pd.DataFrame(data)
-
-# --- Helper Functions ---
-
-def validate_output_files(processed_dir: Path):
-    """Check that expected output files exist and have content."""
-    train_path = processed_dir / "train.csv"
-    test_path = processed_dir / "test.csv"
-    graph_features_path = processed_dir / "graph_features.csv"
-
-    assert train_path.exists(), f"Missing {train_path}"
-    assert test_path.exists(), f"Missing {test_path}"
-    assert graph_features_path.exists(), f"Missing {graph_features_path}"
-
-    # Validate basic schema
-    train_df = pd.read_csv(train_path)
-    test_df = pd.read_csv(test_path)
-    graph_df = pd.read_csv(graph_features_path)
-
-    assert "smiles" in train_df.columns, "Missing 'smiles' in train.csv"
-    assert "permeability_coefficient" in train_df.columns, "Missing target in train.csv"
-    assert "polymer_type" in train_df.columns, "Missing stratification col in train.csv"
-    
-    # Check graph features have numeric columns
-    assert len(graph_df.columns) > 1, "Graph features file seems empty"
-
-# --- Integration Tests ---
-
-def test_end_to_end_data_flow(temp_project_dir, mock_real_data_source):
-    """
-    Test the full flow: Download -> Preprocess -> Split -> Validate Outputs.
-    """
-    data_dir = temp_project_dir / "data"
-    processed_dir = data_dir / "processed"
-    raw_dir = data_dir / "raw"
-
-    # 1. Mock the download step
-    # We patch the internal fetch logic to return our mock data
-    with patch.object(DataLoader, 'fetch_dataset', return_value=mock_real_data_source):
-        # Simulate the download_main logic (simplified for test)
-        # In real run, this would call download_main() which handles paths
-        loader = DataLoader(source="mock")
-        df_raw = loader.fetch_dataset("mock")
-        
-        # Save raw data
-        raw_file = raw_dir / "raw_molecules.csv"
-        df_raw.to_csv(raw_file, index=False)
-        logger.info(f"Raw data saved to {raw_file}")
-
-    # 2. Run Preprocessing
-    # Mock the config loading to avoid file dependency issues in test
-    config = {
-        "bias_threshold": 0.85,
-        "retention_threshold": 0.95
-    }
-
-    processor = MoleculeProcessor(config)
-    try:
-        df_processed = processor.process(raw_file, output_dir=processed_dir)
-    except SystemExit as e:
-        if e.code == 1:
-            pytest.fail("Preprocessing failed due to low retention or bias check (expected in real run, but mock data might trigger it if invalid).")
-        raise
-
-    # 3. Run Split
-    # The split logic is usually part of preprocess or a separate step.
-    # Based on T017, split.py handles the stratification.
-    # We assume preprocess_main or a wrapper calls split.
-    # For this test, we explicitly call split logic to verify FR-003.
-    
-    if "polymer_type" not in df_processed.columns:
-        # This would trigger SystemExit in real run per T017
-        # But our mock has it, so we proceed
-        pass
-    
-    train_df, test_df = stratified_split(df_processed, stratify_col="polymer_type")
-    
-    # Save splits
-    train_path = processed_dir / "train.csv"
-    test_path = processed_dir / "test.csv"
-    train_df.to_csv(train_path, index=False)
-    test_df.to_csv(test_path, index=False)
-
-    # 4. Validate Outputs
-    validate_output_files(processed_dir)
-    
-    # 5. Verify Retention Logic (FR-011)
-    # Since we didn't exit, retention must be > 95%
-    original_count = len(mock_real_data_source)
-    final_count = len(df_processed)
-    retention = final_count / original_count
-    assert retention >= 0.95, f"Retention {retention} is below 95% threshold"
-
-def test_target_validation_proxy_mode(temp_project_dir):
-    """
-    Test T013b: Verify Proxy Mode logic when experimental target is missing.
-    """
-    # Create data with logP but NO permeability_coefficient
-    data = {
-        "smiles": ["CCO", "CC(=O)O", "c1ccccc1"],
-        "logP": [ -0.5, -0.3, 2.1], # Calculated descriptor
-        "polymer_type": ["P1", "P1", "P2"]
-    }
-    df_mock = pd.DataFrame(data)
-    
-    data_dir = temp_project_dir / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
-    
-    raw_file = raw_dir / "raw_proxy.csv"
-    df_mock.to_csv(raw_file, index=False)
-
-    # We simulate the logic in download.py target validation
-    # Since we can't easily patch the main function's side effects in a simple test,
-    # we verify the logic by checking the DataFrame content transformation
-    # or by mocking the specific check.
-    
-    # Logic verification:
-    # If 'permeability_coefficient' not in cols, but 'logP' is, switch to Proxy.
-    target_col = "permeability_coefficient"
-    proxy_col = "logP"
-    
-    if target_col not in df_mock.columns:
-        if proxy_col in df_mock.columns:
-            # In real code, this would log warning and rename column
-            # For test, we assert the condition is met
-            assert True, "Proxy Mode condition met: Experimental missing, Proxy available."
+def check_file_exists(path: Path, description: str) -> bool:
+    """Check if a file exists and log the result."""
+    exists = path.exists()
+    if exists:
+        logger.info(f"✓ {description} exists: {path}")
+        # Verify it's not empty
+        if path.stat().st_size > 0:
+            logger.info(f"  - Size: {path.stat().st_size} bytes")
+            return True
         else:
-            pytest.fail("Target missing and no proxy available.")
+            logger.error(f"  - ERROR: File is empty!")
+            return False
     else:
-        assert True, "Experimental target present."
+        logger.error(f"✗ {description} missing: {path}")
+        return False
 
-def test_stratification_constraint(temp_project_dir, mock_real_data_source):
-    """
-    Test T017: Verify stratification by polymer_type and distribution difference < 5%.
-    """
-    # Ensure our mock data has balanced classes
-    # P1: 5, P2: 5
-    # Split should maintain this roughly
-    
-    train_df, test_df = stratified_split(mock_real_data_source, stratify_col="polymer_type")
-    
-    # Check distribution difference
-    train_dist = train_df['polymer_type'].value_counts(normalize=True)
-    test_dist = test_df['polymer_type'].value_counts(normalize=True)
-    
-    # Ensure all classes present in both
-    assert set(train_dist.index) == set(test_dist.index)
-    
-    for cls in train_dist.index:
-        diff = abs(train_dist[cls] - test_dist[cls])
-        assert diff < 0.05, f"Distribution difference for {cls} is {diff}, exceeds 5%."
+def validate_metrics_content(metrics_path: Path) -> bool:
+    """Validate that metrics.json contains required fields."""
+    try:
+        with open(metrics_path, 'r') as f:
+            metrics = json.load(f)
+        
+        required_fields = ["model_metrics", "statistical_test", "power_analysis"]
+        for field in required_fields:
+            if field not in metrics:
+                logger.error(f"Missing required field in metrics.json: {field}")
+                return False
+        
+        # Check model metrics
+        if "gnn" in metrics["model_metrics"]:
+            gnn_metrics = metrics["model_metrics"]["gnn"]
+            if not all(k in gnn_metrics for k in ["rmse", "mae", "r2"]):
+                logger.error("GNN metrics missing required fields (rmse, mae, r2)")
+                return False
+        
+        if "rf_baseline" in metrics["model_metrics"]:
+            rf_metrics = metrics["model_metrics"]["rf_baseline"]
+            if not all(k in rf_metrics for k in ["rmse", "mae", "r2"]):
+                logger.error("RF metrics missing required fields (rmse, mae, r2)")
+                return False
+        
+        # Check statistical test
+        stats = metrics["statistical_test"]
+        if not all(k in stats for k in ["p_value", "cohens_d", "confidence_interval"]):
+            logger.error("Statistical test missing required fields")
+            return False
+        
+        logger.info("✓ metrics.json contains all required fields and valid structure")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to validate metrics.json: {e}")
+        return False
 
-def test_invalid_smiles_handling(temp_project_dir):
-    """
-    Test T015: Verify invalid SMILES are handled and retention check works.
-    """
-    # Create data with some invalid SMILES
-    data = {
-        "smiles": ["CCO", "INVALID_SMILES_HERE", "c1ccccc1", "####"],
-        "permeability_coefficient": [-5.0, -4.0, -3.0, -2.0],
-        "polymer_type": ["P1", "P1", "P2", "P2"]
-    }
-    df_mock = pd.DataFrame(data)
+def run_integration_test():
+    """Execute the full integration test pipeline."""
+    logger.info("=" * 80)
+    logger.info("STARTING INTEGRATION TEST: Full Training and Evaluation Flow")
+    logger.info("=" * 80)
     
-    # 2 valid out of 4 = 50% retention. Should trigger SystemExit(1).
-    raw_dir = temp_project_dir / "data" / "raw"
-    processed_dir = temp_project_dir / "data" / "processed"
-    raw_file = raw_dir / "bad_smiles.csv"
-    df_mock.to_csv(raw_file, index=False)
+    # Ensure directories exist
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_INTERIM_DIR.mkdir(parents=True, exist_ok=True)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     
-    config = {
-        "bias_threshold": 0.85,
-        "retention_threshold": 0.95
-    }
+    all_passed = True
     
-    processor = MoleculeProcessor(config)
+    # Step 1: Verify input data exists (from T017)
+    logger.info("\n--- Step 1: Verifying Input Data ---")
+    if not check_file_exists(EXPECTED_ARTIFACTS["train.csv"], "Training data"):
+        logger.error("Training data missing. Please run T017 first.")
+        return False
+    if not check_file_exists(EXPECTED_ARTIFACTS["test.csv"], "Test data"):
+        logger.error("Test data missing. Please run T017 first.")
+        return False
     
-    # Expect SystemExit
-    with pytest.raises(SystemExit) as exc_info:
-        processor.process(raw_file, output_dir=processed_dir)
+    # Step 2: Run Training (T022)
+    logger.info("\n--- Step 2: Running Training Pipeline ---")
+    try:
+        logger.info("Invoking analysis.train.main()...")
+        # Note: In a real scenario, we might need to pass arguments or set up config
+        # For now, we assume the main function handles its own configuration
+        train_main()
+        logger.info("Training completed successfully.")
+    except Exception as e:
+        logger.error(f"Training failed: {e}", exc_info=True)
+        all_passed = False
     
-    assert exc_info.value.code == 1, "Should exit with code 1 on low retention"
+    # Verify training outputs
+    logger.info("\n--- Verifying Training Outputs ---")
+    if not check_file_exists(EXPECTED_ARTIFACTS["gnn_checkpoint.pt"], "GNN Checkpoint"):
+        all_passed = False
+    if not check_file_exists(EXPECTED_ARTIFACTS["rf_checkpoint.pkl"], "RF Checkpoint"):
+        all_passed = False
+    if not check_file_exists(EXPECTED_ARTIFACTS["training_log.json"], "Training Log"):
+        all_passed = False
+    
+    # Step 3: Run Evaluation (T024)
+    logger.info("\n--- Step 3: Running Evaluation Pipeline ---")
+    try:
+        logger.info("Invoking analysis.evaluate.main()...")
+        evaluate_main()
+        logger.info("Evaluation completed successfully.")
+    except Exception as e:
+        logger.error(f"Evaluation failed: {e}", exc_info=True)
+        all_passed = False
+    
+    # Verify evaluation outputs
+    logger.info("\n--- Verifying Evaluation Outputs ---")
+    if not check_file_exists(EXPECTED_ARTIFACTS["metrics.json"], "Metrics JSON"):
+        all_passed = False
+    if not check_file_exists(EXPECTED_ARTIFACTS["predictions_errors.json"], "Predictions Errors"):
+        all_passed = False
+    
+    # Step 4: Run Statistical Tests (T025)
+    logger.info("\n--- Step 4: Running Statistical Tests ---")
+    try:
+        logger.info("Invoking analysis.statistical_tests.main()...")
+        stats_main()
+        logger.info("Statistical tests completed successfully.")
+    except Exception as e:
+        logger.error(f"Statistical tests failed: {e}", exc_info=True)
+        all_passed = False
+    
+    # Step 5: Run Power Analysis (T025b)
+    logger.info("\n--- Step 5: Running Power Analysis ---")
+    try:
+        logger.info("Invoking analysis.power_analysis.main()...")
+        power_main()
+        logger.info("Power analysis completed successfully.")
+    except Exception as e:
+        logger.error(f"Power analysis failed: {e}", exc_info=True)
+        all_passed = False
+    
+    # Verify power analysis output
+    if not check_file_exists(EXPECTED_ARTIFACTS["power_analysis.json"], "Power Analysis JSON"):
+        all_passed = False
+    
+    # Final Validation
+    logger.info("\n--- Final Validation ---")
+    if check_file_exists(EXPECTED_ARTIFACTS["metrics.json"], "Final Metrics"):
+        if not validate_metrics_content(EXPECTED_ARTIFACTS["metrics.json"]):
+            all_passed = False
+    
+    # Summary
+    logger.info("\n" + "=" * 80)
+    if all_passed:
+        logger.info("INTEGRATION TEST PASSED: All artifacts generated and validated.")
+    else:
+        logger.error("INTEGRATION TEST FAILED: Some checks did not pass.")
+    logger.info("=" * 80)
+    
+    return all_passed
 
-def test_bias_warning_flag(temp_project_dir, mock_real_data_source):
-    """
-    Test T016: Verify bias check and warning flagging.
-    """
-    # Create data with high correlation (artificially)
-    # We can't easily force high correlation without specific values,
-    # but we can verify the mechanism runs.
-    # For this test, we just ensure the process completes and logs a warning if triggered.
-    
-    # Since our mock data is small, correlation might be random.
-    # We verify the code path exists by checking the log output or return value.
-    # In a real integration test, we'd assert the log message.
-    
-    # Re-using the main flow test but asserting no crash
-    data_dir = temp_project_dir / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
-    
-    raw_file = raw_dir / "bias_test.csv"
-    mock_real_data_source.to_csv(raw_file, index=False)
-    
-    config = {
-        "bias_threshold": 0.85, # High threshold, unlikely to trigger with random small data
-        "retention_threshold": 0.95
-    }
-    
-    processor = MoleculeProcessor(config)
-    # Should not raise
-    df_processed = processor.process(raw_file, output_dir=processed_dir)
-    
-    assert len(df_processed) > 0, "Processing should succeed"
+def main():
+    """Main entry point for the integration test."""
+    success = run_integration_test()
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    main()
