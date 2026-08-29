@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  summary:
+    type: object
+    properties:
+      total_tasks:
+        type: integer
+      total_runs:
+        type: integer
+      linearity_metric_type:
+        type: string
+        enum: ["geometric", "functional"]
+        description: "Metric used for linearity validation"
+      linearity_validated:
+        type: boolean
+        description: "True if linearity metric passed threshold"
+      reconstruction_error:
+        type: number
+        description: "Max cosine distance for known composites (if geometric)"
+  comparisons:
+    type: array
+    items:
+      type: object
+      properties:
+        method:
+          type: string
+        baseline:
+          type: string
+        raw_p_value:
+          type: number
+        bh_corrected_p_value:
+          type: number
+        significant:
+          type: boolean
+        effect_size:
+          type: number
+      required:
+        - method
+        - baseline
+        - raw_p_value
+        - bh_corrected_p_value
+        - significant
+  sensitivity_analysis:
+    type: object
+    properties:
+      top_k_values:
+        type: array
+        items:
+          type: integer
+      robustness_score:
+        type: number
+        description: "Variance of performance across k values"
+required:
+  - summary
+  - comparisons
+  - sensitivity_analysis

@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the skill task"
+  task_description:
+    type: string
+    description: "Natural language description of the task"
+  vector_path:
+    type: string
+    description: "Relative path to the flattened vector in skill_index.npy"
+  normalization_method:
+    type: string
+    enum: ["L2"]
+    description: "Normalization applied to the vector"
+  original_weights_hash:
+    type: string
+    description: "SHA256 hash of the original A/B weight files"
+required:
+  - task_id
+  - task_description
+  - vector_path
+  - normalization_method
+  - original_weights_hash

@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  task_id:
+    type: string
+  method:
+    type: string
+    enum: ["nearest_neighbor", "arithmetic_mean", "cosine_weighted", "baseline", "zero_shot"]
+  run_id:
+    type: integer
+    description: "Sequence number of the run for this task/method pair"
+  success:
+    type: integer
+    enum: [0, 1]
+    description: "Binary outcome from environment logic"
+  latency_ms:
+    type: number
+    description: "Time taken for skill selection (ms)"
+  timestamp:
+    type: string
+    format: date-time
+required:
+  - task_id
+  - method
+  - run_id
+  - success
+  - latency_ms

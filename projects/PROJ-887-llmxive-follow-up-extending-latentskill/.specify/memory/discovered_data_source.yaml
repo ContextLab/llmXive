@@ -1,13 +1,15 @@
 status: none
-intent: latent-skill LoRA adapters for ALFWorld and Search-QA huggingface python package
-  dataset
+intent: latent skill LoRA adapters ALFWorld SearchQA huggingface python package dataset
 required_fields:
-- adapter_name
+- skill_id
 - task_description
-- A_matrix
-- B_matrix
+- adapter_A_weights
+- adapter_B_weights
+- flattened_vector
+- vector_norm
+- source_benchmark
+- original_file_path
 - vector_dimension
-- metadata
-cache_key: d9347f070321a18942773daa09242f001c666f593b5aaa5999894b88944e7dde
-searched_at: '2026-08-19T07:53:01.293892+00:00'
+cache_key: 1747d8f92b2bd8965cadda7a5259b3147d520a9fc12607b461e0c29453b7f4e6
+searched_at: '2026-08-29T05:09:12.292292+00:00'
 retry_count: 1

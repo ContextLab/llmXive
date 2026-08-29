@@ -2,102 +2,82 @@
 
 ## Research Question
 
-Can the latent space of LoRA adapters be approximated via simple vector retrieval and linear interpolation to replace a learned hypernetwork, thereby enabling CPU-only deployment on edge devices while maintaining task success rates within a 10% degradation threshold?
+Can the latent space of LoRA adapters be approximated via simple vector retrieval and arithmetic interpolation on a CPU, effectively replacing the computationally expensive hypernetwork while maintaining performance within an acceptable degradation threshold?
 
 ## Dataset Strategy
 
-The project relies on LoRA adapters and task descriptions from the original "LatentSkill" study, specifically the ALFWorld and Search-QA benchmarks.
+**Primary Data Source**: The project requires the pre-trained LoRA (A and B) matrices and task descriptions from the original "LatentSkill" study.
 
-**Data Availability Protocol**:
-1.  **Primary Source**: Attempt to load LoRA weights from the canonical source identified in the original paper (arXiv:2606.06087) or a verified HuggingFace dataset.
-2.  **Fallback (Proxy Generation)**: If the specific LoRA weights are unavailable (404 or no verified URL in the `# Verified datasets` block), the system will generate a **Proxy Dataset**. This involves fine-tuning a small, CPU-tractable base model (e.g., Llama-2-3B or Phi-2) on a subset of the ALFWorld/Search-QA benchmark data to produce the necessary A/B matrices. This ensures the vector space can be constructed even if the original weights are missing.
-3.  **Verification**: The `src/validate/citation_check.py` script will verify all URLs against the `# Verified datasets` block before download.
+> **CRITICAL NOTE**: The following dataset references are **placeholders**. The implementation MUST only proceed if the "Verified datasets" block provided at runtime contains a valid, reachable URL for the LoRA weights. If no verified source exists, the project must state "No open source data available for LatentSkill LoRA weights" and **halt**.
 
-| Dataset Name | Description | Verified Source / Loader | Status |
+| Dataset Name | Description | Verified URL / Loader | Status |
 | :--- | :--- | :--- | :--- |
-| **LatentSkill LoRA Weights (ALFWorld)** | Pre-trained LoRA A/B matrices for ALFWorld tasks. | `https://huggingface.co/datasets/llmXive/latentskill-alfworld` (If verified) | **Verified** (Conditional on URL existence) |
-| **LatentSkill LoRA Weights (Search-QA)** | Pre-trained LoRA A/B matrices for Search-QA tasks. | `https://huggingface.co/datasets/llmXive/latentskill-searchqa` (If verified) | **Verified** (Conditional on URL existence) |
-| **Proxy Base Model** | Small model for generating proxy weights if primary data is missing. | `microsoft/Phi-2` or `meta-llama/Llama-2-3b-hf` | **Verified** (Standard HuggingFace) |
-| **Base Model (Inference)** | Quantized base model for evaluation. | `llama-2-7b-chat.Q4_K_M.gguf` (via `llama-cpp-python`) | **Verified** (Standard GGUF) |
-| **Sentence Transformer** | Frozen encoder for text embeddings. | `sentence-transformers/all-MiniLM-L6-v2` (HuggingFace Hub) | **Verified** (Standard model) |
+| **LatentSkill LoRA Weights** | Pre-trained A and B matrices for ALFWorld and Search-QA benchmarks. | `See Verified Datasets Block` | **Pending Verification** |
+| **Sentence-Transformers** | Frozen model for text embeddings (`all-MiniLM-L6-v2`). | `sentence-transformers/all-MiniLM-L6-v2` (HuggingFace) | **Available** |
+| **Composite Task Descriptions** | Text descriptions of novel tasks (generated or held-out). | Generated via spec-defined combination logic using ALFWorld/Search-QA environments. | **Available** |
+| **Composite Validation Subset (CVS)** | A [deferred] split of the original dataset with ground-truth weights for known composite tasks (used for FR-007/SC-005). | Subset of the primary dataset (if available). | **Conditional** |
 
-**Note**: If the "Verified datasets" block in the user message does not contain a URL for the specific LoRA weights, the plan **MUST** trigger the Proxy Generation protocol. Do not invent URLs.
+**Data Acquisition Plan**:
+1.  **Download**: Use `datasets.load_dataset()` or `huggingface_hub` to fetch the LoRA weights if a verified HF dataset ID exists. If a direct URL is provided, use `wget`/`requests` with checksum validation.
+2.  **Validation**: Verify file integrity (SHA256) against the manifest.
+3.  **Processing**: Flatten A and B matrices into a single vector per task. Normalize to unit length.
+4.  **Streaming**: If the dataset exceeds a substantial size threshold, stream the weights in chunks to compute aggregate statistics without loading the full index into RAM.
 
-## Methodology & Experimental Design
+**Dataset Feasibility Check**:
+- **Variable Fit**: The study requires *task descriptions* and *weight matrices*. The dataset must contain both. If the dataset only contains weights without descriptions, the retrieval mechanism (FR-002) cannot function.
+- **Access**: If the dataset requires a token (e.g., gated HF repo), the CI runner cannot access it. The plan must fail gracefully or switch to a public proxy dataset if available (none currently verified).
+- **Fallback**: If the primary dataset is unavailable, the project **halts**. No open substitute exists for the specific A/B matrices required.
 
-### Phase 0: Ground Truth & Proxy Generation (Critical for SC-005)
-*   **Objective**: Establish "True Weights" for SC-005 validation.
-*   **Constraint**: Full fine-tuning of a large-scale model on a 2-core CPU is infeasible (exceeds 6h limit).
-*   **Protocol**:
-    1.  **Synthetic Composites**: For tasks that are known linear combinations of existing skills (e.g., Task C = Task A + Task B), the "True Weight" is defined as the **Theoretical Linear Combination** ($W_{true} = W_A + W_B$). This avoids new fine-tuning.
-    2.  **Novel Composites**: For truly novel tasks, SC-005 (Reconstruction Error) is **not applicable** as ground truth cannot be generated within constraints. The plan will report this as a limitation: "SC-005 validation restricted to synthetic composites."
-    3.  **Proxy Data**: If original weights are missing, fine-tune the Proxy Base Model (3B) on a subset of benchmark data to generate the initial Skill Vector Database.
+## Methodology & Statistical Rigor
 
-### Phase 1: Skill Vector Database Construction (FR-001)
-1.  **Ingestion**: Download LoRA A and B matrices (or generate via Proxy).
-2.  **Flattening**: Concatenate flattened A and B matrices into a single high-dimensional vector per task.
-    *   *Math*: $v = \text{flatten}(A) \oplus \text{flatten}(B)$.
-3.  **Normalization**: Apply L2 normalization to every vector.
-4.  **Indexing**: Store vectors in a NumPy `.npy` array and metadata in JSON.
-    *   *Constraint*: Use `np.memmap` if the index exceeds 4 GB to prevent OOM.
+### 1. Vector Construction (FR-001)
+- **Method**: Load LoRA A (down-projection) and B (up-projection) matrices. Concatenate and flatten.
+- **Normalization**: L2 normalization to ensure cosine similarity is valid.
+- **Dimensionality**: $D = \sum (r \times d_{in} + d_{out} \times r)$ per adapter.
 
-### Phase 2: Retrieval & Interpolation (FR-002, FR-003)
-1.  **Query Generation**: Encode novel composite task descriptions using `all-MiniLM-L6-v2` (frozen, CPU).
-2.  **Similarity Search**: Compute cosine similarity between query vector and all vectors in the database.
-3.  **Strategies**:
-    *   **NN**: Select top-1 vector.
-    *   **Arithmetic Mean**: Average top-$k$ vectors (unweighted).
-    *   **Cosine-Weighted Mean**: Weighted average where $w_i = \text{sim}(q, v_i) / \sum \text{sim}(q, v_j)$.
-4.  **Synthesis**: Reconstruct LoRA A/B matrices from the synthesized vector.
+### 2. Retrieval Strategies (FR-003)
+- **Query Generation**: Use `all-MiniLM-L6-v2` (frozen, CPU) to embed task descriptions.
+- **Strategy A (Nearest Neighbor)**: Retrieve the single vector with max cosine similarity.
+- **Strategy B (Arithmetic Mean)**: Average top-$k$ vectors (unweighted).
+- **Strategy C (Cosine-Weighted)**: Weighted average where $w_i \propto \cos(query, v_i)$.
+- **Baseline**: **Primary**: Original LatentSkill hypernetwork inference. **Fallback**: If unavailable, a standard fine-tuned adapter per task is used as a proxy, with the report explicitly noting this limitation.
 
-### Phase 3: Validation & Statistical Testing (FR-004, FR-005, FR-006, FR-007, FR-008)
-1.  **Environment Execution**: Apply synthesized LoRA to the base model. Run $N \ge 5$ times per task.
-    *   **Baseline Re-sampling**: The Baseline (standard fine-tuned model) **MUST** be re-run $N$ times per task to enable paired comparison. It is not a fixed constant.
-2.  **Metric**: Binary success (1) or failure (0) based on environment logic.
-3.  **Linearity Check (FR-007)**:
-    *   **Pairs**: Use pairs of tasks with known semantic similarity (from original taxonomy).
-    *   **Metric**: **Spearman's Rank Correlation** (not Pearson) to capture monotonic but non-linear relationships between text-space and weight-space distances.
-    *   **Threshold**: Correlation $\ge 0.6$.
-4.  **Statistical Analysis**:
-    *   **Test**: **Permutation Test** (10,000 permutations) on the difference in mean success rates.
-    *   **Rationale**: With $N=5$ binary outcomes, the distribution is discrete and non-normal. A t-test or Wilcoxon test is invalid. The Permutation Test is robust for small $N$ and binary data.
-    *   **Correction**: Apply **Benjamini-Hochberg (BH)** correction to all p-values (FR-006).
-5.  **Latency Benchmark (SC-003)**: Measure wall-clock time for selection (excluding LLM generation).
+### 3. Evaluation & Validation (FR-004, FR-007, SC-005)
 
-## Compute Feasibility Analysis
+#### 3.1 Primary Validity Check: Local Linearity (SC-005)
+- **Method**: For the **Composite Validation Subset (CVS)** (a [deferred] split of the dataset with ground-truth weights), calculate the cosine distance between the synthesized weights (via retrieval/interpolation) and the **ground-truth weights**.
+- **Threshold**: If the error rate exceeds **0.05**, the latent space is deemed non-linear for this purpose.
+- **Fallback**: If the CVS does not exist (no ground-truth weights for composites), SC-005 is redefined to measure **Functional Linearity**: the success rate improvement of the retrieval strategy over a zero-shot baseline.
 
-*   **Hardware**: 2 CPU cores, 7 GB RAM.
-*   **Memory Budget Breakdown**:
-    *   **Base Model (7B 4-bit GGUF)**: ~4.5 GB (using `llama-cpp-python` with `n_ctx=2048`).
-    *   **Vector Index**: ~2.0 GB (500 tasks * 1M dims * 4 bytes).
-    *   **Sentence Transformer**: ~0.1 GB.
-    *   **Environment (ALFWorld/Search-QA)**: ~0.5 GB (estimated).
-    *   **OS/Python Overhead**: ~0.5 GB.
-    *   **Total**: ~7.6 GB. **RISK**: Exceeds 7 GB.
-*   **Mitigation Strategy**:
-    1.  **Primary**: Use `llama-cpp-python` with strict memory limits (`n_ctx=2048`).
-    2.  **Fallback**: If OOM occurs, switch the Base Model to a **3B variant** (e.g., Llama-2-3B or Phi-2). The medium-scale model leaves sufficient headroom for the vector index and environment.
-    3.  **Note**: The experiment prioritizes **validity** over model size. If the 7B model cannot run, the 3B model is used, and this limitation is documented.
-*   **Runtime**:
-    *   Vector construction: < 10 mins.
-    *   Retrieval: < 1 sec per query.
- * Evaluation: Multiple runs across a substantial set of tasks (LLM gen) [deferred].
-    *   Total: Well within 6-hour limit.
+#### 3.2 Secondary Validity Check: Global Text-Weight Alignment (FR-007)
+- **Method**: Calculate Pearson correlation between text-space cosine distances and weight-space cosine distances for the **held-out set of known task pairs** (from the CVS).
+- **Constraint**: The weight-space distance must be calculated against **ground-truth weights**, not synthesized weights, to avoid circularity.
+- **Interpretation**: A high correlation supports the hypothesis, but the primary validity check remains the local linearity test (3.1).
 
-## Risks & Mitigations
+#### 3.3 Success Metric & Control (FR-004, FR-008)
+- **Success Metric**: Binary outcome (0/1) from environment logic (ALFWorld/Search-QA).
+- **Zero-Shot Control**: Run tasks with **no adapter** to establish a baseline success rate ($S_{zero-shot}$).
+- **Adapter Gain**: Calculate $Gain = S_{adapter} - S_{zero-shot}$ to isolate the adapter's contribution from the base model's stochasticity and capability ceiling.
+- **Stability**: Run each task $N$ times. Start with $N=5$. Iterate until the 95% confidence interval width of the success rate is < 0.1 or $N=20$ is reached.
 
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Dataset URL 404** | High (Blocks research) | Trigger **Proxy Dataset Generation** (fine-tune 3B model on subset) to create necessary LoRA weights. |
-| **OOM on Base Model** | High (Blocks eval) | **Primary**: `llama-cpp-python` with `n_ctx=2048`. **Fallback**: Switch to 3B base model. |
-| **Sparse Latent Space** | Medium (Invalidates hypothesis) | If Spearman correlation (FR-007) fails ($r < 0.6$), conclude the hypernetwork is necessary. |
-| **Statistical Power** | Medium (Inconclusive results) | Use **Permutation Test** to handle N=5 binary data. Report effect sizes and power limitations. |
-| **Ground Truth for Novel Tasks** | High (Invalidates SC-005) | Restrict SC-005 validation to **Synthetic Composites** where ground truth is the sum of components. Report "Not Validated" for novel tasks. |
+### 4. Statistical Testing (FR-005, FR-006)
+- **Tests**: **Primary**: McNemar's test for paired binary data (comparing success rates of strategies vs. baseline). **Secondary**: Paired t-test or Wilcoxon signed-rank (if normality of proportions holds, requiring large N).
+- **Multiple Comparisons**: Apply **Benjamini-Hochberg (BH)** procedure to control False Discovery Rate (FDR) across the **combined set of 12 tests** (3 strategies x 4 k-values: k=1, 3, 5, 10) for each primary comparison.
+- **Power Analysis**: Target power = 0.8, minimum detectable effect size (Cohen's h) = 0.2. This requires a minimum of **N=30** composite tasks. If N < 30, the study is powered only to detect large effects (h >= 0.5), and negative results will be qualified by this limitation.
+
+### 5. Compute Feasibility (CPU-First)
+- **Memory**: Flattened vectors for ~500 adapters (assuming $r=8$, $d=4096$) will be ~10-20 MB, well within RAM limits.
+- **Latency**: `all-MiniLM-L6-v2` runs in <100ms on CPU. Vector search (scikit-learn `NearestNeighbors`) is negligible for this scale.
+- **GPU Escape Hatch**: Not required for this specific pipeline (retrieval + evaluation on small scale). If the base LLM evaluation exceeds RAM, the plan will use a smaller quantized model or a sampled subset of tasks.
 
 ## Decision Rationale
 
-*   **Sentence Transformer**: `all-MiniLM-L6-v2` selected for its small footprint (<100MB) and proven performance on short text, suitable for CPU.
-*   **Quantization**: `llama-cpp-python` (GGUF) preferred over `bitsandbytes` for CPU inference due to better memory management and lack of CUDA dependency.
-*   **Statistical Test**: **Permutation Test** mandated due to small sample size (N=5) and binary data distribution.
-*   **Correlation Metric**: **Spearman's Rank** selected to capture monotonic non-linear relationships in text-weight alignment.
-*   **Ground Truth**: Restricted to synthetic composites to avoid infeasible fine-tuning on the 2-core CPU runner.
+| Decision | Rationale |
+| :--- | :--- |
+| **CPU-Only Execution** | The spec targets edge/serverless deployment. Running on CPU validates the primary hypothesis. GPU is not needed for vector math on this scale. |
+| **No Synthetic Ground Truth** | Generating "true weights" for novel tasks is scientifically impossible without re-training. The plan relies on *environment success* as the ground truth, avoiding fabrication. |
+| **Benjamini-Hochberg Correction** | Required by FR-006 to prevent false positives when testing multiple strategies and sensitivity parameters. Applied to the full set of 12 tests. |
+| **Frozen Sentence-Transformer** | `all-MiniLM-L6-v2` is small, CPU-efficient, and standard for semantic retrieval, ensuring reproducibility. |
+| **McNemar's Test** | Preferred over t-test for paired binary data to address independence and distribution assumptions. |
+| **Functional Linearity Fallback** | If ground-truth weights for composites are absent, the plan uses success rate as the primary linearity metric, proposing a constitutional amendment to accept this. |
+
