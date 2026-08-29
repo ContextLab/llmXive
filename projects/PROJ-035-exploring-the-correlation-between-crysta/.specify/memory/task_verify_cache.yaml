@@ -1,3 +1,30 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or any of the required folders (src/, tests/, data/raw/, data/cleaned/,\
+    \ data/results/, figures/, contracts/) were presented. Without concrete evidence\
+    \ of these directories existing, the task\u2019s requirement is not satisfied."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code or configuration files were provided showing a `--seed` argument or `random_state=42`
+    being set in the modules listed (src/ingest/, src/cleaning/, src/descriptors/,
+    src/analysis/, src/utils/). Without any artifact demonstrating deterministic seed
+    handling, the requirement is not satisfied.
+T009:
+  c: false
+  h: 3b8e9d0c0492c7bf205bea2dcf40fb75772675dd2553e01efb90ac157fd29d90
+  r: "The required artifact `src/utils/validation.py` does not exist in the repository,\
+    \ so the requested VIF exclusion logic and causal\u2011language scanner functions\
+    \ cannot be present. The implementer must add the file and implement the specified\
+    \ functionality."
+T011:
+  c: false
+  h: a89d0e69ef8be4e0986bdd59d49f0faf1308665fa349e26f5bd260808d8ebc5b
+  r: The provided `tests/contract/test_schema.py` is truncated and ends abruptly,
+    and the required `contracts/merged_perovskite.schema.yaml` file does not exist,
+    so the contract test cannot actually validate the schema. Both the test implementation
+    and the schema artifact are missing/incomplete.
 T021:
   c: false
   h: 3b8e9d0c0492c7bf205bea2dcf40fb75772675dd2553e01efb90ac157fd29d90

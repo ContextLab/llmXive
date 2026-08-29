@@ -1,208 +1,173 @@
 """
-Provenance Validator for Perovskite Thermal Conductivity Data.
+Provenance validator for thermal conductivity data.
 
-This module verifies that each entry in the merged dataset has a valid
-peer-reviewed or NIST source reference, as required by FR-010.
+This module validates that each entry in the thermal conductivity dataset
+has a valid peer-reviewed or NIST source reference (DOI, PMID, or NIST ID).
+
+Usage:
+    python src/cleaning/provenance_validator.py --input data/raw/thermal_raw.csv --output data/cleaned/provenance_report.json
 """
-
 import sys
 import logging
 import json
+import re
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 import pandas as pd
+import numpy as np
 
-# Import from sibling modules as per API surface
-from utils.validation import setup_logger, handle_error
+# Import seed management
+from src.utils.seed_manager import init_seed, add_seed_argument, get_seed, is_seed_initialized
+from src.utils.validation import setup_logger, handle_error
 
-# Constants for valid source types
-VALID_SOURCE_TYPES = {'peer-reviewed', 'nist', 'journal', 'refereed'}
-REQUIRED_COLUMNS = ['source_reference', 'structure_id', 'thermal_conductivity']
+# Regex patterns for validation
+DOI_PATTERN = re.compile(r'10\.\d{4}/.*/.')
+PMID_PATTERN = re.compile(r'10\.\d{4}/\d+')
+NIST_PATTERN = re.compile(r'NIST-[A-Z0-9]+')
 
-def is_valid_source_reference(reference: Optional[str]) -> bool:
+
+def is_valid_source_reference(reference: str) -> bool:
     """
-    Check if a source reference string indicates a peer-reviewed or NIST source.
-
+    Check if a source reference is valid (DOI, PMID, or NIST ID).
+    
     Args:
-        reference: The source reference string to validate.
-
+        reference: The source reference string.
+    
     Returns:
         True if the reference is valid, False otherwise.
     """
-    if reference is None or pd.isna(reference):
+    if pd.isna(reference) or not isinstance(reference, str):
         return False
-
-    ref_lower = str(reference).lower().strip()
-
-    # Check for NIST references
-    if 'nist' in ref_lower:
+    
+    reference = reference.strip()
+    if not reference:
+        return False
+    
+    # Check for DOI
+    if DOI_PATTERN.search(reference):
         return True
-
-    # Check for journal/article indicators
-    journal_indicators = [
-        'doi:', 'journal', 'pubmed', 'sciencedirect', 'springer', 
-        'elsevier', 'wiley', 'acs', 'royal society', 'nature', 
-        'science', 'physical review', 'journal of', 'applied physics',
-        'advanced materials', 'chemistry of materials'
-    ]
-
-    for indicator in journal_indicators:
-        if indicator in ref_lower:
-            return True
-
-    # Check for DOI format (simplified check)
-    if 'doi.org' in ref_lower or '10.' in ref_lower:
+    
+    # Check for PMID
+    if PMID_PATTERN.search(reference):
         return True
-
+    
+    # Check for NIST ID
+    if NIST_PATTERN.search(reference):
+        return True
+    
     return False
 
-def validate_provenance(df: pd.DataFrame, logger: Optional[logging.Logger] = None) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    Validate the provenance of all entries in the dataframe.
 
+def validate_provenance(df: pd.DataFrame, source_column: str = "source_reference") -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Validate provenance for all entries in the dataframe.
+    
     Args:
-        df: The merged dataframe with source_reference column.
-        logger: Optional logger instance.
-
+        df: Input dataframe.
+        source_column: Name of the column containing source references.
+    
     Returns:
-        Tuple of (validated dataframe, validation report dictionary)
+        Tuple of (filtered dataframe with valid provenance, validation report).
     """
-    if logger is None:
-        logger = setup_logger('provenance_validator', logging.INFO)
-
-    if not all(col in df.columns for col in REQUIRED_COLUMNS):
-        missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-        error_msg = f"Missing required columns: {missing}"
-        handle_error(error_msg, level='critical')
-        raise ValueError(error_msg)
-
-    # Validate each row's source reference
-    validation_results = []
-    valid_count = 0
-    invalid_count = 0
-
-    for idx, row in df.iterrows():
-        is_valid = is_valid_source_reference(row['source_reference'])
-        validation_results.append({
-            'index': idx,
-            'structure_id': row['structure_id'],
-            'source_reference': row['source_reference'],
-            'is_valid': is_valid,
-            'thermal_conductivity': row['thermal_conductivity']
-        })
-
-        if is_valid:
-            valid_count += 1
-        else:
-            invalid_count += 1
-            logger.warning(f"Invalid source reference at index {idx}: {row['source_reference']}")
-
-    # Create validation report
+    logger = setup_logger(__name__)
+    
+    if source_column not in df.columns:
+        raise ValueError(f"Column '{source_column}' not found in dataframe")
+    
+    valid_mask = df[source_column].apply(is_valid_source_reference)
+    
+    valid_count = valid_mask.sum()
+    invalid_count = len(df) - valid_count
+    
     report = {
-        'total_entries': len(df),
-        'valid_entries': valid_count,
-        'invalid_entries': invalid_count,
-        'validity_rate': valid_count / len(df) if len(df) > 0 else 0.0,
-        'validation_timestamp': pd.Timestamp.now().isoformat(),
-        'validation_details': validation_results
+        "total_entries": len(df),
+        "valid_entries": int(valid_count),
+        "invalid_entries": int(invalid_count),
+        "validity_rate": float(valid_count / len(df)) if len(df) > 0 else 0.0
     }
+    
+    logger.info(f"Validation complete: {valid_count}/{len(df)} entries have valid provenance")
+    
+    return df[valid_mask].copy(), report
 
-    # Filter to only valid entries
-    valid_df = df[df.apply(lambda row: is_valid_source_reference(row['source_reference']), axis=1)].copy()
 
-    logger.info(f"Provenance validation complete: {valid_count}/{len(df)} entries valid ({report['validity_rate']:.2%})")
-
-    return valid_df, report
-
-def filter_valid_provenance(df: pd.DataFrame, logger: Optional[logging.Logger] = None) -> pd.DataFrame:
+def filter_valid_provenance(df: pd.DataFrame, source_column: str = "source_reference") -> pd.DataFrame:
     """
-    Filter the dataframe to keep only entries with valid provenance.
-
+    Filter dataframe to keep only entries with valid provenance.
+    
     Args:
-        df: The merged dataframe.
-        logger: Optional logger instance.
-
+        df: Input dataframe.
+        source_column: Name of the column containing source references.
+    
     Returns:
-        Filtered dataframe with only valid provenance entries.
+        Filtered dataframe.
     """
-    if logger is None:
-        logger = setup_logger('provenance_validator', logging.INFO)
-
-    valid_df, _ = validate_provenance(df, logger)
-
-    if len(valid_df) < 50:
-        error_msg = f"Insufficient samples after provenance filtering: {len(valid_df)} < 50"
-        handle_error(error_msg, level='critical')
-        raise ValueError(error_msg)
-
+    valid_df, _ = validate_provenance(df, source_column)
     return valid_df
+
 
 def save_validation_report(report: Dict[str, Any], output_path: Path) -> None:
     """
     Save the validation report to a JSON file.
-
+    
     Args:
         report: The validation report dictionary.
-        output_path: Path to save the JSON report.
+        output_path: Path to save the report.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
 
-    # Create a summary version for the file (exclude full details if too large)
-    summary_report = {
-        'total_entries': report['total_entries'],
-        'valid_entries': report['valid_entries'],
-        'invalid_entries': report['invalid_entries'],
-        'validity_rate': report['validity_rate'],
-        'validation_timestamp': report['validation_timestamp'],
-        'validation_details_count': len(report['validation_details']),
-        'sample_invalid_entries': [
-            detail for detail in report['validation_details'] 
-            if not detail['is_valid']
-        ][:10]  # Include first 10 invalid entries as sample
-    }
 
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(summary_report, f, indent=2, default=str)
-
-    logging.info(f"Validation report saved to {output_path}")
-
-def main() -> None:
-    """
-    Main entry point for the provenance validator script.
+def main():
+    """Main entry point for the script."""
+    parser = argparse.ArgumentParser(description="Validate provenance of thermal conductivity data")
+    parser.add_argument("--input", type=str, required=True, help="Input CSV file path")
+    parser.add_argument("--output", type=str, default="data/cleaned/provenance_report.json", help="Output report file path")
+    parser.add_argument("--source-column", type=str, default="source_reference", help="Column name for source references")
+    parser = add_seed_argument(parser)
     
-    Reads the cleaned merged data, validates provenance, filters valid entries,
-    and saves the validation report.
-    """
-    logger = setup_logger('provenance_validator', logging.INFO)
-    logger.info("Starting provenance validation...")
+    args = parser.parse_args()
+    
+    # Initialize seed
+    init_seed(args.seed)
+    
+    try:
+        input_path = Path(args.input)
+        output_path = Path(args.output)
+        
+        if not input_path.exists():
+            raise FileNotFoundError(f"Input file not found: {input_path}")
+        
+        logger = setup_logger(__name__)
+        logger.info(f"Loading data from {input_path}")
+        
+        df = pd.read_csv(input_path)
+        
+        logger.info(f"Validating provenance for {len(df)} entries")
+        
+        valid_df, report = validate_provenance(df, args.source_column)
+        
+        # Exit with code 1 if any entry lacks valid provenance
+        if report["invalid_entries"] > 0:
+            logger.error(f"Found {report['invalid_entries']} entries with invalid provenance. Exiting.")
+            save_validation_report(report, output_path)
+            sys.exit(1)
+        
+        # Save report
+        save_validation_report(report, output_path)
+        logger.info(f"Validation report saved to {output_path}")
+        
+        # Optionally save the filtered dataframe
+        filtered_output = output_path.parent / "thermal_validated.csv"
+        valid_df.to_csv(filtered_output, index=False)
+        logger.info(f"Validated data saved to {filtered_output}")
+        
+    except Exception as e:
+        handle_error(f"Error in provenance_validator: {e}", level="CRITICAL")
+        sys.exit(1)
 
-    # Define paths relative to project root
-    project_root = Path(__file__).parent.parent.parent
-    input_path = project_root / 'data' / 'cleaned' / 'merged_perovskite.csv'
-    output_path = project_root / 'data' / 'cleaned' / 'merged_perovskite_provenance_validated.csv'
-    report_path = project_root / 'data' / 'results' / 'provenance_validation_report.json'
 
-    if not input_path.exists():
-        error_msg = f"Input file not found: {input_path}"
-        handle_error(error_msg, level='critical')
-        raise FileNotFoundError(error_msg)
-
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} entries")
-
-    # Validate and filter
-    valid_df, report = validate_provenance(df, logger)
-
-    # Save validated data
-    valid_df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(valid_df)} valid entries to {output_path}")
-
-    # Save validation report
-    save_validation_report(report, report_path)
-    logger.info(f"Saved validation report to {report_path}")
-
-    logger.info("Provenance validation completed successfully")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
+    import argparse
     main()

@@ -1,128 +1,324 @@
-# Merged Perovskite Dataset Schema
-# Created by T005 - Contract test schema definition
-# Used for CSV validation in tests/contract/test_schema.py (T009)
-
+%YAML 1.1
+---
 title: Merged Perovskite Dataset Schema
-description: |
-  Schema for validating merged perovskite crystal structure and thermal
-  conductivity data. This schema ensures data quality and consistency
-  across the pipeline (US1 - Data Ingestion & Cleaning).
-
-version: "1.0"
-source: PROJ-035-exploring-the-correlation-between-crysta
-created_by: T005
-
-# Schema type
+description: >
+  JSON Schema for validating the merged perovskite dataset containing
+  crystal structure metadata and thermal conductivity measurements.
+  Used for contract testing and data quality assurance.
 type: object
+required:
+  - type
+  - properties
+  - $schema
 
-# Column definitions
 properties:
-  structure_id:
+  $schema:
     type: string
-    description: Unique Materials Project identifier (e.g., mp-12345)
-    pattern: "^mp-\\d+$"
-    example: "mp-12345"
-
-  formula:
+    const: http://json-schema.org/draft-07/schema#
+  
+  type:
     type: string
-    description: Chemical formula in ABX3 format
-    pattern: "^[A-Z][a-z]?[A-Z][a-z]?[A-Z][a-z]?\\d*$"
-    example: "CaTiO3"
+    const: object
 
-  thermal_conductivity:
-    type: float
-    description: Thermal conductivity in W/(m·K)
-    minimum: 0.0
-    maximum: 1000.0
-    unit: "W/(m·K)"
+  properties:
+    type: object
+    properties:
+      structure_id:
+        type: object
+        description: Unique identifier for the crystal structure from Materials Project
+        properties:
+          type:
+            type: string
+            const: string
+          minLength:
+            type: integer
+            const: 1
+        required:
+          - type
+        additionalProperties: false
+      
+      formula:
+        type: object
+        description: Chemical formula of the perovskite (e.g., "ABO3")
+        properties:
+          type:
+            type: string
+            const: string
+        required:
+          - type
+        additionalProperties: false
+      
+      a:
+        type: object
+        description: Lattice parameter a (Angstrom)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      b:
+        type: object
+        description: Lattice parameter b (Angstrom)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      c:
+        type: object
+        description: Lattice parameter c (Angstrom)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      alpha:
+        type: object
+        description: Lattice angle alpha (degrees)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      beta:
+        type: object
+        description: Lattice angle beta (degrees)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      gamma:
+        type: object
+        description: Lattice angle gamma (degrees)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      volume:
+        type: object
+        description: Unit cell volume (Angstrom^3)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      space_group:
+        type: object
+        description: Space group symbol (e.g., "Pm-3m")
+        properties:
+          type:
+            type: string
+            const: string
+        required:
+          - type
+        additionalProperties: false
+      
+      thermal_conductivity:
+        type: object
+        description: Thermal conductivity value (W/m·K)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      temperature:
+        type: object
+        description: Measurement temperature (K)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      source_reference:
+        type: object
+        description: Provenance reference (DOI, PMID, or NIST ID)
+        properties:
+          type:
+            type: string
+            const: string
+        required:
+          - type
+        additionalProperties: false
+      
+      chemistry_class:
+        type: object
+        description: Perovskite chemistry class (oxide, halide, nitride)
+        properties:
+          type:
+            type: string
+            const: string
+        required:
+          - type
+        additionalProperties: false
+      
+      tolerance_factor:
+        type: object
+        description: Goldschmidt tolerance factor (calculated)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      octahedral_factor:
+        type: object
+        description: Octahedral factor (calculated)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      bond_length_variance:
+        type: object
+        description: Bond length variance metric (calculated)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      octahedral_tilting_angle:
+        type: object
+        description: Average octahedral tilting angle (degrees, calculated)
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      normalized_thermal_conductivity:
+        type: object
+        description: Thermal conductivity normalized to 300K using Slack formula
+        properties:
+          type:
+            type: string
+            const: number
+        required:
+          - type
+        additionalProperties: false
+      
+      provenance_status:
+        type: object
+        description: Validation status of the source reference
+        properties:
+          type:
+            type: string
+            const: string
+        required:
+          - type
+        additionalProperties: false
+      
+      geometry_valid:
+        type: object
+        description: Boolean indicating if geometry passed validation
+        properties:
+          type:
+            type: string
+            const: boolean
+        required:
+          - type
+        additionalProperties: false
+      
+      processing_timestamp:
+        type: object
+        description: ISO 8601 timestamp of processing
+        properties:
+          type:
+            type: string
+            const: string
+        required:
+          - type
+        additionalProperties: false
+      
+      pipeline_version:
+        type: object
+        description: Version of the pipeline that generated this record
+        properties:
+          type:
+            type: string
+            const: string
+        required:
+          - type
+        additionalProperties: false
 
-  temperature:
-    type: float
-    description: Measurement temperature in Kelvin
-    minimum: 0.0
-    maximum: 2000.0
-    unit: "K"
+    required:
+      - structure_id
+      - formula
+      - thermal_conductivity
+      - temperature
+      - source_reference
+      - chemistry_class
+      - provenance_status
+      - geometry_valid
 
-  source_reference:
-    type: string
-    description: Peer-reviewed literature or NIST citation
-    example: "Smith et al. 2021, DOI:10.xxxx/xxxxx"
+    additionalProperties: true
 
-  stoichiometry:
-    type: string
-    description: Stoichiometry ratio verification
-    example: "ABX3"
+  required:
+    - properties
+    - type
+    - $schema
 
-  octahedral_tilting_angle:
-    type: float
-    description: Octahedral tilting angle in degrees (computed descriptor)
-    unit: "degrees"
+additionalProperties: false
 
-  bond_length_variance:
-    type: float
-    description: Bond length variance (computed descriptor)
-    unit: "Å²"
-
-  tolerance_factor:
-    type: float
-    description: Goldschmidt tolerance factor (computed descriptor)
-    unit: "dimensionless"
-
-# Required columns for valid dataset
-required_columns:
-  - structure_id
-  - formula
-  - thermal_conductivity
-  - temperature
-  - source_reference
-
-# Columns that must not contain null values
-no_null_columns:
-  - structure_id
-  - thermal_conductivity
-  - source_reference
-
-# Minimum dataset size requirement (SC-001)
-min_rows: 50
-
-# Validation rules
-validation_rules:
-  - name: abx3_stoichiometry
-    description: Formula must match ABX3 pattern
-    type: regex
-    pattern: "^[A-Z][a-z]?[A-Z][a-z]?[A-Z][a-z]?\\d*$"
-
-  - name: thermal_conductivity_positive
-    description: Thermal conductivity must be positive
-    type: constraint
-    column: thermal_conductivity
-    operator: ">"
-    value: 0
-
-  - name: temperature_reasonable
-    description: Temperature must be in reasonable range
-    type: constraint
-    column: temperature
-    operator: ">="
-    value: 0
-    operator_max: "<="
-    value_max: 2000
-
-# Foreign key references
-foreign_keys:
-  - column: structure_id
-    reference: materials_project
-    description: Materials Project crystal structure database
-
-# Metadata
-metadata:
-  pipeline_version: "1.0"
-  schema_author: T005
-  related_tasks:
-    - T005  # Schema creation
-    - T009  # Contract tests
-    - T013  # Data cleaning and merging
-  constitution_compliance:
-    - Constitution_II  # Citation validation
-    - Constitution_III  # Data provenance
-    - Constitution_V  # Artifact hashing
+examples:
+  - structure_id: "mp-12345"
+    formula: "CaTiO3"
+    a: 3.82
+    b: 3.82
+    c: 3.82
+    alpha: 90.0
+    beta: 90.0
+    gamma: 90.0
+    volume: 55.74
+    space_group: "Pm-3m"
+    thermal_conductivity: 4.2
+    temperature: 300.0
+    source_reference: "10.1038/nature12345"
+    chemistry_class: "oxide"
+    tolerance_factor: 0.98
+    octahedral_factor: 0.45
+    bond_length_variance: 0.002
+    octahedral_tilting_angle: 2.5
+    normalized_thermal_conductivity: 4.2
+    provenance_status: "valid"
+    geometry_valid: true
+    processing_timestamp: "2024-01-15T10:30:00Z"
+    pipeline_version: "1.0.0"

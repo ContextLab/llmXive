@@ -1,104 +1,82 @@
 """
-Project structure setup script for PROJ-035-exploring-the-correlation-between-crysta.
-
-Creates the required directory tree:
-- src/
-- tests/
-- data/raw/
-- data/cleaned/
-- data/results/
-- figures/
-- contracts/
-
-Run with: python code/setup_project.py
+Project structure setup script for llmXive automated science pipeline.
+Creates the required directory tree for the perovskite thermal conductivity project.
 """
 import os
 import sys
 from pathlib import Path
 
-
 def setup_project_structure():
-    """Create all required project directories and placeholder files."""
-    project_root = Path(__file__).parent.parent
+    """
+    Creates the exact directory tree required by the project specifications:
+    - src/
+    - tests/
+    - data/raw/
+    - data/cleaned/
+    - data/results/
+    - figures/
+    - contracts/
     
-    # Define directories to create
-    directories = [
+    Also creates __init__.py files in all Python package directories.
+    """
+    # Define the base directories relative to the project root
+    # The script assumes it is run from the project root or code/ directory
+    # We will create them relative to the current working directory
+    
+    project_root = Path.cwd()
+    
+    # Define all required directories
+    required_dirs = [
         "src",
+        "tests",
+        "data/raw",
+        "data/cleaned",
+        "data/results",
+        "figures",
+        "contracts"
+    ]
+    
+    # Directories that need __init__.py to be valid Python packages
+    package_dirs = [
+        "src",
+        "tests",
         "src/ingest",
         "src/cleaning",
         "src/descriptors",
         "src/analysis",
         "src/utils",
         "src/config",
-        "tests",
         "tests/unit",
-        "tests/contract",
         "tests/integration",
-        "data/raw",
-        "data/cleaned",
-        "data/results",
-        "figures",
-        "contracts",
+        "tests/contract"
     ]
     
-    # Create directories
-    created_dirs = []
-    for dir_path in directories:
+    print(f"Setting up project structure in: {project_root}")
+    
+    created_count = 0
+    for dir_path in required_dirs:
         full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(dir_path)
+            print(f"Created directory: {full_path}")
+            created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
+            print(f"Directory already exists: {full_path}")
     
-    # Create __init__.py files to make directories proper Python packages
-    package_init_files = [
-        ("src/__init__.py", ""),
-        ("src/ingest/__init__.py", ""),
-        ("src/cleaning/__init__.py", ""),
-        ("src/descriptors/__init__.py", ""),
-        ("src/analysis/__init__.py", ""),
-        ("src/utils/__init__.py", ""),
-        ("src/config/__init__.py", ""),
-        ("tests/__init__.py", ""),
-        ("tests/unit/__init__.py", ""),
-        ("tests/contract/__init__.py", ""),
-        ("tests/integration/__init__.py", ""),
-    ]
-    
-    for file_path, content in package_init_files:
-        full_path = project_root / file_path
+    # Create __init__.py files for Python packages
+    for pkg_path in package_dirs:
+        full_path = project_root / pkg_path / "__init__.py"
         if not full_path.exists():
-            full_path.write_text(content)
-            print(f"Created: {file_path}")
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+            full_path.touch()
+            print(f"Created package init: {full_path}")
+            created_count += 1
         else:
-            print(f"File already exists: {file_path}")
+            print(f"Package init already exists: {full_path}")
     
-    # Create .gitkeep files for data directories to ensure they persist in git
-    data_keep_files = [
-        "data/raw/.gitkeep",
-        "data/cleaned/.gitkeep",
-        "data/results/.gitkeep",
-        "figures/.gitkeep",
-        "contracts/.gitkeep",
-    ]
-    
-    for file_path in data_keep_files:
-        full_path = project_root / file_path
-        if not full_path.exists():
-            full_path.write_text("# Keep directory in version control\n")
-            print(f"Created: {file_path}")
-        else:
-            print(f"File already exists: {file_path}")
-    
-    # Print summary
-    print(f"\n=== Project Structure Setup Complete ===")
-    print(f"Created {len(created_dirs)} new directories")
-    print(f"Created {len([f for f, c in package_init_files if not (project_root / f).exists()])} new __init__.py files")
-    print(f"Created {len([f for f in data_keep_files if not (project_root / f).exists()])} new .gitkeep files")
-    print(f"\nProject root: {project_root}")
-    return 0
-
+    print(f"\nProject structure setup complete. Created {created_count} new items.")
+    return True
 
 if __name__ == "__main__":
-    sys.exit(setup_project_structure())
+    success = setup_project_structure()
+    sys.exit(0 if success else 1)
