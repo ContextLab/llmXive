@@ -4,11 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T012` (rejected 1x): No evidence of a `data/raw/openneuro_ds001495/` directory, download script, or checksum verification files is present. The required dataset download, integrity checks, and logging (T009) are missing, so the task is not satisfied.
-- `T014` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_left_hipp.npy
-- `T015` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_right_hipp.npy
-- `T016` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/roi_dlpfc.npy
-- `T019` (rejected 1x): The required output file `data/text/rocstories_sample.jsonl` is missing, so the ROCStories corpus was not downloaded and sampled as specified. No evidence of a successful download or error handling is present.
+- `T022` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/derivation_logs.json
 
 ## Required change
 

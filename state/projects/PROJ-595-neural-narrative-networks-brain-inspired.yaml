@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-595-neural-narrative-networks-brain-inspired
-last_run_id: 8222734c-8537-41e3-b858-896793feb89a
+last_run_id: 5f621859-8011-4f83-8138-0c6525612ec6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired
 title: 'Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension'
-updated_at: '2026-08-25T02:24:35.861406Z'
+updated_at: '2026-08-29T01:28:16.555759Z'

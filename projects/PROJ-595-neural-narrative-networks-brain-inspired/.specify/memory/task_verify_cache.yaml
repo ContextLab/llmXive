@@ -17,12 +17,12 @@ T018:
   r: "No evidence of `utils/checksums.py` being executed or of a state file being\
     \ updated is provided; the required artifact (updated state file with checksum\
     \ entries) is missing, so the task\u2019s requirement is not demonstrably satisfied."
-T022:
+T019:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No checksum output, log, or updated state file is provided as evidence that `utils/checksums.py`
-    was executed after data processing. The required artifact (the updated state file
-    reflecting new checksums) is missing, so the task is not demonstrably completed.
+  h: d43586a850d43b9f27008f95dfb186ced91d43524ea2c24d38e8b8447eb54c24
+  r: The required output file `data/text/rocstories_sample.jsonl` is missing, so the
+    corpus was not downloaded and sampled as specified. No evidence of a valid JSONL
+    file with `story` and `id` fields is present.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,6 +30,13 @@ T025:
     \ code implementing a retry mechanism across three random seeds for the sparse\
     \ autoencoder (SAE), nor any evidence (e.g., saved model checkpoints, convergence\
     \ plots) that such a loop was executed. The required artifact is missing."
+T029a:
+  c: false
+  h: 97363f4e365a439d79483978b2318b0f6c0c1a941846949a1d22efcebb3e67c3
+  r: "The provided `code/02_model_generation.py` is truncated and does not contain\
+    \ the required training loop, retry logic, or weight\u2011saving code, and the\
+    \ expected output file `data/results/sae_weights.pt` is missing. The task\u2019\
+    s core functionality is therefore not implemented."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
