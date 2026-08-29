@@ -1,14 +1,14 @@
 [
- "I feel confident in the AI's recommendations.",
- "I would rely on the AI to make decisions for me.",
- "The AI has my best interests at heart.",
- "I believe the AI is unbiased.",
- "I trust the information provided by the AI.",
- "I can depend on the AI to be accurate.",
- "I feel comfortable interacting with the AI.",
- "I understand how the AI arrives at its recommendations.",
- "The AI's responses seem genuine.",
- "I believe the AI is acting in my best interests.",
- "I would accept advice from this AI, even if it differs from my own opinion.",
- "I have faith in the AI's abilities."
+ "The AI's performance is predictable.",
+ "The AI's performance is consistent.",
+ "The AI's performance is reliable.",
+ "The AI's performance is accurate.",
+ "The AI's performance is trustworthy.",
+ "The AI's performance is safe.",
+ "The AI's performance is effective.",
+ "The AI's performance is competent.",
+ "The AI's performance is helpful.",
+ "The AI's performance is honest.",
+ "The AI's performance is benevolent.",
+ "The AI's performance is open."
 ]

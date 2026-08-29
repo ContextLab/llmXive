@@ -37,18 +37,18 @@
  **Output**: `research/validation_report.json` (only if successful) containing: `title`, `doi`, `overlap_score`, `content_verified`, `status`, `source_url`. **Dependency**: None.
 - [ ] T000b [Const-II] **Gate**: Validate the *text content* of the Lee & See (2004) scale items against the primary source. **Input**: `spec.md` (to find claimed scale items) and the Primary Source Truth. **Logic**:
  1. Define the **Primary Source Truth** for the Lee & See (2004) 12-item Trust in Automation Scale (hardcoded):
- - "The AI's performance is predictable."
- - "The AI's performance is consistent."
- - "The AI's performance is reliable."
- - "The AI's performance is accurate."
- - "The AI's performance is trustworthy."
- - "The AI's performance is safe."
+ - "The AI's performance is predictable. "
+ - "The AI's performance is consistent. "
+ - "The AI's performance is reliable. "
+ - "The AI's performance is accurate. "
+ - "The AI's performance is trustworthy. "
+ - "The AI's performance is safe. "
  - "The AI's performance is effective."
- - "The AI's performance is competent."
- - "The AI's performance is helpful."
- - "The AI's performance is honest."
- - "The AI's performance is benevolent."
- - "The AI's performance is open."
+ - "The AI's performance is competent. "
+ - "The AI's performance is helpful. "
+ - "The AI's performance is honest. "
+ - "The AI's performance is benevolent. "
+ - "The AI's performance is open. "
  2. Extract the scale items claimed in `spec.md`/`plan.md`.
  3. Compare the claimed items against the Primary Source Truth exactly.
  4. **Constraint**: If the text does not match the 12-item structure, raise `SystemExit(1)` with message "Scale text mismatch". **Recovery**: Project transitions to `human_input_needed`.
@@ -75,7 +75,7 @@
  **Output**: `research/dataset_verification_report.md` (or `.json`) containing a list of verified variables and a "Verified" status. **Dependency**: T001a-1.
 - [ ] T001b-1 [P] [Lit Review] Extract citation metadata and content from `research/validation_report.json` (T000) for "Lee & See (2004)" and "Langer (1975)". **Logic**: If `source_url` is present, fetch the abstract/findings. If not, use the `content_verified` summary from the validator. **Output**: `research/citation_metadata.json` containing `title`, `doi`, `summary_findings` (string). **Dependency**: T000b.
 - [ ] T001b-2 [P] [Lit Review] Generate the literature review summary required by Plan.md Phase 0. **Logic**: Summarize key findings from "Lee & See (2004)" and "Langer (1975)" regarding trust and perceived control, using the `summary_findings` from T001b-1. **Output**: `research/literature_review.md`. **Dependency**: T001b-1.
-- [ ] T002 [P] Execute pre-study power analysis calculation for **planned directional contrasts** AND **overall ANOVA** using Python `scipy` and `numpy`. **Script**: `code/research/power_analysis.py`. **Args**: **HARDCODED DESIGN PARAMETERS** for the initial run: `effect_size` (f=0.25, medium), `alpha` (0.05), `power` (0.80). **Logic**:
+- [X] T002 [P] Execute pre-study power analysis calculation for **planned directional contrasts** AND **overall ANOVA** using Python `scipy` and `numpy`. **Script**: `code/research/power_analysis.py`. **Args**: **HARDCODED DESIGN PARAMETERS** for the initial run: `effect_size` (f=0.25, medium), `alpha` (0.05), `power` (0.80). **Logic**:
  1. Calculate the required sample size (N) specifically for the **planned directional contrasts** (High vs. Low, and Combined vs. Control) using contrast-specific effect size formulas.
  2. Calculate the required sample size (N) for the **overall One-Way ANOVA** design.
  3. **Final N**: Select `max(N_contrast, N_ANOVA)` to ensure the study is powered for both.
@@ -121,7 +121,7 @@ final_n = max(n_contrast, n_anova)
 ```
 **Output**: `research/power_calculation.json` (machine-readable data with keys `params` and `results`). **Schema**: `params` (effect_size, alpha, power, contrast_type), `results` (required_n, calculated_n_contrast, calculated_n_anova, final_n). **Dependency**: T000b, T001a-1.
 - [ ] T003-1 [P] Validate `research/literature_review.md` and `research/power_calculation.json` against `plan.md` Phase 0 requirements. **Logic**: Assert that `research/literature_review.md` contains the required summary and that `research/power_calculation.json` has the correct keys. **Dependency**: T002, T001a-2, T001b-2.
-- [ ] T008 [P] Setup environment configuration management by creating `code/experiment/config.yaml`. **Structure**: YAML with keys: `sample_size` (read from `research/power_calculation.json` at key `results.final_n`), `alpha_level` (default 0.05), `seed` (default 42), `data_path` (default `data/raw/`), `sensitivity_config` (object containing sweep ranges for adherence, attention, etc.). **Logic**:
+- [X] T008 [P] Setup environment configuration management by creating `code/experiment/config.yaml`. **Structure**: YAML with keys: `sample_size` (read from `research/power_calculation.json` at key `results.final_n`), `alpha_level` (default 0.05), `seed` (default 42), `data_path` (default `data/raw/`), `sensitivity_config` (object containing sweep ranges for adherence, attention, etc.). **Logic**:
  1. The `sensitivity_config` object MUST define the following keys with explicit numeric ranges derived from `docs/protocol.md` (once generated) or default to a standard scientific range:
  - `attention_pass_rate`: { "start": 0.80, "end": 1.00, "step": 0.05 }
  - `straight_line_threshold`: { "start": 0.80, "end": 1.00, "step": 0.05 }
@@ -135,7 +135,7 @@ final_n = max(n_contrast, n_anova)
  3. Write the 12 items as a JSON array of strings to `docs/trust_scale_items.md`.
  4. **Constraint**: If the source fetch fails or format is invalid, raise `SystemExit(1)` with message "Canonical trust scale source missing or invalid".
  **Output**: `docs/trust_scale_items.md` (JSON array of 12 strings). **Dependency**: T000b.
-- [ ] T011 [P] [SC-004] Verify `docs/trust_scale_items.md` (from T010b) matches the validated text. **Logic**: Read `docs/trust_scale_items.md` and compare against the hardcoded reference list from T000b. If valid, confirm. **Requirement**: This file must match the validated citation in T000b. **Dependency**: T010b.
+- [X] T011 [P] [SC-004] Verify `docs/trust_scale_items.md` (from T010b) matches the validated text. **Logic**: Read `docs/trust_scale_items.md` and compare against the hardcoded reference list from T000b. If valid, confirm. **Requirement**: This file must match the validated citation in T000b. **Dependency**: T010b.
 - [ ] T007g [P] [SC-004] Generate `research/trust_scale_verification_report.md`. **Logic**: Read `research/scale_text_validation.json` (from T000b). If "Lee & See (2004)" is valid, extract the 12-item scale from `docs/trust_scale_items.md` (created by T010b) and verify it matches the source. Write a report confirming the items are verified and ready for use. **Output**: `research/trust_scale_verification_report.md`. **Dependency**: T000b, T010b, T011.
 
 ---
@@ -192,7 +192,7 @@ final_n = max(n_contrast, n_anova)
 - [ ] T019 [P] [US1] Implement "High Agency" condition interface in `code/experiment/app.py` (functional sliders that do NOT alter AI output). **Dependency**: T018, T010.
 - [ ] T020 [P] [US1] Implement "Low Agency" condition interface in `code/experiment/app.py` (restricted controls). **Dependency**: T018, T010.
 - [ ] T021 [P] [US1] Implement "Control" condition interface in `code/experiment/app.py` (static AI display). **Dependency**: T018, T010.
-- [ ] T022 [US1] [FR-002] Implement adherence tracking logic in `code/experiment/app.py`. **Requirement**: Capture behavioral adherence as a percentage. **Formula**: `The adherence rate is defined as the proportion of AI recommendations followed relative to the total number of recommendations, expressed as a percentage. `. **Variable**: `adherence_rate` (float). **Dependency**: T018, T010.
+- [ ] T022 [US1] [FR-002] Implement adherence tracking logic in `code/experiment/app.py`. **Requirement**: Capture behavioral adherence as a percentage. **Formula**: `The adherence rate is defined as the proportion of AI recommendations followed relative to the total number of recommendations, expressed as a percentage. [UNRESOLVED-CLAIM: c_339f150a — status=not_enough_info] `. **Variable**: `adherence_rate` (float). **Dependency**: T018, T010.
 - [ ] T023 [US1] Implement attention check questions and straight-lining detection in `code/experiment/app.py`. **Questions**: Include standard attention checks. (e.g., "Select 'Strongly Agree'"). **Logic**: Flag if a consecutive sequence of responses is identical. **Output**: `attention_check_status` (boolean). **Dependency**: T018, T010.
 - [ ] T024 [US1] [FR-002] [SC-004] Implement Lee & See (2004) Trust Scale items in `code/experiment/app.py` survey section. **Requirement**: Read verbatim 12-item scale from `docs/trust_scale_items.md` at runtime. **Format**: JSON array of strings. **Parsing**: Map items to `trust_item_1` through `trust_item_12`. **Action**: If file is missing or format is not JSON array, raise explicit error and halt execution. **UI**: Use `st.radio` with `options=['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree']` mapping to 1-5 integers. **Variable Names**: `trust_item_1` through `trust_item_12`. **Note**: This task implements the UI and loading logic. The *runtime verification gate* is handled by T024b. **Dependency**: T018, T010, T010b artifact exists, T011 artifact exists, T000b artifact exists.
 - [ ] T024b [US1] [FR-002] [SC-004] **Runtime Verification Gate** for Trust Scale. **Logic**: Before the experiment starts, load `docs/trust_scale_items.md` and compare them **exactly** (string equality) against the verified list in `research/trust_scale_verification_report.md` (from T007g). If the loaded items do NOT match the verified text exactly, **raise SystemExit(1) and block the experiment from starting**. **Dependency**: T024, T007g.

@@ -1,98 +1,174 @@
 """
-Tests for T000b: validate_scale_text.py
+Unit tests for T000b: validate_scale_text.py
 """
 import json
 import tempfile
 from pathlib import Path
 import pytest
-from unittest.mock import patch, MagicMock
 import sys
 import os
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from research.validate_scale_text import (
-    load_validation_report, 
-    compare_items, 
-    EXPECTED_ITEMS,
+from code.research.validate_scale_text import (
+    PRIMARY_SOURCE_TRUTH,
+    fetch_scale_items_from_spec,
+    compare_items,
+    write_validation_report,
     main
 )
 
-def test_load_validation_report_missing():
-    """Test that load_validation_report raises FileNotFoundError for missing file."""
-    with pytest.raises(FileNotFoundError):
-        load_validation_report(Path("nonexistent.json"))
-
-def test_load_validation_report_valid():
-    """Test loading a valid validation report."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump({"results": [{"title": "Lee & See (2004)", "source_url": "http://example.com"}]}, f)
-        temp_path = Path(f.name)
-    
-    try:
-        report = load_validation_report(temp_path)
-        assert report["results"][0]["title"] == "Lee & See (2004)"
-    finally:
-        temp_path.unlink()
-
 def test_compare_items_match():
-    """Test that compare_items returns True for matching items."""
-    assert compare_items(EXPECTED_ITEMS, EXPECTED_ITEMS) is True
+    """Test that identical lists return True."""
+    truth = ["Item 1", "Item 2"]
+    claimed = ["Item 1", "Item 2"]
+    assert compare_items(claimed, truth) is True
 
-def test_compare_items_mismatch_length():
-    """Test that compare_items returns False for different lengths."""
-    items = EXPECTED_ITEMS[:-1]
-    assert compare_items(items, EXPECTED_ITEMS) is False
+def test_compare_items_mismatch():
+    """Test that different lists return False."""
+    truth = ["Item 1", "Item 2"]
+    claimed = ["Item 1", "Item 3"]
+    assert compare_items(claimed, truth) is False
 
-def test_compare_items_mismatch_content():
-    """Test that compare_items returns False for different content."""
-    items = EXPECTED_ITEMS.copy()
-    items[0] = "Different item text"
-    assert compare_items(items, EXPECTED_ITEMS) is False
+def test_compare_items_length_mismatch():
+    """Test that lists of different lengths return False."""
+    truth = ["Item 1", "Item 2"]
+    claimed = ["Item 1"]
+    assert compare_items(claimed, truth) is False
 
-@patch('research.validate_scale_text.requests.get')
-def test_main_success(mock_get, tmp_path):
-    """Test successful execution of main."""
-    # Mock response
-    mock_response = MagicMock()
-    mock_response.raise_for_status = MagicMock()
-    mock_get.return_value = mock_response
-
-    # Create input report
-    input_report = tmp_path / "validation_report.json"
-    input_report.write_text(json.dumps({
-        "results": [
-            {
-                "title": "Lee & See (2004)", 
-                "source_url": "https://doi.org/10.1207/s15327566ijhc1501_4"
-            }
-        ]
-    }))
-
-    output_report = tmp_path / "scale_text_validation.json"
-
-    # Run main
-    sys.argv = ["validate_scale_text.py", "--input", str(input_report), "--output", str(output_report)]
+def test_fetch_scale_items_json(tmp_path):
+    """Test fetching items when they are present in a JSON-like structure in text."""
+    spec_content = """
+    ## Trust Scale
+    The following items are used:
+    1. The AI's performance is predictable.
+    2. The AI's performance is consistent.
+    3. The AI's performance is reliable.
+    4. The AI's performance is accurate.
+    5. The AI's performance is trustworthy.
+    6. The AI's performance is safe.
+    7. The AI's performance is effective.
+    8. The AI's performance is competent.
+    9. The AI's performance is helpful.
+    10. The AI's performance is honest.
+    11. The AI's performance is benevolent.
+    12. The AI's performance is open.
+    """
+    spec_file = tmp_path / "spec.md"
+    spec_file.write_text(spec_content)
     
-    # Capture exit code if raised
-    try:
-        main()
-    except SystemExit as e:
-        if e.code != 0:
-            raise
+    items = fetch_scale_items_from_spec(spec_file)
+    assert len(items) == 12
+    assert items == PRIMARY_SOURCE_TRUTH
 
-    # Check output
-    assert output_report.exists()
-    result = json.loads(output_report.read_text())
-    assert result["status"] == "valid"
-    assert result["details"]["match"] is True
+def test_fetch_scale_items_text_with_numbers(tmp_path):
+    """Test fetching items when they are just text with numbers."""
+    spec_content = """
+    Scale Items:
+    - The AI's performance is predictable.
+    - The AI's performance is consistent.
+    - The AI's performance is reliable.
+    - The AI's performance is accurate.
+    - The AI's performance is trustworthy.
+    - The AI's performance is safe.
+    - The AI's performance is effective.
+    - The AI's performance is competent.
+    - The AI's performance is helpful.
+    - The AI's performance is honest.
+    - The AI's performance is benevolent.
+    - The AI's performance is open.
+    """
+    spec_file = tmp_path / "spec.md"
+    spec_file.write_text(spec_content)
+    
+    items = fetch_scale_items_from_spec(spec_file)
+    assert len(items) == 12
 
-@patch('research.validate_scale_text.requests.get')
-def test_main_mismatch(mock_get, tmp_path):
-    """Test execution of main with mismatched items (simulated by patching fetch)."""
-    # This test is tricky because fetch_scale_items returns EXPECTED_ITEMS by default.
-    # We would need to patch fetch_scale_items directly to return mismatched data.
-    # For now, we rely on the logic that if the source is valid, it matches.
-    # A mismatch would occur if the source URL is invalid or returns wrong data.
-    pass
+def test_write_validation_report(tmp_path):
+    """Test writing the validation report."""
+    output_file = tmp_path / "test_report.json"
+    write_validation_report(output_file, "verified", 12)
+    
+    assert output_file.exists()
+    with open(output_file, 'r') as f:
+        data = json.load(f)
+    
+    assert data["status"] == "verified"
+    assert data["items_verified"] == 12
+
+def test_main_success(tmp_path, capsys):
+    """Test main function execution when spec is valid."""
+    # Create a valid spec
+    spec_content = """
+    ## Trust Scale
+    1. The AI's performance is predictable.
+    2. The AI's performance is consistent.
+    3. The AI's performance is reliable.
+    4. The AI's performance is accurate.
+    5. The AI's performance is trustworthy.
+    6. The AI's performance is safe.
+    7. The AI's performance is effective.
+    8. The AI's performance is competent.
+    9. The AI's performance is helpful.
+    10. The AI's performance is honest.
+    11. The AI's performance is benevolent.
+    12. The AI's performance is open.
+    """
+    spec_file = tmp_path / "spec.md"
+    spec_file.write_text(spec_content)
+    
+    # Mock Path.cwd to point to tmp_path
+    with patch('code.research.validate_scale_text.Path.cwd') as mock_cwd:
+        mock_cwd.return_value = tmp_path
+        # We need to create the directory structure expected by main
+        (tmp_path / "research").mkdir()
+        (tmp_path / "specs").mkdir(parents=True)
+        (tmp_path / "specs" / "001-perceived-agency-trust").mkdir(parents=True)
+        # Move spec to correct location
+        spec_file.rename(tmp_path / "specs" / "001-perceived-agency-trust" / "spec.md")
+        
+        # Mock plan.md to not exist or be empty
+        plan_file = tmp_path / "plan.md"
+        plan_file.write_text("")
+
+        try:
+            main()
+            captured = capsys.readouterr()
+            assert "Validation Successful" in captured.out
+        except SystemExit:
+            pytest.fail("main() raised SystemExit unexpectedly")
+
+def test_main_mismatch(tmp_path):
+    """Test main function execution when spec has mismatched items."""
+    # Create a spec with a wrong item
+    spec_content = """
+    ## Trust Scale
+    1. The AI's performance is predictable.
+    2. The AI's performance is consistent.
+    3. The AI's performance is reliable.
+    4. The AI's performance is accurate.
+    5. The AI's performance is trustworthy.
+    6. The AI's performance is safe.
+    7. The AI's performance is effective.
+    8. The AI's performance is competent.
+    9. The AI's performance is helpful.
+    10. The AI's performance is honest.
+    11. The AI's performance is benevolent.
+    12. The AI's performance is WRONG.
+    """
+    spec_file = tmp_path / "spec.md"
+    spec_file.write_text(spec_content)
+    
+    with patch('code.research.validate_scale_text.Path.cwd') as mock_cwd:
+        mock_cwd.return_value = tmp_path
+        (tmp_path / "research").mkdir()
+        (tmp_path / "specs").mkdir(parents=True)
+        (tmp_path / "specs" / "001-perceived-agency-trust").mkdir(parents=True)
+        spec_file.rename(tmp_path / "specs" / "001-perceived-agency-trust" / "spec.md")
+        (tmp_path / "plan.md").write_text("")
+
+        with pytest.raises(SystemExit) as excinfo:
+            main()
+        assert "Scale text mismatch" in str(excinfo.value)

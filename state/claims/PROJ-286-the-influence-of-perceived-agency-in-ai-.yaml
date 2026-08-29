@@ -5764,3 +5764,1292 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T11:53:24Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 Trust in Automation DOI empty
+  claim_id: c_9be56d07
+  context: 'Compare these claims against the Primary Source Truth (hardcoded in this
+    task): Lee & See: DOI "", Title "Trust in Automation: Designing for Appropriate
+    Reliance".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Lee & See (2004): DOI "", Title "Trust in Automation: Designing for Appropriate
+    Reliance".'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:09:45Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Langer 1975 The Illusion of Control DOI 10.1037/h0076860
+  claim_id: c_f18dbcd6
+  context: 'Compare these claims against the Primary Source Truth (hardcoded in this
+    task): Langer (1975): DOI "10.1037/h0076860", Title "The Illusion of Control".'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Langer (1975): DOI "10.1037/h0076860", Title "The Illusion of Control".'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:09:48Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 Trust Scale 12 items predictable to open
+  claim_id: c_11241ace
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is predictable." ... "The
+    AI''s performance is open."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes items:
+    "The AI''s performance is predictable.", "The AI''s performance is consistent.",
+    "The AI''s performance is reliable.", "The AI''s performance is accurate.", "The
+    AI''s performance is trustworthy.", "The AI''s performance is safe.", "The AI''s
+    performance is effective.", "The AI''s performance is competent.", "The AI''s
+    performance is helpful.", "The AI''s performance is honest.", "The AI''s performance
+    is benevolent.", "The AI''s performance is open."'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:10:33Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters effect_size 0.25 alpha 0.05 power 0.80
+  claim_id: c_89f6d0ed
+  context: 'Args: HARDCODED DESIGN PARAMETERS for the initial run: effect_size (f=0.25,
+    medium), alpha (0.05), power (0.80).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pre-study power analysis uses hardcoded design parameters: effect_size
+    (f=0.25, medium), alpha (0.05), power (0.80).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:11:16Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis attention pass rate sweep 0.80 to 1.00 step 0.05
+  claim_id: c_db543c43
+  context: 'The sensitivity_config object MUST define the following keys with explicit
+    numeric ranges... attention_pass_rate: { "start": 0.80, "end": 1.00, "step": 0.05
+    }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis for attention pass rate sweeps from 0.80 to 1.00
+    with a step of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:11:57Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis straight-line threshold sweep 0.80 to 1.00 step
+    0.05
+  claim_id: c_c8e4db82
+  context: 'The sensitivity_config object MUST define the following keys... straight_line_threshold:
+    { "start": 0.80, "end": 1.00, "step": 0.05 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis for straight-lining threshold sweeps from 0.80 to
+    1.00 with a step of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:12:38Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis adherence rate cutoff sweep 0.50 to 0.95 step 0.05
+  claim_id: c_2281f2c7
+  context: 'The sensitivity_config object MUST define the following keys... adherence_rate_cutoff:
+    { "start": 0.50, "end": 0.95, "step": 0.05 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis for adherence rate cutoff sweeps from 0.50 to 0.95
+    with a step of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:13:35Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis trust outlier std sweep 2.0 to 3.5 step 0.5
+  claim_id: c_d0c1a63f
+  context: 'The sensitivity_config object MUST define the following keys... trust_outlier_std:
+    { "start": 2.0, "end": 3.5, "step": 0.5 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis for trust outlier standard deviation sweeps from
+    2.0 to 3.5 with a step of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:13:59Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Planned contrast High vs Low coefficients -1 1 0
+  claim_id: c_2dc79bb1
+  context: 'Contrast Coefficients: 1) High vs. Low: [Negative, Positive, Neutral]...
+    Implementation: c1 = np.array([-1, 1, 0])'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Planned directional contrast 1 (High vs. Low) uses coefficients [-1, 1,
+    0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:14:57Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Planned contrast High+Low vs Control coefficients 1 1 -2
+  claim_id: c_6a54a03d
+  context: 'Contrast Coefficients: 2) (High+Low) vs. Control: [positive, positive,
+    negative]... Implementation: c2 = np.array([1, 1, -2])'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Planned directional contrast 2 (Combined vs. Control) uses coefficients
+    [1, 1, -2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:14:58Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee and See 2004 DOI empty Trust in Automation: Designing for Appropriate
+    Reliance'
+  claim_id: c_e3bf1ead
+  context: 'Compare these claims against the Primary Source Truth (hardcoded in this
+    task): - Lee & See: DOI '''', Title ''Trust in Automation: Designing for Appropriate
+    Reliance''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Lee & See: DOI '''', Title ''Trust in Automation: Designing for Appropriate
+    Reliance''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:17:50Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Langer 1975 DOI 10.1037/h0076860 The Illusion of Control
+  claim_id: c_80fc459a
+  context: '- Langer (1975): DOI ''10.1037/h0076860'', Title ''The Illusion of Control''.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Langer (1975): DOI ''10.1037/h0076860'', Title ''The Illusion of Control''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:17:54Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee and See 2004 12-item Trust in Automation Scale items predictable
+    consistent reliable accurate trustworthy safe effective competent helpful honest
+    benevolent open
+  claim_id: c_e28310a8
+  context: '1. Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): - ''The AI''s performance is predictable.'' ...
+    - ''The AI''s performance is open.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Lee & See (2004) 12-item Trust in Automation Scale includes items: ''The
+    AI''s performance is predictable'', ''consistent'', ''reliable'', ''accurate'',
+    ''trustworthy'', ''safe'', ''effective'', ''competent'', ''helpful'', ''honest'',
+    ''benevolent'', and ''open''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:17:55Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: power analysis effect size f=0.25 alpha 0.05 power 0.80
+  claim_id: c_db808243
+  context: 'Args: HARDCODED DESIGN PARAMETERS for the initial run: effect_size (f=0.25,
+    medium), alpha (0.05), power (0.80).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pre-study power analysis uses an effect size of f=0.25 (medium), alpha
+    of 0.05, and power of 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:19:35Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High vs Low contrast coefficients -1 1 0
+  claim_id: c_e032eff4
+  context: 'Contrast Coefficients: 1) High vs. Low: [Negative, Positive, Neutral]...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Contrast coefficients for High vs. Low are [-1, 1, 0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:20:14Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High plus Low vs Control contrast coefficients 1 1 -2
+  claim_id: c_01f68964
+  context: '2) (High+Low) vs. Control: [positive, positive, negative].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Contrast coefficients for (High+Low) vs. Control are [1, 1, -2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:20:46Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: attention pass rate sensitivity sweep 0.80 to 1.00 step 0.05
+  claim_id: c_b425eeaf
+  context: 'attention_pass_rate: { ''start'': 0.80, ''end'': 1.00, ''step'': 0.05
+    }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Attention pass rate sensitivity sweep range is 0.80 to 1.00 with a step
+    of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:21:43Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: straight line threshold sensitivity sweep 0.80 to 1.00 step 0.05
+  claim_id: c_99bbfebc
+  context: 'straight_line_threshold: { ''start'': 0.80, ''end'': 1.00, ''step'': 0.05
+    }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Straight-line threshold sensitivity sweep range is 0.80 to 1.00 with a
+    step of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:22:20Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: adherence rate cutoff sensitivity sweep 0.50 to 0.95 step 0.05
+  claim_id: c_39efc57f
+  context: 'adherence_rate_cutoff: { ''start'': 0.50, ''end'': 0.95, ''step'': 0.05
+    }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Adherence rate cutoff sensitivity sweep range is 0.50 to 0.95 with a step
+    of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:22:52Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: trust outlier std sensitivity sweep 2.0 to 3.5 step 0.5
+  claim_id: c_78e5fcdd
+  context: 'trust_outlier_std: { ''start'': 2.0, ''end'': 3.5, ''step'': 0.5 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trust outlier standard deviation sensitivity sweep range is 2.0 to 3.5
+    with a step of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:23:19Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: trust score calculated as mean of 12 items mapped to 1-5 integers
+  claim_id: c_9a758647
+  context: Calculate the aggregate Trust Score as the mean of trust_item_1 through
+    trust_item_12 for each participant.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trust Score is calculated as the mean of 12 items mapped to 1-5 integers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:23:58Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: perceived agency score 1-7 Likert scale
+  claim_id: c_69a8d70a
+  context: 'Question: ''To what extent did you feel you had control over the AI''s
+    recommendations?'' Scale: 1-7 Likert.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perceived Agency Score uses a 1-7 Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:25:11Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 citation metadata: DOI empty, Title Trust in Automation:
+    Designing for Appropriate Reliance'
+  claim_id: c_58031969
+  context: 'Compare these claims against the Primary Source Truth (hardcoded in this
+    task): - Lee & See: DOI "", Title "Trust in Automation: Designing for Appropriate
+    Reliance".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Lee & See: DOI "", Title "Trust in Automation: Designing for Appropriate
+    Reliance".'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:26:44Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Langer 1975 citation metadata: DOI 10.1037/h0076860, Title The Illusion
+    of Control'
+  claim_id: c_3fec8b7d
+  context: 'Compare these claims against the Primary Source Truth (hardcoded in this
+    task): - Langer (1975): DOI "10.1037/h0076860", Title "The Illusion of Control".'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Langer (1975): DOI "10.1037/h0076860", Title "The Illusion of Control".'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:26:46Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 Trust in Automation Scale contains 12 items
+  claim_id: c_da6c8d33
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded):'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:30Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is predictable'
+  claim_id: c_786ed935
+  context: '- "The AI''s performance is predictable."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is predictable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:31Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is consistent'
+  claim_id: c_3c5362ea
+  context: '- "The AI''s performance is consistent."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is consistent.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:32Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is reliable'
+  claim_id: c_6cb2ff94
+  context: '- "The AI''s performance is reliable."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is reliable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:34Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is accurate'
+  claim_id: c_e588994d
+  context: '- "The AI''s performance is accurate."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is accurate.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:35Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is trustworthy'
+  claim_id: c_3307795d
+  context: '- "The AI''s performance is trustworthy."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is trustworthy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:36Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is safe'
+  claim_id: c_abf49902
+  context: '- "The AI''s performance is safe."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is safe.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:37Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is competent'
+  claim_id: c_bc4d5bbb
+  context: '- "The AI''s performance is competent."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is competent.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:38Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is helpful'
+  claim_id: c_bffa70fd
+  context: '- "The AI''s performance is helpful."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is helpful.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:40Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is honest'
+  claim_id: c_4c787867
+  context: '- "The AI''s performance is honest."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is honest.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:41Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is benevolent'
+  claim_id: c_acbabefe
+  context: '- "The AI''s performance is benevolent."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is benevolent.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:42Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 scale item: The AI''s performance is open'
+  claim_id: c_dc45f886
+  context: '- "The AI''s performance is open."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AI's performance is open.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:27:43Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: 'Lee & See 2004 title Trust in Automation: Designing for Appropriate
+    Reliance'
+  claim_id: c_99614d89
+  context: 'Primary Source Truth (hardcoded in this task): Lee & See: DOI "", Title
+    "Trust in Automation: Designing for Appropriate Reliance".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Lee & See (2004): DOI "", Title "Trust in Automation: Designing for Appropriate
+    Reliance".'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:31:01Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Langer 1975 title The Illusion of Control DOI 10.1037/h0076860
+  claim_id: c_6366c133
+  context: 'Primary Source Truth (hardcoded in this task): Langer (1975): DOI "10.1037/h0076860",
+    Title "The Illusion of Control".'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Langer (1975): DOI "10.1037/h0076860", Title "The Illusion of Control".'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:31:04Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is predictable
+  claim_id: c_e0786560
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is predictable."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is predictable."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:31:49Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is consistent
+  claim_id: c_49af8b31
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is consistent."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is consistent."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:32:23Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is reliable
+  claim_id: c_d173fa21
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is reliable."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is reliable."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:32:57Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is accurate
+  claim_id: c_999fad54
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is accurate."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is accurate."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:33:36Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is trustworthy
+  claim_id: c_ca721f14
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is trustworthy."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is trustworthy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:34:17Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is safe
+  claim_id: c_7cedcbcc
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is safe."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is safe."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:34:52Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is effective
+  claim_id: c_310d798f
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is effective."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is effective."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:35:27Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is competent
+  claim_id: c_1180af17
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is competent."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is competent."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:36:11Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is helpful
+  claim_id: c_438401d9
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is helpful."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is helpful."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:36:46Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is honest
+  claim_id: c_be89175c
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is honest."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is honest."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:37:25Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is benevolent
+  claim_id: c_20242847
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is benevolent."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is benevolent."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:38:07Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale item The AI's performance is open
+  claim_id: c_5ea426f3
+  context: 'Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded): "The AI''s performance is open."'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) 12-item Trust in Automation Scale includes the item
+    "The AI's performance is open."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:38:44Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 scale has 12 items
+  claim_id: c_3bc4e952
+  context: Define the Primary Source Truth for the Lee & See (2004) 12-item Trust
+    in Automation Scale (hardcoded)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust in Automation Scale consists of 12 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:39:20Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 Trust in Automation DOI empty
+  claim_id: c_0014751c
+  context: Hardcoded Primary Source Truth for citation validation in task T000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Lee & See (2004): DOI '''', Title ''Trust in Automation: Designing for
+    Appropriate Reliance''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:33Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Langer 1975 The Illusion of Control DOI 10.1037/h0076860
+  claim_id: c_654b8ec4
+  context: Hardcoded Primary Source Truth for citation validation in task T000.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Langer (1975): DOI ''10.1037/h0076860'', Title ''The Illusion of Control''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:36Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item predictable
+  claim_id: c_a72dfa70
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is predictable.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:37Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item consistent
+  claim_id: c_41e34214
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is consistent.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:39Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item reliable
+  claim_id: c_fc4fd41a
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is reliable.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:40Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item accurate
+  claim_id: c_a20abc4a
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is accurate.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:41Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item trustworthy
+  claim_id: c_374118e5
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is trustworthy.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:42Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item safe
+  claim_id: c_d7dae034
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is safe.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:44Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item effective
+  claim_id: c_de6266bd
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is effective.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:45Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item competent
+  claim_id: c_fea80883
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is competent.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:46Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item helpful
+  claim_id: c_13e45c96
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is helpful.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:47Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item honest
+  claim_id: c_0e1fc7be
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is honest.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:49Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item benevolent
+  claim_id: c_deef44c3
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is benevolent.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:50Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee See 2004 trust scale item open
+  claim_id: c_459874b1
+  context: Hardcoded Primary Source Truth for scale text validation in task T000b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Lee & See (2004) 12-item Trust in Automation Scale includes the item:
+    ''The AI''s performance is open.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:41:51Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: power analysis effect size 0.25
+  claim_id: c_2a35cee6
+  context: Hardcoded design parameter for power analysis in task T002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The planned power analysis uses an effect size (f) of 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:43:03Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: power analysis alpha 0.05
+  claim_id: c_2db48175
+  context: Hardcoded design parameter for power analysis in task T002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The planned power analysis uses an alpha level of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:43:59Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: power analysis target power 0.80
+  claim_id: c_5b619b8f
+  context: Hardcoded design parameter for power analysis in task T002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The planned power analysis uses a target power of 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:44:58Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: contrast coefficients High vs Low -1 1 0
+  claim_id: c_11daa9b0
+  context: Defined contrast coefficients for power analysis in task T002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The contrast coefficients for High vs. Low condition are [-1, 1, 0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:45:39Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: contrast coefficients High Low vs Control 1 1 -2
+  claim_id: c_d62780cb
+  context: Defined contrast coefficients for power analysis in task T002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The contrast coefficients for (High+Low) vs. Control are [1, 1, -2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:45:40Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis attention pass rate range 0.80 to 1.00 step 0.05
+  claim_id: c_11da3eeb
+  context: Sensitivity configuration ranges defined in task T008 and T038.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis range for attention pass rate is 0.80 to 1.00
+    with a step of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:46:32Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis straight-lining threshold range 0.80 to 1.00 step
+    0.05
+  claim_id: c_70ef2ac9
+  context: Sensitivity configuration ranges defined in task T008 and T038.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis range for straight-lining threshold is 0.80 to
+    1.00 with a step of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:47:09Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis adherence rate cutoff range 0.50 to 0.95 step 0.05
+  claim_id: c_223bc1c3
+  context: Sensitivity configuration ranges defined in task T008 and T038.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis range for adherence rate cutoff is 0.50 to 0.95
+    with a step of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:47:49Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis trust outlier std range 2.0 to 3.5 step 0.5
+  claim_id: c_85b81032
+  context: Sensitivity configuration ranges defined in task T008 and T038.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis range for trust outlier standard deviation is
+    2.0 to 3.5 with a step of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:48:24Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: trust scale Likert 1 to 5
+  claim_id: c_2b8ca9a5
+  context: UI mapping for trust scale items in task T024.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trust scale response options map 'Strongly Disagree' to 1 and 'Strongly
+    Agree' to 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:49:03Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: adherence rate definition proportion followed
+  claim_id: c_339f150a
+  context: Definition of adherence rate variable in task T022.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adherence_rate_definition_proportion_followed
+  kind: entity_fact
+  raw_text: The adherence rate is defined as the proportion of AI recommendations
+    followed relative to the total number of recommendations, expressed as a percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:50:04Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: perceived agency score 1 to 7 Likert
+  claim_id: c_e9e4b0de
+  context: Scale definition for perceived agency score in task T026.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The perceived agency score uses a 1-7 Likert scale.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:50:05Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: trust score calculation mean of 12 items
+  claim_id: c_a8bf14ed
+  context: Aggregation logic for trust score in task T024c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Trust Score is calculated as the mean of trust_item_1 through trust_item_12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T17:50:43Z'

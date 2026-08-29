@@ -2,3 +2,20 @@ sample_size: 129
 alpha_level: 0.05
 seed: 42
 data_path: data/raw/
+sensitivity_config:
+  attention_pass_rate:
+    start: 0.80
+    end: 1.00
+    step: 0.05
+  straight_line_threshold:
+    start: 0.80
+    end: 1.00
+    step: 0.05
+  adherence_rate_cutoff:
+    start: 0.50
+    end: 0.95
+    step: 0.05
+  trust_outlier_std:
+    start: 2.0
+    end: 3.5
+    step: 0.5
