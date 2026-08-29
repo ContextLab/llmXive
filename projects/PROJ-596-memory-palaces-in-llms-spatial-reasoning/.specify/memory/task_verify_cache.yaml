@@ -1,3 +1,12 @@
+T015:
+  c: false
+  h: 242e95062c6da00b34d63e251747846f5b4427ddf90b9e6469c437de0ada5242
+  r: "The provided `metrics.py` script is present but the excerpt shows no logic that\
+    \ iterates over a range of seeds, loads model checkpoints, computes recall per\
+    \ seed, or writes the required `artifacts/results/recall_accuracy.json` file.\
+    \ Moreover, the expected JSON results file is missing from the repository. The\
+    \ task\u2019s core requirement of generating and storing the recall metrics in\
+    \ the specified schema is therefore not met."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

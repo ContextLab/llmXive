@@ -9,7 +9,7 @@ This project implements and evaluates a "Memory Palace" architecture for transfo
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3  
 **Primary Dependencies**: `transformers`, `datasets`, `torch`, `bitsandbytes` (for -bit quantization on CPU), `scipy`, `numpy`, `pandas`, `scikit-learn`  
 **Storage**: Local filesystem for model checkpoints and cached datasets (`~/.cache/huggingface`); no external database.  
 **Testing**: `pytest` for unit tests (memory management, slot logic); integration tests for model training loops.  

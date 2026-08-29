@@ -1,15 +1,15 @@
 status: none
-intent: download Facebook bAbI LAMBADA Story Cloze Test python package dataset
+intent: bAbI LAMBADA Story Cloze datasets python package dataset
 required_fields:
+- id
 - story
 - question
 - answer
-- supporting_facts
 - text
 - target_word
-- ending1
-- ending2
+- option_1
+- option_2
 - label
-cache_key: 4c00eb7f4fc1115a7f7c499434b8be78a3559d4763fd8a057fe990931147261d
-searched_at: '2026-08-14T00:35:49.378872+00:00'
+cache_key: 9d8f5a023112001eb4ed0f497e2eeb024336b693c8db26038af52d78cbad1e58
+searched_at: '2026-08-29T12:41:17.994611+00:00'
 retry_count: 1
