@@ -1,0 +1,10 @@
+Synthetic data generation completed successfully.
+Parameters:
+  - N Subjects: 50
+  - Seed: 42
+  - Target Correlation (r): 0.5
+  - Method: Cholesky-like construction via shared latent variable Z
+Artifacts:
+  - data/raw/synthetic_otutable.csv
+  - data/raw/synthetic_serology.csv
+Note: This data is for code validation only.

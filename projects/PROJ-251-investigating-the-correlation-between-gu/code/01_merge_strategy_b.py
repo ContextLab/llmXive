@@ -5,131 +5,213 @@ import pandas as pd
 from pathlib import Path
 import psutil
 from typing import Tuple, Optional
-from utils.logging_config import get_logger, log_error_context
-from utils.config import get_min_sample_size, get_use_synthetic_data, get_raw_path, get_processed_path
 
-logger = get_logger(__name__)
+from utils.config import get_lod_handling_methods, get_impute_lod, get_min_sample_size, get_use_synthetic_data
+from utils.logging_config import get_logger, log_exclusion_count, log_sample_size, log_error_context
 
 class InsufficientSampleSizeError(Exception):
-    """Raised when the final merged dataset has fewer subjects than required."""
+    """Raised when the filtered dataset has fewer subjects than the minimum required."""
     pass
 
 def estimate_memory_footprint(df: pd.DataFrame) -> float:
-    """Estimates memory usage of a DataFrame in MB."""
+    """Estimate memory footprint of a DataFrame in MB."""
     return df.memory_usage(deep=True).sum() / (1024 * 1024)
 
-def merge_otu_serology(otu_path: Path, serology_path: Path, min_n: int, use_synthetic: bool) -> pd.DataFrame:
+def merge_otu_serology(
+    otu_path: Path,
+    serology_path: Path,
+    output_path: Path,
+    logger: logging.Logger
+) -> pd.DataFrame:
     """
-    Merges OTU table and serology metadata on subject_id.
+    Merge microbiome OTU table and serology metadata.
     
-    Logic:
-    1. Merge datasets on 'subject_id'.
-    2. Filter out subjects where titer_baseline OR titer_post is truly missing (NaN/Null).
-       Do NOT filter out valid '0' or 'ND' (Not Detected) values unless they are actual NaNs.
-    3. Verify microbiome taxon columns are not truly missing (NaN) for retained subjects.
-       '0' abundance is valid.
-    4. Count subjects (N).
-    5. If N < min_n AND use_synthetic is False, raise InsufficientSampleSizeError.
-    6. Return the filtered DataFrame.
+    Steps:
+    1. Load both datasets.
+    2. Merge on subject_id (inner join).
+    3. Filter out subjects with missing (NaN) titer_baseline or titer_post.
+    4. Handle LOD values ('ND', '0') by imputing with config.LOD_VALUE or 0.5 * LOD.
+    5. Verify microbiome columns are not NaN for retained subjects (0 is valid).
+    6. Validate minimum sample size.
+    7. Write output.
     """
-    logger.info(f"Loading OTU table from: {otu_path}")
+    logger.info(f"Loading OTU table from {otu_path}")
     otu_df = pd.read_csv(otu_path)
     
-    logger.info(f"Loading serology metadata from: {serology_path}")
+    logger.info(f"Loading serology metadata from {serology_path}")
     sero_df = pd.read_csv(serology_path)
     
-    # Check for required columns
-    if 'subject_id' not in otu_df.columns or 'subject_id' not in sero_df.columns:
-        raise ValueError("Both datasets must contain 'subject_id' column.")
+    # Ensure subject_id is string for consistent merging
+    otu_df['subject_id'] = otu_df['subject_id'].astype(str)
+    sero_df['subject_id'] = sero_df['subject_id'].astype(str)
     
-    # Merge on subject_id (inner join to keep only matched subjects)
+    # Merge on subject_id
     merged_df = pd.merge(otu_df, sero_df, on='subject_id', how='inner')
-    logger.info(f"Post-merge count: {len(merged_df)} subjects")
-    
-    # Filter out rows where titer_baseline OR titer_post is NaN (truly missing)
-    # We use pd.notna() to keep 0s and other valid values
     initial_count = len(merged_df)
-    merged_df = merged_df[pd.notna(merged_df['titer_baseline']) & pd.notna(merged_df['titer_post'])]
-    excluded_count = initial_count - len(merged_df)
-    if excluded_count > 0:
-        logger.info(f"Excluded {excluded_count} subjects due to missing titer values (NaN).")
+    logger.info(f"Initial merged count: {initial_count}")
     
-    # Identify taxon columns (all columns except subject_id and titer columns)
-    # Assuming serology columns are strictly 'subject_id', 'titer_baseline', 'titer_post'
-    # and potentially 'log_titer' if already processed, but T011d happens before T021 in strict flow?
-    # The task description says: Input: otutable.csv, serology.csv.
-    # We need to filter out rows where microbiome taxon columns are NaN.
-    # Let's assume taxon columns are everything not in the known serology list.
-    known_serology_cols = ['subject_id', 'titer_baseline', 'titer_post']
-    taxon_cols = [col for col in merged_df.columns if col not in known_serology_cols]
+    # Filter out subjects with truly missing (NaN) titers
+    required_titer_cols = ['titer_baseline', 'titer_post']
+    for col in required_titer_cols:
+        if col not in merged_df.columns:
+            raise ValueError(f"Required column {col} not found in serology data.")
     
-    # Filter out rows where any taxon column is NaN
-    # '0' is valid, only NaN is invalid
-    if taxon_cols:
-        initial_taxo_count = len(merged_df)
-        # Drop rows where any of the taxon columns are NaN
-        merged_df = merged_df.dropna(subset=taxon_cols)
-        excluded_taxo_count = initial_taxo_count - len(merged_df)
-        if excluded_taxo_count > 0:
-            logger.info(f"Excluded {excluded_taxo_count} subjects due to missing microbiome data (NaN).")
+    # Count nulls before filtering
+    null_titer_count = merged_df[required_titer_cols].isnull().any(axis=1).sum()
+    if null_titer_count > 0:
+        log_exclusion_count(logger, "Missing titer values", null_titer_count)
     
-    final_n = len(merged_df)
-    logger.info(f"Final subject count after filtering: {final_n}")
+    merged_df = merged_df.dropna(subset=required_titer_cols)
+    after_null_filter_count = len(merged_df)
+    logger.info(f"After null titer filter: {after_null_filter_count}")
     
-    if final_n < min_n:
-        if not use_synthetic:
-            error_msg = f"Insufficient sample size (N < {min_n}) in final dataset. Found {final_n}."
-            logger.error(error_msg)
-            # Log to error log file as requested
-            error_log_path = Path(get_raw_path().parent) / "results" / "error_log.txt"
-            error_log_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(error_log_path, 'a') as f:
-                f.write(f"{error_msg}\n")
-            raise InsufficientSampleSizeError(error_msg)
+    # LOD Handling: Impute 'ND', '0' (if string) or numeric 0 if specified
+    # Check for string 'ND' or 'Not Detected' first, then numeric 0
+    lod_methods = get_lod_handling_methods()
+    lod_value = get_impute_lod()
+    
+    for col in required_titer_cols:
+        # Ensure column is numeric, coercing errors to NaN first
+        merged_df[col] = pd.to_numeric(merged_df[col], errors='coerce')
+        
+        # Handle 'ND' or similar if they were strings (already coerced to NaN above)
+        # If the original data had 'ND' as string, to_numeric made it NaN.
+        # We need to check if there are any non-numeric strings left or handle them before to_numeric.
+        # Assuming input is clean or handled by to_numeric.
+        # The task says: "For any titer value marked as 'ND' (Not Detected) or '0', impute..."
+        # If '0' is present as a number, we might want to impute it if it's below LOD.
+        # But the spec says "impute as a fraction of the limit of detection".
+        # Let's assume '0' in the raw data is a placeholder for <LOD.
+        
+        # Re-read: "For any titer value marked as 'ND' ... or '0', impute as a fraction..."
+        # If the column is now numeric, '0' is 0.0.
+        # We need to impute 0.0 and NaN (if they came from 'ND')?
+        # The step "Filter out subjects where ... is truly missing (NaN)" already removed NaNs from 'ND' if they were strings.
+        # So we need to handle '0' (numeric) and maybe re-handle NaN if 'ND' was passed as a string that didn't convert?
+        # Let's assume 'ND' was converted to NaN and removed.
+        # Now we handle 0.0.
+        
+        # If the original data had 'ND' as string, to_numeric -> NaN -> dropped.
+        # If the original data had '0' as string -> to_numeric -> 0.0.
+        # If the original data had 0 as int -> 0.0.
+        
+        # Logic: Impute 0.0 values with lod_value * 0.5 (default).
+        # Also, if there are any remaining NaNs (from 'ND' that somehow survived or were not dropped?), impute them too?
+        # The task says: "Filter out subjects where ... is truly missing (NaN/Null)".
+        # So we should NOT impute NaNs, we should have dropped them.
+        # So we only impute 0.0.
+        
+        # However, the task also says: "For any titer value marked as 'ND' ... or '0', impute..."
+        # If 'ND' was in the data as a string, to_numeric makes it NaN.
+        # If we drop NaNs, we lose 'ND' subjects.
+        # The task says: "Filter out ... truly missing". 'ND' might not be "truly missing" but a specific value.
+        # So we should impute 'ND' BEFORE dropping NaNs?
+        # Let's adjust:
+        # 1. Load data.
+        # 2. Identify 'ND'/'Not Detected' strings and replace with a placeholder or directly impute.
+        # 3. Convert to numeric.
+        # 4. Drop NaNs (which are truly missing, not 'ND').
+        
+        # Revised LOD Handling:
+        # Check for 'ND' in original string column before conversion?
+        # Or, if to_numeric made 'ND' -> NaN, we can't distinguish from truly missing.
+        # Assumption: The input CSV has 'ND' as a string.
+        # We should replace 'ND' with lod_value * 0.5 BEFORE to_numeric?
+        # Or replace 'ND' with NaN, then impute NaNs?
+        # The task says: "impute as a fraction of the limit of detection".
+        # So 'ND' -> imputed value.
+        # '0' -> imputed value.
+        # Truly missing (empty cell) -> drop.
+        
+        # Let's do:
+        # 1. Replace 'ND', 'Not Detected' (case insensitive) with a special marker or directly with impute value?
+        # Better: Replace with NaN, then impute NaNs that came from 'ND'?
+        # How to distinguish 'ND' from truly missing?
+        # If the CSV has 'ND', it's a string. If empty, it's NaN.
+        # So:
+        # - Replace 'ND', 'Not Detected' with NaN? No, we want to impute them.
+        # - Replace 'ND', 'Not Detected' with a placeholder like -1?
+        # - Or, replace 'ND', 'Not Detected' with the imputed value directly.
+        # - Replace '0' (string or int) with the imputed value.
+        # - Then convert to numeric.
+        # - Then drop NaNs (truly missing).
+        
+        # Let's implement:
+        # 1. If column is object, replace 'ND', 'Not Detected' (case insensitive) with lod_value * 0.5.
+        # 2. Replace '0' (string) with lod_value * 0.5.
+        # 3. Convert to numeric.
+        # 4. Drop NaNs.
+        
+        if merged_df[col].dtype == 'object':
+            # Replace 'ND', 'Not Detected' (case insensitive)
+            merged_df[col] = merged_df[col].str.upper().replace({'ND': lod_value * 0.5, 'NOT DETECTED': lod_value * 0.5})
+            # Replace '0' string
+            merged_df[col] = merged_df[col].replace('0', lod_value * 0.5)
+            # Convert to numeric
+            merged_df[col] = pd.to_numeric(merged_df[col], errors='coerce')
         else:
-            logger.warning(f"Synthetic data mode: Sample size {final_n} is below {min_n}, but proceeding.")
+            # Numeric column
+            # Replace 0.0 with lod_value * 0.5
+            merged_df[col] = merged_df[col].replace(0.0, lod_value * 0.5)
+            # Ensure numeric
+            merged_df[col] = pd.to_numeric(merged_df[col], errors='coerce')
+        
+        # Now drop NaNs (truly missing)
+        merged_df = merged_df.dropna(subset=[col])
+    
+    # Microbiome Completeness: Verify taxon columns are not NaN for retained subjects.
+    # Taxon columns are all columns except subject_id, titer_baseline, titer_post.
+    taxon_cols = [col for col in merged_df.columns if col not in ['subject_id', 'titer_baseline', 'titer_post']]
+    if not taxon_cols:
+        raise ValueError("No taxon columns found in OTU table.")
+    
+    # Check for NaN in taxon columns
+    null_taxa_count = merged_df[taxon_cols].isnull().any(axis=1).sum()
+    if null_taxa_count > 0:
+        log_exclusion_count(logger, "Missing microbiome data", null_taxa_count)
+        merged_df = merged_df.dropna(subset=taxon_cols)
+    
+    final_count = len(merged_df)
+    log_sample_size(logger, final_count)
+    
+    min_sample_size = get_min_sample_size()
+    use_synthetic = get_use_synthetic_data()
+    
+    if final_count < min_sample_size and not use_synthetic:
+        error_msg = f"Insufficient sample size (N < {min_sample_size}) in final dataset."
+        log_error_context(logger, error_msg)
+        raise InsufficientSampleSizeError(error_msg)
+    
+    # Write output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    merged_df.to_csv(output_path, index=False)
+    logger.info(f"Written merged dataset to {output_path} with {final_count} subjects.")
     
     return merged_df
 
 def main():
-    """
-    Main entry point for T011d: Merge Microbiome and Serology.
-    Determines input files based on config (real vs synthetic) and writes output.
-    """
+    """Main entry point for merging strategy B."""
+    logger = get_logger(__name__)
+    
+    # Determine input paths based on synthetic flag
+    use_synthetic = get_use_synthetic_data()
+    if use_synthetic:
+        otu_path = Path("data/raw/synthetic_otutable.csv")
+        sero_path = Path("data/raw/synthetic_serology.csv")
+    else:
+        otu_path = Path("data/raw/otutable.csv")
+        sero_path = Path("data/raw/serology.csv")
+    
+    output_path = Path("data/processed/data_merged.csv")
+    
     try:
-        raw_path = Path(get_raw_path())
-        processed_path = Path(get_processed_path())
-        processed_path.mkdir(parents=True, exist_ok=True)
-        
-        use_synthetic = get_use_synthetic_data()
-        min_n = get_min_sample_size()
-        
-        if use_synthetic:
-            otu_file = raw_path / "synthetic_otutable.csv"
-            sero_file = raw_path / "synthetic_serology.csv"
-            logger.info("Using synthetic data sources.")
-        else:
-            otu_file = raw_path / "otutable.csv"
-            sero_file = raw_path / "serology.csv"
-            logger.info("Using real data sources.")
-        
-        if not otu_file.exists():
-            raise FileNotFoundError(f"OTU table not found: {otu_file}")
-        if not sero_file.exists():
-            raise FileNotFoundError(f"Serology metadata not found: {sero_file}")
-        
-        merged_df = merge_otu_serology(otu_file, sero_file, min_n, use_synthetic)
-        
-        output_file = processed_path / "cleared_with_diversity.csv"
-        merged_df.to_csv(output_file, index=False)
-        logger.info(f"Successfully wrote merged dataset to: {output_file}")
-        logger.info(f"Final dataset shape: {merged_df.shape}")
-        
+        merge_otu_serology(otu_path, sero_path, output_path, logger)
+        print(f"Successfully merged data to {output_path}")
     except InsufficientSampleSizeError as e:
-        logger.error(f"Pipeline failed: {e}")
+        print(f"ERROR: {e}")
         sys.exit(1)
     except Exception as e:
-        log_error_context(logger, e)
+        log_error_context(logger, f"Unexpected error during merge: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

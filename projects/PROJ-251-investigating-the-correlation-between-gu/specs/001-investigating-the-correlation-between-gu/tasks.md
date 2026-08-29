@@ -26,7 +26,7 @@
 
 - [ ] T010 [US1] **NCBI SRA Search & Verification**.
  - *Input*: Research question.
- - *Action*: Search for open-access SRA studies with paired 16S and Influenza serology. Verify the dataset contains all required variables (baseline taxa, post-vaccination titers).
+ - *Action*: Search for open-access SRA studies with paired 16S and Influenza serology using the NCBI E-utilities API. Use the specific search query: `"16S rRNA AND (influenza OR flu) AND (serology OR antibody OR titer) AND (human OR Homo sapiens)"`. Verify the dataset contains all required variables (baseline taxa, post-vaccination titers).
  - *Output*: If found, set `config.SRA_ACCESSION` and write `data/research/sra_search_results.json` with the accession ID and URL. If not found, set `config.USE_SYNTHETIC_DATA = True`, write `data/research/sra_search_results.json` with status "No Real Data Found", **AND write `data/research/sra_status.json` with `{"status": "no_real_data", "use_synthetic": true}`**. **This is a blocking gate for biological claims**.
  - *Verification*: Verify `data/research/sra_status.json` exists and contains `use_synthetic: true` before proceeding to T011b.
 
@@ -36,7 +36,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create project directories explicitly: `code/`, `data/raw`, `data/processed`, `data/results`, `specs/001-investigating-the-correlation-between-gu/contracts/`.
+- [ ] T001 [P] Create project root directories explicitly: `code/`, `data/raw`, `data/processed`, `data/results`, `tests/`.
  - *Verification*: Run `ls -R` and verify all directories exist.
  - *Note*: Paths are relative to the repository root.
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, scikit-learn, pyyaml, requests, biom-format).
@@ -101,14 +101,16 @@
 
 ## Phase 3: User Story 1 - Ingestion & Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest pre-processed 16S rRNA OTU tables and serology metadata, filter for complete records, and perform necessary preprocessing steps (normalization, diversity, log-transform, CLR) in strict sequential order.
+**Goal**: Ingest pre-processed 16S rRNA OTU tables and serology metadata, filter for complete records, and perform necessary preprocessing steps (normalization, diversity, log-transform, CLR) in strict sequential order with distinct intermediate files.
+
+**Data Flow Note**: The processing chain is strictly ordered: Merge (`data_merged.csv`) -> Normalize (`data_norm.csv`) -> Diversity (`data_div.csv`) -> Log-Transform (`data_log.csv`) -> CLR (`data_clr.csv`). Each step produces a new file with the updated suffix.
 
 **Independent Test**: The system can be tested by running the ingestion script against a known valid subset and verifying the output CSV contains exactly N rows (N ≥ 50) with no nulls in required columns.
 
 ### Strategy A: Primary Data Fetch (NCBI SRA)
 
 - [ ] T011a [US1] Implement Strategy A: Fetch pre-processed OTU table and serology metadata for the SRP accession series.
- - *Method*: Use `config.SRA_ACCESSION` to determine the specific accession. Fetch pre-processed OTU tables and serology metadata. If the fetch fails (404 or timeout), raise `DataUnavailableError`.
+ - *Method*: Use `config.SRA_ACCESSION` to determine the specific accession. Fetch pre-processed OTU tables and serology metadata. The fetch must support **CSV or BIOM** formats. Construct the URL based on the study's repository structure (e.g., `). If the fetch fails (404 or timeout), raise `DataUnavailableError`.
  - *Output*: `data/raw/otutable.csv` (columns: `subject_id`, `taxon_A`, `taxon_B`,...), `data/raw/serology.csv` (columns: `subject_id`, `titer_baseline`, `titer_post`).
 
 ### Strategy B: Synthetic Data Fallback (Conditional)
@@ -117,7 +119,7 @@
  - *Condition*: Execute ONLY if `config.USE_SYNTHETIC_DATA` is True (set by T010).
  - *Input*: `config` parameters (N=50, taxa count).
  - *Action*: Generate a synthetic OTU table (relative abundances summing to a constant) and serology metadata (titers) with controlled correlations for validation.
- - *Reproducibility*: Use `random.seed(42)`. Define a specific correlation structure (e.g., 5 taxa with r=0.5, rest noise).
+ - *Reproducibility*: Use `random.seed(42)`. Define a specific correlation structure: **Generate 5 taxa with r=0.5 using Cholesky decomposition of a correlation matrix where the target variable correlates with these 5 taxa at 0.5 and others at 0.0**.
  - *Output*: `data/raw/synthetic_otutable.csv`, `data/raw/synthetic_serology.csv`.
  - *Note*: **Methodology Note**: This task ensures the pipeline can execute for code validation if no real data is found. **Synthetic data is used ONLY for CI/Code Correctness validation and explicitly NOT for biological claims.**
 
@@ -127,50 +129,51 @@
  - *Input*: `data/raw/otutable.csv`, `data/raw/serology.csv` (from T011a) OR `data/raw/synthetic_otutable.csv`, `data/raw/synthetic_serology.csv` (from T011b).
  - *Dependency*: T011a OR T011b must complete first.
  - *Logic*:
- 1. **Merge & Filter**: Merge datasets on `subject_id`. Filter out subjects where `titer_baseline` OR `titer_post` is **truly missing (NaN/Null)**. **Do NOT filter out valid '0' or 'ND' (Not Detected) values**.
- 2. **Microbiome Completeness**: Verify that for retained subjects, microbiome taxon columns are not **truly missing (NaN)**. '0' abundance is valid.
- 3. **Final Validation**: Count subjects (N) in the filtered dataset.
- 4. **CRITICAL**: If N < 50 AND `config.USE_SYNTHETIC_DATA` is False (real data found but insufficient), raise `InsufficientSampleSizeError` immediately with message "Insufficient sample size (N < 50) in final dataset." **Log this error to `data/results/error_log.txt` and exit with code 1**.
- 5. **Output**: Write the final filtered dataset to `data/processed/cleared_with_diversity.csv`.
- - *Output*: `data/processed/cleared_with_diversity.csv`.
- - *Note*: This task is the sole producer of the merged artifact.
+ 1. **Merge & Filter**: Merge datasets on `subject_id`. Filter out subjects where `titer_baseline` OR `titer_post` is **truly missing (NaN/Null)**.
+ 2. **LOD Handling**: For any titer value marked as 'ND' (Not Detected) or '0', **impute as a fraction of the limit of detection**. **Default LOD: If `config.LOD_VALUE` is not set, default to 10.0**. If LOD is undefined, exclude the row. **Ensure all titer columns are numeric**.
+ 3. **Microbiome Completeness**: Verify that for retained subjects, microbiome taxon columns are not **truly missing (NaN)**. '0' abundance is valid.
+ 4. **Final Validation**: Count subjects (N) in the filtered dataset.
+ 5. **CRITICAL**: If N < 50 AND `config.USE_SYNTHETIC_DATA` is False (real data found but insufficient), raise `InsufficientSampleSizeError` immediately with message "Insufficient sample size (N < 50) in final dataset." **Log this error to `data/results/error_log.txt` and exit with code 1**.
+ 6. **Output**: Write the final filtered dataset to `data/processed/data_merged.csv`.
+ - *Output*: `data/processed/data_merged.csv`.
+ - *Note*: This task is the sole producer of the merged artifact. **Verify Td_doc has been completed to document the LOD choice.**
 
-- [ ] T019 [US1] **Implement zero-variance taxa exclusion**.
- - *Input*: `data/processed/cleared_with_diversity.csv` (output of T011d).
- - *Dependency*: T011d must complete first.
- - *Logic*: Filter out taxa with zero variance (all values identical, e.g., all 0) across all subjects BEFORE normalization/CLR to avoid division by zero or undefined statistics. **Note: This is a pre-processing optimization on raw data.**
- - *Output*: `data/processed/cleared_with_diversity.csv` (**Append** a column `zero_variance_removed` or update the file by removing columns; subsequent tasks read this updated file).
+- [ ] T011d_doc [US1] **Document LOD Handling Choice**.
+ - *Input*: T011d logic.
+ - *Action*: Write a section to `data/results/assumptions.md` explicitly documenting the choice to impute LOD values as 0.5 * LOD (default 10.0) rather than excluding subjects, citing the Spec's Edge Cases requirement to "treat these as a specific value... with the choice documented".
+ - *Output*: `data/results/assumptions.md`.
+ - *Verification*: Verify `assumptions.md` contains the specific LOD handling rationale.
 
 - [ ] T019a [US1] **Normalize to Relative Abundance**.
- - *Input*: `data/processed/cleared_with_diversity.csv` (output of T019).
- - *Dependency*: T019 must complete first.
+ - *Input*: `data/processed/data_merged.csv` (output of T011d).
+ - *Dependency*: T011d must complete first.
  - *Logic*: Sum abundances per subject and divide each taxon by the sum.
- - *Output*: `data/processed/cleared_with_diversity.csv` (**Append** normalized columns `taxon_A_rel`, `taxon_B_rel`, etc.).
+ - *Output*: Write normalized data to `data/processed/data_norm.csv` (**Do not append to existing file; write new file**).
 
-- [X] T020c [US1] Calculate Shannon diversity index in `code/02_preprocess.py` using `data/processed/cleared_with_diversity.csv`.
- - *Input*: `data/processed/cleared_with_diversity.csv` (output of T019a, containing normalized taxa).
+- [ ] T020c [US1] Calculate Shannon diversity index in `code/02_preprocess.py` using `data/processed/data_norm.csv`.
+ - *Input*: `data/processed/data_norm.csv` (output of T019a, containing normalized taxa).
  - *Dependency*: T019a must complete first.
  - *Logic*: Calculate Shannon index for each subject. (Note: Shannon depends on taxa abundances, not log-titers).
- - *Output*: `data/processed/cleared_with_diversity.csv` (**Append** `shannon_diversity` column).
+ - *Output*: Write data with `shannon_diversity` column to `data/processed/data_div.csv`.
 
 - [X] T021 [US1] **Log-Transform Titers & LOD Handling**: Implement log-transformation of raw antibody titers in `code/02_preprocess.py`.
- - *Input*: `data/processed/cleared_with_diversity.csv` (from T011d).
- - *Dependency*: T011d must complete first. (Independent of T019a/T020c/T020a).
+ - *Input*: `data/processed/data_norm.csv` (output of T019a).
+ - *Dependency*: **T019a must complete first**. (Note: T021 does NOT depend on T020c; it reads from `data_norm.csv` directly to avoid dependency on Shannon calculation).
  - *Logic*:
- 1. **LOD Handling**: For any titer value < Limit of Detection (LOD), impute as a fractional proportion of the LOD. Log the count of imputed values and the strategy used.
+ 1. **LOD Handling**: Verify all titer values are numeric (imputed in T011d).
  2. Apply `np.log10(titer_post)` (or `np.log`) to `titer_post` column. (Standard log10 or ln).
  3. Add `log_titer` column to the dataset.
- - *Output*: `data/processed/cleared_with_diversity.csv` (**Append** `log_titer` column).
+ - *Output*: Write data with `log_titer` column to `data/processed/data_log.csv`.
 
 - [X] T020a [US1] Run CLR transformation with a default pseudocount (1e-6) in `code/02_preprocess.py`.
- - *Input*: `data/processed/cleared_with_diversity.csv` (output of T019a).
- - *Dependency*: T019a must complete first.
+ - *Input*: `data/processed/data_log.csv` (output of T021).
+ - *Dependency*: **T021 must complete first**. **Note: T020a depends on T021 to ensure log-transformed titers are present, though CLR applies to abundances.**
  - *Logic*: Apply zero-replacement (pseudocount = 1e-6 or `config.CLR_PSEUDOCOUNT`) to all zero abundances, then CLR transformation.
- - *Output*: `data/processed/cleared_with_diversity.csv` (**Append** CLR-transformed columns `taxon_A_clr`, `taxon_B_clr`, etc.).
+ - *Output*: Write data with CLR-transformed columns (`taxon_A_clr`, etc.) to `data/processed/data_clr.csv`.
 
 - [ ] T013 [US1] **Schema Validation**: Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml`.
- - *Input*: `data/processed/cleared_with_diversity.csv` (output of T011d), `contracts/dataset.schema.yaml` (output of T001a).
- - *Dependency*: T011d AND T001a must complete first.
+ - *Input*: `data/processed/data_clr.csv` (output of T020a), `contracts/dataset.schema.yaml` (output of T001a).
+ - *Dependency*: T020a AND T001a must complete first.
  - *Logic*: Validate the merged dataset against the schema defined in `contracts/dataset.schema.yaml`.
  - *Output*: `data/results/schema_validation_report.json`.
 
@@ -191,16 +194,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T032 [US2] **Permutation Testing & Feature Selection**: Implement Spearman rank correlation with Permutation Testing and BH correction in `code/03_correlation.py`.
- - *Input*: `data/processed/cleared_with_diversity.csv` (contains CLR taxa and `log_titer`). **Requires T021 to have successfully added log_titer column**.
- - *Dependency*: T019, T019a, T020a, **T021** must complete first.
+- [ ] T032 [US2] **Correlation & Feature Selection (Spearman Primary)**.
+ - *Input*: `data/processed/data_clr.csv` (contains CLR taxa and `log_titer`). **Requires T020a (CLR) and T021 (Log-Transform) to have completed**.
+ - *Dependency*: T019a, T021, T020a must complete first. (T020c is NOT required).
  - *Logic*:
- 1. **Global Unsupervised Filter**: Remove taxa with zero variance (already done in T019, but verify).
- 2. **Permutation Test**: Calculate Spearman correlation between each taxon and `log_titer`. Generate empirical p-values by shuffling the `log_titer` labels 1000 times (`n_permutations=1000`) and calculating the proportion of permuted correlations that exceed the observed correlation.
- 3. **Intermediate Artifact**: Save empirical p-values to `data/results/permutation_pvalues.csv`. **Verify file exists before proceeding**.
- 4. **BH Correction**: Apply Benjamini-Hochberg correction to the **empirical** p-values from the permutation test.
- 5. **Selection**: Select taxa with $p_{adj} < 0.05$.
- - *Methodology Override*: **Note**: This task implements "Permutation Testing" to generate empirical p-values. This is a deviation from FR-005 (which specifies standard BH on correlation p-values) **authorized by the Plan** to generate empirical p-values for robustness.
+ 1. **Global Unsupervised Filter (Conditional Fallback)**: Remove taxa with zero variance (variance < 1e-9) across the full dataset. **This is a fallback only if BH yields no features later**.
+ 2. **Primary Correlation**: Perform **Spearman Rank Correlation** between CLR-transformed taxa and log-transformed titers to generate raw p-values. **This is the primary method** as per Spec FR-004.
+ 3. **BH Correction**: Apply Benjamini-Hochberg correction to the **raw p-values**.
+ 4. **Selection**: Select taxa with $p_{adj} < 0.05$. If none, fallback to **top-k (k=10)** by raw magnitude from the *variance-filtered* set.
+ 5. **Secondary Comparison**: Run a **Permutation Test** (1000 permutations, shuffling `log_titer` labels) to generate empirical p-values for comparison. Save this to a separate artifact.
+ 6. **Output**: Write primary results (Spearman p-values) to `data/results/correlation_results.json`. Write secondary comparison results to `data/results/permutation_comparison.json`.
+ - *Methodology Note*: This task prioritizes Spearman Correlation as the primary method to align with Spec FR-004. Permutation testing is secondary for robustness.
  - *Output*: `data/results/correlation_results.json`.
 
 - [ ] T024 [US2] Write correlation results (coeff, raw p, adj p) to `data/results/correlation_results.csv`.
@@ -209,7 +213,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for CLR transformation logic in `code/tests/test_correlation.py`: Add function `test_clr_transform_handles_zeros`.
+- [X] T018 [P] [US2] Unit test for CLR transformation logic in `code/tests/test_correlation.py`: Add function `test_clr_transform_handles_zeros`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -223,41 +227,54 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030a [US3] Implement seroconversion logic (≥4-fold rise in titer) in `code/04_modeling.py`.
+- [X] T030a [US3] Implement seroconversion logic (≥4-fold rise in titer) in `code/04_modeling.py`.
  - *Formula*: `post_titer >= 4 * baseline_titer`.
 
-- [ ] T030b [US3] Implement absolute titer logic (e.g., HAI ≥ 40) in `code/04_modeling.py`.
+- [X] T030b [US3] Implement absolute titer logic (e.g., HAI ≥ 40) in `code/04_modeling.py`.
  - *Formula*: `post_titer >= 40`.
 
-- [ ] T030c [US3] Implement threshold parameterization for responder definition in `code/04_modeling.py`.
+- [X] T030c [US3] Implement threshold parameterization for responder definition in `code/04_modeling.py`.
 
 - [ ] T030d [US3] Apply responder definition to dataset and output `data/processed/responder_labels.csv`.
  - *Output*: `data/processed/responder_labels.csv` with columns `[subject_id, responder_status]`.
  - *Logic*: Use seroconversion if pre-vaccination titers exist; else use absolute titer. Log mode used.
  - *Dependency*: T011d must complete first.
 
+- [ ] T025 [US2] **Measure & Log SC-004 Outcome**.
+ - *Input*: `data/results/correlation_results.json`.
+ - *Action*: Count significant taxa (adj p < 0.05).
+ - *Logic*: **If data is REAL** (config.USE_SYNTHETIC_DATA is False) AND count is outside expected range (1 to 9), **log a WARNING** to `data/results/error_log.txt`. **DO NOT HALT**. Write a status report to `data/results/sc004_status.json` with the count and a flag indicating "outside_expected_range". **Proceed to next task**.
+ - *Output*: Log entry and `data/results/sc004_status.json`.
+ - *Dependency*: Must run BEFORE T034d.
+ - *Note*: This task is a **non-blocking validation**. It confirms data readiness but does not stop the pipeline.
+
 - [ ] T032a [US3] **Implement Feature Selection Inside Training Loop**.
- - *Input*: `data/processed/cleared_with_diversity.csv`, `data/processed/responder_labels.csv`.
+ - *Input*: `data/processed/data_clr.csv`, `data/processed/responder_labels.csv`.
  - *Dependency*: T030d must complete first.
  - *Logic*: Implement a function `select_features_inner_loop(train_X, train_y)` that performs variance filtering + BH correction strictly on the training set only. This function will be called inside the nested CV loop in T034d.
  - *Output*: `code/04_modeling.py` (updated with `select_features_inner_loop` function).
 
 - [ ] T034d [US3] **Nested CV & Sensitivity Analysis**.
- - *Input*: `data/processed/cleared_with_diversity.csv`, `data/processed/responder_labels.csv`.
- - *Dependency*: T030d, **T032**, **T032a** must complete first. (T020c is NOT required).
+ - *Input*: `data/processed/data_clr.csv`, `data/processed/responder_labels.csv`.
+ - *Dependency*: T030d, **T032**, **T032a**, **T025** must complete first. (T020c is NOT required).
  - *Logic*:
- 1. **Threshold Loop**: Loop through responder thresholds across a representative range (slightly below to slightly above the default threshold in equal steps). The 'default threshold' is defined by `config.SEROCONVERSION_THRESHOLD` if the active mode is seroconversion, or `config.HAI_THRESHOLD` if the active mode is absolute titer. Sweep range: ±10% in 5 steps.
- 2. **For EACH threshold**:
+ 1. **Status Check**: Read `data/results/sc004_status.json`. If T025 flagged "outside_expected_range" for real data, log a **WARNING** that the model is being trained on a dataset with low correlation signal, but **CONTINUE** execution.
+ 2. **Threshold Loop**: Loop through responder thresholds across a representative range.
+ - **Base Threshold**: Use **4.0** (seroconversion) as the starting point.
+ - **Sweep Range**: Calculate 5 steps: `base_threshold * (1 + i * 0.05)` for i in a set of integer values spanning from negative to positive indices, including zero. (±10%).
+ 3. **For EACH threshold**:
  a. Define the NEW responder labels based on the current threshold.
  b. **Regenerate Outer Folds**: Generate a set of NEW folds for the current threshold split (do NOT reuse folds from previous thresholds).
  c. **Inner Loop**: For each outer fold:
  i. **Feature Selection**: Call `select_features_inner_loop` (from T032a) strictly within the training set of this fold.
  ii. **Model**: Train Random RF on selected features.
  iii. **Evaluate**: Test on the held-out fold.
- d. **Null Distribution**: Generate a null distribution by permuting labels (or features) for the current threshold's outer folds.
- e. **Log Metrics**: Record accuracy, precision, recall, F1 for this threshold.
- f. **Output**: Save null distribution to `data/results/null_distribution.csv` (**Append** with a `threshold_id` column for each threshold iteration).
- 3. **Output**: `data/results/sensitivity_analysis.csv` and `data/results/model_metrics.json`.
+ d. **Log Isolation**: **Explicitly log** that feature selection was isolated within the training set for this threshold and fold, verifying FR-007 compliance.
+ e. **Null Distribution**: Generate a null distribution by permuting labels (or features) for the current threshold's outer folds.
+ f. **Log Metrics**: Record accuracy, precision, recall, F1 for this threshold.
+ g. **Output**: Save null distribution to `data/results/null_distribution.csv` (**Append** with a `threshold_id` column for each threshold iteration).
+ 4. **Resource Check**: Monitor runtime/memory. If limits are approached, trigger sampling fallback (see T042/T043).
+ 5. **Output**: `data/results/sensitivity_analysis.csv` and `data/results/model_metrics.json`.
 
 - [ ] T036a [US3] Calculate and log confusion matrix, precision, recall, F1-score for high/low responders.
  - *Input*: Model predictions from T034d.
@@ -289,11 +306,6 @@
 
 **Purpose**: Success criterion checks and final report generation
 
-- [ ] T025 [US2] **Success Criterion Check (SC-004)**.
- - *Input*: `data/results/correlation_results.json`.
- - *Action*: Count significant taxa. **Log** if count is outside expected range (1 to 9, defined in `config.SIGNIFICANT_TAXA_RANGE`) AND data is real. **Do NOT halt execution**. If synthetic, log "Exploratory" and proceed.
- - *Output*: Log entry in `data/results/final_report.md` or `data/results/success_criteria_log.txt`.
-
 - [ ] T045 [US3] **Final Report Generation**.
  - *Input*: All result JSONs/CSVs from previous phases.
  - *Output*: `data/results/final_report.md` aggregating N count, correlation results, and model metrics.
@@ -310,10 +322,10 @@
 - [X] T040c [P] [US2] Unit test for CLR pseudocount edge cases in `code/tests/test_correlation.py`: Add function `test_clr_pseudocount_handles_extreme_zeros`.
 - [X] T041 Run quickstart.md validation
 - [X] T042 Implement runtime monitoring in `code/main.py`.
- - *Logic*: Integrate into `code/main.py` orchestration script. Use `time` module to measure total runtime at the end of execution. Log to `data/results/resource_usage.json` with key `total_runtime_seconds`. Assert < `config.RUNTIME_LIMIT` (from spec). If violated, raise `RuntimeError`.
+ - *Logic*: Integrate into `code/main.py` orchestration script. Use `time` module to measure total runtime at the end of execution. Log to `data/results/resource_usage.json` with key `total_runtime_seconds`. **If runtime > 1.5 hours, trigger sampling fallback (call `code/00_sample.py` with `seed=42, retain_ratio=0.8`) to downsample) and re-run**. If still > 2 hours, raise `RuntimeError`.
  - *Depends on*: Completion of Phase 3, 4, 5.
 - [X] T043 Implement memory & runtime verification.
- - *Logic*: Integrate into `code/main.py` orchestration script. Use `psutil.Process().memory_info().rss` to measure peak memory at the end of execution. Log to `data/results/resource_usage.json` with key `peak_memory_mb`. Assert < 7GB (7340 MB). If violated, raise `RuntimeError`.
+ - *Logic*: Integrate into `code/main.py` orchestration script. Use `psutil.Process().memory_info().rss` to measure peak memory at the end of execution. Log to `data/results/resource_usage.json` with key `peak_memory_mb`. **If memory > 6 GB, trigger sampling fallback (call `code/00_sample.py` with `seed=42, retain_ratio=0.8`)**. If still > 7 GB, raise `RuntimeError`.
  - *Depends on*: Completion of Phase 3, 4, 5.
 - [X] T052 [US3] **Verify Null Distribution Robustness**: Enhance `code/04_modeling.py` to validate the null distribution generation.
 - [X] T056 [US3] **Document Sampling Strategy and Limitations**: If sampling is used (T011d), document the exact sampling rule and its limitations in `data/results/sampling_report.md`.

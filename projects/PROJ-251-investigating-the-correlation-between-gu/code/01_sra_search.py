@@ -2,224 +2,221 @@ import os
 import sys
 import logging
 import json
+import requests
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-import requests
+# Add parent directory to path for imports if running as script
+if 'code' not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent))
 
-from utils.logging_config import get_logger
-from utils.config import get_sra_accession, get_use_synthetic_data, ensure_directories, get_output_path
+from utils.config import get_sra_accession, get_use_synthetic_data, ensure_directories
+from utils.logging_config import get_logger, log_error_context
 
 logger = get_logger(__name__)
 
-class DataUnavailableError(Exception):
-    """Raised when no real data is found in SRA."""
-    pass
+# NCBI E-utilities base URL
+ESEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+EFETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 
-def search_ncbi_sra(query: str, limit: int = 5) -> List[Dict[str, Any]]:
+def format_search_query() -> str:
+    """Construct the specific search query for SRA studies."""
+    return (
+        '"16S rRNA AND (influenza OR flu) AND (serology OR antibody OR titer) AND (human OR Homo sapiens)"'
+    )
+
+def validate_accession_format(accession: str) -> bool:
+    """Validate that the accession string looks like a real SRA accession."""
+    if not accession:
+        return False
+    # SRA accessions typically start with SRP, SRS, SRX, or SRR
+    prefixes = ('SRP', 'SRS', 'SRX', 'SRR')
+    return any(accession.upper().startswith(p) for p in prefixes)
+
+def search_ncbi_sra(query: str, max_results: int = 10) -> Optional[str]:
     """
-    Search NCBI SRA for studies matching the query.
-    Returns a list of study metadata dictionaries.
+    Search NCBI SRA using E-utilities.
+    Returns the first valid accession ID found, or None if no results.
     """
-    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
     params = {
-        "db": "sra",
-        "term": f"{query} AND (16S[All Fields] AND influenza[All Fields])",
-        "retmax": limit,
-        "usehistory": "y",
-        "retmode": "json"
+        'db': 'sra',
+        'term': query,
+        'retmode': 'json',
+        'retmax': max_results
     }
 
-    logger.info(f"Searching NCBI SRA with query: {query}")
     try:
-        response = requests.get(base_url, params=params, timeout=30)
+        logger.info(f"Searching NCBI SRA with query: {query}")
+        response = requests.get(ESEARCH_URL, params=params, timeout=30)
         response.raise_for_status()
         data = response.json()
-        
-        if "esearchresult" not in data or "idlist" not in data["esearchresult"]:
-            logger.warning("SRA search returned no IDs.")
-            return []
-        
-        ids = data["esearchresult"]["idlist"]
-        logger.info(f"Found {len(ids)} potential study IDs: {ids}")
-        return ids
-    except requests.RequestException as e:
-        logger.error(f"Failed to search NCBI SRA: {e}")
-        raise DataUnavailableError(f"Network error during SRA search: {e}")
 
-def get_study_metadata(study_ids: List[str]) -> List[Dict[str, Any]]:
-    """
-    Fetch detailed metadata for a list of SRA study IDs.
-    """
-    if not study_ids:
-        return []
-    
-    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
-    metadata_list = []
-    
-    for s_id in study_ids:
-        params = {
-            "db": "sra",
-            "id": s_id,
-            "retmode": "json"
-        }
-        try:
-            response = requests.get(base_url, params=params, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            if "result" in data and s_id in data["result"]:
-                metadata_list.append(data["result"][s_id])
-        except requests.RequestException as e:
-            logger.warning(f"Failed to fetch metadata for {s_id}: {e}")
-            continue
-    
-    return metadata_list
+        if 'esearchresult' not in data:
+            logger.error("Invalid response structure from NCBI E-utilities")
+            return None
 
-def verify_study_contains_required_data(metadata: Dict[str, Any]) -> bool:
+        id_list = data['esearchresult'].get('idlist', [])
+        if not id_list:
+            logger.warning("No results found in SRA search")
+            return None
+
+        # Return the first accession ID
+        accession = id_list[0]
+        logger.info(f"Found SRA accession: {accession}")
+        return accession
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error during SRA search: {e}")
+        return None
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}")
+        return None
+
+def get_study_metadata(accession: str) -> Optional[Dict[str, Any]]:
     """
-    Verify if the study metadata indicates presence of required data types.
-    Checks for:
-    1. 16S rRNA sequencing (implied by library strategy or description)
-    2. Host (human) samples
-    3. Presence of associated metadata (implied by study design)
-    
-    Returns True if the study looks promising for the specific research question.
+    Fetch metadata for a specific SRA study to verify content.
     """
-    description = metadata.get("description", "").lower()
-    title = metadata.get("title", "").lower()
-    library_strategy = metadata.get("library_strategy", "").lower()
-    
-    # Heuristic checks
-    has_16s = "16s" in description or "16s" in title or "rrna" in description
-    has_influenza = "influenza" in description or "flu" in description or "vaccination" in description
-    has_human = "human" in description or "human" in title
-    
-    if has_16s and has_influenza and has_human:
-        logger.info(f"Study {metadata.get('accession', 'Unknown')} matches criteria: 16S, Influenza, Human.")
+    params = {
+        'db': 'sra',
+        'id': accession,
+        'retmode': 'json'
+    }
+
+    try:
+        response = requests.get(EFETCH_URL, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+
+        # NCBI E-utilities for SRA often returns a list of studies
+        studies = data.get('SRAStudies', [])
+        if not studies:
+            logger.warning(f"No metadata found for accession {accession}")
+            return None
+
+        study = studies[0]
+        return study
+
+    except Exception as e:
+        logger.error(f"Failed to fetch metadata for {accession}: {e}")
+        return None
+
+def verify_study_contains_required_data(accession: str) -> bool:
+    """
+    Verify that the study likely contains 16S and serology data.
+    This is a heuristic check based on title/description.
+    """
+    metadata = get_study_metadata(accession)
+    if not metadata:
+        return False
+
+    # Heuristic: Check if the title or description mentions relevant keywords
+    # Note: Real verification would require downloading and inspecting samples
+    title = metadata.get('Title', '').lower()
+    description = metadata.get('Description', '').lower()
+    combined = f"{title} {description}"
+
+    required_keywords = ['16s', 'influenza', 'flu']
+    found_keywords = [kw for kw in required_keywords if kw in combined]
+
+    if len(found_keywords) >= 2:
+        logger.info(f"Study {accession} appears to contain required data types.")
         return True
-    
-    logger.debug(f"Study {metadata.get('accession', 'Unknown')} did not match all heuristic criteria.")
+
+    logger.warning(f"Study {accession} metadata does not strongly indicate required data types.")
     return False
 
-def create_synthetic_config() -> Dict[str, Any]:
-    """
-    Creates a configuration dictionary indicating no real data was found.
-    """
-    return {
-        "status": "no_real_data",
-        "use_synthetic": True,
-        "message": "No suitable real dataset found in NCBI SRA for paired 16S and Influenza serology.",
-        "timestamp": str(Path().cwd())
-    }
+class DataUnavailableError(Exception):
+    """Raised when real data cannot be found or accessed."""
+    pass
 
-def create_real_data_config(accession_id: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Creates a configuration dictionary for a found real dataset.
-    """
+def create_real_data_config(accession: str, url: str) -> Dict[str, Any]:
+    """Create configuration object for real data found."""
     return {
         "status": "real_data_found",
+        "accession": accession,
+        "url": url,
         "use_synthetic": False,
-        "sra_accession": accession_id,
-        "study_title": metadata.get("title", ""),
-        "study_url": f"https://www.ncbi.nlm.nih.gov/sra/?term={accession_id}",
-        "timestamp": str(Path().cwd())
+        "timestamp": str(datetime.now())
     }
 
-def write_config_to_file(config: Dict[str, Any], output_path: Path):
-    """
-    Writes the search result configuration to a JSON file.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(config, f, indent=2)
-    logger.info(f"Search results written to {output_path}")
+def create_synthetic_config() -> Dict[str, Any]:
+    """Create configuration object indicating synthetic data fallback."""
+    return {
+        "status": "no_real_data",
+        "accession": None,
+        "url": None,
+        "use_synthetic": True,
+        "reason": "No suitable SRA study found with paired 16S and serology data",
+        "timestamp": str(datetime.now())
+    }
 
-def run_sra_search() -> bool:
+def write_config_to_file(config: Dict[str, Any], output_path: Path) -> None:
+    """Write the configuration dictionary to a JSON file."""
+    with open(output_path, 'w') as f:
+        json.dump(config, f, indent=2)
+    logger.info(f"Configuration written to {output_path}")
+
+def run_sra_search() -> Dict[str, Any]:
     """
-    Main execution logic for T010.
-    Returns True if real data is found, False if synthetic fallback is needed.
+    Main entry point for SRA search and verification.
+    Returns the configuration dictionary.
     """
     ensure_directories()
-    
-    # Output paths
-    results_json_path = get_output_path("data/research/sra_search_results.json")
-    status_json_path = get_output_path("data/research/sra_status.json")
-    
-    # Search query
-    query = "Gut Microbiome Influenza Vaccination"
-    
-    try:
-        # 1. Search
-        study_ids = search_ncbi_sra(query)
-        
-        if not study_ids:
-            logger.warning("No study IDs found in SRA search.")
-            config = create_synthetic_config()
-            write_config_to_file(config, results_json_path)
-            
-            # Write status file for blocking gate
-            status = {"status": "no_real_data", "use_synthetic": True}
-            status_json_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(status_json_path, 'w') as f:
-                json.dump(status, f, indent=2)
-            return False
+    search_query = format_search_query()
+    output_dir = Path("data/research")
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-        # 2. Verify
-        for s_id in study_ids:
-            metadata_list = get_study_metadata([s_id])
-            if not metadata_list:
-                continue
-            
-            meta = metadata_list[0]
-            if verify_study_contains_required_data(meta):
-                # Found a match
-                config = create_real_data_config(s_id, meta)
-                write_config_to_file(config, results_json_path)
-                
-                # Update global config in memory (and ideally write to config file if needed, 
-                # but for now we assume the runner will read this JSON or update config.py)
-                # For this task, we just log it and set the status file.
-                status = {"status": "real_data_found", "use_synthetic": False, "accession": s_id}
-                status_json_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(status_json_path, 'w') as f:
-                    json.dump(status, f, indent=2)
-                
-                logger.info(f"Real data found: {s_id}")
-                return True
-        
-        # If we get here, we found IDs but none matched the specific criteria
-        logger.warning("No suitable studies found matching all criteria.")
-        config = create_synthetic_config()
-        write_config_to_file(config, results_json_path)
-        
-        status = {"status": "no_real_data", "use_synthetic": True}
-        status_json_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(status_json_path, 'w') as f:
-            json.dump(status, f, indent=2)
-        return False
+    results_file = output_dir / "sra_search_results.json"
+    status_file = output_dir / "sra_status.json"
 
-    except DataUnavailableError as e:
-        logger.error(f"Search failed: {e}")
+    # Perform search
+    accession = search_ncbi_sra(search_query)
+
+    if not accession:
+        logger.warning("No SRA accession found. Marking for synthetic data fallback.")
         config = create_synthetic_config()
-        write_config_to_file(config, results_json_path)
-        status = {"status": "no_real_data", "use_synthetic": True}
-        status_json_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(status_json_path, 'w') as f:
-            json.dump(status, f, indent=2)
-        return False
-    except Exception as e:
-        logger.critical(f"Unexpected error during SRA search: {e}")
-        raise
+        write_config_to_file(config, results_file)
+        write_config_to_file(config, status_file)
+        return config
+
+    # Verify the study
+    if not verify_study_contains_required_data(accession):
+        logger.warning(f"Found accession {accession} but could not verify data content. Falling back to synthetic.")
+        config = create_synthetic_config()
+        write_config_to_file(config, results_file)
+        write_config_to_file(config, status_file)
+        return config
+
+    # Construct URL
+    sra_url = f"https://www.ncbi.nlm.nih.gov/sra/?term={accession}"
+
+    # Success
+    logger.info(f"Verified real data source: {accession}")
+    config = create_real_data_config(accession, sra_url)
+    
+    # Update global config variable in memory (simulated for this script)
+    # In a real pipeline, this would update a shared state or env var
+    
+    write_config_to_file(config, results_file)
+    write_config_to_file(config, status_file)
+    
+    return config
 
 def main():
-    """Entry point for T010."""
-    logger.info("Starting T010: NCBI SRA Search & Verification")
-    success = run_sra_search()
-    if success:
-        logger.info("T010 Complete: Real data identified.")
-    else:
-        logger.info("T010 Complete: No real data found. Synthetic data mode enabled.")
-    return 0 if success else 0 # Return 0 even if synthetic, as the task itself succeeded in determining status
+    """Script entry point."""
+    try:
+        result = run_sra_search()
+        if result.get("use_synthetic"):
+            print(f"Status: {result['status']}. Synthetic data will be used.")
+            sys.exit(0) # Exit 0 as this is a valid outcome for the pipeline
+        else:
+            print(f"Status: Real data found. Accession: {result['accession']}")
+            sys.exit(0)
+    except Exception as e:
+        logger.critical(f"Fatal error in SRA search: {e}")
+        with log_error_context("sra_search_error"):
+            raise
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

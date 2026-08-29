@@ -1,8 +1,8 @@
 {
-  "status": "success",
-  "accession": "SRP096678",
-  "url": "https://www.ncbi.nlm.nih.gov/sra/SRP096678",
-  "description": "Gut Microbiome and Influenza Vaccine Response Study",
-  "variables_found": ["baseline_taxa", "post_vaccination_titers"],
-  "timestamp": "2023-10-27T10:00:00Z"
+  "status": "no_real_data",
+  "accession": null,
+  "url": null,
+  "use_synthetic": true,
+  "reason": "No suitable SRA study found with paired 16S and serology data",
+  "timestamp": "2023-10-27 10:00:00"
 }

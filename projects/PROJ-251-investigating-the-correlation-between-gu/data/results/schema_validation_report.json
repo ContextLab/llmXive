@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "data_file": "data/processed/data_clr.csv",
+  "schema_file": "specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml",
+  "total_rows": 50,
+  "valid_rows": 50,
+  "invalid_rows": 0,
+  "errors": []
+}

@@ -4,46 +4,34 @@ from pathlib import Path
 
 def create_directories():
     """
-    Create the required project directory structure explicitly.
-    Directories created:
-      - code/
-      - data/raw
-      - data/processed
-      - data/results
-      - specs/001-investigating-the-correlation-between-gu/contracts/
+    Create the required project root directories explicitly:
+    code/, data/raw, data/processed, data/results, tests/.
+    
+    This function ensures the directory structure exists for the pipeline.
     """
-    # Define the project root (assuming this script is run from the root or code/)
-    # We use the directory of this script as the base if run as main, 
-    # otherwise we assume current working directory is project root.
-    # To be safe, we resolve relative to the current working directory.
-    project_root = Path.cwd()
-
+    base_dir = Path(__file__).resolve().parent.parent
+    
     directories = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "data/research", # Added based on T010 output requirement
-        "specs/001-investigating-the-correlation-between-gu/contracts",
+        base_dir / "code",
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "data" / "results",
+        base_dir / "tests",
     ]
-
-    created_count = 0
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
-
-    return created_count
+    
+    created = []
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        created.append(str(directory))
+        print(f"Created directory: {directory}")
+        
+    return created
 
 def main():
     """Main entry point for directory creation."""
-    print("Starting directory creation for project...")
-    count = create_directories()
-    print(f"Finished. {count} new directories created.")
+    print("Starting directory creation...")
+    created_dirs = create_directories()
+    print(f"Successfully created {len(created_dirs)} directories.")
     return 0
 
 if __name__ == "__main__":

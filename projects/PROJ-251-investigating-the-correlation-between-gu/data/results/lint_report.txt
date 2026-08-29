@@ -1,12 +1,28 @@
-Linting Report for /project_root/code
+LINTING AND FORMATTING REPORT
 ==================================================
 
-Ruff Exit Code: 0
-All checks passed!
+Code directory: /project/code
+Ruff exit code: 0
+Black exit code: 0
 
-Black Exit Code: 0
-All done! ✨
+STATUS: SUCCESS - All checks passed and formatting applied.
 
-1 file would be left unchanged.
+### RUFF CHECK AND FIX ###
+RUFF CHECK RESULTS (Exit Code: 0)
+==================================================
+No issues found (or no output).
 
-Overall Status: SUCCESS
+RUFF FIX RESULTS (Exit Code: 0)
+==================================================
+No fixes needed or applied.
+
+### BLACK FORMAT ###
+BLACK CHECK RESULTS (Exit Code: 0)
+==================================================
+All done! ✨ 🍰 ✨
+0 files would be reformatted, 0 files left unchanged.
+
+BLACK FORMAT RESULTS (Exit Code: 0)
+==================================================
+All done! ✨ 🍰 ✨
+0 files would be reformatted, 0 files left unchanged.

@@ -1,12 +1,3 @@
-"""
-Configuration module for the Gut Microbiome - Influenza Vaccination study.
-
-This module provides centralized configuration management including:
-- File paths
-- Random seeds
-- Thresholds
-- Feature flags (USE_SYNTHETIC_DATA)
-"""
 import os
 import secrets
 from pathlib import Path
@@ -14,160 +5,121 @@ from typing import Optional, Dict, Any, List
 import yaml
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables from .env file if it exists
 load_dotenv()
 
-# Project root directory (assumes code/ is at project root)
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+# Project root path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-# Directory paths
-CODE_DIR = PROJECT_ROOT / "code"
-DATA_DIR = PROJECT_ROOT / "data"
-DATA_RAW = DATA_DIR / "raw"
-DATA_PROCESSED = DATA_DIR / "processed"
-DATA_RESULTS = DATA_DIR / "results"
-DATA_RESEARCH = DATA_DIR / "research"
-SPECS_DIR = PROJECT_ROOT / "specs" / "001-investigating-the-correlation-between-gu"
-CONTRACTS_DIR = SPECS_DIR / "contracts"
+# Configuration defaults
+DEFAULT_SEED = 42
+DEFAULT_PSEUDOCOUNT = 1e-6
+DEFAULT_LOD = 10.0
+DEFAULT_LOD_HANDLING = "impute"  # Options: "impute", "exclude"
+DEFAULT_MIN_SAMPLE_SIZE = 50
+DEFAULT_SEROCONVERSION_THRESHOLD = 4.0
+DEFAULT_HAI_THRESHOLD = 40.0
+DEFAULT_RUNTIME_LIMIT = 5400  # 1.5 hours in seconds
+DEFAULT_SIGNIFICANT_TAXA_RANGE = (1, 9)
 
-# Ensure directories exist
-def ensure_directories():
-    """Create all required directories if they don't exist."""
-    dirs = [DATA_RAW, DATA_PROCESSED, DATA_RESULTS, DATA_RESEARCH, CONTRACTS_DIR]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-
-# Random seed for reproducibility
 def get_random_seed() -> int:
-    """Get the random seed for reproducibility."""
-    seed_str = os.getenv("RANDOM_SEED")
-    if seed_str:
-        return int(seed_str)
-    return 42
+    """Get random seed from environment or use default."""
+    return int(os.getenv("RANDOM_SEED", DEFAULT_SEED))
 
-# Pseudocount for CLR transformation
 def get_pseudocount() -> float:
-    """Get the pseudocount value for CLR transformation."""
-    return float(os.getenv("CLR_PSEUDOCOUNT", "1e-6"))
+    """Get CLR pseudocount from environment or use default."""
+    return float(os.getenv("CLR_PSEUDOCOUNT", DEFAULT_PSEUDOCOUNT))
 
-# LOD handling configuration
-def get_impute_lod() -> bool:
-    """Whether to impute values below LOD."""
-    return os.getenv("IMPUTE_LOD", "true").lower() == "true"
+def get_impute_lod() -> float:
+    """Get LOD imputation value from environment or use default."""
+    return float(os.getenv("LOD_VALUE", DEFAULT_LOD))
 
 def get_lod_exclude_threshold() -> float:
-    """Threshold for excluding LOD values."""
-    return float(os.getenv("LOD_EXCLUDE_THRESHOLD", "0.0"))
+    """Get LOD exclusion threshold from environment."""
+    return float(os.getenv("LOD_EXCLUDE_THRESHOLD", 0.0))
 
 def get_lod_handling_methods() -> List[str]:
-    """List of LOD handling methods to try."""
-    methods = os.getenv("LOD_HANDLING_METHODS", "half_lod,zero")
+    """Get list of LOD handling methods."""
+    methods = os.getenv("LOD_HANDLING_METHODS", DEFAULT_LOD_HANDLING)
     return [m.strip() for m in methods.split(",")]
 
-# Minimum sample size requirement
 def get_min_sample_size() -> int:
-    """Minimum number of subjects required."""
-    return int(os.getenv("MIN_SAMPLE_SIZE", "50"))
+    """Get minimum sample size from environment or use default."""
+    return int(os.getenv("MIN_SAMPLE_SIZE", DEFAULT_MIN_SAMPLE_SIZE))
 
-# SRA accession for real data
 def get_sra_accession() -> Optional[str]:
-    """Get the SRA accession ID for real data."""
+    """Get SRA accession from environment."""
     return os.getenv("SRA_ACCESSION")
 
-# Use synthetic data flag
 def get_use_synthetic_data() -> bool:
     """Check if synthetic data should be used."""
-    return os.getenv("USE_SYNTHETIC_DATA", "false").lower() == "true"
+    val = os.getenv("USE_SYNTHETIC_DATA", "false").lower()
+    return val in ("true", "1", "yes")
 
-# API keys and tokens
 def get_hf_token() -> Optional[str]:
-    """Get HuggingFace token."""
-    return os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
+    """Get Hugging Face token from environment."""
+    return os.getenv("HF_TOKEN")
 
 def get_ncbi_api_key() -> Optional[str]:
-    """Get NCBI API key."""
+    """Get NCBI API key from environment."""
     return os.getenv("NCBI_API_KEY")
 
-# Worker and timeout configuration
 def get_max_workers() -> int:
-    """Maximum number of worker processes."""
-    return int(os.getenv("MAX_WORKERS", "4"))
+    """Get maximum number of workers from environment."""
+    return int(os.getenv("MAX_WORKERS", 4))
 
 def get_timeout_seconds() -> int:
-    """Timeout in seconds for downloads."""
-    return int(os.getenv("TIMEOUT_SECONDS", "300"))
+    """Get timeout in seconds for operations."""
+    return int(os.getenv("TIMEOUT_SECONDS", 3600))
 
-# Cache directory
 def get_cache_dir() -> Path:
     """Get cache directory path."""
-    cache_path = os.getenv("CACHE_DIR")
-    if cache_path:
-        return Path(cache_path)
-    return DATA_DIR / "cache"
+    cache_path = os.getenv("CACHE_DIR", str(PROJECT_ROOT / "data" / "cache"))
+    return Path(cache_path)
 
-# Path getters
 def get_raw_path() -> Path:
-    """Get path to raw data directory."""
-    return DATA_RAW
+    """Get raw data directory path."""
+    return PROJECT_ROOT / "data" / "raw"
 
 def get_processed_path() -> Path:
-    """Get path to processed data directory."""
-    return DATA_PROCESSED
+    """Get processed data directory path."""
+    return PROJECT_ROOT / "data" / "processed"
 
 def get_output_path() -> Path:
-    """Get path to results directory."""
-    return DATA_RESULTS
+    """Get results output directory path."""
+    return PROJECT_ROOT / "data" / "results"
 
 def get_specs_path() -> Path:
-    """Get path to specs directory."""
-    return SPECS_DIR
+    """Get specs directory path."""
+    return PROJECT_ROOT / "specs" / "001-investigating-the-correlation-between-gu"
 
-# Seroconversion and response thresholds
 def get_seroconversion_threshold() -> float:
-    """Threshold for seroconversion (4-fold rise)."""
-    return float(os.getenv("SEROCONVERSION_THRESHOLD", "4.0"))
+    """Get seroconversion threshold."""
+    return float(os.getenv("SEROCONVERSION_THRESHOLD", DEFAULT_SEROCONVERSION_THRESHOLD))
 
 def get_hai_threshold() -> float:
-    """HAI titer threshold for response."""
-    return float(os.getenv("HAI_THRESHOLD", "40.0"))
+    """Get HAI threshold."""
+    return float(os.getenv("HAI_THRESHOLD", DEFAULT_HAI_THRESHOLD))
 
-# Runtime limits
 def get_runtime_limit() -> int:
-    """Maximum runtime in seconds."""
-    return int(os.getenv("RUNTIME_LIMIT", "3600"))
+    """Get runtime limit in seconds."""
+    return int(os.getenv("RUNTIME_LIMIT", DEFAULT_RUNTIME_LIMIT))
 
-# Significant taxa range
 def get_significant_taxa_range() -> tuple:
-    """Expected range of significant taxa count."""
-    range_str = os.getenv("SIGNIFICANT_TAXA_RANGE", "1,9")
-    parts = range_str.split(",")
-    return (int(parts[0]), int(parts[1]))
+    """Get expected range of significant taxa."""
+    range_str = os.getenv("SIGNIFICANT_TAXA_RANGE", f"{DEFAULT_SIGNIFICANT_TAXA_RANGE[0]},{DEFAULT_SIGNIFICANT_TAXA_RANGE[1]}")
+    parts = [int(x.strip()) for x in range_str.split(",")]
+    return tuple(parts)
 
-# Initialize directories on import
-ensure_directories()
-
-# Export all public functions
-__all__ = [
-    'ensure_directories',
-    'get_raw_path',
-    'get_processed_path',
-    'get_output_path',
-    'get_specs_path',
-    'get_random_seed',
-    'get_pseudocount',
-    'get_impute_lod',
-    'get_lod_exclude_threshold',
-    'get_lod_handling_methods',
-    'get_min_sample_size',
-    'get_hf_token',
-    'get_ncbi_api_key',
-    'get_sra_accession',
-    'get_max_workers',
-    'get_timeout_seconds',
-    'get_cache_dir',
-    'get_use_synthetic_data',
-    'get_seroconversion_threshold',
-    'get_hai_threshold',
-    'get_runtime_limit',
-    'get_significant_taxa_range',
-]
+def ensure_directories() -> None:
+    """Ensure all required directories exist."""
+    dirs = [
+        get_raw_path(),
+        get_processed_path(),
+        get_output_path(),
+        get_cache_dir(),
+        PROJECT_ROOT / "code" / "tests",
+        PROJECT_ROOT / "contracts"
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
