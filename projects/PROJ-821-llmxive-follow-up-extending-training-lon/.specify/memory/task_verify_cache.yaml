@@ -1,11 +1,3 @@
-T004:
-  c: false
-  h: 7b0783ae6c2316a04a0824a34da41d2dcdb67f42a55823c18eb047235ace31de
-  r: "The repository contains only the `generate_assets.py` source (truncated and\
-    \ lacking a runnable entry\u2011point), and none of the required output files\
-    \ (`data/assets/img_00.png` \u2026 `img_20.png` and `data/assets/manifest.json`)\
-    \ are present. Without those generated assets and manifest, the task\u2019s core\
-    \ requirement is not satisfied."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

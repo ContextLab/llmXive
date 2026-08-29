@@ -19,6 +19,9 @@ def create_directories() -> list[Path]:
     root = get_project_root()
     
     # Define all required directories relative to root
+    # Note: data/assets is explicitly included here to ensure it exists,
+    # though T004 also mentions it. Creating it here is harmless and ensures
+    # the full structure is ready for subsequent tasks.
     dirs = [
         "code",
         "data",
@@ -65,6 +68,26 @@ def main() -> None:
         log_path = write_init_log(created)
         print(f"Success! Created {len(created)} directories.")
         print(f"Log written to: {log_path}")
+        
+        # Verification step as per task requirements
+        root = get_project_root()
+        required_dirs = [
+            "code", "data", "data/synthetic", "data/synthetic/raw",
+            "data/synthetic/short_context", "data/results", "data/results/logs",
+            "data/results/aggregated", "tests", "models", "data/assets"
+        ]
+        all_exist = True
+        for d in required_dirs:
+            if not (root / d).is_dir():
+                print(f"ERROR: Directory {d} does not exist!", file=sys.stderr)
+                all_exist = False
+        
+        if all_exist:
+            print("Verification passed: All directories exist.")
+        else:
+            print("Verification failed: Some directories missing.", file=sys.stderr)
+            sys.exit(1)
+            
     except Exception as e:
         print(f"Error during initialization: {e}", file=sys.stderr)
         sys.exit(1)

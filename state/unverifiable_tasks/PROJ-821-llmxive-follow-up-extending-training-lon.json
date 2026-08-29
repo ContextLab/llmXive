@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-821-llmxive-follow-up-extending-training-lon",
+  "tasks": [
+    {
+      "task_key": "T004",
+      "reject_count": 1,
+      "last_reason": "The repository contains `code/scripts/generate_assets.py`, but the required output files (`data/assets/img_00.png` \u2026 `img_20.png` and `data/assets/manifest.json`) are absent, indicating the script has not been executed or does not produce the needed assets. The missing images and manifest mean the task\u2019s core deliverables are not present.",
+      "first_seen": "2026-08-29T08:50:42.489537+00:00",
+      "last_seen": "2026-08-29T08:50:42.489537+00:00"
+    }
+  ],
+  "updated_at": "2026-08-29T08:50:42.489537+00:00"
+}

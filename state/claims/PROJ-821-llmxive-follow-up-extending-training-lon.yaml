@@ -2729,3 +2729,470 @@
   source_type: external
   status: refuted
   updated_at: '2026-08-25T18:56:46Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Generate deterministic geometric patterns with seed=42
+  claim_id: c_eedd73ed
+  context: Images must be deterministic geometric patterns using seed=42 to create
+    linear grayscale gradients from black to white (e.g., from (0,0) to ([deferred]))
+    to serve as valid image references.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Images must be deterministic geometric patterns using seed=42 to create
+    linear grayscale gradients from black to white.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:32:17Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Save images to data/assets/img_00.png to data/assets/img_20.png
+  claim_id: c_94627b1d
+  context: Use PIL.ImageDraw to create simple, valid 336x336 images. Save to data/assets/img_00.png
+    to data/assets/img_20.png.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_images_to_data/assets/img_00.png_to_data/assets/img_20.
+  kind: entity_fact
+  raw_text: Save images to data/assets/img_00.png to data/assets/img_20.png.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:33:05Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: 7B Q4_K_M model size approx 4.0-4.5 GB
+  claim_id: c_abbe9967
+  context: "Confirm file exists, has non-zero size, and size is within expected range\
+    \ for 7B Q4_K_M (approx 4.0\u20134.5 GB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated GGUF file size is expected to be approximately 4.0\u2013\
+    4.5 GB for a 7B Q4_K_M model."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:33:29Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Generate 500 short-context samples for Arm A
+  claim_id: c_d7a97f49
+  context: "Generate the short-context control group (Arm A): 500 samples (\u2264\
+    4K tokens) with 1 image using generator.py with --arm A --max_tokens 4096, saving\
+    \ to data/synthetic/short_context/short_control_arm_a.jsonl."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate the short-context control group (Arm A) with 500 samples (\u2264\
+    4K tokens) with 1 image."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:34:30Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Generate 500 short-context samples for Arm B
+  claim_id: c_1266e1bf
+  context: "Generate the short-context control group (Arm B): 500 samples (\u2264\
+    4K tokens) with variable images (0-5) using generator.py with --arm B --max_tokens\
+    \ 4096, saving to data/synthetic/short_context/short_control_arm_b.jsonl."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate the short-context control group (Arm B) with 500 samples (\u2264\
+    4K tokens) with variable images (0-5)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:36:50Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Execute retrieval on 2-core CPU within 6 hours
+  claim_id: c_c21274bb
+  context: 'Goal: Execute "needle-in-a-haystack" retrieval on the generated dataset
+    using mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on a 2-core
+    CPU runner within 6 hours, with robust OOM handling and integrated memory monitoring.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute needle-in-a-haystack retrieval on a 2-core CPU runner within 6
+    hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:37:50Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Skip samples if peak memory exceeds 7GB
+  claim_id: c_db6064e7
+  context: 'Memory Monitoring: Use psutil to measure peak memory per sample. If peak
+    memory > 7GB, log MEMORY_EXCEEDED, mark sample as ''skipped'', and continue.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Skip_samples_if_peak_memory_exceeds_7GB
+  kind: entity_fact
+  raw_text: If peak memory exceeds 7GB, log MEMORY_EXCEEDED, mark sample as skipped,
+    and continue.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:38:20Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Pilot run on 1 sample with 128K tokens and 10 images
+  claim_id: c_37d9bdb6
+  context: 'Feasibility Gate: Implement pilot run logic here to test memory feasibility.
+    Pilot Run Parameters: Run on 1 sample (128K tokens, 10 images).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a pilot run on 1 sample (128K tokens, 10 images) to test memory feasibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:38:56Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Benchmark sample with 128K tokens and 10 images
+  claim_id: c_5ad3f9c2
+  context: 'Memory Benchmark: Run a specific benchmark sample (128K, 10 images) and
+    output a structured JSON report data/results/memory_benchmark.json with keys:
+    peak_memory_mb, status (PASS/FAIL), timestamp.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a specific benchmark sample with 128K tokens and 10 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:39:53Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Significance threshold alpha set to 0.05
+  claim_id: c_69915ed3
+  context: 'Significance threshold: alpha = 0.05.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance threshold for statistical analysis is set to alpha =
+    0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T08:40:21Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Short-context samples require 95% accuracy baseline
+  claim_id: c_60c9b9e1
+  context: "Independent Test: Short-context samples are processed and reported separately\
+    \ with \u226595% accuracy baseline check."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Short-context samples must be evaluated with a \u226595% accuracy baseline\
+    \ check."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:40:21Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Tasks run on 2-core CPU with 7GB RAM limit
+  claim_id: c_43e3c017
+  context: "CRITICAL: All tasks must run on 2-core CPU, \u22647GB RAM, no GPU. No\
+    \ low-precision CUDA dependencies."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on a 2-core CPU with \u22647GB RAM and no GPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:40:45Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 0
+  canonical: Arm A text-only token variance < 1%
+  claim_id: c_592e3e90
+  context: 'Independent Test: A script runs to generate a batch. Output validation
+    confirms text-only token count variance <1% (Arm A) or total token variance <1%
+    (Arm B)...'
+  evidence:
+    entailment_evidence: Arm A text-only token count variance must be less than 1%
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Arm_A_text-only_token_count_variance_must_be_less_than_1%25
+  kind: magnitude
+  raw_text: Text-only token count variance must be less than 1% across samples for
+    Arm A.
+  resolved_value: Arm A text-only token count variance must be less than 1%
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T08:41:36Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: seed=42 used for linear grayscale gradients
+  claim_id: c_2f9726a5
+  context: Images must be deterministic geometric patterns using seed=42 to create
+    linear grayscale gradients from black to white (e.g., from (0,0) to ([deferred]))
+    to serve as valid image references.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 to create linear grayscale gradients from black to white.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:42:18Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: "7B Q4_K_M model size approx 4.0\u20134.5 GB"
+  claim_id: c_be67fda5
+  context: "Verification: Confirm file exists, has non-zero size, and size is within\
+    \ expected range for 7B Q4_K_M (approx 4.0\u20134.5 GB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The 7B Q4_K_M model size is approximately 4.0\u20134.5 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:42:47Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Arm B total token variance < 1%
+  claim_id: c_cb27f7b1
+  context: Output validation confirms text-only token count variance <1% (Arm A) or
+    total token variance <1% (Arm B), needle difficulty is identical, and visual token
+    count varies exactly as specified.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Arm_B_total_token_variance_%3C_1%25
+  kind: magnitude
+  raw_text: Total token count variance must be less than 1% across samples for Arm
+    B.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:45:06Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Pilot run uses 1 sample, 128K tokens, 10 images
+  claim_id: c_8b2b642d
+  context: 'Feasibility Gate: Implement pilot run logic here to test memory feasibility.
+    Pilot Run Parameters: Run on 1 sample (128K tokens, 10 images).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot run for feasibility testing uses 1 sample with 128K tokens and
+    10 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:45:46Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Skip sample if peak memory > 7GB
+  claim_id: c_81c518b8
+  context: 'Memory Monitoring: Use psutil to measure peak memory per sample. If peak
+    memory > 7GB, log MEMORY_EXCEEDED, mark sample as ''skipped'', and continue.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Skip_sample_if_peak_memory_%3E_7GB
+  kind: entity_fact
+  raw_text: Memory monitoring triggers a skip if peak memory exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:46:14Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: 500 samples generated for short-context Arm A
+  claim_id: c_52ed8d25
+  context: "Generate the short-context control group (Arm A): 500 samples (\u2264\
+    4K tokens) with 1 image using generator.py with --arm A --max_tokens 4096..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Short-context control group generation requires 500 samples for Arm A.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:47:08Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: 500 samples generated for short-context Arm B
+  claim_id: c_0e5eefb6
+  context: "Generate the short-context control group (Arm B): 500 samples (\u2264\
+    4K tokens) with variable images (0-5) using generator.py with --arm B --max_tokens\
+    \ 4096..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Short-context control group generation requires 500 samples for Arm B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:47:08Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Statistical significance threshold alpha = 0.05
+  claim_id: c_63f2d98e
+  context: 'Significance threshold: alpha = 0.05. Verification: Run on mock data and
+    assert p-value < 0.05 for interaction term (if applicable) or quadratic term if
+    non-linear trend exists.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Statistical significance
+        url: https://en.wikipedia.org/wiki/Statistical_significance
+        value: 5%
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Statistical analysis uses a significance threshold of alpha = 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T08:47:30Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Short-context accuracy baseline >= 95%
+  claim_id: c_593402d7
+  context: "Independent Test: Short-context samples are processed and reported separately\
+    \ with \u226595% accuracy baseline check."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Short-context_accuracy_baseline_%3E=_95%25
+  kind: magnitude
+  raw_text: Short-context samples must achieve a baseline accuracy of at least 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:48:26Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Execution on 2-core CPU within 6 hours
+  claim_id: c_7dbef9be
+  context: 'Goal: Execute ''needle-in-a-haystack'' retrieval on the generated dataset
+    using mmpro/MMProLong-7B-1.0 (4-bit quantized via llama-cpp-python) on a 2-core
+    CPU runner within 6 hours...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project runs on a 2-core CPU runner within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:49:18Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: mmpro/MMProLong-7B-1.0 converted to Q4_K_M.gguf
+  claim_id: c_fd84a60e
+  context: Implement code/inference/model_prep.py to download mmpro/MMProLong-7B-1.0
+    (per Spec FR-002) from HuggingFace and convert it to Q4_K_M.gguf format using
+    llama.cpp.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model mmpro/MMProLong-7B-1.0 is converted to Q4_K_M.gguf format.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:49:48Z'
+- artifact_path: projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md
+  attempts: 1
+  canonical: Generator supports 128K+ and <=4K context modes
+  claim_id: c_3360aad4
+  context: "Crucial: The generator must support a --max_tokens flag to handle both\
+    \ long-context (128K+) and short-context (\u22644K) generation modes."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generator_supports_128K+_and_%3C=4K_context_modes
+  kind: entity_fact
+  raw_text: "The generator supports long-context (128K+) and short-context (\u2264\
+    4K) generation modes."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T08:50:36Z'
