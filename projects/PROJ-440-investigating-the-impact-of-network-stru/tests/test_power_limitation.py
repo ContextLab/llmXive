@@ -1,136 +1,134 @@
 """
-Tests for T028: Power limitation check.
+Tests for Power Limitation Check (Task T028)
 """
-import os
-import sys
-import tempfile
-import shutil
-import pandas as pd
 import pytest
+import pandas as pd
+import os
+import tempfile
+from pathlib import Path
 
-# Add project root to path if needed, assuming standard structure
-# In the actual runner, this is handled by the environment setup
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from code.check_power_limitation import (
-    check_power_limitation, 
-    get_predictor_count, 
-    POWER_RATIO_THRESHOLD
+# Import functions to test
+from check_power_limitation import (
+    load_data,
+    get_predictor_count,
+    check_power_limitation,
+    write_warning_message
 )
 
 class TestPowerLimitation:
     
     def setup_method(self):
-        """Create a temporary directory for test artifacts."""
+        """Setup test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
-        os.chdir(self.temp_dir)
         
-        # Create necessary subdirectories
-        os.makedirs("data/raw", exist_ok=True)
-        os.makedirs("data/processed", exist_ok=True)
-        os.makedirs("data/analysis", exist_ok=True)
-
     def teardown_method(self):
-        """Clean up temporary directory."""
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.temp_dir)
+        """Clean up temporary files."""
+        import shutil
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
 
-    def test_sufficient_power(self):
-        """Test case where samples >= 10 * predictors."""
-        # Create a mock dataframe with 100 samples and 5 predictors
-        # Predictors: clustering, path_length, degree, etc.
-        data = {
-            'id': range(100),
-            'class': ['random'] * 100,
-            'N': [100] * 100,
-            'clustering_coefficient': [0.1] * 100,
-            'average_path_length': [5.0] * 100,
-            'average_degree': [10.0] * 100,
-            'degree_distribution_std': [2.0] * 100,
-            'decay_rate': [0.5] * 100,
-            'r_squared': [0.95] * 100,
-            'status': ['dissipative'] * 100
-        }
-        df = pd.DataFrame(data)
+    def test_load_data_existing_file(self):
+        """Test loading an existing CSV file."""
+        csv_path = os.path.join(self.temp_dir, "test_networks.csv")
+        df_test = pd.DataFrame({
+            'id': [1, 2, 3],
+            'class': ['random', 'scale_free', 'small_world'],
+            'N': [100, 100, 100]
+        })
+        df_test.to_csv(csv_path, index=False)
         
-        is_sufficient, samples, predictors, message = check_power_limitation(df)
+        loaded_df = load_data(csv_path)
         
-        assert is_sufficient is True
-        assert samples == 100
-        assert predictors == 4  # clustering, path_length, degree, std
-        assert "PASS" in message
-        assert "HALTING" not in message
+        assert loaded_df is not None
+        assert len(loaded_df) == 3
+        assert 'class' in loaded_df.columns
 
-    def test_insufficient_power(self):
-        """Test case where samples < 10 * predictors."""
-        # Create a mock dataframe with 20 samples and 5 predictors
-        # Required: 5 * 10 = 50 samples. We have 20.
-        data = {
-            'id': range(20),
-            'class': ['random'] * 20,
-            'N': [100] * 20,
-            'clustering_coefficient': [0.1] * 20,
-            'average_path_length': [5.0] * 20,
-            'average_degree': [10.0] * 20,
-            'degree_distribution_std': [2.0] * 20,
-            'decay_rate': [0.5] * 20,
-            'r_squared': [0.95] * 20,
-            'status': ['dissipative'] * 20
-        }
-        df = pd.DataFrame(data)
-        
-        is_sufficient, samples, predictors, message = check_power_limitation(df)
-        
-        assert is_sufficient is False
-        assert samples == 20
-        assert predictors == 4
-        assert "FAIL" in message
-        assert "HALTING" in message
+    def test_load_data_missing_file(self):
+        """Test loading a non-existent file."""
+        loaded_df = load_data("non_existent_file.csv")
+        assert loaded_df is None
 
-    def test_predictor_counting_logic(self):
-        """Test that the function correctly identifies predictor columns."""
-        data = {
-            'id': [1, 2],
-            'class': ['a', 'b'],
-            'N': [100, 100],
-            'clustering_coefficient': [0.1, 0.2],
-            'average_path_length': [5.0, 6.0],
-            'decay_rate': [0.5, 0.6],
-            'r_squared': [0.9, 0.9],
-            'status': ['d', 'd']
-        }
-        df = pd.DataFrame(data)
+    def test_check_power_limitation_pass(self):
+        """Test check passing with sufficient data."""
+        df = pd.DataFrame({
+            'id': list(range(50)),
+            'class': (['random'] * 10 + 
+                     ['scale_free'] * 10 + 
+                     ['small_world'] * 10 + 
+                     ['lattice'] * 10 + 
+                     ['star'] * 10)
+        })
         
-        count, names = get_predictor_count(df)
+        result = check_power_limitation(df, min_samples=50, min_per_class=10)
         
-        # Expected predictors: clustering_coefficient, average_path_length
-        # Excluded: id, class, N, decay_rate, r_squared, status
-        assert count == 2
-        assert "clustering_coefficient" in names
-        assert "average_path_length" in names
-        assert "id" not in names
-        assert "decay_rate" not in names
+        assert result['passed'] is True
+        assert result['total'] == 50
+        assert result['reason'] == "Power requirement satisfied"
 
-    def test_zero_predictors(self):
-        """Test behavior when no predictor columns are found."""
-        data = {
-            'id': [1, 2],
-            'class': ['a', 'b'],
-            'N': [100, 100],
-            'decay_rate': [0.5, 0.6],
-            'r_squared': [0.9, 0.9],
-            'status': ['d', 'd']
+    def test_check_power_limitation_fail_total(self):
+        """Test check failing due to insufficient total samples."""
+        df = pd.DataFrame({
+            'id': list(range(40)),
+            'class': (['random'] * 8 + 
+                     ['scale_free'] * 8 + 
+                     ['small_world'] * 8 + 
+                     ['lattice'] * 8 + 
+                     ['star'] * 8)
+        })
+        
+        result = check_power_limitation(df, min_samples=50, min_per_class=10)
+        
+        assert result['passed'] is False
+        assert "Total samples" in result['reason']
+        assert "40" in result['reason']
+
+    def test_check_power_limitation_fail_class(self):
+        """Test check failing due to insufficient samples in one class."""
+        df = pd.DataFrame({
+            'id': list(range(50)),
+            'class': (['random'] * 10 + 
+                     ['scale_free'] * 10 + 
+                     ['small_world'] * 10 + 
+                     ['lattice'] * 10 + 
+                     ['star'] * 10)
+        })
+        # Modify one row to create an imbalance
+        df.loc[49, 'class'] = 'random' # Now star has 9, random has 11
+        
+        result = check_power_limitation(df, min_samples=50, min_per_class=10)
+        
+        assert result['passed'] is False
+        assert "star" in result['reason']
+
+    def test_write_warning_message(self):
+        """Test writing the warning file."""
+        output_path = os.path.join(self.temp_dir, "power_warning.txt")
+        result = {
+            'passed': False,
+            'total': 40,
+            'per_class': {'random': 8, 'scale_free': 8, 'small_world': 8, 'lattice': 8, 'star': 8},
+            'reason': "Total samples (40) < required (50)"
         }
-        df = pd.DataFrame(data)
         
-        count, names = get_predictor_count(df)
+        write_warning_message(output_path, result)
         
-        assert count == 0
-        assert names == []
+        assert os.path.exists(output_path)
+        with open(output_path, 'r') as f:
+            content = f.read()
         
-        # Should not crash when checking power with 0 predictors
-        # (though logically 10*0 = 0, so any N >= 0 passes)
-        is_sufficient, samples, predictors, message = check_power_limitation(df)
-        assert is_sufficient is True
-        assert "PASS" in message
+        assert "POWER LIMITATION WARNING" in content
+        assert "Status: FAILED" in content
+        assert "Total Samples: 40" in content
+        assert "ACTION REQUIRED" in content
+
+    def test_check_power_limitation_missing_column(self):
+        """Test check failing when 'class' column is missing."""
+        df = pd.DataFrame({
+            'id': list(range(50)),
+            'N': [100] * 50
+        })
+        
+        result = check_power_limitation(df, min_samples=50, min_per_class=10)
+        
+        assert result['passed'] is False
+        assert "class" in result['reason'].lower()

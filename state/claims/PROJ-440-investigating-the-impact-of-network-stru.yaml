@@ -396,3 +396,235 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T23:10:31Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: generate 10 random graphs with N=100
+  claim_id: c_defa55fd
+  context: Unit test test_generate_random_graphs in tests/test_generation.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert 10 graphs generated, all labeled 'random', N=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:28:46Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: energy variance less than 1e-6 for undamped system
+  claim_id: c_836e2684
+  context: Unit test test_energy_conservation_no_damping in tests/test_simulation.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Energy_variance_less_than_1e-6_for_undamped_system
+  kind: magnitude
+  raw_text: assert energy variance < 1e-6 for undamped system
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:29:29Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: decay rate matches damping/2 within 1% for ring graph
+  claim_id: c_00372390
+  context: Unit test test_analytical_decay_match in tests/test_simulation.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "assert decay rate matches \u03BB = damping/2 within 1% for ring graph"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:30:20Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: dataset size minimum 50 samples across 5 classes
+  claim_id: c_68905495
+  context: 'Implement power limitation check: Verify dataset size >= 50 samples (10
+    per class * 5 classes) as mandated by Spec FR-001.'
+  evidence:
+    candidates:
+    - - Log in Dataset size minimum
+      - 50.0
+    - - Dataset size minimum 50 samples across
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_minimum_50_samples_across_5_classes
+  kind: magnitude
+  raw_text: The dataset size must be at least 50 samples (10 per class * 5 classes).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-29T23:34:45Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: pipeline execution time limit 6 hours
+  claim_id: c_23a98e66
+  context: "Execute code/benchmark_pipeline.py to run the full pipeline on the standard\
+    \ runner; record the total wall-clock time in state/projects/PROJ-440-investigating-the-impact-of-network-stru.yaml\
+    \ and verify it is \u2264 6 hours."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_limit_6_hours
+  kind: magnitude
+  raw_text: The pipeline total wall-clock time must be less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:35:27Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: estimated pipeline execution time under 2 hours
+  claim_id: c_752e96f2
+  context: "verify it is \u2264 6 hours (validating Plan's < 2h estimate and Spec\
+    \ FR-007)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Estimated_pipeline_execution_time_under_2_hours
+  kind: magnitude
+  raw_text: The plan estimates the pipeline execution time to be less than 2 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:36:16Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: generated networks node count range 100 to 200
+  claim_id: c_7de3aae0
+  context: Implement code/generate_networks.py to generate 50+ networks (N=100-200)
+    across 5 classes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Networks are generated with node counts between 100 and 200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:37:08Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: 'network generation includes 5 classes: Random, Scale-Free, Small-World,
+    Lattice, Star'
+  claim_id: c_6d583fe9
+  context: Generate 50+ networks (N=100-200) across 5 classes (Random, Scale-Free,
+    Small-World, Lattice, Star) with pinned random seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Five classes of networks are generated: Random, Scale-Free, Small-World,
+    Lattice, and Star.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:37:08Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: simulation integration time T equals 200
+  claim_id: c_f1f6cc50
+  context: Implement solve_ivp integration (T=200, driving active T=0-100) using RK45
+    or DOP853.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation integration time is set to T=200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:37:39Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: driving force active interval T equals 0 to 100
+  claim_id: c_794d00e2
+  context: Implement solve_ivp integration (T=200, driving active T=0-100) using RK45
+    or DOP853.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The driving force is active from T=0 to T=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:38:12Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: energy decay fit model applied to post-transient phase t greater than
+    100
+  claim_id: c_3e52b4b1
+  context: "Implement energy decay extraction logic: fit damped sinusoid model E(t)\
+    \ = A * exp(-\u03BBt) * cos(\u03C9t + \u03C6) + C to post-transient phase (t >\
+    \ 100)."
+  evidence:
+    asserted: '100.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: magnitude
+  raw_text: "Energy decay extraction fits the model E(t) = A * exp(-\u03BBt) * cos(\u03C9\
+    t + \u03C6) + C to the post-transient phase where t > 100."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T23:38:12Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: VIF threshold for flagging metrics is 5
+  claim_id: c_d35e81c4
+  context: 'Implement VIF check: flag metrics with VIF > 5 and frame results descriptively.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_threshold_for_flagging_metrics_is_5
+  kind: magnitude
+  raw_text: A Variance Inflation Factor (VIF) greater than 5 triggers a flag for metrics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:39:11Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: loading magnitude threshold 0.5 for metric attribution
+  claim_id: c_119f8411
+  context: 'Use deterministic rule: If |loading| > 0.5, attribute to the metric.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Loading_magnitude_threshold_0.5_for_metric_attribution
+  kind: magnitude
+  raw_text: A loading magnitude greater than 0.5 is used to attribute a principal
+    component to a specific metric.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:40:12Z'

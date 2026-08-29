@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T12:42:57.507121Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-440-investigating-the-impact-of-network-stru
-last_run_id: 83a0c211-af7c-4632-9497-41255d16170f
+last_run_id: d9d9df7b-f900-4000-9ae1-6e942a9a2569
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru
 title: Investigating the Impact of Network Structure on Energy Dissipation in Driven
   Oscillators
-updated_at: '2026-08-26T23:14:24.540692Z'
+updated_at: '2026-08-29T23:40:22.061498Z'

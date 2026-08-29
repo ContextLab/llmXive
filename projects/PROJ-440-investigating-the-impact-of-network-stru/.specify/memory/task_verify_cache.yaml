@@ -1,3 +1,24 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that the
+    required folders (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/analysis/`,
+    `tests/`, `contracts/`, `state/`) actually exist; the claim is unsubstantiated.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided material only contains a feature specification for network generation
+    and simulation; there are no linting or formatting configuration files (e.g.,
+    `pyproject.toml`, `.ruff.toml`, `.flake8`, or `black` settings) or any evidence
+    that ruff/flake8 and black have been set up. Consequently, the task of configuring
+    those tools is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pre\u2011commit configuration files (e.g., `.pre-commit-config.yaml`), hook\
+    \ installation scripts, or documentation are present. The claim provides only\
+    \ a unrelated feature specification; it does not include the required artifact\
+    \ to configure linting/formatting hooks. The task remains undone."
 T011a:
   c: false
   h: 23bfe476c0120ac7cda67f7ff82ed34aa1fe7b9c5fb14045c399864d45b934cd
@@ -6,41 +27,62 @@ T011a:
     that checks for the existence or contents of `data/raw/networks.csv`. Moreover,
     the file `data/raw/networks.csv` is missing entirely. Hence the required integration
     test and the CSV artifact are not present.
-T021:
-  c: false
-  h: a49779407967efb620629c5cabaacb167bffd2032e95b9b5e38d916b46bee9b3
-  r: "The repository lacks the required `data/raw/networks.csv` file, so the dependent\
-    \ data cannot be loaded. Moreover, the provided `code/simulate_oscillators.py`\
-    \ snippet does not contain any call to `solve_ivp` (or a wrapper) that runs the\
-    \ integration for\u202FT=200 with driving active only for\u202F0\u2013100 using\
-    \ RK45/DOP853, and the file is truncated before any such implementation could\
-    \ be verified. Both the essential data file and the specified integration logic\
-    \ are missing."
-T022:
+T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or result files were supplied that perform the required\
-    \ fitting of\u202F`E(t) = A\xB7exp(-\u03BBt)\xB7cos(\u03C9t+\u03C6)+C` to the\
-    \ post\u2011transient region (t\u202F>\u202F100) and enforce an R\xB2\u202F\u2265\
-    \u202F0.95 pass/fail check. The claim lacks any concrete artifact (e.g., Python\
-    \ function, fitting output, R\xB2 values) to verify the implementation."
-T023:
+  r: "No code, tests, or documentation were provided showing that generation failures\
+    \ are now caught, that the failing graph\u2019s ID is logged, and that such graphs\
+    \ are omitted from the final dataset. Without any artifact demonstrating this\
+    \ error\u2011handling logic, the task requirement is not satisfied."
+T021b:
+  c: false
+  h: de139e6bffb9e675d806a297340bbf0c6da9ace4e0462bd7e1dc4388bebca2fd
+  r: "The repository lacks the required `data/raw/networks.csv` file, so the script\
+    \ cannot load the network data it depends on. Moreover, the provided `simulate_oscillators.py`\
+    \ snippet does not contain a complete `solve_ivp` call (e.g., setting `t_span=[0,200]`,\
+    \ `t_eval`, or selecting `RK45`/`DOP853` and handling the driving active only\
+    \ for `t\u2208[0,100]`). Both the missing input file and the absent integration\
+    \ implementation mean the task is not genuinely fulfilled."
+T022a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, tests, or documentation implementing the required fit\u2011validation\
-    \ (R\xB2\u202F\u2265\u202F0.95) or resonance detection (flagging negative decay\
-    \ rates) is present; the only material shown is a unrelated feature specification\
-    \ for network generation and simulation, with no concrete artifacts to verify\
-    \ the claimed functionality. The task therefore lacks the necessary implementation\
-    \ evidence."
-T024:
+  r: "No code, script, notebook, or test results were provided that implement or demonstrate\
+    \ fitting the damped sinusoid model `E(t) = A * exp(-\u03BBt) * cos(\u03C9t +\
+    \ \u03C6) + C` to the post\u2011transient energy data (t\u202F>\u202F100). Consequently\
+    \ the required artifact is missing, so the task is not satisfied."
+T022b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, scripts, or results related to \u201Cconvergence testing\u201D\
-    \ are present in the provided evidence. Without any artifact (e.g., a test script,\
-    \ output logs, or documentation) we cannot confirm that the required convergence\
-    \ testing was implemented or that it meets the specifications. The implementer\
-    \ must supply the actual implementation and its verification output."
+  r: "The claim provides only a textual description of the task and its context; no\
+    \ code, scripts, data files, or test outputs implementing the R\xB2\u202F\u2265\
+    \u202F0.95 fit validation or the negative\u2011decay\u2011rate resonance detection\
+    \ are present. Consequently, there is no evidence that the required functionality\
+    \ was actually built or verified. The missing artifacts are the implementation\
+    \ (e.g., a function/module) and accompanying validation results demonstrating\
+    \ the R\xB2 threshold and flagging of negative decay rates."
+T022c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output file was provided that shows the decay\u2011rate\
+    \ calculation, the negative\u2011rate check, or the addition of a \u201Cresonant\u201D\
+    \ status column. Without any artifact to inspect, we cannot confirm that the explicit\
+    \ resonance detection logic was implemented. The required implementation is therefore\
+    \ missing."
+T023a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the generic, parallel\u2011safe\
+    \ convergence\u2011testing algorithm is present; the claim provides only a textual\
+    \ description of the task without any artifact (e.g., Python module, test suite,\
+    \ or example output) to verify that multiple seeds can be run on a given graph.\
+    \ The required implementation is missing."
+T024b:
+  c: false
+  h: b7213a7b2ea7fd80a40bdf2bc49b011678fb13d223db580a092204e316d2770c
+  r: "The required input file `data/analysis/convergence_targets.json` is missing,\
+    \ so the implementer could not run the convergence tests nor produce the standard\u2011\
+    deviation calculations and assertion. Without this file (and any resulting report),\
+    \ the task is not satisfied."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

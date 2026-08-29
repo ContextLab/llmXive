@@ -1,44 +1,75 @@
 import os
 import pytest
 from pathlib import Path
+import sys
+
+# Ensure the code directory is in the path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from code.setup_directories import setup_directories
 
-def test_setup_directories_creates_structure():
+def test_setup_directories_creates_structure(tmp_path):
     """
-    Test that T001a requirements are met:
-    Creates code/, data/, data/raw/, data/processed/, data/analysis/, 
-    tests/, contracts/, state/
+    Test that setup_directories creates all required directories.
     """
-    # Ensure the directories exist by running the setup
-    setup_directories()
+    # Change to tmp_path to simulate a clean environment
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
     
-    required_dirs = [
-        "code",
-        "data",
-        "data/raw",
-        "data/processed",
-        "data/analysis",
-        "tests",
-        "contracts",
-        "state"
-    ]
-    
-    for dir_name in required_dirs:
-        dir_path = Path(dir_name)
-        assert dir_path.exists(), f"Directory {dir_name} does not exist after setup."
-        assert dir_path.is_dir(), f"{dir_name} exists but is not a directory."
+    try:
+        # Run the setup
+        created = setup_directories()
+        
+        # Verify all expected directories exist
+        expected_dirs = [
+            "code",
+            "data",
+            "data/raw",
+            "data/processed",
+            "data/analysis",
+            "tests",
+            "contracts",
+            "state"
+        ]
+        
+        for dir_name in expected_dirs:
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_name} was not created"
+            assert dir_path.is_dir(), f"{dir_name} exists but is not a directory"
+        
+        # Verify the function returns the list of created directories
+        assert len(created) == len(expected_dirs), f"Expected {len(expected_dirs)} directories created, got {len(created)}"
+        
+    finally:
+        os.chdir(original_cwd)
 
-def test_nested_directories_exist():
+def test_setup_directories_idempotent(tmp_path):
     """
-    Specific check for nested directories created by T001a.
+    Test that running setup_directories twice does not cause errors.
     """
-    setup_directories()
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
     
-    # Check data subdirectories specifically
-    data_raw = Path("data/raw")
-    data_processed = Path("data/processed")
-    data_analysis = Path("data/analysis")
-    
-    assert data_raw.exists()
-    assert data_processed.exists()
-    assert data_analysis.exists()
+    try:
+        # Run twice
+        setup_directories()
+        setup_directories()
+        
+        # Verify structure still exists
+        expected_dirs = [
+            "code",
+            "data",
+            "data/raw",
+            "data/processed",
+            "data/analysis",
+            "tests",
+            "contracts",
+            "state"
+        ]
+        
+        for dir_name in expected_dirs:
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_name} missing after second run"
+        
+    finally:
+        os.chdir(original_cwd)

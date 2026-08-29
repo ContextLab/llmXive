@@ -116,7 +116,7 @@ projects/PROJ-440-investigating-the-impact-of-network-stru/
 
 - **Partial Least Squares (PLS) Regression**: Replaced PCR with PLS. PLS maximizes covariance between predictors (topological metrics) and the response (decay rate), allowing for the extraction of **Variable Importance in Projection (VIP)** scores. This directly addresses the research question by identifying which specific structural features drive dissipation while handling collinearity.
 - **Multiple Comparisons**: Bonferroni or Holm-Bonferroni correction applied to all p-values in PLS.
-- **Sample Size & Power**: A sufficient number of samples (a balanced number of instances per class) is the minimum feasible for regression with 5 predictors. **Limitation**: Power may be low for small effect sizes (Type II errors possible). The study is framed as **exploratory/hypothesis-generating**. Results will emphasize effect sizes and confidence intervals over binary significance.
+- **Sample Size & Power**: A sufficient number of samples (a balanced number of instances per class) is the minimum feasible for regression with A set of predictors. **Limitation**: Power may be low for small effect sizes (Type II errors possible). The study is framed as **exploratory/hypothesis-generating**. Results will emphasize effect sizes and confidence intervals over binary significance.
 - **Causal Framing**: Findings will be framed as "associations" (Assumption: Inference Framing) due to synthetic data. However, the **randomization protocol** (fixed seeds, randomized edge parameters) ensures exchangeability *within the simulation model*, allowing for "simulation-causal" claims (valid within the synthetic universe) but not "real-world-causal" claims.
 - **Collinearity**: VIF calculation; if VIF > 5, results are reported descriptively without claiming independent effects. PLS inherently handles collinearity, but VIF is still reported for diagnostics.
 - **Measurement Validity**: Validity of decay rates depends on numerical stability, verified via:
@@ -127,8 +127,8 @@ projects/PROJ-440-investigating-the-impact-of-network-stru/
 ## Compute Feasibility
 
 - **CPU-First**: All methods (`networkx`, `scipy`, `sklearn`, `statsmodels`) are CPU-tractable.
-- **Memory**: Multiple networks × 200 nodes × 200 time steps is well within 7 GB RAM.
-- **Time**: A series of simulations, each running for 200 time units, will be conducted to investigate the research question using the established method (Citation). (with `solve_ivp` adaptive steps) estimated at < 2 hours total on 2 cores.
+- **Memory**: Multiple networks × nodes × 200 time steps is well within 7 GB RAM.
+- **Time**: A series of simulations, each running for an extended duration, will be conducted to investigate the research question using the established method (Citation). (with `solve_ivp` adaptive steps) estimated at < 2 hours total on 2 cores.
 - **GPU Escape Hatch**: Not required; no transformer or diffusion models involved.
 
 ## Data Availability

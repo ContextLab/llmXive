@@ -41,13 +41,16 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, basic structure, and draft schemas
 
 - [ ] T001a Create directory structure: `code/`, `data/`, `data/raw/`, `data/processed/`, `data/analysis/`, `tests/`, `contracts/`, `state/`
 - [X] T001b Create `code/__init__.py` and `data/.gitkeep` files
 - [X] T001c Initialize `code/requirements.txt` with pinned versions for `networkx`, `scipy`, `numpy`, `pandas`, `matplotlib`, `scikit-learn`, `statsmodels`, `pytest`
 - [ ] T002 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T003 [P] Configure pre-commit hooks for linting and formatting
+- [ ] T006a [P] Draft `contracts/network_schema.schema.yaml` defining expected structure for `data/raw/networks.csv` (columns: id, class, N, metrics...) per Spec data structure requirements (Schema definition only; do not generate data files)
+- [ ] T006b [P] Draft `contracts/energy_schema.schema.yaml` defining expected structure for `data/processed/energy_decay.csv` (columns: graph_id, decay_rate, r_squared, status...) per Spec data structure requirements (Schema definition only; do not generate data files)
+- [ ] T006c [P] Draft `contracts/regression_schema.schema.yaml` defining expected structure for `data/analysis/regression_results.json` per Spec data structure requirements (Schema definition only; do not generate data files)
 
 ---
 
@@ -59,9 +62,6 @@
 
 - [X] T004 [P] Implement `code/utils/metrics.py` with functions to compute clustering coefficient, average path length, and degree distribution statistics
 - [X] T005 [P] Implement `code/utils/diagnostics.py` with functions for VIF calculation, convergence plotting, and Laplacian eigenvalue validation
-- [ ] T006a Create `contracts/network_schema.schema.yaml` defining structure for `data/raw/networks.csv` (columns: id, class, N, metrics...) per Spec data structure requirements
-- [ ] T006b Create `contracts/energy_schema.schema.yaml` defining structure for `data/processed/energy_decay.csv` (columns: graph_id, decay_rate, r_squared, status...) per Spec data structure requirements
-- [ ] T006c Create `contracts/regression_schema.schema.yaml` defining structure for `data/analysis/regression_results.json` per Spec data structure requirements
 - [X] T008 Implement `code/utils/checksums.py` to generate and verify SHA256 checksums for all files in `data/`; run `python code/utils/checksums.py --update` to register artifacts in `state/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -91,7 +91,6 @@
 - [X] T013 [US1] Implement metric calculation logic in `code/generate_networks.py` by CALLING functions from `code/utils/metrics.py` (T004) to compute average degree, clustering, path length, degree distribution
 - [X] T014a [US1] Implement theoretical validation for Scale-Free graphs: Perform KS-test on degree distribution against power law (p > 0.05) in `code/generate_networks.py`
 - [X] T014b [US1] Implement theoretical validation for Random graphs: Verify average degree and clustering coefficient within 5% of theoretical expectations in `code/generate_networks.py`
-- [X] T014c [US1] Implement theoretical validation for Small-World and Lattice graphs: Verify **average path length** matches theoretical expectations (high clustering, low path length for Small-World; regular degree, high path length for Lattice) in `code/generate_networks.py`
 - [X] T015 [US1] Implement data export to `data/raw/networks.csv` with checksum generation
 - [ ] T016 [US1] Add error handling for generation failures (log specific graph ID, exclude from final set)
 
@@ -115,21 +114,19 @@
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/simulate_oscillators.py` to define coupled harmonic oscillator equations of motion using Laplacian matrix
-- [ ] T021 [US2] Implement `solve_ivp` integration (T=200, driving active T=0-100) using `RK45` or `DOP853` in `code/simulate_oscillators.py` (Depends on T015: requires `data/raw/networks.csv`)
-- [ ] T022 [US2] Implement energy decay extraction: fit damped sinusoid model `E(t) = A * exp(-λt) * cos(ωt + φ) + C` to post-transient phase (t > 100) and enforce R² ≥ 0.95 as a hard pass/fail condition
-- [ ] T023 [US2] Implement fit validation (R² ≥ 0.95) and resonance detection (negative decay rate flagging)
-- [ ] T024 [US2] Implement convergence testing:
- 1. **Wait for T015 completion** to access `data/raw/networks.csv`.
- 2. Select a **representative topology**: the graph with the **median average degree** from `data/raw/networks.csv`.
- 3. Run simulation on multiple random seeds for this topology.
- 4. Calculate standard deviation of decay rates.
- 5. **Assert `std/mean < 0.01`** (per SC-006).
- 6. Output a variance plot to `data/analysis/convergence_plot.png` and metrics to `data/analysis/convergence_metrics.json`.
- (Depends on T015 completion to select topology)
+- [X] T021a [P] [US2] Implement ODE function `dynamics(t, y, adj_matrix, damping, driving_freq)` in `code/simulate_oscillators.py` (Parallel-safe, no data dependency)
+- [ ] T028 [US2] Implement power limitation check: Verify dataset size >= 50 samples (10 per class * 5 classes) as mandated by Spec FR-001. If insufficient, **halt execution** and generate `data/analysis/power_warning.txt` with a specific warning message. (Must run BEFORE simulation tasks T021b)
+- [ ] T021b [US2] Implement `solve_ivp` integration (T=200, driving active T=0-100) using `RK45` or `DOP853` in `code/simulate_oscillators.py` (Depends on T015: requires `data/raw/networks.csv`)
+- [ ] T022a [P] [US2] Implement energy decay extraction logic: fit damped sinusoid model `E(t) = A * exp(-λt) * cos(ωt + φ) + C` to post-transient phase (t > 100) (Parallel-safe, no data dependency)
+- [ ] T022b [US2] Implement fit validation (R² ≥ 0.95) and resonance detection (negative decay rate flagging) (Depends on T021b)
+- [ ] T022c [US2] Implement explicit resonance detection logic: Calculate decay rate from fit; if decay rate is negative, flag instance as 'resonant' and set status column to 'resonant' in output. (Depends on T022b)
+- [ ] T023a [P] [US2] Implement convergence testing logic: Define generic algorithm to run simulation on multiple seeds for a given graph (Parallel-safe, no data dependency)
+- [ ] T024a [US2] Select representative topologies: Load `data/raw/networks.csv` (T015), select **one graph per topological class** (Random, Scale-Free, Small-World, Lattice, Star) by calculating the median average degree for each class; if ties, select the graph with the lowest graph ID. Output list of selected graph IDs to `data/analysis/convergence_targets.json`. (Depends on T015)
+- [ ] T024b [US2] Execute convergence testing: Run simulation with multiple random seeds for each graph ID in `data/analysis/convergence_targets.json` using the algorithm from T023a. Calculate standard deviation of decay rates. Assert `std/mean < 0.01` (per SC-006). (Depends on T024a, T023a)
+- [ ] T024c [US2] Generate convergence plot artifact: Create `data/analysis/convergence_plot.png` showing decay rate variance across seeds to satisfy Spec FR-008. (Depends on T024b)
 - [ ] T025 [US2] Implement Laplacian eigenvalue validation against analytical solution for a ring graph
 - [ ] T026 [US2] Export results to `data/processed/energy_decay.csv` with checksums; include a 'status' column ('dissipative' or 'resonant') to flag resonant instances (per Edge Cases) and record exclusion counts in the final report
 - [ ] T027 [US2] Add robust error handling for non-convergence (log graph ID, exclude from analysis)
-- [ ] T028 [US2] Implement power limitation check: Verify dataset size (samples) >= 10 * number of predictors. If insufficient, **halt execution** and generate `data/analysis/power_warning.txt` with a specific warning message. (Depends on T015 completion)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,26 +134,25 @@
 
 ## Phase 5: User Story 3 - Perform Statistical Correlation Analysis (Priority: P3)
 
-**Goal**: Perform Partial Least Squares (PLS) Regression (per Plan's Statistical Rigor section) with multiple-comparison corrections, sensitivity analysis, and null model validation to correlate topology with dissipation.
+**Goal**: Perform Principal Component Regression (PCR) (per Spec FR-004) with multiple-comparison corrections, sensitivity analysis, and VIF checks to correlate topology with dissipation.
 
-**Independent Test**: Verify PLS output includes coefficients, VIP scores, corrected p-values, and that sensitivity sweep reports stability.
+**Independent Test**: Verify PCR output includes coefficients, corrected p-values, PC loadings in JSON, and that sensitivity sweep reports stability.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T028a [P] [US3] Unit test `test_pcr_coefficient_calculation` in `tests/test_regression.py`: assert PCR coefficients are calculated correctly for a known input matrix
 - [X] T029a [P] [US3] Unit test `test_bonferroni_correction` in `tests/test_regression.py`: assert corrected p-values match expected values for a known input list
-- [ ] T030a [P] [US3] Unit test `test_null_model_permutation` in `tests/test_regression.py`: assert permutation test with N=1000 returns null distribution with mean ~0
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `code/analyze_regression.py` to load `data/raw/networks.csv` and `data/processed/energy_decay.csv` (Depends on T015, T026); filter out rows where status='resonant' before analysis. **Ensure consumption of the validated output of T026.**
-- [ ] T032 [US3] Perform Principal Component Analysis (PCA) on topological metrics to handle collinearity. **Extract loadings of topological metrics on PC1 and PC2**. **Generate a markdown table of these loadings and append an "Interpretation of Physical Meaning" section to `data/analysis/regression_results.md`** that explicitly explains what physical network features (e.g., "local clustering" vs "global connectivity") the first two components represent, satisfying Spec FR-009.
-- [ ] T033 [US3] Implement **Partial Least Squares (PLS) Regression** (per Plan's Statistical Rigor section; supersedes Spec FR-004's generic PCR mention) to correlate PCA components with decay rates. **Calculate VIP (Variable Importance in Projection) scores**. Apply Bonferroni or Holm-Bonferroni correction to p-values. **Document the rationale for choosing PLS over PCR in the report** (referencing Plan's specific requirement for handling collinearity and maximizing covariance). **Explicitly flag the Spec (FR-004) for update to match the Plan's PLS mandate.** Perform sensitivity analysis on p-value thresholds and VIF checks (VIF > 5) within this single task to ensure a unified analysis pipeline.
-- [ ] T034 [US3] Implement sensitivity analysis: sweep significance threshold across standard levels and **report the variance in the number of significant predictors** across the sweep to satisfy SC-004.
+- [ ] T031a [US3] Implement data loading and validation in `code/analyze_regression.py`: Load `data/raw/networks.csv` and `data/processed/energy_decay.csv` (Depends on T026; NOT parallel-safe)
+- [ ] T031b [US3] Implement filtering logic: Filter out rows where `status='resonant'` before analysis. Ensure consumption of the validated output of T026 and T022c. (Depends on T031a)
+- [ ] T031c [P] [US3] Initialize regression model structure in `code/analyze_regression.py` (Parallel-safe, no data dependency)
+- [ ] T032 [US3] Perform Principal Component Analysis (PCA) on topological metrics to handle collinearity. **Extract loadings of topological metrics on PC1 and PC2**. **Generate a markdown table of these loadings and append an "Interpretation of Physical Meaning" section to `data/analysis/regression_results.md`** that explicitly explains what physical network features the first two components represent. **CRITICAL**: Use deterministic rule: If |loading| > 0.5, attribute to the metric (e.g., "If PC1 loading on clustering > 0.5, state 'PC1 represents local connectivity'"). **Ensure loadings are also written to `data/analysis/regression_results.json` as the primary structured artifact per FR-009**. (Depends on T031b)
+- [ ] T033 [US3] Implement **Principal Component Regression (PCR)** (per Spec FR-004) to correlate PCA components with decay rates. Calculate regression coefficients, standard errors, and p-values. Apply Bonferroni or Holm-Bonferroni correction to p-values. (Depends on T032)
+- [ ] T034 [US3] Implement sensitivity analysis: sweep significance threshold across standard levels and **report the variance in the number of significant predictors** across the sweep to satisfy SC-004. (Depends on T033)
 - [ ] T035 [US3] Implement VIF check: flag metrics with VIF > 5 and frame results descriptively (integrated into T033)
-- [ ] T036a [US3] Implement permutation test (null model validation) logic to ensure observed correlation exceeds a high percentile of null distribution. **Explicitly link output to the Plan's 'null model validation' requirement for PLS.**
-- [ ] T036b [US3] Implement null model validation reporting: Generate a report section in `data/analysis/regression_results.md` explicitly stating the null model methodology and results, satisfying the Plan's specific requirement for null model validation.
-- [ ] T037 [US3] Generate final regression results report and loadings table in `data/analysis/regression_results.json` and `data/analysis/regression_results.md`; include PLS coefficients, VIP scores, corrected p-values, **loadings for PC1/PC2 with interpretation**, and the count of excluded resonant instances
+- [ ] T037 [US3] Generate final regression results report and loadings table in `data/analysis/regression_results.json` and `data/analysis/regression_results.md`; include PCR coefficients, corrected p-values, **loadings for PC1/PC2 with interpretation in JSON**, and the count of excluded resonant instances (Depends on T034)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -211,6 +207,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models/Utils within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members (once data dependencies are managed via mock data or sequential execution)
+- **Split Tasks**: Tasks marked [P] within a story (e.g., T021a, T022a, T023a) can be implemented in parallel before the integration tasks (T021b, T022b, T024b) that require real data.
 
 ---
 
@@ -253,8 +250,8 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1 (Data Generation)
- - Developer B: User Story 2 (Simulation - can use mock data initially)
- - Developer C: User Story 3 (Analysis - can use mock data initially)
+ - Developer B: User Story 2 (Simulation - can use mock data initially for T021a, T022a, T023a)
+ - Developer C: User Story 3 (Analysis - can use mock data initially for T031c)
 3. Stories complete and integrate independently; final run uses real generated data.
 
 ---

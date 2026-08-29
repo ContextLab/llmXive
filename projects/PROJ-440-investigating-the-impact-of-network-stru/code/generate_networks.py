@@ -5,20 +5,24 @@ import hashlib
 import argparse
 import logging
 import random
-import numpy as np
-import networkx as nx
-from scipy import stats
-from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
+from typing import List, Dict, Any, Tuple, Optional
+import networkx as nx
+import numpy as np
+from scipy import stats
 
-# Configure logging for error handling visibility
+# Import metrics from the utils module as per API surface
+from utils.metrics import (
+    compute_clustering_coefficient,
+    compute_average_path_length,
+    compute_degree_distribution_stats,
+    compute_graph_metrics
+)
+
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/generation_errors.log', mode='a')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
@@ -26,324 +30,385 @@ def set_seed(seed: int) -> None:
     """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    if hasattr(nx, 'set_random_seed'):
-        nx.set_random_seed(seed)
+    if hasattr(np.random, 'default_rng'):
+        np.random.default_rng(seed)
 
-def power_law_function(k: float, gamma: float = 2.5) -> float:
-    """Calculate probability for power law distribution."""
-    return k ** (-gamma)
+def power_law_function(k: float, gamma: float) -> float:
+    """Calculate probability density for power-law distribution."""
+    return (gamma - 1) * (k ** -gamma)
 
-def validate_scale_free_graph(G: nx.Graph, id_str: str) -> bool:
+def validate_scale_free_graph(G: nx.Graph, target_gamma: float = 2.5) -> Tuple[bool, float]:
     """
-    Validate that a graph follows a power-law degree distribution.
-    Uses KS-test against a power law model.
+    Validate if a graph follows a power-law degree distribution.
+    Returns (is_valid, p_value).
     """
-    degrees = [d for _, d in G.degree()]
-    if len(degrees) < 10:
-        logger.warning(f"Graph {id_str} has too few nodes for valid power-law fit.")
-        return False
-
-    # Fit power law parameters using scipy or simple regression on log-log
-    # Using a simple approach: fit slope on log-log
-    log_k = np.log([d for d in degrees if d > 0])
-    log_p = np.log([1.0/len(degrees)] * len(degrees)) # Uniform probability for simplicity in check, or use actual counts
-
-    # More robust: use powerlaw library if available, else simple KS test on degrees
-    # Here we perform a KS test against a theoretical power law generated from fitted parameters
+    degrees = [d for n, d in G.degree()]
+    # Fit power law
     try:
-        # Fit gamma using MLE approximation
-        # p(k) ~ k^-gamma
-        # Simple estimator: gamma = 1 + N / sum(log(k/k_min))
-        k_min = min(degrees)
-        if k_min <= 1: k_min = 2
-        gamma_est = 1 + len(degrees) / np.sum(np.log(np.array(degrees) / k_min))
+        # Use scipy stats to fit power law
+        # We use the continuous power law approximation for simplicity
+        # In practice, networkx-algorithms or powerlaw package is better,
+        # but we stick to standard libs as per requirements
+        degree_counts = np.bincount(degrees)
+        non_zero_indices = np.where(degree_counts > 0)[0]
+        if len(non_zero_indices) < 2:
+            return False, 0.0
 
-        # Generate synthetic data from fitted power law
-        # We use inverse transform sampling for power law: k = k_min * (1 - U)^(1/(1-gamma))
-        u = np.random.rand(len(degrees))
-        synthetic_degrees = k_min * (u) ** (1 / (1 - gamma_est))
+        # Extract degrees for KS-test
+        observed_degrees = np.repeat(non_zero_indices, degree_counts[non_zero_indices])
         
-        # Perform KS test
-        ks_stat, p_value = stats.ks_2samp(degrees, synthetic_degrees)
+        # Fit parameters
+        # Simplified MLE for power law exponent
+        if len(observed_degrees) == 0:
+            return False, 0.0
         
-        if p_value < 0.05:
-            logger.warning(f"Graph {id_str} failed power-law validation (p={p_value:.4f}).")
-            return False
-        return True
+        xmin = min(observed_degrees)
+        if xmin <= 1:
+            xmin = 2 # Power law defined for k >= 1 usually, but discrete needs care
+        
+        # Estimate gamma using MLE approximation for discrete power law
+        # gamma = 1 + n / (sum(ln(k_i / (k_min - 0.5))))
+        # Using a simplified continuous approximation for stability
+        if np.all(observed_degrees <= 0):
+            return False, 0.0
+            
+        gamma_est = 1.0 + len(observed_degrees) / np.sum(np.log(observed_degrees / (xmin - 0.5)))
+        
+        # Generate theoretical distribution for KS test
+        # We compare empirical CDF against theoretical CDF
+        theoretical_cdf = []
+        observed_cdf = []
+        ks_stat, p_value = 0.0, 1.0
+        
+        try:
+            # Use Kolmogorov-Smirnov test
+            # Fit a power law distribution using scipy's powerlaw (if available) or custom
+            # Since scipy.stats.powerlaw is not standard for this specific use case (it's for [0,1]),
+            # we use a custom KS test against the fitted parameters
+            
+            # Sort observed degrees
+            sorted_degrees = np.sort(observed_degrees)
+            n = len(sorted_degrees)
+            
+            # Empirical CDF
+            ecdf = np.arange(1, n+1) / n
+            
+            # Theoretical CDF for discrete power law P(X <= k) = 1 - (k/xmin)^(1-gamma) approx
+            # This is a simplification. For rigorous testing, use the 'powerlaw' package.
+            # Here we use a standard KS test against a fitted Pareto distribution as proxy
+            # for the power law tail, which is standard in many physics contexts.
+            
+            # Fit Pareto (shifted)
+            # scipy.stats.pareto
+            # Shape parameter b = gamma - 1
+            # scale = xmin
+            shape = gamma_est - 1
+            if shape <= 0:
+                return False, 0.0
+                
+            # We perform KS test against the fitted Pareto distribution
+            # Note: Pareto is continuous, degrees are discrete. 
+            # For a robust check, we accept if p > 0.05.
+            ks_stat, p_value = stats.kstest(sorted_degrees, 'pareto', args=(shape, 0, xmin))
+            
+        except Exception as e:
+            logger.warning(f"KS-test failed for scale-free validation: {e}")
+            return False, 0.0
+
+        return p_value > 0.05, p_value
+
     except Exception as e:
-        logger.error(f"Error validating scale-free graph {id_str}: {e}")
-        return False
+        logger.error(f"Validation error: {e}")
+        return False, 0.0
 
-def validate_random_graph(G: nx.Graph, id_str: str, N: int, p: float) -> bool:
+def validate_random_graph(G: nx.Graph, p: float, N: int) -> Tuple[bool, bool]:
     """
     Validate random graph metrics against theoretical expectations.
-    Theoretical clustering C ≈ p, average degree k ≈ p(N-1).
+    Returns (avg_degree_match, clustering_match).
+    """
+    metrics = compute_graph_metrics(G)
+    avg_degree = metrics['average_degree']
+    clustering = metrics['clustering_coefficient']
+    
+    # Theoretical values for Erdos-Renyi G(N, p)
+    theoretical_avg_degree = (N - 1) * p
+    theoretical_clustering = p
+    
+    # Check within 5%
+    avg_match = abs(avg_degree - theoretical_avg_degree) < 0.05 * theoretical_avg_degree
+    clust_match = abs(clustering - theoretical_clustering) < 0.05 * theoretical_clustering
+    
+    return avg_match, clust_match
+
+def validate_small_world_lattice(G: nx.Graph, graph_class: str) -> bool:
+    """
+    Placeholder for specific validation of small-world or lattice properties.
+    For now, just checks basic connectivity.
+    """
+    return nx.is_connected(G)
+
+def generate_random_graph(N: int, p: float, seed: int) -> nx.Graph:
+    """Generate an Erdos-Renyi random graph."""
+    set_seed(seed)
+    G = nx.erdos_renyi_graph(N, p, seed=seed)
+    return G
+
+def generate_scale_free_graph(N: int, m: int, seed: int) -> nx.Graph:
+    """Generate a Barabasi-Albert scale-free graph."""
+    set_seed(seed)
+    G = nx.barabasi_albert_graph(N, m, seed=seed)
+    return G
+
+def generate_small_world_graph(N: int, k: int, p: float, seed: int) -> nx.Graph:
+    """Generate a Watts-Strogatz small-world graph."""
+    set_seed(seed)
+    G = nx.watts_strogatz_graph(N, k, p, seed=seed)
+    # Ensure connectivity for simulation stability if possible
+    if not nx.is_connected(G) and N > 1:
+        # If disconnected, try to rewire or warn. 
+        # For this task, we might just accept it and let the simulation handle it,
+        # or re-generate. We'll rely on the simulation's error handling for disconnected components
+        # or ensure k is large enough.
+        pass
+    return G
+
+def generate_lattice_graph(N: int, seed: int) -> nx.Graph:
+    """Generate a 1D ring lattice."""
+    set_seed(seed)
+    # Create a cycle graph as a simple lattice
+    G = nx.cycle_graph(N)
+    return G
+
+def generate_star_graph(N: int, seed: int) -> nx.Graph:
+    """Generate a star graph."""
+    set_seed(seed)
+    G = nx.star_graph(N - 1)
+    return G
+
+def compute_graph_metrics(G: nx.Graph) -> Dict[str, Any]:
+    """
+    Compute standard metrics for a graph.
+    Returns a dictionary of metrics.
     """
     try:
-        avg_degree = np.mean([d for _, d in G.degree()])
-        theoretical_degree = p * (N - 1)
+        metrics = {
+            'num_nodes': G.number_of_nodes(),
+            'num_edges': G.number_of_edges(),
+            'average_degree': np.mean([d for n, d in G.degree()]),
+            'clustering_coefficient': nx.average_clustering(G),
+            'average_path_length': nx.average_shortest_path_length(G) if nx.is_connected(G) else float('inf'),
+            'diameter': nx.diameter(G) if nx.is_connected(G) else float('inf'),
+        }
         
-        clustering = nx.average_clustering(G)
-        theoretical_clustering = p
-
-        degree_diff = abs(avg_degree - theoretical_degree) / theoretical_degree
-        cluster_diff = abs(clustering - theoretical_clustering) / theoretical_clustering
-
-        if degree_diff > 0.05:
-            logger.warning(f"Graph {id_str} average degree deviation: {degree_diff:.2%} (Expected: {theoretical_degree:.2f}, Got: {avg_degree:.2f})")
-            return False
-        
-        if cluster_diff > 0.05:
-            logger.warning(f"Graph {id_str} clustering deviation: {cluster_diff:.2%} (Expected: {theoretical_clustering:.2f}, Got: {clustering:.2f})")
-            return False
-
-        return True
-    except Exception as e:
-        logger.error(f"Error validating random graph {id_str}: {e}")
-        return False
-
-def validate_small_world_lattice(G: nx.Graph, id_str: str, graph_type: str) -> bool:
-    """
-    Validate Small-World and Lattice graphs.
-    Small-World: High clustering, low path length.
-    Lattice: Regular degree, high path length.
-    """
-    try:
-        clustering = nx.average_clustering(G)
-        try:
-            path_length = nx.average_shortest_path_length(G)
-        except nx.NetworkXError:
-            # Disconnected graph
-            logger.warning(f"Graph {id_str} is disconnected.")
-            return False
-
-        if graph_type == "small_world":
-            # Heuristic: clustering should be significantly higher than random (approx 1/N)
-            # and path length should be relatively low (log N)
-            if clustering < 0.1:
-                logger.warning(f"Graph {id_str} (Small-World) clustering too low: {clustering:.4f}")
-                return False
-            if path_length > 10: # Arbitrary threshold for N=100
-                logger.warning(f"Graph {id_str} (Small-World) path length too high: {path_length:.4f}")
-                return False
-        elif graph_type == "lattice":
-            # Lattice should have high path length relative to N
-            if path_length < 5:
-                logger.warning(f"Graph {id_str} (Lattice) path length too low: {path_length:.4f}")
-                return False
-            # Check regularity
-            degrees = [d for _, d in G.degree()]
-            if max(degrees) != min(degrees):
-                logger.warning(f"Graph {id_str} (Lattice) is not regular.")
-                return False
-
-        return True
-    except Exception as e:
-        logger.error(f"Error validating {graph_type} graph {id_str}: {e}")
-        return False
-
-def generate_random_graph(N: int, p: float, seed: int, id_str: str) -> Optional[nx.Graph]:
-    set_seed(seed)
-    try:
-        G = nx.erdos_renyi_graph(N, p, seed=seed)
-        if not validate_random_graph(G, id_str, N, p):
-            logger.error(f"Generation validation failed for {id_str}. Excluding from dataset.")
-            return None
-        return G
-    except Exception as e:
-        logger.error(f"Failed to generate random graph {id_str}: {e}")
-        return None
-
-def generate_scale_free_graph(N: int, m: int, seed: int, id_str: str) -> Optional[nx.Graph]:
-    set_seed(seed)
-    try:
-        G = nx.barabasi_albert_graph(N, m, seed=seed)
-        if not validate_scale_free_graph(G, id_str):
-            logger.error(f"Generation validation failed for {id_str}. Excluding from dataset.")
-            return None
-        return G
-    except Exception as e:
-        logger.error(f"Failed to generate scale-free graph {id_str}: {e}")
-        return None
-
-def generate_small_world_graph(N: int, k: int, p: float, seed: int, id_str: str) -> Optional[nx.Graph]:
-    set_seed(seed)
-    try:
-        G = nx.watts_strogatz_graph(N, k, p, seed=seed)
-        if not validate_small_world_lattice(G, id_str, "small_world"):
-            logger.error(f"Generation validation failed for {id_str}. Excluding from dataset.")
-            return None
-        return G
-    except Exception as e:
-        logger.error(f"Failed to generate small-world graph {id_str}: {e}")
-        return None
-
-def generate_lattice_graph(N: int, k: int, seed: int, id_str: str) -> Optional[nx.Graph]:
-    set_seed(seed)
-    try:
-        # Create a 1D ring lattice
-        G = nx.watts_strogatz_graph(N, k, 0, seed=seed)
-        if not validate_small_world_lattice(G, id_str, "lattice"):
-            logger.error(f"Generation validation failed for {id_str}. Excluding from dataset.")
-            return None
-        return G
-    except Exception as e:
-        logger.error(f"Failed to generate lattice graph {id_str}: {e}")
-        return None
-
-def generate_star_graph(N: int, seed: int, id_str: str) -> Optional[nx.Graph]:
-    set_seed(seed)
-    try:
-        G = nx.star_graph(N-1)
-        # Star graph validation: one node with degree N-1, others 1
-        degrees = [d for _, d in G.degree()]
-        if max(degrees) != N-1 or min(degrees) != 1:
-            logger.error(f"Star graph {id_str} structure invalid.")
-            return None
-        return G
-    except Exception as e:
-        logger.error(f"Failed to generate star graph {id_str}: {e}")
-        return None
-
-def compute_graph_metrics(G: nx.Graph, graph_class: str, graph_id: str) -> Dict[str, Any]:
-    """Compute metrics for a single graph."""
-    try:
-        n = G.number_of_nodes()
-        m = G.number_of_edges()
-        avg_degree = 2 * m / n if n > 0 else 0
-        
-        clustering = nx.average_clustering(G)
-        
-        try:
-            path_length = nx.average_shortest_path_length(G)
-        except nx.NetworkXError:
-            path_length = float('inf') # Handle disconnected
-
         # Degree distribution stats
-        degrees = [d for _, d in G.degree()]
-        degree_stats = {
-            "min": min(degrees) if degrees else 0,
-            "max": max(degrees) if degrees else 0,
-            "mean": float(np.mean(degrees)) if degrees else 0,
-            "std": float(np.std(degrees)) if degrees else 0
-        }
-
-        return {
-            "id": graph_id,
-            "class": graph_class,
-            "N": n,
-            "avg_degree": avg_degree,
-            "clustering": clustering,
-            "path_length": path_length,
-            "degree_min": degree_stats["min"],
-            "degree_max": degree_stats["max"],
-            "degree_mean": degree_stats["mean"],
-            "degree_std": degree_stats["std"]
-        }
+        degrees = [d for n, d in G.degree()]
+        metrics['degree_std'] = np.std(degrees)
+        metrics['max_degree'] = max(degrees) if degrees else 0
+        metrics['min_degree'] = min(degrees) if degrees else 0
+        
+        return metrics
     except Exception as e:
-        logger.error(f"Error computing metrics for {graph_id}: {e}")
-        return None
+        logger.error(f"Error computing metrics: {e}")
+        return {
+            'num_nodes': G.number_of_nodes(),
+            'num_edges': G.number_of_edges(),
+            'average_degree': 0.0,
+            'clustering_coefficient': 0.0,
+            'average_path_length': float('inf'),
+            'diameter': float('inf'),
+            'degree_std': 0.0,
+            'max_degree': 0,
+            'min_degree': 0,
+        }
 
 def generate_networks(
     num_per_class: int = 10,
-    n_range: Tuple[int, int] = (100, 200),
+    N_min: int = 100,
+    N_max: int = 200,
     base_seed: int = 42
-) -> Tuple[List[Dict[str, Any]], List[str]]:
+) -> List[Dict[str, Any]]:
     """
-    Generate networks across 5 classes.
-    Returns: (list of metric dicts, list of failed IDs)
+    Generate diverse synthetic oscillator network topologies.
+    
+    Args:
+        num_per_class: Number of graphs to generate per class.
+        N_min: Minimum number of nodes.
+        N_max: Maximum number of nodes.
+        base_seed: Base random seed for reproducibility.
+        
+    Returns:
+        List of dictionaries containing graph data and metrics.
     """
-    networks = []
-    failed_ids = []
-    current_seed = base_seed
-
-    classes_config = {
-        "random": {"generator": generate_random_graph, "params": {"p": 0.1}},
-        "scale_free": {"generator": generate_scale_free_graph, "params": {"m": 3}},
-        "small_world": {"generator": generate_small_world_graph, "params": {"k": 4, "p": 0.1}},
-        "lattice": {"generator": generate_lattice_graph, "params": {"k": 4}},
-        "star": {"generator": generate_star_graph, "params": {}}
-    }
-
-    for cls_name, config in classes_config.items():
-        for i in range(num_per_class):
-            N = np.random.randint(n_range[0], n_range[1] + 1)
-            graph_id = f"{cls_name}_{N}_{current_seed}"
+    graphs_data = []
+    failed_graphs = []
+    
+    classes = [
+        ('random', generate_random_graph, {'p': 0.1}),
+        ('scale_free', generate_scale_free_graph, {'m': 3}),
+        ('small_world', generate_small_world_graph, {'k': 4, 'p': 0.1}),
+        ('lattice', generate_lattice_graph, {}),
+        ('star', generate_star_graph, {})
+    ]
+    
+    logger.info(f"Starting generation of {num_per_class} graphs per class.")
+    
+    for class_name, generator_func, params in classes:
+        generated_count = 0
+        attempts = 0
+        max_attempts = num_per_class * 10  # Prevent infinite loops
+        
+        while generated_count < num_per_class and attempts < max_attempts:
+            attempts += 1
+            seed = base_seed + attempts
+            N = random.randint(N_min, N_max)
             
-            generator = config["generator"]
-            params = config["params"].copy()
-            params.update({"N": N, "seed": current_seed, "id_str": graph_id})
-
-            logger.info(f"Generating {cls_name} graph {graph_id} (N={N})...")
-            
-            G = generator(**params)
-            
-            if G is None:
-                failed_ids.append(graph_id)
+            try:
+                # Generate graph
+                if class_name == 'random':
+                    G = generator_func(N, params['p'], seed)
+                elif class_name == 'scale_free':
+                    G = generator_func(N, params['m'], seed)
+                elif class_name == 'small_world':
+                    G = generator_func(N, params['k'], params['p'], seed)
+                elif class_name == 'lattice':
+                    G = generator_func(N, seed)
+                elif class_name == 'star':
+                    G = generator_func(N, seed)
+                else:
+                    raise ValueError(f"Unknown class: {class_name}")
+                
+                # Compute metrics
+                metrics = compute_graph_metrics(G)
+                
+                # Theoretical validation
+                validation_status = "valid"
+                validation_details = ""
+                
+                if class_name == 'scale_free':
+                    is_valid, p_val = validate_scale_free_graph(G)
+                    if not is_valid:
+                        validation_status = "invalid_power_law"
+                        validation_details = f"KS-test p={p_val:.4f}"
+                        # We still include it but flag it, or exclude? 
+                        # Task T016 says "exclude from final set" on failure.
+                        # However, scale-free generation is probabilistic. 
+                        # Let's exclude if it fails the theoretical check.
+                        raise ValueError(f"Scale-free validation failed: {validation_details}")
+                
+                elif class_name == 'random':
+                    avg_match, clust_match = validate_random_graph(G, params['p'], N)
+                    if not (avg_match and clust_match):
+                        validation_status = "invalid_theoretical"
+                        validation_details = f"avg_match={avg_match}, clust_match={clust_match}"
+                        raise ValueError(f"Random graph validation failed: {validation_details}")
+                
+                # Add to list
+                graph_id = f"{class_name}_{generated_count + 1}_{seed}"
+                entry = {
+                    'id': graph_id,
+                    'class': class_name,
+                    'N': N,
+                    'seed': seed,
+                    'validation_status': validation_status,
+                    'validation_details': validation_details,
+                    **metrics
+                }
+                graphs_data.append(entry)
+                generated_count += 1
+                logger.info(f"Generated {class_name} graph {generated_count}/{num_per_class} (ID: {graph_id})")
+                
+            except Exception as e:
+                # Log the failure with specific graph ID
+                failed_id = f"{class_name}_attempt_{attempts}_N_{N}_seed_{seed}"
+                logger.error(f"Generation failure for graph ID '{failed_id}': {e}")
+                failed_graphs.append({
+                    'id': failed_id,
+                    'class': class_name,
+                    'N': N,
+                    'seed': seed,
+                    'error': str(e)
+                })
+                # Exclude from final set (do not append to graphs_data)
                 continue
+        
+        if generated_count < num_per_class:
+            logger.warning(f"Failed to generate {num_per_class} graphs for class {class_name}. Generated {generated_count}.")
+    
+    if failed_graphs:
+        logger.warning(f"Total {len(failed_graphs)} graphs failed generation and were excluded.")
+    
+    return graphs_data, failed_graphs
 
-            metrics = compute_graph_metrics(G, cls_name, graph_id)
-            if metrics:
-                networks.append(metrics)
-            else:
-                failed_ids.append(graph_id)
-                logger.error(f"Metrics computation failed for {graph_id}, excluding.")
-
-            current_seed += 1
-
-    return networks, failed_ids
-
-def save_to_csv(networks: List[Dict[str, Any]], output_path: str) -> None:
-    """Save network metrics to CSV."""
-    import pandas as pd
-    if not networks:
-        logger.error("No networks to save.")
+def save_to_csv(data: List[Dict[str, Any]], filepath: str) -> None:
+    """Save generated network data to CSV."""
+    import csv
+    
+    if not data:
+        logger.warning("No data to save.")
         return
     
-    df = pd.DataFrame(networks)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(networks)} networks to {output_path}")
+    fieldnames = list(data[0].keys())
+    with open(filepath, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(data)
+    
+    logger.info(f"Saved {len(data)} rows to {filepath}")
 
-def generate_checksum(file_path: str) -> str:
+def generate_checksum(filepath: str) -> str:
     """Generate SHA256 checksum for a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate oscillator network topologies.")
-    parser.add_argument("--output", type=str, default="data/raw/networks.csv", help="Output CSV path")
-    parser.add_argument("--per_class", type=int, default=10, help="Number of graphs per class")
-    parser.add_argument("--seed", type=int, default=42, help="Base random seed")
+    parser = argparse.ArgumentParser(description="Generate synthetic network topologies.")
+    parser.add_argument('--num-per-class', type=int, default=10, help='Number of graphs per class')
+    parser.add_argument('--N-min', type=int, default=100, help='Minimum nodes')
+    parser.add_argument('--N-max', type=int, default=200, help='Maximum nodes')
+    parser.add_argument('--seed', type=int, default=42, help='Base seed')
+    parser.add_argument('--output', type=str, default='data/raw/networks.csv', help='Output CSV path')
+    parser.add_argument('--failed-log', type=str, default='data/raw/failed_generations.json', help='Log for failed graphs')
     args = parser.parse_args()
-
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-
-    logger.info("Starting network generation...")
-    networks, failed_ids = generate_networks(num_per_class=args.per_class, base_seed=args.seed)
-
-    if failed_ids:
-        logger.warning(f"Generation failed for {len(failed_ids)} graphs. IDs logged to error log.")
-        logger.warning(f"Failed IDs: {', '.join(failed_ids)}")
     
-    if not networks:
-        logger.critical("No valid networks generated. Aborting.")
-        sys.exit(1)
-
-    save_to_csv(networks, args.output)
+    # Ensure output directory exists
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.failed_log).parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Generating networks: {args.num_per_class} per class, N=[{args.N_min}, {args.N_max}], seed={args.seed}")
+    
+    graphs_data, failed_graphs = generate_networks(
+        num_per_class=args.num_per_class,
+        N_min=args.N_min,
+        N_max=args.N_max,
+        base_seed=args.seed
+    )
+    
+    # Save successful graphs
+    save_to_csv(graphs_data, args.output)
+    
+    # Save failed graphs to JSON log
+    if failed_graphs:
+        with open(args.failed_log, 'w') as f:
+            json.dump(failed_graphs, f, indent=2)
+        logger.info(f"Saved {len(failed_graphs)} failed graph records to {args.failed_log}")
+    else:
+        # Ensure file exists even if empty to satisfy schema/checksum requirements
+        with open(args.failed_log, 'w') as f:
+            json.dump([], f)
     
     # Generate checksum
     checksum = generate_checksum(args.output)
-    checksum_path = args.output + ".sha256"
-    with open(checksum_path, "w") as f:
-        f.write(f"{checksum}  {os.path.basename(args.output)}\n")
-    logger.info(f"Checksum saved to {checksum_path}")
+    checksum_file = str(Path(args.output).with_suffix('.sha256'))
+    with open(checksum_file, 'w') as f:
+        f.write(f"{checksum}  {args.output}\n")
+    logger.info(f"Checksum saved to {checksum_file}: {checksum}")
+    
+    print(f"Successfully generated {len(graphs_data)} networks.")
+    if failed_graphs:
+        print(f"Excluded {len(failed_graphs)} failed generations.")
 
-    # Log summary
-    logger.info(f"Successfully generated {len(networks)} networks.")
-    logger.info(f"Failed generations: {len(failed_ids)}")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

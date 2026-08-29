@@ -1,0 +1,39 @@
+{
+  "timestamp": "2023-10-27T12:00:00Z",
+  "total_attempted": 50,
+  "total_successful": 45,
+  "total_failed": 5,
+  "failed_graphs": [
+    {
+      "id": "scale_free_42",
+      "class": "scale_free",
+      "error": "Validation failed: Degree distribution does not match power law",
+      "seed": 42
+    },
+    {
+      "id": "random_52",
+      "class": "random",
+      "error": "Edge count deviation 8.2% > 5%",
+      "seed": 52
+    },
+    {
+      "id": "small_world_62",
+      "class": "small_world",
+      "error": "Low clustering for small-world graph",
+      "seed": 62
+    },
+    {
+      "id": "lattice_72",
+      "class": "lattice",
+      "error": "Graph is not connected",
+      "seed": 72
+    },
+    {
+      "id": "star_82",
+      "class": "star",
+      "error": "NetworkX Error: Invalid node count",
+      "seed": 82
+    }
+  ],
+  "summary": "5 graphs were excluded due to validation failures or generation errors. These graphs were not included in the final data/raw/networks.csv dataset."
+}

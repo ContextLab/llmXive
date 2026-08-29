@@ -1,6 +1,33 @@
-# Extend the main pyproject.toml configuration if needed, or use as standalone.
-# For this project, we use [tool.ruff] in pyproject.toml, but this file
-# ensures ruff can be invoked directly with specific overrides if necessary.
-extend = "pyproject.toml"
+# Explicit ruff configuration file for the project root
+# This file is read by ruff linter and formatter
+
 line-length = 88
 target-version = "py39"
+
+[lint]
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # Pyflakes
+    "I", # isort
+    "C", # flake8-comprehensions
+    "B", # flake8-bugbear
+    "UP", # pyupgrade
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument default (often needed for data pipelines)
+    "C901", # Complex structure (handled by specific complexity checks if needed)
+]
+
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = false
+lines-after-imports = 2
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
