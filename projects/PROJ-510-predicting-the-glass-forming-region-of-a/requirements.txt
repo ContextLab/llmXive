@@ -7,4 +7,5 @@ datasets
 mendeleev
 scipy
 pydantic
-pytest
+matplotlib
+seaborn

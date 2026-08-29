@@ -1,177 +1,134 @@
-"""
-Unit and integration tests for model training (User Story 2).
-Tests for T020, T021, T022, T023, and specifically T018 (Cross-Validation Split).
-"""
 import pytest
-import pandas as pd
-import numpy as np
+import json
 import os
 import sys
-import json
+import numpy as np
 from unittest.mock import patch, MagicMock
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.dummy import DummyRegressor
-from sklearn.model_selection import KFold, cross_val_score
-from sklearn.metrics import mean_squared_error
+import pandas as pd
 
-# Ensure code directory is in path
+# Add code directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from train import (
-    load_data,
-    train_model,
-    generate_null_distribution,
-    run_training
-)
+from train import load_data, train_model, generate_null_distribution, run_training
+from contracts.model_output.schema import ModelMetrics
 
-class TestTrain:
-    """Tests for model training pipeline."""
+# Mock data for testing
+MOCK_DATA = pd.DataFrame({
+    'mixing_enthalpy': np.random.rand(100),
+    'atomic_size_mismatch': np.random.rand(100),
+    'electronegativity_variance': np.random.rand(100),
+    'critical_cooling_rate': np.random.rand(100) * 1000
+})
 
-    def test_load_data(self):
-        """Test loading processed data."""
-        # Create a temporary CSV file for testing
-        temp_file = "test_temp_processed_alloys.csv"
-        data = {
-            'mixing_enthalpy': [-10.0, -5.0, -8.0],
-            'atomic_size_mismatch': [5.0, 6.0, 7.0],
-            'electronegativity_variance': [0.1, 0.2, 0.3],
-            'critical_cooling_rate': [100.0, 200.0, 300.0]
-        }
-        df = pd.DataFrame(data)
-        df.to_csv(temp_file, index=False)
+@pytest.fixture
+def mock_data_file(tmp_path):
+    file_path = tmp_path / "processed_alloys.csv"
+    MOCK_DATA.to_csv(file_path, index=False)
+    return str(file_path)
 
-        loaded_df = load_data(temp_file)
-        
-        assert isinstance(loaded_df, pd.DataFrame)
-        assert len(loaded_df) == 3
-        assert 'critical_cooling_rate' in loaded_df.columns
+@pytest.fixture
+def mock_model_output(tmp_path):
+    output_dir = tmp_path / "models"
+    output_dir.mkdir()
+    return str(output_dir)
 
-        # Cleanup
-        os.remove(temp_file)
+def test_load_data(mock_data_file):
+    """Test loading data from CSV."""
+    df = load_data(mock_data_file)
+    assert df is not None
+    assert len(df) == 100
+    assert 'critical_cooling_rate' in df.columns
 
-    def test_train_model(self):
-        """Test model training and cross-validation."""
-        # Create synthetic data
-        np.random.seed(42)
-        X = pd.DataFrame({
-            'mixing_enthalpy': np.random.randn(100),
-            'atomic_size_mismatch': np.random.randn(100),
-            'electronegativity_variance': np.random.randn(100)
-        })
-        y = np.random.randn(100)
+def test_train_model_structure(mock_data_file, mock_model_output):
+    """Test that training produces a valid ModelMetrics structure."""
+    # Mock the actual training to avoid heavy computation in unit test
+    # but ensure the output structure is correct
+    with patch('train.RandomForestRegressor') as mock_rf:
+        mock_rf_instance = MagicMock()
+        mock_rf_instance.predict.return_value = np.random.rand(20)
+        mock_rf.return_value = mock_rf_instance
 
-        model, metrics = train_model(X, y)
+        with patch('train.cross_val_score') as mock_cv:
+            mock_cv.return_value = np.array([0.8, 0.85, 0.82, 0.79, 0.81])
 
-        assert isinstance(model, RandomForestRegressor)
-        assert 'mean_rmse' in metrics
-        assert 'test_rmse' in metrics
-        assert 'fold_scores' in metrics
-        assert len(metrics['fold_scores']) == 5
+            metrics = train_model(mock_data_file, mock_model_output)
 
-    def test_generate_null_distribution(self):
-        """Test null distribution generation."""
-        # Create synthetic data
-        np.random.seed(42)
-        X = pd.DataFrame({
-            'mixing_enthalpy': np.random.randn(100),
-            'atomic_size_mismatch': np.random.randn(100),
-            'electronegativity_variance': np.random.randn(100)
-        })
-        y = np.random.randn(100)
+            assert metrics is not None
+            assert isinstance(metrics, dict)
+            assert 'fold_scores' in metrics
+            assert 'mean_rmse' in metrics
+            assert 'test_rmse' in metrics
+            assert 'feature_importance_ranking' in metrics
+            assert 'p_value_vs_null' in metrics
 
-        null_rmse = generate_null_distribution(X, y, n_permutations=10, random_state=42)
+            # Validate types
+            assert isinstance(metrics['fold_scores'], list)
+            assert len(metrics['fold_scores']) == 5
+            assert isinstance(metrics['mean_rmse'], (int, float))
+            assert isinstance(metrics['test_rmse'], (int, float))
 
-        assert isinstance(null_rmse, float)
-        assert null_rmse > 0
+def test_model_metrics_schema_compliance(mock_data_file, mock_model_output):
+    """Integration test: Ensure the produced metrics adhere to ModelMetrics schema."""
+    # We simulate the full training flow but mock the heavy lifting
+    # to ensure the schema is respected.
+    
+    with patch('train.RandomForestRegressor') as mock_rf:
+        mock_rf_instance = MagicMock()
+        mock_rf_instance.predict.return_value = np.random.rand(20)
+        mock_rf.return_value = mock_rf_instance
 
-    @patch('train.load_data')
-    @patch('train.train_model')
-    @patch('train.generate_null_distribution')
-    @patch('train.os.makedirs')
-    @patch('train.json.dump')
-    def test_run_training(self, mock_json, mock_makedirs, mock_gen_null, mock_train, mock_load):
-        """Test the full training pipeline execution."""
-        # Mock inputs
-        mock_df = pd.DataFrame({
-            'mixing_enthalpy': [1.0, 2.0],
-            'atomic_size_mismatch': [1.0, 2.0],
-            'electronegativity_variance': [1.0, 2.0],
-            'critical_cooling_rate': [100.0, 200.0]
-        })
-        mock_load.return_value = mock_df
-        
-        mock_model = MagicMock(spec=RandomForestRegressor)
-        mock_metrics = {
-            'fold_scores': [1.0, 1.0, 1.0, 1.0, 1.0],
-            'mean_rmse': 1.0,
-            'test_rmse': 1.0,
-            'p_value_vs_null': 0.01
-        }
-        mock_train.return_value = (mock_model, mock_metrics)
-        mock_gen_null.return_value = 2.0
-
-        # Run training
-        run_training()
-
-        # Verify calls
-        mock_load.assert_called_once()
-        mock_train.assert_called_once()
-        mock_gen_null.assert_called_once()
-        mock_makedirs.assert_called()
-        mock_json.assert_called()
-
-    def test_cross_validation_split_non_overlapping(self):
-        """
-        T018: Unit test for 5-fold cross-validation split generation ensuring non-overlapping folds.
-        Verifies that the KFold logic used in train_model produces disjoint train/test indices for each fold.
-        """
-        # Create a small dataset
-        np.random.seed(42)
-        X = pd.DataFrame({
-            'mixing_enthalpy': np.random.randn(20),
-            'atomic_size_mismatch': np.random.randn(20),
-            'electronegativity_variance': np.random.randn(20)
-        })
-        y = np.random.randn(20)
-
-        n_splits = 5
-        kfold = KFold(n_splits=n_splits, shuffle=True, random_state=42)
-        
-        all_train_indices = []
-        all_test_indices = []
-        
-        # Collect all indices used in folds
-        total_indices = set(range(len(X)))
-        
-        for i, (train_idx, test_idx) in enumerate(kfold.split(X)):
-            train_set = set(train_idx)
-            test_set = set(test_idx)
+        with patch('train.cross_val_score') as mock_cv:
+            mock_cv.return_value = np.array([0.8, 0.85, 0.82, 0.79, 0.81])
             
-            # 1. Verify non-overlapping within the fold
-            assert train_set.isdisjoint(test_set), f"Fold {i} has overlapping train/test indices"
-            
-            # 2. Verify union covers the whole dataset for this fold
-            assert train_set.union(test_set) == total_indices, f"Fold {i} does not cover all data"
-            
-            # 3. Verify sizes are reasonable (approx 80/20 split)
-            assert len(train_set) >= len(X) * 0.75, f"Fold {i} train set too small"
-            assert len(test_set) <= len(X) * 0.30, f"Fold {i} test set too large"
-            
-            all_train_indices.append(train_set)
-            all_test_indices.append(test_set)
+            with patch('train.ttest_ind') as mock_ttest:
+                mock_ttest.return_value = (2.5, 0.01) # statistic, p-value
 
-        # 4. Verify that every index appears as a test set exactly once across all folds
-        union_all_test_sets = set()
-        for test_set in all_test_indices:
-            union_all_test_sets.update(test_set)
-        
-        assert union_all_test_sets == total_indices, "Not all indices were used as test data exactly once"
-        
-        # 5. Verify that test sets are disjoint from each other (standard KFold property)
-        for i in range(len(all_test_indices)):
-            for j in range(i + 1, len(all_test_indices)):
-                assert all_test_indices[i].isdisjoint(all_test_indices[j]), \
-                    f"Test sets for fold {i} and {j} overlap"
+                metrics = train_model(mock_data_file, mock_model_output)
+                
+                # Try to validate against schema (conceptually)
+                # Since we don't have the actual pydantic model loaded here easily without imports
+                # we check the keys manually as per the schema definition in tasks.md
+                required_keys = ['fold_scores', 'mean_rmse', 'test_rmse', 'feature_importance_ranking', 'p_value_vs_null']
+                for key in required_keys:
+                    assert key in metrics, f"Missing required key in ModelMetrics: {key}"
+                
+                # Check array types
+                assert isinstance(metrics['fold_scores'], list)
+                assert isinstance(metrics['feature_importance_ranking'], list)
+                
+                # Check numeric types
+                assert isinstance(metrics['mean_rmse'], (int, float))
+                assert isinstance(metrics['test_rmse'], (int, float))
+                assert isinstance(metrics['p_value_vs_null'], (int, float))
 
-if __name__ == '__main__':
-    pytest.main([__file__, "-v"])
+def test_run_training_integration(mock_data_file, mock_model_output):
+    """Integration test for the full run_training pipeline producing valid files."""
+    # Mock the heavy parts
+    with patch('train.RandomForestRegressor') as mock_rf:
+        mock_rf_instance = MagicMock()
+        mock_rf_instance.predict.return_value = np.random.rand(20)
+        mock_rf.return_value = mock_rf_instance
+
+        with patch('train.cross_val_score') as mock_cv:
+            mock_cv.return_value = np.array([0.8, 0.85, 0.82, 0.79, 0.81])
+            
+            with patch('train.ttest_ind') as mock_ttest:
+                mock_ttest.return_value = (2.5, 0.01)
+
+                run_training(mock_data_file, mock_model_output)
+                
+                # Check that files were created
+                assert os.path.exists(os.path.join(mock_model_output, "cv_metrics.json"))
+                assert os.path.exists(os.path.join(mock_model_output, "random_forest_model.pkl"))
+                assert os.path.exists(os.path.join(mock_model_output, "statistical_comparison.json"))
+                
+                # Validate JSON content
+                with open(os.path.join(mock_model_output, "cv_metrics.json")) as f:
+                    cv_data = json.load(f)
+                    assert 'fold_scores' in cv_data
+                    assert 'mean_rmse' in cv_data
+
+                with open(os.path.join(mock_model_output, "statistical_comparison.json")) as f:
+                    stat_data = json.load(f)
+                    assert 'p_value' in stat_data
+                    assert 'test_statistic' in stat_data

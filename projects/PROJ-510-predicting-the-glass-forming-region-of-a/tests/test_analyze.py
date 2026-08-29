@@ -1,6 +1,6 @@
 """
 Unit and integration tests for analysis and sensitivity (User Story 3).
-Tests for T028, T029, T031, T032.
+Tests for T028, T029, T031, T032, and T027 (integration test for sensitivity analysis).
 """
 import pytest
 import pandas as pd
@@ -96,6 +96,44 @@ class TestAnalyze:
         assert 'f1_scores' in sensitivity_results
         assert len(sensitivity_results['threshold_values']) == 3
         assert len(sensitivity_results['f1_scores']) == 3
+
+    def test_sensitivity_analysis_integration_t027(self):
+        """
+        Integration test for sensitivity analysis across thresholds {50, 100, 150} K/s.
+        Asserts that the output JSON contains the correct keys and values.
+        """
+        # Create synthetic data
+        X = pd.DataFrame({
+            'mixing_enthalpy': np.random.randn(200),
+            'atomic_size_mismatch': np.random.randn(200),
+            'electronegativity_variance': np.random.randn(200)
+        })
+        y = np.random.randn(200) * 100 + 100
+
+        model = RandomForestRegressor(random_state=42)
+        model.fit(X, y)
+
+        thresholds = [50, 100, 150]
+        sensitivity_results = run_sensitivity_analysis(model, X, y, thresholds)
+
+        # Assert structure
+        assert isinstance(sensitivity_results, dict)
+        assert 'threshold_values' in sensitivity_results
+        assert 'f1_scores' in sensitivity_results
+        assert 'rmse_values' in sensitivity_results
+
+        # Assert values match expected thresholds
+        assert sensitivity_results['threshold_values'] == thresholds
+        assert len(sensitivity_results['f1_scores']) == 3
+        assert len(sensitivity_results['rmse_values']) == 3
+
+        # Assert F1 scores are valid probabilities
+        for f1 in sensitivity_results['f1_scores']:
+            assert 0.0 <= f1 <= 1.0
+
+        # Assert RMSE values are non-negative
+        for rmse in sensitivity_results['rmse_values']:
+            assert rmse >= 0
 
     @patch('analyze.load_model_and_data')
     @patch('analyze.analyze_feature_importance')

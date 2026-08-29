@@ -1,2 +1,2 @@
-# llmXive Project: Predicting the Glass Forming Region of Alloy Systems
-# This package contains the core research pipeline.
+# PROJ-510: Predicting the Glass Forming Region of Alloy Systems
+# Package initialization for the research implementation.

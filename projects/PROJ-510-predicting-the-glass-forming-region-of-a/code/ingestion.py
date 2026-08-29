@@ -1,247 +1,244 @@
 """
-Data ingestion for glass-forming alloys.
-Downloads and filters the matsci/glass-forming-ability dataset.
+Data ingestion module for glass-forming alloy dataset.
+Downloads, filters, and validates experimental data.
 """
 import logging
 import os
 import sys
 from typing import List, Dict, Any, Optional
+
 import pandas as pd
 from datasets import load_dataset
 
-# Add project root to path
-if os.path.basename(os.path.dirname(__file__)) == 'code':
-    sys.path.insert(0, os.path.dirname(__file__))
-else:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+# Ensure parent directory is in path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils import get_logger, ensure_dir
 
 logger = get_logger(__name__)
 
-DATASET_NAME = "matsci/glass-forming-ability"
+# Constants
+DATASET_ID = "matsci/glass-forming-ability"
 TARGET_COLUMNS = [
-    'composition',
-    'critical_cooling_rate',
-    'mixing_enthalpy',
-    'atomic_size_mismatch',
-    'electronegativity_variance'
+    "composition",
+    "critical_cooling_rate",
+    "mixing_enthalpy",
+    "atomic_size_mismatch",
+    "electronegativity_variance",
+    "source_label"
 ]
+OUTPUT_PATH = "data/processed/processed_alloys.csv"
+
 
 def load_glass_data() -> pd.DataFrame:
     """
-    Load the glass-forming-ability dataset.
-
-    Returns:
-        DataFrame with glass-forming alloy data.
-
-    Raises:
-        ValueError: If dataset is unavailable or missing required columns.
+    Load the glass-forming ability dataset from Hugging Face.
+    Raises ValueError if the dataset is unavailable or missing critical columns.
     """
-    logger.info(f"Loading dataset: {DATASET_NAME}")
-
+    logger.info(f"Loading dataset: {DATASET_ID}")
     try:
-        # Load dataset
-        dataset = load_dataset(DATASET_NAME, split="train")
+        dataset = load_dataset(DATASET_ID, split="train")
         df = dataset.to_pandas()
     except Exception as e:
-        logger.error(f"Failed to load dataset {DATASET_NAME}: {e}")
-        raise ValueError(f"Data fetch failed: {DATASET_NAME} unavailable - {e}")
+        raise ValueError(f"Data fetch failed: {DATASET_ID} unavailable. Error: {str(e)}")
 
-    logger.info(f"Loaded {len(df)} records from {DATASET_NAME}")
+    # Verify critical column exists
+    if "critical_cooling_rate" not in df.columns:
+        raise ValueError(f"Dataset missing required column 'critical_cooling_rate'. Found: {df.columns.tolist()}")
 
-    # Verify required columns
-    required_cols = ['composition', 'critical_cooling_rate']
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Dataset missing required columns: {missing_cols}")
-
+    logger.info(f"Loaded {len(df)} rows. Columns: {df.columns.tolist()}")
     return df
+
 
 def filter_ternary_alloys(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter dataset for ternary alloys (3 elements).
-
-    Args:
-        df: Input DataFrame.
-
-    Returns:
-        Filtered DataFrame with only ternary alloys.
+    Filter dataset for ternary alloys (exactly 3 elements).
+    Excludes rows with missing elemental data or unknown labels.
     """
-    logger.info(f"Filtering for ternary alloys (original: {len(df)} records)")
-
-    def count_elements(composition_str):
-        """Count unique elements in composition string."""
-        import re
-        if not isinstance(composition_str, str):
-            return 0
-        # Match element symbols (uppercase + optional lowercase)
-        elements = re.findall(r'[A-Z][a-z]?', composition_str.replace('_', ''))
-        return len(set(elements))
-
-    # Count elements for each row
-    df['_element_count'] = df['composition'].apply(count_elements)
-
-    # Filter for ternary (3 elements)
-    ternary_df = df[df['_element_count'] == 3].copy()
-    ternary_df = ternary_df.drop(columns=['_element_count'])
-
-    logger.info(f"Filtered to {len(ternary_df)} ternary alloys")
-
-    # Log exclusion reasons
-    excluded = len(df) - len(ternary_df)
-    logger.info(f"Excluded {excluded} non-ternary alloys")
-
-    return ternary_df
-
-def validate_data_quality(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Validate and clean data quality.
-
-    - Exclude rows with missing elemental data
-    - Exclude rows with unknown glass-forming labels
-    - Log exclusion counts
-
-    Args:
-        df: Input DataFrame.
-
-    Returns:
-        Cleaned DataFrame.
-    """
-    logger.info(f"Validating data quality (original: {len(df)} records)")
-
+    logger.info("Filtering for ternary alloys...")
     initial_count = len(df)
 
-    # Check for missing critical_cooling_rate
-    missing_ccr = df['critical_cooling_rate'].isna().sum()
-    if missing_ccr > 0:
-        logger.warning(f"Found {missing_ccr} rows with missing critical_cooling_rate")
-        df = df.dropna(subset=['critical_cooling_rate'])
+    # Parse composition to count elements
+    # Assuming composition format is like "Fe50Cr30Ni20" or "Fe-Cr-Ni"
+    # We need a robust parser. Based on typical datasets, it's often element+percent.
+    # Let's assume a format where elements are separated by non-alphanumeric or mixed.
+    # A common regex for element+number: ([A-Z][a-z]?)(\d+\.?\d*)
+    import re
 
-    # Check for missing composition
-    missing_comp = df['composition'].isna().sum()
-    if missing_comp > 0:
-        logger.warning(f"Found {missing_comp} rows with missing composition")
-        df = df.dropna(subset=['composition'])
+    def count_elements(composition: str) -> int:
+        if pd.isna(composition):
+            return 0
+        # Match element symbols (Capital + optional lowercase)
+        elements = re.findall(r'[A-Z][a-z]?', str(composition))
+        return len(elements)
 
-    # Filter out rows where composition cannot be parsed (invalid elements)
-    valid_compositions = []
-    invalid_count = 0
-    for comp in df['composition']:
-        if pd.isna(comp) or not isinstance(comp, str):
-            invalid_count += 1
-            continue
-        try:
-            # Try to parse to validate
-            import re
-            elements = re.findall(r'[A-Z][a-z]?', comp.replace('_', ''))
-            if not elements:
-                invalid_count += 1
-                continue
-            valid_compositions.append(True)
-        except Exception:
-            invalid_count += 1
-            valid_compositions.append(False)
+    df['element_count'] = df['composition'].apply(count_elements)
+    ternary_df = df[df['element_count'] == 3].copy()
 
-    if invalid_count > 0:
-        logger.warning(f"Found {invalid_count} rows with invalid composition format")
-        df = df[valid_compositions].copy()
+    # Filter out rows with missing critical data
+    # We need critical_cooling_rate and potentially the composition to be valid
+    valid_cols = ['composition', 'critical_cooling_rate']
+    # Check for NaN in critical columns
+    ternary_df = ternary_df.dropna(subset=valid_cols)
 
-    excluded = initial_count - len(df)
-    logger.info(f"Data validation excluded {excluded} rows. Remaining: {len(df)}")
+    # Filter out unknown glass-forming labels if present
+    if 'source_label' in ternary_df.columns:
+        # Assuming 'unknown' or similar strings indicate invalid data
+        # Keep rows where label is not null and not 'unknown'
+        ternary_df = ternary_df[ternary_df['source_label'].notna()]
+        ternary_df = ternary_df[ternary_df['source_label'].str.lower() != 'unknown']
 
-    return df
+    final_count = len(ternary_df)
+    logger.info(f"Filtered from {initial_count} to {final_count} ternary alloys.")
+    return ternary_df
+
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Perform final data cleaning.
-
-    Args:
-        df: Input DataFrame.
-
-    Returns:
-        Cleaned DataFrame.
+    Perform basic data cleaning: drop duplicates, handle NaNs in target.
     """
-    logger.info("Performing final data cleaning")
+    logger.info("Cleaning data...")
+    df = df.drop_duplicates(subset=['composition'])
+    # Drop rows where critical_cooling_rate is NaN (already done in filter, but ensure)
+    df = df.dropna(subset=['critical_cooling_rate'])
+    return df
 
-    df_clean = df.copy()
-
-    # Normalize composition strings
-    df_clean['composition'] = df_clean['composition'].str.replace('_', '')
-
-    # Ensure critical_cooling_rate is numeric
-    df_clean['critical_cooling_rate'] = pd.to_numeric(
-        df_clean['critical_cooling_rate'], errors='coerce'
-    )
-
-    # Drop any remaining NaN in critical columns
-    df_clean = df_clean.dropna(subset=['critical_cooling_rate', 'composition'])
-
-    logger.info(f"Final dataset size: {len(df_clean)}")
-
-    return df_clean
 
 def validate_critical_cooling_rate(df: pd.DataFrame) -> bool:
     """
-    Validate that critical_cooling_rate has non-zero variance and >= 500 entries.
-
-    Args:
-        df: DataFrame to validate.
-
-    Returns:
-        True if validation passes.
-
-    Raises:
-        ValueError: If validation fails.
+    Ensure critical_cooling_rate has non-zero variance and sufficient entries.
     """
     if len(df) < 500:
-        raise ValueError(f"Data availability error: {len(df)} valid entries (< 500)")
-
-    ccr_variance = df['critical_cooling_rate'].var()
-    if ccr_variance == 0:
-        raise ValueError("Data availability error: zero variance in critical_cooling_rate")
-
-    logger.info(f"CCR validation passed: {len(df)} entries, variance={ccr_variance:.4f}")
+        raise ValueError(f"Data availability error: <500 valid entries ({len(df)} found).")
+    
+    if df['critical_cooling_rate'].var() == 0:
+        raise ValueError("Data availability error: Zero variance in critical_cooling_rate.")
+    
     return True
 
-def run_ingestion(output_path: str) -> pd.DataFrame:
-    """
-    Run the full ingestion pipeline.
 
-    Args:
-        output_path: Path to save filtered data.
-
-    Returns:
-        Processed DataFrame.
+def validate_data_quality(df: pd.DataFrame) -> bool:
     """
-    # Load data
+    Validate that required columns exist and have no NaN in critical fields.
+    """
+    required_cols = ['composition', 'critical_cooling_rate']
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
+        if df[col].isna().any():
+            raise ValueError(f"NaN found in required column: {col}")
+    return True
+
+
+def run_ingestion():
+    """
+    Main entry point for data ingestion.
+    Downloads, filters, validates, and saves processed data.
+    """
+    logger.info("Starting data ingestion pipeline.")
+    
+    # 1. Load
     df = load_glass_data()
-
-    # Filter for ternary alloys
+    
+    # 2. Filter
     df = filter_ternary_alloys(df)
-
-    # Validate and clean
-    df = validate_data_quality(df)
+    
+    # 3. Clean
     df = clean_data(df)
-
-    # Validate critical_cooling_rate
+    
+    # 4. Validate
+    validate_data_quality(df)
     validate_critical_cooling_rate(df)
-
+    
+    # 5. Save
+    # Note: Features (mixing_enthalpy, etc.) are calculated in features.py.
+    # However, T016a requires saving the processed data with these columns.
+    # Since features.py depends on ingestion, we must ensure the data is ready.
+    # The task says "Save processed data...". If features are expected here, 
+    # we might need to call features or ensure they are added later.
+    # Looking at T014/T015, they calculate features.
+    # T016a depends on T013 (filtering).
+    # The verification requires columns: mixing_enthalpy, atomic_size_mismatch, electronegativity_variance.
+    # These are NOT in the raw dataset. They must be computed.
+    # Since T016a is "Save processed data", and features are part of "processed",
+    # we must import and run feature computation here OR ensure the pipeline order
+    # (ingestion -> features -> save).
+    # Given the task structure, ingestion.py usually just loads/cleans.
+    # However, to satisfy T016a's verification (columns present), we must ensure
+    # the CSV has them.
+    # Strategy: Ingestion loads/cleans. Features are computed in features.py.
+    # The script `code/features.py` should read from `data/raw` (if saved) or 
+    # the pipeline should chain: ingestion -> features -> save.
+    # But T016a says "Save processed data to ... processed_alloys.csv".
+    # If features.py is the one that saves, then T016a is part of features.py?
+    # No, T016a is listed under Ingestion phase but depends on T013 (filtering).
+    # Let's assume the standard flow:
+    # 1. ingestion.py: Load, Filter, Clean -> Save to data/processed/intermediate.csv?
+    # 2. features.py: Load intermediate, Compute features -> Save to processed_alloys.csv?
+    # OR
+    # 1. ingestion.py: Load, Filter, Clean, Compute Features (if simple), Save.
+    
+    # Re-reading T014/T015: They are in features.py.
+    # T016a: "Save processed data...".
+    # If we strictly follow module separation:
+    # ingestion.py -> loads and filters.
+    # features.py -> computes and saves.
+    # But T016a is the task to save.
+    # If we put the save logic in ingestion.py, we must compute features first.
+    # Let's check the imports. features.py imports from utils.
+    # We can import features functions here if needed, but it might create a cycle if features imports ingestion.
+    # To be safe and modular:
+    # The "run_book" (quickstart) likely runs ingestion.py then features.py.
+    # But T016a requires the file to exist.
+    # If features.py is the one that generates the final CSV, then T016a is effectively
+    # the "run" step of features.py? No, T016a is specifically "Save processed data".
+    # Let's assume the intended flow is:
+    # ingestion.py produces a clean DF (maybe with features if we add them here for T016a).
+    # OR, features.py is responsible for the final save.
+    # Given T016a is in the Ingestion section, I will implement the save here.
+    # To ensure columns exist, I will import and call the feature computation functions
+    # from features.py, assuming they don't depend on the final CSV (circular dependency check).
+    
+    # Import feature functions
+    from features import compute_features
+    
+    # Compute features on the clean dataframe
+    # compute_features expects a dataframe with composition and element data
+    df = compute_features(df)
+    
+    # Select and order columns
+    final_cols = [
+        "composition",
+        "critical_cooling_rate",
+        "mixing_enthalpy",
+        "atomic_size_mismatch",
+        "electronegativity_variance",
+        "source_label"
+    ]
+    # Filter to only existing columns (source_label might be dropped if not needed)
+    existing_cols = [c for c in final_cols if c in df.columns]
+    df = df[existing_cols]
+    
     # Ensure output directory exists
-    ensure_dir(output_path)
-
-    # Save intermediate filtered data (for features.py to pick up)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved filtered data to {output_path}")
-
+    output_dir = os.path.dirname(OUTPUT_PATH)
+    ensure_dir(output_dir)
+    
+    # Save to CSV
+    df.to_csv(OUTPUT_PATH, index=False)
+    logger.info(f"Saved processed data to {OUTPUT_PATH} with {len(df)} rows.")
+    
+    # Final validation
+    if len(df) < 500:
+        raise ValueError(f"Data availability error: <500 valid entries ({len(df)} found).")
+    if df['critical_cooling_rate'].isna().any():
+        raise ValueError("NaN found in critical_cooling_rate after processing.")
+    if df['mixing_enthalpy'].isna().any():
+        raise ValueError("NaN found in mixing_enthalpy after processing.")
+        
     return df
 
+
 if __name__ == "__main__":
-    # Default paths
-    output_file = "data/processed/filtered_alloys.csv"
-
-    # Allow override from command line
-    if len(sys.argv) > 1:
-        output_file = sys.argv[1]
-
-    run_ingestion(output_file)
+    logging.basicConfig(level=logging.INFO)
+    run_ingestion()
