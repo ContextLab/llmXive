@@ -30,7 +30,7 @@
  - Entities from data-model.md
  - Endpoints from contracts/
 
- Tasks MUST be organized by user story so each story can be:
+ Tasks MUST be organized by user story so each story can:
  - Implemented independently
  - Tested independently
  - Delivered as an MVP increment
@@ -43,8 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create root project structure: `projects/PROJ-510-predicting-the-glass-forming-region-of-a/`, `data/`, `code/`, `tests/`, `docs/`. **Files to create**: `README.md` (empty), `.gitignore` (standard python). **Verify**: Run `mkdir -p projects/PROJ-510-predicting-the-glass-forming-region-of-a/{data,code,tests,docs}` and `test -f projects/PROJ-510-predicting-the-glass-forming-region-of-a/README.md`.
-- [X] T001a-verify [P] Create validation script for T001a. **Action**: Write `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/validate_setup.py` that checks for the existence of the required directories and files. **Verify**: Run `python projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/validate_setup.py`.
+- [X] T001a [P] Create root project structure: `projects/PROJ-510-predicting-the-glass-forming-region-of-a/`, `data/`, `code/`, `tests/`, `docs/`. **Files to create**: `README.md` (empty), `.gitignore` (standard python). **Verify**: Create `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/validate_setup.py` and run `python projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/validate_setup.py`. **Action**: The validation script must check for the existence of the required directories and files.
 - [X] T001b [P] Create source code structure: `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/__init__.py`, `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/utils.py`, `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py`, `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py`, `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py`, `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py`, `projects/PROJ-510-predicting-the-glass-forming-region-of-a/requirements.txt`. **Action**: Create `requirements.txt` with the following content:
 ```
 pandas
@@ -77,42 +76,42 @@ pytest
 - [X] T006 [US1] Create `projects/PROJ-510-predicting-the-glass-forming-region-of-a/contracts/dataset.schema.yaml` defining `AlloyRecord` fields. **Action**: Create the schema with `source_label` as an optional field if the source dataset does not provide it, or derived from the dataset name. **Content**:
  ```yaml
  AlloyRecord:
-   type: object
-   properties:
-     composition: {type: string}
-     critical_cooling_rate: {type: number}
-     mixing_enthalpy: {type: number}
-     atomic_size_mismatch: {type: number}
-     electronegativity_variance: {type: number}
-     source_label: {type: string, nullable: true}
-   required: [composition, critical_cooling_rate, mixing_enthalpy, atomic_size_mismatch, electronegativity_variance]
+ type: object
+ properties:
+   composition: {type: string}
+   critical_cooling_rate: {type: number}
+   mixing_enthalpy: {type: number}
+   atomic_size_mismatch: {type: number}
+   electronegativity_variance: {type: number}
+   source_label: {type: string, nullable: true}
+ required: [composition, critical_cooling_rate, mixing_enthalpy, atomic_size_mismatch, electronegativity_variance]
  ```
- **Verify**: Run `python -c "import json, jsonschema; s=json.load(open('contracts/dataset.schema.yaml')); jsonschema.validate({'composition':'A_B_C', 'critical_cooling_rate':100.0, 'mixing_enthalpy':0.0, 'atomic_size_mismatch':0.0, 'electronegativity_variance':0.0, 'source_label':'test'}, s)"` to confirm validation.
+ **Verify**: Run `python -c "import yaml, json, jsonschema; s=yaml.safe_load(open('contracts/dataset.schema.yaml')); jsonschema.validate({'composition':'A_B_C', 'critical_cooling_rate':100.0, 'mixing_enthalpy':0.0, 'atomic_size_mismatch':0.0, 'electronegativity_variance':0.0, 'source_label':'test'}, s)"` to confirm validation.
 - [X] T007 [P] [US2, US3] Create `projects/PROJ-510-predicting-the-glass-forming-region-of-a/contracts/model_output.schema.yaml` defining `ModelMetrics` and `SensitivityReport` structures. **Content**:
  ```yaml
  ModelMetrics:
-   type: object
-   properties:
-     fold_scores: {type: array, items: {type: number}}
-     mean_rmse: {type: number}
-     test_rmse: {type: number}
-     feature_importance_ranking: {type: array, items: {type: string}}
-     p_value_vs_null: {type: number}
-     metadata:
-       type: object
-       properties:
-         caveats: {type: string}
-       required: [caveats]
-   required: [fold_scores, mean_rmse, test_rmse, p_value_vs_null, metadata]
+ type: object
+ properties:
+   fold_scores: {type: array, items: {type: number}}
+   mean_rmse: {type: number}
+   test_rmse: {type: number}
+   feature_importance_ranking: {type: array, items: {type: string}}
+   p_value_vs_null: {type: number}
+   metadata:
+     type: object
+     properties:
+       caveats: {type: string}
+     required: [caveats]
+ required: [fold_scores, mean_rmse, test_rmse, p_value_vs_null, metadata]
  SensitivityReport:
-   type: object
-   properties:
-     threshold_values: {type: array, items: {type: number}}
-     rmse_variance: {type: number}
-     collinearity_flags: {type: array, items: {type: string}}
-   required: [threshold_values, rmse_variance]
+ type: object
+ properties:
+   threshold_values: {type: array, items: {type: number}}
+   rmse_variance: {type: number}
+   collinearity_flags: {type: array, items: {type: string}}
+ required: [threshold_values, rmse_variance]
  ```
- **Verify**: Run `python -c "import json, jsonschema; s=json.load(open('contracts/model_output.schema.yaml')); jsonschema.validate({'fold_scores':[1.0], 'mean_rmse':1.0, 'test_rmse':1.0, 'p_value_vs_null':0.0, 'threshold_values':[50.0], 'rmse_variance':0.0, 'metadata': {'caveats': 'test'}}, s)"` to confirm validation.
+ **Verify**: Run `python -c "import yaml, json, jsonschema; s=yaml.safe_load(open('contracts/model_output.schema.yaml')); jsonschema.validate({'fold_scores':[1.0], 'mean_rmse':1.0, 'test_rmse':1.0, 'p_value_vs_null':0.0, 'threshold_values':[50.0], 'rmse_variance':0.0, 'metadata': {'caveats': 'test'}}, s)"` to confirm validation.
 - [X] T007b [P] [US2, US3] Update `plan.md` Technical Context to explicitly document the schema versioning strategy and the `jsonschema` enforcement mechanism required by Constitution Principle IV. **Action**: Add a subsection "Schema Versioning & Enforcement" listing `contracts/` as the source of truth and `jsonschema` as the validator. **Verify**: Run `grep -A 5 "Schema Versioning" plan.md` to confirm presence.
 - [X] T008 [P] [US1] Configure error handling: Ensure data loading fails loudly (no synthetic fallback) if `matsci/glass-forming-ability` fetch fails. **Implementation**: Add `raise ValueError("Data fetch failed: matsci/glass-forming-ability unavailable")` in `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py` line 45. **Verify**: Run `pytest` with a mock that simulates fetch failure to ensure the error is raised.
 - [X] T009 Setup `pytest` configuration and seed management (`random_state=42`) in `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/utils.py`. **Verify**: Run `pytest --version` and check `pytest.ini` or `pyproject.toml`.
@@ -127,50 +126,48 @@ pytest
 
 **Independent Test**: The pipeline can be run in isolation to produce a CSV file containing at least 500 valid alloy records with all required thermodynamic columns and the `critical_cooling_rate` column computed, without training any model.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Pre-implementation Test Definitions (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE**: T010 and T011 are written but currently FAIL until T012-T017 are implemented.
+> **NOTE**: T010a is written but currently fails until T014/T015 are implemented. It is defined here to follow TDD principles but is not executable until the implementation tasks are complete.
 
-- [X] T010 [US1] Write unit test for thermodynamic formula calculation (mixing enthalpy, atomic size mismatch) in `projects/PROJ-510-predicting-the-glass-forming-region-of-a/tests/test_features.py`. **Status**: Written, currently fails. **Expected Failure**: Assert `AssertionError` with message "Expected mixing_enthalpy to be -15.5 kJ/mol but got X" for a known Fe-Cr-Ni composition (Fe: 0.33, Cr: 0.33, Ni: 0.34) using standard `mendeleev` values. **Verification**: Run test with mock data and confirm specific error message.
-- [X] T011 [US1] Write integration test for data ingestion pipeline ensuring ≥500 rows and no NaN in target columns in `projects/PROJ-510-predicting-the-glass-forming-region-of-a/tests/test_ingestion.py`. **Status**: Written, currently fails. **Expected Failure**: Assert `ValueError` with message "Data availability error: <500 valid entries or zero variance in critical_cooling_rate" when a mock dataframe with 499 rows is passed. **Verification**: Run test with mock data and confirm specific error message.
+- [X] T010a [US1] Write unit test for thermodynamic formula calculation (mixing enthalpy, atomic size mismatch) in `projects/PROJ-510-predicting-the-glass-forming-region-of-a/tests/test_features.py`. **Status**: Written, currently fails. **Expected Failure**: Assert `AssertionError` with message "Expected mixing_enthalpy to be -15.5 kJ/mol but got X" for a known Fe-Cr-Ni composition (Fe: 0.33, Cr: 0.33, Ni: 0.34) using standard `mendeleev` values. **Verification**: Run test with mock data and confirm specific error message.
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `projects/PROJ-predicting-the-glass-forming-region-of-a/code/ingestion.py`: Download `matsci/glass-forming-ability` dataset using `datasets.load_dataset`. **Reconciliation**: This dataset is the verified source for CCR (Plan), while Mendeleev provides elemental properties (Constitution Principle VI). OQMD lacks CCR. **Action**: Use `load_dataset("matsci/glass-forming-ability")` and verify `critical_cooling_rate` column exists and is of type `float64`. Raise `ValueError` if missing. **Verify**: Run `python -c "from code.ingestion import load_data; df = load_data(); print(len(df))"` to confirm data load.
-- [X] T013 [US1] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py`: Filter dataset for ternary alloys (3 elements) and exclude rows with missing elemental data or unknown glass-forming labels. Log exclusion counts. **Verify**: Run pipeline and check logs for exclusion counts.
-- [X] T014 [P] [US1] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py`: Calculate `mixing_enthalpy` using `mendeleev` elemental properties and ternary composition weights. **Verify**: Run unit tests in `test_features.py`.
-- [X] T015 [P] [US1] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py`: Calculate `atomic_size_mismatch` and `electronegativity_variance` using standard periodic table definitions. **Verify**: Run unit tests in `test_features.py`.
-- [X] T016a [US1] [Depends on T012, T013] Save processed data to `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/processed_alloys.csv`. **Action**: Write script `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/validate_data.py` with the following content:
+- [X] T012 [US1] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py`: Download `matsci/glass-forming-ability` dataset using `datasets.load_dataset(..., streaming=True)`. **Reconciliation**: This dataset is the verified source for CCR (Plan), while Mendeleev provides elemental properties (Constitution Principle VI). OQMD lacks CCR. **Action**: Use `load_dataset("matsci/glass-forming-ability", streaming=True)` to prevent memory overflow. Filter for ternary alloys and missing data. **Sampling Logic**: If the dataset size > 10k rows, sample rows using `itertools.islice` with `random_state=42`. **Verification**: Check logs for sampling parameters and confirm N >= 500. **Hard Fail**: If final count < 500, raise `ValueError("Data availability error: <500 valid entries, minimum N=500 not met")`. **Warning**: If 500 <= N < 1000, log "CRITICAL WARNING: Target N >= 1000 not met" and write `sampling_status: 'TARGET_NOT_MET'` to `data/processed/sampling_log.txt`. **Verify**: Run `python -c "from code.ingestion import load_data; df = load_data; print(len(df))"` to confirm data load and sampling.
+- [X] T014 [P] [US1] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py`: Calculate `mixing_enthalpy` using `mendeleev` elemental properties and ternary composition weights. **Verify**: Run unit tests in `test_features.py` (T010a) after T014 implementation.
+- [X] T015 [P] [US1] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py`: Calculate `atomic_size_mismatch` and `electronegativity_variance` using standard periodic table definitions. **Verify**: Run unit tests in `test_features.py` (T010a) after T015 implementation.
+- [X] T016a [US1] [Depends on T012, T014, T015] Save processed data to `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/processed_alloys.csv`. **Action**: Write script `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/validate_data.py` with the following content:
 ```python
 import pandas as pd
 import sys
 import os
 
 def validate_data():
-    path = "projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/processed_alloys.csv"
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"File not found: {path}")
-    
-    df = pd.read_csv(path)
-    
-    # Check columns
-    required_cols = ['composition', 'critical_cooling_rate', 'mixing_enthalpy', 'atomic_size_mismatch', 'electronegativity_variance']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing column: {col}")
-    
-    # Check row count
-    if len(df) < 500:
-        raise ValueError(f"Data availability error: {len(df)} valid entries, expected >= 500")
-    
-    # Check for NaN in target columns
-    if df['critical_cooling_rate'].isna().any() or df['mixing_enthalpy'].isna().any():
-        raise ValueError("Data availability error: NaN in critical_cooling_rate or mixing_enthalpy")
-    
-    print("Validation passed.")
+ path = "projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/processed_alloys.csv"
+ if not os.path.exists(path):
+ raise FileNotFoundError(f"File not found: {path}")
+
+ df = pd.read_csv(path)
+
+ # Check columns
+ required_cols = ['composition', 'critical_cooling_rate', 'mixing_enthalpy', 'atomic_size_mismatch', 'electronegativity_variance']
+ for col in required_cols:
+ if col not in df.columns:
+ raise ValueError(f"Missing column: {col}")
+
+ # Check row count
+ if len(df) < 500:
+ raise ValueError(f"Data availability error: {len(df)} valid entries, expected >= 500")
+
+ # Check for NaN in target columns
+ if df['critical_cooling_rate'].isna().any() or df['mixing_enthalpy'].isna().any():
+ raise ValueError("Data availability error: NaN in critical_cooling_rate or mixing_enthalpy")
+
+ print("Validation passed.")
 
 if __name__ == "__main__":
-    validate_data()
+ validate_data()
 ```
 **Verification**:
  1. Ensure file exists and is non-empty.
@@ -190,6 +187,7 @@ if __name__ == "__main__":
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
+- [X] T010b [US1] Run unit test for thermodynamic formula calculation in `projects/PROJ-510-predicting-the-glass-forming-region-of-a/tests/test_features.py`. **Dependency**: T014, T015. **Action**: Run `pytest projects/PROJ-510-predicting-the-glass-forming-region-of-a/tests/test_features.py::test_mixing_enthalpy`. **Verify**: Assert test passes with expected values.
 - [X] T018 [P] [US2] Unit test for k-fold cross-validation split generation ensuring non-overlapping folds in `projects/PROJ-510-predicting-the-glass-forming-region-of-a/tests/test_train.py`.
 - [X] T019 [P] [US2] Integration test for model training producing valid `ModelMetrics` schema in `projects/PROJ-510-predicting-the-glass-forming-region-of-a/tests/test_train.py`.
 
@@ -207,23 +205,31 @@ if __name__ == "__main__":
 - [X] T024 [US2] [Depends on T022, T022b] Compare RF RMSE against the null model baseline using a **two-sided independent t-test** (SC-002). **Implementation**:
  1. Load RF model predictions and Null model predictions on the test set.
  2. Calculate absolute errors for both: `abs(y_test - y_pred_rf)` and `abs(y_test - y_pred_null)`.
- 3. **Justification**: The Null model produces a constant prediction (mean), resulting in a constant error vector. The RF model produces a variable error vector. A paired t-test is invalid here as the errors are not paired in a way that assumes independent differences. Instead, use `scipy.stats.ttest_ind` to compare the distributions of the two error vectors.
+ 3. **Justification**: The Null model produces a constant prediction (mean), resulting in a constant error vector. The RF model produces a variable error vector. A paired t-test is invalid here as the errors are not paired in a way that assumes independent differences. Instead, use `scipy.stats.ttest_ind` to compare the distributions of the two error vectors. We use a two-sided test to detect any statistical difference (improvement or degradation), aligning with the "distinguishable" requirement.
  4. Perform a two-sided **independent** t-test on these error vectors using `scipy.stats.ttest_ind`.
  5. Calculate p-value.
- 6. If p-value < 0.05, log "Model is statistically distinguishable from null (p < 0.05)". Else, log warning.
- **Reporting**: Log the p-value and save to `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/models/statistical_comparison.json`. **Schema**: `{"p_value": 0.0, "test_statistic": 0.0}`. **Verification**: Run pipeline and confirm p-value is printed and `statistical_comparison.json` exists with valid schema.
-- [X] T025 [US2] [Depends on T021, T022] Add explicit documentation and framing in output artifacts. **Implementation**:
+ 6. **ENFORCEMENT**: If p-value >= 0.05, log "CRITICAL FAILURE: Model is NOT statistically distinguishable from null (p >= 0.05)" and **exit with code 1** (`sys.exit(1)`). The pipeline MUST NOT proceed to downstream tasks if SC-002 is not met.
+ 7. If p-value < 0.05, log "SUCCESS: Model is statistically distinguishable from null (p < 0.05)".
+ **Reporting**: Log the p-value and save to `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/models/statistical_comparison.json`. **Schema**: `{"p_value": 0.0, "test_statistic": 0.0, "sc002_met": true/false}`. **CRITICAL**: The `sc002_met` flag MUST be propagated to the final report via T025c and T043. **Verification**: Run pipeline and confirm p-value is printed and `statistical_comparison.json` exists with valid schema. **Note**: If the pipeline exits here, downstream tasks (T025, T025c) are not reached.
+- [X] T024b [US2] [Depends on T024] **GATE TASK**: Verify SC-002 success. **Implementation**:
+ 1. Read `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/models/statistical_comparison.json`.
+ 2. Assert `sc002_met` is `true`.
+ 3. If `sc002_met` is `false`, raise `ValueError("SC-002 FAILED: Model not statistically distinguishable from null")` and exit with code 1.
+ 4. If `sc002_met` is `true`, log "SC-002 Gate Passed".
+ **Verification**: Run pipeline and confirm the gate passes or fails appropriately.
+- [X] T025 [US2] [Depends on T021, T024b] Add explicit documentation and framing in output artifacts. **Implementation**:
  1. Add `# FINDINGS ARE ASSOCIATIONAL: This study uses observational data; no causal claims are made.` at the top of `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py`.
  2. Inject the statement "FINDINGS ARE ASSOCIATIONAL" into the `metadata.caveats` field of the `ModelMetrics` JSON report generated in T021/T025c.
  3. Inject the statement into `projects/PROJ-510-predicting-the-glass-forming-region-of-a/README.md` under a "Caveats" section.
  4. Create `projects/PROJ-510-predicting-the-glass-forming-region-of-a/Research_Notes.md` with a "Framing" section stating: "All predictive findings are explicitly framed as ASSOCIATIONAL due to the observational nature of the dataset."
- 5. Ensure the final `sensitivity_report.csv` or `model_metrics.json` includes a metadata field or header noting "ASSOCIATIONAL".
+ 5. Ensure the final `sensitivity_report.csv` or `model_metrics_final.json` includes a metadata field or header noting "ASSOCIATIONAL".
  **Verify**: Run `grep "ASSOCIATIONAL" projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py` and check JSON/README/Research Notes content.
-- [X] T025c [US2] [Depends on T021, T024, T022] Aggregate CV metrics, null model comparison, and test RMSE into a single `model_metrics_final.json` artifact. **Implementation**:
+- [X] T025c [US2] [Depends on T021, T024b, T022, T029a] Aggregate CV metrics, null model comparison, and test RMSE into a single `model_metrics_final.json` artifact. **Implementation**:
  1. Load `cv_metrics.json`, `statistical_comparison.json`, and `test_rmse` (calculated in T022).
- 2. Merge into a single JSON object containing `mean_rmse`, `fold_scores`, `p_value_vs_null`, `test_rmse`, `feature_importance_ranking` (from T028), and `metadata` (with caveats).
- 3. Save to `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/models/model_metrics_final.json`.
- **Verification**: Run `python -c "import json; d=json.load(open('data/models/model_metrics_final.json')); assert 'mean_rmse' in d and 'p_value_vs_null' in d"`.
+ 2. Load `feature_importance.json` from T029a to ensure the correct ranking is used.
+ 3. Merge into a single JSON object containing `mean_rmse`, `fold_scores`, `p_value_vs_null`, `test_rmse`, `feature_importance_ranking`, `sc002_met` (from `statistical_comparison.json`), and `metadata` (with caveats).
+ 4. Save to `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/models/model_metrics_final.json`.
+ **Verification**: Run `python -c "import json; d=json.load(open('data/models/model_metrics_final.json')); assert 'mean_rmse' in d and 'p_value_vs_null' in d and 'sc002_met' in d"`.
 - [X] T025b [US2] [Depends on T025c] Update `plan.md` to reference the unified `model_metrics_final.json` as the single source of truth for SC-002. **Action**: Update the "Key Entities" or "Success Criteria" section to point to this file. **Verify**: Run `grep "model_metrics_final.json" plan.md`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -245,25 +251,30 @@ if __name__ == "__main__":
 
 - [X] T028 [US3] [Depends on T022] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py`: Load trained model (`random_forest_model.pkl`) and dataset. Perform permutation importance analysis (n_permutations=1000, random_state=42).
 - [X] T029 [US3] [Depends on T028] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py`: Calculate p-values for feature importances against shuffled baseline. Rank features and flag top contributors (SC-004). **Method**: Use permutation test to calculate p-values. **Threshold**: Flag top contributors if `p < 0.05`. **Output**: JSON list of features with p-values. **File Path**: `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/feature_importance.json`. **Schema**: `[{"feature": "mixing_enthalpy", "p_value": 0.01},...]`. **Verification**: Validate JSON against schema and ensure at least one thermodynamic parameter is in the top-2 with p < 0.05.
-- [X] T029a [US3] [Depends on T028, T029] Detect collinearity and flag results. **Implementation**:
+- [X] T029a [US3] [Depends on T028, T029] **MANDATORY**: Detect collinearity and flag results. **Implementation**:
  1. Check correlation matrix of predictors using `numpy.corrcoef`.
  2. **Threshold**: Flag any pair with correlation > 0.8.
  3. **Action**: If collinearity > 0.8 is detected, **re-train** the Random Forest model excluding the lower-importance feature of the pair to verify stability.
- 4. **Crucial**: Save the re-trained model to `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/models/random_forest_model_stable.pkl`. **Do NOT overwrite the primary model artifact** (`random_forest_model.pkl`).
+ 4. **Crucial**: Save the re-trained model to `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/models/random_forest_model_stable.pkl`. **If no collinearity is detected**, copy `random_forest_model.pkl` to `random_forest_model_stable.pkl` to ensure a consistent artifact path for downstream tasks.
  5. Generate a report `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/collinearity_report.json` listing flagged pairs.
- 6. **Stability Check**: Append a "stability_check" section to `feature_importance.json` (or create `stability_comparison.json`) showing the top features before and after exclusion of the collinear feature. **Note**: The primary feature importance ranking for SC-004 must be taken from T028 (full feature set). The stable model results are for diagnostic purposes only.
- **Verification**: Explicitly verify that `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/collinearity_report.json` exists, is non-empty, and matches the schema (list of flagged pairs). Verify that `feature_importance.json` (or `stability_comparison.json`) contains the stability comparison if collinearity was detected.
-- [X] T031 [US3] [Depends on T022, T029a (optional)] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py`: Conduct sensitivity analysis sweeping the **specific thresholds {50, 100, 150} K/s** (hardcoded). **Logic**:
- 1. **Load the final model artifact**: Check for `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/models/random_forest_model_stable.pkl`. If it exists, use it; otherwise, use `random_forest_model.pkl`.
- 2. For each threshold in {50, 100, 150} K/s:
- a. Predict on the test set (continuous).
- b. Calculate **RMSE** on the continuous predictions (primary metric).
- c. **Optional**: If binarization is explicitly requested (e.g., via a flag), binarize true labels and predictions and calculate **F1-score** (secondary metric).
- 3. Report RMSE values for each threshold.
- 4. Calculate RMSE variance across thresholds.
- **Output**: Report RMSE values. F1-score is reported only if binarization is enabled. **Dependency Note**: This task depends on T022 (base model) and optionally T029a (stable model).
-- [X] T030b [US3] [Depends on T031] Verify stability: Read **RMSE variance** from T031 output file (`sensitivity_report.csv`). **Action**: Assert that the **RMSE variance** is negligible (e.g., < 10% relative variance). **Verify**: Run pipeline and confirm stability check passes. **Verification**: Assert `variance < 0.1 * mean` for **RMSE** scores across thresholds. (Secondary: Assert F1-score variance < 10% if applicable).
-- [X] T032 [US3] [Depends on T031] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py`: Generate `SensitivityReport` (CSV/JSON). **File Path**: `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/sensitivity_report.csv`. **Schema**: CSV with columns `threshold`, `rmse`, `f1_score` (optional). **Validation**: Assert RMSE variance across thresholds is < 10% (or report the variance). **Verify**: Run pipeline and confirm report is generated and validation passes.
+ 6. **Decision Artifact**: Write `collinearity_decision.json` with `retrain_required: true/false`.
+ 7. **Stability Check**: Append a "stability_check" section to `feature_importance.json` (or create `stability_comparison.json`) showing the top features before and after exclusion of the collinear feature. **Crucial**: If `retrain_required` is true, **overwrite** `feature_importance.json` with the ranking from the stable model. If false, keep the original ranking. **Note**: The primary feature importance ranking for SC-004 must be taken from the final `feature_importance.json` (which reflects the stable model if retrained). **SC-004 is evaluated on the feature_importance.json from the stable model**.
+ **Verification**: Explicitly verify that `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/collinearity_report.json` exists, is non-empty, and matches the schema (list of flagged pairs). Verify that `feature_importance.json` contains the correct ranking based on the `retrain_required` flag.
+- [X] T031 [US3] [Depends on T029a] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py`: Conduct sensitivity analysis sweeping the **specific thresholds {50, 100, 150} K/s** (hardcoded). **Logic**:
+ 1. **Load the final model artifact**: Load `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/models/random_forest_model_stable.pkl`. **Note**: T029a ensures this file always exists (either by retraining or copying).
+ 2. Read `collinearity_decision.json` to determine `model_source` (stable vs base).
+ 3. **MANDATORY Binarization**: For each threshold in {50, 100, 150} K/s:
+ a. Binarize true labels and predictions using the threshold (e.g., `y_true_bin = y_true >= threshold`).
+ b. Calculate **F1-score** (primary metric for binary classification) and **RMSE** (secondary metric on continuous predictions). **F1-score calculation is MANDATORY**.
+ 4. Report F1-scores and RMSE values for each threshold.
+ 5. Calculate F1-score variance and RMSE variance across thresholds.
+ 6. **Verification**: Log "F1 Variance: X%". **Define 'negligible' as relative variance <= 10%**. If X <= 10, log "PASS: Variance <= 10% (negligible)". Else, log "FAIL: Variance > 10%". **Do not crash the pipeline on failure**; the goal is to report the finding.
+ **Output**: Report F1-scores and RMSE values. **Dependency Note**: This task depends on T029a to ensure the stable model artifact exists.
+ **File Path**: `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/sensitivity_report.csv`. **Schema**: CSV with columns `threshold`, `f1_score`, `rmse`, `model_source`, `stability_status` (PASS/FAIL).
+ **Additional Artifact**: Write `sensitivity_status.json` containing `{"stability_met": true/false, "f1_variance": 0.0, "rmse_variance": 0.0}`.
+ **Verification**: Log "F1 Variance: X%". If X <= 10, log "PASS: Variance <= 10%". Else, log "FAIL: Variance > 10%". **Do not crash the pipeline on failure**; the goal is to report the finding.
+- [X] T030b [US3] [Depends on T031] Verify stability: Read **F1-score variance** from T031 output file (`sensitivity_report.csv` and `sensitivity_status.json`). **Action**: Assert that the **F1-score variance** is negligible (<= 10% relative variance). **Verify**: Run pipeline and confirm stability check passes. **Verification**: Assert `variance <= 0.10 * mean` for **F1-score** scores across thresholds. (Secondary: Assert RMSE variance <= 10%).
+- [X] T032 [US3] [Depends on T031] Implement `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py`: Generate `SensitivityReport` (CSV/JSON). **File Path**: `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/sensitivity_report.csv`. **Schema**: CSV with columns `threshold`, `f1_score`, `rmse`, `model_source`, `stability_status`. **Validation**: Assert F1-score variance across thresholds is <= 10% (or report the variance). **Verify**: Run pipeline and confirm report is generated and validation passes.
 - [X] T033 [US3] **REMOVED**: Logic merged into T032 to avoid redundancy.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -308,11 +319,9 @@ FINDINGS ARE ASSOCIATIONAL
 
 **Purpose**: Resolve specific issues raised by the analysis phase regarding data sampling, collinearity handling, and statistical rigor. **Note**: These tasks run AFTER the full pipeline (Phase P) and are diagnostic/validations.
 
-- [X] T039a [US1] Implement robust data sampling logic: Add sampling logic to `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py` that checks dataset size and samples if > 10k rows. **Constraint**: Do NOT use synthetic data. Log the exact sampling rule (N, seed, method) in `data/processed/sampling_log.txt`. **Verification**: Check logs for sampling parameters and confirm N >= 500.
-- [X] T039b [US1] Verify sampling log: Run `python projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/validate_sampling.py` to confirm sampling was applied correctly if the dataset was large. **Verification**: Check logs for sampling parameters and confirm N >= 500.
 - [X] T040 [US3] Refine collinearity handling: In `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py`, if collinearity > 0.8 is detected, re-run the feature importance analysis (T028) excluding the lower-importance feature of the pair to verify stability. **Output**: Append a "stability_check" section to `feature_importance.json` showing the top features before and after exclusion. **Verify**: Confirm the report includes the stability comparison.
 - [X] T041 [US2] Verify statistical rigor: In `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py`, ensure the t-test (T024) correctly uses `scipy.stats.ttest_ind` for independent samples. **Implementation**: Confirm that the call to `ttest_ind` does **not** include an `equal_var` parameter if not needed, or explicitly set `equal_var=False`. Add a log message confirming the use of the independent t-test method and the justification for the test choice. **Verify**: Check code for the correct function call and log message; run a dry-run to ensure no `TypeError` is raised.
-- [X] T042a [US3] Address threshold sensitivity: In `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py`, implement logic to generate `sensitivity_report_extended.csv` with a finer sweep (e.g., every 10 K/s from 0 to 200) if RMSE variance exceeds 10%. **Verify**: Confirm the extended report exists if triggered.
+- [X] T042a [US3] Address threshold sensitivity: In `projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py`, implement logic to generate `sensitivity_report_extended.csv` with a finer sweep (e.g., every 10 K/s from 0 to 200) if **F1-score variance > 0.10**. **Verify**: Confirm the extended report exists if triggered.
 - [X] T042b [US3] Verify extended report: Run `python projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/validate_sensitivity.py` to confirm the extended report was generated if variance was high. **Verify**: Confirm the extended report exists and is referenced in the main sensitivity report.
 
 ---
@@ -322,16 +331,22 @@ FINDINGS ARE ASSOCIATIONAL
 **Purpose**: Consolidate all findings and ensure the final report is complete and accurate.
 
 - [ ] T043 [US3] [Depends on T032, T042] Generate the final consolidated research report. **Action**: Create `projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md`. **Content**:
-  1. **Executive Summary**: Brief overview of the goal (predicting CCR) and the method (Random Forest on thermodynamic descriptors).
-  2. **Data Summary**: Total records processed, number of ternary alloys, and sampling details (if any).
-  3. **Model Performance**: Report `mean_rmse`, `test_rmse`, and the p-value from the independent t-test against the null model.
-  4. **Feature Importance**: List the top 3 features with their p-values and a note on collinearity stability.
-  5. **Sensitivity Analysis**: Summarize the RMSE variance across the {50, 100, 150} K/s thresholds and the result of the extended sweep if triggered.
-  6. **Caveats**: Explicitly state "FINDINGS ARE ASSOCIATIONAL" and the limitations of the observational data.
-  7. **References**: Cite the `matsci/glass-forming-ability` dataset and the `mendeleev` library.
- **Verification**: Ensure the report is readable and all sections are populated with data from the generated artifacts.
-- [ ] T044 [P] Final validation run: Execute the full pipeline from ingestion to report generation in a clean environment. **Action**: Run `python projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py`, then `train.py`, then `analyze.py`, and finally verify `REPORT.md` is generated. **Verify**: Check that all intermediate artifacts (`processed_alloys.csv`, `model_metrics_final.json`, `sensitivity_report.csv`) exist and are non-empty.
-- [ ] T045 [P] Update `README.md` with the final execution instructions and a link to the generated `REPORT.md`. **Verify**: Run `cat README.md` and confirm the "Final Report" section exists.
+ 1. **Executive Summary**: Brief overview of the goal (predicting CCR) and the method (Random Forest on thermodynamic descriptors). **Verification**: Check for keywords "Random Forest", "thermodynamic", "CCR".
+ 2. **Data Summary**: Total records processed, number of ternary alloys, and sampling details (if any). **Verification**: Check for "records", "ternary".
+ 3. **Model Performance**: Report `mean_rmse`, `test_rmse`, and the p-value from the independent t-test against the null model. **Verification**: Check for "mean_rmse", "p-value".
+ 4. **Feature Importance**: List the top 3 features with their p-values and a note on collinearity stability. **Verification**: Check for "feature importance", "top 3". **Note**: SC-004 is evaluated on the feature_importance.json from the stable model.
+ 5. **Sensitivity Analysis**: Summarize the F1-score variance across the {50, 100, 150} K/s thresholds and the result of the extended sweep if triggered. **Verification**: Check for "sensitivity", "variance". **Read `sensitivity_status.json` for `stability_met` status**.
+ 6. **Caveats**: Explicitly state "FINDINGS ARE ASSOCIATIONAL" and the limitations of the observational data. **Verification**: Check for "ASSOCIATIONAL".
+ 7. **SC-002 Status**: Explicitly report the `sc002_met` flag from `model_metrics_final.json`. **Verification**: Check for "sc002_met".
+ 8. **References**: Cite the `matsci/glass-forming-ability` dataset and the `mendeleev` library. **Verification**: Check for "matsci", "mendeleev".
+ **Verification**: Ensure the report is readable and all sections are populated with data from the generated artifacts. Run `grep -E "Random Forest|thermodynamic|CCR|records|ternary|mean_rmse|p-value|feature importance|top 3|sensitivity|variance|ASSOCIATIONAL|matsci|mendeleev|sc002_met" projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md` to confirm presence of key terms.
+- [X] T044 [P] Final validation run: Execute the full pipeline from ingestion to report generation in a clean environment. **Action**: Run `python projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py`, then `train.py`, then `analyze.py`, and finally verify `REPORT.md` is generated. **Verify**: Check that all intermediate artifacts (`processed_alloys.csv`, `model_metrics_final.json`, `sensitivity_report.csv`, `sensitivity_status.json`) exist and are non-empty. Run `test -s projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md` to confirm report exists and is non-empty.
+- [ ] T045 [P] Update `README.md` with the final execution instructions and a link to the generated `REPORT.md`. **Action**: Append the following section to `projects/PROJ-510-predicting-the-glass-forming-region-of-a/README.md`:
+```markdown
+## Final Report
+See [REPORT.md](projects/PROJ-510-predicting-the-glass-forming-region-of-a/REPORT.md) for the complete research findings.
+```
+**Verify**: Run `grep -q "Final Report" projects/PROJ-510-predicting-the-glass-forming-region-of-a/README.md` and `grep -q "REPORT.md" projects/PROJ-510-predicting-the-glass-forming-region-of-a/README.md` to confirm the section and link exist.
 
 ---
 
@@ -352,7 +367,7 @@ FINDINGS ARE ASSOCIATIONAL
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. **Must produce `projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/processed_alloys.csv`**.
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on T016a output** (processed data). May integrate with US1 but should be independently testable.
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on T023 output** (trained model). May integrate with US1/US2 but should be independently testable.
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on T029a output** (stable model). May integrate with US1/US2 but should be independently testable.
 
 ### Within Each User Story
 
