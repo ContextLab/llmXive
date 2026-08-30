@@ -1,8 +1,7 @@
 """
-Setup script for linting and formatting tools.
-Creates configuration files for ruff, black, and flake8.
+Setup script for linting and formatting tools (Ruff, Black, Flake8).
+This script creates configuration files if they do not already exist.
 """
-
 import os
 import sys
 from pathlib import Path
@@ -12,122 +11,96 @@ import argparse
 
 
 def check_file_exists(path: Path) -> bool:
-    """Check if a file exists."""
     return path.exists()
 
 
-def validate_ruff_config(config_path: Path) -> bool:
-    """Validate ruff configuration file."""
-    if not config_path.exists():
+def validate_ruff_config(path: Path) -> bool:
+    if not check_file_exists(path):
+        return False
+    # Ruff config is typically in pyproject.toml or .ruff.toml
+    if path.suffix == ".toml":
+        try:
+            with open(path, "rb") as f:
+                data = tomllib.load(f)
+            # Basic validation: check for [tool.ruff] or [lint] section
+            if "tool" in data and "ruff" in data["tool"]:
+                return True
+            if "lint" in data:
+                return True
+        except Exception:
+            return False
+    return True
+
+
+def validate_pyproject_black(path: Path) -> bool:
+    if not check_file_exists(path):
         return False
     try:
-        # Ruff uses TOML format
-        with open(config_path, "rb") as f:
-            config = tomllib.load(f)
-        return "lint" in config or "format" in config
+        with open(path, "rb") as f:
+            data = tomllib.load(f)
+        return "tool" in data and "black" in data["tool"]
     except Exception:
         return False
 
 
-def validate_pyproject_black(config_path: Path) -> bool:
-    """Validate black configuration in pyproject.toml."""
-    if not config_path.exists():
-        return False
-    try:
-        with open(config_path, "rb") as f:
-            config = tomllib.load(f)
-        return "tool" in config and "black" in config["tool"]
-    except Exception:
-        return False
+def validate_flake8(path: Path) -> bool:
+    return check_file_exists(path)
 
 
-def validate_flake8(config_path: Path) -> bool:
-    """Validate flake8 configuration file."""
-    if not config_path.exists():
-        return False
-    try:
-        config = configparser.ConfigParser()
-        config.read(config_path)
-        return "flake8" in config
-    except Exception:
-        return False
+def create_ruff_config(root: Path) -> None:
+    path = root / ".ruff.toml"
+    if path.exists():
+        print(f"Skipping creation of {path}: already exists.")
+        return
 
-
-def create_ruff_config(base_path: Path) -> None:
-    """Create .ruff.toml configuration file."""
-    config_content = """[lint]
+    content = """[lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
-    "F",  # Pyflakes
+    "F",  # pyflakes
     "I",  # isort
-    "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
 ]
 ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
 ]
-
-[lint.per-file-ignores]
-"tests/*" = ["S101"]  # allow assert in tests
 
 [format]
-line-length = 88
-target-version = "py310"
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 """
-    config_path = base_path / ".ruff.toml"
-    with open(config_path, "w") as f:
-        f.write(config_content)
-    print(f"Created {config_path}")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+    print(f"Created {path}")
 
 
-def create_black_config(base_path: Path) -> None:
-    """Create black configuration in pyproject.toml."""
-    config_path = base_path / "pyproject.toml"
-    if not config_path.exists():
-        # Create minimal pyproject.toml if it doesn't exist
-        config_content = """[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+def create_black_config(root: Path) -> None:
+    # Black config is usually in pyproject.toml
+    pyproject_path = root / "pyproject.toml"
+    if pyproject_path.exists():
+        try:
+            with open(pyproject_path, "rb") as f:
+                data = tomllib.load(f)
+            if "tool" in data and "black" in data["tool"]:
+                print(f"Skipping creation of Black config in {pyproject_path}: already exists.")
+                return
+        except Exception:
+            pass
 
-[project]
-name = "llmxive-proj-755"
-version = "0.1.0"
-description = "Influence of Chatbot Politeness on User-Perceived Quality"
-requires-python = ">=3.10"
-dependencies = [
-    "transformers",
-    "datasets",
-    "statsmodels",
-    "pandas",
-    "scikit-learn",
-    "numpy",
-    "pyyaml",
-    "tqdm",
-    "rpy2",
-    "textstat",
-    "evalue",
-    "torch",
-    "python-dotenv",
-    "pyarrow",
-    "tomli",
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "flake8>=6.0.0",
-    "pytest>=7.0.0",
-]
-
-[tool.black]
-line-length = 88
-target-version = ["py310"]
-include = '\\.pyi?$'
-exclude = '''
+    # If pyproject.toml doesn't exist or doesn't have black config, we might append it
+    # For simplicity, we'll just ensure the section exists in the file
+    with open(pyproject_path, "r+", encoding="utf-8") as f:
+        content = f.read()
+        if "[tool.black]" not in content:
+            f.write("\n[tool.black]\n")
+            f.write('line-length = 88\n')
+            f.write("target-version = ['py39', 'py310', 'py311']\n")
+            f.write("include = '\\\\.pyi?$'\n")
+            f.write("""exclude = '''
 /(
     \\.git
   | \\.hg
@@ -138,127 +111,73 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | data
 )/
-'''
-
-[tool.ruff]
-line-length = 88
-target-version = "py310"
-src = ["code", "tests"]
-
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4"]
-ignore = ["E501", "B008"]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["code"]
-"""
-        with open(config_path, "w") as f:
-            f.write(config_content)
-        print(f"Created {config_path} with Black configuration")
-    else:
-        # Append or update black config
-        try:
-            with open(config_path, "rb") as f:
-                config = tomllib.load(f)
-            if "tool" not in config:
-                config["tool"] = {}
-            config["tool"]["black"] = {
-                "line-length": 88,
-                "target-version": ["py310"],
-            }
-            with open(config_path, "w") as f:
-                import tomli_w
-                tomli_w.dump(config, f)
-            print(f"Updated {config_path} with Black configuration")
-        except Exception as e:
-            print(f"Warning: Could not update pyproject.toml: {e}")
+'''\n""")
+    print(f"Updated {pyproject_path} with Black config.")
 
 
-def create_flake8_config(base_path: Path) -> None:
-    """Create .flake8 configuration file."""
-    config_content = """[flake8]
+def create_flake8_config(root: Path) -> None:
+    path = root / ".flake8"
+    if path.exists():
+        print(f"Skipping creation of {path}: already exists.")
+        return
+
+    content = """[flake8]
 max-line-length = 88
-extend-ignore = E203, E501, W503
-exclude =
-    .git,
-    __pycache__,
-    .venv,
-    venv,
-    data
-max-complexity = 10
+exclude = .git,__pycache__,build,dist
+ignore = E501,W503
+per-file-ignores =
+    # Allow unused imports in __init__.py
+    */__init__.py:F401
 """
-    config_path = base_path / ".flake8"
-    with open(config_path, "w") as f:
-        f.write(config_content)
-    print(f"Created {config_path}")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+    print(f"Created {path}")
 
 
 def install_linting_tools() -> None:
-    """Print instructions for installing linting tools."""
-    print("\nLinting tools configuration complete.")
-    print("To install the tools, run:")
-    print("  pip install ruff black flake8 pytest")
-    print("\nTo format code with Black:")
-    print("  black code/ tests/")
-    print("\nTo lint with Ruff:")
-    print("  ruff check code/ tests/")
-    print("\nTo lint with Flake8:")
-    print("  flake8 code/ tests/")
+    """
+    Attempt to install linting tools if they are not present.
+    This is a best-effort check; actual installation depends on environment.
+    """
+    import subprocess
+
+    tools = [
+        ("ruff", "ruff"),
+        ("black", "black"),
+        ("flake8", "flake8"),
+    ]
+
+    for name, cmd in tools:
+        try:
+            subprocess.run([cmd, "--version"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"{name} is already installed.")
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            print(f"{name} not found. Attempting to install...")
+            try:
+                subprocess.run([sys.executable, "-m", "pip", "install", name], check=True)
+                print(f"Installed {name}.")
+            except subprocess.CalledProcessError:
+                print(f"Failed to install {name}. Please install manually.")
 
 
 def main() -> None:
-    """Main entry point for setup_linting."""
-    parser = argparse.ArgumentParser(
-        description="Setup linting and formatting tools"
-    )
-    parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Overwrite existing configuration files",
-    )
+    parser = argparse.ArgumentParser(description="Setup linting and formatting tools.")
+    parser.add_argument("--root", type=Path, default=Path("."), help="Project root directory")
     args = parser.parse_args()
 
-    base_path = Path(__file__).resolve().parent.parent
+    root = args.root.resolve()
+    print(f"Setting up linting tools in {root}")
 
-    print("Setting up linting and formatting tools...")
+    # Create configurations
+    create_ruff_config(root)
+    create_black_config(root)
+    create_flake8_config(root)
 
-    # Create ruff config
-    ruff_path = base_path / ".ruff.toml"
-    if args.force or not check_file_exists(ruff_path):
-        create_ruff_config(base_path)
-    else:
-        if validate_ruff_config(ruff_path):
-            print(f"{ruff_path} already exists and is valid.")
-        else:
-            create_ruff_config(base_path)
-
-    # Create black config in pyproject.toml
-    pyproject_path = base_path / "pyproject.toml"
-    if args.force or not check_file_exists(pyproject_path):
-        create_black_config(base_path)
-    else:
-        if validate_pyproject_black(pyproject_path):
-            print(f"{pyproject_path} already has Black configuration.")
-        else:
-            create_black_config(base_path)
-
-    # Create flake8 config
-    flake8_path = base_path / ".flake8"
-    if args.force or not check_file_exists(flake8_path):
-        create_flake8_config(base_path)
-    else:
-        if validate_flake8(flake8_path):
-            print(f"{flake8_path} already exists and is valid.")
-        else:
-            create_flake8_config(base_path)
-
+    # Attempt to install tools
     install_linting_tools()
+
+    print("Linting setup complete.")
 
 
 if __name__ == "__main__":

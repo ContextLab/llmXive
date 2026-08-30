@@ -1,139 +1,85 @@
-# Dataset Schema for HCI_P2 Chatbot Politeness Study
-# Defines the structure of the raw and processed dialogue datasets
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "Chatbot Politeness Dataset Schema"
+description: "Schema for validating dialogue datasets used in the politeness study."
 type: object
-title: "HCI_P2 Dialogue Dataset Schema"
-description: "Schema for validating the HCI_P2 dataset used in politeness analysis"
-
-required:
-  - Dialogue
-  - Utterance
-  - User
-
 properties:
   Dialogue:
     type: object
-    description: "A complete conversation between a user and a chatbot"
+    description: "A single dialogue session between a user and a chatbot."
     required:
       - dialogue_id
       - user_id
       - utterances
-      - quality_rating
     properties:
       dialogue_id:
         type: string
-        description: "Unique identifier for the dialogue"
-        pattern: "^[A-Za-z0-9_-]+$"
+        description: "Unique identifier for the dialogue."
+        minLength: 1
       user_id:
         type: string
-        description: "Unique identifier for the user"
-        pattern: "^[A-Za-z0-9_-]+$"
-      utterances:
-        type: array
-        description: "List of utterances in the dialogue"
-        minItems: 1
-        items:
-          $ref: "#/properties/Utterance"
+        description: "Unique identifier for the user."
+        minLength: 1
       quality_rating:
-        type: integer
-        description: "User-rated quality of the conversation (1-5 scale)"
+        type: ["integer", "null"]
+        description: "User-perceived quality rating of the dialogue."
         minimum: 1
         maximum: 5
-      length:
-        type: integer
-        description: "Number of utterances in the dialogue"
-        minimum: 1
-      metadata:
-        type: object
-        description: "Optional metadata about the dialogue"
-        additionalProperties: true
-    
+      utterances:
+        type: array
+        description: "List of utterances in the dialogue."
+        items:
+          $ref: "#/properties/Utterance"
+      age:
+        type: ["integer", "null"]
+        description: "Age of the user."
+        minimum: 0
+        maximum: 120
+      gender:
+        type: ["string", "null"]
+        description: "Gender of the user."
+      source_dataset:
+        type: ["string", "null"]
+        description: "Source dataset name (e.g., HCI_P2, Persona-Chat)."
   Utterance:
     type: object
-    description: "A single message in a dialogue"
+    description: "A single turn in the dialogue."
     required:
       - utterance_id
-      - dialogue_id
       - speaker
       - text
     properties:
       utterance_id:
         type: string
-        description: "Unique identifier for the utterance"
-        pattern: "^[A-Za-z0-9_-]+$"
-      dialogue_id:
-        type: string
-        description: "Reference to the parent dialogue"
-        pattern: "^[A-Za-z0-9_-]+$"
+        description: "Unique identifier for the utterance."
       speaker:
         type: string
-        description: "Speaker role"
+        description: "Speaker role (user or chatbot)."
         enum:
           - user
           - chatbot
       text:
         type: string
-        description: "The text content of the utterance"
+        description: "Text content of the utterance."
         minLength: 1
-      timestamp:
-        type: integer
-        description: "Timestamp of the utterance (optional)"
-        minimum: 0
-      metadata:
-        type: object
-        description: "Optional metadata about the utterance"
-        additionalProperties: true
-    
+      politeness_score:
+        type: ["number", "null"]
+        description: "Politeness score for the utterance."
   User:
     type: object
-    description: "User demographic and profile information"
+    description: "User metadata."
     required:
       - user_id
     properties:
       user_id:
         type: string
-        description: "Unique identifier for the user"
-        pattern: "^[A-Za-z0-9_-]+$"
+        description: "Unique identifier for the user."
       age:
-        type: integer
-        description: "User age"
-        minimum: 18
-        maximum: 100
+        type: ["integer", "null"]
+        description: "Age of the user."
       gender:
-        type: string
-        description: "User gender"
-        enum:
-          - male
-          - female
-          - other
-          - prefer_not_to_say
-      age_group:
-        type: string
-        description: "User age group category"
-        enum:
-          - age_18_25
-          - age_26_35
-          - age_36_45
-          - age_46_55
-          - age_56_plus
-      nationality:
-        type: string
-        description: "User nationality (optional)"
-      metadata:
-        type: object
-        description: "Optional additional user metadata"
-        additionalProperties: true
-
-definitions:
-  # Common validation patterns
-  id_pattern: "^[A-Za-z0-9_-]+$"
-  text_min_length: 1
-  
-  # Helper constraints
-  quality_rating_range:
-    minimum: 1
-    maximum: 5
-    
-  utterance_min_count: 1
-  age_min: 18
-  age_max: 100
+        type: ["string", "null"]
+        description: "Gender of the user."
+required:
+  - Dialogue
+  - Utterance
+  - User

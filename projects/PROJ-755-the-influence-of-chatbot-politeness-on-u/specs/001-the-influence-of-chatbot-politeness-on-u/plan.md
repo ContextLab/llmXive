@@ -14,7 +14,7 @@ This project investigates the **statistical association** between linguistic pol
 **System Dependencies**: **R** (installed via `apt-get` in CI) with packages `lme4` and `ordinal` (required for `rpy2` path).  
 **Storage**: Local `data/` directory (raw and processed parquet/csv), `data/models/` for intermediate model states  
 **Testing**: `pytest` (contract tests against YAML schemas, unit tests for scoring logic)  
-**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, 7 GB RAM, no GPU)  
+**Target Platform**: GitHub Actions free-tier runner (Linux, limited CPU, 7 GB RAM, no GPU)  
 **Project Type**: Data Science / Statistical Analysis Pipeline  
 **Performance Goals**: Complete pipeline execution ≤ 6 hours; peak memory usage < 7 GB RAM  
 **Constraints**: CPU-only execution (no CUDA); strict adherence to a disk storage limit; must handle missing data gracefully; must not introduce new requirements beyond the spec.  

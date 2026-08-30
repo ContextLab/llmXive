@@ -1,40 +1,72 @@
-# Data directories (raw and processed)
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-
-# Python cache
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Model caches and large files
-.cache/
-models/
-*.pth
-*.bin
-*.safetensors
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv/
 
-# Environment files (secrets)
-.env
-.env.local
-.env.production
-
-# IDE and Editor files
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
-# OS files
-.DS_Store
-Thumbs.db
+# Data (Raw and Processed)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Model Caches
+data/models/
+.cache/
+transformers/
+huggingface/
 
 # Logs
 *.log
 logs/
 
-# Temporary files
-tmp/
-temp/
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+junit-*.xml
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# R
+.Rhistory
+.RData

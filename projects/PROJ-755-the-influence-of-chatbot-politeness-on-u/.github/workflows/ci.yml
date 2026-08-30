@@ -7,76 +7,63 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  build-and-test:
+  setup-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.9'
+        python-version: '3.10'
+
+    - name: Install R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: 'release'
+
+    - name: Install R packages (lme4, ordinal)
+      run: |
+        sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev
+        Rscript -e 'install.packages("remotes")'
+        Rscript -e 'remotes::install_cran("lme4")'
+        Rscript -e 'remotes::install_cran("ordinal")'
 
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        # Ensure test dependencies are installed if separate
-        if [ -f requirements-test.txt ]; then
-          pip install -r requirements-test.txt
-        fi
 
-    - name: Set up R
-      uses: r-lib/actions/setup-r@v2
-      with:
-        r-version: 'release'
-
-    - name: Install R dependencies
+    - name: Run linting (ruff)
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
-        R -e "install.packages('remotes')"
-        R -e "remotes::install_cran('lme4')"
-        R -e "remotes::install_cran('ordinal')"
-        R -e "remotes::install_cran('devtools')"
-        # Install any R packages listed in a DESCRIPTION file if present
-        # if [ -f DESCRIPTION ]; then R -e "devtools::install_deps(dependencies=TRUE)"; fi
+        ruff check .
 
-    - name: Run Linting (Ruff)
+    - name: Run formatting check (black)
       run: |
-        if command -v ruff &> /dev/null; then
-          ruff check .
-        else
-          echo "Ruff not found, skipping linting check"
-        fi
+        black --check .
 
-    - name: Run Formatting Check (Black)
+    - name: Run unit tests
       run: |
-        if command -v black &> /dev/null; then
-          black --check .
-        else
-          echo "Black not found, skipping formatting check"
-        fi
+        pytest tests/unit -v
 
-    - name: Run Unit Tests
+    - name: Run contract tests
       run: |
-        python -m pytest tests/unit -v
+        pytest tests/contract -v
 
-    - name: Run Contract Tests
+    - name: Run integration tests
       run: |
-        python -m pytest tests/contract -v
-
-    - name: Run Integration Tests
-      run: |
-        python -m pytest tests/integration -v
-
-    - name: Upload Test Results
+        pytest tests/integration -v
       if: always()
-      uses: actions/upload-artifact@v3
+      continue-on-error: true
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: test-results
         path: |
-          **/test-results.xml
           .pytest_cache/
+          test-reports/
+          junit-*.xml

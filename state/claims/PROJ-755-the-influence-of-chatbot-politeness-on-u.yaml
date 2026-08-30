@@ -340,3 +340,219 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T04:12:07Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: 80% dialogues have age and gender metadata
+  claim_id: c_14abd8e7
+  context: "Check [deferred] Completeness: Verify that \u2265 80% of dialogues have\
+    \ age and gender metadata. If < 80%, log critical failure and halt US3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that \u2265 80% of dialogues have age and gender metadata."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:46:15Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 5 for dropping variables
+  claim_id: c_ed7e6233
+  context: "Implement VIF check for politeness and conversation_length; log warning\
+    \ and drop variable if VIF \u2265 5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If VIF \u2265 5, log warning and drop variable."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:46:15Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: convergence rate < 95% halts pipeline
+  claim_id: c_d223142f
+  context: 'Enforce SC-003: If convergence < 95%, log critical failure and halt the
+    pipeline. DO NOT execute a fallback to fixed-effects regression for the primary
+    result.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If convergence < 95%, log critical failure and halt the pipeline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:46:15Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: CI runtime < 6 hours and RAM < 7 GB
+  claim_id: c_6a8e40c5
+  context: 'Execute full pipeline on GitHub Actions and capture metrics. Logic: Run
+    the CI workflow. Verify runtime < 6h and RAM < 7GB. Capture metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 6h and RAM < 7GB during CI workflow execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:46:16Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: BERT inference peak memory < 7 GB
+  claim_id: c_af8269ef
+  context: 'Performance optimization: verify memory usage < 7GB during peak BERT inference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify memory usage < 7GB during peak BERT inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:46:16Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: pilot sample size of 1000 rows
+  claim_id: c_8f274ee1
+  context: 'Data Sampling: Extract a representative sample from the filtered dataset.
+    Logic: Load data/raw/filtered/ and sample 1000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample 1000 rows from the filtered dataset for pilot model fitting.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:47:02Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: 80% of dialogues must have age and gender metadata
+  claim_id: c_4b978d78
+  context: "Check [deferred] Completeness: Verify that \u2265 80% of dialogues have\
+    \ age and gender metadata. If < 80%, log critical failure and halt US3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that \u2265 80% of dialogues have age and gender metadata."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:51:06Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Model file size limit is 100MB
+  claim_id: c_0a1a9d26
+  context: "Verify model file size \u2264 100MB. Proceed with batch processing if\
+    \ larger (do not abort)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_file_size_limit_is_100MB
+  kind: entity_fact
+  raw_text: "Verify model file size \u2264 100MB."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:51:56Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: CLMM convergence rate must be at least 95%
+  claim_id: c_daa6fe9a
+  context: 'Enforce SC-003: If convergence < 95%, log critical failure and halt the
+    pipeline. DO NOT execute a fallback to fixed-effects regression for the primary
+    result.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CLMM_convergence_rate_must_be_at_least_95%25
+  kind: magnitude
+  raw_text: If convergence < 95%, log critical failure and halt the pipeline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:52:53Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Correlation between primary and robust predicted quality scores must
+    be at least 0.80
+  claim_id: c_8c3c24e9
+  context: 'Verify: Check if correlation_r >= 0.80. Log ''SC-004 MET'' or ''SC-004
+    NOT MET''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_between_primary_and_robust_predicted_quality_sco
+  kind: magnitude
+  raw_text: Verify if correlation_r >= 0.80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:53:55Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime must be under 6 hours and RAM under 7GB
+  claim_id: c_bfd39685
+  context: Run the CI workflow. Verify runtime < 6h and RAM < 7GB. Capture metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 6h and RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:53:55Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Peak BERT inference memory usage must be under 7GB
+  claim_id: c_9bd3ce22
+  context: 'Performance optimization: verify memory usage < 7GB during peak BERT inference'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_BERT_inference_memory_usage_must_be_under_7GB
+  kind: entity_fact
+  raw_text: Verify memory usage < 7GB during peak BERT inference.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:54:48Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: VIF threshold for dropping variables is 5
+  claim_id: c_12f811c9
+  context: "Implement VIF check for politeness and conversation_length; log warning\
+    \ and drop variable if VIF \u2265 5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Log warning and drop variable if VIF \u2265 5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T10:54:49Z'

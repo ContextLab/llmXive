@@ -1,86 +1,133 @@
-"""
-Unit tests to verify that linting and formatting configurations are present and valid.
-These tests ensure that the project has the necessary configuration files for code quality.
-"""
 import os
+import sys
+import tempfile
 import tomllib
-import pytest
+import configparser
 from pathlib import Path
+import pytest
 
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from setup_linting import (
+    check_file_exists,
+    validate_ruff_config,
+    validate_pyproject_black,
+    validate_flake8,
+    create_ruff_config,
+    create_black_config,
+    create_flake8_config,
+)
 
-def test_pyproject_toml_exists():
-    """Test that pyproject.toml exists at the project root."""
-    project_root = Path(__file__).parent.parent.parent
-    pyproject_path = project_root / "pyproject.toml"
-    assert pyproject_path.exists(), "pyproject.toml must exist at project root"
+class TestLintingConfigValidation:
+    def test_check_file_exists_true(self):
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(b"test")
+            path = Path(f.name)
+        try:
+            assert check_file_exists(path) is True
+        finally:
+            os.unlink(path)
 
+    def test_check_file_exists_false(self):
+        path = Path("/nonexistent/file.txt")
+        assert check_file_exists(path) is False
 
-def test_black_config_present():
-    """Test that Black configuration is present in pyproject.toml."""
-    project_root = Path(__file__).parent.parent.parent
-    pyproject_path = project_root / "pyproject.toml"
+    def test_validate_ruff_config_valid(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / ".ruff.toml"
+            content = """
+            line-length = 88
+            [lint]
+            select = ["E", "F"]
+            """
+            config_path.write_text(content)
+            assert validate_ruff_config(config_path) is True
 
-    with open(pyproject_path, "rb") as f:
-        config = tomllib.load(f)
+    def test_validate_ruff_config_invalid_toml(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / ".ruff.toml"
+            config_path.write_text("invalid toml [[[")
+            assert validate_ruff_config(config_path) is False
 
-    assert "tool" in config, "pyproject.toml must contain 'tool' section"
-    assert "black" in config["tool"], "Black configuration must be in [tool.black]"
+    def test_validate_ruff_config_missing_ruff_section(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "pyproject.toml"
+            content = """
+            [project]
+            name = "test"
+            """
+            config_path.write_text(content)
+            assert validate_ruff_config(config_path) is False
 
-    black_config = config["tool"]["black"]
-    assert "line-length" in black_config, "Black must have line-length configured"
-    assert black_config["line-length"] == 88, "Black line-length should be 88"
+    def test_validate_pyproject_black_valid(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "pyproject.toml"
+            content = """
+            [tool.black]
+            line-length = 88
+            """
+            config_path.write_text(content)
+            assert validate_pyproject_black(config_path) is True
 
+    def test_validate_pyproject_black_missing_black_section(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "pyproject.toml"
+            content = """
+            [project]
+            name = "test"
+            """
+            config_path.write_text(content)
+            assert validate_pyproject_black(config_path) is False
 
-def test_ruff_config_present():
-    """Test that Ruff configuration is present in pyproject.toml."""
-    project_root = Path(__file__).parent.parent.parent
-    pyproject_path = project_root / "pyproject.toml"
+    def test_validate_flake8_valid(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / ".flake8"
+            content = """
+            [flake8]
+            max-line-length = 88
+            """
+            config_path.write_text(content)
+            assert validate_flake8(config_path) is True
 
-    with open(pyproject_path, "rb") as f:
-        config = tomllib.load(f)
+    def test_validate_flake8_missing_flake8_section(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = Path(tmpdir) / "setup.cfg"
+            content = """
+            [metadata]
+            name = test
+            """
+            config_path.write_text(content)
+            assert validate_flake8(config_path) is False
 
-    assert "tool" in config, "pyproject.toml must contain 'tool' section"
-    assert "ruff" in config["tool"], "Ruff configuration must be in [tool.ruff]"
+class TestLintingConfigCreation:
+    def test_create_ruff_config(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            config_path = create_ruff_config(project_root)
+            assert config_path.exists()
+            assert validate_ruff_config(config_path) is True
+            content = config_path.read_text()
+            assert "line-length" in content
+            assert "[lint]" in content
 
-    ruff_config = config["tool"]["ruff"]
-    assert "line-length" in ruff_config, "Ruff must have line-length configured"
-    assert ruff_config["line-length"] == 88, "Ruff line-length should be 88"
+    def test_create_black_config_creates_section(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            config_path = project_root / "pyproject.toml"
+            config_path.write_text("[project]\nname = 'test'\n")
+            
+            result_path = create_black_config(project_root)
+            assert result_path.exists()
+            content = result_path.read_text()
+            assert "[tool.black]" in content
+            assert "line-length" in content
 
-
-def test_ruff_lint_config_present():
-    """Test that Ruff lint configuration is present."""
-    project_root = Path(__file__).parent.parent.parent
-    pyproject_path = project_root / "pyproject.toml"
-
-    with open(pyproject_path, "rb") as f:
-        config = tomllib.load(f)
-
-    ruff_config = config["tool"]["ruff"]
-    assert "lint" in ruff_config, "Ruff must have [tool.ruff.lint] section"
-
-    lint_config = ruff_config["lint"]
-    assert "select" in lint_config, "Ruff must have select codes configured"
-    assert "E" in lint_config["select"], "Ruff must select pycodestyle errors"
-    assert "F" in lint_config["select"], "Ruff must select Pyflakes"
-
-
-def test_flake8_config_exists():
-    """Test that .flake8 configuration file exists."""
-    project_root = Path(__file__).parent.parent.parent
-    flake8_path = project_root / ".flake8"
-    assert flake8_path.exists(), ".flake8 configuration file must exist"
-
-
-def test_ruff_toml_exists():
-    """Test that .ruff.toml configuration file exists."""
-    project_root = Path(__file__).parent.parent.parent
-    ruff_path = project_root / ".ruff.toml"
-    assert ruff_path.exists(), ".ruff.toml configuration file must exist"
-
-
-def test_linting_script_exists():
-    """Test that the linting setup script exists."""
-    project_root = Path(__file__).parent.parent.parent
-    script_path = project_root / "code" / "scripts" / "setup_linting.sh"
-    assert script_path.exists(), "setup_linting.sh script must exist"
-    assert os.access(script_path, os.X_OK) or True, "Script should be executable (or at least present)"
+    def test_create_flake8_config(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            config_path = create_flake8_config(project_root)
+            assert config_path.exists()
+            assert validate_flake8(config_path) is True
+            content = config_path.read_text()
+            assert "[flake8]" in content
+            assert "max-line-length" in content

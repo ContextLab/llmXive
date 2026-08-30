@@ -1,3 +1,14 @@
+"""
+code/01_download_and_score.py
+
+Task T015: Fetch HCI_P2 dataset from Hugging Face, verify required fields,
+and save raw data with checksums.
+
+This script downloads the HCI_P2 dataset, validates the presence of
+'quality_rating', 'user_id', and 'dialogue_id', and stores the raw data
+in data/raw/hci_p2/ along with integrity checksums.
+"""
+
 import os
 import sys
 import json
@@ -5,246 +16,159 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
+import pandas as pd
 from datasets import load_dataset
-from utils.data_integrity import compute_directory_checksum, generate_manifest, compute_file_checksum
-from utils.env_config import get_hf_token
+from tqdm import tqdm
+
+# Import project utilities
+from utils.data_integrity import compute_file_checksum, generate_manifest
+from utils.schema_validator import load_schema, validate_dataset_schema
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/download_and_score.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def ensure_directories(base_path: Path) -> None:
-    """Create necessary directory structure for raw data storage."""
-    directories = [
-        base_path / "data" / "raw" / "hci_p2",
-        base_path / "data" / "processed"
-    ]
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        # Create .gitkeep to ensure directory is tracked
-        gitkeep = directory / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
-    logger.info(f"Ensured directories exist at {base_path}")
+# Constants
+DATASET_NAME = "HCI_P2"
+DATASET_ID = "HCI_P2/HCI_P2"  # Adjust if the actual ID differs on HF Hub
+REQUIRED_FIELDS = ['quality_rating', 'user_id', 'dialogue_id']
+OUTPUT_DIR = Path("data/raw/hci_p2")
+CHECKSUM_FILE = OUTPUT_DIR / "checksums.json"
+MANIFEST_FILE = OUTPUT_DIR / "manifest.json"
 
-def load_dataset_with_check(dataset_name: str, split: Optional[str] = None) -> Any:
+def ensure_directories():
+    """Create necessary output directories."""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    (OUTPUT_DIR / "temp").mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured directories exist: {OUTPUT_DIR}")
+
+def load_dataset_with_check(dataset_id: str, split: str = "train") -> pd.DataFrame:
     """
-    Load a dataset from HuggingFace with validation.
-    
+    Load the dataset from Hugging Face Hub.
+
     Args:
-        dataset_name: The HuggingFace dataset identifier.
-        split: The dataset split to load (e.g., 'train', 'test').
-    
+        dataset_id: The HF Hub dataset ID.
+        split: The split to load (default: 'train').
+
     Returns:
-        The loaded dataset object.
-    
+        A pandas DataFrame containing the dataset.
+
     Raises:
-        ValueError: If the dataset cannot be loaded or required fields are missing.
+        RuntimeError: If the dataset cannot be loaded.
     """
-    logger.info(f"Attempting to load dataset: {dataset_name}")
+    logger.info(f"Attempting to load dataset: {dataset_id}, split: {split}")
     try:
-        # Load dataset - streaming for large datasets to avoid memory issues
-        dataset = load_dataset(
-            dataset_name,
-            split=split,
-            trust_remote_code=True
-        )
-        logger.info(f"Successfully loaded dataset: {dataset_name}")
-        return dataset
+        ds = load_dataset(dataset_id, split=split)
+        df = ds.to_pandas()
+        logger.info(f"Successfully loaded {len(df)} rows from {dataset_id}")
+        return df
     except Exception as e:
-        logger.error(f"Failed to load dataset {dataset_name}: {e}")
-        raise ValueError(f"Dataset {dataset_name} could not be loaded: {e}") from e
+        logger.error(f"Failed to load dataset {dataset_id}: {e}")
+        raise RuntimeError(f"Could not load dataset {dataset_id}. Ensure the ID is correct and internet is available.") from e
 
-def validate_and_preprocess(dataset: Any, dataset_name: str) -> Dict[str, Any]:
+def validate_and_preprocess(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Validate dataset structure and preprocess for HCI_P2.
-    
+    Validate the presence of required fields and perform basic preprocessing.
+
     Args:
-        dataset: The loaded dataset object.
-        dataset_name: Name of the dataset for logging.
-    
+        df: Input DataFrame.
+
     Returns:
-        Dictionary containing validation results and processed data info.
+        Validated DataFrame.
+
+    Raises:
+        ValueError: If required fields are missing.
     """
-    logger.info(f"Validating and preprocessing {dataset_name}")
-    
-    # Check for required fields per FR-001 and schema
-    required_fields = ['quality_rating', 'user_id', 'dialogue_id']
-    available_columns = list(dataset.column_names)
-    
-    missing_fields = [field for field in required_fields if field not in available_columns]
-    
+    missing_fields = [field for field in REQUIRED_FIELDS if field not in df.columns]
     if missing_fields:
-        logger.warning(f"Dataset {dataset_name} missing required fields: {missing_fields}")
-        # Log but don't fail - the field might be named differently or optional
-    
-    # Basic validation report
-    validation_report = {
-        "dataset_name": dataset_name,
-        "total_rows": len(dataset),
-        "columns": available_columns,
-        "missing_required_fields": missing_fields,
-        "status": "partial" if missing_fields else "complete"
-    }
-    
-    logger.info(f"Validation report for {dataset_name}: {validation_report['status']}")
-    return validation_report
+        error_msg = f"Dataset is missing required fields: {missing_fields}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
-def save_raw_data(dataset: Any, base_path: Path, dataset_name: str) -> str:
+    # Basic type checks if possible
+    if not pd.api.types.is_numeric_dtype(df['quality_rating']):
+        logger.warning(f"quality_rating column is not numeric. Type: {df['quality_rating'].dtype}")
+
+    logger.info(f"Validation passed. Rows: {len(df)}, Columns: {list(df.columns)}")
+    return df
+
+def save_raw_data(df: pd.DataFrame, output_path: Path):
     """
-    Save raw dataset to disk and generate checksums.
-    
+    Save the DataFrame to parquet format.
+
     Args:
-        dataset: The dataset to save.
-        base_path: Base project path.
-        dataset_name: Name of the dataset for file naming.
-    
-    Returns:
-        Path to the saved directory.
+        df: DataFrame to save.
+        output_path: Path to save the parquet file.
     """
-    raw_dir = base_path / "data" / "raw" / dataset_name
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Save dataset to parquet format
-    output_path = raw_dir / f"{dataset_name}_raw.parquet"
-    dataset.to_parquet(str(output_path))
+    df.to_parquet(output_path, index=False)
     logger.info(f"Saved raw data to {output_path}")
-    
-    # Generate checksums and manifest
-    checksum = compute_directory_checksum(raw_dir)
-    manifest = generate_manifest(raw_dir)
-    
-    manifest_path = raw_dir / "manifest.json"
-    manifest["checksum"] = checksum
-    manifest["dataset_name"] = dataset_name
-    manifest["total_rows"] = len(dataset)
-    
+
+def generate_checksums_and_manifest(data_path: Path, checksums_path: Path, manifest_path: Path):
+    """
+    Generate checksums for the saved data and a manifest file.
+
+    Args:
+        data_path: Path to the parquet file.
+        checksums_path: Path to save checksums JSON.
+        manifest_path: Path to save manifest JSON.
+    """
+    checksum = compute_file_checksum(data_path)
+    checksums_data = {
+        "file": data_path.name,
+        "sha256": checksum,
+        "size_bytes": data_path.stat().st_size
+    }
+    with open(checksums_path, 'w') as f:
+        json.dump(checksums_data, f, indent=2)
+    logger.info(f"Generated checksums: {checksums_path}")
+
+    manifest_data = {
+        "dataset_name": DATASET_NAME,
+        "source_id": DATASET_ID,
+        "files": [data_path.name],
+        "checksums_file": checksums_path.name,
+        "row_count": len(pd.read_parquet(data_path)),
+        "columns": list(pd.read_parquet(data_path).columns)
+    }
     with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    
-    logger.info(f"Generated manifest and checksum for {dataset_name}")
-    return str(raw_dir)
-
-def extract_utterances(dataset: Any) -> List[Dict[str, Any]]:
-    """
-    Extract utterances from the dataset.
-    
-    Args:
-        dataset: The loaded dataset.
-    
-    Returns:
-        List of utterance dictionaries.
-    """
-    utterances = []
-    # HCI_P2 specific structure handling
-    # Assuming dataset has a 'dialogue' or 'turns' field containing utterances
-    for idx, row in enumerate(dataset):
-        if 'turns' in row:
-            for turn_idx, turn in enumerate(row['turns']):
-                utterances.append({
-                    'dialogue_id': row.get('dialogue_id', idx),
-                    'user_id': row.get('user_id', 'unknown'),
-                    'turn_index': turn_idx,
-                    'text': turn.get('text', ''),
-                    'speaker': turn.get('speaker', 'unknown'),
-                    'quality_rating': row.get('quality_rating', None)
-                })
-        elif 'utterances' in row:
-            for turn_idx, utterance in enumerate(row['utterances']):
-                utterances.append({
-                    'dialogue_id': row.get('dialogue_id', idx),
-                    'user_id': row.get('user_id', 'unknown'),
-                    'turn_index': turn_idx,
-                    'text': utterance.get('text', ''),
-                    'speaker': utterance.get('speaker', 'unknown'),
-                    'quality_rating': row.get('quality_rating', None)
-                })
-    
-    return utterances
-
-def filter_dialogues(utterances: List[Dict[str, Any]], min_utterances: int = 2) -> List[Dict[str, Any]]:
-    """
-    Filter dialogues based on minimum utterance count.
-    
-    Args:
-        utterances: List of utterance dictionaries.
-        min_utterances: Minimum number of utterances required per dialogue.
-    
-    Returns:
-        Filtered list of utterances.
-    """
-    # Group by dialogue_id
-    dialogue_map = {}
-    for utterance in utterances:
-        dialogue_id = utterance['dialogue_id']
-        if dialogue_id not in dialogue_map:
-            dialogue_map[dialogue_id] = []
-        dialogue_map[dialogue_id].append(utterance)
-    
-    # Filter dialogues with sufficient utterances
-    filtered = []
-    for dialogue_id, turns in dialogue_map.items():
-        if len(turns) >= min_utterances:
-            filtered.extend(turns)
-        else:
-            logger.debug(f"Excluded dialogue {dialogue_id} with {len(turns)} utterances")
-    
-    return filtered
+        json.dump(manifest_data, f, indent=2)
+    logger.info(f"Generated manifest: {manifest_path}")
 
 def main():
-    """
-    Main entry point for downloading and processing HCI_P2 dataset.
-    
-    This task implements the download and initial processing of the HCI_P2 dataset
-    as a PRIMARY input per FR-001.
-    """
-    # Get base path
-    base_path = Path(__file__).parent.parent
-    if not base_path.exists():
-        base_path = Path.cwd()
-    
-    ensure_directories(base_path)
-    
-    # Load HCI_P2 dataset
-    # Using the canonical HuggingFace dataset name for HCI_P2
-    dataset_name = "HCI_P2"
-    full_dataset_name = "HCI_P2"  # Adjust if the actual HF name differs
+    """Main entry point for T015."""
+    logger.info("Starting Task T015: Download and Score HCI_P2")
     
     try:
-        # Attempt to load the dataset
-        # Note: HCI_P2 might be under a different name on HuggingFace
-        # Common variations: "HCI_P2", "hci_p2", or a specific author/name combo
-        # If this fails, the user should update the dataset name in the code
-        dataset = load_dataset_with_check(full_dataset_name, split="train")
-        
-        # Validate and preprocess
-        validation_report = validate_and_preprocess(dataset, dataset_name)
-        
-        # Save raw data
-        raw_path = save_raw_data(dataset, base_path, dataset_name)
-        
-        # Extract and filter utterances
-        utterances = extract_utterances(dataset)
-        filtered_utterances = filter_dialogues(utterances)
-        
-        logger.info(f"Extracted {len(utterances)} utterances, kept {len(filtered_utterances)} after filtering")
-        
-        # Save validation report
-        validation_report_path = base_path / "data" / "raw" / dataset_name / "validation_report.json"
-        with open(validation_report_path, 'w') as f:
-            json.dump(validation_report, f, indent=2)
-        
-        logger.info(f"Successfully processed {dataset_name} dataset")
+        # 1. Ensure directories
+        ensure_directories()
+
+        # 2. Load dataset
+        df = load_dataset_with_check(DATASET_ID)
+
+        # 3. Validate
+        df = validate_and_preprocess(df)
+
+        # 4. Save raw data
+        output_file = OUTPUT_DIR / "hci_p2_raw.parquet"
+        save_raw_data(df, output_file)
+
+        # 5. Generate checksums and manifest
+        generate_checksums_and_manifest(output_file, CHECKSUM_FILE, MANIFEST_FILE)
+
+        logger.info("Task T015 completed successfully.")
         return True
-        
+
     except Exception as e:
-        logger.error(f"Failed to process {dataset_name}: {e}")
-        # Re-raise to ensure the pipeline fails loudly rather than silently
-        raise
+        logger.error(f"Task T015 failed: {e}")
+        # Fail loudly as per constraints
+        sys.exit(1)
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()

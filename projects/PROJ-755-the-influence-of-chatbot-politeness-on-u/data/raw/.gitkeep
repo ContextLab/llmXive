@@ -1,2 +1,2 @@
-# This directory stores raw, immutable dataset downloads.
-# Do not modify files here; use code/ scripts to generate data in data/processed/.
+# This file ensures the data/raw directory is tracked by git
+# but remains empty of actual data files (data is excluded via .gitignore)

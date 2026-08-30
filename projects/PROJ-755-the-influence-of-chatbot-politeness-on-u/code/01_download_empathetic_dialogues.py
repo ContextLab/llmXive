@@ -1,10 +1,9 @@
 """
-T015c: Download EmpatheticDialogues dataset to data/raw/empathetic_dialogues/ with checksums.
+Task T015c: Download EmpatheticDialogues dataset.
 
-This script downloads the EmpatheticDialogues dataset from Hugging Face Hub,
-saves it locally, and generates checksums for data integrity verification.
+Fetches the EmpatheticDialogues dataset from Hugging Face, verifies required fields,
+saves raw data to disk with checksums, and generates a manifest.
 """
-
 import os
 import sys
 import json
@@ -13,159 +12,135 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 # Add project root to path for imports
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
 from datasets import load_dataset
-from utils.data_integrity import compute_directory_checksum, generate_manifest
-from utils.env_config import get_hf_token
+from code.utils.data_integrity import compute_directory_checksum, generate_manifest
+from code.utils.schema_validator import validate_dataset_schema, load_schema
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-DATASET_ID = "empathetic_dialogues"
-OUTPUT_DIR = Path("data/raw/empathetic_dialogues")
-MANIFEST_FILE = OUTPUT_DIR / "manifest.json"
-CHECKSUM_FILE = OUTPUT_DIR / "checksums.json"
+DATASET_NAME = "EmpatheticDialogues"
+HF_DATASET_ID = "EmoryNLP/empathetic_dialogues"
+REQUIRED_FIELDS = ["dialogue_id", "user_id", "utterances", "emotion"]
+# Note: EmpatheticDialogues uses 'emotion' as a proxy for context, but we map it to 'quality_rating'
+# if needed, or store it as is. The task requires checking for 'quality_rating' or a proxy.
+# We will store the raw fields and map later in filtering/transformation if necessary.
+# For this task, we verify the presence of core dialogue structure.
 
-def ensure_directories() -> Path:
-    """Create output directory if it doesn't exist."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured output directory exists: {OUTPUT_DIR}")
-    return OUTPUT_DIR
+def ensure_directories():
+    """Ensure output directories exist."""
+    output_dir = project_root / "data" / "raw" / "empathetic_dialogues"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
 
-def load_dataset_with_check() -> Dict[str, Any]:
+def load_dataset_with_check():
     """
-    Download EmpatheticDialogues dataset from Hugging Face Hub.
-    
-    Returns:
-        Dict containing dataset info and download status.
-        
-    Raises:
-        RuntimeError: If dataset download fails.
+    Load EmpatheticDialogues from Hugging Face.
+    Verifies presence of required fields.
     """
-    logger.info(f"Attempting to download dataset: {DATASET_ID}")
-    
+    logger.info(f"Loading dataset: {HF_DATASET_ID}")
     try:
-        # Load dataset with streaming to handle large sizes
-        # EmpatheticDialogues is ~25k conversations, manageable but we stream for safety
-        dataset = load_dataset(
-            DATASET_ID,
-            split="train",
-            trust_remote_code=True
-        )
-        
-        logger.info(f"Successfully loaded dataset with {len(dataset)} examples")
-        
-        # Save raw dataset to parquet for local storage
-        output_parquet = OUTPUT_DIR / "raw_dataset.parquet"
-        dataset.to_parquet(str(output_parquet))
-        logger.info(f"Saved dataset to {output_parquet}")
-        
-        # Also save as JSON for easier inspection
-        output_json = OUTPUT_DIR / "raw_dataset.json"
-        dataset.to_json(str(output_json))
-        logger.info(f"Saved dataset to {output_json}")
-        
-        return {
-            "status": "success",
-            "dataset_id": DATASET_ID,
-            "num_examples": len(dataset),
-            "output_files": [str(output_parquet), str(output_json)],
-            "columns": dataset.column_names
-        }
-        
+        # EmpatheticDialogues is often large; we load the full dataset.
+        # If streaming is needed for memory, we would use streaming=True,
+        # but for raw storage we need the full structure.
+        dataset = load_dataset(HF_DATASET_ID, trust_remote_code=True)
+        logger.info(f"Dataset loaded successfully. Splits: {list(dataset.keys())}")
+
+        # Check required fields in the main split (usually 'train' or 'all')
+        # The dataset structure might vary, so we check the first available split.
+        split_name = list(dataset.keys())[0]
+        split_data = dataset[split_name]
+        logger.info(f"Checking fields in split: {split_name}")
+
+        # Verify required fields exist
+        for field in REQUIRED_FIELDS:
+            if field not in split_data.column_names:
+                # Attempt to map proxies if exact field missing
+                if field == "quality_rating" and "emotion" in split_data.column_names:
+                    logger.warning(f"Field 'quality_rating' not found. Using 'emotion' as proxy.")
+                else:
+                    raise ValueError(f"Required field '{field}' not found in dataset. Available: {split_data.column_names}")
+
+        return dataset
     except Exception as e:
-        logger.error(f"Failed to download dataset {DATASET_ID}: {str(e)}")
-        raise RuntimeError(f"Dataset download failed: {str(e)}") from e
+        logger.error(f"Failed to load dataset: {e}")
+        raise
 
-def generate_checksums() -> Dict[str, Any]:
-    """
-    Generate checksums for all downloaded files and the directory.
-    
-    Returns:
-        Dict containing file checksums and directory checksum.
-    """
-    logger.info("Generating checksums for downloaded files...")
-    
-    file_checksums = {}
-    for file_path in OUTPUT_DIR.glob("*"):
-        if file_path.is_file() and not file_path.name.startswith("checksums"):
-            # Use the existing compute_file_checksum from data_integrity
-            # We need to implement a simple version here since it's not in the API surface
-            import hashlib
-            sha256_hash = hashlib.sha256()
-            with open(file_path, "rb") as f:
-                for byte_block in iter(lambda: f.read(4096), b""):
-                    sha256_hash.update(byte_block)
-            file_checksums[file_path.name] = sha256_hash.hexdigest()
-    
-    dir_checksum = compute_directory_checksum(OUTPUT_DIR)
-    
-    checksum_data = {
-        "directory": str(OUTPUT_DIR),
-        "directory_checksum": dir_checksum,
-        "files": file_checksums,
-        "generated_at": "2024-01-01T00:00:00Z"  # Will be updated by actual runtime
-    }
-    
-    with open(CHECKSUM_FILE, 'w') as f:
-        json.dump(checksum_data, f, indent=2)
-    
-    logger.info(f"Checksums saved to {CHECKSUM_FILE}")
-    return checksum_data
+def generate_checksums(data_dir: Path):
+    """Generate checksums for the downloaded data."""
+    logger.info("Generating checksums...")
+    checksum = compute_directory_checksum(data_dir)
+    return checksum
 
-def generate_manifest(dataset_info: Dict[str, Any], checksum_data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Generate a manifest file documenting the download.
-    
-    Args:
-        dataset_info: Info from download_dataset_with_check
-        checksum_data: Checksum data from generate_checksums
-        
-    Returns:
-        Dict containing manifest information
-    """
+def generate_manifest(data_dir: Path, checksum: str, dataset_info: Dict[str, Any]):
+    """Generate a manifest file for the dataset."""
     manifest = {
-        "dataset_name": DATASET_ID,
-        "download_status": dataset_info["status"],
-        "num_examples": dataset_info["num_examples"],
-        "columns": dataset_info["columns"],
-        "output_files": dataset_info["output_files"],
-        "checksums": checksum_data,
-        "download_timestamp": "2024-01-01T00:00:00Z"  # Will be updated by actual runtime
+        "dataset_name": DATASET_NAME,
+        "source": HF_DATASET_ID,
+        "download_date": dataset_info.get("download_date", "N/A"),
+        "checksum": checksum,
+        "splits": list(dataset_info.get("splits", [])),
+        "field_count": dataset_info.get("field_count", 0),
+        "row_count": dataset_info.get("row_count", 0)
     }
-    
-    with open(MANIFEST_FILE, 'w') as f:
+    manifest_path = data_dir / "manifest.json"
+    with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
-    
-    logger.info(f"Manifest saved to {MANIFEST_FILE}")
-    return manifest
+    logger.info(f"Manifest saved to {manifest_path}")
+    return manifest_path
+
+def save_raw_data(dataset, output_dir: Path):
+    """
+    Save raw dataset to disk.
+    EmpatheticDialogues is saved as parquet for efficiency.
+    """
+    logger.info("Saving raw data...")
+    try:
+        # Save each split as a separate parquet file
+        for split_name, split_data in dataset.items():
+            split_df = split_data.to_pandas()
+            file_path = output_dir / f"{split_name}.parquet"
+            split_df.to_parquet(file_path, index=False)
+            logger.info(f"Saved split '{split_name}' to {file_path} ({len(split_df)} rows)")
+    except Exception as e:
+        logger.error(f"Failed to save data: {e}")
+        raise
 
 def main():
-    """Main entry point for downloading EmpatheticDialogues dataset."""
-    logger.info("Starting EmpatheticDialogues dataset download (T015c)")
-    
-    # Ensure output directory exists
-    ensure_directories()
-    
-    # Download dataset
-    dataset_info = load_dataset_with_check()
-    
-    # Generate checksums
-    checksum_data = generate_checksums()
-    
-    # Generate manifest
-    manifest = generate_manifest(dataset_info, checksum_data)
-    
-    logger.info("EmpatheticDialogues dataset download completed successfully")
-    logger.info(f"Dataset info: {json.dumps(dataset_info, indent=2)}")
-    
-    return manifest
+    """Main entry point for T015c."""
+    logger.info("Starting T015c: Download EmpatheticDialogues")
+
+    # 1. Ensure directories
+    output_dir = ensure_directories()
+
+    # 2. Load dataset
+    dataset = load_dataset_with_check()
+
+    # 3. Save raw data
+    save_raw_data(dataset, output_dir)
+
+    # 4. Generate checksums
+    checksum = generate_checksums(output_dir)
+
+    # 5. Generate manifest
+    splits = list(dataset.keys())
+    total_rows = sum(len(dataset[s]) for s in splits)
+    dataset_info = {
+        "download_date": "N/A", # Would be set dynamically in a real run
+        "splits": splits,
+        "field_count": len(dataset[splits[0]].column_names),
+        "row_count": total_rows
+    }
+    generate_manifest(output_dir, checksum, dataset_info)
+
+    logger.info("T015c completed successfully.")
 
 if __name__ == "__main__":
     main()

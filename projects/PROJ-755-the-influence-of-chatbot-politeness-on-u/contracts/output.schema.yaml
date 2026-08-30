@@ -1,178 +1,132 @@
-# CLMM Results Output Schema
-# Defines the structure of the Cumulative Link Mixed-Effects Model results
-# produced by code/02_fit_clmm.py and saved to data/processed/clmm_results.csv
+# Contract: CLMM Results Output Schema
+# Defines the structure of data/processed/clmm_results.csv and related artifacts
+# Generated for project: PROJ-755-the-influence-of-chatbot-politeness-on-u
+# Task: T009
 
-$schema: http://json-schema.org/draft-07/schema#
-title: CLMM Results
-description: Output schema for Cumulative Link Mixed-Effects Model analysis results
-type: object
-required:
-  - model_info
-  - fixed_effects
-  - random_effects
-  - diagnostics
-properties:
-  model_info:
-    type: object
-    description: Metadata about the fitted model
-    required:
-      - formula
-      - family
-      - convergence_status
-      - n_observations
-      - n_groups
-    properties:
-      formula:
-        type: string
-        description: R formula used for model fitting
-        example: "quality_rating ~ politeness + conversation_length + (1|user_id)"
-      family:
-        type: string
-        description: Model family (e.g., cumulative link)
-        example: "cumulative"
-      convergence_status:
-        type: boolean
-        description: Whether the model converged successfully
-      convergence_message:
-        type: string
-        description: Convergence diagnostic message if available
-      n_observations:
-        type: integer
-        description: Total number of observations used
-        minimum: 0
-      n_groups:
-        type: integer
-        description: Number of random effect groups (e.g., unique user_ids)
-        minimum: 1
-      link_function:
-        type: string
-        description: Link function used (e.g., logit, probit, cloglog)
-        example: "logit"
+schema_version: "1.0"
+artifact_type: "clmm_results"
+description: "Schema for Cumulative Link Mixed-Effects Model results including coefficients, standard errors, p-values, confidence intervals, and convergence metrics."
 
-  fixed_effects:
-    type: array
-    description: Fixed effects coefficients and statistics
-    items:
-      type: object
-      required:
-        - term
-        - estimate
-        - std_error
-        - z_value
-        - p_value
-        - p_value_adj
-        - ci_lower
-        - ci_upper
+# Primary Output: CSV/Parquet Table
+table:
+  name: "clmm_results"
+  file_path: "data/processed/clmm_results.csv"
+  format: "csv"
+  rows_description: "One row per fixed effect term in the model."
+  columns:
+    - name: "term"
+      type: "string"
+      description: "Name of the fixed effect variable (e.g., 'politeness', 'conversation_length', 'intercept')."
+      required: true
+      constraints:
+        - "Must not be empty"
+        - "Must match variable names in the fitted model formula"
+
+    - name: "estimate"
+      type: "float"
+      description: "Estimated coefficient value for the fixed effect."
+      required: true
+      constraints:
+        - "Numeric value"
+
+    - name: "std_error"
+      type: "float"
+      description: "Standard error of the estimate."
+      required: true
+      constraints:
+        - "Positive float"
+
+    - name: "statistic"
+      type: "float"
+      description: "Test statistic (z-value or t-value) for the coefficient."
+      required: true
+
+    - name: "p_value"
+      type: "float"
+      description: "Raw p-value for the hypothesis test (H0: estimate = 0)."
+      required: true
+      constraints:
+        - "Range: [0.0, 1.0]"
+
+    - name: "p_value_bh"
+      type: "float"
+      description: "Benjamini-Hochberg corrected p-value for multiple comparisons."
+      required: true
+      constraints:
+        - "Range: [0.0, 1.0]"
+
+    - name: "conf_int_low"
+      type: "float"
+      description: "Lower bound of the 95% confidence interval."
+      required: true
+
+    - name: "conf_int_high"
+      type: "float"
+      description: "Upper bound of the 95% confidence interval."
+      required: true
+
+    - name: "significance"
+      type: "string"
+      description: "Significance flag based on corrected p-value (e.g., '***', '**', '*', '.' , 'ns')."
+      required: true
+      allowed_values:
+        - "***"
+        - "**"
+        - "*"
+        - "."
+        - "ns"
+
+# Secondary Output: Model Status JSON
+status_file:
+  name: "project_status"
+  file_path: "data/processed/project_status.json"
+  format: "json"
+  schema:
+    - name: "convergence_rate"
+      type: "float"
+      description: "Proportion of models that converged successfully (0.0 to 1.0)."
+      required: true
+      constraints:
+        - "Range: [0.0, 1.0]"
+
+    - name: "status"
+      type: "string"
+      description: "Overall pipeline status."
+      required: true
+      allowed_values:
+        - "success"
+        - "partial"
+        - "failed"
+
+    - name: "sc003_met"
+      type: "boolean"
+      description: "True if convergence rate >= 95% (Success Criterion 003)."
+      required: true
+
+    - name: "model_info"
+      type: "object"
+      description: "Metadata about the fitted model."
+      required: false
       properties:
-        term:
-          type: string
-          description: Name of the fixed effect term
-          example: "politeness"
-        estimate:
-          type: number
-          description: Coefficient estimate
-        std_error:
-          type: number
-          description: Standard error of the estimate
-        z_value:
-          type: number
-          description: Z-statistic (estimate / std_error)
-        p_value:
-          type: number
-          description: Raw p-value
-          minimum: 0
-          maximum: 1
-        p_value_adj:
-          type: number
-          description: Benjamini-Hochberg adjusted p-value
-          minimum: 0
-          maximum: 1
-        ci_lower:
-          type: number
-          description: Lower bound of 95% confidence interval
-        ci_upper:
-          type: number
-          description: Upper bound of 95% confidence interval
-        significance:
-          type: string
-          description: Significance level indicator
-          enum: ["***", "**", "*", ".", ""]
+        - name: "formula"
+          type: "string"
+          description: "The R formula used for fitting."
+        - name: "family"
+          type: "string"
+          description: "Distribution family (e.g., 'cumulative')."
+        - name: "random_effects"
+          type: "array"
+          description: "List of random effect terms."
+          items:
+            type: "string"
 
-  random_effects:
-    type: object
-    description: Random effects variance components
-    required:
-      - user_id
-    properties:
-      user_id:
-        type: object
-        description: Variance components for user_id random intercept
-        required:
-          - variance
-          - std_dev
-        properties:
-          variance:
-            type: number
-            description: Variance of the random intercept
-            minimum: 0
-          std_dev:
-            type: number
-            description: Standard deviation of the random intercept
-            minimum: 0
-          n_levels:
-            type: integer
-            description: Number of levels in the user_id factor
-            minimum: 1
-
-  diagnostics:
-    type: object
-    description: Model fit diagnostics and quality metrics
-    required:
-      - aic
-      - bic
-      - log_likelihood
-      - residual_df
-    properties:
-      aic:
-        type: number
-        description: Akaike Information Criterion
-      bic:
-        type: number
-        description: Bayesian Information Criterion
-      log_likelihood:
-        type: number
-        description: Log-likelihood of the fitted model
-      residual_df:
-        type: integer
-        description: Residual degrees of freedom
-      rho:
-        type: number
-        description: Intraclass correlation coefficient (ICC)
-        minimum: 0
-        maximum: 1
-      n_thresholds:
-        type: integer
-        description: Number of threshold parameters estimated
-        minimum: 1
-
-  thresholds:
-    type: array
-    description: Threshold (cut-point) estimates for ordinal categories
-    items:
-      type: object
-      required:
-        - threshold_name
-        - estimate
-        - std_error
-      properties:
-        threshold_name:
-          type: string
-          description: Name of the threshold (e.g., "1|2", "2|3")
-        estimate:
-          type: number
-          description: Threshold estimate
-        std_error:
-          type: number
-          description: Standard error of the threshold estimate
-
-additionalProperties: false
+# Validation Rules
+validation:
+  - rule: "All p-values must be between 0 and 1"
+    severity: "error"
+  - rule: "Standard errors must be positive"
+    severity: "error"
+  - rule: "Convergence rate must be >= 0.95 for 'success' status"
+    severity: "critical"
+  - rule: "Term names must be unique"
+    severity: "error"

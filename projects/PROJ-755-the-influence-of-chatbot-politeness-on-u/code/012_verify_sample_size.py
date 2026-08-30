@@ -1,190 +1,260 @@
 """
 T012: Sample Size Verification for Subgroups and Primary Analysis.
 
-This script loads the raw HCI_P2 dataset (downloaded by T015), checks the total
-sample size for primary analysis viability (n >= 100), and counts dialogues per
-demographic subgroup (age, gender). It generates a validation report in JSON
-format to gate downstream subgroup analyses (US3).
+This script loads the filtered datasets (produced by T019), verifies the completeness
+of demographic fields (age, gender), counts dialogues per subgroup, and generates
+a validation report (data/raw/validation_report.json) to gate User Story 3.
 
-Dependencies:
-- T015: Raw data must exist in data/raw/hci_p2/
+Logic:
+1. Load filtered datasets from data/raw/filtered/ (or the merged file if T018 ran,
+   but per T012 dependency it expects raw filtered files or a merged intermediate).
+   Since T018 is not yet complete, we look for the individual filtered parquet files
+   or a consolidated file if T019 produced one.
+   Per T019 description: "Filtered raw datasets in data/raw/filtered/".
+   We will attempt to load all parquet files in that directory and concatenate them.
+2. Check completeness of 'age' and 'gender'.
+3. Count dialogues per subgroup.
+4. Apply gate logic:
+   - If < 80% have demographics -> status 'missing_demographics', gate 'failed_80pct'.
+   - If any subgroup < 30 -> exclude from US3 (log, do not halt primary).
+5. Save report to data/raw/validation_report.json.
 """
+
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+
 import pandas as pd
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw" / "hci_p2"
-OUTPUT_FILE = PROJECT_ROOT / "data" / "raw" / "validation_report.json"
-MIN_TOTAL_SAMPLE = 100
-MIN_SUBGROUP_SAMPLE = 30
-
-def find_raw_dataset() -> Optional[Path]:
-    """Locate the raw dataset file in the expected directory."""
-    if not RAW_DATA_DIR.exists():
-        logger.error(f"Raw data directory not found: {RAW_DATA_DIR}")
+def find_raw_dataset(base_dir: Path) -> Optional[Path]:
+    """
+    Locate the filtered dataset files.
+    T019 saves to data/raw/filtered/. We expect parquet files there.
+    If a single merged file exists (e.g., filtered_dialogues.parquet), use it.
+    Otherwise, glob all .parquet files and concatenate.
+    """
+    filtered_dir = base_dir / "data" / "raw" / "filtered"
+    if not filtered_dir.exists():
+        logger.error(f"Filtered directory not found: {filtered_dir}")
         return None
 
-    # Look for common dataset formats
-    candidates = list(RAW_DATA_DIR.glob("*.parquet")) + list(RAW_DATA_DIR.glob("*.csv"))
-    if not candidates:
-        logger.error(f"No dataset file found in {RAW_DATA_DIR}")
+    parquet_files = list(filtered_dir.glob("*.parquet"))
+    if not parquet_files:
+        logger.error(f"No parquet files found in {filtered_dir}")
         return None
 
-    # Prefer the most recently modified or the first found
-    dataset_path = sorted(candidates, key=lambda p: p.stat().st_mtime, reverse=True)[0]
-    logger.info(f"Found dataset: {dataset_path}")
-    return dataset_path
+    logger.info(f"Found {len(parquet_files)} parquet files in {filtered_dir}")
+    return filtered_dir  # Return directory to load all
 
-def load_dataset(path: Path) -> pd.DataFrame:
-    """Load the dataset based on its extension."""
-    if path.suffix == ".parquet":
-        return pd.read_parquet(path)
-    elif path.suffix == ".csv":
-        return pd.read_csv(path)
-    else:
-        raise ValueError(f"Unsupported file format: {path.suffix}")
+def load_dataset(directory: Path) -> pd.DataFrame:
+    """
+    Load all parquet files in the directory and concatenate them.
+    Assumes each file contains dialogue-level data with columns:
+    dialogue_id, quality_rating, user_id, age, gender, source_dataset, etc.
+    """
+    dfs = []
+    for file_path in sorted(directory.glob("*.parquet")):
+        logger.info(f"Loading {file_path.name}...")
+        try:
+            df = pd.read_parquet(file_path)
+            dfs.append(df)
+        except Exception as e:
+            logger.error(f"Failed to load {file_path}: {e}")
+            raise
+
+    if not dfs:
+        raise ValueError("No data loaded from filtered directory.")
+
+    combined_df = pd.concat(dfs, ignore_index=True)
+    logger.info(f"Combined dataset shape: {combined_df.shape}")
+    return combined_df
 
 def verify_sample_sizes(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Perform sample size verification.
-    
-    Returns a dictionary with the validation report schema.
+    Verify sample sizes and demographic completeness.
+
+    Returns a dictionary matching the required schema:
+    {
+      "status": "full" | "partial" | "missing_demographics",
+      "demographic_completeness_pct": float,
+      "total_sample_size": int,
+      "primary_analysis_valid": bool,
+      "missing_fields": List[str],
+      "subgroup_counts": Dict[str, int],
+      "subgroups_eligible": List[str],
+      "subgroups_excluded": List[str],
+      "gate_status": "passed" | "failed_80pct"
+    }
     """
-    report = {
-        "status": "full",
-        "total_sample_size": 0,
-        "primary_analysis_valid": False,
-        "missing_fields": [],
-        "subgroup_counts": {},
-        "subgroups_eligible": [],
-        "subgroups_excluded": []
+    required_fields = ['age', 'gender', 'dialogue_id']
+    missing_fields = []
+    for field in required_fields:
+        if field not in df.columns:
+            missing_fields.append(field)
+
+    if missing_fields:
+        logger.warning(f"Missing required fields: {missing_fields}")
+        # If critical fields are missing, we cannot compute stats.
+        # Assume 0% completeness.
+        return {
+            "status": "missing_demographics",
+            "demographic_completeness_pct": 0.0,
+            "total_sample_size": len(df),
+            "primary_analysis_valid": False,
+            "missing_fields": missing_fields,
+            "subgroup_counts": {},
+            "subgroups_eligible": [],
+            "subgroups_excluded": [],
+            "gate_status": "failed_80pct"
+        }
+
+    # Check completeness of age and gender
+    # We consider a row complete if BOTH age and gender are non-null
+    complete_mask = df['age'].notna() & df['gender'].notna()
+    total_rows = len(df)
+    complete_rows = complete_mask.sum()
+    completeness_pct = (complete_rows / total_rows * 100) if total_rows > 0 else 0.0
+
+    logger.info(f"Demographic completeness: {completeness_pct:.2f}% ({complete_rows}/{total_rows})")
+
+    # Gate Condition: < 80% completeness -> fail
+    if completeness_pct < 80.0:
+        status = "missing_demographics"
+        gate_status = "failed_80pct"
+        primary_valid = False
+        logger.warning("CRITICAL: Demographic completeness < 80%. US3 will be blocked.")
+    else:
+        status = "full" if completeness_pct == 100.0 else "partial"
+        gate_status = "passed"
+        primary_valid = True
+        logger.info("Demographic completeness >= 80%. Primary analysis valid.")
+
+    # Analyze subgroups
+    # Filter to complete rows for subgroup analysis
+    df_complete = df[complete_mask].copy()
+
+    subgroup_counts = {}
+    subgroups_eligible = []
+    subgroups_excluded = []
+
+    # Count by gender
+    if 'gender' in df_complete.columns:
+        gender_counts = df_complete['gender'].value_counts().to_dict()
+        # Normalize keys to lowercase for consistency if needed, but keep original for now
+        for gender, count in gender_counts.items():
+            key = str(gender).lower() if isinstance(gender, str) else str(gender)
+            subgroup_counts[f"gender_{key}"] = count
+            if count >= 30:
+                subgroups_eligible.append(f"gender_{key}")
+            else:
+                subgroups_excluded.append(f"gender_{key}")
+                logger.warning(f"Subgroup {key} has n={count} (< 30). Excluded from US3.")
+
+    # Count by age groups
+    # Define age bins: 18-25, 26-35, 36-45, 46-55, 56+
+    # This is a heuristic; adjust if specific bins are defined elsewhere.
+    if 'age' in df_complete.columns:
+        # Create age group column
+        def categorize_age(age):
+            if pd.isna(age):
+                return None
+            age = int(age)
+            if 18 <= age <= 25:
+                return "age_18_25"
+            elif 26 <= age <= 35:
+                return "age_26_35"
+            elif 36 <= age <= 45:
+                return "age_36_45"
+            elif 46 <= age <= 55:
+                return "age_46_55"
+            else:
+                return "age_56_plus"
+
+        df_complete['age_group'] = df_complete['age'].apply(categorize_age)
+        age_group_counts = df_complete['age_group'].value_counts().to_dict()
+
+        for group, count in age_group_counts.items():
+            subgroup_counts[group] = count
+            if count >= 30:
+                subgroups_eligible.append(group)
+            else:
+                subgroups_excluded.append(group)
+                logger.warning(f"Subgroup {group} has n={count} (< 30). Excluded from US3.")
+
+    result = {
+        "status": status,
+        "demographic_completeness_pct": round(completeness_pct, 2),
+        "total_sample_size": total_rows,
+        "primary_analysis_valid": primary_valid,
+        "missing_fields": missing_fields,
+        "subgroup_counts": subgroup_counts,
+        "subgroups_eligible": subgroups_eligible,
+        "subgroups_excluded": subgroups_excluded,
+        "gate_status": gate_status
     }
 
-    # Check total sample size
-    total_n = len(df)
-    report["total_sample_size"] = total_n
-    
-    if total_n < MIN_TOTAL_SAMPLE:
-        report["status"] = "missing_demographics"
-        report["primary_analysis_valid"] = False
-        logger.error(f"STOP: Insufficient data for primary analysis. Total n={total_n} < {MIN_TOTAL_SAMPLE}")
-        return report
-
-    report["primary_analysis_valid"] = True
-    logger.info(f"Primary analysis valid: Total n={total_n} >= {MIN_TOTAL_SAMPLE}")
-
-    # Identify demographic columns
-    potential_age_cols = [c for c in df.columns if "age" in c.lower()]
-    potential_gender_cols = [c for c in df.columns if "gender" in c.lower() or "sex" in c.lower()]
-
-    if not potential_age_cols and not potential_gender_cols:
-        report["status"] = "missing_demographics"
-        report["missing_fields"].extend(["age", "gender"])
-        logger.warning("Demographic columns (age/gender) not found. Subgroup analysis will be skipped.")
-        return report
-
-    # Determine which columns to use (prefer specific names if available)
-    age_col = potential_age_cols[0] if potential_age_cols else None
-    gender_col = potential_gender_cols[0] if potential_gender_cols else None
-
-    # Analyze Gender Subgroups
-    if gender_col:
-        if age_col and age_col in df.columns:
-            # Check for missing values in the specific column
-            valid_df = df.dropna(subset=[gender_col])
-            gender_counts = valid_df[gender_col].value_counts().to_dict()
-            report["subgroup_counts"].update({str(k): int(v) for k, v in gender_counts.items()})
-            
-            for group, count in gender_counts.items():
-                if count >= MIN_SUBGROUP_SAMPLE:
-                    report["subgroups_eligible"].append(str(group))
-                else:
-                    report["subgroups_excluded"].append(str(group))
-        else:
-            # Fallback if age column logic is complex, just count gender
-            valid_df = df.dropna(subset=[gender_col])
-            gender_counts = valid_df[gender_col].value_counts().to_dict()
-            report["subgroup_counts"].update({str(k): int(v) for k, v in gender_counts.items()})
-            for group, count in gender_counts.items():
-                if count >= MIN_SUBGROUP_SAMPLE:
-                    report["subgroups_eligible"].append(str(group))
-                else:
-                    report["subgroups_excluded"].append(str(group))
-
-    # Analyze Age Subgroups
-    if age_col:
-        # Age might be continuous or binned. If continuous, we bin it or count unique values.
-        # For simplicity in this gate, we treat unique age values as groups if they meet the count.
-        # Or if it's already binned (e.g., "18-25"), we count those.
-        valid_df = df.dropna(subset=[age_col])
-        age_counts = valid_df[age_col].value_counts().to_dict()
-        
-        # Update counts (may overlap with gender keys if naming is weird, but schema expects distinct keys usually)
-        # We'll prefix to avoid collision if needed, but standard practice is distinct keys.
-        # Let's assume the key is the value itself.
-        for group, count in age_counts.items():
-            key = f"age_{str(group)}"
-            report["subgroup_counts"][key] = int(count)
-            if count >= MIN_SUBGROUP_SAMPLE:
-                report["subgroups_eligible"].append(key)
-            else:
-                report["subgroups_excluded"].append(key)
-
-    # Determine final status
-    if not report["subgroups_eligible"]:
-        report["status"] = "partial" if report["primary_analysis_valid"] else "missing_demographics"
-        logger.warning("No subgroups met the minimum sample size (n >= 30). Subgroup analysis (US3) will be skipped.")
-    else:
-        logger.info(f"Subgroups eligible for analysis: {report['subgroups_eligible']}")
-        logger.info(f"Subgroups excluded due to low n: {report['subgroups_excluded']}")
-
-    return report
+    return result
 
 def save_report(report: Dict[str, Any], output_path: Path) -> None:
-    """Save the validation report to JSON."""
+    """
+    Save the validation report to a JSON file.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2, default=str)
-    logger.info(f"Validation report saved to: {output_path}")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Validation report saved to {output_path}")
 
 def main() -> int:
-    """Main entry point."""
-    logger.info("Starting T012: Sample Size Verification")
-    
-    dataset_path = find_raw_dataset()
-    if not dataset_path:
-        logger.error("Failed to locate raw dataset. Aborting.")
+    """
+    Main entry point for T012.
+    """
+    project_root = Path.cwd()
+    logger.info(f"Project root: {project_root}")
+
+    # 1. Find dataset
+    dataset_dir = find_raw_dataset(project_root)
+    if not dataset_dir:
+        logger.error("Could not locate filtered dataset files. Aborting.")
         return 1
 
+    # 2. Load dataset
     try:
-        df = load_dataset(dataset_path)
-        logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns.")
+        df = load_dataset(dataset_dir)
     except Exception as e:
         logger.error(f"Failed to load dataset: {e}")
         return 1
 
+    # 3. Verify sample sizes
     report = verify_sample_sizes(df)
-    save_report(report, OUTPUT_FILE)
 
-    # Exit with error code if primary analysis is invalid to halt pipeline
-    if not report["primary_analysis_valid"]:
-        logger.critical("Pipeline halted: Primary analysis sample size insufficient.")
-        return 1
+    # 4. Save report
+    output_path = project_root / "data" / "raw" / "validation_report.json"
+    save_report(report, output_path)
 
-    logger.info("T012 completed successfully.")
+    # 5. Print summary
+    print("\n--- T012 Verification Summary ---")
+    print(f"Status: {report['status']}")
+    print(f"Completeness: {report['demographic_completeness_pct']}%")
+    print(f"Total Sample: {report['total_sample_size']}")
+    print(f"Primary Analysis Valid: {report['primary_analysis_valid']}")
+    print(f"Gate Status: {report['gate_status']}")
+    print(f"Eligible Subgroups: {report['subgroups_eligible']}")
+    print(f"Excluded Subgroups: {report['subgroups_excluded']}")
+    print("---------------------------------\n")
+
+    if report['gate_status'] == "failed_80pct":
+        logger.critical("Gate failed: Demographic completeness < 80%. US3 blocked.")
+        return 2 # Non-zero exit for gate failure
+    
     return 0
 
 if __name__ == "__main__":

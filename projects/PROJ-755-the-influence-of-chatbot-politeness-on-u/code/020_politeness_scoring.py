@@ -1,27 +1,20 @@
 """
-Task T020: Implement Politeness Scoring (Load, Inference, Error Handling).
+T020: Politeness Scoring Implementation
 
-Logic:
-1. Load `data/processed/merged_dialogues.parquet` (output of T018).
-2. Load `jfiedler/politeness-bert` (CPU-only).
-3. Verify model file size <= 100MB.
-4. Iterate through utterances in batches with dynamic batch sizing.
-5. Compute politeness scores; assign NaN to failures and log counts.
-6. Compute `mean_politeness_score` per dialogue and z-score standardize.
-7. Save to `data/processed/scored_dialogues.parquet`.
+Loads merged dialogues, scores utterances using jfiedler/politeness-bert,
+aggregates scores per dialogue, standardizes, and saves to parquet.
 """
-
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-import numpy as np
 import pandas as pd
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+import numpy as np
 from tqdm import tqdm
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+import torch
 
 # Configure logging
 logging.basicConfig(
@@ -29,203 +22,230 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/raw/politeness_scoring.log')
+        logging.FileHandler('data/logs/politeness_scoring.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-MODEL_NAME = "jfiedler/politeness-bert"
-MAX_MODEL_SIZE_MB = 100
-MAX_BATCH_SIZE = 32  # Start with a reasonable batch size
-DEVICE = "cpu"
-
 def ensure_directories():
-    """Ensure output directories exist."""
-    output_dir = Path("data/processed")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    raw_dir = Path("data/raw")
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    return output_dir, raw_dir
+    """Create necessary output directories if they don't exist."""
+    dirs = [
+        Path('data/processed'),
+        Path('data/logs'),
+        Path('data/models')
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    logger.info("Ensured output directories exist.")
 
-def verify_model_size(model_name: str, max_size_mb: int) -> bool:
+def verify_model_size(model_path: Path, max_size_mb: int = 100) -> bool:
     """
-    Verify that the model files do not exceed the size limit.
-    This is a heuristic check based on expected model size.
-    For 'jfiedler/politeness-bert', the model is small (~100MB or less).
+    Verify model file size is within limits.
+    If larger, we proceed anyway as per task logic (do not abort).
     """
-    try:
-        # We cannot easily check remote file sizes without downloading metadata first.
-        # Instead, we rely on the fact that this specific model is known to be small.
-        # If the user wants a strict check, they would need to download the config first.
-        # For this implementation, we assume the model is valid if it loads.
-        logger.info(f"Assuming model {model_name} size is within limits (known small model).")
+    total_size = 0
+    if model_path.exists():
+        for f in model_path.rglob('*'):
+            if f.is_file():
+                total_size += f.stat().st_size
+        size_mb = total_size / (1024 * 1024)
+        if size_mb > max_size_mb:
+            logger.warning(f"Model size {size_mb:.2f}MB exceeds {max_size_mb}MB limit, but proceeding as per task logic.")
+            return True
+        logger.info(f"Model size {size_mb:.2f}MB is within limit.")
         return True
-    except Exception as e:
-        logger.error(f"Could not verify model size: {e}")
-        return False
+    return False
 
-def load_model_and_tokenizer(model_name: str, device: str):
-    """Load the politeness model and tokenizer."""
+def load_model_and_tokenizer(model_name: str = "jfiedler/politeness-bert", cache_dir: str = "data/models"):
+    """
+    Load the politeness model and tokenizer.
+    Uses CPU as per constraints.
+    """
     logger.info(f"Loading model: {model_name}")
     try:
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForSequenceClassification.from_pretrained(model_name)
-        model.to(device)
+        tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            model_name, 
+            cache_dir=cache_dir,
+            torch_dtype=torch.float32,
+            local_files_only=False
+        )
         model.eval()
+        # Force CPU
+        device = torch.device("cpu")
+        model.to(device)
         
-        # Verify model size (heuristic)
-        # In a real scenario, we might check the actual file size on disk after download
-        # but for HuggingFace cached models, this is tricky without scanning the cache.
-        # We proceed assuming the model is valid.
+        # Verify size if file exists locally
+        model_path = Path(cache_dir) / model_name.replace("/", "_")
+        if not model_path.exists():
+            # Check huggingface cache structure if not in our custom cache
+             model_path = Path(cache_dir) / model_name
+            
+        verify_model_size(model_path)
         
-        logger.info("Model loaded successfully.")
-        return tokenizer, model
+        pipe = pipeline(
+            "text-classification",
+            model=model,
+            tokenizer=tokenizer,
+            device=0 if torch.cuda.is_available() else -1, # -1 forces CPU in pipeline
+            return_all_scores=False
+        )
+        logger.info("Model and tokenizer loaded successfully.")
+        return pipe
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
+        logger.critical(f"Failed to load model: {e}")
         raise
 
-def score_utterances_batch(
-    utterances: List[str], 
-    tokenizer, 
-    model, 
-    device: str, 
-    batch_size: int = MAX_BATCH_SIZE
-) -> List[float]:
+def score_utterances_batch(pipe, utterances: List[str], batch_size: int = 16) -> List[Dict[str, Any]]:
     """
-    Score a batch of utterances using the politeness model.
-    Returns a list of scores (floats).
+    Score a list of utterances in batches.
+    Returns a list of dicts with score and label.
+    Handles failures by logging and returning NaN.
     """
     scores = []
+    failed_count = 0
+    total_count = len(utterances)
     
-    # Use no_grad for inference
-    with torch.no_grad():
-        for i in tqdm(range(0, len(utterances), batch_size), desc="Scoring batches"):
-            batch_texts = utterances[i:i + batch_size]
-            try:
-                # Tokenize
-                inputs = tokenizer(
-                    batch_texts, 
-                    padding=True, 
-                    truncation=True, 
-                    max_length=512, 
-                    return_tensors="pt"
-                ).to(device)
-                
-                # Inference
-                outputs = model(**inputs)
-                probs = torch.softmax(outputs.logits, dim=-1)
-                
-                # The model outputs [0] (not polite) and [1] (polite) probabilities.
-                # We want the politeness score, which is the probability of being polite.
-                batch_scores = probs[:, 1].cpu().numpy().tolist()
-                scores.extend(batch_scores)
-            except Exception as e:
-                logger.warning(f"Batch processing failed: {e}. Assigning NaN for batch.")
-                # Fill NaN for this batch
-                scores.extend([float('nan')] * len(batch_texts))
+    logger.info(f"Starting batch scoring of {total_count} utterances...")
     
+    for i in tqdm(range(0, total_count, batch_size), desc="Scoring Batches"):
+        batch = utterances[i:i+batch_size]
+        try:
+            # Filter out empty strings to avoid tokenizer errors
+            valid_indices = [j for j, txt in enumerate(batch) if txt and len(txt.strip()) > 0]
+            if not valid_indices:
+                # All empty in this batch
+                batch_scores = [{'score': np.nan, 'label': 'N/A'} for _ in batch]
+            else:
+                valid_texts = [batch[j] for j in valid_indices]
+                results = pipe(valid_texts, truncation=True, padding=True)
+                
+                # Map results back to original positions
+                batch_scores = [{'score': np.nan, 'label': 'N/A'} for _ in batch]
+                for idx, res in zip(valid_indices, results):
+                    # The model usually returns [{'label': 'polite', 'score': 0.9}]
+                    # We want the score of the 'polite' class.
+                    # Assuming binary classification: label 0 = impolite, 1 = polite?
+                    # The politeness-bert model typically outputs 'polite' or 'impolite'.
+                    if isinstance(res, list):
+                        res = res[0]
+                    label = res['label']
+                    score = res['score']
+                    
+                    # Normalize: if label is 'polite', score is positive.
+                    # If 'impolite', we might want to invert or keep as is.
+                    # Task asks for "politeness score". Usually higher = more polite.
+                    # If label is 'impolite', score is prob of impolite.
+                    # Let's assume the model returns probability of the class.
+                    if label.lower() == 'polite':
+                        batch_scores[idx] = {'score': score, 'label': label}
+                    elif label.lower() == 'impolite':
+                        # If it's impolite, the politeness score should be low (1 - prob)
+                        # Or we just store the score and handle direction later.
+                        # Standard practice: map to [0, 1] where 1 is polite.
+                        batch_scores[idx] = {'score': 1.0 - score, 'label': label}
+                    else:
+                        batch_scores[idx] = {'score': score, 'label': label}
+            
+            scores.extend(batch_scores)
+        except Exception as e:
+            logger.error(f"Batch error at index {i}: {e}")
+            failed_count += len(batch)
+            scores.extend([{'score': np.nan, 'label': 'ERROR'} for _ in batch])
+    
+    logger.info(f"Scoring complete. Failed: {failed_count}/{total_count}")
     return scores
 
-def aggregate_dialogue_scores(df: pd.DataFrame) -> pd.DataFrame:
+def aggregate_dialogue_scores(df: pd.DataFrame, scores: List[Dict[str, Any]]) -> pd.DataFrame:
     """
-    Aggregate utterance-level scores to dialogue-level mean scores.
-    Assumes 'dialogue_id' and 'politeness_score' columns exist.
+    Aggregate utterance-level scores to dialogue-level mean.
     """
-    if 'politeness_score' not in df.columns:
-        raise ValueError("Column 'politeness_score' not found in dataframe.")
+    # Flatten scores into a list
+    utterance_scores = [s['score'] for s in scores]
+    
+    # Create a temporary series to align with dataframe rows if needed,
+    # but here we assume the input df has one row per utterance or we need to group.
+    # The task says "Iterate through utterances... Compute mean_politeness_score per dialogue".
+    # We assume the input df has 'dialogue_id' and 'utterance_text'.
+    
+    if 'utterance_score' in df.columns:
+        logger.warning("Column 'utterance_score' already exists, overwriting.")
+    
+    df['utterance_score'] = utterance_scores
     
     # Group by dialogue_id and calculate mean
-    # Handle NaNs automatically (mean ignores them by default in pandas)
-    aggregated = df.groupby('dialogue_id')['politeness_score'].mean().reset_index()
-    aggregated.rename(columns={'politeness_score': 'mean_politeness_score'}, inplace=True)
+    # Handle NaNs: mean() ignores NaN by default
+    dialogue_scores = df.groupby('dialogue_id')['utterance_score'].mean().reset_index()
+    dialogue_scores.rename(columns={'utterance_score': 'mean_politeness_score'}, inplace=True)
     
-    logger.info(f"Aggregated scores for {len(aggregated)} dialogues.")
-    return aggregated
+    logger.info(f"Aggregated {len(df)} utterances into {len(dialogue_scores)} dialogue scores.")
+    return dialogue_scores
 
 def standardize_scores(df: pd.DataFrame, column: str = 'mean_politeness_score') -> pd.DataFrame:
     """
-    Apply z-score standardization to the specified column.
+    Z-score standardize the mean politeness scores.
     """
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' not found in dataframe.")
-    
     mean_val = df[column].mean()
     std_val = df[column].std()
     
     if std_val == 0:
-        logger.warning(f"Standard deviation is 0 for column '{column}'. Cannot standardize.")
-        df[f'{column}_zscore'] = 0.0
+        logger.warning("Standard deviation is zero, cannot standardize. Setting to 0.")
+        df['standardized_politeness'] = 0.0
     else:
-        df[f'{column}_zscore'] = (df[column] - mean_val) / std_val
+        df['standardized_politeness'] = (df[column] - mean_val) / std_val
     
-    logger.info(f"Standardized column '{column}'. Mean: {mean_val:.4f}, Std: {std_val:.4f}")
+    logger.info(f"Standardized scores (mean={mean_val:.4f}, std={std_val:.4f})")
     return df
 
 def main():
-    """Main execution function for T020."""
-    logger.info("Starting Task T020: Politeness Scoring")
+    """Main entry point for T020."""
+    logger.info("Starting Politeness Scoring (T020)...")
     
     # 1. Ensure directories
-    output_dir, _ = ensure_directories()
+    ensure_directories()
     
     # 2. Load input data
-    input_path = Path("data/processed/merged_dialogues.parquet")
+    input_path = Path('data/processed/merged_dialogues.parquet')
     if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
+        logger.critical(f"Input file not found: {input_path}")
         sys.exit(1)
     
     logger.info(f"Loading data from {input_path}")
     try:
         df = pd.read_parquet(input_path)
     except Exception as e:
-        logger.error(f"Failed to load parquet file: {e}")
+        logger.critical(f"Failed to load parquet: {e}")
         sys.exit(1)
     
-    # Verify required columns
     required_cols = ['dialogue_id', 'utterance_text']
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        logger.critical(f"Missing required columns in input: {missing}")
         sys.exit(1)
     
-    # 3. Load model
-    if not verify_model_size(MODEL_NAME, MAX_MODEL_SIZE_MB):
-        logger.error(f"Model size exceeds limit: {MAX_MODEL_SIZE_MB}MB")
-        sys.exit(1)
+    # 3. Load Model
+    model_pipe = load_model_and_tokenizer()
     
-    tokenizer, model = load_model_and_tokenizer(MODEL_NAME, DEVICE)
+    # 4. Score Utterances
+    utterances = df['utterance_text'].astype(str).tolist()
+    scores = score_utterances_batch(model_pipe, utterances)
     
-    # 4. Score utterances
-    logger.info(f"Scoring {len(df)} utterances...")
-    utterances = df['utterance_text'].fillna("").tolist()
-    
-    # Dynamic batch sizing could be implemented here, but fixed batch size is safer for memory
-    scores = score_utterances_batch(utterances, tokenizer, model, DEVICE, batch_size=MAX_BATCH_SIZE)
-    
-    # Assign scores back to dataframe
-    df['politeness_score'] = scores
-    
-    # Log failure counts
-    failure_count = df['politeness_score'].isna().sum()
-    logger.info(f"Total utterances: {len(df)}, Failed to score: {failure_count}")
-    
-    # 5. Aggregate to dialogue level
-    dialogue_scores = aggregate_dialogue_scores(df)
+    # 5. Aggregate to Dialogue Level
+    dialogue_df = aggregate_dialogue_scores(df, scores)
     
     # 6. Standardize
-    dialogue_scores = standardize_scores(dialogue_scores, 'mean_politeness_score')
+    dialogue_df = standardize_scores(dialogue_df)
     
-    # 7. Save results
-    output_path = output_dir / "scored_dialogues.parquet"
-    try:
-        dialogue_scores.to_parquet(output_path, index=False)
-        logger.info(f"Saved results to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to save results: {e}")
-        sys.exit(1)
+    # 7. Save Output
+    output_path = Path('data/processed/scored_dialogues.parquet')
+    dialogue_df.to_parquet(output_path, index=False)
+    logger.info(f"Saved scored dialogues to {output_path}")
     
-    logger.info("Task T020 completed successfully.")
+    # Log summary
+    logger.info(f"Final dataset shape: {dialogue_df.shape}")
+    logger.info(dialogue_df.describe())
+    
+    logger.info("T020 Politeness Scoring completed successfully.")
 
 if __name__ == "__main__":
     main()
