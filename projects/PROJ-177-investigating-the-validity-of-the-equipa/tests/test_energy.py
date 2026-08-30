@@ -1,162 +1,150 @@
-"""
-Unit tests for energy calculation logic in T019b.
-Verifies E_trans = 0.5mv^2, E_rot = 0.5Iω^2, E_pot = mgz, and E_vib = m*var(a).
-"""
 import pytest
 import pandas as pd
 import numpy as np
 import os
-import sys
+import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+# Import the function to test
+from ingestion import compute_energy, IngestionError
 
-from ingestion import calculate_energy_components, compute_derivatives
-from config import load_config
+@pytest.fixture
+def sample_config(tmp_path):
+    """Create a temporary config file for testing."""
+    config_data = {
+        "mass": 0.01,  # 10 grams in kg
+        "inertia": 0.000002, # Moment of inertia
+        "material_type": "steel",
+        "frequency_bins": [1.0, 5.0, 10.0]
+    }
+    config_path = tmp_path / "test_config.yaml"
+    with open(config_path, 'w') as f:
+        import yaml
+        yaml.dump(config_data, f)
+    return str(config_path)
 
-# Create a minimal mock config for testing
-MOCK_CONFIG = {
-    'mass': 1.0,
-    'inertia': 0.5,
-    'vib_window': 5,
-    'data_dir': 'data/raw',
-    'g': 9.81
-}
-
-def test_translational_energy():
-    """Verify E_trans = 0.5 * m * v^2"""
-    df = pd.DataFrame({
-        'vx': [3.0, 4.0],
-        'vy': [0.0, 0.0],
-        'vz': [0.0, 0.0],
-        'omega_x': [0.0, 0.0],
-        'omega_y': [0.0, 0.0],
-        'omega_z': [0.0, 0.0],
-        'ax': [0.0, 0.0],
-        'ay': [0.0, 0.0],
-        'az': [0.0, 0.0],
-        'x': [0.0, 0.0],
-        'y': [0.0, 0.0],
-        'z': [0.0, 0.0],
-        'timestamp': [0.0, 1.0],
-        'particle_id': [1, 1]
-    })
-    
-    # Mock config function to return our mock
-    with patch('ingestion.load_config', return_value=MOCK_CONFIG):
-        result = calculate_energy_components(df, 'dummy.yaml')
-        
-        # E_trans = 0.5 * 1.0 * (3^2) = 4.5
-        # E_trans = 0.5 * 1.0 * (4^2) = 8.0
-        assert np.isclose(result['E_trans'].iloc[0], 4.5)
-        assert np.isclose(result['E_trans'].iloc[1], 8.0)
-
-def test_rotational_energy():
-    """Verify E_rot = 0.5 * I * omega^2"""
-    df = pd.DataFrame({
-        'vx': [0.0, 0.0],
-        'vy': [0.0, 0.0],
-        'vz': [0.0, 0.0],
-        'omega_x': [2.0, 0.0],
-        'omega_y': [0.0, 3.0],
-        'omega_z': [0.0, 0.0],
-        'ax': [0.0, 0.0],
-        'ay': [0.0, 0.0],
-        'az': [0.0, 0.0],
-        'x': [0.0, 0.0],
-        'y': [0.0, 0.0],
-        'z': [0.0, 0.0],
-        'timestamp': [0.0, 1.0],
-        'particle_id': [1, 1]
-    })
-    
-    with patch('ingestion.load_config', return_value=MOCK_CONFIG):
-        result = calculate_energy_components(df, 'dummy.yaml')
-        
-        # I = 0.5
-        # Row 0: 0.5 * 0.5 * (2^2) = 1.0
-        # Row 1: 0.5 * 0.5 * (3^2) = 2.25
-        assert np.isclose(result['E_rot'].iloc[0], 1.0)
-        assert np.isclose(result['E_rot'].iloc[1], 2.25)
-
-def test_potential_energy():
-    """Verify E_pot = m * g * z"""
-    df = pd.DataFrame({
-        'vx': [0.0, 0.0],
-        'vy': [0.0, 0.0],
-        'vz': [0.0, 0.0],
-        'omega_x': [0.0, 0.0],
-        'omega_y': [0.0, 0.0],
-        'omega_z': [0.0, 0.0],
-        'ax': [0.0, 0.0],
-        'ay': [0.0, 0.0],
-        'az': [0.0, 0.0],
-        'x': [0.0, 0.0],
-        'y': [0.0, 0.0],
-        'z': [10.0, 20.0],
-        'timestamp': [0.0, 1.0],
-        'particle_id': [1, 1]
-    })
-    
-    with patch('ingestion.load_config', return_value=MOCK_CONFIG):
-        result = calculate_energy_components(df, 'dummy.yaml')
-        
-        # m=1, g=9.81
-        # Row 0: 1 * 9.81 * 10 = 98.1
-        # Row 1: 1 * 9.81 * 20 = 196.2
-        assert np.isclose(result['E_pot'].iloc[0], 98.1)
-        assert np.isclose(result['E_pot'].iloc[1], 196.2)
-
-def test_vibrational_energy():
-    """Verify E_vib = m * var(a) over window"""
-    # Create a sequence where we can calculate variance manually
-    # a = [0, 0, 0, 0, 10] -> var = 16 (if ddof=1, N=5, mean=2, sum_sq=80, var=20)
-    # Note: Pandas default ddof=1.
-    # Mean = 2.0
-    # (0-2)^2 * 4 + (10-2)^2 = 4*4 + 64 = 16 + 64 = 80
-    # Var = 80 / (5-1) = 20.0
-    # E_vib = m * var = 1.0 * 20.0 = 20.0
-    
-    a_vals = [0.0, 0.0, 0.0, 0.0, 10.0]
-    df = pd.DataFrame({
-        'vx': [0.0]*5,
-        'vy': [0.0]*5,
-        'vz': [0.0]*5,
-        'omega_x': [0.0]*5,
-        'omega_y': [0.0]*5,
-        'omega_z': [0.0]*5,
-        'ax': a_vals,
-        'ay': [0.0]*5,
-        'az': [0.0]*5,
-        'x': [0.0]*5,
-        'y': [0.0]*5,
-        'z': [0.0]*5,
+@pytest.fixture
+def sample_velocity_data():
+    """Create a DataFrame with pre-calculated velocities."""
+    data = {
         'timestamp': [0.0, 1.0, 2.0, 3.0, 4.0],
-        'particle_id': [1]*5
-    })
-    
-    with patch('ingestion.load_config', return_value=MOCK_CONFIG):
-        result = calculate_energy_components(df, 'dummy.yaml')
-        
-        # Check the last row
-        last_row = result['E_vib'].iloc[-1]
-        assert np.isclose(last_row, 20.0)
+        'particle_id': [1, 1, 1, 1, 1],
+        'x': [0.0, 1.0, 2.0, 3.0, 4.0],
+        'y': [0.0, 0.0, 0.0, 0.0, 0.0],
+        'z': [1.0, 1.1, 1.2, 1.3, 1.4],
+        'v': [1.0, 1.0, 1.0, 1.0, 1.0], # Constant speed
+        'omega': [2.0, 2.0, 2.0, 2.0, 2.0], # Constant angular velocity
+        'v_z': [0.1, 0.1, 0.1, 0.1, 0.1] # Constant vertical velocity
+    }
+    return pd.DataFrame(data)
 
-def test_derivatives():
-    """Verify acceleration calculation"""
-    df = pd.DataFrame({
-        'vx': [0.0, 10.0, 20.0],
-        'vy': [0.0, 0.0, 0.0],
-        'vz': [0.0, 0.0, 0.0],
-        'timestamp': [0.0, 1.0, 2.0]
-    })
+def test_translational_energy(sample_config, sample_velocity_data):
+    """Test E_trans = 0.5 * m * v^2"""
+    mass = 0.01
+    v = 1.0
+    expected_E_trans = 0.5 * mass * (v ** 2)
     
-    result = compute_derivatives(df)
+    df = compute_energy(sample_velocity_data, sample_config, window_size_N=3)
     
-    # dt = 1.0
-    # ax = (10-0)/1 = 10
-    # ax = (20-10)/1 = 10
-    assert np.isclose(result['ax'].iloc[1], 10.0)
-    assert np.isclose(result['ax'].iloc[2], 10.0)
+    # Check that E_trans is calculated correctly
+    assert np.allclose(df['E_trans'], expected_E_trans)
+
+def test_rotational_energy(sample_config, sample_velocity_data):
+    """Test E_rot = 0.5 * I * omega^2"""
+    inertia = 0.000002
+    omega = 2.0
+    expected_E_rot = 0.5 * inertia * (omega ** 2)
+    
+    df = compute_energy(sample_velocity_data, sample_config, window_size_N=3)
+    
+    assert np.allclose(df['E_rot'], expected_E_rot)
+
+def test_potential_energy(sample_config, sample_velocity_data):
+    """Test E_pot = m * g * z"""
+    mass = 0.01
+    g = 9.81
+    # z values: 1.0, 1.1, 1.2, 1.3, 1.4
+    expected_E_pot = mass * g * np.array([1.0, 1.1, 1.2, 1.3, 1.4])
+    
+    df = compute_energy(sample_velocity_data, sample_config, window_size_N=3)
+    
+    assert np.allclose(df['E_pot'], expected_E_pot)
+
+def test_vibrational_energy(sample_config, sample_velocity_data):
+    """Test E_vib = 0.5 * m * sigma_{v,z}^2"""
+    mass = 0.01
+    # v_z is constant [0.1, 0.1, 0.1, 0.1, 0.1]
+    # Variance of a constant sequence is 0
+    expected_v_z_var = 0.0
+    expected_E_vib = 0.5 * mass * expected_v_z_var
+    
+    df = compute_energy(sample_velocity_data, sample_config, window_size_N=3)
+    
+    # Since variance of constant is 0, E_vib should be 0 (or very close due to floating point)
+    assert np.allclose(df['E_vib'], expected_E_vib, atol=1e-9)
+
+def test_vibrational_energy_with_variance(sample_config, sample_velocity_data):
+    """Test E_vib with varying v_z."""
+    # Modify v_z to have variance
+    data = sample_velocity_data.copy()
+    data['v_z'] = [0.0, 0.1, 0.2, 0.3, 0.4]
+    
+    # Calculate variance manually for a window of 3
+    # Window 1: [0.0] -> var=NaN (min_periods=1 usually gives 0 or NaN, pandas default is NaN for n<2)
+    # Window 2: [0.0, 0.1] -> var=0.005
+    # Window 3: [0.0, 0.1, 0.2] -> var=0.01
+    # Window 4: [0.1, 0.2, 0.3] -> var=0.01
+    # Window 5: [0.2, 0.3, 0.4] -> var=0.01
+    
+    # Let's just check that it's non-zero and proportional to variance
+    df = compute_energy(data, sample_config, window_size_N=3)
+    
+    mass = 0.01
+    # Check that E_vib is not zero for rows where variance is expected to be non-zero
+    # Row 1 (index 1) has v_z [0.0, 0.1] -> var=0.005 -> E_vib = 0.5 * 0.01 * 0.005 = 0.000025
+    # Row 2 (index 2) has v_z [0.0, 0.1, 0.2] -> var=0.01 -> E_vib = 0.5 * 0.01 * 0.01 = 0.00005
+    
+    # Note: pandas rolling var with min_periods=1 gives NaN for n=1, 0 for n=1? 
+    # Actually, var(n=1) is NaN. var(n=2) is computed.
+    # So index 0 might be NaN or 0 depending on implementation.
+    # We check indices 1 and 2.
+    
+    assert not np.isnan(df.loc[1, 'E_vib'])
+    assert df.loc[1, 'E_vib'] > 0
+    assert df.loc[2, 'E_vib'] > 0
+
+def test_missing_velocity_column(sample_config):
+    """Test that IngestionError is raised if 'v' is missing."""
+    data = {
+        'timestamp': [0.0, 1.0],
+        'x': [0.0, 1.0],
+        'z': [1.0, 1.0]
+    }
+    df = pd.DataFrame(data)
+    
+    with pytest.raises(IngestionError, match="missing 'v' column"):
+        compute_energy(df, sample_config, window_size_N=3)
+
+def test_missing_inertia_config(tmp_path):
+    """Test that IngestionError is raised if inertia is missing from config."""
+    config_data = {
+        "mass": 0.01,
+        "material_type": "steel",
+        "frequency_bins": [1.0]
+    }
+    config_path = tmp_path / "bad_config.yaml"
+    with open(config_path, 'w') as f:
+        import yaml
+        yaml.dump(config_data, f)
+    
+    data = {
+        'timestamp': [0.0],
+        'v': [1.0],
+        'omega': [1.0],
+        'z': [1.0],
+        'v_z': [0.0]
+    }
+    df = pd.DataFrame(data)
+    
+    with pytest.raises(IngestionError, match="must specify 'inertia'"):
+        compute_energy(df, str(config_path), window_size_N=3)

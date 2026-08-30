@@ -1,8 +1,8 @@
-# Configuration for Granular System Analysis
-mass: 0.001  # kg
-radius: 0.005  # m
+mass: 0.01
+inertia: 0.000002
 material_type: steel
-frequency_bins: [10, 20, 30, 40, 50]  # Hz
-inertia: 0.0000002  # kg*m^2 (example value)
-driving_data_path: data/raw/driving_signals.csv
-window_size_N: 100
+frequency_bins:
+  - 1.0
+  - 5.0
+  - 10.0
+window_size_N: 3

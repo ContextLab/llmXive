@@ -1,75 +1,55 @@
-# Quick Start Guide for Granular System Analysis
+# Quickstart Guide
+
+This guide describes how to run the full pipeline to investigate the validity of the equipartition theorem.
 
 ## Prerequisites
 
 - Python 3.11+
-- Required packages listed in `requirements.txt`
-
-## Installation
-
-```bash
-pip install -r requirements.txt
-```
+- Dependencies installed via `pip install -r requirements.txt`
 
 ## Running the Pipeline
 
-The pipeline is orchestrated via `code/main.py`. Below are the commands for each stage.
+The pipeline is executed via `code/main.py`.
 
-### 1. Ingestion (User Story 1)
+### Full Run
 
-This stage ingests particle tracking data and driving logs, computes energy components, and outputs `data/derived/energy_samples.csv`.
+To run the entire pipeline from ingestion to regression analysis:
 
 ```bash
-python code/main.py --stage ingest --data-source data/raw/particle_tracking.csv --sample-ratio 0.1
+python code/main.py --stage all --sample-ratio 0.1
 ```
 
-**Note**: Replace `data/raw/particle_tracking.csv` with the path to your actual input data.
+### Individual Stages
 
-### 2. Statistical Analysis (User Story 2)
-
-This stage performs KS and Chi-squared tests to assess deviation from Maxwell-Boltzmann distribution.
+You can also run specific stages:
 
 ```bash
+# Ingestion (T014a, T016, T016a, T017, T018)
+python code/main.py --stage ingest --sample-ratio 0.1
+
+# Statistical Analysis (T024, T025, T026, T027, T028)
 python code/main.py --stage stats --alpha 0.01
-```
 
-### 3. Sensitivity Analysis (User Story 3)
-
-This stage performs sensitivity analysis on decision thresholds.
-
-```bash
+# Sensitivity Analysis (T032, T033, T034)
 python code/main.py --stage sensitivity --thresholds 0.01,0.05,0.10
-```
 
-### 4. Regression Analysis (User Story 4)
-
-This stage performs regression analysis to relate deviation magnitude to driving frequency and material roughness.
-
-```bash
+# Regression Analysis (T038, T039, T040)
 python code/main.py --stage regression
-```
-
-### 5. Full Run
-
-To run the entire pipeline from ingestion to regression:
-
-```bash
-python code/main.py --stage all --data-source data/raw/particle_tracking.csv --sample-ratio 0.1
-```
-
-## Dry Run
-
-To validate configuration without running computations:
-
-```bash
-python code/main.py --dry-run --data-source data/raw/particle_tracking.csv
 ```
 
 ## Output Artifacts
 
-- `data/derived/energy_samples.csv`: Final energy samples with columns: particle_id, timestamp, E_trans, E_rot, E_pot, E_vib, pot_incomplete
-- `artifacts/sampling_metadata.json`: Random seed and sampling rule
-- `artifacts/energy_samples.hash`: SHA-256 hash of energy_samples.csv
-- `artifacts/statistical_results.json`: Statistical test results
-- `artifacts/sensitivity_analysis_report.json`: Sensitivity analysis report
-- `artifacts/regression_results.json`: Regression analysis results
+The pipeline generates the following key artifacts:
+
+- `data/derived/driving_signals.csv`: Aligned driving signals.
+- `data/derived/energy_intermediate.csv`: Intermediate energy calculations.
+- `data/derived/energy_samples.csv`: Final energy data with exclusions applied.
+- `artifacts/statistical_results.json`: Results of KS and Chi-squared tests.
+- `artifacts/sensitivity_analysis_report.json`: Sensitivity analysis report.
+- `artifacts/regression_results.json`: Regression analysis results.
+
+## Troubleshooting
+
+- Ensure `data/raw/` contains the required input data files.
+- Check `data/config.yaml` for correct material properties and parameters.
+- Use `--verbose` flag for detailed logging.

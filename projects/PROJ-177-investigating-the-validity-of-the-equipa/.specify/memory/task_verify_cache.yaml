@@ -1,11 +1,3 @@
-T014a:
-  c: false
-  h: 0e1bfdf34f4c9e4b8e7fec252e35f0c0ad9981af23452e996ae3fc8a85428b1d
-  r: The repository contains a partially shown `code/ingestion.py`, but the file is
-    truncated and lacks a complete implementation that reads driving logs and writes
-    the required `data/derived/driving_signals.csv`. Moreover, the expected output
-    CSV file does not exist on disk. Both the artifact and its content are missing,
-    so the task is not genuinely fulfilled.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,15 +6,13 @@ T019:
     \ required contents such as the specified columns, seed/rule metadata, and SHA\u2011\
     256 hash), the task\u2019s deliverables are missing. The next implementer must\
     \ generate and provide the CSV, JSON metadata, and hash file."
-T019b:
+T020a:
   c: false
-  h: 7f9bf5902ca98b661fa2ee6a56818fdb87718251eefe1e5afd7d2bcc7ac54427
-  r: "The repository contains a partial `code/ingestion.py` (truncated before the\
-    \ `compute_velocities_angular_velocities` function and with no visible `compute_energy`\
-    \ implementation), and the required output file `data/derived/energy_samples.csv`\
-    \ is absent. Consequently the energy calculation logic has not been re\u2011implemented\
-    \ and the expected CSV with positive Joule\u2011unit `E_vib` values does not exist.\
-    \ The task therefore remains unfinished."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/test_params.json` file was presented, and there is no evidence\
+    \ that the required JSON containing the Maxwell\u2011Boltzmann (mean\u202F=\u202F\
+    1.0, scale\u202F=\u202F0.1) and Pareto (shape\u202F=\u202F2.0) parameters exists\
+    \ or is correctly formatted. The task therefore remains unfinished."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
