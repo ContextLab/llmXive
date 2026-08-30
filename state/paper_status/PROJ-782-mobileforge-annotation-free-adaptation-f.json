@@ -11,12 +11,12 @@
         "page": 36
       }
     ],
-    "audited_at": "2026-08-30T18:54:08.849050+00:00"
+    "audited_at": "2026-08-30T19:21:29.518281+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-782-mobileforge-annotation-free-adaptation-f",
-  "updated_at": "2026-08-30T18:54:08.849066+00:00"
+  "updated_at": "2026-08-30T19:21:29.518293+00:00"
 }
