@@ -1,28 +1,51 @@
-T016a:
-  c: false
-  h: d9aefdd7c98a81b3a14f7047d480d13cc4d9cd27f1f1bb2823a30771c3fc8e3c
-  r: "The repository lacks the required input files (`features_optical.json`, `features_audio.json`)\
-    \ and the output CSV (`correlations_point.csv`). Moreover, `src/models/metrics.py`\
-    \ only defines generic correlation helpers and does not contain code that loads\
-    \ the JSON vectors, filters `missing_data_flag=True` samples, computes per\u2011\
-    dimension Pearson and Spearman point estimates, or writes the results to the specified\
-    \ CSV. These essential pieces are missing, so the task is not fulfilled."
-T016b:
+T016c:
   c: false
   h: 4cdf4d18f3700689c5b52f4121a6a7c40473f85333e6b40b46a8faa56fab2503
-  r: The provided `src/models/metrics.py` implements a custom bootstrap loop instead
-    of using `scipy.stats.bootstrap` with `method="basic"` and does not perform stratified
-    sampling. No code writes the required `data/processed/correlations.csv`, and the
-    file is absent. Consequently the bootstrapping implementation and the expected
-    output artifact are missing.
-T020:
+  r: "The repository lacks the required `data/processed/correlations.csv` file, and\
+    \ the `bootstrap_confidence_interval` function implements a custom bootstrap loop\
+    \ instead of using `scipy.stats.bootstrap` with `method=\"basic\"` and `n_resamples=1000`.\
+    \ Consequently, the task\u2019s output and implementation specifications are not\
+    \ satisfied."
+T019a:
+  c: false
+  h: dd55b7b5943cba99154b0fe1b51c51d8c262a4f67f11f7c107238e140420bd1f
+  r: "The repository contains `src/models/evaluate.py` with functions for mean and\
+    \ shuffled baseline calculations and a helper to write results to CSV, but the\
+    \ required output file `data/processed/baseline_predictions.csv` is absent. No\
+    \ script or entry\u2011point is present that actually runs the baselines and creates\
+    \ the CSV, so the task\u2019s output artifact is missing."
+T019b:
+  c: false
+  h: eabb17a767bc82e90eca3f28ed622c198762ebd8de51d3a87caae1f421bfd257
+  r: "The repository contains `src/models/evaluate.py`, but it only computes MSE/RMSE\
+    \ (no R\xB2) for generic baselines and does not produce a CSV with the required\
+    \ columns `[dimension, predictor_type, rmse, r2]`. Moreover, the expected output\
+    \ file `data/baseline_results.csv` is absent. Consequently, the task\u2019s requirement\
+    \ is not satisfied."
+T020a:
+  c: false
+  h: e480bd46cff75d9456e290d3195242a37c202edd640793a1bf620ce34813a0df
+  r: "The provided `src/models/metrics.py` contains correlation utilities and a threshold\u2011\
+    sweep stub but no function that shuffles labels, runs 10\u202F000 permutations,\
+    \ recalculates statistics, or writes `data/processed/permutation_raw.csv`. Moreover,\
+    \ the required CSV file does not exist. The task\u2019s core functionality and\
+    \ output are absent."
+T020b:
+  c: false
+  h: 7b3ccef64520a9b453dcdaa92d60010363035ad86451efce306b4c508a47867c
+  r: "The repository does not contain the required `data/processed/max_t_stats.csv`\
+    \ file, and the shown portion of `src/models/metrics.py` implements correlation\
+    \ and threshold\u2011sweep utilities but contains no logic for aggregating \u201C\
+    max\u2011T\u201D statistics as described in the task. Both the output artifact\
+    \ and the specific Max\u2011T aggregation code are missing."
+T020c:
   c: false
   h: a5550a3fbd4880060afd997a3b675422f7dc4e09da8e3ab56dd1183bb55f90bd
-  r: "The provided `src/models/metrics.py` contains only correlation and threshold\u2011\
-    sweep utilities; there is no Westfall\u2011Young max\u2011T permutation correction\
-    \ function, nor any code that writes `data/permutation_results.csv`. The required\
-    \ CSV file is absent from the repository. Consequently the mandatory task is not\
-    \ fulfilled."
+  r: "The provided `src/models/metrics.py` contains correlation and threshold\u2011\
+    sweep utilities but no code that imports or calls `statsmodels.stats.multitest.multipletests`,\
+    \ nor any function that writes a CSV with columns `[dimension, raw_p, adjusted_p]`.\
+    \ Additionally, the required `data/permutation_results.csv` file is absent. Both\
+    \ the implementation and the expected output are missing."
 T021:
   c: false
   h: e76cce29872375b6926a380b151300f1f027357e54838fc77c65c92c0b2987b4
@@ -31,13 +54,13 @@ T021:
     \ deliverable is missing."
 T022a:
   c: false
-  h: a2153976c3ad093b2de5656e9d37d2824fa033a39fc59a9c36f5797c13896817
-  r: "The repository lacks the required `data/processed/scores.csv` and the expected\
-    \ `data/processed/batch_stats.json` output file. Moreover, the provided `src/cli/run_pipeline.py`\
-    \ is incomplete (truncated) and does not contain a batch\u2011size\u2011100 loop\
-    \ that reads `scores.csv` nor does it compute or write the specified `mean_time_sec`,\
-    \ `median_time_sec`, `max_time_sec`, and `total_clips` fields. The implementation\
-    \ therefore does not meet the task\u2019s requirements."
+  h: 277bea02b138384bc03ba1f210b9d76507b1671b5268b3096c51489849119f6a
+  r: "The repository lacks the required `data/processed/scores.csv` input and the\
+    \ `data/processed/batch_raw_logs.json` output file. Moreover, the provided `src/cli/run_pipeline.py`\
+    \ is truncated and does not show a batch\u2011processing loop that reads the scores\
+    \ CSV, processes clips in batches of 100, and writes per\u2011clip timing entries\
+    \ matching the specified schema. Consequently, the task\u2019s core requirements\
+    \ are not satisfied."
 T023b:
   c: false
   h: 19e43a8120058d3436554c67ee365c31b1c5aedf1221da4004809acaa4d98acc

@@ -3,10 +3,8 @@ librosa
 scikit-learn
 xgboost
 psutil
+statsmodels
 pandas
 numpy
-scipy
-joblib
 pytest
-ruff
-black
+pyyaml

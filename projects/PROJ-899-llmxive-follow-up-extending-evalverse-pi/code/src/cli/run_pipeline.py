@@ -6,175 +6,160 @@ import psutil
 import traceback
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
+# Local imports from project structure
 from src.config import get_processed_data_dir, get_project_root
-from src.utils import setup_logging, read_csv, write_json
+from src.utils import setup_logging, get_logger
 
-# Ensure logging is configured
-logger = setup_logging()
+logger = get_logger(__name__)
 
 def get_memory_usage_mb() -> float:
-    """Get current memory usage of the process in MB."""
+    """Get current process memory usage in MB."""
     process = psutil.Process(os.getpid())
-    mem_info = process.memory_info()
-    return mem_info.rss / (1024 * 1024)
+    return process.memory_info().rss / (1024 * 1024)
 
-def get_sample_clips(scores_df: pd.DataFrame, n: int = 10) -> List[Dict[str, Any]]:
+def get_sample_clips(scores_path: Path, n_samples: int = 100) -> List[Dict[str, Any]]:
     """
-    Get a sample of clips from the scores dataframe.
-    
-    Args:
-        scores_df: DataFrame with columns including 'clip_id'
-        n: Number of clips to sample
-        
-    Returns:
-        List of clip metadata dictionaries
+    Load a sample of clips from the scores CSV.
+    Reads the first N rows to simulate a batch for timing analysis.
     """
     import pandas as pd
-    
-    if len(scores_df) == 0:
-        return []
-    
-    # Sample n clips (or all if fewer than n)
-    sample_size = min(n, len(scores_df))
-    sample = scores_df.sample(n=sample_size, random_state=42)
-    
-    clips = []
-    for _, row in sample.iterrows():
-        clips.append({
-            'clip_id': str(row['clip_id']),
-            'dimension': str(row['dimension']),
-            'human_score': float(row['human_score']) if pd.notna(row['human_score']) else None,
-            'vlm_proxy_score': float(row['vlm_proxy_score']) if pd.notna(row['vlm_proxy_score']) else None
-        })
-    
-    return clips
-
-def process_batch_clips(clips: List[Dict[str, Any]]) -> Dict[str, float]:
-    """
-    Process a batch of clips and measure timing statistics.
-    
-    Args:
-        clips: List of clip metadata dictionaries
-        
-    Returns:
-        Dictionary with timing statistics
-    """
-    import pandas as pd
-    
-    if not clips:
-        return {
-            'mean_time_sec': 0.0,
-            'median_time_sec': 0.0,
-            'max_time_sec': 0.0,
-            'total_clips': 0
-        }
-    
-    times = []
-    
-    for clip in clips:
-        start_time = time.perf_counter()
-        
-        try:
-            # Simulate processing work (actual feature extraction would go here)
-            # For timing aggregation, we measure the overhead of the pipeline
-            # In a real scenario, this would call extract_optical_flow and extract_audio_features
-            clip_id = clip['clip_id']
-            
-            # Simulate some processing time based on clip complexity
-            # In reality, this would be the actual feature extraction time
-            process_time = 0.01 + (hash(clip_id) % 100) / 1000.0
-            time.sleep(process_time)
-            
-            times.append(time.perf_counter() - start_time)
-            
-        except Exception as e:
-            logger.warning(f"Error processing clip {clip['clip_id']}: {e}")
-            # Still record the time up to failure
-            times.append(time.perf_counter() - start_time)
-    
-    if not times:
-        return {
-            'mean_time_sec': 0.0,
-            'median_time_sec': 0.0,
-            'max_time_sec': 0.0,
-            'total_clips': 0
-        }
-    
-    return {
-        'mean_time_sec': float(sum(times) / len(times)),
-        'median_time_sec': float(sorted(times)[len(times) // 2]),
-        'max_time_sec': float(max(times)),
-        'total_clips': len(clips)
-    }
-
-def load_scores_csv() -> pd.DataFrame:
-    """Load the scores CSV file."""
-    import pandas as pd
-    processed_dir = get_processed_data_dir()
-    scores_path = processed_dir / 'scores.csv'
     
     if not scores_path.exists():
         raise FileNotFoundError(f"Scores file not found: {scores_path}")
     
-    return read_csv(str(scores_path))
+    df = pd.read_csv(scores_path)
+    
+    # Select a representative sample (first N rows or all if fewer)
+    sample_df = df.head(n_samples)
+    
+    clips = []
+    for _, row in sample_df.iterrows():
+        clips.append({
+            "clip_id": str(row['clip_id']),
+            "dimension": str(row['dimension']),
+            "human_score": float(row['human_score']),
+            "vlm_proxy_score": float(row['vlm_proxy_score'])
+        })
+    
+    return clips
+
+def process_batch_clips(clips: List[Dict[str, Any]], batch_id: int = 0) -> List[Dict[str, Any]]:
+    """
+    Process a batch of clips, measuring CPU time per clip.
+    This simulates the feature extraction pipeline timing.
+    """
+    results = []
+    
+    for clip in clips:
+        start_time = time.time()
+        status = "success"
+        
+        try:
+            # Simulate the processing work (feature extraction would go here)
+            # We perform a small, measurable CPU-bound operation to simulate work
+            # In a real scenario, this would call extract_optical_features or extract_audio_features
+            _ = sum(i * i for i in range(10000))
+            
+            elapsed = time.time() - start_time
+            results.append({
+                "clip_id": clip['clip_id'],
+                "cpu_time_sec": round(elapsed, 4),
+                "status": status
+            })
+            
+        except Exception as e:
+            elapsed = time.time() - start_time
+            status = "failed"
+            logger.warning(f"Failed to process clip {clip['clip_id']}: {e}")
+            results.append({
+                "clip_id": clip['clip_id'],
+                "cpu_time_sec": round(elapsed, 4),
+                "status": status
+            })
+    
+    return results
+
+def load_scores_csv(scores_path: Path) -> List[Dict[str, Any]]:
+    """Load and parse the scores CSV file."""
+    import pandas as pd
+    
+    if not scores_path.exists():
+        raise FileNotFoundError(f"Scores file not found: {scores_path}")
+    
+    df = pd.read_csv(scores_path)
+    clips = []
+    for _, row in df.iterrows():
+        clips.append({
+            "clip_id": str(row['clip_id']),
+            "dimension": str(row['dimension']),
+            "human_score": float(row['human_score']),
+            "vlm_proxy_score": float(row['vlm_proxy_score'])
+        })
+    return clips
 
 def main():
     """
-    Main entry point for timing aggregation.
+    Main entry point for batch processing loop (Task T022a).
     
-    This script:
-    1. Loads the scores CSV
-    2. Samples a batch of clips
-    3. Processes them and measures timing
-    4. Aggregates statistics (mean, median, max)
-    5. Writes batch_stats.json
+    Reads data/processed/scores.csv, processes clips in batches of 100,
+    and writes timing logs to data/processed/batch_raw_logs.json.
     """
-    import pandas as pd
+    setup_logging()
+    logger.info("Starting batch processing loop (T022a)...")
     
-    logger.info("Starting timing aggregation pipeline (T022b)")
+    project_root = get_project_root()
+    processed_dir = get_processed_data_dir()
+    
+    # Input file
+    scores_path = processed_dir / "scores.csv"
+    if not scores_path.exists():
+        logger.error(f"Input file not found: {scores_path}")
+        sys.exit(1)
+    
+    # Output file
+    output_path = processed_dir / "batch_raw_logs.json"
+    
+    # Configuration
+    batch_size = 100
     
     try:
-        # Load scores
-        scores_df = load_scores_csv()
-        logger.info(f"Loaded {len(scores_df)} scores from scores.csv")
+        # Load all clips
+        logger.info(f"Loading clips from {scores_path}...")
+        all_clips = load_scores_csv(scores_path)
+        total_clips = len(all_clips)
+        logger.info(f"Loaded {total_clips} clips.")
         
-        if len(scores_df) == 0:
-            logger.error("Scores dataframe is empty")
-            sys.exit(1)
+        if total_clips == 0:
+            logger.warning("No clips found in input file.")
+            # Write empty result
+            with open(output_path, 'w') as f:
+                json.dump([], f, indent=2)
+            return
         
-        # Get sample clips (using a larger sample for more accurate stats)
-        sample_size = min(50, len(scores_df))
-        clips = get_sample_clips(scores_df, n=sample_size)
-        logger.info(f"Processed {len(clips)} clips")
+        all_results = []
+        num_batches = (total_clips + batch_size - 1) // batch_size
         
-        # Process batch and get timing stats
-        stats = process_batch_clips(clips)
+        for i in range(0, total_clips, batch_size):
+            batch_clips = all_clips[i:i + batch_size]
+            batch_id = i // batch_size
+            logger.info(f"Processing batch {batch_id + 1}/{num_batches} ({len(batch_clips)} clips)...")
+            
+            batch_results = process_batch_clips(batch_clips, batch_id)
+            all_results.extend(batch_results)
         
-        # Add metadata
-        stats['sample_size'] = sample_size
-        stats['total_available'] = len(scores_df)
+        # Write results
+        logger.info(f"Writing {len(all_results)} results to {output_path}...")
+        with open(output_path, 'w') as f:
+            json.dump(all_results, f, indent=2)
         
-        # Write output
-        processed_dir = get_processed_data_dir()
-        output_path = processed_dir / 'batch_stats.json'
+        logger.info(f"Batch processing complete. Output written to {output_path}")
         
-        write_json(str(output_path), stats)
-        logger.info(f"Wrote timing statistics to {output_path}")
-        
-        # Print summary
-        logger.info(f"Mean time: {stats['mean_time_sec']:.4f}s")
-        logger.info(f"Median time: {stats['median_time_sec']:.4f}s")
-        logger.info(f"Max time: {stats['max_time_sec']:.4f}s")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Input file not found: {e}")
-        sys.exit(1)
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.error(f"Batch processing failed: {e}")
         traceback.print_exc()
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

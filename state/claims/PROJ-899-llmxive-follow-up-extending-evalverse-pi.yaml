@@ -943,24 +943,6 @@
   updated_at: '2026-08-26T20:05:39Z'
 - artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
   attempts: 1
-  canonical: Linear scaling validation requires R^2 > 0.95
-  claim_id: c_ae873d6e
-  context: 'Implementation Details: Validate linear scaling assumption (R^2 > 0.95).
-    Constraint: Verify linearity (R^2 > 0.95).'
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Linear_scaling_validation_requires_R%5E2_%3E_0.95
-  kind: magnitude
-  raw_text: Linear scaling validation requires an R^2 value greater than 0.95.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-26T20:06:04Z'
-- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
-  attempts: 1
   canonical: Threshold sweep tests 0.80, 0.85, 0.90
   claim_id: c_520295b3
   context: 'Thresholds: `{0.80, 0.85, 0.90}`. Status Logic: `feature-sufficient` if
@@ -2052,3 +2034,279 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T02:36:22Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Process 10000 clips in less than 6 hours
+  claim_id: c_75595384
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    candidates:
+    - - Donate Create account Log in Process
+      - 10000.0
+    - - Process 10000 clips in less than
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Process_10000_clips_in_less_than_6_hours
+  kind: magnitude
+  raw_text: The system processes 10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-30T17:26:30Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Run pipeline on multi-core CPU within 7GB RAM
+  claim_id: c_119e833e
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_pipeline_on_multi-core_CPU_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The pipeline runs on a multi-core CPU within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:27:29Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flag dimension as feature-sufficient if lower 95% CI >= 0.85
+  claim_id: c_952c9b2c
+  context: "Goal: Determine which technical sub-dimensions are 'feature-sufficient'\
+    \ (r \u2265 0.85) vs 'VLM-required' (lower 95% CI < 0.70) using low-level features\
+    \ against human expert scores."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_dimension_as_feature-sufficient_if_lower_95%25_CI_%3E=_0.85
+  kind: magnitude
+  raw_text: A dimension is flagged as 'feature-sufficient' if the lower 95% CI is
+    greater than or equal to 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:28:45Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flag dimension as VLM-required if lower 95% CI < 0.70
+  claim_id: c_a05a08d7
+  context: "Goal: Determine which technical sub-dimensions are 'feature-sufficient'\
+    \ (r \u2265 0.85) vs 'VLM-required' (lower 95% CI < 0.70) using low-level features\
+    \ against human expert scores."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_dimension_as_VLM-required_if_lower_95%25_CI_%3C_0.70
+  kind: magnitude
+  raw_text: A dimension is flagged as 'VLM-required' if the lower 95% CI is less than
+    0.70.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:29:44Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Validation gate requires minimum 10 samples
+  claim_id: c_6a307195
+  context: 'Constraint: The validation gate requires a minimum of 10 samples. If n
+    < 10, EXIT with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation gate requires a minimum of 10 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:30:29Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Log warning for sample size 10 to 30
+  claim_id: c_ca6420c6
+  context: "If 10 \u2264 n < 30, log a WARNING but allow proceed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the sample size is between 10 and 30, a WARNING is logged but the process
+    is allowed to proceed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:31:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Bootstrap 95% CIs with 1000 resamples
+  claim_id: c_7b7cd190
+  context: 'Implementation Details: Use `scipy.stats.bootstrap` with `method="basic"`,
+    `n_resamples=1000`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapping for 95% CIs uses 1000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:31:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Permutation engine uses 10000 permutations
+  claim_id: c_fe1b450c
+  context: 'Parameter: `n_permutations=10000`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation engine uses 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:32:08Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Audio spectral centroid uses 128 bins
+  claim_id: c_fde4209d
+  context: 'Implementation Details: Use `librosa.feature.spectral_centroid` with `n_bins=128`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The audio feature extraction uses 128 bins for the spectral centroid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:32:32Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Batch processing uses batch size 100
+  claim_id: c_82350976
+  context: 'Implementation Details: Use `batch_size=100`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch processing loop uses a batch size of 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:33:23Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: Linear scaling validation requires R^2 > 0.95
+  claim_id: c_ae873d6e
+  context: 'Implementation Details: Validate linear scaling assumption (R^2 > 0.95).
+    Constraint: Verify linearity (R^2 > 0.95).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_scaling_validation_requires_R%5E2_%3E_0.95
+  kind: magnitude
+  raw_text: Linear scaling validation requires an R^2 value greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:34:11Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flag dimension as threshold-sensitive if flip rate > 0.1
+  claim_id: c_b77fac79
+  context: 'Action: Flag dimensions as ''threshold-sensitive'' if `flip_rate > 0.1`.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_dimension_as_threshold-sensitive_if_flip_rate_%3E_0.1
+  kind: magnitude
+  raw_text: The system flags dimensions as 'threshold-sensitive' if the flip rate
+    is greater than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:35:05Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Threshold sweep tests 0.80, 0.85, and 0.90
+  claim_id: c_3d22b918
+  context: 'Thresholds: `{0.80, 0.85, 0.90}`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep logic tests thresholds of 0.80, 0.85, and 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:35:38Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Global error rate threshold is 0.05
+  claim_id: c_f39c7856
+  context: 'Constraint: If error_count/total_count > 0.05 on the sample, EXIT with
+    code 1 (HALT).'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The global error rate threshold for halting the pipeline is 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T17:35:38Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: VLM proxy threshold default is 0.5
+  claim_id: c_7197e466
+  context: 'Action: Define `VLM_PROXY_THRESHOLD` (default 0.5, configurable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VLM proxy threshold default is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:36:04Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Baseline improvement threshold default is 0.10
+  claim_id: c_50523a8e
+  context: 'Action: Define `BASELINE_IMPROVEMENT_THRESHOLD` (default 0.10, configurable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline improvement threshold default is 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:36:30Z'

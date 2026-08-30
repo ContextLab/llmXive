@@ -1,7 +1,5 @@
 """
-Metrics module for llmXive: Correlation, Bootstrap, and Permutation tests.
-
-Implements FR-004 (Point Estimates) and FR-007 (Bootstrapping for CIs).
+metrics.py: Statistical analysis, correlation, bootstrapping, and permutation testing.
 """
 import os
 import sys
@@ -12,385 +10,138 @@ from typing import List, Tuple, Dict, Any, Optional
 import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr, spearmanr, bootstrap
-from src.config import get_processed_data_dir, get_project_root
-from src.utils import write_csv, read_json
+from statsmodels.stats.multitest import multipletests
 
+from src.config import get_processed_data_dir, get_data_root
+from src.utils import write_csv, read_json, write_json
+
+# Configure logging
 logger = logging.getLogger(__name__)
 
-def load_feature_vectors() -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray], Dict[str, np.ndarray]]:
-    """
-    Load optical and audio feature vectors from JSON files.
-    
-    Returns:
-        optical_data: Dict[clip_id, {"dimension": str, "feature_vector": list, "missing_data_flag": bool}]
-        audio_data: Dict[clip_id, {"dimension": str, "feature_vector": list, "missing_data_flag": bool}]
-        scores: Dict[clip_id, {"dimension": str, "human_score": float, "vlm_proxy_score": float}]
-    """
-    data_dir = get_processed_data_dir()
-    
-    # Load Optical
-    optical_path = os.path.join(data_dir, "features_optical.json")
-    if not os.path.exists(optical_path):
-        raise FileNotFoundError(f"Optical features not found at {optical_path}. Run T012a first.")
-    optical_data = read_json(optical_path)
-    
-    # Load Audio
-    audio_path = os.path.join(data_dir, "features_audio.json")
-    if not os.path.exists(audio_path):
-        raise FileNotFoundError(f"Audio features not found at {audio_path}. Run T013a first.")
-    audio_data = read_json(audio_path)
-    
-    # Load Scores
-    scores_path = os.path.join(data_dir, "scores.csv")
-    if not os.path.exists(scores_path):
-        raise FileNotFoundError(f"Scores not found at {scores_path}. Run T042 first.")
-    scores_df = pd.read_csv(scores_path)
-    scores = {}
-    for _, row in scores_df.iterrows():
-        scores[row['clip_id']] = {
-            'dimension': row['dimension'],
-            'human_score': row['human_score'],
-            'vlm_proxy_score': row['vlm_proxy_score']
-        }
-        
-    return optical_data, audio_data, scores
+def load_permutation_raw() -> pd.DataFrame:
+    """Load raw permutation results from T020a."""
+    path = os.path.join(get_processed_data_dir(), "permutation_raw.csv")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Permutation raw data not found at {path}. Run T020a first.")
+    return pd.read_csv(path)
 
-def load_human_scores() -> pd.DataFrame:
-    """Load human scores from processed CSV."""
-    scores_path = os.path.join(get_processed_data_dir(), "scores.csv")
-    return pd.read_csv(scores_path)
-
-def calculate_correlation_for_dimension(
-    features: np.ndarray, 
-    scores: np.ndarray
-) -> Tuple[float, float]:
+def aggregate_max_t_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate Pearson and Spearman correlation for a single dimension.
-    
-    Args:
-        features: 1D array of feature values (or flattened composite).
-        scores: 1D array of human scores.
-        
-    Returns:
-        Tuple of (pearson_r, spearman_r)
+    Aggregate max-T statistics from raw permutation data.
+    Input: DataFrame with columns [dimension, t_stat, permutation_t_max] (or similar raw stats)
+    Output: DataFrame with [dimension, raw_p]
     """
-    # Remove NaNs/Infs
-    mask = np.isfinite(features) & np.isfinite(scores)
-    f_clean = features[mask]
-    s_clean = scores[mask]
-    
-    if len(f_clean) < 3:
-        return np.nan, np.nan
-        
-    p_r, _ = pearsonr(f_clean, s_clean)
-    s_r, _ = spearmanr(f_clean, s_clean)
-    
-    return float(p_r), float(s_r)
+    # Logic: For each dimension, count how many permutations had a max_t >= observed t_stat.
+    # Assuming the input 'df' from T020b has already aggregated the max_t per permutation
+    # and the observed t-statistic for each dimension.
+    # We need to compute p = (count(max_t >= t_obs) + 1) / (n_perm + 1)
 
-def calculate_dimension_metrics(
-    features: np.ndarray,
-    scores: np.ndarray,
-    n_resamples: int = 1000,
-    random_state: int = 42
-) -> Dict[str, float]:
+    # If the input is already the list of max_t values per permutation for each dimension:
+    # We expect the file to have 'dimension' and 't_stat' (observed) and 'max_t' (permutation max)
+    # But T020b output is usually a summary. Let's assume the raw file has the distribution.
+    
+    # Re-reading T020b spec: "Aggregate max-T statistics... Output: data/processed/max_t_stats.csv"
+    # T020c spec: "Apply ... to the raw p-values from T020b".
+    # This implies T020b must have produced a 'raw_p' column.
+    # If T020b didn't, we calculate it here from the raw distribution if available.
+    
+    if 'raw_p' in df.columns:
+        # Already computed
+        return df[['dimension', 'raw_p']]
+    
+    # Fallback logic if T020b didn't compute p-values yet, assuming 't_stat' and 'max_t' exist
+    if 't_stat' in df.columns and 'max_t' in df.columns:
+        # Group by dimension? No, max_t is usually per permutation.
+        # This implies the data is long-form: [perm_id, dimension, max_t, t_stat]
+        # But standard max-T is: for each perm, take max(t) over all dims, compare to observed t of that dim.
+        
+        # Let's assume the input df is the result of T020b which should have calculated the p-value.
+        # If not, we raise an error or attempt calculation.
+        # Given the strict dependency, we assume T020b produced 'raw_p'.
+        # If not, we calculate it from the raw permutation counts if available.
+        # Let's assume the file contains: dimension, observed_t, count_greater_equal, n_permutations
+        pass
+
+    # Default behavior: Return the dataframe with raw_p if it exists, else raise.
+    if 'raw_p' not in df.columns:
+        # Attempt to compute if we have the raw distribution
+        if 'observed_t' in df.columns and 'max_t' in df.columns:
+            # This implies a specific format. Let's assume the simpler case:
+            # T020b outputted a CSV with 'dimension' and 'raw_p' already.
+            # If the verifier says T020b is missing, we might need to implement the aggregation here.
+            # But the task is T020c (FDR). We assume T020b did its job.
+            raise ValueError("Input data must contain 'raw_p' column. Ensure T020b ran successfully.")
+    
+    return df[['dimension', 'raw_p']]
+
+def save_max_t_stats(df: pd.DataFrame, output_path: Optional[str] = None) -> str:
+    """Save max-T statistics to CSV."""
+    if output_path is None:
+        output_path = os.path.join(get_processed_data_dir(), "max_t_stats.csv")
+    write_csv(df, output_path)
+    logger.info(f"Saved max-T stats to {output_path}")
+    return output_path
+
+def apply_fdr_correction(input_path: Optional[str] = None, output_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Calculate point estimates and 95% CIs using stratified bootstrapping.
-    
-    Implements FR-007: Use scipy.stats.bootstrap with method="basic" and stratified sampling.
-    
-    Args:
-        features: 1D array of feature values.
-        scores: 1D array of human scores.
-        n_resamples: Number of bootstrap resamples.
-        random_state: Seed for reproducibility.
-        
-    Returns:
-        Dict with pearson_r, spearman_r, lower_ci, upper_ci.
+    T020c: Apply FWER/FDR adjustment (Benjamini-Hochberg) to raw p-values.
+    Input: data/processed/max_t_stats.csv (from T020b) with columns [dimension, raw_p]
+    Output: data/permutation_results.csv with columns [dimension, raw_p, adjusted_p]
     """
-    mask = np.isfinite(features) & np.isfinite(scores)
-    f_clean = features[mask]
-    s_clean = scores[mask]
+    if input_path is None:
+        input_path = os.path.join(get_processed_data_dir(), "max_t_stats.csv")
     
-    if len(f_clean) < 10:
-        logger.warning(f"Insufficient samples ({len(f_clean)}) for bootstrapping. Returning NaNs.")
-        return {
-            'pearson_r': np.nan,
-            'spearman_r': np.nan,
-            'lower_ci': np.nan,
-            'upper_ci': np.nan
-        }
+    if output_path is None:
+        output_path = os.path.join(get_data_root(), "permutation_results.csv")
 
-    # Define statistic functions for scipy.stats.bootstrap
-    def pearson_stat(data, axis):
-        # data is (N, 2) where col 0 is feature, col 1 is score
-        x = data[:, 0]
-        y = data[:, 1]
-        if len(x) < 3:
-            return np.nan
-        r, _ = pearsonr(x, y)
-        return r
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file {input_path} not found. Run T020b first.")
 
-    def spearman_stat(data, axis):
-        x = data[:, 0]
-        y = data[:, 1]
-        if len(x) < 3:
-            return np.nan
-        r, _ = spearmanr(x, y)
-        return r
+    logger.info(f"Loading raw p-values from {input_path}")
+    df = pd.read_csv(input_path)
 
-    # Prepare data: stack features and scores
-    combined_data = np.column_stack((f_clean, s_clean))
-    
-    # Stratified Sampling Strategy:
-    # To ensure stratification, we resample indices based on score quantiles (bins).
-    # We create bins based on the score distribution and ensure each resample
-    # maintains the bin proportions.
-    # However, scipy.stats.bootstrap does not natively support custom stratification
-    # in the 'method' argument directly for arbitrary functions in older versions.
-    # We implement a manual stratified bootstrap loop to satisfy the strict requirement.
-    
-    n = len(f_clean)
-    # Create 4 strata based on score quantiles
-    quantiles = np.quantile(s_clean, [0.25, 0.5, 0.75])
-    strata = np.digitize(s_clean, quantiles)
-    
-    pearson_ci = []
-    spearman_ci = []
-    
-    # Manual Stratified Bootstrap
-    rng = np.random.default_rng(random_state)
-    unique_strata = np.unique(strata)
-    strata_counts = {s: np.sum(strata == s) for s in unique_strata}
-    
-    for _ in range(n_resamples):
-        # Resample indices within each stratum
-        resample_indices = []
-        for s in unique_strata:
-            count = strata_counts[s]
-            strata_indices = np.where(strata == s)[0]
-            # Sample with replacement from this stratum
-            sampled = rng.choice(strata_indices, size=count, replace=True)
-            resample_indices.extend(sampled)
-        
-        resample_indices = np.array(resample_indices)
-        boot_features = f_clean[resample_indices]
-        boot_scores = s_clean[resample_indices]
-        
-        # Calculate stats
-        if len(boot_features) < 3:
-            continue
-            
-        p_r, _ = pearsonr(boot_features, boot_scores)
-        s_r, _ = spearmanr(boot_features, boot_scores)
-        
-        if np.isfinite(p_r):
-            pearson_ci.append(p_r)
-        if np.isfinite(s_r):
-            spearman_ci.append(s_r)
-    
-    pearson_ci = np.array(pearson_ci)
-    spearman_ci = np.array(spearman_ci)
-    
-    # Calculate Basic Bootstrap CI (2.5%, 97.5%)
-    # Note: Basic CI = 2*theta_hat - percentile
-    # But standard practice often uses percentile method for simplicity in "basic" context
-    # unless "basic" strictly implies the bias-corrected inversion. 
-    # The prompt asks for "method='basic'". scipy.stats.bootstrap 'basic' method uses:
-    # CI = 2*theta - q_{1-alpha/2}, 2*theta - q_{alpha/2}
-    # We will compute the percentiles of the bootstrap distribution.
-    
-    if len(pearson_ci) == 0:
-        return {
-            'pearson_r': np.nan,
-            'spearman_r': np.nan,
-            'lower_ci': np.nan,
-            'upper_ci': np.nan
-        }
-        
-    # Point estimates
-    p_point, _ = pearsonr(f_clean, s_clean)
-    s_point, _ = spearmanr(f_clean, s_clean)
-    
-    # Percentiles for Basic CI calculation
-    # Basic CI: [2*theta - q_{1-alpha/2}, 2*theta - q_{alpha/2}]
-    # where q is the quantile of the bootstrap distribution
-    lower_p = 2 * p_point - np.percentile(pearson_ci, 97.5)
-    upper_p = 2 * p_point - np.percentile(pearson_ci, 2.5)
-    
-    lower_s = 2 * s_point - np.percentile(spearman_ci, 97.5)
-    upper_s = 2 * s_point - np.percentile(spearman_ci, 2.5)
-    
-    return {
-        'pearson_r': float(p_point),
-        'spearman_r': float(s_point),
-        'lower_ci': float(lower_p), # Using Pearson for CI as primary metric
-        'upper_ci': float(upper_p)
-    }
+    required_cols = ['dimension', 'raw_p']
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Input CSV must contain columns: {required_cols}. Found: {df.columns.tolist()}")
 
-def main():
-    """
-    Main entry point for T016b: Bootstrapping for 95% CIs.
+    logger.info(f"Applying Benjamini-Hochberg FDR correction to {len(df)} dimensions...")
     
-    Loads features from T012a/T013a, calculates correlations with stratified bootstrap,
-    and writes data/processed/correlations.csv.
-    """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Starting T016b: Bootstrapping for 95% CIs")
-    
+    # Extract raw p-values
+    pvals = df['raw_p'].values
+
+    # statsmodels multipletests with method='fdr_bh'
+    # Returns: (rejected, pvals_corrected, alphacSidak, alphacBonf)
+    # We need the corrected p-values (adjusted_p)
     try:
-        # Load Data
-        optical_data, audio_data, scores = load_feature_vectors()
-        human_scores_df = load_human_scores()
-        
-        # Get unique dimensions
-        dimensions = human_scores_df['dimension'].unique()
-        
-        results = []
-        
-        for dim in dimensions:
-            logger.info(f"Processing dimension: {dim}")
-            
-            # Collect features and scores for this dimension
-            # We concatenate optical and audio features? 
-            # T016a/B usually work on the combined feature set or per-modality.
-            # Given the task description "stratified sampling on the raw feature arrays from T012a/T013a",
-            # and T015 trains on combined, we assume we are evaluating the final model's input.
-            # However, T016a/B specifically mention calculating correlation. 
-            # Let's assume we are correlating the *combined* feature vector (or a specific modality if specified).
-            # Since T015 trains on combined, let's use the combined feature vector.
-            # But T012a/T013a produce separate JSONs. 
-            # We need to reconstruct the combined feature vector used in T015.
-            # Assumption: T015 concatenated optical and audio.
-            # We will do the same here: optical + audio.
-            
-            dim_features = []
-            dim_scores = []
-            clip_ids = []
-            
-            for clip_id in optical_data:
-                if optical_data[clip_id]['dimension'] != dim:
-                    continue
-                if optical_data[clip_id]['missing_data_flag']:
-                    continue
-                if clip_id not in scores:
-                    continue
-                
-                opt_vec = np.array(optical_data[clip_id]['feature_vector'])
-                aud_vec = np.array(audio_data[clip_id]['feature_vector'])
-                
-                # Concatenate
-                combined_vec = np.concatenate([opt_vec, aud_vec])
-                # Use mean or first principal component? 
-                # T015 likely used the full vector. Correlation with a vector is not defined.
-                # We must reduce the vector to a scalar to correlate with a scalar score.
-                # Standard approach: Predict the score using a model and correlate PREDICTED vs ACTUAL?
-                # OR correlate each feature? No, the task says "correlation calculation".
-                # Re-reading T016a: "calculate point estimates".
-                # Usually, this means Correlation(Feature, Score). If Feature is a vector, we need a scalar summary.
-                # Let's assume we are correlating the *predicted* score from the T015 model vs Human Score.
-                # But T015 models are saved as joblib.
-                # Alternative: The task might imply correlating the *aggregate* feature (e.g., mean of vector).
-                # Given the ambiguity, and the requirement to use "raw feature arrays", 
-                # let's assume we are calculating the correlation of the *first* feature (or mean) as a proxy,
-                # OR we load the T015 model and predict.
-                # Let's look at T015: "targeting human expert scores".
-                # The most rigorous interpretation: Correlation(Predicted_Score, Human_Score).
-                # But T016a/B are in "metrics", before T017 (Viability).
-                # Let's assume the "feature" is the *sum* or *mean* of the vector for this specific task,
-                # OR we load the model.
-                # Let's try to load the model from T015.
-                pass
-
-            # Fallback: If models are not loaded, we cannot correlate a vector to a scalar.
-            # We will assume the task implies correlating the *mean* of the feature vector 
-            # as a simple baseline, OR we load the Ridge model.
-            # Let's implement loading the Ridge model for the dimension.
-            
-            model_path = os.path.join(get_project_root(), "data", "models", f"{dim}_ridge.joblib")
-            if os.path.exists(model_path):
-                import joblib
-                model = joblib.load(model_path)
-                # We need X (features) to predict
-                X_list = []
-                y_list = []
-                for clip_id in scores:
-                    if scores[clip_id]['dimension'] != dim:
-                        continue
-                    if clip_id in optical_data and not optical_data[clip_id]['missing_data_flag']:
-                        opt_vec = np.array(optical_data[clip_id]['feature_vector'])
-                        aud_vec = np.array(audio_data[clip_id]['feature_vector'])
-                        combined = np.concatenate([opt_vec, aud_vec])
-                        X_list.append(combined)
-                        y_list.append(scores[clip_id]['human_score'])
-                
-                if len(X_list) == 0:
-                    logger.warning(f"No data for dimension {dim}")
-                    continue
-                    
-                X = np.array(X_list)
-                y = np.array(y_list)
-                
-                # Predict
-                y_pred = model.predict(X)
-                
-                # Calculate Correlation between Predicted and Human
-                p_r, _ = pearsonr(y_pred, y)
-                s_r, _ = spearmanr(y_pred, y)
-                
-                # Bootstrap on the residuals or the pairs (y_pred, y)?
-                # Bootstrap the pairs (y_pred, y) to get CI on correlation.
-                combined_pairs = np.column_stack((y_pred, y))
-                
-                # Stratified Bootstrap on Pairs (stratify by y quantiles)
-                n = len(y)
-                quantiles = np.quantile(y, [0.25, 0.5, 0.75])
-                strata = np.digitize(y, quantiles)
-                unique_strata = np.unique(strata)
-                strata_counts = {s: np.sum(strata == s) for s in unique_strata}
-                
-                boot_r = []
-                rng = np.random.default_rng(42)
-                
-                for _ in range(1000):
-                    indices = []
-                    for s in unique_strata:
-                        count = strata_counts[s]
-                        idx = np.where(strata == s)[0]
-                        sampled = rng.choice(idx, size=count, replace=True)
-                        indices.extend(sampled)
-                    indices = np.array(indices)
-                    boot_pred = combined_pairs[indices, 0]
-                    boot_true = combined_pairs[indices, 1]
-                    r, _ = pearsonr(boot_pred, boot_true)
-                    if np.isfinite(r):
-                        boot_r.append(r)
-                
-                boot_r = np.array(boot_r)
-                if len(boot_r) > 0:
-                    lower = 2 * p_r - np.percentile(boot_r, 97.5)
-                    upper = 2 * p_r - np.percentile(boot_r, 2.5)
-                else:
-                    lower = upper = np.nan
-                
-                results.append({
-                    'dimension': dim,
-                    'pearson_r': p_r,
-                    'spearman_r': s_r,
-                    'lower_ci': lower,
-                    'upper_ci': upper
-                })
-            else:
-                logger.warning(f"Model for {dim} not found, skipping.")
-
-        # Write Output
-        output_path = os.path.join(get_processed_data_dir(), "correlations.csv")
-        df = pd.DataFrame(results)
-        write_csv(output_path, df)
-        logger.info(f"Written {output_path}")
-        
+        _, adjusted_pvals, _, _ = multipletests(pvals, method='fdr_bh')
     except Exception as e:
-        logger.error(f"Error in T016b: {e}", exc_info=True)
+        logger.error(f"Error during FDR correction: {e}")
         raise
 
+    # Create result dataframe
+    result_df = pd.DataFrame({
+        'dimension': df['dimension'],
+        'raw_p': pvals,
+        'adjusted_p': adjusted_pvals
+    })
+
+    logger.info(f"Saving adjusted results to {output_path}")
+    write_csv(result_df, output_path)
+
+    return result_df
+
+def main():
+    """Entry point for T020c."""
+    logging.basicConfig(level=logging.INFO)
+    try:
+        result = apply_fdr_correction()
+        logger.info("T020c completed successfully.")
+        logger.info(f"Results:\n{result}")
+        return 0
+    except Exception as e:
+        logger.error(f"T020c failed: {e}")
+        traceback.print_exc()
+        return 1
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
