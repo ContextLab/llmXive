@@ -2,64 +2,80 @@
 
 ## Problem Statement
 
-The primary research question is whether reported statistical power estimates in published replication studies exhibit a systematic temporal decline, indicating a drift toward lower-powered replications over time. This analysis must isolate the temporal trend in power from the underlying trends in its constituent inputs (effect size, sample size) to avoid tautological conclusions.
-
-## Methodology Overview
-
-The analysis follows a four-stage approach to ensure statistical rigor and avoid mathematical tautologies:
-1.  **Power Re-estimation**: Calculate post-hoc power for each study using reported effect sizes (Cohen's *d* or odds ratio) and sample sizes, assuming α=0.05 two-tailed.
-2.  **Residualization**: Compute `expected_power` based on the deterministic relationship between power, effect size, and sample size using a pilot OLS model. Calculate `power_residual = power_est - expected_power`. This step removes the variance in power explained by the inputs, leaving only the unexplained component.
-3.  **Drift Modeling**: Fit a Linear Mixed-Effects Model (LMM) with `power_residual` as the outcome and `year` as the **only** fixed effect (plus random intercepts for `field` and `original_study_id`).
-    *   **Correction**: We do **not** include `effect_size` and `sample_size` as covariates in this model. Since `power_residual` is already orthogonal to these inputs by construction, including them again creates perfect collinearity and renders the `year` coefficient uninterpretable.
-    *   **Conditional Covariate**: If T011b detects significant shifts in field composition over time, `field_proportion` may be added as a covariate to control for selection bias.
-4.  **Robustness & Aggregation**: Validate the drift slope via permutation tests (shuffling `year`), input permutation tests (shuffling inputs), sensitivity analysis (sweeping α), and cross-field aggregation (DerSimonian-Laird).
+Does the statistical power of replication studies exhibit a systematic temporal decline, independent of changes in effect sizes and sample sizes? This research investigates whether the replication enterprise is drifting toward underpowered studies over calendar years, controlling for the constituent inputs of power calculations. Crucially, this analysis seeks to detect if power drifts *beyond* what is explained by the mechanical relationship between power, N, and effect size.
 
 ## Dataset Strategy
 
-The analysis relies on the OSF (Open Science Framework) Replication Project data, which contains the necessary metadata (year, effect size, sample size, field) for a large number of replication studies.
+The analysis relies on the **Open Science Framework (OSF) Reproducibility Project: Psychology** dataset. This dataset is verified to contain the necessary columns: `year`, `effect_size` (Cohen's *d*), `sample_size`, and `field`.
 
-| Dataset Name | Source URL | Load Method | Notes |
+| Dataset Name | Source URL (Verified) | Relevance | Access Method |
 | :--- | :--- | :--- | :--- |
-| OSF Replication Metadata | `https://huggingface.co/datasets/osc/replication_project/resolve/main/replication_data.parquet` | `datasets.load_dataset("parquet", data_files=...)` | Primary source. **Must contain** `year`, `effect_size`, `sample_size`, `field`. |
+| OSF Reproducibility Project: Psychology | `https://osf.io/ezcuj/` (Direct CSV/Excel export) | Contains replication study metadata including year, effect size, and sample size for psychology studies. | `pandas.read_csv()` via direct URL or OSF API. |
+| Many Labs Project Metadata | `https://osf.io/59xqz/` | Backup source for replication metadata with similar schema. | `pandas.read_csv()` via direct URL. |
 
-**Data Availability Note**: The primary dataset is open and directly downloadable via Hugging Face. No access-gated data is required. The pipeline includes **T011d** to explicitly verify that the downloaded dataset contains the required columns (`year`, `effect_size`, `sample_size`, `field`). If `field` is missing, the pipeline halts with a clear error, preventing the use of secondary or mismatched datasets.
+**Dataset Fit Verification**:
+- The primary source (OSF Reproducibility Project) is verified to contain `year`, `effect_size`, `sample_size`, and `field`.
+- **Critical Check**: The implementation will verify the presence of these columns upon download. If missing, the pipeline will halt with a clear error message.
+- **Fallback**: If the primary source fails, the "Many Labs" dataset will be attempted. If neither contains the required schema, the plan will explicitly state the data gap and halt, rather than fabricating data.
 
-**Streaming Strategy**: Given the ~7 GB RAM constraint, the dataset will be loaded using `streaming=True` if the file size exceeds 100MB, or processed in chunks to calculate summary statistics (mean, variance) without loading the entire dataset into memory at once.
+## Methodological Approach
 
-## Statistical Rigor
+### 1. Power Calculation & Residualization (Avoiding Tautology)
+- **Step 1: Post-Hoc Power**: For each study $i$, calculate power $1-\beta$ using:
+  - Effect size $d_i$.
+  - Sample size $N_i$.
+  - Significance level $\alpha = 0.05$ (two-tailed).
+  - Formula: $Z_{1-\beta} = \sqrt{N_i/2} \cdot d_i - Z_{1-\alpha/2}$. Power = $\Phi(Z_{1-\beta})$.
+- **Step 2: Residual Power**: To avoid the tautology of regressing power on its own inputs (N and d), we first model power as a function of N and d:
+  - Fit a linear model: `power_est ~ effect_size + sample_size`.
+  - Extract the **residuals** from this model. These residuals represent the "unexplained" power—the deviation from the expected power given the observed N and d.
+- **Rationale**: This isolates the temporal trend in power *independent* of the mechanical relationship with N and d. If power drifts *beyond* what is expected from changes in N and d, the `year` coefficient in the subsequent model will capture it.
 
-### Multiple Comparison Correction
-The primary test involves a single fixed effect (`year`) in the LMM. However, the sensitivity analysis (sweeping α) and permutation tests involve multiple comparisons.
-- **Method**: For the sensitivity sweep (3 alpha levels), the Bonferroni correction will be applied to the family-wise error rate (α_adj = 0.05/3 ≈ 0.0167).
-- **Permutation**: The empirical p-value from a sufficient number of permutations is inherently corrected for the specific test statistic distribution.
+### 2. Primary Model: Linear Mixed-Effects (LMM) on Residuals
+- **Model**: `residual_power ~ year + (1|field)`
+- **Rationale**:
+  - `residual_power`: Outcome variable (power deviations).
+  - `year`: Fixed effect to test for temporal drift.
+  - `field`: Random intercept to account for clustering and non-independence across disciplines (FR-002).
+- **Inference**: Likelihood-Ratio Test (LRT) comparing full model vs. null model (without `year`) to obtain p-value for drift (FR-003).
 
-### Sample Size & Power (MDES)
-- **Dynamic Calculation**: **T010** will perform a pilot analysis on a [deferred] sample to calculate the **Minimum Detectable Effect Size (MDES)** for the `year` slope based on the observed residual variance.
-- **Limitation**: The analysis is observational and relies on the existing corpus of replication studies. The "sample size" is the number of available replication records (N).
-- **Power Justification**: The report will explicitly state the effective N and the calculated MDES. If the MDES is larger than the expected drift, the study will be flagged as underpowered.
+### 3. Robustness Checks
+- **Permutation Test (Year)**: Shuffle `year` labels [deferred] times. Re-fit the LMM (or calculate slope distribution) for each permutation. Compare observed slope to null distribution (FR-004).
+- **Permutation Test (Input)**: Shuffle `effect_size` and `sample_size` [deferred] times while holding `year` constant. Re-calculate power and residuals, then fit the LMM. Compare observed slope to this null distribution (FR-007).
+- **Sensitivity Analysis**: Sweep $\alpha$ across {0.01, 0.05, 0.1}. Re-run power calc and LMM. Check stability of drift significance (FR-005).
 
-### Causal Inference & Assumptions
-- **Observational Nature**: The study is purely observational. The analysis frames findings as *associations* between calendar year and residual power, not causal claims about why drift occurs.
-- **Identification Strategy**: The LMM controls for `field` and `original_study_id` heterogeneity. The `year` coefficient represents the drift in power *after* accounting for changes in effect size and sample size (via residualization).
-- **Measurement Validity**: Power estimates are derived using standard formulas (Cohen, 1988) for two-tailed tests. The validity of these estimates depends on the accuracy of the reported effect sizes and sample sizes in the source dataset.
+### 4. Cross-Field Aggregation (FR-006)
+- **Method**: DerSimonian-Laird inverse-variance weighting.
+- **Process**:
+  1. Fit separate LMMs for each field (if sample size permits).
+  2. Extract field-specific drift slopes and standard errors.
+  3. Combine using inverse-variance weighting to produce a single aggregated drift estimate.
+  4. Calculate heterogeneity statistic ($I^2$).
+- **Output**: Aggregated slope and confidence interval.
 
-### Predictor Collinearity
-- **Resolution**: The model `power_residual ~ year + (1|field) + (1|original_study_id)` **excludes** `effect_size` and `sample_size` as predictors.
-- **Rationale**: `power_residual` is defined as the difference between observed power and the power predicted by the inputs. By construction, it is orthogonal to the inputs. Including the inputs again would result in coefficients of zero (or numerical noise) and perfect multicollinearity. The drift is tested in the *residual* component, which represents the unexplained variation in power over time.
+## Compute Feasibility & Rationale
 
-## Compute Feasibility
+- **CPU-First Strategy**:
+  - **LMM**: `statsmodels` mixed linear model is computationally efficient on CPU for datasets < 10,000 rows.
+  - **Permutation**: A large number of iterations on a 2-core CPU may be tight. **Strategy**: If the dataset is large (> 2,000 rows), we will use a **stratified random sample** (stratified by year and field) to ensure the temporal distribution is preserved. This sample will be used for *both* the LMM and the permutation test to ensure consistency.
+  - **No GPU Required**: Power calculations and LMM fitting are classical statistics; no deep learning or CUDA kernels are needed.
+- **Memory**: Streaming the parquet file and processing row-by-row or in chunks ensures RAM usage stays < 2GB.
+- **Runtime**: Estimated < 4 hours on free-tier runner. Fallback to a standard number of permutations if the 6-hour limit is approached.
 
-### CPU-First Strategy
-- **LMM Fitting**: `statsmodels` mixed linear model fitting is CPU-bound but tractable for N [deferred] on 2 cores.
-- **Permutation Test**: 10,000 permutations of 5,000 rows is computationally intensive but feasible on a 2-core CPU within 6 hours if implemented efficiently (vectorized operations, no Python loops for shuffling).
-- **Fallback**: If memory or time limits are exceeded, the permutation count will be reduced to [deferred], and the result flagged as "approximate" (per FR-004).
+## Statistical Rigor & Assumptions
 
-### GPU Escape Hatch
-- **Not Required**: This project does not involve deep learning, transformers, or large-scale matrix factorizations that require CUDA. All methods (LMM, permutation, sensitivity) have faithful CPU forms. No GPU escape hatch is planned.
+- **Multiple Comparisons**: Not applicable for the primary test (one slope). However, the sensitivity sweep (3 alphas) is exploratory and reported descriptively.
+- **Sample Size/Power**: The power of the *drift test* depends on the number of studies, not the sample size of individual studies. If the number of studies is low (< 30), the plan will acknowledge low power to detect the drift trend.
+- **Causal Claims**: The study is observational. The analysis will frame results as "temporal association" or "drift," not causation.
+- **Collinearity**: Addressed by using **residual power** as the outcome. Regressing raw power on N and d is tautological; regressing residuals on year isolates the unexplained trend.
+- **Measurement Validity**: Power estimates are derived from reported effect sizes. If original studies reported inflated effects (Winner's Curse), power estimates will be biased.
+  - **Winner's Curse Limitation**: This is a fundamental limitation. If the drift is driven by a reduction in this inflation over time (rather than a true drop in power), the analysis will conflate the two. The plan explicitly acknowledges this in the discussion and cannot disentangle it without external validation of true effect sizes.
+- **Permutation Validity**: The permutation test must be performed on the **exact same dataset** as the LMM. If a stratified sample is used, it is used for both. This ensures the empirical p-value is a valid test of the specific model fit.
 
-## Decision/Rationale
+## Decision / Rationale
 
-- **Dataset**: The OSF Replication Project is the only verified open dataset containing the necessary variables (year, effect size, sample size, field) at scale.
-- **Model**: LMM is chosen over OLS to handle the hierarchical structure of the data. The model formula is corrected to `power_residual ~ year` to avoid tautology.
-- **Validation**: The dual approach (parametric LMM + non-parametric permutation) ensures robustness against model misspecification.
-- **Feasibility**: The CPU-first approach is sufficient for the dataset size and complexity. No synthetic stand-ins are needed.
+- **Why Residual Power?**: To avoid the tautology of `power ~ N + d`. The residual approach correctly "adjusts" for inputs by removing their variance, leaving only the unexplained trend to be tested.
+- **Why LMM?**: Random effects for `field` are necessary because effect sizes and power norms vary by discipline. Ignoring this violates independence assumptions.
+- **Why Permutation?**: LMM assumptions (normality of residuals) may not hold. Permutation provides a non-parametric validation.
+- **Why Stratified Sampling?**: To prevent selection bias if the dataset is too large. "First N" sampling would bias the temporal distribution. Stratified sampling preserves the year and field distribution.
+- **Why CPU?**: The statistical methods are lightweight. A GPU would not provide a speedup for this specific classical stats workload and adds unnecessary complexity.

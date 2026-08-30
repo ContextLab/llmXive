@@ -1,123 +1,62 @@
 # Data Model: Detecting Statistical Power Drift in Replicated Studies
 
-## Entities
+## Entity Definitions
 
-### ReplicationStudy
-Represents a single replication event in the dataset.
-- `study_id` (str): Unique identifier for the replication study.
+### 1. ReplicationStudy
+Represents a single replication event after cleaning, power calculation, and residualization.
+- `study_id` (str): Unique identifier (from source).
 - `year` (int): Calendar year of the replication.
-- `field` (str): Discipline/field of the study (e.g., "Psychology", "Economics").
+- `field` (str): Discipline (e.g., "Psychology", "Economics").
 - `original_study_id` (str): ID of the original study being replicated.
-- `effect_size` (float): Reported effect size (Cohen's *d* or log odds ratio).
+- `effect_size` (float): Reported effect size (Cohen's *d* or log-odds).
 - `sample_size` (int): Total sample size of the replication.
-- `power_estimate` (float): Post-hoc power calculated using FR-001 formulas.
-- `power_residual` (float): Residual from the pilot model (observed - predicted).
+- `power_estimate` (float): Calculated post-hoc power (0.0 to 1.0).
+- `residual_power` (float): Residual of `power_estimate` after regressing on `effect_size` and `sample_size`. This is the primary outcome for the LMM.
+- `exclusion_reason` (str | null): Reason for exclusion if missing data (e.g., "missing_sample_size").
 
-### DriftModel
-Represents the output of the Linear Mixed-Effects Model.
-- `slope_year` (float): Fixed effect coefficient for `year`.
+### 2. DriftModelResults
+Aggregated output from the LMM and validation tests.
+- `slope_year` (float): Estimated drift per year (on residual power).
 - `se_slope` (float): Standard error of the slope.
-- `p_value_parametric` (float): p-value from the likelihood-ratio test or Wald test.
-- `random_effects_variance` (dict): Variance components for `field` and `original_study_id`.
-- `model_formula` (str): The R-style formula used (e.g., "power_residual ~ year + (1|field) + (1|original_study_id)").
-
-### SensitivityResult
-Represents the outcome of the alpha threshold sweep.
-- `alpha_value` (float): The significance threshold tested (e.g., 0.01, 0.05, 0.1).
-- `drift_significant` (bool): Whether the drift slope was significant at this alpha.
-- `p_value` (float): The p-value for the slope at this alpha.
-
-### PermutationResult
-Represents the output of the non-parametric permutation test.
+- `p_value_parametric` (float): LRT p-value for `year`.
+- `p_value_permutation` (float): Empirical p-value from permutation test (year shuffle).
+- `random_effects_variance` (dict): Variance components for `field`.
 - `iterations_run` (int): Number of permutations actually executed.
-- `observed_statistic` (float): The observed slope from the real data.
-- `null_distribution` (list[float]): The distribution of slopes from permuted data.
-- `empirical_p_value` (float): Proportion of null statistics >= observed statistic.
-- `status` (str): "complete" or "approximate" (if fallback triggered).
+- `is_approximate` (bool): True if iterations were reduced due to timeout.
 
-## File Formats
+### 3. SensitivityResult
+Output from the alpha-sweep analysis.
+- `alpha_value` (float): The alpha threshold used.
+- `drift_significant` (bool): Was the drift slope significant at this alpha?
+- `slope_year` (float): Slope estimate at this alpha.
 
-### Input: `data/raw/osf_replications.parquet`
-- **Format**: Apache Parquet
-- **Schema**:
-  - `study_id`: string
-  - `year`: int32
-  - `field`: string
-  - `original_study_id`: string
-  - `effect_size`: float64
-  - `sample_size`: int32
-
-### Derived: `data/derived/cleaned_data.csv`
-- **Format**: CSV
-- **Schema**: Same as input, plus `power_estimate`. Rows with missing `year`, `effect_size`, or `sample_size` are removed.
-
-### Derived: `data/derived/residuals.csv`
-- **Format**: CSV
-- **Schema**:
-  - `study_id`: string
-  - `year`: int32
-  - `field`: string
-  - `original_study_id`: string
-  - `power_residual`: float64
-  - `predicted_power`: float64
-
-### Output: `results/lmm_final_summary.json`
-- **Format**: JSON
-- **Schema**:
-  ```json
-  {
-    "slope_year": 0.0012,
-    "se_slope": 0.0005,
-    "p_value_parametric": 0.015,
-    "random_effects_variance": {
-      "field": 0.02,
-      "original_study_id": 0.005
-    },
-    "model_formula": "power_residual ~ year + (1|field) + (1|original_study_id)"
-  }
-  ```
-
-### Output: `results/permutation_pvalue.json`
-- **Format**: JSON
-- **Schema**:
-  ```json
-  {
-    "iterations_run": 10000,
-    "observed_statistic": -0.002,
-    "empirical_p_value": 0.03,
-    "status": "complete"
-  }
-  ```
-
-### Output: `results/sensitivity_report.json`
-- **Format**: JSON
-- **Schema**:
-  ```json
-  {
-    "sweep_results": [
-      {"alpha_value": 0.01, "drift_significant": false, "p_value": 0.04},
-      {"alpha_value": 0.05, "drift_significant": true, "p_value": 0.015},
-      {"alpha_value": 0.1, "drift_significant": true, "p_value": 0.015}
-    ]
-  }
-  ```
-
-### Output: `results/aggregated_drift.json`
-- **Format**: JSON
-- **Schema**:
-  ```json
-  {
-    "aggregated_slope": -0.0018,
-    "aggregated_se": 0.0006,
-    "heterogeneity_statistic": 12.5,
-    "method": "DerSimonian-Laird"
-  }
-  ```
+### 4. AggregatedDrift
+Output from the cross-field aggregation.
+- `aggregated_slope` (float): Combined drift slope across fields.
+- `aggregated_se` (float): Standard error of the aggregated slope.
+- `heterogeneity_i2` (float): I-squared statistic for heterogeneity.
+- `method` (str): "DerSimonian-Laird".
 
 ## Data Flow
 
-1.  **Ingestion**: `data/raw/osf_replications.parquet` -> `code/preprocess.py` -> `data/derived/cleaned_data.csv` (with `power_estimate` column).
-2.  **Residualization**: `data/derived/cleaned_data.csv` -> `code/models.py` -> `data/derived/residuals.csv` (with `power_residual` column).
-3.  **Modeling**: `data/derived/residuals.csv` -> `code/models.py` -> `results/lmm_final_summary.json`.
-4.  **Robustness**: `results/lmm_final_summary.json` + `data/derived/cleaned_data.csv` -> `code/robustness.py` -> `results/permutation_pvalue.json`, `results/sensitivity_report.json`, `results/aggregated_drift.json`.
-5.  **Visualization**: `data/derived/residuals.csv` + `results/lmm_final_summary.json` -> `code/visualize.py` -> `results/power_drift_plot.png`.
+1. **Raw Input**: `data/raw/*.parquet` or `*.csv`.
+   - Columns: `year`, `effect_size`, `sample_size`, `field`, `original_study_id`, ...
+2. **Derived Input**: `data/derived/cleaned_data.csv`.
+   - Filtered rows (no missing critical vars).
+   - Added `power_estimate`.
+3. **Residualization**: `data/derived/power_estimates.csv`.
+   - Added `residual_power` (residuals of `power_estimate ~ effect_size + sample_size`).
+4. **Output**: `results/*.json`.
+   - `lmm_final_summary.json`: DriftModelResults.
+   - `permutation_pvalue.json`: Permutation stats.
+   - `sensitivity_report.json`: List of SensitivityResult.
+   - `aggregated_drift.json`: AggregatedDrift.
+5. **Visualization**: `results/plots/residual_power_vs_year.png`.
+
+## Data Hygiene Rules
+
+- **Immutability**: Raw files in `data/raw/` are never modified.
+- **Checksums**: Every file in `data/raw/` and `data/derived/` is checksummed (SHA-256) and recorded in `state/`.
+- **Missing Data**: Rows with missing `sample_size` or `effect_size` are moved to a "dropped" log and excluded from analysis.
+- **Outliers**: Extreme effect sizes (e.g., |d| > 10) are capped or flagged, but not removed unless they cause model convergence failure.
+- **Stratified Sampling**: If sampling is required, it is performed using `stratify=[year, field]` to preserve temporal and disciplinary distribution.

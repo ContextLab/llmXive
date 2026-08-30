@@ -1,11 +1,11 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: DriftModelOutput
-description: Schema for the output of the Linear Mixed-Effects Model fitting the power drift.
+description: Schema for the output of the Linear Mixed-Effects Model fitting the residual power drift.
 type: object
 properties:
   slope_year:
     type: number
-    description: Fixed effect coefficient for the year variable.
+    description: Fixed effect coefficient for the year variable (on residual power).
   se_slope:
     type: number
     description: Standard error of the year slope.
@@ -21,19 +21,19 @@ properties:
       field:
         type: number
         description: Variance of the random intercept for field.
-      original_study_id:
-        type: number
-        description: Variance of the random intercept for original_study_id.
     required:
       - field
-      - original_study_id
   model_formula:
     type: string
-    description: The R-style formula used for the model.
+    description: The R-style formula used for the model (e.g., "residual_power ~ year + (1|field)").
+  model_converged:
+    type: boolean
+    description: Whether the model successfully converged.
 required:
   - slope_year
   - se_slope
   - p_value_parametric
   - random_effects_variance
   - model_formula
+  - model_converged
 additionalProperties: false

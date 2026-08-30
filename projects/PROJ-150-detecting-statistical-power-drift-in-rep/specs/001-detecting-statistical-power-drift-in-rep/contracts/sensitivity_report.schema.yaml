@@ -1,30 +1,30 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: SensitivityReport
-description: Schema for the sensitivity analysis across alpha thresholds.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Analysis Report"
+description: "Schema for the alpha-sweep sensitivity analysis results."
+type: "object"
 properties:
-  sweep_results:
-    type: array
-    description: List of results for each alpha threshold tested.
+  sensitivity_results:
+    type: "array"
     items:
-      type: object
+      type: "object"
       properties:
         alpha_value:
-          type: number
-          description: The significance threshold tested.
+          type: "number"
+          description: "The alpha threshold tested."
         drift_significant:
-          type: boolean
-          description: Whether the drift slope was significant at this alpha.
-        p_value:
-          type: number
-          description: The p-value for the slope at this alpha.
-          minimum: 0.0
-          maximum: 1.0
+          type: "boolean"
+          description: "Whether the drift was significant at this alpha."
+        slope_year:
+          type: "number"
+          description: "Slope estimate at this alpha."
       required:
         - alpha_value
         - drift_significant
-        - p_value
-      additionalProperties: false
+        - slope_year
+  summary:
+    type: "string"
+    description: "Text summary of whether the result is robust across alphas."
 required:
-  - sweep_results
+  - sensitivity_results
+  - summary
 additionalProperties: false

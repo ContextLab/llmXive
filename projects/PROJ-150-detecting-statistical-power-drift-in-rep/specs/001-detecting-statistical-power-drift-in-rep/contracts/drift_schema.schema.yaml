@@ -29,7 +29,7 @@ properties:
     properties:
       slope_year:
         type: number
-        description: "The estimated slope of the year fixed effect in the LMM."
+        description: "The estimated slope of the year fixed effect in the LMM (on residual power)."
       se_slope:
         type: number
         description: "Standard error of the slope."
@@ -55,10 +55,10 @@ properties:
     properties:
       effect_size_slope:
         type: number
-        description: "Coefficient for effect_size in the LMM."
+        description: "Coefficient for effect_size in the initial power regression (for residualization)."
       sample_size_slope:
         type: number
-        description: "Coefficient for sample_size in the LMM."
+        description: "Coefficient for sample_size in the initial power regression (for residualization)."
     required:
       - effect_size_slope
       - sample_size_slope
@@ -98,3 +98,4 @@ required:
   - input_trends
   - sensitivity
   - aggregation
+additionalProperties: false

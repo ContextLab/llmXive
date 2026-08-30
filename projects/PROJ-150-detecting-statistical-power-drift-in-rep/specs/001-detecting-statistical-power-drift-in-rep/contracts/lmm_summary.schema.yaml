@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Linear Mixed-Effects Model Summary"
+description: "Schema for the output of the primary drift model and likelihood-ratio test."
+type: "object"
+properties:
+  slope_year:
+    type: "number"
+    description: "Estimated slope of power drift per year."
+  se_slope:
+    type: "number"
+    description: "Standard error of the slope."
+  p_value_parametric:
+    type: "number"
+    description: "P-value from the likelihood-ratio test for the year effect."
+  random_effects_variance:
+    type: "object"
+    properties:
+      field:
+        type: "number"
+        description: "Variance component for the 'field' random effect."
+      original_study_id:
+        type: "number"
+        description: "Variance component for the 'original_study_id' random effect."
+    required:
+      - field
+      - original_study_id
+  model_converged:
+    type: "boolean"
+    description: "Whether the model successfully converged."
+required:
+  - slope_year
+  - se_slope
+  - p_value_parametric
+  - random_effects_variance
+  - model_converged
+additionalProperties: false

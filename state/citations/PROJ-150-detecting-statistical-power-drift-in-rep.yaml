@@ -1,33 +1,22 @@
-- artifact_hash: 6df7765a9171d859c101eec24a008fb2d764561169594e8aa15c7cf4fcbc6e2e
+- artifact_hash: af619f8c32d923695960dc0c90e2502de53179339b9458adcf21b82362014f20
   artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: OSF
   kind: url
-  value: https://huggingface.co/datasets/osc/replication_project/resolve/main/replication_data.parquet`
+  value: https://osf.io/ezcuj/`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/osc/replication_project/resolve/main/replication_data.parquet
-  verified_at: '2026-08-18T17:40:31.981343Z'
-- artifact_hash: de2e0a79412e8df66971cea98255202d03c179ab55afab1519f092454c9c041c
-  artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Pi - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Pi
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-08-22T10:44:45.745233Z'
-- artifact_hash: de2e0a79412e8df66971cea98255202d03c179ab55afab1519f092454c9c041c
-  artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  verified_against_url: https://osf.io/ezcuj/
+  verified_at: '2026-08-30T20:19:23.780765Z'
+- artifact_hash: af619f8c32d923695960dc0c90e2502de53179339b9458adcf21b82362014f20
+  artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: 'The Power of 10: Rules for Developing Safety-Critical Code - Wikipedia'
+  fetched_title: OSF
   kind: url
-  value: https://en.wikipedia.org/wiki/The_Power_of_10:_Rules_for_Developing_Safety-Critical_Code
+  value: https://osf.io/59xqz/`
   verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/The_Power_of_10:_Rules_for_Developing_Safety-Critical_Code
-  verified_at: '2026-08-22T10:44:45.745233Z'
+  verified_against_url: https://osf.io/59xqz/
+  verified_at: '2026-08-30T20:19:23.780765Z'

@@ -9,16 +9,16 @@ properties:
   aggregated_se:
     type: number
     description: Standard error of the aggregated slope.
-  heterogeneity_statistic:
+  heterogeneity_i2:
     type: number
-    description: Statistic measuring heterogeneity between fields (e.g., I-squared or Q).
+    description: I-squared statistic for heterogeneity between fields.
   method:
     type: string
     description: The aggregation method used.
-    const: DerSimonian-Laird
+    const: "DerSimonian-Laird"
 required:
   - aggregated_slope
   - aggregated_se
-  - heterogeneity_statistic
+  - heterogeneity_i2
   - method
 additionalProperties: false
