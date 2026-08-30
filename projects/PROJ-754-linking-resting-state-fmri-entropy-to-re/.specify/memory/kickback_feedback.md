@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory tree, file list, or any description of a created project structure was provided; the claim lacks any tangible artifact demonstrating that the required project layout exists. The implementer must supply the actual project folders/files (e.g., `src/`, `data/`, `scripts/`, `README.md`, etc.) to satisfy the task.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or ruff section, or a pre‑commit hook) were provided, nor any evidence that ruff and black have been set up in the repository. The required artifacts are missing.
+- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: src/config/env_manager.py
+- `T006` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/logging_config.py
 
 ## Required change
 

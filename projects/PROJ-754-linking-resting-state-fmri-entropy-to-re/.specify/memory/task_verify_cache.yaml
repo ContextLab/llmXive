@@ -1,14 +1,9 @@
-T005:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or documentation was provided that shows HCP_TOKEN being
-    read from the environment, validated, and causing a graceful failure with a clear
-    error message when missing or invalid. The required artifact (implementation of
-    robust environment variable management) is absent.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No logging configuration, code, or documentation was provided to demonstrate
-    that subject exclusions and processing steps are being recorded. The required
-    artifact (e.g., a logging module, config file, or example log output) is missing,
-    so the task is not satisfied.
+  r: "No directory tree or file listings were provided to confirm that the required\
+    \ top\u2011level folders (`src/`, `tests/`, `data/`, `reports/`, `docs/`, `scripts/`,\
+    \ `state/`) and the specified sub\u2011folders (`src/data`, `src/analysis`, `src/stats`,\
+    \ `src/config`, `src/utils`, `src/entities`, `tests/unit`, `tests/integration`)\
+    \ actually exist. Without concrete evidence of these directories, the claim cannot\
+    \ be verified."

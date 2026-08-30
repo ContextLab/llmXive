@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data files (tracked via checksums only)
+data/raw/
+data/derived/
+data/cleaned/
+data/results/
+*.nii.gz
+*.parquet
+*.csv
+
+# Logs
+logs/
+*.log
+
+# Reports
+reports/
+
+# State
+state/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+__pycache__/

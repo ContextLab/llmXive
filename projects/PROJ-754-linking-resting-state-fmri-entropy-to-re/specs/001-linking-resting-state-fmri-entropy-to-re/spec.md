@@ -70,10 +70,10 @@ The system MUST fit a mass-univariate linear model per parcel predicting DSRT sc
 - **FR-002**: System MUST exclude any subject with mean framewise displacement (FD) ≥ 0.2mm, a standard motion threshold for rs-fMRI quality control. (See US-1)
 - **FR-003**: System MUST compute multiscale sample entropy (m=1–5) for every cortical parcel and average across scales. (See US-2)
 - **FR-004**: System MUST fit a mass-univariate linear model per parcel (DSRT ~ Entropy + Age + Sex + Mean FD) with Subject as a random effect (1|Subject) to generate parcel-wise β-coefficients. (See US-3)
-- **FR-005**: System MUST perform 5,000 label-shuffled permutations using the max-t statistic across parcels per permutation to build a null distribution for family-wise error (FWE) correction at p < 0.05. (See US-3)
+- **FR-005**: System MUST perform a statistically significant number of label-shuffled permutations using the max-t statistic across parcels per permutation to build a null distribution for family-wise error (FWE) correction at p < 0.05. (See US-3)
 - **FR-006**: System MUST frame all statistical findings as associational, not causal, given the observational nature of the data. (See US-3)
 - **FR-007**: System MUST run on CPU-only hardware without requiring CUDA, GPU, or 8-bit quantization libraries. (See GC-001)
-- **FR-008**: System MUST include a sensitivity analysis sweeping entropy tolerance parameter r over {0.1, 0.15, 0.2} and scale parameter m over {3, 5, 7} to report variation in the number of significant parcels (p < 0.05 FWE). (See US-3)
+- **FR-008**: System MUST include a sensitivity analysis sweeping entropy tolerance parameter r over a range of values and scale parameter m over a set of discrete magnitudes (Sensitivity analysis: sweeping entropy tolerance parameter r and scale parameter m; Method: parameter sweep; References: None). to report variation in the number of significant parcels (p < 0.05 FWE). (See US-3)
 
 ### Key Entities
 

@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-linking-resting-state-fmri-entropy-to-re/spec.md`
 
 ## Summary
-The project must () download a subset of 200 HCP minimally preprocessed 4 mm parcellated resting‑state fMRI time series together with Domain‑Specific Risk‑Taking (DSRT) scores, (2) compute multiscale sample entropy (mSE) for each cortical parcel (across multiple scales, averaged), and (3) fit a mass‑univariate **Ordinary Least Squares (OLS)** regression per parcel predicting DSRT from entropy while controlling for age, sex, and mean framewise displacement (FD). Results require permutation‑based family‑wise error (FWE) correction (using the Freedman-Lane method) and a sensitivity analysis over entropy tolerance `r` and pattern length `m`. All steps must run on a CPU‑only GitHub Actions runner within the free‑tier resource limits.
+The project must () download a subset of HCP minimally preprocessed 4 mm parcellated resting‑state fMRI time series together with Domain‑Specific Risk‑Taking (DSRT) scores, (2) compute multiscale sample entropy (mSE) for each cortical parcel (across multiple scales, averaged), and (3) fit a mass‑univariate **Ordinary Least Squares (OLS)** regression per parcel predicting DSRT from entropy while controlling for age, sex, and mean framewise displacement (FD). Results require permutation‑based family‑wise error (FWE) correction (using the Freedman-Lane method) and a sensitivity analysis over entropy tolerance `r` and pattern length `m`. All steps must run on a CPU‑only GitHub Actions runner within the free‑tier resource limits.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
@@ -31,7 +31,7 @@ The project must () download a subset of 200 HCP minimally preprocessed 4 mm p
 | IV. Single Source of Truth | Every figure/table in the final PDF is generated directly from the CSV/NIfTI outputs produced by the pipeline. |
 | V. Versioning Discipline | `requirements.txt` pins exact package versions. **Post-processing script updates `state/projects/PROJ-754-...yaml` with SHA-256 hashes of all artifacts upon successful completion.** Git LFS stores large data artifacts. |
 | VI. Neuroimaging Motion Control | Mean FD is computed per subject, used as a covariate, and low‑motion subset (FD < 0.2 mm) is re‑run as a robustness check. |
-| VII. Permutation‑Based Multiple‑Comparison Correction | The statistical module implements max‑t permutation testing (5 000 shuffles, Freedman-Lane method) and thresholds at p < 0.05 FWE. |
+| VII. Permutation‑Based Multiple‑Comparison Correction | The statistical module implements max‑t permutation testing (a sufficient number of shuffles, Freedman-Lane method) and thresholds at p < 0.05 FWE. |
 
 All principles are satisfied; no violations identified.
 
