@@ -119,5 +119,5 @@ projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/
 |-----------|------------|-------------------------------------|
 | **External Taxonomy** | Required to avoid circularity (test data defining the baseline). | Using ATBench labels to define taxonomy would invalidate the "Zero-Shot" claim and the drift metric. |
 | **Gold-Standard Proxy** | Required to validate the *pipeline* for Kappa calculation in CI without fabricating human labor. | Simulated random annotations would not validate the *calculation logic* against a ground truth. |
-| **Streaming Data Loader** | Full dataset (100k+) exceeds 7GB RAM if loaded entirely. | Loading full dataset in memory would crash the CI runner. Streaming is mandatory for feasibility. |
+| **Streaming Data Loader** | Full dataset (large-scale) exceeds available RAM if loaded entirely. | Loading full dataset in memory would crash the CI runner. Streaming is mandatory for feasibility. |
 | **Deterministic Timestamps** | Spec requires timestamp; source may lack it. | Synthetic random timestamps violate reproducibility. Hash-based derivation ensures consistency. |
