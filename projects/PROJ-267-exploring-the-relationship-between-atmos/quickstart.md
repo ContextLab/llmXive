@@ -1,165 +1,110 @@
-# Quickstart Guide: Atmospheric River Gravity Correlation
-
-This guide provides instructions for installing dependencies, running the analysis pipeline, understanding data sources, and verifying expected outputs for the PROJ-267 project.
-
-## Prerequisites
-
-- Python 3.9 or higher
-- pip package manager
-- Access to the internet (for data fetching)
+# Atmospheric River Gravity Correlation - Quickstart Guide
 
 ## Installation
 
-1. Navigate to the project root directory:
+1. Clone the repository and navigate to the project directory:
  ```bash
  cd projects/PROJ-267-exploring-the-relationship-between-atmos
  ```
 
-2. Install the required dependencies:
+2. Create a virtual environment and activate it:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
+ ```
+
+3. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
 
-## Project Structure
-
-- `code/`: Python scripts for data ingestion, preprocessing, analysis, and visualization.
-- `data/raw/`: Raw downloaded datasets (GRACE-FO and NOAA AR).
-- `data/processed/`: Processed and merged datasets.
-- `contracts/`: Schema definitions for data validation.
-- `tests/`: Unit and integration tests.
-- `docs/`: Documentation files.
-- `state/`: Project state and metadata.
-- `specs/`: Feature specifications and design documents.
-
 ## Data Sources
 
-The project utilizes two primary real-world datasets:
+This project uses two primary data sources:
 
-1. **GRACE-FO Mascon Solutions**:
- - **Source**: PO.DAAC CMR Search API
- - **URL**: `
- - **Description**: L2 Mascon RL06 data for gravity field variations.
- - **Region**: West Coast North America (35°N-50°N, 120°W-125°W).
+- **GRACE-FO Mascon Solutions**: NASA's GRACE Follow-On mission data for gravitational potential anomalies.
+ - URL: Configured in `config/urls.yaml` (PO.DAAC CMR search API)
+ - Format: NetCDF files, processed to monthly CSVs
 
-2. **NOAA CPC Atmospheric River Catalog**:
- - **Source**: NOAA ERDDAP
- - **URL**: `
- - **Description**: Integrated Water Vapor Transport (IWVT) and AR event data.
- - **Region**: West Coast North America (35°N-50°N, 120°W-125°W).
+- **NOAA CPC Atmospheric River Catalog**: NOAA's catalog of atmospheric river events.
+ - URL: Configured in `config/urls.yaml` (NOAA ERDDAP endpoint)
+ - Format: CSV/JSON, aggregated to monthly intensity metrics
 
-## Run Commands
+**Note**: Ensure `config/urls.yaml` is populated with valid URLs before running the pipeline.
 
-Execute the pipeline steps in the following order. Ensure you have internet access for data fetching steps.
+## Running the Pipeline
 
-### 1. Data Ingestion
+Execute the full analysis pipeline in order:
 
-Fetch raw GRACE-FO data:
 ```bash
+# 1. Verify citations and URLs
+python code/00_verify_citations.py
+
+# 2. Ingest raw data
 python code/01_data_ingestion_grace.py
-```
-
-Fetch raw NOAA AR data:
-```bash
 python code/01_data_ingestion_noaa.py
-```
 
-### 2. Preprocessing and Merging
+# 3. Preprocess data
+python code/02_preprocessing_grace.py
+python code/02_preprocessing_noaa.py
 
-Apply corrections (degree-1, C20, Gaussian smoothing) and merge datasets:
-```bash
-python code/02_preprocessing.py
-```
-*Output*: `data/processed/merged_monthly.csv`
+# 4. Merge and validate datasets
+python code/02_preprocessing_merge.py
 
-### 3. Statistical Correlation Analysis
+# 5. Run correlation analysis
+python code/03_correlation_analysis.py
 
-Compute Pearson correlations with lag windows and bootstrap corrections:
-```bash
-python code/03_correlation.py
-```
-
-Apply bootstrap resampling and FDR correction:
-```bash
-python code/04_bootstrap_correction.py
-```
-
-### 4. Control Validation
-
-Validate signal against noise floor and control regions:
-```bash
-python code/05_control_validation.py
-```
-
-### 5. Visualization and Reporting
-
-Generate time-series overlay:
-```bash
+# 6. Generate visualizations
 python code/06_visualization_timeseries.py
-```
-
-Generate scatter regression plot:
-```bash
 python code/07_visualization_scatter.py
-```
-
-Generate spatial anomaly map:
-```bash
 python code/08_visualization_spatial.py
-```
 
-Generate sensitivity report:
-```bash
+# 7. Generate sensitivity and bias reports
 python code/09_sensitivity_report.py
-```
+python code/10_temporal_bias_analysis.py
 
-### 6. Verification
-
-Run contract tests to verify schema compliance:
-```bash
-pytest tests/contract/
-```
-
-Run integration tests:
-```bash
-pytest tests/integration/
+# 8. Validate frame of reference documentation
+python code/11_validate_frame_of_reference.py
 ```
 
 ## Expected Outputs
 
-After successful execution of the pipeline, the following artifacts should exist:
+After successful execution, the following artifacts will be generated:
 
-- **Raw Data**:
- - `data/raw/grace-fo/` (contains downloaded GRACE-FO files with checksums)
- - `data/raw/noaa-ar/` (contains downloaded NOAA AR files with checksums)
+### Data Artifacts
+- `data/processed/merged_monthly.csv`: Merged time-series of AR intensity and gravity anomalies.
+- `data/processed/correlation_results.csv`: Statistical correlation results with lags, p-values, and confidence intervals.
 
-- **Processed Data**:
- - `data/processed/merged_monthly.csv`: Monthly merged dataset containing gravity anomalies and AR intensity metrics.
+### Visualization Artifacts
+- `output/timeseries_overlay.png`: Time-series overlay of AR intensity and gravity anomalies.
+- `output/scatter_regression.png`: Scatter plot with regression line.
+- `output/spatial_anomaly_map.png`: Spatial map of gravity anomalies (if spatial data available).
 
-- **Analysis Results**:
- - Correlation coefficients, p-values, and bootstrap confidence intervals (saved in `data/processed/` or `state/` as JSON/CSV).
+### Reports
+- `output/sensitivity_report.md`: Sensitivity analysis of correlation thresholds.
+- `output/temporal_bias_analysis.md`: Analysis of temporal aggregation bias.
+- `docs/runtime_report.md`: Pipeline runtime and resource usage metrics.
 
-- **Visualizations**:
- - `output/timeseries_overlay.png`: Time-series overlay of gravity and AR intensity.
- - `output/scatter_regression.png`: Scatter plot with regression line.
- - `output/spatial_anomaly_map.png`: Spatial map of gravity anomalies.
+## Validation
 
-- **Reports**:
- - `docs/sensitivity_report.md`: Sensitivity analysis results.
- - `docs/temporal_bias_analysis.md`: Temporal aggregation bias documentation.
+Run the completeness verification script to ensure all deliverables are present:
+
+```bash
+python code/verify_completeness.py --threshold 0.90
+```
+
+This script checks for:
+- Existence and non-emptiness of all required CSV and plot files.
+- Minimum row counts and absence of critical NaN values in data files.
+- Presence of required documentation sections.
 
 ## Troubleshooting
 
-- **Data Fetching Failures**: Ensure internet connectivity and that the PO.DAAC and NOAA ERDDAP endpoints are reachable. Check network proxies if behind a firewall.
-- **Missing Dependencies**: Re-run `pip install -r code/requirements.txt` if import errors occur.
-- **Schema Validation Errors**: Ensure that the `contracts/` directory contains the correct schema files (`dataset.schema.yaml`, `output.schema.yaml`).
-
-## Citation Verification
-
-Run the citation verification script to ensure all referenced URLs are valid:
-```bash
-python code/00_verify_citations.py
-```
+- **Missing Data Files**: Ensure `data/raw/` contains downloaded files. Re-run ingestion scripts if needed.
+- **Schema Validation Errors**: Check `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for format requirements.
+- **Citation Verification Failure**: Update `config/urls.yaml` with correct, reachable URLs.
+- **Runtime Errors**: Check `logs/` directory for detailed error traces.
 
 ## License
 
-This project is for research purposes. Data usage is subject to the terms of the respective data providers (NASA/PO.DAAC and NOAA).
+This project is provided for research purposes. Data usage must comply with the respective data source licenses (NASA/NOAA).

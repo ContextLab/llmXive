@@ -11,10 +11,27 @@ T012:
   r: The required YAML file `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml`
     does not exist, so the project metadata and `artifact_hashes` map have not been
     created. The task therefore remains unfinished.
-T017c:
+T020:
   c: false
-  h: 0fb166fa57bf0eab933c6e53633fbea4015ca11c4609dcce7c9ada691aad6df9
-  r: The repository contains a `02_preprocessing_merge.py` script, but the required
-    output file `data/processed/merged_monthly.csv` does not exist, and the referenced
-    schema file `contracts/dataset.schema.yaml` is also missing. Consequently the
-    script cannot perform the required validation or save the merged CSV as specified.
+  h: 511f8877fdcb33f79f0c85d9694375faed630a0063a56fee7507cdbbf414a20e
+  r: "The provided `03_correlation_analysis.py` ends abruptly (truncated after `def\
+    \ b`) and does not contain implementations for lag\u2011window analysis, bootstrap\
+    \ resampling, FDR correction, Newey\u2011West errors, SNR calculation, or CSV\
+    \ output with `region_type` and `significance_flag`. Additionally, the required\
+    \ `data/processed/correlation_results.csv` file is absent. These missing components\
+    \ mean the task\u2019s specifications are not met."
+T040:
+  c: false
+  h: 65d2d027664fec275bd5d4562dec4adf81bd160b66824d7ada657ed61bfda9e3
+  r: The required input `data/processed/merged_monthly.csv` and `docs/runtime_profile.md`
+    are missing, and the generated `docs/runtime_report.md` contains placeholder values
+    (zero duration, zero CPU/memory) with a note to run the script later. No real
+    runtime or resource measurements were provided.
+T045:
+  c: false
+  h: a69af93e81e2c5be3247a58a14f610919d7461e244e01fae492ac2cb4507d74e
+  r: "The repository contains `code/04_visualization.py` (a valid script) but the\
+    \ required `code/06_visualization_timeseries.py` is missing, and there is no evidence\
+    \ that `quickstart.md` was edited to invoke the new script. The task\u2019s core\
+    \ deliverable\u2014updating the quickstart run\u2011book\u2014is therefore not\
+    \ present."

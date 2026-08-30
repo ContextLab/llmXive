@@ -6491,3 +6491,425 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-27T01:04:36Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO measures gravity changes via inter-satellite distance variations
+    converted to spherical harmonic coefficients
+  claim_id: c_114c3f31
+  context: 'Requirement: Must explain that GRACE-FO measures changes in the Earth''s
+    gravity field by tracking inter-satellite distance variations, which are then
+    converted to spherical harmonic coefficients.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_measures_gravity_changes_via_inter-satellite_distan
+  kind: entity_fact
+  raw_text: GRACE-FO measures changes in the Earth's gravity field by tracking inter-satellite
+    distance variations, which are then converted to spherical harmonic coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:11:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Gravity anomaly represents potential perturbation at GRACE-FO satellite
+    altitude not geoid height
+  claim_id: c_12b75c60
+  context: 'Requirement: Must state that the anomaly represents the perturbation in
+    the gravitational potential at the GRACE-FO satellite altitude (approx. low Earth
+    orbit), not the geoid height at the Earth''s surface.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gravity_anomaly_represents_potential_perturbation_at_GRACE-F
+  kind: entity_fact
+  raw_text: The anomaly_value represents the perturbation in the gravitational potential
+    at the GRACE-FO satellite altitude (approx. low Earth orbit), NOT the geoid height
+    at the Earth's surface.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:12:46Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Degree-1 correction uses Swenson and Wahr 2006 coefficients
+  claim_id: c_786a8128
+  context: 'Create GRACE-FO preprocessing script that: (1) applies GRACE-FO degree-1
+    coefficient correction using coefficients from Swenson & Wahr (2006) (C10=0.0,
+    C11=0.0, S11=0.0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis applies GRACE-FO degree-1 coefficient correction using coefficients
+    from Swenson & Wahr (2006).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:13:28Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 iterations with seed 42
+  claim_id: c_fbb532ba
+  context: implements bootstrap resampling (1000 iterations, seed=42) for 95% confidence
+    intervals
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis implements bootstrap resampling with 1000 iterations and
+    seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:14:17Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling seed is 42
+  claim_id: c_99f6aa59
+  context: apply bootstrap resampling (A sufficient number of iterations will be performed.,
+    seed=42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses a seed value of 42 for bootstrap resampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:14:51Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: FDR correction applied using statsmodels multipletests
+  claim_id: c_3f8eaf39
+  context: applies FDR correction using statsmodels.stats.multitest.multipletests
+    for p-values
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FDR_correction_applied_using_statsmodels_multipletests
+  kind: entity_fact
+  raw_text: The analysis applies FDR correction using statsmodels.stats.multitest.multipletests
+    for p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:15:31Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Autocorrelation correction uses AR(1) pre-whitening
+  claim_id: c_745eed8a
+  context: implements autocorrelation correction using AR(1) pre-whitening (statsmodels.tsa.ar_model.AutoReg)
+    and effective sample size calculation to control Type I errors
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis implements autocorrelation correction using AR(1) pre-whitening
+    via statsmodels.tsa.ar_model.AutoReg.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:15:46Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime target is 6 hours or less
+  claim_id: c_2c01525b
+  context: "Measure aggregate pipeline runtime (full historical dataset from data/processed/merged_monthly.csv,\
+    \ GRACE-FO mission launch since the early s to the present) to verify \u2264 6\
+    \ hours on CPU cores and 7 GB RAM (SC-004)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_target_is_6_hours_or_less
+  kind: magnitude
+  raw_text: The pipeline targets a runtime of less than or equal to 6 hours on CPU
+    cores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:17:00Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Pipeline memory target is 7 GB RAM
+  claim_id: c_8d2410d3
+  context: "Measure aggregate pipeline runtime (full historical dataset from data/processed/merged_monthly.csv,\
+    \ GRACE-FO mission launch since the early s to the present) to verify \u2264 6\
+    \ hours on CPU cores and 7 GB RAM (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline targets a memory usage of 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:18:09Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Merged CSV must contain 90% of expected monthly rows
+  claim_id: c_8f20e843
+  context: "Independent Test: Can be fully tested by executing the data pipeline script\
+    \ and verifying the output contains a merged CSV with \u2265 90% of expected monthly\
+    \ rows and no NaN values in the primary columns"
+  evidence:
+    entailment_evidence: Merged CSV must contain 90% of expected monthly rows
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Merged_CSV_must_contain_90%25_of_expected_monthly_rows
+  kind: magnitude
+  raw_text: The merged CSV output must contain at least 90% of expected monthly rows.
+  resolved_value: Merged CSV must contain 90% of expected monthly rows
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T02:18:26Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: analysis assumes static non-rotating frame for monthly aggregation acknowledging
+    coordinate artifact nature
+  claim_id: c_b4b0fc9a
+  context: T032 updates data-model.md to explicitly define the Gravity Anomaly entity's
+    frame of reference.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_assumes_static_non-rotating_frame_for_monthly_aggre
+  kind: entity_fact
+  raw_text: The analysis assumes a static, non-rotating frame for the duration of
+    the monthly aggregation, acknowledging the coordinate artifact nature of 'static'
+    anomalies in a dynamic field.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:22:18Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO measures gravity field changes by tracking inter-satellite distance
+    variations converted to spherical harmonic coefficients
+  claim_id: c_7fae6a5b
+  context: T033 updates methodology.md to include a 'Frame of Reference and Coordinate
+    System' section.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GRACE-FO_measures_gravity_field_changes_by_tracking_inter-sa
+  kind: entity_fact
+  raw_text: GRACE-FO measures changes in the Earth's gravity field by tracking inter-satellite
+    distance variations, which are then converted to spherical harmonic coefficients.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:22:22Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO degree-1 correction uses Swenson & Wahr 2006 coefficients C10=0.0
+    C11=0.0 S11=0.0
+  claim_id: c_19e6440d
+  context: T017a creates GRACE-FO preprocessing script applying degree-1 correction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply GRACE-FO degree-1 coefficient correction using coefficients from
+    Swenson & Wahr (2006) (C10=0.0, C11=0.0, S11=0.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:22:55Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses 1000 iterations and seed 42 for 95% confidence
+    intervals
+  claim_id: c_2db31ba9
+  context: T020 creates correlation and bootstrap analysis script.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: implements bootstrap resampling (1000 iterations, seed=42) for 95% confidence
+    intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:23:27Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: correlation results based on perturbation in gravitational potential
+    at GRACE-FO satellite altitude not geoid height at Earth surface
+  claim_id: c_26ec6132
+  context: T051a updates sensitivity_report.md to include a 'Frame of Reference and
+    Limitations' section.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_results_based_on_perturbation_in_gravitational_p
+  kind: entity_fact
+  raw_text: The correlation results presented in this report are based on the perturbation
+    in gravitational potential at the GRACE-FO satellite altitude, not the geoid height
+    at the Earth's surface.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:24:38Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: comparison of monthly vs sub-monthly aggregation shows bias in correlation
+    coefficient supporting monthly resolution
+  claim_id: c_9dedd602
+  context: T029 creates temporal bias documentation script.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparison_of_monthly_vs_sub-monthly_aggregation_shows_bias
+  kind: entity_fact
+  raw_text: A comparison of monthly vs. sub-monthly aggregation on a sample dataset
+    shows a bias in the correlation coefficient of {bias:.4f}, supporting the use
+    of monthly resolution as the bias is minimal.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:25:28Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling seed set to 42
+  claim_id: c_e2d7638b
+  context: 'Phase 3: User Story 2 - Statistical Correlation Analysis (Priority: P1)...
+    apply bootstrap resampling (A sufficient number of iterations will be performed.,
+    seed=42)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A sufficient number of iterations will be performed., seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:36:57Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses 1000 iterations
+  claim_id: c_17168f70
+  context: T020... implements bootstrap resampling (1000 iterations, seed=42) for
+    95% confidence intervals
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:38:54Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: degree-1 coefficient correction uses Swenson & Wahr 2006 coefficients
+  claim_id: c_664b80a0
+  context: T017a... applies GRACE-FO degree-1 coefficient correction using coefficients
+    from Swenson & Wahr (2006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Swenson & Wahr (2006)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:39:30Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Swenson & Wahr 2006 degree-1 coefficients are C10=0.0, C11=0.0, S11=0.0
+  claim_id: c_90c0e43d
+  context: T017a... applies GRACE-FO degree-1 coefficient correction using coefficients
+    from Swenson & Wahr (2006) (C10=0.0, C11=0.0, S11=0.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: C10=0.0, C11=0.0, S11=0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:41:03Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Constitution Principle VII mentions Pearson greater than 0.5 as example
+  claim_id: c_3976796c
+  context: 'SPEC CONTRADICTION FLAG: Spec.md contains internal contradiction... Constitution
+    Principle VII mentions Pearson > 0.5 as example'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Constitution_Principle_VII_mentions_Pearson_greater_than_0.5
+  kind: magnitude
+  raw_text: Pearson > 0.5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:48:58Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: citation validation requires title-token-overlap at least 0.7
+  claim_id: c_7a57c5b5
+  context: "T008... validates both URL reachability AND citation validation (title-token-overlap\
+    \ \u2265 0.7 against primary source)"
+  evidence:
+    entailment_evidence: Citation validation requires title-token-overlap at least
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Citation_validation_requires_title-token-overlap_at_least_0.
+  kind: magnitude
+  raw_text: "title-token-overlap \u2265 0.7"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-30T02:51:17Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: dataset includes GRACE-FO mission launch from early 2000s to present
+  claim_id: c_994671b7
+  context: T040... full historical dataset from data/processed/merged_monthly.csv,
+    GRACE-FO mission launch since the early s to the present
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_includes_GRACE-FO_mission_launch_from_early_2000s_to
+  kind: entity_fact
+  raw_text: GRACE-FO mission launch since the early s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T02:51:49Z'
