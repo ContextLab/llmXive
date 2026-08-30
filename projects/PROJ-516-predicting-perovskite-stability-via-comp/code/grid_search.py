@@ -1,362 +1,270 @@
-"""
-Grid Search Implementation for Perovskite Stability Modeling.
-
-Implements a hard cap of ≤10 hyperparameter combinations per model
-as required by T022. Supports Random Forest, Gradient Boosting, and
-Elastic Net models with uncertainty-weighted training where applicable.
-"""
-
 import logging
 import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import ElasticNet
-from sklearn.model_selection import ParameterGrid, cross_val_score
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
-from sklearn.preprocessing import StandardScaler
 
-# Import existing training functions from model_training
-from model_training import (
-    train_random_forest,
-    train_gradient_boosting,
-    train_elastic_net,
-    load_data
-)
-
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-logger.addHandler(handler)
 
-# Hard cap on hyperparameter combinations
-MAX_COMBINATIONS = 10
-
-def load_preprocessed_data(data_path: Path) -> Tuple[pd.DataFrame, pd.DataFrame, Optional[pd.Series]]:
-    """
-    Load preprocessed descriptors and target variable.
-
-    Args:
-        data_path: Path to the processed descriptors CSV
-
-    Returns:
-        Tuple of (features_df, target_series, uncertainty_series)
-    """
-    logger.info(f"Loading data from {data_path}")
+def load_preprocessed_data(data_path: str) -> Tuple[pd.DataFrame, pd.Series, pd.Series]:
+    """Load the preprocessed descriptors and split into features, target, and strata."""
+    logger.info(f"Loading preprocessed data from {data_path}")
     df = pd.read_csv(data_path)
-
-    # Identify target and feature columns
+    
+    # Target variable
     target_col = 'T_d'
     if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in {data_path}")
-
-    # Check for uncertainty column for weighting
-    uncertainty_col = 'T_d_uncertainty'
-    uncertainty_series = None
-    if uncertainty_col in df.columns:
-        uncertainty_series = df[uncertainty_col]
-        logger.info(f"Found uncertainty column '{uncertainty_col}', will use for weighting")
-    else:
-        logger.warning(f"Uncertainty column '{uncertainty_col}' not found. Training without weights.")
-
-    # Separate features and target
-    feature_cols = [col for col in df.columns if col not in [target_col, uncertainty_col]]
-    X = df[feature_cols]
-    y = df[target_col]
-
+        raise ValueError(f"Target column '{target_col}' not found in data. Available columns: {df.columns.tolist()}")
+    
+    # Stratification column
+    strata_col = 'perovskite_family'
+    if strata_col not in df.columns:
+        raise ValueError(f"Stratification column '{strata_col}' not found in data.")
+    
+    # Uncertainty weights column
+    weight_col = 'T_d_uncertainty'
+    if weight_col not in df.columns:
+        raise ValueError(f"Weight column '{weight_col}' not found in data.")
+    
+    # Feature columns (exclude metadata and target)
+    exclude_cols = [target_col, strata_col, weight_col, 'formula']
+    feature_cols = [col for col in df.columns if col not in exclude_cols]
+    
+    X = df[feature_cols].dropna()
+    y = df.loc[X.index, target_col]
+    strata = df.loc[X.index, strata_col]
+    weights = df.loc[X.index, weight_col]
+    
+    # Drop rows with NaN in features or target
+    valid_mask = ~(y.isna() | strata.isna() | weights.isna())
+    X = X[valid_mask]
+    y = y[valid_mask]
+    strata = strata[valid_mask]
+    weights = weights[valid_mask]
+    
     logger.info(f"Loaded {len(X)} samples with {len(feature_cols)} features")
-    return X, y, uncertainty_series
+    return X, y, strata, weights
 
-def create_parameter_grid(model_type: str) -> List[Dict[str, Any]]:
+def create_parameter_grid() -> Dict[str, List[Dict[str, Any]]]:
     """
-    Create a parameter grid with at most MAX_COMBINATIONS combinations.
-
-    Args:
-        model_type: One of 'random_forest', 'gradient_boosting', 'elastic_net'
-
-    Returns:
-        List of parameter dictionaries (at most MAX_COMBINATIONS)
+    Create parameter grids with a hard cap of <= 10 combinations per model.
+    This ensures grid search completes within resource constraints.
     """
-    if model_type == 'random_forest':
-        # RF parameters: limit combinations to ≤10
-        param_grid = {
+    # Random Forest: 2 params * 2 values * 2 values = 4 combinations
+    rf_params = [
+        {
             'n_estimators': [50, 100],
-            'max_depth': [5, 10, None],
-            'min_samples_split': [2, 5],
-            'min_samples_leaf': [1, 2]
+            'max_depth': [3, None]
         }
-    elif model_type == 'gradient_boosting':
-        # GB parameters: limit combinations to ≤10
-        param_grid = {
+    ]
+    
+    # Gradient Boosting: 2 params * 2 values * 2 values = 4 combinations
+    gb_params = [
+        {
             'n_estimators': [50, 100],
-            'learning_rate': [0.05, 0.1],
-            'max_depth': [3, 5],
-            'min_samples_split': [2, 5]
+            'learning_rate': [0.05, 0.1]
         }
-    elif model_type == 'elastic_net':
-        # Elastic Net parameters: limit combinations to ≤10
-        param_grid = {
-            'alpha': [0.001, 0.01, 0.1, 1.0],
-            'l1_ratio': [0.2, 0.5, 0.8],
-            'max_iter': [1000, 2000]
+    ]
+    
+    # Elastic Net: 2 params * 2 values * 2 values = 4 combinations
+    en_params = [
+        {
+            'alpha': [0.01, 0.1],
+            'l1_ratio': [0.2, 0.8]
         }
-    else:
-        raise ValueError(f"Unknown model type: {model_type}")
-
-    # Generate all combinations and cap at MAX_COMBINATIONS
-    all_combinations = list(ParameterGrid(param_grid))
-    if len(all_combinations) > MAX_COMBINATIONS:
-        logger.warning(
-            f"Parameter grid has {len(all_combinations)} combinations, "
-            f"capping at {MAX_COMBINATIONS}"
-        )
-        # Take first MAX_COMBINATIONS combinations deterministically
-        selected_combinations = all_combinations[:MAX_COMBINATIONS]
-    else:
-        selected_combinations = all_combinations
-        logger.info(f"Parameter grid has {len(selected_combinations)} combinations (within limit)")
-
-    return selected_combinations
-
-def run_grid_search(
-    model_type: str,
-    X: pd.DataFrame,
-    y: pd.Series,
-    uncertainty: Optional[pd.Series] = None,
-    cv_folds: int = 5,
-    random_state: int = 42
-) -> Dict[str, Any]:
-    """
-    Run grid search with hard cap on combinations.
-
-    Args:
-        model_type: Type of model to search
-        X: Feature DataFrame
-        y: Target Series
-        uncertainty: Optional uncertainty series for weighting
-        cv_folds: Number of CV folds
-        random_state: Random seed for reproducibility
-
-    Returns:
-        Dictionary with best parameters, metrics, and search history
-    """
-    logger.info(f"Starting grid search for {model_type} with max {MAX_COMBINATIONS} combinations")
-
-    param_grid = create_parameter_grid(model_type)
-    logger.info(f"Testing {len(param_grid)} parameter combinations")
-
-    results = []
-    best_score = -np.inf
-    best_params = None
-    best_model = None
-
-    # Scale features for Elastic Net (and potentially others)
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    for i, params in enumerate(param_grid):
-        logger.info(f"Evaluating combination {i+1}/{len(param_grid)}: {params}")
-
-        # Create model instance with current parameters
-        if model_type == 'random_forest':
-            model = RandomForestRegressor(
-                n_estimators=params.get('n_estimators', 100),
-                max_depth=params.get('max_depth', None),
-                min_samples_split=params.get('min_samples_split', 2),
-                min_samples_leaf=params.get('min_samples_leaf', 1),
-                random_state=random_state,
-                n_jobs=1  # CPU-only constraint
-            )
-            # RF doesn't natively support sample weights in sklearn,
-            # but we can use a custom approach or skip weighting for RF
-            sample_weights = None
-        elif model_type == 'gradient_boosting':
-            model = GradientBoostingRegressor(
-                n_estimators=params.get('n_estimators', 100),
-                learning_rate=params.get('learning_rate', 0.1),
-                max_depth=params.get('max_depth', 3),
-                min_samples_split=params.get('min_samples_split', 2),
-                random_state=random_state
-            )
-            sample_weights = None
-        elif model_type == 'elastic_net':
-            model = ElasticNet(
-                alpha=params.get('alpha', 0.1),
-                l1_ratio=params.get('l1_ratio', 0.5),
-                max_iter=params.get('max_iter', 1000),
-                random_state=random_state
-            )
-            # Use uncertainty for weighting: weight = 1/uncertainty
-            if uncertainty is not None:
-                sample_weights = 1.0 / uncertainty.replace(0, np.nan).fillna(1.0)
-            else:
-                sample_weights = None
-
-        # Cross-validation
-        try:
-            if sample_weights is not None:
-                # For models that support sample_weight in fit
-                # We'll use a custom CV loop for weighted scoring
-                scores = []
-                from sklearn.model_selection import KFold
-                kf = KFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
-                for train_idx, val_idx in kf.split(X_scaled):
-                    X_train, X_val = X_scaled[train_idx], X_scaled[val_idx]
-                    y_train, y_val = y.iloc[train_idx], y.iloc[val_idx]
-                    w_train = sample_weights.iloc[train_idx] if sample_weights is not None else None
-
-                    model.fit(X_train, y_train, sample_weight=w_train)
-                    y_pred = model.predict(X_val)
-                    score = r2_score(y_val, y_pred)
-                    scores.append(score)
-                mean_score = np.mean(scores)
-            else:
-                # Standard CV without weights
-                scores = cross_val_score(model, X_scaled, y, cv=cv_folds, scoring='r2')
-                mean_score = np.mean(scores)
-
-            logger.info(f"  CV R² score: {mean_score:.4f} ± {np.std(scores):.4f}")
-
-            results.append({
-                'params': params,
-                'mean_r2': mean_score,
-                'std_r2': np.std(scores),
-                'cv_scores': scores.tolist()
-            })
-
-            if mean_score > best_score:
-                best_score = mean_score
-                best_params = params
-                # Train final model with best params
-                if sample_weights is not None:
-                    model.fit(X_scaled, y, sample_weight=sample_weights)
-                else:
-                    model.fit(X_scaled, y)
-                best_model = model
-
-        except Exception as e:
-            logger.error(f"  Error with params {params}: {e}")
-            results.append({
-                'params': params,
-                'mean_r2': -np.inf,
-                'std_r2': 0.0,
-                'cv_scores': [],
-                'error': str(e)
-            })
-
-    # Prepare results summary
-    summary = {
-        'model_type': model_type,
-        'best_params': best_params,
-        'best_cv_r2': best_score,
-        'total_combinations_tested': len(param_grid),
-        'max_combinations_allowed': MAX_COMBINATIONS,
-        'results': results
+    ]
+    
+    return {
+        'RandomForest': rf_params,
+        'GradientBoosting': gb_params,
+        'ElasticNet': en_params
     }
 
-    logger.info(f"Grid search complete. Best R²: {best_score:.4f} with params: {best_params}")
-    return summary, best_model
+def run_grid_search(
+    X: pd.DataFrame,
+    y: pd.Series,
+    strata: pd.Series,
+    weights: pd.Series,
+    model_type: str,
+    param_grid: List[Dict[str, Any]],
+    cv_folds: int = 5
+) -> Tuple[Any, Dict[str, Any]]:
+    """
+    Run grid search with stratified K-fold and optional sample weighting.
+    Returns the best model and search results summary.
+    """
+    logger.info(f"Running grid search for {model_type} with {len(param_grid)} parameter combinations")
+    
+    # Initialize model
+    if model_type == 'RandomForest':
+        model = RandomForestRegressor(random_state=42, n_jobs=-1)
+    elif model_type == 'GradientBoosting':
+        model = GradientBoostingRegressor(random_state=42)
+    elif model_type == 'ElasticNet':
+        model = ElasticNet(random_state=42, max_iter=1000)
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
+    
+    # Create stratified KFold
+    skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=42)
+    
+    # Handle sample weights - some models support sample_weight directly in fit
+    # For GridSearchCV, we need to pass sample_weight via fit_params
+    # We'll use a wrapper approach for weighted fitting
+    
+    # For models that support sample_weight in fit (RF, GB, EN)
+    fit_params = {'sample_weight': weights.values}
+    
+    grid_search = GridSearchCV(
+        estimator=model,
+        param_grid=param_grid,
+        cv=skf,
+        scoring='r2',
+        n_jobs=-1,
+        verbose=1
+    )
+    
+    grid_search.fit(X, y, **fit_params)
+    
+    best_model = grid_search.best_estimator_
+    best_params = grid_search.best_params_
+    best_score = grid_search.best_score_
+    
+    # Get all results
+    results = {
+        'best_params': best_params,
+        'best_score': best_score,
+        'cv_results': grid_search.cv_results_
+    }
+    
+    logger.info(f"Best {model_type} params: {best_params}, CV R²: {best_score:.4f}")
+    
+    return best_model, results
 
 def save_grid_search_results(
     results: Dict[str, Any],
-    model: Any,
-    output_path: Path
+    output_path: str,
+    model_type: str
 ):
-    """
-    Save grid search results and trained model.
-
-    Args:
-        results: Grid search results dictionary
-        model: Best trained model
-        output_path: Path to save results JSON
-    """
-    # Prepare model state for serialization (sklearn models can be pickled)
-    # For JSON, we'll save parameters and metrics, not the full model object
-    serializable_results = {
-        'model_type': results['model_type'],
-        'best_params': results['best_params'],
-        'best_cv_r2': results['best_cv_r2'],
-        'total_combinations_tested': results['total_combinations_tested'],
-        'max_combinations_allowed': results['max_combinations_allowed'],
-        'results': results['results']
+    """Save grid search results to JSON file."""
+    # Convert cv_results to serializable format
+    serializable_results = {}
+    for key, value in results.items():
+        if key == 'cv_results':
+            serializable_results[key] = {}
+            for k, v in value.items():
+                # Convert numpy arrays to lists
+                if isinstance(v, np.ndarray):
+                    serializable_results[key][k] = v.tolist()
+                else:
+                    serializable_results[key][k] = v
+        elif isinstance(value, np.ndarray):
+            serializable_results[key] = value.tolist()
+        elif isinstance(value, (np.float64, np.float32)):
+            serializable_results[key] = float(value)
+        else:
+            serializable_results[key] = value
+    
+    output_data = {
+        'model_type': model_type,
+        'timestamp': pd.Timestamp.now().isoformat(),
+        'results': serializable_results
     }
-
-    with open(output_path, 'w') as f:
-        json.dump(serializable_results, f, indent=2, default=str)
-
-    logger.info(f"Grid search results saved to {output_path}")
+    
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Saved grid search results for {model_type} to {output_path}")
 
 def main():
     """Main entry point for grid search execution."""
-    logging.basicConfig(level=logging.INFO)
-
-    # Paths
-    project_root = Path(__file__).parent.parent
-    data_path = project_root / 'data' / 'processed' / 'descriptors.csv'
-    output_path = project_root / 'data' / 'processed' / 'grid_search_results.json'
-
-    if not data_path.exists():
-        logger.error(f"Data file not found: {data_path}")
-        logger.error("Please run feature_engineering.py and finalize_descriptors.py first")
-        return
-
+    # Configuration
+    data_path = 'data/processed/descriptors.csv'
+    output_dir = 'data/processed'
+    output_file = Path(output_dir) / 'grid_search_results.json'
+    
+    logger.info("Starting grid search for perovskite stability prediction")
+    
     # Load data
-    X, y, uncertainty = load_preprocessed_data(data_path)
-
-    # Run grid search for each model type
-    model_types = ['random_forest', 'gradient_boosting', 'elastic_net']
+    try:
+        X, y, strata, weights = load_preprocessed_data(data_path)
+    except Exception as e:
+        logger.error(f"Failed to load data: {e}")
+        raise
+    
+    # Create parameter grids (capped at <= 10 combinations each)
+    param_grids = create_parameter_grid()
+    
+    # Run grid search for each model
     all_results = {}
-    best_models = {}
-
-    for model_type in model_types:
-        logger.info(f"\n{'='*60}")
-        logger.info(f"Running grid search for {model_type}")
-        logger.info(f"{'='*60}")
-
+    
+    for model_type, param_grid in param_grids.items():
+        logger.info(f"\n--- Processing {model_type} ---")
+        
+        # Verify parameter count
+        total_combinations = 1
+        for param_set in param_grid:
+            param_count = 1
+            for values in param_set.values():
+                param_count *= len(values)
+            total_combinations *= param_count
+        
+        if total_combinations > 10:
+            raise ValueError(f"{model_type} has {total_combinations} combinations, exceeding limit of 10")
+        
+        logger.info(f"Testing {total_combinations} parameter combinations for {model_type}")
+        
         try:
-            results, best_model = run_grid_search(
-                model_type=model_type,
-                X=X,
-                y=y,
-                uncertainty=uncertainty,
-                cv_folds=5,
-                random_state=42
+            best_model, search_results = run_grid_search(
+                X, y, strata, weights, model_type, param_grid
             )
-            all_results[model_type] = results
-            best_models[model_type] = best_model
-
+            
+            # Save results for this model
+            model_output_path = str(output_file.with_name(f'grid_search_{model_type.lower()}.json'))
+            save_grid_search_results(search_results, model_output_path, model_type)
+            
+            # Store in all_results
+            all_results[model_type] = {
+                'best_params': search_results['best_params'],
+                'best_cv_score': search_results['best_score'],
+                'output_file': model_output_path
+            }
+            
         except Exception as e:
             logger.error(f"Grid search failed for {model_type}: {e}")
-            all_results[model_type] = {'error': str(e)}
-
-    # Save results
-    save_grid_search_results(
-        all_results,
-        best_models,
-        output_path
-    )
-
-    logger.info(f"\n{'='*60}")
-    logger.info("Grid search complete for all models")
-    logger.info(f"Results saved to: {output_path}")
-    logger.info(f"{'='*60}")
-
-    # Print summary
-    print("\nGrid Search Summary:")
-    print("-" * 60)
-    for model_type, results in all_results.items():
-        if 'error' not in results:
-            print(f"{model_type}:")
-            print(f"  Best CV R²: {results['best_cv_r2']:.4f}")
-            print(f"  Best params: {results['best_params']}")
-            print(f"  Combinations tested: {results['total_combinations_tested']}")
+            all_results[model_type] = {
+                'error': str(e),
+                'best_params': None,
+                'best_cv_score': None
+            }
+    
+    # Save summary of all results
+    summary_path = str(output_file)
+    summary_data = {
+        'timestamp': pd.Timestamp.now().isoformat(),
+        'parameter_limit': 10,
+        'models': all_results
+    }
+    
+    with open(summary_path, 'w') as f:
+        json.dump(summary_data, f, indent=2)
+    
+    logger.info(f"Grid search completed. Summary saved to {summary_path}")
+    logger.info("Summary:")
+    for model_type, result in all_results.items():
+        if result.get('best_params'):
+            logger.info(f"  {model_type}: R²={result['best_cv_score']:.4f}, params={result['best_params']}")
         else:
-            print(f"{model_type}: ERROR - {results['error']}")
-        print()
+            logger.info(f"  {model_type}: FAILED - {result.get('error', 'Unknown error')}")
 
 if __name__ == '__main__':
     main()

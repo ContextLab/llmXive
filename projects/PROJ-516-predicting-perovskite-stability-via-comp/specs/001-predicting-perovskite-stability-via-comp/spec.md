@@ -35,7 +35,7 @@ As a data analyst, I want to implement three baseline regressors (Random Forest,
 
 1. **Given** a preprocessed dataset with ≥200 entries and ≥10 compositional descriptors, **When** the model training pipeline runs with 5-fold cross-validation, **Then** all three baseline regressors produce R², RMSE, and MAE metrics for each fold.
 2. **Given** grid search is configured with ≤10 hyperparameter combinations per model, **When** training completes, **Then** the best hyperparameters and corresponding cross-validation metrics are logged.
-3. **Given** the total compute budget is 6 hours on a CPU-only runner, **When** model training and cross-validation execute, **Then** the pipeline completes within 4 hours ([deferred] of the 6-hour budget) with ≤10% of the budget consumed by hyperparameter search to ensure CI/CD efficiency.
+3. **Given** the total compute budget is a fixed duration on a CPU-only runner, **When** model training and cross-validation execute, **Then** the pipeline completes within 4 hours ([deferred] of the 6-hour budget) with ≤10% of the budget consumed by hyperparameter search to ensure CI/CD efficiency.
 
 ---
 
@@ -57,7 +57,7 @@ As a domain researcher, I want to extract SHAP values from the best-performing m
 
 ### Edge Cases
 
-- What happens when the Materials Project or NREL API is unavailable? The pipeline MUST retry up to 3 times with exponential backoff (min, min, 4 min) before failing gracefully with a logged error.
+- What happens when the Materials Project or NREL API is unavailable? The pipeline MUST retry up to 3 times with exponential backoff (min, min, multiple min) before failing gracefully with a logged error.
 - How does the system handle perovskite formulas with missing elemental property data? Entries with ≥2 missing descriptor values MUST be excluded from training, and a count of excluded entries MUST be logged.
 - What happens when the held-out test set contains compositions outside the training distribution? The system MUST flag these as extrapolation cases and report separate metrics for in-distribution vs. out-of-distribution predictions.
 - How does the system handle collinearity between compositional descriptors (e.g., ionic radius variance vs. mean)? A variance inflation factor (VIF) diagnostic MUST be computed, and descriptors with VIF > 5 MUST be flagged for review.
@@ -92,7 +92,7 @@ As a domain researcher, I want to extract SHAP values from the best-performing m
 - **SC-002**: Total pipeline runtime is measured against the specified CPU-only compute budget (See US-2)
 - **SC-003**: External validation R² is measured against the cross-validation R² to assess generalizability gap (See US-3)
 - **SC-004**: Feature importance significance (p-value) is measured against the random baseline via permutation tests at p < 0.05 (See US-3)
-- **SC-005**: Collinearity diagnostics (VIF) are measured against the threshold of 5 to identify descriptor redundancy (See US-3)
+- **SC-005**: Collinearity diagnostics (VIF) are measured against the standard threshold. to identify descriptor redundancy (See US-3)
 - **SC-006**: Dataset-variable fit is measured by verifying that every predictor and outcome variable in the analysis is present in the source datasets (Materials Project, NREL), flagging if any required variable is missing (See US-1)
 
 ## Assumptions
@@ -102,7 +102,7 @@ As a domain researcher, I want to extract SHAP values from the best-performing m
 - The target variable (T_d) is an independent experimental measurement (TGA onset) not definitionally derived from the formation enthalpy (ΔH_f) predictor used in the feature set
 - The research design is observational (no random assignment of compositions), so findings MUST be framed as associational relationships between composition and stability, not causal claims
 - CPU-only scikit-learn models (Random Forest, Gradient Boosting, Elastic Net) will complete within 6 hours on a GitHub Actions free-tier runner with CPU cores and adequate RAM
-- The dataset size (≤500 entries after filtering) will fit within ~7 GB RAM and ~ GB disk constraints
+- The dataset size (≤500 entries after filtering) will fit within available system RAM and ~ GB disk constraints
 - Compositional descriptors (atomic fractions, elemental property averages) are not definitionally collinear with decomposition temperature; any observed relationships are empirical, not mechanical
 - No GPU, CUDA, or hardware accelerators are available or required for the analysis
 - Sensitivity analysis for any decision thresholds (e.g., feature importance cutoffs) will sweep over absolute differences ∈ {A range of significance thresholds, including 0.05 and 0.1, will be evaluated.} and report how false-positive/false-negative rates vary across the sweep

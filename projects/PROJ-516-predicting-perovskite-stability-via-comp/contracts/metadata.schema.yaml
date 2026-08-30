@@ -1,64 +1,67 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: PerovskiteInstrumentationMetadata
-description: >
-  Schema for instrumentation metadata extracted from TGA source data.
-  Adheres to the requirement for specifying the instrument model and precision.
+title: Metadata Schema for Perovskite Stability Data
+description: |
+  Schema defining the required metadata fields for every source dataset entry.
+  This schema enforces the inclusion of instrumentation details to ensure
+  rigorous measurement-based analysis rather than simple correlation.
+  Per reviewer feedback (Marie Curie), explicit TGA specifications and
+  precision metrics are mandatory to validate the measurement integrity.
+
 type: object
+required:
+  - source_id
+  - source_type
+  - tga_model
+  - tga_manufacturer
+  - temperature_precision
+  - heating_rate
+  - timestamp
+
 properties:
-  metadata_version:
+  source_id:
     type: string
-    description: Version of this metadata schema.
-    const: "1.0.0"
-  generated_at:
+    description: Unique identifier for the dataset entry or source record.
+
+  source_type:
+    type: string
+    enum: ["nrel", "materials_project", "literature"]
+    description: Origin of the data entry.
+
+  tga_model:
+    type: string
+    description: |
+      The specific model of the Thermogravimetric Analyzer (TGA) used
+      for the measurement. This is required to trace instrument-specific
+      systematic errors. Example: "TA Instruments Q500", "Mettler Toledo TGA/DSC 3+".
+
+  tga_manufacturer:
+    type: string
+    description: |
+      The manufacturer of the TGA instrument. Required for cross-referencing
+      instrument specifications and calibration standards.
+
+  temperature_precision:
+    type: number
+    description: |
+      The precision of the temperature reading in degrees Celsius (±°C).
+      This value represents the instrument's stated accuracy or the
+      combined standard uncertainty of the temperature measurement.
+      Used for uncertainty propagation and weighted regression.
+
+  heating_rate:
+    type: number
+    description: |
+      The heating rate applied during the TGA experiment in °C/min.
+      This parameter significantly influences the observed decomposition
+      temperature and must be recorded for reproducibility.
+
+  timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of generation.
-  entries:
-    type: array
-    description: List of metadata entries for each perovskite record.
-    items:
-      type: object
-      required:
-        - entry_id
-        - source_citation
-        - tga_model
-        - precision
-      properties:
-        entry_id:
-          type: string
-          description: Unique identifier for the perovskite entry (matches raw data).
-        source_citation:
-          type: string
-          description: DOI or reference string for the source publication.
-        tga_model:
-          type: string
-          description: Manufacturer and model of the Thermogravimetric Analyzer (e.g., "TA Instruments Q500").
-          minLength: 1
-        precision:
-          type: object
-          description: Temperature precision/uncertainty of the measurement.
-          required:
-            - value
-            - unit
-          properties:
-            value:
-              type: number
-              description: Numerical value of the uncertainty (e.g., 5.0).
-            unit:
-              type: string
-              description: Unit of the uncertainty (e.g., "°C").
-              pattern: "^°C$"
-        flags:
-          type: object
-          description: Optional flags regarding the precision source.
-          properties:
-            is_default:
-              type: boolean
-              description: True if the precision is a default assumption (e.g., ±10°C) rather than explicitly stated.
-            default_reason:
-              type: string
-              description: Reason for using the default if is_default is true.
-required:
-  - metadata_version
-  - generated_at
-  - entries
+    description: ISO 8601 timestamp of when the metadata was recorded or the experiment performed.
+
+  optional_notes:
+    type: string
+    description: Any additional notes regarding experimental conditions or instrument calibration.
+
+additionalProperties: true

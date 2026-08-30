@@ -3,18 +3,28 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "predicting-perovskite-stability-via-comp"
+name = "perovskite-stability"
 version = "0.1.0"
 description = "Predicting Perovskite Stability via Compositional Fingerprints"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "scikit-learn>=1.3.0",
-    "pymatgen>=2023.0.0",
-    "pyyaml>=6.0",
-    "python-dotenv>=1.0.0",
-    "requests>=2.31.0",
+    "pandas",
+    "scikit-learn",
+    "requests",
+    "pyyaml",
+    "numpy",
+    "pymatgen",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=6.0",
+    "pylint>=3.0",
+    "black>=23.0",
+    "isort>=5.12",
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
 ]
 
 [tool.black]
@@ -28,40 +38,35 @@ exclude = '''
     | \.mypy_cache
     | \.tox
     | \.venv
+    | venv
     | _build
     | buck-out
     | build
     | dist
+    | data
+    | state
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-skip_gitignore = true
-known_first_party = ["utils"]
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-
-[tool.pylint.messages_control]
-disable = [
-    "C0114",  # missing-module-docstring
-    "C0115",  # missing-class-docstring
-    "C0116",  # missing-function-docstring
-    "R0903",  # too-few-public-methods
-    "R0913",  # too-many-arguments
-    "R0914",  # too-many-locals
-    "R0915",  # too-many-statements
-    "W0511",  # fixme
+known_first_party = ["utils", "data_ingestion", "feature_engineering", "model_training", "vif_diagnostic", "merge_datasets", "grid_search", "metric_logger", "save_models", "propagate_uncertainty", "uncertainty_flagger", "write_metadata", "extract_metadata", "finalize_descriptors", "filter_descriptors", "verify_descriptors", "fetch_mp_perovskites", "setup_directories"]
+skip = [
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "data",
+    "state"
 ]
 
-[tool.pylint.format]
-max-line-length = 88
-
-[tool.pylint.design]
-max-args = 8
-max-locals = 20
-max-returns = 6
-max-branches = 15
-max-statements = 50
-max-attributes = 15
-max-public-methods = 25
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"

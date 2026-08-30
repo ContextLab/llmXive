@@ -1,15 +1,14 @@
 """
-Finalize descriptors by merging uncertainty flags, saving the final dataset,
-and updating the state file with the SHA-256 hash of the output.
+finalize_descriptors.py
 
-This script implements Task T017:
-- Loads the intermediate descriptors CSV from T014/T016.
-- Loads uncertainty flags from T013c/T013b.
-- Merges the `T_d_uncertainty` column into the final dataset.
-- Saves the final `data/processed/descriptors.csv`.
-- Updates `state/...yaml` with the artifact hash.
+Task T017: Write final processed dataset to data/processed/descriptors.csv
+including the T_d_uncertainty and perovskite_family columns and update
+state/...yaml with hash.
+
+This script aggregates the descriptor data with the computed uncertainties
+and family classifications, performs a final validation, saves the CSV,
+and updates the project state file with the SHA-256 hash of the output.
 """
-
 import json
 import logging
 import sys
@@ -18,183 +17,245 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 
-# Import from local modules based on provided API surface
-from utils.state_manager import update_artifact_state, compute_sha256, load_state, save_state
+# Import from existing API surface
+from utils.state_manager import compute_sha256, update_artifact_state
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-RAW_DIR = DATA_DIR / "raw"
+# Define paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 STATE_DIR = PROJECT_ROOT / "state"
 
-# Ensure directories exist
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-STATE_DIR.mkdir(parents=True, exist_ok=True)
+# Output file paths
+DESCRIPTORS_CSV = DATA_PROCESSED_DIR / "descriptors.csv"
+UNCERTAINTY_FLAGS_FILE = DATA_RAW_DIR / "uncertainty_flags.json"
+PEROVSKITE_FAMILY_FILE = DATA_PROCESSED_DIR / "perovskite_family.csv" # Assumed intermediate or same source
+# Note: T014b output is expected to be integrated. If T014b writes to descriptors directly, we read from there.
+# Based on T014b description: "write to data/processed/descriptors.csv".
+# Based on T013b description: "write T_d_uncertainty column to data/processed/descriptors.csv".
+# We assume T014 and T013b have populated a base descriptors.csv, and we are finalizing it.
+# However, to be safe and follow the "merge" pattern of T017, we will attempt to load the base
+# and the specific additions if they are separate, or just load the main one if already merged.
+# The task says "Write final processed dataset... including...".
+# Let's assume the base descriptors.csv exists from T014/T015, and we need to ensure
+# T_d_uncertainty and perovskite_family are present and valid.
 
-DESCRIPTORS_INPUT_PATH = PROCESSED_DIR / "descriptors_temp.csv" # Intermediate from T014/T015/T016
-UNCERTAINTY_FLAGS_PATH = RAW_DIR / "uncertainty_flags.json"
-FINAL_OUTPUT_PATH = PROCESSED_DIR / "descriptors.csv"
-STATE_FILE_PATH = STATE_DIR / "artifacts.yaml"
+# If T014b and T013b wrote to the same file, we just need to verify and hash.
+# But often in pipelines, these might be separate intermediate files or the task implies
+# ensuring the final state.
+# Let's assume the following workflow for T017:
+# 1. Load the main descriptors.csv (from T014/T015).
+# 2. Load uncertainty flags (from T013) if not already merged.
+# 3. Load perovskite family (from T014b) if not already merged.
+# 4. Merge/Ensure columns exist.
+# 5. Save final CSV.
+# 6. Update state.
 
-# Note: If the previous pipeline stages wrote directly to descriptors.csv,
-# we might need to adjust the input path. Assuming a temp file or the current
-# state of descriptors.csv before finalization.
-# Based on T014/T016, they write to data/processed/descriptors.csv.
-# T017 needs to add the uncertainty column.
-# So we read the current descriptors.csv (which lacks T_d_uncertainty),
-# merge, and overwrite.
-DESCRIPTORS_INPUT_PATH = PROCESSED_DIR / "descriptors.csv"
+# Check for intermediate files that might need merging
+# If T013b and T014b wrote directly to descriptors.csv, we just verify.
+# If they wrote to separate files, we merge.
+# Given T013b: "write T_d_uncertainty column to data/processed/descriptors.csv"
+# Given T014b: "write to data/processed/descriptors.csv"
+# It implies they are modifying the same file.
+# However, to be robust, we will check if the columns exist. If not, we look for backup sources.
+# But the strict requirement is to produce the FINAL file.
+
+# Let's assume the previous tasks have produced a base file, and we are finalizing it.
+# If the file doesn't exist yet, we might need to construct it from T014 output + T013b + T014b.
+# But T014 is not completed (it's T014b and T014 is pending? No, T014 is pending in the list?
+# Wait, T014 is [~] (pending/failed?) in the list?
+# T014: [~] T014 [US1] Implement code/feature_engineering.py...
+# T014b: [X] T014b [US1] Implement logic to derive perovskite_family...
+# T013b: [X] T013b [US1] Implement logic to extract temperature_precision...
+# T015: [X] T015 [US1] Implement logic to exclude entries...
+# T016: [X] T016 [US1] Implement VIF...
+# T017: [ ] T017 [US1] Write final processed dataset...
+
+# It seems T014 (the main feature engineering) might be the one that produces the base descriptors.csv.
+# T014 is marked [~] which usually means "in progress" or "failed" in some systems, but here it's likely "pending" or "needs redo".
+# However, T014b and T013b are marked [X] (completed).
+# If T014 is not done, how do we have descriptors.csv?
+# The prompt says "completed task ids" includes T014b and T013b, but NOT T014.
+# This implies T014b and T013b might have written to a file that T014 would have also written to, or they wrote to a temporary file.
+# OR, T014 is actually done but the list is just showing status.
+# Let's assume the file `data/processed/descriptors.csv` exists from the previous steps (T013b/T014b) or we need to load the raw/merged data and recompute?
+# No, T017 is "Write final processed dataset".
+# Let's assume the file `data/processed/descriptors.csv` exists with the base features, and T013b/T014b have added their columns.
+# If T014 is missing, we might not have the base features.
+# But T014b says "derive perovskite_family ... from A/B/X site elements in T014 output".
+# This implies T014 output exists.
+# Let's assume the file `data/processed/descriptors.csv` is the current state.
+
+# Strategy:
+# 1. Try to load `data/processed/descriptors.csv`.
+# 2. If it exists, check for required columns: `T_d_uncertainty`, `perovskite_family`.
+# 3. If missing, look for intermediate files (e.g., `uncertainty_flags.json`, `perovskite_family.csv` if T014b wrote separately).
+#    However, T013b says "write T_d_uncertainty column to data/processed/descriptors.csv".
+#    T014b says "write to data/processed/descriptors.csv".
+#    So they should be there.
+# 4. If the file is missing entirely, we must reconstruct it from `data/raw/perovskites_merged.csv` and the intermediate JSONs?
+#    But T014 (feature engineering) is the one that computes atomic fractions etc.
+#    If T014 is not done, we cannot proceed.
+#    However, the task list shows T014 as `[~]` (maybe "needs attention" or "in progress").
+#    But T017 is the next task.
+#    Let's assume for the sake of T017 that the file `data/processed/descriptors.csv` exists with the necessary columns,
+#    or we are expected to finalize the file that T013b and T014b have been writing to.
+#    If T014 is truly missing, T017 cannot run.
+#    But the instruction says "Implement task T017".
+#    I will assume the file exists and contains the data from T013b and T014b.
+#    If not, I will try to load the raw data and the intermediate JSONs to reconstruct the necessary columns,
+#    assuming T014's output (the base descriptors) is also present or can be inferred.
+#    Actually, T014 is the one that computes "atomic fractions, weighted averages".
+#    If T014 is not done, we don't have the base descriptors.
+#    Wait, T014 is in the "Implementation for User Story 1" section.
+#    T014b depends on T014.
+#    If T014 is not done, T014b cannot be done.
+#    But T014b is marked [X]. This implies T014 is effectively done or T014b did the work.
+#    Let's assume `data/processed/descriptors.csv` exists and has the columns.
+
+# If the file does not exist, we cannot complete T017.
+# I will write the code to load, verify, and save.
 
 def load_descriptors() -> pd.DataFrame:
-    """Load the intermediate descriptors dataframe."""
-    if not DESCRIPTORS_INPUT_PATH.exists():
-        raise FileNotFoundError(
-            f"Input descriptors file not found at {DESCRIPTORS_INPUT_PATH}. "
-            "Please ensure T014 and T016 have been completed successfully."
-        )
-    df = pd.read_csv(DESCRIPTORS_INPUT_PATH)
-    logger.info(f"Loaded {len(df)} rows from {DESCRIPTORS_INPUT_PATH}")
+    """Load the descriptors CSV file."""
+    if not DESCRIPTORS_CSV.exists():
+        logger.error(f"Descriptors file not found: {DESCRIPTORS_CSV}")
+        # Attempt to load from raw if processed is missing? No, T014 should have created it.
+        # If T014 is missing, we might need to run T014 logic here?
+        # But T017 is just "Write final processed dataset".
+        # Let's assume it exists.
+        raise FileNotFoundError(f"Descriptors file not found: {DESCRIPTORS_CSV}")
+    
+    df = pd.read_csv(DESCRIPTORS_CSV)
     return df
 
 def load_uncertainty_flags() -> Dict[str, Any]:
-    """Load the uncertainty flags mapping from JSON."""
-    if not UNCERTAINTY_FLAGS_PATH.exists():
-        raise FileNotFoundError(
-            f"Uncertainty flags file not found at {UNCERTAINTY_FLAGS_PATH}. "
-            "Please ensure T013c has been completed successfully."
-        )
-    with open(UNCERTAINTY_FLAGS_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    logger.info(f"Loaded uncertainty flags from {UNCERTAINTY_FLAGS_PATH}")
-    return data
+    """Load uncertainty flags from JSON."""
+    if not UNCERTAINTY_FLAGS_FILE.exists():
+        logger.warning(f"Uncertainty flags file not found: {UNCERTAINTY_FLAGS_FILE}")
+        return {}
+    with open(UNCERTAINTY_FLAGS_FILE, 'r') as f:
+        return json.load(f)
 
-def merge_uncertainty(df: pd.DataFrame, flags: Dict[str, Any]) -> pd.DataFrame:
-    """
-    Merge uncertainty data into the dataframe.
-    Assumes flags is a dict where keys are entry IDs or indices,
-    or a list of dicts with an ID matching the dataframe index or a specific column.
-    
-    Based on T013c, the flags likely contain the 'T_d_uncertainty' value for each entry.
-    We expect the dataframe to have a unique identifier (e.g., 'id' or 'entry_id')
-    or we map by index if the order is preserved.
-    
-    For robustness, we assume the JSON contains a list of records with 'id' and 'T_d_uncertainty'.
-    """
-    # Convert flags to a DataFrame for merging if it's a list of dicts
-    if isinstance(flags, list):
-        flags_df = pd.DataFrame(flags)
-        if 'id' in flags_df.columns and 'T_d_uncertainty' in flags_df.columns:
-            # Merge on 'id'
-            if 'id' in df.columns:
-                df = df.merge(flags_df[['id', 'T_d_uncertainty']], on='id', how='left')
-            else:
-                # Fallback: assume index alignment if no ID column, though less robust
-                # This is a fallback if the previous stage didn't generate an ID column
-                # but the flags were generated in the same order.
-                # However, JSON usually implies a structure. Let's assume 'id' exists.
-                # If 'id' is missing in df, we might need to use the index.
-                # Let's try to map by index if no ID column exists.
-                if len(flags) == len(df):
-                    df['T_d_uncertainty'] = [f.get('T_d_uncertainty') for f in flags]
+def load_perovskite_family_data() -> Optional[pd.DataFrame]:
+    """Load perovskite family data if stored separately, otherwise return None."""
+    # T014b says "write to data/processed/descriptors.csv".
+    # So it should be in the main file.
+    # But if T014b wrote to a separate file for some reason, check here.
+    # No specific file mentioned for T014b output other than descriptors.csv.
+    return None
+
+def merge_uncertainty(df: pd.DataFrame, uncertainty_data: Dict[str, Any]) -> pd.DataFrame:
+    """Merge uncertainty data into the dataframe if not already present."""
+    # Check if T_d_uncertainty column exists
+    if 'T_d_uncertainty' not in df.columns:
+        logger.info("Merging T_d_uncertainty column from uncertainty flags.")
+        # Assuming uncertainty_data is a dict mapping formula to uncertainty
+        # or a list of dicts. T013b says "write T_d_uncertainty column".
+        # If it's missing, we try to reconstruct from the flags.
+        # This is a fallback. Ideally, T013b already did this.
+        if uncertainty_data:
+            # Convert to series if possible
+            # Assuming structure: { "formula": "sigma", ... }
+            # We need to align by formula
+            if isinstance(uncertainty_data, dict):
+                # Check if keys are formulas
+                # We need to map formula -> sigma
+                # But df might have multiple columns for formula?
+                # Usually 'formula' is a column.
+                if 'formula' in df.columns:
+                    df['T_d_uncertainty'] = df['formula'].map(uncertainty_data)
+                    # Fill NaN with default if needed? T013b says "calculate sigma".
+                    # If missing, T042 says default to 10.
+                    # But T013b says "calculate sigma using T043".
+                    # Let's assume the values are there.
                 else:
-                    logger.warning("Index count mismatch and no 'id' column. Cannot merge uncertainty by index.")
-                    # Try to find a common key if 'id' is not the key
-                    common_keys = set(df.columns) & set(flags_df.columns)
-                    if common_keys:
-                        key = list(common_keys)[0]
-                        df = df.merge(flags_df[['id', 'T_d_uncertainty']], left_on=key, right_on='id', how='left', suffixes=('', '_flag'))
-                        df = df.drop(columns=['id_flag']) # Clean up
-                    else:
-                        raise ValueError("Cannot merge uncertainty: No common key found and index counts differ.")
-        else:
-            raise ValueError("Uncertainty flags JSON must contain 'id' and 'T_d_uncertainty' columns.")
-    elif isinstance(flags, dict):
-        # If it's a flat dict {id: uncertainty}
-        if 'T_d_uncertainty' in flags:
-            # Special case: single global uncertainty? Unlikely for per-entry.
-            # Assuming it's a mapping {entry_id: uncertainty_value}
-            # We need to map this to the dataframe.
-            if 'id' in df.columns:
-                df['T_d_uncertainty'] = df['id'].map(flags)
+                    logger.error("Cannot merge uncertainty: 'formula' column not found.")
             else:
-                raise ValueError("Cannot merge dict uncertainty flags: No 'id' column in dataframe.")
+                logger.warning("Uncertainty data format not recognized for merging.")
         else:
-            # Maybe the dict is {entry_id: {uncertainty_key: value}}
-            # Flatten it
-            flat_flags = {}
-            for k, v in flags.items():
-                if isinstance(v, dict) and 'T_d_uncertainty' in v:
-                    flat_flags[k] = v['T_d_uncertainty']
-                else:
-                    # Assume value is the uncertainty directly
-                    flat_flags[k] = v
-            
-            if 'id' in df.columns:
-                df['T_d_uncertainty'] = df['id'].map(flat_flags)
-            else:
-                raise ValueError("Cannot merge dict uncertainty flags: No 'id' column in dataframe.")
-    
-    # Check for missing merges
-    missing = df['T_d_uncertainty'].isna().sum()
-    if missing > 0:
-        logger.warning(f"Found {missing} entries with missing T_d_uncertainty after merge.")
-    
+            logger.error("No uncertainty data available to merge.")
+    return df
+
+def ensure_perovskite_family(df: pd.DataFrame) -> pd.DataFrame:
+    """Ensure perovskite_family column exists."""
+    if 'perovskite_family' not in df.columns:
+        logger.warning("perovskite_family column not found. Attempting to load from separate source or recompute?")
+        # T014b should have done this.
+        # If T014b wrote to a separate file, we load it.
+        # But T014b description says "write to data/processed/descriptors.csv".
+        # So it should be there.
+        # If not, we might need to recompute from A/B/X sites if those columns exist.
+        # But T014b logic is complex.
+        # Let's assume it's there.
+        raise ValueError("perovskite_family column missing from descriptors.csv")
     return df
 
 def save_descriptors(df: pd.DataFrame, output_path: Path) -> None:
-    """Save the final dataframe to CSV."""
+    """Save the final descriptors dataframe to CSV."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     logger.info(f"Saved final descriptors to {output_path}")
 
-def update_state(output_path: Path) -> str:
-    """Compute SHA-256 of the output and update the state file."""
-    artifact_hash = compute_sha256(output_path)
-    logger.info(f"Computed SHA-256 hash: {artifact_hash}")
+def update_state(output_path: Path) -> None:
+    """Update the state file with the hash of the output."""
+    if not output_path.exists():
+        logger.error(f"Cannot update state: file {output_path} does not exist.")
+        return
     
-    state = load_state(STATE_FILE_PATH)
-    update_artifact_state(state, output_path.name, artifact_hash)
-    save_state(state, STATE_FILE_PATH)
-    logger.info(f"Updated state file at {STATE_FILE_PATH}")
+    hash_value = compute_sha256(output_path)
+    logger.info(f"Computed SHA-256 for {output_path}: {hash_value}")
     
-    return artifact_hash
+    # Update state for the specific artifact
+    update_artifact_state(
+        artifact_path=str(output_path.relative_to(PROJECT_ROOT)),
+        hash_value=hash_value,
+        state_dir=STATE_DIR
+    )
+    logger.info(f"State updated for {output_path}")
 
-def main() -> None:
-    """Main execution flow for T017."""
+def main() -> int:
+    """Main entry point for T017."""
     try:
         # 1. Load descriptors
         df = load_descriptors()
-        
+        logger.info(f"Loaded {len(df)} rows from {DESCRIPTORS_CSV}")
+
         # 2. Load uncertainty flags
-        flags = load_uncertainty_flags()
-        
-        # 3. Merge uncertainty
-        df_final = merge_uncertainty(df, flags)
-        
-        # 4. Ensure T_d_uncertainty column exists (even if all NaN, though it should be filled)
-        if 'T_d_uncertainty' not in df_final.columns:
-            logger.error("Final merge failed to produce 'T_d_uncertainty' column.")
-            sys.exit(1)
-        
-        # 5. Save final dataset
-        save_descriptors(df_final, FINAL_OUTPUT_PATH)
-        
-        # 6. Update state
-        hash_value = update_state(FINAL_OUTPUT_PATH)
-        
-        logger.info(f"T017 completed successfully. Output: {FINAL_OUTPUT_PATH}, Hash: {hash_value}")
-        
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        sys.exit(1)
+        uncertainty_data = load_uncertainty_flags()
+
+        # 3. Merge uncertainty if needed
+        df = merge_uncertainty(df, uncertainty_data)
+
+        # 4. Ensure perovskite_family column
+        df = ensure_perovskite_family(df)
+
+        # 5. Validate required columns
+        required_cols = ['T_d_uncertainty', 'perovskite_family']
+        missing_cols = [c for c in required_cols if c not in df.columns]
+        if missing_cols:
+            logger.error(f"Missing required columns: {missing_cols}")
+            return 1
+
+        # 6. Save final dataset
+        save_descriptors(df, DESCRIPTORS_CSV)
+
+        # 7. Update state
+        update_state(DESCRIPTORS_CSV)
+
+        logger.info("T017 completed successfully.")
+        return 0
+
     except Exception as e:
-        logger.error(f"Unexpected error during T017 execution: {e}", exc_info=True)
-        sys.exit(1)
+        logger.exception(f"Error in T017: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

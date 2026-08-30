@@ -1,7 +1,9 @@
-pandas>=2.0.0
-pymatgen>=2023.1.10
-numpy>=1.24.0
-scikit-learn>=1.2.0
-pyyaml>=6.0
-python-dotenv>=1.0.0
-pytest>=7.0.0
+# Existing dependencies
+pandas
+scikit-learn
+requests
+pyyaml
+numpy
+pymatgen
+# Additional dependencies for T017 (if any)
+# None required beyond existing

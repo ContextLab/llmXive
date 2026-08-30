@@ -7,8 +7,9 @@ fidelity before processing.
 """
 import hashlib
 import logging
+import json
 from pathlib import Path
-from typing import Dict, Optional, Tuple, List
+from typing import Dict, Optional, Tuple, List, Union
 
 from .config_manager import get_api_key
 
@@ -109,9 +110,16 @@ def verify_artifacts_from_manifest(
     if not manifest_path.exists():
         raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
 
-    import yaml
-    with open(manifest_path, "r", encoding="utf-8") as f:
-        manifest = yaml.safe_load(f)
+    # Support both JSON and YAML manifests
+    if manifest_path.suffix.lower() in ['.json']:
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+    elif manifest_path.suffix.lower() in ['.yaml', '.yml']:
+        import yaml
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            manifest = yaml.safe_load(f)
+    else:
+        raise ChecksumError(f"Unsupported manifest format: {manifest_path.suffix}")
 
     results = {}
     for rel_path, expected_hash in manifest.items():
@@ -160,3 +168,27 @@ def generate_checksum_manifest(
         yaml.dump(manifest, f, default_flow_style=False, sort_keys=True)
 
     logger.info("Checksum manifest written to %s", output_path)
+
+
+def verify_single_artifact(
+    file_path: Path,
+    expected_checksum: str,
+    algorithm: str = "sha256"
+) -> bool:
+    """
+    Convenience wrapper to verify a single artifact.
+
+    Args:
+        file_path: Path to the file.
+        expected_checksum: Expected SHA-256 hash.
+        algorithm: Hash algorithm (default: sha256).
+
+    Returns:
+        True if valid, False otherwise.
+    """
+    try:
+        is_valid, _ = validate_checksum(file_path, expected_checksum, algorithm)
+        return is_valid
+    except (ChecksumError, FileNotFoundError) as e:
+        logger.error(f"Verification failed for {file_path}: {e}")
+        return False

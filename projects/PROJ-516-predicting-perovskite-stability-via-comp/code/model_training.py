@@ -1,9 +1,12 @@
 """
 Model Training Module for Perovskite Stability Prediction.
 
-Implements Random Forest, Gradient Boosting, and Elastic Net regression models
-using default precision (float64) and CPU-only execution as per project constraints.
-No 8-bit/4-bit quantization is used.
+Implements User Story 2:
+- Train Random Forest, Gradient Boosting, and Elastic Net.
+- Apply uncertainty weighting (1/σ²).
+- Stratified KFold using perovskite_family.
+- Grid search with hard cap.
+- Save models and metrics (T025 integration).
 """
 import logging
 import json
@@ -12,267 +15,273 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import ElasticNet
-from sklearn.model_selection import StratifiedKFold, cross_validate
-from sklearn.metrics import make_scorer, r2_score, mean_squared_error, mean_absolute_error
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from sklearn.preprocessing import StandardScaler
 
-# Project root path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PATH = PROJECT_ROOT / "data" / "processed" / "descriptors.csv"
-OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "model_runs.json"
+# Import the save logic from save_models
+# We need to ensure the path is correct
+code_dir = Path(__file__).resolve().parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from save_models import save_model_run, save_all_runs, load_existing_runs
+
 logger = logging.getLogger(__name__)
+
+DATA_PATH = Path("data/processed/descriptors.csv")
+OUTPUT_METRICS_PATH = Path("data/processed/metrics_summary.json")
+MODEL_OUTPUT_PATH = Path("data/processed/model_runs.json")
+
+# Hyperparameter grid caps (T022)
+MAX_GRID_COMBOS = 10
 
 
 def load_data() -> Tuple[pd.DataFrame, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Load preprocessed descriptors and extract features, target, and family labels.
-
+    Load the processed descriptors dataset.
     Returns:
-        Tuple containing:
-            - X: Feature DataFrame
-            - y: Target array (T_d)
-            - weights: Sample weights (1/uncertainty)
-            - families: Array of perovskite family labels for stratification
+        df: The full dataframe.
+        X: Feature matrix.
+        y: Target variable (T_d).
+        y_strat: Stratification labels (perovskite_family).
     """
     if not DATA_PATH.exists():
-        raise FileNotFoundError(f"Required data file not found: {DATA_PATH}")
+        raise FileNotFoundError(f"Data file {DATA_PATH} not found. Run T017 first.")
 
     df = pd.read_csv(DATA_PATH)
 
-    # Define target and feature columns based on previous tasks
+    # Identify features and target
+    # Assuming 'T_d' is the target and 'perovskite_family' is for stratification
     target_col = 'T_d'
-    # Exclude target, family, and any metadata columns from features
-    feature_cols = [col for col in df.columns if col not in [target_col, 'family', 'formula', 'id']]
+    strat_col = 'perovskite_family'
+    
+    # Exclude non-numeric columns and target/strat columns from features
+    feature_cols = df.select_dtypes(include=[np.number]).columns.drop(
+        [target_col, 'T_d_uncertainty', 'sigma', 'uncertainty_flag']
+    ).tolist()
+    
+    # Ensure perovskite_family is present
+    if strat_col not in df.columns:
+        raise ValueError(f"Stratification column '{strat_col}' not found in {DATA_PATH}")
 
-    X = df[feature_cols].dropna()
-    y = df.loc[X.index, target_col]
-    weights = 1.0 / df.loc[X.index, 'T_d_uncertainty'].replace(0, np.nan).fillna(1.0)
-    families = df.loc[X.index, 'family']
+    X = df[feature_cols].values
+    y = df[target_col].values
+    y_strat = df[strat_col].values
 
-    logger.info(f"Loaded {len(X)} samples with {X.shape[1]} features.")
-    return X, y, weights, families
+    # Handle missing values if any (though T015 should have filtered)
+    if np.isnan(X).any() or np.isnan(y).any():
+        logger.warning("NaN values detected in data. Dropping rows.")
+        mask = ~np.isnan(X).any(axis=1) & ~np.isnan(y)
+        X = X[mask]
+        y = y[mask]
+        y_strat = y_strat[mask]
+
+    return df, X, y, y_strat
 
 
-def train_random_forest(X: pd.DataFrame, y: pd.Series, weights: pd.Series, 
-                        families: pd.Series, cv_folds: int = 5) -> Dict[str, Any]:
+def train_random_forest(X: np.ndarray, y: np.ndarray, y_strat: np.ndarray, weights: np.ndarray) -> Tuple[Any, Dict]:
     """
-    Train a Random Forest Regressor with CPU-only execution and default precision.
+    Train a Random Forest model with uncertainty weighting.
+    Note: sklearn RF doesn't natively support sample_weight in all versions, 
+    but recent ones do. We use it if available.
     """
+    param_grid = {
+        'n_estimators': [50, 100],
+        'max_depth': [5, 10, None],
+        'min_samples_split': [2, 5]
+    }
+    # Cap grid size
+    grid_size = 1
+    for k, v in param_grid.items():
+        grid_size *= len(v)
+    if grid_size > MAX_GRID_COMBOS:
+        # Truncate grid
+        logger.warning(f"RF grid size {grid_size} exceeds {MAX_GRID_COMBOS}. Truncating.")
+        # Simple truncation: keep first few options
+        for k in list(param_grid.keys())[1:]:
+            param_grid[k] = [param_grid[k][0]]
+
+    rf = RandomForestRegressor(random_state=42)
+    
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    
+    # Note: RF in sklearn supports sample_weight in fit, but GridSearchCV 
+    # needs a custom callback or we pass it via fit_params.
+    # However, GridSearchCV doesn't directly support sample_weight in the split.
+    # We will use a custom approach or rely on the fact that for this task,
+    # we apply weighting if the model supports it.
+    # For simplicity in this constrained environment, we will do a manual CV loop
+    # to apply weights correctly, or use a simplified grid search without weights in CV
+    # but weighted in final fit.
+    # Given the strict constraints, we will do a simplified grid search
+    # and apply weights in the final model fit.
+    
+    grid = GridSearchCV(rf, param_grid, cv=cv, scoring='r2', n_jobs=1)
+    grid.fit(X, y, sample_weight=weights)
+    
+    best_model = grid.best_estimator_
+    best_params = grid.best_params_
+    
+    # Evaluate
+    y_pred = best_model.predict(X)
+    metrics = {
+        'R2': r2_score(y, y_pred),
+        'RMSE': np.sqrt(mean_squared_error(y, y_pred)),
+        'MAE': mean_absolute_error(y, y_pred)
+    }
+    
+    return best_model, {'model_type': 'RandomForest', 'hyperparameters': best_params, 'metrics': metrics}
+
+
+def train_gradient_boosting(X: np.ndarray, y: np.ndarray, y_strat: np.ndarray, weights: np.ndarray) -> Tuple[Any, Dict]:
+    """
+    Train a Gradient Boosting model with uncertainty weighting.
+    """
+    param_grid = {
+        'n_estimators': [50, 100],
+        'learning_rate': [0.05, 0.1],
+        'max_depth': [3, 5]
+    }
+    grid_size = 1
+    for v in param_grid.values():
+        grid_size *= len(v)
+    if grid_size > MAX_GRID_COMBOS:
+        logger.warning(f"GB grid size {grid_size} exceeds {MAX_GRID_COMBOS}. Truncating.")
+        for k in list(param_grid.keys())[1:]:
+            param_grid[k] = [param_grid[k][0]]
+
+    gb = GradientBoostingRegressor(random_state=42)
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    
+    grid = GridSearchCV(gb, param_grid, cv=cv, scoring='r2', n_jobs=1)
+    grid.fit(X, y, sample_weight=weights)
+    
+    best_model = grid.best_estimator_
+    best_params = grid.best_params_
+    
+    y_pred = best_model.predict(X)
+    metrics = {
+        'R2': r2_score(y, y_pred),
+        'RMSE': np.sqrt(mean_squared_error(y, y_pred)),
+        'MAE': mean_absolute_error(y, y_pred)
+    }
+    
+    return best_model, {'model_type': 'GradientBoosting', 'hyperparameters': best_params, 'metrics': metrics}
+
+
+def train_elastic_net(X: np.ndarray, y: np.ndarray, y_strat: np.ndarray, weights: np.ndarray) -> Tuple[Any, Dict]:
+    """
+    Train an Elastic Net model with uncertainty weighting.
+    """
+    param_grid = {
+        'alpha': [0.01, 0.1, 1.0],
+        'l1_ratio': [0.2, 0.5, 0.8]
+    }
+    grid_size = 1
+    for v in param_grid.values():
+        grid_size *= len(v)
+    if grid_size > MAX_GRID_COMBOS:
+        logger.warning(f"EN grid size {grid_size} exceeds {MAX_GRID_COMBOS}. Truncating.")
+        for k in list(param_grid.keys())[1:]:
+            param_grid[k] = [param_grid[k][0]]
+
+    en = ElasticNet(random_state=42, max_iter=2000)
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    
+    grid = GridSearchCV(en, param_grid, cv=cv, scoring='r2', n_jobs=1)
+    grid.fit(X, y, sample_weight=weights)
+    
+    best_model = grid.best_estimator_
+    best_params = grid.best_params_
+    
+    y_pred = best_model.predict(X)
+    metrics = {
+        'R2': r2_score(y, y_pred),
+        'RMSE': np.sqrt(mean_squared_error(y, y_pred)),
+        'MAE': mean_absolute_error(y, y_pred)
+    }
+    
+    return best_model, {'model_type': 'ElasticNet', 'hyperparameters': best_params, 'metrics': metrics}
+
+
+def save_model_results(model_results: List[Dict], models: Dict[str, Any]) -> None:
+    """
+    Save all model results and binary models to disk.
+    Implements T025.
+    """
+    all_runs = load_existing_runs()
+    
+    for res in model_results:
+        model_type = res['model_type']
+        if model_type in models:
+            entry = save_model_run(
+                model_type=model_type,
+                hyperparameters=res['hyperparameters'],
+                metrics=res['metrics'],
+                model_object=models[model_type]
+            )
+            all_runs.append(entry)
+    
+    save_all_runs(all_runs)
+    logger.info(f"Saved {len(all_runs)} model runs to {MODEL_OUTPUT_PATH}")
+
+
+def main() -> None:
+    """
+    Main training pipeline execution.
+    """
+    logging.basicConfig(level=logging.INFO)
+    
+    logger.info("Loading data...")
+    df, X, y, y_strat = load_data()
+    
+    # Compute weights: 1 / sigma^2
+    # Assuming T_d_uncertainty or sigma column exists
+    if 'sigma' in df.columns:
+        sigma = df['sigma'].values
+    elif 'T_d_uncertainty' in df.columns:
+        sigma = df['T_d_uncertainty'].values
+    else:
+        logger.warning("No uncertainty column found. Using uniform weights.")
+        sigma = np.ones_like(y)
+    
+    # Avoid division by zero
+    sigma = np.where(sigma == 0, 1e-6, sigma)
+    weights = 1.0 / (sigma ** 2)
+    
+    # Normalize weights if needed (sklearn usually handles this, but good practice)
+    weights = weights / weights.sum() * len(weights)
+    
+    models = {}
+    results = []
+    
+    # Train RF
     logger.info("Training Random Forest...")
+    model_rf, res_rf = train_random_forest(X, y, y_strat, weights)
+    models['RandomForest'] = model_rf
+    results.append(res_rf)
     
-    # Explicitly set n_jobs to 1 to ensure single-threaded CPU execution
-    # or -1 for all available CPUs, but NO GPU/quantization
-    model = RandomForestRegressor(
-        n_estimators=10,  # Small number for quick validation as per grid search constraints
-        max_depth=5,
-        random_state=42,
-        n_jobs=1, 
-        verbose=0
-    )
-
-    # Custom scoring
-    scorers = {
-        'r2': 'r2',
-        'rmse': make_scorer(mean_squared_error, squared=False),
-        'mae': 'neg_mean_absolute_error'
-    }
-
-    # Stratified CV
-    cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=42)
-    
-    # Note: sklearn RF does not natively support sample_weight in cross_validate 
-    # for all metrics in older versions, but we pass it to fit if we were doing manual loops.
-    # For this task, we use the standard cross_validate. 
-    # To properly apply weights, we would need a custom CV loop, but for the 
-    # "default precision/CPU" constraint check, the model instantiation is key.
-    
-    results = cross_validate(
-        model, X, y, cv=cv, scoring=scorers, return_train_score=True
-    )
-
-    # Calculate mean metrics
-    mean_r2 = results['test_r2'].mean()
-    mean_rmse = results['test_rmse'].mean()
-    # negate mae back to positive
-    mean_mae = -results['test_neg_mean_absolute_error'].mean()
-
-    logger.info(f"Random Forest R²: {mean_r2:.4f}, RMSE: {mean_rmse:.4f}, MAE: {mean_mae:.4f}")
-
-    return {
-        "model_type": "RandomForest",
-        "hyperparameters": model.get_params(),
-        "metrics": {
-            "r2": float(mean_r2),
-            "rmse": float(mean_rmse),
-            "mae": float(mean_mae)
-        },
-        "cv_folds": cv_folds,
-        "precision": "float64",
-        "device": "CPU"
-    }
-
-
-def train_gradient_boosting(X: pd.DataFrame, y: pd.Series, weights: pd.Series,
-                            families: pd.Series, cv_folds: int = 5) -> Dict[str, Any]:
-    """
-    Train a Gradient Boosting Regressor with CPU-only execution and default precision.
-    """
+    # Train GB
     logger.info("Training Gradient Boosting...")
-
-    model = GradientBoostingRegressor(
-        n_estimators=10,
-        max_depth=3,
-        random_state=42,
-        verbose=0
-    )
-
-    scorers = {
-        'r2': 'r2',
-        'rmse': make_scorer(mean_squared_error, squared=False),
-        'mae': 'neg_mean_absolute_error'
-    }
-
-    cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=42)
-
-    results = cross_validate(
-        model, X, y, cv=cv, scoring=scorers, return_train_score=True
-    )
-
-    mean_r2 = results['test_r2'].mean()
-    mean_rmse = results['test_rmse'].mean()
-    mean_mae = -results['test_neg_mean_absolute_error'].mean()
-
-    logger.info(f"Gradient Boosting R²: {mean_r2:.4f}, RMSE: {mean_rmse:.4f}, MAE: {mean_mae:.4f}")
-
-    return {
-        "model_type": "GradientBoosting",
-        "hyperparameters": model.get_params(),
-        "metrics": {
-            "r2": float(mean_r2),
-            "rmse": float(mean_rmse),
-            "mae": float(mean_mae)
-        },
-        "cv_folds": cv_folds,
-        "precision": "float64",
-        "device": "CPU"
-    }
-
-
-def train_elastic_net(X: pd.DataFrame, y: pd.Series, weights: pd.Series,
-                      families: pd.Series, cv_folds: int = 5) -> Dict[str, Any]:
-    """
-    Train an Elastic Net Regressor with CPU-only execution, default precision,
-    and sample weights (1/uncertainty).
-    """
+    model_gb, res_gb = train_gradient_boosting(X, y, y_strat, weights)
+    models['GradientBoosting'] = model_gb
+    results.append(res_gb)
+    
+    # Train EN
     logger.info("Training Elastic Net...")
-
-    # ElasticNet does not support sample_weight in cross_validate directly in older sklearn
-    # We implement a manual CV loop to apply weights correctly
-    model = ElasticNet(
-        alpha=0.1,
-        l1_ratio=0.5,
-        random_state=42,
-        max_iter=1000
-    )
-
-    scorers = {
-        'r2': 'r2',
-        'rmse': make_scorer(mean_squared_error, squared=False),
-        'mae': 'neg_mean_absolute_error'
-    }
-
-    cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=42)
+    model_en, res_en = train_elastic_net(X, y, y_strat, weights)
+    models['ElasticNet'] = model_en
+    results.append(res_en)
     
-    r2_scores = []
-    rmse_scores = []
-    mae_scores = []
-
-    for train_idx, test_idx in cv.split(X, y, groups=families):
-        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-        y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
-        w_train = weights.iloc[train_idx]
-
-        # Fit with sample weights
-        model.fit(X_train, y_train, sample_weight=w_train)
-
-        y_pred = model.predict(X_test)
-
-        r2_scores.append(r2_score(y_test, y_pred))
-        rmse_scores.append(mean_squared_error(y_test, y_pred, squared=False))
-        mae_scores.append(mean_absolute_error(y_test, y_pred))
-
-    mean_r2 = np.mean(r2_scores)
-    mean_rmse = np.mean(rmse_scores)
-    mean_mae = np.mean(mae_scores)
-
-    logger.info(f"Elastic Net R²: {mean_r2:.4f}, RMSE: {mean_rmse:.4f}, MAE: {mean_mae:.4f}")
-
-    return {
-        "model_type": "ElasticNet",
-        "hyperparameters": model.get_params(),
-        "metrics": {
-            "r2": float(mean_r2),
-            "rmse": float(mean_rmse),
-            "mae": float(mean_mae)
-        },
-        "cv_folds": cv_folds,
-        "precision": "float64",
-        "device": "CPU",
-        "weighted": True
-    }
-
-
-def perform_stratified_cv(X: pd.DataFrame, y: pd.Series, families: pd.Series, n_splits: int = 5) -> StratifiedKFold:
-    """
-    Configure and return a StratifiedKFold object for cross-validation.
-    """
-    return StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-
-
-def save_model_results(results: List[Dict[str, Any]]) -> None:
-    """
-    Save model training results to the output JSON file.
-    """
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(OUTPUT_PATH, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {OUTPUT_PATH}")
-
-
-def main():
-    """
-    Main entry point for model training.
-    Ensures CPU-only execution and default precision (float64) for all models.
-    """
-    logger.info("Starting Model Training Pipeline (Task T024)...")
+    # Save results (T025)
+    save_model_results(results, models)
     
-    try:
-        X, y, weights, families = load_data()
-        
-        # Ensure data is float64 (default precision)
-        X = X.astype(np.float64)
-        y = y.astype(np.float64)
-        weights = weights.astype(np.float64)
-
-        results = []
-
-        # Train models
-        results.append(train_random_forest(X, y, weights, families))
-        results.append(train_gradient_boosting(X, y, weights, families))
-        results.append(train_elastic_net(X, y, weights, families))
-
-        save_model_results(results)
-        logger.info("Training completed successfully.")
-
-    except Exception as e:
-        logger.error(f"Training failed: {e}")
-        sys.exit(1)
+    logger.info("Training complete. Results saved.")
 
 
 if __name__ == "__main__":

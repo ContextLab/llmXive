@@ -8,94 +8,49 @@ version = "0.1.0"
 description = "Predicting Perovskite Stability via Compositional Fingerprints"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "pymatgen>=2023.0.0",
-    "scikit-learn>=1.3.0",
-    "pyyaml>=6.0",
-    "requests>=2.31.0",
-    "python-dotenv>=1.0.0",
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0",
-    "shap>=0.42.0",
-    "scipy>=1.11.0",
+    "pandas",
+    "scikit-learn",
+    "requests",
+    "pyyaml",
+    "numpy",
+    "pymatgen",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "flake8>=6.1.0",
-    "pylint>=3.0.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "mypy>=1.5.0",
+    "black",
+    "isort",
+    "flake8",
+    "pylint",
+    "pytest",
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 100
-known_first_party = ["utils", "data_ingestion_metadata", "feature_engineering", "filter_descriptors", "uncertainty_flagger", "verify_descriptors", "vif_diagnostic"]
-skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist", "venv"]
-
-[tool.pylint.main]
-max-line-length = 100
-ignore = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist", "venv"]
-load-plugins = ["pylint.extensions.docparams", "pylint.extensions.mccabe"]
-
-[tool.pylint.messages_control]
-disable = [
-    "C0114",  # missing-module-docstring
-    "C0115",  # missing-class-docstring
-    "C0116",  # missing-function-docstring
-    "R0903",  # too-few-public-methods
-    "R0913",  # too-many-arguments
-    "R0914",  # too-many-locals
-    "W0511",  # fixme
-    "E1136",  # unsubscriptable-object (pymatgen compatibility)
-]
-
-[tool.pylint.design]
-max-args = 8
-max-locals = 20
-max-returns = 6
-max-branches = 15
-max-statements = 60
-max-attributes = 15
-max-public-methods = 25
+line_length = 88
+known_first_party = ["utils"]
+skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short --cov=code --cov-report=term-missing"
-filterwarnings = [
-    "ignore::DeprecationWarning:pymatgen.*",
-    "ignore::PendingDeprecationWarning:sklearn.*",
-]
-
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = false
-ignore_missing_imports = true
-exclude = ["build/", "dist/", ".venv/", "venv/"]
+addopts = "-v --tb=short"

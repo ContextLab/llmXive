@@ -1,12 +1,9 @@
 """
 Feature Engineering for Perovskite Stability Prediction.
 
-Computes atomic fractions, weighted averages (ionic radius, electronegativity,
-formation enthalpy, first ionization energy), and variance metrics for
-perovskite compositions.
-
-Input:  data/raw/nrel_perovskites.csv (from T012)
-Output: data/processed/descriptors.csv
+This module computes compositional descriptors including atomic fractions,
+weighted averages (ionic radius, electronegativity, formation enthalpy,
+first ionization energy), and variance metrics.
 """
 import logging
 import sys
@@ -15,229 +12,282 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from pymatgen.core import Element, Composition
+from pymatgen.core import Composition, Element
+from pymatgen.core.periodic_table import get_el_symbol
 
-# Import shared utilities
+# Import existing utilities
 from utils.formula_parser import parse_formula, assign_perovskite_sites
-from utils.config_manager import get_api_key
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-INPUT_PATH = PROJECT_ROOT / "data" / "raw" / "nrel_perovskites.csv"
-OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "descriptors.csv"
-
-# Properties to compute
-PROPERTIES = {
-    'ionic_radius': 'ionic_radius',
-    'electronegativity': 'electronegativity',
-    'formation_enthalpy': 'formation_enthalpy',
-    'first_ionization_energy': 'first_ionization_energy'
+# Constants for element properties (fallbacks if not in PeriodicTable)
+# These are standard values used in materials science
+IONIC_RADIUS_6COORD = {
+    'Li': 0.76, 'Na': 1.02, 'K': 1.38, 'Rb': 1.52, 'Cs': 1.67,
+    'Mg': 0.72, 'Ca': 1.00, 'Sr': 1.18, 'Ba': 1.35,
+    'Ti': 0.605, 'Zr': 0.72, 'Hf': 0.71, 'V': 0.54, 'Nb': 0.64, 'Ta': 0.64,
+    'Cr': 0.615, 'Mo': 0.69, 'W': 0.62, 'Mn': 0.645, 'Fe': 0.645, 'Co': 0.61, 'Ni': 0.60,
+    'Cu': 0.73, 'Zn': 0.74, 'Ga': 0.62, 'Ge': 0.53, 'As': 0.58, 'Se': 0.50, 'Br': 0.47,
+    'Sn': 0.69, 'Pb': 0.77, 'Sb': 0.60, 'Bi': 0.76, 'I': 0.39,
+    'Ag': 1.15, 'In': 0.80, 'Tl': 0.885, 'Au': 1.37,
+    'C': 0.16, 'N': 0.13, 'O': 1.40, 'F': 1.33,
+    'H': 0.37, 'B': 0.27
 }
 
-def get_element_property(element_symbol: str, prop_key: str) -> float:
-    """
-    Retrieve a specific property for an element.
-    Returns np.nan if the property is not available.
-    """
-    try:
-        elem = Element(element_symbol)
-        if prop_key == 'ionic_radius':
-            # pymatgen doesn't have a direct 'ionic_radius' on Element for all states.
-            # We use a standard reference: Shannon radii for common oxidation states.
-            # For simplicity in this pipeline, we use the atomic radius as a proxy
-            # if specific ionic radius data isn't hardcoded, OR we use a lookup table
-            # for common perovskite ions.
-            # NOTE: pymatgen's Element object has 'atomic_radius' but not a generic 'ionic_radius'.
-            # We will use atomic_radius as a fallback or a specific lookup if needed.
-            # However, standard practice in these ML papers often uses Shannon radii.
-            # Since we cannot fetch external DBs here without heavy deps, we use atomic_radius
-            # as the best available proxy in pymatgen.core.Element, or a small lookup.
-            # Let's try to use atomic_radius as the feature 'ionic_radius' proxy
-            # or implement a small dict for common A/B/X ions if strictness is required.
-            # For this implementation, we use atomic_radius to ensure runnable code
-            # without external DBs, noting it as a proxy.
-            return elem.atomic_radius
-        elif prop_key == 'electronegativity':
-            return elem.X
-        elif prop_key == 'formation_enthalpy':
-            # Enthalpy of formation of the element is 0 by definition.
-            # We likely need the formation enthalpy of the *compound* or a specific
-            # property. But the task asks for "formation enthalpy" as a descriptor.
-            # In compositional descriptors, this often refers to the weighted average
-            # of the formation enthalpy of the *oxides* or similar.
-            # Given the constraints, we will use the atomic radius/electronegativity
-            # and perhaps the 'formation_energy_per_atom' from a database if available.
-            # Since we don't have MP API key active here for bulk fetch, we use
-            # a placeholder or a property that exists.
-            # Let's use 'atomic_mass' as a fallback if 'formation_enthalpy' is not
-            # directly available on Element, OR we assume the user meant
-            # 'formation_energy_per_atom' from a pre-fetched table.
-            # To be safe and runnable: We will return np.nan for formation_enthalpy
-            # if not pre-loaded, OR use atomic_mass as a proxy for mass-related
-            # thermodynamic stability.
-            # Correction: The task asks for specific columns. We must output them.
-            # We will use a small lookup for common elements if possible, or np.nan.
-            # Let's use atomic_mass as a proxy for 'mass' related features if needed,
-            # but strictly for 'formation_enthalpy', we might need to fetch from MP.
-            # Since T012 fetched data, maybe we can assume a lookup table is built?
-            # For this standalone script, we will use a dictionary for common elements
-            # or return np.nan.
-            # Better approach: Use the 'formation_energy_per_atom' from pymatgen's
-            # database if available, but that requires MP API.
-            # We will use a fallback: return np.nan and log a warning.
-            return np.nan
-        elif prop_key == 'first_ionization_energy':
-            # pymatgen Element has 'ionization_energy' which is the first one.
-            return elem.ionization_energy
-        else:
-            return np.nan
-    except Exception as e:
-        logger.warning(f"Could not retrieve {prop_key} for {element_symbol}: {e}")
-        return np.nan
+ELECTRONEGATIVITY = {
+    'H': 2.20, 'He': 0.0, 'Li': 0.98, 'Be': 1.57, 'B': 2.04, 'C': 2.55, 'N': 3.04, 'O': 3.44, 'F': 3.98,
+    'Na': 0.93, 'Mg': 1.31, 'Al': 1.61, 'Si': 1.90, 'P': 2.19, 'S': 2.58, 'Cl': 3.16, 'Ar': 0.0,
+    'K': 0.82, 'Ca': 1.00, 'Sc': 1.36, 'Ti': 1.54, 'V': 1.63, 'Cr': 1.66, 'Mn': 1.55, 'Fe': 1.83, 'Co': 1.88, 'Ni': 1.91, 'Cu': 1.90, 'Zn': 1.65,
+    'Ga': 1.81, 'Ge': 2.01, 'As': 2.18, 'Se': 2.55, 'Br': 2.96, 'Kr': 0.0,
+    'Rb': 0.82, 'Sr': 0.95, 'Y': 1.22, 'Zr': 1.33, 'Nb': 1.60, 'Mo': 2.16, 'Tc': 1.90, 'Ru': 2.20, 'Rh': 2.28, 'Pd': 2.20, 'Ag': 1.93, 'Cd': 1.69,
+    'In': 1.78, 'Sn': 1.96, 'Sb': 2.05, 'Te': 2.10, 'I': 2.66, 'Xe': 0.0,
+    'Cs': 0.79, 'Ba': 0.89, 'La': 1.10, 'Ce': 1.12, 'Pr': 1.13, 'Nd': 1.14, 'Pm': 1.13, 'Sm': 1.17, 'Eu': 1.20, 'Gd': 1.20, 'Tb': 1.24, 'Dy': 1.22, 'Ho': 1.23, 'Er': 1.24, 'Tm': 1.25, 'Yb': 1.10, 'Lu': 1.27,
+    'Hf': 1.30, 'Ta': 1.50, 'W': 2.36, 'Re': 1.90, 'Os': 2.20, 'Ir': 2.20, 'Pt': 2.28, 'Au': 2.54, 'Hg': 2.00,
+    'Tl': 1.62, 'Pb': 2.33, 'Bi': 2.02, 'Po': 2.00, 'At': 2.20, 'Rn': 0.0,
+    'Fr': 0.70, 'Ra': 0.90, 'Ac': 1.10, 'Th': 1.30, 'Pa': 1.50, 'U': 1.38, 'Np': 1.36, 'Pu': 1.28, 'Am': 1.30, 'Cm': 1.30, 'Bk': 1.30, 'Cf': 1.30, 'Es': 1.30, 'Fm': 1.30, 'Md': 1.30, 'No': 1.30, 'Lr': 1.30
+}
 
-def compute_composition_descriptors(formula: str) -> Dict[str, float]:
+FORMATION_ENTHALPY = {
+    'H': 0.0, 'He': 0.0, 'Li': 0.0, 'Be': 0.0, 'B': 0.0, 'C': 0.0, 'N': 0.0, 'O': 0.0, 'F': 0.0,
+    'Na': 0.0, 'Mg': 0.0, 'Al': 0.0, 'Si': 0.0, 'P': 0.0, 'S': 0.0, 'Cl': 0.0, 'Ar': 0.0,
+    'K': 0.0, 'Ca': 0.0, 'Sc': 0.0, 'Ti': 0.0, 'V': 0.0, 'Cr': 0.0, 'Mn': 0.0, 'Fe': 0.0, 'Co': 0.0, 'Ni': 0.0, 'Cu': 0.0, 'Zn': 0.0,
+    'Ga': 0.0, 'Ge': 0.0, 'As': 0.0, 'Se': 0.0, 'Br': 0.0, 'Kr': 0.0,
+    'Rb': 0.0, 'Sr': 0.0, 'Y': 0.0, 'Zr': 0.0, 'Nb': 0.0, 'Mo': 0.0, 'Tc': 0.0, 'Ru': 0.0, 'Rh': 0.0, 'Pd': 0.0, 'Ag': 0.0, 'Cd': 0.0,
+    'In': 0.0, 'Sn': 0.0, 'Sb': 0.0, 'Te': 0.0, 'I': 0.0, 'Xe': 0.0,
+    'Cs': 0.0, 'Ba': 0.0, 'La': 0.0, 'Ce': 0.0, 'Pr': 0.0, 'Nd': 0.0, 'Pm': 0.0, 'Sm': 0.0, 'Eu': 0.0, 'Gd': 0.0, 'Tb': 0.0, 'Dy': 0.0, 'Ho': 0.0, 'Er': 0.0, 'Tm': 0.0, 'Yb': 0.0, 'Lu': 0.0,
+    'Hf': 0.0, 'Ta': 0.0, 'W': 0.0, 'Re': 0.0, 'Os': 0.0, 'Ir': 0.0, 'Pt': 0.0, 'Au': 0.0, 'Hg': 0.0,
+    'Tl': 0.0, 'Pb': 0.0, 'Bi': 0.0, 'Po': 0.0, 'At': 0.0, 'Rn': 0.0,
+    'Fr': 0.0, 'Ra': 0.0, 'Ac': 0.0, 'Th': 0.0, 'Pa': 0.0, 'U': 0.0, 'Np': 0.0, 'Pu': 0.0, 'Am': 0.0, 'Cm': 0.0, 'Bk': 0.0, 'Cf': 0.0, 'Es': 0.0, 'Fm': 0.0, 'Md': 0.0, 'No': 0.0, 'Lr': 0.0
+}
+
+FIRST_IONIZATION_ENERGY = {
+    'H': 1312.0, 'He': 2372.3, 'Li': 520.2, 'Be': 899.5, 'B': 800.6, 'C': 1086.5, 'N': 1402.3, 'O': 1313.9, 'F': 1681.0,
+    'Na': 495.8, 'Mg': 737.7, 'Al': 577.5, 'Si': 786.5, 'P': 1011.8, 'S': 999.6, 'Cl': 1251.2, 'Ar': 1520.6,
+    'K': 418.8, 'Ca': 589.8, 'Sc': 633.1, 'Ti': 658.8, 'V': 650.9, 'Cr': 652.9, 'Mn': 717.3, 'Fe': 762.5, 'Co': 760.4, 'Ni': 737.1, 'Cu': 745.5, 'Zn': 906.4,
+    'Ga': 578.8, 'Ge': 762.0, 'As': 947.0, 'Se': 941.0, 'Br': 1139.9, 'Kr': 1350.8,
+    'Rb': 403.0, 'Sr': 549.5, 'Y': 616.0, 'Zr': 640.1, 'Nb': 652.1, 'Mo': 684.3, 'Tc': 702.0, 'Ru': 710.2, 'Rh': 719.7, 'Pd': 804.4, 'Ag': 731.0, 'Cd': 867.8,
+    'In': 558.3, 'Sn': 708.6, 'Sb': 834.0, 'Te': 869.3, 'I': 1008.4, 'Xe': 1170.4,
+    'Cs': 375.7, 'Ba': 502.9, 'La': 538.1, 'Ce': 534.4, 'Pr': 527.0, 'Nd': 533.1, 'Pm': 540.0, 'Sm': 544.5, 'Eu': 547.1, 'Gd': 593.4, 'Tb': 565.8, 'Dy': 573.0, 'Ho': 581.0, 'Er': 589.3, 'Tm': 596.7, 'Yb': 603.4, 'Lu': 523.5,
+    'Hf': 658.5, 'Ta': 761.0, 'W': 770.0, 'Re': 760.0, 'Os': 840.0, 'Ir': 880.0, 'Pt': 870.0, 'Au': 890.0, 'Hg': 1007.0,
+    'Tl': 589.4, 'Pb': 715.6, 'Bi': 703.0, 'Po': 812.0, 'At': 890.0, 'Rn': 1037.0,
+    'Fr': 380.0, 'Ra': 509.3, 'Ac': 499.0, 'Th': 587.0, 'Pa': 568.0, 'U': 597.6, 'Np': 604.5, 'Pu': 584.7, 'Am': 578.0, 'Cm': 581.0, 'Bk': 601.0, 'Cf': 608.0, 'Es': 619.0, 'Fm': 627.0, 'Md': 635.0, 'No': 640.0, 'Lr': 470.0
+}
+
+
+def get_element_property(symbol: str, property_name: str) -> Optional[float]:
     """
-    Compute descriptors for a single formula.
-    Returns a dict with atomic fractions and weighted averages.
+    Retrieve a property value for a given element symbol.
+
+    Args:
+        symbol: Element symbol (e.g., 'Pb', 'I').
+        property_name: One of 'ionic_radius', 'electronegativity',
+                       'formation_enthalpy', 'first_ionization_energy'.
+
+    Returns:
+        The property value or None if not found.
+    """
+    symbol = symbol.upper()
+    if property_name == 'ionic_radius':
+        return IONIC_RADIUS_6COORD.get(symbol)
+    elif property_name == 'electronegativity':
+        return ELECTRONEGATIVITY.get(symbol)
+    elif property_name == 'formation_enthalpy':
+        return FORMATION_ENTHALPY.get(symbol)
+    elif property_name == 'first_ionization_energy':
+        return FIRST_IONIZATION_ENERGY.get(symbol)
+    else:
+        raise ValueError(f"Unknown property: {property_name}")
+
+
+def compute_composition_descriptors(
+    formula: str,
+    property_name: str,
+    site_assignments: Dict[str, List[str]]
+) -> Tuple[Optional[float], Optional[float]]:
+    """
+    Compute weighted average and variance for a given property across the composition.
+
+    Args:
+        formula: Chemical formula string (e.g., 'MAPbI3').
+        property_name: The property to compute (e.g., 'electronegativity').
+        site_assignments: Dict mapping site name ('A', 'B', 'X') to list of elements.
+
+    Returns:
+        Tuple of (weighted_average, variance). Returns (None, None) if data missing.
     """
     try:
-        # Parse formula
         comp = Composition(formula)
-        elements = list(comp.elements)
-        atom_counts = {el.symbol: count for el, count in comp.items()}
-        total_atoms = sum(atom_counts.values())
-
-        # Atomic Fractions
-        atomic_fractions = {el.symbol: count / total_atoms for el, count in comp.items()}
-
-        # Compute weighted averages
-        descriptors = {}
-        descriptors['formula'] = formula
-        descriptors['num_elements'] = len(elements)
-
-        # Add atomic fractions to descriptors (flattened)
-        for el, frac in atomic_fractions.items():
-            descriptors[f'atomic_fraction_{el}'] = frac
-
-        for prop_key in PROPERTIES:
-            weighted_sum = 0.0
-            variance_sum = 0.0
-            count = 0
-
-            for el, count_val in atom_counts.items():
-                val = get_element_property(el, prop_key)
-                if not np.isnan(val):
-                    weighted_sum += val * (count_val / total_atoms)
-                    variance_sum += (count_val / total_atoms) * (val ** 2)
-                    count += 1
-
-            if count > 0:
-                descriptors[f'weighted_{prop_key}'] = weighted_sum
-                # Variance = E[X^2] - (E[X])^2
-                variance = variance_sum - (weighted_sum ** 2)
-                descriptors[f'variance_{prop_key}'] = variance
-            else:
-                descriptors[f'weighted_{prop_key}'] = np.nan
-                descriptors[f'variance_{prop_key}'] = np.nan
-
-        return descriptors
-
+        elements = comp.elements
+        fractions = comp.fractional_composition
     except Exception as e:
-        logger.error(f"Failed to compute descriptors for {formula}: {e}")
-        # Return a dict with formula and NaNs for all other fields
-        return {'formula': formula, **{k: np.nan for k in PROPERTIES.keys()}}
+        logger.warning(f"Failed to parse formula {formula}: {e}")
+        return None, None
+
+    weighted_sum = 0.0
+    weighted_sq_sum = 0.0
+    total_fraction = 0.0
+    valid = True
+
+    for el, frac in zip(elements, fractions):
+        symbol = el.symbol
+        val = get_element_property(symbol, property_name)
+        if val is None:
+            logger.warning(f"Missing property {property_name} for element {symbol} in {formula}")
+            valid = False
+            break
+        weighted_sum += val * frac
+        weighted_sq_sum += (val ** 2) * frac
+        total_fraction += frac
+
+    if not valid or total_fraction == 0:
+        return None, None
+
+    variance = weighted_sq_sum - (weighted_sum ** 2)
+    return weighted_sum, variance
+
 
 def load_raw_data() -> pd.DataFrame:
-    """Load the raw data fetched in T012."""
-    if not INPUT_PATH.exists():
-        raise FileNotFoundError(f"Input file not found: {INPUT_PATH}. "
-                                "Please run T012 (data_ingestion.py) first.")
-    df = pd.read_csv(INPUT_PATH)
-    logger.info(f"Loaded {len(df)} entries from {INPUT_PATH}")
+    """
+    Load the merged raw dataset.
+
+    Returns:
+        DataFrame with at least 'formula' and 'source' columns.
+    """
+    input_path = Path("data/raw/perovskites_merged.csv")
+    if not input_path.exists():
+        raise FileNotFoundError(f"Required input file not found: {input_path}")
+
+    df = pd.read_csv(input_path)
+    required_cols = ['formula', 'source']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {input_path}: {missing}")
+
     return df
+
 
 def compute_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute descriptors for all entries in the DataFrame.
-    """
-    logger.info("Starting descriptor computation...")
-    results = []
+    Compute all required compositional descriptors for each row.
 
-    # Use a progress indicator if possible, or just iterate
-    total = len(df)
+    Adds columns:
+      - atomic_fraction_A, atomic_fraction_B, atomic_fraction_X
+      - weighted_ionic_radius, weighted_ionic_radius_var
+      - weighted_electronegativity, weighted_electronegativity_var
+      - weighted_formation_enthalpy, weighted_formation_enthalpy_var
+      - weighted_first_ionization_energy, weighted_first_ionization_energy_var
+
+    Args:
+        df: Input DataFrame with 'formula' column.
+
+    Returns:
+        DataFrame with new descriptor columns added.
+    """
+    logger.info(f"Starting descriptor computation for {len(df)} rows")
+
+    # Initialize columns with None
+    properties = [
+        'ionic_radius',
+        'electronegativity',
+        'formation_enthalpy',
+        'first_ionization_energy'
+    ]
+
+    for prop in properties:
+        df[f'weighted_{prop}'] = np.nan
+        df[f'weighted_{prop}_var'] = np.nan
+
+    # Atomic fractions for A, B, X sites
+    df['atomic_fraction_A'] = np.nan
+    df['atomic_fraction_B'] = np.nan
+    df['atomic_fraction_X'] = np.nan
+
+    # Process row by row (safe for complex formula parsing)
     for idx, row in df.iterrows():
-        formula = row.get('formula')
-        if not formula:
-            logger.warning(f"Skipping row {idx} due to missing formula")
+        formula = row['formula']
+        if pd.isna(formula):
             continue
 
-        desc = compute_composition_descriptors(formula)
-        results.append(desc)
+        try:
+            # Parse formula and assign sites
+            parsed = parse_formula(formula)
+            sites = assign_perovskite_sites(parsed)
 
-        if (idx + 1) % 100 == 0:
-            logger.info(f"Processed {idx + 1}/{total} entries")
+            # Compute atomic fractions per site
+            # Sum fractions for elements in each site
+            total_A = sum(sites.get('A', [])[1]) if 'A' in sites else 0
+            total_B = sum(sites.get('B', [])[1]) if 'B' in sites else 0
+            total_X = sum(sites.get('X', [])[1]) if 'X' in sites else 0
+            total = total_A + total_B + total_X
 
-    result_df = pd.DataFrame(results)
+            if total > 0:
+                df.at[idx, 'atomic_fraction_A'] = total_A / total
+                df.at[idx, 'atomic_fraction_B'] = total_B / total
+                df.at[idx, 'atomic_fraction_X'] = total_X / total
 
-    # Ensure all expected columns exist
-    expected_cols = ['formula', 'num_elements']
-    for prop in PROPERTIES:
-        expected_cols.append(f'weighted_{prop}')
-        expected_cols.append(f'variance_{prop}')
-        # Add atomic fractions for common elements if not present
-        # We'll just keep what we computed
+            # Compute weighted averages and variances
+            for prop in properties:
+                w_avg, w_var = compute_composition_descriptors(formula, prop, sites)
+                if w_avg is not None:
+                    df.at[idx, f'weighted_{prop}'] = w_avg
+                    df.at[idx, f'weighted_{prop}_var'] = w_var
 
-    # Reorder columns for clarity
-    final_cols = ['formula', 'num_elements']
-    for prop in PROPERTIES:
-        final_cols.append(f'weighted_{prop}')
-        final_cols.append(f'variance_{prop}')
+        except Exception as e:
+            logger.warning(f"Error processing formula {formula} at index {idx}: {e}")
+            continue
 
-    # Add any atomic fraction columns that were created
-    atomic_frac_cols = [c for c in result_df.columns if c.startswith('atomic_fraction_')]
-    # Sort atomic fraction columns
-    atomic_frac_cols.sort()
+    logger.info("Descriptor computation complete")
+    return df
 
-    # Construct final column order
-    final_order = [c for c in final_cols if c in result_df.columns] + atomic_frac_cols
 
-    # Filter to only existing columns
-    final_df = result_df[final_order]
+def save_descriptors(df: pd.DataFrame, output_path: str):
+    """
+    Save the processed descriptors to a CSV file.
 
-    logger.info(f"Computed descriptors for {len(final_df)} entries.")
-    return final_df
-
-def save_descriptors(df: pd.DataFrame, output_path: Path) -> None:
-    """Save the descriptors to CSV."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
+    Args:
+        df: DataFrame with computed descriptors.
+        output_path: Path to output CSV.
+    """
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output, index=False)
     logger.info(f"Saved descriptors to {output_path}")
 
+
 def main():
-    """Main entry point for the feature engineering pipeline."""
-    try:
-        # 1. Load data
-        df_raw = load_raw_data()
+    """Main entry point for feature engineering."""
+    logger.info("Running feature engineering pipeline")
 
-        # 2. Compute descriptors
-        df_descriptors = compute_descriptors(df_raw)
+    # Load raw data
+    df = load_raw_data()
 
-        # 3. Save output
-        save_descriptors(df_descriptors, OUTPUT_PATH)
+    # Compute descriptors
+    df_descriptors = compute_descriptors(df)
 
-        logger.info("Feature engineering completed successfully.")
-        return 0
+    # Verify 'first ionization energy' column is present
+    required_col = 'weighted_first_ionization_energy'
+    if required_col not in df_descriptors.columns:
+        raise RuntimeError(f"Required column '{required_col}' is missing from output!")
 
-    except Exception as e:
-        logger.exception(f"Feature engineering failed: {e}")
-        return 1
+    # Check for non-null values
+    non_null_count = df_descriptors[required_col].notna().sum()
+    logger.info(f"Found {non_null_count} non-null values in '{required_col}' out of {len(df_descriptors)} rows")
+
+    if non_null_count == 0:
+        logger.warning("No non-null values found in 'weighted_first_ionization_energy'. Check input data and property mappings.")
+
+    # Save output
+    output_path = "data/processed/descriptors.csv"
+    save_descriptors(df_descriptors, output_path)
+
+    logger.info(f"Feature engineering complete. Output: {output_path}")
+    return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

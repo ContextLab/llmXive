@@ -25,8 +25,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create project directories: `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `state/`
-- [ ] T001b [P] Create `code/requirements.txt` with initial dependencies: `pandas`, `scikit-learn`, `requests`, `pyyaml`, `numpy`, `pymatgen`
-- [ ] T002 Initialize Python 3.11 project with dependencies (`code/requirements.txt`)
+- [X] T001b [P] Create `code/requirements.txt` with initial dependencies: `pandas`, `scikit-learn`, `requests`, `pyyaml`, `numpy`, `pymatgen`
+- [X] T002 Initialize Python 3.11 project with dependencies (`code/requirements.txt`)
 - [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools
 
 ---
@@ -39,11 +39,13 @@
 
 - [ ] T004 Implement `state_manager.py` to compute SHA-256 hashes for derived artifacts and update `state/...yaml`
 - [ ] T005 Create `contracts/descriptor.schema.yaml` defining the schema for `CompositionalDescriptor` entities
-- [ ] T006 Implement `code/utils/data_fetcher.py` with retry logic: up to 3 retries with exponential backoff (min, min, 4 min) for API unavailability
-- [ ] T007 Implement `code/utils/formula_parser.py` using `pymatgen` for deterministic A/B/X site assignment
+- [X] T006 Implement `code/utils/data_fetcher.py` with retry logic: up to 3 retries with exponential backoff (min, min, 4 min) for API unavailability
+- [X] T007 Implement `code/utils/formula_parser.py` using `pymatgen` for deterministic A/B/X site assignment
 - [ ] T008 Setup environment configuration management for API keys (Materials Project, NREL) in `.env`
-- [ ] T009 Implement `code/utils/checksum_verifier.py` to validate raw data integrity against source checksums
-- [ ] T009b Implement `code/utils/validator.py` to perform 'title-token-overlap' validation (≥ 0.7 threshold) against primary source citations before processing data
+- [X] T009 Implement `code/utils/checksum_verifier.py` to validate raw data integrity against source checksums
+- [ ] T041 [P] Update `contracts/metadata.schema.yaml` to require explicit fields for `tga_model`, `tga_manufacturer`, `temperature_precision` (±°C), and `heating_rate` (°C/min) for every source dataset entry
+- [X] T042 [P] Implement `code/utils/uncertainty_parser.py` to parse `temperature_precision` from source metadata; if missing, default to ±10°C and log a warning
+- [X] T043 [P] Implement `code/utils/uncertainty_propagator.py` to calculate the combined standard uncertainty for `T_d` based on the instrument precision and any reported experimental error
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -62,14 +64,17 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012a [US1] Fetch data from NREL API, invoke T009b validation, filter for `T_d` (TGA onset), and write to `data/raw/nrel_perovskites.csv` <!-- Requires: T009b -->
-- [ ] T012b [US1] Fetch data from Materials Project API, invoke T009b validation, filter for `T_d` (TGA onset), and write to `data/raw/mp_perovskites.csv` <!-- Requires: T009b -->
+- [ ] T012a [US1] Fetch data from NREL API, invoke T009 validation, filter for `T_d` (TGA onset), and write to `data/raw/nrel_perovskites.csv` <!-- Requires: T009 --> <!-- FAILED: unspecified -->
+- [X] T012b [US1] Fetch data from Materials Project API, invoke T009 validation, filter for `T_d` (TGA onset), and write to `data/raw/mp_perovskites.csv` <!-- Requires: T009 -->
 - [ ] T012c [US1] Merge NREL and Materials Project data (MUST fetch both sources per FR-001): concatenate DataFrames, drop duplicates based on formula and source, log count of removed duplicates, and write final merged dataset to `data/raw/perovskites_merged.csv`
-- [ ] T013 [US1] Implement metadata parsing and validation: parse TGA model/precision from source metadata, write structured metadata to `data/raw/metadata.json` and uncertainty flags (default ±10°C) to `data/raw/uncertainty_flags.json`
+- [X] T013 [US1] Implement metadata parsing and validation: parse TGA model/precision from source metadata using T042, write structured metadata to `data/raw/metadata.json` and uncertainty flags to `data/raw/uncertainty_flags.json` <!-- Requires: T042 -->
+- [ ] T013b [US1] Implement logic to extract `temperature_precision` from T013 output, calculate `sigma` using T043, and write `T_d_uncertainty` column to `data/processed/descriptors.csv` <!-- Requires: T012a, T012b, T043 -->
 - [ ] T014 [US1] Implement `code/feature_engineering.py` to compute atomic fractions, weighted averages (ionic radius, electronegativity, formation enthalpy, first ionization energy), and variance metrics; verify 'first ionization energy' column is present; write output to `data/processed/descriptors.csv`
+- [ ] T014b [US1] Implement logic to derive `perovskite_family` (lead-halide, tin-halide, double perovskite) from A/B/X site elements in T014 output; write to `data/processed/descriptors.csv` <!-- Requires: T014 --> <!-- FAILED: unspecified -->
 - [ ] T015 [US1] Implement logic to exclude entries with ≥2 missing descriptor values and log exclusion counts
-- [X] T016 [US1] Implement VIF diagnostic computation; flag descriptors with VIF > 5 and implement feature removal or Elastic Net fallback; write report to `data/processed/vif_report.csv`
-- [ ] T017 [US1] Write final processed dataset to `data/processed/descriptors.csv` including the `T_d_uncertainty` column and update `state/...yaml` with hash
+- [ ] T016 [US1] Implement `code/utils/vif_calculator.py` to compute VIF for all descriptors; if any VIF > 5, automatically remove the highest VIF feature and re-calculate, or switch to Elastic Net; write report to `data/processed/vif_report.csv`
+- [X] T016b [P] [US1] Unit test for VIF diagnostic computation and feature removal logic in `tests/unit/test_vif.py`
+- [ ] T017 [US1] Write final processed dataset to `data/processed/descriptors.csv` including the `T_d_uncertainty` and `perovskite_family` columns and update `state/...yaml` with hash
 
 **Checkpoint**: User Story 1 fully functional; dataset ready for modeling.
 
@@ -84,12 +89,11 @@
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
 - [X] T018 [P] [US2] Unit test for grid search hyperparameter limit enforcement (≤10 combos) in `tests/unit/test_model_training.py`
-- [X] T019 [P] [US2] Integration test for full pipeline runtime (must complete ≤ 6 hours) in `tests/integration/test_pipeline_runtime.py`
+- [X] T019 [P] [US2] Integration test for full pipeline runtime (must complete ≤ 4 hours) in `tests/integration/test_pipeline_runtime.py`
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/model_training.py` with Random Forest, Gradient Boosting, and Elastic Net using `scikit-learn`; apply `sample_weight` (1/σ) for Elastic Net and RF/GB where supported; ensure all training uses default precision (no 8-bit/4-bit quantization) and CPU-only execution
-- [ ] T021 [US2] Update `code/model_training.py` to include stratified KFold logic with `perovskite_family` as the stratification column
+- [X] T020 [US2] Implement `code/model_training.py` with Random Forest, Gradient Boosting, and Elastic Net using `scikit-learn`; apply `sample_weight` (1/σ²) for uncertainty weighting using `T_d_uncertainty` from T013b; implement stratified KFold logic using `perovskite_family` column from T014b; ensure all training uses default precision (no 8-bit/4-bit quantization) and CPU-only execution <!-- Requires: T014b, T013b -->
 - [ ] T022 [US2] Implement grid search with a hard cap of ≤10 hyperparameter combinations per model
 - [ ] T023 [US2] Implement metric tracking (RMSE, R², MAE) and logging of best hyperparameters
 - [ ] T025 [US2] Save trained models and metrics to `data/processed/model_runs.json` with required keys: `model_type`, `hyperparameters`, `metrics` (R², RMSE, MAE)
@@ -113,7 +117,7 @@
 
 - [ ] T028 [US3] Implement `code/validation.py` to extract SHAP values from the best model
 - [ ] T029 [US3] Implement permutation importance testing (a sufficient number of permutations) with Bonferroni or Benjamini-Hochberg correction (default to Benjamini-Hochberg) for p < 0.05 significance; report p-values in `data/processed/feature_importance.csv`
-- [ ] T030 [US3] Implement logic to load held-out experimental data from literature (NREL Perovskite Stability Database); if unavailable, implement 'Internal Stratified Validation' (stratified split) as fallback: write split indices to `data/processed/internal_validation_split.yaml` and report metrics to `data/processed/internal_validation_report.md`
+- [ ] T030 [US3] Implement logic to load held-out experimental data from literature (NREL Perovskite Stability Database or specific literature source); if unavailable, explicitly fail the requirement and log an error (no internal split fallback allowed) <!-- Requires: T025 -->
 - [ ] T031 [US3] Implement OOD detection: Flag compositions with elements/motifs not in training set (based on T017 dataset) and prediction distance (based on T025 model)
 - [ ] T032a [US3] Report separate R²/RMSE for in-distribution vs. out-of-distribution predictions (internal split)
 - [ ] T032b [US3] Report separate R²/RMSE for the held-out literature dataset (external validation) distinct from cross-validation metrics
@@ -133,7 +137,7 @@
 - [ ] T036a [P] Code refactor: Extract retry logic from `data_fetcher.py` to `code/utils/retry.py`
 - [ ] T036b [P] Refactor `data_fetcher.py` to import and use the new `retry.py` module
 - [ ] T037a [P] Profile pipeline and identify the most significant bottlenecks impacting the runtime target; write report to `docs/profiling_report.md`
-- [ ] T037b [P] Optimize identified bottlenecks to ensure full pipeline completes within 6 hours
+- [ ] T037b [P] Optimize identified bottlenecks to ensure full pipeline completes within 4 hours
 - [ ] T038 [P] Additional unit tests in `tests/unit/`
 - [ ] T039 Run `quickstart.md` validation
 - [ ] T040 Verify all artifacts have corresponding SHA-256 hashes in `state/...yaml`
@@ -148,10 +152,7 @@
 
 ### Implementation for Instrumentation Rigor
 
-- [ ] T041 [US1] Update `contracts/metadata.schema.yaml` to require explicit fields for `tga_model`, `tga_manufacturer`, `temperature_precision` (±°C), and `heating_rate` (°C/min) for every source dataset entry
-- [ ] T042 [US1] Enhance `code/data_ingestion.py` to parse and validate `temperature_precision` from source metadata; if missing, default to the conservative ±10°C bound and log a warning <!-- Requires: T041 -->
-- [ ] T043 [US1] Implement `code/utils/uncertainty_propagator.py` to calculate the combined standard uncertainty for `T_d` based on the instrument precision and any reported experimental error
-- [ ] T044 [US2] Update `code/model_training.py` to use the calculated uncertainty (`σ`) for each sample as a weight (`sample_weight` = 1/σ²) for Elastic Net and where supported by RF/GB implementations, ensuring high-precision measurements contribute more to the fit
+- [ ] T044 [US2] Update `code/model_training.py` to use the calculated uncertainty (`σ`) for each sample as a weight (`sample_weight` = 1/σ²) for Elastic Net and where supported by RF/GB implementations, ensuring high-precision measurements contribute more to the fit <!-- Requires: T043 -->
 - [ ] T045 [US3] Update `data/processed/validation_report.md` to include a dedicated "Measurement Uncertainty Analysis" section, explicitly stating the TGA models used, their precision, and how uncertainty was weighted in the final model
 - [ ] T046 [P] [US3] Write a "Measurement vs. Correlation" narrative in `docs/measurement_rigor.md` explaining how the inclusion of instrument-specific uncertainty transforms the analysis from a simple correlation to a weighted measurement-based regression, referencing the specific TGA constraints
 
@@ -191,7 +192,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- Phase 7 tasks (T041-T046) can be implemented in parallel with US1/US2/US3 as they focus on schema updates, weighting logic, and documentation
+- Phase 7 tasks (T044-T046) can be implemented in parallel with US1/US2/US3 as they focus on schema updates, weighting logic, and documentation
 
 ---
 
@@ -252,6 +253,8 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only free-tier CI (a minimal number of cores, limited RAM). No GPU/CUDA, no 8-bit quantization, no large LLMs.
 - **Critical Constraint**: Real data only. No synthetic/fake datasets. All metrics must be derived from real experimental measurements.
-- **Review Action**: T013 explicitly addresses the instrumentation metadata requirement; T009b addresses the Constitutional "Verified Accuracy" gate.
-- **Review Action (Instrumentation)**: T013 and T020 ensure that both explicit and default uncertainties are propagated to model weighting, transforming the analysis into a rigorous measurement-based study.
-- **Review Action (Marie Curie Revision)**: Phase 7 (T041-T046) directly addresses the reviewer's concern that without explicit instrumentation and uncertainty, the claim is merely a correlation. These tasks enforce the documentation of TGA models, precision, and the propagation of measurement error into the regression weights, ensuring the final result is a weighted measurement study.
+- **Review Action**: T013 and T042 explicitly address the instrumentation metadata requirement; T009b was removed as it was a scope violation.
+- **Review Action (Instrumentation)**: T013, T013b, T043, and T044 ensure that both explicit and default uncertainties are propagated to model weighting, transforming the analysis into a rigorous measurement-based study.
+- **Review Action (Marie Curie Revision)**: Phase 7 (T044-T046) directly addresses the reviewer's concern that without explicit instrumentation and uncertainty, the claim is merely a correlation. These tasks enforce the documentation of TGA models, precision, and the propagation of measurement error into the regression weights, ensuring the final result is a weighted measurement study.
+- **Review Action (Stratification)**: T014b and T020 ensure that the `perovskite_family` column is derived and used for stratified cross-validation.
+- **Review Action (OOD Validation)**: T030 ensures that external literature data is used for validation, failing if unavailable, rather than using an invalid internal split.

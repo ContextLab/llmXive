@@ -1,15 +1,9 @@
 [flake8]
 max-line-length = 88
 extend-ignore = E203, W503
-exclude =
-    .git,
-    __pycache__,
-    .venv,
-    venv,
-    env,
-    build,
-    dist,
-    *.egg-info
+exclude = .git,__pycache__,build,dist,.eggs
 per-file-ignores =
-    # Allow wildcard imports in __init__.py if present
+    # Allow unused imports in __init__.py for public API exposure
     */__init__.py: F401
+    # Allow unused variables in type checking blocks
+    code/utils/*.py: F401

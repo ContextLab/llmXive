@@ -3,6 +3,10 @@ Data fetcher utility with retry logic and exponential backoff.
 
 This module provides functions to safely fetch data from external APIs,
 handling transient failures with configurable retry strategies.
+
+Specific implementation for T006:
+- Up to 3 retries (total 4 attempts).
+- Exponential backoff: base_delay, base_delay, 4*base_delay.
 """
 import time
 import logging
@@ -21,9 +25,9 @@ class FetchError(Exception):
 
 def fetch_with_retry(
     url: str,
-    max_retries: int = 5,
-    base_delay: float = 1.0,
-    max_delay: float = 60.0,
+    max_retries: int = 3,
+    base_delay: float = 60.0,
+    max_delay: float = 240.0,
     backoff_factor: float = 2.0,
     timeout: float = 30.0,
     headers: Optional[dict] = None
@@ -31,12 +35,16 @@ def fetch_with_retry(
     """
     Fetch data from a URL with exponential backoff retry logic.
 
+    Implements T006 requirement:
+    - Up to 3 retries (total 4 attempts).
+    - Delays: min (60s), min (60s), 4*min (240s).
+
     Args:
         url: The URL to fetch data from.
-        max_retries: Maximum number of retry attempts.
-        base_delay: Initial delay in seconds between retries.
-        max_delay: Maximum delay in seconds between retries.
-        backoff_factor: Multiplier for delay after each retry.
+        max_retries: Maximum number of retry attempts (default 3).
+        base_delay: Initial delay in seconds between retries (default 60.0).
+        max_delay: Maximum delay in seconds between retries (default 240.0).
+        backoff_factor: Multiplier for delay after each retry (default 2.0).
         timeout: Request timeout in seconds.
         headers: Optional HTTP headers to include in the request.
 
@@ -98,6 +106,7 @@ def fetch_with_retry(
             logger.info(f"Retrying in {current_delay:.2f} seconds...")
             time.sleep(current_delay)
             # Exponentially increase delay, capped at max_delay
+            # Sequence: base, base*2 (capped), base*4 (capped)
             current_delay = min(current_delay * backoff_factor, max_delay)
 
         attempt += 1
@@ -108,9 +117,9 @@ def fetch_with_retry(
 
 def fetch_text_with_retry(
     url: str,
-    max_retries: int = 5,
-    base_delay: float = 1.0,
-    max_delay: float = 60.0,
+    max_retries: int = 3,
+    base_delay: float = 60.0,
+    max_delay: float = 240.0,
     backoff_factor: float = 2.0,
     timeout: float = 30.0,
     headers: Optional[dict] = None,
@@ -121,10 +130,10 @@ def fetch_text_with_retry(
 
     Args:
         url: The URL to fetch data from.
-        max_retries: Maximum number of retry attempts.
-        base_delay: Initial delay in seconds between retries.
-        max_delay: Maximum delay in seconds between retries.
-        backoff_factor: Multiplier for delay after each retry.
+        max_retries: Maximum number of retry attempts (default 3).
+        base_delay: Initial delay in seconds between retries (default 60.0).
+        max_delay: Maximum delay in seconds between retries (default 240.0).
+        backoff_factor: Multiplier for delay after each retry (default 2.0).
         timeout: Request timeout in seconds.
         headers: Optional HTTP headers to include in the request.
         encoding: Character encoding for the response text.

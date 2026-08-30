@@ -1,9 +1,10 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: CompositionalDescriptor
-description: >
-  Schema for CompositionalDescriptor entities representing computed
-  compositional fingerprints for perovskite stability prediction.
-  Matches the output of code/feature_engineering.py.
+description: |
+  Schema for CompositionalDescriptor entities representing
+  computed compositional fingerprints for perovskite stability prediction.
+  This schema defines the structure for the processed dataset derived from
+  raw experimental data and elemental properties.
 type: object
 required:
   - formula
@@ -17,82 +18,81 @@ required:
   - weighted_first_ionization_energy
   - variance_ionic_radius
   - variance_electronegativity
-  - variance_formation_enthalpy
-  - variance_first_ionization_energy
-  - tolerance_factor
-  - octahedral_factor
+  - perovskite_family
+  - T_d_uncertainty
 properties:
   formula:
     type: string
-    description: "Chemical formula string (e.g., 'CsPbI3')."
-    minLength: 1
+    description: "Normalized chemical formula (e.g., 'CsPbI3')"
+    pattern: "^[A-Z][a-z]?[0-9]*([A-Z][a-z]?[0-9]*)*$"
 
   T_d:
     type: number
-    description: "Thermal decomposition onset temperature in Celsius."
+    description: "Thermal decomposition temperature (onset) in Celsius"
     minimum: -273.15
 
   atomic_fraction_A:
     type: number
-    description: "Atomic fraction of the A-site cation."
+    description: "Atomic fraction of the A-site cation"
     minimum: 0.0
     maximum: 1.0
 
   atomic_fraction_B:
     type: number
-    description: "Atomic fraction of the B-site cation."
+    description: "Atomic fraction of the B-site cation"
     minimum: 0.0
     maximum: 1.0
 
   atomic_fraction_X:
     type: number
-    description: "Atomic fraction of the X-site anion."
+    description: "Atomic fraction of the X-site anion"
     minimum: 0.0
     maximum: 1.0
 
   weighted_ionic_radius:
     type: number
-    description: "Composition-weighted average ionic radius (Angstroms)."
+    description: "Composition-weighted average ionic radius (Angstroms)"
 
   weighted_electronegativity:
     type: number
-    description: "Composition-weighted average electronegativity (Pauling scale)."
+    description: "Composition-weighted average electronegativity (Pauling scale)"
 
   weighted_formation_enthalpy:
     type: number
-    description: "Composition-weighted average formation enthalpy (eV/atom)."
+    description: "Composition-weighted average formation enthalpy (eV/atom)"
 
   weighted_first_ionization_energy:
     type: number
-    description: "Composition-weighted average first ionization energy (eV)."
+    description: "Composition-weighted average first ionization energy (eV)"
 
   variance_ionic_radius:
     type: number
-    description: "Variance of ionic radii within the composition."
+    description: "Variance of ionic radii across constituent elements"
+    minimum: 0.0
 
   variance_electronegativity:
     type: number
-    description: "Variance of electronegativities within the composition."
+    description: "Variance of electronegativity across constituent elements"
+    minimum: 0.0
 
-  variance_formation_enthalpy:
-    type: number
-    description: "Variance of formation enthalpies within the composition."
+  perovskite_family:
+    type: string
+    description: "Classification of the perovskite family"
+    enum:
+      - lead-halide
+      - tin-halide
+      - double-perovskite
+      - other
 
-  variance_first_ionization_energy:
+  T_d_uncertainty:
     type: number
-    description: "Variance of first ionization energies within the composition."
-
-  tolerance_factor:
-    type: number
-    description: "Goldschmidt tolerance factor."
-
-  octahedral_factor:
-    type: number
-    description: "Octahedral factor."
-
-  uncertainty:
-    type: number
-    description: "Optional uncertainty bound for T_d (Celsius)."
+    description: "Combined standard uncertainty for T_d (±°C), derived from instrument precision and experimental error"
     minimum: 0.0
 
 additionalProperties: false
+description: |
+  This schema enforces the structure required for the machine learning pipeline.
+  It ensures that all necessary compositional fingerprints and uncertainty metrics
+  are present before model training (US2) and validation (US3).
+  The T_d_uncertainty field is critical for the weighted regression analysis
+  mandated by the instrumentation rigor review (Phase 7).
