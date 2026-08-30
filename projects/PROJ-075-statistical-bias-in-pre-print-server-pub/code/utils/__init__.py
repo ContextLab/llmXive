@@ -1,3 +1,2 @@
-"""
-Utility modules for statistical helpers, matching, and PDF parsing.
-"""
+# Utils package initialization
+pass

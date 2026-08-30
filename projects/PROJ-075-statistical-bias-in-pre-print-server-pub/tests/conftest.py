@@ -1,39 +1,29 @@
 """
-Pytest configuration and fixtures for the test suite.
+Pytest configuration and fixtures.
 """
-import os
 import sys
+import os
 import pytest
 from pathlib import Path
 
-# Add the code directory to the path so imports work correctly
+# Add the code directory to the path for all tests
 @pytest.fixture(autouse=True)
 def add_code_to_path():
-    """Automatically add code/ to sys.path for imports."""
-    project_root = Path(__file__).parent.parent
-    code_path = project_root / "code"
-    if str(code_path) not in sys.path:
-        sys.path.insert(0, str(code_path))
-    
+    code_dir = Path(__file__).parent.parent / "code"
+    if str(code_dir) not in sys.path:
+        sys.path.insert(0, str(code_dir))
     yield
-    
-    # Cleanup if needed
-    if str(code_path) in sys.path:
-        sys.path.remove(str(code_path))
+    # Cleanup if necessary
 
 @pytest.fixture
-def sample_p_value_inequality():
-    """Provide a sample p-value inequality string."""
-    return "p < 0.05"
+def sample_p_values():
+    """Fixture providing sample p-values for testing."""
+    return [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10]
 
 @pytest.fixture
-def sample_cohen_d_string():
-    """Provide a sample Cohen's d string with confidence interval."""
-    return "d = 0.5 [0.2, 0.8]"
-
-@pytest.fixture
-def temp_output_dir(tmp_path):
-    """Create a temporary directory for output files."""
-    output_dir = tmp_path / "test_outputs"
-    output_dir.mkdir()
-    return output_dir
+def sample_effect_sizes():
+    """Fixture providing sample effect sizes."""
+    return {
+        "preprint": [0.2, 0.4, 0.6, 0.8, 1.0],
+        "journal": [0.25, 0.45, 0.65, 0.85, 1.05]
+    }

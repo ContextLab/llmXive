@@ -1,1 +1,2 @@
-# Processed data storage
+# Processed data directory: Stores cleaned, matched, and extracted datasets.
+# Examples: matched_pairs.csv, extracted_stats.csv.

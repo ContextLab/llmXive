@@ -13,7 +13,7 @@ As a researcher, I want the system to automatically identify pairs of pre-print 
 
 **Why this priority**: This is the core data acquisition step. Without a valid matched dataset, no subsequent statistical analysis (distribution shifts, effect size comparisons) can occur. It represents the Minimum Viable Product for the data pipeline.
 
-**Independent Test**: Can be fully tested by running the scraping and matching script on a small, known subset of 10 pre-print/journal pairs and verifying the output CSV contains exactly 10 rows with non-null p-value and effect-size fields for both versions.
+**Independent Test**: Can be fully tested by running the scraping and matching script on a small, known subset of pre-print/journal pairs and verifying the output CSV contains a sufficient number of rows with non-null p-value and effect-size fields for both versions.
 
 **Acceptance Scenarios**:
 

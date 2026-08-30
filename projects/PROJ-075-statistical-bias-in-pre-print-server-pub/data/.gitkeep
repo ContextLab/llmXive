@@ -1,2 +1,5 @@
 # This file ensures the data directory is tracked by git.
-# Subdirectories: raw/, processed/, results/
+# The data directory is structured as follows:
+# raw/        - Raw downloaded data (OpenAlex dumps, arXiv/bioRxiv metadata)
+# processed/  - Cleaned, matched, and filtered datasets
+# results/    - Final analysis outputs, reports, and visualizations

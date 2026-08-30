@@ -1,1 +1,2 @@
-# Raw data storage
+# Raw data directory: Stores unprocessed data fetched from external sources.
+# Examples: OpenAlex dumps, arXiv/bioRxiv metadata snapshots, raw PDFs.

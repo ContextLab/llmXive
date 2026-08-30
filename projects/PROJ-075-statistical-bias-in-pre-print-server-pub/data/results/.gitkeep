@@ -1,1 +1,2 @@
-# Analysis results and reports storage
+# Results directory: Stores final analysis outputs, reports, and figures.
+# Examples: analysis_results.json, sensitivity_report.md, plots.
