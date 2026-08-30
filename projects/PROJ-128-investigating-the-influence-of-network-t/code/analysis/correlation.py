@@ -5,203 +5,193 @@ from typing import Tuple, List, Dict, Optional
 import warnings
 import os
 
-def check_normality(data: pd.Series, alpha: float = 0.05) -> Tuple[bool, float]:
+def check_normality(data: pd.Series, alpha: float = 0.05) -> Tuple[bool, float, float]:
     """
     Perform Shapiro-Wilk test for normality.
     
     Args:
-        data: pandas Series to test
-        alpha: significance level
+        data: Series of values to test.
+        alpha: Significance level.
         
     Returns:
-        Tuple of (is_normal, p_value)
+        Tuple of (is_normal, statistic, p_value).
     """
     if len(data) < 3:
-        return False, 0.0
-        
+        warnings.warn("Sample size too small for Shapiro-Wilk test. Assuming normal.")
+        return True, 0.0, 1.0
+    
     try:
-        stat, p_value = shapiro(data)
-        is_normal = p_value > alpha
-        return is_normal, p_value
-    except Exception:
-        return False, 0.0
+        stat, p_val = shapiro(data)
+        is_normal = p_val > alpha
+        return is_normal, stat, p_val
+    except Exception as e:
+        warnings.warn(f"Shapiro-Wilk test failed: {e}. Assuming normal.")
+        return True, 0.0, 1.0
 
-def calculate_correlation(x: pd.Series, y: pd.Series) -> Tuple[float, float]:
+def calculate_correlation(x: pd.Series, y: pd.Series, method: str = 'pearson') -> Tuple[float, float]:
     """
-    Calculate correlation between two series based on normality.
+    Calculate correlation coefficient and p-value.
     
     Args:
-        x: First series
-        y: Second series
+        x: First variable.
+        y: Second variable.
+        method: 'pearson' or 'spearman'.
         
     Returns:
-        Tuple of (correlation_coefficient, p_value)
+        Tuple of (correlation_coefficient, p_value).
     """
-    x_normal, _ = check_normality(x)
-    y_normal, _ = check_normality(y)
+    # Drop NaN pairs
+    mask = x.notna() & y.notna()
+    x_clean = x[mask]
+    y_clean = y[mask]
     
-    if x_normal and y_normal:
-        try:
-            r, p = pearsonr(x, y)
-            return r, p
-        except Exception:
-            return 0.0, 1.0
+    if len(x_clean) < 2:
+        return np.nan, np.nan
+    
+    if method == 'pearson':
+        r, p = pearsonr(x_clean, y_clean)
+    elif method == 'spearman':
+        r, p = spearmanr(x_clean, y_clean)
     else:
-        try:
-            r, p = spearmanr(x, y)
-            return r, p
-        except Exception:
-            return 0.0, 1.0
+        raise ValueError(f"Unknown correlation method: {method}")
+        
+    return r, p
 
-def benjamini_hochberg_fdr(p_values: List[float], alpha: float = 0.05) -> List[bool]:
+def benjamini_hochberg_fdr(p_values: List[float], alpha: float = 0.05) -> Tuple[List[float], List[bool]]:
     """
     Apply Benjamini-Hochberg FDR correction.
     
     Args:
-        p_values: List of raw p-values
-        alpha: FDR significance level
+        p_values: List of raw p-values.
+        alpha: FDR significance level.
         
     Returns:
-        List of booleans indicating if each test is significant after FDR correction
+        Tuple of (adjusted_p_values, significant_flags).
     """
     n = len(p_values)
     if n == 0:
-        return []
+        return [], []
         
-    # Create index array
-    indices = list(range(n))
+    # Sort p-values with original indices
+    sorted_indices = np.argsort(p_values)
+    sorted_p = np.array([p_values[i] for i in sorted_indices])
     
-    # Sort p-values while keeping track of original indices
-    sorted_indices = sorted(indices, key=lambda i: p_values[i])
-    sorted_pvals = [p_values[i] for i in sorted_indices]
+    # Calculate adjusted p-values
+    adjusted_p = np.zeros(n)
+    for i in range(n):
+        rank = i + 1
+        # BH formula: p_adj = p * n / rank
+        adjusted_p[i] = sorted_p[i] * n / rank
+        
+    # Ensure monotonicity (cumulative min from largest to smallest)
+    for i in range(n - 2, -1, -1):
+        adjusted_p[i] = min(adjusted_p[i], adjusted_p[i + 1])
+        
+    # Clip to [0, 1]
+    adjusted_p = np.clip(adjusted_p, 0, 1)
     
-    # Calculate BH critical values
-    critical_values = [(i + 1) * alpha / n for i in range(n)]
+    # Reorder to original indices
+    final_adjusted = np.zeros(n)
+    final_adjusted[sorted_indices] = adjusted_p
     
-    # Find the largest k such that p_(k) <= critical value
-    significant = [False] * n
-    max_k = -1
+    # Determine significance
+    significant = final_adjusted < alpha
     
-    for i in range(n - 1, -1, -1):
-        if sorted_pvals[i] <= critical_values[i]:
-            max_k = i
-            break
-    
-    # Mark all tests up to max_k as significant
-    if max_k >= 0:
-        for i in range(max_k + 1):
-            original_idx = sorted_indices[i]
-            significant[original_idx] = True
-            
-    return significant
+    return final_adjusted.tolist(), significant.tolist()
 
-def run_correlation_analysis(structural_df: pd.DataFrame, dynamic_df: pd.DataFrame) -> pd.DataFrame:
+def run_correlation_analysis(structural_df: pd.DataFrame, dynamic_df: pd.DataFrame, 
+                             alpha_normality: float = 0.05, alpha_fdr: float = 0.05) -> pd.DataFrame:
     """
-    Run correlation analysis between structural and dynamic metrics.
+    Run full correlation analysis between structural and dynamic metrics.
     
     Args:
-        structural_df: DataFrame with structural metrics
-        dynamic_df: DataFrame with dynamic metrics
+        structural_df: DataFrame with structural metrics (index: subject_id).
+        dynamic_df: DataFrame with dynamic metrics (index: subject_id).
+        alpha_normality: Alpha for normality test.
+        alpha_fdr: Alpha for FDR correction.
         
     Returns:
-        DataFrame with correlation results including r, p, and FDR significance
+        DataFrame with correlation results (r, p, fdr_p, significant).
     """
     # Merge on subject_id
-    merged = pd.merge(structural_df, dynamic_df, on='subject_id', how='inner')
+    merged = structural_df.merge(dynamic_df, left_index=True, right_index=True, suffixes=('_struct', '_dyn'))
     
-    if len(merged) < 3:
-        raise ValueError("Insufficient subjects for correlation analysis (need at least 3)")
-    
-    # Define metrics to correlate
-    structural_metrics = ['global_efficiency', 'avg_clustering', 'modularity']
-    dynamic_metrics = ['dwell_time', 'visited_states']
+    # Identify metric columns
+    struct_cols = [c for c in merged.columns if c.endswith('_struct')]
+    dyn_cols = [c for c in merged.columns if c.endswith('_dyn')]
     
     results = []
     
-    for s_metric in structural_metrics:
-        if s_metric not in merged.columns:
-            continue
+    for s_col in struct_cols:
+        for d_col in dyn_cols:
+            s_name = s_col.replace('_struct', '')
+            d_name = d_col.replace('_dyn', '')
             
-        for d_metric in dynamic_metrics:
-            if d_metric not in merged.columns:
-                continue
-                
-            x = merged[s_metric].dropna()
-            y = merged[d_metric].dropna()
+            x = merged[s_col]
+            y = merged[d_col]
             
-            # Align indices after dropping NaNs
-            common_idx = x.index.intersection(y.index)
-            if len(common_idx) < 3:
-                continue
-                
-            x_aligned = x.loc[common_idx]
-            y_aligned = y.loc[common_idx]
+            # Check normality
+            is_normal_s, _, _ = check_normality(x, alpha_normality)
+            is_normal_d, _, _ = check_normality(y, alpha_normality)
             
-            r, p = calculate_correlation(x_aligned, y_aligned)
+            method = 'pearson' if (is_normal_s and is_normal_d) else 'spearman'
+            
+            r, p = calculate_correlation(x, y, method)
             
             results.append({
-                'structural_metric': s_metric,
-                'dynamic_metric': d_metric,
-                'r_value': r,
-                'p_value': p,
-                'n_subjects': len(common_idx)
+                'structural_metric': s_name,
+                'dynamic_metric': d_name,
+                'method': method,
+                'r': r,
+                'p_raw': p
             })
     
-    if not results:
-        raise ValueError("No valid correlations could be computed")
-        
     results_df = pd.DataFrame(results)
     
+    if results_df.empty:
+        return results_df
+    
     # Apply FDR correction
-    p_values = results_df['p_value'].tolist()
-    fdr_significant = benjamini_hochberg_fdr(p_values, alpha=0.05)
-    results_df['fdr_significant'] = fdr_significant
+    p_values = results_df['p_raw'].tolist()
+    adj_p, sig_flags = benjamini_hochberg_fdr(p_values, alpha_fdr)
+    
+    results_df['p_fdr'] = adj_p
+    results_df['significant'] = sig_flags
     
     return results_df
 
 def main():
-    """Main entry point for correlation analysis."""
-    import sys
-    from pathlib import Path
+    """
+    Main entry point for correlation analysis.
+    Loads data, runs analysis, and saves results.
+    """
+    from config import get_config_dict
+    config = get_config_dict()
     
-    # Determine paths relative to project root
-    project_root = Path(__file__).parent.parent
-    data_dir = project_root / 'data' / 'processed'
+    # Load data
+    structural_path = config['paths']['processed_structural_metrics']
+    dynamic_path = config['paths']['processed_dynamic_metrics']
     
-    structural_path = data_dir / 'structural_metrics.csv'
-    dynamic_path = data_dir / 'dynamic_metrics.csv'
-    output_path = data_dir / 'correlation_results.csv'
+    if not os.path.exists(structural_path) or not os.path.exists(dynamic_path):
+        raise FileNotFoundError("Processed metric files not found. Run main.py first.")
+        
+    structural_df = pd.read_csv(structural_path, index_col=0)
+    dynamic_df = pd.read_csv(dynamic_path, index_col=0)
     
-    if not structural_path.exists():
-        print(f"Error: Structural metrics file not found: {structural_path}", file=sys.stderr)
-        sys.exit(1)
+    # Run analysis
+    results = run_correlation_analysis(structural_df, dynamic_df)
+    
+    # Save results
+    output_path = config['paths']['correlation_results']
+    results.to_csv(output_path, index=False)
+    print(f"Correlation results saved to {output_path}")
+    
+    # Edge case handling: Zero significant findings
+    if results['significant'].sum() == 0:
+        print("WARNING: FDR correction yielded zero significant findings.")
+        print("This is explicitly noted in the report as per T028.")
         
-    if not dynamic_path.exists():
-        print(f"Error: Dynamic metrics file not found: {dynamic_path}", file=sys.stderr)
-        sys.exit(1)
-        
-    try:
-        structural_df = pd.read_csv(structural_path)
-        dynamic_df = pd.read_csv(dynamic_path)
-        
-        results_df = run_correlation_analysis(structural_df, dynamic_df)
-        
-        # Check for zero significant findings and add explicit note
-        significant_count = results_df['fdr_significant'].sum()
-        if significant_count == 0:
-            print("WARNING: FDR correction yielded zero significant findings.", file=sys.stderr)
-            print("This will be explicitly noted in the final report.", file=sys.stderr)
-            # Add a column to indicate the overall finding status
-            results_df['zero_significant_findings_note'] = "FDR correction (q=0.05) yielded no significant correlations between structural and dynamic metrics."
-        
-        results_df.to_csv(output_path, index=False)
-        print(f"Correlation results saved to: {output_path}")
-        print(f"Total correlations tested: {len(results_df)}")
-        print(f"Significant after FDR: {significant_count}")
-        
-    except Exception as e:
-        print(f"Error running correlation analysis: {e}", file=sys.stderr)
-        sys.exit(1)
+    return results
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

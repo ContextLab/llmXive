@@ -1,2 +1,2 @@
 # llmXive Project: Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
-# Package initialization for code/
+# This package contains the core implementation logic.

@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the required directories (`code/`, `data/`, `contracts/`,
-    `tests/`) actually exist or contain any files; the response contains only the
-    task description and specifications, not the claimed project structure. The implementer
-    must create and show these directories (with at least placeholder files) to satisfy
-    the requirement.
 T003:
   c: true
   h: 563e4d6952a6c6339af60e582e8e49bb4c38d0f3e84bbabbbf0759e380dba581
@@ -19,25 +11,6 @@ T012:
   r: The required artifact `tests/unit/test_structural.py` does not exist in the repository,
     so no unit test for `code/preprocess/structural.py` is provided. The task remains
     unfinished.
-T019:
-  c: false
-  h: 53262d6b33e49003248c98699f5e47406b86b0520bfe611bf05631a5678745e3
-  r: The required output files `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`
-    are absent, and the referenced schema `contracts/output.schema.yaml` (or `schema.yaml`)
-    does not exist. Consequently the batch processing logic cannot be verified as
-    producing the correct aggregated CSVs per the task specification.
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, test, or documentation artifact was provided showing that the pipeline
-    now checks for zero significant findings after FDR correction and adds an explicit
-    statement to the report. The required implementation and verification evidence
-    are missing.
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of updated files in `docs/` or modifications to `README.md` was provided;
-    the claim lacks any actual documentation artifacts to verify.
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

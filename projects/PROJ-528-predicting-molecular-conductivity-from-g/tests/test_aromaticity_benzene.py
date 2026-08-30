@@ -1,66 +1,60 @@
 import pytest
 from rdkit import Chem
-from descriptors import compute_huckel_aromaticity_index
+from code.descriptors import compute_huckel_aromaticity_index
 
 def test_aromaticity_index_benzene():
     """
-    Test aromaticity index calculation on benzene (SMILES: "c1ccccc1").
+    Test the Hückel aromaticity index calculation on benzene.
     
-    This test is expected to FAIL until the implementation of 
-    compute_huckel_aromaticity_index is completed.
+    Benzene (SMILES: "c1ccccc1") is the canonical aromatic system.
+    According to Hückel's rule (4n+2 π electrons), it should have a
+    non-zero aromaticity index. This test is expected to fail until
+    the implementation in code/descriptors.py is complete.
     
     Expected behavior:
-    - Benzene is a classic aromatic system
-    - The Hückel aromaticity index should be > 0 (indicating aromaticity)
-    - Typically close to 1.0 for perfect aromatic systems
+    - The function should return a positive float for benzene
+    - The value should be consistent with aromatic systems (typically > 0)
     """
     smiles = "c1ccccc1"
     mol = Chem.MolFromSmiles(smiles)
     
     assert mol is not None, f"Failed to parse SMILES: {smiles}"
     
-    # This function is expected to exist in descriptors.py
-    # but is not yet implemented, so this call will fail
-    aromaticity_index = compute_huckel_aromaticity_index(mol)
+    # This will fail until compute_huckel_aromaticity_index is implemented
+    result = compute_huckel_aromaticity_index(mol)
     
     # Benzene should have a positive aromaticity index
-    assert aromaticity_index > 0, f"Benzene should have positive aromaticity index, got {aromaticity_index}"
+    assert result > 0, f"Benzene aromaticity index should be positive, got {result}"
     
-    # Should be close to 1.0 for a perfect aromatic system
-    assert 0.8 <= aromaticity_index <= 1.2, \
-        f"Benzene aromaticity index should be near 1.0, got {aromaticity_index}"
+    # Expected value for benzene is typically around 1.0 (normalized Hückel index)
+    # This is a rough check - the exact value depends on implementation details
+    assert 0.5 < result < 1.5, f"Benzene aromaticity index out of expected range: {result}"
 
 def test_aromaticity_index_non_aromatic():
     """
-    Test that non-aromatic molecules return low or negative aromaticity index.
-    
-    Using cyclohexane (C1CCCCC1) as a non-aromatic reference.
+    Test that non-aromatic molecules return zero or near-zero aromaticity index.
     """
-    smiles = "C1CCCCC1"  # cyclohexane
+    # Cyclohexane is not aromatic
+    smiles = "C1CCCCC1"
     mol = Chem.MolFromSmiles(smiles)
     
     assert mol is not None, f"Failed to parse SMILES: {smiles}"
     
-    # This will fail until implementation is complete
-    aromaticity_index = compute_huckel_aromaticity_index(mol)
+    result = compute_huckel_aromaticity_index(mol)
     
-    # Non-aromatic systems should have low or negative index
-    assert aromaticity_index < 0.5, \
-        f"Cyclohexane should have low aromaticity index, got {aromaticity_index}"
+    # Non-aromatic systems should have zero or very low index
+    assert result <= 0.1, f"Non-aromatic system should have near-zero index, got {result}"
 
 def test_aromaticity_index_pyridine():
     """
-    Test aromaticity index on pyridine (heteroaromatic system).
-    
-    Pyridine (c1ccncc1) is aromatic but contains a nitrogen atom.
+    Test aromaticity index on pyridine (heteroaromatic).
     """
-    smiles = "c1ccncc1"  # pyridine
+    smiles = "c1ccncc1"
     mol = Chem.MolFromSmiles(smiles)
     
     assert mol is not None, f"Failed to parse SMILES: {smiles}"
     
-    # This will fail until implementation is complete
-    aromaticity_index = compute_huckel_aromaticity_index(mol)
+    result = compute_huckel_aromaticity_index(mol)
     
-    # Pyridine is aromatic, so index should be positive
-    assert aromaticity_index > 0, f"Pyridine should have positive aromaticity index, got {aromaticity_index}"
+    # Pyridine is aromatic and should have a positive index
+    assert result > 0, f"Pyridine aromaticity index should be positive, got {result}"

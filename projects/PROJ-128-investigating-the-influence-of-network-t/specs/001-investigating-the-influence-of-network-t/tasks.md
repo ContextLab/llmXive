@@ -110,7 +110,7 @@
 - [X] T024 [US2] Implement normality testing (Shapiro-Wilk, α=0.05) in `code/analysis/correlation.py` to select Pearson vs. Spearman.
 - [X] T025 [US2] Implement correlation calculation between structural and dynamic metrics across the cohort in `code/analysis/correlation.py`.
 - [X] T026 [US2] Implement Benjamini-Hochberg FDR correction (q=0.05) on all p-values in `code/analysis/correlation.py`.
-- [ ] T027 [US2] Generate `data/processed/correlation_results.csv` containing r-values, raw p-values, and FDR-corrected p-values.
+- [X] T027 [US2] Generate `data/processed/correlation_results.csv` containing r-values, raw p-values, and FDR-corrected p-values.
 - [ ] T028 [US2] Handle edge case: If FDR correction yields zero significant findings, ensure report explicitly states this rather than omitting results.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

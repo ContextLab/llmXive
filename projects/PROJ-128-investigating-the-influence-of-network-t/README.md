@@ -1,70 +1,63 @@
 # Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
 
-**Status**: Production Ready
+## Project Overview
+This research project analyzes the relationship between structural brain connectivity (derived from diffusion MRI) and spontaneous functional activity patterns (derived from fMRI). We compute topological graph metrics (global efficiency, clustering, modularity) and dynamic functional state metrics (dwell time, state transitions) to investigate their statistical associations.
 
-This project investigates whether topological properties of structural brain networks (derived from diffusion MRI) predict the prevalence, stability, and switching speed of recurrent activity patterns (derived from dynamic functional connectivity in fMRI).
+**Important**: All findings are framed as **associational**. We do not claim causal prediction.
+
+## Key Features
+- **Structural Analysis**: Computes graph metrics from dMRI tractography.
+- **Dynamic Functional Analysis**: Implements a strict **Leave-One-Out (LOO) K-Means** clustering approach (k=5) to derive recurrent activity states, ensuring no circular correlation between subjects.
+- **Statistical Rigor**: Normality testing (Shapiro-Wilk), Pearson/Spearman correlation selection, and Benjamini-Hochberg FDR correction.
+- **Robustness**: Sensitivity analysis on window length (30 TR vs 20 TR) and density thresholds.
+- **CPU-Only**: Optimized for CPU execution with memory constraints.
+
+## Architecture
+The pipeline is modular:
+- `code/preprocess/`: Data loading, sliding window correlation, LOO clustering.
+- `code/analysis/`: Correlation testing, FDR correction, robustness checks.
+- `code/reports/`: Report generation and language auditing.
+
+See `docs/ARCHITECTURE.md` for detailed structure.
 
 ## Quick Start
 
+### 1. Install Dependencies
 ```bash
-# Install dependencies
 pip install -r requirements.txt
+```
 
-# Run the full pipeline
+### 2. Run the Pipeline
+```bash
 python code/main.py
+```
 
-# Validate outputs
+### 3. Validate Outputs
+```bash
 python code/validate_quickstart.py
 ```
 
-## What This Does
+## Data
+This project uses **HCP (Human Connectome Project)** data fetched from OpenNeuro.
+- **dMRI**: Structural connectivity matrices.
+- **fMRI**: Resting-state time series.
 
-1. **Structural Metrics**: Computes global efficiency, clustering, and modularity from dMRI
-2. **Dynamic Metrics**: Computes dwell time and visited states from fMRI using LOO k-means
-3. **Correlation**: Statistically correlates structural and dynamic metrics with FDR correction
-4. **Robustness**: Validates results against window length and density threshold variations
-5. **Reporting**: Generates a final report with explicit "associational" framing
+*Note: Real data fetching is required. Synthetic data is not supported.*
 
-## Key Features
-
-- **Real Data Only**: Downloads HCP data from OpenNeuro; no synthetic data
-- **CPU-Only**: Optimized for CPU execution (no GPU required)
-- **LOO Clustering**: Prevents circular correlation via Leave-One-Out k-means
-- **FDR Correction**: Benjamini-Hochberg correction for multiple comparisons
-- **Sensitivity Analysis**: Compares 30 TR vs 20 TR window lengths
-- **Validation**: Schema validation and language auditing
-
-## Output Files
-
+## Results
+The pipeline produces:
 - `data/processed/structural_metrics.csv`
 - `data/processed/dynamic_metrics.csv`
 - `data/processed/correlation_results.csv`
-- `data/logs/exclusion_log.json`
 - `data/reports/final_report.json`
 
-## Documentation
-
-- [User Guide](docs/USER_GUIDE.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Methodology](docs/METHODOLOGY.md)
-
-## Testing
-
-```bash
-# Unit tests
-python -m pytest tests/unit/ -v
-
-# Integration tests
-python -m pytest tests/integration/ -v
-```
-
-## Requirements
-
-- Python 3.9+
-- 7 GB RAM
-- 14 GB disk space
-- Internet access (for HCP data download)
+## Constraints
+- **No GPU**: Designed for CPU-only environments.
+- **No Synthetic Data**: All metrics must derive from real HCP data.
+- **Associational Framing**: Reports explicitly avoid causal language.
 
 ## License
+Research use only.
 
-[Insert License]
+## Contact
+For questions regarding the methodology or implementation, refer to the `docs/` directory.

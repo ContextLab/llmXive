@@ -55,19 +55,19 @@
 
 **Goal**: Implement an automated pipeline that ingests raw data (Retrosheet/BR), handles missing sources with a synthetic fallback, engineers traditional/advanced metrics, and enforces strict temporal splits.
 
-**Independent Test**: The pipeline executes end-to-end on a fresh environment, producing a single CSV with no data leakage between 2000-2018 (train) and 2019-2022 (test), and validates completeness ≥ 95%.
+**Independent Test**: The pipeline executes end-to-end on a fresh environment, producing a single CSV with no data leakage between 2000-2018 (train) and 2019-2022 (test), and validates completeness ≥ 95%. [UNRESOLVED-CLAIM: c_5b506434 — status=not_enough_info]
 
 **Dependencies**: T013a/T013b depend on T012a. T014, T015, T016a depend on T013a/T013b.
 
 ### Implementation for User Story 1
 
-- [ ] T012a [US1] Implement `code/data_loader.py`: Fetch Retrosheet/BR data. Implement **Data Source Fallback Protocol**: detect 403/429/timeout -> trigger Synthetic Mode -> log status. Output `is_real_data` flag.
-- [ ] T012c [US1] Implement `code/data_loader.py`: **Synthetic Generator** logic mimicking MLB distributions (verified against public aggregates). Only executed if T012a triggers fallback.
+- [X] T012a [US1] Implement `code/data_loader.py`: Fetch Retrosheet/BR data. Implement **Data Source Fallback Protocol**: detect 403/429/timeout -> trigger Synthetic Mode -> log status. Output `is_real_data` flag.
+- [X] T012c [US1] Implement `code/data_loader.py`: **Synthetic Generator** logic mimicking MLB distributions (verified against public aggregates). Only executed if T012a triggers fallback.
 - [ ] T012b [US1] Implement logic to document 'Synthetic Fallback' status in `artifacts/reports/final_report.json` if Synthetic Mode is triggered, explicitly framing results as 'Validation-Only' to satisfy FR-001 real-data requirement distinction. **Depends on: T012a**
 - [X] T013a [US1] **Depends on: T012a**: Implement `code/feature_engineering.py`: Calculate **Traditional Metrics** (AVG, ERA) per game.
 - [X] T013b [US1] **Depends on: T012a**: Implement `code/feature_engineering.py`: Calculate **Advanced Metrics** (wOBA, BABIP, park-adjusted run expectancy) per game.
 - [X] T014 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for handling missing advanced metrics (impute with league average for that year or exclude systemic missingness).
-- [X] T015 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for temporal split: Train (≤2018), Test (-2022); handle 2020 pandemic season (exclude or down-weight).
+- [X] T015 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for temporal split: Train (≤2018), Test (-2022); handle 2020 pandemic season (exclude or down-weight). [UNRESOLVED-CLAIM: c_f899d0aa — status=not_enough_info]
 - [ ] T016a [US1] **Depends on: T015**: Implement data completeness validation logic (≥95% required variables). **ENFORCEMENT**: RAISE ValueError if rate < 95% AND `is_real_data` is True. Flag 'Empirical Hypothesis Untested' if Synthetic Mode was used.
 - [ ] T016b [US1] **Depends on: T016a**: Generate evidence artifact `artifacts/reports/data_completeness_report.json` containing the completeness rate and the 'Empirical Hypothesis Untested' flag if applicable (satisfies SC-005 measurability).
 - [ ] T017 [US1] **Depends on: T016b**: Add logging for data ingestion stats, synthetic fallback triggers, and imputation actions.
@@ -86,7 +86,7 @@
 
 **Goal**: Train Logistic Regression, Random Forest, and Gradient Boosting models using time-series cross-validation and compare performance between traditional and advanced feature sets.
 
-**Independent Test**: The training script produces a JSON report with ROC-AUC, log-loss, and Brier scores for both feature sets across all three algorithms, including hyperparameter tuning results.
+**Independent Test**: The training script produces a JSON report with ROC-AUC, log-loss, and Brier scores for both feature sets across all three algorithms, including hyperparameter tuning results. [UNRESOLVED-CLAIM: c_88482242 — status=not_enough_info]
 
 **Dependencies**: T024 depends on T023a. T025-T028 depend on T024.
 
@@ -117,7 +117,7 @@
 
 **Goal**: Perform rigorous statistical significance testing (Diebold-Mariano/corrected t-test) and sensitivity analysis to validate findings and frame them as associational.
 
-**Independent Test**: The analysis script produces a report with p-values for paired comparisons, a sensitivity analysis plot/table, and a methodological validity statement. [UNRESOLVED-CLAIM: c_dbbba3bb — status=not_enough_info]
+**Independent Test**: The analysis script produces a report with p-values for paired comparisons, a sensitivity analysis plot/table, and a methodological validity statement.
 
 **Dependencies**: All Phase 5 tasks depend on Phase 4 (US2) completion. T034, T035 depend on T032.
 

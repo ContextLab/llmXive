@@ -89,18 +89,18 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T023 [P] [US2] Integration test for scaffold split ensuring no structural leakage
-- [~] T024 [P] [US2] Unit test for log-transformation of target variable
-- [~] T025 [P] [US2] Unit test for outlier exclusion threshold logic
+- [ ] T024 [P] [US2] Unit test for log-transformation of target variable
+- [ ] T025 [P] [US2] Unit test for outlier exclusion threshold logic
 
 ### Implementation for User Story 2
 
 - [X] T026 [US2] Implement target variable validation in `code/data_loader.py`: Check for 'conductivity'. If present and log-range >= 3.0, proceed. If missing, check for 'HOMO_LUMO_gap'. If missing, HALT with error "No valid target variable found". If HOMO_LUMO exists, log warning "Conductivity missing; using HOMO-LUMO gap fallback" and trigger T026.5
 - [ ] T026.5 [US2] [Conditional] If T026 triggered fallback, set `TARGET_VAR` to 'HOMO_LUMO_gap' in `code/config.py` and log the state change
 - [X] T027 [US2] Implement scaffold-based train/test split (80/20 ratio) in `code/scaffold_split.py` AFTER T019 completes (FR-002)
-- [~] T028 [US2] Implement log-transformation of the selected target variable (conductivity or HOMO-LUMO)
-- [~] T029 [US2] Train Random Forest and Gradient Boosting regressors on log-transformed target (FR-003)
-- [~] T030 [US2] Implement 5-fold cross-validation and metric recording (FR-004)
-- [~] T031 [US2] Implement threshold filter function and retrain logic for outlier sensitivity, ensuring it reuses the exact split indices from T027 and seed from T004
+- [ ] T028 [US2] Implement log-transformation of the selected target variable (conductivity or HOMO-LUMO)
+- [ ] T029 [US2] Train Random Forest and Gradient Boosting regressors on log-transformed target (FR-003)
+- [ ] T030 [US2] Implement 5-fold cross-validation and metric recording (FR-004)
+- [ ] T031 [US2] Implement threshold filter function and retrain logic for outlier sensitivity, ensuring it reuses the exact split indices from T027 and seed from T004
 - [X] T032 [US2] Implement sensitivity analysis loop calling T031, sweeping thresholds {σ, 3.0σ, 3.5σ}, performing Kruskal-Wallis test on R² variances, and saving results to `data/processed/sensitivity_analysis.json` (FR-007)
 - [ ] T032.5 [US2] Generate human-readable summary report of sensitivity analysis variance and Kruskal-Wallis results, logging to `data/processed/sensitivity_report.txt`
 - [X] T033 [US2] Save model results and sensitivity analysis data to `data/processed/model_results.json` with keys: {rf_r2, gb_r2, sensitivity_analysis: [{threshold, r2, kruskal_stat, kruskal_pval},...]}

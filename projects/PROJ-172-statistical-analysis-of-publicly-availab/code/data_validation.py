@@ -1,25 +1,21 @@
-"""
-Data Completeness Validation Module for US1.
-
-Implements strict validation logic to ensure data quality before model training.
-Enforces the 95% completeness threshold for real data and flags synthetic fallbacks.
-"""
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional, Tuple
 from pathlib import Path
 import json
-
+import logging
 from utils.logging import get_logger, log_info, log_warning, log_error
-from config import ensure_directories
 
 logger = get_logger(__name__)
 
-# Required variables for the predictive modeling task
 REQUIRED_VARIABLES = [
-    'game_id', 'home_team', 'away_team', 'date', 'home_runs', 'away_runs',
-    'home_hits', 'away_hits', 'home_era', 'away_era', 'home_avg', 'away_avg',
-    'home_woba', 'away_woba', 'home_babip', 'away_babip', 'park_factor'
+    # Traditional Metrics
+    'game_id', 'year', 'team_id', 'opponent_id',
+    'home_runs', 'hits', 'runs', 'era', 'avg',
+    # Advanced Metrics
+    'woba', 'babip', 'park_factor', 'run_expectancy',
+    # Target
+    'is_win'
 ]
 
 def validate_data_completeness(
@@ -27,152 +23,134 @@ def validate_data_completeness(
     is_real_data: bool,
     required_vars: Optional[List[str]] = None,
     threshold: float = 0.95
-) -> Dict:
+) -> Tuple[bool, Dict[str, float], str]:
     """
-    Validates the completeness of the dataset.
+    Validates data completeness against required variables.
     
     Args:
-        df: The processed dataframe to validate.
-        is_real_data: Boolean flag indicating if data is real or synthetic.
-        required_vars: List of column names that must be present and complete.
-                       Defaults to REQUIRED_VARIABLES.
-        threshold: Minimum required completeness ratio (default 0.95).
-    
+        df: Processed DataFrame with features
+        is_real_data: Boolean flag indicating if data is real (True) or synthetic (False)
+        required_vars: List of required column names. Defaults to REQUIRED_VARIABLES.
+        threshold: Minimum required completeness rate (default 0.95).
+        
     Returns:
-        A dictionary containing validation results and flags.
-    
+        Tuple of (is_valid, completeness_dict, status_message)
+        
     Raises:
-        ValueError: If completeness is below threshold AND data is real.
+        ValueError: If completeness < threshold AND is_real_data is True.
     """
     if required_vars is None:
         required_vars = REQUIRED_VARIABLES
+        
+    if df.empty:
+        msg = "Data validation failed: Input DataFrame is empty."
+        log_error(msg)
+        if is_real_data:
+            raise ValueError(msg)
+        return False, {}, msg
 
     # Check for missing columns
     missing_cols = [col for col in required_vars if col not in df.columns]
     if missing_cols:
-        log_error(f"Missing required columns: {missing_cols}")
-        raise ValueError(f"Data validation failed: Missing required columns {missing_cols}")
+        msg = f"Data validation failed: Missing required columns: {missing_cols}"
+        log_error(msg)
+        if is_real_data:
+            raise ValueError(msg)
+        return False, {col: 0.0 for col in required_vars}, msg
 
     # Calculate completeness for each required variable
-    completeness_stats = {}
-    total_missing = 0
-    total_cells = 0
-
+    completeness = {}
     for col in required_vars:
-        non_null_count = df[col].notna().sum()
-        total_count = len(df)
-        ratio = non_null_count / total_count if total_count > 0 else 0.0
-        completeness_stats[col] = {
-            'non_null': int(non_null_count),
-            'total': int(total_count),
-            'ratio': float(ratio)
-        }
-        total_missing += (total_count - non_null_count)
-        total_cells += total_count
+        total = len(df)
+        non_null = df[col].notna().sum()
+        rate = non_null / total if total > 0 else 0.0
+        completeness[col] = rate
 
-    overall_completeness = 1.0 - (total_missing / total_cells) if total_cells > 0 else 0.0
-
-    log_info(f"Data Completeness Check: {overall_completeness:.2%} (Threshold: {threshold:.2%})")
-
-    result = {
-        'overall_completeness': float(overall_completeness),
-        'threshold_met': overall_completeness >= threshold,
-        'is_real_data': is_real_data,
-        'column_stats': completeness_stats,
-        'flags': []
-    }
-
-    # Enforcement Logic
-    if not result['threshold_met']:
+    # Calculate overall completeness (average of required variables)
+    overall_rate = np.mean(list(completeness.values()))
+    
+    log_info(f"Data completeness check: {overall_rate:.2%} (threshold: {threshold:.0%})")
+    
+    # Determine status
+    if overall_rate < threshold:
         if is_real_data:
-            error_msg = (
-                f"Data completeness ({overall_completeness:.2%}) is below required threshold ({threshold:.2%}) "
-                "for real data. Validation failed."
-            )
-            log_error(error_msg)
-            raise ValueError(error_msg)
+            msg = f"Data completeness ({overall_rate:.2%}) is below threshold ({threshold:.0%}) for real data. Aborting."
+            log_error(msg)
+            raise ValueError(msg)
         else:
-            log_warning(
-                f"Data completeness ({overall_completeness:.2%}) is below threshold. "
-                "Since data is synthetic, marking as 'Empirical Hypothesis Untested'."
-            )
-            result['flags'].append('Empirical Hypothesis Untested')
-    else:
-        if not is_real_data:
-            log_warning(
-                "Synthetic data passed completeness threshold, but results should still be "
-                "flagged as 'Empirical Hypothesis Untested' per protocol."
-            )
-            result['flags'].append('Empirical Hypothesis Untested')
-
-    return result
+            msg = "Data completeness below threshold. Synthetic Mode active: Marking as 'Empirical Hypothesis Untested'."
+            log_warning(msg)
+            return False, completeness, "Empirical Hypothesis Untested"
+    
+    return True, completeness, "Valid"
 
 def main():
     """
-    Entry point for the data validation script.
-    Expects a processed dataset (e.g., from feature_engineering) and validates it.
+    Main entry point for data validation script.
+    Expects to be run after feature engineering.
     """
+    from config import ensure_directories
+    from data_loader import load_data
+    
+    # Ensure directories exist
     ensure_directories()
     
-    # Path to the processed data file (generated by previous steps)
-    data_path = Path("data/processed/processed_games.csv")
-    
-    if not data_path.exists():
-        log_error(f"Processed data file not found at {data_path}.")
-        log_error("Please run the data pipeline (feature_engineering.py) first.")
+    # Load processed data
+    processed_path = Path("data/processed/processed_games.csv")
+    if not processed_path.exists():
+        log_error(f"Processed data not found at {processed_path}. Run feature engineering first.")
         return 1
-
+        
+    df = pd.read_csv(processed_path)
+    
+    # Determine data source status (simplified: check for a flag column or metadata)
+    # In a real pipeline, this would come from the loader's state
+    is_real_data = True 
+    # If synthetic mode was used, the loader usually sets a flag or the file is named differently.
+    # For this implementation, we assume the presence of 'is_real_data' in metadata or file name logic.
+    # If the file was generated by the synthetic generator, we might check a header or sidecar file.
+    # For robustness, we check if the file name implies synthetic or if a sidecar exists.
+    sidecar_path = Path("data/processed/.data_status.json")
+    if sidecar_path.exists():
+        with open(sidecar_path, 'r') as f:
+            status = json.load(f)
+            is_real_data = status.get('is_real_data', True)
+    
+    log_info(f"Validating data completeness. is_real_data={is_real_data}")
+    
     try:
-        df = pd.read_csv(data_path)
-        log_info(f"Loaded data with {len(df)} rows and {len(df.columns)} columns.")
-        
-        # Determine if data is real or synthetic based on a flag or metadata
-        # In a real pipeline, this might come from the data loader output
-        # For this script, we assume a column 'is_real_data' exists if generated by the loader,
-        # otherwise we default to False if the file is known to be synthetic.
-        # Here we check for the flag column if present, else assume real if file exists and is large
-        is_real_data = True
-        if 'is_real_data' in df.columns:
-            is_real_data = bool(df['is_real_data'].iloc[0])
-        
-        log_info(f"Data Source Status: {'Real' if is_real_data else 'Synthetic'}")
-
-        validation_result = validate_data_completeness(
+        is_valid, completeness, status_msg = validate_data_completeness(
             df, 
             is_real_data=is_real_data,
             threshold=0.95
         )
-
-        # Save the validation report to artifacts/reports
+        
+        log_info(f"Validation Result: {status_msg}")
+        
+        # Generate report artifact
+        report = {
+            "validation_status": "passed" if is_valid else "failed",
+            "completeness_rate": np.mean(list(completeness.values())),
+            "threshold": 0.95,
+            "is_real_data": is_real_data,
+            "status_message": status_msg,
+            "variable_completeness": completeness
+        }
+        
         report_path = Path("artifacts/reports/data_completeness_report.json")
         report_path.parent.mkdir(parents=True, exist_ok=True)
         
         with open(report_path, 'w') as f:
-            json.dump(validation_result, f, indent=2, default=str)
+            json.dump(report, f, indent=2)
+            
+        log_info(f"Report saved to {report_path}")
         
-        log_info(f"Validation report saved to {report_path}")
+        return 0 if is_valid else 1
         
-        if validation_result['flags']:
-            for flag in validation_result['flags']:
-                log_warning(f"Flag: {flag}")
-
-        return 0
-
     except ValueError as e:
-        log_error(f"Validation Failed: {str(e)}")
-        # Save failure report
-        report_path = Path("artifacts/reports/data_completeness_report.json")
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(report_path, 'w') as f:
-            json.dump({
-                'error': str(e),
-                'status': 'failed',
-                'is_real_data': is_real_data
-            }, f, indent=2)
-        return 1
-    except Exception as e:
-        log_error(f"Unexpected error during validation: {str(e)}")
+        log_error(f"Validation failed: {e}")
         return 1
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())

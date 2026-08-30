@@ -7,5 +7,3 @@ pyyaml==6.0.1
 numpy==1.24.3
 pytest==7.4.0
 python-dotenv==1.0.0
-ruff==0.1.6
-black==23.11.0

@@ -25,3 +25,10 @@ T016a:
     \ check are present; there is no evidence of a ValueError being raised for real\
     \ data below the threshold or of flagging \u201CEmpirical Hypothesis Untested\u201D\
     \ in synthetic mode. The required artifact is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging implementation, configuration, or example output for data ingestion
+    statistics, synthetic fallback triggers, or imputation actions was provided. The
+    claim lacks any code, log files, or documentation demonstrating that the required
+    logging has been added.

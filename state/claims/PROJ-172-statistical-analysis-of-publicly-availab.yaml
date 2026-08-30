@@ -516,3 +516,261 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-12T22:07:12Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'pinned dependencies: pandas 2.0.3, scikit-learn 1.3.0, xgboost 1.7.6,
+    statsmodels 0.14.0, requests 2.31.0, pyyaml 6.0.1, numpy 1.24.3, pytest 7.4.0'
+  claim_id: c_9aa50891
+  context: Initialize Python 3.10 project with pinned dependencies in requirements.txt
+    using command pip freeze > requirements.txt.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'pip freeze > requirements.txt. Include: pandas==2.0.3, scikit-learn==1.3.0,
+    xgboost==1.7.6, statsmodels==0.14.0, requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3,
+    pytest==7.4.0'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T12:26:42Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 0
+  canonical: sensitivity analysis sweeps classification thresholds from 0.0 to 1.0
+    with step size 0.01
+  claim_id: c_7315af60
+  context: 'Implement code/evaluation.py: Execute sensitivity analysis sweeping classification
+    thresholds across the full valid range [0.0, 1.0] with a step size of 0.01.'
+  evidence:
+    asserted: '0.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Execute sensitivity analysis sweeping classification thresholds across
+    the full valid range [0.0, 1.0] with a step size of 0.01.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T12:30:13Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: pipeline validates completeness greater than or equal to 95 percent with
+    train set 2000-2018 and test set 2019-2022
+  claim_id: c_c504e750
+  context: "Independent Test: The pipeline executes end-to-end on a fresh environment,\
+    \ producing a single CSV with no data leakage between 2000-2018 (train) and 2019-2022\
+    \ (test), and validates completeness \u2265 95%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_validates_completeness_greater_than_or_equal_to_95
+  kind: magnitude
+  raw_text: "The pipeline executes end-to-end on a fresh environment, producing a\
+    \ single CSV with no data leakage between 2000-2018 (train) and 2019-2022 (test),\
+    \ and validates completeness \u2265 95%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T12:31:23Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: temporal split train set up to 2018 and test set up to 2022
+  claim_id: c_769762ec
+  context: "Implement code/feature_engineering.py logic for temporal split: Train\
+    \ (\u22642018), Test (-2022); handle 2020 pandemic season (exclude or down-weight)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train (\u22642018), Test (-2022)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T12:31:23Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 0
+  canonical: Sensitivity analysis sweeps classification thresholds from 0.0 to 1.0
+    with a step size of 0.01
+  claim_id: c_53f8c192
+  context: 'T034 [US3] Depends on: T032: Implement code/evaluation.py: Execute sensitivity
+    analysis sweeping classification thresholds across the full valid range [0.0,
+    1.0] with a step size of 0.01.'
+  evidence:
+    asserted: '0.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Execute sensitivity analysis sweeping classification thresholds across
+    the full valid range [0.0, 1.0] with a step size of 0.01.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T12:33:04Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline validates completeness >= 95% with no data leakage between 2000-2018
+    and 2019-2022 splits
+  claim_id: c_5b506434
+  context: "Independent Test: The pipeline executes end-to-end on a fresh environment,\
+    \ producing a single CSV with no data leakage between 2000-2018 (train) and 2019-2022\
+    \ (test), and validates completeness \u2265 95%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline executes end-to-end on a fresh environment, producing a\
+    \ single CSV with no data leakage between 2000-2018 (train) and 2019-2022 (test),\
+    \ and validates completeness \u2265 95%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T12:33:04Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Project dependencies include pandas 2.0.3, scikit-learn 1.3.0, xgboost
+    1.7.6, statsmodels 0.14.0, requests 2.31.0, pyyaml 6.0.1, numpy 1.24.3, and pytest
+    7.4.0
+  claim_id: c_6ec39721
+  context: 'T002 Initialize Python 3.10 project with pinned dependencies in requirements.txt
+    using command pip freeze > requirements.txt. Include: pandas==2.0.3, scikit-learn==1.3.0,
+    xgboost==1.7.6, statsmodels==0.14.0, requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3,
+    pytest==7.4.0'
+  evidence:
+    asserted: '3.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.10 project with pinned dependencies in requirements.txt
+    using command pip freeze > requirements.txt. Include: pandas==2.0.3, scikit-learn==1.3.0,
+    xgboost==1.7.6, statsmodels==0.14.0, requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3,
+    pytest==7.4.0'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T12:33:04Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Temporal split uses training data up to 2018 and test data through 2022
+  claim_id: c_f899d0aa
+  context: "T015 [US1] Depends on: T013b: Implement code/feature_engineering.py logic\
+    \ for temporal split: Train (\u22642018), Test (-2022); handle 2020 pandemic season\
+    \ (exclude or down-weight)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train (\u22642018), Test (-2022); handle 2020 pandemic season (exclude\
+    \ or down-weight)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T12:33:04Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: System raises ValueError if data completeness rate is below 95% when
+    using real data
+  claim_id: c_efbc10d0
+  context: "T016a [US1] Depends on: T015: Implement data completeness validation logic\
+    \ (\u226595% required variables). ENFORCEMENT: RAISE ValueError if rate < 95%\
+    \ AND is_real_data is True."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAISE ValueError if rate < 95% AND is_real_data is True.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T12:33:04Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Training script produces JSON report with ROC-AUC, log-loss, and Brier
+    scores for Logistic Regression, Random Forest, and Gradient Boosting
+  claim_id: c_88482242
+  context: 'Independent Test: The training script produces a JSON report with ROC-AUC,
+    log-loss, and Brier scores for both feature sets across all three algorithms,
+    including hyperparameter tuning results.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_script_produces_JSON_report_with_ROC-AUC,_log-loss,
+  kind: entity_fact
+  raw_text: The training script produces a JSON report with ROC-AUC, log-loss, and
+    Brier scores for both feature sets across all three algorithms, including hyperparameter
+    tuning results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T12:34:01Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cost matrix artifact defines false positive cost, true negative value,
+    false negative cost, and true positive value all at 1.0
+  claim_id: c_fe31c897
+  context: 'T035a [US3] Depends on: T032: Define utility function/cost matrix as a
+    concrete artifact artifacts/config/cost_matrix.json. Schema: {"false_positive_cost":
+    1.0, "true_negative_value": 1.0, "false_negative_cost": 1.0, "true_positive_value":
+    1.0}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define utility function/cost matrix as a concrete artifact artifacts/config/cost_matrix.json.
+    Schema: {"false_positive_cost": 1.0, "true_negative_value": 1.0, "false_negative_cost":
+    1.0, "true_positive_value": 1.0}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T12:34:57Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: XGBoost training configured with early stopping to complete within 6
+    hours on 2 vCPU
+  claim_id: c_91b6d1df
+  context: 'T042a [P] Performance: Implement early stopping in code/models.py for
+    XGBoost to ensure training completes within 6h on 2 vCPU'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement early stopping in code/models.py for XGBoost to ensure training
+    completes within 6h on 2 vCPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T12:35:35Z'

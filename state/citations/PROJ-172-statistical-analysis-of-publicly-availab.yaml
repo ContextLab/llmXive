@@ -1,4 +1,4 @@
-- artifact_hash: bf6b2460ddce28460566173bcbfddccf25c3f21db2a2424075da2b4b7bd775a1
+- artifact_hash: 0ce70e45fa0144b9b21fc4f4ee277525766fffb85b961bab204b220ad66573df
   artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-08-12T22:07:12.359720Z'
+  verified_at: '2026-08-30T12:35:35.625922Z'

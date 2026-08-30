@@ -26,7 +26,13 @@ properties:
           maxItems: 2
         p_value:
           type: "number"
-          description: "P-value for statistical significance"
+          description: "P-value for statistical significance (for separability tests only)"
+        p_value_adjusted:
+          type: "number"
+          description: "Bonferroni-corrected p-value (for separability tests only)"
+        is_significant:
+          type: "boolean"
+          description: "Whether the result is significant after correction"
       required:
         - value
   sample_size:
@@ -57,6 +63,12 @@ properties:
   model_used:
     type: "string"
     description: "Name of the VAE model actually used (e.g., 'Qwen-Image-VAE-2.0' or 'Fallback-Model')"
+  cpu_feasibility:
+    type: "string"
+    enum:
+      - "confirmed"
+      - "rejected"
+    description: "Status of the CPU-First feasibility hypothesis"
 required:
   - test_id
   - timestamp
@@ -66,4 +78,5 @@ required:
   - linearity_verified
   - triviality_flag
   - model_used
+  - cpu_feasibility
 additionalProperties: false

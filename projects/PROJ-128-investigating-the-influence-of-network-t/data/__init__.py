@@ -1,2 +1,2 @@
 # Data directory initialization
-# Contains raw, processed, and logs subdirectories
+# Raw, processed, and log data will be stored here.

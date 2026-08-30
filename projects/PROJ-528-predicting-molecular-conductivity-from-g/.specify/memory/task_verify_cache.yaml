@@ -39,3 +39,47 @@ T023:
     \ test is present; the claim provides only narrative description without any concrete\
     \ artifact (e.g., a pytest file, CI log, or generated report) that demonstrates\
     \ \u201Cno structural leakage.\u201D Consequently the required evidence is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test code, test file, or any evidence of a test that checks the\
+    \ log\u2011transformation of the target variable is present in the provided artifacts.\
+    \ The implementer did not supply the required test implementation, so the task\
+    \ is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test code, test file, or any other artifact for the outlier\u2011\
+    exclusion\u2011threshold logic was provided; the evidence section contains no\
+    \ files or snippets to verify that such a test exists. The required unit test\
+    \ is therefore missing."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation showing a log\u2011transformation\
+    \ of the target variable (conductivity or HOMO\u2011LUMO) is present. The task\
+    \ requires an implemented transformation step, but the provided evidence contains\
+    \ no artifact at all, so the requirement is not met."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, model files, result JSON, or any other artifact was provided; the response\
+    \ contains only the task description and requirements. Consequently, there is\
+    \ no evidence that Random Forest and Gradient Boosting regressors were trained,\
+    \ that log\u2011transformed targets were used, or that the required performance\
+    \ metrics and analyses were generated. The missing artifacts must be supplied\
+    \ for the task to be considered complete."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or result files implementing 5\u2011fold cross\u2011\
+    validation and recording metrics (R\xB2, MAE, etc.) are present. The evidence\
+    \ consists only of the task description and user stories, without any concrete\
+    \ artifact to verify that the required functionality was delivered."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data files implementing the threshold filter function or
+    the retraining logic are present, and there is no evidence that the implementation
+    reuses the exact split indices from T027 or the seed from T004. The required artifacts
+    are missing, so the task is not satisfied.

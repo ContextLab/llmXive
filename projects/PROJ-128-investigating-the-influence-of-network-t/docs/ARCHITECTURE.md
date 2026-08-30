@@ -1,64 +1,78 @@
-# Architecture Documentation
+# Project Architecture: Network Topology Influence on Brain Activity
 
-## System Overview
+## Overview
+This project investigates the relationship between structural brain network topology (derived from diffusion MRI) and spontaneous functional activity patterns (derived from fMRI). The pipeline follows a strict "associational" framing, avoiding causal claims.
 
-The pipeline processes HCP dMRI and fMRI data to compute structural and dynamic graph metrics, then correlates them to investigate the relationship between structural topology and spontaneous brain activity patterns.
+## Directory Structure
+```
+PROJ-128/
+├── code/ # Main implementation
+│ ├── config.py # Configuration and paths
+│ ├── main.py # Batch processing entry point
+│ ├── preprocess/ # Data loading and feature extraction
+│ │ ├── loader.py # HCP data fetching
+│ │ ├── structural.py # Graph metric calculation
+│ │ └── functional.py # Sliding window & LOO K-Means
+│ ├── analysis/ # Statistical testing
+│ │ ├── correlation.py # Normality tests, correlations, FDR
+│ │ └── robustness.py # Sensitivity analysis
+│ ├── reports/ # Report generation
+│ │ ├── generate_report.py
+│ │ ├── validate_report.py
+│ │ └── audit_associational_language.py
+│ └── utils/ # CPU optimization utilities
+├── data/ # Data storage
+│ ├── raw/ # Downloaded HCP data
+│ ├── processed/ # Metrics CSVs and correlation results
+│ └── logs/ # Exclusion logs
+├── contracts/ # Schema definitions
+│ ├── dataset.schema.yaml
+│ └── output.schema.yaml
+├── tests/ # Unit and integration tests
+│ ├── unit/
+│ └── integration/
+├── docs/ # Documentation (this file)
+├── requirements.txt # Dependencies
+└── README.md # Project overview
+```
 
-## Module Responsibilities
+## Core Components
 
-### `code/config.py`
-- Centralized configuration for paths, seeds, and hyperparameters
-- Functions: `ensure_directories()`, `get_config_dict()`
+### 1. Preprocessing Pipeline
+- **Structural**: Calculates global efficiency, clustering coefficient, and modularity from dMRI-derived adjacency matrices.
+- **Functional**: Implements sliding-window correlation (30 TR window, 1 TR step) and **Leave-One-Out (LOO) K-Means** (k=5) to derive dynamic states.
+ - *Critical Constraint*: LOO ensures subject i's windows are assigned to centroids derived from all other subjects (j != i), preventing circular correlation.
 
-### `code/preprocess/`
-- **`loader.py`**: Downloads and loads HCP data from OpenNeuro
-- **`structural.py`**: Computes graph metrics (efficiency, clustering, modularity) from dMRI
-- **`functional.py`**: Computes sliding-window correlations, LOO k-means states, and dynamic metrics
+### 2. Analysis Module
+- **Correlation**: Performs Shapiro-Wilk normality tests. Selects Pearson (normal) or Spearman (non-normal) correlations. Applies Benjamini-Hochberg FDR correction (q=0.05).
+- **Robustness**: Re-runs analysis with 20 TR windows and ±5% density thresholds to verify stability.
 
-### `code/analysis/`
-- **`correlation.py`**: Normality testing, correlation calculation, FDR correction
-- **`robustness.py`**: Sensitivity analysis for window length and density thresholds
-
-### `code/reports/`
-- **`generate_report.py`**: Aggregates results into final JSON report
-- **`validate_report.py`**: Validates output against schema
-- **`audit_associational_language.py`**: Checks for causal language violations
-
-### `code/main.py`
-- Orchestrates the full pipeline: data loading, metric computation, correlation, robustness, reporting
-
-### `code/utils/cpu_optimization.py`
-- Memory optimization, random seed setting, GPU validation
+### 3. Reporting
+- Generates a final report with explicit "associational" language.
+- Includes sensitivity tables showing absolute differences between 30 TR and 20 TR correlation coefficients.
+- Validates output against `contracts/output.schema.yaml`.
 
 ## Data Flow
-
-1. **Input**: HCP dMRI/fMRI data (OpenNeuro)
-2. **Structural Pipeline**: dMRI → Graph → Metrics (global efficiency, clustering, modularity)
-3. **Functional Pipeline**: fMRI → Sliding windows → LOO k-means → Metrics (dwell time, visited states)
-4. **Correlation**: Structural metrics ↔ Dynamic metrics → r, p, FDR
-5. **Robustness**: Re-run with 20 TR window and ±5% density → sensitivity metrics
-6. **Output**: `data/processed/*.csv`, `data/reports/final_report.json`
-
-## Key Algorithms
-
-### Leave-One-Out (LOO) K-Means
-For each subject `i`:
-1. Compute centroids from all subjects `j != i`
-2. Assign subject `i`'s windows to these centroids
-3. Calculate dwell times and state counts
-
-This prevents circular correlation and satisfies the Constitution Principle VI.
-
-### Benjamini-Hochberg FDR Correction
-Applied to all correlation p-values (q=0.05) to control false discovery rate.
-
-## Error Handling
-
-- **Subject Exclusion**: Convergence failures or sparsity >90% logged to `data/logs/exclusion_log.json`
-- **Data Fetch Failure**: Scripts fail loudly (no synthetic fallback)
-- **Zero Significant Findings**: Report explicitly states this outcome
+1. **Fetch**: `code/preprocess/loader.py` downloads HCP data from OpenNeuro.
+2. **Process**: `code/main.py` iterates subjects, computing structural and dynamic metrics.
+3. **Aggregate**: Metrics are saved to `data/processed/structural_metrics.csv` and `dynamic_metrics.csv`.
+4. **Correlate**: `code/analysis/correlation.py` computes structure-function relationships.
+5. **Report**: `code/reports/generate_report.py` synthesizes findings.
 
 ## Dependencies
+See `requirements.txt` for the full list. Key libraries:
+- `nilearn`: Neuroimaging data handling
+- `networkx`: Graph theory metrics
+- `scikit-learn`: Clustering
+- `scipy`/`statsmodels`: Statistical testing
+- `pandas`/`numpy`: Data manipulation
 
-See `requirements.txt`:
-- nilearn, networkx, scikit-learn, pandas, numpy, scipy, statsmodels, pyyaml
+## Execution
+Run the full pipeline:
+```bash
+python code/main.py
+```
+Run validation:
+```bash
+python code/validate_quickstart.py
+```

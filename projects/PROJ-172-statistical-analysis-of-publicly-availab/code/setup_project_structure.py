@@ -4,21 +4,21 @@ from pathlib import Path
 
 def main():
     """
-    Creates the required project directory structure as defined in plan.md and tasks.md.
+    Create the project directory structure as defined in plan.md.
     Directories created:
-      - code/
-      - data/raw/
-      - data/processed/
-      - tests/
-      - artifacts/reports/
-      - artifacts/figures/
-      - state/
+    - code/
+    - data/raw/
+    - data/processed/
+    - tests/
+    - artifacts/reports/
+    - artifacts/figures/
+    - state/
     """
-    # Define the project root (current working directory)
-    project_root = Path.cwd()
-
-    # Define the relative paths to be created
-    directories = [
+    # Define the base directory (project root)
+    base_dir = Path(__file__).resolve().parent.parent
+    
+    # Define the required directories relative to the project root
+    required_dirs = [
         "code",
         "data/raw",
         "data/processed",
@@ -27,24 +27,23 @@ def main():
         "artifacts/figures",
         "state"
     ]
-
+    
     created_count = 0
-    for dir_path in directories:
-        full_path = project_root / dir_path
+    existing_count = 0
+    
+    for dir_path in required_dirs:
+        full_path = base_dir / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            # Verify it is actually a directory
-            if full_path.is_dir():
-                print(f"Directory already exists: {full_path}")
-            else:
-                print(f"ERROR: Path exists but is not a directory: {full_path}")
-                return 1
-
-    print(f"Project structure setup complete. {created_count} new directories created.")
-    return 0
+            print(f"Directory already exists: {full_path}")
+            existing_count += 1
+    
+    print(f"\nProject structure setup complete.")
+    print(f"Created: {created_count} new directories.")
+    print(f"Existing: {existing_count} directories.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

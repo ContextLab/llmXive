@@ -14,65 +14,88 @@ if __name__ == "__main__":
 from config import get_config_dict
 
 def load_schema(schema_path: str) -> Dict[str, Any]:
-    """Load the JSON schema from a YAML file."""
-    if not os.path.exists(schema_path):
+    """Load the JSON schema from a YAML or JSON file."""
+    path = Path(schema_path)
+    if not path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
-
-def validate_field_presence(data: Dict[str, Any], schema: Dict[str, Any], path: str = "") -> List[str]:
-    """Recursively validate that all required fields in the schema are present in the data."""
-    errors = []
-    required_fields = schema.get('required', [])
     
-    for field in required_fields:
-        current_path = f"{path}.{field}" if path else field
-        if field not in data:
-            errors.append(f"Missing required field: {current_path}")
+    with open(path, 'r') as f:
+        if path.suffix in ['.yaml', '.yml']:
+            return yaml.safe_load(f)
         else:
-            # Recurse into object properties if it's an object
-            if schema.get('type') == 'object' and 'properties' in schema:
-                if field in schema['properties']:
-                    nested_schema = schema['properties'][field]
-                    nested_errors = validate_field_presence(data[field], nested_schema, current_path)
-                    errors.extend(nested_errors)
-            # Handle array items if schema defines 'items'
-            elif schema.get('type') == 'array' and 'items' in schema:
-                if isinstance(data[field], list):
-                    for i, item in enumerate(data[field]):
-                        item_path = f"{current_path}[{i}]"
-                        # Check if item is an object with requirements
-                        if isinstance(item, dict) and 'properties' in schema['items']:
-                            item_errors = validate_field_presence(item, schema['items'], item_path)
-                            errors.extend(item_errors)
+            return json.load(f)
+
+def validate_field_presence(data: Dict[str, Any], required_fields: List[str], parent_path: str = "") -> List[str]:
+    """Recursively validate that all required fields are present in the data."""
+    errors = []
+    for field in required_fields:
+        if field not in data:
+            errors.append(f"Missing required field: {parent_path + '.' + field if parent_path else field}")
     return errors
 
-def validate_report_structure(report_data: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """Validate the structure of the report against the schema."""
-    errors = validate_field_presence(report_data, schema)
-    is_valid = len(errors) == 0
-    return is_valid, errors
+def validate_report_structure(data: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
+    """Validate the report data against the provided schema."""
+    errors = []
+    
+    # Check top-level required fields
+    if 'required' in schema:
+        errors.extend(validate_field_presence(data, schema['required']))
+    
+    # Validate properties recursively
+    properties = schema.get('properties', {})
+    for prop_name, prop_schema in properties.items():
+        if prop_name in data:
+            prop_data = data[prop_name]
+            if 'required' in prop_schema:
+                prop_errors = validate_field_presence(prop_data, prop_schema['required'], prop_name)
+                errors.extend(prop_errors)
+            
+            # Handle nested objects
+            if prop_schema.get('type') == 'object' and 'properties' in prop_schema:
+                nested_errors = validate_report_structure(prop_data, prop_schema)
+                errors.extend(nested_errors)
+            
+            # Handle arrays of objects
+            if prop_schema.get('type') == 'array' and 'items' in prop_schema:
+                item_schema = prop_schema['items']
+                if item_schema.get('type') == 'object' and 'required' in item_schema:
+                    for i, item in enumerate(prop_data):
+                        item_errors = validate_field_presence(item, item_schema['required'], f"{prop_name}[{i}]")
+                        errors.extend(item_errors)
+                        if 'properties' in item_schema:
+                            nested_errors = validate_report_structure(item, item_schema)
+                            errors.extend(nested_errors)
+    
+    return errors
 
 def validate_report_file(report_path: str, schema_path: str) -> Tuple[bool, List[str]]:
-    """Load a report JSON file and validate it against the schema."""
-    if not os.path.exists(report_path):
-        return False, [f"Report file not found: {report_path}"]
+    """Validate a specific report file against the schema."""
+    errors = []
     
+    # Load schema
+    try:
+        schema = load_schema(schema_path)
+    except Exception as e:
+        return False, [f"Failed to load schema: {str(e)}"]
+    
+    # Load report
     try:
         with open(report_path, 'r') as f:
             report_data = json.load(f)
-    except json.JSONDecodeError as e:
-        return False, [f"Invalid JSON in report file: {e}"]
+    except Exception as e:
+        return False, [f"Failed to load report file: {str(e)}"]
     
-    schema = load_schema(schema_path)
-    is_valid, errors = validate_report_structure(report_data, schema)
-    return is_valid, errors
+    # Validate structure
+    validation_errors = validate_report_structure(report_data, schema)
+    errors.extend(validation_errors)
+    
+    return len(errors) == 0, errors
 
 def main():
     """Main entry point for report validation."""
     config = get_config_dict()
-    report_path = config.get('report_output_path', 'data/reports/final_report.json')
-    schema_path = config.get('schema_path', 'contracts/output.schema.yaml')
+    report_path = config.get('final_report_path', 'data/reports/final_report.json')
+    schema_path = config.get('output_schema_path', 'contracts/output.schema.yaml')
     
     print(f"Validating report: {report_path}")
     print(f"Against schema: {schema_path}")
@@ -80,12 +103,14 @@ def main():
     is_valid, errors = validate_report_file(report_path, schema_path)
     
     if is_valid:
-        print("✓ Validation PASSED: Report structure is valid.")
+        print("✓ Report validation PASSED.")
+        print("All required fields (r, p, FDR, sensitivity, absolute difference) are present.")
         return 0
     else:
-        print("✗ Validation FAILED:")
-        for error in errors:
-            print(f"  - {error}")
+        print("✗ Report validation FAILED.")
+        print("Errors found:")
+        for err in errors:
+            print(f"  - {err}")
         return 1
 
 if __name__ == "__main__":

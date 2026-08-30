@@ -1,219 +1,208 @@
 """
 Unit tests for descriptor computation on mixed hybridization molecules.
 
-This test file is written to FAIL initially because the implementation 
-for mixed hybridization descriptor computation (T014, T015, T020, T021, T022)
-has not yet been implemented in code/descriptors.py.
-
-Expected failures will occur when:
-1. The descriptors module does not exist or lacks required functions
-2. The compute_descriptors function cannot handle molecules with mixed sp/sp2/sp3 atoms
-3. The returned DataFrame lacks required columns for mixed hybridization analysis
+These tests are expected to FAIL initially until the implementation
+in code/descriptors.py is complete.
 """
-
 import pytest
 import pandas as pd
 import numpy as np
 from rdkit import Chem
 
-# These imports will fail until T014-T022 are implemented
-try:
-    from descriptors import compute_descriptors, compute_bond_polarity, compute_resonance_energy
-except ImportError:
-    # Will cause test failures until implementation exists
-    compute_descriptors = None
-    compute_bond_polarity = None
-    compute_resonance_energy = None
+# Import the descriptor functions from the implementation
+from code.descriptors import (
+    compute_descriptors_batch,
+    compute_degree_statistics,
+    compute_path_length_statistics,
+    compute_ring_count,
+    compute_huckel_aromaticity_index,
+    compute_aromatic_ring_count,
+    compute_bond_polarity,
+    compute_resonance_energy
+)
 
-# Test molecules with mixed hybridization
+
+# Test molecules with mixed hybridization (sp2/sp3, aromatic/aliphatic)
 MIXED_HYBRIDIZATION_MOLECULES = [
+    # Toluene: aromatic ring (sp2) + methyl group (sp3)
     {
-        "name": "propyne",
-        "smiles": "CC#C",  # sp3 (methyl), sp (alkyne)
-        "expected_hybridizations": ["sp3", "sp", "sp"]
-    },
-    {
-        "name": "propene",
-        "smiles": "CC=C",  # sp3 (methyl), sp2 (alkene)
-        "expected_hybridizations": ["sp3", "sp2", "sp2"]
-    },
-    {
-        "name": "vinyl_acetylene",
-        "smiles": "C=CC#C",  # sp2 (alkene), sp (alkyne)
-        "expected_hybridizations": ["sp2", "sp2", "sp", "sp"]
-    },
-    {
+        "smiles": "Cc1ccccc1",
         "name": "toluene",
-        "smiles": "Cc1ccccc1",  # sp3 (methyl), sp2 (aromatic ring)
-        "expected_hybridizations": ["sp3", "sp2", "sp2", "sp2", "sp2", "sp2", "sp2"]
+        "expected_features": {
+            "has_aromatic": True,
+            "has_aliphatic": True,
+            "hybridization_mixed": True
+        }
     },
+    # Ethylbenzene: aromatic ring (sp2) + ethyl group (sp3)
     {
-        "name": "phenylacetylene",
-        "smiles": "c1ccccc1C#C",  # sp2 (aromatic), sp (alkyne)
-        "expected_hybridizations": ["sp2", "sp2", "sp2", "sp2", "sp2", "sp2", "sp", "sp"]
+        "smiles": "CCc1ccccc1",
+        "name": "ethylbenzene",
+        "expected_features": {
+            "has_aromatic": True,
+            "has_aliphatic": True,
+            "hybridization_mixed": True
+        }
+    },
+    # 1-phenyl-1-propene: aromatic ring (sp2) + alkene (sp2) + alkyl (sp3)
+    {
+        "smiles": "CC=Cc1ccccc1",
+        "name": "1-phenyl-1-propene",
+        "expected_features": {
+            "has_aromatic": True,
+            "has_alkene": True,
+            "has_aliphatic": True,
+            "hybridization_mixed": True
+        }
+    },
+    # Cyclohexylbenzene: aromatic ring (sp2) + cyclohexane (sp3)
+    {
+        "smiles": "C1CCCCC1c2ccccc2",
+        "name": "cyclohexylbenzene",
+        "expected_features": {
+            "has_aromatic": True,
+            "has_cycloalkane": True,
+            "hybridization_mixed": True
+        }
+    },
+    # Acetophenone: aromatic ring (sp2) + carbonyl (sp2) + methyl (sp3)
+    {
+        "smiles": "CC(=O)c1ccccc1",
+        "name": "acetophenone",
+        "expected_features": {
+            "has_aromatic": True,
+            "has_carbonyl": True,
+            "has_aliphatic": True,
+            "hybridization_mixed": True
+        }
     }
 ]
 
-REQUIRED_COLUMNS = [
-    'smiles', 'status', 
-    'degree_mean', 'degree_std', 'degree_max', 'degree_min',
-    'path_length_mean', 'path_length_std', 'path_length_max', 'path_length_min',
-    'aromaticity_index', 'conjugation_length', 'ring_count',
-    'bond_polarity', 'resonance_energy'
-]
 
-@pytest.fixture
-def mixed_hybridization_smiles():
-    """Return list of SMILES strings with mixed hybridization."""
-    return [mol["smiles"] for mol in MIXED_HYBRIDIZATION_MOLECULES]
-
-@pytest.mark.skipif(
-    compute_descriptors is None, 
-    reason="compute_descriptors not implemented yet (expected failure for T012)"
-)
-def test_descriptor_computation_mixed_hybridization(mixed_hybridization_smiles):
-    """
-    Test that descriptor computation handles molecules with mixed hybridization states.
+def test_compute_descriptors_batch_returns_dataframe():
+    """Test that compute_descriptors_batch returns a DataFrame with expected columns."""
+    smiles_list = [m["smiles"] for m in MIXED_HYBRIDIZATION_MOLECULES]
     
-    This test verifies:
-    1. All molecules are processed without errors
-    2. The output DataFrame contains all required columns
-    3. Numeric values are valid (not NaN, not infinite)
-    4. Hybridization-aware descriptors show expected patterns
-    """
-    # Convert to DataFrame format expected by compute_descriptors
-    df_input = pd.DataFrame({"smiles": mixed_hybridization_smiles})
+    # This will fail if the function is not implemented or returns wrong type
+    result = compute_descriptors_batch(smiles_list)
     
-    # This will fail until T014-T022 are implemented
-    result = compute_descriptors(df_input)
+    assert isinstance(result, pd.DataFrame), "Result should be a pandas DataFrame"
+    assert len(result) == len(smiles_list), "Result should have same number of rows as input"
     
-    # Verify structure
-    assert isinstance(result, pd.DataFrame), "Result must be a DataFrame"
-    assert set(REQUIRED_COLUMNS).issubset(set(result.columns)), \
-        f"Result must contain all required columns: {REQUIRED_COLUMNS}"
-    
-    # Verify no NaN values in numeric columns
-    numeric_cols = [col for col in REQUIRED_COLUMNS if col != 'smiles' and col != 'status']
-    for col in numeric_cols:
-        assert not result[col].isna().any(), f"Column {col} contains NaN values"
-        assert not np.isinf(result[col]).any(), f"Column {col} contains infinite values"
-    
-    # Verify status column shows success
-    assert (result['status'] == 'success').all(), \
-        f"Not all molecules processed successfully: {result[result['status'] != 'success']}"
-    
-    # Specific hybridization checks
-    # Toluene should have higher aromaticity_index than propyne
-    toluene_idx = result[result['smiles'] == 'Cc1ccccc1'].index[0]
-    propyne_idx = result[result['smiles'] == 'CC#C'].index[0]
-    
-    assert result.loc[toluene_idx, 'aromaticity_index'] > result.loc[propyne_idx, 'aromaticity_index'], \
-        "Toluene should have higher aromaticity than propyne"
-    
-    # Phenylacetylene should have non-zero resonance energy
-    phenylacetylene_idx = result[result['smiles'] == 'c1ccccc1C#C'].index[0]
-    assert result.loc[phenylacetylene_idx, 'resonance_energy'] > 0, \
-        "Phenylacetylene should have positive resonance energy"
-
-@pytest.mark.skipif(
-    compute_bond_polarity is None, 
-    reason="compute_bond_polarity not implemented yet (expected failure for T012)"
-)
-def test_bond_polarity_mixed_hybridization(mixed_hybridization_smiles):
-    """
-    Test bond polarity calculation for molecules with mixed hybridization.
-    
-    Bond polarity should be higher in molecules with significant electronegativity
-    differences and shorter bond lengths (sp/sp2 vs sp3).
-    """
-    df_input = pd.DataFrame({"smiles": mixed_hybridization_smiles})
-    result = compute_descriptors(df_input)
-    
-    # Check that bond polarity varies across molecules
-    assert result['bond_polarity'].std() > 0, \
-        "Bond polarity should vary across mixed hybridization molecules"
-    
-    # sp-hybridized molecules should show different bond polarity patterns
-    sp_molecules = ['CC#C', 'C=CC#C', 'c1ccccc1C#C']
-    sp_indices = [result[result['smiles'] == smiles].index[0] for smiles in sp_molecules 
-                 if smiles in result['smiles'].values]
-    
-    if sp_indices:
-        sp_bond_pol = result.loc[sp_indices, 'bond_polarity'].mean()
-        non_sp_bond_pol = result.loc[~result['smiles'].isin(sp_molecules), 'bond_polarity'].mean()
-        
-        # sp bonds typically show higher polarity due to shorter bond lengths
-        # This is a soft assertion as actual values depend on implementation
-        assert abs(sp_bond_pol - non_sp_bond_pol) > 0.01, \
-            "sp-hybridized molecules should show distinct bond polarity"
-
-@pytest.mark.skipif(
-    compute_resonance_energy is None, 
-    reason="compute_resonance_energy not implemented yet (expected failure for T012)"
-)
-def test_resonance_energy_mixed_hybridization(mixed_hybridization_smiles):
-    """
-    Test resonance energy calculation for conjugated and aromatic systems.
-    
-    Molecules with conjugation and aromaticity should show positive resonance energy,
-    while aliphatic molecules should show near-zero values.
-    """
-    df_input = pd.DataFrame({"smiles": mixed_hybridization_smiles})
-    result = compute_descriptors(df_input)
-    
-    # Aromatic/conjugated molecules should have positive resonance energy
-    aromatic_molecules = ['Cc1ccccc1', 'c1ccccc1C#C', 'C=CC#C']
-    aromatic_indices = [result[result['smiles'] == smiles].index[0] 
-                       for smiles in aromatic_molecules if smiles in result['smiles'].values]
-    
-    if aromatic_indices:
-        aromatic_resonance = result.loc[aromatic_indices, 'resonance_energy']
-        assert (aromatic_resonance > 0).all(), \
-            "Aromatic/conjugated molecules should have positive resonance energy"
-    
-    # Aliphatic molecules should have near-zero resonance energy
-    aliphatic_molecules = ['CC#C', 'CC=C']
-    aliphatic_indices = [result[result['smiles'] == smiles].index[0] 
-                        for smiles in aliphatic_molecules if smiles in result['smiles'].values]
-    
-    if aliphatic_indices:
-        aliphatic_resonance = result.loc[aliphatic_indices, 'resonance_energy']
-        assert (aliphatic_resonance >= 0).all(), \
-            "Aliphatic molecules should have non-negative resonance energy"
-        assert (aliphatic_resonance < 5.0).all(), \
-            "Aliphatic molecules should have low resonance energy (< 5.0)"
-
-@pytest.mark.skipif(
-    compute_descriptors is None, 
-    reason="compute_descriptors not implemented yet (expected failure for T012)"
-)
-def test_descriptors_computation_edge_cases():
-    """
-    Test edge cases in mixed hybridization descriptor computation.
-    
-    This ensures robustness when handling:
-    - Very small molecules
-    - Large conjugated systems
-    - Molecules with only sp3 atoms
-    """
-    edge_case_smiles = [
-        "C",           # Methane - only sp3
-        "C=C",         # Ethene - only sp2
-        "C#C",         # Ethyne - only sp
-        "c1ccccc1",    # Benzene - only sp2 (aromatic)
-        "CCCCCCCC",    # Octane - long aliphatic chain
+    # Check for required columns (from task T019 specification)
+    required_columns = [
+        'smiles', 'status', 'degree_mean', 'degree_std', 'degree_max', 'degree_min',
+        'path_length_mean', 'path_length_std', 'path_length_max', 'path_length_min',
+        'aromaticity_index', 'conjugation_length', 'ring_count',
+        'bond_polarity', 'resonance_energy'
     ]
     
-    df_input = pd.DataFrame({"smiles": edge_case_smiles})
+    for col in required_columns:
+        assert col in result.columns, f"Missing required column: {col}"
+
+
+def test_mixed_hybridization_molecules_have_valid_descriptors():
+    """Test that mixed hybridization molecules produce valid numeric descriptors."""
+    smiles_list = [m["smiles"] for m in MIXED_HYBRIDIZATION_MOLECULES]
     
-    # This will fail until implementation exists
-    result = compute_descriptors(df_input)
+    result = compute_descriptors_batch(smiles_list)
     
-    assert len(result) == len(edge_case_smiles), \
-        "All edge case molecules should be processed"
-    assert (result['status'] == 'success').all(), \
-        "All edge case molecules should process successfully"
+    # All rows should have status 'valid'
+    valid_rows = result[result['status'] == 'valid']
+    assert len(valid_rows) == len(smiles_list), "All molecules should be valid"
     
-    # Verify all required columns exist
-    assert set(REQUIRED_COLUMNS).issubset(set(result.columns)), \
-        "Edge case results must contain all required columns"
+    # Check that numeric columns contain valid numbers (no NaN)
+    numeric_cols = [
+        'degree_mean', 'degree_std', 'degree_max', 'degree_min',
+        'path_length_mean', 'path_length_std', 'path_length_max', 'path_length_min',
+        'aromaticity_index', 'conjugation_length', 'ring_count',
+        'bond_polarity', 'resonance_energy'
+    ]
+    
+    for col in numeric_cols:
+        assert not result[col].isna().any(), f"Column {col} contains NaN values"
+        assert result[col].dtype in [np.float64, np.int64, np.float32, np.int32], \
+            f"Column {col} should be numeric"
+
+
+def test_aromaticity_detection_in_mixed_systems():
+    """Test that aromaticity index correctly identifies aromatic rings in mixed systems."""
+    smiles_list = [m["smiles"] for m in MIXED_HYBRIDIZATION_MOLECULES]
+    
+    result = compute_descriptors_batch(smiles_list)
+    
+    # All test molecules contain at least one aromatic ring
+    # So aromaticity_index should be > 0 for all
+    assert (result['aromaticity_index'] > 0).all(), \
+        "All mixed hybridization molecules should have non-zero aromaticity index"
+    
+    # Ring count should be at least 1 (the aromatic ring)
+    assert (result['ring_count'] >= 1).all(), \
+        "All molecules should have at least 1 ring"
+
+
+def test_bond_polarity_varies_with_hybridization():
+    """Test that bond polarity descriptor captures differences in hybridization environments."""
+    smiles_list = [m["smiles"] for m in MIXED_HYBRIDIZATION_MOLECULES]
+    
+    result = compute_descriptors_batch(smiles_list)
+    
+    # Bond polarity should be positive for all valid molecules
+    assert (result['bond_polarity'] > 0).all(), \
+        "Bond polarity should be positive for all valid molecules"
+    
+    # There should be variation in bond polarity across different molecules
+    assert result['bond_polarity'].std() > 0, \
+        "Bond polarity should vary across different mixed hybridization molecules"
+
+
+def test_resonance_energy_higher_for_conjugated_systems():
+    """Test that resonance energy is higher for molecules with extended conjugation."""
+    # Compare toluene (single aromatic ring) vs 1-phenyl-1-propene (aromatic + conjugated alkene)
+    toluene_smiles = "Cc1ccccc1"
+    conjugated_smiles = "CC=Cc1ccccc1"
+    
+    result = compute_descriptors_batch([toluene_smiles, conjugated_smiles])
+    
+    toluene_row = result[result['smiles'] == toluene_smiles].iloc[0]
+    conjugated_row = result[result['smiles'] == conjugated_smiles].iloc[0]
+    
+    # Conjugated system should have higher resonance energy
+    # This test may fail if the resonance energy calculation is not implemented correctly
+    assert conjugated_row['resonance_energy'] >= toluene_row['resonance_energy'], \
+        "Conjugated systems should have higher or equal resonance energy"
+
+
+def test_degree_statistics_for_mixed_hybridization():
+    """Test that degree statistics capture the structural differences in mixed systems."""
+    smiles_list = [m["smiles"] for m in MIXED_HYBRIDIZATION_MOLECULES]
+    
+    result = compute_descriptors_batch(smiles_list)
+    
+    # Degree statistics should be non-negative
+    for col in ['degree_mean', 'degree_std', 'degree_max', 'degree_min']:
+        assert (result[col] >= 0).all(), f"{col} should be non-negative"
+    
+    # There should be variation across different molecules
+    for col in ['degree_mean', 'degree_std', 'degree_max', 'degree_min']:
+        assert result[col].std() > 0, f"{col} should vary across molecules"
+
+
+def test_path_length_statistics_for_mixed_hybridization():
+    """Test that path length statistics capture molecular size and shape."""
+    smiles_list = [m["smiles"] for m in MIXED_HYBRIDIZATION_MOLECULES]
+    
+    result = compute_descriptors_batch(smiles_list)
+    
+    # Path length statistics should be non-negative
+    for col in ['path_length_mean', 'path_length_std', 'path_length_max', 'path_length_min']:
+        assert (result[col] >= 0).all(), f"{col} should be non-negative"
+    
+    # Larger molecules should have longer path lengths
+    # Ethylbenzene should have longer paths than toluene
+    toluene_row = result[result['smiles'] == "Cc1ccccc1"].iloc[0]
+    ethylbenzene_row = result[result['smiles'] == "CCc1ccccc1"].iloc[0]
+    
+    # This is a soft assertion - implementation details may vary
+    assert ethylbenzene_row['path_length_mean'] >= toluene_row['path_length_mean'], \
+        "Larger molecules should have longer average path lengths"

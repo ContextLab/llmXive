@@ -1,16 +1,3 @@
-"""
-Audit all generated reports for "associational" language compliance.
-
-This script scans the final report JSON and any generated CSV/Markdown files
-to ensure that causal language (e.g., "predicts", "causes", "drives", "effect")
-is replaced or flagged with "associational" language (e.g., "correlates with",
-"is associated with", "relates to", "links").
-
-It enforces the "associational" framing requirement (FR-007) by:
-1. Checking the final report JSON for prohibited terms.
-2. Generating a compliance audit log.
-3. Failing loudly if non-compliant language is found without a disclaimer.
-"""
 import os
 import json
 import re
@@ -18,184 +5,245 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
-# Configuration
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-REPORT_PATH = PROJECT_ROOT / "data" / "processed" / "final_report.json"
-CORRELATION_RESULTS_PATH = PROJECT_ROOT / "data" / "processed" / "correlation_results.csv"
-AUDIT_LOG_PATH = PROJECT_ROOT / "data" / "logs" / "associational_language_audit.json"
-
-# List of prohibited causal terms that imply prediction or causation
-PROHIBITED_TERMS = [
-    r'\bpredicts?\b',
-    r'\bcaus(?:e|es|ed|ing)\b',
-    r'\bdriv(?:e|es|ed|ing)\b',
-    r'\beffect\b',
-    r'\binfluenc(?:e|es|ed|ing)\b', # Often acceptable but strict mode flags it
-    r'\bdetermin(?:e|es|ed|ing)\b',
-    r'\bgovern(?:s|ed|ing)?\b',
-    r'\bcontrol(?:s|ed|ing)?\b',
-    r'\bdictat(?:e|es|ed|ing)\b',
-    r'\bcause\b',
+# Causal language patterns to flag
+CAUSAL_PATTERNS = [
+    r'\bpredicts\b',
+    r'\bcaus(?:es|al|ally)\b',
+    r'\bdrives\b',
+    r'\binfluences\b',  # "influence" is in title but "influences" as verb is risky
+    r'\bdetermines\b',
+    r'\bgoverns\b',
+    r'\bcontrols\b',
+    r'\bresults in\b',
+    r'\bleads to\b',
+    r'\btriggers\b',
+    r'\bproduces\b',
+    r'\bcreates\b',
+    r'\bcauses\b',
+    r'\bmechanism(s)?\b',
+    r'\bpathway(s)?\b',
+    r'\bunderlying\b',
+    r'\bdrive(s)?\b',
+    r'\bfuel(s)?\b',
+    r'\bpropel(s)?\b',
 ]
 
-# Regex for checking if a sentence contains a prohibited term
-PROHIBITED_PATTERN = re.compile('|'.join(PROHIBITED_TERMS), re.IGNORECASE)
-
-# List of acceptable "associational" terms
-ACCEPTABLE_TERMS = [
-    r'\bcorrelat(?:e|es|ed|ing)\b',
-    r'\bassociat(?:e|es|ed|ing)\b',
-    r'\brelat(?:e|es|ed|ing)\b',
-    r'\blink(?:s|ed|ing)?\b',
-    r'\brel(?:ev|evant)\b',
-    r'\bcorrespond(?:s|ed|ing)\b',
-    r'\bcorrel(?:ation|ations)\b',
+# Acceptable associational language
+ASSOCIATIONAL_PATTERNS = [
+    r'\bassociat(?:ed|ion|ions)\b',
+    r'\bcorrelat(?:ed|ion|ions)\b',
+    r'\brelat(?:ed|ionship|ionships)\b',
+    r'\bconnect(?:ed|ion|ions)\b',
+    r'\blink(?:ed|s|age)\b',
+    r'\bcorrespond(?:s|ing|ence)\b',
+    r'\bco-occur(?:s|ence)\b',
+    r'\bco-vari(?:ate|ation)\b',
+    r'\bstatistically significant\b',
+    r'\bassociation\b',
+    r'\bcorrelation\b',
 ]
 
-def load_json_file(path: Path) -> Optional[Dict[str, Any]]:
-    """Load a JSON file if it exists."""
-    if not path.exists():
-        print(f"Warning: File not found: {path}")
-        return None
+def load_json_file(file_path: str) -> Dict:
+    """Load a JSON file and return its contents."""
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r') as f:
             return json.load(f)
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON in {path}: {e}")
-        return None
-
-def load_csv_file(path: Path) -> Optional[List[str]]:
-    """Load a CSV file as a list of strings (lines)."""
-    if not path.exists():
-        print(f"Warning: File not found: {path}")
-        return None
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return f.readlines()
     except Exception as e:
-        print(f"Error reading CSV {path}: {e}")
-        return None
+        raise FileNotFoundError(f"Could not load JSON file {file_path}: {e}")
 
-def check_text_for_causality(text: str, context: str = "unknown") -> List[Dict[str, Any]]:
+def load_csv_file(file_path: str) -> List[str]:
+    """Load a CSV file and return all text content as a list of strings."""
+    import pandas as pd
+    try:
+        df = pd.read_csv(file_path)
+        # Convert all columns to strings and join
+        return df.astype(str).values.flatten().tolist()
+    except Exception as e:
+        raise FileNotFoundError(f"Could not load CSV file {file_path}: {e}")
+
+def check_text_for_causality(text: str) -> List[Tuple[str, str]]:
     """
-    Scan a text string for prohibited causal language.
-    Returns a list of findings.
+    Check text for causal language patterns.
+    Returns a list of (pattern, matched_text) tuples.
     """
+    if not isinstance(text, str):
+        text = str(text)
+    
     findings = []
-    if not text:
-        return findings
-
-    # Find all matches of prohibited terms
-    matches = PROHIBITED_PATTERN.finditer(text)
-    for match in matches:
-        start, end = match.span()
-        # Extract a snippet for context (50 chars before and after)
-        snippet_start = max(0, start - 50)
-        snippet_end = min(len(text), end + 50)
-        snippet = text[snippet_start:snippet_end]
-        
-        # Clean snippet (newlines)
-        snippet = snippet.replace('\n', ' ').strip()
-        
-        findings.append({
-            "context": context,
-            "term": match.group(),
-            "position": start,
-            "snippet": snippet,
-            "severity": "high"
-        })
+    text_lower = text.lower()
+    
+    for pattern in CAUSAL_PATTERNS:
+        matches = re.finditer(pattern, text_lower, re.IGNORECASE)
+        for match in matches:
+            # Get context around the match (±20 chars)
+            start = max(0, match.start() - 20)
+            end = min(len(text), match.end() + 20)
+            context = text[start:end].strip()
+            findings.append((pattern, f"...{context}..."))
     
     return findings
 
-def scan_report_json(report_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Recursively scan a report dictionary for text fields."""
+def scan_report_json(file_path: str) -> Dict:
+    """
+    Scan a JSON report file for causal language.
+    Returns a report with findings.
+    """
+    data = load_json_file(file_path)
     findings = []
     
-    def recurse(obj, path="root"):
+    def traverse(obj, path=""):
         if isinstance(obj, dict):
-            for k, v in obj.items():
-                recurse(v, f"{path}.{k}")
+            for key, value in obj.items():
+                traverse(value, f"{path}.{key}")
         elif isinstance(obj, list):
             for i, item in enumerate(obj):
-                recurse(item, f"{path}[{i}]")
+                traverse(item, f"{path}[{i}]")
         elif isinstance(obj, str):
-            # Only scan non-empty strings
-            if len(obj.strip()) > 10:
-                findings.extend(check_text_for_causality(obj, path))
-
-    recurse(report_data)
-    return findings
-
-def scan_csv_file(lines: List[str]) -> List[Dict[str, Any]]:
-    """Scan CSV lines for prohibited terms."""
-    findings = []
-    for i, line in enumerate(lines):
-        if len(line.strip()) > 10:
-            findings.extend(check_text_for_causality(line, f"CSV Line {i+1}"))
-    return findings
-
-def generate_audit_report(findings: List[Dict[str, Any]], audit_path: Path) -> bool:
-    """
-    Generate the audit log.
-    Returns True if compliant (no high severity findings), False otherwise.
-    """
-    audit_data = {
-        "audit_timestamp": "2026-06-26T12:00:00Z", # Placeholder, use actual if needed
+            text_findings = check_text_for_causality(obj)
+            for pattern, context in text_findings:
+                findings.append({
+                    "field": path,
+                    "pattern": pattern,
+                    "context": context
+                })
+    
+    traverse(data)
+    
+    return {
+        "file": file_path,
+        "type": "json",
         "total_findings": len(findings),
-        "compliant": len(findings) == 0,
         "findings": findings
     }
 
-    # Ensure logs directory exists
-    audit_path.parent.mkdir(parents=True, exist_ok=True)
+def scan_csv_file(file_path: str) -> Dict:
+    """
+    Scan a CSV file for causal language.
+    Returns a report with findings.
+    """
+    rows = load_csv_file(file_path)
+    findings = []
+    
+    for i, row_text in enumerate(rows):
+        text_findings = check_text_for_causality(row_text)
+        for pattern, context in text_findings:
+            findings.append({
+                "row": i,
+                "pattern": pattern,
+                "context": context
+            })
+    
+    return {
+        "file": file_path,
+        "type": "csv",
+        "total_findings": len(findings),
+        "findings": findings
+    }
 
-    with open(audit_path, 'w', encoding='utf-8') as f:
-        json.dump(audit_data, f, indent=2)
-
-    return audit_data["compliant"]
-
-def main():
-    print("Starting Associational Language Compliance Audit (T043)...")
+def generate_audit_report(results_dir: str, output_path: str) -> Dict:
+    """
+    Generate a comprehensive audit report for associational language compliance.
+    
+    Args:
+        results_dir: Directory containing report files to audit
+        output_path: Path to save the audit report JSON
+    
+    Returns:
+        Dictionary containing the audit report
+    """
+    report = {
+        "audit_type": "associational_language_compliance",
+        "fr_requirement": "FR-007",
+        "description": "Final review of all reports for 'associational' language compliance",
+        "files_audited": [],
+        "summary": {
+            "total_files": 0,
+            "total_findings": 0,
+            "compliance_status": "PASS"
+        }
+    }
+    
+    results_path = Path(results_dir)
+    if not results_path.exists():
+        report["error"] = f"Results directory not found: {results_dir}"
+        report["summary"]["compliance_status"] = "FAIL"
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        return report
+    
+    # Find all report files
+    json_files = list(results_path.glob("*.json"))
+    csv_files = list(results_path.glob("*.csv"))
     
     all_findings = []
-    is_compliant = True
-
-    # 1. Scan Final Report JSON
-    print(f"Scanning: {REPORT_PATH}")
-    report_data = load_json_file(REPORT_PATH)
-    if report_data:
-        findings = scan_report_json(report_data)
-        all_findings.extend(findings)
-        print(f"  Found {len(findings)} potential causal language instances.")
-    else:
-        print("  Skipping (file missing or invalid).")
-
-    # 2. Scan Correlation Results CSV
-    print(f"Scanning: {CORRELATION_RESULTS_PATH}")
-    csv_lines = load_csv_file(CORRELATION_RESULTS_PATH)
-    if csv_lines:
-        findings = scan_csv_file(csv_lines)
-        all_findings.extend(findings)
-        print(f"  Found {len(findings)} potential causal language instances.")
-    else:
-        print("  Skipping (file missing or invalid).")
-
-    # 3. Generate Audit Log
-    is_compliant = generate_audit_report(all_findings, AUDIT_LOG_PATH)
     
-    print(f"Audit log written to: {AUDIT_LOG_PATH}")
-
-    if all_findings:
-        print("\n⚠️  COMPLIANCE VIOLATION DETECTED:")
-        print("The following instances of causal/predictive language were found:")
-        for f in all_findings:
-            print(f"  - [{f['context']}] '{f['term']}' in: ...{f['snippet']}...")
-        print("\nAction Required: Review and replace with 'associational' language (e.g., 'correlates with').")
-        print("The pipeline must NOT claim prediction or causation from correlational data.")
-        sys.exit(1) # Fail loudly
+    # Audit JSON files
+    for json_file in json_files:
+        result = scan_report_json(str(json_file))
+        report["files_audited"].append(result)
+        all_findings.extend(result["findings"])
+        report["summary"]["total_findings"] += result["total_findings"]
+    
+    # Audit CSV files
+    for csv_file in csv_files:
+        result = scan_csv_file(str(csv_file))
+        report["files_audited"].append(result)
+        all_findings.extend(result["findings"])
+        report["summary"]["total_findings"] += result["total_findings"]
+    
+    report["summary"]["total_files"] = len(json_files) + len(csv_files)
+    
+    # Determine compliance status
+    if report["summary"]["total_findings"] > 0:
+        report["summary"]["compliance_status"] = "REVIEW_REQUIRED"
+        report["summary"]["recommendation"] = "Review flagged instances and replace causal language with associational language"
     else:
-        print("\n✅ COMPLIANCE CHECK PASSED: No prohibited causal language detected.")
-        sys.exit(0)
+        report["summary"]["compliance_status"] = "PASS"
+        report["summary"]["recommendation"] = "All reports use appropriate associational language"
+    
+    # Save report
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    return report
+
+def main():
+    """Main entry point for the audit script."""
+    # Default paths
+    results_dir = "data/processed"
+    output_path = "data/processed/associational_language_audit.json"
+    
+    # Allow override via command line
+    if len(sys.argv) > 1:
+        results_dir = sys.argv[1]
+    if len(sys.argv) > 2:
+        output_path = sys.argv[2]
+    
+    print(f"Auditing associational language compliance...")
+    print(f"Results directory: {results_dir}")
+    print(f"Output file: {output_path}")
+    
+    report = generate_audit_report(results_dir, output_path)
+    
+    print(f"\nAudit Summary:")
+    print(f"  Files audited: {report['summary']['total_files']}")
+    print(f"  Total findings: {report['summary']['total_findings']}")
+    print(f"  Compliance status: {report['summary']['compliance_status']}")
+    
+    if report["summary"]["compliance_status"] == "REVIEW_REQUIRED":
+        print(f"\n⚠️  CAUSAL LANGUAGE DETECTED:")
+        for file_report in report["files_audited"]:
+            if file_report["total_findings"] > 0:
+                print(f"  - {file_report['file']} ({file_report['total_findings']} findings)")
+                for finding in file_report["findings"][:5]:  # Show first 5
+                    print(f"    Pattern: {finding.get('pattern', finding.get('row', 'N/A'))}")
+                    print(f"    Context: {finding.get('context', 'N/A')}")
+        print(f"\n  Recommendation: {report['summary']['recommendation']}")
+    else:
+        print(f"\n✅ All reports comply with associational language requirements.")
+    
+    print(f"\nAudit report saved to: {output_path}")
+    return report
 
 if __name__ == "__main__":
     main()

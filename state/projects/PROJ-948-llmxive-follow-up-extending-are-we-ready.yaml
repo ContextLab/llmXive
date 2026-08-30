@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T14:19:22.981716Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-948-llmxive-follow-up-extending-are-we-ready
-last_run_id: 3c0dcaa6-33f1-4320-9e17-93998f463625
+last_run_id: e885fc88-e840-4198-8dcd-0fa1b902476f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Are We Ready For An Agent-Native Memory System?"'
-updated_at: '2026-08-04T04:21:57.214873Z'
+updated_at: '2026-08-30T12:25:15.038167Z'

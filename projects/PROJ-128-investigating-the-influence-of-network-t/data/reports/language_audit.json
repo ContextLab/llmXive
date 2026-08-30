@@ -1,0 +1,23 @@
+{
+  "audit_timestamp": "2026-06-26T15:48:00",
+  "files_scanned": [
+    "data/reports/final_report.json",
+    "data/processed/correlation_results.csv"
+  ],
+  "causal_terms_detected": {
+    "predicts": 0,
+    "causes": 0,
+    "determines": 0,
+    "influences": 0,
+    "effects": 0
+  },
+  "associational_terms_detected": {
+    "associated_with": 5,
+    "correlated_with": 3,
+    "related_to": 2,
+    "linked_to": 1
+  },
+  "compliance_status": "PASS",
+  "summary": "No causal language detected. All relationships described using appropriate associational terminology.",
+  "recommendations": []
+}

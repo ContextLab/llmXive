@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Result Schema"
+description: "Schema for the output metrics including accuracy, F1, SSIM, and Keypoint scores."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    enum:
+      - "accuracy"
+      - "f1"
+      - "ssim"
+      - "keypoint_score"
+      - "permutation_p_value"
+    description: "The name of the metric."
+  value:
+    type: "number"
+    description: "The computed value of the metric."
+  p_value:
+    type: "number"
+    nullable: true
+    description: "The p-value associated with the metric (if applicable). Only defined for separability metrics."
+  is_significant:
+    type: "boolean"
+    description: "Whether the result is significant after Bonferroni correction (only for separability metrics)."
+  threshold:
+    type: "number"
+    nullable: true
+    description: "The threshold used for evaluation (e.g., 0.85 for SSIM)."
+  metadata:
+    type: "object"
+    description: "Additional context about the test (e.g., sample size, method)."
+required:
+  - "metric_name"
+  - "value"
+  - "is_significant"

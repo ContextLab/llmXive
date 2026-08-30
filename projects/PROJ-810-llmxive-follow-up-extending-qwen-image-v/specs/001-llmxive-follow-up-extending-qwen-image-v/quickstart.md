@@ -1,89 +1,54 @@
 # Quickstart: llmXive follow-up: extending "Qwen-Image-VAE-2.0 Technical Report"
 
 ## Prerequisites
-
 - Python 3.11+
-- Git
-- 7 GB+ RAM (free memory)
-- 14 GB+ disk space
+- 2 vCPU, 7 GB RAM (or access to a Kaggle GPU for the escape hatch).
+- Internet connection (for dataset streaming).
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v
-   ```
-
+1. **Clone the repository** and navigate to the project directory.
 2. **Create a virtual environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate
    ```
-
 3. **Install dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/requirements.txt
    ```
-   *Note: Ensure `torch` is installed as the CPU-only version.*
 
 ## Running the Pipeline
 
-### Step 1: Download Data
-Fetch the OmniDoc dataset (verified source).
+### 1. Data Download & Preprocessing
+The pipeline streams the dataset automatically. No manual download is required.
 ```bash
-python code/data/download.py
+python projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/src/main.py --phase data_load
 ```
-*Output: `data/raw/omni-doc.parquet`*
 
-### Step 2: Preprocess & Encode
-Crop regions, extract latent vectors, and compute centroids.
+### 2. Latent Extraction & Disentanglement Analysis
+Runs the encoding, SVM training, and permutation test.
 ```bash
-python code/data/preprocess.py
+python projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/src/main.py --phase disentanglement
 ```
-*Output: `data/processed/latent_vectors.parquet`, `data/processed/centroids.json`*
 
-### Step 3: Disentanglement Analysis
-Train the classifier, run permutation tests, and generate PCA plots.
+### 3. Zero-Shot Editing
+Performs vector arithmetic and generates edited images.
 ```bash
-python code/analysis/separability.py
+python projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/src/main.py --phase editing
 ```
-*Output: `data/interim/separability_metrics.json`, `figures/pca_plot.png`*
 
-### Step 4: Linearity & Orthogonality Check
-Validate geometric assumptions before editing.
+### 4. Full Run (End-to-End)
+Executes all phases in order.
 ```bash
-python code/analysis/linearity_check.py
+python projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/src/main.py --full
 ```
-*Output: `data/interim/linearity_metrics.json`*
-*Note: If this step fails (contamination > 15% or angle < 85), the pipeline halts.*
 
-### Step 5: Zero-Shot Editing & Evaluation
-Perform vector arithmetic, decode images, and compute SSIM/Keypoint scores.
-```bash
-python code/analysis/editing_eval.py
-```
-*Output: `data/processed/edited_images/`, `data/interim/editing_metrics.json`*
-
-### Step 6: Statistical Validation
-Apply Bonferroni correction and generate the final report.
-```bash
-python code/analysis/stats.py
-```
-*Output: `data/interim/final_report.json`*
-
-## Verification
-
-To verify the installation and pipeline integrity:
-```bash
-pytest tests/ -v --cov=code
-```
+## Output Verification
+- Check `data/results/metrics.json` for accuracy, F1, SSIM, and Keypoint scores.
+- Check `data/results/plots/` for PCA visualizations and edited image examples.
+- Verify that `p_value` < 0.05 (Bonferroni corrected) for primary findings.
 
 ## Troubleshooting
-
-- **OOM Error**: Reduce the batch size in `code/config.py` or sample a smaller subset of the dataset.
-- **CUDA Error**: Ensure `torch` is installed without CUDA support. Check `torch.cuda.is_available()` returns `False`.
-- **Dataset Missing**: Verify network access to the HuggingFace URL provided in `research.md`.
-- **Model Not Found**: If the specific Qwen-Image-VAE-2.0 model is not found on HuggingFace, the pipeline will halt with "Model Not Found".
-- **Schema Mismatch**: If the dataset lacks required columns (bbox, modality), the pipeline will halt with "Data Schema Mismatch".
-- **Linearity Fail**: If the linearity check fails, the editing pipeline halts and reports "Hypothesis Rejected: Space not linear/orthogonal".
+- **OOM Error**: If the process runs out of memory, the script will automatically reduce the batch size or trigger the GPU escape hatch (if configured).
+- **Dataset Error**: Ensure internet connectivity. If the Hugging Face dataset is inaccessible, the script will exit with a clear error message.
