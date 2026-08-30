@@ -83,10 +83,10 @@
 - [X] T052 [US2] Implement common support check in `src/analysis/psm.py` (after score calculation) to flag/exclude observations with extreme propensity scores (near 0 or 1)
 - [X] T023 [US2] Implement `src/analysis/balance.py` to calculate SMD for all matching variables and generate balance plots (love plot)
 - [X] T024 [US2] Implement iterative adjustment loop in `src/analysis/psm.py`: if SMD > 0.1, reduce caliper by 0.01 per iteration; if caliper < 0.01, remove lowest-weight covariate and retry; terminate after a maximum of a limited number of attempts; if still failing, set `balance_status` flag to trigger DiD fallback
-- [ ] T025 [US2] Implement placebo test logic in `src/analysis/balance.py` to check for significant differences in pre-treatment outcomes between matched groups
+- [X] T025 [US2] Implement placebo test logic in `src/analysis/balance.py` to check for significant differences in pre-treatment outcomes between matched groups
 - [ ] T046 [US2] Implement pipeline execution for placebo test: execute test in main flow, report p-value and pass/fail status, and gate causal estimation (trigger fallback/halt if significant)
-- [ ] T026 [US2] Create `tests/unit/test_psm.py` to verify matching logic, caliper enforcement, and SMD calculation
-- [ ] T027 [US2] Create `tests/unit/test_balance.py` to verify SMD thresholds, placebo test significance logic, and DiD trigger logic
+- [X] T026 [US2] Create `tests/unit/test_psm.py` to verify matching logic, caliper enforcement, and SMD calculation
+- [X] T027 [US2] Create `tests/unit/test_balance.py` to verify SMD thresholds, placebo test significance logic, and DiD trigger logic
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -100,12 +100,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T054 [US3] Implement DiD fallback logic in `src/analysis/causal.py`: FIRST perform 'Longitudinal Data Availability Check' by verifying presence of `pre_treatment_outcome` and `post_treatment_outcome` columns; if missing, raise `DataUnavailableError: Longitudinal data required for DiD but columns missing`; if present AND PSM balance failed, execute DiD; otherwise skip
-- [ ] T028 [US3] Implement `src/analysis/causal.py` to run OLS regression with cluster-robust standard errors (clustered by matched pair) on `log(energy_cost)` as the primary outcome
+- [X] T054 [US3] Implement DiD fallback logic in `src/analysis/causal.py`: FIRST perform 'Longitudinal Data Availability Check' by verifying presence of `pre_treatment_outcome` and `post_treatment_outcome` columns; if missing, raise `DataUnavailableError: Longitudinal data required for DiD but columns missing`; if present AND PSM balance failed, execute DiD; otherwise skip
+- [X] T028 [US3] Implement `src/analysis/causal.py` to run OLS regression with cluster-robust standard errors (clustered by matched pair) on `log(energy_cost)` as the primary outcome
 - [ ] T053 [US3] Implement control flow logic to consume `balance_status` flag from Phase 4 and conditionally trigger T054 (DiD) or proceed to T028 (OLS); if DiD is triggered but data is missing, trigger the specific error path defined in T054
-- [ ] T030 [US3] Implement `src/analysis/sensitivity.py` to sweep calipers over a range of small values by calling reusable functions from T022 and T028; compile ATT estimates, p-values, and confidence intervals
+- [X] T030 [US3] Implement `src/analysis/sensitivity.py` to sweep calipers over a range of small values by calling reusable functions from T022 and T028; compile ATT estimates, p-values, and confidence intervals
 - [ ] T031 [US3] Implement result serialization in `src/models/output.py` to save `AnalysisResult` objects (ATT, p-value, CI, methodology, sensitivity data) to JSON/Parquet
-- [ ] T032 [US3] Create `tests/integration/test_pipeline.py` to verify end-to-end flow from ingestion to sensitivity report generation
+- [X] T032 [US3] Create `tests/integration/test_pipeline.py` to verify end-to-end flow from ingestion to sensitivity report generation
 - [ ] T033 [US3] Create `tests/unit/test_causal.py` to verify OLS and DiD estimation logic and cluster-robust standard errors
 
 **Checkpoint**: All user stories should now be independently functional

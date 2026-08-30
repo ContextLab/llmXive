@@ -114,7 +114,7 @@ description: "Task list template for feature implementation"
 - [ ] T026 [US2] Implement `code/descriptors.py` to save computed descriptors to `data/processed/descriptors.csv` to serve as input for US3 analysis tasks. <!-- FAILED: unspecified -->
 - [X] T022 [US2] Implement `code/train.py` with GradientBoostingRegressor and Leave-One-Family-Out (LOFO) cross-validation (FR-003)
 - [X] T023 [US2] Implement grid search in `code/train.py` for hyperparameter optimization (≤10 combos) (FR-003)
-- [ ] T024 [US2] Save model artifacts to `artifacts/models/best_model.pkl` and metrics to `artifacts/metrics/metrics.json` including R², MAE, and feature importances (SC-001).
+- [ ] T024 [US2] Save model artifacts to `artifacts/models/best_model.pkl` and metrics to `artifacts/metrics/metrics.json` including R², MAE, and feature importances (SC-001). <!-- FAILED: unspecified -->
 - [X] T025 [US2] Integrate `code/resource_monitor.py` into `code/train.py` to enforce runtime < 6h and RAM < 7GB (FR-005, SC-004). Verification: Pipeline must exit gracefully with an error if limits are exceeded.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -134,14 +134,14 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `code/analyze.py` for Pearson/Spearman correlation calculation between predictors (FR-009). **Input**: `data/processed/descriptors.csv`. **Output**: Save correlation matrix to `data/processed/correlation_matrix.csv`.
+- [ ] T033 [US3] Implement `code/analyze.py` for Pearson/Spearman correlation calculation between predictors (FR-009). **Input**: `data/processed/descriptors.csv`. **Output**: Save correlation matrix to `data/processed/correlation_matrix.csv`. <!-- ATOMIZE: requested -->
 - [X] T034 [US3] Implement `code/analyze.py` for Benjamini-Hochberg FDR correction on correlations (α ≤ 0.05) as per Spec FR-008. **Input**: Results from T033.
 - [ ] T035 [US3] Implement `code/analyze.py` for VIF calculation. If VIF > 5, **flag** for diagnostic review (do NOT drop). Save diagnostic log to `data/processed/vif_diagnostic_log.json` (FR-007, Spec). **Input**: `data/processed/descriptors.csv`.
 - [ ] T036 [US3] Implement `code/analyze.py` for bootstrapping with 1000 resamples to calculate 95% CI for feature importance (SC-002). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024. **Output**: Save stability metrics to `artifacts/metrics/stability_metrics.json`.
 - [ ] T037 [US3] Implement sensitivity analysis in `code/analyze.py`: sweep `max_depth` ∈ {3, 5, 7} and report variance of R² scores (FR-006). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024.
-- [ ] T038 [US3] Save stability metrics (95% CI for feature importance) to `artifacts/metrics/stability_metrics.json` (SC-002)
-- [ ] T039 [US3] Implement `code/report.py` to generate visualizations (partial dependence plots, correlation matrices) and include numerical stability metrics (SC-002). **Input**: `artifacts/metrics/stability_metrics.json`, `artifacts/models/best_model.pkl`. **Depends on**: T038.
-- [ ] T049 [US3] Implement `code/report.py` to enforce associational language (FR-004) and insert "These findings are associational only" into `artifacts/reports/final_report.md`.
+- [~] T038 [US3] Save stability metrics (95% CI for feature importance) to `artifacts/metrics/stability_metrics.json` (SC-002) <!-- FAILED: unspecified -->
+- [~] T039 [US3] Implement `code/report.py` to generate visualizations (partial dependence plots, correlation matrices) and include numerical stability metrics (SC-002). **Input**: `artifacts/metrics/stability_metrics.json`, `artifacts/models/best_model.pkl`. **Depends on**: T038.
+- [~] T049 [US3] Implement `code/report.py` to enforce associational language (FR-004) and insert "These findings are associational only" into `artifacts/reports/final_report.md`.
 - [ ] T050 [US3] Generate final report artifact `artifacts/reports/final_report.md`. **Input**: T039, T049. **Depends on**: T049.
 - [ ] T051 [US3] Validate report against `artifact.schema.yaml` (Single Source of Truth).
 

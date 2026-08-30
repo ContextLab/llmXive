@@ -43,7 +43,7 @@
 - [X] T004 [P] Implement `code/data/dp_noise.py` for calibrated Laplace and Gaussian noise injection (CPU-only, no 8-bit quantization)
 - [X] T005 [P] Create `code/utils/update_state.py` for post-run artifact hashing and state updates
 - [X] T006 [P] Implement `code/data/__init__.py` and `code/utils/__init__.py` package initializers
-- [ ] T014a [P] [US1] Implement `code/analysis/edge_cases.py` function `clamp_noise_scale` to handle cases where noise scale exceeds data range (small $\epsilon$). **(Creates module for T013a)**
+- [X] T014a [P] [US1] Implement `code/analysis/edge_cases.py` function `clamp_noise_scale` to handle cases where noise scale exceeds data range (small $\epsilon$). **(Creates module for T013a)**
 - [ ] T014b [P] [US1] Implement `code/analysis/edge_cases.py` function `detect_collinearity` to handle collinear predictors in regression, dropping one and logging the action. **(Creates module for T013a)**
 - [ ] T014c [P] [US1] Implement `code/analysis/edge_cases.py` function `enforce_min_sample_size` to enforce minimum sample size for valid bootstrap (n < 10 check). **(Creates module for T013a)**
 

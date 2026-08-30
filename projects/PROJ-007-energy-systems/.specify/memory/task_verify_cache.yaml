@@ -18,3 +18,17 @@ T004:
   r: No `pytest` configuration file (e.g., `pytest.ini`, `conftest.py`) or `.gitignore`
     that excludes data artifacts is present in the provided evidence. Without these
     files, the task of setting up pytest and a proper .gitignore has not been fulfilled.
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output files were provided that demonstrate a pipeline executing\
+    \ the placebo test, reporting a p\u2011value and pass/fail status, or gating the\
+    \ causal\u2011effect estimation based on that result. Consequently the required\
+    \ artifact is missing."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or configuration file implementing the required control\u2011\
+    flow logic was provided. The claim lacks any artifact that consumes the `balance_status`\
+    \ flag, conditionally invokes T054 (DiD) or proceeds to T028 (OLS), and handles\
+    \ the missing\u2011data error path for DiD. The necessary implementation is missing."

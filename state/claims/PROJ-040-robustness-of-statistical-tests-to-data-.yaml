@@ -2492,3 +2492,276 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T13:51:20Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 0
+  canonical: 'Project dependencies pinned: numpy 1.26.4, scipy 1.12.0, pandas 2.2.0,
+    matplotlib 3.8.0, requests 2.31.0, pytest 7.4.0'
+  claim_id: c_60b303c4
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with code/requirements.txt containing
+    pinned dependencies: numpy==1.26.4, scipy==1.12.0, pandas==2.2.0, matplotlib==3.8.0,
+    requests==2.31.0, pytest==7.4.0'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T01:14:14Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: Black line-length configured to 88
+  claim_id: c_4710532a
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure linting (ruff) and formatting (black) tools: Create pyproject.toml
+    with black (line-length=88) and ruff (target-version=py311) configuration'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:14:53Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: Contamination rates 0.01, 0.05, 0.10, 0.20 not hardcoded in spec
+  claim_id: c_96b7c7a5
+  context: 'Phase 3: Spec Resolution & Alignment - Task T008.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Do NOT hardcode specific values [0.01, 0.05, 0.10, 0.20] into the spec
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:15:27Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: UCI HAR dataset identified with arXiv ID 2505.06730
+  claim_id: c_f9527351
+  context: 'Phase 3: Spec Resolution & Alignment - Task T008.1'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Add a new 'Spec Deviation' section to spec.md detailing this change and
+    update the 'Key Entities' section to reflect the actual datasets used (UCI HAR
+    (2505.06730, https://arxiv.org/abs/2505.06730), UCI Wine)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T01:15:29Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis sweep range: 1\u03C3 to 10\u03C3 with 1\u03C3 step"
+  claim_id: c_6a971e2b
+  context: 'Phase 4: User Story 1 - Task T014'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweep_range:_1%CF%83_to_10%CF%83_with_1%CF%83_step
+  kind: entity_fact
+  raw_text: "Implement sensitivity analysis sweep for contamination magnitude thresholds\
+    \ (\u03C3 to 10\u03C3, step 1\u03C3) in code/data/generate_contamination.py, outputting\
+    \ to data/results/sensitivity.csv with columns [threshold, false_positive_rate,\
+    \ variation_in_fpr]"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:16:25Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: 'Monte Carlo simulation sample size: 1000 per condition'
+  claim_id: c_028dec7f
+  context: 'Phase 5: User Story 2 - Goal'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run Monte Carlo simulations (n=1000 per condition) of standard t-tests
+    and ANOVA on clean and contaminated data to estimate Type I error and power
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:17:24Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: Monte Carlo loop reproducibility verified with seed 42
+  claim_id: c_54b7c9ac
+  context: 'Phase 5: User Story 2 - Task T015'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test for Monte Carlo loop logic in tests/unit/test_simulation.py
+    (verify seed 42 reproducibility)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:17:38Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: 'Simulation completion constraint: 6 hours on 2 CPU cores and 7GB RAM'
+  claim_id: c_67737d34
+  context: Notes - Critical Constraints
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All simulations MUST complete within 6 hours on 2 CPU cores, 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:18:23Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: Datasets sourced from verified UCI/OpenML lists
+  claim_id: c_e667db6c
+  context: Notes - Critical Constraints
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_sourced_from_verified_UCI/OpenML_lists
+  kind: entity_fact
+  raw_text: All datasets must be from verified UCI/OpenML sources listed in plan.md
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:19:13Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 0
+  canonical: UCI HAR dataset arXiv ID 2505.06730
+  claim_id: c_fa89c864
+  context: 'Phase 3: Spec Resolution & Alignment - T008.1 update to Key Entities section'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: UCI HAR (2505.06730, https://arxiv.org/abs/2505.06730)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T01:20:31Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulation sample size n=1000 per condition
+  claim_id: c_cafa3083
+  context: 'Phase 5: User Story 2 - Goal description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run Monte Carlo simulations (n=1000 per condition) of standard t-tests
+    and ANOVA
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:21:01Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: "Sensitivity analysis sweep: contamination magnitude 1\u03C3 to 10\u03C3\
+    \ with 1\u03C3 step"
+  claim_id: c_4f9cf286
+  context: 'Phase 4: User Story 1 - Implementation task T014'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweep:_contamination_magnitude_1%CF%83_to_10
+  kind: entity_fact
+  raw_text: "Implement sensitivity analysis sweep for contamination magnitude thresholds\
+    \ (\u03C3 to 10\u03C3, step 1\u03C3)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:21:22Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: Standard simulation Type I error verification target 0.05
+  claim_id: c_a5750b12
+  context: Implementation Strategy - MVP First step 6
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Test standard simulation on clean data and verify Type I error \u2248\
+    \ 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:22:08Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: 'Simulation execution constraint: 6 hours on 2 CPUs and 7GB RAM'
+  claim_id: c_a9aac9a6
+  context: Notes - Critical Constraints
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All simulations MUST complete within 6 hours on 2 CPU cores, 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:22:08Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: No GPU usage constraint
+  claim_id: c_a39ed426
+  context: Notes - Critical Constraints
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_GPU_usage_constraint
+  kind: entity_fact
+  raw_text: No GPU usage
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:22:54Z'
+- artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
+  attempts: 1
+  canonical: 'Precision constraint: numpy/scipy default only'
+  claim_id: c_42d469e6
+  context: Notes - Critical Constraints
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Precision_constraint:_numpy/scipy_default_only
+  kind: entity_fact
+  raw_text: Use numpy/scipy default precision only
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:23:34Z'

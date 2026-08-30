@@ -1,20 +1,25 @@
-# Ruff configuration for PROJ-710
+# This file is a duplicate of the configuration in pyproject.toml
+# for tools that do not yet support pyproject.toml for Ruff.
 line-length = 88
-target-version = "py310"
-
-[lint]
+target-version = "py39"
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
 ]
 ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in tests)
+    "E501",
+    "B008",
 ]
-
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "__pycache__",
+]

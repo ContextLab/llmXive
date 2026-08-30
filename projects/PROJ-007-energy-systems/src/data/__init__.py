@@ -1,1 +1,3 @@
-"""Data ingestion and preprocessing modules."""
+"""
+Data module for ingestion, preprocessing, and cleaning.
+"""

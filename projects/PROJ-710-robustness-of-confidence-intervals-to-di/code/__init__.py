@@ -1,3 +1,3 @@
 """
-Main package for the Robustness of Confidence Intervals to Differential Privacy Noise project.
+llmXive Research Pipeline - Code Package
 """

@@ -1,0 +1,14 @@
+# This file is a duplicate of the configuration in pyproject.toml
+# for tools that do not yet support pyproject.toml for Black.
+line-length = 88
+target-version = ["py39", "py310", "py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.venv
+    | venv
+    | build
+    | dist
+)/
+'''

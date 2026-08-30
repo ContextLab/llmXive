@@ -1169,3 +1169,149 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T14:15:38Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Zenodo API client handles 10.5281/zenodo.10043838 and 10.5281/zenodo.11023456
+    DOIs
+  claim_id: c_353feccd
+  context: T002 [P] Implement Zenodo API client in code/zenodo_client.py to fetch
+    datasets using DOIs from config.yaml.
+  evidence:
+    asserted: '10.5281'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: citation
+  raw_text: The client must handle authentication, rate limits, and raise a specific
+    DataUnavailableError if both primary (10.5281/zenodo.10043838) and fallback (10.5281/zenodo.11023456)
+    DOIs are unreachable.
+  resolved_value: '6.2832'
+  resolver: approximate
+  source_hash: ba1971524b041155cafba7429bff22ca2554724a1e5332ff746f971b242821dd
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T00:48:13Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Descriptor calculation uses mendeleev version 0.31.0
+  claim_id: c_03710e73
+  context: T020 [P] [US2] Implement code/descriptors.py to compute radius mismatch,
+    electronegativity difference, VEC using mendeleev==0.31.0 (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/descriptors.py to compute radius mismatch, electronegativity
+    difference, VEC using mendeleev==0.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T00:48:43Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Hyperparameter optimization grid search limited to 10 combinations
+  claim_id: c_3b2148c0
+  context: "T023 [US2] Implement grid search in code/train.py for hyperparameter optimization\
+    \ (\u226410 combos) (FR-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement grid search in code/train.py for hyperparameter optimization\
+    \ (\u226410 combos)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T00:48:43Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Model training limited to 6 hours runtime and 7GB RAM
+  claim_id: c_ec5e77e2
+  context: T025 [US2] Integrate code/resource_monitor.py into code/train.py to enforce
+    runtime < 6h and RAM < 7GB (FR-005, SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate code/resource_monitor.py into code/train.py to enforce runtime
+    < 6h and RAM < 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T00:48:43Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction uses alpha 0.05
+  claim_id: c_528639ff
+  context: "T034 [US3] Implement code/analyze.py for Benjamini-Hochberg FDR correction\
+    \ on correlations (\u03B1 \u2264 0.05) as per Spec FR-008."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/analyze.py for Benjamini-Hochberg FDR correction on correlations\
+    \ (\u03B1 \u2264 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T00:48:43Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: VIF calculation flags values greater than 5
+  claim_id: c_33aa2abd
+  context: T035 [US3] Implement code/analyze.py for VIF calculation. If VIF > 5, flag
+    for diagnostic review (do NOT drop).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_calculation_flags_values_greater_than_5
+  kind: magnitude
+  raw_text: Implement code/analyze.py for VIF calculation. If VIF > 5, flag for diagnostic
+    review
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T00:49:21Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Bootstrapping uses 1000 resamples for 95% confidence interval
+  claim_id: c_42eed3ab
+  context: T036 [US3] Implement code/analyze.py for bootstrapping with 1000 resamples
+    to calculate 95% CI for feature importance (SC-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analyze.py for bootstrapping with 1000 resamples to calculate
+    95% CI for feature importance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T00:50:07Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps max_depth values 3, 5, and 7
+  claim_id: c_c338e8aa
+  context: "T037 [US3] Implement sensitivity analysis in code/analyze.py: sweep max_depth\
+    \ \u2208 {3, 5, 7} and report variance of R\xB2 scores (FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis in code/analyze.py: sweep max_depth \u2208\
+    \ {3, 5, 7} and report variance of R\xB2 scores"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T00:51:17Z'

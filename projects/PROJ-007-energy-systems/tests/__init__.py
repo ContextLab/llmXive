@@ -1,1 +1,3 @@
-"""Test suite for the energy systems pipeline."""
+"""
+Test suite for PROJ-007-energy-systems.
+"""

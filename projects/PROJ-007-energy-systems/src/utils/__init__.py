@@ -1,1 +1,3 @@
-"""Utility functions and configuration."""
+"""
+Utilities module for logging, seeding, and common helpers.
+"""

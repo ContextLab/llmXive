@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/uci-ml-repository/wine-quality-red/resolve/main/winequality-red.csv
   verified_at: '2026-07-05T10:14:52.984495Z'
-- artifact_hash: a1625b28d9a021c88204f97db7161c48af1192a37dde0d0982b0bfee00496bd0
+- artifact_hash: 3962d28202fd102d414d77d32611d91d50d0d95323783c6d7b1df738ed05d27b
   artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -29,6 +29,6 @@
     with &amp; without missing Sensor Data'
   kind: url
   value: https://arxiv.org/abs/2505.06730
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2505.06730
-  verified_at: '2026-07-05T13:51:21.298038Z'
+  verified_at: '2026-08-30T01:23:34.817324Z'

@@ -70,7 +70,7 @@
 
 - [ ] T008.0 [P] Update spec.md FR-002 to reference the contamination rates that will be determined in `research.md` (e.g., "See research.md for resolved rates") or maintain '[deferred]' if research is pending. Do NOT hardcode specific values [0.01, 0.05, 0.10, 0.20] into the spec. Ensure the spec reflects the research output, not the other way around.
 - [ ] T008.0.1 [P] Add a 'Spec Deviation' section to spec.md explicitly documenting that empirical quantities (contamination rates) are deferred to the research phase, aligning with Constitution Principle II.
-- [ ] T008.1 [P] Update spec.md FR-003 to reflect dataset substitution (UCI HAR/Wine instead of Iris/Breast Cancer) and explicitly reference the 'Spec Deviation Log' in plan.md. Add a new 'Spec Deviation' section to spec.md detailing this change and update the 'Key Entities' section to reflect the actual datasets used (UCI HAR (2505.06730, https://arxiv.org/abs/2505.06730) [UNRESOLVED-CLAIM: c_4bb2bbc1 — status=verified], UCI Wine).
+- [ ] T008.1 [P] Update spec.md FR-003 to reflect dataset substitution (UCI HAR/Wine instead of Iris/Breast Cancer) and explicitly reference the 'Spec Deviation Log' in plan.md. Add a new 'Spec Deviation' section to spec.md detailing this change and update the 'Key Entities' section to reflect the actual datasets used (UCI HAR (2505.06730, https://arxiv.org/abs/2505.06730) [UNRESOLVED-CLAIM: c_fa89c864 — status=verified], UCI Wine).
 - [ ] T008.2 [P] Update spec.md User Story 2 acceptance criteria to require 'resampling from a single homogeneous population' instead of 'shuffling labels', aligning with the plan.
 - [~]T008.2.1 [P] Update the 'Independent Test' section of User Story 2 in spec.md to replace 'shuffling labels' with 'resampling from a single homogeneous population', ensuring full alignment with the plan.
 - [ ] T008.3 [P] Update spec.md FR-007 to mandate 'associational observations' instead of 'causal findings', resolving the internal contradiction.
@@ -96,8 +96,8 @@
 - [X] T010 [P] [US1] Implement `code/data/download_datasets.py` to fetch UCI HAR and UCI Wine via `wget`/`requests` and validate numeric columns
 - [X] T011 [US1] Implement `code/data/generate_contamination.py` to inject Gaussian noise and extreme outliers at rates defined in `config.py` (which is populated by `research.md` or defaults) using `numpy`. Do NOT read rates directly from spec.md.
 - [X] T012 [US1] Add logic to handle missing values (impute or log warning) and skip non-numeric columns in `code/data/generate_contamination.py`
-- [~] T013 [US1] Save contaminated datasets to `data/processed/` with derivation logs and checksums
-- [X] T014 [US1] Implement sensitivity analysis sweep for contamination magnitude thresholds (σ to 10σ, step 1σ) in `code/data/generate_contamination.py`, outputting to `data/results/sensitivity.csv` with columns [threshold, false_positive_rate, variation_in_fpr]. Explicitly map 'variation_in_fpr' to SC-005's requirement for 'variation in false-positive rates'.
+- [ ] T013 [US1] Save contaminated datasets to `data/processed/` with derivation logs and checksums
+- [X] T014 [US1] Implement sensitivity analysis sweep for contamination magnitude thresholds (σ to 10σ, step 1σ) [UNRESOLVED-CLAIM: c_4f9cf286 — status=not_enough_info] in `code/data/generate_contamination.py`, outputting to `data/results/sensitivity.csv` with columns [threshold, false_positive_rate, variation_in_fpr]. Explicitly map 'variation_in_fpr' to SC-005's requirement for 'variation in false-positive rates'.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,19 +105,19 @@
 
 ## Phase 5: User Story 2 - Execute Monte Carlo Simulation (Priority: P1)
 
-**Goal**: Run Monte Carlo simulations (n=1000 per condition) of standard t-tests and ANOVA on clean and contaminated data to estimate Type I error and power [UNRESOLVED-CLAIM: c_ca8b7e92 — status=not_enough_info] to estimate Type I error and power
+**Goal**: Run Monte Carlo simulations (n=1000 per condition) of standard t-tests and ANOVA [UNRESOLVED-CLAIM: c_cafa3083 — status=not_enough_info] on clean and contaminated data to estimate Type I error and power to estimate Type I error and power
 
 **Independent Test**: {{claim:c_6130269b}}
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T015 [P] [US2] Unit test for Monte Carlo loop logic in `tests/unit/test_simulation.py` (verify seed 42 reproducibility)
-- [~] T016 [P] [US2] Integration test for Type I error calculation on clean data in `tests/integration/test_simulation_pipeline.py`
+- [ ] T016 [P] [US2] Integration test for Type I error calculation on clean data in `tests/integration/test_simulation_pipeline.py`
 
 ### Implementation for User Story 2
 
 - [X] T017 [P] [US2] Implement `code/utils/stats_helpers.py` with functions for standard t-test, ANOVA, and Bonferroni correction
-- [~] T018 [US2] Implement `code/data/run_simulation.py` to execute multiple iterations per condition (dataset x contamination rate x magnitude) for UCI HAR and UCI Wine, saving results to `data/results/simulation_results.csv` with columns [dataset, rate, error_rate, power]. Explicitly depend on T014's output (`sensitivity.csv`) for the magnitude parameter sweep.
+- [ ] T018 [US2] Implement `code/data/run_simulation.py` to execute multiple iterations per condition (dataset x contamination rate x magnitude) for UCI HAR and UCI Wine, saving results to `data/results/simulation_results.csv` with columns [dataset, rate, error_rate, power]. Explicitly depend on T014's output (`sensitivity.csv`) for the magnitude parameter sweep.
 - [ ] T019 [US2] Implement logic to resample from a single homogeneous population for Type I error (null hypothesis) instead of label shuffling, per spec.md User Story 2. Algorithm: sample with replacement from the pooled data of both groups to ensure a true null hypothesis.
 - [ ] T019.1 [US2] Update the 'Independent Test' section of User Story 2 in spec.md to replace 'shuffling labels' with 'resampling from a single homogeneous population', ensuring traceability between spec and code.
 - [ ] T020 [US2] Apply memory limit checks and dataset sampling if necessary during simulation execution
@@ -224,7 +224,7 @@ Task: "Write failing unit tests for Monte Carlo loop logic"
 3. Complete Phase 3: Spec Resolution (CRITICAL - aligns spec and tasks)
 4. Complete Phase 4: User Story 1 (Data Generation)
 5. Complete Phase 5: User Story 2 (Standard Simulation)
-6. **STOP and VALIDATE**: Test standard simulation on clean data and verify Type I error ≈ 0.05
+6. **STOP and VALIDATE**: Test standard simulation on clean data and verify Type I error ≈ 0.05 [UNRESOLVED-CLAIM: c_a5750b12 — status=not_enough_info]
 7. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -257,7 +257,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All simulations MUST complete within 6 hours on 2 CPU cores, 7GB RAM [UNRESOLVED-CLAIM: c_1fa12f75 — status=not_enough_info] Use sampling if necessary.
-- **Critical Constraint**: No GPU usage. Use `numpy`/`scipy` default precision only.
+- **Critical Constraint**: All simulations MUST complete within 6 hours on 2 CPU cores, 7GB RAM [UNRESOLVED-CLAIM: c_a9aac9a6 — status=not_enough_info] Use sampling if necessary.
+- **Critical Constraint**: No GPU usage [UNRESOLVED-CLAIM: c_a39ed426 — status=not_enough_info]. Use `numpy`/`scipy` default precision only.
 - **Critical Constraint**: All datasets must be from verified UCI/OpenML sources listed in `plan.md`.
 - **Critical Constraint**: Spec must be updated before implementation to resolve contradictions and deferred values.

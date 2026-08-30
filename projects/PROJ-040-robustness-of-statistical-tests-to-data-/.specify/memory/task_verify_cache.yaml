@@ -1,0 +1,39 @@
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any files under `data/processed/` was provided, nor any derivation
+    logs or checksum files accompanying contaminated datasets. Without these concrete
+    artifacts, the requirement to save contaminated datasets with logs and checksums
+    is not satisfied.
+T016:
+  c: false
+  h: 30390ef67d8803838f05e0482dd0ff8bf143f7f0ebdb4d84a70b72dfcb322a2b
+  r: "The required integration test file `tests/integration/test_simulation_pipeline.py`\
+    \ does not exist in the repository, so the task\u2019s deliverable is missing.\
+    \ No test code is present to verify Type I error calculation on clean data."
+T018:
+  c: false
+  h: 56f0aa7a7b3c4255d32f138c79344ab9b3c4dc9cdc8b4541fa38186e56d21315
+  r: "The `run_simulation.py` file is present but the shown code is truncated and\
+    \ does not contain a loop over datasets, contamination rates, and magnitude values,\
+    \ nor does it aggregate error rates/power or write `data/results/simulation_results.csv`.\
+    \ Moreover, the required results CSV file is missing from the repository. The\
+    \ task\u2019s core output is therefore not produced."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data file implementing the required resampling from a single\
+    \ homogeneous population is present. The task demanded concrete logic (e.g., a\
+    \ function that samples with replacement from the pooled groups to generate null\u2011\
+    hypothesis data) and corresponding artifact(s) (source file, notebook, or test\
+    \ output). Since no such artifact exists, the requirement is not satisfied."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (code, script, configuration, or documentation) was provided that\
+    \ implements memory\u2011limit monitoring or conditional dataset sampling for\
+    \ the simulation runs. Consequently the requirement to \u201Capply memory limit\
+    \ checks and dataset sampling if necessary during simulation execution\u201D is\
+    \ not demonstrated. The next implementer must add and expose the relevant implementation\
+    \ (e.g., a function or script that enforces a memory cap and triggers down\u2011\
+    sampling when the cap would be exceeded)."

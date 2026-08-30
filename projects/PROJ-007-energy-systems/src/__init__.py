@@ -1,6 +1,3 @@
 """
-Energy Systems Inequity Research Pipeline.
-
-This package implements a causal inference and scaling law analysis
-for energy consumption patterns in low-income communities.
+PROJ-007-energy-systems: Automated science pipeline for energy inequity analysis.
 """

@@ -36,9 +36,10 @@ pip-delete-this-directory.txt
 htmlcov/
 .coverage
 .coverage.*
-cover/
+cover
 .hypothesis/
-.pytest_cache/
+.tox/
+.nox/
 
 # Translations
 *.mo
@@ -53,38 +54,56 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
+# Jupyter Notebook
+.ipynb_checkpoints
 
-# OS
-.DS_Store
-Thumbs.db
+# pyenv
+.python-version
 
-# Project specific: Data artifacts (generated data, not source)
+# Cython debug symbols
+cython_debug/
+
+# Data Artifacts (EXCLUDED from git)
 data/raw/
 data/processed/
-data/interim/
 data/external/
+data/interim/
 data/*.csv
 data/*.parquet
 data/*.json
 data/*.db
+data/*.sqlite
 data/*.xlsx
+data/*.xls
 
 # Figures
 figures/*.png
-figures/*.pdf
 figures/*.jpg
+figures/*.pdf
+figures/*.svg
 
 # Logs
 logs/
 *.log
 
-# Temporary files
-tmp/
-temp/
-*.tmp
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.cache/

@@ -3498,3 +3498,190 @@
   source_type: external
   status: refuted
   updated_at: '2026-08-09T03:52:48Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Synthetic populations generated for UCI Adult, Iris, and Wine Quality
+    distributions include known mean, variance, and coefficients
+  claim_id: c_d30a532a
+  context: 'T003: Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for UCI Adult, UCI Iris, and UCI Wine Quality distributions. The generation
+    MUST create a population with known parameters (mean, variance, coefficients)
+    to serve as ground truth.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_populations_generated_for_UCI_Adult,_Iris,_and_Win
+  kind: entity_fact
+  raw_text: The generation MUST create a population with known parameters (mean, variance,
+    coefficients) to serve as ground truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T00:59:42Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Simulation count N_sim set to 1000
+  claim_id: c_3ac1c8c9
+  context: 'T002: Implement code/config.py with hyperparameters, random seeds, artifact
+    paths, and nominal_coverage_target (default a high confidence threshold). Set
+    N_sim = 1000 to match plan feasibility check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:00:09Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Bias-correction and variance-inflation formulas verified against Covington
+    et al. 2021 and Karwa & Vadhan 2017
+  claim_id: c_085a5223
+  context: 'T020: Implement code/analysis/adjustments.py with bias-correction and
+    variance-inflation methods. Mandatory: Verify the specific formulas against the
+    cited literature (Covington et al. 2021 and Karwa & Vadhan 2017) before implementation
+    to satisfy the ''Verified Accuracy'' constitution principle.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the specific formulas against the cited literature (Covington et
+    al. 2021 and Karwa & Vadhan 2017) before implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:01:24Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Feasibility check micro-benchmark uses 100 samples and 10 bootstrap resamples
+    to verify 1000 simulations fit in 6 hours
+  claim_id: c_6c4a698a
+  context: 'T040: Add a code/utils/feasibility_check.py script that runs a micro-benchmark
+    (e.g., 100 samples, 10 bootstrap resamples) at startup to verify that the full
+    N_sim=1000 simulation will fit within the 6-hour runtime limit on the target CPU
+    runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a micro-benchmark (e.g., 100 samples, 10 bootstrap resamples) at startup
+    to verify that the full N_sim=1000 simulation will fit within the 6-hour runtime
+    limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:04:35Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Feasibility check triggers warning if projected time exceeds 5.5 hours
+  claim_id: c_f5768832
+  context: 'T040: If the projected time exceeds 5.5 hours, the script must exit with
+    a warning to reduce N_sim in config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the projected time exceeds 5.5 hours, the script must exit with a warning
+    to reduce N_sim in config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:05:18Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Chunked processing strategy uses batches of 100 simulations with atomic
+    writes
+  claim_id: c_7f97cedd
+  context: 'T041: Ensure code/main.py implements a chunked processing strategy for
+    the N_sim loop: process and write results in batches of 100 simulations to artifacts/coverage_results.csv
+    using atomic writes (write to temp file then rename) to prevent memory accumulation
+    and ensure data integrity if the process crashes mid-write.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Chunked_processing_strategy_uses_batches_of_100_simulations
+  kind: causal
+  raw_text: Process and write results in batches of 100 simulations to artifacts/coverage_results.csv
+    using atomic writes.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:05:21Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Generate 1,000,000 synthetic populations for UCI Adult, UCI Iris, and
+    UCI Wine Quality distributions
+  claim_id: c_44c791c3
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T003 description regarding
+    synthetic population generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for UCI Adult, UCI Iris, and UCI Wine Quality distributions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:10:24Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Set simulation count N_sim to 1000
+  claim_id: c_f3b494f9
+  context: 'Phase 2: Foundational - T002 description regarding configuration of simulation
+    parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:10:25Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Bias-Correction formula for mean is mu_adj = x_bar - sigma^2 / (2n)
+  claim_id: c_5cc712bc
+  context: 'Phase 4: User Story 2 - T020 description listing formulas to implement
+    for adjustments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Bias-Correction (Mean) formula: mu_adj = x_bar - sigma^2 / (2n) (or as
+    per Covington et al. 2021)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:11:43Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Variance-Inflation formula for regression is SE_adj = SE * sqrt(1 + lambda/n)
+  claim_id: c_264449db
+  context: 'Phase 4: User Story 2 - T020 description listing formulas to implement
+    for adjustments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Variance-Inflation (Regression) formula: SE_adj = SE * sqrt(1 + lambda/n)
+    (or as per Karwa & Vadhan 2017)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T01:13:16Z'

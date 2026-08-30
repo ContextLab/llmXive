@@ -1,10 +1,10 @@
 T012:
   c: false
-  h: 9451b1a7426d1af77635a15195926e65b2404189abd3308188a5f9ef4c71f8d4
-  r: The required file `data/raw/zenodo_10043838.csv` does not exist, so the verification
-    step fails. Moreover, `code/ingest.py` only defines helper functions and never
-    invokes them with the specified DOIs nor writes the fetched data to the expected
-    path, leaving the task unfulfilled.
+  h: d54de23996aea0dd4d5e4da880f8a021fbdb83caa4d07b44affd67158e069b29
+  r: "The required file `data/raw/zenodo_10043838.csv` does not exist, so the verification\
+    \ step cannot be satisfied. Additionally, the provided `code/ingest.py` does not\
+    \ contain logic that saves the fetched dataset to that path, meaning the task\u2019\
+    s core requirement is unmet."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,12 +19,6 @@ T018:
   r: "The required artifact `tests/unit/test_descriptors.py` does not exist on disk,\
     \ so no unit test for the descriptor calculation logic is present. The task\u2019\
     s core deliverable is missing."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of an `artifacts/models/` directory with saved model files nor an\
-    \ `artifacts/metrics/` directory containing R\xB2, MAE, and feature importance\
-    \ data was provided. The required artifacts are missing, so the task is not satisfied."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,31 +28,41 @@ T025:
     \ or runtime/RAM validation step) is missing, so the task is not satisfied."
 T026:
   c: false
-  h: 7e63b063d641e93f317dea81fb4b8ae72b1a129fc4ac110c024915be8e144904
-  r: The repository contains `code/descriptors.py`, but the shown source is truncated
-    and does not include any logic that writes a CSV file to `data/processed/descriptors.csv`.
-    Moreover, the required output file `data/processed/descriptors.csv` is absent
-    from the project. Both the saving functionality and the expected artifact are
-    missing, so the task is not satisfied.
+  h: c772ddcff75cb0f2847a4460ac8985c87b951654bf62eff4e4e90497e76b0a9a
+  r: "The repository contains a partially implemented `code/descriptors.py` that defines\
+    \ descriptor\u2011calculation functions but does not include any code that writes\
+    \ the results to `data/processed/descriptors.csv`. Moreover, the required `data/processed/descriptors.csv`\
+    \ file is absent. The task\u2019s core requirement\u2014to save computed descriptors\
+    \ to that CSV file\u2014is therefore not satisfied."
 T033:
   c: false
-  h: 4392b8136336ef298b19185882224e96f2b559b8096e817dc20d1c106b11e7b2
-  r: "The repository contains a partially\u2011written `code/analyze.py` (truncated\
-    \ and lacking Spearman calculation, saving of the matrix, and full implementation),\
-    \ the required input `data/processed/descriptors.csv` is absent, and the expected\
-    \ output `data/processed/correlation_matrix.csv` was never created. Consequently\
-    \ the task\u2019s specifications are not met."
+  h: 83716f67fa57d353dde8a8b6a28d0eee3651a6d27d8903161587830a5e00a965
+  r: The required input file `data/processed/descriptors.csv` does not exist, and
+    the expected output `data/processed/correlation_matrix.csv` is also missing. Moreover,
+    `code/analyze.py` is truncated (e.g., the `save_correlation_matrix` function is
+    incomplete) and contains no script that loads the descriptors, computes the correlations,
+    and writes the matrix to the specified path.
 T035:
   c: false
-  h: c012c70fac12141d8b0557026a34456d5c76795cc74e60604619d549f0369237
-  r: The provided `code/analyze.py` contains functions for correlation and FDR correction
-    but no VIF calculation or flagging logic, and it never writes a `vif_diagnostic_log.json`.
-    Moreover, the required input file `data/processed/descriptors.csv` and the expected
-    output log file are absent. The task requirements are therefore not met.
+  h: a1b7ce91736aa947add7d9a4f309570c0f483bdd1733b6e670138094c3a7a681
+  r: "The provided `code/analyze.py` contains functions for loading data, correlation\
+    \ matrices, and FDR correction, but no implementation of variance inflation factor\
+    \ (VIF) calculation or the required >5 flagging logic, nor does it write a `vif_diagnostic_log.json`.\
+    \ Additionally, the expected input file `data/processed/descriptors.csv` and the\
+    \ output log file are absent. The task\u2019s core requirements are therefore\
+    \ unmet."
 T036:
   c: false
-  h: 17d1901aeb1fd4da3518187619e9392634afac81a97989f1dfa48c89b321c904
-  r: "The provided `code/analyze.py` does not implement bootstrapping of feature importance,\
-    \ never loads `artifacts/models/best_model.pkl`, and never writes a `stability_metrics.json`\
-    \ file. Moreover, the required model file is absent from the repository. The task\u2019\
-    s core functionality and output artifact are therefore missing."
+  h: aa65391f15ade0a064608cb54d054f76e6a024f7808ce358d5b1e66c5909f3be
+  r: "The repository lacks the required `artifacts/models/best_model.pkl` file, and\
+    \ `code/analyze.py` does not perform the specified bootstrapping of feature importance\
+    \ nor write a `stability_metrics.json` file. Consequently the task\u2019s core\
+    \ functionality and output are missing."
+T037:
+  c: false
+  h: aa65391f15ade0a064608cb54d054f76e6a024f7808ce358d5b1e66c5909f3be
+  r: "The repository lacks the required `artifacts/models/best_model.pkl` file, and\
+    \ the shown `code/analyze.py` contains only correlation\u2011related utilities\
+    \ with no implementation that sweeps `max_depth`\u202F\u2208\u202F{3,5,7} or computes/report\
+    \ variance of R\xB2 scores. Both the input artifact and the specified sensitivity\u2011\
+    analysis functionality are missing."

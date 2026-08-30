@@ -1,1 +1,3 @@
-"""Data schemas and output models."""
+"""
+Models module for Pydantic schemas and output serialization.
+"""

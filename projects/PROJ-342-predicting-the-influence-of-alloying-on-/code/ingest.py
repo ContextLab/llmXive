@@ -66,11 +66,14 @@ def load_and_validate_data(file_path: Path) -> pd.DataFrame:
     
     return df
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, int, int, int, float]:
     """
     Cleans the dataset:
     1. Drops rows with missing Tg values.
     2. Drops rows with missing or empty composition strings.
+    
+    Returns:
+        Tuple of (cleaned_df, original_count, kept_count, dropped_count, retention_rate)
     """
     original_count = len(df)
     logger.info(f"Starting cleaning process on {original_count} rows")
@@ -121,11 +124,16 @@ def write_ingestion_stats(
 def main() -> None:
     """
     Main entry point for the ingestion pipeline.
+    Executes the full flow: fetch, validate, clean, save, and log stats.
     """
     config = get_config()
     
     primary_doi = config.get('zenodo', {}).get('primary_doi', '10.5281/zenodo.10043838')
     fallback_doi = config.get('zenodo', {}).get('fallback_doi', '10.5281/zenodo.11023456')
+    
+    # Ensure output directories exist
+    Path('data/raw').mkdir(parents=True, exist_ok=True)
+    Path('data/processed').mkdir(parents=True, exist_ok=True)
     
     raw_output = Path('data/raw/zenodo_10043838.csv')
     cleaned_output = Path('data/processed/cleaned_mg.csv')
@@ -133,12 +141,15 @@ def main() -> None:
     
     try:
         # Fetch
+        logger.info("Starting data fetch from Zenodo...")
         df_raw = fetch_from_zenodo_wrapper(primary_doi, fallback_doi, raw_output)
         
         # Validate
+        logger.info("Validating fetched data...")
         df_validated = load_and_validate_data(raw_output)
         
         # Clean
+        logger.info("Cleaning data...")
         df_clean, orig, kept, dropped, rate = clean_data(df_validated)
         
         # Save cleaned data
@@ -148,12 +159,17 @@ def main() -> None:
         write_ingestion_stats(orig, kept, dropped, rate, stats_output)
         
         logger.info("Ingestion pipeline completed successfully.")
+        logger.info(f"Raw data saved to: {raw_output}")
+        logger.info(f"Cleaned data saved to: {cleaned_output}")
+        logger.info(f"Stats saved to: {stats_output}")
         
     except DataUnavailableError as e:
         logger.critical(f"Data unavailable: {e}")
         sys.exit(1)
     except Exception as e:
         logger.critical(f"Unexpected error during ingestion: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 if __name__ == '__main__':
