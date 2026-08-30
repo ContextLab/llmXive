@@ -9,17 +9,17 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How do spatial and temporal resolution limits systematically bias key statistical measures of turbulent flow, specifically the energy spectrum and velocity structure functions, when derived from high-fidelity ground-truth data?
+At what specific resolution thresholds do standard Kolmogorov scaling laws for structure functions break down in isotropic turbulence, and can these breakdown points be distinguished from genuine physical transitions in finite-resolution experimental data?
 
 ## Motivation
 
-Turbulence researchers routinely interpret energy spectra and structure functions from simulations and experiments without rigorous quantification of resolution-induced artifacts. Understanding the magnitude and direction of these biases is essential for comparing results across studies, validating simulation codes, and designing experiments with adequate sampling. Without this calibration, apparent physical effects may reflect measurement limitations rather than genuine fluid dynamics.
+Turbulence researchers often interpret deviations from Kolmogorov scaling (e.g., $-5/3$ for the energy spectrum) as evidence of new physics, intermittency, or phase transitions. However, these deviations frequently arise simply from insufficient spatial resolution failing to capture the inertial range. Distinguishing between a numerical artifact and a genuine physical transition is critical for validating simulation codes, interpreting experimental PIV data, and refining theoretical models of turbulence cascades. Without a quantitative map of resolution-induced bias, "anomalous" scaling may be misidentified as physics.
 
 ## Literature gap analysis
 
 ### What we searched
 
-Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "turbulence resolution effects energy spectrum", (2) "CFD spatial resolution bias structure functions", and (3) "downsampling turbulence statistics". Results returned 4 papers total. While the retrieved literature discusses resolution in the context of specific flow types (supersonic jets, CO2 channel flow) or data enrichment techniques (MRI/LES fusion), none directly quantify the systematic bias introduced by controlled spatial downsampling on isotropic turbulence statistics like the energy spectrum or structure functions.
+Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "turbulence resolution effects energy spectrum", (2) "CFD spatial resolution bias structure functions", and (3) "downsampling turbulence statistics". Results returned 4 papers total. While the retrieved literature discusses resolution in the context of specific flow types (supersonic jets, CO2 channel flow) or data enrichment techniques (MRI/LES fusion), none directly quantify the systematic bias introduced by controlled spatial downsampling on isotropic turbulence statistics like the energy spectrum or structure functions, nor do they attempt to distinguish these artifacts from physical transitions.
 
 ### What is known
 
@@ -29,30 +29,31 @@ Searched Semantic Scholar, arXiv, and OpenAlex using queries: (1) "turbulence re
 
 ### What is NOT known
 
-No published work has systematically measured how controlled spatial downsampling directly alters energy spectra and structure functions in high-Reynolds-number isotropic turbulence datasets. There is no consensus on minimum resolution requirements for accurate turbulence statistics, nor on the precise functional form of the bias introduced when the grid spacing approaches the Kolmogorov scale. Existing JHTDB publications describe data generation but do not provide resolution-sensitivity benchmarks for standard statistical outputs.
+No published work has systematically measured how controlled spatial downsampling directly alters the scaling exponents of structure functions in high-Reynolds-number isotropic turbulence datasets to define a precise "breakdown threshold." There is no consensus on the functional form of the bias curve that separates numerical truncation errors from genuine physical deviations (e.g., intermittency corrections). Existing JHTDB publications describe data generation but do not provide resolution-sensitivity benchmarks that allow researchers to distinguish artifacts from physics in finite-resolution data.
 
 ### Why this gap matters
 
-Turbulence researchers make modeling and interpretation decisions based on these statistics without knowing their resolution dependence. This gap affects the validation of computational fluid dynamics codes, the interpretation of experimental PIV (particle image velocimetry) measurements, and meta-analyses across multiple turbulence databases. Quantifying these biases would enable researchers to report confidence intervals on turbulence statistics based on their sampling resolution.
+Misinterpreting resolution artifacts as physical transitions can lead to incorrect conclusions about the universality of turbulence scaling laws or the existence of new flow regimes. Quantifying the exact resolution threshold where Kolmogorov scaling fails artificially provides a critical "error bar" for experimentalists and simulation practitioners, enabling them to determine if observed scaling deviations are statistically significant or merely a function of grid spacing.
 
 ### How this project addresses the gap
 
-The methodology directly measures statistical degradation across controlled downsampling of a known ground-truth dataset from the Johns Hopkins Turbulence Database. By computing energy spectra and structure functions at multiple resolution levels from the *same* underlying high-fidelity flow field, this project produces empirical bias curves that quantify the gap between observed and true turbulence statistics as a function of resolution, filling the missing benchmark.
+The methodology directly measures statistical degradation across controlled downsampling of a known ground-truth dataset from the Johns Hopkins Turbulence Database. By computing structure functions at multiple resolution levels from the *same* underlying high-fidelity flow field, this project produces empirical bias curves that define the specific resolution ratio where scaling exponents deviate from Kolmogorov predictions, thereby establishing a baseline to distinguish numerical artifacts from physical phenomena.
 
 ## Expected results
 
-We expect to observe systematic underestimation of high-wavenumber energy and altered structure function scaling exponents as resolution decreases. The magnitude of these biases will be quantified as a function of the ratio between the Kolmogorov scale and grid spacing. Results will be publishable regardless of outcome: either a clear resolution threshold for acceptable statistics, or evidence that certain statistics remain robust across wide resolution ranges.
+We expect to observe a systematic, resolution-dependent deviation in structure function scaling exponents that mimics the signature of physical intermittency as grid spacing approaches the Kolmogorov scale. The magnitude of this "fake" deviation will be quantified as a function of the ratio between the Kolmogorov scale and grid spacing. Results will be publishable regardless of outcome: either a clear resolution threshold below which scaling laws are invalid, or evidence that certain statistics remain robust across wide resolution ranges, allowing researchers to filter out numerical artifacts.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download isotropic turbulence snapshots from the Johns Hopkins Turbulence Database (https://turbulence.pha.jhu.edu/). Select 3-5 cases with known Reynolds numbers and high grid resolutions (e.g., 1024³ or 2048³) to serve as the **ground truth**. These are real, measured simulation outputs.
-- **Resolution Degradation**: Create synthetic lower-resolution datasets by applying strict **Fourier-mode truncation** (spectral cutoff) to the *original* velocity fields. This simulates the loss of high-frequency modes inherent in lower-resolution measurements without introducing new simulation artifacts. Apply spatial downsampling factors of 2, 4, 8, and 16 to generate the test set.
-- **Statistical Computation (Real Measurement)**:
+- **Data Acquisition**: Download isotropic turbulence snapshots from the Johns Hopkins Turbulence Database (https://turbulence.pha.jhu.edu/). Select 3-5 cases with known Reynolds numbers and high grid resolutions (e.g., $1024^3$ or $2048^3$) to serve as the **ground truth**. These are real, measured simulation outputs.
+- **Resolution Degradation**: Create synthetic lower-resolution datasets by applying strict **Fourier-mode truncation** (spectral cutoff) to the *original* velocity fields. This simulates the loss of high-frequency modes inherent in lower-resolution measurements without introducing new simulation artifacts (like numerical dissipation from finite-difference schemes). Apply spatial downsampling factors of 2, 4, 8, and 16 to generate the test set.
+- **Statistical Computation**:
     - Compute 3D energy spectra $E(k)$ using FFT-based methods on **each** resolution level derived from the truncated velocity fields.
     - Compute second- and third-order longitudinal velocity structure functions $S_p(r) = \langle [\delta u(r)]^p \rangle$ for $p=2,3$ using pair-separation analysis on the downsampled grids.
-    - *Correction*: All statistical values are computed **directly from the downloaded and truncated velocity fields** using standard numerical libraries (e.g., NumPy/SciPy). No simulated, placeholder, hardcoded, or random values are used to represent the results; the output is a direct numerical computation of the integral/sum definitions applied to the real data.
+    - *Execution Note*: All statistical values are computed **directly from the downloaded and truncated velocity fields** using standard numerical libraries (e.g., NumPy/SciPy). No simulated, placeholder, hardcoded, or random values are used to represent the results; the output is a direct numerical computation of the integral/sum definitions applied to the real data.
 - **Bias Quantification**: Calculate the relative difference between the **high-resolution ground-truth statistics** (computed from the full dataset) and the **lower-resolution statistics** (computed from the truncated datasets). This yields a real, measured bias curve for each resolution level.
 - **Scaling Analysis**: Fit power-law scaling exponents to the structure functions using linear regression on log-log plots. Track the systematic deviation from Kolmogorov predictions (−5/3 for energy spectrum, 2/3 for second-order structure function) as a function of the resolution ratio.
+- **Differentiation Test**: Compare the observed "breakdown" points in the downsampled data against known physical transition markers (if available in literature) or against the theoretical limit where the inertial range vanishes. This determines if the numerical artifact is distinguishable from a physical transition based on the shape of the scaling curve.
 - **Statistical Validation**: Perform bootstrap resampling (1000 iterations) on the velocity fields to estimate confidence intervals on the bias measurements. This ensures the observed trends are statistically significant and not noise artifacts.
 - **Visualization**: Generate bias curves (resolution ratio on x-axis, percent error on y-axis) for each statistic to visualize the degradation threshold.
 - **Computational Feasibility**: Process data in spatial slices to fit within 7 GB RAM limits. Target runtime <6h for the full analysis of 5 cases across 4 resolution levels using parallelized numpy/scipy operations on GitHub Actions free-tier runners.
@@ -66,8 +67,8 @@ We expect to observe systematic underestimation of high-wavenumber energy and al
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-14T01:52:04Z
-**Outcome**: failed
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-30T00:29:34Z
+**Outcome**: exhausted
 **Original term**: Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics
 **Verified citation count**: 0
 
@@ -76,26 +77,6 @@ We expect to observe systematic underestimation of high-wavenumber energy and al
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence physics | 0 |
-| 1 | grid resolution effects on turbulent flow simulations | 0 |
-| 2 | numerical resolution sensitivity in computational fluid dynamics | 0 |
-| 3 | impact of mesh size on turbulence modeling accuracy | 0 |
-| 4 | spatial discretization errors in direct numerical simulation | 0 |
-| 5 | resolution dependence of turbulent kinetic energy spectra | 0 |
-| 6 | convergence studies for high Reynolds number flows | 0 |
-| 7 | subgrid scale modeling and grid resolution interplay | 0 |
-| 8 | effect of computational resolution on vorticity dynamics | 0 |
-| 9 | finite volume grid refinement for turbulent boundary layers | 0 |
-| 10 | numerical dissipation versus physical dissipation in turbulence | 0 |
-| 11 | resolution requirements for capturing inertial subrange | 0 |
-| 12 | influence of grid anisotropy on turbulent flow structures | 0 |
-| 13 | large eddy simulation resolution sensitivity analysis | 0 |
-| 14 | accuracy of turbulence statistics at varying grid resolutions | 0 |
-| 15 | computational cost versus resolution trade-off in fluid dynamics | 0 |
-| 16 | scale-resolving simulation fidelity and mesh density | 0 |
-| 17 | numerical artifacts in under-resolved turbulence simulations | 0 |
-| 18 | spectral energy cascade and grid resolution limits | 0 |
-| 19 | mesh convergence criteria for turbulent flow prediction | 0 |
-| 20 | resolution-induced errors in vortex shedding simulations | 0 |
 
 ### Verified citations
 
