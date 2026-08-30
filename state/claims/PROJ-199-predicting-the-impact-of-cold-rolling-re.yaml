@@ -1510,3 +1510,282 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-27T21:49:15Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: texture quantification volume fractions match published values within
+    0.05
+  claim_id: c_2526b703
+  context: "Independent Test: The quantification module can be tested by processing\
+    \ a known benchmark dataset and verifying that the calculated volume fractions\
+    \ match published values within \xB10.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The quantification module can be tested by processing a known benchmark\
+    \ dataset and verifying that the calculated volume fractions match published values\
+    \ within \xB10.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:00:18Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: volume fraction delta threshold 0.05 for brass copper s goss
+  claim_id: c_0cbf1b02
+  context: 'Assertion: Verify that `delta <= 0.05` for all components (Brass, Copper,
+    S, Goss). If the check fails, raise a `BenchmarkValidationError`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that delta <= 0.05 for all components (Brass, Copper, S, Goss).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:03:15Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: benchmark comparison against Rosenstock et al. 2018
+  claim_id: c_5b770f7e
+  context: T017 [P] [US2] Benchmark test against Rosenstock et al. (2018) values in
+    `tests/unit/test_benchmark_validation.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement explicit benchmark comparison logic against Rosenstock et al.
+    (2018) values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:07:37Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Brass Euler angle ranges 35 45 55 65 0 90
+  claim_id: c_a23dcb34
+  context: 'Brass: [35, 45, 55, 65, 0, 90]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define Euler angle ranges for Brass as [35, 45, 55, 65, 0, 90] degrees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:08:40Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Copper Euler angle ranges 39 39 39 39 0 0
+  claim_id: c_749f1760
+  context: 'Copper: [39, 39, 39, 39, 0, 0] (Point component)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define Euler angle ranges for Copper as [39, 39, 39, 39, 0, 0] degrees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:09:20Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: S component Euler angle ranges 59 59 37 37 63 63
+  claim_id: c_b3f41b46
+  context: 'S: [59, 59, 37, 37, 63, 63] (Point component)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define Euler angle ranges for S component as [59, 59, 37, 37, 63, 63]
+    degrees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:11:30Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Goss component Euler angle ranges 0 0 45 45 90 90
+  claim_id: c_4bf7bb3d
+  context: 'Goss: [0, 0, 45, 45, 90, 90] (Point component)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define Euler angle ranges for Goss component as [0, 0, 45, 45, 90, 90]
+    degrees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:12:01Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: R2 variation tolerance 0.02
+  claim_id: c_e05a0ec2
+  context: "Stability Check: Verify that the variation in R\xB2 across the swept tolerances\
+    \ is \u2264 0.02."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the variation in R\xB2 across the swept tolerances is \u2264\
+    \ 0.02."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:12:01Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: interpolation tolerances 0.01 0.05 0.1
+  claim_id: c_4987fd76
+  context: 'Define the set of interpolation tolerances: `{0.01, 0.05, 0.1}` as mandated
+    by FR-007.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the set of interpolation tolerances as {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:12:59Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: pole figure similarity threshold 0.9
+  claim_id: c_61a4692b
+  context: 'Threshold: Flag samples where the similarity metric falls below a defined
+    threshold (e.g., 0.9) as ''Physically Divergent''.'
+  evidence:
+    asserted: '0.9'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Flag samples where the similarity metric falls below a defined threshold
+    (e.g., 0.9) as 'Physically Divergent'.
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T13:12:59Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: symmetry intensity match tolerance 2
+  claim_id: c_89ae11c6
+  context: "Implement a check that ensures the sum of intensities in symmetry-equivalent\
+    \ regions matches within a tolerance (e.g., \xB12%) using the available volume\
+    \ fractions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the sum of intensities in symmetry-equivalent regions matches\
+    \ within a tolerance (e.g., \xB12%)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:12:59Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: volume fraction sum 1.0 tolerance 0.01
+  claim_id: c_370bd5a8
+  context: "Verify that the sum of predicted volume fractions (Brass + Copper + S\
+    \ + Goss + Random) equals 1.0 \xB1 0.01 for each prediction, ensuring physical\
+    \ plausibility without requiring full ODF reconstruction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the sum of predicted volume fractions equals 1.0 \xB1 0.01\
+    \ for each prediction."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:13:52Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: exclude samples with 50 low reliability points
+  claim_id: c_ff9c1b6c
+  context: 'Integrate exclusion logic: flag samples where >50% of points are filtered
+    as ''low reliability'' and EXCLUDE them from the final training set (Edge Case).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter samples where >50% of points are filtered as 'low reliability'
+    and EXCLUDE them from the final training set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:13:52Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: downloaded files checksummed upon receipt
+  claim_id: c_10689ab0
+  context: 'Data Hygiene: Ensure all downloaded files are checksummed upon receipt.
+    (FR-001).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Downloaded_files_checksummed_upon_receipt
+  kind: entity_fact
+  raw_text: Ensure all downloaded files are checksummed upon receipt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:15:00Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: synthetic orientation data for Al Cu Ni with deterministic seed
+  claim_id: c_5cc3c869
+  context: 'Generation: Generate synthetic orientation data for Al, Cu, and Ni across
+    the resolved reduction levels using a deterministic seed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_orientation_data_for_Al_Cu_Ni_with_deterministic_s
+  kind: entity_fact
+  raw_text: Generate synthetic orientation data for Al, Cu, and Ni across the resolved
+    reduction levels using a deterministic seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:16:04Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: flag texture evolution deviations from FCC trends
+  claim_id: c_b209296d
+  context: Add validation to flag samples where texture evolution deviates from standard
+    FCC trends (Edge Case).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flag_texture_evolution_deviations_from_FCC_trends
+  kind: entity_fact
+  raw_text: Flag samples where texture evolution deviates from standard FCC trends.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T13:17:34Z'

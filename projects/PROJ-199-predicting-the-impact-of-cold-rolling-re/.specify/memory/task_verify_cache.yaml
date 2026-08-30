@@ -17,15 +17,14 @@ T002:
   r: No `.gitignore` file was presented in the evidence; the implementer did not supply
     any content covering Python, data, or IDE ignore patterns, so the required artifact
     is missing.
-T019:
+T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, test output, or any other artifact was presented that implements\
-    \ the mass\u2011balance check (sum of major texture components plus \u201Crandom\u201D\
-    \ equals 1.0\u202F\xB1\u202F0.01). Without a concrete implementation or verification\
-    \ results, the requirement is not satisfied. The next implementer must provide\
-    \ the actual function/module and evidence (e.g., unit test logs or example output)\
-    \ showing the mass\u2011balance condition holds."
+  r: "No code, script, test, or documentation was presented that adds validation to\
+    \ flag samples whose texture evolution deviates from standard FCC trends. The\
+    \ required artifact (e.g., a function/module implementing the outlier\u2011detection\
+    \ logic and its associated tests) is missing, so the task\u2019s edge\u2011case\
+    \ validation requirement is not satisfied."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

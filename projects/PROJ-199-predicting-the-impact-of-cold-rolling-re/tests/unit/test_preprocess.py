@@ -1,148 +1,182 @@
 """
-Unit tests for the EBSD preprocessing pipeline.
+Unit tests for EBSD preprocessing pipeline.
 """
+
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 import tempfile
 import os
 
-# Import the functions to test
-from data.preprocess import (
-    load_ebsd_data, 
-    filter_by_confidence, 
-    reindex_to_fcc, 
+from code.data.preprocess import (
+    load_ebsd_data,
+    filter_by_confidence,
+    reindex_to_fcc,
     process_ebsd_dataset,
     CONFIDENCE_THRESHOLD,
     RELIABILITY_THRESHOLD
 )
-from data.models import EbsdSample
+from code.data.models import EbsdSample
 
-# Fixtures
 @pytest.fixture
-def sample_df():
-    """Create a sample DataFrame with EBSD data."""
+def sample_ebsd_data():
+    """Create sample EBSD data for testing."""
     return pd.DataFrame({
-        'phi1': [0, 10, 20, 30, 40],
-        'Phi': [0, 10, 20, 30, 40],
-        'phi2': [0, 10, 20, 30, 40],
-        'confidence': [0.9, 0.5, 0.05, 0.15, 0.09],
-        'x': [1, 2, 3, 4, 5],
-        'y': [1, 2, 3, 4, 5],
-        'sample_id': ['s1', 's1', 's1', 's1', 's1'],
-        'material': ['Al', 'Al', 'Al', 'Al', 'Al'],
-        'reduction': [20, 20, 20, 20, 20]
+        'sample_id': ['S1', 'S1', 'S1', 'S2', 'S2', 'S2', 'S2'],
+        'phi1': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0],
+        'Phi': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0],
+        'phi2': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0],
+        'confidence': [0.9, 0.5, 0.05, 0.8, 0.3, 0.09, 0.95],
+        'reduction': [20, 20, 20, 40, 40, 40, 40],
+        'material': ['Al', 'Al', 'Al', 'Cu', 'Cu', 'Cu', 'Cu']
     })
 
 @pytest.fixture
-def temp_csv_file(sample_df):
-    """Create a temporary CSV file."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        sample_df.to_csv(f, index=False)
-        yield Path(f.name)
-    os.unlink(f.name)
+def temp_parquet_file(sample_ebsd_data):
+    """Create a temporary Parquet file with sample data."""
+    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
+        sample_ebsd_data.to_parquet(f.name, index=False)
+        yield f.name
+        os.unlink(f.name)
 
-# Tests
-def test_load_ebsd_data(temp_csv_file, sample_df):
-    """Test loading EBSD data from CSV."""
-    df = load_ebsd_data(temp_csv_file)
-    assert len(df) == len(sample_df)
-    assert 'confidence' in df.columns
-    assert df['confidence'].dtype in ['float64', 'float32']
-
-def test_load_ebsd_data_missing_file():
-    """Test loading from a non-existent file."""
-    with pytest.raises(FileNotFoundError):
-        load_ebsd_data(Path("non_existent_file.csv"))
-
-def test_filter_by_confidence_high(sample_df):
-    """Test filtering with a high threshold."""
-    df_filtered, fraction_removed = filter_by_confidence(sample_df, threshold=0.8)
-    # Only 0.9 is >= 0.8
-    assert len(df_filtered) == 1
-    assert df_filtered.iloc[0]['confidence'] == 0.9
-    assert fraction_removed == 4/5
-
-def test_filter_by_confidence_default(sample_df):
-    """Test filtering with default threshold (0.1)."""
-    df_filtered, fraction_removed = filter_by_confidence(sample_df)
-    # 0.9, 0.5, 0.15 are >= 0.1. 0.05 and 0.09 are < 0.1
-    assert len(df_filtered) == 3
-    assert fraction_removed == 2/5
-
-def test_filter_by_confidence_empty():
-    """Test filtering an empty DataFrame."""
-    df = pd.DataFrame(columns=['phi1', 'Phi', 'phi2', 'confidence'])
-    df_filtered, fraction = filter_by_confidence(df)
-    assert len(df_filtered) == 0
-    assert fraction == 1.0
-
-def test_reindex_to_fcc(sample_df):
-    """Test re-indexing to FCC symmetry."""
-    # This test checks if the function runs without error and returns a DataFrame
-    # with the same shape and Euler columns.
-    df_reindexed = reindex_to_fcc(sample_df)
-    assert df_reindexed.shape == sample_df.shape
-    assert 'phi1' in df_reindexed.columns
-    assert 'Phi' in df_reindexed.columns
-    assert 'phi2' in df_reindexed.columns
+def test_filter_by_confidence_threshold(sample_ebsd_data):
+    """Test that confidence filtering works correctly."""
+    filtered, excluded = filter_by_confidence(sample_ebsd_data, threshold=0.1)
     
-    # Check that values are within 0-360 range (or fundamental region)
-    # orix fundamental region for cubic is [0, 90] for phi1 and phi2, [0, 90] for Phi?
-    # Actually, the fundamental region for cubic is more complex, but angles should be valid.
-    assert (df_reindexed['phi1'] >= 0).all()
-    assert (df_reindexed['Phi'] >= 0).all()
-    assert (df_reindexed['phi2'] >= 0).all()
+    # Check that all filtered rows have confidence >= 0.1
+    assert all(filtered['confidence'] >= 0.1)
+    
+    # Check that all excluded rows have confidence < 0.1
+    assert all(excluded['confidence'] < 0.1)
+    
+    # Check counts: 20, 0.05, 0.09 should be excluded (3 rows)
+    assert len(excluded) == 3
+    assert len(filtered) == 4
 
-def test_reindex_to_fcc_empty():
-    """Test re-indexing an empty DataFrame."""
-    df = pd.DataFrame(columns=['phi1', 'Phi', 'phi2', 'confidence'])
-    df_reindexed = reindex_to_fcc(df)
-    assert df_reindexed.empty
+def test_filter_by_confidence_no_column():
+    """Test behavior when confidence column is missing."""
+    df_no_conf = pd.DataFrame({
+        'phi1': [0.0, 45.0],
+        'Phi': [0.0, 45.0],
+        'phi2': [0.0, 45.0]
+    })
+    
+    filtered, excluded = filter_by_confidence(df_no_conf)
+    
+    # Should return original data and empty excluded
+    assert len(filtered) == len(df_no_conf)
+    assert len(excluded) == 0
 
-def test_process_ebsd_dataset(temp_csv_file):
-    """Test the full processing pipeline."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "output.parquet"
+def test_reindex_to_fcc_symmetry(sample_ebsd_data):
+    """Test that orientations are re-indexed to FCC symmetry."""
+    df_filtered, _ = filter_by_confidence(sample_ebsd_data, threshold=0.1)
+    df_reindexed = reindex_to_fcc(df_filtered)
+    
+    # Check that Euler angles are still valid (0-360 range)
+    assert all((df_reindexed['phi1'] >= 0) & (df_reindexed['phi1'] <= 360))
+    assert all((df_reindexed['Phi'] >= 0) & (df_reindexed['Phi'] <= 180))
+    assert all((df_reindexed['phi2'] >= 0) & (df_reindexed['phi2'] <= 360))
+    
+    # Check that we still have the same number of rows
+    assert len(df_reindexed) == len(df_filtered)
+    
+    # Check that columns are preserved
+    assert set(df_reindexed.columns) == set(df_filtered.columns)
+
+def test_reindex_missing_euler_columns():
+    """Test behavior when Euler angle columns are missing."""
+    df_no_euler = pd.DataFrame({
+        'confidence': [0.5, 0.8],
+        'sample_id': ['S1', 'S2']
+    })
+    
+    result = reindex_to_fcc(df_no_euler)
+    
+    # Should return original data unchanged
+    assert len(result) == len(df_no_euler)
+    assert 'phi1' not in result.columns
+
+def test_process_ebsd_dataset(temp_parquet_file):
+    """Test the full preprocessing pipeline."""
+    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as out:
+        output_path = out.name
+    
+    try:
+        stats = process_ebsd_dataset(
+            temp_parquet_file,
+            output_path,
+            reduction_levels=[20, 40]
+        )
         
-        # Mock the exclusion logic to prevent actual exclusion in this test
-        # We want to test the processing flow, not the exclusion logic which depends on metrics
-        with patch('data.preprocess.calculate_reliability_metrics') as mock_metrics, \
-             patch('data.preprocess.apply_exclusion_logic') as mock_exclude:
-            
-            mock_metrics.return_value = {"retention": 0.5}
-            mock_exclude.return_value = (False, "OK") # Do not exclude
-            
-            result = process_ebsd_dataset(temp_csv_file, output_path, reduction_level=20)
-            
-            assert result["status"] == "success"
-            assert output_path.exists()
-            assert result["input_points"] == 5
-            assert result["output_points"] == 3 # 2 filtered out
-
-def test_process_ebsd_dataset_excluded(temp_csv_file):
-    """Test the pipeline when a sample is excluded."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "output.parquet"
+        # Check stats
+        assert stats['input_rows'] == 7
+        assert stats['filtered_by_confidence'] == 3
+        assert stats['final_rows'] == 4
+        assert stats['output_path'] == output_path
         
-        with patch('data.preprocess.calculate_reliability_metrics') as mock_metrics, \
-             patch('data.preprocess.apply_exclusion_logic') as mock_exclude:
-            
-            mock_metrics.return_value = {"retention": 0.2} # Low retention
-            mock_exclude.return_value = (True, "Low reliability") # Exclude
-            
-            result = process_ebsd_dataset(temp_csv_file, output_path, reduction_level=20)
-            
-            assert result["status"] == "excluded"
-            assert not output_path.exists() # Should not be created
-
-def test_process_ebsd_dataset_missing_file():
-    """Test processing a non-existent file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = Path(tmpdir) / "missing.csv"
-        output_path = Path(tmpdir) / "output.parquet"
+        # Check output file exists
+        assert Path(output_path).exists()
         
-        with pytest.raises(FileNotFoundError):
-            process_ebsd_dataset(input_path, output_path)
+        # Check output content
+        df_out = pd.read_parquet(output_path)
+        assert len(df_out) == 4
+        assert all(df_out['confidence'] >= 0.1)
+        
+    finally:
+        if Path(output_path).exists():
+            os.unlink(output_path)
+
+def test_process_ebsd_dataset_with_exclusion():
+    """Test exclusion logic for low-reliability samples."""
+    # Create data where one sample has >50% low confidence
+    df = pd.DataFrame({
+        'sample_id': ['S1', 'S1', 'S1', 'S2', 'S2', 'S2', 'S2', 'S2'],
+        'phi1': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0, 180.0],
+        'Phi': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0, 180.0],
+        'phi2': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0, 180.0],
+        'confidence': [0.9, 0.5, 0.05, 0.8, 0.3, 0.09, 0.95, 0.08],
+        'reduction': [20, 20, 20, 40, 40, 40, 40, 40],
+        'material': ['Al', 'Al', 'Al', 'Cu', 'Cu', 'Cu', 'Cu', 'Cu']
+    })
+    
+    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
+        f_path = f.name
+        df.to_parquet(f.name, index=False)
+    
+    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as out:
+        output_path = out.name
+    
+    try:
+        stats = process_ebsd_dataset(f_path, output_path)
+        
+        # S1 has 1/3 low confidence (33%) - should be kept
+        # S2 has 3/5 low confidence (60%) - should be excluded
+        # Final should have only S1 rows (2 rows: 0.9 and 0.5)
+        assert stats['excluded_samples'] >= 1  # At least S2 excluded
+        
+        df_out = pd.read_parquet(output_path)
+        assert len(df_out) <= 2  # Only S1 should remain
+        
+    finally:
+        if Path(f_path).exists():
+            os.unlink(f_path)
+        if Path(output_path).exists():
+            os.unlink(output_path)
+
+def test_load_ebsd_data_invalid_file():
+    """Test error handling for non-existent file."""
+    with pytest.raises(FileNotFoundError):
+        load_ebsd_data('/nonexistent/path/file.parquet')
+
+def test_load_ebsd_data_unsupported_format():
+    """Test error handling for unsupported file format."""
+    with tempfile.NamedTemporaryFile(suffix='.txt', delete=False) as f:
+        f.write(b"test")
+        temp_path = f.name
+    
+    try:
+        with pytest.raises(ValueError):
+            load_ebsd_data(temp_path)
+    finally:
+        os.unlink(temp_path)

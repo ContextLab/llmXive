@@ -68,7 +68,7 @@ A researcher needs to ensure that the predictive model remains stable and reliab
 - What happens when the EBSD data for a specific metal/reduction combination is completely missing or corrupted? The system must skip that entry, log the error, and proceed with available data rather than crashing.
 - How does the system handle metals where the texture evolution does not follow the standard FCC trend (e.g., anomalous behavior in a specific alloy)? The model must flag these outliers during validation rather than forcing a fit that degrades overall R².
 - What if the confidence index filtering removes >50% of the data points for a specific sample? The system must flag this sample as "low reliability" and exclude it from the final training set to prevent bias.
-- What happens when the system attempts to extrapolate beyond the 0-80% reduction range? The system must explicitly flag the prediction as "extrapolated" and apply a penalty factor to the confidence interval, rather than silently returning a value.
+- What happens when the system attempts to extrapolate beyond the -80% reduction range? The system must explicitly flag the prediction as "extrapolated" and apply a penalty factor to the confidence interval, rather than silently returning a value.
 
 ## Requirements
 

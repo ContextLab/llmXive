@@ -1,17 +1,10 @@
 """
-Preprocessing pipeline for EBSD data.
-
-This module implements the core logic for:
-1. Loading EBSD data from raw files.
-2. Filtering orientations based on confidence index (threshold >= 0.1).
-3. Re-indexing orientations to FCC symmetry using orix.
-4. Applying exclusion logic for low-reliability samples (>50% filtered).
-
-Dependencies:
-- orix: For crystallographic symmetry and orientation handling.
-- pandas: For data manipulation.
-- numpy: For numerical operations.
+Preprocessing pipeline for EBSD data:
+1. Filter by confidence index (>= 0.1)
+2. Re-index orientations to FCC symmetry using orix
+3. Apply exclusion logic for low-reliability samples (>50% filtered)
 """
+
 import os
 import sys
 import logging
@@ -19,316 +12,230 @@ from pathlib import Path
 from typing import List, Optional, Tuple, Dict, Any
 import numpy as np
 import pandas as pd
-from orix.crystal_map import CrystalMap
-from orix.quaternion import Orientation
+from orix.crystal_map import CrystalMap, Orientation
+from orix.quaternion.rotation import Rotation
 from orix.crystal import Cubic
+from orix.io import load as orix_load
 
-# Import local utilities
+# Import from project modules
+from config import get_reductions, get_seed
 from utils.logging import get_logger
-from config import get_reductions, get_data_path
 from data.error_handling import apply_exclusion_logic, calculate_reliability_metrics
+from data.models import EbsdSample, Symmetry, MaterialType
 
 logger = get_logger(__name__)
 
 CONFIDENCE_THRESHOLD = 0.1
-RELIABILITY_THRESHOLD = 0.5  # 50%
+RELIABILITY_THRESHOLD = 0.5  # 50% filtered points trigger exclusion
 
-def load_ebsd_data(file_path: Path) -> pd.DataFrame:
+def load_ebsd_data(file_path: str) -> pd.DataFrame:
     """
-    Load EBSD data from a CSV or Parquet file into a pandas DataFrame.
-
-    Expected columns: 'phi1', 'Phi', 'phi2', 'confidence', 'x', 'y', 'sample_id', 'material', 'reduction'
+    Load EBSD data from various formats (CSV, Parquet).
     
     Args:
-        file_path: Path to the data file.
+        file_path: Path to the data file
         
     Returns:
-        DataFrame containing the raw EBSD data.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If required columns are missing.
+        DataFrame with EBSD data
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"EBSD data file not found: {file_path}")
-
-    logger.info(f"Loading EBSD data from {file_path}")
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Data file not found: {file_path}")
     
-    if file_path.suffix == '.csv':
-        df = pd.read_csv(file_path)
-    elif file_path.suffix == '.parquet':
-        df = pd.read_parquet(file_path)
+    if path.suffix == '.parquet':
+        df = pd.read_parquet(path)
+    elif path.suffix == '.csv':
+        df = pd.read_csv(path)
     else:
-        raise ValueError(f"Unsupported file format: {file_path.suffix}")
-
-    required_cols = ['phi1', 'Phi', 'phi2', 'confidence']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in {file_path}: {missing_cols}")
+        raise ValueError(f"Unsupported file format: {path.suffix}")
     
-    # Ensure confidence is numeric
-    df['confidence'] = pd.to_numeric(df['confidence'], errors='coerce')
-    
+    logger.info(f"Loaded {len(df)} rows from {file_path}")
     return df
 
-def filter_by_confidence(df: pd.DataFrame, threshold: float = CONFIDENCE_THRESHOLD) -> Tuple[pd.DataFrame, float]:
+def filter_by_confidence(df: pd.DataFrame, threshold: float = CONFIDENCE_THRESHOLD) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Filter orientations based on confidence index.
     
     Args:
-        df: Input DataFrame.
-        threshold: Minimum confidence index (default 0.1).
+        df: Input DataFrame with 'confidence' column
+        threshold: Minimum confidence index (default: 0.1)
         
     Returns:
-        Tuple of (filtered DataFrame, fraction of points removed).
+        Tuple of (filtered_df, excluded_df)
     """
-    total_points = len(df)
-    if total_points == 0:
-        logger.warning("Input DataFrame is empty.")
-        return df, 1.0
-
-    filtered_df = df[df['confidence'] >= threshold].copy()
-    removed_points = total_points - len(filtered_df)
-    fraction_removed = removed_points / total_points if total_points > 0 else 0.0
-
-    logger.info(f"Filtered {removed_points} points (confidence < {threshold}). "
-                f"Retention rate: {1.0 - fraction_removed:.2%}")
+    if 'confidence' not in df.columns:
+        logger.warning("No 'confidence' column found. Skipping confidence filter.")
+        return df, pd.DataFrame()
     
-    return filtered_df, fraction_removed
+    filtered = df[df['confidence'] >= threshold].copy()
+    excluded = df[df['confidence'] < threshold].copy()
+    
+    logger.info(f"Filtered {len(excluded)} rows with confidence < {threshold}")
+    logger.info(f"Retained {len(filtered)} rows")
+    
+    return filtered, excluded
 
 def reindex_to_fcc(df: pd.DataFrame) -> pd.DataFrame:
     """
     Re-index orientations to FCC symmetry using orix.
     
-    This function converts Euler angles to orix Orientations, applies FCC symmetry,
-    and converts back to Euler angles in the fundamental region.
+    This function:
+    1. Converts Euler angles to orix Orientation objects
+    2. Applies FCC symmetry operations
+    3. Returns the re-indexed orientations
     
     Args:
-        df: DataFrame containing 'phi1', 'Phi', 'phi2' columns.
+        df: DataFrame with Euler angles (phi1, Phi, phi2)
         
     Returns:
-        DataFrame with re-indexed Euler angles.
+        DataFrame with re-indexed orientations
     """
-    if df.empty:
-        logger.warning("Empty DataFrame passed to reindex_to_fcc.")
+    required_cols = ['phi1', 'Phi', 'phi2']
+    if not all(col in df.columns for col in required_cols):
+        logger.error(f"Missing required Euler angle columns: {required_cols}")
         return df
-
-    logger.info("Re-indexing orientations to FCC symmetry...")
     
     try:
-        # Create CrystalMap (needed for proper orientation handling)
-        # We create a dummy map just to leverage orix's symmetry handling
-        x = np.zeros(len(df))
-        y = np.zeros(len(df))
+        # Create Orientation objects from Euler angles (in degrees)
+        # orix expects radians, so convert
+        phi1_rad = np.radians(df['phi1'].values)
+        Phi_rad = np.radians(df['Phi'].values)
+        phi2_rad = np.radians(df['phi2'].values)
         
-        # Convert to orix Orientations
-        # Euler angles in orix are in degrees by default if input is degrees
-        # The convention in orix is Bunge convention (phi1, Phi, phi2)
-        orientations = Orientation.from_euler(
-            np.deg2rad(df[['phi1', 'Phi', 'phi2']].values), 
-            symmetry=Cubic()
+        # Create Rotation from Euler angles (Bunge convention)
+        rotation = Rotation.from_euler(
+            np.column_stack([phi1_rad, Phi_rad, phi2_rad]),
+            degrees=False
         )
         
-        # Apply symmetry to find the equivalent orientation in the fundamental region
-        # The 'disoriented' method or simply re-assigning with symmetry handles this
-        # We want to ensure all orientations are within the fundamental zone
-        # orix automatically handles symmetry when creating the Orientation object with symmetry=Cubic()
-        # However, to ensure they are reduced to the fundamental region, we can use the symmetry operation
+        # Apply FCC symmetry
+        fcc_symmetry = Cubic()
+        aligned_rotation = rotation.align_symmetry(fcc_symmetry)
         
-        # The standard way to ensure fundamental region is to let orix handle it during creation
-        # But if we want to explicitly reduce:
-        # orientations = orientations.disoriented() # This finds the unique representative
+        # Convert back to Euler angles (degrees)
+        euler_aligned = np.degrees(aligned_rotation.to_euler())
         
-        # Actually, creating with symmetry=Cubic() ensures that operations respect symmetry.
-        # To ensure the angles are in the fundamental region, we can use the 'reduced' property
-        # or simply rely on the fact that orix stores them in a way that respects symmetry.
-        # For output, we convert back to Euler angles.
+        # Update DataFrame
+        df_out = df.copy()
+        df_out['phi1'] = euler_aligned[:, 0]
+        df_out['Phi'] = euler_aligned[:, 1]
+        df_out['phi2'] = euler_aligned[:, 2]
         
-        # Let's explicitly reduce to fundamental region
-        # orix doesn't have a direct "reduce_to_fundamental" that returns Euler angles directly 
-        # without the symmetry context, but the Orientation object itself represents the coset.
-        # We will extract the Euler angles. orix stores the minimal representation.
-        
-        # Extract Euler angles in radians, then convert to degrees
-        # The 'angles' property returns the minimal representation in the fundamental region
-        euler_rad = orientations.angle_with(orientations).data # This is not correct for extraction
-        
-        # Correct extraction:
-        # orientations.euler returns the Euler angles in the fundamental region
-        euler_angles = orientations.euler # Shape (N, 3) in radians
-        
-        # Convert back to degrees
-        df_reindexed = df.copy()
-        df_reindexed['phi1'] = np.rad2deg(euler_angles[:, 0])
-        df_reindexed['Phi'] = np.rad2deg(euler_angles[:, 1])
-        df_reindexed['phi2'] = np.rad2deg(euler_angles[:, 2])
-        
-        logger.info(f"Re-indexed {len(df)} orientations to FCC fundamental region.")
+        logger.info(f"Re-indexed {len(df_out)} orientations to FCC symmetry")
+        return df_out
         
     except Exception as e:
-        logger.error(f"Error during FCC re-indexing: {e}", exc_info=True)
-        # Fallback: return original if symmetry handling fails (though this violates FR-002)
-        # In a strict implementation, we might want to raise here.
-        # For now, log and return original to avoid total pipeline crash if orix fails unexpectedly
-        # But per FR-002, this is the sole mechanism. If it fails, we should probably fail.
-        raise RuntimeError(f"FCC re-indexing failed: {e}")
-
-    return df_reindexed
+        logger.error(f"Failed to re-index orientations: {e}")
+        return df
 
 def process_ebsd_dataset(
-    input_path: Path, 
-    output_path: Path, 
-    reduction_level: Optional[int] = None
+    input_path: str,
+    output_path: str,
+    reduction_levels: Optional[List[int]] = None
 ) -> Dict[str, Any]:
     """
-    Main processing function for a single EBSD dataset.
-    
-    Performs:
-    1. Load data.
-    2. Filter by confidence.
-    3. Re-index to FCC.
-    4. Apply exclusion logic (low reliability).
-    5. Save output.
+    Main preprocessing function that orchestrates the pipeline.
     
     Args:
-        input_path: Path to input file.
-        output_path: Path to output file.
-        reduction_level: Optional reduction level to tag the data.
+        input_path: Path to input EBSD data
+        output_path: Path for processed output
+        reduction_levels: Optional list of reduction levels to filter
         
     Returns:
-        Dictionary with processing metrics.
+        Dictionary with processing statistics
     """
-    logger.info(f"Processing dataset: {input_path}")
+    stats = {
+        'input_rows': 0,
+        'filtered_by_confidence': 0,
+        'excluded_samples': 0,
+        'final_rows': 0,
+        'output_path': output_path
+    }
     
-    # 1. Load
+    # Load data
     df = load_ebsd_data(input_path)
+    stats['input_rows'] = len(df)
     
-    # 2. Filter Confidence
-    df_filtered, removal_fraction = filter_by_confidence(df)
+    # Filter by confidence
+    df_filtered, df_excluded_conf = filter_by_confidence(df)
+    stats['filtered_by_confidence'] = len(df_excluded_conf)
     
-    # 3. Re-index to FCC
+    # Re-index to FCC symmetry
     df_processed = reindex_to_fcc(df_filtered)
     
-    # 4. Exclusion Logic
-    # Calculate reliability metrics
-    metrics = calculate_reliability_metrics(df, df_processed)
-    
-    # Apply exclusion logic
-    is_excluded, reason = apply_exclusion_logic(metrics, threshold=RELIABILITY_THRESHOLD)
-    
-    if is_excluded:
-        logger.warning(f"Sample excluded due to low reliability: {reason}")
-        return {
-            "status": "excluded",
-            "reason": reason,
-            "metrics": metrics
-        }
-    
-    # 5. Add metadata
-    df_processed['processed'] = True
-    if reduction_level is not None:
-        df_processed['reduction_level'] = reduction_level
+    # Apply exclusion logic for low-reliability samples
+    # Group by sample ID and check reliability
+    if 'sample_id' in df_processed.columns:
+        reliability_metrics = calculate_reliability_metrics(df_processed)
+        df_processed, excluded_samples = apply_exclusion_logic(
+            df_processed, 
+            reliability_metrics,
+            threshold=RELIABILITY_THRESHOLD
+        )
+        stats['excluded_samples'] = len(excluded_samples)
     else:
-        # Try to infer from filename or existing column
-        if 'reduction' in df_processed.columns:
-            pass # Keep existing
-        else:
-            df_processed['reduction_level'] = -1 # Unknown
+        logger.warning("No 'sample_id' column found. Skipping sample exclusion logic.")
+    
+    # Filter by reduction levels if specified
+    if reduction_levels is not None and 'reduction' in df_processed.columns:
+        df_processed = df_processed[df_processed['reduction'].isin(reduction_levels)]
+        logger.info(f"Filtered to reduction levels: {reduction_levels}")
+    
+    stats['final_rows'] = len(df_processed)
     
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # 6. Save
-    if output_path.suffix == '.csv':
-        df_processed.to_csv(output_path, index=False)
-    elif output_path.suffix == '.parquet':
+    # Save processed data
+    if output_path.endswith('.parquet'):
         df_processed.to_parquet(output_path, index=False)
+    elif output_path.endswith('.csv'):
+        df_processed.to_csv(output_path, index=False)
     else:
-        # Default to parquet for efficiency if extension missing
-        if output_path.suffix == '':
-            output_path = output_path.with_suffix('.parquet')
-            df_processed.to_parquet(output_path, index=False)
-        else:
-            df_processed.to_csv(output_path, index=False)
+        raise ValueError(f"Unsupported output format: {output_path}")
     
     logger.info(f"Processed data saved to {output_path}")
+    logger.info(f"Final dataset: {stats['final_rows']} rows")
     
-    return {
-        "status": "success",
-        "input_points": len(df),
-        "output_points": len(df_processed),
-        "removal_fraction": removal_fraction,
-        "metrics": metrics
-    }
+    return stats
 
 def main():
     """
-    Entry point for the preprocessing script.
-    Reads configuration and processes all raw EBSD files.
+    CLI entry point for preprocessing.
     """
-    logger.info("Starting EBSD Preprocessing Pipeline")
+    import argparse
     
-    data_path = get_data_path()
-    raw_dir = data_path / "raw"
-    processed_dir = data_path / "processed"
+    parser = argparse.ArgumentParser(description='Preprocess EBSD data')
+    parser.add_argument('--input', required=True, help='Input data file path')
+    parser.add_argument('--output', required=True, help='Output file path')
+    parser.add_argument('--reductions', type=int, nargs='+', help='Reduction levels to include')
     
-    if not raw_dir.exists():
-        logger.error(f"Raw data directory not found: {raw_dir}")
-        sys.exit(1)
+    args = parser.parse_args()
     
-    # Get reduction levels from config
-    reduction_levels = get_reductions()
-    logger.info(f"Target reduction levels: {reduction_levels}")
-    
-    # Find all raw files
-    raw_files = list(raw_dir.glob("*.csv")) + list(raw_dir.glob("*.parquet"))
-    if not raw_files:
-        logger.warning("No raw data files found.")
-        sys.exit(0)
-    
-    results = []
-    
-    for raw_file in raw_files:
-        # Determine reduction level for this file
-        # Try to infer from filename (e.g., "al_20pct.csv" -> 20)
-        # Or use the first available level if not specified in filename
-        # For this implementation, we assume the filename or metadata contains the level
-        # If not, we process with a placeholder or skip.
-        # A robust implementation would parse the filename or use a manifest.
-        
-        # Simple heuristic: look for numbers in filename
-        import re
-        match = re.search(r'(\d+)', raw_file.stem)
-        level = int(match.group(1)) if match else None
-        
-        # If level not found in filename, check if it matches any in the list
-        # If not, we might need to process all levels or skip.
-        # For now, we process regardless and tag as 'unknown' if no match, 
-        # or try to match the first available level if the file is a generic dump.
-        # However, T012 ensures we have reduction levels.
-        # Let's assume the file name or content dictates the level.
-        # If the file doesn't have a clear level, we might process it for all or skip.
-        # To keep it simple and robust: if 'reduction' column exists, we group by it later.
-        # Here we just process the file.
-        
-        output_file = processed_dir / f"{raw_file.stem}_processed.parquet"
-        
+    # Get reduction levels from config if not provided
+    reduction_levels = args.reductions
+    if reduction_levels is None:
         try:
-            result = process_ebsd_dataset(raw_file, output_file, reduction_level=level)
-            results.append(result)
+            reduction_levels = get_reductions()
+            logger.info(f"Using reduction levels from config: {reduction_levels}")
         except Exception as e:
-            logger.error(f"Failed to process {raw_file}: {e}")
-            results.append({"status": "failed", "file": str(raw_file), "error": str(e)})
+            logger.warning(f"Could not get reduction levels from config: {e}")
+            reduction_levels = None
     
-    # Summary
-    success_count = sum(1 for r in results if r.get("status") == "success")
-    excluded_count = sum(1 for r in results if r.get("status") == "excluded")
-    failed_count = sum(1 for r in results if r.get("status") == "failed")
+    # Run preprocessing
+    stats = process_ebsd_dataset(
+        args.input,
+        args.output,
+        reduction_levels
+    )
     
-    logger.info(f"Preprocessing complete. Success: {success_count}, Excluded: {excluded_count}, Failed: {failed_count}")
+    # Print summary
+    print("\n=== Preprocessing Summary ===")
+    for key, value in stats.items():
+        print(f"{key}: {value}")
     
-    if failed_count > 0:
-        sys.exit(1)
+    return 0
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

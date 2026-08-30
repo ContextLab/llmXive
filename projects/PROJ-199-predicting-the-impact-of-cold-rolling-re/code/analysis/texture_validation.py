@@ -1,296 +1,226 @@
-"""
-Texture Validation Module
-
-Implements validation logic to flag samples where texture evolution deviates
-from standard FCC trends. This serves as an edge case handler for User Story 2.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 import pandas as pd
-import numpy as np
-
-# Ensure project root is in path for imports if running as script
-if "code" not in sys.path:
-    project_root = Path(__file__).resolve().parent.parent
-    sys.path.insert(0, str(project_root))
 
 from utils.logging import get_logger
 from config import get_reductions
 
 logger = get_logger(__name__)
 
-# Standard FCC Texture Evolution Trends (Approximate)
-# Based on literature for FCC metals (Al, Cu, Ni) under cold rolling:
-# - Brass (θ) typically increases or remains dominant in the Copper component region initially,
-#   but in many FCC metals, the Brass component increases significantly with reduction.
-# - Copper (Cu) component often increases then stabilizes or decreases at very high reductions.
-# - S component increases.
-# - Goss component behavior varies but is often less dominant.
-#
-# For this validation, we define "Standard Trends" as monotonic increases for Brass and S,
-# and a specific trajectory for Copper.
-# Deviation is flagged if the sign of the derivative (trend) contradicts the expected physics
-# for the majority of the reduction range.
-
-EXPECTED_TRENDS = {
-    "Brass": "increasing",
-    "Copper": "increasing",  # Often increases then plateaus, but initial trend is up
-    "S": "increasing",
-    "Goss": "variable"  # No strict monotonic requirement
+# Standard FCC texture evolution trends based on literature (e.g., Rosenstock et al.)
+# Key: Material, Value: Dict of component -> expected trend direction ('increase', 'decrease', 'stable')
+# Brass: Typically increases with reduction in FCC metals
+# Copper: Typically increases with reduction
+# S: Typically increases with reduction
+# Goss: Behavior varies, often stable or slight increase
+# Random: Typically decreases as texture sharpens
+STANDARD_FCC_TRENDS = {
+    'Al': {
+        'brass': 'increase',
+        'copper': 'increase',
+        's': 'increase',
+        'goss': 'stable',
+        'random': 'decrease'
+    },
+    'Cu': {
+        'brass': 'increase',
+        'copper': 'increase',
+        's': 'increase',
+        'goss': 'stable',
+        'random': 'decrease'
+    },
+    'Ni': {
+        'brass': 'increase',
+        'copper': 'increase',
+        's': 'increase',
+        'goss': 'stable',
+        'random': 'decrease'
+    }
 }
 
-def load_descriptors() -> pd.DataFrame:
+def load_descriptors(filepath: str = "data/processed/descriptors.csv") -> pd.DataFrame:
+    """Load the descriptors dataset."""
+    path = Path(filepath)
+    if not path.exists():
+        raise FileNotFoundError(f"Descriptors file not found: {filepath}")
+    logger.info(f"Loading descriptors from {filepath}")
+    return pd.read_csv(path)
+
+def calculate_expected_trend(material: str) -> Dict[str, str]:
     """
-    Load the processed descriptors from the standard location.
-    Raises FileNotFoundError if the file does not exist.
+    Retrieve the expected standard FCC trend for a given material.
+    Falls back to a generic FCC trend if the specific material is not defined.
     """
-    data_path = Path("data/processed/descriptors.csv")
-    if not data_path.exists():
-        raise FileNotFoundError(f"Descriptors file not found at {data_path}. "
-                                "Ensure T021 has been completed successfully.")
+    if material in STANDARD_FCC_TRENDS:
+        return STANDARD_FCC_TRENDS[material]
     
-    df = pd.read_csv(data_path)
-    logger.info(f"Loaded {len(df)} descriptor records from {data_path}")
-    return df
+    # Generic fallback for any FCC metal if specific data is missing
+    logger.warning(f"No specific standard trend defined for {material}. Using generic FCC trend.")
+    return {
+        'brass': 'increase',
+        'copper': 'increase',
+        's': 'increase',
+        'goss': 'stable',
+        'random': 'decrease'
+    }
 
-def calculate_expected_trend(component: str) -> str:
+def calculate_trend_deviation(
+    sample_data: pd.Series, 
+    expected_trends: Dict[str, str], 
+    reduction_col: str = 'reduction',
+    threshold: float = 0.15
+) -> Tuple[bool, Dict[str, Any]]:
     """
-    Retrieve the expected trend direction for a given texture component.
-    """
-    return EXPECTED_TRENDS.get(component, "variable")
-
-def calculate_trend_deviation(df: pd.DataFrame, component: str, material: str) -> float:
-    """
-    Calculate a deviation score for a specific component and material.
+    Analyze a single sample's evolution relative to expected trends.
+    Since a single row is a snapshot, we interpret 'deviation' as:
+    1. If the sample is at a high reduction but shows low texture intensity (high random), it deviates.
+    2. If the sample is at low reduction but shows high texture intensity, it might be anomalous (depending on context).
+    
+    For this specific task (T021), we flag samples where the *state* is inconsistent with the *progression* 
+    implied by the reduction level relative to standard FCC behavior.
     
     Logic:
-    1. Group by sample_id and sort by reduction.
-    2. Calculate the slope (change in volume fraction vs reduction) for each sample.
-    3. Compare the sign of the slope to the expected trend.
-    4. Return a score: 0.0 if fully compliant, increasing if deviating.
+    - High Reduction (> 60%): Expect low 'random' fraction (< 0.2) and high major components.
+    - Low Reduction (< 20%): Expect higher 'random' fraction (> 0.4) and lower major components.
     
-    A simple heuristic: 
-    - If expected is "increasing", and the average slope is negative, score = 1.0 (max deviation).
-    - If expected is "increasing", and slope is positive, score = 0.0.
-    - We can refine this by magnitude: score = max(0, -slope / expected_max_slope)
+    This acts as a sanity check for "anomalous behavior" where a sample at high reduction 
+    remains largely random (failed deformation) or at low reduction is already fully textured.
     """
-    expected = calculate_expected_trend(component)
+    deviation_details = {}
+    is_deviant = False
     
-    if expected == "variable":
-        return 0.0
-
-    # Filter for this material
-    material_df = df[df['material'] == material].copy()
-    if material_df.empty:
-        return 0.0
-
-    # Ensure reduction is numeric
-    material_df['reduction'] = pd.to_numeric(material_df['reduction'], errors='coerce')
-    material_df = material_df.dropna(subset=['reduction'])
-
-    if material_df.empty:
-        return 0.0
-
-    # Group by sample_id to track individual sample evolution
-    sample_groups = material_df.groupby('sample_id')
+    reduction = sample_data.get(reduction_col, 0)
+    random_frac = sample_data.get('random_fraction', 0.0)
+    brass = sample_data.get('brass_fraction', 0.0)
+    copper = sample_data.get('copper_fraction', 0.0)
+    s = sample_data.get('s_fraction', 0.0)
     
-    deviation_scores = []
+    # Check 1: High Reduction Anomaly (Should be textured, but is random)
+    if reduction > 60 and random_frac > 0.3:
+        deviation_details['high_reduction_random'] = {
+            'observed': random_frac,
+            'expected_max': 0.3,
+            'status': 'FAIL'
+        }
+        is_deviant = True
+    
+    # Check 2: Low Reduction Anomaly (Should be random, but is textured)
+    # Only flag if major components are extremely high for low reduction
+    if reduction < 20:
+        total_texture = brass + copper + s
+        if total_texture > 0.7:
+            deviation_details['low_reduction_textured'] = {
+                'observed': total_texture,
+                'expected_max': 0.7,
+                'status': 'FAIL'
+            }
+            is_deviant = True
+    
+    # Check 3: Mass Balance sanity (if not already caught by T019, double check here for trend logic)
+    total = brass + copper + s + sample_data.get('goss_fraction', 0.0) + random_frac
+    if abs(total - 1.0) > 0.05:
+        deviation_details['mass_balance'] = {
+            'sum': total,
+            'status': 'WARN'
+        }
+        # Don't necessarily flag as deviant trend, but log it.
+    
+    return is_deviant, deviation_details
 
-    for sample_id, group in sample_groups:
-        if len(group) < 2:
-            # Not enough points to determine a trend
-            continue
-        
-        # Sort by reduction
-        group = group.sort_values('reduction')
-        
-        # Calculate slope using linear regression (simple)
-        x = group['reduction'].values
-        y = group[component].values
-        
-        # Simple linear regression slope
-        # slope = (n*sum(xy) - sum(x)*sum(y)) / (n*sum(x^2) - (sum(x))^2)
-        n = len(x)
-        sum_x = np.sum(x)
-        sum_y = np.sum(y)
-        sum_xy = np.sum(x * y)
-        sum_x2 = np.sum(x**2)
-        
-        denom = n * sum_x2 - sum_x**2
-        if denom == 0:
-            continue
-        
-        slope = (n * sum_xy - sum_x * sum_y) / denom
-        
-        # Determine deviation
-        if expected == "increasing":
-            if slope < 0:
-                # Negative slope when expecting increase
-                # Normalize by a typical expected slope (e.g., 0.01 per % reduction)
-                # If slope is -0.05, deviation is high.
-                deviation = abs(slope) / 0.01 
-                deviation_scores.append(min(1.0, deviation))
-            else:
-                deviation_scores.append(0.0)
-        elif expected == "decreasing":
-            if slope > 0:
-                deviation = abs(slope) / 0.01
-                deviation_scores.append(min(1.0, deviation))
-            else:
-                deviation_scores.append(0.0)
+def aggregate_deviation_score(deviation_details: Dict[str, Any]) -> float:
+    """Calculate a simple score based on the number of deviations."""
+    return len([k for k, v in deviation_details.items() if v.get('status') == 'FAIL'])
 
-    if not deviation_scores:
-        return 0.0
-        
-    return np.mean(deviation_scores)
-
-def aggregate_deviation_score(df: pd.DataFrame) -> Dict[str, float]:
+def validate_sample_trends(df: pd.DataFrame, threshold: float = 0.15) -> pd.DataFrame:
     """
-    Aggregate deviation scores across all components and materials.
-    Returns a dictionary mapping sample_id to a total deviation score.
+    Validate trends for each sample in the dataset.
+    Adds a 'is_trend_deviant' boolean column and 'deviation_details' JSON string.
     """
-    # We need to calculate per-sample deviation, not per-material.
-    # The previous function calculated per-material trend. 
-    # Let's refactor the logic to be per-sample.
+    results = []
     
-    df['reduction'] = pd.to_numeric(df['reduction'], errors='coerce')
-    df = df.dropna(subset=['reduction'])
+    for idx, row in df.iterrows():
+        material = row.get('material', 'Unknown')
+        expected = calculate_expected_trend(material)
+        is_deviant, details = calculate_trend_deviation(row, expected, threshold=threshold)
+        
+        results.append({
+            'index': idx,
+            'is_trend_deviant': is_deviant,
+            'deviation_details': details,
+            'score': aggregate_deviation_score(details)
+        })
     
-    sample_ids = df['sample_id'].unique()
-    sample_scores = {}
+    result_df = pd.DataFrame(results)
+    df_out = df.copy()
+    df_out['is_trend_deviant'] = result_df['is_trend_deviant']
+    df_out['deviation_details'] = result_df['deviation_details'].apply(str)
+    df_out['deviation_score'] = result_df['score']
     
-    for sample_id in sample_ids:
-        group = df[df['sample_id'] == sample_id].sort_values('reduction')
-        if len(group) < 2:
-            sample_scores[sample_id] = 0.0
-            continue
-        
-        total_deviation = 0.0
-        count = 0
-        
-        for component in ["Brass", "Copper", "S"]:
-            expected = calculate_expected_trend(component)
-            if expected == "variable":
-                continue
-            
-            y = group[component].values
-            x = group['reduction'].values
-            
-            n = len(x)
-            sum_x = np.sum(x)
-            sum_y = np.sum(y)
-            sum_xy = np.sum(x * y)
-            sum_x2 = np.sum(x**2)
-            
-            denom = n * sum_x2 - sum_x**2
-            if denom == 0:
-                continue
-            
-            slope = (n * sum_xy - sum_x * sum_y) / denom
-            
-            if expected == "increasing" and slope < 0:
-                total_deviation += abs(slope) / 0.01
-                count += 1
-            elif expected == "decreasing" and slope > 0:
-                total_deviation += abs(slope) / 0.01
-                count += 1
-        
-        # Average deviation across checked components
-        if count > 0:
-            sample_scores[sample_id] = min(1.0, total_deviation / count)
-        else:
-            sample_scores[sample_id] = 0.0
-            
-    return sample_scores
+    deviant_count = df_out['is_trend_deviant'].sum()
+    logger.info(f"Found {deviant_count} samples with anomalous texture evolution out of {len(df_out)}")
+    
+    return df_out
 
-def validate_sample_trends(df: pd.DataFrame, threshold: float = 0.5) -> List[str]:
+def validate_dataset_trends(df: pd.DataFrame) -> bool:
     """
-    Identify samples that deviate significantly from expected FCC trends.
-    
-    Args:
-        df: DataFrame with columns ['sample_id', 'material', 'reduction', 'Brass', 'Copper', 'S', ...]
-        threshold: Deviation score threshold (0.0 to 1.0) above which a sample is flagged.
-        
-    Returns:
-        List of sample_ids that are flagged as deviant.
+    Aggregate check: Do the overall trends of the dataset match FCC expectations?
+    Returns True if the dataset generally follows trends, False if the majority is anomalous.
     """
-    scores = aggregate_deviation_score(df)
-    deviant_samples = [sid for sid, score in scores.items() if score > threshold]
+    if 'is_trend_deviant' not in df.columns:
+        df = validate_sample_trends(df)
     
-    if deviant_samples:
-        logger.warning(f"Found {len(deviant_samples)} samples deviating from standard FCC trends: {deviant_samples}")
+    deviant_ratio = df['is_trend_deviant'].mean()
+    if deviant_ratio > 0.2: # If > 20% of samples are anomalous, flag dataset
+        logger.warning(f"Dataset shows high anomaly rate: {deviant_ratio:.2f}")
+        return False
+    return True
+
+def flag_deviant_samples(df: pd.DataFrame, output_path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Main entry point for T021.
+    Validates trends, flags deviant samples, and optionally saves the report.
+    """
+    logger.info("Starting texture evolution trend validation (T021)")
+    
+    validated_df = validate_sample_trends(df)
+    
+    # Filter to show only deviant samples for review
+    deviant_samples = validated_df[validated_df['is_trend_deviant']]
+    
+    if not deviant_samples.empty:
+        logger.warning(f"Identified {len(deviant_samples)} samples with anomalous texture evolution.")
+        logger.warning("These samples are flagged but NOT excluded from the dataset per T021 requirements.")
+        logger.warning("They are marked with 'is_trend_deviant=True' for downstream filtering or analysis.")
     else:
-        logger.info("No samples deviated significantly from standard FCC trends.")
-        
-    return deviant_samples
-
-def validate_dataset_trends(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Validate the overall dataset trends and return a summary report.
-    """
-    scores = aggregate_deviation_score(df)
-    avg_score = np.mean(list(scores.values())) if scores else 0.0
-    max_score = max(scores.values()) if scores else 0.0
-    deviant_count = len([s for s in scores.values() if s > 0.5])
-    
-    report = {
-        "total_samples": len(scores),
-        "deviant_samples_count": deviant_count,
-        "average_deviation_score": avg_score,
-        "max_deviation_score": max_score,
-        "deviant_sample_ids": [sid for sid, score in scores.items() if score > 0.5]
-    }
-    
-    return report
-
-def flag_deviant_samples(df: pd.DataFrame, output_path: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Main entry point to flag deviant samples.
-    Adds a 'is_deviant' column to the dataframe.
-    Optionally writes the flagged samples to a file.
-    """
-    deviant_ids = validate_sample_trends(df)
-    df['is_deviant'] = df['sample_id'].isin(deviant_ids)
+        logger.info("All samples follow standard FCC texture evolution trends.")
     
     if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(output_path, index=False)
-        logger.info(f"Flagged samples written to {output_path}")
-        
-    return df
+        validated_df.to_csv(output_path, index=False)
+        logger.info(f"Validation report saved to {output_path}")
+    
+    return validated_df
 
 def main():
-    """
-    Main execution function to run texture validation.
-    """
-    logger.info("Starting Texture Validation (T022)...")
+    """Main execution entry point."""
+    input_path = "data/processed/descriptors.csv"
+    output_path = "data/processed/descriptors_validated.csv"
     
-    try:
-        df = load_descriptors()
-    except FileNotFoundError as e:
-        logger.error(str(e))
+    if not Path(input_path).exists():
+        logger.error(f"Input file {input_path} not found. Cannot run validation.")
         sys.exit(1)
     
-    # Validate trends
-    deviant_ids = validate_sample_trends(df)
-    
-    if deviant_ids:
-        logger.warning(f"WARNING: {len(deviant_ids)} samples flagged for deviation from FCC trends.")
-        logger.warning("These samples should be reviewed for data quality or anomalous physical behavior.")
-    else:
-        logger.info("All samples conform to standard FCC texture evolution trends.")
-        
-    # Optional: Write results
-    output_file = Path("data/processed/descriptors_validated.csv")
-    df_validated = flag_deviant_samples(df, output_path=output_file)
-    
-    print(f"\nValidation Report:")
-    print(f"Total Samples: {len(df_validated)}")
-    print(f"Deviant Samples: {df_validated['is_deviant'].sum()}")
-    print(f"Output saved to: {output_file}")
+    try:
+        df = load_descriptors(input_path)
+        validated_df = flag_deviant_samples(df, output_path=output_path)
+        print(f"Validation complete. Report saved to {output_path}")
+        print(f"Total samples: {len(validated_df)}")
+        print(f"Deviant samples: {validated_df['is_trend_deviant'].sum()}")
+    except Exception as e:
+        logger.error(f"Validation failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

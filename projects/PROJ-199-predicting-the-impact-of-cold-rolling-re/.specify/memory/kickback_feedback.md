@@ -4,8 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence of a `code/` directory is provided; the claim cannot be verified because the required artifact (the directory itself) is missing from the supplied evidence. The next implementer must create the `code/` folder in the repository so that `pathlib.Path(__file__).parent.joinpath('code').is_dir()` returns `True`.
-- `T001b` (rejected 1x): No evidence of a `data/` directory being present in the repository is provided, nor is there any code snippet showing the `pathlib.Path(__file__).parent.joinpath('data').is_dir()` check. The implementer must add the `data/` folder (even if empty) and include a verification step confirming its existence.
+- `T012` (rejected 1x): declared artifact(s) missing/empty/invalid: code/data/download.py
+- `T015` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/cleaned_ebsd.parquet
+- `T019` (rejected 1x): No code, script, test output, or any other artifact was presented that implements the mass‑balance check (sum of major texture components plus “random” equals 1.0 ± 0.01). Without a concrete implementation or verification results, the requirement is not satisfied. The next implementer must provide the actual function/module and evidence (e.g., unit test logs or example output) showing the mass‑balance condition holds.
 
 ## Required change
 
