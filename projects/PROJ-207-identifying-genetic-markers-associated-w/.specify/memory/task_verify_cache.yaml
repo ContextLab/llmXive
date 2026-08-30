@@ -1,18 +1,18 @@
 T017:
-  c: true
-  h: 36cca20ad59378df54f2f33994bc6c710ec77024759c85bb7ce3f615bc3285ab
-  r: "The repository contains a non\u2011empty `code/03_gwas.sh` that runs `plink2`\
-    \ with `--logistic` and `--covar` (using the covariate file), does not include\
-    \ any FDR logic, and renames the PLINK output to `data/interim/gwas_raw.tsv` as\
-    \ required. The script matches the specification."
+  c: false
+  h: aa7028a9a8ff2dddfe265b197a6d54b585bc57ec4539869ee6c4fc607b109ddc
+  r: The repository contains `code/03_gwas.sh`, but the script is truncated (ends
+    abruptly) and does not reliably enforce the mandatory covariates nor guarantee
+    creation of `data/interim/gwas_raw.tsv` (the file is missing). Consequently the
+    required output artifact is absent and the script does not fully meet the task
+    specification.
 T022:
   c: false
-  h: 69a254f8109e1822b3900424eda6a3dab268cab990455558f1a2fa99bcd30347
-  r: "The script `code/04_apply_fdr.sh` exists and contains merging logic, but the\
-    \ required output file `data/processed/gwas_results_fdr.tsv` is missing, so the\
-    \ task\u2019s primary artifact was not produced. The next implementer must run\
-    \ the script (or otherwise generate) to create the `gwas_results_fdr.tsv` file\
-    \ with the merged results."
+  h: 69330a2fa359aba893bd9dcae227c3467c049ea12d9f03651b9f33493c3cfcaf
+  r: The `code/04_apply_fdr.sh` script exists, but the required output file `data/processed/gwas_results_fdr.tsv`
+    is missing, so the final artifact the task demanded was not produced. The next
+    implementer must run the script (or otherwise generate) to create the `gwas_results_fdr.tsv`
+    file with the merged results.
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

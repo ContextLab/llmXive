@@ -14,6 +14,7 @@ import argparse
 from pathlib import Path
 import pandas as pd
 import numpy as np
+import json
 
 def generate_thresholds():
     """
@@ -29,7 +30,7 @@ def run_sensitivity_analysis(df, thresholds):
     Count significant SNPs for each threshold using FDR-corrected q-values.
     
     Args:
-        df: DataFrame containing GWAS results with 'P' and 'q_value' columns.
+        df: DataFrame containing GWAS results with 'q_value' column.
         thresholds: List of float thresholds to sweep.
         
     Returns:
@@ -53,11 +54,15 @@ def run_sensitivity_analysis(df, thresholds):
         # Get the minimum q-value observed in the dataset
         min_q = valid_q_df['q_value'].min() if not valid_q_df.empty else np.nan
         
+        # List q-values that pass this threshold (for transparency)
+        passing_q_values = valid_q_df[valid_q_df['q_value'] < thresh]['q_value'].tolist()
+        
         results.append({
             'threshold': f"{thresh:.2e}",
             'snp_count': len(df),
             'min_q_value': min_q,
-            'significant_count': int(significant_count)
+            'significant_count': int(significant_count),
+            'passing_q_values': json.dumps(passing_q_values)
         })
     
     return pd.DataFrame(results)
@@ -74,7 +79,7 @@ def main():
     parser.add_argument(
         "--output", 
         required=True, 
-        help="Path to output report (data/processed/threshold_sensitivity_report.tsv)"
+        help="Path to output report (data/processed/threshold_sensitivity.json)"
     )
     args = parser.parse_args()
 
@@ -82,6 +87,7 @@ def main():
     if not os.path.exists(args.input):
         print(f"Error: Input file not found: {args.input}")
         print("This file must be produced by code/04_apply_fdr.sh (T022) which applies BH correction.")
+        print("Ensure the pipeline has run through T022 before executing this step.")
         sys.exit(1)
 
     # Read data
@@ -107,15 +113,25 @@ def main():
     # Run analysis
     report_df = run_sensitivity_analysis(df, thresholds)
 
-    # Write report
+    # Write report as JSON (as per task description output)
     # Ensure output directory exists
     Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-    report_df.to_csv(args.output, sep='\t', index=False)
+    
+    # Convert DataFrame to list of dicts for JSON serialization
+    report_data = report_df.to_dict(orient='records')
+    
+    with open(args.output, 'w') as f:
+        json.dump(report_data, f, indent=2)
     
     print(f"Sensitivity analysis complete.")
     print(f"Report saved to {args.output}")
     print(f"Processed {len(df)} SNPs across {len(thresholds)} thresholds.")
-    print(f"Minimum q-value observed: {report_df['min_q_value'].min():.2e}")
+    
+    min_q_val = report_df['min_q_value'].min()
+    if not np.isnan(min_q_val):
+        print(f"Minimum q-value observed: {min_q_val:.2e}")
+    else:
+        print("No valid q-values found in input data.")
 
 if __name__ == "__main__":
     main()

@@ -128,7 +128,7 @@ samtools
 
 - [X] T012a [US1] Implement `code/01_download.py` to fetch data from NCBI BioProject CCD colonies and healthy controls datasets with associated metadata from BeeBase repository using SRA Toolkit.
  - **Implementation**:
- 1. **Primary Source**: Use `prefetch SRRxxxxx` and `fasterq-dump --split-files SRRxxxxx` to download FASTQ files into `data/raw` from NCBI BioProject. Replace 'SRRxxxxx' with the appropriate accession numbers for PRJNA639195 and PRJNA566029.
+ 1. **Primary Source**: Use `prefetch SRRxxxxx` and `fasterq-dump --split-files SRRxxxxx` to download FASTQ files into `data/raw` from NCBI BioProject. Replace 'SRRxxxxx' with the appropriate accession numbers for {{claim:c_0e510940}}.
  2. **Validation**: Validate downloaded data using checksums against a known good source.
  3. **CCD Criteria**: Explicitly validate that the metadata contains "validated instruments for CCD diagnosis criteria consistent across BeeBase and NCBI metadata sources" (FR-011) during the fetch step.
  4. **Fallback**: If the NCBI fetch fails completely (network error, SSL failure), attempt fetch from the verified Hugging Face mirror (`bee_genome_variants`).
@@ -152,12 +152,12 @@ samtools
 - [X] T062 [US1] Implement `code/02_harmonize_phenotypes.py` to map CCD diagnosis codes to CCD Working Group criteria (FR-011).
 - [X] T063 [US1] Implement `code/03_filter_snps.py` to pre-filter SNPs to immune pathway (Candidate-Gene approach) (FR-003).
 - [X] T064 [US1] Implement `code/05_collinearity_diag.py` to perform collinearity diagnostics (FR-010).
-- [X] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with mandatory covariates (from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T020. Output to `data/interim/gwas_raw.tsv`.
+- [ ] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with mandatory covariates (from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T020. Output to `data/interim/gwas_raw.tsv`.
 - [X] T020 [P] [US1] Implement Benjamini-Hochberg FDR correction in `code/utils/fdr_correction.py` (FR-004).
  - **Input**: `data/interim/gwas_raw.tsv`. MUST be sorted by p-value in **ascending order**. P-values must be formatted to **10 decimal places**.
  - **Output**: `data/interim/gwas_fdr.tsv`.
  - **Output Schema**: Columns must be: `rank`, `raw_p`, `q_value`, `significant` (boolean).
- - **Logic**: Apply BH correction. {{claim:c_67cad75f}}
+ - **Logic**: Apply BH correction. {{claim:c_470e3f1d}}
 
 - [ ] T022 [US1] Create `code/04_apply_fdr.sh` to merge PLINK raw results (T017) with FDR-corrected results (T020) into the final artifact `data/processed/gwas_results_fdr.tsv`.
 
@@ -242,12 +242,12 @@ samtools
 
 **Note on GPU Constraint**: Task T074 was removed to align with the Spec's explicit Assumption that "No GPU or CUDA accelerators are required" and to prevent architectural drift. The project remains CPU-tractable.
 
-- [ ] T061 [P] [Review Fix] Update `code/05_annotation.py` (T032) to handle "no gene found" cases explicitly.
+- [X] T061 [P] [Review Fix] Update `code/05_annotation.py` (T032) to handle "no gene found" cases explicitly.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
 - [ ] T075 Reconcile run-book vs implementation for `code/06_power_analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/06_power_analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T076 Reconcile run-book vs implementation for `code/08_apply_fdr.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/08_apply_fdr.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T077 Reconcile run-book vs implementation for `code/09_threshold_sensitivity.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/09_threshold_sensitivity.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T076 Reconcile run-book vs implementation for `code/08_apply_fdr.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/08_apply_fdr.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T077 Reconcile run-book vs implementation for `code/09_threshold_sensitivity.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/09_threshold_sensitivity.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [ ] T078 Reconcile run-book vs implementation for `code/10_lasso_validation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/10_lasso_validation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [ ] T079 Reconcile run-book vs implementation for `code/11_prs_and_lr_test.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/11_prs_and_lr_test.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 - [ ] T080 Reconcile run-book vs implementation for `code/12_annotate_genes.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/12_annotate_genes.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

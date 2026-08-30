@@ -1,5 +1,6 @@
 status: none
-intent: Apis mellifera GWAS dataset PRJNA639195 BeeBase python package dataset
+intent: download Apis mellifera WGS dataset PRJNA639195 PRJNA566029 Hugging Face python
+  package dataset
 required_fields:
 - sample_id
 - chromosome
@@ -11,6 +12,6 @@ required_fields:
 - geographic_region
 - sampling_year
 - varroa_mite_count
-cache_key: 063d49dfe95815e9a71fcdde3c52ea7c892c18199e51f1d8e29668340b463bc4
-searched_at: '2026-08-30T22:11:38.854797+00:00'
+cache_key: 4472070d9204b269dfe0ba721be99e8b17eb85fdb6d2edeaa745861f9cde84c8
+searched_at: '2026-08-30T23:11:21.983847+00:00'
 retry_count: 1

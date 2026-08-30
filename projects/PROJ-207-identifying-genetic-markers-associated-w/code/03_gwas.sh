@@ -1,82 +1,91 @@
 #!/bin/bash
 # T017: Execute PLINK logistic regression for GWAS
-# Outputs raw association statistics to data/interim/gwas_raw.tsv
-# Does NOT include FDR logic (handled by T020)
+# Output: data/interim/gwas_raw.tsv
+# Note: FDR correction is handled by T020 (fdr_correction.py)
 
 set -euo pipefail
 
-# Paths
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CODE_DIR="${PROJECT_ROOT}/code"
-DATA_DIR="${PROJECT_ROOT}/data"
-INTERIM_DIR="${DATA_DIR}/interim"
-PROCESSED_DIR="${DATA_DIR}/processed"
-
-# Input files (produced by previous steps)
-# T015: VCF to PLINK conversion -> data/interim/gwas_cleaned
-# T016: Phenotype preprocessing -> data/interim/phenotypes_cleaned
-# T046: Covariates (encoded) -> typically merged into .pheno or separate file
-# T064: Collinearity diagnostics passed (assumed)
-
-PLINK_PREFIX="${INTERIM_DIR}/gwas_cleaned"
-PHENO_FILE="${INTERIM_DIR}/phenotypes_cleaned.pheno"
-COV_FILE="${INTERIM_DIR}/covariates_cleaned.cov"
-OUTPUT_PREFIX="${INTERIM_DIR}/gwas_raw"
-
-# Check prerequisites
-if [ ! -f "${PLINK_PREFIX}.bed" ]; then
-    echo "ERROR: PLINK binary file not found: ${PLINK_PREFIX}.bed"
-    echo "Ensure T015 (vcf_to_plink) and T016 (preprocess_phenotype) have completed successfully."
-    exit 1
-fi
-
-if [ ! -f "${PHENO_FILE}" ]; then
-    echo "ERROR: Phenotype file not found: ${PHENO_FILE}"
-    exit 1
-fi
-
-if [ ! -f "${COV_FILE}" ]; then
-    echo "ERROR: Covariate file not found: ${COV_FILE}"
-    echo "Ensure T016 (preprocess_phenotype) generated covariates."
-    exit 1
-fi
+# Configuration
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( dirname "$SCRIPT_DIR" )"
+CODE_DIR="$PROJECT_ROOT/code"
+DATA_DIR="$PROJECT_ROOT/data"
+INTERIM_DIR="$DATA_DIR/interim"
+PROCESSED_DIR="$DATA_DIR/processed"
 
 # Ensure output directory exists
-mkdir -p "${INTERIM_DIR}"
+mkdir -p "$INTERIM_DIR"
 
-# Execute PLINK logistic regression
-# --logistic: Perform logistic regression for binary trait
-# --covar: Include covariates (geographic region, sampling year, Varroa count)
-# --covar-name: Explicitly specify covariate columns if needed (optional, PLINK auto-detects header)
-# --out: Output prefix
-# --adjust: Output basic adjustments (optional, but good for debugging)
-# --ci: Confidence intervals for odds ratios (optional)
+# Define input files based on previous pipeline steps (T015, T016, T064)
+# T015: VCF to PLINK conversion -> data/interim/genotype
+# T016: Preprocess phenotype -> data/interim/phenotypes_cleaned
+# T064: Collinearity diagnostics -> data/interim/covariates.csv (or similar)
 
-echo "Starting PLINK logistic regression..."
-echo "Input: ${PLINK_PREFIX}"
-echo "Phenotype: ${PHENO_FILE}"
-echo "Covariates: ${COV_FILE}"
-echo "Output: ${OUTPUT_PREFIX}"
+# Check for required input files
+BED_FILE="$INTERIM_DIR/genotype.bed"
+BIM_FILE="$INTERIM_DIR/genotype.bim"
+FAM_FILE="$INTERIM_DIR/genotype.fam"
+PHENO_FILE="$INTERIM_DIR/phenotypes_cleaned.pheno"
+COV_FILE="$INTERIM_DIR/covariates.csv"
 
-plink2 \
-    --bfile "${PLINK_PREFIX}" \
-    --logistic hide-covar \
-    --covar "${COV_FILE}" \
-    --pheno "${PHENO_FILE}" \
-    --pheno-name "CCD_Status" \
-    --out "${OUTPUT_PREFIX}" \
-    2>&1 | tee "${INTERIM_DIR}/gwas_run.log"
-
-# Verify output
-if [ -f "${OUTPUT_PREFIX}.assoc.logistic" ]; then
-    echo "SUCCESS: Raw association statistics written to ${OUTPUT_PREFIX}.assoc.logistic"
-    # The task requires output to `data/interim/gwas_raw.tsv`
-    # PLINK outputs `*.assoc.logistic`. We move/rename it to match the spec.
-    mv "${OUTPUT_PREFIX}.assoc.logistic" "${OUTPUT_PREFIX}.tsv"
-    echo "Renamed output to: ${OUTPUT_PREFIX}.tsv"
-else
-    echo "ERROR: PLINK did not produce the expected output file: ${OUTPUT_PREFIX}.assoc.logistic"
+if [[ ! -f "$BED_FILE" ]] || [[ ! -f "$BIM_FILE" ]] || [[ ! -f "$FAM_FILE" ]]; then
+    echo "ERROR: PLINK binary files not found in $INTERIM_DIR. Did T015 (vcf_to_plink) run successfully?"
     exit 1
 fi
 
-echo "T017 completed successfully."
+if [[ ! -f "$PHENO_FILE" ]]; then
+    echo "ERROR: Phenotype file not found at $PHENO_FILE. Did T016 (preprocess_phenotype) run successfully?"
+    exit 1
+fi
+
+if [[ ! -f "$COV_FILE" ]]; then
+    echo "WARNING: Covariate file not found at $COV_FILE. Running GWAS without covariates. (T064 may not have run)"
+    COV_FLAG=""
+else
+    COV_FLAG="--covar $COV_FILE"
+fi
+
+OUTPUT_PREFIX="$INTERIM_DIR/gwas_raw"
+LOG_FILE="$INTERIM_DIR/gwas_execution.log"
+
+echo "Starting PLINK logistic regression at $(date)" | tee "$LOG_FILE"
+echo "Input Bed: $BED_FILE" | tee -a "$LOG_FILE"
+echo "Input Phenotype: $PHENO_FILE" | tee -a "$LOG_FILE"
+if [[ -n "$COV_FLAG" ]]; then
+    echo "Input Covariates: $COV_FILE" | tee -a "$LOG_FILE"
+fi
+
+# Execute PLINK 2.0 logistic regression
+# Using --logistic hide-covar to get standard output
+# --covar-name can be used if specific columns are needed, but default is all
+# Assuming phenotype column 1 is the target (CCD status)
+
+plink2 \
+    --bfile "$INTERIM_DIR/genotype" \
+    --pheno "$PHENO_FILE" \
+    --pheno-name CCD_Status \
+    --covar "$COV_FILE" \
+    --logistic hide-covar \
+    --out "$OUTPUT_PREFIX" \
+    2>&1 | tee -a "$LOG_FILE"
+
+# Verify output
+EXPECTED_OUTPUT="$OUTPUT_PREFIX.logistic"
+if [[ -f "$EXPECTED_OUTPUT" ]]; then
+    # PLINK outputs .logistic file. We need to rename/move to gwas_raw.tsv as per spec.
+    # The spec asks for `data/interim/gwas_raw.tsv`.
+    mv "$EXPECTED_OUTPUT" "$INTERIM_DIR/gwas_raw.tsv"
+    echo "Successfully wrote raw association statistics to $INTERIM_DIR/gwas_raw.tsv" | tee -a "$LOG_FILE"
+    
+    # Verify file is not empty
+    if [[ ! -s "$INTERIM_DIR/gwas_raw.tsv" ]]; then
+        echo "ERROR: Output file $INTERIM_DIR/gwas_raw.tsv is empty." | tee -a "$LOG_FILE"
+        exit 1
+    fi
+else
+    echo "ERROR: PLINK did not produce the expected output file." | tee -a "$LOG_FILE"
+    ls -la "$INTERIM_DIR" | tee -a "$LOG_FILE"
+    exit 1
+fi
+
+echo "GWAS execution completed successfully at $(date)" | tee -a "$LOG_FILE"
